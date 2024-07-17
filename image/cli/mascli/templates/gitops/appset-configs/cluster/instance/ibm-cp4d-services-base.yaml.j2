@@ -1,0 +1,8 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+
+ibm_cp4d_services_base:
+  ccs_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CCS_CHANNEL }}>"
+  datarefinery_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DATAREFINERY_CHANNEL }}>"
+  ws_runtimes_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WS_RUNTIMES_CHANNEL }}>"
+  opencontent_rabbitmq_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OPENCONTENT_RABBITMQ_CHANNEL }}>"
+  opencontent_elasticsearch_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OPENCONTENT_ELASTICSEARCH_CHANNEL }}>"

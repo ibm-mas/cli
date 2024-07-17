@@ -1,0 +1,123 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-suite-idp-config
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: ldap_url
+      type: string
+      default: ""
+    - name: ldap_basedn
+      type: string
+      default: ""
+    - name: ldap_userid_map
+      type: string
+      default: ""
+    - name: ldap_certificate_file
+      type: string
+      default: ""
+    - name: cluster_url
+      type: string
+      default: ""
+  stepTemplate:
+    name: gitops-suite-idp-config
+    env:
+      - name: CLUSTER_ID
+        value: $(params.cluster_name)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: ACCOUNT_ID
+        value: $(params.account)
+      - name: SECRETS_PATH
+        value: $(params.secrets_path)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: LDAP_URL
+        value: $(params.ldap_url)
+      - name: LDAP_BASEDN
+        value: $(params.ldap_basedn)
+      - name: LDAP_USERID_MAP
+        value: $(params.ldap_userid_map)
+      - name: LDAP_CERTIFICATE_FILE
+        value: $(params.ldap_certificate_file)
+
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        mkdir -p /tmp/init-suite-idp-config
+
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
+        --github-push \
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action upsert \
+        --mas-config-scope system \
+        --mas-config-type ldap-default \
+        --dir /tmp/init-suite-idp-config \
+        --ldap-url "$LDAP_URL" \
+        --ldap-basedn "$LDAP_BASEDN" \
+        --ldap-userid-map "$LDAP_USERID_MAP" \
+        --ldap-certificate-file /workspace/shared-additional-configs/ldap_masdeps1_cert.pem \
+        --ldap-bind-dn "$LDAP_BIND_DN" \
+        --ldap-bind-password "$LDAP_BIND_PASSWORD"
+
+        exit $?
+
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-suite-idp-config
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
+    - name: shared-additional-configs
+
+
+
+

@@ -1,0 +1,38 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root.{{ ACCOUNT_ID }}
+  namespace: {{ ARGOAPP_NAMESPACE }}
+spec:
+  destination:
+    namespace: {{ ARGOAPP_NAMESPACE }}
+    server: 'https://kubernetes.default.svc'
+  project: mas
+  source:
+    path: root-applications/ibm-mas-account-root
+    repoURL: 'https://github.com/ibm-mas/gitops'
+    targetRevision: {{ APP_REVISION }}
+    helm:
+      values: |
+        account:
+          id: "{{ ACCOUNT_ID }}"
+
+        generator:
+          repo_url: "{{ APP_REPO_URL }}"
+          revision: "{{ APP_REPO_REVISION }}"
+
+        source:
+          revision: "{{ APP_REVISION }}"
+        
+        argo:
+          namespace: "{{ ARGOAPP_NAMESPACE }}"
+
+        auto_delete: {{ true if AUTO_DELETE=="true" else false }}
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

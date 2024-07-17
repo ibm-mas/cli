@@ -1,0 +1,144 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-suite-smtp-config
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: smtp_host
+      type: string
+      default: ""
+    - name: smtp_port
+      type: string
+      default: ""
+    - name: smtp_security
+      type: string
+      default: ""
+    - name: smtp_authentication
+      type: string
+      default: ""
+    - name: smtp_default_sender_email
+      type: string
+      default: ""
+    - name: smtp_default_sender_name
+      type: string
+      default: ""
+    - name: smtp_default_recipient_email
+      type: string
+      default: ""
+    - name: smtp_default_should_email_passwords
+      type: string
+      default: ""
+    - name: cluster_url
+      type: string
+      default: ""
+  stepTemplate:
+    name: gitops-suite-smtp-config
+    env:
+      - name: CLUSTER_ID
+        value: $(params.cluster_name)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: ACCOUNT_ID
+        value: $(params.account)
+      - name: SECRETS_PATH
+        value: $(params.secrets_path)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SMTP_HOST
+        value: $(params.smtp_host)
+      - name: SMTP_PORT
+        value: $(params.smtp_port)
+      - name: SMTP_SECURITY
+        value: $(params.smtp_security)
+      - name: SMTP_AUTHENTICATION
+        value: $(params.smtp_authentication)
+      - name: SMTP_DEFAULT_SENDER_EMAIL
+        value: $(params.smtp_default_sender_email)
+      - name: SMTP_DEFAULT_SENDER_NAME
+        value: $(params.smtp_default_sender_name)
+      - name: SMTP_DEFAULT_RECIPIENT_EMAIL
+        value: $(params.smtp_default_recipient_email)
+      - name: SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS
+        value: $(params.smtp_default_should_email_passwords)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - args:
+      - |-
+        mkdir -p /tmp/init-suite-smtp-config
+
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        mas gitops-mas-config \
+        --account-id "$ACCOUNT_ID" \
+        --cluster-id "$CLUSTER_ID" \
+        --mas-instance-id "$MAS_INSTANCE_ID" \
+        --secrets-path "$SECRETS_PATH" \
+        --github-push \
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --config-action upsert \
+        --mas-config-scope system \
+        --mas-config-type smtp \
+        --dir /tmp/init-suite-smtp-config \
+        --smtp-host "$SMTP_HOST" \
+        --smtp-port "$SMTP_PORT" \
+        --smtp-security "$SMTP_SECURITY" \
+        --smtp-authentication "$SMTP_AUTHENTICATION" \
+        --smtp-default-sender-email "$SMTP_DEFAULT_SENDER_EMAIL" \
+        --smtp-default-sender-name "$SMTP_DEFAULT_SENDER_NAME" \
+        --smtp-default-recipient-email "$SMTP_DEFAULT_RECIPIENT_EMAIL" \
+        --smtp-default-should-email-passwords "$SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS"
+
+        exit $?
+        
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-suite-smtp-config
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
+
+
+
+
