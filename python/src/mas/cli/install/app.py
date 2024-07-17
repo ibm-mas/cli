@@ -175,7 +175,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configCP4D(self):
         # TODO: It's probably time to remove v8-amd64 support from the CLI entirely now
-        if self.getParam("mas_catalog_version") in ["v8-amd64", "v9-240625-amd64"]:
+        if self.getParam("mas_catalog_version") in ["v8-amd64", "v9-240625-amd64", "v9-240730-amd64"]:
             self.setParam("cpd_product_version", "4.8.0")
         elif self.getParam("mas_catalog_version") in ["v8-240528-amd64"]:
             self.setParam("cpd_product_version", "4.6.6")
@@ -812,7 +812,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installOptions = [
             {
                 "#": 1,
-                "catalog": "v9-240625-amd64",
+                "catalog": "v9-240730-amd64",
                 "release": "9.0.x",
                 "core": "9.0.0",
                 "assist": "9.0.0",
@@ -825,7 +825,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             },
             {
                 "#": 2,
-                "catalog": "v9-240625-amd64",
+                "catalog": "v9-240730-amd64",
                 "release": "8.11.x",
                 "core": "8.11.12",
                 "assist": "N/A",
@@ -838,6 +838,45 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             },
             {
                 "#": 3,
+                "catalog": "v9-240730-amd64",
+                "release": "8.10.x",
+                "core": "8.10.15",
+                "assist": "N/A",
+                "iot": "8.7.14",
+                "manage": "8.6.15",
+                "monitor": "8.10.11",
+                "optimizer": "8.4.7",
+                "predict": "N/A",
+                "inspection": "8.8.4"
+            },            
+            {
+                "#": 4,
+                "catalog": "v9-240625-amd64",
+                "release": "9.0.x",
+                "core": "9.0.0",
+                "assist": "9.0.0",
+                "iot": "9.0.0",
+                "manage": "9.0.0",
+                "monitor": "9.0.0",
+                "optimizer": "9.0.0",
+                "predict": "9.0.0",
+                "inspection": "9.0.0"
+            },
+            {
+                "#": 5,
+                "catalog": "v9-240625-amd64",
+                "release": "8.11.x",
+                "core": "8.11.12",
+                "assist": "N/A",
+                "iot": "8.8.10",
+                "manage": "8.7.9",
+                "monitor": "8.11.8",
+                "optimizer": "8.5.6",
+                "predict": "8.9.3",
+                "inspection": "8.9.3"
+            },
+            {
+                "#": 6,
                 "catalog": "v9-240625-amd64",
                 "release": "8.10.x",
                 "core": "8.10.15",
@@ -850,7 +889,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.8.4"
             },
             {
-                "#": 4,
+                "#": 7,
                 "catalog": "v8-240528-amd64",
                 "release": "8.11.x",
                 "core": "8.11.11",
@@ -863,7 +902,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.9.3"
             },
             {
-                "#": 5,
+                "#": 8,
                 "catalog": "v8-240528-amd64",
                 "release": "8.10.x",
                 "core": "8.10.14",
