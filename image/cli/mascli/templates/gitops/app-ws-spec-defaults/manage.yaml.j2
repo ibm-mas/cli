@@ -1,0 +1,33 @@
+mas_appws_spec:
+  bindings:
+    jdbc: workspace-application
+  components:
+    base: 
+      version: latest
+    health:
+      version: latest
+  settings:
+    aio:
+      install: true
+    db:
+      dbSchema: maximo
+      maxinst: 
+        demodata: true
+        db2Vargraphic: true
+        tableSpace: MAXDATA
+        indexSpace: MAXINDEX
+        bypassUpgradeVersionCheck: false
+    customizationList:
+    deployment:
+      persistentVolumes: []
+      serverBundles:
+        - bundleType: all
+          isDefault: true
+          isMobileTarget: true
+          isUserSyncTarget: true
+          name: all
+          replica: 1
+          routeSubDomain: all
+    languages:
+      baseLang: EN
+      secondaryLangs: []

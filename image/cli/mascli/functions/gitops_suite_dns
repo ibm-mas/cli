@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+
+function gitops_suite_dns_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops_suite_dns [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Options:
+  --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                   DNS Provider
+  --mas_domain ${COLOR_YELLOW}MAS_DOMAIN${TEXT_RESET}                       MAS domain
+  --cis-subdomain ${COLOR_YELLOW}CIS_SUBDOMAIN${TEXT_RESET}                 CIS subdomain
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID  
+  --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}           MAS_WORKSPACE_ID
+  --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}   MAS_MANUAL_CERT_MGMT
+  --cis-enhanced-security ${COLOR_YELLOW}CIS_ENHANCED_SECURITY${TEXT_RESET} CIS_ENHANCED_SECURITY
+  --cis-proxy ${COLOR_YELLOW}CIS_PROXY${TEXT_RESET}                         CIS_PROXY
+  --override-edge-certs ${COLOR_YELLOW}OVERRIDE_EDGE_CERTS${TEXT_RESET}     OVERRIDE_EDGE_CERTS
+  --cis-email ${COLOR_YELLOW}CIS_EMAIL${TEXT_RESET}                         CIS_EMAIL
+  --cis-crn ${COLOR_YELLOW}CIS_CRN${TEXT_RESET}                             CIS_CRN
+  --cis-apikey ${COLOR_YELLOW}CIS_APIKEY${TEXT_RESET}                       CIS_APIKEY
+  --mas-config-dir ${COLOR_YELLOW}MAS_CONFIG_DIR${TEXT_RESET}               MAS_CONFIG_DIR
+
+Other Commands:
+  -h, --help                                                                Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_suite_dns_noninteractive() {
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+
+      # DNS provider,  cis and route53 is supported to provision suite_dns
+      --dns-provider)
+        export DNS_PROVIDER=$1 && shift
+        ;;
+
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      --mas-config-dir)
+        export MAS_CONFIG_DIR=$1 && shift
+        ;;
+      --mas-workspace-id)
+        export MAS_WORKSPACE_ID=$1 && shift
+        ;;
+      --mas-domain)
+        export MAS_DOMAIN=$1 && shift
+        ;;
+      --mas-manual-cert-mgmt)
+        export MAS_MANUAL_CERT_MGMT=$1 && shift
+        ;;
+      --override-edge-certs)
+        export OVERRIDE_EDGE_CERTS=$1 && shift
+        ;;
+
+      # CIS specific
+      --cis-subdomain)
+        export CIS_SUBDOMAIN=$1 && shift
+        ;;
+      --cis-enhanced-security)
+        export CIS_ENHANCED_SECURITY=$1 && shift
+        ;;
+      --cis-proxy)
+        export CIS_PROXY=$1 && shift
+        ;;
+      --cis-email)
+        export CIS_EMAIL=$1 && shift
+        ;;
+      --cis-crn)
+        export CIS_CRN=$1 && shift
+        ;;
+      --cis-apikey)
+        export CIS_APIKEY=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_suite_dns_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_suite_dns_help  "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+  if [ $DNS_PROVIDER == 'cis' ]; then
+    if [ -z $CIS_SUBDOMAIN ] || [ -z $CIS_EMAIL ] || [ -z $CIS_CRN ] || [ -z $CIS_APIKEY ]; then
+      echo 'Missing required params for CIS provider, make sure to provide --cis-subdomain, --cis-email, --cis-crn and --cis-apikey'
+      exit 1
+    fi
+  fi
+
+}
+
+function gitops_suite_dns() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_suite_dns_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_suite_dns_interactive
+  fi
+
+  # catch errors
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  
+  echo_reset_dim "DNS Provider ............................ ${COLOR_MAGENTA}${DNS_PROVIDER}"
+  echo_reset_dim "MAS Domain .............................. ${COLOR_MAGENTA}${MAS_DOMAIN}"
+  echo_reset_dim "CIS SUB Domain .......................... ${COLOR_MAGENTA}${CIS_SUBDOMAIN}"
+  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "MAS Workspace Id ........................ ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
+  echo_reset_dim "mas_manual_cert_mgmt .................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
+  echo_reset_dim "cis_enhanced_security ................... ${COLOR_MAGENTA}${CIS_ENHANCED_SECURITY}"
+  echo_reset_dim "cis_proxy ............................... ${COLOR_MAGENTA}${CIS_PROXY}"
+  echo_reset_dim "override_edge_certs ..................... ${COLOR_MAGENTA}${OVERRIDE_EDGE_CERTS}"
+  echo_reset_dim "cis_email ............................... ${COLOR_MAGENTA}${CIS_EMAIL}"
+  echo_reset_dim "cis_crn ................................. ${COLOR_MAGENTA}${CIS_CRN}"
+  echo_reset_dim "cis_apikey .............................. ${COLOR_MAGENTA}${CIS_APIKEY:0:8}<snip>"
+  echo_reset_dim "mas_config_dir .......................... ${COLOR_MAGENTA}${MAS_CONFIG_DIR}"
+ 
+  export ROLE_NAME=suite_dns && ansible-playbook ibm.mas_devops.run_role
+
+  # workaround start - running CIS_ENHANCED_SECURITY with false as there is a failure noticed when ordering certificate with more than 50 hostnames 
+  export CIS_ENHANCED_SECURITY=false
+  export ROLE_NAME=suite_dns && ansible-playbook ibm.mas_devops.run_role
+  # workaround end - running CIS_ENHANCED_SECURITY with false as there is a failure noticed when ordering certificate with more than 50 hostnames
+
+  rc=$?
+  [ $rc -ne 0 ] && exit $rc
+
+  exit 0
+}

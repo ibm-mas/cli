@@ -1,0 +1,81 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-cos
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: cos_action
+      type: string
+    - name: cos_type
+      type: string
+    - name: ibmcloud_resourcegroup
+      type: string
+    - name: ibmcloud_apikey
+      type: string
+
+  stepTemplate:
+    name: gitops-cos
+    env:
+      - name: OCP_SERVER
+        value: $(params.cluster_url)
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: COS_ACTION
+        value: $(params.cos_action)
+      - name: COS_TYPE
+        value: $(params.cos_type)
+      - name: IBMCLOUD_RESOURCEGROUP
+        value: $(params.ibmcloud_resourcegroup)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
+  steps:
+    - args:
+      - |-
+        
+        export MAS_CONFIG_DIR=/workspace/configs/$MAS_INSTANCE_ID-cos
+        mkdir -p /workspace/configs/$MAS_INSTANCE_ID-cos
+        mkdir -p /tmp/init-cos
+        
+        mas gitops-cos -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/init-cos \
+        --secrets-path $SECRET_PATH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-cos
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs

@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+
+function gitops_license_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops-license [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Basic Configuration:
+  -a, --account_id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                        Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                        Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}              IBM Suite Maximo Application Suite Instance ID
+      --license-file ${COLOR_YELLOW}LICENSE_FILE${TEXT_RESET}                    Path to IBM SLS License File
+
+AWS Secrets Manager Configuration:
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_license_noninteractive() {
+  SECRETS_KEY_SEPERATOR="/"
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # Basic Configuration:
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      --license-file)
+        export LICENSE_FILE=$1 && shift
+        ;;
+
+      # AWS Secrets Manager Configuration:
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
+        ;;
+      --sm-aws-access-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --sm-aws-secret-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_license_help
+        ;;
+      *)
+        # unknown option
+        gitops_license_help  "Usage Error: Unsupported option \"${key}\" "
+        ;;
+      esac
+  done
+
+  [[ -z "$ACCOUNT_ID" ]] && gitops_license_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_license_help "CLUSTER_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_license_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$LICENSE_FILE" ]] && gitops_license_help "LICENSE_FILE is not set"
+
+}
+
+function gitops_license() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_license_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_license_interactive
+  fi
+
+  # catch errors
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h4 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "SLS License File" "    "
+  echo_reset_dim "SLS License File  .............. ${COLOR_MAGENTA}${LICENSE_FILE}"
+  reset_colors
+
+  AVP_TYPE=aws
+  sm_login
+
+  export SECRET_NAME_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}license
+
+  UNESCAPED_LICENSE="$(cat $LICENSE_FILE)"
+  ESCAPED_LICENSE=${UNESCAPED_LICENSE//\\/\\\\}
+  ESCAPED_LICENSE=${ESCAPED_LICENSE//\"/\\\"}
+  ESCAPED_LICENSE=${ESCAPED_LICENSE//$'\n'/\\n}
+  ESCAPED_LICENSE=${ESCAPED_LICENSE//$'\t'/\\t}
+  ESCAPED_LICENSE=${ESCAPED_LICENSE//$'\r'/''}
+
+  sm_update_secret $SECRET_NAME_LICENSE_FILE "{\"license_file\": \"$ESCAPED_LICENSE\"}"
+
+}

@@ -41,26 +41,26 @@ spec:
     # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
     # -------------------------------------------------------------------------
     # 1.1 IBM Operator Catalog
-    {{ lookup('template', 'taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
 
     # 1.2 IBM Cloud Pak Foundational Services
-    {{ lookup('template', 'taskdefs/cluster-setup/common-services.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/common-services.yml.j2') | indent(4) }}
       runAfter:
         - ibm-catalogs
 
     # 1.3 IBM Certificate Manager
-    {{ lookup('template', 'taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
       runAfter:
         - common-services
 
     # 2. Setup Db2
     # -------------------------------------------------------------------------
     # 2.1 System Db2
-    {{ lookup('template', 'taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
       runAfter:
         - cert-manager
 
     # 2.2 Dedicated Manage Db2
-    {{ lookup('template', 'taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
       runAfter:
         - db2-system
