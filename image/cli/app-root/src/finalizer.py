@@ -75,7 +75,7 @@ def buildHeader(title):
 # Build section block for Slack message
 # -----------------------------------------------------------------------------
 def buildSection(text):
-   return {
+  return {
     "type": "section",
     "text": {
       "type": "mrkdwn",
