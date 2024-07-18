@@ -116,6 +116,7 @@ function gitops_suite_dns() {
   fi
 
   # catch errors
+  set -eo pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   echo
