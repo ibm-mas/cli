@@ -75,7 +75,7 @@ def buildHeader(title):
 # Build section block for Slack message
 # -----------------------------------------------------------------------------
 def buildSection(text):
-    return {
+   return {
     "type": "section",
     "text": {
       "type": "mrkdwn",
@@ -176,7 +176,6 @@ def getcp4dCompsVersions():
     except Exception as e:
         print(f"Unable to determine Cognos Analytics version: {e}")
 
-
 # Script start
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":
@@ -223,7 +222,7 @@ if __name__ == "__main__":
     setObject = {
         "timestampFinished": datetime.utcnow()
     }
-    
+
     # Set CLI and ansible-devops version
     # -------------------------------------------------------------------------
     cliVersion = os.getenv("VERSION", "unknown")
@@ -415,7 +414,7 @@ if __name__ == "__main__":
 
     # Get Kafka Provider and Version
     # -------------------------------------------------------------------------
-    namespace = ''
+    namespace=''
     try:
         crs = dynClient.resources.get(api_version="config.mas.ibm.com/v1", kind="KafkaCfg")
         cr = crs.get(name=f"{instanceId}-kafka-system", namespace=f"mas-{instanceId}-core")
