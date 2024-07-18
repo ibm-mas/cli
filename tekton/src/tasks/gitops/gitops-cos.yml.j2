@@ -12,6 +12,8 @@ spec:
       default: ""
     - name: account
       type: string
+    - name: github_pat
+      type: string
     - name: secrets_path
       type: string
     - name: avp_aws_secret_region
@@ -42,6 +44,8 @@ spec:
         value: $(params.account)
       - name: SECRET_PATH
         value: $(params.secrets_path)
+      - name: GITHUB_PAT
+        value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: SM_AWS_SECRET_ACCESS_KEY
@@ -61,11 +65,77 @@ spec:
   steps:
     - args:
       - |-
-        
+        aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+        aws configure set default.region $(params.avp_aws_secret_region)
+
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        curl https://releases.hashicorp.com/terraform/1.9.2/terraform_1.9.2_linux_amd64.zip --output terraform_1.9.2_linux_amd64.zip
+        unzip ./terraform_1.9.2_linux_amd64.zip
+        chmod +x ./terraform
+
+        export TF_LOG=trace
+        export TF_INPUT=0
+
+        cat > main.tf <<EOF
+        locals {
+          name_prefix = "fvtsaas"
+        }
+
+        output "s3" {
+          value     = module.s3
+          sensitive = false
+        }
+
+        module "s3" {
+          source = "git::https://github.ibm.com/maximoappsuite/mas-iac-aws-s3/module"
+          name_prefix = local.name_prefix
+
+          s3_bucket               = "fvtsaas-s3"
+          s3_encryption           = true
+          s3_encryption_algorithm = "AES256"
+
+        }
+
+        output "s3_access_point" {
+          value     = module.s3_access_point
+          sensitive = false
+        }
+
+        module "s3_access_point" {
+          source = "git::https://github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point/module"
+          name_prefix = local.name_prefix
+
+          s3_access_point_bucket_id      = module.s3.s3_bucket_id
+          s3_access_point_name           = "fvtsaas-s3-access"
+          s3_access_point_policy_actions = ["s3:GetObject", "s3:ListBucket"]
+          s3_access_point_user           = "fvtsaas"
+          s3_access_point_bucket_region  = module.s3.s3_bucket_region
+          mas_cluster_id                 = "$CLUSTER_NAME"
+          mas_instance_id                = "$MAS_INSTANCE_ID"
+
+        }
+        EOF
+
+        cat > provider.tf <<EOF
+        provider "aws" {
+          region = "us-east-1"
+        }
+        EOF
+
+        ./terraform init -input-false
+        ./terraform plan -out=tfplan -input=false
+        # ./terraform plan -destroy -out=tfplan -input=false
+        ./terraform apply -input=false tfplan
+        # ./terraform apply -auto-approve -input=false tfplan
+
         export MAS_CONFIG_DIR=/workspace/configs/$MAS_INSTANCE_ID-cos
         mkdir -p /workspace/configs/$MAS_INSTANCE_ID-cos
         mkdir -p /tmp/init-cos
-        
+
         mas gitops-cos -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-cos \
         --secrets-path $SECRET_PATH
