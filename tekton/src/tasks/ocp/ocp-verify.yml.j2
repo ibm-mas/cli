@@ -27,6 +27,7 @@ spec:
       type: string
       default: ""
 
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
