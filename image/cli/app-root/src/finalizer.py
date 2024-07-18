@@ -10,9 +10,6 @@ from subprocess import PIPE, Popen, TimeoutExpired
 import threading
 from jira import JIRA
 
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
 class RunCmdResult(object):
     def __init__(self, returnCode, output, error):
         self.rc = returnCode
@@ -24,7 +21,6 @@ class RunCmdResult(object):
 
     def failed(self):
         return self.rc != 0
-
 
 def runCmd(cmdArray, timeout=630):
     """
@@ -47,37 +43,19 @@ def runCmd(cmdArray, timeout=630):
         except TimeoutExpired as e:
             return RunCmdResult(127, "TimeoutExpired", str(e))
 
-
 # Post message to Slack
 # -----------------------------------------------------------------------------
 def postMessage(channelName, messageBlocks, threadId=None):
     if threadId is None:
         print(f"Posting {len(messageBlocks)} block message to {channelName} in Slack")
-        response = sc.api_call(
-            "chat.postMessage",
-            channel=channelName,
-            blocks=messageBlocks,
-            mrkdwn=True,
-            parse="none",
-            as_user=True,
-        )
+        response = sc.api_call("chat.postMessage", channel=channelName, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True )
     else:
-        print(
-            f"Posting {len(messageBlocks)} block message to {channelName} on thread {threadId} in Slack"
-        )
-        response = sc.api_call(
-            "chat.postMessage",
-            channel=channelName,
-            thread_ts=threadId,
-            blocks=messageBlocks,
-            mrkdwn=True,
-            parse="none",
-            as_user=True,
-        )
+        print(f"Posting {len(messageBlocks)} block message to {channelName} on thread {threadId} in Slack")
+        response = sc.api_call("chat.postMessage", channel=channelName, thread_ts=threadId, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True )
 
-    if not response["ok"]:
-        print(response)
-        print("Failed to call Slack API")
+    if not response['ok']:
+      print(response)
+      print("Failed to call Slack API")
     return response
 
 
@@ -86,7 +64,11 @@ def postMessage(channelName, messageBlocks, threadId=None):
 def buildHeader(title):
     return {
         "type": "header",
-        "text": {"type": "plain_text", "text": title, "emoji": True},
+        "text": {
+            "type": "plain_text",
+                "text": title,
+                "emoji": True
+        },
     }
 
 
