@@ -170,7 +170,6 @@ function gitops_deprovision_suite() {
   fi
 
   # catch errors
-  set -eo pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -282,7 +281,7 @@ function gitops_deprovision_suite() {
 
   echo
   echo "- Delete MAS Suite"
-  rm ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml
+  rm -rf ${GITOPS_INSTANCE_DIR}/ibm-mas-suite.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
@@ -291,7 +290,7 @@ function gitops_deprovision_suite() {
 
   echo
   echo "- Delete SLS"
-  rm ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
+  rm -rf ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
@@ -300,7 +299,7 @@ function gitops_deprovision_suite() {
 
   echo
   echo "- Delete base MAS instance config"
-  rm ${GITOPS_INSTANCE_DIR}/ibm-mas-instance-base.yaml
+  rm -rf ${GITOPS_INSTANCE_DIR}/ibm-mas-instance-base.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"

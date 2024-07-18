@@ -152,7 +152,6 @@ function gitops_deprovision_app_config() {
   fi
 
   # catch errors
-  set -eo pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -240,7 +239,7 @@ function gitops_deprovision_app_config() {
     # If the file is there, but the configs are empty, delete the file
     CONFIGS_COUNT=$(yq '.ibm_mas_masapp_configs | length' $CONFIGS_FILE)
     if [ "${CONFIGS_COUNT}" == "0" ]; then
-      rm $CONFIGS_FILE
+      rm -rf $CONFIGS_FILE
     fi
   fi
   
@@ -252,9 +251,9 @@ function gitops_deprovision_app_config() {
   fi
 
   if [ "$MAS_APP_ID" == "manage" ]; then
-    rm ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config-no-activation.xml
-    rm ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config.xml
-    rm ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-jms-additional-server-config.xml
+    rm -rf ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config-no-activation.xml
+    rm -rf ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-additional-server-config.xml
+    rm -rf ${GITOPS_INSTANCE_DIR}/${MAS_INSTANCE_ID}-${MAS_APP_ID}-${MAS_WORKSPACE_ID}-manage-jms-additional-server-config.xml
   fi
 
   # Commit and push to github target repo

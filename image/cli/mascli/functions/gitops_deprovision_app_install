@@ -147,7 +147,6 @@ function gitops_deprovision_app_install() {
   fi
 
   # catch errors
-  set -eo pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -215,7 +214,7 @@ function gitops_deprovision_app_install() {
   # Delete ArgoApps
   # ---------------------------------------------------------------------------
   # Per MAS instance
-  rm ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-${MAS_APP_ID}-install.yaml
+  rm -rf ${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-${MAS_APP_ID}-install.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------

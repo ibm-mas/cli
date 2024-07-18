@@ -132,7 +132,6 @@ function gitops_deprovision_cluster() {
   fi
 
   # catch errors
-  set -eo pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -222,7 +221,7 @@ function gitops_deprovision_cluster() {
   echo_h2 "Deleting application configuration files"
 
   echo "- Delete Cluster Promotion"
-  rm ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
+  rm -rf ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
@@ -230,7 +229,7 @@ function gitops_deprovision_cluster() {
   fi
 
   echo "- Delete CIS Compliance"
-  rm ${GITOPS_CLUSTER_DIR}/cis-compliance.yaml
+  rm -rf ${GITOPS_CLUSTER_DIR}/cis-compliance.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
@@ -238,7 +237,7 @@ function gitops_deprovision_cluster() {
   fi
 
   echo "- Delete DRO"
-  rm ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
@@ -246,7 +245,7 @@ function gitops_deprovision_cluster() {
   fi
 
   echo "- Delete Redhat Cert manager"
-  rm ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
+  rm -rf ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
@@ -254,7 +253,7 @@ function gitops_deprovision_cluster() {
   fi
 
   echo "- Delete Nvidia GPU Operator"
-  rm ${GITOPS_CLUSTER_DIR}/nvidia-gpu-operator.yaml
+  rm -rf ${GITOPS_CLUSTER_DIR}/nvidia-gpu-operator.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
@@ -262,7 +261,7 @@ function gitops_deprovision_cluster() {
   fi
 
   echo "- Delete IBM Operator Catalog"
-  rm ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
@@ -270,7 +269,7 @@ function gitops_deprovision_cluster() {
   fi
 
   echo "- Delete base MAS cluster config"
-  rm ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"

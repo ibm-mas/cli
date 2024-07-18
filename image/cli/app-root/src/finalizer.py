@@ -260,6 +260,17 @@ if __name__ == "__main__":
     setObject["target.version"] = cliVersion
     setObject["target.ansibleDevopsVersion"] = ansibleDevopsVersion
 
+    # Set CLI and ansible-devops version
+    # -------------------------------------------------------------------------
+    cliVersion = os.getenv("VERSION", "unknown")
+    ansibleDevopsVersion = os.getenv("ANSIBLE_DEVOPS_VERSION", "unknown")
+
+    print(f"CLI Version ............ {cliVersion}")
+    print(f"mas_devops Version ..... {ansibleDevopsVersion}")
+
+    setObject["target.version"] = cliVersion
+    setObject["target.ansibleDevopsVersion"] = ansibleDevopsVersion
+
     # Lookup OCP version
     # -------------------------------------------------------------------------
     cvs = dynClient.resources.get(

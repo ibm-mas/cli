@@ -153,7 +153,6 @@ function gitops_deprovision_db2u_database() {
   fi
 
   # catch errors
-  set -eo pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -245,7 +244,7 @@ function gitops_deprovision_db2u_database() {
     # If the file is there, but the configs are empty, delete the file
     CONFIGS_COUNT=$(yq '.ibm_db2u_databases | length' $CONFIGS_FILE)
     if [ "${CONFIGS_COUNT}" == "0" ]; then
-      rm $CONFIGS_FILE
+      rm -rf $CONFIGS_FILE
     fi
   fi
 
