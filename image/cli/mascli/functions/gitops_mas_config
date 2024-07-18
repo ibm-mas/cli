@@ -427,6 +427,7 @@ function gitops_mas_config() {
   fi
 
   # catch errors
+  set -eo pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -780,7 +781,7 @@ function gitops_mas_config() {
     yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
     # Render the appropriate template for the config into a new file
-    jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-${MAS_CONFIG_TYPE}-config.yaml.j2 | yq '{"ibm_mas_suite_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+    jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-${MAS_CONFIG_TYPE}-config.yaml-fail.j2 | yq '{"ibm_mas_suite_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
 
     # Merge the two files
     yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
