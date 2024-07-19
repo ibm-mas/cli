@@ -10,10 +10,10 @@
 
 # Manage FVT Security Audit Logging
 - name: fvt-manage-base-ui-sec-audit-log
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: base-ui
     - name: fvt_test_suite
@@ -29,10 +29,10 @@
 
 # Manage FVT Inactive User Authentication
 - name: fvt-manage-base-ui-sec-inactive-auth
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: base-ui
     - name: fvt_test_suite
@@ -48,10 +48,10 @@
 
 # Manage FVT Kafka inbound
 - name: fvt-manage-base-ui-mif-kafka-inbound
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: base-ui
     - name: fvt_test_suite
@@ -67,10 +67,10 @@
 
 # Manage FVT Work Order Attachments
 - name: fvt-manage-base-ui-wo-doclink
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: base-ui
     - name: fvt_test_suite
@@ -86,12 +86,12 @@
 
 # Manage Direct Print Report Tasks
 - name: fvt-manage-base-ui-directprint
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   taskRef:
     kind: Task
     name: mas-fvt-manage-directprint
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
   runAfter:
     - fvt-manage-base-ui-escalation-action
     - fvt-manage-base-ui-jms-inbound

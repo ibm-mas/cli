@@ -1,0 +1,114 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-process-mongo-user
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: vpc_ipv4_cidr
+      type: string
+    - name: mongo_provider
+      type: string
+      default: aws
+    - name: user_action
+      type: string
+      default: add
+    - name: aws_key_pair_name
+      type: string
+      default: sre-key-pair
+    - name: ec2_linux_ami_id
+      type: string
+      default: ""
+  stepTemplate:
+    name: gitops-process-mongo-user
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: VPC_IPV4_CIDR
+        value: $(params.vpc_ipv4_cidr)
+      - name: MONGO_PROVIDER
+        value: $(params.mongo_provider)
+      - name: USER_ACTION
+        value: $(params.user_action)
+      - name: AWS_KEY_PAIR_NAME
+        value: $(params.aws_key_pair_name)
+      - name: EC2_LINUX_AMI_ID
+        value: $(params.ec2_linux_ami_id)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+        aws configure set default.region $(params.avp_aws_secret_region)
+
+        vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.[].Value')
+        if [ -z "$vpc_name" ]; then
+          # Needed if there is only one cluster in account
+          vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.Value')
+        fi
+        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
+
+        if [ -z "$VPC_ID" ]; then
+          echo "No VPC for $CLUSTER_NAME found, expected to find VPC exiting as error"
+          # Exit 0 here as we might be trying to cleanup something that is already cleaned up
+          exit 0
+        fi
+
+        if [ -z "$EC2_LINUX_AMI_ID" ]; then
+          export EC2_LINUX_AMI_ID=$(aws ec2 describe-images --region ${SM_AWS_REGION} --filters "Name=architecture,Values=x86_64" "Name=owner-alias,Values=amazon" "Name=description,Values='*Amazon Linux 202*'" "Name=name,Values='*-ami-202*'" --query 'sort_by(Images, &Name)[-1].ImageId')
+          echo 'EC2_LINUX_AMI_ID='$EC2_LINUX_AMI_ID
+        fi
+
+        if [ -z "$EC2_LINUX_AMI_ID" ]; then
+          echo "No EC2_LINUX_AMI_ID for $CLUSTER_NAME found, expected to find EC2_LINUX_AMI_ID exiting as error"
+          exit 1
+        fi
+
+        mas gitops-process-mongo-user -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        --secrets-path $SECRET_PATH \
+        --mongo-provider $MONGO_PROVIDER \
+        --user-action $USER_ACTION \
+        --aws-region $SM_AWS_REGION \
+        --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+        --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+        --aws-vpc-id $VPC_ID \
+        --aws-docdb-cluster-name docdb-$CLUSTER_NAME \
+        --aws-docdb-ingress-cidr $VPC_IPV4_CIDR \
+        --aws-docdb-egress-cidr $VPC_IPV4_CIDR \
+        --aws-ec2-cidr-az1 10.0.0.0/17 \
+        --aws-key-pair-name $AWS_KEY_PAIR_NAME \
+        --ec2-linux-ami-id $EC2_LINUX_AMI_ID
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-process-mongo-user
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs

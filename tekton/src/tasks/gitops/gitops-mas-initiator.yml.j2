@@ -1,0 +1,400 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-mas-initiator
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: region
+      type: string
+    - name: github_host
+      type: string
+    - name: target_git_branch
+      type: string
+    - name: target_github_org
+      type: string
+    - name: target_github_repo
+      type: string
+    - name: source_git_branch
+      type: string
+    - name: source_github_org
+      type: string
+    - name: source_github_repo
+      type: string
+    - name: source_path
+      type: string
+    - name: mas_channel
+      type: string
+    - name: mas_operationalmode
+      type: string
+    - name: mas_app_channel_assist
+      type: string
+    - name: mas_app_channel_iot
+      type: string
+    - name: mas_app_channel_manage
+      type: string
+    - name: mas_app_channel_monitor
+      type: string
+    - name: mas_app_channel_optimizer
+      type: string
+    - name: mas_app_channel_predict
+      type: string
+    - name: mas_app_channel_visualinspection
+      type: string
+    - name: github_pat
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_type
+      type: string
+      default: "aws"
+    - name: secrets_key_seperator
+      type: string
+      default: "/"
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
+    - name: manual_certs_control_flag
+      type: string
+      default: "true"
+    - name: dns_provider_control_iden
+      type: string
+      default: ""
+    - name: cli_version
+      type: string
+      default: ""
+    - name: fvt_ansible_version
+      type: string
+      default: ""
+    - name: artifactory_username
+      type: string
+      default: ""
+    - name: artifactory_token
+      type: string
+      default: ""
+  stepTemplate:
+    name: gitops-mas-initiator
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: REGION
+        value: $(params.region)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: TARGET_GIT_BRANCH
+        value: $(params.target_git_branch)
+      - name: TARGET_GITHUB_ORG
+        value: $(params.target_github_org)
+      - name: TARGET_GITHUB_REPO
+        value: $(params.target_github_repo)
+      - name: SOURCE_GIT_BRANCH
+        value: $(params.source_git_branch)
+      - name: SOURCE_GITHUB_ORG
+        value: $(params.source_github_org)
+      - name: SOURCE_GITHUB_REPO
+        value: $(params.source_github_repo)
+      - name: SOURCE_PATH
+        value: $(params.source_path)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+      - name: MAS_OPERATIONALMODE
+        value: $(params.mas_operationalmode)
+      - name: MAS_APP_CHANNEL_ASSIST
+        value: $(params.mas_app_channel_assist)
+      - name: MAS_APP_CHANNEL_IOT
+        value: $(params.mas_app_channel_iot)
+      - name: MAS_APP_CHANNEL_MANAGE
+        value: $(params.mas_app_channel_manage)
+      - name: MAS_APP_CHANNEL_MONITOR
+        value: $(params.mas_app_channel_monitor)
+      - name: MAS_APP_CHANNEL_OPTIMIZER
+        value: $(params.mas_app_channel_optimizer)
+      - name: MAS_APP_CHANNEL_PREDICT
+        value: $(params.mas_app_channel_predict)
+      - name: MAS_APP_CHANNEL_VISUALINSPECTION
+        value: $(params.mas_app_channel_visualinspection)
+      - name: GITHUB_PAT
+        value: $(params.github_pat)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
+      - name: SECRETS_PATH
+        value: $(params.secrets_path)
+      - name: AVP_TYPE
+        value: $(params.avp_type)
+      - name: SECRETS_KEY_SEPERATOR
+        value: $(params.secrets_key_seperator)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
+      - name: MANUAL_CERTS_CONTROL_FLAG
+        value: $(params.manual_certs_control_flag)
+      - name: DNS_PROVIDER_CONTROL_IDEN
+        value: $(params.dns_provider_control_iden)
+      - name: CLI_VERSION
+        value: $(params.cli_version)
+      - name: FVT_ANSIBLE_VERSION
+        value: $(params.fvt_ansible_version)
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
+  steps:
+    - args:
+      - |-
+
+        set -e -o pipefail
+
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        if [ "$ACCOUNT" != "aws-dev" ]; then
+          echo "Account is not aws-dev, this task is not allowed for $ACCOUNT"
+          exit 1
+        fi
+
+        if [ -n $IBMCLOUD_APIKEY ]; then
+
+          export SECRET_NAME=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}cis
+          export SECRET_VALUE="{\"ibm_apikey\":\"$IBMCLOUD_APIKEY\"}"
+
+          aws configure set aws_access_key_id ${SM_AWS_ACCESS_KEY_ID}
+          aws configure set aws_secret_access_key ${SM_AWS_SECRET_ACCESS_KEY}
+          aws configure set default.region $SM_AWS_REGION
+          export AWS_REGION=$SM_AWS_REGION
+          aws configure list
+          set +e +o pipefail
+          aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+          aws secretsmanager describe-secret --secret-id ${SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+          aws secretsmanager create-secret --name ${SECRET_NAME} --region $SM_AWS_REGION --secret-string "${SECRET_VALUE}" || exit 1
+
+          echo "created AWS secret secret ${SECRET_NAME} with value ${SECRET_VALUE:0:6}<snip> in region $SM_AWS_REGION"
+          set -e -o pipefail
+        fi
+
+        export TARGET_LOCAL_DIR="/tmp/target_repo"
+        mkdir -p $TARGET_LOCAL_DIR
+        cd $TARGET_LOCAL_DIR
+        echo "git: Cloning $GITHUB_HOST:$TARGET_GITHUB_ORG/$TARGET_GITHUB_REPO branch $TARGET_GIT_BRANCH into $TARGET_LOCAL_DIR working directory"
+        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$TARGET_GITHUB_ORG/$TARGET_GITHUB_REPO.git -b $TARGET_GIT_BRANCH || exit
+
+        export SOURCE_LOCAL_DIR="/tmp/source_repo"
+        mkdir -p $SOURCE_LOCAL_DIR
+        cd $SOURCE_LOCAL_DIR
+        echo "git: Cloning $GITHUB_HOST:$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO branch $SOURCE_GIT_BRANCH into $SOURCE_LOCAL_DIR working directory"
+        git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/$SOURCE_GITHUB_REPO.git -b $SOURCE_GIT_BRANCH || exit 
+
+        mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
+
+        echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME"
+        cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
+
+        echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
+        if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
+
+          mkdir -p $TARGET_LOCAL_DIR/manual-certs
+          cd $TARGET_LOCAL_DIR/manual-certs
+
+          git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$SOURCE_GITHUB_ORG/devops-configs.git -b master || exit
+
+          # Assume fvtsaas mas_instance here
+          mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
+
+          # Copy manual certs of fvtsaas mas_instance 
+          cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/fvtsaas/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
+
+          # Invoke create-aggregate-manual-certs.sh to generate combined_manual_certs.yaml
+
+          chmod +x $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh
+
+          $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/create-aggregate-manual-certs.sh  $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/manual-certs
+
+          # Remove manual-certs folder
+          rm -rf $TARGET_LOCAL_DIR/manual-certs
+        fi
+
+        cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
+
+        if [[ "${MANUAL_CERTS_CONTROL_FLAG}" != "true" ]]; then
+          yq -i 'del(.dns.manual_certs)' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+          echo "gitops-mas-initiator: removed .dns.manual_certs node"
+        fi
+
+        # Update the domain name in the mas-instance-params.yaml. Assume fvtsaas here
+        export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
+        export OCP_SERVER=$(cat $ROSA_CONFIG | yq '.data.api_url')
+        export DOMAIN=$(echo -n $OCP_SERVER | sed -n -e 's/^.*api.//p' | cut -d: -f1)
+        export MASDOMAIN=fvtsaas.apps.$DOMAIN
+        export APPSDOMAIN=apps.$DOMAIN
+
+        yq -i '.mas_instance.domain = env(MASDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+
+        # Update the ocp server url & ingress domain url in the cluster-params.yaml. Assume fvtsaas here
+        yq -i '.cluster.url = env(OCP_SERVER)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+        yq -i '.cluster.domain = env(APPSDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+
+        # Update the channel in the mas-instance-params.yaml. Assume fvtsaas here
+        yq -i '.mas_instance.channel = env(MAS_CHANNEL)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+
+        # Update the operationalmode in the mas-instance-params.yaml. Assume fvtsaas here
+        yq -i '.mas_instance.annotations."mas.ibm.com/operationalMode" = env(MAS_OPERATIONALMODE)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+
+        # Remove dns node when DNS_PROVIDER_CONTROL_IDEN is not set
+        if [ "${DNS_PROVIDER_CONTROL_IDEN}" == "" ]; then
+          yq -i 'del(.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+          yq -i 'del(.cluster.dns)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+          echo "gitops-mas-initiator: removed .dns / .cluster.dns node from gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml & gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
+        fi
+
+        # Deploy fvtsaas with CIS as DNS provider and Manual_certs=True on Mon, Tue, Wed, Thu, Fri
+        # Deploy fvtsaas with CIS as DNS provider and Manual_certs=False on Sun
+
+        yq -i '.mas_instance.manual_cert_mgmt = env(MANUAL_CERTS_CONTROL_FLAG)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-instance-params.yaml
+        echo "gitops-mas-initiator: .mas_instance.manual_cert_mgmt set to $MANUAL_CERTS_CONTROL_FLAG"
+
+        if [[ "${DNS_PROVIDER_CONTROL_IDEN}" == "cis" ]]; then
+          yq -i '.cluster.dns.provider = env(DNS_PROVIDER_CONTROL_IDEN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+          echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
+        fi
+
+        #customizationList customizationArchive credentials
+        if [ -f "gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/appws_spec_manage.yaml" ]; then
+
+          MAS_APPWS_SPEC_YAML=gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/appws_spec_manage.yaml
+          secret_names=$(yq eval '.mas_appws_spec.settings.customizationList | to_entries | .[].value.customizationArchiveCredentials.secretName' ${MAS_APPWS_SPEC_YAML})
+          for customization_archive_secret_name in ${secret_names[@]}; do
+
+            export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}fvtsaas${SECRETS_KEY_SEPERATOR}
+            export CUSTOMIZATION_ARCHIVE_SECRET_NAME=${CUSTOMIZATION_ARCHIVE_SECRET}${customization_archive_secret_name}
+            echo "gitops-mas-initiator: creating AWS SM with name :: ${CUSTOMIZATION_ARCHIVE_SECRET_NAME}"
+
+            if [[ -n "${ARTIFACTORY_USERNAME}" && -n "${ARTIFACTORY_TOKEN}" ]]; then
+              export SECRET_VALUE="{\"username\":\"${ARTIFACTORY_USERNAME}\",\"password\":\"${ARTIFACTORY_TOKEN}\"}"
+
+              aws configure set aws_access_key_id ${SM_AWS_ACCESS_KEY_ID}
+              aws configure set aws_secret_access_key ${SM_AWS_SECRET_ACCESS_KEY}
+              aws configure set default.region $SM_AWS_REGION
+              export AWS_REGION=$SM_AWS_REGION
+              aws configure list
+              set +e +o pipefail
+              aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+              aws secretsmanager describe-secret --secret-id ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --output json 2> /dev/null
+              aws secretsmanager create-secret --name ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} --region $SM_AWS_REGION --secret-string "${SECRET_VALUE}" || exit 1
+
+              echo "created AWS secret secret ${CUSTOMIZATION_ARCHIVE_SECRET_NAME} with value ${SECRET_VALUE:0:6}<snip> in region $SM_AWS_REGION"
+              set -e -o pipefail
+            else
+              echo "gitops-mas-initiator: ARTIFACTORY_USERNAME and/or ARTIFACTORY_TOKEN not set, exit with error"
+              exit 1
+            fi
+
+          done
+
+        fi
+        # Update the app channels in the mas-apps-params.yaml. Assume fvtsaas here
+        if [ -n $MAS_APP_CHANNEL_ASSIST ]; then
+          yq -i '(. | select(has("assist")) |  .assist.app_channel) = env(MAS_APP_CHANNEL_ASSIST)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+          # Assist not supported in v8 due to no CP4D WD support
+          if [[ "$MAS_APP_CHANNEL_ASSIST" =~ ^8\. ]]; then
+            yq -i 'del(.assist)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+            echo "gitops-mas-initiator: removed .assist node"
+            yq -i '.launchfvt.assist = false' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
+            echo "gitops-mas-initiator: set .launchfvt.assist to false"
+          fi
+        fi
+        if [ -n $MAS_APP_CHANNEL_IOT ]; then
+          yq -i '(. | select(has("iot")) |  .iot.app_channel) = env(MAS_APP_CHANNEL_IOT)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+        if [ -n $MAS_APP_CHANNEL_MANAGE ]; then
+          yq -i '(. | select(has("manage")) |  .manage.app_channel) = env(MAS_APP_CHANNEL_MANAGE)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+        if [ -n $MAS_APP_CHANNEL_MONITOR ]; then
+          yq -i '(. | select(has("monitor")) |  .monitor.app_channel) = env(MAS_APP_CHANNEL_MONITOR)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+        if [ -n $MAS_APP_CHANNEL_OPTIMIZER ]; then
+          yq -i '(. | select(has("optimizer")) |  .optimizer.app_channel) = env(MAS_APP_CHANNEL_OPTIMIZER)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+        if [ -n $MAS_APP_CHANNEL_PREDICT ]; then
+          yq -i '(. | select(has("predict")) |  .predict.app_channel) = env(MAS_APP_CHANNEL_PREDICT)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+        if [ -n $MAS_APP_CHANNEL_VISUALINSPECTION ]; then
+          yq -i '(. | select(has("visualinspection")) |  .visualinspection.app_channel) = env(MAS_APP_CHANNEL_VISUALINSPECTION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-apps-params.yaml
+        fi
+
+        # Update the cli_version and ansible_fvt ansible version if mas_fvt_params exists
+        if [ -f gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml ]; then
+          yq -i '.fvt.cli_version = env(CLI_VERSION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
+          yq -i '.fvt.ansible_version = env(FVT_ANSIBLE_VERSION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/fvtsaas/mas-fvt-params.yaml
+        fi
+
+        echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
+        FILES_ADDED_OUTPUT="$(git add -v .)"
+        return_code=$?
+        if [ $return_code -ne 0 ]; then
+          echo "git: Add files failed with error: $return_code"
+          exit $return_code
+        fi
+        export FILES_ADDED=$(echo "$FILES_ADDED_OUTPUT" | awk NF | wc -l | xargs)
+        echo "git: Added ${FILES_ADDED} files"
+
+        export COMMIT_MSG="gitops-initiator deploy for $CLUSTER_NAME"
+        if [ "$FILES_ADDED" != "0" ]; then
+          echo "git: Committing files using message $COMMIT_MSG"
+          git commit -m "$COMMIT_MSG" || exit 1
+          retries=5
+          interval=30
+          index=0
+          while true; do
+            echo "git: fetch origin $TARGET_GIT_BRANCH"
+            git fetch origin $TARGET_GIT_BRANCH || exit 1
+
+            echo "git: pull origin --rebase"
+            git pull origin --rebase || exit 1
+
+            echo "git: pull origin $TARGET_GIT_BRANCH --rebase"
+            git pull origin $TARGET_GIT_BRANCH --rebase || exit 1
+
+            echo "git: Pushing changes to branch $TARGET_GIT_BRANCH"
+            git push -u origin $TARGET_GIT_BRANCH
+            return_code=$?
+            if [ $return_code -eq 0 ]; then
+              echo "git: Pushing changes to branch $TARGET_GIT_BRANCH success"
+              sleep 10
+              break
+            fi
+          
+            if [[ ${index} -eq ${retries} ]]; then
+              echo "git: Pushing changes to branch $TARGET_GIT_BRANCH failed even after $retries retries, exit with error"
+              exit 1
+            fi
+            echo "git: Pushing changes to branch $TARGET_GIT_BRANCH failed, retry after $interval sec ..."      
+            sleep $interval
+            ((index++))
+          done
+        else
+          echo "No changes found so no commit made"
+        fi
+
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-mas-initiator
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs

@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+
+
+
+function gitops_efs_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops_efs [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Options:
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}               Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}     IBM Suite Maximo Application Suite Instance ID  
+  --aws-region ${COLOR_YELLOW}AWS_DEFAULT_REGION${TEXT_RESET}           AWS Region
+  --aws-access-key ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}        AWS Access Key ID
+  --aws-secret-key ${COLOR_YELLOW}AWS_SECRET_ACCESS_KEY${TEXT_RESET}    AWS Secret Access Key
+  --cloud-provider ${COLOR_YELLOW}CLOUD_PROVIDER${TEXT_RESET}           Cloud Provider
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_efs_noninteractive() {
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+
+      # Cloud provider, only aws is supported to provision efs
+      --cloud-provider)
+        export CLOUD_PROVIDER=$1 && shift
+        ;;
+
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      # AWS specific   
+      --aws-region)
+        export AWS_DEFAULT_REGION=$1 && shift
+        ;;
+      --aws-access-key)
+        export AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --aws-secret-key)
+        export AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_efs_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_efs_help  "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+  [[ -z "$CLOUD_PROVIDER" ]] && gitops_efs_help "CLOUD_PROVIDER is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_efs_help "CLUSTER_ID is not set"
+  #[[ -z "$MAS_INSTANCE_ID" ]] && gitops_efs_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$AWS_DEFAULT_REGION" ]] && gitops_efs_help "AWS_DEFAULT_REGION is not set"
+  [[ -z "$AWS_ACCESS_KEY_ID" ]] && gitops_efs_help "AWS_ACCESS_KEY_ID is not set"
+  [[ -z "$AWS_SECRET_ACCESS_KEY" ]] && gitops_efs_help "AWS_SECRET_ACCESS_KEY is not set"
+
+}
+
+function gitops_efs() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_efs_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_efs_interactive
+  fi
+
+  # catch errors
+  set -eo pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  
+  echo_reset_dim "Cloud Provider .......................... ${COLOR_MAGENTA}${CLOUD_PROVIDER}"
+  echo_reset_dim "Cluster ID .............................. ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"  
+  echo_reset_dim "AWS Region .............................. ${COLOR_MAGENTA}${AWS_DEFAULT_REGION}"
+  echo_reset_dim "AWS Access Key ....................... .. ${COLOR_MAGENTA}${AWS_ACCESS_KEY_ID:0:8}<snip>"
+  echo_reset_dim "AWS Secret Key........................... ${COLOR_MAGENTA}${AWS_SECRET_ACCESS_KEY:0:8}<snip>"
+ 
+  if [ $CLOUD_PROVIDER == 'aws' ]; then
+    AVP_TYPE=aws  # Support for IBM will be added later
+    sm_login
+
+    export CLUSTER_NAME=$CLUSTER_ID
+    export EFS_UNIQUE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
+    export ROLE_NAME=ocp_efs && ansible-playbook ibm.mas_devops.run_role
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
+  fi
+  exit 0
+}

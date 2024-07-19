@@ -61,9 +61,9 @@ spec:
     # 1. Core x Assist
     # -------------------------------------------------------------------------
     - name: ivtcore-assist
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
         - name: product_id
           value: ibm-mas-assist
         - name: product_channel
@@ -166,9 +166,9 @@ spec:
     # 4. Test NG - Desktop
     # -----------------------------------------------------------------------------
     - name: fvt-assist-testng-desktop
-      {{ lookup('template', 'taskdefs/fvt-assist/common/taskref-testng.yml.j2') | indent(6) }}
+      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/taskref-testng.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', 'taskdefs/fvt-assist/common/params-testng.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/params-testng.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: testng-assist-desktop
       runAfter:
@@ -178,9 +178,9 @@ spec:
     # 5. Test NG - Mobile
     # -----------------------------------------------------------------------------
     - name: fvt-assist-testng-mobile
-      {{ lookup('template', 'taskdefs/fvt-assist/common/taskref-testng.yml.j2') | indent(6) }}
+      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/taskref-testng.yml.j2') | indent(6) }}
       params:
-        {{ lookup('template', 'taskdefs/fvt-assist/common/params-testng.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/params-testng.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: testng-assist-mobile
         - name: assist_test_type

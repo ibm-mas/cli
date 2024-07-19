@@ -1,0 +1,89 @@
+
+function gitops_deprovision_rosa_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+mas gitops-deprovision-rosa [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Options:
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}      Cluster ID
+
+Other Commands:
+  -h, --help     Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_deprovision_rosa_noninteractive() {
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      # Show help
+      -h|--help)
+        gitops_deprovision_rosa_help
+        ;;
+      # Unknown option
+      *)
+        echo -e "\n${COLOR_RED}Usage Error: Unsupported flag \"${key}\" ${COLOR_OFF}\n\n"
+        gitops_deprovision_rosa_help "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+    esac
+  done
+  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_rosa_help "CLUSTER_ID is not set"
+  
+}
+
+function gitops_deprovision_rosa(){
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_deprovision_rosa_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_deprovision_rosa_interactive
+  fi
+
+  # catch errors
+  set -eo pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+  echo $CLUSTER_ID ">>>"
+  echo ""
+  echo "${TEXT_DIM}"
+  echo_h2 "Cluster Details" "    "
+  echo_reset_dim "Cluster Id ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "ROSA Token ..................... ${COLOR_MAGENTA}${ROSA_TOKEN:0:8}<snip>"
+  reset_colors
+
+  echo
+  echo_h2 "Deprovision Rosa Cluster"
+
+  if [[ -z $ROSA_TOKEN  ]]; then
+    echo_reset_dim "${COLOR_RED} ROSA_TOKEN is required. Export this environment variable before use this function"
+    exit 1
+  fi
+
+  if [[ -z $ROSA_CONFIG_DIR  ]]; then
+    CURRENT_DIR=$PWD
+    TEMP_DIR=$CURRENT_DIR/tmp-rosa-deprovision
+    rm -rf $TEMP_DIR
+    mkdir -p $TEMP_DIR
+    export ROSA_CONFIG_DIR=$TEMP_DIR
+  fi
+  export CLUSTER_NAME=${CLUSTER_ID}
+  export ROLE_NAME=ocp_deprovision
+  export CLUSTER_TYPE=rosa
+  ansible-playbook ibm.mas_devops.run_role
+}

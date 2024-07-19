@@ -28,6 +28,11 @@ spec:
       default: "false"
       description: "Set this to 'true' to enable synchronization with a running MAS install pipeline"
 
+    - name: run_finalize
+      type: string
+      default: "true"
+      description: "Set this to 'false' to stop the finalize task from running for this launcher"
+
     - name: launchfvt_core
       type: string
       default: "true"
@@ -881,6 +886,10 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-finalize
+      when:
+        - input: $(params.run_finalize)
+          operator: in
+          values: ["true", "True"]
 
   workspaces:
     # Shared storage to hold mustgather output for tasks

@@ -1,0 +1,23 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+account:
+  id: {{ ACCOUNT_ID }}
+
+region:
+  id: {{ REGION_ID }}
+
+cluster:
+  id: {{ CLUSTER_ID }}
+  url: {{ CLUSTER_URL }}
+
+sm:
+  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_access_key_id>"
+  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_secret_access_key>"
+
+notifications:
+  slack_channel_id: {{ SLACK_CHANNEL_ID }}
+
+{% if CUSTOM_LABELS is defined and CUSTOM_LABELS !='' %}
+custom_labels:
+  {{ CUSTOM_LABELS | indent(2) }}
+{% endif %}

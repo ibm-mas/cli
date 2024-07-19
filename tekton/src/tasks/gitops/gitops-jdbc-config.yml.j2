@@ -1,0 +1,125 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-jdbc-config
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: mas_app_id
+      type: string
+    - name: mas_config_scope
+      type: string
+    - name: mas_workspace_id
+      type: string
+      default: ""
+    - name: jdbc_type
+      type: string
+      default: incluster-db2
+    - name: jdbc_instance_name
+      type: string
+    - name: jdbc_connection_url
+      type: string
+      default: ""
+    - name: jdbc_certificate_file
+      type: string
+      default: ""
+  stepTemplate:
+    name: gitops-jdbc-config
+    env:
+      - name: CLUSTER_ID
+        value: $(params.cluster_name)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: ACCOUNT_ID
+        value: $(params.account)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: SECRETS_PATH
+        value: $(params.secrets_path)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+      - name: MAS_CONFIG_SCOPE
+        value: $(params.mas_config_scope)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+      - name: JDBC_TYPE
+        value: $(params.jdbc_type)
+      - name: JDBC_INSTANCE_NAME
+        value: $(params.jdbc_instance_name)
+      - name: JDBC_CONNECTION_URL
+        value: $(params.jdbc_connection_url)
+      - name: JDBC_CERTIFICATE_FILE
+        value: $(params.jdbc_certificate_file)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+        
+        mas gitops-mas-config \
+          --account-id "$ACCOUNT_ID" \
+          --cluster-id "$CLUSTER_ID" \
+          --mas-instance-id "$MAS_INSTANCE_ID" \
+          --mas-workspace-id "$MAS_WORKSPACE_ID" \
+          --mas-app-id "$MAS_APP_ID" \
+          --secrets-path "$SECRETS_PATH" \
+          --github-push \
+          --github-host "$GITHUB_HOST" \
+          --github-org "$GITHUB_ORG" \
+          --github-repo "$GITHUB_REPO" \
+          --git-branch "$GIT_BRANCH" \
+          --config-action upsert \
+          --mas-config-scope "$MAS_CONFIG_SCOPE" \
+          --mas-config-type jdbc \
+          --dir /tmp/init-jdbc-config-$MAS_APP_ID
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-jdbc-config
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
+    - name: shared-gitops-configs

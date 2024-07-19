@@ -1,0 +1,205 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+{% if wait_for_provision == true %}
+  name: gitops-mas-initiator-after-provision
+{% else %}
+  name: gitops-mas-initiator
+{% endif %}
+spec:
+  description: Initials the gitops deployment of MAS
+  workspaces:
+    - name: configs
+  params:
+{% if wait_for_provision == true %}
+      # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "False"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+{% endif %}
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: region
+      type: string
+    - name: github_host
+      type: string
+    - name: target_git_branch
+      type: string
+    - name: target_github_org
+      type: string
+    - name: target_github_repo
+      type: string
+    - name: source_git_branch
+      type: string
+    - name: source_github_org
+      type: string
+    - name: source_github_repo
+      type: string
+    - name: source_path
+      type: string
+      default: ""
+    - name: mas_channel
+      type: string
+    - name: mas_operationalmode
+      type: string
+      default: ""
+    - name: mas_app_channel_assist
+      type: string
+      default: ""
+    - name: mas_app_channel_iot
+      type: string
+      default: ""
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: mas_app_channel_monitor
+      type: string
+      default: ""
+    - name: mas_app_channel_optimizer
+      type: string
+      default: ""
+    - name: mas_app_channel_predict
+      type: string
+      default: ""
+    - name: mas_app_channel_visualinspection
+      type: string
+      default: ""
+    - name: github_pat
+      type: string
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
+    - name: avp_type
+      type: string
+      default: "aws"
+    - name: secrets_key_seperator
+      type: string
+      default: "/"
+
+    - name: manual_certs_control_flag
+      type: string
+      default: ""
+    - name: dns_provider_control_iden
+      type: string
+      default: ""
+
+    - name: cli_version
+      type: string
+      default: ""
+    - name: fvt_ansible_version
+      type: string
+      default: ""
+    - name: artifactory_username
+      type: string
+      default: ""
+    - name: artifactory_token
+      type: string
+      default: ""
+  tasks:
+{% if wait_for_provision == true %}
+    # 0. Wait for the provsion pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-provision
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+{% endif %}
+    - name: gitops-mas-initiator
+{% if wait_for_provision == true %}
+      runAfter:
+        - wait-for-provision
+{% endif %}
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: region
+          value: $(params.region)
+        - name: github_host
+          value: $(params.github_host)
+        - name: target_git_branch
+          value: $(params.target_git_branch)
+        - name: target_github_org
+          value: $(params.target_github_org)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
+        - name: avp_type
+          value: $(params.avp_type)
+        - name: secrets_key_seperator
+          value: $(params.secrets_key_seperator)
+        - name: target_github_repo
+          value: $(params.target_github_repo)
+        - name: source_git_branch
+          value: $(params.source_git_branch)
+        - name: source_github_org
+          value: $(params.source_github_org)
+        - name: source_github_repo
+          value: $(params.source_github_repo)
+        - name: source_path
+          value: $(params.source_path)
+        - name: mas_channel
+          value: $(params.mas_channel)
+        - name: mas_operationalmode
+          value: $(params.mas_operationalmode)
+        - name: mas_app_channel_assist
+          value: $(params.mas_app_channel_assist)
+        - name: mas_app_channel_iot
+          value: $(params.mas_app_channel_iot)
+        - name: mas_app_channel_manage
+          value: $(params.mas_app_channel_manage)
+        - name: mas_app_channel_monitor
+          value: $(params.mas_app_channel_monitor)
+        - name: mas_app_channel_optimizer
+          value: $(params.mas_app_channel_optimizer)
+        - name: mas_app_channel_predict
+          value: $(params.mas_app_channel_predict)
+        - name: mas_app_channel_visualinspection
+          value: $(params.mas_app_channel_visualinspection)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: manual_certs_control_flag
+          value: $(params.manual_certs_control_flag)
+        - name: dns_provider_control_iden
+          value: $(params.dns_provider_control_iden)
+        - name: cli_version
+          value: $(params.cli_version)
+        - name: fvt_ansible_version
+          value: $(params.fvt_ansible_version)
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_token
+          value: $(params.artifactory_token)
+      taskRef:
+        kind: Task
+        name: gitops-mas-initiator
+      workspaces:
+        - name: configs
+          workspace: configs

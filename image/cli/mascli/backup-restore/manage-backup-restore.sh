@@ -58,7 +58,7 @@ function checkForManualCertMgmt {
     if [ "$hasCertMgmt" == "true" ]; then
         hasCertMgmtValue=`(echo "$suiteYaml" | yq .spec.settings.manualCertMgmt)`
         if [ "$hasCertMgmtValue" == "true" ]; then
-            backupSingleResource Secret $MAS_INSTANCE_ID-$MAS_WORKSPACE_ID-cert-public-81
+            backupSingleResource Secret $MAS_INSTANCE_ID-$MAS_WORKSPACE_ID-cert-public-81 $MAS_MANAGE_NAMESPACE
         fi
     fi
 

@@ -1,0 +1,135 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+{% if wait_for_deprovision == true %}
+  name: gitops-provision-bootstrap-cluster-after-deprovision
+{% else %}
+  name: gitops-provision-bootstrap-cluster
+{% endif %}
+spec:
+  description: Provision and Bootstrap GitOps Cluster
+  workspaces:
+    - name: configs
+  params:
+{% if wait_for_deprovision == true %}
+      # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "False"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+{% endif %}
+    - name: cluster_name
+      type: string
+    - name: ocp_version
+      type: string
+    - name: account_id
+      type: string
+    - name: avp_type
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+
+    # 1. Gitops git Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
+    - name: github_revision
+      type: string
+    - name: app_revision
+      type: string
+    - name: github_url
+      type: string
+    - name: rosa_token
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: rosa_cluster_admin_password
+      type: string
+    - name: rosa_compute_nodes
+      type: string
+    - name: rosa_compute_machine_type
+      type: string
+
+  tasks:
+{% if wait_for_deprovision == true %}
+    # 0. Wait for the deprovsion pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-deprovision
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+{% endif %}
+    - name: gitops-rosa
+{% if wait_for_deprovision == true %}
+      runAfter:
+        - wait-for-deprovision
+{% endif %}
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: aws_region
+          value: $(params.avp_aws_secret_region)
+        - name: aws_secret_access_key
+          value: $(params.avp_aws_secret_key)
+        - name: aws_access_key_id
+          value: $(params.avp_aws_access_key)
+        - name: rosa_token
+          value: $(params.rosa_token)
+        - name: ocp_version
+          value: $(params.ocp_version)
+        - name: rosa_cluster_admin_password
+          value: $(params.rosa_cluster_admin_password)
+        - name: rosa_compute_nodes
+          value: $(params.rosa_compute_nodes)
+        - name: rosa_compute_machine_type
+          value: $(params.rosa_compute_machine_type)
+      taskRef:
+        kind: Task
+        name: gitops-rosa
+      workspaces:
+        - name: configs
+          workspace: configs
+    - name: gitops-bootstrap
+      runAfter:
+        - gitops-rosa
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account_id
+          value: $(params.account_id)
+        - name: avp_type
+          value: $(params.avp_type)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: github_url
+          value: $(params.github_url)
+        - name: github_revision
+          value: $(params.github_revision)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: app_revision
+          value: $(params.app_revision)
+      taskRef:
+        kind: Task
+        name: gitops-bootstrap
+      workspaces:
+        - name: configs
+          workspace: configs

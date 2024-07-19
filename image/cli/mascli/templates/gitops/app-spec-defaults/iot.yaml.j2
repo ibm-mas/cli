@@ -1,0 +1,22 @@
+mas_app_spec:
+  bindings:
+    jdbc: system
+    mongo: system
+    kafka: system
+  components: {}
+  settings:
+    deployment:
+      size: small
+    messagesight:
+      storage:
+        class: {{ DEFAULT_BLOCK_STORAGE_CLASS }}  
+        size: 100Gi
+    fpl:
+      functionsexecutor:
+        storage:
+          class: {{ DEFAULT_BLOCK_STORAGE_CLASS }}
+          size: 100Gi
+      pipelinerouter:
+        storage:
+          class: {{ DEFAULT_BLOCK_STORAGE_CLASS }}
+          size: 100Gi

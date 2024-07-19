@@ -9,10 +9,10 @@
 
 # Manage FVT Classification
 - name: fvt-manage-base-ui-classification
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: base-ui
     - name: fvt_test_suite
@@ -23,10 +23,10 @@
 
 # Manage FVT Help Links
 - name: fvt-manage-base-ui-helplinks
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite_prefix
       value: base-ui
     - name: fvt_test_suite

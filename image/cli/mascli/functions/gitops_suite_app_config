@@ -1,0 +1,551 @@
+#!/usr/bin/env bash
+
+function gitops_suite_app_config_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops_suite_app_config [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+GitOps Configuration:
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                 Account name that the cluster belongs to
+  -r, --region ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                 Cluster ID
+      --gitops-config-dir ${COLOR_YELLOW}GITOPS_CONFIG_DIR${TEXT_RESET}                                   Directory that holds configuration to use
+
+IBM CP4D Service/Predict:
+  --cpd-product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                                  CP4D Product Version
+  --cpd-instance-namespace ${COLOR_YELLOW}CPD_INSTANCE_NAMESPACE${TEXT_RESET}                            CP4D Instance namespace to use
+  --cpd-wsl-project-id ${COLOR_YELLOW}CPD_WSL_PROJECT_ID${TEXT_RESET}                                    CP4D WSL Project ID to use for Predict
+  --cpd-wml-url ${COLOR_YELLOW}CPD_WML_URL${TEXT_RESET}                                                  CP4D WML URL to use for Predict
+  --cpd-wml-instance-id ${COLOR_YELLOW}CPD_WML_INSTANCE_ID${TEXT_RESET}                                  CP4D WML Instance id to use for Predict
+
+Maximo Application Suite:
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                       IBM Suite Maximo Application Suite Instance ID
+  -W, --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}                                     IBM Suite Maximo Application Suite workspace ID  
+  --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                                                     IBM Suite Maximo Application Suite Application ID
+  --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                                                 IBM Suite Maximo Application Suite Application Kind
+  --mas-appws-spec-yaml ${COLOR_YELLOW}MAS_APPWS_SPEC_YAML${TEXT_RESET}                                   Yaml file location containing IBM Suite Maximo Application Suite Application Spec
+  --mas-appws-api-version ${COLOR_YELLOW}MAS_APPWS_API_VERSION${TEXT_RESET}                               IBM Suite Maximo Application Suite Application Workspace API Version
+  --mas-appws-kind ${COLOR_YELLOW}MAS_APPWS_KIND${TEXT_RESET}                                             IBM Suite Maximo Application Suite Application Workspace Kind
+  --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}                                 MAS Manual Cert Management
+  --mas-manual-certs-yaml ${COLOR_YELLOW}MAS_MANUAL_CERTS_YAML${TEXT_RESET}                               YAML file location containing combined MAS Manual Certs of manage app
+
+  Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
+  where key is <<app>>_<<filename . replaced by _>> name and value will be base64 encoded of the respective ca/tls file, 
+    manual_certs:
+      manage_tls_crt: <<base64 enc of core tls.crt>>
+      manage_tls_key: <<base64 enc of core tls.key>>
+      manage_ca_crt: <<base64 enc of core ca.crt>>
+
+Maximo Manage:
+  --mas-app-server-bundles-combined-add-server-config-yaml ${COLOR_YELLOW}MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML${TEXT_RESET} yaml file location containing Combined additional Server Configuration for server bundles
+  Below is a sample yaml file template representing mas_app_server_bundles_combined_add_server_config dictionary ( key: << value base64 encoded content of server config xml >>) 
+  where key is secret name and value will be base64 encoded of the server config xml file with which the k8s secret needs to be created
+
+    mas_app_server_bundles_combined_add_server_config:
+      masdev-manage-d-sb0ascsn: <<base64 encoded content of masdev-manage-dsb0asc-sn.xml>>
+      masdev-manage-d-sb1ascsn: <<base64 encoded content of masdev-manage-dsb1asc-sn.xml>>
+      ...
+      masdev-manage-d-sbNascsn: <<base64 encoded content of masdev-manage-dsbNasc-sn.xml>>
+
+
+Secrets Manager:
+  --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                 Secrets Manager path
+  --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                               Secrets Manager key seperator string
+
+Automatic GitHub Push:
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                                               Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}                                               GitHub Hostname for your GitOps repository
+  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}                                                Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}                                               Github repo for your GitOps repository
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}                                                 Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}                                         Git commit message to use when committing to of your GitOps repository
+  -S , --github-ssh  ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}                                                  Git ssh key path
+
+Other Commands:
+  -h, --help                                                                                              Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_suite_app_config_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPERATOR="/"
+  GIT_COMMIT_MSG="gitops-suite-app-config commit"
+
+  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export REGION=${REGION:-${SM_AWS_REGION}}
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
+
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -g|--gitops-version)
+        echo "${COLOR_YELLOW}WARNING: the -g|--gitops-version parameter is deprecated; it has no effect and will be removed in a future release${COLOR_RESET}"
+        shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
+        ;;
+      -u|--cluster-url)
+        export CLUSTER_URL=$1 && shift
+        ;;
+      --mas-manual-cert-mgmt)
+        export MAS_MANUAL_CERT_MGMT=$1 && shift
+        ;;
+      --mas-manual-certs-yaml)
+        export MAS_MANUAL_CERTS_YAML=$1 && shift
+        ;;
+      --gitops-config-dir)
+        export GITOPS_CONFIG_DIR=$1 && shift
+        ;;
+
+      # CP4D Service
+      --cpd-product-version)
+        export CPD_PRODUCT_VERSION=$1 && shift
+        ;;
+      --cpd-instance-namespace)
+        export CPD_INSTANCE_NAMESPACE=$1 && shift
+        ;;
+      --cpd-wsl-project-id)
+        export CPD_WSL_PROJECT_ID=$1 && shift
+        ;;
+      --cpd-wml-url)
+        export CPD_WML_URL=$1 && shift
+        ;;
+      --cpd-wml-instance-id)
+        export CPD_WML_INSTANCE_ID && shift
+        ;;
+
+      # Secrets Manager
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+
+      # MAS
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      -W|--mas-workspace-id)
+        export MAS_WORKSPACE_ID=$1 && shift
+        ;;
+      --mas-app-id)
+        export MAS_APP_ID=$1 && shift
+        ;;
+      --mas-app-kind)
+        export MAS_APP_KIND=$1 && shift
+        ;;
+      --mas-appws-api-version)
+        export MAS_APPWS_API_VERSION=$1 && shift
+        ;;
+      --mas-appws-kind)
+        export MAS_APPWS_KIND=$1 && shift
+        ;;
+      --mas-appws-spec-yaml)
+        export MAS_APPWS_SPEC_YAML=$1 && shift
+        ;;
+      # Maximo Manage
+      --mas-app-server-bundles-combined-add-server-config-yaml)
+        export MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML=$1 && shift
+        ;;
+
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_suite_app_config_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_suite_app_config_help "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+  [[ -z "${ACCOUNT_ID}" ]] && gitops_suite_app_config_help "ACCOUNT_ID is not set"
+  [[ -z "$REGION" ]] && gitops_suite_app_config_help "REGION is not set"
+  [[ -z "${CLUSTER_ID}" ]] && gitops_suite_app_config_help "CLUSTER_ID is not set"
+
+  [[ -z "${MAS_INSTANCE_ID}" ]] && gitops_suite_app_config_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_suite_app_config_help "MAS_WORKSPACE_ID is not set"
+  [[ -z "${MAS_APP_ID}" ]] && gitops_suite_app_config_help "MAS_APP_ID is not set"
+  [[ -z "${MAS_APP_KIND}" ]] && gitops_suite_app_config_help "MAS_APP_KIND is not set"
+  [[ -z "${MAS_APPWS_API_VERSION}" ]] && gitops_suite_app_config_help "MAS_APPWS_API_VERSION is not set"
+  [[ -z "${MAS_APPWS_KIND}" ]] && gitops_suite_app_config_help "MAS_APPWS_KIND is not set"
+
+  if [[ "${MAS_APP_ID}" == "manage" || "${MAS_APP_ID}" == "health" ]]; then
+    [[ -z "${DEFAULT_FILE_STORAGE_CLASS}" || "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_FILE_STORAGE_CLASS is not set"
+  fi
+
+  if [[ -z "${MAS_APPWS_SPEC_YAML}" ]]; then
+    if [[ "${MAS_APP_ID}" == "manage" || "${MAS_APP_ID}" == "health" ]]; then
+      [[ -z "${DEFAULT_FILE_STORAGE_CLASS}" || "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_FILE_STORAGE_CLASS is not set"
+    fi
+  fi
+
+  if [[ "${GITHUB_PUSH}" == "true" ]]; then
+    [[ -z "${GITHUB_HOST}" ]] && gitops_suite_app_config_help "GITHUB_HOST is not set"
+    [[ -z "${GITHUB_ORG}" ]] && gitops_suite_app_config_help "GITHUB_ORG is not set"
+    [[ -z "${GITHUB_REPO}" ]] && gitops_suite_app_config_help "GITHUB_REPO is not set"
+    [[ -z "${GIT_BRANCH}" ]] && gitops_suite_app_config_help "GIT_BRANCH is not set"
+  fi
+
+}
+
+function gitops_suite_app_config() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_suite_app_config_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_suite_app_config_interactive
+  fi
+
+  # catch errors
+  set -eo pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  mkdir -p ${GITOPS_WORKING_DIR}
+  rm -rf $GITOPS_WORKING_DIR/$GITHUB_REPO
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-configs.yaml"
+  export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
+
+  # NOTE: must align with lock branch name used by gitops_deprovision_app_config script
+  # as both of these scrtipts modify the same file
+  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-masapp-config" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$CURRENT_DIR/tmp-suite-app-config
+  rm -rf $TEMP_DIR
+  mkdir -p $TEMP_DIR
+
+  export CPD_INSTANCE_NAMESPACE=${CPD_INSTANCE_NAMESPACE:-"ibm-cpd-${MAS_INSTANCE_ID}-instance"}
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID .............................. ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region .................................. ${COLOR_MAGENTA}${REGION}"
+  echo_reset_dim "Cluster ID .............................. ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Application Directory ................... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "Config Directory ........................ ${COLOR_MAGENTA}${GITOPS_CONFIG_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Secrets Manager" "    "
+  echo_reset_dim "Secrets Path ............................ ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host .................................. ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Maximo Application Suite" "    "
+  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Application ID .......................... ${COLOR_MAGENTA}${MAS_APP_ID}"
+  echo_reset_dim "Application WS API Version .............. ${COLOR_MAGENTA}${MAS_APPWS_API_VERSION}"
+  echo_reset_dim "Application WS Kind ..................... ${COLOR_MAGENTA}${MAS_APPWS_KIND}"
+  echo_reset_dim "Application WS Spec Yaml file ........... ${COLOR_MAGENTA}${MAS_APPWS_SPEC_YAML}"
+  echo_reset_dim "Combined additional server configs ...... ${COLOR_MAGENTA}${MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML}"
+
+  if [[ -n "$MAS_APPWS_SPEC_YAML" ]] && [[ -s "$MAS_APPWS_SPEC_YAML" ]]; then
+    echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}False"
+  else
+    echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}True"
+  fi
+  echo_reset_dim "Workspace ID ............................ ${COLOR_MAGENTA}${MAS_WORKSPACE_ID}"
+  echo_reset_dim "Default File Storage Class .............. ${COLOR_MAGENTA}${DEFAULT_FILE_STORAGE_CLASS}"
+
+  echo_reset_dim "CPD_WSL_PROJECT_ID ...................... ${COLOR_MAGENTA}${CPD_WSL_PROJECT_ID}"
+  echo_reset_dim "CPD_PRODUCT_VERSION ..................... ${COLOR_MAGENTA}${CPD_PRODUCT_VERSION}"
+  echo_reset_dim "CPD_WML_URL ............................. ${COLOR_MAGENTA}${CPD_WML_URL}"
+  echo_reset_dim "CPD_WML_INSTANCE_ID ..................... ${COLOR_MAGENTA}${CPD_WML_INSTANCE_ID}"
+
+  echo_reset_dim "MAS Manual Cert Mgt ..................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
+  echo_reset_dim "MAS MANUAL CERTS YAML ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"  
+
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "CP4D Service" "    "
+  echo_reset_dim "CPD_PRODUCT_VERSION  ........................ ${COLOR_MAGENTA}${CPD_PRODUCT_VERSION}"
+  echo_reset_dim "CPD_INSTANCE_NAMESPACE  ..................... ${COLOR_MAGENTA}${CPD_INSTANCE_NAMESPACE}"
+  reset_colors
+
+  # Set up Suite secrets
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Configuring Suite secrets"
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+
+
+  # Define cluster-level secrets used
+  # ---------------------------------------------------------------------------
+  # Note that this cluster-level secret is set up by gitops-cluster
+
+
+
+  # Get the cluster-level secrets used
+  # ---------------------------------------------------------------------------
+  # Note that this cluster-level secret is set up by gitops-mongo
+
+
+
+  # Instance-level secrets to use
+  # ---------------------------------------------------------------------------
+
+  # Instance-level secrets to create
+  # ---------------------------------------------------------------------------
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
+
+  export CUSTOMIZATION_ARCHIVE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}
+
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  INSTANCE_ROOT_APP="instance.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  MASAPP_APP="${MAS_WORKSPACE_ID}.${MAS_APP_ID}.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+  validate_app_name "${INSTANCE_ROOT_APP}"
+  validate_app_name "${MASAPP_APP}"
+
+
+  # Getting app spec, either default or provided
+  # ---------------------------------------------------------------------------
+
+
+  export ADDITIONAL_JINJA_PARAMS_FILE="$TEMP_DIR/additional-jinja-params.yaml"
+  echo "{}" > $ADDITIONAL_JINJA_PARAMS_FILE
+
+  if [[ ( -z "${MAS_APPWS_SPEC_YAML}" || ! -s "${MAS_APPWS_SPEC_YAML}" ) && "${MAS_APP_ID}" == "predict" ]]; then
+    echo "- Configuring for Predict App"
+
+    export CPD_WSL_PROJECT_ID_FILE=$TEMP_DIR/cpd-wsl-project-id-file.json
+    export CPD_WSL_PROJECT_NAME=wsl-mas-${MAS_INSTANCE_ID}-predict
+
+    wait_period=0
+    while true; do
+      wait_period=$(($wait_period+300))
+      if [ $wait_period -gt 15000 ]; then
+        echo "CPD_WSL_PROJECT_ID is empty after 4 hours and 10 minutes of waiting. Exiting..."
+        exit 1
+      else
+        sleep 300
+      fi
+
+      if [ -z "${CPD_WSL_PROJECT_ID}" ]; then
+        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${CPD_WSL_PROJECT_NAME} ${CPD_WSL_PROJECT_ID_FILE}
+        CPD_WSL_PROJECT_ID=$(jq -r .wsl_project_id ${CPD_WSL_PROJECT_ID_FILE})
+      fi
+
+      if [[ -n "${CPD_WSL_PROJECT_ID}" ]]; then
+        echo "- CPD_WSL_PROJECT_ID ${CPD_WSL_PROJECT_ID} is available in AWS SM, Ready to move on..."
+        break
+      fi
+    done
+
+    if [ -z "${CPD_WML_URL}" ]; then
+      export CPD_WML_URL="https://internal-nginx-svc.${CPD_INSTANCE_NAMESPACE}.svc.cluster.local:12443"
+    fi
+    if [ -z "${CPD_WML_INSTANCE_ID}" ]; then
+      export CPD_WML_INSTANCE_ID="openshift"
+    fi
+
+    echo "- CPD_WSL_PROJECT_ID=${CPD_WSL_PROJECT_ID}"
+    echo "- CPD_WML_URL=${CPD_WML_URL}"
+    echo "- CPD_WML_INSTANCE_ID=${CPD_WML_INSTANCE_ID}"
+    echo "- CPD_PRODUCT_VERSION=${CPD_PRODUCT_VERSION}"
+
+    if [ -n "${CPD_PRODUCT_VERSION}" ]; then
+      DOTS_COUNT=$(echo $CPD_PRODUCT_VERSION | grep -o "\." | wc -l)
+      echo $DOTS_COUNT
+
+      if [ ${DOTS_COUNT} -gt 1 ]; then
+        export CPD_PRODUCT_VERSION=${CPD_PRODUCT_VERSION%.*}
+        echo CPD_PRODUCT_VERSION=$CPD_PRODUCT_VERSION
+      fi
+    fi
+  fi
+
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    # only create the lock branch if we plan to actually push changes to git
+    clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
+  else
+    # even though we don't want to push anything to git,
+    # because this script modifies the existing suite-configs.yaml file, we still need to checkout the repo
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_INSTANCE_DIR}
+
+  # The combined YAML file will have mas_app_server_bundles_combined_add_server_config dict with key as secret name and value as  base64 encoded content of server config xml file with which k8s secret will be created
+  if [[ -n "$MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML" ]] && [[ -s "$MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML" ]]; then
+    echo
+    echo_h2 "Server bundles Combined additional server config provided for $MAS_APP_ID at $MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML"
+    export MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG=$(cat ${MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML} | yq '.' --output-format yaml)
+    echo "- MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG CONTENT ${MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG}"
+  fi
+
+  if [[ -n "$MAS_APPWS_SPEC_YAML" ]] && [[ -s "$MAS_APPWS_SPEC_YAML" ]]; then
+    echo
+    echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APPWS_SPEC_YAML"
+    export MAS_APPWS_SPEC=$(cat ${MAS_APPWS_SPEC_YAML} | yq '.' --output-format yaml)
+    yq eval '.mas_appws_spec.settings.customizationList  | to_entries | .[].value.customizationArchiveCredentials.secretName | [] + .' ${MAS_APPWS_SPEC_YAML} | yq '{"CUSTOMIZATION_ARCHIVE_SECRET_NAMES": [] + .}'  > $ADDITIONAL_JINJA_PARAMS_FILE
+    export MANAGE_ATTACHMENTS_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.db.attachmentProvider.providerCredentials.secretName // ""' ${MAS_APPWS_SPEC_YAML})
+    export MANAGE_LOGGING_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.deployment.loggingS3Destination.secretKey.secretName // ""' ${MAS_APPWS_SPEC_YAML})
+    export MANAGE_ATTACHMENTS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_logging${SECRETS_KEY_SEPERATOR}
+    export MANAGE_LOGGING_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_attachments${SECRETS_KEY_SEPERATOR}
+  else
+    echo
+    echo_h2 "Using default application spec for $MAS_APP_ID"
+    jinja -X .+ $CLI_DIR/templates/gitops/app-ws-spec-defaults/${MAS_APP_ID}.yaml.j2 -o ${TEMP_DIR}/${MAS_APP_ID}-appws-spec.yaml
+    export MAS_APPWS_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-appws-spec.yaml | yq '.' --output-format yaml)
+  fi
+  echo 
+  echo "- MAS_APPWS_SPEC CONTENT ${MAS_APPWS_SPEC}"
+  export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
+
+  # Set certs only if manual cert is True (to create k8s secret in gitops) only required for manage
+  # ---------------------------------------------------------------------------
+  if [ "${MAS_MANUAL_CERT_MGMT}" == "true" ] ; then
+    if [[ -n "$MAS_MANUAL_CERTS_YAML" ]] && [[ -s "$MAS_MANUAL_CERTS_YAML" ]]; then
+
+      declare -A tls_secret_name
+      tls_secret_name['health']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
+      tls_secret_name['manage']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
+      
+      if [[ -n "${tls_secret_name[$MAS_APP_ID]}" ]]; then
+
+        echo
+        echo_h2 "Read manual cert files for app ${MAS_APP_ID} from file ${MAS_MANUAL_CERTS_YAML}, and set to gitops template"
+
+        tls_crt_filter_query=.manual_certs.${MAS_APP_ID}_tls_crt
+        tls_key_filter_query=.manual_certs.${MAS_APP_ID}_tls_key
+        ca_crt_filter_query=.manual_certs.${MAS_APP_ID}_ca_crt
+
+        export PUBLIC_TLS_SECRET_NAME=${tls_secret_name[$MAS_APP_ID]}
+        export TLS_CERT=$(yq eval "$tls_crt_filter_query" ${MAS_MANUAL_CERTS_YAML})
+        export TLS_KEY=$(yq eval  "$tls_key_filter_query" ${MAS_MANUAL_CERTS_YAML})
+        export CA_CERT=$(yq eval  "$ca_crt_filter_query"  ${MAS_MANUAL_CERTS_YAML})
+
+        echo -e "\n - PUBLIC_TLS_SECRET_NAME ................ ${PUBLIC_TLS_SECRET_NAME}"
+        echo -e "\n - TLS_CERT CONTENT ...................... ${TLS_CERT}"
+        echo -e "\n - TLS_KEY CONTENT ....................... ${TLS_KEY}"
+        echo -e "\n - CA_CERT CONTENT ....................... ${CA_CERT}"
+
+      fi
+    fi
+  fi
+
+
+  # Generate ArgoApps
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Generating Argo Project and Applications"
+
+  echo "- IBM Maximo Application Suite Application Platform"
+
+  # If the file doesn't exist, create a blank one
+  if ! [ -f ${CONFIGS_FILE} ]; then
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config-common.yaml.j2 > $CONFIGS_FILE
+  fi
+
+
+  # Remove any existing config with this app id and workspace id
+  yq 'del(.ibm_mas_masapp_configs[] | select(.mas_app_id == "'${MAS_APP_ID}'" and .mas_workspace_id == "'${MAS_WORKSPACE_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+
+  # Render the appropriate template for the config into a new file
+  jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 | yq '{"ibm_mas_masapp_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+
+  # Merge the two files
+  yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
+
+  # sort the configs by mas_app_id.
+  # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
+  # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed
+  yq -i '.ibm_mas_masapp_configs |= sort_by(.mas_app_id)' $CONFIGS_FILE
+
+  echo_h2 "Updated configuration file (${CONFIGS_FILE})"
+  if [ -f ${CONFIGS_FILE} ]; then
+    cat $CONFIGS_FILE
+  else
+    echo "<file was deleted>"
+  fi
+
+  # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}" MASAPP_CONFIG_CHANGED
+    
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
+
+}

@@ -1,0 +1,449 @@
+#!/usr/bin/env bash
+
+function gitops_cluster_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops-cluster [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Basic Configuration (Required):
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account ID
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
+      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}    Custom Labels definition in dict format
+
+AWS Secrets Manager Configuration (Required):
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
+
+IBM Container Registry Entitlement (Required):
+      --icr-username ${COLOR_YELLOW}ICR_USERNAME${TEXT_RESET}  Username to authenticate with IBM Container Registry (defaults to 'cp')
+      --icr-password ${COLOR_YELLOW}ICR_PASSWORD${TEXT_RESET}  Provide your IBM entitlement key used for access to the IBM Container Registry
+
+Target Cluster (Optional):
+      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+
+Operator Catalog (Optional):
+      --catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}   Set the version of IBM Maximo Operator Catalog (defaults to 'v8-240130-amd64')
+      --catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}       Container image to use for IBM Maximo Operator Catalog (defaults to 'icr.io/cpopen/ibm-maximo-operator-catalog')
+      --catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}     Action to take for IBM Maximo Operator Catalog ('install', 'update' or 'none'. Default is 'install')
+
+IBM CIS Cert Manager:
+      --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
+
+Automatic GitHub Push (Optional):
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}         Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}         GitHub Hostname for your GitOps repository
+  -O, --github-org ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}           Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}         Github repo for your GitOps repository
+  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}              Git ssh key path
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}           Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}   Git commit message to use when committing to of your GitOps repository
+
+Cluster Promotion (Optional):
+      --cluster-promotion ${COLOR_YELLOW}CLUSTER_PROMOTION${TEXT_RESET}                                         Enable cluster promotion processing
+      --cluster-promotion-target-github-pat ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_PAT${TEXT_RESET}     The github PAT to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-host ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_HOST${TEXT_RESET}   The github host to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-repo ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_REPO${TEXT_RESET}   The github repo to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-org ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_ORG${TEXT_RESET}     The github org to use when commiting the change to the target promotion repo
+      --cluster-promotion-target-github-path ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GITHUB_PATH${TEXT_RESET}   The path in the github target repo to update under when commiting the change to the target promotion repo
+      --cluster-promotion-target-git-branch ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_GIT_BRANCH${TEXT_RESET}     The git branch to use when commiting the change to the target promotion repo
+      --cluster-promotion-create-target-pr ${COLOR_YELLOW}CLUSTER_PROMOTION_CREATE_TARGET_PR${TEXT_RESET}       Create a PR to the CLUSTER_PROMOTION_TARGET_GIT_BRANCH branch instead of commiting directly to it.
+      --cluster-promotion-target-pr-title ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_PR_TITLE${TEXT_RESET}         The title of the PR if a PR is to be created
+      --cluster-promotion-cluster-values ${COLOR_YELLOW}CLUSTER_PROMOTION_CLUSTER_VALUES${TEXT_RESET}           A list of values in json format to update in the target git repo.
+
+Notifications:
+      --slack-channel-id ${COLOR_YELLOW}SLACK_CHANNEL_ID${TEXT_RESET} Slack channel for ArgoCD to notify when an app sync has completed or failed
+
+Other Commands:
+  -h, --help                              Show this help message
+EOM
+
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_cluster_noninteractive() {
+  # Set defaults
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SM_DELIM="/"
+
+  export GITHUB_PUSH="false"
+  export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"gitops-cluster commit"}
+  export MAS_CATALOG_VERSION=${MAS_CATALOG_VERSION:-"v8-240130-amd64"}
+  export MAS_CATALOG_IMAGE=${MAS_CATALOG_IMAGE:-"icr.io/cpopen/ibm-maximo-operator-catalog"}
+  export ICR_USERNAME=cp
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+
+  # Target the local (to ArgoCD) cluster
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
+
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      --custom-labels)
+        export CUSTOM_LABELS=$1 && shift
+        ;;
+
+      # AWS Secrets Manager Configuration
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
+        ;;
+      --sm-aws-access-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --sm-aws-secret-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+
+      # IBM Container Registry Entitlement
+      --icr-username)
+        export ICR_USERNAME=$1 && shift
+        ;;
+      --icr-password)
+        export ICR_PASSWORD=$1 && shift
+        ;;
+
+      # Target Cluster (Optional)
+      --cluster-url)
+        export CLUSTER_URL=$1 && shift
+        ;;
+
+      # Operator Catalog
+      --catalog-version)
+        export MAS_CATALOG_VERSION=$1 && shift
+        ;;
+      --catalog-image)
+        export MAS_CATALOG_IMAGE=$1 && shift
+        ;;
+
+      # Automatic GitHub Push (Optional)
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+
+      # Notifications
+      --slack-channel-id)
+        export SLACK_CHANNEL_ID=$1 && shift
+        ;;
+
+      # Cluster Promotion
+      --cluster-promotion)
+        export CLUSTER_PROMOTION=true
+        ;;
+      --cluster-promotion-target-github-pat)
+        export CLUSTER_PROMOTION_TARGET_GITHUB_PAT=$1 && shift
+        ;;
+      --cluster-promotion-target-github-host)
+        export CLUSTER_PROMOTION_TARGET_GITHUB_HOST=$1 && shift
+        ;;
+      --cluster-promotion-target-github-repo)
+        export CLUSTER_PROMOTION_TARGET_GITHUB_REPO=$1 && shift
+        ;;
+      --cluster-promotion-target-github-org)
+        export CLUSTER_PROMOTION_TARGET_GITHUB_ORG=$1 && shift
+        ;;
+      --cluster-promotion-target-github-path)
+        export CLUSTER_PROMOTION_TARGET_GITHUB_PATH=$1 && shift
+        ;;
+      --cluster-promotion-target-git-branch)
+        export CLUSTER_PROMOTION_TARGET_GIT_BRANCH=$1 && shift
+        ;;
+      --cluster-promotion-create-target-pr)
+        export CLUSTER_PROMOTION_CREATE_TARGET_PR=true
+        ;;
+      --cluster-promotion-target-pr-title)
+        export CLUSTER_PROMOTION_TARGET_PR_TITLE=$1 && shift
+        ;;
+      --cluster-promotion-cluster-values)
+        export CLUSTER_PROMOTION_CLUSTER_VALUES=$1 && shift
+        ;;
+
+      # IBM CIS Cert Manager 
+      --dns-provider)
+        export DNS_PROVIDER=$1 && shift
+        ;;
+      --ocp-cluster-domain)
+        export OCP_CLUSTER_DOMAIN=$1 && shift
+        ;;
+
+
+      # Other Commands
+      -h|--help)
+        gitops_cluster_help
+        ;;
+      *)
+        # unknown option
+        gitops_cluster_help  "Usage Error: Unsupported option \"${key}\""
+        ;;
+    esac
+  done
+
+  [[ -z "$ACCOUNT_ID" ]] && gitops_cluster_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_cluster_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_cluster_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
+  
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_cluster_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_cluster_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_cluster_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_cluster_help "GIT_BRANCH is not set"
+  fi
+
+  if [[ "${DNS_PROVIDER}" == "cis" ]]; then
+    [[ -z "$OCP_CLUSTER_DOMAIN" ]] && gitops_cluster_help "OCP_CLUSTER_DOMAIN is not set"
+  fi
+
+  [[ -z "$SECRETS_PATH" ]] && gitops_cluster_help "SECRETS_PATH is not set"
+
+  if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GITHUB_PAT" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GITHUB_PAT is not set"
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GITHUB_HOST" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GITHUB_HOST is not set"
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GITHUB_REPO" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GITHUB_REPO is not set"
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GITHUB_ORG" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GITHUB_ORG is not set"
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GITHUB_PATH" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GITHUB_PATH is not set"
+    [[ -z "$CLUSTER_PROMOTION_TARGET_GIT_BRANCH" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GIT_BRANCH is not set"
+    [[ -z "$CLUSTER_PROMOTION_CREATE_TARGET_PR" ]] && gitops_cluster_help "CLUSTER_PROMOTION_CREATE_TARGET_PR is not set"
+    [[ -z "$CLUSTER_PROMOTION_CLUSTER_VALUES" ]] && gitops_cluster_help "CLUSTER_PROMOTION_CLUSTER_VALUES is not set"
+    if [[ "$CLUSTER_PROMOTION_CREATE_TARGET_PR" == "true" ]]; then
+      [[ -z "$CLUSTER_PROMOTION_TARGET_PR_TITLE" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_PR_TITLE is not set"
+    fi
+  fi
+  
+  if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
+    echo 'Missing required environment variables, make sure to set ICR_USERNAME, ICR_PASSWORD'
+    exit 1
+  fi
+}
+
+function gitops_cluster() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_cluster_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_cluster_interactive
+  fi
+
+  # catch errors
+  set -eo pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
+  echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ............... ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory ............ ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host ......................... ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization ................. ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ................... ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ....................... ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ............... ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory ............ ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Maximo Operator Catalog" "    "
+  echo_reset_dim "Catalog Version ................ ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
+  echo_reset_dim "Catalog Image .................. ${COLOR_MAGENTA}${MAS_CATALOG_IMAGE}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Cluster Promotion" "    "
+  echo_reset_dim "Cluster Promotion   ............. ${COLOR_MAGENTA}${CLUSTER_PROMOTION}"
+  if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
+    echo_reset_dim "Github PAT  ..................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GITHUB_PAT:0:4}<snip>"
+    echo_reset_dim "GitHub Host  .................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GITHUB_HOST}"
+    echo_reset_dim "GitHub Repo  .................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GITHUB_REPO}"
+    echo_reset_dim "GitHub Org  ..................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GITHUB_ORG}"
+    echo_reset_dim "GitHub Path  .................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GITHUB_PATH}"
+    echo_reset_dim "Git Branch  ..................... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_GIT_BRANCH}"
+    echo_reset_dim "Create Target PR  ............... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_CREATE_TARGET_PR}"
+    echo_reset_dim "Target PR Title   ............... ${COLOR_MAGENTA}${CLUSTER_PROMOTION_TARGET_PR_TITLE}"
+    echo_reset_dim "Cluster Values  ................. ${COLOR_MAGENTA}${CLUSTER_PROMOTION_CLUSTER_VALUES}"
+  fi
+  reset_colors
+
+  if [[ -n "$DNS_PROVIDER" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "IBM CIS Cert Manager" "    "
+    echo_reset_dim "DNS Provider ................. ${COLOR_MAGENTA}${DNS_PROVIDER}"
+    echo_reset_dim "Open Shift Cluster Domain .... ${COLOR_MAGENTA}${OCP_CLUSTER_DOMAIN}"
+    reset_colors
+  fi
+
+  # Set up secrets
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Configuring Cluster secrets"
+  AVP_TYPE=aws
+  sm_login
+
+  export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}ibm_entitlement
+  export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
+
+  export SECRET_NAME_CIS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}cis
+  export SECRET_KEY_IBM_APIKEY=${SECRET_NAME_CIS}#ibm_apikey
+
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
+
+
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  ROOT_APP_NAME="root.${ACCOUNT_ID}"
+  CLUSTER_APP_NAME="cluster.${CLUSTER_ID}"
+  OPERATOR_CATALOG_APP_NAME="operator-catalog.${CLUSTER_ID}"
+  COMMON_SERVICES_APP_NAME="redhat-cert-manager.${CLUSTER_ID}"
+
+  validate_app_name "${ROOT_APP_NAME}"
+  validate_app_name "${CLUSTER_APP_NAME}"
+  validate_app_name "${OPERATOR_CATALOG_APP_NAME}"
+  validate_app_name "${COMMON_SERVICES_APP_NAME}"
+
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_CLUSTER_DIR}
+  if [[ -n ${ARTIFACTORY_USERNAME} && -n ${ARTIFACTORY_TOKEN} ]]; then
+    export ARTIFACTORY_AUTH_TOKEN=$(echo -n $ARTIFACTORY_USERNAME:$ARTIFACTORY_TOKEN | base64 -w 0)
+  fi
+  export ICR_AUTH_TOKEN=$(echo -n $ICR_USERNAME:$ICR_PASSWORD | base64 -w 0)
+
+  echo "- Generate image pull secret"
+  jinja -X .+ $CLI_DIR/templates/gitops/ibm-entitlement-with-artifactory.json.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
+
+  IBM_ENTITLEMENT_WITH_ARTIFACTORY=${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
+  IBM_ENTITLEMENT_WITH_ARTIFACTORY=$(cat $IBM_ENTITLEMENT_WITH_ARTIFACTORY)
+  export IBM_ENTITLEMENT_PULL_SECRET_B64=$(echo -n $IBM_ENTITLEMENT_WITH_ARTIFACTORY | base64 -w 0)
+  export IBM_ENTITLEMENT_B64=$(echo -n $ICR_PASSWORD | base64 -w 0)
+
+  sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_PULL_SECRET_B64}\", \"entitlement_key\": \"${IBM_ENTITLEMENT_B64}\"}"
+
+  if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
+    export SECRET_NAME_GITHUB_PAT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}github_pat
+    export SECRET_KEY_GITHUB_PAT=${SECRET_NAME_GITHUB_PAT}#github_pat
+    sm_update_secret $SECRET_NAME_GITHUB_PAT "{\"github_pat\": \"${CLUSTER_PROMOTION_TARGET_GITHUB_PAT}\"}"
+  fi
+
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
+
+
+  echo "- Generate AWS secret"
+  # This is used by some of the ArgoCD sync hooks to make updates to AWS SM from within the cluster
+  export SECRET_NAME_AWS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}aws
+  sm_update_secret $SECRET_NAME_AWS "{\"sm_aws_access_key_id\": \"${SM_AWS_ACCESS_KEY_ID}\", \"sm_aws_secret_access_key\": \"${SM_AWS_SECRET_ACCESS_KEY}\"}"
+
+
+  # Generate ArgoApps
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Generating Argo Applications"
+
+  echo "- Base Config"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-mas-cluster-base.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
+
+  echo "- IBM Operator Catalog"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-operator-catalog.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
+
+  echo "- Redhat Cert Manager"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
+  
+  if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
+    ESCAPED_CLUSTER_VALUES=${CLUSTER_PROMOTION_CLUSTER_VALUES//\"/\\\"}
+    export ESCAPED_CLUSTER_VALUES=${ESCAPED_CLUSTER_VALUES//$'\n'/\\n}
+    echo "- Cluster Promotion"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-promotion.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
+  fi
+  
+  if [[ -n "$DNS_PROVIDER" ]]; then
+    echo "- IBM CIS Cert Manager"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-cis-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cis-cert-manager.yaml
+  fi
+
+  # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
+}

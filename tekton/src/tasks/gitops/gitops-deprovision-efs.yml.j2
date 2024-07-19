@@ -1,0 +1,74 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-deprovision-efs
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: cloud_provider
+      type: string
+      default: aws
+  stepTemplate:
+    name: gitops-deprovision-efs
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: CLOUD_PROVIDER
+        value: $(params.cloud_provider)
+  steps:
+    - args:
+      - |-
+        aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+        aws configure set default.region $(params.avp_aws_secret_region)
+
+        export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
+        export OCP_SERVER=$(cat $ROSA_CONFIG | yq '.data.api_url')
+        export OCP_USERNAME=$(cat $ROSA_CONFIG | yq '.data.username')
+        export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq '.data.admin_password')
+        oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+        OC_RC=$?
+        if [ $OC_RC -ne 0 ]; then
+          echo "oc login failed so assume there is no efs to deprovision, exiting.."
+          exit 0
+        fi
+
+        echo "Set k8s context"
+        export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
+        mas gitops-deprovision-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        --cloud-provider $CLOUD_PROVIDER \
+        --aws-region $SM_AWS_REGION \
+        --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+        --aws-access-key $SM_AWS_ACCESS_KEY_ID
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-deprovision-efs
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
+
+
+

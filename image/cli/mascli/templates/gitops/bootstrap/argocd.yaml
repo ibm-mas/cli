@@ -1,0 +1,1434 @@
+---
+apiVersion: argoproj.io/v1beta1
+kind: ArgoCD
+metadata:
+  name: openshift-gitops
+  namespace: openshift-gitops
+spec:
+  resourceTrackingMethod: label
+  server:
+    autoscale:
+      enabled: false
+    grpc:
+      ingress:
+        enabled: false
+    ingress:
+      enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 125m
+        memory: 128Mi
+    route:
+      enabled: true
+    service:
+      type: ''
+  grafana:
+    enabled: false
+    ingress:
+      enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+    route:
+      enabled: false
+  monitoring:
+    enabled: false
+  notifications:
+    enabled: false
+  prometheus:
+    enabled: false
+    ingress:
+      enabled: false
+    route:
+      enabled: false
+  initialSSHKnownHosts: {}
+  sso:
+    dex:
+      openShiftOAuth: true
+      resources:
+        limits:
+          cpu: 500m
+          memory: 256Mi
+        requests:
+          cpu: 250m
+          memory: 128Mi
+    provider: dex
+  applicationSet:
+    resources:
+      limits:
+        cpu: '2'
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+    webhookServer:
+      ingress:
+        enabled: false
+      route:
+        enabled: false
+  rbac:
+    policy: |
+      g, system:cluster-admins, role:admin
+      g, cluster-admins, role:admin
+    scopes: '[groups]'
+  extraConfig:
+    resource.customizations: |
+      sls.ibm.com/LicenseService:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+
+      apps.mas.ibm.com/AssistApp:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/AssistWorkspace:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/ManageApp:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/ManageWorkspace:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/ManageBuild:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Buildready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/ManageDeployment:
+        health.lua: |
+          hs = {}
+          dBReady = false
+          bundleReady = false
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "DBReady" and condition.status == "True" then
+                  dBReady = true
+                end
+                if condition.type == "BundleReady" and condition.status == "True" then
+                  bundleReady = true
+                end
+              end
+              if dBReady and bundleReady then
+                hs.status = "Healthy"
+                hs.message = "Bundle and DB both Ready"
+                return hs
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/ManageStatusChecker:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Successful" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/OpenTelemetryDeployment:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Successful" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/ManageAccelerator:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/MonitorApp:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/MonitorWorkspace:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/PredictApp:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/PredictWorkspace:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/VisualInspectionApp:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/VisualInspectionAppWorkspace:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/OptimizerApp:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/OptimizerWorkspace:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      iot.ibm.com/IoT:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      iot.ibm.com/IoTWorkspace:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      asset-data-dictionary.ibm.com/AssetDataDictionary:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      asset-data-dictionary.ibm.com/DataDictionaryWorkspace:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      core.mas.ibm.com/Suite:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+
+      core.mas.ibm.com/Workspace:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+
+      config.mas.ibm.com/KafkaCfg:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+
+      config.mas.ibm.com/JdbcCfg:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      config.mas.ibm.com/BasCfg:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+
+      config.mas.ibm.com/IDPCfg:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      config.mas.ibm.com/MongoCfg:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+
+      config.mas.ibm.com/SlsCfg:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      config.mas.ibm.com/SmtpCfg:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+
+      config.mas.ibm.com/ObjectStorageCfg:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      wos.cpd.ibm.com/WOService:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Successful" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      ws.cpd.ibm.com/WS:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Successful" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      config.mas.ibm.com/WatsonStudioCfg:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      operator.ibm.com/OperandRequest:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Ready" and condition.reason == "operator is ready" and condition.status == "False" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.reason == "operator is ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      operators.coreos.com/Subscription:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.installedCSV ~= nil then
+              hs.status = "Progressing"
+              hs.message = "CSV Installed"
+              if obj.status.state ~= nil then
+                hs.message = obj.status.state
+                if obj.status.state == "AtLatestKnown" then
+                  hs.status = "Healthy"
+                end
+              end
+              return hs
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Unknown"
+          if obj.status.state ~= nil then
+            hs.message = obj.status.state
+          end
+          return hs
+
+      operators.coreos.com/InstallPlan:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.phase ~= nil then
+              hs.message = obj.status.phase
+              if obj.status.phase == "Complete" then
+                hs.status = "Healthy"
+              else
+                hs.status = "Progressing"
+              end
+              return hs
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Unknown"
+          return hs
+
+      db2u.databases.ibm.com/Db2uCluster:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.state ~= nil then
+              if obj.status.state == "LicenseError" or obj.status.state == "Error" then
+                hs.status = "Degraded"
+                hs.message = "General Error or License Error"
+                return hs
+              end
+              if obj.status.state == "Ready" then
+                hs.status = "Healthy"
+                hs.message = obj.status.conditions.status
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning Db2 instance..."
+          return hs
+
+      db2u.databases.ibm.com/Db2uInstance:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.state ~= nil then
+              if obj.status.state == "LicenseError" or obj.status.state == "Error" then
+                hs.status = "Degraded"
+                hs.message = "General Error or License Error"
+                return hs
+              end
+              if obj.status.state == "Ready" then
+                hs.status = "Healthy"
+                hs.message = obj.status.conditions.status
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning Db2 instance..."
+          return hs
+
+      marketplace.redhat.com/MarketplaceConfig:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Complete" and condition.status == "False" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Complete" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      operators.coreos.com/CatalogSource:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.connectionState ~= nil then
+              if obj.status.connectionState.lastObservedState ~= "READY" then
+                hs.status = "Degraded"
+                hs.message = "Error"
+                return hs
+              end
+              if obj.status.connectionState.lastObservedState == "READY" then
+                hs.status = "Healthy"
+                hs.message = obj.status.connectionState.lastObservedState
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning CatalogSource instance..."
+          return hs
+
+      argoproj.io/Application:
+        health.lua: |
+          hs = {}
+          hs.status = "Progressing"
+          hs.message = ""
+          if obj.status ~= nil then
+            if obj.status.health ~= nil then
+              hs.status = obj.status.health.status
+              if obj.status.health.message ~= nil then
+                hs.message = obj.status.health.message
+              end
+            end
+          end
+          return hs
+
+      nvidia.com/ClusterPolicy:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.state ~= nil then
+              if obj.status.state ~= "ready" then
+                hs.status = "Degraded"
+                hs.message = "Error"
+                return hs
+              end
+              if obj.status.state == "ready" then
+                hs.status = "Healthy"
+                hs.message = obj.status.state
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning nvidia ClusterPolicy instance..."
+          return hs
+
+      cpd.ibm.com/Ibmcpd:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Successful" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      wml.cpd.ibm.com/WmlBase:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Successful" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      ae.cpd.ibm.com/AnalyticsEngine:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Successful" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      spssmodeler.cpd.ibm.com/Spss:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Successful" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      zen.cpd.ibm.com/ZenService:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.zenStatus ~= nil then
+              if obj.status.zenStatus ~= "Completed" and obj.status.zenStatus ~= "InProgress" then
+                hs.status = "Degraded"
+                hs.message = obj.status.zenMessage
+                return hs
+              end
+              if obj.status.zenStatus == "Completed" then
+                hs.status = "Healthy"
+                hs.message = obj.status.zenMessage
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      compliance.openshift.io/TailoredProfile:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.state ~= nil then
+              if obj.status.state ~= "READY" then
+                hs.status = "Degraded"
+                hs.message = "Error"
+                return hs
+              end
+              if obj.status.state == "READY" then
+                hs.status = "Healthy"
+                hs.message = obj.status.state
+                return hs
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = "Provisioning TailoredProfile instance..."
+          return hs
+
+      compliance.openshift.io/ScanSettingBinding:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      operator.openshift.io/CertManager:
+        health.lua: |
+          hs = {}
+
+          cm_cainjector_deployed = "False"
+          cm_webhook_deployed = "False"
+          cm_controller_deployed  = "False"
+
+          cm_cainjector_degraded = "False"
+          cm_webhook_degraded = "False"
+          cm_controller_degraded  = "False"
+
+          cm_cainjector_progressing = "False"
+          cm_webhook_progressing = "False"
+          cm_controller_progressing  = "False"
+
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+
+                if condition.type == "cert-manager-cainjector-deploymentAvailable" and condition.status == "True" then
+                  cm_cainjector_deployed = "True"
+                end
+
+                if condition.type == "cert-manager-webhook-deploymentAvailable" and condition.status == "True" then
+                  cm_webhook_deployed = "True"
+                end
+
+                if condition.type == "cert-manager-controller-deploymentAvailable" and condition.status == "True" then
+                  cm_controller_deployed = "True"
+                end
+
+                if condition.type == "cert-manager-cainjector-deploymentDegraded" and condition.status == "True" then
+                  cm_cainjector_degraded = "True"
+                end
+
+                if condition.type == "cert-manager-webhook-deploymentDegraded" and condition.status == "True" then
+                  cm_webhook_degraded = "True"
+                end
+
+                if condition.type == "cert-manager-controller-deploymentDegraded" and condition.status == "True" then
+                  cm_controller_degraded = "True"
+                end
+
+                if condition.type == "cert-manager-cainjector-deploymentProgressing" and condition.status == "True" then
+                  cm_cainjector_progressing = "True"
+                end
+
+                if condition.type == "cert-manager-webhook-deploymentProgressing" and condition.status == "True" then
+                  cm_webhook_progressing = "True"
+                end
+
+                if condition.type == "cert-manager-controller-deploymentProgressing" and condition.status == "True" then
+                  cm_controller_progressing = "True"
+                end
+
+                if cm_cainjector_deployed == "True" and cm_webhook_deployed == "True" and cm_controller_deployed == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+
+                if cm_cainjector_degraded == "True" or cm_webhook_degraded == "True" or cm_controller_degraded == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+
+                if cm_cainjector_progressing == "True" or cm_webhook_progressing == "True" or cm_controller_progressing == "True" then
+                  hs.status = "Progressing"
+                  hs.message = condition.message
+                  return hs
+                end
+
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+  repo:
+    initContainers:
+      - args:
+          - >-
+            curl -L
+            https://github.com/argoproj-labs/argocd-vault-plugin/releases/download/v\$(AVP_VERSION)/argocd-vault-plugin_\$(AVP_VERSION)_linux_amd64
+            -o argocd-vault-plugin && chmod +x argocd-vault-plugin && mv
+            argocd-vault-plugin /custom-tools/
+        command:
+          - sh
+          - '-c'
+        env:
+          - name: AVP_VERSION
+            value: 1.11.0
+        image: registry.access.redhat.com/ubi8
+        name: download-tools
+        securityContext:
+          allowPrivilegeEscalation: true
+        resources: {}
+        volumeMounts:
+          - mountPath: /custom-tools
+            name: custom-tools
+    mountsatoken: true
+    resources:
+      limits:
+        cpu: '1'
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 256Mi
+    serviceaccount: openshift-gitops-repo-sa
+    sidecarContainers:
+      - command:
+          - /var/run/argocd/argocd-cmp-server
+        image: 'quay.io/ibmmas/cli:latest'
+        imagePullPolicy: Always
+        name: avp
+        resources: {}
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 999
+        volumeMounts:
+          - mountPath: /var/run/argocd
+            name: var-files
+          - mountPath: /home/argocd/cmp-server/plugins
+            name: plugins
+          - mountPath: /tmp
+            name: tmp
+          - mountPath: /home/argocd/cmp-server/config/plugin.yaml
+            name: cmp-plugin
+            subPath: avp.yaml
+          - mountPath: /usr/local/bin/argocd-vault-plugin
+            name: custom-tools
+            subPath: argocd-vault-plugin
+          - mountPath: /home/argocd/vault.yml
+            name: vault
+            subPath: vault.yml
+    volumeMounts:
+      - mountPath: /usr/local/bin/argocd-vault-plugin
+        name: custom-tools
+        subPath: argocd-vault-plugin
+      - mountPath: /home/argocd
+        name: vault
+    volumes:
+      - emptyDir: {}
+        name: custom-tools
+      - configMap:
+          name: cmp-plugin
+        name: cmp-plugin
+      - name: vault
+        secret:
+          secretName: openshift-gitops-vault
+  resourceExclusions: |
+    - apiGroups:
+      - tekton.dev
+      clusters:
+      - '*'
+      kinds:
+      - TaskRun
+      - PipelineRun
+  ha:
+    enabled: false
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  tls:
+    ca: {}
+  redis:
+    resources:
+      limits:
+        cpu: 500m
+        memory: 256Mi
+      requests:
+        cpu: 250m
+        memory: 128Mi
+  controller:
+    processors: {}
+    resources:
+      limits:
+        cpu: '2'
+        memory: 8Gi
+      requests:
+        cpu: 250m
+        memory: 1Gi
+    sharding: {}
