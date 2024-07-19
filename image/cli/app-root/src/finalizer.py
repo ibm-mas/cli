@@ -111,6 +111,7 @@ def getKafkaVersion(namespace):
         print(f"Unable to determine kafka version: {e}")
     return "unknown"
 
+
 # Get cp4d components versions
 # -------------------------------------------------------------------------
 def getcp4dCompsVersions():
@@ -294,7 +295,7 @@ if __name__ == "__main__":
             "namespace": f"mas-{instanceId}-visualinspection",
             "apiVersion": "apps.mas.ibm.com/v1",
             "kind": "VisualInspectionApp"
-         }
+        }
     }
 
     # Associate Mas FVT Focal group with respect to product
