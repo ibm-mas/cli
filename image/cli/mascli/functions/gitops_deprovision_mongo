@@ -156,7 +156,7 @@ function gitops_deprovision_mongo() {
   fi
 
   # catch errors
-  set -eo pipefail
+  set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   echo
