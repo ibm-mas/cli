@@ -133,7 +133,7 @@ function gitops_deprovision_suite_workspace() {
   fi
   
   # catch errors
-  set -eo pipefail
+  set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
