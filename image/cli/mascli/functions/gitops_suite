@@ -518,8 +518,6 @@ function gitops_suite() {
   # ---------------------------------------------------------------------------
   # Note that these instance-level secrets are set up by gitops-license
   export SECRET_KEY_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}license#license_file
-  export LICENSE_FILE=$TEMP_DIR/license.lic
-  sm_get_secret_file $SECRET_KEY_LICENSE_FILE $LICENSE_FILE
 
   # Instance-level secrets to create
   # ---------------------------------------------------------------------------
