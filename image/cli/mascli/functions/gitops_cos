@@ -119,6 +119,7 @@ function gitops_cos() {
   fi
   
   # catch errors
+  set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   rm -rf $GITOPS_WORKING_DIR

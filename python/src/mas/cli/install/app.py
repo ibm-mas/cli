@@ -33,6 +33,7 @@ from mas.cli.validators import (
   InstanceIDFormatValidator,
   WorkspaceIDFormatValidator,
   WorkspaceNameFormatValidator,
+  TimeoutFormatValidator,
   StorageClassValidator,
   OptimizerInstallPlanValidator
 )
@@ -58,6 +59,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             catalogDisplayName = catalog.spec.displayName
 
             m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
+            print(f"m: {m}")
             if m:
                 # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
@@ -193,6 +195,21 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="4.8.0")
 
         self.deployCP4D = True
+
+    def configSSOProperties(self):
+        self.printH2("Configure Single Sign-On (SSO) Default Properties")
+        sso_response = self.yesOrNo("Would you like to configure default SSO properties?")
+        if not sso_response:
+            self.printDescription([
+                "Using default SSO properties"
+            ])
+        else:
+            self.promptForInt("Enter the idleTimeout (in seconds)", "idle_timeout", default=1800)
+            self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator(), default="12h")
+            self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator(), default="30m")
+            self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator(), default="12h")
+            self.promptForString("Enter the default Identity Provider (IDP)", "default_idp", default="local")
+            self.yesOrNo("Enable seamless login?", param="seamless_login")
 
     def configMAS(self):
         self.printH1("Configure MAS Instance")
@@ -448,7 +465,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.params["storage_class_rwx"] = "managed-premium"
         # 4. AWS
         elif getStorageClass(self.dynamicClient, "gp2") is not None:
-            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: AWS gp2/MediumSeaGreen>"))
+            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: AWS gp2</MediumSeaGreen>"))
             print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): gp2</LightSlateGrey>"))
             print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): efs</LightSlateGrey>"))
             self.storageClassProvider = "aws"
@@ -520,6 +537,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Interactive mode
         self.interactiveMode = True
 
+        # SSO Config
+        self.configSSOProperties()
         # Catalog
         self.configCatalog()
         if not self.devMode:

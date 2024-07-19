@@ -22,12 +22,14 @@ function sm_list_cluster_secrets() {
   CLUSTER_ID=$2
 
   if [[ "$AVP_TYPE" == "aws" ]]; then
+    set +o pipefail
     LIST_SECRETS_OUTPUT="$(aws secretsmanager list-secrets --output yaml --no-cli-pager --filters Key=name,Values=${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER})"
     return_code=$?
     if [ $return_code -ne 0 ]; then
       echo "aws: secretmanager list-secrets failed with error: $return_code"
       exit $return_code
     fi
+    set -o pipefail
 
     echo "$LIST_SECRETS_OUTPUT" | yq -r '.SecretList[].Name'
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
@@ -48,6 +50,7 @@ function sm_update_secret(){
     # exists and is already set to what we want to use.
 
     # Get the current value
+    set +o pipefail
     CURRENT_SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString)
 
     if [[ "$CURRENT_SECRET_VALUE" == "" ]]; then
@@ -62,6 +65,7 @@ function sm_update_secret(){
       # No change
       echo "- Secret $SECRET_NAME unchanged"
     fi
+    set -o pipefail
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     echo "IBM SecretsManager not yet supported"
     exit 1
@@ -73,7 +77,9 @@ function sm_delete_secret(){
   if [[ "$AVP_TYPE" == "aws" ]]; then
 
     # Delete the secret
+    set +o pipefail
     aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null || exit 1
+    set -o pipefail
 
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     echo "IBM SecretsManager not yet supported"
@@ -88,7 +94,9 @@ function sm_get_secret(){
     # Get the current value and set it to the provided env var
     # echo "- Getting Secret $SECRET_NAME to set in env var $SECRET_ENV_VAR"
     # export $SECRET_ENV_VAR=$(aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString)
+    set +o pipefail
     aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString
+    set -o pipefail
 
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     # echo "IBM SecretsManager not yet supported"
@@ -101,7 +109,10 @@ function sm_get_secret_value(){
   SECRET_NAME=$1
   SECRET_KEY=$2
   if [[ "$AVP_TYPE" == "aws" ]]; then
+    set +o pipefail
     aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString | jq -r .${SECRET_KEY}
+    set -o pipefail
+
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     # echo "IBM SecretsManager not yet supported"
     echo ""
@@ -115,7 +126,9 @@ function sm_get_secret_file(){
   if [[ "$AVP_TYPE" == "aws" ]]; then
     # Get the current value and send it to the file passed in
     echo "- Getting Secret $SECRET_NAME to set in file $SECRET_FILE"
+    set +o pipefail
     aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString > $SECRET_FILE
+    set -o pipefail
 
   elif [[ "$AVP_TYPE" == "ibm" ]]; then
     echo "IBM SecretsManager not yet supported"
@@ -169,7 +182,9 @@ function sm_get_cluster_secret() {
 #   echo "${SECRET_NAME_IBM_ENTITLEMENT} ARN: ${SECRET_ARN_IBM_ENTITLEMENT}"
 function sm_get_secret_arn() {
   local _SECRET_NAME="$1"
+  set +o pipefail
   local _SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "${_SECRET_NAME}" --output json | jq -r .ARN)
+  set -o pipefail
 
   # can't check RC of the call inside $(), so we'll have to make do with checking for empty output instead
    if [ -z "${_SECRET_ARN}" ]; then
