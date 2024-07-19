@@ -441,7 +441,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.params["storage_class_rwx"] = "managed-premium"
         # 4. AWS
         elif getStorageClass(self.dynamicClient, "gp2") is not None:
-            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: AWS gp2/MediumSeaGreen>"))
+            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: AWS gp2</MediumSeaGreen>"))
             print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): gp2</LightSlateGrey>"))
             print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): efs</LightSlateGrey>"))
             self.storageClassProvider = "aws"
