@@ -198,8 +198,10 @@ class BaseApp(PrintMixin, PromptMixin):
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
                     continueWithExistingCluster = prompt(HTML('<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
                     promptForNewServer = continueWithExistingCluster in ["n", "no"]
-            except Exception:
+            except Exception as e:
                 # We are already connected to a cluster, but the connection is not valid so prompt for connection details
+                logger.debug("Failed looking up OpenShift Console route to verify connection")
+                logger.exception(e, stack_info=True)
                 promptForNewServer = True
         else:
             # We are not already connected to any cluster, so prompt for connection details
