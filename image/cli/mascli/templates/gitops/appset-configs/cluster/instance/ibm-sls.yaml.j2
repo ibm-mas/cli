@@ -1,0 +1,51 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+
+ibm_sls:
+  sls_channel: {{ SLS_CHANNEL }}
+  sls_entitlement_file: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSE_FILE }}>
+  ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
+
+  # aws docdb
+  mongodb_provider: "{{ MONGODB_PROVIDER }}"
+  user_action: "{{ USER_ACTION }}"
+  docdb_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_HOST }}>"
+  docdb_port: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_PORT }}>"
+  docdb_master_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_MASTER_USERNAME }}>"
+  docdb_master_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_MASTER_PASSWORD }}>"
+  docdb_master_info: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_MASTER_INFO }}>"
+  sls_mongo_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>"
+  sls_mongo_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>"
+
+  sls_mongo_secret_name: sls-mongo-credentials
+  icr_cp_open: {{ ICR_CP_OPEN }}
+  run_sync_hooks: true
+  mongo_spec:
+    authMechanism: DEFAULT
+    configDb: admin
+    secretName: sls-mongo-credentials
+{%- if config.retryWrites is sameas false %}
+    retryWrites: false
+{%- endif %}
+    nodes:
+{%- for mongo_host in config.hosts %}
+      - host: {{ mongo_host.host }}
+        port: {{ mongo_host.port }}
+{%- endfor %}
+    certificates:
+{%- if config.certificate %}
+{%- for mongo_certificate in config.certificate %}
+      - alias: {{ mongo_certificate.alias }}
+        crt: |
+          {% filter indent(width=10) -%}
+          {{ mongo_certificate.crt }}
+          {%- endfilter %}
+{%- endfor %}
+{%- elif certificates %}
+{%- for mongo_certificate in certificates %}
+      - alias: {{ mongo_certificate.alias }}
+        crt: |
+          {% filter indent(width=10) -%}
+          {{ mongo_certificate.crt }}
+          {%- endfilter %}
+{%- endfor -%}
+{%- endif -%}

@@ -15,6 +15,7 @@ from sys import argv
 
 from mas.cli import __version__ as VERSION
 from mas.cli.install.app import InstallApp
+from mas.cli.update.app import UpdateApp
 from mas.cli.upgrade.app import UpgradeApp
 from mas.cli.uninstall.app import UninstallApp
 
@@ -36,9 +37,11 @@ def usage():
     print("")
     print_formatted_text(HTML(
         "<b>MAS Management Actions:</b>\n"+
-        " - <ForestGreen>mas-cli install</ForestGreen>   Install a MAS instance\n"+
-        " - <ForestGreen>mas-cli upgrade</ForestGreen>   Upgrade a MAS instance\n"+
-        " - <ForestGreen>mas-cli uninstall</ForestGreen> Uninstall a MAS instance\n"
+        " - <ForestGreen>mas-cli install</ForestGreen>   Install IBM Maximo Application Suite\n"+
+        " - <ForestGreen>mas-cli update</ForestGreen>    Apply updates and security fixes\n"+
+        " - <ForestGreen>mas-cli upgrade</ForestGreen>   Upgrade to a new MAS release\n"+
+        " - <ForestGreen>mas-cli uninstall</ForestGreen> Remove MAS from the cluster\n"
+
     ))
     print_formatted_text(HTML("For usage information run <ForestGreen>mas-cli [action] --help</ForestGreen>\n"))
 
@@ -52,6 +55,9 @@ if __name__ == '__main__':
         elif function == "uninstall":
             app = UninstallApp()
             app.uninstall(argv[2:])
+        elif function == "update":
+            app = UpdateApp()
+            app.update(argv[2:])
         elif function == "upgrade":
             app = UpgradeApp()
             app.upgrade(argv[2:])

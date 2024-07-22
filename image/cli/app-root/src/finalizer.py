@@ -111,6 +111,7 @@ def getKafkaVersion(namespace):
         print(f"Unable to determine kafka version: {e}")
     return "unknown"
 
+
 # Get cp4d components versions
 # -------------------------------------------------------------------------
 def getcp4dCompsVersions():
@@ -222,6 +223,17 @@ if __name__ == "__main__":
         "timestampFinished": datetime.utcnow()
     }
 
+    # Set CLI and ansible-devops version
+    # -------------------------------------------------------------------------
+    cliVersion = os.getenv("VERSION", "unknown")
+    ansibleDevopsVersion = os.getenv("ANSIBLE_DEVOPS_VERSION", "unknown")
+
+    print(f"CLI Version ............ {cliVersion}")
+    print(f"mas_devops Version ..... {ansibleDevopsVersion}")
+
+    setObject["target.version"] = cliVersion
+    setObject["target.ansibleDevopsVersion"] = ansibleDevopsVersion
+
     # Lookup OCP version
     # -------------------------------------------------------------------------
     cvs = dynClient.resources.get(api_version="config.openshift.io/v1", kind="ClusterVersion")
@@ -283,7 +295,7 @@ if __name__ == "__main__":
             "namespace": f"mas-{instanceId}-visualinspection",
             "apiVersion": "apps.mas.ibm.com/v1",
             "kind": "VisualInspectionApp"
-         }
+        }
     }
 
     # Associate Mas FVT Focal group with respect to product

@@ -1,0 +1,285 @@
+#!/usr/bin/env bash
+
+function gitops_mongo_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops-mongo [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Basic Configuration:
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}   Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}   Cluster ID
+
+AWS Secrets Manager Configuration:
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
+
+MongoDb Provider Selection:
+      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws' or 'yaml')
+
+AWS MongoDb Provider (Required when MONGODB_PROVIDER is aws):
+      --aws-access-key ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}                                       Access Key
+      --aws-secret-key ${COLOR_YELLOW}AWS_SECRET_ACCESS_KEY_ID${TEXT_RESET}                                Secret Key
+      --aws-region ${COLOR_YELLOW}AWS_REGION${TEXT_RESET}                                                  Region
+      --aws-vpc-id ${COLOR_YELLOW}VPC_ID${TEXT_RESET}                                                      VPC ID
+      --aws-docdb-cluster-name ${COLOR_YELLOW}DOCDB_CLUSTER_NAME${TEXT_RESET}                              Cluster Name
+      --aws-docdb-ingress-cidr ${COLOR_YELLOW}DOCDB_INGRESS_CIDR${TEXT_RESET}                              Ingress CIDR
+      --aws-docdb-egress-cidr ${COLOR_YELLOW}DOCDB_EGRESS_CIDR${TEXT_RESET}                                Egress CIDR
+      --aws-docdb-cidr-az1 ${COLOR_YELLOW}DOCDB_CIDR_AZ1${TEXT_RESET}                                      Availability Zone 1 CIDR
+      --aws-docdb-cidr-az2 ${COLOR_YELLOW}DOCDB_CIDR_AZ2${TEXT_RESET}                                      Availability Zone 2 CIDR
+      --aws-docdb-cidr-az3 ${COLOR_YELLOW}DOCDB_CIDR_AZ3${TEXT_RESET}                                      Availability Zone 3 CIDR
+      --aws-docdb-instance-identifier-prefix ${COLOR_YELLOW}DOCDB_INSTANCE_IDENTIFIER_PREFIX${TEXT_RESET}  Prefix
+      --aws-docdb-instance-number ${COLOR_YELLOW}DOCDB_INSTANCE_NUMBER${TEXT_RESET}                        DocDB Instance Count
+      --aws-docdb-engine-version ${COLOR_YELLOW}DOCDB_ENGINE_VERSION${TEXT_RESET}                          DocDB Engine Version
+
+YAML MongoDb Provider (Required when MONGODB_PROVIDER is yaml):
+      --yaml-file ${COLOR_YELLOW}MONGO_YAML_FILE${TEXT_RESET}      Path to MongoDb configuration file
+      --mongo-username ${COLOR_YELLOW}MONGO_USERNAME${TEXT_RESET}  MongoDb Username
+      --mongo-password ${COLOR_YELLOW}MONGO_PASSWORD${TEXT_RESET}  MongoDb Password
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function gitops_mongo_noninteractive() {
+  SECRETS_KEY_SEPERATOR="/"
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+
+      # AWS Secrets Manager Configuration
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
+        ;;
+      --sm-aws-access-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --sm-aws-secret-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+
+      # MongoDb Provider Selection
+      --mongo-provider)
+        export MONGODB_PROVIDER=$1 && shift
+        ;;
+
+      # AWS MongoDb provider
+      --aws-access-key)
+        export AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --aws-secret-key)
+        export AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+      --aws-region)
+        export AWS_REGION=$1 && shift
+        ;;
+      --aws-vpc-id)
+        export VPC_ID=$1 && shift
+        ;;
+      --aws-docdb-cluster-name)
+        export DOCDB_CLUSTER_NAME=$1 && shift
+        ;;
+      --aws-docdb-ingress-cidr)
+        export DOCDB_INGRESS_CIDR=$1 && shift
+        ;;
+      --aws-docdb-egress-cidr)
+        export DOCDB_EGRESS_CIDR=$1 && shift
+        ;;
+      --aws-docdb-cidr-az1)
+        export DOCDB_CIDR_AZ1=$1 && shift
+        ;;
+      --aws-docdb-cidr-az2)
+        export DOCDB_CIDR_AZ2=$1 && shift
+        ;;
+      --aws-docdb-cidr-az3)
+        export DOCDB_CIDR_AZ3=$1 && shift
+        ;;
+      --aws-docdb-instance-identifier-prefix)
+        export DOCDB_INSTANCE_IDENTIFIER_PREFIX=$1 && shift
+        ;;
+      --aws-docdb-instance-number)
+        export DOCDB_INSTANCE_NUMBER=$1 && shift
+        ;;
+      --aws-docdb-engine-version)
+        export DOCDB_ENGINE_VERSION=$1 && shift
+        ;;
+
+      # YAML MongoDb provider
+      --yaml-file)
+        export MONGO_YAML_FILE=$1 && shift
+        ;;
+      --mongo-username)
+        export MONGO_USERNAME=$1 && shift
+        ;;
+      --mongo-password)
+        export MONGO_PASSWORD=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_mongo_help
+        ;;
+      *)
+        # unknown option
+        gitops_mongo_help  "Usage Error: Unsupported option \"${key}\" "
+        ;;
+      esac
+  done
+
+  [[ -z "$ACCOUNT_ID" ]] && gitops_mongo_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_mongo_help "CLUSTER_ID is not set"
+  [[ -z "$MONGODB_PROVIDER" ]] && gitops_mongo_help "MONGODB_PROVIDER is not set"
+
+  if [ $MONGODB_PROVIDER == 'aws' ]; then
+    if [ -z $AWS_ACCESS_KEY_ID ] || [ -z $AWS_SECRET_ACCESS_KEY ] || [ -z $VPC_ID ] || [ -z $AWS_REGION ]; then
+      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region and --aws-vpc-id'
+      exit 1
+    fi
+    if [ -z $DOCDB_INGRESS_CIDR ] || [ -z $DOCDB_EGRESS_CIDR ] || [ -z $DOCDB_CIDR_AZ1 ] || [ -z $DOCDB_CIDR_AZ2 ] || [ -z $DOCDB_CIDR_AZ3 ]; then
+      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-docdb-ingress-cidr, --aws-docdb-egress-cidr, --aws-docdb-cidr-az1, --aws-docdb-cidr-az2 and --aws-docdb-cidr-az3'
+      exit 1
+    fi
+    if [ -z $DOCDB_CLUSTER_NAME ] || [ -z $DOCDB_INSTANCE_IDENTIFIER_PREFIX ]; then
+      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-docdb-instance-identifier-prefix, --aws-docdb-cluster-name'
+      exit 1
+    fi
+  fi
+
+  if [ $MONGODB_PROVIDER == 'yaml' ]; then
+    if [ -z $MONGO_YAML_FILE ] || [ -z $MONGO_USERNAME ] || [ -z $MONGO_PASSWORD ]; then
+      echo 'Missing required params for AWS mongo provider, make sure to provide --yaml-file, --mongo-username, --mongo-password'
+      exit 1
+    fi
+  fi
+}
+
+function gitops_mongo() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_mongo_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_mongo_interactive
+  fi
+
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h4 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "MongoDb" "    "
+  echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
+  if [ $MONGODB_PROVIDER == 'aws' ]; then
+    echo_reset_dim "AWS Access Key ID  ............. ${COLOR_MAGENTA}${AWS_ACCESS_KEY_ID}"
+    echo_reset_dim "AWS Secret Access Key  ......... ${COLOR_MAGENTA}${AWS_SECRET_ACCESS_KEY:0:8}<snip>"
+    echo_reset_dim "AWS Region  .................... ${COLOR_MAGENTA}${AWS_REGION}"
+    echo_reset_dim "AWS VPC ID  .................... ${COLOR_MAGENTA}${VPC_ID}"
+    echo_reset_dim "AWS DOCDB CLUSTER NAME  ........ ${COLOR_MAGENTA}${DOCDB_CLUSTER_NAME}"
+    echo_reset_dim "AWS DOCDB Instance count ....... ${COLOR_MAGENTA}${DOCDB_INSTANCE_NUMBER}"
+  fi
+  if [ $MONGODB_PROVIDER == 'yaml' ]; then
+    echo_reset_dim "YAML Configuration File ........ ${COLOR_MAGENTA}${MONGO_YAML_FILE}"
+  fi
+  reset_colors
+  echo
+
+  export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
+  AVP_TYPE=aws
+  sm_login
+
+  if [ $MONGODB_PROVIDER == 'aws' ]; then
+    # Set the MAS_CONFIG_DIR and MAS_INSTANCE_ID to generate the config details.
+    # The MAS_INSTANCE_ID doesn't have to be the correct instance id
+    # The MONGODB_NAMESPACE defines the name of the config file created
+    CURRENT_DIR=$PWD
+    TEMP_DIR=$CURRENT_DIR/tmp-mongo
+    rm -rf $TEMP_DIR
+    mkdir -p $TEMP_DIR
+    export MAS_CONFIG_DIR=$TEMP_DIR
+    #export MAS_INSTANCE_ID=inst1
+    export MONGODB_NAMESPACE=docdb
+    export ROLE_NAME=mongodb
+    export DOCDB_INSTANCE_NUMBER=${DOCDB_INSTANCE_NUMBER:-"3"}
+    export SLS_MONGO_RETRYWRITES=false
+    export AWS_DEFAULT_OUTPUT="json"
+    export MONGODB_ACTION=install
+    export DOCDB_ENGINE_VERSION=${DOCDB_ENGINE_VERSION:-"4.0.0"}
+    export DOCDB_MASTER_USERNAME=docdbadmin
+    export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
+    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+    DOCDB_MASTER_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)
+    if [[ -n ${DOCDB_MASTER_PASSWORD} ]]; then
+      export DOCDB_MASTER_PASSWORD=${DOCDB_MASTER_PASSWORD}
+      echo "init_mongo : DOCDB_MASTER_PASSWORD=${DOCDB_MASTER_PASSWORD} is available in the secret, use the same while invoking the role again"
+    fi
+
+    ansible-playbook ibm.mas_devops.run_role
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
+
+    # Extract the required details from the generated mongocfg/secret. For docdb this is in base64 encoded form
+    export MONGO_USERNAME=$(yq 'select(di == 0) | .data.username' $TEMP_DIR/mongo-docdb.yml | base64 -d)
+    export MONGO_PASSWORD=$(yq 'select(di == 0) | .data.password' $TEMP_DIR/mongo-docdb.yml| base64 -d)
+    export DOCDB_HOST=$(yq 'select(di == 1) | .spec.config.hosts[0].host' $TEMP_DIR/mongo-docdb.yml)
+    export DOCDB_PORT=$(yq 'select(di == 1) | .spec.config.hosts[0].port' $TEMP_DIR/mongo-docdb.yml)
+    yq 'select(di == 1) | .spec' $TEMP_DIR/mongo-docdb.yml >> $TEMP_DIR/mongo-info.yaml
+    yq -i 'del(.config.credentials)' $TEMP_DIR/mongo-info.yaml
+    yq -i 'del(.displayName)' $TEMP_DIR/mongo-info.yaml
+    yq -i 'del(.type)' $TEMP_DIR/mongo-info.yaml
+
+    UNESCAPED_INFO="$(cat $TEMP_DIR/mongo-info.yaml)"
+    ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
+    ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+
+    echo -e "init_mongo : DOCDB_HOST=$DOCDB_HOST \t DOCDB_PORT=$DOCDB_PORT \t DOCDB_MASTER_USERNAME=$MONGO_USERNAME \t DOCDB_MASTER_PASSWORD=$MONGO_PASSWORD"
+    sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$MONGO_USERNAME\", \"password\": \"$MONGO_PASSWORD\", \"docdb_host\": \"$DOCDB_HOST\", \"docdb_port\": \"$DOCDB_PORT\" }"
+    rm -rf $TEMP_DIR
+
+  elif [ $MONGODB_PROVIDER == 'yaml' ]; then
+    UNESCAPED_INFO="$(cat $MONGO_YAML_FILE)"
+    ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
+    ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+    sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$MONGO_USERNAME\", \"password\": \"$MONGO_PASSWORD\"}"
+  fi
+
+  exit 0
+}

@@ -1,0 +1,263 @@
+#!/usr/bin/env bash
+# TODO: Remove reference to confluence documentation before release
+# setup aws infrastruture
+function gitops_aws_infrastructure_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops_aws_infrastructure [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+AWS Private Infrastructure setup:
+      
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function create_aws_vpc(){    
+  export ROLE_NAME=aws_vpc  
+  export AWS_DEFAULT_OUTPUT="json"  
+  export VPC_NAME=$1  
+  export VPC_CIDR=$2
+  ansible-playbook ibm.mas_devops.run_role  
+}
+
+function create_aws_subnet(){
+  VPC_NAME=$1
+  SUBNET_NAME=$2  
+  CIDR=$3  
+  az=$4
+  VPC_ID=$(cat $CURRENT_DIR/tmp-aws-infrastructure/vpc-${VPC_NAME}-cm.yml | yq '.data.id')
+  describe_subnet=$(aws ec2 describe-subnets --filters '[{"Name": "vpc-id", "Values": ["'${VPC_ID}'"]}, {"Name": "tag:Name", "Values": ["'${SUBNET_NAME}'"]}]' --output yaml | yq '.Subnets[].SubnetId')  
+  if [ -z "$describe_subnet"  ]; then
+    subnetId=$(aws ec2 create-subnet --vpc-id ${VPC_ID} --cidr-block $CIDR --availability-zone ${AWS_REGION}${az} --tag-specifications '[{"ResourceType":"subnet","Tags":[{"Key":"Name","Value": "'${SUBNET_NAME}'" }]}]' --query Subnet.SubnetId --output text)    
+    echo "Sussfully creaed ${subnetId}"  
+  else  
+    echo "Subnet ${describe_subnet} already exist"
+  fi
+}
+
+
+function create_aws_nat_gateway(){  
+  VPC_ID=$1
+  subnetId=$2
+  zone=$3
+  describe_subnet=$(aws ec2 describe-subnets --filters '[{"Name": "vpc-id", "Values": ["'${VPC_ID}'"]}, {"Name": "tag:Name", "Values": ["'${subnetId}'"]}]' --output yaml | yq '.Subnets[].SubnetId')  
+  echo "Create NAT Gateway and Routes for $subnetId on $VPC_ID"
+  ellasticId=$(aws ec2 allocate-address --domain vpc --query AllocationId --output text)
+  export NAT_ID=$(aws ec2 create-nat-gateway --allocation-id $ellasticId --subnet-id $describe_subnet --tag-specifications='[{"ResourceType": "natgateway","Tags":[{"Key": "Name", "Value": "Central-'${AWS_REGION}-${zone}'-nat-gateway''"}]}]' --output text --query NatGateway.NatGatewayId)      
+}
+
+function create_aws_route_table(){
+  name=$1
+  gatewayId=$2
+  subnetId=$3
+  rtbId=$(aws ec2 create-route-table --vpc-id $VPC_ID --query RouteTable.RouteTableId --output text --tag-specifications='[{"ResourceType": "route-table","Tags":[{"Key": "Name", "Value": "'${name}'"}]}]') 
+  aws ec2 create-route --route-table-id $rtbId --destination-cidr-block 0.0.0.0/0 --gateway-id $gatewayId
+  aws ec2 associate-route-table --route-table-id $rtbId --subnet-id $subnetId
+}
+
+
+function create_aws_internet_gateway(){  
+  VPC_ID=$1
+  subnetId=$2
+  describe_subnet=$(aws ec2 describe-subnets --filters '[{"Name": "vpc-id", "Values": ["'${VPC_ID}'"]}, {"Name": "tag:Name", "Values": ["'${subnetId}'"]}]' --output yaml | yq '.Subnets[].SubnetId')  
+  echo "Create Internet Gateway and Routes for $subnetId on $VPC_ID"
+  igwId=$(aws ec2 create-internet-gateway --query InternetGateway.InternetGatewayId --output text --tag-specifications='[{"ResourceType": "natgateway","Tags":[{"Key": "Name", "Value": "Central-'${AWS_REGION}'-int-gateway-'$subnetId'"}]}]' )
+  echo "$igwId Sussfully created"
+  aws ec2 attach-internet-gateway --vpc-id $VPC_ID --internet-gateway-id $igwId 
+  rtbId=$(aws ec2 create-route-table --vpc-id $VPC_ID --query RouteTable.RouteTableId --output text)
+  aws ec2 create-route --route-table-id $rtbId --destination-cidr-block 0.0.0.0/0 --gateway-id $igwId
+  aws ec2 associate-route-table --route-table-id $rtbId --subnet-id $subnetId
+}
+
+function set_aws_vpc_dns_options(){
+  VPC_NAME=$1
+  VPC_ID=$(cat $CURRENT_DIR/tmp-aws-infrastructure/vpc-${VPC_NAME}-cm.yml | yq '.data.id')
+  aws ec2  modify-vpc-attribute --enable-dns-hostnames --vpc-id $VPC_ID 
+  aws ec2  modify-vpc-attribute --enable-dns-support --vpc-id $VPC_ID 
+}
+
+function create_vpc_endpoint(){
+  VPC_NAME=$1
+  VPC_ID=$(cat $CURRENT_DIR/tmp-aws-infrastructure/vpc-${VPC_NAME}-cm.yml | yq '.data.id')
+  VPC_RTB=$(aws ec2 describe-route-tables --filters '[{"Name": "vpc-id", "Values": ["'${VPC_ID}'"]}]' --output yaml | yq '.RouteTables[].RouteTableId' )  
+  aws ec2 create-vpc-endpoint \
+    --vpc-id $VPC_ID \
+    --service-name com.amazonaws.${AWS_REGION}.s3 \
+    --route-table-ids $VPC_RTB
+}
+
+function create_aws_transit_gateway(){
+  TGW_DESCRIPTION=$1  
+  aws ec2 describe-transit-gateways --filters='[{"Name": "state", "Values": ["available", "pending"]}]' --output yaml  >> $CURRENT_DIR/tmp-aws-infrastructure/transigateways.yml
+  tags=$(cat $CURRENT_DIR/tmp-aws-infrastructure/transigateways.yml | yq '.TransitGateways[].Tags[].Value')  
+  if [[ "$tags" == *"tgw01"* ]]; then    
+    echo "TransitGateway already exist"    
+  else
+    aws ec2 create-transit-gateway --description $TGW_DESCRIPTION --tag-specifications='[{"ResourceType": "transit-gateway","Tags":[{"Key": "Name", "Value": "mas-tgw01"}]}]' --options AutoAcceptSharedAttachments=disable,DefaultRouteTableAssociation=enable,DefaultRouteTablePropagation=enable,VpnEcmpSupport=enable,DnsSupport=enable --output yaml >> $CURRENT_DIR/tmp-aws-infrastructure/transigateway.yml
+    echo "TransitGateway was successfully created"
+  fi
+}
+
+
+function create_aws_transit_gateway_attachement(){  
+  VPC_ID=$1 
+  VPC_NAME=$2
+  if [[ "$VPC_NAME" == *"Central"* ]]; then
+    SUBNET_IDS=$(aws ec2 describe-subnets --filters '[{"Name": "vpc-id", "Values": ["'${VPC_ID}'"]}, {"Name": "tag:Name", "Values": ["my-ipv4-'${AWS_REGION}'a-private-subnet", "my-ipv4-'${AWS_REGION}'b-private-subnet", "my-ipv4-'${AWS_REGION}'c-private-subnet" ]}]' --output yaml | yq '.Subnets[].SubnetId' |  sed -e 'H;${x;s/\n/ /g;s/^,//;p;};d')
+  else
+    SUBNET_IDS=$(aws ec2 describe-subnets --filters '[{"Name": "vpc-id", "Values": ["'${VPC_ID}'"]}, {"Name": "tag:Name", "Values": ["my-ipv4-rosa'${AWS_REGION}'a-private-subnet", "my-ipv4-rosa'${AWS_REGION}'b-private-subnet", "my-ipv4-rosa'${AWS_REGION}'c-private-subnet" ]}]' --output yaml | yq '.Subnets[].SubnetId' |  sed -e 'H;${x;s/\n/ /g;s/^,//;p;};d')  
+  fi
+  
+  TGW_ID=$(cat $CURRENT_DIR/tmp-aws-infrastructure/transigateways.yml | yq '.TransitGateways[].TransitGatewayId')  
+  aws ec2 create-transit-gateway-vpc-attachment --transit-gateway-id $TGW_ID --vpc-id $VPC_ID --subnet-ids $SUBNET_IDS --options DnsSupport=enable,Ipv6Support=disable --output yaml >> $CURRENT_DIR/tmp-aws-infrastructure/transigatewayattachment-${VPC_ID}.yml
+}
+
+
+function create_aws_transit_gateway_route(){
+  VPC_ID=$1
+  CIDR="0.0.0.0/0"
+  TGW_ID=$(cat $CURRENT_DIR/tmp-aws-infrastructure/transigateways.yml | yq '.TransitGateways[].TransitGatewayId')  
+  VPC_RTB=$(aws ec2 describe-transit-gateway-route-tables --filters '[{"Name": "transit-gateway-id", "Values": ["'${TGW_ID}'"]}]' --output yaml | yq '.TransitGatewayRouteTables[].TransitGatewayRouteTableId' )  
+  TGW_ATTACHMENT_ID=$(cat $CURRENT_DIR/tmp-aws-infrastructure/transigatewayattachment-${VPC_ID}.yml | yq '.TransitGatewayVpcAttachment.TransitGatewayAttachmentId')
+  aws ec2 create-transit-gateway-route --destination-cidr-block $CIDR --transit-gateway-route-table-id $VPC_RTB --transit-gateway-attachment-id $TGW_ATTACHMENT_ID
+}
+
+function create_aws_vpn_endpoint(){
+  # Generate Cert and import to aws
+  # Create vpn client
+  echo "Not Supported" 
+}
+
+function create_aws_tgw_peering(){
+  echo "Not Supported"
+}
+
+
+
+function gitops_aws_infrastructure(){
+  shift
+  # if [[ $# -gt 0 ]]; then
+  #   gitops_aws_infrastructure_noninteractive "$@"
+  # else
+  #   echo "Not supported yet"
+  #   exit 1
+  #   gitops_aws_infrastructure_interactive
+  # fi  
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo "VPC Details"
+
+# Setup temp dir
+# ---------------------------------------------------------------------------
+CURRENT_DIR=$PWD
+rm -rf $CURRENT_DIR/tmp-aws-infrastructure/transigateways.yml
+TEMP_DIR=$CURRENT_DIR/tmp-aws-infrastructure
+mkdir -p $TEMP_DIR
+export MAS_CONFIG_DIR=$TEMP_DIR
+  
+
+# Creating Central VPC ( Internet Facing )
+# https://collaborate.mro.com/display/MASMS/Create+VPC+and+Subnets
+# ---------------------------------------------------------------------------
+echo
+echo "Creating Central VPC ( Internet Facing )"
+create_aws_vpc "Central-${AWS_REGION}" "10.1.0.0/23"
+CENTRAL_VPC_ID=$(cat $CURRENT_DIR/tmp-aws-infrastructure/vpc-Central-${AWS_REGION}-cm.yml | yq '.data.id')
+
+echo "Creating Central VPC ( Internet Facing ) Private Subnets"
+create_aws_subnet "Central-${AWS_REGION}"  "my-ipv4-${AWS_REGION}a-private-subnet" '10.1.0.192/26' a 
+create_aws_subnet "Central-${AWS_REGION}"  "my-ipv4-${AWS_REGION}b-private-subnet" '10.1.1.0/26' b
+create_aws_subnet "Central-${AWS_REGION}" "my-ipv4-${AWS_REGION}c-private-subnet" '10.1.1.64/26' c
+
+echo "Creating Central VPC ( Internet Facing ) Public Subnets"
+create_aws_subnet "Central-${AWS_REGION}"  "my-ipv4-${AWS_REGION}a-public-subnet" '10.1.0.0/26' a
+create_aws_subnet "Central-${AWS_REGION}"  "my-ipv4-${AWS_REGION}b-public-subnet" '10.1.0.64/26' b
+create_aws_subnet "Central-${AWS_REGION}" "my-ipv4-${AWS_REGION}c-public-subnet" '10.1.0.128/26' c
+
+create_aws_nat_gateway $CENTRAL_VPC_ID  "my-ipv4-${AWS_REGION}a-public-subnet" '10.1.0.0/26' a
+create_aws_nat_gateway $CENTRAL_VPC_ID  "my-ipv4-${AWS_REGION}b-public-subnet" '10.1.0.64/26' b
+create_aws_nat_gateway $CENTRAL_VPC_ID "my-ipv4-${AWS_REGION}c-public-subnet" '10.1.0.128/26' c
+
+create_aws_route_table  "Central-${AWS_REGION}-rtb-private1-${AWS_REGION}a" "my-ipv4-${AWS_REGION}a-private-subnet" a $NAT_ID 
+create_aws_route_table  "Central-${AWS_REGION}-rtb-private2-${AWS_REGION}a" "my-ipv4-${AWS_REGION}b-private-subnet" b $NAT_ID
+create_aws_route_table  "Central-${AWS_REGION}-rtb-private3-${AWS_REGION}a" "my-ipv4-${AWS_REGION}c-private-subnet" c $NAT_ID
+
+# Creating Transit Gateway
+# Reference AWS official doc: https://docs.aws.amazon.com/vpc/latest/tgw/tgw-transit-gateways.html#create-tgw
+# SRE https://collaborate.mro.com/display/MASMS/Create+TGW
+# ---------------------------------------------------------------------------
+echo "Creating Transist Gateway"
+create_aws_transit_gateway "mas-${AWS_REGION}-tgw01"
+TGW_ID=$(cat $CURRENT_DIR/tmp-aws-infrastructure/transigateways.yml | yq '.TransitGateways[].TransitGatewayId')
+create_aws_route_table  "Central-${AWS_REGION}-rtb-public1-${AWS_REGION}a" "my-ipv4-${AWS_REGION}a-public-subnet" a $TGW_ID 
+create_aws_route_table  "Central-${AWS_REGION}-rtb-public2-${AWS_REGION}a" "my-ipv4-${AWS_REGION}b-public-subnet" b $TGW_ID
+create_aws_route_table  "Central-${AWS_REGION}-rtb-public3-${AWS_REGION}a" "my-ipv4-${AWS_REGION}c-public-subnet" c $TGW_ID
+
+
+echo "Enable DNS Options for Central-${AWS_REGION}"
+set_aws_vpc_dns_options "Central-${AWS_REGION}"
+
+create_aws_internet_gateway "Central-${AWS_REGION}"
+
+
+# Creating Cluster VPCs ( Non Internet Facing )
+# https://collaborate.mro.com/display/MASMS/Create+VPC+and+Subnets
+# ---------------------------------------------------------------------------
+echo
+echo "Creating ROSA VPC ( Non Internet Facing )"
+create_aws_vpc "ROSA-${AWS_REGION}" "10.64.0.0/16"
+ROSA_VPC_ID=$(cat $CURRENT_DIR/tmp-aws-infrastructure/vpc-ROSA-${AWS_REGION}-cm.yml | yq '.data.id')
+
+echo "Creating ROSA VPC ( Non Internet Facing ) Private Subnets"
+create_aws_subnet "ROSA-${AWS_REGION}"  "my-ipv4-rosa${AWS_REGION}a-private-subnet" '10.64.8.0/23' a
+create_aws_subnet "ROSA-${AWS_REGION}"  "my-ipv4-rosa${AWS_REGION}b-private-subnet" '10.64.10.0/23' b
+create_aws_subnet "ROSA-${AWS_REGION}" "my-ipv4-rosa${AWS_REGION}c-private-subnet" '10.64.12.0/23' c
+
+
+create_aws_route_table  "ROSA-${AWS_REGION}-rtb-private1-${AWS_REGION}a" "my-ipv4-${AWS_REGION}a-private-subnet" a
+create_aws_route_table  "ROSA-${AWS_REGION}-rtb-private2-${AWS_REGION}a" "my-ipv4-${AWS_REGION}b-private-subnet" b
+create_aws_route_table  "ROSA-${AWS_REGION}-rtb-private3-${AWS_REGION}a" "my-ipv4-${AWS_REGION}c-private-subnet" c
+
+echo "Enable DNS Options for ROSA-${AWS_REGION}"
+set_aws_vpc_dns_options "ROSA-${AWS_REGION}"
+
+echo "Enable DNS Options for ROSA-${AWS_REGION}"
+create_vpc_endpoint "ROSA-${AWS_REGION}"
+
+
+# Creating Transit Gateway Attachments for Central VPC
+# Reference AWS official doc: https://docs.aws.amazon.com/vpc/latest/tgw/tgw-transit-gateways.html#create-tgw
+# SRE https://collaborate.mro.com/display/MASMS/Create+TGW
+# ---------------------------------------------------------------------------
+echo "Creating Trasist Gateway Attachment"
+create_aws_transit_gateway_attachement $CENTRAL_VPC_ID "Central-${AWS_REGION}" 
+
+create_aws_transit_gateway_attachement $ROSA_VPC_ID "ROSA-${AWS_REGION}" 
+create_aws_transit_gateway_route  $CENTRAL_VPC_ID
+
+
+modify_subnet_route_table
+
+
+
+# echo "Creating VPN Endpoint"
+create_aws_vpn_endpoint
+
+
+}

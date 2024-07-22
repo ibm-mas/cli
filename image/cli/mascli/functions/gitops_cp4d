@@ -1,0 +1,304 @@
+#!/usr/bin/env bash
+
+function gitops_cp4d_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops_cp4d [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+GitOps Configuration:
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
+  -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}              Region ID
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
+
+IBM Maximo Application Suite:
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}   IBM Suite Maximo Application Suite Instance ID
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+
+IBM CP4D:
+      --cpd-product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                    CP4D Product Version
+      --cpd-instance-namespace ${COLOR_YELLOW}CPD_INSTANCE_NAMESPACE{TEXT_RESET}               CP4D Instance namespace to use
+      --cpd-operators-namespace ${COLOR_YELLOW}CPD_OPERATORS_NAMESPACE${TEXT_RESET}            CP4D Operators namespace to use
+      --cpd-primary-storage-class ${COLOR_YELLOW}CPD_PRIMARY_STORAGE_CLASS${TEXT_RESET}        CP4D Primary StorageClass
+      --cpd-metadata-storage-class ${COLOR_YELLOW}CPD_METADATA_STORAGE_CLASS${TEXT_RESET}      CP4D MetaData StorageClass
+      --cpfs-size ${COLOR_YELLOW}CPFS_SIZE${TEXT_RESET}                                        CommonServices CR Size
+      --cpd-scale-config ${COLOR_YELLOW}CPD_SCALE_CONFIG${TEXT_RESET}                          Scale config for IBM ZenServices
+
+Automatic GitHub Push:
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
+  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}         Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}          Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
+  -S , --github-ssh  ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}           Git ssh key path
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_cp4d_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPERATOR="/"
+  GIT_COMMIT_MSG="gitops-cp4d commit"
+
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -g|--gitops-version)
+        echo "${COLOR_YELLOW}WARNING: the -g|--gitops-version parameter is deprecated; it has no effect and will be removed in a future release${COLOR_RESET}"
+        shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      -r|--region-id)
+        export REGION_ID=$1 && shift
+        ;;
+
+      # MAS
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+
+      # Secrets Manager
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+
+      # CP4D
+      --cpd-product-version)
+      export CPD_PRODUCT_VERSION=$1 && shift
+        ;;
+      --cpd-operators-namespace)
+      export CPD_OPERATORS_NAMESPACE=$1 && shift
+        ;;
+      --cpd-instance-namespace)
+      export CPD_INSTANCE_NAMESPACE=$1 && shift
+        ;;
+      --cpd-primary-storage-class)
+      export CPD_PRIMARY_STORAGE_CLASS=$1 && shift
+        ;;
+      --cpd-metadata-storage-class)
+      export CPD_METADATA_STORAGE_CLASS=$1 && shift
+        ;;
+      --cpfs-size)
+      export CPFS_SIZE=$1 && shift
+        ;;
+      --cpd-scale-config)
+      export CPD_SCALE_CONFIG=$1 && shift
+        ;;
+
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+        
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_cp4d_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_cp4d_help  "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_cp4d_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_cp4d_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_cp4d_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" ]] && gitops_cp4d_help "REGION_ID is not set"
+
+  # MAS
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cp4d_help "MAS_INSTANCE_ID is not set"
+
+  [[ -z "$CPD_PRODUCT_VERSION" ]] && gitops_cp4d_help "CPD_PRODUCT_VERSION is not set"
+  [[ -z "$CPD_PRIMARY_STORAGE_CLASS" ]] && gitops_cp4d_help "CPD_PRIMARY_STORAGE_CLASS is not set"
+  [[ -z "$CPD_METADATA_STORAGE_CLASS" ]] && gitops_cp4d_help "CPD_METADATA_STORAGE_CLASS is not set"
+
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_cp4d_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_cp4d_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_cp4d_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_cp4d_help "GIT_BRANCH is not set"
+  fi
+
+}
+
+function gitops_cp4d() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_cp4d_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_cp4d_interactive
+  fi
+
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+
+  export CPD_OPERATORS_NAMESPACE=${CPD_OPERATORS_NAMESPACE:-"ibm-cpd-${MAS_INSTANCE_ID}-operators"}
+  export CPD_INSTANCE_NAMESPACE=${CPD_INSTANCE_NAMESPACE:-"ibm-cpd-${MAS_INSTANCE_ID}-instance"}
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Secrets Manager" "    "
+  echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host .................................. ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "CP4D" "    "
+  echo_reset_dim "CPD_PRODUCT_VERSION  ..................... ${COLOR_MAGENTA}${CPD_PRODUCT_VERSION}"
+  echo_reset_dim "CPD_OPERATORS_NAMESPACE  ................. ${COLOR_MAGENTA}${CPD_OPERATORS_NAMESPACE}"
+  echo_reset_dim "CPD_INSTANCE_NAMESPACE  .................. ${COLOR_MAGENTA}${CPD_INSTANCE_NAMESPACE}"
+  echo_reset_dim "CPD_PRIMARY_STORAGE_CLASS  ............... ${COLOR_MAGENTA}${CPD_PRIMARY_STORAGE_CLASS}"
+  echo_reset_dim "CPD_METADATA_STORAGE_CLASS  .............. ${COLOR_MAGENTA}${CPD_METADATA_STORAGE_CLASS}"
+
+  reset_colors
+
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$CURRENT_DIR/tmp-cp4d
+  mkdir -p $TEMP_DIR
+
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
+
+
+  AVP_TYPE=aws  # Support for IBM will be added later
+
+  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
+  export SECRET_KEY_NAMESPACE_SCOPE_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}namespace_scope_channel#namespace_scope_channel
+  export SECRET_KEY_LICENSING_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}licensing_channel#licensing_channel
+  export SECRET_KEY_LICENSING_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}licensing_version#licensing_version
+  export SECRET_KEY_CPFS_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cpfs_channel#cpfs_channel
+  export SECRET_KEY_CPD_PLATFORM_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cpd_platform_channel#cpd_platform_channel
+
+
+  # Default settings
+  export CPD_CS_CONTROL_NAMESPACE="cs-${MAS_INSTANCE_ID}-control"
+  export CPD_ADMIN_LOGIN_SA="mas-cpd-cluster-admin-sa"
+  export CPD_PLATFORM_CR_NAME="ibmcpd-cr"
+  export CPD_IAM_INTEGRATION=false
+  export CPFS_SIZE=${CPFS_SIZE:-small}
+  export CPD_SCALE_CONFIG=${CPD_SCALE_CONFIG:-medium}
+
+
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  CLUSTER_ROOT_APP="cluster.${CLUSTER_ID}"
+  INSTANCE_ROOT_APP="instance.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+  CP4D_APP_NAME="cp4d.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+  validate_app_name "${CLUSTER_ROOT_APP}"
+  validate_app_name "${INSTANCE_ROOT_APP}"
+  validate_app_name "${CP4D_APP_NAME}"
+
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_INSTANCE_DIR}
+
+  # Generate ArgoApps
+  # ----------------------------------------------------------------------------
+  echo
+  echo_h2 "Generating CP4D Platform Operator Applications"
+  echo "- CP4D operator"
+
+  echo "Generating IBM CP4D file ${GITOPS_INSTANCE_DIR}/ibm-cp4d.yaml"
+  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-cp4d.yaml
+
+
+  # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
+}
