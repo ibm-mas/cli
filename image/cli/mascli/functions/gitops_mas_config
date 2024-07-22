@@ -1,0 +1,863 @@
+#!/usr/bin/env bash
+
+function gitops_mas_config_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops_mas_config [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Options:
+
+GitOps Configuration:
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                     Working directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                      Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
+  --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
+  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
+  --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
+  --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}  Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion. !!! PostDelete hooks should never be used when ArgoCD version < 2.10 !!! 
+
+IBM Maximo Application Suite:
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID
+  --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                       MAS Application scope for this configuration (required if MAS_CONFIG_SCOPE is app or wsapp)     
+  --mas-workspace-id ${COLOR_YELLOW}MAS_WORKSPACE_ID${TEXT_RESET}           MAS Workspace scope for this configuration (required if MAS_CONFIG_SCOPE is ws or wsapp)
+  --mas-wipe-mongo-data ${COLOR_YELLOW}MAS_WIPE_MONGO_DATA${TEXT_RESET}     Flag to wipe mongo data on MAS uninstall
+
+AWS Secrets Manager Configuration (Required):
+  --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
+  --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
+  --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
+  --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
+
+Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
+  --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. One of aws|yaml (defaults to yaml)
+
+DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
+  --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}             The email address to register with DRO
+  --dro-contact-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}     The first name to register with DRO
+  --dro-contact-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}       The last name to register with DRO
+  --dro-ca-certificate-file ${COLOR_YELLOW}DRO_CA_CERTIFICATE_FILE${TEXT_RESET} The location of a file containing the DRO CA certificate
+  --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                 The segment key for authentication for Segment
+
+IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
+  --idpcfg-display-name ${COLOR_YELLOW}IDPCFG_DISPLAY_NAME${TEXT_RESET}       Display name for IDPCfg resource
+  --ldap-url ${COLOR_YELLOW}LDAP_URL${TEXT_RESET}                             Url of the LDAP server. In the form protocol://host:port
+  --ldap-basedn ${COLOR_YELLOW}LDAP_BASEDN${TEXT_RESET}                       The baseDN for the LDAP server
+  --ldap-userid-map ${COLOR_YELLOW}LDAP_USERID_MAP${TEXT_RESET}               LDAP UserId map
+  --ldap-certificate-file ${COLOR_YELLOW}LDAP_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for LDAP server
+  --ldap-bind-dn ${COLOR_YELLOW}LDAP_BIND_DN${TEXT_RESET}                     DN for LDAP server authentication
+  --ldap-bind-password ${COLOR_YELLOW}LDAP_BIND_PASSWORD${TEXT_RESET}         Password for LDAP server authenticaiton
+
+JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):
+  --jdbc-type ${COLOR_YELLOW}JDBC_TYPE${TEXT_RESET}                           Set to 'incluster-db2' when wanting to use the gitops configured, via gitops-db2u-database, db2u cluster (defaults to incluster-db2)
+  --jdbc-instance-name ${COLOR_YELLOW}JDBC_INSTANCE_NAME${TEXT_RESET}         The JDBC instance name to use. Required for all JDBC_TYPE's
+  --jdbc-connection-url ${COLOR_YELLOW}JDBC_CONNECTION_URL${TEXT_RESET}       The JDBC connection URL. Required when JDBC_TYPE is not incluster-db2
+  --jdbc-certificate-file ${COLOR_YELLOW}JDBC_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for JDBC server. Required when JDBC_TYPE is not incluster-db2
+
+SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"): 
+  --smtp-display-name ${COLOR_YELLOW}SMTP_DISPLAY_NAME${TEXT_RESET}                                       Display name for SmtpCfg resource
+  --smtp-host ${COLOR_YELLOW}SMTP_HOST${TEXT_RESET}                                                        Host of the SMTP server
+  --smtp-port ${COLOR_YELLOW}SMTP_PORT${TEXT_RESET}                                                       Port of the SMTP server
+  --smtp-security ${COLOR_YELLOW}SMTP_SECURITY${TEXT_RESET}                                               Security protocol. None, STARTTLS or SSL
+  --smtp-authentication ${COLOR_YELLOW}SMTP_AUTHENTICATION${TEXT_RESET}                                   true or false on whether to authenticate
+  --smtp-default-sender-email ${COLOR_YELLOW}SMTP_DEFAULT_SENDER_EMAIL${TEXT_RESET}                       The default sender email
+  --smtp-default-sender-name ${COLOR_YELLOW}SMTP_DEFAULT_SENDER_NAME${TEXT_RESET}                         The default sender name
+  --smtp-default-recipient-email ${COLOR_YELLOW}SMTP_DEFAULT_RECIPIENT_EMAIL${TEXT_RESET}                 The default recipient email
+  --smtp-default-should-email-passwords ${COLOR_YELLOW}SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS${TEXT_RESET}   true or false on sending email passwords
+  --smtp-username ${COLOR_YELLOW}SMTP_USERNAME${TEXT_RESET}                                               Username for SMTP server authentication
+  --smtp-password ${COLOR_YELLOW}SMTP_PASSWORD${TEXT_RESET}          
+
+Automatic GitHub Push:
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
+  -O, --github-org ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}          Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
+  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}             Git ssh key path
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}          Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_mas_config_noninteractive() {
+  # Set defaults
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPERATOR="/"
+
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      -W|--mas-workspace-id)
+        export MAS_WORKSPACE_ID=$1 && shift
+        ;;
+      --mas-wipe-mongo-data)
+        export MAS_WIPE_MONGO_DATA=$1 && shift
+        ;;
+      --mas-app-id)
+        export MAS_APP_ID=$1 && shift
+        ;;
+      --disable-postdelete-hooks)
+        export USE_POSTDELETE_HOOKS=false
+        ;;
+
+      --mas-config-type)
+        export MAS_CONFIG_TYPE=$1 && shift
+        ;;
+      --mas-config-scope)
+        export MAS_CONFIG_SCOPE=$1 && shift
+        ;;
+
+      --config-action)
+        export CONFIG_ACTION=$1 && shift
+        ;;
+
+      # MongoDb Provider Selection
+      --mongo-provider)
+        export MONGODB_PROVIDER=$1 && shift
+        ;;
+
+      # DRO
+      --dro-contact-email)
+        export DRO_CONTACT_EMAIL=$1 && shift
+        ;;
+      --dro-contact-firstname)
+        export DRO_CONTACT_FIRSTNAME=$1 && shift
+        ;;
+      --dro-contact-lastname)
+        export DRO_CONTACT_LASTNAME=$1 && shift
+        ;;
+      --dro-ca-certificate-file)
+        export DRO_CA_CERTIFICATE_FILE=$1 && shift
+        ;;
+      --mas-segment-key)
+        export MAS_SEGMENT_KEY=$1 && shift
+        ;;
+
+      # LDAP
+      --idpcfg-display-name)
+        export IDPCFG_DISPLAY_NAME=$1 && shift
+        ;;
+      --ldap-url)
+        export LDAP_URL=$1 && shift
+        ;;
+      --ldap-basedn)
+        export LDAP_BASEDN=$1 && shift
+        ;;
+      --ldap-userid-map)
+        export LDAP_USERID_MAP=$1 && shift
+        ;;
+      --ldap-certificate-file)
+        export LDAP_CERTIFICATE_FILE=$1 && shift
+        ;; 
+      --ldap-bind-dn)
+        export LDAP_BIND_DN=$1 && shift
+        ;;
+      --ldap-bind-password)
+        export LDAP_BIND_PASSWORD=$1 && shift
+        ;;
+
+      # JDBC
+      --jdbc-type)
+        export JDBC_TYPE=$1 && shift
+        ;;
+      --jdbc-instance-name)
+        export JDBC_INSTANCE_NAME=$1 && shift
+        ;;
+      --jdbc-connection-url)
+        export JDBC_CONNECTION_URL=$1 && shift
+        ;;
+      --jdbc-certificate-file)
+        export JDBC_CERTIFICATE_FILE=$1 && shift
+        ;; 
+
+      # SMTP
+      --smtp-display-name)
+        export SMTP_DISPLAY_NAME=$1 && shift
+        ;;
+      --smtp-host)
+        export SMTP_HOST=$1 && shift
+        ;;
+      --smtp-port)
+        export SMTP_PORT=$1 && shift
+        ;;
+      --smtp-security)
+        export SMTP_SECURITY=$1 && shift
+        ;;
+      --smtp-authentication)
+        export SMTP_AUTHENTICATION=$1 && shift
+        ;; 
+      --smtp-default-sender-email)
+        export SMTP_DEFAULT_SENDER_EMAIL=$1 && shift
+        ;;
+      --smtp-default-sender-name)
+        export SMTP_DEFAULT_SENDER_NAME=$1 && shift
+        ;;
+      --smtp-default-recipient-email)
+        export SMTP_DEFAULT_RECIPIENT_EMAIL=$1 && shift
+        ;;
+      --smtp-default-should-email-passwords)
+        export SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS=$1 && shift
+        ;;
+      --smtp-username)
+        export SMTP_USERNAME=$1 && shift
+        ;;
+      --smtp-password)
+        export SMTP_PASSWORD=$1 && shift
+        ;;
+
+      # AWS Secrets Manager Configuration
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
+        ;;
+      --sm-aws-access-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --sm-aws-secret-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+
+      -h|--help)
+        gitops_mas_config_help
+        ;;
+      *)
+        # unknown option
+        gitops_mas_config_help "Usage Error: Unsupported option \"${key}\" "
+        ;;
+      esac
+  done
+
+
+
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_mas_config_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_mas_config_help "ACCOUNT_ID is not set"
+  [[ -z "$REGION_ID" ]] && gitops_mas_config_help "REGION_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_mas_config_help "CLUSTER_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
+  
+  [[ -z "$CONFIG_ACTION" ]] && gitops_mas_config_help "CONFIG_ACTION is not set"
+  if ! [[ "$CONFIG_ACTION" =~ ^(upsert|remove)$ ]]; then
+    gitops_mas_config_help "Invalid CONFIG_ACTION \"${CONFIG_ACTION}\"; must be one of 'upsert' or 'remove'"
+  fi
+
+  [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
+  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
+    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
+  fi
+
+  [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_mas_config_help "MAS_CONFIG_SCOPE is not set"
+  if ! [[ "$MAS_CONFIG_SCOPE" =~ ^(system|ws|app|wsapp)$ ]]; then
+    gitops_mas_config_help "Invalid MAS_CONFIG_SCOPE \"${CONFIG_ACTION}\"; must be one of system|ws|app|wsapp"
+  fi
+
+  if [[ "$MAS_CONFIG_SCOPE" =~ ^(ws|wsapp)$ ]]; then
+    [[ -z "$MAS_WORKSPACE_ID" ]] && gitops_mas_config_help "MAS_WORKSPACE_ID must be set when MAS_CONFIG_SCOPE is one of ws|wsapp"
+  fi
+
+  if [[ "$MAS_CONFIG_SCOPE" =~ ^(app|wsapp)$ ]]; then
+    [[ -z "$MAS_APP_ID" ]] && gitops_mas_config_help "MAS_APP_ID must be set when MAS_CONFIG_SCOPE is one of app|wsapp"
+  fi
+
+
+  # Per config-type parameter validation
+  # Only necessary if config action is "upsert" (we don't need the values for a config if we're just removing it)
+  if [ "${CONFIG_ACTION}" == "upsert" ]; then
+
+    if [ "${MAS_CONFIG_TYPE}" == "mongo" ]; then
+      export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
+      if ! [[ "$MONGODB_PROVIDER" =~ ^(aws|yaml)$ ]]; then
+        gitops_mas_config_help "Invalid MONGODB_PROVIDER \"${MONGODB_PROVIDER}\"; must be one of aws|yaml"
+      fi
+    fi
+
+
+    if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
+      [[ -z "$DRO_CONTACT_EMAIL" ]] && gitops_mas_config_help "DRO_CONTACT_EMAIL is not set"
+      [[ -z "$DRO_CONTACT_FIRSTNAME" ]] && gitops_mas_config_help "DRO_CONTACT_FIRSTNAME is not set"
+      [[ -z "$DRO_CONTACT_LASTNAME" ]] && gitops_mas_config_help "DRO_CONTACT_LASTNAME is not set"
+      [[ -z "$DRO_CA_CERTIFICATE_FILE" ]] && gitops_mas_config_help "DRO_CA_CERTIFICATE_FILE is not set"
+    fi
+
+    # if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
+      # No specific parameters required for sls at present; they are all fetched from SM
+    # fi
+
+    # if [ "${MAS_CONFIG_TYPE}" == "kafka" ]; then
+      # No specific parameters required for kafka at present; they are all fetched from SM
+    # fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
+      export IDPCFG_DISPLAY_NAME=${IDPCFG_DISPLAY_NAME:="Suite IDPCfg"}
+
+      [[ -z "$LDAP_URL" ]] && gitops_mas_config_help "LDAP_URL is not set"
+      [[ -z "$LDAP_BASEDN" ]] && gitops_mas_config_help "LDAP_BASEDN is not set"
+      [[ -z "$LDAP_USERID_MAP" ]] && gitops_mas_config_help "LDAP_USERID_MAP is not set"
+      [[ -z "$LDAP_CERTIFICATE_FILE" ]] && gitops_mas_config_help "LDAP_CERTIFICATE_FILE is not set"
+      [[ -z "$LDAP_BIND_DN" ]] && gitops_mas_config_help "LDAP_BIND_DN is not set"
+      [[ -z "$LDAP_BIND_PASSWORD" ]] && gitops_mas_config_help "LDAP_BIND_PASSWORD is not set"
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
+      export JDBC_TYPE=${JDBC_TYPE:-incluster-db2}
+      if [[ -z $JDBC_INSTANCE_NAME ]]; then
+        export JDBC_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+      fi
+      if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
+        [[ -n "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is set when JDBC_TYPE is incluster-db2"
+      else
+        [[ -z "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is not set"
+        [[ -z "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is not set"
+        [[ -z "$JDBC_CERTIFICATE_FILE" ]] && gitops_mas_config_help "JDBC_CERTIFICATE_FILE is not set"
+      fi
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
+      export SMTP_DISPLAY_NAME=${SMTP_DISPLAY_NAME:="Suite SMTP"}
+      [[ -z "$SMTP_HOST" ]] && gitops_mas_config_help "SMTP_HOST is not set"
+      [[ -z "$SMTP_PORT" ]] && gitops_mas_config_help "SMTP_PORT is not set"
+      [[ -z "$SMTP_SECURITY" ]] && gitops_mas_config_help "SMTP_SECURITY is not set"
+      [[ -z "$SMTP_AUTHENTICATION" ]] && gitops_mas_config_help "SMTP_AUTHENTICATION is not set"
+      [[ -z "$SMTP_DEFAULT_SENDER_EMAIL" ]] && gitops_mas_config_help "SMTP_DEFAULT_SENDER_EMAIL is not set"
+      [[ -z "$SMTP_DEFAULT_SENDER_NAME" ]] && gitops_mas_config_help "SMTP_DEFAULT_SENDER_NAME is not set"
+      [[ -z "$SMTP_DEFAULT_RECIPIENT_EMAIL" ]] && gitops_mas_config_help "SMTP_DEFAULT_RECIPIENT_EMAIL is not set"
+      [[ -z "$SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS" ]] && gitops_mas_config_help "SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS is not set"
+      [[ -z "$SMTP_USERNAME" ]] && gitops_mas_config_help "SMTP_USERNAME is not set"
+      [[ -z "$SMTP_PASSWORD" ]] && gitops_mas_config_help "SMTP_PASSWORD is not set"
+    fi
+  fi # [ "${CONFIG_ACTION}" == "upsert" ]
+
+
+  # A subset of the per-config upsert parameters are still required to remove certain configs
+  # (i.e. to resolve the paths of the secrets we need to delete)
+  if [ "${CONFIG_ACTION}" == "remove" ]; then
+    if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
+      if [[ -z $JDBC_INSTANCE_NAME ]]; then
+        export JDBC_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+      fi
+    fi
+  fi
+
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_mas_config_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_mas_config_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_mas_config_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_mas_config_help "GIT_BRANCH is not set"
+  fi
+
+
+  # TODO: because we now support ws/app/wsapp bindings as well as system, I think we will need to
+  # add additional delimiters to the secret names we use
+  # For instance, there might be a system binding to kafka_a and a wsapp binding to kafka_b. These cannot both use the same secret from secrets manager
+  # JDBC is the only wsapp binding we actually use at the moment, and this includes DB2_INSTANCE_NAME in the secrets path so it works for now
+  # To avoid changing too much at once, I do not want to attempt to fix this problem now. Instead, I'm going to restrict this script
+  # to only support wsapp bindings for jdbc.
+  # We should remove this restriction once this issue is resolved.
+  if [[ "$MAS_CONFIG_SCOPE" =~ ^(app|ws)$ ]]; then
+    gitops_mas_config_help "MAS_CONFIG_SCOPE ${MAS_CONFIG_SCOPE} is not currently supported this script"
+  fi
+  if [[ "$MAS_CONFIG_SCOPE" == "wsapp" && "$MAS_CONFIG_TYPE" != "jdbc" ]]; then
+    gitops_mas_config_help "MAS_CONFIG_SCOPE ${MAS_CONFIG_SCOPE} is only supported for MAS_CONFIG_TYPE jdbc at present"
+  fi
+  
+
+}
+
+function gitops_mas_config() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_mas_config_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_mas_config_interactive
+  fi
+
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-mas-suite-configs.yaml"
+  GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-mas-config" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
+
+  export USE_POSTDELETE_HOOKS=${USE_POSTDELETE_HOOKS:-true}
+
+  TEMP_DIR=$GITOPS_WORKING_DIR/tmp-mas-config
+  mkdir -p $TEMP_DIR
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h4 "Target" "    "
+  echo_reset_dim "Account ID...................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ID....................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "System Config Directory ........ ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h4 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ................. ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host ........................... ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization ................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ..................... ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ......................... ${COLOR_MAGENTA}${GIT_BRANCH}"
+    echo_reset_dim "Lock Branch .................... ${COLOR_MAGENTA}${GIT_LOCK_BRANCH}"
+  else
+    echo_h4 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ................. ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+  echo
+
+
+  # Generate the correct name for the config
+  export MAS_CONFIG_NAME="${MAS_INSTANCE_ID}-${MAS_CONFIG_TYPE}-${MAS_CONFIG_SCOPE}"
+  if [[ "$MAS_CONFIG_SCOPE" =~ ^(ws|wsapp)$ ]]; then
+    MAS_CONFIG_NAME="${MAS_CONFIG_NAME}-${MAS_WORKSPACE_ID}"
+  fi
+  if [[ "$MAS_CONFIG_SCOPE" =~ ^(app|wsapp)$ ]]; then
+    MAS_CONFIG_NAME="${MAS_CONFIG_NAME}-${MAS_APP_ID}"
+  fi
+
+
+  echo "${TEXT_DIM}"
+  echo_h4 "Configuration change to apply" "    "
+  echo_reset_dim "Config Action  .......................... ${COLOR_MAGENTA}${CONFIG_ACTION}"
+  echo_reset_dim "Config Type  ............................ ${COLOR_MAGENTA}${MAS_CONFIG_TYPE}"
+  echo_reset_dim "Config Name  ............................ ${COLOR_MAGENTA}${MAS_CONFIG_NAME}"
+  echo_reset_dim "Use PostDelete Hooks? ................... ${COLOR_MAGENTA}${USE_POSTDELETE_HOOKS}"
+  reset_colors
+
+  # Set a default commit message now we know the config name
+  export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:="gitops-mas-config commit (${CONFIG_ACTION} ${MAS_CONFIG_NAME})"}
+
+  # Echo provided values for config type if this is an upsert
+
+  if [ "${CONFIG_ACTION}" == "upsert" ]; then
+
+    if [ "${MAS_CONFIG_TYPE}" == "mongo" ]; then
+      echo "${TEXT_DIM}"
+      echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
+      echo_reset_dim "MAS_WIPE_MONGO_DATA ............ ${COLOR_MAGENTA}${MAS_WIPE_MONGO_DATA}"
+      reset_colors
+    fi
+
+
+    if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
+      echo "${TEXT_DIM}"
+      echo_reset_dim "DRO Contact Email  ............. ${COLOR_MAGENTA}${DRO_CONTACT_EMAIL}"
+      echo_reset_dim "DRO Contact First Name  ........ ${COLOR_MAGENTA}${DRO_CONTACT_FIRSTNAME}"
+      echo_reset_dim "DRO Contact Last Name  ......... ${COLOR_MAGENTA}${DRO_CONTACT_LASTNAME}"
+      echo_reset_dim "DRO Certificate File  .......... ${COLOR_MAGENTA}${DRO_CA_CERTIFICATE_FILE}"
+      reset_colors
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
+      echo "${TEXT_DIM}"
+      echo_reset_dim "SLS URL  ....................... ${COLOR_MAGENTA}https://sls.mas-${MAS_INSTANCE_ID}-sls.svc"
+      reset_colors
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "kafka" ]; then
+      echo "${TEXT_DIM}"
+      # No specific parameters required for Kafka at present; they are all fetched from SM
+      reset_colors
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
+      echo "${TEXT_DIM}"
+      echo_reset_dim "IdpCfg Display Name ............................ ${COLOR_MAGENTA}${IDPCFG_DISPLAY_NAME}"
+      echo_reset_dim "LDAP Server URL ................................ ${COLOR_MAGENTA}${LDAP_URL}"
+      echo_reset_dim "LDAP Server baseDN ............................. ${COLOR_MAGENTA}${LDAP_BASEDN}"
+      echo_reset_dim "LDAP UserId Map ................................ ${COLOR_MAGENTA}${LDAP_USERID_MAP}"
+      echo_reset_dim "Path to LDAP Cert File  ........................ ${COLOR_MAGENTA}${LDAP_CERTIFICATE_FILE}"
+      if [ -f ${LDAP_CERTIFICATE_FILE} ]; then
+        echo_reset_dim "LDAP Cert File exists .......................... ${COLOR_MAGENTA}True"
+      else
+        echo_reset_dim "LDAP Cert File exists .......................... ${COLOR_MAGENTA}False"
+      fi
+      echo_reset_dim "ldap Server Bind DN ............................ ${COLOR_MAGENTA}${LDAP_BIND_DN}"
+      echo_reset_dim "ldap Server Bind Password ...................... ${COLOR_MAGENTA}${LDAP_BIND_PASSWORD:0:4}<snip>"
+      reset_colors
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
+      echo_reset_dim "JDBC_TYPE ...................................... ${COLOR_MAGENTA}${JDBC_TYPE}"
+      echo_reset_dim "JDBC_INSTANCE_NAME ............................. ${COLOR_MAGENTA}${JDBC_INSTANCE_NAME}"
+      if [ "${JDBC_TYPE}" != "incluster-db2" ]; then
+        echo "${TEXT_DIM}"
+        echo_reset_dim "JDBC_CONNECTION_URL ............................ ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
+        echo_reset_dim "Path to JDBC Cert File  ........................ ${COLOR_MAGENTA}${JDBC_CERTIFICATE_FILE}"
+        if [ -f ${JDBC_CERTIFICATE_FILE} ]; then
+          echo_reset_dim "JDBC Cert File exists .......................... ${COLOR_MAGENTA}True"
+        else
+          echo_reset_dim "JDBC Cert File exists .......................... ${COLOR_MAGENTA}False"
+        fi
+        reset_colors
+      fi
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
+      echo "${TEXT_DIM}"
+      echo_reset_dim "SmtpCfg Display Name ........................... ${COLOR_MAGENTA}${SMTP_DISPLAY_NAME}"
+      echo_reset_dim "Smtp Server Host ............................... ${COLOR_MAGENTA}${SMTP_HOST}"
+      echo_reset_dim "Smtp Server Port ............................... ${COLOR_MAGENTA}${SMTP_PORT}"
+      echo_reset_dim "Smtp Security Protocol ......................... ${COLOR_MAGENTA}${SMTP_SECURITY}"
+      echo_reset_dim "Smtp Authentication ............................ ${COLOR_MAGENTA}${SMTP_AUTHENTICATION}"
+      echo_reset_dim "Smtp Default Sender Email ...................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SENDER_EMAIL}"
+      echo_reset_dim "Smtp Default Sender Name ....................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SENDER_NAME}"
+      echo_reset_dim "Smtp Default Recipient Email ................... ${COLOR_MAGENTA}${SMTP_DEFAULT_RECIPIENT_EMAIL}"
+      echo_reset_dim "Smtp Should Email Passwords .................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS}"
+      echo_reset_dim "Smtp Server Username ........................... ${COLOR_MAGENTA}${SMTP_USERNAME}"
+      echo_reset_dim "Smtp Server Password ........................... ${COLOR_MAGENTA}${SMTP_PASSWORD:0:4}<snip>"
+      reset_colors
+    fi
+  fi
+
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    # only create the lock branch if we plan to actually push changes to git
+    clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
+  else
+    # even though we don't want to push anything to git,
+    # because this script modifies the existing suite-configs.yaml file, we still need to checkout the repo
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_INSTANCE_DIR}
+
+
+  if [ "${CONFIG_ACTION}" == "upsert" ]; then
+    echo
+    echo_h2 "Fetching/Updating secrets specific to ${MAS_CONFIG_TYPE}"
+
+
+    # Define/lookup secrets that may be used depending on which config we are upserting
+    # ---------------------------------------------------------------------------
+
+    # Certain configurations require additional parameters to be passed in when
+    # rendering the configuration template file (e.g. Mongo)
+    # Put these parameters into this YAML file.
+    export ADDITIONAL_JINJA_PARAMS_FILE="$TEMP_DIR/additional-jinja-params.yaml"
+    echo "{}" > $ADDITIONAL_JINJA_PARAMS_FILE
+
+    # Source: gitops_suite_config
+    # ---------------------------------------------------------------------------
+    if [ "${MAS_CONFIG_TYPE}" == "mongo" ]; then
+      export SECRET_KEY_MONGO_INFO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo#info
+      export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
+      sm_login
+      if [ $MONGODB_PROVIDER == 'yaml' ]; then
+        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+      elif [ $MONGODB_PROVIDER == 'aws' ]; then
+        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+      fi
+
+      jq -r .info $MONGO_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
+
+      export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
+      export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
+      export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
+    fi
+
+
+    if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
+      export SECRET_KEY_DRO_API_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_api_token
+      export SECRET_KEY_DRO_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_url
+      export SECRET_NAME_MAS_SEGMENT_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mas_segment_key
+      export SECRET_KEY_MAS_SEGMENT_KEY=${SECRET_NAME_MAS_SEGMENT_KEY}#mas_segment_key
+      export DRO_CA_CERTIFICATE=$(cat ${DRO_CA_CERTIFICATE_FILE})
+      
+      if [[ -n "${MAS_SEGMENT_KEY}" ]]; then
+        sm_login
+        sm_update_secret $SECRET_NAME_MAS_SEGMENT_KEY "{\"mas_segment_key\": \"$MAS_SEGMENT_KEY\"}"
+      fi
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
+      export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
+      export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
+      export SECRET_KEY_SLS_CA_B64=${SECRET_NAME_SLS}#ca_b64
+    fi
+
+    # Source: gitops_kafka_config
+    # ---------------------------------------------------------------------------
+    if [ "${MAS_CONFIG_TYPE}" == "kafka" ]; then
+      if [[ "$AVP_TYPE" == "aws" ]]; then
+        # kafka
+        export SECRET_PREFIX="AmazonMSK_"
+      fi
+      export KAFKA_SECRET_FILE=$TEMP_DIR/kafka-secret.json
+      sm_login
+      sm_get_secret_file ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka $KAFKA_SECRET_FILE
+      jq -r .info $KAFKA_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
+      export AWS_MSK_SECRET=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
+      export SECRET_KEY_KAFKA_USERNAME=${AWS_MSK_SECRET}#username
+      export SECRET_KEY_KAFKA_PASSWORD=${AWS_MSK_SECRET}#password
+    fi
+
+    # Source: gitops_suite_idp_config
+    # ---------------------------------------------------------------------------
+    if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
+      sm_login
+      SECRET_NAME_LDAP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
+      sm_update_secret $SECRET_NAME_LDAP "{\"bindDN\": \"$LDAP_BIND_DN\", \"bindPassword\": \"$LDAP_BIND_PASSWORD\"}"
+      export SECRET_KEY_LDAP_BIND_DN=${SECRET_NAME_LDAP}#bindDN
+      export SECRET_KEY_LDAP_BIND_PASSWORD=${SECRET_NAME_LDAP}#bindPassword
+      export LDAP_CERTIFICATE_CONTENT=$(<$LDAP_CERTIFICATE_FILE)
+    fi
+    
+    # Source: gitops_suite_objectstorage_config
+    # ---------------------------------------------------------------------------
+    if [ "${MAS_CONFIG_TYPE}" == "objectstorage" ]; then
+      export OBJECTSTORAGE_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
+      export SECRET_KEY_OBJECTSTORAGE_INFO=${OBJECTSTORAGE_SECRET}#info
+      export COS_SECRET_FILE=$TEMP_DIR/cos-secret.json
+      sm_login
+      sm_get_secret_file ${OBJECTSTORAGE_SECRET} $COS_SECRET_FILE
+
+      jq -r .info $COS_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
+
+      export SECRET_KEY_OBJECTSTORAGE_USERNAME=${OBJECTSTORAGE_SECRET}#username
+      export SECRET_KEY_OBJECTSTORAGE_PASSWORD=${OBJECTSTORAGE_SECRET}#password
+    fi
+
+    # Source: gitops_db2u_jdbc_config
+    # ---------------------------------------------------------------------------
+    if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
+      sm_login
+
+      echo_reset_dim "JDBC_TYPE ................................. ${COLOR_MAGENTA}$JDBC_TYPE"
+
+      export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
+      echo_reset_dim "JDBC_CREDENTIALS_SECRET_ID ................ ${COLOR_MAGENTA}$JDBC_CREDENTIALS_SECRET_ID"
+
+      if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
+        # Create a secret in SM containing the username/password for this specific DB2 database instance.
+        # A presync hook on the jdbccfg chart will take care of ensuring the user added to the database's LDAP registry
+        export DB2_SECRET_FILE=$TEMP_DIR/db2-secret.json
+        export JDBC_USERNAME=db2_${MAS_APP_ID}
+        echo_reset_dim "JDBC_USERNAME ............................. ${COLOR_MAGENTA}$JDBC_USERNAME"
+        export JDBC_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
+        sm_get_secret_file ${JDBC_CREDENTIALS_SECRET_ID} $DB2_SECRET_FILE
+        TEMP_DB2_LDAP_PASSWORD=$(jq -r .password $DB2_SECRET_FILE)
+        if [[ -n ${TEMP_DB2_LDAP_PASSWORD} ]]; then
+          export JDBC_PASSWORD=${TEMP_DB2_LDAP_PASSWORD}
+          echo_reset_dim "JDBC_PASSWORD ........................... ${COLOR_MAGENTA}${JDBC_PASSWORD:0:8}<snip> is available in the secret, using that value"
+        fi
+        echo_reset_dim "JDBC_PASSWORD ............................. ${COLOR_MAGENTA}${JDBC_PASSWORD:0:8}<snip>"
+        sm_update_secret $JDBC_CREDENTIALS_SECRET_ID "{ \"username\": \"$JDBC_USERNAME\", \"password\": \"$JDBC_PASSWORD\"}"
+      fi
+
+      export SECRET_KEY_JDBC_USERNAME=${JDBC_CREDENTIALS_SECRET_ID}#username
+      export SECRET_KEY_JDBC_PASSWORD=${JDBC_CREDENTIALS_SECRET_ID}#password
+
+      if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
+        # This secret is created by a PostSync Job in the ibm-db2u-database chart
+        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
+        export SECRET_KEY_DB2_DBNAME=${JDBC_CONFIG_SECRET_ID}#db2_dbname
+        export SECRET_KEY_DB2_NAMESPACE=${JDBC_CONFIG_SECRET_ID}#db2_namespace
+      else
+        # This secret we are creating here
+        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
+        export JDBC_CERTIFICATE_CONTENT_B64=$(cat $JDBC_CERTIFICATE_FILE | base64 -w0)
+        sm_update_secret $JDBC_CONFIG_SECRET_ID "{ \"jdbc_connection_url\": \"${JDBC_CONNECTION_URL}\", \"jdbc_instance_name\": \"${JDBC_INSTANCE_NAME}\", \"ca_b64\": \"${JDBC_CERTIFICATE_CONTENT_B64}\" }"
+        echo_reset_dim "JDBC_INSTANCE_NAME ........................ ${COLOR_MAGENTA}$JDBC_INSTANCE_NAME"
+        echo_reset_dim "JDBC_CONNECTION_URL ....................... ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
+      fi
+
+      export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
+      export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
+      export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_CONFIG_SECRET_ID}#jdbc_instance_name
+    fi
+  
+    # Source: gitops_suite_smtp_config
+    # ---------------------------------------------------------------------------
+    if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
+      sm_login
+      SECRET_NAME_SMTP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
+      sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}"
+      export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username
+      export SECRET_KEY_SMTP_PASSWORD=${SECRET_NAME_SMTP}#password
+    fi
+
+    # Source: gitops_suite_watson_studio_config
+    # ---------------------------------------------------------------------------
+    if [ "${MAS_CONFIG_TYPE}" == "watsonstudio" ]; then
+      # Secrets are stored in SM in the cp4d-service function that installs wsl
+      export WATSON_STUDIO_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl-cp4d
+      export SECRET_KEY_WATSON_STUDIO_USERNAME=${WATSON_STUDIO_SECRET}#username
+      export SECRET_KEY_WATSON_STUDIO_PASSWORD=${WATSON_STUDIO_SECRET}#password
+      export SECRET_KEY_WATSON_STUDIO_URL=${WATSON_STUDIO_SECRET}#url
+    fi
+
+    echo
+    echo_h2 "Generated params file to pass to Jinja2 ($ADDITIONAL_JINJA_PARAMS_FILE)"
+    cat $ADDITIONAL_JINJA_PARAMS_FILE
+
+    echo
+    echo_h2 "Updating configuration file"
+
+    # If the file doesn't exist, create a blank one
+    if ! [ -f ${CONFIGS_FILE} ]; then
+      jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-config-common.yaml.j2 > $CONFIGS_FILE
+    fi
+
+    # Remove any existing config with this name
+    yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+
+    # Render the appropriate template for the config into a new file
+    jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-${MAS_CONFIG_TYPE}-config.yaml.j2 | yq '{"ibm_mas_suite_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+
+    # Merge the two files
+    yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
+
+    # sort the configs by mas_config_name.
+    # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
+    # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed if we need to for configs in future
+    yq -i '.ibm_mas_suite_configs |= sort_by(.mas_config_name)' $CONFIGS_FILE
+
+  fi # [ "${CONFIG_ACTION}" == "upsert" ]
+
+
+
+  if [ "${CONFIG_ACTION}" == "remove" ]; then
+
+    echo
+    echo_h2 "Deleting secrets specific to ${MAS_CONFIG_TYPE}"
+    # Delete any secrets that were created by the "upsert" action for this MAS_CONFIG_TYPE
+    # NOTE: this does not include any secrets that were created by post-sync hooks (e.g. sls).
+    #       these will now be handled by PostDelete hooks on the corresponding charts
+
+    if [ "${MAS_CONFIG_TYPE}" == "bas" ]; then
+      sm_login
+      SECRET_NAME_MAS_SEGMENT_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mas_segment_key
+      sm_delete_secret $SECRET_NAME_MAS_SEGMENT_KEY
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
+      sm_login
+      SECRET_NAME_LDAP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
+      sm_delete_secret $SECRET_NAME_LDAP
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
+      sm_login
+      export JDBC_CREDENTIALS_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}credentials
+      sm_delete_secret $JDBC_CREDENTIALS_SECRET_ID
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
+      sm_login
+      SECRET_NAME_SMTP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
+      sm_delete_secret $SECRET_NAME_SMTP
+    fi
+
+    # If the file doesn't exist, nothing to remove, so no-op
+    if [ -f ${CONFIGS_FILE} ]; then
+      yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > ${TEMP_DIR}/configs.yaml
+      cp ${TEMP_DIR}/configs.yaml ${CONFIGS_FILE}
+
+      # If the file is there, but the configs are empty, delete the file
+      CONFIGS_COUNT=$(yq '.ibm_mas_suite_configs | length' $CONFIGS_FILE)
+      if [ "${CONFIGS_COUNT}" == "0" ]; then
+        rm -rf $CONFIGS_FILE
+      fi
+    fi
+
+    
+
+  fi
+
+  echo_h2 "Updated configuration file (${CONFIGS_FILE})"
+  if [ -f ${CONFIGS_FILE} ]; then
+    cat $CONFIGS_FILE
+  else
+    echo "<file was deleted>"
+  fi
+
+  # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}"
+  else
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
+}

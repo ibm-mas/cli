@@ -1,0 +1,44 @@
+mas_config_name: "{{ MAS_CONFIG_NAME }}"
+mas_config_chart: ibm-jdbc-config
+mas_config_scope: {{ MAS_CONFIG_SCOPE }}
+mas_workspace_id: {{ MAS_WORKSPACE_ID }}
+mas_application_id: {{ MAS_APP_ID }}
+mas_config_kind: "jdbccfgs"
+mas_config_api_version: "config.mas.ibm.com"
+use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
+
+jdbc_type: {{ JDBC_TYPE }}
+jdbc_instance_name: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_JDBC_INSTANCE_NAME }}>
+jdbc_instance_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_JDBC_USERNAME }}>
+jdbc_instance_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_JDBC_PASSWORD }}>
+mas_config_dir: {{ MAS_CONFIG_DIR }}
+jdbc_connection_url: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_JDBC_CONNECTION_URL }}>
+
+{% if JDBC_TYPE == "incluster-db2" %}
+db2_dbname: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_DBNAME }}>
+db2_namespace: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_NAMESPACE }}>
+{% endif %}
+
+app_suite_jdbccfg_labels:
+    mas.ibm.com/applicationId: "{{ MAS_APP_ID }}"
+    mas.ibm.com/configScope: application
+    mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
+
+system_suite_jdbccfg_labels:
+    mas.ibm.com/configScope: system
+    mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
+
+ws_suite_jdbccfg_labels:
+    mas.ibm.com/configScope: workspace-application
+    mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
+    mas.ibm.com/workspaceId: "{{ MAS_WORKSPACE_ID }}"
+
+wsapp_suite_jdbccfg_labels:
+    mas.ibm.com/applicationId: "{{ MAS_APP_ID }}"
+    mas.ibm.com/configScope: workspace-application
+    mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
+    mas.ibm.com/workspaceId: "{{ MAS_WORKSPACE_ID }}"
+
+jdbc_ca_pem:
+  crt: |
+    <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_JDBC_CERTIFICATE_CONTENT }} | base64decode>

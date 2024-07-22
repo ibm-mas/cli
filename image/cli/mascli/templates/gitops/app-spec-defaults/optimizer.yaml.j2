@@ -1,0 +1,4 @@
+mas_app_spec:
+  bindings:
+    mongo: system
+  plan: {{ OPTIMIZER_PLAN | default( 'full', true) }}

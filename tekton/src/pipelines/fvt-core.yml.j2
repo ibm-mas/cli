@@ -2,7 +2,11 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
+{% if wait_for_install == true %}
+  name: mas-fvt-core-after-install
+{% else %}
   name: mas-fvt-core
+{% endif %}
 spec:
   workspaces:
     # The generated configuration files
@@ -46,6 +50,17 @@ spec:
       type: string
       description: IVT Digest - Core
       default: ""
+
+{% if wait_for_install == true %}
+    # 4. Wait params
+    # -------------------------------------------------------------------------
+    - name: pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "True"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+{% endif %}
 
   tasks:
 

@@ -1,0 +1,52 @@
+mas_app_id: {{ MAS_APP_ID }}
+mas_app_namespace: {{ MAS_APP_NAMESPACE }}
+
+mas_app_ws_apiversion: {{ MAS_APPWS_API_VERSION }}
+mas_app_ws_kind: {{ MAS_APPWS_KIND }}
+mas_workspace_id: {{ MAS_WORKSPACE_ID }}
+
+{% if MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG is defined and MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG !='' %}
+{{ MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG | indent(2) }}
+{% endif %}
+
+{%- if CUSTOMIZATION_ARCHIVE_SECRET_NAMES is defined and CUSTOMIZATION_ARCHIVE_SECRET_NAMES !='' %}
+customization_archive_secret_names:
+{%- for customization_archive_secret_name in CUSTOMIZATION_ARCHIVE_SECRET_NAMES %}
+  - secret_name: {{ customization_archive_secret_name }}
+    password: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#password>
+    username: <path:{{ SECRETS_PATH }}:{{ CUSTOMIZATION_ARCHIVE_SECRET }}{{ customization_archive_secret_name }}#username>
+{%- endfor %}
+{%- endif %}
+
+{%- if MANAGE_LOGGING_SECRET_NAME is defined and MANAGE_LOGGING_SECRET_NAME !='' %}
+manage_logging_secret_name: {{ MANAGE_LOGGING_SECRET_NAME }}
+manage_logging_access_secret_key: <path:{{ SECRETS_PATH }}:{{ MANAGE_LOGGING_SECRET }}{{ manage_logging_secret_name }}#access_secret_key>
+{%- endif %}
+
+{%- if MANAGE_ATTACHMENTS_SECRET_NAME is defined and MANAGE_ATTACHMENTS_SECRET_NAME !='' %}
+manage_attachments_secret_name: {{ MANAGE_ATTACHMENTS_SECRET_NAME }}
+manage_attachments_access_secret_key: <path:{{ SECRETS_PATH }}:{{ MANAGE_ATTACHMENTS_SECRET }}{{ manage_attachments_secret_name }}#access_secret_key>
+{%- endif %}
+
+{{ MAS_APPWS_SPEC | indent(2) }}
+
+{% if MAS_MANUAL_CERT_MGMT == 'true' %}
+mas_manual_cert_mgmt: true
+{% else %}
+mas_manual_cert_mgmt: false
+{% endif %}
+{% if PUBLIC_TLS_SECRET_NAME is defined and PUBLIC_TLS_SECRET_NAME !='' %}
+public_tls_secret_name: {{ PUBLIC_TLS_SECRET_NAME }}
+{% endif %}
+
+{% if CA_CERT is defined and CA_CERT !='' %}
+ca_cert: {{ CA_CERT }}
+{% endif %}
+
+{% if TLS_CERT is defined and TLS_CERT !='' %}
+tls_cert: {{ TLS_CERT }}
+{% endif %}
+
+{% if TLS_KEY is defined and TLS_KEY !='' %}
+tls_key: {{ TLS_KEY }}
+{% endif %}

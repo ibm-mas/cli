@@ -6,9 +6,9 @@
 
 # Manage FVT System
 - name: fvt-manage-base-api-system
-  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: base-api-system
   runAfter:
@@ -16,9 +16,9 @@
 
 # Manage FVT MIF
 - name: fvt-manage-base-api-mif
-  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: base-api-mif
   runAfter:
