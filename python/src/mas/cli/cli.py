@@ -20,6 +20,7 @@ from sys import exit
 from openshift import dynamic
 from kubernetes import config
 from kubernetes.client import api_client
+from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
 
@@ -214,3 +215,35 @@ class BaseApp(PrintMixin, PromptMixin):
             if self._dynClient is None:
                 print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
                 exit(1)
+
+    def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:
+        """
+        Set key = None if you don't want approval workflow enabled
+        """
+        cmAPI = self.dynamicClient.resources.get(api_version="v1", kind="ConfigMap")
+        configMap = {
+            "apiVersion": "v1",
+            "kind": "ConfigMap",
+            "metadata": {
+                "name": f"approval-{id}",
+                "namespace": namespace
+            },
+            "data": {
+                "MAX_RETRIES": str(maxRetries),
+                "DELAY": str(delay),
+                "IGNORE_FAILURE": str(ignoreFailure),
+                "CONFIGMAP_KEY": key,
+                key: ""
+            }
+        }
+
+        # Delete any existing configmap and create a new one
+        try:
+            logger.debug(f"Deleting any existing approval workflow configmap for {id}")
+            cmAPI.delete(name=f"approval-{id}", namespace=namespace)
+        except NotFoundError:
+            pass
+
+        if key is not None:
+            logger.debug(f"Enabling approval workflow for {id} using {key} with {maxRetries} max retries on a {delay}s delay ({'ignoring failures' if ignoreFailure else 'abort on failure'})")
+            cmAPI.create(body=configMap, namespace=namespace)
