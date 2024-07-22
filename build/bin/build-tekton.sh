@@ -59,21 +59,19 @@ function addToFile() {
 
 for FILE in $TASK_FILES; do
   FILE_NAME=$(basename $FILE)
-  addToFile $FILE $TARGET_FILE_FVT
 
-  if [[ ! "$FILE_NAME" == fvt-* ]] && [[ ! "$FILE_NAME" == ivt-* ]] && [[ ! "$FILE_NAME" == launchfvt-* ]]
-  then
-    addToFile $FILE $TARGET_FILE
+  if [[ "$FILE_NAME" == fvt-* ]] || [[ "$FILE_NAME" == ivt-* ]] || [[ "$FILE_NAME" == launchfvt-* ]] || [[ "$FILE_NAME" == launchivt-* ]]
+  then addToFile $FILE $TARGET_FILE_FVT
+  else addToFile $FILE $TARGET_FILE
   fi
 done
 
 for FILE in $PIPELINE_FILES; do
   FILE_NAME=$(basename $FILE)
-  addToFile $FILE $TARGET_FILE_FVT
 
-  if [[ ! "$FILE_NAME" == fvt-* ]] && [[ ! "$FILE_NAME" == ivt-* ]] && [[ ! "$FILE_NAME" == *-after-install.yaml ]] && [[ ! "$FILE_NAME" == *-with-fvt.yaml ]]
-  then
-    addToFile $FILE $TARGET_FILE
+  if [[ "$FILE_NAME" == fvt-* ]] || [[ "$FILE_NAME" == ivt-* ]] || [[ "$FILE_NAME" == *-after-install.yaml ]] || [[ "$FILE_NAME" == *-with-fvt.yaml ]]
+  then addToFile $FILE $TARGET_FILE_FVT
+  else addToFile $FILE $TARGET_FILE
   fi
 done
 
