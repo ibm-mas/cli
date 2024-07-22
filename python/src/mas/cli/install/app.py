@@ -197,14 +197,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.deployCP4D = True
 
     def configSSOProperties(self):
-        self.printH2("Configure Single Sign-On (SSO) Default Properties")
-        sso_response = self.yesOrNo("Would you like to configure default SSO properties?")
-        if not sso_response:
-            self.printDescription([
-                "Using default SSO properties"
-            ])
-        else:
-            self.promptForInt("Enter the idleTimeout (in seconds)", "idle_timeout", default=1800)
+        self.printH1("Single Sign-On (SSO)")
+        self.printDescription([
+            "Many aspects of Maximo Application Suite's Single Sign-On (SSO) can be customized:",
+            " - Idle session automatic logout timer",
+            " - Session, access token, and refresh token timeouts",
+            " - Default identity provider (IDP), and seamless login"
+        ])
+        sso_response = self.yesOrNo("Configure SSO properties")
+        if sso_response:
+            self.promptForInt("Enter the idle timeout (in seconds)", "idle_timeout", default=1800)
             self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator(), default="12h")
             self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator(), default="30m")
             self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator(), default="12h")
@@ -239,6 +241,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configOperationMode()
         self.configCATrust()
         self.configDNSAndCerts()
+        self.configSSOProperties()
 
     def configCATrust(self) -> None:
         self.printH1("Certificate Authority Trust")
@@ -537,8 +540,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Interactive mode
         self.interactiveMode = True
 
-        # SSO Config
-        self.configSSOProperties()
         # Catalog
         self.configCatalog()
         if not self.devMode:
