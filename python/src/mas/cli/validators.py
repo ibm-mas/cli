@@ -54,7 +54,7 @@ class TimeoutFormatValidator(Validator):
         Validate that a MAS instance ID exists on the target cluster
         """
         string_to_validate = document.text
-        if not match(r'^([0-9]+)([hm])$', string_to_validate):
+        if string_to_validate != "" and not match(r'^([0-9]+)([hm])$', string_to_validate):
             message = f"Error: Your input: {string_to_validate} does not meet the required pattern. Please use it in hours or minutes format (e.g., 12h, 12m)."
             raise ValidationError(message=message, cursor_position=len(string_to_validate))
 
