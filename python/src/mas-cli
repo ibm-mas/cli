@@ -72,7 +72,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt as e:
         pass
     except ApiException as e:
-        app.fatalError(message=f"An error occured communicating with the target server: {e.reason} ({e.status})")
+        app.fatalError(message=f"An error occured communicating with the target server: {e.reason} ({e.status})", exception=e)
     except MaxRetryError as e:
         app.fatalError(message="Unable to connect to API server", exception=e)
     except TemplateNotFound as e:
