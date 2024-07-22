@@ -6,8 +6,25 @@
 
 # ADD FVT 1.1 operatormaturity ~20m
 - name: fvt-data-dictionary-operatormaturity
-  {{ lookup('template', 'taskdefs/fvt-data-dictionary/common/taskref.yml.j2') | indent(2) }}
+  timeout: "0"
+  taskRef:
+    kind: Task
+    name: mas-fvt-data-dictionary
+  when:
+    - input: "$(params.fvt_digest_data_dictionary)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+    - name: pod-templates
+      workspace: shared-pod-templates
   params:
-    {{ lookup('template', 'taskdefs/fvt-data-dictionary/common/params.yml.j2') | indent(4) }}
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_data_dictionary)
     - name: fvt_test_suite
       value: operatormaturity

@@ -1,4 +1,4 @@
-# -------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # PHASE 3
 # - fvt-manage-nuclear-api             # Nuclear
 # - fvt-manage-nuclear-ui              # Nuclear
@@ -8,14 +8,12 @@
 # - fvt-manage-lbs-spatial-ui          # LBS
 #   - fvt-manage-lbs-utilities-ui      # LBS
 #     - fvt-manage-lbs-linear-ui       # LBS
-# -------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-# ------------------
+
 # Nuclear
-# ------------------
-
+# -----------------------------------------------------------------------------
 # Nuclear - API Tests
-# ------------------
 - name: fvt-manage-nuclear-api
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
@@ -31,7 +29,6 @@
     - fvt-manage-serviceprovider-ui
 
 # Nuclear - UI
-# ------------------
 - name: fvt-manage-nuclear-ui
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -42,7 +39,7 @@
     - name: fvt_mas_appws_component
       value: nuclear
     - name: fvt_test_driver
-      value: tpae 
+      value: tpae
   runAfter:
     - fvt-manage-acm-api
     - fvt-manage-acm-ui
@@ -52,12 +49,9 @@
     - fvt-manage-serviceprovider-ui
 
 
-# ------------------
 # Transportation
-# ------------------
-
+# -----------------------------------------------------------------------------
 # Transportation - API Tests
-# ------------------
 - name: fvt-manage-transportation-api
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
@@ -73,7 +67,6 @@
     - fvt-manage-serviceprovider-ui
 
 # Transportation - UI
-# ------------------
 - name: fvt-manage-transportation-ui
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -94,12 +87,9 @@
     - fvt-manage-serviceprovider-ui
 
 
-# ------------------
 # LBS
-# ------------------
-
+# -----------------------------------------------------------------------------
 # LBS - API Tests
-# ------------------
 - name: fvt-manage-lbs-api
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
@@ -114,10 +104,7 @@
     - fvt-manage-serviceprovider-api
     - fvt-manage-serviceprovider-ui
 
-# LBS - UI
-# ------------------
-
-# Manage FVT - Spatial
+# LBS - Spatial
 - name: fvt-manage-lbs-spatial-ui
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -137,7 +124,7 @@
     - fvt-manage-serviceprovider-api
     - fvt-manage-serviceprovider-ui
 
-# Manage FVT - Utilities
+# LBS - Utilities
 - name: fvt-manage-lbs-utilities-ui
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -152,7 +139,7 @@
   runAfter:
     - fvt-manage-lbs-spatial-ui
 
-# Manage FVT - Linear
+# LBS - Linear
 - name: fvt-manage-lbs-linear-ui
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}

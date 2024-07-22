@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-ivt-manage-monitor-dd
+  name: mas-ivt-manage
 spec:
   params:
     # Common Test Information
@@ -60,7 +60,7 @@ spec:
       default: "false"
 
   stepTemplate:
-    name: 'fvt-manage'
+    name: 'ivt-manage'
     env:
       - name: INSTANCE_ID
         value: "$(params.mas_instance_id)"
@@ -107,7 +107,7 @@ spec:
     - name: configs
 
   steps:
-    - name: mif-dd
+    - name: manage-dd
       image: '$(params.fvt_image_registry)/fvt-manage/fvt-ibm-mas-manage@$(params.fvt_image_digest_manage)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever
@@ -126,7 +126,7 @@ spec:
           value: $(params.product_channel_manage)
         - name: PRODUCT_ID
           value: ibm-mas-manage
-    - name: manage-monitor-ivt
+    - name: manage-monitor
       image: '$(params.fvt_image_registry)/ai-solutions/common-test-framework@$(params.fvt_image_digest_monitor)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 90m # Ensure bad FVTs don't run forever

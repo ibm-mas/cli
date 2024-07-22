@@ -8,15 +8,15 @@ usage: mas install [-c MAS_CATALOG_VERSION] [--ibm-entitlement-key IBM_ENTITLEME
                    [--mas-channel MAS_CHANNEL] [--eck] [--eck-enable-logstash] [--eck-remote-es-hosts ECK_REMOTE_ES_HOSTS]
                    [--eck-remote-es-username ECK_REMOTE_ES_USERNAME] [--eck-remote-es-password ECK_REMOTE_ES_PASSWORD]
                    [--superuser-username MAS_SUPERUSER_USERNAME] [--superuser-password MAS_SUPERUSER_PASSWORD] [--additional-configs ADDITIONAL_CONFIGS]
-                   [--pod-templates POD_TEMPLATES] [--manual-certificates MANUAL_CERTIFICATES] [--non-prod] [--disable-ca-trust] [--storage-class-rwo STORAGE_CLASS_RWO]
-                   [--storage-class-rwx STORAGE_CLASS_RWX] [--storage-pipeline STORAGE_PIPELINE] [--storage-accessmode {ReadWriteMany,ReadWriteOnce}]
-                   [--license-file LICENSE_FILE] [--uds-email UDS_CONTACT_EMAIL] [--uds-firstname UDS_CONTACT_FIRSTNAME] [--uds-lastname UDS_CONTACT_LASTNAME]
-                   [--dro-namespace DRO_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--ocp-ingress-tls-secret-name OCP_INGRESS_TLS_SECRET_NAME]
-                   [--assist-channel ASSIST_CHANNEL] [--iot-channel IOT_CHANNEL] [--monitor-channel MONITOR_CHANNEL] [--manage-channel MANAGE_CHANNEL]
-                   [--predict-channel PREDICT_CHANNEL] [--visualinspection-channel VISUALINSPECTION_CHANNEL] [--optimizer-channel OPTIMIZER_CHANNEL]
-                   [--optimizer-plan {full,limited}] [--install-arcgis] [--arcgis-channel MAS_ARCGIS_CHANNEL]
-                   [--manage-server-bundle-size {dev,snojms,small,jms}] [--manage-jms] [--manage-persistent-volumes]
-                   [--manage-jdbc {system,workspace-application}] [--manage-demodata] [--manage-components MAS_APPWS_COMPONENTS]
+                   [--pod-templates POD_TEMPLATES] [--non-prod] [--disable-ca-trust] [--manual-certificates MANUAL_CERTIFICATES]
+                   [--storage-class-rwo STORAGE_CLASS_RWO] [--storage-class-rwx STORAGE_CLASS_RWX] [--storage-pipeline STORAGE_PIPELINE]
+                   [--storage-accessmode {ReadWriteMany,ReadWriteOnce}] [--license-file LICENSE_FILE] [--uds-email UDS_CONTACT_EMAIL]
+                   [--uds-firstname UDS_CONTACT_FIRSTNAME] [--uds-lastname UDS_CONTACT_LASTNAME] [--dro-namespace DRO_NAMESPACE]
+                   [--mongodb-namespace MONGODB_NAMESPACE] [--ocp-ingress-tls-secret-name OCP_INGRESS_TLS_SECRET_NAME] [--assist-channel ASSIST_CHANNEL]
+                   [--iot-channel IOT_CHANNEL] [--monitor-channel MONITOR_CHANNEL] [--manage-channel MANAGE_CHANNEL] [--predict-channel PREDICT_CHANNEL]
+                   [--visualinspection-channel VISUALINSPECTION_CHANNEL] [--optimizer-channel OPTIMIZER_CHANNEL] [--optimizer-plan {full,limited}]
+                   [--install-arcgis] [--arcgis-channel MAS_ARCGIS_CHANNEL] [--manage-server-bundle-size {dev,snojms,small,jms}] [--manage-jms]
+                   [--manage-persistent-volumes] [--manage-jdbc {system,workspace-application}] [--manage-demodata] [--manage-components MAS_APPWS_COMPONENTS]
                    [--manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME]
                    [--manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL]
                    [--manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME]
@@ -42,6 +42,9 @@ usage: mas install [-c MAS_CATALOG_VERSION] [--ibm-entitlement-key IBM_ENTITLEME
                    [--turbonomic-name TURBONOMIC_TARGET_NAME] [--turbonomic-url TURBONOMIC_SERVER_URL] [--turbonomic-version TURBONOMIC_SERVER_VERSION]
                    [--turbonomic-username TURBONOMIC_USERNAME] [--turbonomic-password TURBONOMIC_PASSWORD] [--ibmcloud-apikey IBMCLOUD_APIKEY]
                    [--aws-region AWS_REGION] [--aws-access-key-id AWS_ACCESS_KEY_ID] [--secret-access-key SECRET_ACCESS_KEY] [--aws-vpc-id AWS_VPC_ID]
+                   [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--approval-core APPROVAL_CORE]
+                   [--approval-assist APPROVAL_ASSIST] [--approval-iot APPROVAL_IOT] [--approval-manage APPROVAL_MANAGE] [--approval-monitor APPROVAL_MONITOR]
+                   [--approval-optimizer APPROVAL_OPTIMIZER] [--approval-predict APPROVAL_PREDICT] [--approval-visualinspection APPROVAL_VISUALINSPECTION]
                    [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check] [--no-confirm] [-h]
 
 IBM Maximo Application Suite Admin CLI v100.0.0
@@ -78,7 +81,7 @@ MAS Advanced Configuration:
   --pod-templates POD_TEMPLATES                   Path to directory containing custom podTemplates configuration files to be applied
   --non-prod                                      Install MAS in non-production mode
   --disable-ca-trust                              Disable built-in trust of well-known CAs
-  --manual-certificates                           Path to directory containing the manual certificates for core and the apps to be installed
+  --manual-certificates MANUAL_CERTIFICATES       Path to directory containing the certificates to be applied
 
 Storage:
   --storage-class-rwo STORAGE_CLASS_RWO           ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)
@@ -224,8 +227,23 @@ Cloud Providers:
   --secret-access-key SECRET_ACCESS_KEY           Set AWS secret access key for the target AWS account
   --aws-vpc-id AWS_VPC_ID                         Set target Virtual Private Cloud ID for the MSK instance
 
+Development Mode:
+  --artifactory-username ARTIFACTORY_USERNAME     Username for access to development builds on Artifactory
+  --artifactory-token ARTIFACTORY_TOKEN           API Token for access to development builds on Artifactory
+
+Integrated Approval Workflow (APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE):
+  --approval-core APPROVAL_CORE                   Require approval after the Core Platform has been configured
+  --approval-assist APPROVAL_ASSIST               Require approval after the Maximo Assist workspace has been configured
+  --approval-iot APPROVAL_IOT                     Require approval after the Maximo IoT workspace has been configured
+  --approval-manage APPROVAL_MANAGE               Require approval after the Maximo Manage workspace has been configured
+  --approval-monitor APPROVAL_MONITOR             Require approval after the Maximo Monitor workspace has been configured
+  --approval-optimizer APPROVAL_OPTIMIZER         Require approval after the Maximo Optimizer workspace has been configured
+  --approval-predict APPROVAL_PREDICT             Require approval after the Maximo Predict workspace has been configured
+  --approval-visualinspection APPROVAL_VISUALINSPECTION
+                                                  Require approval after the Maximo Visual Inspection workspace has been configured
+
 More:
-  --accept-license
+  --accept-license                                Accept all license terms without prompting
   --dev-mode                                      Configure installation for development mode
   --no-wait-for-pvc                               Disable the wait for pipeline PVC to bind before starting the pipeline
   --skip-pre-check                                Disable the 'pre-install-check' at the start of the install pipeline
