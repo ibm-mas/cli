@@ -1,0 +1,454 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-mas-fvt-preparer
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account_id
+      type: string
+    - name: region_id
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: devops_build_number
+      type: string
+    - name: launcher_id
+      type: string
+    - name: pipeline_storage_class
+      type: string
+    - name: aws_region
+      type: string
+    - name: fvt_pipeline_name
+      type: string
+    - name: cli_version
+      type: string
+    - name: fvt_config
+      type: string
+
+    - name: fvt_version_core
+      type: string
+    - name: ivt_version_core
+      type: string
+    - name: fvt_version_ctf
+      type: string
+    - name: fvt_version_assist
+      type: string
+    - name: fvt_version_iot
+      type: string
+    - name: fvt_version_optimizer
+      type: string
+    - name: fvt_version_manage
+      type: string
+    - name: fvt_version_mobile
+      type: string
+    - name: fvt_version_data_dictionary
+      type: string
+    - name: fvt_version_sls
+      type: string
+
+    - name: fvt_blacklist_core
+      type: string
+    - name: fvt_whitelist_core
+      type: string
+    - name: fvt_blacklist_manage
+      type: string
+    - name: fvt_whitelist_manage
+      type: string
+    - name: fvt_blacklist_manage_is
+      type: string
+    - name: fvt_whitelist_manage_is
+      type: string
+    - name: fvt_blacklist_optimizer
+      type: string
+    - name: fvt_whitelist_optimizer
+      type: string
+
+    - name: artifactory_generic_release_url
+      type: string
+    - name: fvt_ansible_version
+      type: string
+
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: image_pull_policy
+      type: string
+      default: ""
+
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+    - name: mas_channel
+      type: string
+      default: ""
+
+    - name: launchfvt_core
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Core FVT Pipeline after suite-verify completes"
+    - name: launchfvt_assist
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Assist FVT Pipeline after app-cfg-assist completes"
+    - name: launchfvt_iot
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the IoT FVT Pipeline after app-cfg-iot completes"
+    - name: launchfvt_manage
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-manage completes (does not control the additional Industry Solution, Mobile, or Regression Manage suites)"
+    - name: launchfvt_monitor
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Manage FVT Pipeline after app-cfg-monitor completes"
+    - name: launchfvt_optimizer
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Optimizer FVT Pipeline after app-cfg-optimizer completes"
+    - name: launchfvt_predict
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Predict FVT Pipeline after app-cfg-predict completes"
+    - name: launchfvt_visualinspection
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Visual Inspection FVT Pipeline after app-cfg-visualinspection completes"
+    - name: launchfvt_mobile
+      type: string
+      default: "true"
+      description: "Set this to any falue other than 'true' to disable lauch of the Mobile FVT Pipeline after app-cfg-manage completes"
+    - name: launchfvt_manage_is
+      type: string
+      default: "true"
+
+    - name: mas_app_channel_iot
+      type: string
+      default: ""
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: mas_app_channel_monitor
+      type: string
+      default: ""
+    - name: mas_app_channel_visualinspection
+      type: string
+      default: ""
+    - name: mas_app_channel_assist
+      type: string
+      default: ""
+    - name: mas_app_channel_optimizer
+      type: string
+      default: ""
+    - name: mas_app_channel_predict
+      type: string
+      default: ""
+
+    - name: ldap_url
+      type: string
+      default: ""
+    - name: ldap_basedn
+      type: string
+      default: ""
+    - name: ldap_userid_map
+      type: string
+      default: ""
+
+  stepTemplate:
+    name: gitops-mas-fvt-preparer
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT_ID
+        value: $(params.account_id)
+      - name: REGION_ID
+        value: $(params.region_id)
+      - name: OCP_SERVER
+        value: $(params.cluster_url)
+      - name: TRAVIS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+      - name: LAUNCHER_ID
+        value: $(params.launcher_id)
+      - name: DEVOPS_ENVIRONMENT
+        value: $(params.mas_instance_id)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: PIPELINE_STORAGE_CLASS
+        value: $(params.pipeline_storage_class)
+      - name: AWS_REGION
+        value: $(params.aws_region)
+      - name: FVT_PIPELINE_NAME
+        value: $(params.fvt_pipeline_name)
+      - name: CLI_VERSION
+        value: $(params.cli_version)
+      - name: FVT_CONFIG
+        value: $(params.fvt_config)
+      - name: FVT_IMAGE_REGISTRY
+        value: $(params.fvt_image_registry)
+      - name: ARTIFACTORY_GENERIC_RELEASE_URL
+        value: $(params.artifactory_generic_release_url)
+      - name: FVT_ANSIBLE_VERSION
+        value: $(params.fvt_ansible_version)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+      - name: MAS_CHANNEL
+        value: $(params.mas_channel)
+      - name: FVT_VERSION_CORE
+        value: $(params.fvt_version_core)
+      - name: IVT_VERSION_CORE
+        value: $(params.ivt_version_core)
+      - name: FVT_VERSION_CTF
+        value: $(params.fvt_version_ctf)
+      - name: FVT_VERSION_ASSIST
+        value: $(params.fvt_version_assist)
+      - name: FVT_VERSION_IOT
+        value: $(params.fvt_version_iot)
+      - name: FVT_VERSION_OPTIMIZER
+        value: $(params.fvt_version_optimizer)
+      - name: FVT_VERSION_MANAGE
+        value: $(params.fvt_version_manage)
+      - name: FVT_VERSION_MOBILE
+        value: $(params.fvt_version_mobile)
+      - name: FVT_VERSION_DATA_DICTIONARY
+        value: $(params.fvt_version_data_dictionary)
+      - name: FVT_VERSION_SLS
+        value: $(params.fvt_version_sls)
+      - name: FVT_BLACKLIST_CORE
+        value: $(params.fvt_blacklist_core)
+      - name: FVT_WHITELIST_CORE
+        value: $(params.fvt_whitelist_core)
+      - name: FVT_BLACKLIST_MANAGE
+        value: $(params.fvt_blacklist_manage)
+      - name: FVT_WHITELIST_MANAGE
+        value: $(params.fvt_whitelist_manage)
+      - name: FVT_BLACKLIST_MANAGE_IS
+        value: $(params.fvt_blacklist_manage_is)
+      - name: FVT_WHITELIST_MANAGE_IS
+        value: $(params.fvt_whitelist_manage_is)
+      - name: FVT_BLACKLIST_OPTIMIZER
+        value: $(params.fvt_blacklist_optimizer)
+      - name: FVT_WHITELIST_OPTIMIZER
+        value: $(params.fvt_whitelist_optimizer)
+      - name: LAUNCHFVT_CORE
+        value: $(params.launchfvt_core)
+      - name: LAUNCHFVT_ASSIST
+        value: $(params.launchfvt_assist)
+      - name: LAUNCHFVT_IOT
+        value: $(params.launchfvt_iot)
+      - name: LAUNCHFVT_MANAGE
+        value: $(params.launchfvt_manage)
+      - name: LAUNCHFVT_MOBILE
+        value: $(params.launchfvt_mobile)
+      - name: LAUNCHFVT_MONITOR
+        value: $(params.launchfvt_monitor)
+      - name: LAUNCHFVT_OPTIMIZER
+        value: $(params.launchfvt_optimizer)
+      - name: LAUNCHFVT_PREDICT
+        value: $(params.launchfvt_predict)
+      - name: LAUNCHFVT_VISUALINSPECTION
+        value: $(params.launchfvt_visualinspection)
+      - name: LAUNCHFVT_MANAGE_IS
+        value: $(params.launchfvt_manage_is)
+      - name: MAS_APP_CHANNEL_IOT
+        value: $(params.mas_app_channel_iot)
+      - name: MAS_APP_CHANNEL_MANAGE
+        value: $(params.mas_app_channel_manage)
+      - name: MAS_APP_CHANNEL_MONITOR
+        value: $(params.mas_app_channel_monitor)
+      - name: MAS_APP_CHANNEL_VISUALINSPECTION
+        value: $(params.mas_app_channel_visualinspection)
+      - name: MAS_APP_CHANNEL_ASSIST
+        value: $(params.mas_app_channel_assist)
+      - name: MAS_APP_CHANNEL_OPTIMIZER
+        value: $(params.mas_app_channel_optimizer)
+      - name: MAS_APP_CHANNEL_PREDICT
+        value: $(params.mas_app_channel_predict)
+
+      - name: LDAP_URL
+        value: $(params.ldap_url)
+      - name: LDAP_BASE_DN
+        value: $(params.ldap_basedn)
+      - name: LDAP_USER_MAP
+        value: $(params.ldap_userid_map)
+      - name: LDAP_CERT_ALIAS
+        value: ldap
+
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+
+        CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
+        . $CLI_DIR/functions/gitops_utils
+
+        ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
+        if [ -f $ROSA_CONFIG ]; then
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        elif [ -n $OCP_SERVER ]; then
+          oc login -u $OCP_USERNAME -p $OCP_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        else
+          aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+          aws configure set default.region $SM_AWS_REGION
+          export CLUSTER_TYPE=rosa
+          ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role 
+          OC_RC=$?
+          if [ $OC_RC -ne 0 ]; then
+            echo "oc login failed"
+            exit 1
+          fi
+        fi
+
+        echo "Set k8s context"
+        export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
+        echo "Installing ibm.mas_fvt ansible collection (with retries)"
+        wget --header="Authorization:Bearer $FVT_ARTIFACTORY_TOKEN" ${ARTIFACTORY_GENERIC_RELEASE_URL}/maximoappsuite/ansible-fvt/${FVT_ANSIBLE_VERSION}/ibm-mas_fvt-${FVT_ANSIBLE_VERSION}.tar.gz || exit 1
+
+        MAX_ATTEMPTS=5
+        ATTEMPT=1
+        until ansible-galaxy collection install ibm-mas_fvt-${FVT_ANSIBLE_VERSION}.tar.gz; [[ $? -eq 0 ]];
+        do
+          if [[ $ATTEMPT -eq $MAX_ATTEMPTS ]]; then
+            echo "All $MAX_ATTEMPTS attempts to install the collection have failed"
+            break
+          fi
+          echo "Attempt $ATTEMPT failed.  Sleeping for 30 seconds before retry"
+          sleep 30
+          ((ATTEMPT++))
+        done
+
+        echo "Setting up ArgoCD sync window to allow FVT tests to run without interuption"
+        export ARGOCD_URL=$(oc get route  openshift-gitops-server -n openshift-gitops -ojsonpath='{.spec.host}')
+        export ARGOCD_USERNAME=admin
+        export ARGOCD_PASSWORD=$(oc get secret openshift-gitops-cluster -n openshift-gitops -ojsonpath='{.data.admin\.password}' | base64 -d ; echo)
+        
+        argocd_login
+      
+        if [[ "$LAUNCHER_ID" == "core" ]]; then
+          MONGO_CONFIG_APP="${MAS_INSTANCE_ID}-mongo-system.${CLUSTER_NAME}"
+          BAS_CONFIG_APP="${MAS_INSTANCE_ID}-bas-system.${CLUSTER_NAME}"
+          SLS_CONFIG_APP="${MAS_INSTANCE_ID}-sls-system.${CLUSTER_NAME}"
+          SLS_APP_NAME="sls.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          SUITE_APP_NAME="suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+
+          check_argo_app_healthy "${MONGO_CONFIG_APP}" 
+          check_argo_app_healthy "${SLS_CONFIG_APP}"
+          check_argo_app_healthy "${BAS_CONFIG_APP}"
+          check_argo_app_healthy "${SLS_APP_NAME}"
+          check_argo_app_healthy "${SUITE_APP_NAME}"
+          check_argo_app_healthy "${WORKSPACE_APP}"
+        fi
+      
+        if [[ "$LAUNCHER_ID" == "apps" ]]; then
+          if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
+            MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
+            MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
+            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
+            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
+            MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
+            MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
+            MASAPP_APP="predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+          fi
+          if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
+            MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+          fi
+        fi
+
+        echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"  
+        argocd proj windows add mas --kind deny --schedule "* * * * *" --duration 4h --applications "*.$MAS_INSTANCE_ID"
+
+        UNESCAPED_LDAP_CRT=$(</workspace/shared-additional-configs/ldap_masdeps1_cert.pem)
+        ESCAPED_LDAP_CRT=${UNESCAPED_LDAP_CRT//\"/\\\"}
+        export LDAP_CRT=${ESCAPED_LDAP_CRT//$'\n'/\\n}
+        echo "Set LDAP_CRT as $LDAP_CRT"
+        mas gitops-mas-fvt-preparer --pipeline-storage-class ${PIPELINE_STORAGE_CLASS} || exit 1
+
+        # Wait for launcher to complete
+        /opt/app-root/src/wait-for-tekton.sh --type pipelinerun --max-retries 100 --name $MAS_INSTANCE_ID-fvt-$DEVOPS_BUILD_NUMBER-$LAUNCHER_ID --namespace mas-$MAS_INSTANCE_ID-pipelines
+
+        # Remove argocd window
+        argocd_login
+        ARGOWINDOW=$(argocd proj windows list mas | grep "*.$MAS_INSTANCE_ID" | cut -c1-1)
+        echo "argo:argocd proj windows delete mas $ARGOWINDOW"
+        argocd proj windows delete mas $ARGOWINDOW
+
+        # Set auto_delete: true, to allow ArgoCD to automatically delete resources when the deprovision pipelines run
+        if [[ "$LAUNCHER_ID" == "apps" ]]; then
+          ACCOUNT_ROOT_APP="root.${ACCOUNT_ID}"
+          CLUSTER_ROOT_APP="cluster.${CLUSTER_NAME}"
+          INSTANCE_ROOT_APP="instance.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+
+          argocd app set ${ACCOUNT_ROOT_APP} --parameter auto_delete=true
+
+          # wait for the root apps to sync to make sure the setting has been applied everywhere
+          check_argo_app_synced "${ACCOUNT_ROOT_APP}"
+          check_argo_app_synced "${CLUSTER_ROOT_APP}"
+          check_argo_app_synced "${INSTANCE_ROOT_APP}"
+        fi
+
+      command:
+        - /bin/bash
+        - -c
+      name: gitops-mas-fvt-preparer
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
+    - name: shared-additional-configs

@@ -1,0 +1,28 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cmp-plugin
+  namespace: openshift-gitops
+data:
+  avp.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: argocd-vault-plugin-helm
+    spec:
+      allowConcurrency: true
+      discover:
+        find:
+          command:
+            - sh
+            - "-c"
+            - "find . -name 'Chart.yaml' && find . -name 'values.yaml'"
+      generate:
+        command:
+        - bash
+        - "-c"
+        - |
+          helm template $ARGOCD_ENV_ARGOCD_APP_NAME -n $ARGOCD_APP_NAMESPACE -f <(echo "$ARGOCD_ENV_HELM_VALUES") . |
+          argocd-vault-plugin generate -c /home/argocd/vault.yml -
+      lockRepo: false

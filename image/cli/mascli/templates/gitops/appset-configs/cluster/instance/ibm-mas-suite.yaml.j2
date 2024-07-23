@@ -1,0 +1,71 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+
+ibm_mas_suite:
+  cert_manager_namespace: "{{ CERT_MANAGER_NAMESPACE }}"
+  ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
+  domain: "{{ DOMAIN }}"
+
+{%- if DNS_PROVIDER is defined and DNS_PROVIDER !='' %}
+  # suite dns
+  dns_provider: "{{ DNS_PROVIDER }}"
+  mas_workspace_id: "{{ MAS_WORKSPACE_ID }}"
+  mas_config_dir: "{{ MAS_CONFIG_DIR }}"
+  mas_domain: "{{ MAS_DOMAIN }}"
+  ocp_cluster_domain: "{{ OCP_CLUSTER_DOMAIN }}"
+{%- endif %}
+{%- if DNS_PROVIDER is defined and DNS_PROVIDER == 'cis' %}
+  cis_mas_domain: "{{ CIS_MAS_DOMAIN }}"
+  cis_subdomain: "{{ CIS_SUBDOMAIN }}"
+  cis_email: "{{ CIS_EMAIL }}"
+  cis_crn: "{{ CIS_CRN }}"
+  cis_apikey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_APIKEY }}>"
+  cis_enhanced_security: "{{ CIS_ENHANCED_SECURITY }}"
+  cis_proxy: "{{ CIS_PROXY }}"
+  cis_waf: "{{ CIS_WAF }}"
+  cis_service_name: "{{ CIS_SERVICE_NAME }}"
+  update_dns_entries: "{{ UPDATE_DNS_ENTRIES }}"
+  delete_wildcards: "{{ DELETE_WILDCARDS }}"
+  override_edge_certs: "{{ OVERRIDE_EDGE_CERTS }}"
+{%- endif %}
+
+  mas_channel: "{{ MAS_CHANNEL }}"
+  icr_cp: "{{ ICR_CP }}"
+  icr_cp_open: "{{ ICR_CP_OPEN }}"
+
+{% if MAS_MANUAL_CERT_MGMT == 'true' %}
+  mas_manual_cert_mgmt: true
+{% else %}
+  mas_manual_cert_mgmt: false
+{% endif %}
+{%- if MAS_ANNOTATIONS is defined and MAS_ANNOTATIONS !='' %}
+  mas_annotations:
+    {{ MAS_ANNOTATIONS | indent(4) }}
+{%- endif %}
+{%- if MAS_LABELS is defined and MAS_LABELS !='' %}
+  mas_labels:
+    {{ MAS_LABELS | indent(4) }}
+{%- endif %}
+{%- if MAS_IMAGE_TAGS is defined and MAS_IMAGE_TAGS !='' %}
+  mas_image_tags:
+    {{ MAS_IMAGE_TAGS | indent(4) }}
+{%- endif %}
+
+{%- if CA_CERT is defined and CA_CERT !='' %}
+  ca_cert: {{ CA_CERT }}
+{%- endif %}
+{%- if TLS_CERT is defined and TLS_CERT !='' %}
+  tls_cert: {{ TLS_CERT }}
+{%- endif %}
+{%- if TLS_KEY is defined and TLS_KEY !='' %}
+  tls_key: {{ TLS_KEY }}
+{%- endif %}
+
+{% if MANUAL_CERTS is defined and MANUAL_CERTS !='' %}
+  manual_certs:
+    {{ MANUAL_CERTS | indent(4) }}
+{% endif %}
+
+{% if MAS_POD_TEMPLATE is defined and MAS_POD_TEMPLATE !='' %}
+  mas_pod_templates:
+    {{ MAS_POD_TEMPLATE | indent(4) }}
+{% endif %}

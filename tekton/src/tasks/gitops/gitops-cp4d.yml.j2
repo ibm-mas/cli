@@ -1,0 +1,106 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-cp4d
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: account
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: cpd_product_version
+      type: string
+    - name: cpd_primary_storage_class
+      type: string
+    - name: cpd_metadata_storage_class
+      type: string
+    - name: cpfs_size
+      type: string
+    - name: cpd_scale_config
+      type: string
+  stepTemplate:
+    name: gitops-cp4d
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: OCP_SERVER
+        value: $(params.cluster_url)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: CPD_PRODUCT_VERSION
+        value: $(params.cpd_product_version)
+      - name: CPD_PRIMARY_STORAGE_CLASS
+        value: $(params.cpd_primary_storage_class)
+      - name: CPD_METADATA_STORAGE_CLASS
+        value: $(params.cpd_metadata_storage_class)
+      - name: CPFS_SIZE
+        value: $(params.cpfs_size)
+      - name: CPD_SCALE_CONFIG
+        value: $(params.cpd_scale_config)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+        
+        mkdir -p /tmp/init-cp4d
+        mas gitops-cp4d -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        --dir /tmp/init-cp4d \
+        --secrets-path $SECRET_PATH \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-cp4d
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
+    - name: shared-gitops-configs

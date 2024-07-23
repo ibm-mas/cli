@@ -111,6 +111,7 @@ def getKafkaVersion(namespace):
         print(f"Unable to determine kafka version: {e}")
     return "unknown"
 
+
 # Get cp4d components versions
 # -------------------------------------------------------------------------
 def getcp4dCompsVersions():
@@ -222,6 +223,17 @@ if __name__ == "__main__":
         "timestampFinished": datetime.utcnow()
     }
 
+    # Set CLI and ansible-devops version
+    # -------------------------------------------------------------------------
+    cliVersion = os.getenv("VERSION", "unknown")
+    ansibleDevopsVersion = os.getenv("ANSIBLE_DEVOPS_VERSION", "unknown")
+
+    print(f"CLI Version ............ {cliVersion}")
+    print(f"mas_devops Version ..... {ansibleDevopsVersion}")
+
+    setObject["target.version"] = cliVersion
+    setObject["target.ansibleDevopsVersion"] = ansibleDevopsVersion
+
     # Lookup OCP version
     # -------------------------------------------------------------------------
     cvs = dynClient.resources.get(api_version="config.openshift.io/v1", kind="ClusterVersion")
@@ -283,7 +295,7 @@ if __name__ == "__main__":
             "namespace": f"mas-{instanceId}-visualinspection",
             "apiVersion": "apps.mas.ibm.com/v1",
             "kind": "VisualInspectionApp"
-         }
+        }
     }
 
     # Associate Mas FVT Focal group with respect to product
@@ -482,10 +494,11 @@ if __name__ == "__main__":
         print("FVT_SLACK_TOKEN is not set")
         sys.exit(0)
 
-    FVT_SLACK_CHANNEL = os.getenv("FVT_SLACK_CHANNEL")
-    if FVT_SLACK_CHANNEL is None or FVT_SLACK_CHANNEL == "":
-        print("FVT_SLACK_CHANNEL is not set")
-        sys.exit(0)
+    if instanceId.startswith("fvt"):
+        # To generate the channel name we remove the "fvt" prefix from the instanceId
+        FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId.replace('fvt', '')}"
+    else:
+        FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId}"
 
     FVT_JIRA_TOKEN = os.getenv("FVT_JIRA_TOKEN")
     if FVT_JIRA_TOKEN is None or FVT_JIRA_TOKEN == "":

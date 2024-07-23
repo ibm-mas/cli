@@ -1,0 +1,1735 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: gitops-mas-apps
+spec:
+  workspaces:
+    - name: configs
+    - name: shared-certificates
+    - name: shared-gitops-configs
+  description: MAS GitOps Instance
+  params:
+    - name: cluster_name
+      type: string
+    - name: cluster_url
+      type: string
+    - name: region
+      type: string
+    - name: account
+      type: string
+    - name: image_pull_policy
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+
+    # 1. Gitops git Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
+    - name: mas_manual_cert_mgmt
+      type: string
+      default: "false"
+    - name: mas_manual_certs_yaml
+      type: string
+      default: ""
+
+    - name: mas_edition
+      type: string
+      default: ""
+    - name: mas_config_dir
+      type: string
+
+    - name: github_url
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: mas_workspace_id
+      type: string
+    - name: icr_cp
+      type: string
+    - name: icr_cp_open
+      type: string
+
+    - name: jdbc_type_iot
+      type: string
+    - name: jdbc_instance_name_iot
+      type: string
+    - name: jdbc_connection_url_iot
+      type: string
+      default: ""
+    - name: jdbc_certificate_file_iot
+      type: string
+      default: ""
+
+    - name: jdbc_type_manage
+      type: string
+    - name: jdbc_instance_name_manage
+      type: string
+    - name: jdbc_connection_url_manage
+      type: string
+      default: ""
+    - name: jdbc_certificate_file_manage
+      type: string
+      default: ""
+
+    - name: db2_meta_storage_class
+      type: string
+    - name: db2_temp_storage_class
+      type: string
+    - name: db2_logs_storage_class
+      type: string
+    - name: db2_audit_logs_storage_class
+      type: string
+    - name: db2_data_storage_class
+      type: string
+      default: ""
+    - name: db2_backup_storage_class
+      type: string
+    - name: db2_archivelogs_storage_class
+      type: string
+
+    - name: db2_meta_storage_size
+      type: string
+      default: ""
+    - name: db2_temp_storage_size
+      type: string
+      default: ""
+    - name: db2_logs_storage_size
+      type: string
+      default: ""
+    - name: db2_audit_logs_storage_size
+      type: string
+      default: ""
+    - name: db2_data_storage_size
+      type: string
+      default: ""
+    - name: db2_backup_storage_size
+      type: string
+      default: ""
+    - name: db2_archivelogs_storage_size
+      type: string
+      default: ""
+
+    - name: db2_version
+      type: string
+    - name: db2_action
+      type: string
+    - name: db2_instance_registry_yaml_manage
+      type: string
+      default: ""
+    - name: db2_instance_dbm_config_yaml_manage
+      type: string
+      default: ""
+    - name: db2_database_db_config_yaml_manage
+      type: string
+      default: ""
+    - name: db2_addons_audit_config_yaml_manage
+      type: string
+      default: ""
+    - name: db2_instance_registry_yaml_iot
+      type: string
+      default: ""
+    - name: db2_instance_dbm_config_yaml_iot
+      type: string
+      default: ""
+    - name: db2_database_db_config_yaml_iot
+      type: string
+      default: ""
+    - name: db2_addons_audit_config_yaml_iot
+      type: string
+      default: ""
+    - name: db2_tls_version
+      type: string
+      default: TLSv1.2
+    - name: db2_table_org
+      type: string
+      default: ""
+    - name: db2_mln_count
+      type: string
+      default: ""
+    - name: db2_num_pods
+      type: string
+      default: ""
+    - name: db2_meta_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_data_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_backup_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_logs_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_audit_logs_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_temp_storage_accessmode
+      type: string
+    - name: db2_archivelogs_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_cpu_requests
+      type: string
+      default: ""
+    - name: db2_cpu_limits
+      type: string
+      default: ""
+    - name: db2_memory_requests
+      type: string
+      default: ""
+    - name: db2_memory_limits
+      type: string
+      default: ""
+    - name: db2_affinity_key
+      type: string
+      default: ""
+    - name: db2_affinity_value
+      type: string
+      default: ""
+    - name: db2_tolerate_key
+      type: string
+      default: ""
+    - name: db2_tolerate_value
+      type: string
+      default: ""
+    - name: db2_tolerate_effect
+      type: string
+      default: ""
+
+    - name: custom_labels
+      type: string
+      default: ""
+
+    - name: default_block_storage_class
+      type: string
+    - name: default_file_storage_class
+      type: string
+      
+      #CP4D
+    - name: cpd_product_version
+      type: string
+    - name: cpd_primary_storage_class
+      type: string
+    - name: cpd_metadata_storage_class
+      type: string
+    - name: cp4d_action
+      type: string
+    - name: cpfs_size
+      type: string
+      default: "small"
+    - name: cpd_scale_config
+      type: string
+      default: "medium"
+
+      #CP4D Services
+    - name: cpd_service_block_storage_class
+      type: string
+    - name: cpd_service_storage_class
+      type: string
+    - name: cpd_service_scale_config
+      type: string
+      default: "small"
+
+      #CP4D wml, analytics, openscale, spss modeler
+    - name: cp4d_wsl_action
+      type: string
+    - name: cp4d_watson_machine_learning_action
+      type: string
+    - name: cp4d_analytics_engine_action
+      type: string
+    - name: cp4d_watson_openscale_action
+      type: string
+    - name: cp4d_spss_modeler_action
+      type: string
+
+    - name: mas_app_channel_iot
+      type: string
+      default: ""
+    - name: mas_app_catalog_source_iot
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_iot
+      type: string
+      default: iot.ibm.com/v1
+    - name: mas_app_kind_iot
+      type: string
+      default: IoT
+    - name: mas_appws_api_version_iot
+      type: string
+      default: iot.ibm.com/v1
+    - name: mas_appws_kind_iot
+      type: string
+      default: IoTWorkspace
+    - name: mas_app_spec_yaml_iot
+      type: string
+    - name: mas_appws_spec_yaml_iot
+      type: string
+    - name: iot_workspace_action
+      type: string
+      default: "deactivate"
+
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: mas_app_catalog_source_manage
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_manage
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_app_kind_manage
+      type: string
+      default: ManageApp
+    - name: mas_appws_api_version_manage
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_appws_kind_manage
+      type: string
+      default: ManageWorkspace
+    - name: mas_app_spec_yaml_manage
+      type: string
+    - name: mas_appws_spec_yaml_manage
+      type: string
+    - name: mas_app_server_bundles_combined_add_server_config_yaml_manage
+      type: string
+      default: ""
+    - name: manage_workspace_action
+      type: string
+      default: "deactivate"
+
+    - name: mas_app_channel_monitor
+      type: string
+      default: ""
+    - name: mas_app_catalog_source_monitor
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_monitor
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_app_kind_monitor
+      type: string
+      default: MonitorApp
+    - name: mas_appws_api_version_monitor
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_appws_kind_monitor
+      type: string
+      default: MonitorWorkspace
+    - name: mas_app_spec_yaml_monitor
+      type: string
+    - name: mas_appws_spec_yaml_monitor
+      type: string
+    - name: monitor_workspace_action
+      type: string
+      default: "deactivate"
+
+    - name: mas_app_channel_visualinspection
+      type: string
+      default: ""
+    - name: mas_app_catalog_source_visualinspection
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_visualinspection
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_app_kind_visualinspection
+      type: string
+      default: VisualInspectionApp
+    - name: mas_appws_api_version_visualinspection
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_appws_kind_visualinspection
+      type: string
+      default: VisualInspectionAppWorkspace
+    - name: mas_app_spec_yaml_visualinspection
+      type: string
+    - name: mas_appws_spec_yaml_visualinspection
+      type: string
+    - name: visualinspection_workspace_action
+      type: string
+      default: "deactivate"
+    - name: visualinspection_gpu_request_quota
+      type: string
+      default: "2"
+
+    - name: mas_app_channel_assist
+      type: string
+      default: ""
+    - name: mas_app_catalog_source_assist
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_assist
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_app_kind_assist
+      type: string
+      default: AssistApp
+    - name: mas_appws_api_version_assist
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_appws_kind_assist
+      type: string
+      default: AssistWorkspace
+    - name: mas_app_spec_yaml_assist
+      type: string
+    - name: mas_appws_spec_yaml_assist
+      type: string
+    - name: assist_workspace_action
+      type: string
+      default: "deactivate"
+
+    - name: mas_app_channel_optimizer
+      type: string
+      default: ""
+    - name: mas_app_catalog_source_optimizer
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_optimizer
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_app_kind_optimizer
+      type: string
+      default: OptimizerApp
+    - name: mas_appws_api_version_optimizer
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_appws_kind_optimizer
+      type: string
+      default: OptimizerWorkspace
+    - name: mas_app_spec_yaml_optimizer
+      type: string
+    - name: mas_appws_spec_yaml_optimizer
+      type: string
+    - name: optimizer_workspace_action
+      type: string
+      default: "deactivate"
+    - name: optimizer_plan
+      type: string
+      default: "limited"
+
+    - name: mas_app_channel_predict
+      type: string
+      default: ""
+    - name: mas_app_catalog_source_predict
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_predict
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_app_kind_predict
+      type: string
+      default: PredictApp
+    - name: mas_appws_api_version_predict
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_appws_kind_predict
+      type: string
+      default: PredictWorkspace
+    - name: mas_app_spec_yaml_predict
+      type: string
+    - name: mas_appws_spec_yaml_predict
+      type: string
+    - name: predict_workspace_action
+      type: string
+      default: "deactivate"
+
+    - name: cpd_wsl_project_id
+      type: string
+      default: ""
+    - name: cpd_wml_url
+      type: string
+      default: ""
+    - name: cpd_wml_instance_id
+      type: string
+      default: ""
+    - name: cpd_instance_namespace
+      type: string
+      default: ""
+
+  tasks:
+    # 2. Kafka
+    # -------------------------------------------------------------------------
+    - name: gitops-kafka-config
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-kafka-config
+      when:
+        - input: "$(params.mas_app_channel_iot)"
+          operator: notin
+          values: [""]
+
+    # 3. DB2 for IoT and Manage
+    # -------------------------------------------------------------------------
+
+    # 3.1 DB2 for IoT
+    - name: gitops-db2u-database-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+
+        - name: db2_meta_storage_class
+          value: $(params.db2_meta_storage_class)
+        - name: db2_temp_storage_class
+          value: $(params.db2_temp_storage_class)
+        - name: db2_logs_storage_class
+          value: $(params.db2_logs_storage_class)
+        - name: db2_audit_logs_storage_class
+          value: $(params.db2_audit_logs_storage_class)
+        - name: db2_data_storage_class
+          value: $(params.db2_data_storage_class)
+        - name: db2_backup_storage_class
+          value: $(params.db2_backup_storage_class)
+        - name: db2_archivelogs_storage_class
+          value: $(params.db2_archivelogs_storage_class)
+
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size)
+        - name: db2_audit_logs_storage_size
+          value: $(params.db2_audit_logs_storage_size)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size)
+        - name: db2_archivelogs_storage_size
+          value: $(params.db2_archivelogs_storage_size)
+
+        - name: db2_version
+          value: $(params.db2_version)
+        - name: db2_tls_version
+          value: $(params.db2_tls_version)
+        - name: db2_instance_registry_yaml
+          value: $(params.db2_instance_registry_yaml_iot)
+        - name: db2_instance_dbm_config_yaml
+          value: $(params.db2_instance_dbm_config_yaml_iot)
+        - name: db2_database_db_config_yaml
+          value: $(params.db2_database_db_config_yaml_iot)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_iot)
+        - name: db2_table_org
+          value: $(params.db2_table_org)
+        - name: db2_mln_count
+          value: $(params.db2_mln_count)
+        - name: db2_num_pods
+          value: $(params.db2_num_pods)
+        - name: db2_meta_storage_accessmode
+          value: $(params.db2_meta_storage_accessmode)
+        - name: db2_data_storage_accessmode
+          value: $(params.db2_data_storage_accessmode)
+        - name: db2_backup_storage_accessmode
+          value: $(params.db2_backup_storage_accessmode)
+        - name: db2_logs_storage_accessmode
+          value: $(params.db2_logs_storage_accessmode)
+        - name: db2_audit_logs_storage_accessmode
+          value: $(params.db2_audit_logs_storage_accessmode)
+        - name: db2_temp_storage_accessmode
+          value: $(params.db2_temp_storage_accessmode)
+        - name: db2_archivelogs_storage_accessmode
+          value: $(params.db2_archivelogs_storage_accessmode)
+        - name: db2_cpu_requests
+          value: $(params.db2_cpu_requests)
+        - name: db2_cpu_limits
+          value: $(params.db2_cpu_limits)
+        - name: db2_memory_requests
+          value: $(params.db2_memory_requests)
+        - name: db2_memory_limits
+          value: $(params.db2_memory_limits)
+        - name: db2_affinity_key
+          value: $(params.db2_affinity_key)
+        - name: db2_affinity_value
+          value: $(params.db2_affinity_value)
+        - name: db2_tolerate_key
+          value: $(params.db2_tolerate_key)
+        - name: db2_tolerate_value
+          value: $(params.db2_tolerate_value)
+        - name: db2_tolerate_effect
+          value: $(params.db2_tolerate_effect)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u-database
+      when:
+        - input: "$(params.db2_action)"
+          operator: notin
+          values: [""]
+        - input: "$(params.jdbc_type_iot)"
+          operator: in
+          values: ["incluster-db2"]
+        - input: "$(params.mas_app_channel_iot)"
+          operator: notin
+          values: [""]
+
+    - name: gitops-jdbc-config-iot
+      runAfter:
+        - gitops-db2u-database-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+        - name: mas_config_scope
+          value: system
+        - name: jdbc_type
+          value: $(params.jdbc_type_iot)
+        - name: jdbc_instance_name
+          value: $(params.jdbc_instance_name_iot)
+        - name: jdbc_connection_url
+          value: $(params.jdbc_connection_url_iot)
+        - name: jdbc_certificate_file
+          value: $(params.jdbc_certificate_file_iot)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs          
+      taskRef:
+        kind: Task
+        name: gitops-jdbc-config
+      when:
+        - input: "$(params.jdbc_type_iot)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_iot)"
+          operator: notin
+          values: [""]
+
+    # 3.2 DB2 for Manage
+    - name: gitops-db2u-database-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+
+        - name: db2_meta_storage_class
+          value: $(params.db2_meta_storage_class)
+        - name: db2_temp_storage_class
+          value: $(params.db2_temp_storage_class)
+        - name: db2_logs_storage_class
+          value: $(params.db2_logs_storage_class)
+        - name: db2_audit_logs_storage_class
+          value: $(params.db2_audit_logs_storage_class)
+        - name: db2_data_storage_class
+          value: $(params.db2_data_storage_class)
+        - name: db2_backup_storage_class
+          value: $(params.db2_backup_storage_class)
+        - name: db2_archivelogs_storage_class
+          value: $(params.db2_archivelogs_storage_class)
+
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size)
+        - name: db2_audit_logs_storage_size
+          value: $(params.db2_audit_logs_storage_size)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size)
+        - name: db2_archivelogs_storage_size
+          value: $(params.db2_archivelogs_storage_size)
+
+        - name: db2_version
+          value: $(params.db2_version)
+        - name: db2_tls_version
+          value: $(params.db2_tls_version)
+        - name: db2_instance_registry_yaml
+          value: $(params.db2_instance_registry_yaml_manage)
+        - name: db2_instance_dbm_config_yaml
+          value: $(params.db2_instance_dbm_config_yaml_manage)
+        - name: db2_database_db_config_yaml
+          value: $(params.db2_database_db_config_yaml_manage)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_manage)
+        - name: db2_table_org
+          value: $(params.db2_table_org)
+        - name: db2_mln_count
+          value: $(params.db2_mln_count)
+        - name: db2_num_pods
+          value: $(params.db2_num_pods)
+        - name: db2_meta_storage_accessmode
+          value: $(params.db2_meta_storage_accessmode)
+        - name: db2_data_storage_accessmode
+          value: $(params.db2_data_storage_accessmode)
+        - name: db2_backup_storage_accessmode
+          value: $(params.db2_backup_storage_accessmode)
+        - name: db2_logs_storage_accessmode
+          value: $(params.db2_logs_storage_accessmode)
+        - name: db2_audit_logs_storage_accessmode
+          value: $(params.db2_audit_logs_storage_accessmode)
+        - name: db2_temp_storage_accessmode
+          value: $(params.db2_temp_storage_accessmode)
+        - name: db2_archivelogs_storage_accessmode
+          value: $(params.db2_archivelogs_storage_accessmode)
+        - name: db2_cpu_requests
+          value: $(params.db2_cpu_requests)
+        - name: db2_cpu_limits
+          value: $(params.db2_cpu_limits)
+        - name: db2_memory_requests
+          value: $(params.db2_memory_requests)
+        - name: db2_memory_limits
+          value: $(params.db2_memory_limits)
+        - name: db2_affinity_key
+          value: $(params.db2_affinity_key)
+        - name: db2_affinity_value
+          value: $(params.db2_affinity_value)
+        - name: db2_tolerate_key
+          value: $(params.db2_tolerate_key)
+        - name: db2_tolerate_value
+          value: $(params.db2_tolerate_value)
+        - name: db2_tolerate_effect
+          value: $(params.db2_tolerate_effect)
+        
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u-database
+      when:
+        - input: "$(params.db2_action)"
+          operator: notin
+          values: [""]
+        - input: "$(params.jdbc_type_manage)"
+          operator: in
+          values: ["incluster-db2"]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+    - name: gitops-jdbc-config-manage
+      runAfter:
+        - gitops-db2u-database-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+        - name: mas_config_scope
+          value: wsapp
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: jdbc_type
+          value: $(params.jdbc_type_manage)
+        - name: jdbc_instance_name
+          value: $(params.jdbc_instance_name_manage)
+        - name: jdbc_connection_url
+          value: $(params.jdbc_connection_url_manage)
+        - name: jdbc_certificate_file
+          value: $(params.jdbc_certificate_file_manage)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-jdbc-config
+      when:
+        - input: "$(params.jdbc_type_manage)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+      
+    # 4. Install & Configure IoT
+    # -------------------------------------------------------------------------
+    # 4.1 Install IoT
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/iot-app.yml.j2') | indent(4) }}
+      runAfter:
+        - gitops-kafka-config
+        - gitops-jdbc-config-iot
+
+    # 4.2 Configure IoT workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/iot-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-iot
+
+    # 5. Install & Configure Manage
+    # -------------------------------------------------------------------------
+    # 5.1 Install Manage
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/manage-app.yml.j2') | indent(4) }}
+      runAfter:
+        - gitops-jdbc-config-manage
+
+    # 5.2 Configure Manage workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/manage-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-manage
+
+    # 6. Install & Configure Monitor
+    # -------------------------------------------------------------------------
+    # 6.1 Install Monitor
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/monitor-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-iot
+
+    # 6.2 Configure Monitor workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/monitor-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-monitor
+
+    # 7. Install & Configure VisualInspection
+    # -------------------------------------------------------------------------
+    # 7.1 Install VisualInspection
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/visualinspection-app.yml.j2') | indent(4) }}
+      runAfter:
+        - gitops-suite-objectstorage-config
+
+    # 7.2 Configure VisualInspection workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/visualinspection-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-visualinspection
+
+    # 8. CP4D for Predict
+    # -------------------------------------------------------------------------
+    # 8.1 CP4D 
+    - name: gitops-cp4d
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_primary_storage_class
+          value: $(params.cpd_primary_storage_class)
+        - name: cpd_metadata_storage_class
+          value: $(params.cpd_metadata_storage_class)
+        - name: cpfs_size
+          value: $(params.cpfs_size)
+        - name: cpd_scale_config
+          value: $(params.cpd_scale_config)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-cp4d
+      when:
+        - input: "$(params.cp4d_action)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_action)"
+          operator: in
+          values: ["install"]
+
+    # 9. Configure Objectstorage for Assist or MVI
+    # -------------------------------------------------------------------------
+    # 9.1 Configure Objectstorage
+    # Configure COS in MAS
+    - name: gitops-suite-objectstorage-config
+      params:
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-suite-objectstorage-config
+      when:
+        - input: "$(params.mas_app_channel_assist)$(params.mas_app_channel_visualinspection)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+
+
+    # 10. Install & Configure Assist
+    # -------------------------------------------------------------------------
+    # 10.1 Install Assist
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/assist-app.yml.j2') | indent(4) }}
+      runAfter:
+        - gitops-suite-objectstorage-config
+
+    # 10.2 Configure Assist workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/assist-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-assist
+
+    # 11. Install & Configure Optimizer
+    # -------------------------------------------------------------------------
+    # 11.1 Install Optimizer
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/optimizer-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage
+
+    # 11.2 Configure Optimizer workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/optimizer-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-optimizer
+
+    # 12. Install & Configure Predict
+    # -------------------------------------------------------------------------
+    # 12.1 Install Predict
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/predict-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-manage
+        - app-cfg-monitor
+        - gitops-cp4d
+        - gitops-cp4d-wsl
+        - gitops-suite-watson-studio-config-predict
+        - gitops-cp4d-wml
+        - gitops-cp4d-spark
+        - gitops-cp4d-aiopenscale
+        - gitops-cp4d-spss
+
+
+    # 12.2 Configure Predict workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/predict-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-predict
+
+    # 13. CP4D WSL,  for Predict
+    # -------------------------------------------------------------------------
+    # 13.1.a CP4D wsl
+    - name: gitops-cp4d-wsl
+      runAfter:
+        - gitops-cp4d
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: wsl
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_service_block_storage_class
+          value: $(params.cpd_service_block_storage_class)
+        - name: cpd_service_storage_class
+          value: $(params.cpd_service_storage_class)
+        - name: cpd_service_scale_config
+          value: $(params.cpd_service_scale_config)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-cp4d-service
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_wsl_action)"
+          operator: in
+          values: ["install"]
+
+    # 13.1.b Configure WSL in MAS Core
+    - name: gitops-suite-watson-studio-config-predict
+      runAfter:
+        - gitops-cp4d-wsl
+      params:
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: predict
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_config_scope
+          value: wsapp
+
+      taskRef:
+        kind: Task
+        name: gitops-suite-watson-studio-config
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_wsl_action)"
+          operator: in
+          values: ["install"]
+          
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+
+    # 13.2 CP4D wml
+    - name: gitops-cp4d-wml
+      runAfter:
+        - gitops-cp4d
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: wml
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_service_block_storage_class
+          value: $(params.cpd_service_block_storage_class)
+        - name: cpd_service_storage_class
+          value: $(params.cpd_service_storage_class)
+        - name: cpd_service_scale_config
+          value: $(params.cpd_service_scale_config)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-cp4d-service
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_watson_machine_learning_action)"
+          operator: in
+          values: ["install"]
+    # 13.3 CP4D spark
+    - name: gitops-cp4d-spark
+      runAfter:
+        - gitops-cp4d
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: spark
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_service_block_storage_class
+          value: $(params.cpd_service_block_storage_class)
+        - name: cpd_service_storage_class
+          value: $(params.cpd_service_storage_class)
+        - name: cpd_service_scale_config
+          value: $(params.cpd_service_scale_config)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-cp4d-service
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_analytics_engine_action)"
+          operator: in
+          values: ["install"]
+
+    # 13.4 CP4D aiopenscale
+    - name: gitops-cp4d-aiopenscale
+      runAfter:
+        - gitops-cp4d
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: aiopenscale
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_service_block_storage_class
+          value: $(params.cpd_service_block_storage_class)
+        - name: cpd_service_storage_class
+          value: $(params.cpd_service_storage_class)
+        - name: cpd_service_scale_config
+          value: $(params.cpd_service_scale_config)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-cp4d-service
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_watson_openscale_action)"
+          operator: in
+          values: ["install"]
+
+    # 13.5 CP4D spss
+    - name: gitops-cp4d-spss
+      runAfter:
+        - gitops-cp4d
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: spss
+        - name: cpd_product_version
+          value: $(params.cpd_product_version)
+        - name: cpd_service_block_storage_class
+          value: $(params.cpd_service_block_storage_class)
+        - name: cpd_service_storage_class
+          value: $(params.cpd_service_storage_class)
+        - name: cpd_service_scale_config
+          value: $(params.cpd_service_scale_config)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-cp4d-service
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.cp4d_spss_modeler_action)"
+          operator: in
+          values: ["install"]
+
+    # -------------------------------------------------------------------------
+    # Deprovision task section
+    # -------------------------------------------------------------------------
+
+    # 1. Monitor Deprovision
+    # -------------------------------------------------------------------------
+    # 1.1 Monitor Config/Workspace
+    - name: gitops-deprovision-mas-app-config-monitor
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: monitor
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.monitor_workspace_action)"
+          operator: in
+          values: ["deactivate", ""]
+
+    # 1.2 Monitor App Deprovision
+    - name: gitops-deprovision-mas-app-install-monitor
+      runAfter:
+        - gitops-deprovision-mas-app-config-monitor
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: monitor
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: in
+          values: [""]
+
+    # 2. Predict Deprovision
+    # -------------------------------------------------------------------------
+    # 2.1 Predict Config/Workspace
+    - name: gitops-deprovision-mas-app-config-predict
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: predict
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.predict_workspace_action)"
+          operator: in
+          values: ["deactivate", ""]
+
+    # 2.2 Predict App
+    - name: gitops-deprovision-mas-app-install-predict
+      runAfter:
+        - gitops-deprovision-mas-app-config-predict
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: predict
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: in
+          values: [""]
+
+    # 3. Visualinspection Deprovision
+    # -------------------------------------------------------------------------
+    # 3.1 Visualinspection Config/Workspace
+    - name: gitops-deprovision-mas-app-config-visualinspection
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: visualinspection
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.visualinspection_workspace_action)"
+          operator: in
+          values: ["deactivate", ""]
+
+    # 3.2 Visualinspection App
+    - name: gitops-deprovision-mas-app-install-visualinspection
+      runAfter:
+        - gitops-deprovision-mas-app-config-visualinspection
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: visualinspection
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_visualinspection)"
+          operator: in
+          values: [""]
+
+    # 4. Optimizer Deprovision
+    # -------------------------------------------------------------------------
+    # 4.1 Optimizer Config/Workspace
+    - name: gitops-deprovision-mas-app-config-optimizer
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: optimizer
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.optimizer_workspace_action)"
+          operator: in
+          values: ["deactivate", ""]
+
+    # 4.2 Optimizer App
+    - name: gitops-deprovision-mas-app-install-optimizer
+      runAfter:
+        - gitops-deprovision-mas-app-config-optimizer
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: optimizer
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: in
+          values: [""]
+
+    # 5. Assist Deprovision
+    # -------------------------------------------------------------------------
+    # 5.1 Assist Config/Workspace
+    - name: gitops-deprovision-mas-app-config-assist
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: assist
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.assist_workspace_action)"
+          operator: in
+          values: ["deactivate", ""]
+
+    # 5.2 Assist App
+    - name: gitops-deprovision-mas-app-install-assist
+      runAfter:
+        - gitops-deprovision-mas-app-config-assist
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: assist
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_assist)"
+          operator: in
+          values: [""]
+
+    # 6. Manage Deprovision
+    # -------------------------------------------------------------------------
+    # 6.1 Manage Config/Workspace
+    - name: gitops-deprovision-mas-app-config-manage
+      runAfter:
+        - gitops-deprovision-mas-app-install-predict
+        - gitops-deprovision-mas-app-install-monitor
+        - gitops-deprovision-mas-app-install-optimizer
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: manage
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.manage_workspace_action)"
+          operator: in
+          values: ["deactivate", ""]
+
+    # 6.2 Manage App
+    - name: gitops-deprovision-mas-app-install-manage
+      runAfter:
+        - gitops-deprovision-mas-app-config-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+
+
+    # 6.3 Manage Database
+    - name: gitops-deprovision-db2u-database-manage
+      runAfter:
+        - gitops-deprovision-mas-app-install-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u-database
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+
+    # 6.4 Manage JDBC Config
+    - name: gitops-delete-jdbc-config-manage
+      runAfter:
+        - gitops-deprovision-db2u-database-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+        - name: mas_config_scope
+          value: wsapp
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: jdbc_type
+          value: $(params.jdbc_type_manage)
+        - name: jdbc_instance_name
+          value: $(params.jdbc_instance_name_manage)
+        - name: jdbc_connection_url
+          value: $(params.jdbc_connection_url_manage)
+        - name: jdbc_certificate_file
+          value: $(params.jdbc_certificate_file_manage)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-delete-jdbc-config
+      when:
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+  
+    # 7. IoT Deprovision
+    # -------------------------------------------------------------------------
+    # 7.1 IoT Config/Workspace
+    - name: gitops-deprovision-mas-app-config-iot
+      runAfter:
+        - gitops-deprovision-mas-app-install-monitor
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: iot
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.iot_workspace_action)"
+          operator: in
+          values: ["deactivate", ""]
+
+    # 7.2 IoT App
+    - name: gitops-deprovision-mas-app-install-iot
+      runAfter:
+        - gitops-deprovision-mas-app-config-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_iot)"
+          operator: in
+          values: [""]
+
+    # 7.3 IoT Database
+    - name: gitops-deprovision-db2u-database-iot
+      runAfter:
+        - gitops-deprovision-mas-app-install-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u-database
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_iot)"
+          operator: in
+          values: [""]
+
+    # 8. Deprovision Kafka config
+    # -------------------------------------------------------------------------
+    - name: gitops-delete-kafka-config
+      runAfter:
+        - gitops-deprovision-mas-app-install-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-delete-kafka-config
+      when:
+        - input: "$(params.mas_app_channel_iot)"
+          operator: in
+          values: [""]
+
+    # 9. Deprovision Objectstorage config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-objectstorage-config
+      runAfter:
+        - gitops-deprovision-mas-app-install-assist
+        - gitops-deprovision-mas-app-install-visualinspection
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-objectstorage-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_assist)$(params.mas_app_channel_visualinspection)"
+          operator: in
+          values: [""]
+
+    # 10. Deprovision Watson Studio config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-watson-studio-config
+      runAfter:
+        - gitops-deprovision-mas-app-install-predict
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-watson-studio-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: in
+          values: [""]

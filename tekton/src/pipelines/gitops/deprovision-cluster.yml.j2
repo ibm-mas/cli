@@ -1,0 +1,84 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+{% if wait_for_deprovision == true %}
+  name: gitops-deprovision-cluster-after-deprovision
+{% else %}
+  name: gitops-deprovision-cluster
+{% endif %}
+spec:
+  description: Deprovision ROSA Cluster
+  workspaces:
+    - name: configs
+  params:
+{% if wait_for_deprovision == true %}
+      # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "False"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+{% endif %}
+    - name: cluster_name
+      type: string
+    - name: ocp_version
+      type: string
+    - name: avp_type
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: aws_region
+      type: string
+      default: ""
+    # 1. Gitops git Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
+    - name: github_url
+      type: string
+    - name: rosa_token
+      type: string
+
+  tasks:
+{% if wait_for_deprovision == true %}
+    # 0. Wait for the deprovsion mas pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-deprovision
+      params:
+        - name: pipelinerun_name
+          value: $(params.pipelinerun_name)
+        - name: ignore_failure
+          value: $(params.ignore_failure)
+      taskRef:
+        kind: Task
+        name: mas-fvt-wait-for-pipelinerun
+{% endif %}
+
+    - name: gitops-deprovision-rosa
+{% if wait_for_deprovision == true %}
+      runAfter:
+        - wait-for-deprovision
+{% endif %}
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: aws_region
+          value: $(params.aws_region)
+        - name: rosa_token
+          value: $(params.rosa_token)
+        - name: ocp_version
+          value: $(params.ocp_version)
+        - name: aws_secret_access_key
+          value: $(params.avp_aws_secret_key)
+        - name: aws_access_key_id
+          value: $(params.avp_aws_access_key)
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-rosa
+      workspaces:
+        - name: configs
+          workspace: configs

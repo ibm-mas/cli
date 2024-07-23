@@ -366,6 +366,24 @@ function mustgather() {
 
 
   # ---------------------------------------------------------------------------
+  # Argo Applications and ApplicationSets
+  # ---------------------------------------------------------------------------
+  NAMESPACE_LOOKUP=$(oc get namespace openshift-gitops --ignore-not-found)
+  if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+    echo_h2 "Argo resources"
+    startTimer
+    echo_h3 "Namespace: openshift-gitops"
+    echo
+    # Argo-specific must-gather
+    $MG_SCRIPT_DIR/mg-summary-argo openshift-gitops &> ${OUTPUT_DIR}/argo.txt
+    $MG_SCRIPT_DIR/mg-collect-argo openshift-gitops $OUTPUT_DIR
+
+    genericMustGather openshift-gitops
+    endTimer "openshift-gitops"
+  fi
+
+
+  # ---------------------------------------------------------------------------
   # Extra Namespaces Must-Gather
   # ---------------------------------------------------------------------------
   if [[ "$EXTRA_NAMESPACES" != "" ]] && [[ "$SUMMARY_ONLY" == false ]]; then
@@ -383,6 +401,8 @@ function mustgather() {
       endTimer "namespace $EXTRA_NAMESPACE"
     done
   fi
+
+  
 
 
   # ---------------------------------------------------------------------------

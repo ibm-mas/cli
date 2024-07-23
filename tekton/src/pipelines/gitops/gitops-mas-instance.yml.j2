@@ -1,0 +1,581 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: gitops-mas-instance
+spec:
+  workspaces:
+    - name: configs
+    - name: shared-entitlement
+    - name: shared-certificates
+    # Any pre-generated configs that will be copied into the shared-configs workspace during suite-install
+    - name: shared-additional-configs
+    - name: shared-gitops-configs
+  description: MAS GitOps Instance
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: region
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    # 1. Gitops git Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
+    - name: github_url
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: mongo_provider
+      type: string
+      default: aws
+    - name: sls_channel
+      type: string
+    - name: mas_channel
+      type: string
+    - name: mas_annotations
+      type: string
+    - name: mas_image_tags
+      type: string
+    - name: mas_labels
+      type: string
+    - name: custom_labels
+      type: string
+      default: ""
+    - name: mas_domain
+      type: string
+    - name: mas_workspace_id
+      type: string
+    - name: mas_workspace_name
+      type: string
+    - name: docdb_user_action
+      type: string
+      default: add
+
+    - name: dro_contact_email
+      type: string
+    - name: dro_contact_firstname
+      type: string
+    - name: dro_contact_lastname
+      type: string
+    - name: dro_ca_certificate_file
+      type: string
+      default: ""
+
+    - name: smtp_host
+      type: string
+    - name: smtp_port
+      type: string
+    - name: smtp_security
+      type: string
+    - name: smtp_authentication
+      type: string
+    - name: smtp_default_sender_email
+      type: string
+    - name: smtp_default_sender_name
+      type: string
+    - name: smtp_default_recipient_email
+      type: string
+    - name: smtp_default_should_email_passwords
+      type: string
+    - name: ldap_url
+      type: string
+    - name: ldap_basedn
+      type: string
+    - name: ldap_userid_map
+      type: string
+    - name: ldap_certificate_file
+      type: string
+    - name: icr_cp
+      type: string
+    - name: icr_cp_open
+      type: string
+    - name: dns_provider
+      type: string
+      default: cis
+    - name: cis_subdomain
+      type: string
+      default: ""
+    - name: cis_mas_domain
+      type: string
+      default: ""
+    - name: ocp_cluster_domain
+      type: string
+      default: ""
+    - name: mas_manual_cert_mgmt
+      type: string
+      default: "false"
+    - name: cert_manager_namespace
+      type: string
+      default: "cert-manager"
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: cis_enhanced_security
+      type: string
+      default: "true"
+    - name: cis_proxy
+      type: string
+      default: "true"
+    - name: override_edge_certs
+      type: string
+      default: "true"
+    - name: cis_email
+      type: string
+      default: ""
+    - name: cis_crn
+      type: string
+      default: ""
+    - name: mas_config_dir
+      type: string
+    - name: cis_service_name
+      type: string
+      default: ""
+    - name: mas_app_id
+      type: string
+
+    - name: cis_waf
+      type: string
+      default: "true"
+    - name: update_dns_entries
+      type: string
+      default: "true"
+    - name: delete_wildcards
+      type: string
+      default: "true"
+
+    - name: mas_manual_certs_yaml
+      type: string
+      default: ""
+    - name: mas_wipe_mongo_data
+      type: string
+      default: "false"
+    - name: mas_pod_template_yaml
+      type: string
+      default: ""
+
+    - name: db2_channel
+      type: string
+      default: ""
+
+    - name: db2_action
+      type: string
+
+
+  tasks:
+
+    # 0. Per-instance DB2U Operator
+    # -------------------------------------------------------------------------
+    - name: gitops-db2u
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: db2_channel
+          value: $(params.db2_channel)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u
+      when:
+        - input: "$(params.db2_action)"
+          operator: notin
+          values: [""]
+
+    # 1. License Entitlement
+    # -------------------------------------------------------------------------
+    - name: gitops-license
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+      workspaces:
+        - name: shared-entitlement
+          workspace: shared-entitlement
+      taskRef:
+        kind: Task
+        name: gitops-license
+
+    # 2. MAS Suite
+    # -------------------------------------------------------------------------
+    - name: gitops-suite
+      runAfter:
+        - gitops-license
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mongo_provider
+          value: $(params.mongo_provider)
+        - name: user_action
+          value: $(params.docdb_user_action)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: sls_channel
+          value: $(params.sls_channel)
+        - name: mas_channel
+          value: $(params.mas_channel)
+        - name: mas_annotations
+          value: $(params.mas_annotations)
+        - name: mas_image_tags
+          value: $(params.mas_image_tags)
+        - name: mas_labels
+          value: $(params.mas_labels)
+        - name: custom_labels
+          value: $(params.custom_labels)
+        - name: mas_domain
+          value: $(params.mas_domain)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: icr_cp
+          value: $(params.icr_cp)
+        - name: icr_cp_open
+          value: $(params.icr_cp_open)
+        - name: mas_manual_cert_mgmt
+          value: $(params.mas_manual_cert_mgmt)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: cert_manager_namespace
+          value: $(params.cert_manager_namespace)
+        - name: dns_provider
+          value: $(params.dns_provider)
+        - name: cis_subdomain
+          value: $(params.cis_subdomain)
+        - name: cis_mas_domain
+          value: $(params.cis_mas_domain)
+        - name: ocp_cluster_domain
+          value: $(params.ocp_cluster_domain)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: cis_enhanced_security
+          value: $(params.cis_enhanced_security)
+        - name: cis_proxy
+          value: $(params.cis_proxy)
+        - name: override_edge_certs
+          value: $(params.override_edge_certs)
+        - name: cis_email
+          value: $(params.cis_email)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: mas_config_dir
+          value: $(params.mas_config_dir)
+        - name: cis_service_name
+          value: $(params.cis_service_name)
+        - name: cis_waf
+          value: $(params.cis_waf)
+        - name: update_dns_entries
+          value: $(params.update_dns_entries)
+        - name: delete_wildcards
+          value: $(params.delete_wildcards)
+        - name: mas_manual_certs_yaml
+          value: $(params.mas_manual_certs_yaml)
+        - name: mas_pod_template_yaml
+          value: $(params.mas_pod_template_yaml)
+      taskRef:
+        kind: Task
+        name: gitops-suite
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+
+
+    # 3. MAS Suite Config
+    # -------------------------------------------------------------------------
+    - name: gitops-suite-config
+      runAfter:
+        - gitops-suite
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mongo_provider
+          value: $(params.mongo_provider)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: dro_contact_email
+          value: $(params.dro_contact_email)
+        - name: dro_contact_firstname
+          value: $(params.dro_contact_firstname)
+        - name: dro_contact_lastname
+          value: $(params.dro_contact_lastname)
+        - name: dro_ca_certificate_file
+          value: $(params.dro_ca_certificate_file)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: mas_wipe_mongo_data
+          value: $(params.mas_wipe_mongo_data)
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-additional-configs
+          workspace: shared-additional-configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        name: gitops-suite-config
+        kind: Task
+
+
+    # 4. MAS Suite Workspace
+    # -------------------------------------------------------------------------
+    - name: gitops-suite-workspace
+      runAfter:
+        - gitops-suite-config
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_workspace_name
+          value: $(params.mas_workspace_name)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+      taskRef:
+        kind: Task
+        name: gitops-suite-workspace
+      workspaces:
+        - name: configs
+          workspace: configs
+
+
+    # 5. MAS Suite SMTP Config
+    # -------------------------------------------------------------------------
+    - name: gitops-suite-smtp-config
+      runAfter:
+        - gitops-suite-config
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: smtp_host
+          value: $(params.smtp_host)
+        - name: smtp_port
+          value: $(params.smtp_port)
+        - name: smtp_security
+          value: $(params.smtp_security)
+        - name: smtp_authentication
+          value: $(params.smtp_authentication)
+        - name: smtp_default_sender_email
+          value: $(params.smtp_default_sender_email)
+        - name: smtp_default_sender_name
+          value: $(params.smtp_default_sender_name)
+        - name: smtp_default_recipient_email
+          value: $(params.smtp_default_recipient_email)
+        - name: smtp_default_should_email_passwords
+          value: $(params.smtp_default_should_email_passwords)
+        - name: cluster_url
+          value: $(params.cluster_url)
+      taskRef:
+        kind: Task
+        name: gitops-suite-smtp-config
+      when:
+        - input: "$(params.smtp_host)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+
+ 
+    # 6. MAS Suite IDP Config
+    # -------------------------------------------------------------------------
+    - name: gitops-suite-idp-config
+      runAfter:
+        - gitops-suite-config
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: ldap_url
+          value: $(params.ldap_url)
+        - name: ldap_basedn
+          value: $(params.ldap_basedn)
+        - name: ldap_userid_map
+          value: $(params.ldap_userid_map)
+        - name: ldap_certificate_file
+          value: $(params.ldap_certificate_file)
+        - name: cluster_url
+          value: $(params.cluster_url)
+      taskRef:
+        kind: Task
+        name: gitops-suite-idp-config
+      when:
+        - input: "$(params.ldap_url)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-additional-configs
+          workspace: shared-additional-configs
+
+    # -------------------------------------------------------------------------
+    # Deprovision task section
+    # -------------------------------------------------------------------------
+
+    # 2. Deprovision SMTP config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-smtp-config
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-smtp-config
+      when:
+        - input: "$(params.smtp_host)"
+          operator: in
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    # 3. Deprovision IDP config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-idp-config
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-idp-config
+      when:
+        - input: "$(params.ldap_url)"
+          operator: in
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs

@@ -1,0 +1,151 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-suite-app-install
+spec:
+  params:
+    - name: mas_app_id
+      type: string
+    - name: mas_app_channel
+      type: string
+    - name: mas_app_catalog_source
+      type: string
+    - name: mas_app_api_version
+      type: string
+    - name: mas_app_kind
+      type: string
+    - name: mas_app_spec_yaml
+      type: string
+      default: ""
+    - name: default_block_storage_class
+      type: string
+      default: ""
+    - name: default_file_storage_class
+      type: string
+      default: ""
+    - name: cluster_name
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: mas_manual_cert_mgmt
+      type: string
+      default: "false"
+    - name: optimizer_plan
+      type: string
+      default: "full"
+    - name: gpu_request_quota
+      type: string
+      default: "2"
+    - name: mas_edition
+      type: string
+      default: ""
+    - name: mas_manual_certs_yaml
+      type: string
+      default: ""
+  stepTemplate:
+    name: gitops-suite-app-install
+    env:
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+      - name: MAS_APP_CHANNEL
+        value: $(params.mas_app_channel)
+      - name: MAS_APP_CATALOG_SOURCE
+        value: $(params.mas_app_catalog_source)
+      - name: MAS_APP_API_VERSION
+        value: $(params.mas_app_api_version)
+      - name: MAS_APP_KIND
+        value: $(params.mas_app_kind)
+      - name: MAS_APP_SPEC_YAML
+        value: $(params.mas_app_spec_yaml)
+      - name: DEFAULT_BLOCK_STORAGE_CLASS
+        value: $(params.default_block_storage_class)
+      - name: DEFAULT_FILE_STORAGE_CLASS
+        value: $(params.default_file_storage_class)
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: MAS_MANUAL_CERT_MGMT
+        value: $(params.mas_manual_cert_mgmt)
+      - name: OPTIMIZER_PLAN
+        value: $(params.optimizer_plan)
+      - name: MAS_EDITION
+        value: $(params.mas_edition)
+      - name: MAS_MANUAL_CERTS_YAML
+        value: $(params.mas_manual_certs_yaml)
+      - name: GPU_REQUEST_QUOTA
+        value: $(params.gpu_request_quota)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - args:
+      - |-
+
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        # mas app install specific 
+        export MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+
+        mkdir -p /tmp/suite-app-install
+
+        mas gitops-suite-app-install -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        --secrets-path $SECRET_PATH \
+        --dir /tmp/suite-app-install \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-suite-app-install
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
+    - name: shared-gitops-configs
+

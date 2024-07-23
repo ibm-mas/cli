@@ -48,6 +48,17 @@ spec:
       type: string
       description: Optional boolean parameter that when set to True, enables dual stack for IPv6 testing in internal fyre clusters at RTP site
       default: "False"
+    # Enable optional integration with ECK logstash
+    - name: eck_enable_logstash
+      type: string
+      default: ""
+    # Optionally configure the superuser account
+    - name: mas_superuser_username
+      type: string
+      default: ""
+    - name: mas_superuser_password
+      type: string
+      default: ""
 
     - name: mas_icr_cp
       type: string
@@ -68,6 +79,25 @@ spec:
       type: string
       description: Required to install development MAS catalogs
 
+    # SSO Configuration
+    - name: idle_timeout
+      type: string
+      default: ''
+    - name: idp_session_timeout
+      type: string
+      default: ''
+    - name: access_token_timeout
+      type: string
+      default: ''
+    - name: refresh_token_timeout
+      type: string
+      default: ''
+    - name: default_idp
+      type: string
+      default: ''
+    - name: seamless_login
+      type: string
+      default: ''
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -102,6 +132,14 @@ spec:
         value: $(params.mas_trust_default_cas)
       - name: ENABLE_IPV6
         value: $(params.enable_ipv6)
+      # Enable optional integration with ECK logstash
+      - name: ECK_ENABLE_LOGSTASH
+        value: $(params.eck_enable_logstash)
+      # Optionally configure the superuser account
+      - name: MAS_SUPERUSER_USERNAME
+        value: $(params.mas_superuser_username)
+      - name: MAS_SUPERUSER_PASSWORD
+        value: $(params.mas_superuser_password)
 
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)
@@ -118,6 +156,20 @@ spec:
 
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates
+      
+      - name: IDLE_TIMEOUT
+        value: $(params.idle_timeout)
+      - name: IDP_SESSION_TIMEOUT
+        value: $(params.idp_session_timeout)
+      - name: ACCESS_TOKEN_TIMEOUT
+        value: $(params.access_token_timeout)
+      - name: REFRESH_TOKEN_TIMEOUT
+        value: $(params.refresh_token_timeout)
+      - name: DEFAULT_IDP
+        value: $(params.default_idp)
+      - name: SEAMLESS_LOGIN
+        value: $(params.seamless_login)
+      
 
   steps:
     - name: suite-install

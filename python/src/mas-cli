@@ -1,0 +1,81 @@
+#!/usr/bin/env python
+# *****************************************************************************
+# Copyright (c) 2024 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
+
+import logging
+import logging.handlers
+from sys import argv
+
+from mas.cli import __version__ as VERSION
+from mas.cli.install.app import InstallApp
+from mas.cli.update.app import UpdateApp
+from mas.cli.upgrade.app import UpgradeApp
+from mas.cli.uninstall.app import UninstallApp
+
+from prompt_toolkit import HTML, print_formatted_text
+from urllib3.exceptions import MaxRetryError
+from jinja2.exceptions import TemplateNotFound
+from kubeconfig.exceptions import KubectlCommandError
+from kubernetes.client.exceptions import ApiException
+
+logger = logging.getLogger(__name__)
+
+def usage():
+    print_formatted_text(HTML(""))
+
+    print_formatted_text(HTML(f"\n<u>IBM Maximo Application Suite Admin CLI v{VERSION}</u>"))
+    print_formatted_text(HTML("Powered by <DarkGoldenRod><u>https://github.com/ibm-mas/ansible-devops/</u></DarkGoldenRod> and <DarkGoldenRod><u>https://tekton.dev/</u></DarkGoldenRod>"))
+    print("")
+    print_formatted_text(HTML("Important Notice:\nThis standalone CLI (<ForestGreen>mas-cli</ForestGreen>) is still in beta state, not all functions supported by the <ForestGreen>mas</ForestGreen> function in quay.io/ibmmas/cli are supported yet"))
+    print("")
+    print_formatted_text(HTML(
+        "<b>MAS Management Actions:</b>\n"+
+        " - <ForestGreen>mas-cli install</ForestGreen>   Install IBM Maximo Application Suite\n"+
+        " - <ForestGreen>mas-cli update</ForestGreen>    Apply updates and security fixes\n"+
+        " - <ForestGreen>mas-cli upgrade</ForestGreen>   Upgrade to a new MAS release\n"+
+        " - <ForestGreen>mas-cli uninstall</ForestGreen> Remove MAS from the cluster\n"
+
+    ))
+    print_formatted_text(HTML("For usage information run <ForestGreen>mas-cli [action] --help</ForestGreen>\n"))
+
+if __name__ == '__main__':
+    try:
+        function = argv[1]
+
+        if function == "install":
+            app = InstallApp()
+            app.install(argv[2:])
+        elif function == "uninstall":
+            app = UninstallApp()
+            app.uninstall(argv[2:])
+        elif function == "update":
+            app = UpdateApp()
+            app.update(argv[2:])
+        elif function == "upgrade":
+            app = UpgradeApp()
+            app.upgrade(argv[2:])
+        elif function in ["-h", "--help"]:
+            usage()
+            exit(0)
+        else:
+            usage()
+            print_formatted_text(HTML(f"<Red>Unknown action: {function}</Red>\n"))
+            exit(1)
+
+    except KeyboardInterrupt as e:
+        pass
+    except ApiException as e:
+        app.fatalError(message=f"An error occured communicating with the target server: {e.reason} ({e.status})", exception=e)
+    except MaxRetryError as e:
+        app.fatalError(message="Unable to connect to API server", exception=e)
+    except TemplateNotFound as e:
+        app.fatalError("Could not find template", exception=e)
+    except KubectlCommandError as e:
+        app.fatalError("Could not execute kubectl command", exception=e)

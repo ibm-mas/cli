@@ -1,0 +1,240 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-db2u-database
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: db2_meta_storage_class
+      type: string
+    - name: db2_temp_storage_class
+      type: string
+    - name: db2_logs_storage_class
+      type: string
+    - name: db2_audit_logs_storage_class
+      type: string
+    - name: db2_archivelogs_storage_class
+      type: string
+    - name: db2_data_storage_class
+      type: string
+    - name: db2_backup_storage_class
+      type: string
+    - name: db2_meta_storage_size
+      type: string
+    - name: db2_temp_storage_size
+      type: string
+    - name: db2_logs_storage_size
+      type: string
+    - name: db2_audit_logs_storage_size
+      type: string
+    - name: db2_archivelogs_storage_size
+      type: string
+    - name: db2_data_storage_size
+      type: string
+    - name: db2_backup_storage_size
+      type: string
+    - name: db2_version
+      type: string
+    - name: db2_instance_registry_yaml
+      type: string
+    - name: db2_instance_dbm_config_yaml
+      type: string
+    - name: db2_addons_audit_config_yaml
+      type: string
+    - name: db2_database_db_config_yaml
+      type: string
+    - name: db2_table_org
+      type: string
+    - name: db2_mln_count
+      type: string
+    - name: db2_num_pods
+      type: string
+    - name: db2_meta_storage_accessmode
+      type: string
+    - name: db2_data_storage_accessmode
+      type: string
+    - name: db2_backup_storage_accessmode
+      type: string
+    - name: db2_logs_storage_accessmode
+      type: string
+    - name: db2_audit_logs_storage_accessmode
+      type: string
+    - name: db2_temp_storage_accessmode
+      type: string
+    - name: db2_archivelogs_storage_accessmode
+      type: string
+    - name: db2_cpu_requests
+      type: string
+    - name: db2_cpu_limits
+      type: string
+    - name: db2_memory_requests
+      type: string
+    - name: db2_memory_limits
+      type: string
+    - name: db2_affinity_key
+      type: string
+    - name: db2_affinity_value
+      type: string
+    - name: db2_tolerate_key
+      type: string
+    - name: db2_tolerate_value
+      type: string
+    - name: db2_tolerate_effect
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: mas_app_id
+      type: string
+  stepTemplate:
+    name: gitops-db2u-database
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: DB2_META_STORAGE_CLASS
+        value: $(params.db2_meta_storage_class)
+      - name: DB2_TEMP_STORAGE_CLASS
+        value: $(params.db2_temp_storage_class)
+      - name: DB2_LOGS_STORAGE_CLASS
+        value: $(params.db2_logs_storage_class)
+      - name: DB2_AUDIT_LOGS_STORAGE_CLASS
+        value: $(params.db2_audit_logs_storage_class)
+      - name: DB2_ARCHIVELOGS_STORAGE_CLASS
+        value: $(params.db2_archivelogs_storage_class)
+      - name: DB2_DATA_STORAGE_CLASS
+        value: $(params.db2_data_storage_class)
+      - name: DB2_BACKUP_STORAGE_CLASS
+        value: $(params.db2_backup_storage_class)
+      - name: DB2_META_STORAGE_SIZE
+        value: $(params.db2_meta_storage_size)
+      - name: DB2_TEMP_STORAGE_SIZE
+        value: $(params.db2_temp_storage_size)
+      - name: DB2_LOGS_STORAGE_SIZE
+        value: $(params.db2_logs_storage_size)
+      - name: DB2_AUDIT_LOGS_STORAGE_SIZE
+        value: $(params.db2_audit_logs_storage_size)
+      - name: DB2_ARCHIVELOGS_STORAGE_SIZE
+        value: $(params.db2_archivelogs_storage_size)
+      - name: DB2_DATA_STORAGE_SIZE
+        value: $(params.db2_data_storage_size)
+      - name: DB2_BACKUP_STORAGE_SIZE
+        value: $(params.db2_backup_storage_size)
+      - name: DB2_VERSION
+        value: $(params.db2_version)
+      - name: DB2_INSTANCE_REGISTRY_YAML
+        value: $(params.db2_instance_registry_yaml)
+      - name: DB2_INSTANCE_DBM_CONFIG_YAML
+        value: $(params.db2_instance_dbm_config_yaml)
+      - name: DB2_ADDONS_AUDIT_CONFIG_YAML
+        value: $(params.db2_addons_audit_config_yaml)
+      - name: DB2_DATABASE_DB_CONFIG_YAML
+        value: $(params.db2_database_db_config_yaml)
+      - name: DB2_TABLE_ORG
+        value: $(params.db2_table_org)
+      - name: DB2_MLN_COUNT
+        value: $(params.db2_mln_count)
+      - name: DB2_NUM_PODS
+        value: $(params.db2_num_pods)
+      - name: DB2_META_STORAGE_ACCESSMODE
+        value: $(params.db2_meta_storage_accessmode)
+      - name: DB2_DATA_STORAGE_ACCESSMODE
+        value: $(params.db2_data_storage_accessmode)
+      - name: DB2_BACKUP_STORAGE_ACCESSMODE
+        value: $(params.db2_backup_storage_accessmode)
+      - name: DB2_LOGS_STORAGE_ACCESSMODE
+        value: $(params.db2_logs_storage_accessmode)
+      - name: DB2_AUDIT_LOGS_STORAGE_ACCESSMODE
+        value: $(params.db2_audit_logs_storage_accessmode)
+      - name: DB2_TEMP_STORAGE_ACCESSMODE
+        value: $(params.db2_temp_storage_accessmode)
+      - name: DB2_ARCHIVELOGS_STORAGE_ACCESSMODE
+        value: $(params.db2_archivelogs_storage_accessmode)
+      - name: DB2_CPU_REQUESTS
+        value: $(params.db2_cpu_requests)
+      - name: DB2_CPU_LIMITS
+        value: $(params.db2_cpu_limits)
+      - name: DB2_MEMORY_REQUESTS
+        value: $(params.db2_memory_requests)
+      - name: DB2_MEMORY_LIMITS
+        value: $(params.db2_memory_limits)
+      - name: DB2_AFFINITY_KEY
+        value: $(params.db2_affinity_key)
+      - name: DB2_AFFINITY_VALUE
+        value: $(params.db2_affinity_value)
+      - name: DB2_TOLERATE_KEY
+        value: $(params.db2_tolerate_key)
+      - name: DB2_TOLERATE_VALUE
+        value: $(params.db2_tolerate_value)
+      - name: DB2_TOLERATE_EFFECT
+        value: $(params.db2_tolerate_effect)
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        mkdir -p /tmp/init-db2u-database-$MAS_APP_ID
+        mas gitops-db2u-database -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/init-db2u-database-$MAS_APP_ID \
+        --secrets-path $SECRET_PATH \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-db2u-database
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
+    - name: shared-gitops-configs

@@ -8,6 +8,9 @@
 #
 # *****************************************************************************
 
+import logging
+import urllib3
+
 from argparse import RawTextHelpFormatter
 from shutil import which
 from os import path
@@ -17,18 +20,21 @@ from sys import exit
 from openshift import dynamic
 from kubernetes import config
 from kubernetes.client import api_client
+from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
 
-from .validators import YesNoValidator
-
-from . import __version__ as packageVersion
-from .displayMixins import PrintMixin, PromptMixin
 from mas.devops.ocp import connect, isSNO
 
-import logging
+from . import __version__ as packageVersion
+from .validators import YesNoValidator
+from .displayMixins import PrintMixin, PromptMixin
+
+# Configure the logger
 logger = logging.getLogger(__name__)
 
+# Disable warnings when users are connecting to OCP clusters with self-signed certificates
+urllib3.disable_warnings()
 
 def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
     """
@@ -69,6 +75,14 @@ class BaseApp(PrintMixin, PromptMixin):
         self.localConfigDir = None
         self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
         self.tektonDefsPath = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
+
+        # Initialize the dictionary that will hold the parameters we pass to a PipelineRun
+        self.params = dict()
+
+        # These dicts will hold the additional-configs, pod-templates and manual certificates secrets
+        self.additionalConfigsSecret = None
+        self.podTemplatesSecret = None
+        self.certsSecret = None
 
         self._isSNO = None
 
@@ -115,9 +129,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.printTitle(f"\nIBM Maximo Application Suite Admin CLI v{self.version}")
         print_formatted_text(HTML("Powered by <DarkGoldenRod><u>https://github.com/ibm-mas/ansible-devops/</u></DarkGoldenRod> and <DarkGoldenRod><u>https://tekton.dev/</u></DarkGoldenRod>\n"))
         if which("kubectl") is None:
-            logger.error("Could not find kubectl on the path")
-            print_formatted_text(HTML("\n<Red>Error: Could not find kubectl on the path, see <u>https://kubernetes.io/docs/tasks/tools/#kubectl</u> for installation instructions</Red>\n"))
-            exit(1)
+            self.fatalError("Could not find kubectl on the path, see <DarkGoldenRod><u>https://kubernetes.io/docs/tasks/tools/#kubectl</u></DarkGoldenRod> for installation instructions")
 
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
         if coreChannel in self.compatibilityMatrix:
@@ -127,9 +139,12 @@ class BaseApp(PrintMixin, PromptMixin):
 
     def fatalError(self, message: str, exception: Exception=None) -> None:
         if exception is not None:
-            print_formatted_text(HTML(f"<Red>Fatal Exception: {message.replace(' & ', ' &amp; ')}: {exception}</Red>"))
+            logger.error(message)
+            logger.exception(exception, stack_info=True)
+            print_formatted_text(HTML(f"<Red>Fatal Exception: {message.replace(' & ', ' &amp; ')}: {exception}</Red>\n"))
         else:
-            print_formatted_text(HTML(f"<Red>Fatal Error: {message.replace(' & ', ' &amp; ')}</Red>"))
+            logger.error(message)
+            print_formatted_text(HTML(f"<Red>Fatal Error: {message.replace(' & ', ' &amp; ')}</Red>\n"))
         exit(1)
 
     def isSNO(self):
@@ -141,7 +156,10 @@ class BaseApp(PrintMixin, PromptMixin):
         self.params[param] = value
 
     def getParam(self, param: str):
-        if param in self.params:
+        """
+        Returns the value of a parameter, or an empty string is the parameter has not set at all or is set to None
+        """
+        if param in self.params and self.params[param] is not None:
             return self.params[param]
         else:
             return ""
@@ -181,8 +199,10 @@ class BaseApp(PrintMixin, PromptMixin):
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
                     continueWithExistingCluster = prompt(HTML('<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
                     promptForNewServer = continueWithExistingCluster in ["n", "no"]
-            except Exception:
+            except Exception as e:
                 # We are already connected to a cluster, but the connection is not valid so prompt for connection details
+                logger.debug("Failed looking up OpenShift Console route to verify connection")
+                logger.exception(e, stack_info=True)
                 promptForNewServer = True
         else:
             # We are not already connected to any cluster, so prompt for connection details
@@ -197,3 +217,35 @@ class BaseApp(PrintMixin, PromptMixin):
             if self._dynClient is None:
                 print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
                 exit(1)
+
+    def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:
+        """
+        Set key = None if you don't want approval workflow enabled
+        """
+        cmAPI = self.dynamicClient.resources.get(api_version="v1", kind="ConfigMap")
+        configMap = {
+            "apiVersion": "v1",
+            "kind": "ConfigMap",
+            "metadata": {
+                "name": f"approval-{id}",
+                "namespace": namespace
+            },
+            "data": {
+                "MAX_RETRIES": str(maxRetries),
+                "DELAY": str(delay),
+                "IGNORE_FAILURE": str(ignoreFailure),
+                "CONFIGMAP_KEY": key,
+                key: ""
+            }
+        }
+
+        # Delete any existing configmap and create a new one
+        try:
+            logger.debug(f"Deleting any existing approval workflow configmap for {id}")
+            cmAPI.delete(name=f"approval-{id}", namespace=namespace)
+        except NotFoundError:
+            pass
+
+        if key is not None:
+            logger.debug(f"Enabling approval workflow for {id} using {key} with {maxRetries} max retries on a {delay}s delay ({'ignoring failures' if ignoreFailure else 'abort on failure'})")
+            cmAPI.create(body=configMap, namespace=namespace)

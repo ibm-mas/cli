@@ -36,7 +36,7 @@ class InstallSummarizerMixin():
     def icrSummary(self) -> None:
         self.printH2("IBM Container Registry Credentials")
         self.printSummary("IBM Entitlement Key", f"{self.params['ibm_entitlement_key'][0:8]}&lt;snip&gt;")
-        if self.args.dev_mode:
+        if self.devMode:
             self.printSummary("Artifactory Username", self.params['artifactory_username'])
             self.printSummary("Artifactory Token", f"{self.params['artifactory_token'][0:8]}&lt;snip&gt;")
 
@@ -61,17 +61,24 @@ class InstallSummarizerMixin():
             self.printParamSummary("DNS Provider", "dns_provider")
             self.printParamSummary("Certificate Issuer", "mas_cluster_issuer")
 
-            if self.params['dns_provider'] == "cloudflare":
+            if self.getParam('dns_provider') == "cloudflare":
                 self.printParamSummary("CloudFlare e-mail", "cloudflare_email")
                 self.printParamSummary("CloudFlare API token", "cloudflare_apitoken")
                 self.printParamSummary("CloudFlare zone", "cloudflare_zone")
                 self.printParamSummary("CloudFlare subdomain", "cloudflare_subdomain")
-            elif self.params['dns_provider'] == "cis":
+            elif self.getParam('dns_provider') == "cis":
                 pass
-            elif self.params['dns_provider'] == "route53":
+            elif self.getParam('dns_provider') == "route53":
                 pass
-            elif self.params['dns_provider'] == "":
+            elif self.getParam('dns_provider') == "":
                 pass
+
+        if self.getParam("mas_manual_cert_mgmt") != "":
+            print()
+            self.printParamSummary("Manual Certificates", "mas_manual_cert_dir")
+        else:
+            print()
+            self.printSummary("Manual Certificates", "Not Configured")
 
         print()
         self.printParamSummary("Catalog Version", "mas_catalog_version")
@@ -234,6 +241,16 @@ class InstallSummarizerMixin():
         self.printH2("IBM Suite License Service")
         self.printSummary("License File", self.slsLicenseFileLocal)
         self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
+
+    def eckSummary(self) -> None:
+        self.printH2("Elastic Cloud on Kubernetes")
+        if self.getParam("eck_action") == "install":
+            self.printSummary("ECK Integration", "Enabled")
+            self.printParamSummary("Logstash", "eck_enable_logstash")
+            self.printParamSummary("Remote Elasticsearch hosts", "eck_remote_es_hosts")
+            self.printParamSummary("Remote Elasticsearch username", "eck_remote_es_username")
+        else:
+            self.printSummary("ECK Integration", "Disabled")
 
     def turbonomicSummary(self) -> None:
         self.printH2("Turbonomic")

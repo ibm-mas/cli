@@ -1,0 +1,187 @@
+#!/bin/bash
+
+function configure_ocp_for_mirror_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas configure-airgap [options]
+
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Private Registry Details (Required):
+  -H, --host ${COLOR_YELLOW}REGISTRY_PRIVATE_HOST${TEXT_RESET}        Hostname of the private registry
+  -P, --port ${COLOR_YELLOW}REGISTRY_PRIVATE_PORT${TEXT_RESET}        Port number for the private registry
+  -c, --ca-file ${COLOR_YELLOW}REGISTRY_PRIVATE_CA_FILE${TEXT_RESET}  Location of the CA file for the private registry
+  -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}    Username to authenticate to the private registry
+  -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}    Password to authenticate to the private registry
+
+Setup Red Hat Operator Catalogs (Optional):
+  --setup-redhat-catalogs                 Set up Red Hat Operator, Community, and Certified catalogs with ICSP
+
+Other Commands:
+      --no-confirm                        Provision the cluster without prompting for confirmation
+  -h, --help                              Show this help message
+
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function configure_ocp_for_mirror_noninteractive() {
+  confirm_connection
+  OCP_VERSION=$(oc get clusterversion version -o jsonpath='{.status.desired.version}')
+  OCP_RELEASE=$(echo "$OCP_VERSION" | cut -d "." -f 1,2)
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      -H|--host)
+        REGISTRY_PRIVATE_HOST=$1 && shift
+        ;;
+      -P|--port)
+        REGISTRY_PRIVATE_PORT=$1 && shift
+        ;;
+      -c|--ca-file)
+        REGISTRY_PRIVATE_CA_FILE=$1 && shift
+        ;;
+      -u|--username)
+        REGISTRY_USERNAME=$1 && shift
+        ;;
+      -p|--password)
+        REGISTRY_PASSWORD=$1 && shift
+        ;;
+
+      --setup-redhat-catalogs)
+        SETUP_REDHAT_CATALOGS=true
+        OCP_OPERATORHUB_DISABLE_REDHAT_SOURCES=true
+        ;;
+
+      --no-confirm)
+        NO_CONFIRM=true
+        ;;
+      -h|--help)
+        configure_ocp_for_mirror_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
+        configure_ocp_for_mirror_help
+        exit 1
+        ;;
+      esac
+  done
+
+  # Check all args have been set
+  [[ -z "$REGISTRY_PRIVATE_HOST" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_HOST is not set"
+  [[ -z "$REGISTRY_PRIVATE_PORT" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_PORT is not set"
+  [[ -z "$REGISTRY_PRIVATE_CA_FILE" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_CA_FILE is not set"
+  [[ -z "$REGISTRY_USERNAME" ]] && configure_ocp_for_mirror_help "REGISTRY_USERNAME is not set"
+  [[ -z "$REGISTRY_PASSWORD" ]] && configure_ocp_for_mirror_help "REGISTRY_PASSWORD is not set"
+  if [[ ! -e $REGISTRY_PRIVATE_CA_FILE ]]; then
+    echo_warning "Certificate file '$REGISTRY_PRIVATE_CA_FILE' does not exist"
+    exit 1
+  fi
+
+}
+
+function configure_ocp_for_mirror_interactive() {
+  load_config
+  connect
+  OCP_VERSION=$(oc get clusterversion version -o jsonpath='{.status.desired.version}')
+  OCP_RELEASE=$(echo "$OCP_VERSION" | cut -d "." -f 1,2)
+
+  echo
+  echo_h2 "Configure Target Mirror"
+  prompt_for_input "Mirror Registry Host" REGISTRY_PRIVATE_HOST && export REGISTRY_PRIVATE_HOST
+  prompt_for_input "Mirror Registry Port" REGISTRY_PRIVATE_PORT && export REGISTRY_PRIVATE_PORT
+  prompt_for_input "Mirror Registry CA File" REGISTRY_PRIVATE_CA_FILE && export REGISTRY_PRIVATE_CA_FILE
+  if [[ ! -e $REGISTRY_PRIVATE_CA_FILE ]]; then
+    echo_warning "Certificate file '$REGISTRY_PRIVATE_CA_FILE' does not exist"
+    exit 1
+  fi
+
+  echo
+  echo_h2 "Configure Authentication"
+  prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME && export REGISTRY_USERNAME
+  prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?" && export REGISTRY_PASSWORD
+
+  echo
+  echo_h2 "Red Hat Catalog Management"
+  echo -n "${COLOR_CYAN}NEW!${TEXT_RESET} ${TEXT_DIM}From release 7.9 of the MAS CLI it is now possible to mirror a curated version of the Red Hat Operator catalogs containing only "
+  echo "the operators that IBM Maximo Application Suite requires using ${COLOR_CYAN}mas mirror-redhat${TEXT_RESET}${TEXT_DIM} and automatically configure OpenShift Container Platform to use these catalogs:"
+  echo
+  echo "1. OperatorHub will be re-configured to disable the default online catalog sources"
+  echo "2. Three offline catalog sources will be created/updated in the openshift-marketplace namespace:"
+  echo "  - certified-operator-index -> $REGISTRY_PRIVATE_HOST:$REGISTRY_PRIVATE_PORT/redhat/certified-operator-index:v$OCP_RELEASE"
+  echo "  - community-operator-index -> $REGISTRY_PRIVATE_HOST:$REGISTRY_PRIVATE_PORT/redhat/community-operator-index:v$OCP_RELEASE"
+  echo "  - redhat-operator-index -> $REGISTRY_PRIVATE_HOST:$REGISTRY_PRIVATE_PORT/redhat/redhat-operator-index:v$OCP_RELEASE"
+  echo
+  reset_colors
+
+  prompt_for_confirm "Enable IBM managed Red Hat catalogs?" SETUP_REDHAT_CATALOGS
+
+}
+
+function configure_ocp_for_mirror() {
+  # Take the first parameter off (it will be configure-ocp-for-mirror)
+  shift
+  if [[ $# -gt 0 ]]; then
+    configure_ocp_for_mirror_noninteractive "$@"
+  else
+    configure_ocp_for_mirror_interactive
+  fi
+
+  # Ensure all environment variables are available to ansible-playbook
+  export REGISTRY_PRIVATE_HOST
+  export REGISTRY_PRIVATE_PORT
+  export REGISTRY_PRIVATE_CA_FILE
+
+  export REGISTRY_USERNAME
+  export REGISTRY_PASSWORD
+
+  export SETUP_REDHAT_CATALOGS
+  export OCP_OPERATORHUB_DISABLE_REDHAT_SOURCES
+  export OCP_RELEASE
+
+  echo
+  reset_colors
+  echo_h4 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h4 "Private Registry Connection" "    "
+  echo_reset_dim "Host ...................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_HOST}"
+  echo_reset_dim "Port ...................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_PORT}"
+  echo_reset_dim "CA File ................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_CA_FILE}"
+  echo "${TEXT_RESET}${TEXT_DIM}"
+
+  echo_h4 "Red Hat Catalog Management" "    "
+  if [[ "${SETUP_REDHAT_CATALOGS}" == "true" ]]; then
+    echo_reset_dim "Management Mode ........... ${COLOR_MAGENTA}IBM Managed/Configured"
+  else
+    echo_reset_dim "Management Mode ........... ${COLOR_MAGENTA}User Managed/Configured"
+  fi
+  reset_colors
+
+  echo
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
+
+  echo
+  if [[ "${SETUP_REDHAT_CATALOGS}" == "true" ]]; then
+    echo_h2 "Disable Online Red Hat Catalog Sources"
+    ROLE_NAME=ocp_config ansible-playbook ibm.mas_devops.run_role || exit 1
+
+    echo_h2 "Configure Image Content Source Policy (with Red Hat catalogs)"
+    ROLE_NAME=ocp_contentsourcepolicy ansible-playbook ibm.mas_devops.run_role || exit 1
+  else
+    echo_h2 "Configure Image Content Source Policy"
+    ROLE_NAME=ocp_contentsourcepolicy ansible-playbook ibm.mas_devops.run_role || exit 1
+  fi
+
+
+}

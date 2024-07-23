@@ -90,6 +90,7 @@ spec:
     # 0. Wait for the install pipeline to complete
     # -------------------------------------------------------------------------
     - name: wait-for-install
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-tekton
@@ -112,6 +113,7 @@ spec:
 
     # 1.1 Uninstall Visual Inspection
     - name: app-uninstall-visualinspection
+      timeout: "0"
 {% if wait_for_install == true %}
       runAfter:
         - wait-for-install
@@ -129,6 +131,7 @@ spec:
 
     # 1.2 Uninstall Assist
     - name: app-uninstall-assist
+      timeout: "0"
 {% if wait_for_install == true %}
       runAfter:
         - wait-for-install
@@ -146,6 +149,7 @@ spec:
 
     # 1.3 Uninstall Optimizer
     - name: app-uninstall-optimizer
+      timeout: "0"
 {% if wait_for_install == true %}
       runAfter:
         - wait-for-install
@@ -163,6 +167,7 @@ spec:
 
     # 1.4 Uninstall Predict
     - name: app-uninstall-predict
+      timeout: "0"
 {% if wait_for_install == true %}
       runAfter:
         - wait-for-install
@@ -180,6 +185,7 @@ spec:
 
     # 1.5 Uninstall Manage
     - name: app-uninstall-manage
+      timeout: "0"
       runAfter:
         - app-uninstall-predict
       taskRef:
@@ -195,6 +201,7 @@ spec:
 
     # 1.6 Uninstall Monitor
     - name: app-uninstall-monitor
+      timeout: "0"
       runAfter:
         - app-uninstall-predict
       taskRef:
@@ -210,6 +217,7 @@ spec:
 
     # 1.7 Uninstall IoT
     - name: app-uninstall-iot
+      timeout: "0"
       runAfter:
         - app-uninstall-monitor
       taskRef:
@@ -226,6 +234,7 @@ spec:
     # 2. Uninstall IBM Maximo Application Suite
     # -------------------------------------------------------------------------
     - name: uninstall-suite
+      timeout: "0"
       runAfter:
         - app-uninstall-iot
         - app-uninstall-visualinspection
@@ -249,6 +258,7 @@ spec:
     # 3. Uninstall IBM Suite Licensing Service
     # -------------------------------------------------------------------------
     - name: uninstall-sls
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -270,6 +280,7 @@ spec:
     # 4. Uninstall MongoDB
     # -------------------------------------------------------------------------
     - name: uninstall-mongodb
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -291,6 +302,7 @@ spec:
     # 5. Uninstall IBM User Data Services (or DRO)
     # -------------------------------------------------------------------------
     - name: uninstall-uds
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -311,6 +323,7 @@ spec:
     # 6. Uninstall IBM Cert Manager
     # -------------------------------------------------------------------------
     - name: uninstall-cert-manager
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -334,6 +347,7 @@ spec:
     # 7. Uninstall IBM Common Services
     # -------------------------------------------------------------------------
     - name: uninstall-common-services
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -355,6 +369,7 @@ spec:
     # 8. Uninstall IBM Catalogs
     # -------------------------------------------------------------------------
     - name: uninstall-ibm-catalogs
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -376,6 +391,7 @@ spec:
     # 9. Uninstall Grafana
     # -------------------------------------------------------------------------
     - name: uninstall-grafana
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -405,6 +421,7 @@ spec:
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------
     - name: finalize
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-fvt-finalize

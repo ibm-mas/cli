@@ -1,6 +1,7 @@
 - name: suite-install
+  timeout: "0"
   params:
-    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: suite-install
 
@@ -29,6 +30,18 @@
       value: $(params.mas_icr_cpopen)
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
+    - name: idle_timeout
+      value: $(params.idle_timeout)
+    - name: idp_session_timeout
+      value: $(params.idp_session_timeout)
+    - name: access_token_timeout
+      value: $(params.access_token_timeout)
+    - name: refresh_token_timeout
+      value: $(params.refresh_token_timeout)
+    - name: default_idp
+      value: $(params.default_idp)
+    - name: seamless_login
+      value: $(params.seamless_login)
     - name: mas_manual_cert_mgmt
       value: $(params.mas_manual_cert_mgmt)
     - name: mas_trust_default_cas
@@ -41,6 +54,14 @@
       value: $(params.mas_add_catalog)
     - name: mas_add_channel
       value: $(params.mas_add_channel)
+    # Enable optional integration with ECK logstash
+    - name: eck_enable_logstash
+      value: $(params.eck_enable_logstash)
+    # Optionally configure the superuser account
+    - name: mas_superuser_username
+      value: $(params.mas_superuser_username)
+    - name: mas_superuser_password
+      value: $(params.mas_superuser_password)
 
   taskRef:
     kind: Task

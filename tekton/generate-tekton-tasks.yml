@@ -27,15 +27,14 @@
         - cert-manager
         - common-services
         - cos
-        - cos-deprovision
         - cp4d-service
         - cp4d-service-update
         - cp4d
         - db2
+        - eck
         - grafana
         - ibm-catalogs
         - kafka
-        - kafka-deprovision
         - mongodb
         - nvidia-gpu
         - ocs
@@ -54,6 +53,10 @@
         - fvt-assist-desktop
         - fvt-assist
         - fvt-core
+        - fvt-data-dictionary
+        - fvt-deprovision-ocp
+        - fvt-deprovision-cos
+        - fvt-deprovision-kafka
         - fvt-finalize
         - fvt-iot
         - fvt-manage
@@ -65,9 +68,8 @@
         - fvt-manage-last-phase
         - fvt-manage-pytest
         - fvt-monitor
-        - fvt-sls
-        - fvt-data-dictionary
         - fvt-run-suite
+        - fvt-sls
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:
@@ -87,7 +89,7 @@
         - launchfvt-visualinspection
         - launchfvt-upgrade-post
         - launchfvt-upgrade-pre
-        - launchivt
+        - launchivt-manage
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -97,7 +99,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - ivt-core
-        - ivt-manage-monitor-dd
+        - ivt-manage
 
     # 5. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
@@ -131,7 +133,6 @@
         src: "{{ task_src_dir }}/ocp/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - ocp-deprovision
         - ocp-verify
         - ocp-verify-all
 
@@ -145,3 +146,61 @@
         - update-configmap
         - wait-for-configmap
         - wait-for-tekton
+
+    # 8. Generate Tasks (GitOps)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (GitOps)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/gitops/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - gitops-bootstrap
+        - gitops-cis-compliance
+        - gitops-cluster
+        - gitops-cos
+        - gitops-cp4d
+        - gitops-cp4d-service
+        - gitops-db2u
+        - gitops-db2u-database
+        - gitops-delete-jdbc-config
+        - gitops-delete-kafka-config
+        - gitops-deprovision-app-config
+        - gitops-deprovision-app-install
+        - gitops-deprovision-cluster
+        - gitops-deprovision-cos
+        - gitops-deprovision-db2u
+        - gitops-deprovision-db2u-database
+        - gitops-deprovision-efs
+        - gitops-deprovision-kafka
+        - gitops-deprovision-mongo
+        - gitops-deprovision-rosa
+        - gitops-deprovision-suite-config
+        - gitops-deprovision-suite-idp-config
+        - gitops-deprovision-suite-objectstorage-config
+        - gitops-deprovision-suite-smtp-config
+        - gitops-deprovision-suite-watson-studio-config
+        - gitops-deprovision-suite-workspace
+        - gitops-deprovision-suite
+        - gitops-dro
+        - gitops-efs
+        - gitops-jdbc-config
+        - gitops-kafka
+        - gitops-kafka-config
+        - gitops-license
+        - gitops-mas-fvt-preparer
+        - gitops-mas-initiator
+        - gitops-mongo
+        - gitops-nvidia-gpu
+        - gitops-process-mongo-user
+        - gitops-rosa
+        - gitops-suite-app-install
+        - gitops-suite-app-config
+        - gitops-suite-certs
+        - gitops-suite-config
+        - gitops-suite-dns
+        - gitops-suite-idp-config
+        - gitops-suite-objectstorage-config
+        - gitops-suite-smtp-config
+        - gitops-suite-watson-studio-config
+        - gitops-suite-workspace
+        - gitops-suite

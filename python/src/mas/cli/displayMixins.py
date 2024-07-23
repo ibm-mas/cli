@@ -10,6 +10,7 @@
 
 from os import path, getenv
 from prompt_toolkit import prompt, print_formatted_text, HTML
+from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator
 
 from .validators import YesNoValidator, FileExistsValidator, DirectoryExistsValidator
@@ -44,6 +45,15 @@ class PrintMixin():
         content[len(content) - 1] = f"{content[len(content) - 1]}</{DESCRIPTIONCOLOR}>"
         print_formatted_text(HTML("\n".join(content)))
 
+    def printHighlight(self, message: str) -> None:
+        if isinstance(message, list):
+            message = "\n".join(message)
+
+        print_formatted_text(HTML(f"<MediumTurquoise>{message.replace(' & ', ' &amp; ')}</MediumTurquoise>"))
+
+    def printWarning(self, message):
+        print_formatted_text(HTML(f"<Red>Warning: {message.replace(' & ', ' &amp; ')}</Red>"))
+
     def printSummary(self, title: str, value: str) -> None:
         titleLength = len(title)
         message = f"{title} {'.' * (40 - titleLength)} {value}"
@@ -71,11 +81,11 @@ class PromptMixin():
             self.params[param] = "true" if responseAsBool else "false"
         return responseAsBool
 
-    def promptForString(self, message: str, param: str=None, default: str="", isPassword: bool=False, validator: Validator=None) -> str:
+    def promptForString(self, message: str, param: str=None, default: str="", isPassword: bool=False, validator: Validator=None, completer: WordCompleter=None) -> str:
         if param is not None and default == "":
             default = getenv(param.upper(), default="")
 
-        response = prompt(masPromptValue(message), is_password=isPassword, default=default, validator=validator, validate_while_typing=False)
+        response = prompt(masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False)
         if param is not None:
             self.params[param] = response
         return response
