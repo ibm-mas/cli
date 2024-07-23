@@ -1,0 +1,39 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+
+ibm_suite_app_{{ MAS_APP_ID }}_install:
+  ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
+  mas_instance_id: {{ MAS_INSTANCE_ID }}
+  mas_app_id: {{ MAS_APP_ID }}
+  mas_edition: {{ MAS_EDITION }}
+  mas_app_namespace: {{ MAS_APP_NAMESPACE }}
+  mas_app_channel: {{ MAS_APP_CHANNEL }}
+  mas_app_catalog_source: {{ MAS_APP_CATALOG_SOURCE }}
+  mas_app_api_version: {{ MAS_APP_API_VERSION }}
+  mas_app_kind: {{ MAS_APP_KIND }}
+  run_sync_hooks: true
+  {{ MAS_APP_SPEC | indent(2) }}
+
+  {% if MAS_MANUAL_CERT_MGMT == 'true' %}
+  mas_manual_cert_mgmt: true
+  {% else %}
+  mas_manual_cert_mgmt: false
+  {% endif %}
+  {% if PUBLIC_TLS_SECRET_NAME is defined and PUBLIC_TLS_SECRET_NAME !='' %}
+  public_tls_secret_name: {{ PUBLIC_TLS_SECRET_NAME }}
+  {% endif %}
+
+  {% if CA_CERT is defined and CA_CERT !='' %}
+  ca_cert: {{ CA_CERT }}
+  {% endif %}
+
+  {% if TLS_CERT is defined and TLS_CERT !='' %}
+  tls_cert: {{ TLS_CERT }}
+  {% endif %}
+
+  {% if TLS_KEY is defined and TLS_KEY !='' %}
+  tls_key: {{ TLS_KEY }}
+  {% endif %}
+
+  {% if GPU_REQUEST_QUOTA is defined and GPU_REQUEST_QUOTA != '' %}
+  gpu_request_quota: {{ GPU_REQUEST_QUOTA }}
+  {% endif %}

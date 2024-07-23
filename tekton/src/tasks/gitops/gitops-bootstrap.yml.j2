@@ -1,0 +1,98 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-bootstrap
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account_id
+    - name: avp_type
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: github_url
+      type: string
+    - name: github_revision
+      type: string
+    - name: github_pat
+      type: string
+    - name: app_revision
+      type: string
+  stepTemplate:
+    name: gitops-bootstrap
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT_ID
+        value: $(params.account_id)
+      - name: AVP_AWS_SECRET_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: AVP_AWS_SECRET_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: AVP_AWS_ACCESS_KEY
+        value: $(params.avp_aws_access_key)
+      - name: GITHUB_URL
+        value: $(params.github_url)
+      - name: GITHUB_REVISION
+        value: $(params.github_revision)
+      - name: GITHUB_PAT
+        value: $(params.github_pat)
+      - name: APP_REVISION
+        value: $(params.app_revision)
+  steps:
+    - args:
+      - |-
+        retries=10
+        interval=30
+        index=0
+        while true; do
+          export ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
+          export OCP_SERVER=$(cat $ROSA_CONFIG | yq '.data.api_url')
+          export OCP_USERNAME=$(cat $ROSA_CONFIG | yq '.data.username')
+          export ROSA_CLUSTER_ADMIN_PASSWORD=$(cat $ROSA_CONFIG | yq '.data.admin_password')
+          oc login -u $OCP_USERNAME -p $ROSA_CLUSTER_ADMIN_PASSWORD $OCP_SERVER --insecure-skip-tls-verify
+          OC_RC=$?
+          if [ $OC_RC -eq 0 ]; then
+            echo "oc_login : oc login success ..."
+            break
+          fi
+
+          if [[ ${index} -eq ${retries} ]]; then
+            echo "oc_login : oc login failed even after $retries retries, exit with error"
+            exit 1
+          fi
+          echo "oc_login : oc login failed, retry login after $interval sec ..."
+          sleep $interval
+          ((index++))
+        done
+
+        echo "Set k8s context"
+        export K8S_AUTH_CONTEXT=$(oc whoami -c)
+
+
+        echo "Start Bootstrap"
+        mas gitops-bootstrap \
+        --account-id $ACCOUNT_ID \
+        --sm-aws-secret-region $AVP_AWS_SECRET_REGION \
+        --sm-aws-secret-key $AVP_AWS_SECRET_KEY \
+        --sm-aws-access-key $AVP_AWS_ACCESS_KEY \
+        --github-url $GITHUB_URL \
+        --github-pat $GITHUB_PAT \
+        --github-revision $GITHUB_REVISION \
+        --app-revision $APP_REVISION
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-bootstrap
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs

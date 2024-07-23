@@ -1,0 +1,102 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-deprovision-mongo
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: vpc_ipv4_cidr
+      type: string
+    - name: mongo_provider
+      type: string
+      default: aws
+    - name: aws_docdb_instance_number
+      type: string
+      default: 3
+  stepTemplate:
+    name: gitops-deprovision-mongo
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
+      - name: VPC_IPV4_CIDR
+        value: $(params.vpc_ipv4_cidr)
+      - name: MONGO_PROVIDER
+        value: $(params.mongo_provider)
+      - name: AWS_DOCDB_INSTANCE_NUMBER
+        value: $(params.aws_docdb_instance_number)
+  steps:
+    - args:
+      - |-
+        aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+        aws configure set default.region $(params.avp_aws_secret_region)
+
+        vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.[].Value')
+        if [ -z "$vpc_name" ]; then
+          # Needed if there is only one cluster in account
+          vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.Value')
+        fi
+        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
+        
+        if [ -z "$VPC_ID" ]; then
+          echo "No VPC for $CLUSTER_NAME found so assume there is no docDb to deprovision, exiting.."
+          exit 0
+        fi
+
+        echo "VPC of $VPC_ID found for $CLUSTER_NAME"
+        export MAS_INSTANCE_ID=gitops
+        
+        aws ec2 associate-vpc-cidr-block \
+        --vpc-id $VPC_ID \
+        --cidr-block 10.1.0.0/23
+
+        mas gitops-deprovision-mongo -a $ACCOUNT -c $CLUSTER_NAME \
+        --secrets-path $SECRET_PATH \
+        --mongo-provider $MONGO_PROVIDER \
+        --aws-region $SM_AWS_REGION \
+        --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+        --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+        --aws-vpc-id $VPC_ID \
+        --aws-docdb-cluster-name docdb-$CLUSTER_NAME \
+        --aws-docdb-ingress-cidr $VPC_IPV4_CIDR  \
+        --aws-docdb-egress-cidr $VPC_IPV4_CIDR \
+        --aws-docdb-cidr-az1 10.1.0.0/27 \
+        --aws-docdb-cidr-az2 10.1.0.32/27 \
+        --aws-docdb-cidr-az3 10.1.0.64/27 \
+        --aws-docdb-instance-identifier-prefix docdb-$CLUSTER_NAME \
+        --aws-docdb-instance-number $AWS_DOCDB_INSTANCE_NUMBER
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-deprovision-mongo
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
+
+
+

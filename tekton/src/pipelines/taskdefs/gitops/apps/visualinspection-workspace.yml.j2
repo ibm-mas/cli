@@ -1,0 +1,44 @@
+- name: app-cfg-visualinspection
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
+  
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(4) }}
+
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(4) }}
+
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(4) }}
+
+    - name: devops_suite_name
+      value: app-visualinspection-cfg
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_app_id
+      value: visualinspection
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: custom_labels
+      value: $(params.custom_labels)
+    - name: mas_appws_spec_yaml
+      value: $(params.mas_appws_spec_yaml_visualinspection)
+    - name: mas_appws_api_version
+      value: $(params.mas_appws_api_version_visualinspection)
+    - name: mas_appws_kind
+      value: $(params.mas_appws_kind_visualinspection)
+    - name: mas_app_kind
+      value: $(params.mas_app_kind_visualinspection)
+  taskRef:
+    name: gitops-suite-app-config
+    kind: Task
+  # Only configure a workspace for visualinspection if a channel has been chosen
+  when:
+    - input: "$(params.mas_app_channel_visualinspection)"
+      operator: notin
+      values: [""]
+    - input: "$(params.visualinspection_workspace_action)"
+      operator: in
+      values: ["activate"]
+  workspaces:
+    - name: configs
+      workspace: configs
+    - name: shared-gitops-configs
+      workspace: shared-gitops-configs

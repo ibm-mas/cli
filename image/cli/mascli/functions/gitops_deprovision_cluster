@@ -1,0 +1,308 @@
+#!/usr/bin/env bash
+
+function gitops_deprovision_cluster_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops-deprovision-cluster [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+GitOps Configuration:
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}            Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}             Account ID
+  -r, --region-id ${COLOR_YELLOW}REGION${TEXT_RESET}                  Region ID
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Cluster ID
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}   Secrets Manager key seperator string
+
+Automatic GitHub Push:
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}           Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}           GitHub Hostname for your GitOps repository
+  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}            Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}           Github repo for your GitOps repository
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}             Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}     Git commit message to use when committing to of your GitOps repository
+  -S , --github-ssh  ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}              Git ssh key path
+Other Commands:
+  -h, --help                              Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_deprovision_cluster_noninteractive() {
+  # TODO: Remember to change the defaults to suite public before release!
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPERATOR="/"
+
+  GIT_COMMIT_MSG="gitops-deprovision-cluster commit"
+
+  export REGION=${REGION:-${SM_AWS_REGION}}
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+
+      # Secrets Manager
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+      
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+
+
+      # Other Commands
+      -h|--help)
+        gitops_deprovision_cluster_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_deprovision_cluster_help "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+    esac
+  done
+
+  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_cluster_help "ACCOUNT_ID is not set"
+  [[ -z "$REGION" ]] && gitops_deprovision_cluster_help "REGION is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_cluster_help "CLUSTER_ID is not set"
+
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_cluster_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_cluster_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_cluster_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_cluster_help "GIT_BRANCH is not set"
+  fi
+
+}
+
+function gitops_deprovision_cluster() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_deprovision_cluster_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_deprovision_cluster_interactive
+  fi
+
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
+
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
+  echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host .................................. ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Secrets Manager" "    "
+  echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+
+  # Set up secrets
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Deleting Cluster secrets"
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+  
+  # Created by gitops_cluster task
+  export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
+  sm_delete_secret $SECRET_NAME_IBM_ENTITLEMENT
+
+  # Created by postsync hook in redhat-cert-manager chart
+  export SECRET_NAME_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain
+  echo "Delete $SECRET_NAME_CLUSTER_DOMAIN from Secrets Manager"
+  sm_delete_secret $SECRET_NAME_CLUSTER_DOMAIN
+
+  export SECRET_NAME_DB2_DEFAULT_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel
+  echo "Delete $SECRET_NAME_DB2_DEFAULT_CHANNEL from Secrets Manager"
+  sm_delete_secret $SECRET_NAME_DB2_DEFAULT_CHANNEL
+
+  export SECRET_NAME_AWS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}aws
+  echo "Delete $SECRET_NAME_AWS from Secrets Manager"
+  sm_delete_secret $SECRET_NAME_AWS
+
+  # Created by postsync hook in ibm-dro chart
+  export SECRET_NAME_DRO=${ACCOUNT_ID}/${CLUSTER_ID}/dro
+  echo "Delete $SECRET_NAME_DRO from Secrets Manager"
+  sm_delete_secret $SECRET_NAME_DRO
+
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_CLUSTER_DIR}
+
+
+  # Delete Application config
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Deleting application configuration files"
+
+  echo "- Delete Cluster Promotion"
+  rm -rf ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
+  echo "- Delete CIS Compliance"
+  rm -rf ${GITOPS_CLUSTER_DIR}/cis-compliance.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
+  echo "- Delete DRO"
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
+  echo "- Delete Redhat Cert manager"
+  rm -rf ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
+  echo "- Delete Nvidia GPU Operator"
+  rm -rf ${GITOPS_CLUSTER_DIR}/nvidia-gpu-operator.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
+  echo "- Delete IBM Operator Catalog"
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
+  echo "- Delete base MAS cluster config"
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
+
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
+
+
+  # After running this task, if you don't plan on deleting the OCP cluster itself, you can perform the following manual steps to clean
+  # up the handing application deletes:
+
+  # oc login ....
+
+  # # ibm-common-services
+  # oc patch NamespaceScopes common-service -n ibm-common-services --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
+  # oc patch NamespaceScopes nss-managedby-odlm -n ibm-common-services --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
+  # oc patch NamespaceScopes nss-odlm-scope -n ibm-common-services --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
+  # oc patch NamespaceScopes odlm-scope-managedby-odlm -n ibm-common-services --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
+
+  # # cis-compliance
+  # oc patch ProfileBundle ocp4 -n openshift-compliance --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
+  # oc patch ProfileBundle rhcos4 -n openshift-compliance --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
+
+  # # dro
+  # oc patch MarketplaceConfig marketplaceconfig -n ibm-software-central --type="json" -p '[{"op": "remove", "path":"/metadata/finalizers"}]'
+
+  # This may be necessary to allow cert-manager operator to reinstall successfully (it might not have been cleaned up because the finalizers didn't run)
+  # oc delete CertManagers default
+
+}

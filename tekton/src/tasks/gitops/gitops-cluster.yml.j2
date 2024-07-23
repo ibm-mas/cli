@@ -1,0 +1,176 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-cluster
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: git_commit_msg
+      type: string
+    - name: mas_catalog_version
+      type: string
+      default: ""
+    - name: mas_catalog_image
+      type: string
+      default: ""
+    - name: avp_aws_secret_region
+      type: string
+    - name: slack_channel_id
+      type: string
+      default: ""
+    - name: custom_labels
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_host
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_repo
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_org
+      type: string
+      default: ''
+    - name: cluster_promotion_target_github_path
+      type: string
+      default: ''
+    - name: cluster_promotion_target_git_branch
+      type: string
+      default: ''
+    - name: cluster_promotion_create_target_pr
+      type: string
+      default: ''
+    - name: cluster_promotion_target_pr_title
+      type: string
+      default: ''
+    - name: cluster_promotion_cluster_values
+      type: string
+      default: ''
+
+    - name: dns_provider
+      type: string
+      default: cis
+    - name: ocp_cluster_domain
+      type: string
+      default: ""
+
+  stepTemplate:
+    name: gitops-cluster
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: GIT_COMMIT_MSG
+        value: $(params.git_commit_msg)
+      - name: MAS_CATALOG_VERSION
+        value: $(params.mas_catalog_version)
+      - name: MAS_CATALOG_IMAGE
+        value: $(params.mas_catalog_image)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SLACK_CHANNEL_ID
+        value: $(params.slack_channel_id)
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_HOST
+        value: $(params.cluster_promotion_target_github_host)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_REPO
+        value: $(params.cluster_promotion_target_github_repo)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_ORG
+        value: $(params.cluster_promotion_target_github_org)
+      - name: CLUSTER_PROMOTION_TARGET_GITHUB_PATH
+        value: $(params.cluster_promotion_target_github_path)
+      - name: CLUSTER_PROMOTION_TARGET_GIT_BRANCH
+        value: $(params.cluster_promotion_target_git_branch)
+      - name: CLUSTER_PROMOTION_CREATE_TARGET_PR
+        value: $(params.cluster_promotion_create_target_pr)
+      - name: CLUSTER_PROMOTION_TARGET_PR_TITLE
+        value: $(params.cluster_promotion_target_pr_title)
+      - name: CLUSTER_PROMOTION_CLUSTER_VALUES
+        value: $(params.cluster_promotion_cluster_values)
+
+      - name: DNS_PROVIDER
+        value: $(params.dns_provider)
+      - name: OCP_CLUSTER_DOMAIN
+        value: $(params.ocp_cluster_domain)
+
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "mas_automation@email.com"
+        git config --global user.password $GITHUB_PAT
+
+        echo "Custom Labels ......................... ${CUSTOM_LABELS}"
+
+        CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | sed "s/'/\"/g")
+        export CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | yq --output-format yaml)
+        echo " CUSTOM_LABELS = ${CUSTOM_LABELS}"
+
+
+        if [[ -z "${CLUSTER_PROMOTION_TARGET_GITHUB_PAT}" ]];then
+          echo "Setting var CLUSTER_PROMOTION_TARGET_GITHUB_PAT to be the same as var GITHUB_PAT as it as not set"
+          export CLUSTER_PROMOTION_TARGET_GITHUB_PAT=${GITHUB_PAT}
+        fi
+
+        if [[ -n "${CLUSTER_PROMOTION_CLUSTER_VALUES}" ]];then
+          echo "Setting var CLUSTER_PROMOTION to true as var CLUSTER_PROMOTION_CLUSTER_VALUES is set"
+          export CLUSTER_PROMOTION=true
+        fi
+
+        mkdir -p /tmp/init-cluster
+        mas gitops-cluster -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/init-cluster \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH \
+        --secrets-path $SECRET_PATH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-cluster
+      imagePullPolicy: Always
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs

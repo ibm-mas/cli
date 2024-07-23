@@ -61,17 +61,24 @@ class InstallSummarizerMixin():
             self.printParamSummary("DNS Provider", "dns_provider")
             self.printParamSummary("Certificate Issuer", "mas_cluster_issuer")
 
-            if self.params['dns_provider'] == "cloudflare":
+            if self.getParam('dns_provider') == "cloudflare":
                 self.printParamSummary("CloudFlare e-mail", "cloudflare_email")
                 self.printParamSummary("CloudFlare API token", "cloudflare_apitoken")
                 self.printParamSummary("CloudFlare zone", "cloudflare_zone")
                 self.printParamSummary("CloudFlare subdomain", "cloudflare_subdomain")
-            elif self.params['dns_provider'] == "cis":
+            elif self.getParam('dns_provider') == "cis":
                 pass
-            elif self.params['dns_provider'] == "route53":
+            elif self.getParam('dns_provider') == "route53":
                 pass
-            elif self.params['dns_provider'] == "":
+            elif self.getParam('dns_provider') == "":
                 pass
+
+        if self.getParam("mas_manual_cert_mgmt") != "":
+            print()
+            self.printParamSummary("Manual Certificates", "mas_manual_cert_dir")
+        else:
+            print()
+            self.printSummary("Manual Certificates", "Not Configured")
 
         print()
         self.printParamSummary("Catalog Version", "mas_catalog_version")

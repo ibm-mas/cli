@@ -1,0 +1,165 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-suite-app-config
+spec:
+  params:
+    - name: mas_app_id
+      type: string
+    - name: mas_workspace_id
+      type: string
+    - name: mas_app_kind
+      type: string
+    - name: mas_appws_api_version
+      type: string
+    - name: mas_appws_kind
+      type: string
+    - name: mas_appws_spec_yaml
+      type: string
+      default: ""
+    - name: mas_app_server_bundles_combined_add_server_config_yaml
+      type: string
+      default: ""
+    - name: default_file_storage_class
+      type: string
+      default: ""
+    - name: cpd_wsl_project_id
+      type: string
+      default: ""
+    - name: cpd_product_version
+      type: string
+      default: ""
+    - name: cpd_wml_url
+      type: string
+      default: "https://internal-nginx-svc.ibm-cpd.svc:12443"
+    - name: cpd_wml_instance_id
+      type: string
+      default: "openshift"
+    - name: cpd_instance_namespace
+      type: string
+      default: ""
+    - name: cluster_name
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+
+    - name: mas_manual_cert_mgmt
+      type: string
+      default: "false"
+    - name: mas_manual_certs_yaml
+      type: string
+      default: ""
+
+  stepTemplate:
+    name: gitops-suite-app-config
+    env:
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+      - name: MAS_APP_KIND
+        value: $(params.mas_app_kind)
+      - name: MAS_APPWS_API_VERSION
+        value: $(params.mas_appws_api_version)
+      - name: MAS_APPWS_KIND
+        value: $(params.mas_appws_kind)
+      - name: MAS_APPWS_SPEC_YAML 
+        value: $(params.mas_appws_spec_yaml)
+      - name: MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML 
+        value: $(params.mas_app_server_bundles_combined_add_server_config_yaml)
+      - name: DEFAULT_FILE_STORAGE_CLASS
+        value: $(params.default_file_storage_class)
+      - name: CPD_WSL_PROJECT_ID
+        value: $(params.cpd_wsl_project_id)
+      - name: CPD_PRODUCT_VERSION
+        value: $(params.cpd_product_version)
+      - name: CPD_WML_URL
+        value: $(params.cpd_wml_url)
+      - name: CPD_WML_INSTANCE_ID
+        value: $(params.cpd_wml_instance_id)
+      - name: CPD_INSTANCE_NAMESPACE
+        value: $(params.cpd_instance_namespace)
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: MAS_MANUAL_CERT_MGMT
+        value: $(params.mas_manual_cert_mgmt)
+      - name: MAS_MANUAL_CERTS_YAML
+        value: $(params.mas_manual_certs_yaml)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - args:
+      - |-
+
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        # mas app install specific 
+        export MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+
+        # Any external config is stored here
+        export GITOPS_CONFIG_DIR=/workspace/configs
+
+        mkdir -p /tmp/suite-app-config
+
+        mas gitops-suite-app-config -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        --secrets-path $SECRET_PATH \
+        --dir /tmp/suite-app-config \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-suite-app-config
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
+    - name: shared-gitops-configs
