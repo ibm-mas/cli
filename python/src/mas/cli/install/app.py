@@ -206,11 +206,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Default identity provider (IDP), and seamless login"
         ])
         sso_response = self.yesOrNo(("Configure SSO properties"))
-        if not sso_response:
-            self.printDescription([
-                "Using default SSO properties"
-            ])
-        else:
+        if sso_response:
             idle_timeout = self.promptForString("Enter the idleTimeout (in seconds)", validator=IntFomartValidator())
             if idle_timeout != "":
                 self.setParam("idle_timeout", idle_timeout)
