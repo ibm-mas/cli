@@ -873,6 +873,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
 
+        self.approvals = {}
+
         # Store all args
         self.args = args
 
