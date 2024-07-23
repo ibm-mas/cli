@@ -216,11 +216,31 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             default_idp = self.promptForString("Enter the default Identity Provider (IDP)")
             if default_idp != "":
-                self.setParam("refresh_token_timeout", default_idp)
+                self.setParam("default_idp", default_idp)
+
+            sso_cookie_name = self.promptForString("Enter the SSO cookie name")
+            if sso_cookie_name != "":
+                self.setParam("sso_cookie_name", sso_cookie_name)
+            
+            allow_default_sso_cookie_name = self.yesOrNo("Allow default SSO cookie name?", use_validator=False)
+            if allow_default_sso_cookie_name != "":
+                self.setParam("allow_default_sso_cookie_name", allow_default_sso_cookie_name)
+            
+            use_only_custom_cookie_name = self.yesOrNo("Use only custome cookie name?", use_validator=False)
+            if use_only_custom_cookie_name != "":
+                self.setParam("use_only_custom_cookie_name", use_only_custom_cookie_name)
+            
+            disable_ldap_cookie = self.yesOrNo("Disable LDAP cookie?", use_validator=False)
+            if disable_ldap_cookie != "":
+                self.setParam("disable_ldap_cookie", disable_ldap_cookie)
+            
+            allow_custom_cache_key = self.yesOrNo("Allow custom cache key?", use_validator=False)
+            if allow_custom_cache_key != "":
+                self.setParam("allow_custom_cache_key", allow_custom_cache_key)
 
             seamless_login = self.yesOrNo("Enable seamless login?", use_validator=False)
             if seamless_login != "":
-                self.setParam(seamless_login, seamless_login)
+                self.setParam("seamless_login", seamless_login)
 
 
     def configMAS(self):

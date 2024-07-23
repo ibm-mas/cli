@@ -98,6 +98,21 @@ spec:
     - name: seamless_login
       type: string
       default: ''
+    - name: sso_cookie_name
+      type: string
+      default: ''
+    - name: allow_default_sso_cookie_name
+      type: string
+      default: ''
+    - name: use_only_custom_cookie_name
+      type: string
+      default: ''
+    - name: disable_ldap_cookie
+      type: string
+      default: ''
+    - name: allow_custom_cache_key
+      type: string
+      default: ''
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -169,6 +184,16 @@ spec:
         value: $(params.default_idp)
       - name: SEAMLESS_LOGIN
         value: $(params.seamless_login)
+      - name: SSO_COOKIE_NAME
+        value: $(params.sso_cookie_name)
+      - name: ALLOW_DEFAULT_SSO_COOKIE_NAME
+        value: $(params.allow_default_sso_cookie_name)
+      - name: USE_ONLY_CUSTOM_COOKIE_NAME
+        value: $(params.use_only_custom_cookie_name)
+      - name: DISABLE_LDAP_COOKIE
+        value: $(params.disable_ldap_cookie)
+      - name: ALLOW_CUSTOM_CACHE_KEY
+        value: $(params.allow_custom_cache_key)
       
 
   steps:
