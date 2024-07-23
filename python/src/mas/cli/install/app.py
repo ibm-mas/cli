@@ -227,7 +227,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             ])
         else:
             idle_timeout = self.promptForString("Enter the idleTimeout (in seconds)", validator=IntFomarValidator())
-            if idle_timeout == "":
+            if idle_timeout != "":
                 self.setParam("idle_timeout", idle_timeout)
 
             session_timeout = self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", validator=TimeoutFormatValidator())
