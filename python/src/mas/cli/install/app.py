@@ -40,7 +40,14 @@ from mas.cli.validators import (
 )
 
 from mas.devops.ocp import createNamespace, getStorageClass, getStorageClasses
-from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, preparePipelinesNamespace, prepareInstallSecrets, testCLI, launchInstallPipeline
+from mas.devops.tekton import (
+    installOpenShiftPipelines,
+    updateTektonDefinitions,
+    preparePipelinesNamespace,
+    prepareInstallSecrets,
+    testCLI,
+    launchInstallPipeline
+)
 
 logger = logging.getLogger(__name__)
 
@@ -189,38 +196,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="4.8.0")
 
         self.deployCP4D = True
-
-    def configSSOCookies(self):
-        self.printH2("Configure Single Sign-On (SSO) Cookie properties")
-        sso_response = self.yesOrNo("Would you like to configure Cookie SSO properties?")
-        if not sso_response:
-            self.printDescription([
-                "Using default Cookie SSO"
-            ])
-        else:
-            sso_cookie_name = self.promptForString("Enter the SSO cookie name")
-            if sso_cookie_name != "":
-                self.setParam("sso_cookie_name", sso_cookie_name)
-            
-            allow_default_sso_cookie_name = self.yesOrNoThatAcceptEmpty("Allow default SSO cookie name?")
-            if allow_default_sso_cookie_name != "":
-                self.setParam("allow_default_sso_cookie_name", allow_default_sso_cookie_name)
-            
-            use_only_custom_cookie_name = self.yesOrNoThatAcceptEmpty("Use only custome cookie name?")
-            if use_only_custom_cookie_name != "":
-                self.setParam("use_only_custom_cookie_name", use_only_custom_cookie_name)
-            
-            disable_ldap_cookie = self.yesOrNoThatAcceptEmpty("Disable LDAP cookie?")
-            if disable_ldap_cookie != "":
-                self.setParam("disable_ldap_cookie", disable_ldap_cookie)
-            
-            allow_custom_cache_key = self.yesOrNoThatAcceptEmpty("Allow custom cache key?")
-            if allow_custom_cache_key != "":
-                self.setParam("allow_custom_cache_key", allow_custom_cache_key)
             
     def configSSOProperties(self):
-        self.printH2("Configure Single Sign-On (SSO) Default Properties")
-        sso_response = self.yesOrNo("Would you like to configure default SSO properties?")
+        self.printH1("Single Sign-On (SSO)")
+        self.printDescription([
+            "Many aspects of Maximo Application Suite's Single Sign-On (SSO) can be customized:",
+            " - Idle session automatic logout timer",
+            " - Session, access token, and refresh token timeouts",
+            " - Default identity provider (IDP), and seamless login"
+        ])
+        sso_response = self.yesOrNo(("Configure SSO properties"))
         if not sso_response:
             self.printDescription([
                 "Using default SSO properties"
@@ -250,7 +235,25 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if seamless_login != "":
                 self.setParam("seamless_login", seamless_login)
 
+            sso_cookie_name = self.promptForString("Enter the SSO cookie name")
+            if sso_cookie_name != "":
+                self.setParam("sso_cookie_name", sso_cookie_name)
             
+            allow_default_sso_cookie_name = self.yesOrNoThatAcceptEmpty("Allow default SSO cookie name?")
+            if allow_default_sso_cookie_name != "":
+                self.setParam("allow_default_sso_cookie_name", allow_default_sso_cookie_name)
+            
+            use_only_custom_cookie_name = self.yesOrNoThatAcceptEmpty("Use only custome cookie name?")
+            if use_only_custom_cookie_name != "":
+                self.setParam("use_only_custom_cookie_name", use_only_custom_cookie_name)
+            
+            disable_ldap_cookie = self.yesOrNoThatAcceptEmpty("Disable LDAP cookie?")
+            if disable_ldap_cookie != "":
+                self.setParam("disable_ldap_cookie", disable_ldap_cookie)
+            
+            allow_custom_cache_key = self.yesOrNoThatAcceptEmpty("Allow custom cache key?")
+            if allow_custom_cache_key != "":
+                self.setParam("allow_custom_cache_key", allow_custom_cache_key)
 
 
     def configMAS(self):
@@ -281,6 +284,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configOperationMode()
         self.configCATrust()
         self.configDNSAndCerts()
+        self.configSSOProperties()
 
     def configCATrust(self) -> None:
         self.printH1("Certificate Authority Trust")
@@ -614,10 +618,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configGrafana()
         self.configTurbonomic()
 
-        # SSO Config
-        self.configSSOProperties()
-        self.configSSOCookies()
-
         # TODO: Support ECK integration via the interactive install mode
         # TODO: Support MAS superuser username/password via the interactive install mode
 
@@ -638,22 +638,38 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.db2SetAffinity = False
         self.db2SetTolerations = False
 
+        self.approvals = {
+            "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed
+            "approval_assist": {"id": "app-cfg-assist"},  # After Assist workspace has been configured
+            "approval_iot": {"id": "app-cfg-iot"},  # After IoT workspace has been configured
+            "approval_manage": {"id": "app-cfg-manage"},  # After Manage workspace has been configured
+            "approval_monitor": {"id": "app-cfg-monitor"},  # After Monitor workspace has been configured
+            "approval_optimizer": {"id": "app-cfg-optimizer"},  # After Optimizer workspace has been configured
+            "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
+            "approval_visualinspection": {"id": "app-cfg-visualinspection"}  # After Visual Inspection workspace has been configured
+        }
+
         self.configGrafana()
 
         requiredParams = [
+            # MAS
             "mas_catalog_version",
             "mas_channel",
             "mas_instance_id",
             "mas_workspace_id",
             "mas_workspace_name",
+            # Storage classes
             "storage_class_rwo",
             "storage_class_rwx",
+            # Entitlement
             "ibm_entitlement_key",
+            # DRO
             "uds_contact_email",
             "uds_contact_firstname",
             "uds_contact_lastname"
         ]
         optionalParams = [
+            # MAS
             "mas_superuser_username",
             "mas_superuser_password",
             "mas_trust_default_cas",
@@ -679,9 +695,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "mas_app_settings_secondary_langs",
             "mas_app_settings_server_timezone",
             "ocp_ingress_tls_secret_name",
+            # DRO
             "dro_namespace",
+            # MongoDb
             "mongodb_namespace",
-            "cpd_product_version",
+            # Db2
             "db2_action_system",
             "db2_action_manage",
             "db2_type",
@@ -702,9 +720,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "db2_logs_storage_size",
             "db2_meta_storage_size",
             "db2_temp_storage_size",
+            # CP4D
+            "cpd_product_version",
             "cpd_install_cognos",
             "cpd_install_openscale",
             "cpd_install_spss",
+            # Kafka
             "kafka_namespace",
             "kafka_version",
             "aws_msk_instance_type",
@@ -718,21 +739,27 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "eventstreams_resource_group",
             "eventstreams_instance_name",
             "eventstreams_instance_location",
+            # ECK
             "eck_action",
             "eck_enable_logstash",
             "eck_remote_es_hosts",
             "eck_remote_es_username",
             "eck_remote_es_password",
+            # Turbonomic
             "turbonomic_target_name",
             "turbonomic_server_url",
             "turbonomic_server_version",
             "turbonomic_username",
             "turbonomic_password",
+            # Cloud Providers
             "ibmcloud_apikey",
             "aws_region",
             "aws_access_key_id",
             "secret_access_key",
             "aws_vpc_id",
+            # Dev Mode
+            "artifactory_username",
+            "artifactory_token",
             # TODO: The way arcgis has been implemented needs to be fixed
             "install_arcgis",
             "mas_arcgis_channel"
@@ -835,6 +862,23 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         self.fatalError(f"{key} must be set")
                     self.slsLicenseFileLocal = value
 
+            elif key.startswith("approval_"):
+                if key not in self.approvals:
+                    raise KeyError(f"{key} is not a supported approval workflow ID: {self.approvals.keys()}")
+
+                if value != "":
+                    valueParts = value.split(":")
+                    if len(valueParts) != 4:
+                        self.fatalError(f"Unsupported format for {key} ({value}).  Expected APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE")
+                    else:
+                        try:
+                            self.approvals[key]["approvalKey"] = valueParts[0]
+                            self.approvals[key]["maxRetries"] = int(valueParts[1])
+                            self.approvals[key]["retryDelay"] = int(valueParts[2])
+                            self.approvals[key]["ignoreFailure"] = bool(valueParts[3])
+                        except:
+                            self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
+
             # Arguments that we don't need to do anything with
             elif key in ["accept_license", "dev_mode", "skip_pre_check", "no_confirm", "no_wait_for_pvc", "help"]:
                 pass
@@ -871,6 +915,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
+
+        self.approvals = {}
 
         # Store all args
         self.args = args
@@ -1028,6 +1074,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret
                 )
+
+                self.setupApprovals(pipelinesNamespace)
+
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f'Testing availability of MAS CLI image in cluster', spinner=self.spinner) as h:
@@ -1046,3 +1095,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details")
                     print()
+
+    def setupApprovals(self, namespace: str) -> None:
+        """
+        Ensure the supported approval configmaps are in the expected state for the start of the run:
+         - not present (if approval is not required)
+         - present with the chosen state field initialized to ""
+        """
+        for approval in self.approvals.values():
+            if "approvalKey" in approval:
+                # Enable this approval workload
+                logger.debug(f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['approvalKey']} / {approval['ignoreFailure']})")
+                self.initializeApprovalConfigMap(namespace, approval['id'], approval['approvalKey'], approval['maxRetries'], approval['retryDelay'], approval['ignoreFailure'])
+            else:
+                # Disable this approval workload
+                logger.debug(f"Approval workflow for {approval['id']} will be disabled during install")
+                self.initializeApprovalConfigMap(namespace, approval['id'])
