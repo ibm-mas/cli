@@ -16,9 +16,11 @@ Mirror Mode (Required):
 Registry Details (Required):
   -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
   -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
-  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}                    Prefix for the mirror image
   -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
   -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
+
+Registry Prefix (Optional):
+  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}            Prefix for the mirror image
 
 Source Registry Entitlements (Required based on what content you choose to mirror):
       --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
@@ -311,7 +313,6 @@ function mirror_to_registry_noninteractive() {
 
   [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
   [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
-  [[ -z "$REGISTRY_PREFIX" ]] && mirror_to_registry_help "REGISTRY_PREFIX is not set"
 
   if [[ $MIRROR_MODE != "to-filesystem" ]]; then
     [[ -z "$REGISTRY_USERNAME" ]] && mirror_to_registry_help "REGISTRY_USERNAME is not set"

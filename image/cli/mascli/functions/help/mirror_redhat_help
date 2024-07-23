@@ -16,9 +16,11 @@ Mirror Mode (Required):
 Registry Details (Required when mode is direct and from-filesystem only):
   -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
   -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
-  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}                    Prefix for the mirror image
   -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
   -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
+
+Private Registry Prefix (Optional):
+  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}            Prefix for the mirror image
 
 Red Hat Image Pull Secret (Required):
       --pullsecret ${COLOR_YELLOW}REDHAT_PULLSECRET${TEXT_RESET}              Red Hat OpenShift Pull Secret (https://console.redhat.com/openshift/install/pull-secret)

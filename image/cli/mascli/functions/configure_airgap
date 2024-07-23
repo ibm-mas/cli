@@ -13,10 +13,12 @@ When no options are specified on the command line, interactive-mode will be enab
 Private Registry Details (Required):
   -H, --host ${COLOR_YELLOW}REGISTRY_PRIVATE_HOST${TEXT_RESET}        Hostname of the private registry
   -P, --port ${COLOR_YELLOW}REGISTRY_PRIVATE_PORT${TEXT_RESET}        Port number for the private registry
-  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}            Prefix for the mirror image
   -c, --ca-file ${COLOR_YELLOW}REGISTRY_PRIVATE_CA_FILE${TEXT_RESET}  Location of the CA file for the private registry
   -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}    Username to authenticate to the private registry
   -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}    Password to authenticate to the private registry
+
+Private Registry Prefix (Optional):
+  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}            Prefix for the mirror image
 
 Setup Red Hat Operator Catalogs (Optional):
   --setup-redhat-catalogs                 Set up Red Hat Operator, Community, and Certified catalogs with ICSP
@@ -82,7 +84,6 @@ function configure_ocp_for_mirror_noninteractive() {
   # Check all args have been set
   [[ -z "$REGISTRY_PRIVATE_HOST" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_HOST is not set"
   [[ -z "$REGISTRY_PRIVATE_PORT" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_PORT is not set"
-  [[ -z "$REGISTRY_PREFIX" ]] && configure_ocp_for_mirror_help "REGISTRY_PREFIX is not set"
   [[ -z "$REGISTRY_PRIVATE_CA_FILE" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_CA_FILE is not set"
   [[ -z "$REGISTRY_USERNAME" ]] && configure_ocp_for_mirror_help "REGISTRY_USERNAME is not set"
   [[ -z "$REGISTRY_PASSWORD" ]] && configure_ocp_for_mirror_help "REGISTRY_PASSWORD is not set"

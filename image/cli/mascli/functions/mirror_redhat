@@ -85,7 +85,6 @@ function mirror_redhat_noninteractive() {
   if [[ "$MIRROR_MODE" == "direct" ]] || [[ "$MIRROR_MODE" == "from-filesystem" ]]; then
     [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_redhat_help "REGISTRY_PUBLIC_HOST is not set"
     [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_redhat_help "REGISTRY_PUBLIC_PORT is not set"
-     [[ -z "$REGISTRY_PREFIX" ]] && mirror_redhat_help "REGISTRY_PREFIX is not set"
   fi
 
   [[ -z "$REDHAT_PULLSECRET" ]] && mirror_redhat_help "REDHAT_PULLSECRET is not set"

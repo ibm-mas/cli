@@ -12,7 +12,7 @@ Usage
 ### Registry Details
 - `-H|--host REGISTRY_PUBLIC_HOST` Hostname of the target registry
 - `-P|--port REGISTRY_PUBLIC_PORT` Port number for the target registry
-- `-x|--prefix REGISTRY_PREFIX` Prefix for the mirror image
+- `-x|--prefix REGISTRY_PREFIX` Prefix for the mirror image (optional)
 - `-u|--username REGISTRY_USERNAME` Username to authenticate to the target registry
 - `-p|--password REGISTRY_PASSWORD` Password to authenticate to the target registry
 
