@@ -35,7 +35,7 @@ from mas.cli.validators import (
   WorkspaceNameFormatValidator,
   TimeoutFormatValidator,
   StorageClassValidator,
-  IntFomarValidator,
+  IntFomartValidator,
   OptimizerInstallPlanValidator
 )
 
@@ -226,7 +226,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Using default SSO properties"
             ])
         else:
-            idle_timeout = self.promptForString("Enter the idleTimeout (in seconds)", validator=IntFomarValidator())
+            idle_timeout = self.promptForString("Enter the idleTimeout (in seconds)", validator=IntFomartValidator())
             if idle_timeout != "":
                 self.setParam("idle_timeout", idle_timeout)
 
@@ -579,10 +579,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Interactive mode
         self.interactiveMode = True
 
-        # SSO Config
-        self.configSSOProperties()
-        self.configSSOCookies()
-
         # Catalog
         self.configCatalog()
         if not self.devMode:
@@ -617,6 +613,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         self.configGrafana()
         self.configTurbonomic()
+
+        # SSO Config
+        self.configSSOProperties()
+        self.configSSOCookies()
 
         # TODO: Support ECK integration via the interactive install mode
         # TODO: Support MAS superuser username/password via the interactive install mode

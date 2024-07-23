@@ -184,6 +184,7 @@ spec:
         value: $(params.default_idp)
       - name: SEAMLESS_LOGIN
         value: $(params.seamless_login)
+
       - name: SSO_COOKIE_NAME
         value: $(params.sso_cookie_name)
       - name: ALLOW_DEFAULT_SSO_COOKIE_NAME
@@ -202,7 +203,7 @@ spec:
         - /opt/app-root/src/run-role.sh
         - suite_install
       image: quay.io/ibmmas/cli:latest
-      imagePullPolicy: Always
+      imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
   workspaces:

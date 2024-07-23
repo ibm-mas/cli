@@ -48,7 +48,7 @@ class WorkspaceIDFormatValidator(Validator):
         if not match(r"^[a-z][a-z0-9]{2,11}$", instanceId):
             raise ValidationError(message='Workspace ID does not meet the requirements', cursor_position=len(instanceId))
 
-class IntFomarValidator(Validator):
+class IntFomartValidator(Validator):
     """
         Validate that input is integer type for a better exeception message
     """
