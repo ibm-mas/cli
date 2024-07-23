@@ -35,6 +35,7 @@ from mas.cli.validators import (
   WorkspaceNameFormatValidator,
   TimeoutFormatValidator,
   StorageClassValidator,
+  IntFomarValidator,
   OptimizerInstallPlanValidator
 )
 
@@ -197,12 +198,30 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Using default SSO properties"
             ])
         else:
-            self.promptForInt("Enter the idleTimeout (in seconds)", "idle_timeout")
-            self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator())
-            self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator())
-            self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator())
-            self.promptForString("Enter the default Identity Provider (IDP)", "default_idp")
-            self.yesOrNo("Enable seamless login?", param="seamless_login")
+            idle_timeout = self.promptForString("Enter the idleTimeout (in seconds)", validator=IntFomarValidator())
+            if idle_timeout == "":
+                self.setParam("idle_timeout", idle_timeout)
+
+            session_timeout = self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", validator=TimeoutFormatValidator())
+            if session_timeout != "":
+                self.setParam("idp_session_timeout", session_timeout)
+            
+            access_token_timeout = self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", validator=TimeoutFormatValidator())
+            if access_token_timeout != "":
+                self.setParam("access_token_timeout", access_token_timeout)
+
+            refresh_token_timeout = self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", validator=TimeoutFormatValidator())
+            if refresh_token_timeout != "":
+                self.setParam("refresh_token_timeout", refresh_token_timeout)
+
+            default_idp = self.promptForString("Enter the default Identity Provider (IDP)")
+            if default_idp != "":
+                self.setParam("refresh_token_timeout", default_idp)
+
+            seamless_login = self.yesOrNo("Enable seamless login?", use_validator=False)
+            if seamless_login != "":
+                self.setParam(seamless_login, seamless_login)
+
 
     def configMAS(self):
         self.printH1("Configure MAS Instance")

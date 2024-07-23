@@ -74,10 +74,13 @@ def masPromptValue(message):
     return HTML(f"<{PROMPTCOLOR}>{message.replace(' & ', ' &amp; ')}</{PROMPTCOLOR}> ")
 
 class PromptMixin():
-    def yesOrNo(self, message: str, param: str=None) -> bool:
-        response = prompt(masPromptYesOrNo(message), validator=YesNoValidator(), validate_while_typing=False)
-        responseAsBool = response.lower() in ["y", "yes"]
-        if param is not None:
+    def yesOrNo(self, message: str, param: str=None, use_validator: bool=True) -> bool:
+        if use_validator:
+            response = prompt(masPromptYesOrNo(message), validator=YesNoValidator(), validate_while_typing=False)
+            responseAsBool = response.lower() in ["y", "yes"]
+        else:
+            return ""
+        if param is not None and use_validator:
             self.params[param] = "true" if responseAsBool else "false"
         return responseAsBool
 

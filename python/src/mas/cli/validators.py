@@ -48,6 +48,20 @@ class WorkspaceIDFormatValidator(Validator):
         if not match(r"^[a-z][a-z0-9]{2,11}$", instanceId):
             raise ValidationError(message='Workspace ID does not meet the requirements', cursor_position=len(instanceId))
 
+class IntFomarValidator(Validator):
+    """
+        Validate that input is integer type for a better exeception message
+    """
+    def validate(self, document):
+        string_to_validate = document.text
+        if not string_to_validate:
+            return 
+        try:
+            int(document.text)
+        except:
+            message = f"Error: Your input: {string_to_validate} is not an integer value, please only use number as input"
+            raise ValidationError(message=message, cursor_position=len(string_to_validate))
+
 class TimeoutFormatValidator(Validator):
     def validate(self, document):
         """
