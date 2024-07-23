@@ -202,19 +202,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if sso_cookie_name != "":
                 self.setParam("sso_cookie_name", sso_cookie_name)
             
-            allow_default_sso_cookie_name = self.yesOrNo("Allow default SSO cookie name?", use_validator=False)
+            allow_default_sso_cookie_name = self.yesOrNoThatAcceptEmpty("Allow default SSO cookie name?")
             if allow_default_sso_cookie_name != "":
                 self.setParam("allow_default_sso_cookie_name", allow_default_sso_cookie_name)
             
-            use_only_custom_cookie_name = self.yesOrNo("Use only custome cookie name?", use_validator=False)
+            use_only_custom_cookie_name = self.yesOrNoThatAcceptEmpty("Use only custome cookie name?")
             if use_only_custom_cookie_name != "":
                 self.setParam("use_only_custom_cookie_name", use_only_custom_cookie_name)
             
-            disable_ldap_cookie = self.yesOrNo("Disable LDAP cookie?", use_validator=False)
+            disable_ldap_cookie = self.yesOrNoThatAcceptEmpty("Disable LDAP cookie?")
             if disable_ldap_cookie != "":
                 self.setParam("disable_ldap_cookie", disable_ldap_cookie)
             
-            allow_custom_cache_key = self.yesOrNo("Allow custom cache key?", use_validator=False)
+            allow_custom_cache_key = self.yesOrNoThatAcceptEmpty("Allow custom cache key?")
             if allow_custom_cache_key != "":
                 self.setParam("allow_custom_cache_key", allow_custom_cache_key)
             
@@ -246,7 +246,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if default_idp != "":
                 self.setParam("default_idp", default_idp)
             
-            seamless_login = self.yesOrNo("Enable seamless login?", use_validator=False)
+            seamless_login = self.yesOrNoThatAcceptEmpty("Enable seamless login?")
             if seamless_login != "":
                 self.setParam("seamless_login", seamless_login)
 
@@ -582,7 +582,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # SSO Config
         self.configSSOProperties()
         self.configSSOCookies()
-        
+
         # Catalog
         self.configCatalog()
         if not self.devMode:

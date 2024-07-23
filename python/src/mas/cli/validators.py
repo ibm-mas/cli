@@ -120,7 +120,16 @@ class YesNoValidator(Validator):
         if response.lower() not in ["y", "n", "yes", "no"]:
             raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
 
-
+class YesNoValidatorThatAcceptsEmpty(Validator):
+    def validate(self, document):
+        """
+        Validate that a response is understandable as a yes/no response
+        """
+        response = document.text
+        if not response:
+            return ""
+        if response.lower() not in ["y", "n", "yes", "no"]:
+            raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
 class FileExistsValidator(Validator):
     def validate(self, document):
         """

@@ -13,7 +13,7 @@ from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator
 
-from .validators import YesNoValidator, FileExistsValidator, DirectoryExistsValidator
+from .validators import YesNoValidator, FileExistsValidator, DirectoryExistsValidator, YesNoValidatorThatAcceptsEmpty
 
 import logging
 logger = logging.getLogger(__name__)
@@ -74,13 +74,21 @@ def masPromptValue(message):
     return HTML(f"<{PROMPTCOLOR}>{message.replace(' & ', ' &amp; ')}</{PROMPTCOLOR}> ")
 
 class PromptMixin():
-    def yesOrNo(self, message: str, param: str=None, use_validator: bool=True) -> bool:
-        if use_validator:
-            response = prompt(masPromptYesOrNo(message), validator=YesNoValidator(), validate_while_typing=False)
-            responseAsBool = response.lower() in ["y", "yes"]
-        else:
+    def yesOrNoThatAcceptEmpty(self, message: str, param: str=None):
+        response = prompt(masPromptYesOrNo(message), validator=YesNoValidatorThatAcceptsEmpty(), validate_while_typing=False)
+        if response == "":
             return ""
-        if param is not None and use_validator:
+        else:
+            responseAsBool = response.lower() in ["y", "yes"]
+        if param is not None:
+            self.params[param] = "true" if responseAsBool else "false"
+        return responseAsBool
+
+    def yesOrNo(self, message: str, param: str=None) -> bool:
+        response = prompt(masPromptYesOrNo(message), validator=YesNoValidator(), validate_while_typing=False)
+        responseAsBool = response.lower() in ["y", "yes"]
+        
+        if param is not None:
             self.params[param] = "true" if responseAsBool else "false"
         return responseAsBool
 
