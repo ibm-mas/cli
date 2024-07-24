@@ -126,6 +126,14 @@ function sm_get_secret_file(){
   if [[ "$AVP_TYPE" == "aws" ]]; then
     # Get the current value and send it to the file passed in
     echo "- Getting Secret $SECRET_NAME to set in file $SECRET_FILE"
+
+    # One-off test so we can see the error message when this fails
+    # Redirected stdout to /dev/null so we don't print secret values in the logs
+    aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} 1> /dev/null
+    lookuprc="$?"
+    echo "secret lookup rc: ${lookuprc}"
+
+
     set +o pipefail
     aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString > $SECRET_FILE
     set -o pipefail
