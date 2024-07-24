@@ -657,6 +657,9 @@ function gitops_mas_config() {
     # Source: gitops_kafka_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "kafka" ]; then
+      echo "TROUBLESHOOT AVP_TYPE $AVP_TYPE"
+      AVP_TYPE=aws  # For Troubleshoot
+      echo "TROUBLESHOOT AVP_TYPE $AVP_TYPE"
       if [[ "$AVP_TYPE" == "aws" ]]; then
         # kafka
         export SECRET_PREFIX="AmazonMSK_"
@@ -664,7 +667,17 @@ function gitops_mas_config() {
       export KAFKA_SECRET_FILE=$TEMP_DIR/kafka-secret.json
       sm_login
       sm_get_secret_file ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka $KAFKA_SECRET_FILE
+      echo "TROUBLESHOOT $KAFKA_SECRET_FILE"
+      echo "TROUBLESHOOT ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka"
+      cat $KAFKA_SECRET_FILE
+      echo "----"
+
       jq -r .info $KAFKA_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
+
+      echo "TROUBLESHOOT $ADDITIONAL_JINJA_PARAMS_FILE"
+      cat $ADDITIONAL_JINJA_PARAMS_FILE
+      echo "----"
+
       export AWS_MSK_SECRET=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
       export SECRET_KEY_KAFKA_USERNAME=${AWS_MSK_SECRET}#username
       export SECRET_KEY_KAFKA_PASSWORD=${AWS_MSK_SECRET}#password
