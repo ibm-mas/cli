@@ -202,16 +202,22 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "Many aspects of Maximo Application Suite's Single Sign-On (SSO) can be customized:",
             " - Idle session automatic logout timer",
             " - Session, access token, and refresh token timeouts",
-            " - Default identity provider (IDP), and seamless login"
+            " - Default identity provider (IDP), and seamless login",
+            " - Brower cookie properties"
         ])
-        sso_response = self.yesOrNo("Configure SSO properties")
-        if sso_response:
-            self.promptForInt("Enter the idle timeout (in seconds)", "idle_timeout", default=1800)
-            self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator(), default="12h")
-            self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator(), default="30m")
-            self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator(), default="12h")
-            self.promptForString("Enter the default Identity Provider (IDP)", "default_idp", default="local")
-            self.yesOrNo("Enable seamless login?", param="seamless_login")
+        if self.yesOrNo("Configure SSO properties"):
+            self.promptForInt("Idle session logout timer (seconds)", "idle_timeout")
+            self.promptForString("Session timeout (e.g. '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator())
+            self.promptForString("Access token timeout (e.g. '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator())
+            self.promptForString("Refresh token timeout (e.g. '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator())
+            self.promptForString("Default Identity Provider", "default_idp")
+
+            self.promptForString("SSO cookie name", "sso_cookie_name")
+            self.yesOrNo("Enable seamless login", "seamless_login")
+            self.yesOrNo("Allow default SSO cookie name", "allow_default_sso_cookie_name")
+            self.yesOrNo("Use only custom cookie name", "use_only_custom_cookie_name")
+            self.yesOrNo("Disable LDAP cookie", "disable_ldap_cookie")
+            self.yesOrNo("Allow custom cache key", "allow_custom_cache_key")
 
     def configMAS(self):
         self.printH1("Configure MAS Instance")
