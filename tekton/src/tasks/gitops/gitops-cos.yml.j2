@@ -111,7 +111,7 @@ spec:
 
           s3_access_point_bucket_id      = module.s3.s3_bucket_id
           s3_access_point_name           = "fvtsaas-s3-access"
-          s3_access_point_policy_actions = ["s3:GetObject", "s3:ListBucket"]
+          s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
           s3_access_point_user           = "fvtsaas"
           s3_access_point_bucket_region  = module.s3.s3_bucket_region
           mas_cluster_id                 = "$CLUSTER_NAME"
@@ -132,13 +132,13 @@ spec:
         ./terraform apply -input=false tfplan
         # ./terraform apply -auto-approve -input=false tfplan
 
-        export MAS_CONFIG_DIR=/workspace/configs/$MAS_INSTANCE_ID-cos
-        mkdir -p /workspace/configs/$MAS_INSTANCE_ID-cos
-        mkdir -p /tmp/init-cos
+#       export MAS_CONFIG_DIR=/workspace/configs/$MAS_INSTANCE_ID-cos
+#       mkdir -p /workspace/configs/$MAS_INSTANCE_ID-cos
+#       mkdir -p /tmp/init-cos
 
-        mas gitops-cos -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /tmp/init-cos \
-        --secrets-path $SECRET_PATH
+#       mas gitops-cos -a $ACCOUNT -c $CLUSTER_NAME \
+#       --dir /tmp/init-cos \
+#       --secrets-path $SECRET_PATH
 
         exit $?
       command:
