@@ -171,7 +171,7 @@ spec:
 
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates
-      
+
       - name: IDLE_TIMEOUT
         value: $(params.idle_timeout)
       - name: IDP_SESSION_TIMEOUT
@@ -195,7 +195,7 @@ spec:
         value: $(params.disable_ldap_cookie)
       - name: ALLOW_CUSTOM_CACHE_KEY
         value: $(params.allow_custom_cache_key)
-      
+
 
   steps:
     - name: suite-install
@@ -203,7 +203,7 @@ spec:
         - /opt/app-root/src/run-role.sh
         - suite_install
       image: quay.io/ibmmas/cli:latest
-      imagePullPolicy: Always
+      imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
   workspaces:

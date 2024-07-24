@@ -35,7 +35,6 @@ from mas.cli.validators import (
   WorkspaceNameFormatValidator,
   TimeoutFormatValidator,
   StorageClassValidator,
-  IntFomartValidator,
   OptimizerInstallPlanValidator
 )
 
@@ -196,61 +195,29 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="4.8.0")
 
         self.deployCP4D = True
-            
+
     def configSSOProperties(self):
         self.printH1("Single Sign-On (SSO)")
         self.printDescription([
             "Many aspects of Maximo Application Suite's Single Sign-On (SSO) can be customized:",
             " - Idle session automatic logout timer",
             " - Session, access token, and refresh token timeouts",
-            " - Default identity provider (IDP), and seamless login"
+            " - Default identity provider (IDP), and seamless login",
+            " - Brower cookie properties"
         ])
-        sso_response = self.yesOrNo(("Configure SSO properties"))
-        if sso_response:
-            idle_timeout = self.promptForString("Enter the idleTimeout (in seconds)", validator=IntFomartValidator())
-            if idle_timeout != "":
-                self.setParam("idle_timeout", idle_timeout)
+        if self.yesOrNo("Configure SSO properties"):
+            self.promptForInt("Idle session logout timer (seconds)", "idle_timeout")
+            self.promptForString("Session timeout (e.g. '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator())
+            self.promptForString("Access token timeout (e.g. '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator())
+            self.promptForString("Refresh token timeout (e.g. '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator())
+            self.promptForString("Default Identity Provider", "default_idp")
 
-            session_timeout = self.promptForString("Enter the IDP session timeout (e.g., '12h' for 12 hours)", validator=TimeoutFormatValidator())
-            if session_timeout != "":
-                self.setParam("idp_session_timeout", session_timeout)
-            
-            access_token_timeout = self.promptForString("Enter the access token timeout (e.g., '30m' for 30 minutes)", validator=TimeoutFormatValidator())
-            if access_token_timeout != "":
-                self.setParam("access_token_timeout", access_token_timeout)
-
-            refresh_token_timeout = self.promptForString("Enter the refresh token timeout (e.g., '12h' for 12 hours)", validator=TimeoutFormatValidator())
-            if refresh_token_timeout != "":
-                self.setParam("refresh_token_timeout", refresh_token_timeout)
-
-            default_idp = self.promptForString("Enter the default Identity Provider (IDP)")
-            if default_idp != "":
-                self.setParam("default_idp", default_idp)
-            
-            seamless_login = self.yesOrNoThatAcceptEmpty("Enable seamless login?")
-            if seamless_login != "":
-                self.setParam("seamless_login", seamless_login)
-
-            sso_cookie_name = self.promptForString("Enter the SSO cookie name")
-            if sso_cookie_name != "":
-                self.setParam("sso_cookie_name", sso_cookie_name)
-            
-            allow_default_sso_cookie_name = self.yesOrNoThatAcceptEmpty("Allow default SSO cookie name?")
-            if allow_default_sso_cookie_name != "":
-                self.setParam("allow_default_sso_cookie_name", allow_default_sso_cookie_name)
-            
-            use_only_custom_cookie_name = self.yesOrNoThatAcceptEmpty("Use only custome cookie name?")
-            if use_only_custom_cookie_name != "":
-                self.setParam("use_only_custom_cookie_name", use_only_custom_cookie_name)
-            
-            disable_ldap_cookie = self.yesOrNoThatAcceptEmpty("Disable LDAP cookie?")
-            if disable_ldap_cookie != "":
-                self.setParam("disable_ldap_cookie", disable_ldap_cookie)
-            
-            allow_custom_cache_key = self.yesOrNoThatAcceptEmpty("Allow custom cache key?")
-            if allow_custom_cache_key != "":
-                self.setParam("allow_custom_cache_key", allow_custom_cache_key)
-
+            self.promptForString("SSO cookie name", "sso_cookie_name")
+            self.yesOrNo("Enable seamless login", "seamless_login")
+            self.yesOrNo("Allow default SSO cookie name", "allow_default_sso_cookie_name")
+            self.yesOrNo("Use only custom cookie name", "use_only_custom_cookie_name")
+            self.yesOrNo("Disable LDAP cookie", "disable_ldap_cookie")
+            self.yesOrNo("Allow custom cache key", "allow_custom_cache_key")
 
     def configMAS(self):
         self.printH1("Configure MAS Instance")

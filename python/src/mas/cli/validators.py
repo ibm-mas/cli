@@ -9,7 +9,6 @@
 # *****************************************************************************
 
 from re import match
-import re
 from os import path
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
@@ -48,19 +47,6 @@ class WorkspaceIDFormatValidator(Validator):
         if not match(r"^[a-z][a-z0-9]{2,11}$", instanceId):
             raise ValidationError(message='Workspace ID does not meet the requirements', cursor_position=len(instanceId))
 
-class IntFomartValidator(Validator):
-    """
-        Validate that input is integer type for a better exeception message
-    """
-    def validate(self, document):
-        string_to_validate = document.text
-        if not string_to_validate:
-            return 
-        try:
-            int(document.text)
-        except:
-            message = f"Error: Your input: {string_to_validate} is not an integer value, please only use number as input"
-            raise ValidationError(message=message, cursor_position=len(string_to_validate))
 
 class TimeoutFormatValidator(Validator):
     def validate(self, document):
@@ -71,6 +57,7 @@ class TimeoutFormatValidator(Validator):
         if string_to_validate != "" and not match(r'^([0-9]+)([hm])$', string_to_validate):
             message = f"Error: Your input: {string_to_validate} does not meet the required pattern. Please use it in hours or minutes format (e.g., 12h, 12m)."
             raise ValidationError(message=message, cursor_position=len(string_to_validate))
+
 
 class WorkspaceNameFormatValidator(Validator):
     def validate(self, document):
@@ -120,16 +107,7 @@ class YesNoValidator(Validator):
         if response.lower() not in ["y", "n", "yes", "no"]:
             raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
 
-class YesNoValidatorThatAcceptsEmpty(Validator):
-    def validate(self, document):
-        """
-        Validate that a response is understandable as a yes/no response
-        """
-        response = document.text
-        if not response:
-            return ""
-        if response.lower() not in ["y", "n", "yes", "no"]:
-            raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
+
 class FileExistsValidator(Validator):
     def validate(self, document):
         """
@@ -138,6 +116,7 @@ class FileExistsValidator(Validator):
         response = document.text
         if not path.isfile(response):
             raise ValidationError(message=f"{response} does not exist, or is not a file", cursor_position=len(response))
+
 
 class DirectoryExistsValidator(Validator):
     def validate(self, document):
