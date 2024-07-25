@@ -1,0 +1,74 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-fvt-deprovision-kafka
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+  steps:
+    - name: kafka-deprovision
+      script: |
+        #!/usr/bin/env bash
+        if [[ "$KAFKA_PROVIDER" == "ibm" ]]; then
+          /opt/app-root/src/run-role.sh kafka
+          exit $?
+        else
+          echo "No EventStreams instance to delete"
+        fi
+        exit 0
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+      env:
+        {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
+
+        # General
+        - name: MAS_INSTANCE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: MAS_INSTANCE_ID
+              optional: true
+
+        - name: KAFKA_ACTION
+          value: uninstall
+
+        # Kafka Details
+        - name: KAFKA_PROVIDER
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: KAFKA_PROVIDER
+              optional: true
+        - name: IBMCLOUD_APIKEY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: IBMCLOUD_APIKEY
+              optional: true
+        - name: IBMCLOUD_RESOURCEGROUP
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: IBMCLOUD_RESOURCEGROUP
+              optional: true
+        - name: EVENTSTREAMS_NAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: EVENTSTREAMS_NAME
+              optional: true
+        - name: EVENTSTREAMS_RESOURCEGROUP
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: EVENTSTREAMS_RESOURCEGROUP
+              optional: true
+        - name: EVENTSTREAMS_LOCATION
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: EVENTSTREAMS_LOCATION
+              optional: true
