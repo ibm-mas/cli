@@ -43,12 +43,16 @@ spec:
       type: string
     - name: jdbc_instance_name_iot
       type: string
-
+    - name: jdbc_route_iot
+      type: string
+      default: "false"
     - name: jdbc_type_manage
       type: string
     - name: jdbc_instance_name_manage
       type: string
-
+    - name: jdbc_route_manage
+      type: string
+      default: "false"
   tasks:
     # 1. Deprovision workspace
     # -------------------------------------------------------------------------
@@ -128,11 +132,14 @@ spec:
           value: $(params.jdbc_type_iot)
         - name: jdbc_instance_name_iot
           value: $(params.jdbc_instance_name_iot)
+        - name: jdbc_route_iot
+          value: $(params.jdbc_route_iot)
         - name: jdbc_type_manage
           value: $(params.jdbc_type_manage)
         - name: jdbc_instance_name_manage
           value: $(params.jdbc_instance_name_manage)
-
+        - name: jdbc_route_manage
+          value: $(params.jdbc_route_manage)
       workspaces:
         - name: configs
           workspace: configs

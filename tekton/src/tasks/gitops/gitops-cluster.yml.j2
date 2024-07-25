@@ -69,6 +69,9 @@ spec:
     - name: ocp_cluster_domain
       type: string
       default: ""
+    - name: ingress
+      type: string
+      default: "false"
 
   stepTemplate:
     name: gitops-cluster
@@ -124,6 +127,8 @@ spec:
         value: $(params.dns_provider)
       - name: OCP_CLUSTER_DOMAIN
         value: $(params.ocp_cluster_domain)
+      - name: INGRESS
+        value: $(params.ingress)
 
     envFrom:
       - configMapRef:

@@ -35,6 +35,7 @@ Operator Catalog (Optional):
 
 IBM CIS Cert Manager:
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
+      --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                   true/false, If true, ingress-controller for cis-proxy will be configured
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}         Enable automatic push to GitHub
@@ -205,6 +206,9 @@ function gitops_cluster_noninteractive() {
         ;;
       --ocp-cluster-domain)
         export OCP_CLUSTER_DOMAIN=$1 && shift
+        ;;
+      --ingress)
+        export INGRESS=$1 && shift
         ;;
 
 

@@ -41,6 +41,9 @@ spec:
     - name: jdbc_certificate_file
       type: string
       default: ""
+    - name: jdbc_route
+      type: string
+      default: "false"
   stepTemplate:
     name: gitops-delete-jdbc-config
     env:
@@ -78,6 +81,8 @@ spec:
         value: $(params.jdbc_connection_url)
       - name: JDBC_CERTIFICATE_FILE
         value: $(params.jdbc_certificate_file)
+      - name: JDBC_ROUTE
+        value: $(params.jdbc_route)
     envFrom:
       - configMapRef:
           name: environment-properties
