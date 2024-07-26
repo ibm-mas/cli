@@ -20,3 +20,9 @@ sm:
 custom_labels:
   {{ CUSTOM_LABELS | indent(2) }}
 {% endif %}
+
+{% if MAS_WIPE_MONGO_DATA == 'true' %}
+mas_wipe_mongo_data: true
+{% else %}
+mas_wipe_mongo_data: false
+{% endif %}

@@ -38,9 +38,6 @@ spec:
     - name: cluster_url
       type: string
       default: ""
-    - name: mas_wipe_mongo_data
-      type: string
-      default: "false"
   stepTemplate:
     name: gitops-suite-config
     env:
@@ -76,8 +73,6 @@ spec:
         value: $(params.dro_contact_lastname)
       - name: DRO_CA_CERTIFICATE_FILE
         value: $(params.dro_ca_certificate_file)
-      - name: MAS_WIPE_MONGO_DATA
-        value: $(params.mas_wipe_mongo_data)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -108,8 +103,7 @@ spec:
         --mas-config-scope system \
         --mas-config-type mongo \
         --dir /tmp/init-mas-config-mongo \
-        --mongo-provider "$MONGODB_PROVIDER" \
-        --mas-wipe-mongo-data "$MAS_WIPE_MONGO_DATA" \
+        --mongo-provider "$MONGODB_PROVIDER"
         || exit 1
 
         mkdir -p /tmp/init-mas-config-sls
