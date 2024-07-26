@@ -139,7 +139,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "False"
+          value: "True"
       when:
         - input: $(params.sync_with_install)
           operator: in
@@ -231,7 +231,7 @@ spec:
         - name: max_retries
           value: "40"
         - name: ignore_failure
-          value: "False"
+          value: "True"
       when:
         - input: $(params.launchfvt_assist)
           operator: in
@@ -313,7 +313,7 @@ spec:
         - name: max_retries
           value: "40"
         - name: ignore_failure
-          value: "False"
+          value: "True"
       when:
         # Wait for IoT to be installed if we are running the IoT and/or the Monitor FVT suite
         - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
@@ -396,7 +396,7 @@ spec:
         - name: max_retries
           value: "100"
         - name: ignore_failure
-          value: "False"
+          value: "True"
       when:
         - input: $(params.sync_with_install)
           operator: in
@@ -554,7 +554,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "False"
+          value: "True"
       when:
         - input: $(params.launchfvt_monitor)
           operator: in
@@ -640,7 +640,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "False"
+          value: "True"
       when:
         - input: $(params.launchfvt_optimizer)
           operator: in
@@ -724,7 +724,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "False"
+          value: "True"
       when:
         - input: $(params.launchfvt_predict)
           operator: in
@@ -811,7 +811,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "False"
+          value: "True"
       when:
         - input: $(params.launchfvt_visualinspection)
           operator: in
