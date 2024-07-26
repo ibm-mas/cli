@@ -1,0 +1,29 @@
+---
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
+    deprovision: "{{ lookup('env', 'DEPROVISION') }}"
+    finalize: "{{ lookup('env', 'FINALIZE') }}"
+
+    # Pipeline Run Info
+    devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
+    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-finally', True) }}-{{ devops_build_number }}"
+    mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+    pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
+  tasks:
+    - name: "Debug"
+      debug:
+        msg:
+          - "pipelinerun_name ............ {{ pipelinerun_name }}"
+          - "pipelinerun_namespace ....... {{ pipelinerun_namespace }}"
+          - ""
+          - "image_pull_policy ........... {{ image_pull_policy }}"
+          - "deprovision ................. {{ deprovision }}"
+          - "finalize .................... {{ finalize }}"
+          - ""
+
+    - name: "Start FVT-finally pipeline"
+      kubernetes.core.k8s:
+        apply: true
+        template: templates/finally.yml.j2

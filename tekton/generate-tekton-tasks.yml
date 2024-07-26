@@ -79,6 +79,7 @@
         - launchfvt-assist
         - launchfvt-core
         - launchfvt-sls
+        - launchfvt-finally
         - launchfvt-iot
         - launchfvt-manage
         - launchfvt-manage-is
