@@ -1,0 +1,89 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-finally
+spec:
+  params:
+    - name: image_pull_policy
+      type: string
+
+    - name: finalize
+      type: string
+      default: "true"
+      description: "Finalize the record in the FVT database"
+
+    - name: deprovision
+      type: string
+      default: "true"
+      description: "Enable deprovision of the target cluster & associated resources following the completion of this pipeline"
+
+  tasks:
+    # Collect must-gather
+    # -------------------------------------------------------------------------
+    - name: must-gather
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-must-gather
+      params:
+        - name: base_output_dir
+          value: "/mustgather/$(context.pipelineRun.name)"
+      workspaces:
+        - name: mustgather
+          workspace: shared-mustgather
+
+    # Finalize the record in the FVT database
+    # -------------------------------------------------------------------------
+    - name: finalize
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize
+      runAfter:
+        - must-gather
+      when:
+        - input: $(params.finalize)
+          operator: in
+          values: ["true", "True"]
+
+    # Delete IBM Cloud services
+    # -------------------------------------------------------------------------
+    # COS
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-cos.yml.j2') | indent(4) }}
+      when:
+        - input: $(params.deprovision)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - finalize
+
+    # Event Streams
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-kafka.yml.j2') | indent(4) }}
+      when:
+        - input: $(params.deprovision)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - finalize
+
+    # Delete the named cluster
+    # -------------------------------------------------------------------------
+    - name: deprovision-cluster
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-deprovision-ocp
+      when:
+        - input: $(params.deprovision)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - cos-deprovision
+        - kafka-deprovision
+
+  workspaces:
+    # Shared storage to hold mustgather output for tasks
+    - name: shared-mustgather
+    # The generated configuration files
+    - name: shared-configs
