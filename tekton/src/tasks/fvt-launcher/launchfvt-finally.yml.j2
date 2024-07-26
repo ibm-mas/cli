@@ -1,0 +1,47 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-launchfvt-finally
+spec:
+  params:
+    - name: finalize
+      type: string
+    - name: deprovision
+      type: string
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+    - name: pipelinerun_name
+      type: string
+
+  steps:
+    - name: start-pipelinerun
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - ansible-playbook
+        - /masfvt/finally.yml
+      env:
+        - name: FINALIZE
+          value: $(params.finlize)
+        - name: DEPROVISION
+          value: $(params.deprovision)
+        - name: IMAGE_PULL_POLICY
+          value: $(params.image_pull_policy)
+        - name: PIPELINERUN_NAME
+          value: $(params.pipelinerun_name)
+        - name: PIPELINERUN_NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: DEVOPS_BUILD_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
+        - name: MAS_INSTANCE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: MAS_INSTANCE_ID
+              optional: false

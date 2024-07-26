@@ -1,0 +1,32 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: "{{ pipelinerun_name }}"
+  namespace: "{{ pipelinerun_namespace }}"
+  labels:
+    tekton.dev/pipeline: mas-fvt-finally
+spec:
+  pipelineRef:
+    name: mas-fvt-finally
+
+  serviceAccountName: pipeline
+  timeouts:
+    pipeline: "0"
+
+  params:
+    - name: image_pull_policy
+      value: "{{ image_pull_policy }}"
+    - name: finalize
+      value: "{{ finalize }}"
+    - name: deprovision
+      value: "{{ deprovision }}"
+
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+      persistentVolumeClaim:
+        claimName: config-pvc
+    - name: shared-mustgather
+      persistentVolumeClaim:
+        claimName: shared-mustgather-storage

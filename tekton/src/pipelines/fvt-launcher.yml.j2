@@ -139,7 +139,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "True"
+          value: "False"
       when:
         - input: $(params.sync_with_install)
           operator: in
@@ -231,7 +231,7 @@ spec:
         - name: max_retries
           value: "40"
         - name: ignore_failure
-          value: "True"
+          value: "False"
       when:
         - input: $(params.launchfvt_assist)
           operator: in
@@ -313,7 +313,7 @@ spec:
         - name: max_retries
           value: "40"
         - name: ignore_failure
-          value: "True"
+          value: "False"
       when:
         # Wait for IoT to be installed if we are running the IoT and/or the Monitor FVT suite
         - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
@@ -396,7 +396,7 @@ spec:
         - name: max_retries
           value: "100"
         - name: ignore_failure
-          value: "True"
+          value: "False"
       when:
         - input: $(params.sync_with_install)
           operator: in
@@ -554,7 +554,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "True"
+          value: "False"
       when:
         - input: $(params.launchfvt_monitor)
           operator: in
@@ -640,7 +640,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "True"
+          value: "False"
       when:
         - input: $(params.launchfvt_optimizer)
           operator: in
@@ -724,7 +724,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "True"
+          value: "False"
       when:
         - input: $(params.launchfvt_predict)
           operator: in
@@ -811,7 +811,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "True"
+          value: "False"
       when:
         - input: $(params.launchfvt_visualinspection)
           operator: in
@@ -921,7 +921,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "True"
+          value: "False"
       when:
         - input: $(params.sync_with_install)
           operator: in
@@ -934,70 +934,21 @@ spec:
         - approval-visualinspection
         - launchivt-manage
 
-    # Collect must-gather
-    # -------------------------------------------------------------------------
-    - name: must-gather
+  finally:
+    - name: launchfvt-finally
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-devops-must-gather
+        name: mas-launchfvt-finally
       params:
-        - name: base_output_dir
-          value: "/mustgather/$(context.pipelineRun.name)"
-      workspaces:
-        - name: mustgather
-          workspace: shared-mustgather
-      runAfter:
-        - waitfor-installation
-
-    # Finalize the record in the FVT database
-    # -------------------------------------------------------------------------
-    - name: finalize
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-fvt-finalize
-      runAfter:
-        - must-gather
-      when:
-        - input: $(params.finalize)
-          operator: in
-          values: ["true", "True"]
-
-    # Delete IBM Cloud services
-    # -------------------------------------------------------------------------
-    # COS
-    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-cos.yml.j2') | indent(4) }}
-      when:
-        - input: $(params.deprovision)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - finalize
-
-    # Event Streams
-    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-kafka.yml.j2') | indent(4) }}
-      when:
-        - input: $(params.deprovision)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - finalize
-
-    # Delete the named cluster
-    # -------------------------------------------------------------------------
-    - name: deprovision-cluster
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-fvt-deprovision-ocp
-      when:
-        - input: $(params.deprovision)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - cos-deprovision
-        - kafka-deprovision
+        - name: deprovision
+          value: "$(params.deprovision)"
+        - name: finalize
+          value: "$(params.finalize)"
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-finally"
 
   workspaces:
     # Shared storage to hold mustgather output for tasks
