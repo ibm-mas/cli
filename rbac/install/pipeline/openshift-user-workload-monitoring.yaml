@@ -1,0 +1,29 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: masinstall-pipeline-role
+  namespace: openshift-user-workload-monitoring
+rules:
+  # Used to obtain the user workload monitoring token (for grafana install)
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: masinstall-pipeline-rb
+  namespace: openshift-user-workload-monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: masinstall-pipeline-role
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: mas-djptest-pipelines
