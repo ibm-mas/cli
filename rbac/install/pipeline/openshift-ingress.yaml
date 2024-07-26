@@ -1,0 +1,28 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: masinstall-pipeline-role
+  namespace: openshift-ingress
+rules:
+  # Required to lookup the default ingress TLS certificate
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: masinstall-pipeline-rb
+  namespace: openshift-ingress
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: masinstall-pipeline-role
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: mas-djptest-pipelines
