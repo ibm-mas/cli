@@ -892,7 +892,7 @@ spec:
     # same time install's post-verify starts. It means its timeout must be higher than
     # post-verify + sync-install, which will set the flag needed to finalize this fvt-launcher
     # - Escape Route: INSTALL_STATUS != "" (i.e. FAILED)
-    # - Ignore Failures: False
+    # - Ignore Failures: True
     # -------------------------------------------------------------------------
     - name: waitfor-installation
       timeout: "0"
@@ -921,7 +921,7 @@ spec:
         - name: max_retries
           value: "25"
         - name: ignore_failure
-          value: "False"
+          value: "True"
       when:
         - input: $(params.sync_with_install)
           operator: in
