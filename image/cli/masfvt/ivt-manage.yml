@@ -56,4 +56,4 @@
     - name: "Start fvt-manage pipeline"
       kubernetes.core.k8s:
         apply: true
-        template: templates/mas-ivt.yml.j2
+        template: templates/mas-ivt-manage.yml.j2

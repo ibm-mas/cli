@@ -146,7 +146,7 @@ masAdvancedArgGroup.add_argument(
 masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
-    help="Please enter the path containing the manual certificates for core and the apps to be installed"
+    help="Path to directory containing the certificates to be applied"
 )
 
 # Storage
@@ -756,12 +756,73 @@ cloudArgGroup.add_argument(
     help="Set target Virtual Private Cloud ID for the MSK instance"
 )
 
+# Development Mode
+# -----------------------------------------------------------------------------
+devArgGroup = installArgParser.add_argument_group("Development Mode")
+devArgGroup.add_argument(
+    "--artifactory-username",
+    required=False,
+    help="Username for access to development builds on Artifactory"
+)
+devArgGroup.add_argument(
+    "--artifactory-token",
+    required=False,
+    help="API Token for access to development builds on Artifactory"
+)
+
+# Approvals
+# -----------------------------------------------------------------------------
+approvalsGroup = installArgParser.add_argument_group("Integrated Approval Workflow (APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
+approvalsGroup.add_argument(
+    "--approval-core",
+    default="",
+    help="Require approval after the Core Platform has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-assist",
+    default="",
+    help="Require approval after the Maximo Assist workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-iot",
+    default="",
+    help="Require approval after the Maximo IoT workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-manage",
+    default="",
+    help="Require approval after the Maximo Manage workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-monitor",
+    default="",
+    help="Require approval after the Maximo Monitor workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-optimizer",
+    default="",
+    help="Require approval after the Maximo Optimizer workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-predict",
+    default="",
+    help="Require approval after the Maximo Predict workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-visualinspection",
+    default="",
+    help="Require approval after the Maximo Visual Inspection workspace has been configured"
+)
+
+
+# More Options
+# -----------------------------------------------------------------------------
 otherArgGroup = installArgParser.add_argument_group("More")
 otherArgGroup.add_argument(
     "--accept-license",
     action="store_true",
     default=False,
-    help=""
+    help="Accept all license terms without prompting"
 )
 otherArgGroup.add_argument(
     "--dev-mode",

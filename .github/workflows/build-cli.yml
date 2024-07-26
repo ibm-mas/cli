@@ -43,6 +43,13 @@ jobs:
           path: ${{ github.workspace }}/tekton/target/ibm-mas-tekton.yaml
           retention-days: 30
 
+      - name: Upload the Tekton definitions (FVT)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ibm-mas-tekton-fvt.yaml
+          path: ${{ github.workspace }}/tekton/target/ibm-mas-tekton-fvt.yaml
+          retention-days: 30
+
       - name: Upload definition to Artifactory
         env:
           ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}

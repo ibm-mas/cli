@@ -1,4 +1,4 @@
-# -------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # PHASE 2
 # - fvt-manage-acm-api             # ACM
 # - fvt-manage-acm-ui              # ACM
@@ -6,14 +6,11 @@
 # - fvt-manage-hse-ui              # HSE
 # - fvt-manage-serviceprovider-api # Service Provider
 # - fvt-manage-serviceprovider-ui  # Service Provider
-# -------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-# ------------------
 # ACM
-# ------------------
-
+# -----------------------------------------------------------------------------
 # ACM - API Tests
-# ------------------
 - name: fvt-manage-acm-api
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
@@ -27,7 +24,6 @@
     - fvt-manage-scheduler-setup
 
 # ACM - UI
-# ------------------
 - name: fvt-manage-acm-ui
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -38,19 +34,17 @@
     - name: fvt_mas_appws_component
       value: acm
     - name: fvt_test_driver
-      value: tpae 
+      value: tpae
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
     - fvt-manage-scheduler-api
     - fvt-manage-scheduler-setup
 
-# ------------------
-# HSE
-# ------------------
 
+# HSE
+# -----------------------------------------------------------------------------
 # HSE - API Tests
-# ------------------
 - name: fvt-manage-hse-api
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
@@ -64,7 +58,6 @@
     - fvt-manage-scheduler-setup
 
 # HSE - UI
-# ------------------
 - name: fvt-manage-hse-ui
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
@@ -75,19 +68,17 @@
     - name: fvt_mas_appws_component
       value: hse
     - name: fvt_test_driver
-      value: tpae 
+      value: tpae
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
     - fvt-manage-scheduler-api
     - fvt-manage-scheduler-setup
 
-# ------------------
-# Service Provider
-# ------------------
 
+# Service Provider
+# -----------------------------------------------------------------------------
 # Service Provider - API Tests
-# ------------------
 - name: fvt-manage-serviceprovider-api
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
@@ -101,7 +92,6 @@
     - fvt-manage-scheduler-setup
 
 # Service Provider - UI
-# ------------------
 - name: fvt-manage-serviceprovider-ui
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
   {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
