@@ -8,6 +8,9 @@
 #
 # *****************************************************************************
 
+import logging
+logger = logging.getLogger(__name__)
+
 class ManageSettingsMixin():
 
     def arcgisSettings(self) -> None:
@@ -82,6 +85,7 @@ class ManageSettingsMixin():
             if self.yesOrNo(" - Tririga"): self.params["mas_appws_components"] += ",tririga=latest"
             if self.yesOrNo(" - Utilities"): self.params["mas_appws_components"] += ",utilities=latest"
             if self.yesOrNo(" - Workday Applications"): self.params["mas_appws_components"] += ",workday=latest"
+            logger.debug(f"Generated mas_appws_components = {self.params['mas_appws_components']}")
 
             if ",icd=" in self.params["mas_appws_components"]:
                 self.printH2("Maximo IT License Terms")
@@ -97,7 +101,6 @@ class ManageSettingsMixin():
         self.printH2("Maximo Manage Settings - Database")
         self.printDescription(["Customise the schema, tablespace, indexspace, and encryption settings used by Manage"])
 
-        self.params["mas_appws_components"] = "base=latest,health=latest"
         if self.yesOrNo("Customize database settings"):
             self.promptForString("Schema", "mas_app_settings_db2_schema", default="maximo")
             self.promptForString("Tablespace", "mas_app_settings_db2_tablespace", default="MAXDATA")
