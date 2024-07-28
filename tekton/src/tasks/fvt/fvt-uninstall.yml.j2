@@ -1,0 +1,26 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-fvt-uninstall
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+  steps:
+    - name: uninstall
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      script: |
+        #!/usr/bin/env bash
+        mas uninstall --uninstall-all-deps --mas-instance-id $MAS_INSTANCE_ID --no-confirm
