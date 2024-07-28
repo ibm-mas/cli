@@ -13,13 +13,13 @@ import urllib3
 
 from argparse import RawTextHelpFormatter
 from shutil import which
-from os import path
+from os import path, environ
 from sys import exit
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
-from openshift import dynamic
 from kubernetes import config
-from kubernetes.client import api_client
+from kubernetes.client import api_client, Configuration
+from openshift.dynamic import DynamicClient
 from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
@@ -177,12 +177,19 @@ class BaseApp(PrintMixin, PromptMixin):
         """
         logger.debug("Reloading Kubernetes Client Configuration")
         try:
-            config.load_kube_config()
-            self._apiClient = api_client.ApiClient()
-            self._dynClient = dynamic.DynamicClient(self._apiClient)
+            if "KUBERNETES_SERVICE_HOST" in environ:
+                config.load_incluster_config()
+                k8s_config = Configuration.get_default_copy()
+                self._apiClient = api_client.ApiClient(configuration=k8s_config)
+                self._dynClient = DynamicClient(self._apiClient)
+            else:
+                config.load_kube_config()
+                self._apiClient = api_client.ApiClient()
+                self._dynClient = DynamicClient(self._apiClient)
             return self._dynClient
         except Exception as e:
             logger.warning(f"Error: Unable to connect to OpenShift Container Platform: {e}")
+            logger.exception(e, stack_info=True)
             return None
 
     def connect(self):
