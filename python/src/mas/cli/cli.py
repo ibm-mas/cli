@@ -178,9 +178,8 @@ class BaseApp(PrintMixin, PromptMixin):
         logger.debug("Reloading Kubernetes Client Configuration")
         try:
             config.load_kube_config()
-            self._dynClient = dynamic.DynamicClient(
-                api_client.ApiClient(configuration=config.load_kube_config())
-            )
+            self._apiClient = api_client.ApiClient()
+            self._dynClient = dynamic.DynamicClient(self._apiClient)
             return self._dynClient
         except Exception as e:
             logger.warning(f"Error: Unable to connect to OpenShift Container Platform: {e}")
@@ -212,7 +211,8 @@ class BaseApp(PrintMixin, PromptMixin):
             # Prompt for new connection properties
             server = prompt(HTML('<Yellow>Server URL:</Yellow> '), placeholder="https://...")
             token = prompt(HTML('<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
-            connect(server, token)
+            skipVerify = self.yesOrNo('Disable TLS Verify')
+            connect(server, token, skipVerify)
             self.reloadDynamicClient()
             if self._dynClient is None:
                 print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
