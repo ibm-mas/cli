@@ -13,13 +13,13 @@ import urllib3
 
 from argparse import RawTextHelpFormatter
 from shutil import which
-from os import path
+from os import path, environ
 from sys import exit
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
-from openshift import dynamic
 from kubernetes import config
-from kubernetes.client import api_client
+from kubernetes.client import api_client, Configuration
+from openshift.dynamic import DynamicClient
 from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
@@ -177,13 +177,19 @@ class BaseApp(PrintMixin, PromptMixin):
         """
         logger.debug("Reloading Kubernetes Client Configuration")
         try:
-            config.load_kube_config()
-            self._dynClient = dynamic.DynamicClient(
-                api_client.ApiClient(configuration=config.load_kube_config())
-            )
+            if "KUBERNETES_SERVICE_HOST" in environ:
+                config.load_incluster_config()
+                k8s_config = Configuration.get_default_copy()
+                self._apiClient = api_client.ApiClient(configuration=k8s_config)
+                self._dynClient = DynamicClient(self._apiClient)
+            else:
+                config.load_kube_config()
+                self._apiClient = api_client.ApiClient()
+                self._dynClient = DynamicClient(self._apiClient)
             return self._dynClient
         except Exception as e:
             logger.warning(f"Error: Unable to connect to OpenShift Container Platform: {e}")
+            logger.exception(e, stack_info=True)
             return None
 
     def connect(self):
@@ -212,7 +218,8 @@ class BaseApp(PrintMixin, PromptMixin):
             # Prompt for new connection properties
             server = prompt(HTML('<Yellow>Server URL:</Yellow> '), placeholder="https://...")
             token = prompt(HTML('<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
-            connect(server, token)
+            skipVerify = self.yesOrNo('Disable TLS Verify')
+            connect(server, token, skipVerify)
             self.reloadDynamicClient()
             if self._dynClient is None:
                 print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
