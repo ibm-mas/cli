@@ -150,7 +150,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configSLS(self) -> None:
         self.printH1("Configure Product License")
-        self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True)
+        self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
         self.promptForString("Contact e-mail address", "uds_contact_email")
         self.promptForString("Contact first name", "uds_contact_firstname")
         self.promptForString("Contact last name", "uds_contact_lastname")
