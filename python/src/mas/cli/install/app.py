@@ -913,7 +913,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "monitor": "8.11.9",
                 "optimizer": "8.5.7",
                 "predict": "8.9.3",
-                "inspection": "8.9.3"
+                "inspection": "8.9.4"
             },
             {
                 "#": 3,
@@ -922,7 +922,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "core": "8.10.15",
                 "assist": "8.7.6",
                 "iot": "8.7.15",
-                "manage": "8.6.15",
+                "manage": "8.6.16",
                 "monitor": "8.10.12",
                 "optimizer": "8.4.8",
                 "predict": "8.8.3",
