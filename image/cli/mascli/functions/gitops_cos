@@ -161,34 +161,185 @@ function gitops_cos() {
   sm_login
 
   export MAS_INSTANCE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
-  export COS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
-  export ROLE_NAME=cos && ansible-playbook ibm.mas_devops.run_role
-
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
   
-  # Extract the required details from the generated coscfg/secret.
-  export COS_USERNAME
-  COS_USERNAME=$(yq 'select(di == 0) | .stringData.username' $MAS_CONFIG_DIR/cos-ibm-system.yml)
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-  export COS_PASSWORD
-  COS_PASSWORD=$(yq 'select(di == 0) | .stringData.password' $MAS_CONFIG_DIR/cos-ibm-system.yml)
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
-  yq 'select(di == 1) | .spec' $MAS_CONFIG_DIR/cos-ibm-system.yml >> $TEMP_DIR/cos-info.yaml
-  yq -i 'del(.config.credentials)' $TEMP_DIR/cos-info.yaml
-  yq -i 'del(.displayName)' $TEMP_DIR/cos-info.yaml
+  if [[ "$COS_TYPE" == "ibm" ]]; then
 
-  UNESCAPED_INFO="$(cat $TEMP_DIR/cos-info.yaml)"
-  ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
-  ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+    export COS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
+    export ROLE_NAME=cos && ansible-playbook ibm.mas_devops.run_role
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
 
-  sm_update_secret $COS_SECRET "{\"username\": \"$COS_USERNAME\", \"password\": \"$COS_PASSWORD\", \"info\": \"$ESCAPED_INFO\"}"
-
-  rc=$?
-  [ $rc -ne 0 ] && exit $rc
+    # Extract the required details from the generated coscfg/secret.
+    export COS_USERNAME
+    COS_USERNAME=$(yq 'select(di == 0) | .stringData.username' $MAS_CONFIG_DIR/cos-ibm-system.yml)
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
+    export COS_PASSWORD
+    COS_PASSWORD=$(yq 'select(di == 0) | .stringData.password' $MAS_CONFIG_DIR/cos-ibm-system.yml)
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
+    yq 'select(di == 1) | .spec' $MAS_CONFIG_DIR/cos-ibm-system.yml >> $TEMP_DIR/cos-info.yaml
+    yq -i 'del(.config.credentials)' $TEMP_DIR/cos-info.yaml
+    yq -i 'del(.displayName)' $TEMP_DIR/cos-info.yaml
   
+    UNESCAPED_INFO="$(cat $TEMP_DIR/cos-info.yaml)"
+    ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
+    ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+  
+    sm_update_secret $COS_SECRET "{\"username\": \"$COS_USERNAME\", \"password\": \"$COS_PASSWORD\", \"info\": \"$ESCAPED_INFO\"}"
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
+  
+
+  else
+
+    curl https://releases.hashicorp.com/terraform/1.9.2/terraform_1.9.2_linux_amd64.zip --output $TEMP_DIR/terraform_1.9.2_linux_amd64.zip
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
+
+    unzip $TEMP_DIR/terraform_1.9.2_linux_amd64.zip -d $TEMP_DIR
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
+
+    chmod +x $TEMP_DIR/terraform
+
+    cat > $TEMP_DIR/main.tf <<EOF
+    locals {
+      name_prefix = "$ACCOUNT_ID"
+    }
+
+    output "s3c" {
+      value     = module.s3a
+      sensitive = false
+    }
+
+    output "s3a" {
+      value     = module.s3a
+      sensitive = false
+    }
+
+    output "s3l" {
+      value     = module.s3l
+      sensitive = false
+    }
+
+    module "s3c" {
+      name_prefix = local.name_prefix
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.0"
+      s3_bucket               = "${MAS_INSTANCE_ID}-s3c"
+      s3_encryption           = true
+      s3_encryption_algorithm = "AES256"
+    }
+
+    module "s3a" {
+      name_prefix = local.name_prefix
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.0"
+      s3_bucket               = "${MAS_INSTANCE_ID}-s3a"
+      s3_encryption           = true
+      s3_encryption_algorithm = "AES256"
+    }
+
+    module "s3l" {
+      name_prefix = local.name_prefix
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.0"
+      s3_bucket               = "${MAS_INSTANCE_ID}-s3l"
+      s3_encryption           = true
+      s3_encryption_algorithm = "AES256"
+    }
+
+    output "s3c_access_point" {
+      value     = module.s3c_access_point
+      sensitive = false
+    }
+
+    output "s3a_access_point" {
+      value     = module.s3a_access_point
+      sensitive = false
+    }
+
+    output "s3l_access_point" {
+      value     = module.s3l_access_point
+      sensitive = false
+    }
+
+    module "s3c_access_point" {
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.6"
+      name_prefix = local.name_prefix
+      s3_access_point_bucket_id      = module.s3c.s3_bucket_id
+      s3_access_point_name           = "${MAS_INSTANCE_ID}-s3c-access"
+      s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
+      s3_access_point_user           = "${MAS_INSTANCE_ID}-s3c-user"
+      mas_cluster_id                 = "$CLUSTER_ID"
+      mas_instance_id                = "$MAS_INSTANCE_ID"
+      secret_recovery_days           = 0
+      secret_suffix                  = "cos"
+      manage_secret_format           = false
+    }
+
+    module "s3a_access_point" {
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.6"
+      name_prefix = local.name_prefix
+      s3_access_point_bucket_id      = module.s3a.s3_bucket_id
+      s3_access_point_name           = "${MAS_INSTANCE_ID}-s3a-access"
+      s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
+      s3_access_point_user           = "${MAS_INSTANCE_ID}-s3a-user"
+      mas_cluster_id                 = "$CLUSTER_ID"
+      mas_instance_id                = "$MAS_INSTANCE_ID"
+      secret_recovery_days           = 0
+      secret_suffix                  = "manage_attachments/cos_aws_secret"
+      manage_secret_format           = true
+    }
+
+    module "s3l_access_point" {
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.6"
+      name_prefix = local.name_prefix
+      s3_access_point_bucket_id      = module.s3l.s3_bucket_id
+      s3_access_point_name           = "${MAS_INSTANCE_ID}-s3l-access"
+      s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
+      s3_access_point_user           = "${MAS_INSTANCE_ID}-s3l-user"
+      mas_cluster_id                 = "$CLUSTER_ID"
+      mas_instance_id                = "$MAS_INSTANCE_ID"
+      secret_recovery_days           = 0
+      secret_suffix                  = "manage_logging/s3secretkey"
+      manage_secret_format           = true
+    }
+    EOF
+
+    cat > $TEMP_DIR/provider.tf <<EOF
+    provider "aws" {
+      region = "$SM_AWS_REGION"
+    }
+    EOF
+
+    cat > $TEMP_DIR/backend.tf <<EOF
+    terraform {
+      backend "s3" {
+        bucket = "fvtsaas-automation-bucket"
+        key = "${CLUSTER_ID}-${MAS_INSTANCE_ID}.tfstate"
+        region = "us-east-1"
+      }
+    }
+    EOF
+
+    echo $TEMP_DIR/terraform -chdir=$TEMP_DIR init -input=false
+    $TEMP_DIR/terraform -chdir=$TEMP_DIR init -input=false
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
+
+    echo $TEMP_DIR/terraform -chdir=$TEMP_DIR plan -input=false -out=tfplan
+    $TEMP_DIR/terraform -chdir=$TEMP_DIR plan -input=false -out=tfplan
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
+
+    # export TF_LOG="TRACE"
+    echo $TEMP_DIR/terraform -chdir=$TEMP_DIR apply -auto-approve -input=false tfplan
+    $TEMP_DIR/terraform -chdir=$TEMP_DIR apply -auto-approve -input=false tfplan
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
+
+  fi
+
   rm -rf $TEMP_DIR
+
   exit 0
 }
