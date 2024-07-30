@@ -199,7 +199,7 @@ function gitops_deprovision_cos() {
     echo -e "Deleting secret  $COS_SECRET"
     sm_delete_secret $COS_SECRET
 
-  else
+  elif [[ "$COS_TYPE" == "aws" ]]; then
 
     curl https://releases.hashicorp.com/terraform/1.9.2/terraform_1.9.2_linux_amd64.zip --output $TEMP_DIR/terraform_1.9.2_linux_amd64.zip
     rc=$?
