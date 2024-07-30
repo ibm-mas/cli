@@ -1,0 +1,135 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-launcher-uninstall
+spec:
+  params:
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Tekton Pipeline image pull policy (for ibmmas/cli images)
+
+    - name: mas_instance_id
+      type: string
+      default: ""
+      description: Instance ID of the MAS installation to remove from the cluster, if not provided the uninstall can still be used to remove shared dependencies from the cluster
+
+    - name: sync_with_install
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running MAS install pipeline"
+
+    # Finalize
+    # -------------------------------------------------------------------------
+    - name: finalize
+      type: string
+      default: "true"
+      description: "Set this to 'false' to stop the finalize task from running for this launcher"
+
+    # Deprovision Resources
+    # -------------------------------------------------------------------------
+    - name: deprovision
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable deprovision of the target cluster & associated resources following the completion of this pipeline"
+
+  tasks:
+    - name: waitfor-installation
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: sync-install
+        - name: configmap_key
+          value: INSTALL_STATUS
+        - name: configmap_target_value
+          value: Completed,Succeeded
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 50 retries at 10 minute intervals = 8 hours
+        - name: delay
+          value: "600"
+        - name: max_retries
+          value: "50"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+
+    # This task will launch an uninstall pipeline using the MAS CLI
+    # IMPORTANT: No additional verification of the success/failure of the uninstall
+    # should be introduced.  If there are validations to run, add them directly to
+    # the uninstall pipeline so that customers get the same benefit of these checks.
+    - name: launch-uninstall
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-uninstall
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      runAfter:
+        - waitfor-installation
+
+    # The uninstall pipeline, on completion, will create a configmap named "sync-uninstall"
+    # which can be used to track the completion of the install
+    - name: waitfor-uninstall
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: sync-uninstall
+        - name: configmap_key
+          value: UNINSTALL_STATUS
+        - name: configmap_target_value
+          value: Completed,Succeeded
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-uninstall
+        - name: escape_configmap_key
+          value: UNINSTALL_STATUS
+        # 50 retries at 5 minute intervals = 4 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "50"
+        - name: ignore_failure
+          value: "False"
+      runAfter:
+        - launch-uninstall
+
+  finally:
+    - name: launchfvt-finally
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-finally
+      params:
+        - name: deprovision
+          value: "$(params.deprovision)"
+        - name: finalize
+          value: "$(params.finalize)"
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-uninstall-finally"
