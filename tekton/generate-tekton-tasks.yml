@@ -70,6 +70,7 @@
         - fvt-monitor
         - fvt-run-suite
         - fvt-sls
+        - fvt-uninstall
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:
@@ -79,6 +80,7 @@
         - launchfvt-assist
         - launchfvt-core
         - launchfvt-sls
+        - launchfvt-finally
         - launchfvt-iot
         - launchfvt-manage
         - launchfvt-manage-is
