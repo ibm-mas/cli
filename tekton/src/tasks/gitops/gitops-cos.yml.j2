@@ -12,8 +12,6 @@ spec:
       default: ""
     - name: account
       type: string
-    - name: github_pat
-      type: string
     - name: secrets_path
       type: string
     - name: avp_aws_secret_region
@@ -44,8 +42,6 @@ spec:
         value: $(params.account)
       - name: SECRET_PATH
         value: $(params.secrets_path)
-      - name: GITHUB_PAT
-        value: $(params.github_pat)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: SM_AWS_SECRET_ACCESS_KEY
