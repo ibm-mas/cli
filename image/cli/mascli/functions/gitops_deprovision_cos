@@ -22,7 +22,7 @@ IBM Maximo Application Suite:
 
 COS Provider Selection:
       --cos-action ${COLOR_YELLOW}COS_ACTION${TEXT_RESET}                                                  provision or deprovision
-      --cos-type ${COLOR_YELLOW}COS_TYPE${TEXT_RESET}                                                      COS type, only ibm supported
+      --cos-type ${COLOR_YELLOW}COS_TYPE${TEXT_RESET}                                                      COS type, ibm or aws supported
       --ibmcloud-resourcegroup ${COLOR_YELLOW}IBMCLOUD_RESOURCEGROUP${TEXT_RESET}                          IBM Cloud resource group to set
       --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                                        IBM Cloud APIkey
 
