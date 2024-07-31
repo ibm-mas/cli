@@ -317,6 +317,8 @@ spec:
           value: $(params.mas_manual_certs_yaml)
         - name: mas_pod_template_yaml
           value: $(params.mas_pod_template_yaml)
+        - name: mas_wipe_mongo_data
+          value: $(params.mas_wipe_mongo_data)
       taskRef:
         kind: Task
         name: gitops-suite
@@ -367,8 +369,6 @@ spec:
           value: $(params.dro_ca_certificate_file)
         - name: cluster_url
           value: $(params.cluster_url)
-        - name: mas_wipe_mongo_data
-          value: $(params.mas_wipe_mongo_data)
       workspaces:
         - name: configs
           workspace: configs

@@ -71,6 +71,9 @@ IBM Maximo Application Suite:
       --delete-wildcards ${COLOR_YELLOW}DELETE_WILDCARDS${TEXT_RESET}                 Set this to true to force deletion of wildcard dns entries in cis
       --override-edge-certs ${COLOR_YELLOW}OVERRIDE_EDGE_CERTS${TEXT_RESET}           Set this to false to not override and delete any existing edge certificates in cis instance when creating new edge certificates
 
+      --mas-wipe-mongo-data ${COLOR_YELLOW}MAS_WIPE_MONGO_DATA${TEXT_RESET}           Set to "true" to wipe all mongo data for this MAS instance on uninstall (optional, defaults to false)
+
+
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
@@ -196,6 +199,10 @@ function gitops_suite_noninteractive() {
         export MAS_POD_TEMPLATE_YAML=$1 && shift
         ;;
 
+      --mas-wipe-mongo-data)
+        export MAS_WIPE_MONGO_DATA=$1 && shift
+        ;;
+
       # Target Cluster (Optional)
       --cluster-url)
         export CLUSTER_URL=$1 && shift
@@ -302,13 +309,13 @@ function gitops_suite_noninteractive() {
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_suite_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_suite_help "CLUSTER_ID is not set"
-  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_cluster_help "REGION_ID or SM_AWS_REGION is not set"
-  [[ -z "$CLUSTER_URL" ]] && gitops_cluster_help "CLUSTER_URL is not set"
-  [[ -z "$MONGODB_PROVIDER" ]] && gitops_cluster_help "MONGODB_PROVIDER is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_suite_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$CLUSTER_URL" ]] && gitops_suite_help "CLUSTER_URL is not set"
+  [[ -z "$MONGODB_PROVIDER" ]] && gitops_suite_help "MONGODB_PROVIDER is not set"
 
   if [ $MONGODB_PROVIDER == 'aws' ]; then
-    [[ -z "$USER_ACTION" ]] && gitops_cluster_help "USER_ACTION is not set"
-    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cluster_help "MAS_INSTANCE_ID is not set"
+    [[ -z "$USER_ACTION" ]] && gitops_suite_help "USER_ACTION is not set"
+    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_help "MAS_INSTANCE_ID is not set"
     if [ -z $SM_AWS_ACCESS_KEY_ID ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_REGION ]; then
       echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region'
       exit 1
@@ -390,6 +397,7 @@ function gitops_suite() {
   echo "${TEXT_DIM}"
   echo_h4 "Mongo" "    "
   echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
+  echo_reset_dim "MAS_WIPE_MONGO_DATA ............ ${COLOR_MAGENTA}${MAS_WIPE_MONGO_DATA}"
   reset_colors
 
   echo "${TEXT_DIM}"
