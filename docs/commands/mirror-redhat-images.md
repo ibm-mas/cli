@@ -112,6 +112,6 @@ docker run -ti --rm -v /mnt/storage:/mnt/workspace --pull always quay.io/ibmmas/
   -u admin -p password \
   --mirror-platform \
   --mirror-operators \
-  --ocp-release 4.14 \
+  --ocp-release 4.15 \
   --no-confirm
 ```
