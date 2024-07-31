@@ -40,9 +40,6 @@ nav:
       - "Jun 25 2024": catalogs/v9-240625-amd64.md
       - "May 28 2024": catalogs/v8-240528-amd64.md
       - "Apr 30 2024": catalogs/v8-240430-amd64.md
-      - "Apr 05 2024": catalogs/v8-240405-amd64.md
-      - "Mar 26 2024": catalogs/v8-240326-amd64.md
-      - "Feb 27 2024": catalogs/v8-240227-amd64.md
   - "Reference":
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
