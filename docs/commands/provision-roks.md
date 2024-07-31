@@ -40,7 +40,7 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-roks
 export IBMCLOUD_APIKEY=xxx
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-roks \
   -a $IBMCLOUD_APIKEY -r mas-development \
-  -c masonroks -v 4.14_openshift \
+  -c masonroks -v 4.15_openshift \
   --worker-count 3 --worker-flavor b3c.16x64.300gb --worker-zone dal10 \
   --no-confirm
 ```
