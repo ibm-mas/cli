@@ -48,11 +48,11 @@
         - fvt-optimizer
         - fvt-predict
         - fvt-sls
-        - fvt-uninstall-after
         - fvt-upgrade-post
         - fvt-upgrade-pre
         - fvt-visualinspection
         - fvt-launcher
+        - fvt-launcher-uninstall
         - ivt-manage
 
     # 2. Generate Pipelines
@@ -69,8 +69,6 @@
         - update
         - upgrade
         - rollback
-        - uninstall
-        - fvt-core
 
     # 3. Generate Gitops Pipelines
     # -------------------------------------------------------------------------
