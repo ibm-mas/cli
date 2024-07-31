@@ -59,7 +59,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             catalogDisplayName = catalog.spec.displayName
 
             m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
-            print(f"m: {m}")
             if m:
                 # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
@@ -906,7 +905,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "#": 2,
                 "catalog": "v9-240730-amd64",
                 "release": "8.11.x",
-                "core": "8.11.12",
+                "core": "8.11.13",
                 "assist": "8.8.5",
                 "iot": "8.8.11",
                 "manage": "8.7.10",
@@ -919,7 +918,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "#": 3,
                 "catalog": "v9-240730-amd64",
                 "release": "8.10.x",
-                "core": "8.10.15",
+                "core": "8.10.16",
                 "assist": "8.7.6",
                 "iot": "8.7.15",
                 "manage": "8.6.16",
