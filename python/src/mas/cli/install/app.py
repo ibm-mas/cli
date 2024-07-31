@@ -893,11 +893,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "#": 1,
                 "catalog": "v9-240730-amd64",
                 "release": "9.0.x",
-                "core": "9.0.0",
-                "assist": "9.0.1", 
+                "core": "9.0.1",
+                "assist": "9.0.1",
                 "iot": "9.0.1",
                 "manage": "9.0.1",
-                "monitor": "9.0.1", 
+                "monitor": "9.0.1",
                 "optimizer": "9.0.1",
                 "predict": "9.0.0",
                 "inspection": "9.0.0"
@@ -927,7 +927,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "optimizer": "8.4.8",
                 "predict": "8.8.3",
                 "inspection": "8.8.4"
-            },            
+            },
             {
                 "#": 4,
                 "catalog": "v9-240625-amd64",
