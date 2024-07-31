@@ -59,7 +59,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             catalogDisplayName = catalog.spec.displayName
 
             m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
-            print(f"m: {m}")
             if m:
                 # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
