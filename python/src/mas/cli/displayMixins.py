@@ -77,6 +77,7 @@ class PromptMixin():
     def yesOrNo(self, message: str, param: str=None) -> bool:
         response = prompt(masPromptYesOrNo(message), validator=YesNoValidator(), validate_while_typing=False)
         responseAsBool = response.lower() in ["y", "yes"]
+
         if param is not None:
             self.params[param] = "true" if responseAsBool else "false"
         return responseAsBool
@@ -107,7 +108,9 @@ class PromptMixin():
         # List indices are 0 origin, so we need to subtract 1 from the selection made to arrive at the correct value
         self.setParam(param, options[selection-1])
 
-    def promptForFile(self, message: str, mustExist: bool=True, default: str="") -> None:
+    def promptForFile(self, message: str, mustExist: bool=True, default: str="", envVar: str="") -> None:
+        if default == "" and envVar != "":
+            default = getenv(envVar, "")
         if mustExist:
             return prompt(masPromptValue(message), validator=FileExistsValidator(), validate_while_typing=False, default=default)
         else:

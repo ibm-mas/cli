@@ -27,12 +27,19 @@
         src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items:
+        # Main Pipelines
         - db2
         - install
+        - update
+        - upgrade
+        - rollback
+        - uninstall
+        # FVT Pipelines
         - fvt-assist
         - fvt-core
         - fvt-deprovision-after
         - fvt-iot
+        - fvt-finally
         - fvt-manage
         - fvt-manage-is
         - fvt-manage-regr
@@ -41,16 +48,12 @@
         - fvt-optimizer
         - fvt-predict
         - fvt-sls
-        - fvt-uninstall-after
         - fvt-upgrade-post
         - fvt-upgrade-pre
         - fvt-visualinspection
-        - update
-        - upgrade
-        - rollback
-        - uninstall
         - fvt-launcher
-        - ivt
+        - fvt-launcher-uninstall
+        - ivt-manage
 
     # 2. Generate Pipelines
     # -------------------------------------------------------------------------
@@ -61,15 +64,15 @@
         src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}-after-install.yaml"
       with_items:
+        # TODO: Get rid of this, run sister pipelines using "integrated approval workflows" like
+        # we do for install testing
         - update
         - upgrade
         - rollback
-        - uninstall
-        - fvt-core
 
     # 3. Generate Gitops Pipelines
     # -------------------------------------------------------------------------
-    - name: Generate GitOps Pipelines 
+    - name: Generate GitOps Pipelines
       vars:
         wait_for_provision: false
         wait_for_deprovision: false

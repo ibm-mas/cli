@@ -1,0 +1,57 @@
+name: 🐛 Bug Report
+description: File a bug report
+labels: [Bug Report]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+  - type: input
+    id: version
+    attributes:
+      label: MAS CLI version
+      description: What version of MAS CLI are you using?
+      placeholder: Please use the full tag, avoid "latest"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: function
+    attributes:
+      label: CLI function used
+      description: |
+        What CLI function are you having problems with?
+      options:
+        - install
+        - update
+        - upgrade
+        - uninstall
+        - must-gather
+        - configure-airgap
+        - mirror-images
+        - mirror-redhat-images
+        - other
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: |
+        Describe clearly and concisely the bug including instructions showing how to reproduce it.
+      placeholder: |
+        Please add as many details as possible to avoid assumptions from our side. How do you trigger this bug? What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: |
+        Please copy and paste any relevant log output (from mas.log) or console output
+      render: shell
+    validations:
+      required: true

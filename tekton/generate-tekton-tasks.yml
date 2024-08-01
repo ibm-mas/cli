@@ -27,7 +27,6 @@
         - cert-manager
         - common-services
         - cos
-        - cos-deprovision
         - cp4d-service
         - cp4d-service-update
         - cp4d
@@ -36,7 +35,6 @@
         - grafana
         - ibm-catalogs
         - kafka
-        - kafka-deprovision
         - mongodb
         - nvidia-gpu
         - ocs
@@ -55,6 +53,10 @@
         - fvt-assist-desktop
         - fvt-assist
         - fvt-core
+        - fvt-data-dictionary
+        - fvt-deprovision-ocp
+        - fvt-deprovision-cos
+        - fvt-deprovision-kafka
         - fvt-finalize
         - fvt-iot
         - fvt-manage
@@ -66,9 +68,9 @@
         - fvt-manage-last-phase
         - fvt-manage-pytest
         - fvt-monitor
-        - fvt-sls
-        - fvt-data-dictionary
         - fvt-run-suite
+        - fvt-sls
+        - fvt-uninstall
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:
@@ -78,6 +80,7 @@
         - launchfvt-assist
         - launchfvt-core
         - launchfvt-sls
+        - launchfvt-finally
         - launchfvt-iot
         - launchfvt-manage
         - launchfvt-manage-is
@@ -88,7 +91,7 @@
         - launchfvt-visualinspection
         - launchfvt-upgrade-post
         - launchfvt-upgrade-pre
-        - launchivt
+        - launchivt-manage
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -98,7 +101,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - ivt-core
-        - ivt-manage-monitor-dd
+        - ivt-manage
 
     # 5. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
@@ -132,7 +135,6 @@
         src: "{{ task_src_dir }}/ocp/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - ocp-deprovision
         - ocp-verify
         - ocp-verify-all
 

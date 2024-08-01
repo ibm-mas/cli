@@ -13,13 +13,14 @@ import urllib3
 
 from argparse import RawTextHelpFormatter
 from shutil import which
-from os import path
+from os import path, environ
 from sys import exit
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
-from openshift import dynamic
 from kubernetes import config
-from kubernetes.client import api_client
+from kubernetes.client import api_client, Configuration
+from openshift.dynamic import DynamicClient
+from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
 
@@ -176,13 +177,19 @@ class BaseApp(PrintMixin, PromptMixin):
         """
         logger.debug("Reloading Kubernetes Client Configuration")
         try:
-            config.load_kube_config()
-            self._dynClient = dynamic.DynamicClient(
-                api_client.ApiClient(configuration=config.load_kube_config())
-            )
+            if "KUBERNETES_SERVICE_HOST" in environ:
+                config.load_incluster_config()
+                k8s_config = Configuration.get_default_copy()
+                self._apiClient = api_client.ApiClient(configuration=k8s_config)
+                self._dynClient = DynamicClient(self._apiClient)
+            else:
+                config.load_kube_config()
+                self._apiClient = api_client.ApiClient()
+                self._dynClient = DynamicClient(self._apiClient)
             return self._dynClient
         except Exception as e:
             logger.warning(f"Error: Unable to connect to OpenShift Container Platform: {e}")
+            logger.exception(e, stack_info=True)
             return None
 
     def connect(self):
@@ -198,8 +205,10 @@ class BaseApp(PrintMixin, PromptMixin):
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
                     continueWithExistingCluster = prompt(HTML('<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
                     promptForNewServer = continueWithExistingCluster in ["n", "no"]
-            except Exception:
+            except Exception as e:
                 # We are already connected to a cluster, but the connection is not valid so prompt for connection details
+                logger.debug("Failed looking up OpenShift Console route to verify connection")
+                logger.exception(e, stack_info=True)
                 promptForNewServer = True
         else:
             # We are not already connected to any cluster, so prompt for connection details
@@ -209,8 +218,41 @@ class BaseApp(PrintMixin, PromptMixin):
             # Prompt for new connection properties
             server = prompt(HTML('<Yellow>Server URL:</Yellow> '), placeholder="https://...")
             token = prompt(HTML('<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
-            connect(server, token)
+            skipVerify = self.yesOrNo('Disable TLS Verify')
+            connect(server, token, skipVerify)
             self.reloadDynamicClient()
             if self._dynClient is None:
                 print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
                 exit(1)
+
+    def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:
+        """
+        Set key = None if you don't want approval workflow enabled
+        """
+        cmAPI = self.dynamicClient.resources.get(api_version="v1", kind="ConfigMap")
+        configMap = {
+            "apiVersion": "v1",
+            "kind": "ConfigMap",
+            "metadata": {
+                "name": f"approval-{id}",
+                "namespace": namespace
+            },
+            "data": {
+                "MAX_RETRIES": str(maxRetries),
+                "DELAY": str(delay),
+                "IGNORE_FAILURE": str(ignoreFailure),
+                "CONFIGMAP_KEY": key,
+                key: ""
+            }
+        }
+
+        # Delete any existing configmap and create a new one
+        try:
+            logger.debug(f"Deleting any existing approval workflow configmap for {id}")
+            cmAPI.delete(name=f"approval-{id}", namespace=namespace)
+        except NotFoundError:
+            pass
+
+        if key is not None:
+            logger.debug(f"Enabling approval workflow for {id} using {key} with {maxRetries} max retries on a {delay}s delay ({'ignoring failures' if ignoreFailure else 'abort on failure'})")
+            cmAPI.create(body=configMap, namespace=namespace)

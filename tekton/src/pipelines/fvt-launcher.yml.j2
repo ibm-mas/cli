@@ -15,8 +15,6 @@ metadata:
   name: mas-fvt-launcher
 spec:
   params:
-    - name: fvt_image_registry
-      type: string
     - name: image_pull_policy
       type: string
 
@@ -28,10 +26,12 @@ spec:
       default: "false"
       description: "Set this to 'true' to enable synchronization with a running MAS install pipeline"
 
-    - name: run_finalize
+    # What to launch
+    # -------------------------------------------------------------------------
+    - name: setup_manage
       type: string
       default: "true"
-      description: "Set this to 'false' to stop the finalize task from running for this launcher"
+      description: "Set this to any value other than 'true' to disable Manage setup from running"
 
     - name: launchfvt_core
       type: string
@@ -73,25 +73,47 @@ spec:
       type: string
       default: "true"
       description: "Set this to any value other than 'true' to disable launch of the Visual Inspection FVT pipeline after app-cfg-visualinspection completes"
-    - name: launchivt
+    - name: launchivt_manage
       type: string
       default: "true"
       description: "Set this to any value other than 'true' to disable launch of the IVT pipeline at the end of applications FVT"
-    
-    # Required by Manage Setup (Data Loader)
-    - name: mas_app_channel_manage
+
+    # Finalize
+    # -------------------------------------------------------------------------
+    - name: finalize
+      type: string
+      default: "true"
+      description: "Set this to 'false' to stop the finalize task from running for this launcher"
+
+    # Deprovision Resources
+    # -------------------------------------------------------------------------
+    - name: deprovision
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable deprovision of the target cluster & associated resources following the completion of this pipeline"
+
+    # Manage FVT Setup
+    # -------------------------------------------------------------------------
+    # These properties should not live here, but I don't have the time to fix this.
+    #
+    # Manage setup should match the same strategy used everywhere else with a launcher that
+    # is able to get this information from the various secrets that we put into the namespace
+    # so that the FVT launcher parameter space/interface is kept clean and simple
+    - name: fvt_image_registry
       type: string
       default: ""
-      description: "Manage Channel - necessary to run Manage Setup and for the when clause"
     - name: fvt_digest_manage_pytest
       type: string
       default: ""
-      description: "Manage Pytest FVT Digest - necessary to run Manage Setup and for the when clause"
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
 
   tasks:
     # 1. MAS Core FVT
     # -------------------------------------------------------------------------
     - name: waitfor-suite-verify
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -124,6 +146,7 @@ spec:
           values: ["true", "True"]
 
     - name: launchfvt-sls
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-launchfvt-sls
@@ -140,6 +163,7 @@ spec:
         - waitfor-suite-verify
 
     - name: launchfvt-core
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-launchfvt-core
@@ -156,6 +180,7 @@ spec:
         - waitfor-suite-verify
 
     - name: approval-suite-verify
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -180,6 +205,7 @@ spec:
     # 2. Application FVT - Assist
     # -------------------------------------------------------------------------
     - name: waitfor-assist
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -217,6 +243,7 @@ spec:
         - approval-suite-verify
 
     - name: launchfvt-assist
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -233,6 +260,7 @@ spec:
         - waitfor-assist
 
     - name: approval-assist
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -259,6 +287,7 @@ spec:
     # 3. Application FVT - IoT
     # -------------------------------------------------------------------------
     - name: waitfor-iot
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -297,6 +326,7 @@ spec:
         - approval-suite-verify
 
     - name: launchfvt-iot
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -313,6 +343,7 @@ spec:
         - waitfor-iot
 
     - name: approval-iot
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -339,6 +370,7 @@ spec:
     # 5. Application FVT - Manage
     # -------------------------------------------------------------------------
     - name: waitfor-manage
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -366,31 +398,52 @@ spec:
         - name: ignore_failure
           value: "False"
       when:
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: [""]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
         # All these launchers require manage in place to then run setup, therefore the criteria
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt)
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt_manage)
           operator: notin
           values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
       runAfter:
         - approval-suite-verify
-    
+
     # Manage Setup (Data Loader)
     # Required by fvt-manage, fvt-manage-is, fvt-optimizer and fvt-predict pipelines
     - name: manage-setup
-      {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(6) }}
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-manage-pytest
+      when:
+        - input: "$(params.setup_manage)"
+          operator: in
+          values: ["true", "True"]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       params:
-        {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(8) }}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-manage
+        - name: fvt_image_name
+          value: fvt-ibm-mas-manage-pytest
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_manage_pytest)
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
+        - name: product_id
+          value: ibm-mas-manage
         - name: fvt_test_suite
           value: base-api-setup
       runAfter:
         - waitfor-manage
 
     - name: launchfvt-manage
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -405,8 +458,9 @@ spec:
           values: ["true", "True"]
       runAfter:
         - manage-setup
-    
+
     - name: launchfvt-manage-is
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -423,6 +477,7 @@ spec:
         - manage-setup
 
     - name: approval-manage
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -437,7 +492,7 @@ spec:
           value: approved
       when:
         # Same criteria used in waitfor-manage task
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt)
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt_manage)
           operator: notin
           values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
         - input: $(params.sync_with_install)
@@ -452,6 +507,7 @@ spec:
     # -------------------------------------------------------------------------
     # Mobile FVT pipeline is launched after Manage is installed, but we do not sync it's progress back to the install pipeline
     - name: launchfvt-mobile
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -472,6 +528,7 @@ spec:
     # -------------------------------------------------------------------------
     # We only start the Monitor part of the FVT launcher after the IoT part has completed
     - name: waitfor-monitor
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -509,6 +566,7 @@ spec:
         - approval-iot
 
     - name: launchfvt-monitor
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -529,6 +587,7 @@ spec:
         - waitfor-monitor
 
     - name: approval-monitor
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -555,6 +614,7 @@ spec:
     # 8. Application FVT - Optimizer
     # -------------------------------------------------------------------------
     - name: waitfor-optimizer
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -592,6 +652,7 @@ spec:
         - approval-suite-verify
 
     - name: launchfvt-optimizer
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -609,6 +670,7 @@ spec:
         - manage-setup
 
     - name: approval-optimizer
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -636,6 +698,7 @@ spec:
     # -------------------------------------------------------------------------
     # We only start the Predict part of the FVT launcher after the Monitor part has completed
     - name: waitfor-predict
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -674,6 +737,7 @@ spec:
         - approval-manage
 
     - name: launchfvt-predict
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -694,6 +758,7 @@ spec:
         - waitfor-predict
 
     - name: approval-predict
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -720,6 +785,7 @@ spec:
     # 10. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
     - name: waitfor-visualinspection
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -757,6 +823,7 @@ spec:
         - approval-suite-verify
 
     - name: launchfvt-visualinspection
+      timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -773,6 +840,7 @@ spec:
         - waitfor-visualinspection
 
     - name: approval-visualinspection
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-update-configmap
@@ -794,40 +862,40 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-visualinspection
-    
+
     # 11. IVT
     # -------------------------------------------------------------------------
-    - name: launchivt
+    - name: launchivt-manage
+      timeout: "0"
       taskRef:
         kind: Task
-        name: mas-launchivt
+        name: mas-launchivt-manage
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-ivt"
+          value: "$(params.mas_instance_id)-ivt-manage"
       when:
-        - input: $(params.launchivt)
+        - input: $(params.launchivt_manage)
           operator: in
           values: ["true", "True"]
-      # Currently there is only one task testing Manage and Monitor, no point to
-      # run IVT after all approvals are obtained.
       runAfter:
         - approval-manage
         - approval-monitor
-    
+
     # Last Sync Point
     # -------------------------------------------------------------------------
     # Guarantee installation pipeline ran till the end;
     # In other words, guarantee sync-install pipeline has install_status key filled
-    # 
+    #
     # Note: this task will start once all the FVTs are approved and will start at the
     # same time install's post-verify starts. It means its timeout must be higher than
     # post-verify + sync-install, which will set the flag needed to finalize this fvt-launcher
     # - Escape Route: INSTALL_STATUS != "" (i.e. FAILED)
-    # - Ignore Failures: False
+    # - Ignore Failures: True
     # -------------------------------------------------------------------------
     - name: waitfor-installation
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-wait-for-configmap
@@ -864,35 +932,24 @@ spec:
         - approval-optimizer
         - approval-predict # Infers Manage, Monitor and IoT completed
         - approval-visualinspection
-        - launchivt
+        - launchivt-manage
 
   finally:
-    # Collect must-gather
-    # -------------------------------------------------------------------------
-    - name: must-gather
+    - name: launchfvt-finally
+      timeout: "0"
       taskRef:
         kind: Task
-        name: mas-devops-must-gather
+        name: mas-launchfvt-finally
       params:
-        - name: base_output_dir
-          value: "/mustgather/$(context.pipelineRun.name)"
-      workspaces:
-        - name: mustgather
-          workspace: shared-mustgather
-
-    # Finalize the record in the FVT database
-    # -------------------------------------------------------------------------
-    - name: finalize
-      taskRef:
-        kind: Task
-        name: mas-fvt-finalize
-      when:
-        - input: $(params.run_finalize)
-          operator: in
-          values: ["true", "True"]
+        - name: deprovision
+          value: "$(params.deprovision)"
+        - name: finalize
+          value: "$(params.finalize)"
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-finally"
 
   workspaces:
-    # Shared storage to hold mustgather output for tasks
-    - name: shared-mustgather
     # The generated configuration files
     - name: shared-configs
