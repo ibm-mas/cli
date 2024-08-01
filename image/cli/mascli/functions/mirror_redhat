@@ -148,10 +148,10 @@ function mirror_redhat_interactive() {
   echo "${TEXT_DIM}IBM Maximo Application Suite currently supports Red Hat OpenShift Container Platform v4.11 and v4.12, select the release to mirror content for:"
 
   echo "Supported OCP Releases:"
-  echo "  1) 4.14"
-  echo "  2) 4.13"
-  echo "  3) 4.12"
-  echo "  4) 4.11"
+  echo "  1) 4.15"
+  echo "  2) 4.14"
+  echo "  3) 4.13"
+  echo "  4) 4.12"
   reset_colors
 
   echo
@@ -159,16 +159,16 @@ function mirror_redhat_interactive() {
 
   case $OCP_RELEASE_SELECTION in
     1)
-      OCP_RELEASE=4.14
+      OCP_RELEASE=4.15
       ;;
     2)
-      OCP_RELEASE=4.13
+      OCP_RELEASE=4.14
       ;;
     3)
-      OCP_RELEASE=4.12
+      OCP_RELEASE=4.13
       ;;
     4)
-      OCP_RELEASE=4.11
+      OCP_RELEASE=4.12
       ;;
     *)
       echo_warning "Invalid selection"
