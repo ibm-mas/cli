@@ -164,7 +164,7 @@ function mirror_to_registry_noninteractive() {
       -P|--port)
         REGISTRY_PUBLIC_PORT=$1 && shift
         ;;
-      -x, --prefix)
+      -x| --prefix)
         REGISTRY_PREFIX=$1 && shift        
         ;;
       -u|--username)
