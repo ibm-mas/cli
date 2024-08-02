@@ -53,6 +53,7 @@
         - fvt-assist-desktop
         - fvt-assist
         - fvt-core
+        - fvt-core-ui
         - fvt-data-dictionary
         - fvt-deprovision-ocp
         - fvt-deprovision-cos
