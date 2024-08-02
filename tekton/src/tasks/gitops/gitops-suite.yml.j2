@@ -110,6 +110,9 @@ spec:
     - name: mas_pod_template_yaml
       type: string
       default: ""
+    - name: mas_wipe_mongo_data
+      type: string
+      default: "false"
   stepTemplate:
     name: gitops-suite
     env:
@@ -197,6 +200,8 @@ spec:
         value: $(params.mas_manual_certs_yaml)
       - name: MAS_POD_TEMPLATE_YAML
         value: $(params.mas_pod_template_yaml)
+      - name: MAS_WIPE_MONGO_DATA
+        value: $(params.mas_wipe_mongo_data)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -243,7 +248,8 @@ spec:
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        --git-branch $GIT_BRANCH \
+        --mas-wipe-mongo-data "$MAS_WIPE_MONGO_DATA" \
 
         exit $?
       command:
