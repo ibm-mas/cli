@@ -15,7 +15,10 @@ spec:
       type: string
       description: What action to take (install, uninstall, install-dro)
       default: "install"
-
+    - name: dro_migration
+      default: ""
+      type: string
+      description: Set to 'true' to Migration UDS to DRO 
     - name: mas_instance_id
       type: string
       default: ""
@@ -42,6 +45,9 @@ spec:
     - name: ibm_entitlement_key
       type: string
       default: ""
+    - name: dro_namespace
+      type: string
+      default: "redhat-marketplace"
 
     # Used by UDS & DRO
     - name: uds_contact_email
@@ -99,6 +105,7 @@ spec:
         - name: UDS_CONTACT_LASTNAME
           value: $(params.uds_contact_lastname)
 
+
     # IBM Data Reporter Operator (DRO)
     # -------------------------------------------------------------------------
     - name: dro
@@ -136,7 +143,12 @@ spec:
           value: $(params.uds_contact_firstname)
         - name: DRO_CONTACT_LASTNAME
           value: $(params.uds_contact_lastname)
-
+        - name: DRO_MIGRATION
+          value: $(params.dro_migration)
+        - name: DRO_STORAGE_CLASS
+          value: $(params.uds_storage_class)
+        - name: DRO_NAMESPACE
+          value: $(params.dro_namespace)
   workspaces:
     - name: configs
       optional: true

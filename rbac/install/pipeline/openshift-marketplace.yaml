@@ -1,0 +1,37 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: masinstall-pipeline-role
+  namespace: openshift-marketplace
+rules:
+  # Pipeline will get and create catalog sources
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - catalogsources
+    verbs:
+      - get
+      - create
+      - patch
+  # Pipeline will query available packages
+  - apiGroups:
+      - packages.operators.coreos.com
+    resources:
+      - packagemanifests
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: masinstall-pipeline-rb
+  namespace: openshift-marketplace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: masinstall-pipeline-role
+subjects:
+  - kind: ServiceAccount
+    name: pipeline
+    namespace: mas-djptest-pipelines

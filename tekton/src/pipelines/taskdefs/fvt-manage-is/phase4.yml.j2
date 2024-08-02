@@ -1,0 +1,62 @@
+# -----------------------------------------------------------------------------
+# PHASE 4
+# - fvt-manage-maintmanager-api    # Maint Manager
+# - fvt-manage-maintmanager-setup  # Maint Manager
+# - fvt-manage-aviation-api        # Aviation
+# -----------------------------------------------------------------------------
+
+
+# Maintenance Manager
+# -----------------------------------------------------------------------------
+# Maintenance Manager - API Tests
+- name: fvt-manage-maintmanager-api
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: maintmanager-api
+  runAfter:
+    - fvt-manage-nuclear-api
+    - fvt-manage-nuclear-ui
+    - fvt-manage-transportation-api
+    - fvt-manage-transportation-ui
+    - fvt-manage-lbs-api
+    - fvt-manage-lbs-linear-ui
+
+# Maintenance Manager - UI (Setup)
+- name: fvt-manage-maintmanager-setup
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: maintmanager-setup-data
+    - name: fvt_mas_appws_component
+      value: maintmanager
+    - name: fvt_test_driver
+      value: graphite
+  runAfter:
+    - fvt-manage-nuclear-api
+    - fvt-manage-nuclear-ui
+    - fvt-manage-transportation-api
+    - fvt-manage-transportation-ui
+    - fvt-manage-lbs-api
+    - fvt-manage-lbs-linear-ui
+
+
+# Aviation
+# -----------------------------------------------------------------------------
+# Aviation - API Tests
+- name: fvt-manage-aviation-api
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: aviation-api
+  runAfter:
+    - fvt-manage-nuclear-api
+    - fvt-manage-nuclear-ui
+    - fvt-manage-transportation-api
+    - fvt-manage-transportation-ui
+    - fvt-manage-lbs-api
+    - fvt-manage-lbs-linear-ui

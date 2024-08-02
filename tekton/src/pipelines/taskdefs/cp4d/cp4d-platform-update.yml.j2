@@ -1,0 +1,35 @@
+- name: update-cp4d
+  timeout: "0"
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: update-cp4d
+
+    - name: cp4d_update
+      value: $(params.cp4d_update)
+    - name: cpd_product_version
+      value: $(params.cpd_product_version)
+
+    # The mas-devops-cp4d role requires the ibm_entitlement_key parameter,
+    # but we don't need it for the update action, so we set skip_entitlement_key_flag
+    # to inform the role "not to worry"
+    #
+    # TODO: The role should be smart enough to know that it's doing an update
+    # and thus does not need this explicit flag
+    - name: ibm_entitlement_key
+      value: ""
+    - name: skip_entitlement_key_flag
+      value: "true"
+
+    # TODO: The role should look these up itself
+    - name: cpd_primary_storage_class
+      value: $(params.storage_class_rwx)
+    - name: cpd_metadata_storage_class
+      value: $(params.storage_class_rwo)
+  taskRef:
+    kind: Task
+    name: mas-devops-cp4d
+  when:
+    - input: "$(params.cp4d_update)"
+      operator: notin
+      values: [""]

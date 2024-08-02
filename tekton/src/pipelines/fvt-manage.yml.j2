@@ -7,6 +7,8 @@ spec:
   workspaces:
     # The generated configuration files
     - name: shared-configs
+    # PodTemplates configurations
+    - name: shared-pod-templates
 
   params:
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
@@ -25,14 +27,11 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
-    - name: mas_appws_components
-      type: string
-      description: Which Manage components are being installed?
-      default: ""
-    # TODO: Why do Manage tests need to know the Kafka provider?
+
+    # Test Requirements
     - name: kafka_provider
       type: string
-      description: kafka provider used during installation (ibm, aws or redhat)
+      description: kafka provider used during installation (ibm, aws or redhat) to pick up right MIF tests
       default: ""
 
     # FVT Configuration
@@ -44,20 +43,6 @@ spec:
       default: ""
     - name: fvt_artifactory_token
       type: string
-      default: ""
-
-    # Support for upload to Cloud Object Storage
-    # TODO: Can we not replace this with the must-gather in Artifactory, why do we need a seperate system (which costs $$$$) for Manage FVT?
-    - name: devops_cos_crn
-      type: string
-      description: Object Storage Resource Instance Id in IBM Cloud (optional)
-      default: ""
-    - name: devops_cos_upload_folder
-      type: string
-      description: Directory inside container that will be uploaded to Object Storage (optional)
-      default: ""
-    - name: devops_ibmcloud_apikey
-      description: IBM Cloud API Key to access Object Storage resource (optional)
       default: ""
 
     # Image Digests
@@ -85,6 +70,8 @@ spec:
           value: $(params.mas_app_channel_manage)
         - name: fvt_test_suite
           value: coreivt
+        - name: workspace_id
+          value: $(params.mas_workspace_id)
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin
@@ -92,7 +79,39 @@ spec:
         - input: "$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+        - name: pod-templates
+          workspace: shared-pod-templates
 
+    - name: imagescan-manage
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-manage
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
+        - name: fvt_test_suite
+          value: imagescan
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+
+    # 2. Manage FVT - Manage
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/phase6.yml.j2') | indent(4) }}
+
+  finally:
+    # 1. Run CV
+    # -----------------------------------------------------------------------------
     - name: cv-manage
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -110,13 +129,3 @@ spec:
         - input: "$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
-
-    # 2. Manage FVT - Manage
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-manage/phase0.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
-    

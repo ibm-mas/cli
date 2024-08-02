@@ -98,27 +98,85 @@ spec:
               name: mas-fvt-manage
               key: IVT_DIGEST_CORE
               optional: false
-        # Test Data
-        - name: FVT_MANAGE_AUTOMATION_VERSION
+        # Black and white listing
+        - name: FVT_BLACKLIST
           valueFrom:
             secretKeyRef:
               name: mas-fvt-manage
-              key: FVT_MANAGE_AUTOMATION_VERSION
+              key: FVT_BLACKLIST
+              optional: false
+        - name: FVT_WHITELIST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_WHITELIST
+              optional: false
+        # Test data
+        - name: LDAP_URL
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: LDAP_URL
+              optional: false
+        - name: LDAP_BASE_DN
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: LDAP_BASE_DN
+              optional: false
+        - name: LDAP_BIND_DN
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: LDAP_BIND_DN
+              optional: false
+        - name: LDAP_BIND_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: LDAP_BIND_PASSWORD
+              optional: false
+        - name: LDAP_USER_MAP
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: LDAP_USER_MAP
+              optional: false
+        - name: LDAP_CERT_ALIAS
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: LDAP_CERT_ALIAS
+              optional: false
+        - name: LDAP_CRT
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: LDAP_CRT
               optional: false
 
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      # 60 retries at 10 minute intervals = 10 hours
+      # 50 retries at 10 minute intervals = just over 8 hours
       command:
-        - /opt/app-root/src/wait-for-pipelinerun.sh
-        - --delay
-        - "600"
-        - --max-retries
-        - "60"
-        - --ignore-failure
+        - /opt/app-root/src/wait-for-tekton.sh
       env:
-        - name: PIPELINERUN_NAME
+        - name: TYPE
+          value: pipelinerun
+        - name: NAME
           value: $(params.pipelinerun_name)
-        - name: PIPELINERUN_NAMESPACE
+        - name: SUFFIX
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
+        - name: NAMESPACE
           value: $(context.taskRun.namespace)
+        - name: DELAY
+          value: "600"
+        - name: MAX_RETRIES
+          value: "50"
+        - name: IGNORE_FAILURE
+          value: "True"

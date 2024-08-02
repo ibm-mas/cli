@@ -1,0 +1,28 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of BestEffort. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: api-resourcecontroller
+    containers:
+      - name: api-resourcecontroller
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: api-s2s
+    containers:
+      - name: api-s2s
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: deprovagent-provision
+    containers:
+      - name: deprovagent-provision
+        resources: {}
+  - name: s2s-store
+    containers:
+      - name: s2s-store
+        resources: {}
+      - name: statsd
+        resources: {}

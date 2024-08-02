@@ -1,5 +1,4 @@
 ---
-# Don't edit install.yaml directly -- modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -21,9 +20,6 @@ spec:
       type: string
       default: ""
     - name: mas_app_channel_manage
-      type: string
-      default: ""
-    - name: mas_appws_components
       type: string
       default: ""
     - name: mas_instance_id
@@ -56,13 +52,6 @@ spec:
       description: IVT Digest - Core
       default: ""
 
-    - name: devops_cos_crn
-      type: string
-      default: ""
-    - name: devops_ibmcloud_apikey
-      type: string
-      default: ""
-
   tasks:
     # 1. Core x Optimizer
     # -------------------------------------------------------------------------
@@ -81,7 +70,7 @@ spec:
           operator: notin
           values: [""]
 
-    - name: cv-optimizer
+    - name: imagescan-optimizer
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
@@ -90,12 +79,12 @@ spec:
         - name: product_channel
           value: $(params.mas_app_channel_optimizer)
         - name: fvt_test_suite
-          value: contentverification
+          value: imagescan
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin
           values: [""]
-
+          
 
     # 2. Run "optimizer_fvt" (CTF)
     # -----------------------------------------------------------------------------
@@ -131,165 +120,24 @@ spec:
           values: [""]
       runAfter:
         - ivtcore-optimizer
-        - cv-optimizer
       workspaces:
         - name: configs
           workspace: shared-configs
 
-
-    # 3. Run "optimizer-manage-user" (Optimizer)
+  finally:
+    # 1. Run CV
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer-manage-user
-      taskRef:
-        kind: Task
-        name: mas-fvt-manage
+    - name: cv-optimizer
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-
-        - name: devops_cos_crn
-          value: $(params.devops_cos_crn)
-        - name: devops_ibmcloud_apikey
-          value: $(params.devops_ibmcloud_apikey)
-
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_namespace
-          value: fvt-optimizer
-        - name: fvt_image_name
-          value: fvt-optimizer-manage-setup
-        - name: fvt_image_digest
-          value: $(params.fvt_digest_optimizer)
-
-        - name: product_channel
-          value: $(params.mas_app_channel_manage)
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
         - name: product_id
           value: ibm-mas-optimizer
-
-        - name: artifactory_token
-          value: $(params.fvt_artifactory_token)
-
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
-
-        - name: fvt_test_suite
-          value: optimizer-manage-user
-        - name: fvt_mas_appws_component
-          value: optimizer
-        - name: fvt_test_driver
-          value: tpae
-      when:
-        - input: "$(params.fvt_digest_optimizer)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      runAfter:
-        - fvt-optimizer
-
-
-    # 4. Run "optimizer-manage-setup"  (Optimizer)
-    # -----------------------------------------------------------------------------
-    - name: fvt-optimizer-manage-connection-setup
-      taskRef:
-        kind: Task
-        name: mas-fvt-manage
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_cos_crn
-          value: $(params.devops_cos_crn)
-        - name: devops_ibmcloud_apikey
-          value: $(params.devops_ibmcloud_apikey)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_namespace
-          value: fvt-optimizer
-        - name: fvt_image_name
-          value: fvt-optimizer-manage-setup
-        - name: fvt_image_digest
-          value: $(params.fvt_digest_optimizer)
         - name: product_channel
-          value: $(params.mas_app_channel_manage)
-        - name: product_id
-          value: ibm-mas-optimizer
-        - name: artifactory_token
-          value: $(params.fvt_artifactory_token)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
+          value: $(params.mas_app_channel_optimizer)
         - name: fvt_test_suite
-          value: optimizer-manage-setup
-        - name: fvt_mas_appws_component
-          value: optimizer
-        - name: fvt_test_driver
-          value: tpae
+          value: contentverification
       when:
-        - input: "$(params.fvt_digest_optimizer)"
+        - input: "$(params.ivt_digest_core)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      runAfter:
-        - fvt-optimizer-manage-user
-
-    # 5. Run "optimizer-gs-resource-leveling" (Optimizer)
-    # -----------------------------------------------------------------------------
-    - name: fvt-optimizer-manage-connection
-      taskRef:
-        kind: Task
-        name: mas-fvt-manage
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: devops_cos_crn
-          value: $(params.devops_cos_crn)
-        - name: devops_ibmcloud_apikey
-          value: $(params.devops_ibmcloud_apikey)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_namespace
-          value: fvt-optimizer
-        - name: fvt_image_name
-          value: fvt-optimizer-manage-setup
-        - name: fvt_image_digest
-          value: $(params.fvt_digest_optimizer)
-        - name: product_channel
-          value: $(params.mas_app_channel_manage)
-        - name: product_id
-          value: ibm-mas-optimizer
-        - name: artifactory_token
-          value: $(params.fvt_artifactory_token)
-        - name: mas_appws_components
-          value: $(params.mas_appws_components)
-        - name: fvt_test_suite
-          value: optimizer-gs-resource-leveling
-        - name: fvt_mas_appws_component
-          value: optimizer
-        - name: fvt_test_driver
-          value: tpae
-      when:
-        - input: "$(params.fvt_digest_optimizer)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-      runAfter:
-        - fvt-optimizer-manage-connection-setup

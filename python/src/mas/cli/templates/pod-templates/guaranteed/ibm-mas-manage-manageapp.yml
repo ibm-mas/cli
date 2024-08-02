@@ -1,0 +1,106 @@
+# podTemplates
+# ===================================================================================
+# This list defines the resources for Deployment: Suite.
+# The pod gets tested for scaling and affinity.
+# The containers that get tested for resources - QoS class of Guaranteed and Burstable.
+podTemplates:
+  - name: entitymgr-primary-entity
+    containers:
+      - name: manager
+        resources:
+          requests:
+            cpu: 0.2
+            memory: 512Mi
+          limits:
+            cpu: 0.2
+            memory: 512Mi
+  - name: entitymgr-appstatus
+    containers:
+      - name: manager
+        resources:
+          requests:
+            cpu: 0.8
+            memory: 1024Mi
+          limits:
+            cpu: 0.8
+            memory: 1024Mi
+  - name: entitymgr-bdi
+    containers:
+      - name: manager
+        resources:
+          requests:
+            cpu: 0.8
+            memory: 1024Mi
+          limits:
+            cpu: 0.8
+            memory: 1024Mi
+  - name: entitymgr-ws
+    containers:
+      - name: manager
+        resources:
+          requests:
+            cpu: 0.8
+            memory: 2Gi
+          limits:
+            cpu: 0.8
+            memory: 2Gi
+  - name: usersyncagent
+    containers:
+      - name: manage-usersyncagent
+        resources:
+          requests:
+            cpu: 0.25
+            memory: 256Mi
+          limits:
+            cpu: 0.25
+            memory: 256Mi
+  - name: groupsyncagent
+    containers:
+      - name: manage-groupsyncagent
+        resources:
+          requests:
+            cpu: 0.25
+            memory: 256Mi
+          limits:
+            cpu: 0.25
+            memory: 256Mi
+  - name: ibm-mas-imagestitching-operator
+    containers:
+      - name: imagestitching
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1024Mi
+          limits:
+            cpu: 500m
+            memory: 1024Mi
+  - name: ibm-mas-slackproxy-operator
+    containers:
+      - name: slackproxy
+        resources:
+          requests:
+            cpu: 1
+            memory: 1024Mi
+          limits:
+            cpu: 1
+            memory: 1024Mi
+  - name: healthext-entitymgr-ws
+    containers:
+      - name: healthext
+        resources:
+          requests:
+            cpu: 1
+            memory: 1024Mi
+          limits:
+            cpu: 1
+            memory: 1024Mi
+  - name: entitymgr-acc
+    containers:
+      - name: manager
+        resources:
+          requests:
+            cpu: 1
+            memory: 1024Mi
+          limits:
+            cpu: 1
+            memory: 1024Mi

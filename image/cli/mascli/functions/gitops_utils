@@ -1,0 +1,747 @@
+#!/usr/bin/env bash
+
+AVP_TYPE="aws"  # I haven't added support for IBM
+DELIMIITER="/"
+
+function sm_login() {
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    echo "Logging into AWS SecretsManager ..."
+    aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+    aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+    aws configure set default.region $SM_AWS_REGION
+    export AWS_REGION=$SM_AWS_REGION
+    aws configure list
+  elif [[ "$AVP_TYPE" == "ibm" ]]; then
+    echo "IBM SecretsManager not yet supported"
+    exit 1
+  fi
+}
+
+function sm_list_cluster_secrets() {
+  ACCOUNT=$1
+  CLUSTER_ID=$2
+
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    set +o pipefail
+    LIST_SECRETS_OUTPUT="$(aws secretsmanager list-secrets --output yaml --no-cli-pager --filters Key=name,Values=${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER})"
+    return_code=$?
+    if [ $return_code -ne 0 ]; then
+      echo "aws: secretmanager list-secrets failed with error: $return_code"
+      exit $return_code
+    fi
+    set -o pipefail
+
+    echo "$LIST_SECRETS_OUTPUT" | yq -r '.SecretList[].Name'
+  elif [[ "$AVP_TYPE" == "ibm" ]]; then
+    echo "IBM SecretsManager not yet supported"
+    exit 1
+  fi
+}
+
+function sm_update_secret(){
+  SECRET_NAME=$1
+  SECRET_VALUE=$2
+
+  echo "Secret Manager: Updating $SECRET_NAME"
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    # There's a different command to run depending on whether we are creating or updating a secret
+    # It's annoying there isn't an upsert/idemopotent command as we don't really care either way, but
+    # we need to looking whether the secret exists, so we may as well prevent an update if the secret
+    # exists and is already set to what we want to use.
+
+    # Get the current value
+    set +o pipefail
+    CURRENT_SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString)
+
+    if [[ "$CURRENT_SECRET_VALUE" == "" ]]; then
+      # Create the secret
+      aws secretsmanager create-secret --name ${SECRET_NAME} --secret-string "${SECRET_VALUE}" || exit 1
+      echo "- Secret $SECRET_NAME created"
+    elif [[ "$SECRET_VALUE" != "$CURRENT_SECRET_VALUE" ]]; then
+      # Update the secret
+      echo "- Secret $SECRET_NAME updated"
+      aws secretsmanager update-secret --secret-id ${SECRET_NAME} --secret-string "${SECRET_VALUE}" || exit 1
+    else
+      # No change
+      echo "- Secret $SECRET_NAME unchanged"
+    fi
+    set -o pipefail
+  elif [[ "$AVP_TYPE" == "ibm" ]]; then
+    echo "IBM SecretsManager not yet supported"
+    exit 1
+  fi
+}
+
+function sm_delete_secret(){
+  SECRET_NAME=$1
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+
+    # Delete the secret
+    set +o pipefail
+    aws secretsmanager delete-secret --force-delete-without-recovery --secret-id ${SECRET_NAME} --output json 2> /dev/null || exit 1
+    set -o pipefail
+
+  elif [[ "$AVP_TYPE" == "ibm" ]]; then
+    echo "IBM SecretsManager not yet supported"
+    exit 1
+  fi
+}
+
+function sm_get_secret(){
+  SECRET_NAME=$1
+  SECRET_ENV_VAR=$2
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    # Get the current value and set it to the provided env var
+    # echo "- Getting Secret $SECRET_NAME to set in env var $SECRET_ENV_VAR"
+    # export $SECRET_ENV_VAR=$(aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString)
+    set +o pipefail
+    aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString
+    set -o pipefail
+
+  elif [[ "$AVP_TYPE" == "ibm" ]]; then
+    # echo "IBM SecretsManager not yet supported"
+    echo ""
+    exit 1
+  fi
+}
+
+function sm_get_secret_value(){
+  SECRET_NAME=$1
+  SECRET_KEY=$2
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    set +o pipefail
+    aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString | jq -r .${SECRET_KEY}
+    set -o pipefail
+
+  elif [[ "$AVP_TYPE" == "ibm" ]]; then
+    # echo "IBM SecretsManager not yet supported"
+    echo ""
+    exit 1
+  fi
+}
+
+function sm_get_secret_file(){
+  SECRET_NAME=$1
+  SECRET_FILE=$2
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    # Get the current value and send it to the file passed in
+    echo "- Getting Secret $SECRET_NAME to set in file $SECRET_FILE"
+    set +o pipefail
+    aws secretsmanager get-secret-value --secret-id ${SECRET_NAME} --output json 2> /dev/null | jq -r .SecretString > $SECRET_FILE
+    set -o pipefail
+
+  elif [[ "$AVP_TYPE" == "ibm" ]]; then
+    echo "IBM SecretsManager not yet supported"
+    exit 1
+  fi
+}
+
+function sm_update_account_secret() {
+  ACCOUNT=$1
+  SECRET_NAME=$2
+  SECRET_VALUE=$3
+
+  sm_update_secret ${ACCOUNT}${DELIMIITER}${SECRET_NAME} "${SECRET_VALUE}"
+}
+
+function sm_update_cluster_secret() {
+  ACCOUNT=$1
+  CLUSTER_ID=$2
+  SECRET_NAME=$3
+  SECRET_VALUE=$4
+
+  sm_update_secret ${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${SECRET_NAME} "${SECRET_VALUE}"
+}
+
+function sm_update_mas_secret() {
+  ACCOUNT=$1
+  CLUSTER_ID=$2
+  MAS_INSTANCE_ID=$3
+  SECRET_NAME=$4
+  SECRET_VALUE=$5
+
+  sm_update_secret ${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${MAS_INSTANCE_ID}${DELIMIITER}${SECRET_NAME} "${SECRET_VALUE}"
+}
+
+function sm_get_cluster_secret() {
+  ACCOUNT=$1
+  CLUSTER_ID=$2
+  SECRET_NAME=$3
+  SECRET_ENV_VAR=$4
+
+  sm_get_secret ${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${SECRET_NAME} ${SECRET_ENV_VAR}
+}
+
+
+# Fetches ARN of secret named in first param (e.g. "development/mas-c6/ibm_entitlement") and sets it as the value of the variable named in the second param.
+# This is often needed due to the random suffix e.g. "-fdP1Lx" that AWS seems to apply when secrets are created
+# exit 1 if something goes wrong
+# Example usage:
+#   export SECRET_ARN_IBM_ENTITLEMENT
+#   sm_get_secret_arn "${SECRET_NAME_IBM_ENTITLEMENT}" "SECRET_ARN_IBM_ENTITLEMENT"
+#   echo "${SECRET_NAME_IBM_ENTITLEMENT} ARN: ${SECRET_ARN_IBM_ENTITLEMENT}"
+function sm_get_secret_arn() {
+  local _SECRET_NAME="$1"
+  set +o pipefail
+  local _SECRET_ARN=$(aws secretsmanager describe-secret --secret-id "${_SECRET_NAME}" --output json | jq -r .ARN)
+  set -o pipefail
+
+  # can't check RC of the call inside $(), so we'll have to make do with checking for empty output instead
+   if [ -z "${_SECRET_ARN}" ]; then
+    echo "Failed to get ARN for AWS SM secret named ${_SECRET_NAME}"
+    exit 1
+   fi
+
+   eval "$2=${_SECRET_ARN}"
+
+}
+
+function clone_target_git_repo() {
+  GITHUB_HOST=$1
+  GITHUB_ORG=$2
+  GITHUB_REPO=$3
+  GIT_BRANCH=$4
+  LOCAL_DIR=$5
+  SSH_PATH=$6
+  CURRENT_DIR=$PWD
+  cd $LOCAL_DIR
+
+  echo "git: Cloning $GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO branch $GIT_BRANCH into $LOCAL_DIR working directory"
+  if [ "$SSH_PATH" == "false" ]; then
+    git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH || exit 1
+  else
+    git -c "core.sshCommand=ssh -i $SSH_PATH -F /dev/null" clone git@$GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH || exit 1
+  fi
+  cd $PWD
+}
+
+function save_to_target_git_repo() {
+  GITHUB_HOST=$1
+  GITHUB_ORG=$2
+  GITHUB_REPO=$3
+  GIT_BRANCH=$4
+  LOCAL_DIR="$5"
+  COMMIT_MSG="$6"
+
+  CURRENT_DIR=$PWD
+
+  echo "git: Changing to directory $LOCAL_DIR"
+  cd $LOCAL_DIR || exit 1
+
+  echo "git: Adding all files in $LOCAL_DIR working directory"
+  FILES_ADDED_OUTPUT="$(git add -v .)"
+  return_code=$?
+  if [ $return_code -ne 0 ]; then
+    echo "git: Add files failed with error: $return_code"
+    exit $return_code
+  fi
+  export FILES_ADDED=$(echo "$FILES_ADDED_OUTPUT" | awk NF | wc -l | xargs)
+  echo "git: Added ${FILES_ADDED} files"
+
+  if [ "$FILES_ADDED" != "0" ]; then
+    echo "git: Committing files using message $COMMIT_MSG"
+    git commit -m "$COMMIT_MSG" || exit 1
+    retries=5
+    interval=30
+    index=0
+    while true; do
+      echo "git: fetch origin $GIT_BRANCH"
+      git fetch origin $GIT_BRANCH || exit 1
+
+      echo "git: pull origin --rebase"
+      git pull origin --rebase || exit 1
+
+      echo "git: pull origin $GIT_BRANCH --rebase"
+      git pull origin $GIT_BRANCH --rebase || exit 1
+
+      echo "git: Pushing changes to branch $GIT_BRANCH"
+      git push -u origin $GIT_BRANCH
+      return_code=$?
+      if [ $return_code -eq 0 ]; then
+        echo "git: Pushing changes to branch $GIT_BRANCH success"
+        sleep 10
+        break
+      fi
+
+      if [[ ${index} -eq ${retries} ]]; then
+        echo "git: Pushing changes to branch $GIT_BRANCH failed even after $retries retries, exit with error"
+        exit 1
+      fi
+      echo "git: Pushing changes to branch $GIT_BRANCH failed, retry after $interval sec ..."
+      sleep $interval
+      ((index++))
+    done
+  else
+    echo "No changes found so no commit made"
+  fi
+
+  cd $PWD
+}
+
+function remove_git_repo_clone() {
+  CLONE_DIR=$1
+  echo "git: Deleting git clone directory $CLONE_DIR"
+  rm -rf $CLONE_DIR || exit 1
+}
+
+
+
+
+
+function unlock_git_repo() {
+  GIT_LOCK_BRANCH=$1
+  GITOPS_REPO_DIR=$2
+
+  if [[ -d "${GITOPS_REPO_DIR}" ]]; then
+    echo ""
+    echo "Deleting "${GIT_LOCK_BRANCH}" from remote"
+    git -C "${GITOPS_REPO_DIR}" push origin --delete "${GIT_LOCK_BRANCH}" || exit 1
+
+    echo ""
+    echo "Deleting ${GITOPS_REPO_DIR} from filesystem"
+    rm -rf "${GITOPS_REPO_DIR}" || exit 1
+  fi
+}
+
+
+
+
+function git_lock_branch_name() {
+
+  LOCK_NAME=$1
+  ACCOUNT_ID=$2
+  CLUSTER_ID=$3
+  MAS_INSTANCE_ID=$4
+
+  echo -n "lock.${LOCK_NAME}.${ACCOUNT_ID}.${CLUSTER_ID}"
+  if [[ -n "${MAS_INSTANCE_ID}" ]]; then
+    echo -n ".${MAS_INSTANCE_ID}"
+  fi
+  
+}
+
+
+
+# Clones the target repo and attempts to create a new branch ($GIT_LOCK_BRANCH) on the remote
+# If this lock branch already exists, this means another process is currently making a change and could lead to a merge conflict.
+# This function retries a limited number of times to reaquire the lock branch, and exits if this does not succeed.
+# In this way, we guarantee sequentual execution order across any script that shares the same $GIT_LOCK_BRANCH name.
+# If the function successfully acquires the lock branch, it registers git_lock_branch_name as an exit trap, to ensure we do not
+# leave the lock branch in place (which would permanently block any other invokations of this function with the same GIT_LOCK_BRANCH.
+# For consistency, it is recommended to use the git_lock_branch_name function above to generate GIT_LOCK_BRANCH, i.e.
+#   GIT_LOCK_BRANCH=$(git_lock_branch_name "${LOCK_NAME}" ${ACCOUNT_ID} "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
+# In order to commit and push at the end of any script that uses this function, use save_and_unlock_target_git_repo. 
+function clone_and_lock_target_git_repo() {
+
+  GITHUB_HOST=$1
+  GITHUB_ORG=$2
+  GITHUB_REPO=$3
+  GIT_BRANCH=$4
+  LOCAL_DIR=$5
+  SSH_PATH=$6
+  GIT_LOCK_BRANCH=$7
+
+  RETRIES=${8:-20}
+  RETRY_DELAY_SECONDS=${8:-20}
+
+  GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
+  LOCKFILE_NAME='.lock'
+
+  for (( c=1; c<="${RETRIES}"; c++ )); do
+    echo ""
+    echo "= clone_and_lock_git_repo: attempt ${c} of ${RETRIES}"
+    echo "================================================="
+
+    # Remove any clones created by prior attempts
+    rm -rf "${GITOPS_REPO_DIR}"
+
+    echo
+    echo "- clone_target_git_repo: ${GITHUB_HOST} ${GITHUB_ORG} ${GITHUB_REPO} ${GIT_BRANCH} ${LOCAL_DIR} ${SSH_PATH}"
+    echo "-------------------------------------------------"
+    clone_target_git_repo "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}"
+
+
+    # If the lock branch exists currently on the remote, retry after a delay
+    echo
+    echo "- clone_and_lock_git_repo: ls-remote --heads origin ${GIT_LOCK_BRANCH}"
+    echo "-------------------------------------------------"
+    LS_REMOTE_STDOUT=$(git -C "${GITOPS_REPO_DIR}" ls-remote --heads origin ${GIT_LOCK_BRANCH})
+    if [[ -n "${LS_REMOTE_STDOUT}"  ]]; then
+      echo "clone_and_lock_git_repo: Lock branch ${GIT_LOCK_BRANCH} currently in use by another process, retry in ${RETRY_DELAY_SECONDS}s"
+      echo "..."
+      sleep ${RETRY_DELAY_SECONDS}
+      continue
+    fi
+    # NOTE: >1 invokation may pass the initial "git ls-remote" check above
+    # because of the non-zero delay between this call and the subsequent git push that creates the branch
+    # The "git ls-remote" check is NOT DEFINITIVE, it is merely an optimization to avoid doing unnecessary work where
+    # there is sufficient desynchronization between parallel runs of this script
+
+    # Create the lock branch locally
+    echo
+    echo "- clone_and_lock_git_repo: checkout -b ${GIT_LOCK_BRANCH}"
+    echo "-------------------------------------------------"
+    git -C "${GITOPS_REPO_DIR}" checkout -b "${GIT_LOCK_BRANCH}"
+
+    # To definitively acquire the "lock", we create and commit a temporary "lock file";
+    # This will mean that, amongst n scripts running in parallel and in sync (i.e. where all invokations have passed the initial git ls-remote check),
+    # at most 1 invokation will be able to successfully perform the push below.
+    touch "${GITOPS_REPO_DIR}/${LOCKFILE_NAME}"
+
+    echo
+    echo "- clone_and_lock_git_repo: add ${LOCKFILE_NAME}"
+    echo "-------------------------------------------------"
+    git -C "${GITOPS_REPO_DIR}" add ${LOCKFILE_NAME}
+
+    echo
+    echo "- clone_and_lock_git_repo: commit -m 'Acquire lock branch'"
+    echo "-------------------------------------------------"
+    git -C "${GITOPS_REPO_DIR}" commit -m 'Acquire lock branch'
+
+    echo
+    echo "- clone_and_lock_git_repo: push --atomic -u origin ${GIT_LOCK_BRANCH}"
+    echo "-------------------------------------------------"
+    git -C "${GITOPS_REPO_DIR}" push --atomic -u origin "${GIT_LOCK_BRANCH}"
+    GIT_PUSH_RC=$?
+
+    if [ "${GIT_PUSH_RC}" == "0" ]; then
+      # Now we've created the remote lock branch, we are blocking any other invokations of this script
+      # Register an exit trap to ensure we delete the remote branch whatever happens
+      trap "unlock_git_repo ${GIT_LOCK_BRANCH} ${GITOPS_REPO_DIR}" EXIT
+      echo ""
+      echo "= clone_and_lock_git_repo: acquired lock on branch ${GIT_LOCK_BRANCH}; proceeding..."
+      echo "================================================="
+      return 0
+    fi 
+
+    echo ""
+    echo "- clone_and_lock_git_repo: failed to acquire Lock branch ${GIT_LOCK_BRANCH}, retry in ${RETRY_DELAY_SECONDS}s"
+    echo "..."
+    sleep ${RETRY_DELAY_SECONDS}
+
+  done
+
+  echo "= clone_and_lock_git_repo: non-recoverable failure"
+  echo "================================================="
+  return 1
+
+}
+
+
+# rebases then attempts to push the git repo
+# if the push fails, the rebase and push will be retried after RETRY_DELAY_SECONDS delay up to RETRIES times
+# the retry logic is there in case another process pushes a commit to the repo in between the rebase and push, causing errors like this:
+#    ! [rejected]        master -> master (fetch first)
+#    ! [remote rejected] master -> master (cannot lock ref 'refs/heads/master': is at x but expected y)
+function git_push_with_retries {
+  GITHUB_REPO="$1"
+  GIT_BRANCH="$2"
+  LOCAL_DIR="$3"
+  RETRIES=${4:-20}
+  RETRY_DELAY_SECONDS=${5:-30}
+
+  GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
+
+  for (( c=1; c<="${RETRIES}"; c++ )); do
+
+    echo
+    echo "= git_push_with_retries: attempt ${c} of ${RETRIES}"
+    echo "================================================="
+
+    echo
+    echo "- git_push_with_retries: pull origin $GIT_BRANCH --rebase"
+    echo "-------------------------------------------------"
+    git -C "${GITOPS_REPO_DIR}" pull origin "${GIT_BRANCH}" --rebase
+
+    echo
+    echo "- git_push_with_retries: push -u origin ${GIT_BRANCH}"
+    echo "-------------------------------------------------"
+    git -C "${GITOPS_REPO_DIR}" push -u origin "${GIT_BRANCH}"
+    rc=$?
+    if [[ $rc == "0" ]]; then
+      echo ""
+      echo "= git_push_with_retries: success"
+      echo "================================================="
+      return 0
+    fi
+
+    echo ""
+    echo "- git_push_with_retries: failed (rc: ${rc}), retry in ${RETRY_DELAY_SECONDS}s"
+    echo "..."
+    sleep $RETRY_DELAY_SECONDS
+  done
+
+  echo ""
+  echo "= git_push_with_retries: non-recoverable failure"
+  echo "================================================="
+  return 1
+}
+
+
+# Intended to be called at the end of a script that uses the clone_and_lock_target_git_repo function above
+# after modifications to config files have been applied to the local clone
+# This pushes the changes to the lock branch (GIT_LOCK_BRANCH), and squash merges them to the main branch (GIT_BRANCH)
+# If RETURNVARNAME_MODIFIED is passed a variable name, that variable will be set to 1 if there are changes in GIT_LOCK_BRANCH that are not in GIT_BRANCH, or 0 otherwise
+# Example usage:
+#   save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}" WAS_MODIFIED
+#   if [[ "${WAS_MODIFIED}" == "1" ]]; then
+#     echo "Configuration was modified"
+#   fi
+function save_and_unlock_target_git_repo {
+  echo
+  echo "= save_and_unlock_target_git_repo"
+  echo "================================================="
+  GITHUB_REPO="$1"
+  GIT_BRANCH="$2"
+  LOCAL_DIR="$3"
+  COMMIT_MSG="$4"
+  GIT_LOCK_BRANCH="$5"
+  RETURNVARNAME_MODIFIED="$6"
+
+  LOCKFILE_NAME='.lock'
+  GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
+
+  # Delete the .lock file
+  rm -rf "${GITOPS_REPO_DIR}/${LOCKFILE_NAME}"
+
+  # commit and push all changes
+  echo
+  echo "- save_and_unlock_target_git_repo: add -v ."
+  echo "-------------------------------------------------"
+  git -C "${GITOPS_REPO_DIR}" add -v . || exit 1
+
+  echo
+  echo "- save_and_unlock_target_git_repo: commit -m ${GIT_COMMIT_MSG}"
+  echo "-------------------------------------------------"
+  git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}"
+  
+  export RC=$?
+  echo "commit returned $RC"
+  if [ $RC -ne 0 -a $RC -ne 1 ]; then
+    echo "exit $RC"
+    exit $RC
+  fi
+
+  echo
+  echo "- save_and_unlock_target_git_repo: push -u origin ${GIT_LOCK_BRANCH}"
+  echo "-------------------------------------------------"
+  git -C "${GITOPS_REPO_DIR}" push -u origin "${GIT_LOCK_BRANCH}" || exit 1
+
+  # Merge back to master
+  echo
+  echo "- save_and_unlock_target_git_repo: switch ${GIT_BRANCH}"
+  echo "-------------------------------------------------"
+  git -C "${GITOPS_REPO_DIR}" switch "${GIT_BRANCH}" || exit 1
+
+  echo
+  echo "- save_and_unlock_target_git_repo: pull origin $GIT_BRANCH --rebase"
+  echo "-------------------------------------------------"
+  git -C "${GITOPS_REPO_DIR}" pull origin $GIT_BRANCH --rebase || exit 1
+
+  echo
+  echo "- save_and_unlock_target_git_repo: merge --squash ${GIT_LOCK_BRANCH}"
+  echo "-------------------------------------------------"
+  git -C "${GITOPS_REPO_DIR}" merge --squash "${GIT_LOCK_BRANCH}" || exit 1
+
+
+  if [[ -n "${RETURNVARNAME_MODIFIED}" ]]; then
+    local -n RETURNVAR_MODIFIED="${RETURNVARNAME_MODIFIED}"
+    local GIT_STATUS=$(git -C "${GITOPS_REPO_DIR}" status --porcelain=v1)
+    if [[ -n "$GIT_STATUS" ]]; then
+      RETURNVAR_MODIFIED=1
+    else
+      RETURNVAR_MODIFIED=0
+    fi
+  fi
+
+  echo
+  echo "- save_and_unlock_target_git_repo:: commit -m ${GIT_COMMIT_MSG}"
+  echo "-------------------------------------------------"
+  git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}" 
+
+  export RC=$?
+  echo "commit returned $RC"
+  if [ $RC -ne 0 -a $RC -ne 1 ]; then
+    echo exit $RC
+    exit $RC
+  fi
+
+  git_push_with_retries "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}"
+
+
+  # unlock_git_repo exit trap function registered in clone_and_lock_target_git_repo
+  # takes care of deleting remote branch and local clone
+  # we'll do it here too anyway just to be sure
+  # (note since this will also delete the repo dir from the system, when the exit trap reruns this script
+  # it won't repeat the branch delete (which could cause problems since another process could have since re-created the lock branch))
+  unlock_git_repo "${GIT_LOCK_BRANCH}" "${GITOPS_REPO_DIR}"
+
+
+  echo
+  echo "= save_and_unlock_target_git_repo: success"
+  echo "================================================="
+
+}
+
+
+function argocd_login() {
+  retries=${1:-20}
+  interval=${2:-30}
+  index=0
+  echo "argo:argocd_login : Logging into ArgoCD ..."
+  while true; do
+    if [ -z $ARGOCD_URL ] || [ -z $ARGOCD_USERNAME ] || [ -z $ARGOCD_PASSWORD ]; then
+      echo "argo:argocd_login : ARGOCD_URL, ARGOCD_USERNAME and ARGOCD_PASSWORD environment variables must be set"
+      exit 1
+    fi
+    echo "argo:argocd_login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
+    argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+    return_code=$?
+    echo "argo:argocd_login : return_code=$return_code"
+
+    if [ $return_code -eq 0 ]; then
+      echo "argo:argocd_login : ArgoCD login success"
+      break
+    fi
+
+    if [[ ${index} -eq ${retries} ]]; then
+      echo "argo:argocd_login : Timeout argocd_login failed, exit with error"
+      exit 1
+    fi
+    sleep $interval
+    ((index++))
+  done
+}
+
+
+function argocd_sync(){
+  APP_NAME=$1
+  echo
+  echo "Force Application $APP_NAME to Sync ..."
+  argocd app sync $APP_NAME --force --timeout 30 --assumeYes
+  RC=$?
+  echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
+}
+
+function argocd_prune_sync(){
+  APP_NAME=$1
+  echo "Force Application $APP_NAME to Sync with --prune ..."
+  argocd app sync $APP_NAME --prune
+  RC=$?
+  echo "ArgoCD response for Force Application $APP_NAME to Sync with --prune: $RC"
+}
+
+function argocd_hard_refresh(){
+  APP_NAME=$1
+  echo "Force Application $APP_NAME to hard refresh ..."
+  argocd app get $APP_NAME --hard-refresh
+  RC=$?
+  echo "ArgoCD response for Force Application $APP_NAME to hard refresh: $RC"
+}
+
+function check_argo_app_deleted(){
+  APPLICATION=$1
+  PROJECT=$2
+  WAIT_PERIOD=0
+  echo "argo: Checking if $APPLICATION in project $PROJECT is deleted."
+  while true; do
+    APP=$(argocd app list -p $PROJECT -o json 2> /dev/null | jq -r ".[] | select(.metadata.name == \"$APPLICATION\")")
+    if [ -z "$APP" ]; then
+      echo "Application deleted"
+      break
+    else
+      echo "Application $APPLICATION still found, Waiting 30s before checking application again"
+      sleep 30
+      WAIT_PERIOD=$(($WAIT_PERIOD+30))
+    fi
+  done
+}
+
+
+# Fetches URL for cluster with cluster id supplied in the first param (e.g. "mas-c6") and sets it as the value of the variable named in the second param
+# exit 1 if something goes wrong
+# Example usage:
+#   export CLUSTER_URL
+#   argocd_get_cluster_url "${CLUSTER_ID}" "CLUSTER_URL"
+#   echo "Cluster URL: ${CLUSTER_URL}"
+function argocd_get_cluster_url(){
+  local _CLUSTER_ID=$1
+  local _CLUSTER_URL=$(argocd cluster get ${_CLUSTER_ID} -o server)
+
+  # can't check RC of the call inside $(), so we'll have to make do with checking for empty output instead
+   if [ -z "${_CLUSTER_URL}" ]; then
+    echo "Failed to get URL for cluster ${_CLUSTER_ID} from ArgoCD"
+    exit 1
+   fi
+
+   eval "$2=${_CLUSTER_URL}"
+
+}
+
+
+
+function check_argo_app_synced() {
+  APPLICATION=$1
+  CLUSTER_WATCHER=$2
+  NAMESPACE=$3
+  COUNT=0
+  echo "argo:check_argo_app_synced : APPLICATION=$APPLICATION CLUSTER_WATCHER=$CLUSTER_WATCHER NAMESPACE=$NAMESPACE"
+  while true; do
+    echo "argo:check_argo_app_synced : Checking sync status for $APPLICATION"
+    APP_RES_YAML=$(argocd app get $APPLICATION -o json 2> /dev/null)
+    SYNC_STATUS=$(echo $APP_RES_YAML | jq -r .status.sync.status)
+
+    # We also check phase is "Succeeded" (not e.g. "Running") to ensure we wait for any post-sync hooks to complete
+    PHASE=$(echo $APP_RES_YAML | jq -r .status.operationState.phase)
+
+    echo "argo:check_argo_app_synced : SYNC_STATUS=$SYNC_STATUS PHASE=${PHASE}"
+    if [[ "$SYNC_STATUS" == "Synced" && "${PHASE}" == "Succeeded" ]]; then
+      echo "Sync Status is Synced and Phase is Succeeded"
+      break
+    else
+      ((COUNT++))
+      echo "argo:check_argo_app_synced : Sync Status is $SYNC_STATUS, Phase is ${PHASE}. Waiting 30s before checking status and phase again - $COUNT"
+      if ! (( $COUNT % 5 )) ; then
+        if [[ -n "$CLUSTER_WATCHER" ]]; then
+          argocd_sync $CLUSTER_WATCHER
+        fi
+        argocd_sync $APPLICATION
+      fi
+      sleep 30
+    fi
+  done
+}
+
+
+function check_argo_app_healthy() {
+  APPLICATION=$1
+  CLUSTER_WATCHER=$2
+  COUNT=0
+  while true; do
+    echo "argo:check_argo_app_healthy : Checking health status for $APPLICATION"
+    HEALTH_STATUS=$(argocd app get $APPLICATION -o json 2> /dev/null | jq -r .status.health.status)
+    if [ "$HEALTH_STATUS" == "Healthy" ]; then
+      echo "Health Status is Healthy"
+      break
+    else
+      ((COUNT++))
+      echo "argo:check_argo_app_healthy : Health Status is $HEALTH_STATUS, Waiting 30s before checking status again - $COUNT"
+      sleep 30
+      if ! (( $COUNT % 5 )) ; then
+        if [[ -n "$CLUSTER_WATCHER" ]]; then
+          # sync watcher as sometimes current application health status not reflected rightly (like returned empty status)
+          argocd_sync $CLUSTER_WATCHER
+        fi
+      fi
+    fi
+  done
+}
+
+function validate_app_name(){
+  APPLICATION=$1
+
+  if [[ ${#APPLICATION} -gt 63 ]]; then
+    echo "Application name cannot be longer than 63 characters: $APPLICATION"
+    exit 1
+  fi
+}

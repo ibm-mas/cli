@@ -21,8 +21,8 @@ Usage
 - `--redhat-password REDHAT_CONNECT_PASSWORD` Red Hat Connect Password (only required when mirroring UDS images)
 
 ### Maximo Operator Catalog Selection
-- `-c|--catalog MAS_CATALOG_VERSION` Maximo Operator Catalog Version to mirror (e.g. v8-230627-amd64)
-- `-C|--channel MAS_CHANNEL` Maximo Application Suite Channel to mirror (e.g. 8.10.x)
+- `-c|--catalog MAS_CATALOG_VERSION` Maximo Operator Catalog Version to mirror (e.g. v9-240625-amd64)
+- `-C|--channel MAS_CHANNEL` Maximo Application Suite Channel to mirror (e.g. 9.0.x)
 
 ### Content Selection (Core Platform)
 - `--mirror-catalog` Mirror the IBM Maximo Operator Catalog
@@ -33,6 +33,7 @@ Usage
 - `--mirror-hputilities` Mirror images for IBM Maximo Health & Predict Utilities
 - `--mirror-iot` Mirror images for IBM Maximo IoT
 - `--mirror-manage` Mirror images for IBM Maximo Manage
+- `--mirror-icd` Mirror image for IBM Maximo IT (Separately entitled IBM Maximo Manage extension)
 - `--mirror-monitor` Mirror images for IBM Maximo Monitor
 - `--mirror-optimizer` Mirror images for IBM Maximo Optimizer
 - `--mirror-predict` Mirror images for IBM Maximo Predict
@@ -40,10 +41,10 @@ Usage
 
 ### Content Selection (Cloud Pak for Data)
 - `--mirror-cp4d` Mirror images for IBM Cloud Pak for Data Platform
-- `--mirror-wd` Mirror images for IBM Watson Discovery
 - `--mirror-wsl` Mirror images for IBM Watson Studio Local
 - `--mirror-wml` Mirror images for IBM Watson Machine Learning
 - `--mirror-spark` Mirror images for IBM Analytics Engine (Spark)
+- `--mirror-cognos` Mirror images for IBM Cognos Analytics
 
 ### Content Selection (Other Dependencies)
 - `--mirror-cfs` Mirror images for IBM Cloud Pak Foundation Services
@@ -54,6 +55,8 @@ Usage
 - `--mirror-db2` Mirror images for IBM Db2
 - `--mirror-appconnect` Mirror images for IBM AppConnect
 
+### Content Selection (All images included):
+- `--mirror-everything` Mirror all MAS related images (including dependencies)
 
 ### Other Options
 - `--no-confirm` Mirror images without prompting for confirmation
@@ -81,7 +84,6 @@ As of MAS 8.10 (June 2023) the total capacity requirement to mirror content from
 | IBM Cloud Pak for Data       | Command Flag                | Size     |
 | ---------------------------- | --------------------------- | -------- |
 | IBM CP4D Platform            | `--mirror-cp4d`             | 2G       |
-| IBM Watson Discovery         | `--mirror-wd`               | 41G      |
 | IBM Analytics Engine (Spark) | `--mirror-spark`            | 54G      |
 | IBM Watson Machine Learning  | `--mirror-wml`              | 91G      |
 | IBM Watson Studio Local      | `--mirror-wsl`              | 85G      |

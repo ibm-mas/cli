@@ -1,9 +1,13 @@
 #!/bin/bash
 
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# !! Note: Despite the name, this is used by the upgrade script              !!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 # STORAGE_CLASS_RWX
 # -----------------
 # RWX: Usually this role is fulfilled by block storage classes; used by:
-# - cluster monitoring (Prometheus, Grafana, & user workload monitoring)
+# - Grafana
 # - Db2 (data, logs, and temp volumes)
 # - Kafka, MongoDb, and User Data Services
 #
@@ -13,12 +17,8 @@
 # STORAGE_CLASS_RWO
 # -----------------
 # RWO: Usually this role is fulfilled by file storage classes; used by:
-# - cluster monitoring (alert manager)
 # - Db2 (meta and backup volumes)
 #
-# - prometheus_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
-# - prometheus_alertmgr_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
-# - prometheus_userworkload_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - grafana_instance_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - db2_data_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]
 # - db2_logs_storage_class [ibmc-block-gold, ocs-storagecluster-ceph-rbd, managed-premium]

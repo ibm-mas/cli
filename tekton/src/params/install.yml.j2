@@ -12,6 +12,10 @@
   type: string
   default: ""
 
+# Dependencies - ECK
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-eck.yml.j2') }}
+
 # Dependencies - Turbonomic
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-turbonomic.yml.j2') }}
@@ -21,11 +25,6 @@
 - name: sls_namespace
   type: string
   default: ""
-- name: sls_license_id
-  type: string
-- name: sls_license_file
-  type: string
-  default: "/workspace/entitlement/entitlement.lic"
 - name: sls_entitlement_file
   type: string
   default: "/workspace/entitlement/entitlement.lic"
@@ -36,9 +35,6 @@
   type: string
   default: ""
 - name: sls_channel
-  type: string
-  default: ""
-- name: sls_icr_cp
   type: string
   default: ""
 - name: sls_icr_cpopen
@@ -105,9 +101,6 @@
 - name: kafka_version
   type: string
   description: Kafka version
-  default: ""
-- name: kafka_cluster_name
-  type: string
   default: ""
 
 # Dependencies - AMQ Streams / Strimzi (Kafka)
@@ -258,6 +251,9 @@
 - name: uds_action
   type: string
   default: ""
+- name: dro_namespace
+  type: string
+  default: ""
 - name: mas_segment_key
   type: string
   default: ""
@@ -272,11 +268,11 @@
   type: string
   description: COS Provider (ibm or ocs)
   default: ""
-- name: ibmcos_resourcegroup
+- name: cos_resourcegroup
   type: string
   description: Name of an existing COS Resource Group in IBM Cloud account
   default: ""
-- name: ibmcos_instance_name
+- name: cos_instance_name
   type: string
   description: Name of COS instance in IBM Cloud account
   default: ""
@@ -285,45 +281,25 @@
   description: COS action to be performed (provision or deprovision)
   default: ""
 
-# MAS Integration - Cluster Monitoring - Prometheus
+# MAS Integration - Grafana
 # -----------------------------------------------------------------------------
-- name: prometheus_retention_period
+- name: grafana_action
   type: string
-  default: ""
-- name: prometheus_storage_class
-  type: string
-  default: ""
-- name: prometheus_storage_size
-  type: string
-  default: ""
-- name: prometheus_alertmgr_storage_class
-  type: string
-  default: ""
-- name: prometheus_alertmgr_storage_size
-  type: string
-  default: ""
-- name: prometheus_userworkload_retention_period
-  type: string
-  default: ""
-- name: prometheus_userworkload_storage_class
-  type: string
-  default: ""
-- name: prometheus_userworkload_storage_size
-  type: string
-  default: ""
-
-# MAS Integration - Cluster Monitoring - Grafana
-# -----------------------------------------------------------------------------
-- name: cluster_monitoring_include_grafana
-  type: string
-  default: ""
+  description: Set to 'none' to skip Grafana installation
+  default: "install"
 - name: grafana_namespace
+  type: string
+  default: ""
+- name: grafana_v5_namespace
   type: string
   default: ""
 - name: grafana_instance_storage_class
   type: string
   default: ""
 - name: grafana_instance_storage_size
+  type: string
+  default: ""
+- name: grafana_major_version
   type: string
   default: ""
 
@@ -458,6 +434,51 @@
   default: ""
   description: Data Dictionary catalog source
 
+# SSO Configuration
+# -----------------------------------------------------------------------------
+- name: idle_timeout
+  type: string
+  default: ''
+- name: idp_session_timeout
+  type: string
+  default: ''
+- name: access_token_timeout
+  type: string
+  default: ''
+- name: refresh_token_timeout
+  type: string
+  default: ''
+- name: default_idp
+  type: string
+  default: ''
+- name: seamless_login
+  type: string
+  default: ''
+- name: sso_cookie_name
+  type: string
+  default: ''
+- name: allow_default_sso_cookie_name
+  type: string
+  default: ''
+- name: use_only_custom_cookie_name
+  type: string
+  default: ''
+- name: disable_ldap_cookie
+  type: string
+  default: ''
+- name: allow_custom_cache_key
+  type: string
+  default: ''
+
+# MAS Configuration - Superuser Account
+# -----------------------------------------------------------------------------
+- name: mas_superuser_username
+  type: string
+  default: ""
+- name: mas_superuser_password
+  type: string
+  default: ""
+
 # MAS Application Configuration - IoT Application
 # -----------------------------------------------------------------------------
 - name: mas_app_settings_iot_deployment_size
@@ -498,6 +519,10 @@
 - name: mas_app_settings_secondary_languages
   type: string
   description: Defines Manage application list of secondary languages
+  default: ""
+- name: mas_app_settings_server_timezone
+  type: string
+  description: Defines Manage server timezone
   default: ""
 - name: mas_app_settings_persistent_volumes_flag
   type: string
@@ -582,6 +607,29 @@
 - name: mas_app_settings_default_jms
   type: string
   description: Set true if you want to configure JMS queues. It is false by default.
+  default: "" # default is handled by ansible-devops
+- name: mas_manage_attachment_configuration_mode
+  type: string
+  description: Manage attachment configuration mode (cr or db)
+  default: ""
+- name: mas_manage_attachments_provider
+  type: string
+  description: Manage attachment provider (filestorage, ibm, aws)
+  default: ""
+- name: cos_bucket_name # cos_bucket_name in attachments role
+  type: string
+  description: COS Bucket optionally used to hold attachments in Manage
+  default: ""
+
+# MAS Application Configuration - IBM Maximo Location Services for ESRI
+# -----------------------------------------------------------------------------
+- name: install_arcgis
+  type: string
+  description: Flag to control whether to install IBM Maximo Location Services for ESRI
+  default: ""
+- name: mas_arcgis_channel
+  type: string
+  description: Default channel for IBM Maximo Location Services for ESRI 
   default: "" # default is handled by ansible-devops
 
 # MAS Application Configuration - Health Application

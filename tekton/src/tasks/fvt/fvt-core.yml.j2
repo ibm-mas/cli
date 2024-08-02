@@ -71,6 +71,20 @@ spec:
             key: DEVOPS_BUILD_NUMBER
             optional: true
 
+      # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) the content of /opt/ibm/test/upload file will be automatically uploaded
+      - name: ARTIFACTORY_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_TOKEN
+            optional: true
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
+
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE
         value: $(params.fvt_test_suite)
@@ -82,6 +96,12 @@ spec:
       # Parameters for tests
       - name: IBMADMIN_ENABLED
         value: "true"
+      - name: FVT_ENABLE_IMAGE_SCAN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: FVT_ENABLE_IMAGE_SCAN
+            optional: True
 
       # Black and white listing
       - name: FVT_BLACKLIST
@@ -176,3 +196,5 @@ spec:
 
   workspaces:
     - name: configs
+    - name: pod-templates
+      optional: true

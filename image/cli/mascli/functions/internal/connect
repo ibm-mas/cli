@@ -7,15 +7,18 @@ function connect() {
   oc whoami &>> $LOGFILE
   if [[ $? == "0" ]]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${TEXT_RESET}" | tee $LOGFILE
-    if ! prompt_for_confirm_default_yes "Proceed with this cluster?"; then
-      PROMPT_FOR_LOGIN=true
+    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}"
+    echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE\n" >> $LOGFILE
+    if [[ "$NO_CONFIRM" != true ]]; then
+      if ! prompt_for_confirm_default_yes "Proceed with this cluster?"; then
+        PROMPT_FOR_LOGIN=true
+      fi
     fi
   else
     PROMPT_FOR_LOGIN=true
   fi
 
-  if [[ $PROMPT_FOR_LOGIN == "true" ]]; then
+  if [[ $PROMPT_FOR_LOGIN == true ]]; then
     prompt_for_input "Server URL" OCP_LOGIN_URL
     prompt_for_secret "Login Token" OCP_LOGIN_TOKEN
     prompt_for_confirm "Disable TLS Verify?" OCP_DISABLE_TLS_VERIFY
@@ -27,7 +30,8 @@ function connect() {
       exit 1
     fi
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${TEXT_RESET}" | tee $LOGFILE
+    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}"
+    echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE\n" >> $LOGFILE
     prompt_for_confirm "Proceed with installation on this cluster?" || exit 0
   fi
   ALREADY_CONFIRMED=true
@@ -39,7 +43,8 @@ function confirm_connection() {
   oc whoami &>> $LOGFILE
   if [[ $? == "0" ]]; then
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}${TEXT_RESET}" | tee $LOGFILE
+    echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}"
+    echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE\n" >> $LOGFILE
   else
     echo_warning "You are not connected to an OCP cluster.  Run oc login, or use the CLI interactive mode."
     exit 1

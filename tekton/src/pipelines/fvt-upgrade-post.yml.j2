@@ -1,0 +1,106 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-upgrade-post
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+
+  params:
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
+
+    # MAS Configuration
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: mas_app_channel_monitor
+      type: string
+      default: ""
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+
+    # Test Requirements
+    - name: kafka_provider
+      type: string
+      description: kafka provider used during installation (ibm, aws or redhat) to pick up right MIF tests
+      default: ""
+
+    # FVT Configuration
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: fvt_artifactory_username
+      type: string
+      default: ""
+    - name: fvt_artifactory_token
+      type: string
+      default: ""
+
+    # Image Digests
+    - name: fvt_digest_manage
+      type: string
+      default: ""
+    - name: fvt_digest_manage_pytest
+      type: string
+      default: ""
+    - name: fvt_digest_ctf
+      type: string
+      description: FVT Digest - CTF
+      default: ""
+
+  tasks:
+
+    # Monitor Tests Post Upgrade
+    - name: fvt-monitor-upgrade-post
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: monitor_upgrade_post # Post upgrade tests
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      taskRef:
+        kind: Task
+        name: mas-fvt-monitor
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # Manage Tests Post Upgrade (API)
+    - name: fvt-manage-base-api-upgrade-post
+      {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: base-api-upgrade-post
+
+    # Manage Tests Post Upgrade (UI)
+    - name: fvt-manage-base-ui-upgrade-post
+      {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(6) }}
+      {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite_prefix
+          value: base-ui
+        - name: fvt_test_suite
+          value: upgrade-post

@@ -1,0 +1,20 @@
+mas_config_name: "{{ MAS_CONFIG_NAME }}"
+mas_config_chart: ibm-mas-smtp-config
+mas_config_scope: {{ MAS_CONFIG_SCOPE }}
+mas_workspace_id: {{ MAS_WORKSPACE_ID }}
+mas_application_id: {{ MAS_APP_ID }}
+mas_config_kind: "smtpcfgs"
+mas_config_api_version: "config.mas.ibm.com"
+use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
+
+suite_smtp_username: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SMTP_USERNAME }}>
+suite_smtp_password: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SMTP_PASSWORD }}>
+suite_smtp_display_name: {{ SMTP_DISPLAY_NAME }}
+suite_smtp_host: {{ SMTP_HOST }}
+suite_smtp_port: {{ SMTP_PORT }}
+suite_smtp_security: {{ SMTP_SECURITY }}
+suite_smtp_authentication: {{ SMTP_AUTHENTICATION }}
+suite_smtp_default_sender_email: {{ SMTP_DEFAULT_SENDER_EMAIL }}
+suite_smtp_default_sender_name: {{ SMTP_DEFAULT_SENDER_NAME }}
+suite_smtp_default_recipient_email: {{ SMTP_DEFAULT_RECIPIENT_EMAIL }}
+suite_smtp_default_should_email_passwords: {{ SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS }}

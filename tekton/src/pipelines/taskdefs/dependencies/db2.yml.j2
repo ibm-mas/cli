@@ -1,6 +1,7 @@
 - name: db2-{{ suffix }}
+  timeout: "0"
   params:
-    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: dependencies-db2-{{ suffix }}
 
@@ -26,6 +27,10 @@
       value: $(params.db2_ldap_username)
     - name: db2_ldap_password
       value: $(params.db2_ldap_password)
+    - name: db2_type
+      value: $(params.db2_type)
+    - name: db2_timezone
+      value: $(params.db2_timezone)
 {% endif %}
     - name: db2_namespace
       value: $(params.db2_namespace)

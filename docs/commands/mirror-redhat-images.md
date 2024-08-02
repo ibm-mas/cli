@@ -1,4 +1,4 @@
-Mirror Images
+Mirror Red Hat Images
 ===============================================================================
 
 Usage
@@ -21,7 +21,7 @@ Usage
 - `--pullsecret REDHAT_PULLSECRET` [Red Hat OpenShift Pull Secret](https://console.redhat.com/openshift/install/pull-secret)
 
 ### Content Selection (Optional):
-- `--release OCP_RELEASE` OCP Release to mirror content for (e.g. 4.10, 4.12)
+- `--release OCP_RELEASE` OCP Release to mirror content for (e.g. 4.13, 4.14)
 
 ### Platform Version Range (Optional):
 - `--min-version OCP_MIN_VERSION` Minimum version of the OCP release to mirror
@@ -35,6 +35,12 @@ Usage
 Storage Requirements
 -------------------------------------------------------------------------------
 The selected content from the three required OpenShift operator catalogs requires approximately 80Gb.  The storage requirements for the OpenShift platform itself will vary depending on how many versions of the release you intent to mirror.
+
+
+Video Walkthrough
+-------------------------------------------------------------------------------
+<iframe width="720" height="405" src="https://www.youtube.com/embed/d0qCF8qGumc?si=mWV0vmnnLnWvuicA" title="Video Walkthough: Mirror Red Hat Images" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<br />
 
 Examples
 -------------------------------------------------------------------------------
@@ -106,6 +112,6 @@ docker run -ti --rm -v /mnt/storage:/mnt/workspace --pull always quay.io/ibmmas/
   -u admin -p password \
   --mirror-platform \
   --mirror-operators \
-  --ocp-release 4.10 \
+  --ocp-release 4.15 \
   --no-confirm
 ```

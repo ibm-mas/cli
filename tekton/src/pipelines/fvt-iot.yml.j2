@@ -1,5 +1,4 @@
 ---
-# Don't edit install.yaml directly -- modify install.yml.j2, and the content in parts/, then run "ansible-playbook generate-install.yaml"
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -8,6 +7,8 @@ spec:
   workspaces:
     # The generated configuration files
     - name: shared-configs
+    # PodTemplates configurations
+    - name: shared-pod-templates
 
   params:
     # Tekton Pipeline image pull policy (for ibmmas/cli images)
@@ -66,8 +67,13 @@ spec:
         - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+        - name: pod-templates
+          workspace: shared-pod-templates
 
-    - name: cv-iot
+    - name: imagescan-iot
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
@@ -76,12 +82,11 @@ spec:
         - name: product_channel
           value: $(params.mas_app_channel_iot)
         - name: fvt_test_suite
-          value: contentverification
+          value: imagescan
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin
           values: [""]
-
 
     # 2. IoT FVT
     # -----------------------------------------------------------------------------
@@ -108,7 +113,24 @@ spec:
           values: [""]
       runAfter:
         - ivtcore-iot
-        - cv-iot
       workspaces:
         - name: configs
           workspace: shared-configs
+
+  finally:
+    # 1. Run CV
+    # -----------------------------------------------------------------------------
+    - name: cv-iot
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-iot
+        - name: product_channel
+          value: $(params.mas_app_channel_iot)
+        - name: fvt_test_suite
+          value: contentverification
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]

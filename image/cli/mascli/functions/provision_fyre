@@ -18,7 +18,7 @@ Cluster Configuration (Required):
   -p, --product-id ${COLOR_YELLOW}FYRE_PRODUCT_ID${TEXT_RESET}        FYRE product group ID that will own the cluster
   -q, --quota-type ${COLOR_YELLOW}FYRE_QUOTA_TYPE${TEXT_RESET}        Declare the quota to use when provisioning the cluster ("quick_burn" or "product_group")
   -c, --cluster-name ${COLOR_YELLOW}CLUSTER_NAME${TEXT_RESET}         Name of the cluster to be provisioned (lowercase only)
-  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}           OCP version to use (e.g 4.8, 4.10)
+  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}           OCP version to use (e.g 4.13, 4.14)
   -d, --description ${COLOR_YELLOW}FYRE_DESCRIPTION${TEXT_RESET}      Description of the OCP cluster
   -l, --location ${COLOR_YELLOW}FYRE_SITE${TEXT_RESET}                FYRE site where cluster will be provisioned (default is svl)
 
@@ -108,6 +108,8 @@ function provision_fyre_noninteractive() {
   if [[ -z "$FYRE_SITE" ]]; then
     FYRE_SITE=svl
   fi
+
+  [[ "$FYRE_SITE" != "svl" && "$FYRE_QUOTA_TYPE" == "quick_burn" ]] && provision_fyre_help "Quickburn is only available in svl"
 }
 
 function provision_fyre_interactive() {
@@ -129,16 +131,16 @@ function provision_fyre_interactive() {
 
   echo
   echo "OCP Version:"
-  echo "  1. 4.10 (MAS 8.9-8.10)"
-  echo "  2. 4.12 (MAS 8.10-8.11)"
+  echo "  1. 4.15 (MAS 8.10-9.0)"
+  echo "  2. 4.14 (MAS 8.10-9.0)"
   prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
 
   case $OCP_VERSION_SELECTION in
-    1|4.10)
-      export OCP_VERSION=4.10
+    1|4.15)
+      export OCP_VERSION=4.15
       ;;
-    2|4.12)
-      export OCP_VERSION=4.12.22
+    2|4.14)
+      export OCP_VERSION=4.14
       ;;
     *)
       # Print out a warning as there could be a typo
@@ -159,6 +161,10 @@ function provision_fyre_interactive() {
     prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY
   else
     FYRE_QUOTA_TYPE="quick_burn"
+    if [[ "$FYRE_SITE" != "svl" ]]; then 
+      echo -e "${COLOR_RED}Usage Error: QuickBurn is only supported in svl${TEXT_RESET}\n"
+      exit 1
+    fi
   fi
 
   prompt_for_input "Configure Storage (ODF)" FYRE_CONFIG_STORAGE

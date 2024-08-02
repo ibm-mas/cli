@@ -1,6 +1,7 @@
 - name: kafka
+  timeout: "0"
   params:
-    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: dependencies-kafka
 
@@ -9,7 +10,7 @@
 
     # Kafka - General variables
     - name: kafka_cluster_name
-      value: $(params.kafka_cluster_name)
+      value: mas-$(params.mas_instance_id)-system
 
     # AMQ Streams (Kafka)
     - name: kafka_version
@@ -79,9 +80,9 @@
     - name: ibmcloud_resourcegroup
       value: $(params.ibmcloud_resourcegroup)
 
-  # Only install Kafka if the IoT application is being installed
+  # Only install Kafka if IoT or Manage applications are being installed
   when:
-    - input: "$(params.mas_app_channel_iot)"
+    - input: "$(params.mas_app_channel_iot)$(params.mas_app_channel_manage)"
       operator: notin
       values: [""]
     - input: "$(params.kafka_action_system)"

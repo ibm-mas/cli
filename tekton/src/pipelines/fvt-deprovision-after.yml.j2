@@ -39,12 +39,12 @@ spec:
     - name: ibmcloud_resourcegroup
       type: string
       default: ""
-    
+
     # COS
-    - name: ibmcos_resourcegroup
+    - name: cos_resourcegroup
       type: string
       default: ""
-    - name: ibmcos_instance_name
+    - name: cos_instance_name
       type: string
       default: ""
     - name: cos_type
@@ -77,39 +77,52 @@ spec:
     - name: wait-for-pipelinerun
       taskRef:
         kind: Task
-        name: mas-fvt-wait-for-pipelinerun
+        name: mas-devops-wait-for-tekton
       params:
-        - name: pipelinerun_name
+        - name: type
+          value: pipelinerun
+        - name: name
           value: $(params.pipelinerun_name)
+        - name: delay
+          value: 1200  # 20 minutes between checking the status of the pipelinerun
+        - name: retries
+          value: 60  # attempts before giving up (approximately 20 hours)
         - name: ignore_failure
           value: $(params.ignore_failure)
 
     # 1. Delete IBM Cloud services
     # -------------------------------------------------------------------------
-    
+
     # COS
-    {{ lookup('template', 'taskdefs/dependencies/cos-deprovision.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-cos.yml.j2') | indent(4) }}
       runAfter:
         - wait-for-pipelinerun
+      when:
+        - input: "$(params.cos_type)"
+          operator: in
+          values: ["ibm"]
+        - input: "$(params.cos_action)"
+          operator: in
+          values: ["deprovision"]
 
     # Event Streams
-    {{ lookup('template', 'taskdefs/dependencies/kafka-deprovision.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-kafka.yml.j2') | indent(4) }}
       runAfter:
         - wait-for-pipelinerun
+      when:
+        - input: "$(params.kafka_provider)"
+          operator: in
+          values: ["ibm"]
+        - input: "$(params.kafka_action_system)"
+          operator: in
+          values: ["uninstall"]
 
     # 2. Delete the named cluster
     # -------------------------------------------------------------------------
     - name: deprovision-cluster
       taskRef:
         kind: Task
-        name: mas-devops-ocp-deprovision
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: cluster_type
-          value: $(params.cluster_type)
-        - name: ibmcloud_apikey
-          value: $(params.ibmcloud_apikey)
+        name: mas-fvt-deprovision-ocp
       runAfter:
         - cos-deprovision
         - kafka-deprovision

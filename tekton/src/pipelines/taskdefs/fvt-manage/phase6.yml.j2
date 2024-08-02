@@ -1,0 +1,23 @@
+# -------------------------------------------------------------
+# LAST PHASE: tests running one after the other due to its disruptive characteristic
+# - fvt-manage-base-ui-mas-usertimeout (selenium)
+# - fvt-manage-base-ui-application-designer (selenium)
+# - fvt-manage-base-ui-startcenter-config (selenium)
+# - fvt-manage-base-ui-workflow-designer (selenium)
+# - fvt-manage-base-ui-smtp-setup (selenium)
+# -------------------------------------------------------------
+
+- name: fvt-manage-base-ui-last-phase
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  taskRef:
+    kind: Task
+    name: mas-fvt-manage-last-phase
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
+  runAfter:
+    - fvt-manage-base-ui-sec-audit-log
+    - fvt-manage-base-ui-sec-inactive-auth
+    - fvt-manage-base-ui-mif-kafka-inbound
+    - fvt-manage-base-ui-wo-doclink
+    - fvt-manage-base-ui-directprint
+    - fvt-manage-base-ui-adhoc-report

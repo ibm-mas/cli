@@ -49,17 +49,6 @@ spec:
       description: Workspace ID in MAS to use for running the tests
       default: "masdev"
 
-    # Test-specific Information (all optional)
-    # -------------------------------------------------------------------------
-    - name: artifactory_token
-      type: string
-      description: Artifactory Token (required by fvt-ibm-mas-mobile to pull/push test container content)
-      default: ""
-    - name: artifactory_upload_dir
-      type: string
-      description: Artifactory upload directory
-      default: ""
-
     # Mobile Specific information
     - name: mobile_device_type
       type: string
@@ -141,7 +130,14 @@ spec:
             name: mas-fvt-mobile
             key: FVT_BSTACK_INSP_SR
             optional: true
-           
+
+      - name: FVT_BSTACK_IC_DESK
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-mobile
+            key: FVT_BSTACK_IC_DESK
+            optional: true     
+
       - name: FVT_BSTACK_ASSET_TECH
         valueFrom:
           secretKeyRef:
@@ -176,11 +172,6 @@ spec:
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
 
-      - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
-      - name: ARTIFACTORY_UPLOAD_DIR
-        value: $(params.artifactory_upload_dir)
-
       # Assist Specific information
       - name: MOBILE_DEVICE_TYPE
         value: $(params.mobile_device_type)
@@ -188,7 +179,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/fvt-mobile/fvt-mobile-testng@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 2h # Ensure bad FVTs don't run forever
+      timeout: 3h # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src

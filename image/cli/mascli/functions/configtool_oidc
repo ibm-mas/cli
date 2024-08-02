@@ -9,27 +9,29 @@ Usage:
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
-${COLOR_YELLOW}1. Cluster credentials${TEXT_RESET}
-Log in to your cluster with your IBMid by using the following method, browse to the OpenShift web console.
+${COLOR_YELLOW}1. Cluster credentials${TEXT_RESET}  
+Log in to your cluster with your IBMid by using the following method, browse to the OpenShift web console. 
 From the dropdown menu in the upper right of the page, click Copy Login Command.
-- CLUSTER_TOKEN=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to
+- CLUSTER_TOKEN=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to  
 - CLUSTER_SERVER=https://c130-e.us-south.containers.cloud.ibm.com:32250
 example: oc login --token=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3to --server=https://c130-e.us-south.containers.cloud.ibm.com:32250
 
 ${COLOR_YELLOW}2. MAS home URL and trust ui prefix${TEXT_RESET}
-- MAS_HOME=masdev.home.mobfound1.masdev.suite.maximo.com
-- TRUST_UI_PREFIX="http://localhost:3000, http://localhost:3001"
+- MAS_HOME=masdev.home.mobfound1.masdev.suite.maximo.com  
+- TRUST_UI_PREFIX="http://localhost:3000, http://localhost:3001"    
+${COLOR_YELLOW}Instance id specified if not derived from MAS_HOME url${TEXT_RESET}
+- MAS_INSTANCE_ID=mobfnd 
 
 ${COLOR_YELLOW}3. Command operation${TEXT_RESET}
 ### mas oidc register
 Register oidc client for config tool.
-If client ever registered, it will be deleted firstly.
+If client ever registered, it will be deleted firstly. 
 
 ${COLOR_YELLOW}### mas oidc unregister${TEXT_RESET}
 Unregister oidc client for config tool previously registered.
 
 ${COLOR_YELLOW}### mas oidc update${TEXT_RESET}
-So far only trust ui prefix is supported to update. Same as register command.
+So far only trust ui prefix is supported to update. Same as register command. 
 
 ${COLOR_YELLOW}### mas oidc [-h|--help]${TEXT_RESET}
 Show this help message
@@ -42,6 +44,9 @@ Cluster Credentials (Required):
 MAS OIDC Information (Required):
   -m, --mas-home ${COLOR_YELLOW}MAS_HOME${TEXT_RESET}                       MAS Home Url
   -p, --ui-prefix ${COLOR_YELLOW}TRUST_UI_PREFIX${TEXT_RESET}               Trust UI prefix to receive OIDC callback
+
+MAS Instance Id (Optional):
+  -i, --instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}             MAS Instance Id
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
@@ -64,6 +69,9 @@ function configtool_oidc_noninteractive() {
       -p|--ui-prefix)
         TRUST_UI_PREFIX=$1 && shift
         ;;
+      -i|--instance-id)
+        MAS_INSTANCE_ID=$1 && shift
+        ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
@@ -83,7 +91,7 @@ function configtool_oidc_noninteractive() {
 function configtool_oidc_interactive() {
 
   echo_h2 "Cluster Credentials"
-  echo "Log in to your cluster with your IBMid by using the following method, browse to the OpenShift web console."
+  echo "Log in to your cluster with your IBMid by using the following method, browse to the OpenShift web console." 
   echo "From the dropdown menu in the upper right of the page, click Copy Login Command."
   echo ""
   prompt_for_input "Cluster Token" CLUSTER_TOKEN && export CLUSTER_TOKEN
@@ -94,6 +102,9 @@ function configtool_oidc_interactive() {
   prompt_for_input "MAS Home" MAS_HOME && export MAS_HOME
   echo "example: http://localhost:3000, http://localhost:3001"
   prompt_for_input "Trust UI Prefix" TRUST_UI_PREFIX && export TRUST_UI_PREFIX
+  echo_h2 "MAS Instance Id (Optional) if specified"
+  echo "example: masdev.home.mobfound1.masdev.suite.maximo.com, instance id = mobfound1"
+  prompt_for_input "MAS Instance Id" MAS_INSTANCE_ID && export MAS_INSTANCE_ID
 }
 
 function configtool_oidc() {
@@ -121,7 +132,7 @@ function configtool_oidc() {
         ;;
       esac
   fi
-
+  
   # noneinteractive if more parameters
   if [[ $# -gt 0 ]]; then
     configtool_oidc_noninteractive "$@"
@@ -132,6 +143,7 @@ function configtool_oidc() {
   export CLUSTER_SERVER
   export MAS_HOME
   export TRUST_UI_PREFIX
+  export MAS_INSTANCE_ID
 
   # login cluster
   echo Login $CLUSTER_SERVER...
@@ -169,7 +181,12 @@ function configtool_oidc() {
   OAUTH_URL="https://auth.$INSTANCE_NAME.$DOMAIN_SUFFIX/oidc/endpoint/MaximoAppSuite/registration"
   OAUTH_URL_CONFIGTOOL="$OAUTH_URL/$CLIENT_CONFIGTOOL"
   LOGOUT_URL="https://auth.$INSTANCE_NAME.$DOMAIN_SUFFIX/oidc/endpoint/MaximoAppSuite/logout"
+  echo "OIDC registration url: $OAUTH_URL"
 
+  if [[ ! -z $MAS_INSTANCE_ID ]]; then
+    INSTANCE_NAME=$MAS_INSTANCE_ID
+  fi
+  echo "entering mas-${INSTANCE_NAME}-core project"
   oc project mas-${INSTANCE_NAME}-core
   OAUTH_ADMIN_USERNAME=`oc get secret ${INSTANCE_NAME}-credentials-oauth-admin -o jsonpath="{.data['oauth-admin-username']}" | base64 -d`
   OAUTH_ADMIN_PWD=`oc get secret ${INSTANCE_NAME}-credentials-oauth-admin -o jsonpath="{.data['oauth-admin-password']}" | base64 -d`
@@ -221,7 +238,7 @@ function configtool_oidc() {
       REDIRECT_UIS+="\""$ELE$CALLBACK"\""
     fi
     j=$((j + 1))
-  done
+  done 
   TRUST_UIS+="]"
   REDIRECT_UIS+="]"
 

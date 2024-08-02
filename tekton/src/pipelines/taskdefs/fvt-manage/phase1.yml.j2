@@ -1,34 +1,18 @@
+
 # -------------------------------------------------------------
 # PHASE 1
-# - fvt-manage-setup
-# - fvt-manage-monitoring
+# - ivt-manage-base-api (pytest)
 # -------------------------------------------------------------
 
-# Manage FVT Setup
-- name: fvt-manage-setup # convention: use fvt-manage-<keyword>, as the value of fvt_test_suite parameter
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+# Manage Integration 
+# It contains a more elaborated test of user sync than the one in coreivt.
+# Other integration tests with mas core are also present here, like monitoring, which
+# validate metrics published in openshift by Manage
+- name: fvt-manage-base-api-ivt
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: setup
-    - name: fvt_mas_appws_component
-      value: base
-    - name: fvt_test_driver
-      value: tpae
+      value: base-api-ivt
   runAfter:
-    - fvt-manage-usersync
-
-# Manage FVT Monitoring
-- name: fvt-manage-monitoring
-  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: core
-    - name: fvt_test_suite
-      value: monitoring
-  runAfter:
-    - fvt-manage-usersync
+    - ivtcore-manage

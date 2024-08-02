@@ -14,7 +14,7 @@ The tekton defintions can be built locally using `build/bin/build-tekton.sh`:
 
 ```bash
 # Build, and install the MAS Pipeline & Task definitions
-DEV_MODE=true VERSION=7.8.0-pre.fvtsplit build/bin/build-tekton.sh && oc apply -f tekton/target/ibm-mas-tekton-fvt.yaml
+DEV_MODE=true VERSION=10.1.0 build/bin/build-tekton.sh && oc apply -f tekton/target/ibm-mas-tekton-fvt.yaml
 
 # Build, and install the MAS Pipeline & Task definitions 1-by-1
 DEV_MODE=true VERSION=7.8.0-pre.fvtsplit build/bin/build-tekton.sh && tekton/test.sh
@@ -31,7 +31,7 @@ tekton/test-install.sh
 ```bash
 # Build & install ansible collections, save them to image/cli/, build the docker container, then run the container
 make
-docker run -ti --rm quay.io/ibmmas:local
+docker run -ti --rm quay.io/ibmmas/cli:local
 ```
 
 
@@ -90,6 +90,13 @@ For `major` and `minor` pull requests mainly, make sure you follow the standard 
 
 - Ensure you have tested your changes and they do what is supposed to from an "end-to-end" perspective. Attaching screenshots of the end goal in your `pull request` are always welcome so everyone knows what to expect by the change, and that it does not break existing role functionalities around your change (basic regression test).
 - Ensure that a MAS install test runs successfully from an `end-to-end` via cli (basic regression test). See more information about it in [MAS CLI documentation](https://github.com/ibm-mas/cli).
+- If tekton tasks were modified please use the following test procedure from a linux environment that has ansible installed, the `oc` command and access to modified cli repo (your test branch):
+  - Change directory to the cli/tekton directory
+  - login to your cluster (oc login command)
+  - Execute `ansible-playbook generate-tekton-tasks.yml`
+  - Execute `ansible-playbook generate-tekton-pipelines.yml`
+  - Execute `./test.sh`  This will try to create or recreate all the tekton resources in the default pipeline, make sure there are no errors.
+
 
 Here's how you could get started with a new pull request from your branch:
 
@@ -117,4 +124,4 @@ The MAS Ansible Devops collection contains the ansible roles that are used to au
 When building a MAS CLI pre-release image version, the build system will embed the MAS Ansible Devops `tar.gz` following the rule:
 
 - By default, MAS CLI will build its pre-release image using [the latest MAS Ansible Devops released version](https://github.com/ibm-mas/ansible-devops/releases).
-- **To use a custom MAS Ansible Devops collection within MAS CLI:**  If you are developing a custom MAS Ansible Devops collection and you want to build a MAS CLI image that will make use of this ansible collection, from the `cli` root folder, you can run `make ansible-build` to build and place your MAS Ansible Devops `tar.gz` into [`cli/image/cli/install-ansible`](image/cli/install-ansible/), that's the folder that CLI uses to install the MAS Ansible Devops collection that will be used within the MAS CLI container during the image build process.
+- **To use a custom MAS Ansible Devops collection within MAS CLI:**  If you are developing a custom MAS Ansible Devops collection and you want to build a MAS CLI image that will make use of this ansible collection, from the `cli` root folder, you can run `make ansible-build` to build and place your MAS Ansible Devops `tar.gz` into [`cli/image/cli/install`](image/cli/install/), that's the folder that CLI uses to install the MAS Ansible Devops collection that will be used within the MAS CLI container during the image build process.

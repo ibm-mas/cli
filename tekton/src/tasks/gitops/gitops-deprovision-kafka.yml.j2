@@ -1,0 +1,103 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-deprovision-kafka
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: github_repo
+      type: string      
+    - name: secrets_path
+      type: string
+    - name: kafka_provider
+      type: string
+      default: aws      
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: vpc_ipv4_cidr
+      type: string
+  stepTemplate:
+    name: gitops-deprovision-kafka
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)        
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: KAFKA_PROVIDER
+        value: $(params.kafka_provider)        
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: SM_AWS_SECRET_ACCESS_KEY
+        value: $(params.avp_aws_secret_key)
+      - name: SM_AWS_ACCESS_KEY_ID
+        value: $(params.avp_aws_access_key)
+      - name: VPC_IPV4_CIDR
+        value: $(params.vpc_ipv4_cidr)
+  steps:
+    - args:
+      - |-
+        
+        mkdir -p /tmp/deprovision-kafka
+
+        aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
+        aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+        aws configure set default.region $(params.avp_aws_secret_region)
+
+        vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.[].Value')
+        if [ -z "$vpc_name" ]; then
+          # Needed if there is only one cluster in account
+          vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME | yq '.Value')
+        fi
+        export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
+        
+        if [ -z "$VPC_ID" ]; then
+          echo "No VPC for $CLUSTER_NAME found so assume there is no kafka to deprovision, exiting.."
+          exit 0
+        fi
+
+        echo "VPC of $VPC_ID found for $CLUSTER_NAME"
+        
+        aws ec2 associate-vpc-cidr-block \
+        --vpc-id $VPC_ID \
+        --cidr-block 10.1.0.0/23
+
+        mas gitops-deprovision-kafka -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+        --dir /tmp/deprovision-kafka \
+        --secrets-path $SECRET_PATH \
+        --kafka-provider $KAFKA_PROVIDER \
+        --aws-region $SM_AWS_REGION \
+        --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+        --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+        --aws-vpc-id $VPC_ID \
+        --aws-msk-cidr-az1 10.1.0.96/27 \
+        --aws-msk-cidr-az2 10.1.0.128/27 \
+        --aws-msk-cidr-az3 10.1.0.160/27 \
+        --aws-msk-ingress-cidr $VPC_IPV4_CIDR \
+        --aws-msk-egress-cidr $VPC_IPV4_CIDR
+
+        exit $?
+
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-deprovision-kafka
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs

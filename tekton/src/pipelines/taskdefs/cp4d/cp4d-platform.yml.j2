@@ -1,6 +1,7 @@
 - name: cp4d
+  timeout: "0"
   params:
-    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: setup-cp4d
 
@@ -15,8 +16,8 @@
   taskRef:
     kind: Task
     name: mas-devops-cp4d
-  # Only needed if either Predict, HPUtilities or Assist are being installed
+  # Only needed if either Predict, Assist, Health w/ WSL, or Cognos are being installed
   when:
-    - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)$(params.mas_app_channel_assist)$(params.mas_appws_bindings_health_wsl_flag)$(params.cpd_install_cognos)"
+    - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_assist)$(params.mas_appws_bindings_health_wsl_flag)$(params.cpd_install_cognos)"
       operator: notin
       values: [""]

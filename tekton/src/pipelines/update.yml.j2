@@ -23,18 +23,31 @@ spec:
       type: string
     - name: fvt_image_digest
       type: string
+    - name: pipelinerun_name
+      type: string
+      description: name of the installation pipelinerun that must be tracked til completion
+    - name: launchfvt_upgrade
+      type: string
+      default: "" # Considered False when not informed
+      description: "Set this to any value other than 'true' to disable launch of the pre and post upgrade tests pipeline (running before and after upgrade process happens)"
 {% endif %}
 
-    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    # Tekton Pipeline Configuration
+    # -------------------------------------------------------------------------
     - name: image_pull_policy
       type: string
       default: IfNotPresent
+    - name: skip_pre_check
+      type: string
+      default: ""
 
     # Catalog Version
+    # -------------------------------------------------------------------------
     - name: mas_catalog_version
       type: string
 
     # Development Build Support
+    # -------------------------------------------------------------------------
     - name: artifactory_username
       default: ""
       type: string
@@ -45,18 +58,21 @@ spec:
       description: Required to install development MAS catalogs
 
     # ocs/odf storage action
+    # -------------------------------------------------------------------------
     - name: ocs_action
       type: string
       default: "upgrade"
       description: Set to 'upgrade' to update ocs/odf
 
     # common services action
+    # -------------------------------------------------------------------------
     - name: common_services_action
       type: string
       default: "upgrade"
       description: Set to 'upgrade' to update common_services
 
     # cert-manager update
+    # -------------------------------------------------------------------------
     - name: cert_manager_action
       type: string
       default: ""
@@ -67,6 +83,7 @@ spec:
       description: Certificate manager provider (ibm or redhat)
 
     # db2 update
+    # -------------------------------------------------------------------------
     - name: db2_action
       type: string
       default: "upgrade"
@@ -77,6 +94,7 @@ spec:
       description: Namespace where db2 instances will be updated
 
     # mongodb update
+    # -------------------------------------------------------------------------
     - name: mongodb_action
       type: string
       default: "install"
@@ -85,16 +103,28 @@ spec:
       type: string
       default: "mongoce"
       description: Namespace where mongodb instances will be updated
+    - name: mongodb_version
+      type: string
+      description: Override the target version of MongoDb (use with extreme caution)
+
+    # TODO: The role should look this up itself
+    - name: mongodb_replicas
+      type: string
+      description: Optional configuration for mongodb replicas
+      default: ""
+
+    # Required to confirm a major version update
     - name: mongodb_v5_upgrade
       type: string
       description: Approves the MongoDb upgrade to version 5 if needed
       default: ""
-    - name: mongodb_storage_class
+    - name: mongodb_v6_upgrade
       type: string
+      description: Approves the MongoDb upgrade to version 6 if needed
       default: ""
-      description: MongoDB Storage class for data and logs
 
     # kafka update
+    # -------------------------------------------------------------------------
     - name: kafka_action
       type: string
       default: "upgrade"
@@ -108,23 +138,96 @@ spec:
       default: "strimzi"
       description: kafka provider such as 'redhat' or 'strimzi'
 
-    # SLS 3.8.0 registry change
-    - name: update_sls_registry
+    # UDS/DRO Migration
+    # -------------------------------------------------------------------------
+    - name: dro_migration
       default: ""
       type: string
-      description: Set to 'true' to change all LicenseService CRs' registry to cpopen
+      description: Set to 'true' to Migration UDS to DRO
+    - name: uds_storage_class
+      default: ""
+      type: string
+      description: Set custom storageclass for UDS/DRO
+    - name: uds_action
+      default: "install-dro"
+      type: string
+      description: set UDS_ACTION, default is install-dro'
+    - name: dro_namespace
+      default: "redhat-marketplace"
+      type: string
+
+    # Grafana operator update
+    # -------------------------------------------------------------------------
+    - name: grafana_v5_upgrade
+      type: string
+      description: Approves the Grafana Operator upgrade to version 5
+      default: ""
+
+    # CP4D update
+    # -------------------------------------------------------------------------
+    - name: cpd_product_version
+      type: string
+      default: ""
+
+    - name: cp4d_update
+      type: string
+      default: ""
+      description: Flag that determines if CP4D must be upgraded
+    - name: cp4d_update_ws
+      type: string
+      default: ""
+      description: Flag that determines if Watson Studio must be upgraded
+    - name: cp4d_update_wml
+      type: string
+      default: ""
+      description: Flag that determines if Watson Machine Learning must be upgraded
+    - name: cp4d_update_wos
+      type: string
+      default: ""
+      description: Flag that determines if Watson Openscale must be upgraded
+    - name: cp4d_update_spark
+      type: string
+      default: ""
+      description: Flag that determines if Analytics Engine must be upgraded
+    - name: cp4d_update_spss
+      type: string
+      default: ""
+      description: Flag that determines if SPSS Modeler must be upgraded
+    - name: cp4d_update_cognos
+      type: string
+      default: ""
+      description: Flag that determines if Cognos Analytics must be upgraded
+
+    # TODO: CP4D update needs to just look up the storage classes already in use
+    - name: storage_class_rwo
+      type: string
+      default: ""
+      description: ReadWriteOnce storage class
+    - name: storage_class_rwx
+      type: string
+      default: ""
+      description: ReadWriteMany storage class
 
   tasks:
 {% if wait_for_install == true %}
     # 0. Wait for the install pipeline to complete
     # -------------------------------------------------------------------------
     - name: wait-for-install
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+      timeout: "0"
       taskRef:
         kind: Task
-        name: mas-fvt-wait-for-install
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: $(params.pipelinerun_name)
+        - name: delay
+          value: 600  # seconds between checking the status of the pipelinerun
+        - name: retries
+          value: 50  # attempts before giving up
+        - name: ignore_failure
+          value: "False"  # fails and exit once the first failure is detected
 {% endif %}
 
     # 1. Verify health of the cluster before we change anything
@@ -138,14 +241,40 @@ spec:
         - wait-for-install
 {% endif %}
 
-    # 2. Run the catalog update
+{% if wait_for_install == true %}
+    # 2. Pre-Upgrade pipeline call - test scripts to run before update
+    # -------------------------------------------------------------------------
+    - name: launchfvt-upgrade-pre
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-uprade-pre"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-upgrade-pre
+      when:
+        - input: $(params.launchfvt_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - pre-update-check
+{% endif %}
+
+    # 3. Run the catalog update
     # -------------------------------------------------------------------------
     - name: update-catalog
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-ibm-catalogs
       runAfter:
+{% if wait_for_install == true %}
+        - launchfvt-upgrade-pre
+{% else %}
         - pre-update-check
+{% endif %}
       params:
         - name: devops_suite_name
           value: update-catalog
@@ -159,19 +288,6 @@ spec:
         - name: artifactory_token
           value: $(params.artifactory_token)
 
-    # 3. Update SLS LicenseService CR registry if needed
-    # -------------------------------------------------------------------------
-    - name: update-licenseservice
-      taskRef:
-        kind: Task
-        name: sls-registry-update
-      runAfter:
-        - update-catalog
-      when:
-        - input: "true"
-          operator: in
-          values: ["$(params.update_sls_registry)"]
-
     # 4. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
@@ -184,6 +300,7 @@ spec:
     # 5. Update Dependencies
     # ---------------------------------------------------------------------------
     - name: update-ocs
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-ocs
@@ -196,6 +313,7 @@ spec:
           value: $(params.ocs_action)
 
     - name: update-common-services
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-common-services
@@ -206,9 +324,14 @@ spec:
           value: update-common-services
         - name: common_services_action
           value: $(params.common_services_action)
+      when:
+      - input: "$(params.cpd_product_version)"
+        operator: in
+        values: ["","4.5.0", "4.5.3", "4.6.0", "4.6.3", "4.6.4", "4.6.6"]
 
     # Only migrate to Red Hat Certificate Manager if identified that IBM Cloud Pak Foundational Services Certificate Manager is running
     - name: update-cert-manager
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-cert-manager
@@ -229,7 +352,25 @@ spec:
           operator: in
           values: ["redhat"]
 
+    - name: update-grafana
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-grafana
+      when:
+        - input: $(params.grafana_v5_upgrade)
+          operator: in
+          values: ["true", "True"]
+      params:
+        - name: grafana_action
+          value: update
+        - name: devops_suite_name
+          value: dependencies-grafana-update
+      runAfter:
+        - update-common-services
+
     - name: update-db2
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-db2
@@ -244,6 +385,7 @@ spec:
           value: $(params.db2_namespace)
 
     - name: update-mongodb
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-mongodb
@@ -258,10 +400,15 @@ spec:
           value: $(params.mongodb_namespace)
         - name: mongodb_v5_upgrade
           value: $(params.mongodb_v5_upgrade)
-        - name: mongodb_storage_class
-          value: $(params.mongodb_storage_class)
+        - name: mongodb_version
+          value: $(params.mongodb_version)
+        - name: mongodb_v6_upgrade
+          value: $(params.mongodb_v6_upgrade)
+        - name: mongodb_replicas
+          value: $(params.mongodb_replicas)
 
     - name: update-kafka
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-devops-kafka
@@ -277,19 +424,111 @@ spec:
         - name: kafka_provider
           value: $(params.kafka_provider)
 
-    # 6. Verify health of the cluster after dependencies updates
+    # UDS/DRO Migration
+    - name: update-uds
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-uds
+      when:
+        - input: "$(params.dro_migration)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - update-common-services
+      params:
+        - name: dro_migration
+          value: $(params.dro_migration)
+        - name: uds_storage_class
+          value: $(params.uds_storage_class)
+        - name: uds_action
+          value: $(params.uds_action)
+        - name: DRO_NAMESPACE
+          value: $(params.dro_namespace)
+        - name: devops_suite_name
+          value: update-uds
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
+
+    # 6 Update Cloud Pak for Data
+    # -------------------------------------------------------------------------
+    # 6.1 Cloud Pak for Data Platform
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-platform-update.yml.j2') | indent(4) }}
+      runAfter:
+        - update-cert-manager # CP4D requires cert-manager
+        {# - update-uds # UDS must be upgraded prior CPD, because CPD v4.8 will disable CPFS v3 which is required for UDS #}
+
+    # 6.2 Watson Studio
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl-update.yml.j2') | indent(4) }}
+      runAfter:
+        - update-cp4d
+
+    # 6.3 Watson Machine Learning
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-wml-update.yml.j2') | indent(4) }}
+      runAfter:
+        - update-cp4d
+
+    # 6.4 Analytics Service (Spark)
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-spark-update.yml.j2') | indent(4) }}
+      runAfter:
+        - update-cp4d
+
+    # 6.5 Watson OpenScale
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-aiopenscale-update.yml.j2') | indent(4) }}
+      runAfter:
+        - update-cp4d
+
+    # 6.6 SPSS Statistics
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-spss-update.yml.j2') | indent(4) }}
+      runAfter:
+        - update-cp4d
+
+    # 6.7 Cognos Analytics
+    {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos-update.yml.j2') | indent(4) }}
+      runAfter:
+        - update-cp4d
+
+    # 7. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-deps-update-verify',
         'devops_suite_name': 'post-deps-update-verify'
       }) | indent(4) }}
       runAfter:
-        - update-licenseservice
         - update-db2
         - update-mongodb
         - update-kafka
-        - update-cert-manager
+        - update-uds
+        - update-grafana
+        - update-watson-studio
+        - update-watson-machine-learning
+        - update-aiopenscale
+        - update-analytics-engine
+        - update-spss
+        - update-cognos
 
+{% if wait_for_install == true %}
+    # 7. Post-Upgrade pipeline call - test scripts to run before upgrade
+    # -------------------------------------------------------------------------
+    - name: launchfvt-upgrade-post
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-upgrade-post"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-upgrade-post
+      when:
+        - input: $(params.launchfvt_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - post-deps-update-verify
+{% endif %}
 
 {% if wait_for_install == true %}
   # In FVT only this is the time to take a must-gather and finalize the result
@@ -297,41 +536,13 @@ spec:
   finally:
     # Collect must-gather
     # -------------------------------------------------------------------------
-    - name: must-gather
-      taskRef:
-        kind: Task
-        name: mas-devops-must-gather
-      params:
-        - name: base_output_dir
-          value: "/workspace/mustgather/$(context.pipelineRun.name)"
-      workspaces:
-        - name: mustgather
-          workspace: shared-mustgather
+    {{ lookup('template', 'taskdefs/common/must-gather.yml.j2') | indent(4) }}
 
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------
     - name: finalize
+      timeout: "0"
       taskRef:
         kind: Task
         name: mas-fvt-finalize
-{% endif %}
-
-{% if wait_for_install == true %}
-    # 7. Test for outages during mongo update
-    # -------------------------------------------------------------------------
-    - name: fvt-mongo-update
-      taskRef:
-        kind: Task
-        name: mas-ivt-core
-      params:
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_digest
-          value: $(params.fvt_image_digest)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value:  "NOT_USED"
-        - name: fvt_test_suite
-          value: "mongohealth"
 {% endif %}

@@ -1,0 +1,295 @@
+#!/usr/bin/env bash
+
+function gitops_process_mongo_user_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops-process-mongo-user [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+GitOps Configuration:
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                 Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                 Cluster ID
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                             Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}           Secrets Manager key seperator string
+
+IBM Maximo Application Suite:
+      -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                   IBM Suite Maximo Application Suite Instance ID
+
+MongoDb Provider Selection:
+      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}                       The mongodb provider where the additional user will be processd. Only "aws" is supported
+
+AWS MongoDb Provider:
+      --user-action ${COLOR_YELLOW}USER_ACTION${TEXT_RESET}                               The action to take, add or remove user
+      --docdb-host ${COLOR_YELLOW}DOCDB_HOST${TEXT_RESET}                                 Docdb host
+      --docdb-port ${COLOR_YELLOW}DOCDB_PORT${TEXT_RESET}                                 Docdb port
+      --docdb-master-username ${COLOR_YELLOW}DOCDB_MASTER_USERNAME${TEXT_RESET}           Docdb master username
+      --docdb-master-password ${COLOR_YELLOW}DOCDB_MASTER_PASSWORD${TEXT_RESET}           Docdb master password
+      --docdb-instance-username ${COLOR_YELLOW}DOCDB_INSTANCE_USERNAME${TEXT_RESET}       Docdb instance username
+      --docdb-instance-password ${COLOR_YELLOW}DOCDB_INSTANCE_PASSWORD${TEXT_RESET}       Docdb instancepasswordD
+      --aws-vpc-id ${COLOR_YELLOW}VPC_ID${TEXT_RESET}                                     Vpc_id
+      --aws-docdb-cluster-name ${COLOR_YELLOW}DOCDB_CLUSTER_NAME${TEXT_RESET}             Cluster Name
+      --docdb-ingress-cidr ${COLOR_YELLOW}DOCDB_INGRESS_CIDR${TEXT_RESET}                 Docdb ingress cidr
+      --docdb-egress-cidr ${COLOR_YELLOW}DOCDB_EGRESS_CIDR${TEXT_RESET}                   Docdb egress cidr
+      --aws-ec2-cidr-az1 ${COLOR_YELLOW}AWS_EC2_CIDR_AZ1${TEXT_RESET}                     Ec2 cidr az1
+      --aws-key-pair-name ${COLOR_YELLOW}AWS_KEY_PAIR_NAME${TEXT_RESET}                   Key pair name
+      --aws-region ${COLOR_YELLOW}AWS_REGION${TEXT_RESET}                                 Aws default region
+      --aws-access-key-id ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}                   Aws access key id
+      --aws-secret-access-key ${COLOR_YELLOW}AWS_SECRET_ACCESS_KEY${TEXT_RESET}           Aws secret access key
+      --secret-name-mongo-instance ${COLOR_YELLOW}SECRET_NAME_MONGO_INSTANCE${TEXT_RESET} AWS secret manager secret name where instance mongo username and password will be stored
+      --ec2-linux-ami-id ${COLOR_YELLOW}SECRET_NAME_MONGO_INSTANCE${TEXT_RESET}           AWS EC2 instance AMI ID
+
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function gitops_process_mongo_user_noninteractive() {
+  SECRETS_KEY_SEPERATOR="/"
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+
+      # Secrets Manager
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+
+      # MAS
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+
+      # MongoDb Provider Selection
+      --mongo-provider)
+        export MONGODB_PROVIDER=$1 && shift
+        ;;
+
+      # AWS MongoDb provider
+      --user-action)
+        export USER_ACTION=$1 && shift
+        ;;
+      --docdb-host)
+        export DOCDB_HOST=$1 && shift
+        ;;
+      --docdb-port)
+        export DOCDB_PORT=$1 && shift
+        ;;
+      --docdb-master-username)
+        export DOCDB_MASTER_USERNAME=$1 && shift
+        ;;
+      --docdb-master-password)
+        export DOCDB_MASTER_PASSWORD=$1 && shift
+        ;;
+      --docdb-instance-username)
+        export DOCDB_INSTANCE_USERNAME=$1 && shift
+        ;;
+      --docdb-instance-password)
+        export DOCDB_INSTANCE_PASSWORD=$1 && shift
+        ;;
+      --aws-vpc-id)
+        export VPC_ID=$1 && shift
+        ;;
+      --aws-docdb-cluster-name)
+        export DOCDB_CLUSTER_NAME=$1 && shift
+        ;;
+	    --aws-docdb-ingress-cidr)
+        export DOCDB_INGRESS_CIDR=$1 && shift
+        ;;
+      --aws-docdb-egress-cidr)
+        export DOCDB_EGRESS_CIDR=$1 && shift
+        ;;	
+      --aws-ec2-cidr-az1)
+        export AWS_EC2_CIDR_AZ1=$1 && shift
+        ;;
+      --aws-key-pair-name)
+        export AWS_KEY_PAIR_NAME=$1 && shift
+        ;;
+      --aws-access-key)
+        export AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --aws-secret-key)
+        export AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+      --aws-region)
+        export AWS_REGION=$1 && shift
+        ;;
+      --secret-name-mongo-instance)
+        export SECRET_NAME_MONGO_INSTANCE=$1 && shift
+        ;;
+      --ec2-linux-ami-id)
+        export EC2_LINUX_AMI_ID=$1 && shift
+        ;;
+      # Other Commands
+      -h|--help)
+        gitops_process_mongo_user_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_process_mongo_user_help "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+  [[ -z "$CLUSTER_ID" ]] && gitops_process_mongo_user_help "CLUSTER_ID is not set"
+  [[ -z "$MONGODB_PROVIDER" ]] && gitops_process_mongo_user_help "MONGODB_PROVIDER is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_process_mongo_user_help "ACCOUNT_ID is not set"
+
+  if [ $MONGODB_PROVIDER == 'aws' ]; then
+    [[ -z "$USER_ACTION" ]] && gitops_process_mongo_user_help "USER_ACTION is not set"
+
+    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_process_mongo_user_help "MAS_INSTANCE_ID is not set"
+
+    [[ -z "$EC2_LINUX_AMI_ID" ]] && gitops_process_mongo_user_help "EC2_LINUX_AMI_ID is not set"
+
+    if [ -z $AWS_ACCESS_KEY_ID ] || [ -z $AWS_SECRET_ACCESS_KEY ] || [ -z $VPC_ID ] || [ -z $AWS_REGION ]; then
+      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region and --aws-vpc-id'
+      exit 1
+    fi
+    if [ -z $DOCDB_INGRESS_CIDR ] || [ -z $DOCDB_EGRESS_CIDR ] || [ -z $AWS_EC2_CIDR_AZ1 ] || [ -z $AWS_KEY_PAIR_NAME ]; then
+      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-docdb-ingress-cidr, --aws-docdb-egress-cidr, --aws-ec2-cidr-az1, --aws-key-pair-name'
+      exit 1
+    fi
+    if [ -z $DOCDB_CLUSTER_NAME ]; then
+      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-docdb-cluster-name'
+      exit 1
+    fi
+  fi
+
+}
+
+function gitops_process_mongo_user() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_process_mongo_user_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_process_mongo_user_interactive
+  fi
+  
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Secrets Manager" "    "
+  echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Mongo" "    "
+  echo_reset_dim "Mongo Provider  ....................... ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
+  if [ $MONGODB_PROVIDER == 'aws' ]; then
+    echo_reset_dim "User Action  .......................... ${COLOR_MAGENTA}${USER_ACTION}"
+    echo_reset_dim "AWS Access Key ID  .................... ${COLOR_MAGENTA}${AWS_ACCESS_KEY_ID:0:4}<snip>"
+    echo_reset_dim "AWS Secret Access Key  ................ ${COLOR_MAGENTA}${AWS_SECRET_ACCESS_KEY:0:8}<snip>"
+    echo_reset_dim "AWS Region  ........................... ${COLOR_MAGENTA}${AWS_REGION}"
+    echo_reset_dim "AWS VPC ID  ........................... ${COLOR_MAGENTA}${VPC_ID}"
+    echo_reset_dim "AWS DOCDB CLUSTER NAME  ............... ${COLOR_MAGENTA}${DOCDB_CLUSTER_NAME}"
+    echo_reset_dim "AWS EC2 Linux AMI ID  ................. ${COLOR_MAGENTA}${EC2_LINUX_AMI_ID}"
+  fi
+
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM Maximo Application Suite" "    "
+  echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  reset_colors
+
+  export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
+
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+
+  if [ ${MONGODB_PROVIDER} == 'aws' ]; then
+    # Set the MAS_CONFIG_DIR and MAS_INSTANCE_ID to generate the config details.
+    # The MAS_INSTANCE_ID doesn't have to be the correct instance id
+    # The MONGODB_NAMESPACE defines the name of the config file created
+    CURRENT_DIR=$PWD
+    TEMP_DIR=$CURRENT_DIR/tmp-$USER_ACTION-mongo-user
+    rm -rf $TEMP_DIR
+    mkdir -p $TEMP_DIR
+    export MAS_CONFIG_DIR=$TEMP_DIR
+    
+    export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
+    sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+
+    export DOCDB_HOST=$(jq -r .docdb_host $MONGO_SECRET_FILE)
+    export DOCDB_PORT=$(jq -r .docdb_port $MONGO_SECRET_FILE)
+    export DOCDB_MASTER_USERNAME=$(jq -r .username $MONGO_SECRET_FILE)
+    export DOCDB_MASTER_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)    
+    echo -e "${USER_ACTION}_mongo_user : DOCDB_HOST=${DOCDB_HOST} \t DOCDB_PORT=${DOCDB_PORT} \t DOCDB_MASTER_USERNAME=${DOCDB_MASTER_USERNAME} \t DOCDB_MASTER_PASSWORD=${DOCDB_MASTER_PASSWORD}"
+
+    if [ -z $DOCDB_HOST ]; then
+      echo "DOCDB_HOST not set so exiting as we can't process user action"
+      exit 0
+    fi
+
+    export DOCDB_INSTANCE_USERNAME=masinst_${MAS_INSTANCE_ID}
+    export SECRET_NAME_MONGO_INSTANCE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
+    # Set docdb instance password if present in secret manager
+    if [[ "${USER_ACTION}" == "add" ]]; then
+      MONGO_INSTANCE_USER_FILE=${TEMP_DIR}/lookup-mongo-user.json
+      sm_get_secret_file ${SECRET_NAME_MONGO_INSTANCE} $MONGO_INSTANCE_USER_FILE
+      TEMP_DOCDB_INSTANCE_USERNAME=$(jq -r .username $MONGO_INSTANCE_USER_FILE)
+      TEMP_DOCDB_INSTANCE_PASSWORD=$(jq -r .password $MONGO_INSTANCE_USER_FILE)
+      if [[ -n ${TEMP_DOCDB_INSTANCE_PASSWORD} ]]; then
+        export DOCDB_INSTANCE_PASSWORD=${TEMP_DOCDB_INSTANCE_PASSWORD}
+        echo  -e "${USER_ACTION}_mongo_user : DOCDB INSTANCE USERNAME / PASSWORD : ${TEMP_DOCDB_INSTANCE_USERNAME} / ${TEMP_DOCDB_INSTANCE_PASSWORD} from secret, same used while invoking role again"
+      fi
+    fi
+    export ROLE_NAME=aws_ec2_documentdb
+    ansible-playbook ibm.mas_devops.run_role
+    rc=$?
+    [ $rc -ne 0 ] && exit $rc
+
+    if [[ "${USER_ACTION}" == "add" ]]; then
+      export MONGO_INSTANCE_USER_FILE=${TEMP_DIR}/created-mongo-user.json
+      sm_get_secret_file ${SECRET_NAME_MONGO_INSTANCE} $MONGO_INSTANCE_USER_FILE
+      DOCDB_INSTANCE_USERNAME=$(jq -r .username $MONGO_INSTANCE_USER_FILE)
+      DOCDB_INSTANCE_PASSWORD=$(jq -r .password $MONGO_INSTANCE_USER_FILE)
+      echo -e "${USER_ACTION}_mongo_user : DOCDB INSTANCE USERNAME / PASSWORD : ${DOCDB_INSTANCE_USERNAME}  / ${DOCDB_INSTANCE_PASSWORD}"
+      
+      if [[ "${DOCDB_INSTANCE_USERNAME}" != masinst_"${MAS_INSTANCE_ID}" ]]; then
+        echo "${USER_ACTION}_mongo_user : DOCDB_INSTANCE_USERNAME is not matching the right value"
+        exit 1;
+      fi 
+    fi
+
+  fi
+  exit 0
+}

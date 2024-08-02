@@ -20,13 +20,13 @@ trap trap_exit EXIT
 trap trap_int INT
 
 
-CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-CONFIG_DIR="$HOME/.ibm-mas/config"
-LOG_DIR="$HOME/.ibm-mas/logs"
-LOGFILE=$LOG_DIR/mas.log
+export CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export CONFIG_DIR="$HOME/.ibm-mas/config"
+export LOG_DIR="$HOME/.ibm-mas/logs"
+export LOGFILE=$LOG_DIR/mas.log
 
 # Note: "latest" is overwritten with the actual version at build time
-VERSION=latest
+export VERSION="${VERSION:-latest}"
 
 mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR
@@ -34,7 +34,6 @@ mkdir -p $CONFIG_DIR
 # General purpose internals
 . $CLI_DIR/functions/internal/pipelines_install_operator
 . $CLI_DIR/functions/internal/pipelines_install_tasks
-. $CLI_DIR/functions/internal/catalog_utils
 . $CLI_DIR/functions/internal/connect
 . $CLI_DIR/functions/internal/utils
 . $CLI_DIR/functions/internal/save_config
@@ -42,24 +41,65 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/provision_fyre
 . $CLI_DIR/functions/provision_roks
 . $CLI_DIR/functions/provision_aws
-# MAS installation support
-. $CLI_DIR/functions/install
-. $CLI_DIR/functions/update
-. $CLI_DIR/functions/upgrade
-. $CLI_DIR/functions/uninstall
 # Airgap support
 . $CLI_DIR/functions/setup_registry
 . $CLI_DIR/functions/teardown_registry
 . $CLI_DIR/functions/mirror_images
 . $CLI_DIR/functions/mirror_redhat
-. $CLI_DIR/functions/configure_mirror
+. $CLI_DIR/functions/configure_airgap
 # Manage OIDC for configtool
 . $CLI_DIR/functions/configtool_oidc
 # Must Gather
 . $CLI_DIR/functions/must_gather
+# GitOps
+. $CLI_DIR/functions/gitops_utils
+. $CLI_DIR/functions/gitops_bootstrap
+. $CLI_DIR/functions/gitops_cluster
+. $CLI_DIR/functions/gitops_cis_compliance
+. $CLI_DIR/functions/gitops_cos
+. $CLI_DIR/functions/gitops_cp4d
+. $CLI_DIR/functions/gitops_cp4d_service
+. $CLI_DIR/functions/gitops_license
+. $CLI_DIR/functions/gitops_mongo
+. $CLI_DIR/functions/gitops_kafka
+. $CLI_DIR/functions/gitops_suite
+. $CLI_DIR/functions/gitops_suite_app_install
+. $CLI_DIR/functions/gitops_suite_app_config
+. $CLI_DIR/functions/gitops_suite_certs
+. $CLI_DIR/functions/gitops_mas_config
+. $CLI_DIR/functions/gitops_suite_dns
+. $CLI_DIR/functions/gitops_suite_workspace
+. $CLI_DIR/functions/gitops_deprovision_app_config
+. $CLI_DIR/functions/gitops_deprovision_app_install
+. $CLI_DIR/functions/gitops_deprovision_cos
+. $CLI_DIR/functions/gitops_deprovision_suite
+. $CLI_DIR/functions/gitops_deprovision_suite_workspace
+. $CLI_DIR/functions/gitops_efs
+. $CLI_DIR/functions/gitops_dro
+. $CLI_DIR/functions/gitops_db2u
+. $CLI_DIR/functions/gitops_db2u_database
+. $CLI_DIR/functions/gitops_process_mongo_user
+. $CLI_DIR/functions/gitops_aws_infrastructure
+. $CLI_DIR/functions/gitops_rosa
+. $CLI_DIR/functions/gitops_deprovision_rosa
+. $CLI_DIR/functions/gitops_deprovision_cluster
+. $CLI_DIR/functions/gitops_deprovision_mongo
+. $CLI_DIR/functions/gitops_deprovision_efs
+. $CLI_DIR/functions/gitops_deprovision_kafka
+. $CLI_DIR/functions/gitops_mas_fvt_preparer
+. $CLI_DIR/functions/gitops_deprovision_db2u_database
+. $CLI_DIR/functions/gitops_nvidia_gpu
+. $CLI_DIR/functions/gitops_deprovision_db2u
+
+# TODO: The path from the CLI the installation of the Ansible collection should be configurable
+MAS_DEVOPS_COLLECTION_PATH=${MAS_DEVOPS_COLLECTION_PATH:-ansible-devops}
 
 case $1 in
   fyre|provision-fyre)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! provision-fyre                                                            !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite FYRE Cluster Provisioner (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -68,6 +108,10 @@ case $1 in
     ;;
 
   roks|provision-roks)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! provision-roks                                                            !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite ROKS Cluster Provisioner (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -76,6 +120,10 @@ case $1 in
     ;;
 
   aws|provision-aws)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! provision-aws                                                             !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AWS Cluster Provisioner (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -84,13 +132,21 @@ case $1 in
     ;;
 
   oidc|configtool-oidc)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! configtool-oidc                                                           !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite OIDC for Configuration Tool (v${VERSION})${TEXT_RESET}"
     echo
     reset_colors
     configtool_oidc "$@"
     ;;
 
-  registry|setup-registry|setup-mirror-registry|setup-airgap-registry)
+  registry|setup-registry)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! setup-registry                                                            !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Registry Setup (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -99,7 +155,11 @@ case $1 in
     setup_mirror_registry
     ;;
 
-  delete-registry|teardown-registry|teardown-mirror-registry|teardown-airgap-registry)
+  delete-registry)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! delete-registry                                                           !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Registry Tear Down (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -108,7 +168,11 @@ case $1 in
     teardown_mirror_registry
     ;;
 
-  mirror|mirror-images)
+  mirror|mirror-images|mirror-ibm-images)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! mirror-ibm-images                                                         !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -117,6 +181,9 @@ case $1 in
     ;;
 
   mirror-redhat|mirror-redhat-images)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! mirror-redhat-images                                                      !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Red Hat Image Mirror (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -124,7 +191,11 @@ case $1 in
     mirror_redhat "$@"
     ;;
 
-  configure-ocp-for-mirror|configure-airgap|configure-mirror|config-airgap|config-mirror)
+  configure-airgap)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! configure-airgap                                                          !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap OCP Setup (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
@@ -133,37 +204,349 @@ case $1 in
     ;;
 
   install)
-    install "$@"
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! install                                                                   !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "install")
+    shift
+    # Run the new Python-based install
+    mas-cli install "$@"
     ;;
 
   update)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! update                                                                    !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Update Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
-    echo
-    reset_colors
-    update "$@"
+    # Take the first parameter off (it will be "update")
+    shift
+    # Run the new Python-based install
+    mas-cli update "$@"
     ;;
 
   upgrade)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Upgrade Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
-    echo
-    reset_colors
-    upgrade "$@"
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! upgrade                                                                   !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "upgrade")
+    shift
+    # Run the new Python-based upgrade
+    mas-cli upgrade "$@"
     ;;
 
   uninstall)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Uninstall Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
-    echo
-    reset_colors
-    uninstall "$@"
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! uninstall                                                                 !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "uninstall")
+    shift
+    # Run the new Python-based upgrade
+    mas-cli uninstall "$@"
     ;;
 
   mustgather|must-gather)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! must-gather                                                               !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Must-Gather Tool (v${VERSION})${TEXT_RESET}"
     echo
     mustgather "$@"
+    ;;
+  gitops-bootstrap)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_bootstrap "$@"
+    ;;
+
+  gitops-mongo)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_mongo "$@"
+    ;;
+
+  gitops-process-mongo-user)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_process_mongo_user "$@"
+    ;;
+
+  gitops-cluster)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_cluster "$@"
+    ;;
+
+  gitops-cis-compliance)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_cis_compliance "$@"
+    ;;
+
+  gitops-cos)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_cos "$@"
+    ;;
+
+  gitops-cp4d)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_cp4d "$@"
+    ;;
+
+  gitops-cp4d-service)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_cp4d_service "$@"
+    ;;
+
+  gitops-license)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_license "$@"
+    ;;
+
+  gitops-suite)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite "$@"
+    ;;
+
+  gitops-suite-app-install)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite_app_install "$@"
+    ;;
+
+  gitops-suite-app-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite_app_config "$@"
+    ;;
+
+  gitops-mas-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_mas_config "$@"
+    ;;
+ 
+  gitops-suite-dns)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite_dns "$@"
+    ;;
+
+  gitops-suite-certs)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite_certs "$@"
+    ;;
+
+  gitops-suite-workspace)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite_workspace "$@"
+    ;;
+
+  gitops-deprovision-app-config)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_app_config "$@"
+    ;;
+
+  gitops-deprovision-app-install)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_app_install "$@"
+    ;;
+
+  gitops-deprovision-suite-workspace)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_suite_workspace "$@"
+    ;;
+
+  gitops-deprovision-suite)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_suite "$@"
+    ;;
+
+  gitops-deprovision-rosa)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_rosa "$@"
+    ;;
+
+  gitops-deprovision-cluster)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_cluster "$@"
+    ;;
+
+  gitops-deprovision-mongo)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_mongo "$@"
+    ;;
+
+  gitops-deprovision-cos)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_cos "$@"
+    ;;
+
+  gitops-deprovision-efs)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_efs "$@"
+    ;;
+
+  gitops-deprovision-kafka)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_kafka "$@"
+    ;;
+
+  gitops-efs)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_efs "$@"
+    ;;
+
+  gitops-dro)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_dro "$@"
+    ;;
+  
+  gitops-db2u)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_db2u "$@"
+    ;;
+
+  gitops-db2u-database)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_db2u_database "$@"
+    ;;
+
+  gitops-aws-infrastructure)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_aws_infrastructure "$@"
+    ;;
+
+  gitops-kafka)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_kafka "$@"
+    ;;
+
+  gitops-rosa)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_rosa "$@"
+    ;;
+  gitops-mas-fvt-preparer)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_mas_fvt_preparer "$@"
+    ;;
+
+  gitops-deprovision-db2u-database)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_db2u_database "$@"
+    ;;
+  
+  gitops-nvidia-gpu)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_nvidia_gpu "$@"
+    ;;
+    
+  gitops-deprovision-db2u)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_db2u "$@"
     ;;
 
   *)

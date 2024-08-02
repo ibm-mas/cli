@@ -1,6 +1,7 @@
 - name: suite-config-watson-studio
+  timeout: "0"
   params:
-    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: cfg-suite-watson-studio
 
@@ -9,9 +10,9 @@
   taskRef:
     kind: Task
     name: mas-devops-suite-config
-  # Only needed if either Predict or HPUtilities are being installed
+  # Only needed if either Predict or Health with WSL are being installed
   when:
-    - input: "$(params.mas_app_channel_predict)$(params.mas_app_channel_hputilities)$(params.mas_appws_bindings_health_wsl_flag)"
+    - input: "$(params.mas_app_channel_predict)$(params.mas_appws_bindings_health_wsl_flag)"
       operator: notin
       values: [""]
   workspaces:

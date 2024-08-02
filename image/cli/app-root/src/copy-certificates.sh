@@ -2,6 +2,7 @@
 
 appList=(
   "core"
+  "arcgis"
   "assist" 
   "iot"
   "manage"

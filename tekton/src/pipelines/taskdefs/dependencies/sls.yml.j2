@@ -1,6 +1,7 @@
 - name: sls
+  timeout: "0"
   params:
-    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: dependencies-sls
 
@@ -20,16 +21,8 @@
       value: $(params.sls_catalog_source)
     - name: sls_channel
       value: $(params.sls_channel)
-    - name: sls_icr_cp
-      value: $(params.sls_icr_cp)
     - name: sls_icr_cpopen
       value: $(params.sls_icr_cpopen)
-
-    # Deprecated way of bootstrapping license file
-    - name: sls_license_id
-      value: $(params.sls_license_id)
-    - name: sls_license_file
-      value: $(params.sls_license_file)
 
     # New way of bootstrapping license file
     - name: sls_entitlement_file

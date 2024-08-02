@@ -11,7 +11,7 @@ spec:
     - name: mas_instance_id
       type: string
       description: Instance ID
-    
+
     # CPD Version
     - name: cpd_product_version
       type: string
@@ -56,6 +56,10 @@ spec:
     - name: mas_app_settings_secondary_languages
       type: string
       description: Defines Manage application list of secondary languages
+      default: ""
+    - name: mas_app_settings_server_timezone
+      type: string
+      description: Defines Manage server timezone
       default: ""
     - name: mas_app_settings_persistent_volumes_flag
       type: string
@@ -116,7 +120,7 @@ spec:
     - name: mas_app_settings_customization_archive_password
       type: string
       description: Password to authenticate into Manage custom archive url (if required)
-      default: "" 
+      default: ""
     - name: mas_app_settings_crypto_key
       type: string
       description: Manage database encryption key for MXE_SECURITY_CRYPTO_KEY
@@ -141,6 +145,34 @@ spec:
       type: string
       description: Set true if you want to configure JMS queues. It is false by default.
       default: "" # default is handled by ansible-devops
+    - name: mas_manage_attachment_configuration_mode
+      type: string
+      description: Manage attachment configuration mode (cr or db)
+      default: ""
+    - name: mas_manage_attachments_provider
+      type: string
+      description: Manage attachment provider (filestorage, ibm, aws)
+      default: ""
+    - name: db2_namespace
+      type: string
+      description: Namespace to create Db2uCluster instances
+      default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: IBM Cloud Resource Group where COS is installed (for when attachments is configured via ibm provider)
+      default: ""
+    - name: ibmcloud_apikey
+      type: string
+      description: API Key used to configure COS and buckets in IBM Cloud (used by Manage attachments settings)
+      default: ""
+    - name: cos_instance_name # cos_instance_name in attachments devops role
+      type: string
+      description: Name of COS instance in IBM Cloud account
+      default: ""
+    - name: cos_bucket_name # cos_bucket_name in attachments devops role
+      type: string
+      description: COS Bucket optionally used to hold attachments in Manage
+      default: ""
 
     # Application Workspace - Operand (Predict)
     - name: predict_deployment_size
@@ -183,7 +215,7 @@ spec:
         value: /workspace/configs
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      
+
       # CPD Version
       - name: CPD_PRODUCT_VERSION
         value: $(params.cpd_product_version)
@@ -211,6 +243,8 @@ spec:
         value: $(params.mas_app_settings_base_language)
       - name: MAS_APP_SETTINGS_SECONDARY_LANGS
         value: $(params.mas_app_settings_secondary_languages)
+      - name: MAS_APP_SETTINGS_SERVER_TIMEZONE
+        value: $(params.mas_app_settings_server_timezone)
       - name: MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG
         value: $(params.mas_app_settings_persistent_volumes_flag)
       - name: MAS_APP_SETTINGS_JMS_QUEUE_PVC_STORAGE_CLASS
@@ -253,6 +287,22 @@ spec:
         value: $(params.mas_app_settings_override_encryption_secrets_flag)
       - name: MAS_APP_SETTINGS_DEFAULT_JMS
         value: $(params.mas_app_settings_default_jms)
+      - name: MAS_POD_TEMPLATES_DIR
+        value: /workspace/pod-templates
+      - name: MAS_MANAGE_ATTACHMENT_CONFIGURATION_MODE
+        value: $(params.mas_manage_attachment_configuration_mode)
+      - name: MAS_MANAGE_ATTACHMENTS_PROVIDER
+        value: $(params.mas_manage_attachments_provider)
+      - name: DB2_NAMESPACE
+        value: $(params.db2_namespace)
+      - name: IBMCLOUD_RESOURCEGROUP
+        value: $(params.ibmcloud_resourcegroup)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
+      - name: COS_INSTANCE_NAME
+        value: $(params.cos_instance_name)
+      - name: COS_BUCKET_NAME
+        value: $(params.cos_bucket_name)
 
       # Application Workspace - Operand (Predict)
       - name: PREDICT_DEPLOYMENT_SIZE
@@ -282,5 +332,47 @@ spec:
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
 
+    # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set CONFIGMAP_KEY=pending and wait for it to be changed to "approved"
+    - name: app-cfg-post-verify
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/wait-for-configmap.sh
+      env:
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: CONFIGMAP_NAME
+          value: approval-app-cfg-$(params.mas_app_id)
+        - name: CONFIGMAP_KEY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: CONFIGMAP_KEY
+              optional: true
+        - name: CONFIGMAP_INITIAL_VALUE
+          value: pending
+        - name: CONFIGMAP_TARGET_VALUE
+          value: approved
+        - name: DELAY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: DELAY
+              optional: true
+        - name: MAX_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: MAX_RETRIES
+              optional: true
+        - name: IGNORE_FAILURE
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: IGNORE_FAILURE
+              optional: true
+
   workspaces:
     - name: configs
+    - name: pod-templates
+      optional: true

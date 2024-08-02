@@ -11,7 +11,7 @@ Usage
 ### Cluster Configuration
 - `-r|--resource-group IBMCLOUD_RESOURCEGROUP` IBMCloud resource group to deploy the cluster in
 - `-c|--cluster-name CLUSTER_NAME` Name of the cluster to be provisioned
-- `-v|--ocp-version OCP_VERSION` OCP version to use (e.g 4.8_openshift, 4.10_openshift)
+- `-v|--ocp-version OCP_VERSION` OCP version to use (e.g 4.13_openshift, 4.14_openshift)
 
 ### Worker Node Configuration
 - `--worker-count ROKS_WORKERS` Number of worker nodes to provision
@@ -40,7 +40,7 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-roks
 export IBMCLOUD_APIKEY=xxx
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-roks \
   -a $IBMCLOUD_APIKEY -r mas-development \
-  -c masonroks -v 4.10_openshift \
+  -c masonroks -v 4.15_openshift \
   --worker-count 3 --worker-flavor b3c.16x64.300gb --worker-zone dal10 \
   --no-confirm
 ```

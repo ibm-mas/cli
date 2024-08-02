@@ -21,7 +21,11 @@ function reset_colors() {
 
 function echo_h1() {
   echo -e "${TEXT_BOLD}${TEXT_UNDERLINE}${1}${TEXT_RESET}"
+
+  echo -e "${1}" >> $LOGFILE
+  echo "===============================================================================" >> $LOGFILE
 }
+
 function echo_h2() {
   msg=$1
   prefix=$2
@@ -30,6 +34,10 @@ function echo_h2() {
   H3_COUNT=0
   echo
   echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}) ${msg}${TEXT_RESET}"
+
+  echo >> $LOGFILE
+  echo -e "${prefix}${H2_COUNT}) ${msg}" >> $LOGFILE
+  echo "-------------------------------------------------------------------------------" >> $LOGFILE
 }
 
 function echo_h3() {
@@ -39,44 +47,56 @@ function echo_h3() {
   H3_COUNT=$(($H3_COUNT + 1))
   echo
   echo -e "${prefix}${TEXT_UNDERLINE}${H2_COUNT}.${H3_COUNT}) ${msg}${TEXT_RESET}"
+
+  echo >> $LOGFILE
+  echo -e "${prefix}${H2_COUNT}.${H3_COUNT}) ${msg}" >> $LOGFILE
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" >> $LOGFILE
 }
 
 function echo_h4() {
   msg=$1
   prefix=$2
   echo -e "${prefix}${TEXT_UNDERLINE}${msg}${TEXT_RESET}"
+  echo -e "${prefix}${msg}" >> $LOGFILE
+  echo "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" >> $LOGFILE
 }
 
 function echo_warning() {
   echo -e "${COLOR_RED}$1${TEXT_RESET}"
+  echo -e "WARNING: $1" >> $LOGFILE
 }
 
 function echo_highlight() {
   echo "${COLOR_CYAN}$1${TEXT_RESET}"
+  echo -e "$1" >> $LOGFILE
 }
 
 function echo_green() {
   echo "${COLOR_GREEN}$1${TEXT_RESET}"
+  echo -e "$1" >> $LOGFILE
 }
 
 function echo_blue() {
   echo "${COLOR_BLUE}$1${TEXT_RESET}"
+  echo -e "$1" >> $LOGFILE
 }
 
 function echo_dim() {
   echo "${TEXT_DIM}$1${TEXT_RESET}"
+  echo -e "$1" >> $LOGFILE
 }
 
 function echo_reset_dim() {
   echo "${TEXT_RESET}${TEXT_DIM}    $1"
+  echo -e "$1" >> $LOGFILE
 }
 
 function echo_hr1() {
-  echo "==============================================================================="
+  echo "===============================================================================" | tee $LOGFILE
 }
 
 function echo_hr2() {
-  echo "-------------------------------------------------------------------------------"
+  echo "-------------------------------------------------------------------------------" | tee $LOGFILE
 }
 
 
@@ -311,61 +331,18 @@ function detect_sno() {
 }
 
 
-function select_local_config_dir() {
-  if [ "$LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN" != "yes" ]; then
-    # You need to tell us where the configuration file can be found
-    prompt_for_input "Select Local configuration directory" LOCAL_MAS_CONFIG_DIR && export LOCAL_MAS_CONFIG_DIR
-    if [[ ! -e "$LOCAL_MAS_CONFIG_DIR" ]]; then
-      echo_warning "$LOCAL_MAS_CONFIG_DIR does not exist"
-      exit 1
-    fi
-    export LOCAL_MAS_CONFIG_DIR_ALREADY_CHOSEN=yes
-  fi
-}
-
-
-# Present a the MAS license information
-# ---------------------------------------------------------------------------
-function build_license_link_by_mas_version() {
-  version=$1
-  link="https://ibm.biz/MAS"$version"-License"
-  echo $link
-}
-
-function license_prompt() {
-  case $MAS_CHANNEL in
-    8.11.x)
-      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "811" )
-      ;;
-    8.10.x)
-      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "810" )
-      ;;
-    8.9.x)
-      MAS_LICENSE_LINK=$( build_license_link_by_mas_version "89" )
-      ;;
-  esac
-
-  # If the user has already accepted the license then there's nothing to do
-  if [[ "$LICENSE_ACCEPTED" == "true" ]]; then
-    return
-  else
+function ocp_version_check() {
+  # Check for OCP 4.9, 4.10, & 4.11
+  export OCP_VERSION=$(oc get clusterversion version -o jsonpath="{.status.desired.version}")
+  if [[ "$OCP_VERSION" =~ ^4\.9\.* ]] || [[ "$OCP_VERSION" =~ ^4\.10\.* ]] || [[ "$OCP_VERSION" =~ ^4\.11\.* ]]; then
     echo
-    echo_h2 "License Terms"
-    echo -e "To continue with the installation, you must accept the license terms:"
-    echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}${MAS_LICENSE_LINK}${TEXT_RESET}"
-    echo -e "   ${COLOR_CYAN}${TEXT_UNDERLINE}https://ibm.biz/MAXIT81-License"
+    echo_warning "Warning: OpenShift Container Platform v${OCP_VERSION} detected!"
+    echo_warning " - This version is now out of support by Red Hat and ${TEXT_UNDERLINE}not a supported platform for IBM Maximo Application Suite${TEXT_RESET}"
+    echo_warning " - The installation of IBM Maximo Application Suite may not proceed, you must upgrade to at least OCP v4.12 before installing/updating/upgrading MAS"
     echo
+    echo_warning "For more information refer to the Red Hat OpenShift Container Platform Life Cycle Policy:"
+    echo "  ${COLOR_CYAN}${TEXT_UNDERLINE}https://access.redhat.com/support/policy/updates/openshift/${TEXT_RESET}"
     reset_colors
-    if [[ "$NO_CONFIRM" == "true" ]]; then
-      echo_warning "You must accept the license terms with --accept-license when using the --no-confirm flag"
-      reset_colors
-      exit 1
-    else
-      prompt_for_confirm_default_yes "Do you accept the license terms?" LICENSE_RESPONSE
-
-      if [[ "$LICENSE_RESPONSE" == "false" ]]; then
-        exit 1
-      fi
-    fi
+    exit 1
   fi
 }

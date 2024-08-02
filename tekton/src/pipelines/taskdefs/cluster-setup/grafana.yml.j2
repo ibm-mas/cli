@@ -1,0 +1,25 @@
+- name: grafana
+  timeout: "0"
+  taskRef:
+    kind: Task
+    name: mas-devops-grafana
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: dependencies-grafana
+
+    - name: grafana_action
+      value: $(params.grafana_action)
+
+    - name: grafana_major_version
+      value: $(params.grafana_major_version)
+
+    - name: grafana_namespace
+      value: $(params.grafana_namespace)
+    - name: grafana_v5_namespace
+      value: $(params.grafana_v5_namespace)
+
+    - name: grafana_instance_storage_class
+      value: $(params.storage_class_rwo)
+    - name: grafana_instance_storage_size
+      value: $(params.grafana_instance_storage_size)

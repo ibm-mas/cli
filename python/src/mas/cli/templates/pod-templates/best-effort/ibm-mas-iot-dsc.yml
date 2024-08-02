@@ -1,0 +1,40 @@
+# podTemplates
+# =============================================================================
+# This list defines the resources for pod containers/initContainers that get
+# assigned a QoS class of BestEffort. More can be found here:
+# https://kubernetes.io/docs/tasks/configure-pod-container/quality-service-pod
+podTemplates:
+  - name: api-connectors
+    containers:
+      - name: api-connectors
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: api-importconnectors
+    containers:
+      - name: api-importconnectors
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: connectors-store
+    containers:
+      - name: connectors-store
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: data-import-connector
+    containers:
+      - name: data-import-connector
+        resources: {}
+      - name: statsd
+        resources: {}
+  - name: historian-configuration-manager
+    containers:
+      - name: historian-configuration-manager
+        resources: {}
+  - name: historian-connector
+    containers:
+      - name: historian-connector
+        resources: {}
+      - name: statsd
+        resources: {}

@@ -9,6 +9,7 @@ pip install --quiet pyyaml yamllint
 # 1. Set up semantic versioning
 # -----------------------------------------------------------------------------
 VERSION_FILE=$GITHUB_WORKSPACE/.version
+VERSION_FILE_NOPREREL=$GITHUB_WORKSPACE/.version-noprerel
 
 if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
   echo "Note: non-branch build for a tag named '${GITHUB_REF_NAME}'"
@@ -91,6 +92,7 @@ fi
 
 # 2. Tweak version string for pre-release builds
 # -----------------------------------------------------------------------------
+cp $VERSION_FILE $VERSION_FILE_NOPREREL
 if [[ "${GITHUB_REF_TYPE}" == "branch" ]]; then
     semver bump prerel pre.$GITHUB_REF_NAME $(cat $VERSION_FILE) > $VERSION_FILE
     echo "Pre-release build: $(cat $VERSION_FILE)"

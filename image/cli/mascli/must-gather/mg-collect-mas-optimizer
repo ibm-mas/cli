@@ -1,5 +1,18 @@
 #!/bin/bash
+set -e
 
-# No App-specific must-gather (yet)
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. $DIR/../functions/internal/utils
 
-exit 0
+NAMESPACE=$1
+OUTPUT_DIR=$2
+
+# Collect Reconcile Logs
+# -----------------------------------------------------------------------------
+echo_h4 "Collect Reconcile Logs"
+$DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-optimizer $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr-ws-operator $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/applicationId optimizer $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType optimizer-adminui $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType optimizer-api $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType optimizer-execution-service $OUTPUT_DIR

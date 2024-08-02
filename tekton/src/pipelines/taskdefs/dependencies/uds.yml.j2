@@ -1,9 +1,9 @@
 - name: uds
+  timeout: "0"
   params:
-    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: uds_action
       value: "$(params.uds_action)"
-
     - name: mas_instance_id
       value: $(params.mas_instance_id)
     - name: custom_labels
@@ -28,6 +28,8 @@
     # Only used by DRO
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
+    - name: dro_namespace
+      value: $(params.dro_namespace)
   when:
     - input: "$(params.uds_action)"
       operator: in
