@@ -28,10 +28,6 @@ spec:
 
     # Test Container Information
     # -------------------------------------------------------------------------
-    - name: fvt_test_suite_prefix
-      type: string
-      description: Prefix of what is the test set that will run eg. UserManagement, it will get concatenated as the cypress file name. 
-      default: ""
     - name: fvt_test_suite
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
@@ -88,8 +84,6 @@ spec:
 
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
-      - name: FVT_TEST_SUITE_PREFIX
-        value: $(params.fvt_test_suite_prefix)
   
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
