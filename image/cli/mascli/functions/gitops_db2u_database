@@ -58,6 +58,7 @@ IBM DB2U:
       --db2-instance-dbm-config-yaml ${COLOR_YELLOW}DB2_INSTANCE_DBM_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster instance dbm config section.
       --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}                   Yaml file containing the db2ucluster database db config section.
       --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster addons audit config section.
+      --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -263,6 +264,10 @@ function gitops_db2u_database_noninteractive() {
       --db2-tolerate-effect)
         export DB2_TOLERATE_EFFECT=$1 && shift
         ;;
+      --db2-timezone)
+        export DB2_TIMEZONE=$1 && shift
+        ;;
+
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -534,6 +539,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-tolerate-key .............................. ${COLOR_MAGENTA}${DB2_TOLERATE_KEY}"
   echo_reset_dim "db2-tolerate-value ............................ ${COLOR_MAGENTA}${DB2_TOLERATE_VALUE}"
   echo_reset_dim "db2-tolerate-effect ........................... ${COLOR_MAGENTA}${DB2_TOLERATE_EFFECT}"
+  echo_reset_dim "db2-timezone .................................. ${COLOR_MAGENTA}${DB2_TIMEZONE}"
   reset_colors
 
   AVP_TYPE=aws  # Support for IBM will be added later
