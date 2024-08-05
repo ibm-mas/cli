@@ -206,7 +206,7 @@
 </ul>
 <h3 id="maximo-operator-catalog-selection">Maximo Operator Catalog Selection<a class="headerlink" href="#maximo-operator-catalog-selection" title="Permanent link"></a></h3>
 <ul>
-<li><code>-c|--catalog MAS_CATALOG_VERSION</code> Maximo Operator Catalog Version to mirror (e.g. v9-240625-amd64)</li>
+<li><code>-c|--catalog MAS_CATALOG_VERSION</code> Maximo Operator Catalog Version to mirror (e.g. v9-240730-amd64)</li>
 <li><code>-C|--channel MAS_CHANNEL</code> Maximo Application Suite Channel to mirror (e.g. 9.0.x)</li>
 </ul>
 <h3 id="content-selection-core-platform">Content Selection (Core Platform)<a class="headerlink" href="#content-selection-core-platform" title="Permanent link"></a></h3>
@@ -422,7 +422,7 @@
   --mode direct --dir /tmp/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v8-240625-amd64 -C 9.0.x \
+  -c v9-240730-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
@@ -431,31 +431,31 @@
 <p>Two-Phase image mirroring is required when you do not have a single system with both access to the public registries containing the source container images <strong>and</strong> your internal private registry.  In this case you will require a system with internet connectivity and another with access to your private network, along with a means to transfer data from one to the other (for example, a portable drive).</p>
 <h3 id="phase-1-mirror-to-filesystem">Phase 1: Mirror to Filesystem<a class="headerlink" href="#phase-1-mirror-to-filesystem" title="Permanent link"></a></h3>
 <p>First, download the latest version of the container image and start up a terminal session inside the container image, we are going to mount a local directory into the running container to persist the mirror filesystem.</p>
-<pre><code class="language-bash">docker pull quay.io/ibmmas/cli:9.0.0
-docker run -ti --rm -v /registry:/mnt/registry quay.io/ibmmas/cli:9.0.0 mas mirror-images \
+<pre><code class="language-bash">docker pull quay.io/ibmmas/cli:10.5.0
+docker run -ti --rm -v /registry:/mnt/registry quay.io/ibmmas/cli:10.5.0 mas mirror-images \
   --mode to-filesystem --dir /mnt/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v8-240625-amd64 -C 9.0.x \
+  -c v9-240730-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
 </code></pre>
 <p>Once this process completes you will find the mirrored images in <code>/registry</code> on your local filesystem ready to transfer to the system inside your disconnected network on which we will perform phase 2 of this operation.  However, before we can do that we also need to mirror the CLI image to your mirror registry so that it's available on the disconnected host system.</p>
-<pre><code class="language-bash">oc image mirror --dir /registry quay.io/ibmmas/cli:9.0.0 file://ibmmas/cli:9.0.0
+<pre><code class="language-bash">oc image mirror --dir /registry quay.io/ibmmas/cli:10.5.0 file://ibmmas/cli:10.5.0
 </code></pre>
 <h3 id="phase-2-mirror-from-filesystem">Phase 2: Mirror from Filesystem<a class="headerlink" href="#phase-2-mirror-from-filesystem" title="Permanent link"></a></h3>
 <p>Transfer the content of <code>/registry</code> to your system in the disconnected network.  Now we are going to put the CLI image in your registry:</p>
 <pre><code class="language-bash">docker login mirror.mydomain.com:5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD
-oc image mirror --dir /registry file://ibmmas/cli:9.0.0 mirror.mydomain.com:5000/ibmmas/cli:9.0.0
+oc image mirror --dir /registry file://ibmmas/cli:10.5.0 mirror.mydomain.com:5000/ibmmas/cli:10.5.0
 </code></pre>
 <p>Now we are ready to mirror the images to your registry using the CLI image in the same way we mirrored the images to the local disk in the first place:</p>
-<pre><code class="language-bash">docker pull mirror.mydomain.com:5000/ibmmas/cli:9.0.0
-docker run -ti --rm -v /registry:/mnt/registry mirror.mydomain.com:5000/ibmmas/cli:9.0.0 mas mirror-images \
+<pre><code class="language-bash">docker pull mirror.mydomain.com:5000/ibmmas/cli:10.5.0
+docker run -ti --rm -v /registry:/mnt/registry mirror.mydomain.com:5000/ibmmas/cli:10.5.0 mas mirror-images \
   --mode from-filesystem --dir /mnt/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v8-240625-amd64 -C 9.0.x \
+  -c v9-240730-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
