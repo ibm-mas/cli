@@ -18,7 +18,7 @@ Omitting the --catalog option will trigger an interactive prompt
 
 Catalog Selection:
   -c MAS_CATALOG_VERSION, --catalog MAS_CATALOG_VERSION
-                                                  Maximo Operator Catalog Version (e.g. v9-240625-amd64)
+                                                  Maximo Operator Catalog Version (e.g. @@MAS_LATEST_CATALOG@@)
 
 Update Dependencies:
   --db2-namespace DB2_NAMESPACE                   Namespace where Db2u operator and instances will be updated
@@ -83,5 +83,5 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas update
 
 ### Non-Interactive Update
 ```bash
-docker run -ti --rm --pull always quay.io/ibmmas/cli mas update -c v9-240625-amd64 --no-confirm
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas update -c @@MAS_LATEST_CATALOG@@ --no-confirm
 ```
