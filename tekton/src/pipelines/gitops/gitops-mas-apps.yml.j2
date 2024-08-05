@@ -200,6 +200,9 @@ spec:
     - name: db2_tolerate_effect
       type: string
       default: ""
+    - name: db2_timezone
+      type: string
+      default: ""
 
     - name: custom_labels
       type: string
@@ -573,6 +576,8 @@ spec:
           value: $(params.db2_tolerate_value)
         - name: db2_tolerate_effect
           value: $(params.db2_tolerate_effect)
+        - name: db2_timezone
+          value: $(params.db2_timezone)
 
       workspaces:
         - name: configs
@@ -728,6 +733,8 @@ spec:
           value: $(params.db2_tolerate_value)
         - name: db2_tolerate_effect
           value: $(params.db2_tolerate_effect)
+        - name: db2_timezone
+          value: $(params.db2_timezone)
         
       workspaces:
         - name: configs
