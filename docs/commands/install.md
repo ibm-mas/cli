@@ -247,6 +247,7 @@ More:
   --dev-mode                                      Configure installation for development mode
   --no-wait-for-pvc                               Disable the wait for pipeline PVC to bind before starting the pipeline
   --skip-pre-check                                Disable the 'pre-install-check' at the start of the install pipeline
+  --skip-grafana-install                          Skips Grafana install action
   --no-confirm                                    Launch the upgrade without prompting for confirmation
   -h, --help                                      Show this help message and exit
 ```
