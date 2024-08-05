@@ -256,7 +256,7 @@ Non-Interactive Install
 ```bash
 docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
 export ENTITLEMENT_KEY=xxx
-mas install -i mas1 -w ws1 -W "My Workspace" -c v9-240625-amd64 --mas-channel 9.0.x \
+mas install -i mas1 -w ws1 -W "My Workspace" -c @@MAS_LATEST_CATALOG@@ --mas-channel @@MAS_LATEST_CHANNEL@@ \
   --ibm-entitlement-key $ENTITLEMENT_KEY \
   --license-id xxxxxxxxxxxx --license-file /mnt/home/entitlement.lic \
   --uds-email myemail@email.com --uds-firstname John --uds-lastname Barnes \

@@ -21,8 +21,8 @@ Usage
 - `--redhat-password REDHAT_CONNECT_PASSWORD` Red Hat Connect Password (only required when mirroring UDS images)
 
 ### Maximo Operator Catalog Selection
-- `-c|--catalog MAS_CATALOG_VERSION` Maximo Operator Catalog Version to mirror (e.g. v9-240625-amd64)
-- `-C|--channel MAS_CHANNEL` Maximo Application Suite Channel to mirror (e.g. 9.0.x)
+- `-c|--catalog MAS_CATALOG_VERSION` Maximo Operator Catalog Version to mirror (e.g. @@MAS_LATEST_CATALOG@@)
+- `-C|--channel MAS_CHANNEL` Maximo Application Suite Channel to mirror (e.g. @@MAS_LATEST_CHANNEL@@)
 
 ### Content Selection (Core Platform)
 - `--mirror-catalog` Mirror the IBM Maximo Operator Catalog
