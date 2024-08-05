@@ -6,7 +6,7 @@ Usage:
   mas install [options]
 
 Catalog Selection (Required):
-  -c, --mas-catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}            IBM Maximo Operator Catalog to install (e.g. v9-240625-amd64)
+  -c, --mas-catalog-version ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}            IBM Maximo Operator Catalog to install (e.g. @@MAS_LATEST_CATALOG@@)
 
 Entitlement & Licensing (Required):
       --ibm-entitlement-key ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}            IBM entitlement key

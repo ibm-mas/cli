@@ -27,7 +27,7 @@ Source Registry Entitlements (Required based on what content you choose to mirro
       --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}       Artifactory Token
 
 Maximo Operator Catalog Selection (Optional):
-  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v9-240625-amd64)
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. @@MAS_LATEST_CATALOG@@)
   -C, --channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                       Maximo Application Suite Channel to mirror (e.g. 9.0.x)
 
 Content Selection (Core Platform):
