@@ -45,7 +45,7 @@ usage: mas install [-c MAS_CATALOG_VERSION] [--ibm-entitlement-key IBM_ENTITLEME
                    [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--approval-core APPROVAL_CORE]
                    [--approval-assist APPROVAL_ASSIST] [--approval-iot APPROVAL_IOT] [--approval-manage APPROVAL_MANAGE] [--approval-monitor APPROVAL_MONITOR]
                    [--approval-optimizer APPROVAL_OPTIMIZER] [--approval-predict APPROVAL_PREDICT] [--approval-visualinspection APPROVAL_VISUALINSPECTION]
-                   [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check] [--no-confirm] [-h]
+                   [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check] [--skip-grafana-install] [--no-confirm] [-h]
 
 IBM Maximo Application Suite Admin CLI v100.0.0
 Install MAS by configuring and launching the MAS Uninstall Tekton Pipeline.
