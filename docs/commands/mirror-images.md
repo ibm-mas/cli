@@ -22,7 +22,7 @@ Usage
 
 ### Maximo Operator Catalog Selection
 - `-c|--catalog MAS_CATALOG_VERSION` Maximo Operator Catalog Version to mirror (e.g. @@MAS_LATEST_CATALOG@@)
-- `-C|--channel MAS_CHANNEL` Maximo Application Suite Channel to mirror (e.g. 9.0.x)
+- `-C|--channel MAS_CHANNEL` Maximo Application Suite Channel to mirror (e.g. @@MAS_LATEST_CHANNEL@@)
 
 ### Content Selection (Core Platform)
 - `--mirror-catalog` Mirror the IBM Maximo Operator Catalog
