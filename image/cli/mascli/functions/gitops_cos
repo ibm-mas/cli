@@ -303,13 +303,13 @@ function gitops_cos() {
       secret_suffix                  = "manage_logging/s3secretkey"
       manage_secret_format           = true
     }
-    EOF
+EOF
 
     cat > $TEMP_DIR/provider.tf <<EOF
     provider "aws" {
       region = "$SM_AWS_REGION"
     }
-    EOF
+EOF
 
     cat > $TEMP_DIR/backend.tf <<EOF
     terraform {
@@ -319,7 +319,7 @@ function gitops_cos() {
         region = "us-east-1"
       }
     }
-    EOF
+EOF
 
     echo $TEMP_DIR/terraform -chdir=$TEMP_DIR init -input=false
     $TEMP_DIR/terraform -chdir=$TEMP_DIR init -input=false
@@ -343,3 +343,4 @@ function gitops_cos() {
 
   exit 0
 }
+
