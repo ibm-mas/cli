@@ -18,7 +18,7 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
 
 IBM Maximo Application Suite:
-      -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                    IBM Suite Maximo Application Suite Instance ID  
+      -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                    IBM Suite Maximo Application Suite Instance ID
 
 COS Provider Selection:
       --cos-action ${COLOR_YELLOW}COS_ACTION${TEXT_RESET}                                                  provision or deprovision
@@ -174,7 +174,7 @@ function gitops_deprovision_cos() {
   echo_reset_dim "COS type  ............................. ${COLOR_MAGENTA}${COS_TYPE}"
   echo_reset_dim "IBMCLOUD Resource Group  .............. ${COLOR_MAGENTA}${IBMCLOUD_RESOURCEGROUP}"
   echo_reset_dim "IBMCLOUD ApiKey ....................... ${COLOR_MAGENTA}${IBMCLOUD_APIKEY:0:8}<snip>"
- 
+
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
@@ -187,7 +187,7 @@ function gitops_deprovision_cos() {
   export COS_ACTION="deprovision"
   export MAS_CONFIG_DIR=$TEMP_DIR
   export MAS_INSTANCE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
-  
+
   if [[ "$COS_TYPE" == "ibm" ]]; then
 
     export COS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
@@ -233,26 +233,29 @@ function gitops_deprovision_cos() {
 
     module "s3c" {
       name_prefix = local.name_prefix
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.0"
-      s3_bucket               = "${MAS_INSTANCE_ID}-s3c"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.1"
+      s3_bucket               = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3c"
       s3_encryption           = true
       s3_encryption_algorithm = "AES256"
+      force_destroy_bucket    = true
     }
 
     module "s3a" {
       name_prefix = local.name_prefix
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.0"
-      s3_bucket               = "${MAS_INSTANCE_ID}-s3a"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.1"
+      s3_bucket               = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3a"
       s3_encryption           = true
       s3_encryption_algorithm = "AES256"
+      force_destroy_bucket    = true
     }
 
     module "s3l" {
       name_prefix = local.name_prefix
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.0"
-      s3_bucket               = "${MAS_INSTANCE_ID}-s3l"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.1"
+      s3_bucket               = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3l"
       s3_encryption           = true
       s3_encryption_algorithm = "AES256"
+      force_destroy_bucket    = true
     }
 
     output "s3c_access_point" {
@@ -271,12 +274,14 @@ function gitops_deprovision_cos() {
     }
 
     module "s3c_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.6"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3c.s3_bucket_id
-      s3_access_point_name           = "${MAS_INSTANCE_ID}-s3c-access"
-      s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
-      s3_access_point_user           = "${MAS_INSTANCE_ID}-s3c-user"
+      s3_bucket_arn                  = module.s3c.s3_bucket_arn
+      s3_bucket_region               = module.s3c.s3_bucket_region
+      s3_access_point_name           = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3c-access"
+      s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:GetObjectAcl", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
+      s3_access_point_user           = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3c-user"
       mas_cluster_id                 = "$CLUSTER_ID"
       mas_instance_id                = "$MAS_INSTANCE_ID"
       secret_recovery_days           = 0
@@ -285,26 +290,30 @@ function gitops_deprovision_cos() {
     }
 
     module "s3a_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.6"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3a.s3_bucket_id
-      s3_access_point_name           = "${MAS_INSTANCE_ID}-s3a-access"
-      s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
-      s3_access_point_user           = "${MAS_INSTANCE_ID}-s3a-user"
+      s3_bucket_arn                  = module.s3a.s3_bucket_arn
+      s3_bucket_region               = module.s3a.s3_bucket_region
+      s3_access_point_name           = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3a-access"
+      s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:GetObjectAcl", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
+      s3_access_point_user           = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3a-user"
       mas_cluster_id                 = "$CLUSTER_ID"
       mas_instance_id                = "$MAS_INSTANCE_ID"
       secret_recovery_days           = 0
-      secret_suffix                  = "manage_attachments/cos_aws_secret"
+      secret_suffix                  = "manage_attachments/cosawssecret"
       manage_secret_format           = true
     }
 
     module "s3l_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.6"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3l.s3_bucket_id
-      s3_access_point_name           = "${MAS_INSTANCE_ID}-s3l-access"
-      s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
-      s3_access_point_user           = "${MAS_INSTANCE_ID}-s3l-user"
+      s3_bucket_arn                  = module.s3l.s3_bucket_arn
+      s3_bucket_region               = module.s3l.s3_bucket_region
+      s3_access_point_name           = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3l-access"
+      s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:GetObjectAcl", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
+      s3_access_point_user           = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3l-user"
       mas_cluster_id                 = "$CLUSTER_ID"
       mas_instance_id                = "$MAS_INSTANCE_ID"
       secret_recovery_days           = 0
