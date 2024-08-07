@@ -286,7 +286,7 @@ function gitops_deprovision_cos() {
       mas_instance_id                = "$MAS_INSTANCE_ID"
       secret_recovery_days           = 0
       secret_suffix                  = "cos"
-      manage_secret_format           = false
+      cos_secret_format              = true
     }
 
     module "s3a_access_point" {
