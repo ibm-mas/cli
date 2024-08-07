@@ -35,6 +35,8 @@
       value: $(params.mas_appws_kind_predict)
     - name: mas_app_kind
       value: $(params.mas_app_kind_predict)
+    - name: ingress
+      value: $(params.ingress)
   taskRef:
     name: gitops-suite-app-config
     kind: Task

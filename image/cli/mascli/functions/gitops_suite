@@ -70,7 +70,7 @@ IBM Maximo Application Suite:
       --update-dns-entries ${COLOR_YELLOW}UPDATE_DNS_ENTRIES${TEXT_RESET}             Set this to false if you want to not update DNS entries if they already exist
       --delete-wildcards ${COLOR_YELLOW}DELETE_WILDCARDS${TEXT_RESET}                 Set this to true to force deletion of wildcard dns entries in cis
       --override-edge-certs ${COLOR_YELLOW}OVERRIDE_EDGE_CERTS${TEXT_RESET}           Set this to false to not override and delete any existing edge certificates in cis instance when creating new edge certificates
-
+      --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                   true/false, If true, ingress-controller for cis-proxy will be configured
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
@@ -238,6 +238,10 @@ function gitops_suite_noninteractive() {
         export OCP_CLUSTER_DOMAIN=$1 && shift
         ;;
 
+      --ingress)
+        export INGRESS=$1 && shift
+        ;;
+
       --cis-enhanced-security)
         export CIS_ENHANCED_SECURITY=$1 && shift
         ;;
@@ -360,6 +364,8 @@ function gitops_suite() {
     export DELETE_WILDCARDS=${DELETE_WILDCARDS:-"true"}
 
     export DOMAIN=${CIS_MAS_DOMAIN}
+    # Disable provision public ingress controller by default
+    export INGRESS=${INGRESS:-"false"}
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -431,6 +437,7 @@ function gitops_suite() {
     echo_reset_dim "Update DNS entries Flag ........ ${COLOR_MAGENTA}${UPDATE_DNS_ENTRIES}"
     echo_reset_dim "DELETE_WILDCARDS Flag .......... ${COLOR_MAGENTA}${DELETE_WILDCARDS}"
     echo_reset_dim "OVERRIDE_EDGE_CERTS Flag ....... ${COLOR_MAGENTA}${OVERRIDE_EDGE_CERTS}"
+    echo_reset_dim "Public Ingress Controller ....... ${COLOR_MAGENTA}${INGRESS}"
     reset_colors
   fi
 

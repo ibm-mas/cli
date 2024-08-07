@@ -8,6 +8,9 @@ spec:
     - name: dns_provider
       type: string
       default: cis
+    - name: ingress
+      type: string
+      default: "false"
     - name: cluster_name
       type: string
     - name: account
@@ -117,6 +120,8 @@ spec:
         value: $(params.cluster_url)
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
+      - name: INGRESS
+        value: $(params.ingress)
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT
