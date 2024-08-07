@@ -229,7 +229,7 @@ function gitops_cos() {
       s3_bucket               = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3c"
       s3_encryption           = true
       s3_encryption_algorithm = "AES256"
-      force_destroy_bucket    = true
+      force_bucket_destroy    = true
     }
 
     module "s3a" {
@@ -238,7 +238,7 @@ function gitops_cos() {
       s3_bucket               = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3a"
       s3_encryption           = true
       s3_encryption_algorithm = "AES256"
-      force_destroy_bucket    = true
+      force_bucket_destroy    = true
     }
 
     module "s3l" {
@@ -247,7 +247,7 @@ function gitops_cos() {
       s3_bucket               = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3l"
       s3_encryption           = true
       s3_encryption_algorithm = "AES256"
-      force_destroy_bucket    = true
+      force_bucket_destroy    = true
     }
 
     output "s3c_access_point" {
