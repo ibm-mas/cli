@@ -456,7 +456,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
   export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
-  export JDBC_ROUTE=${JDBC_ROUTE:-default}
+  export JDBC_ROUTE=${JDBC_ROUTE:-"default"}
 
   echo
   reset_colors
