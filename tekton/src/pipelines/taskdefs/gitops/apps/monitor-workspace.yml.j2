@@ -26,6 +26,8 @@
       value: $(params.mas_appws_kind_monitor)
     - name: mas_app_kind
       value: $(params.mas_app_kind_monitor)
+    - name: ingress
+      value: $(params.ingress)
   taskRef:
     name: gitops-suite-app-config
     kind: Task

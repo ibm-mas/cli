@@ -35,6 +35,13 @@ mas_manual_cert_mgmt: true
 {% else %}
 mas_manual_cert_mgmt: false
 {% endif %}
+
+{% if INGRESS == 'true' %}
+ingress: true
+{% else %}
+ingress: false
+{% endif %}
+
 {% if PUBLIC_TLS_SECRET_NAME is defined and PUBLIC_TLS_SECRET_NAME !='' %}
 public_tls_secret_name: {{ PUBLIC_TLS_SECRET_NAME }}
 {% endif %}
