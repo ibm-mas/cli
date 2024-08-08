@@ -55,6 +55,7 @@ JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):
   --jdbc-instance-name ${COLOR_YELLOW}JDBC_INSTANCE_NAME${TEXT_RESET}         The JDBC instance name to use. Required for all JDBC_TYPE's
   --jdbc-connection-url ${COLOR_YELLOW}JDBC_CONNECTION_URL${TEXT_RESET}       The JDBC connection URL. Required when JDBC_TYPE is not incluster-db2
   --jdbc-certificate-file ${COLOR_YELLOW}JDBC_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for JDBC server. Required when JDBC_TYPE is not incluster-db2
+  --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                         By default routes are not exposed to public. To expose route, set this to public.
 
 SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"): 
   --smtp-display-name ${COLOR_YELLOW}SMTP_DISPLAY_NAME${TEXT_RESET}                                       Display name for SmtpCfg resource
@@ -194,7 +195,10 @@ function gitops_mas_config_noninteractive() {
         ;;
       --jdbc-certificate-file)
         export JDBC_CERTIFICATE_FILE=$1 && shift
-        ;; 
+        ;;
+      --jdbc-route)
+        export JDBC_ROUTE=$1 && shift
+        ;;
 
       # SMTP
       --smtp-display-name)
@@ -352,6 +356,8 @@ function gitops_mas_config_noninteractive() {
 
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       export JDBC_TYPE=${JDBC_TYPE:-incluster-db2}
+      export JDBC_ROUTE=${JDBC_ROUTE:-default}
+
       if [[ -z $JDBC_INSTANCE_NAME ]]; then
         export JDBC_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
       fi
@@ -553,6 +559,7 @@ function gitops_mas_config() {
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
       echo_reset_dim "JDBC_TYPE ...................................... ${COLOR_MAGENTA}${JDBC_TYPE}"
       echo_reset_dim "JDBC_INSTANCE_NAME ............................. ${COLOR_MAGENTA}${JDBC_INSTANCE_NAME}"
+      echo_reset_dim "JDBC_ROUTE ..................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
       if [ "${JDBC_TYPE}" != "incluster-db2" ]; then
         echo "${TEXT_DIM}"
         echo_reset_dim "JDBC_CONNECTION_URL ............................ ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"

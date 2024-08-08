@@ -35,6 +35,7 @@ Operator Catalog (Optional):
 
 IBM CIS Cert Manager:
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
+      --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                   true/false, If true, ingress-controller for cis-proxy will be configured
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}         Enable automatic push to GitHub
@@ -206,6 +207,9 @@ function gitops_cluster_noninteractive() {
       --ocp-cluster-domain)
         export OCP_CLUSTER_DOMAIN=$1 && shift
         ;;
+      --ingress)
+        export INGRESS=$1 && shift
+        ;;
 
 
       # Other Commands
@@ -279,6 +283,11 @@ function gitops_cluster() {
   reset_colors
   echo_h2 "Review Settings"
 
+  if [[ "${DNS_PROVIDER}" == "cis" ]]; then
+    export OCP_PUBLIC_CLUSTER_DOMAIN=${OCP_CLUSTER_DOMAIN//apps./public.}
+    # Disable provision public ingress controller by default
+    export INGRESS=${INGRESS:-"false"}
+  fi
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
@@ -337,8 +346,10 @@ function gitops_cluster() {
   if [[ -n "$DNS_PROVIDER" ]]; then
     echo "${TEXT_DIM}"
     echo_h2 "IBM CIS Cert Manager" "    "
-    echo_reset_dim "DNS Provider ................. ${COLOR_MAGENTA}${DNS_PROVIDER}"
-    echo_reset_dim "Open Shift Cluster Domain .... ${COLOR_MAGENTA}${OCP_CLUSTER_DOMAIN}"
+    echo_reset_dim "DNS Provider .................... ${COLOR_MAGENTA}${DNS_PROVIDER}"
+    echo_reset_dim "Open Shift Cluster Domain ....... ${COLOR_MAGENTA}${OCP_CLUSTER_DOMAIN}"
+    echo_reset_dim "OCP Public Domain ............... ${COLOR_MAGENTA}${OCP_PUBLIC_CLUSTER_DOMAIN}"
+    echo_reset_dim "Public Ingress Controller ....... ${COLOR_MAGENTA}${INGRESS}"
     reset_colors
   fi
 

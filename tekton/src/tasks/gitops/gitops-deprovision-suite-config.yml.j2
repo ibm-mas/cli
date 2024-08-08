@@ -31,10 +31,16 @@ spec:
     - name: jdbc_instance_name_iot
       type: string
       default: ""
+    - name: jdbc_route_iot
+      type: string
+      default: ""
     - name: jdbc_type_manage
       type: string
       default: "inclutser-db2"
     - name: jdbc_instance_name_manage
+      type: string
+      default: ""
+    - name: jdbc_route_manage
       type: string
       default: ""
   stepTemplate:
@@ -64,10 +70,14 @@ spec:
         value: $(params.jdbc_type_iot)
       - name: JDBC_INSTANCE_NAME_IOT
         value: $(params.jdbc_instance_name_iot)
+      - name: JDBC_ROUTE_IOT
+        value: $(params.jdbc_route_iot)
       - name: JDBC_TYPE_MANAGE
         value: $(params.jdbc_type_manage)
       - name: JDBC_INSTANCE_NAME_MANAGE
         value: $(params.jdbc_instance_name_manage)
+      - name: JDBC_ROUTE_MANAGE
+        value: $(params.jdbc_route_manage)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -105,6 +115,7 @@ spec:
         --mas-app-id "iot" \
         --dir /tmp/deprovision-suite-config-iotdb \
         --jdbc-type "$JDBC_TYPE_IOT" \
+        --jdbc-route "$JDBC_ROUTE_IOT" \
         --jdbc-instance-name "$JDBC_INSTANCE_NAME_IOT" \
         || exit 1
 
@@ -126,6 +137,7 @@ spec:
         --mas-workspace-id "masdev" \
         --mas-app-id "manage" \
         --jdbc-type "$JDBC_TYPE_MANAGE" \
+        --jdbc-route "$JDBC_ROUTE_MANAGE" \
         --jdbc-instance-name "$JDBC_INSTANCE_NAME_MANAGE" \
         || exit 1
 
