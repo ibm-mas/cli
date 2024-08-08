@@ -22,6 +22,17 @@ rules:
       - get
       - create
       - delete
+  # MAS install creates Pipelines, Tasks, and PipelineRuns
+  - apiGroups:
+      - tekton.dev
+    resources:
+      - pipelines
+      - pipelineruns
+      - tasks
+    verbs:
+      - get
+      - create
+
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

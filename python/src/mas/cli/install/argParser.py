@@ -844,6 +844,12 @@ otherArgGroup.add_argument(
     help="Disable the 'pre-install-check' at the start of the install pipeline"
 )
 otherArgGroup.add_argument(
+    "--skip-grafana-install",
+    required=False,
+    action="store_true",
+    help="Skips Grafana install action"
+)
+otherArgGroup.add_argument(
     "--no-confirm",
     required=False,
     action="store_true",

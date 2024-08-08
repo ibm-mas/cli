@@ -206,6 +206,9 @@ spec:
     - name: db2_tolerate_effect
       type: string
       default: ""
+    - name: db2_timezone
+      type: string
+      default: ""
 
     - name: custom_labels
       type: string
@@ -585,6 +588,8 @@ spec:
           value: $(params.db2_tolerate_effect)
         - name: jdbc_route
           value: $(params.jdbc_route_iot)
+        - name: db2_timezone
+          value: $(params.db2_timezone)
 
       workspaces:
         - name: configs
@@ -741,6 +746,9 @@ spec:
           value: $(params.db2_tolerate_effect)
         - name: jdbc_route
           value: $(params.jdbc_route_manage)
+        - name: db2_timezone
+          value: $(params.db2_timezone)
+        
       workspaces:
         - name: configs
           workspace: configs

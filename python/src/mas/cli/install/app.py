@@ -59,7 +59,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             catalogDisplayName = catalog.spec.displayName
 
             m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
-            print(f"m: {m}")
             if m:
                 # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
@@ -150,7 +149,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configSLS(self) -> None:
         self.printH1("Configure Product License")
-        self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True)
+        self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
         self.promptForString("Contact e-mail address", "uds_contact_email")
         self.promptForString("Contact first name", "uds_contact_firstname")
         self.promptForString("Contact last name", "uds_contact_lastname")
@@ -166,7 +165,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         try:
             packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
             packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
-            self.setParam("grafana_action", "install")
+            if self.skipGrafanaInstall:
+                self.setParam("grafana_action", "none")
+            else:
+                self.setParam("grafana_action", "install")
         except NotFoundError:
             self.setParam("grafana_action", "none")
 
@@ -184,7 +186,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configCP4D(self):
         # TODO: It's probably time to remove v8-amd64 support from the CLI entirely now
-        if self.getParam("mas_catalog_version") in ["v8-amd64", "v9-240625-amd64"]:
+        if self.getParam("mas_catalog_version") in ["v8-amd64", "v9-240625-amd64", "v9-240730-amd64"]:
             self.setParam("cpd_product_version", "4.8.0")
         elif self.getParam("mas_catalog_version") in ["v8-240528-amd64"]:
             self.setParam("cpd_product_version", "4.6.6")
@@ -843,7 +845,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "no_confirm", "no_wait_for_pvc", "help"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help"]:
                 pass
 
             elif key == "manual_certificates":
@@ -887,10 +889,51 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
+        if args.skip_grafana_install:
+            self.skipGrafanaInstall = True
 
         self.installOptions = [
             {
                 "#": 1,
+                "catalog": "v9-240730-amd64",
+                "release": "9.0.x",
+                "core": "9.0.1",
+                "assist": "9.0.1",
+                "iot": "9.0.1",
+                "manage": "9.0.1",
+                "monitor": "9.0.1",
+                "optimizer": "9.0.1",
+                "predict": "9.0.0",
+                "inspection": "9.0.0"
+            },
+            {
+                "#": 2,
+                "catalog": "v9-240730-amd64",
+                "release": "8.11.x",
+                "core": "8.11.13",
+                "assist": "8.8.5",
+                "iot": "8.8.11",
+                "manage": "8.7.10",
+                "monitor": "8.11.9",
+                "optimizer": "8.5.7",
+                "predict": "8.9.3",
+                "inspection": "8.9.4"
+            },
+            {
+                "#": 3,
+                "catalog": "v9-240730-amd64",
+                "release": "8.10.x",
+                "core": "8.10.16",
+                "assist": "8.7.6",
+                "iot": "8.7.15",
+                "manage": "8.6.16",
+                "monitor": "8.10.12",
+                "optimizer": "8.4.8",
+                "predict": "8.8.3",
+                "inspection": "8.8.4"
+            },
+            {
+                "#": 4,
                 "catalog": "v9-240625-amd64",
                 "release": "9.0.x",
                 "core": "9.0.0",
@@ -903,7 +946,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "9.0.0"
             },
             {
-                "#": 2,
+                "#": 5,
                 "catalog": "v9-240625-amd64",
                 "release": "8.11.x",
                 "core": "8.11.12",
@@ -916,7 +959,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.9.3"
             },
             {
-                "#": 3,
+                "#": 6,
                 "catalog": "v9-240625-amd64",
                 "release": "8.10.x",
                 "core": "8.10.15",
@@ -929,7 +972,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.8.4"
             },
             {
-                "#": 4,
+                "#": 7,
                 "catalog": "v8-240528-amd64",
                 "release": "8.11.x",
                 "core": "8.11.11",
@@ -942,7 +985,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.9.3"
             },
             {
-                "#": 5,
+                "#": 8,
                 "catalog": "v8-240528-amd64",
                 "release": "8.10.x",
                 "core": "8.10.14",

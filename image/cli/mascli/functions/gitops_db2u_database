@@ -59,6 +59,7 @@ IBM DB2U:
       --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}                   Yaml file containing the db2ucluster database db config section.
       --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster addons audit config section.
       --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
+      --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -267,6 +268,10 @@ function gitops_db2u_database_noninteractive() {
       --jdbc-route)
         export JDBC_ROUTE=$1 && shift
         ;;
+      --db2-timezone)
+        export DB2_TIMEZONE=$1 && shift
+        ;;
+
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -307,6 +312,7 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$SM_AWS_ACCESS_KEY_ID" ]] &&  gitops_db2u_database_help "SM_AWS_ACCESS_KEY_ID is not set"
   [[ -z "$SM_AWS_SECRET_ACCESS_KEY" ]] && gitops_db2u_database_help "SM_AWS_SECRET_ACCESS_KEY is not set"
   [[ -z "$SM_AWS_REGION" ]] && gitops_db2u_database_help "SM_AWS_REGION is not set"
+  [[ -z "$SECRETS_PATH" ]] && gitops_db2u_database_help "SECRETS_PATH is not set"
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_db2u_database_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_database_help "ACCOUNT_ID is not set"
@@ -314,14 +320,14 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$CLUSTER_ID" ]] && gitops_db2u_database_help "CLUSTER_ID is not set"
   
   #db2u
-  [[ -z "$DB2_VERSION" ]] && gitops_db2u_help "DB2_VERSION is not set"
-  [[ -z "$DB2_META_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_META_STORAGE_CLASS is not set"
-  [[ -z "$DB2_DATA_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_DATA_STORAGE_CLASS is not set"
-  [[ -z "$DB2_BACKUP_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_BACKUP_STORAGE_CLASS is not set"
-  [[ -z "$DB2_ARCHIVELOGS_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_ARCHIVELOGS_STORAGE_CLASS is not set"
-  [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_help "DB2_LOGS_STORAGE_CLASS is not set"
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_help "MAS_INSTANCE_ID is not set"
-  [[ -z "$MAS_APP_ID" ]] && gitops_db2u_help "MAS_APP_ID is not set"
+  [[ -z "$DB2_VERSION" ]] && gitops_db2u_database_help "DB2_VERSION is not set"
+  [[ -z "$DB2_META_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_META_STORAGE_CLASS is not set"
+  [[ -z "$DB2_DATA_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_DATA_STORAGE_CLASS is not set"
+  [[ -z "$DB2_BACKUP_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_BACKUP_STORAGE_CLASS is not set"
+  [[ -z "$DB2_ARCHIVELOGS_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_ARCHIVELOGS_STORAGE_CLASS is not set"
+  [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_LOGS_STORAGE_CLASS is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_APP_ID" ]] && gitops_db2u_database_help "MAS_APP_ID is not set"
   
   #MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
@@ -540,6 +546,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-tolerate-value ............................ ${COLOR_MAGENTA}${DB2_TOLERATE_VALUE}"
   echo_reset_dim "db2-tolerate-effect ........................... ${COLOR_MAGENTA}${DB2_TOLERATE_EFFECT}"
   echo_reset_dim "JDBC_ROUTE .................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
+  echo_reset_dim "db2-timezone .................................. ${COLOR_MAGENTA}${DB2_TIMEZONE}"
   reset_colors
 
   AVP_TYPE=aws  # Support for IBM will be added later

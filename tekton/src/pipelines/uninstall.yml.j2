@@ -2,29 +2,13 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-{% if wait_for_install == true %}
-  name: mas-uninstall-after-install
-{% else %}
   name: mas-uninstall
-{% endif %}
 spec:
-{% if wait_for_install == true %}
-  workspaces:
-    # Shared storage to hold mustgather output for tasks
-    - name: shared-mustgather
-{% endif %}
-
   params:
     - name: image_pull_policy
       type: string
       default: IfNotPresent
       description: Tekton Pipeline image pull policy (for ibmmas/cli images)
-
-{% if wait_for_install == true %}
-    - name: pipelinerun_name
-      type: string
-      description: name of the installation pipelinerun that must be tracked til completion
-{% endif %}
 
     # MAS Config
     # -------------------------------------------------------------------------
@@ -85,28 +69,6 @@ spec:
     # 8. Uninstall IBM Catalogs
     # 9. Uninstall Cluster Monitoring
 
-
-{% if wait_for_install == true %}
-    # 0. Wait for the install pipeline to complete
-    # -------------------------------------------------------------------------
-    - name: wait-for-install
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: $(params.pipelinerun_name)
-        - name: delay
-          value: 600  # seconds between checking the status of the pipelinerun
-        - name: retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "False"  # fails and exit once the first failure is detected
-{% endif %}
-
     # 1. Uninstall IBM Maximo Application Suite Applications
     # -------------------------------------------------------------------------
     # 1.0 Start uninstall
@@ -114,10 +76,6 @@ spec:
     # 1.1 Uninstall Visual Inspection
     - name: app-uninstall-visualinspection
       timeout: "0"
-{% if wait_for_install == true %}
-      runAfter:
-        - wait-for-install
-{% endif %}
       taskRef:
         kind: Task
         name: mas-devops-suite-app-uninstall
@@ -132,10 +90,6 @@ spec:
     # 1.2 Uninstall Assist
     - name: app-uninstall-assist
       timeout: "0"
-{% if wait_for_install == true %}
-      runAfter:
-        - wait-for-install
-{% endif %}
       taskRef:
         kind: Task
         name: mas-devops-suite-app-uninstall
@@ -150,10 +104,6 @@ spec:
     # 1.3 Uninstall Optimizer
     - name: app-uninstall-optimizer
       timeout: "0"
-{% if wait_for_install == true %}
-      runAfter:
-        - wait-for-install
-{% endif %}
       taskRef:
         kind: Task
         name: mas-devops-suite-app-uninstall
@@ -168,10 +118,6 @@ spec:
     # 1.4 Uninstall Predict
     - name: app-uninstall-predict
       timeout: "0"
-{% if wait_for_install == true %}
-      runAfter:
-        - wait-for-install
-{% endif %}
       taskRef:
         kind: Task
         name: mas-devops-suite-app-uninstall
@@ -254,7 +200,6 @@ spec:
         - name: devops_suite_name
           value: suite-uninstall
 
-
     # 3. Uninstall IBM Suite Licensing Service
     # -------------------------------------------------------------------------
     - name: uninstall-sls
@@ -276,7 +221,6 @@ spec:
       runAfter:
         - uninstall-suite
 
-
     # 4. Uninstall MongoDB
     # -------------------------------------------------------------------------
     - name: uninstall-mongodb
@@ -297,7 +241,6 @@ spec:
           values: ["uninstall"]
       runAfter:
         - uninstall-sls
-
 
     # 5. Uninstall IBM User Data Services (or DRO)
     # -------------------------------------------------------------------------
@@ -343,7 +286,6 @@ spec:
       runAfter:
         - uninstall-uds
 
-
     # 7. Uninstall IBM Common Services
     # -------------------------------------------------------------------------
     - name: uninstall-common-services
@@ -364,7 +306,6 @@ spec:
           values: ["uninstall"]
       runAfter:
         - uninstall-cert-manager
-
 
     # 8. Uninstall IBM Catalogs
     # -------------------------------------------------------------------------
@@ -387,7 +328,6 @@ spec:
       runAfter:
         - uninstall-common-services
 
-
     # 9. Uninstall Grafana
     # -------------------------------------------------------------------------
     - name: uninstall-grafana
@@ -409,20 +349,22 @@ spec:
       runAfter:
         - uninstall-ibm-catalogs
 
-
-{% if wait_for_install == true %}
-  # In FVT only this is the time to take a must-gather and finalize the result
-  # ---------------------------------------------------------------------------
   finally:
-    # Collect must-gather
+    # Update synchronization configmap
     # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/common/must-gather.yml.j2') | indent(4) }}
-
-    # Finalize the record in the FVT database
-    # -------------------------------------------------------------------------
-    - name: finalize
+    - name: sync-uninstall
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-fvt-finalize
-{% endif %}
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-uninstall
+        - name: configmap_key
+          value: UNINSTALL_STATUS
+        - name: configmap_value
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
