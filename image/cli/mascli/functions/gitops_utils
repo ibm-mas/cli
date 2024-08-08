@@ -136,6 +136,24 @@ function sm_get_secret_file(){
   fi
 }
 
+function sm_verify_secret_exists(){
+  SECRET_NAME=$1
+  if [[ "$AVP_TYPE" == "aws" ]]; then
+    echo "- Verifying Secret $SECRET_NAME exists"
+    set +o pipefail
+    aws secretsmanager describe-secret --secret-id ${SECRET_NAME} --output json
+    if [ $? -ne 0 ]; then 
+      echo "Error: Secret ${SECRET_NAME} does not exist" 
+      exit 1 
+    fi
+    set -o pipefail
+  elif [[ "$AVP_TYPE" == "ibm" ]]; then
+    # echo "IBM SecretsManager not yet supported"
+    echo ""
+    exit 1
+  fi
+}
+
 function sm_update_account_secret() {
   ACCOUNT=$1
   SECRET_NAME=$2

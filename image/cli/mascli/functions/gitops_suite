@@ -506,6 +506,7 @@ function gitops_suite() {
 
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then
     export CIS_SECRET_FILE=$TEMP_DIR/cis-secret.json
+    sm_verify_secret_exists ${SECRET_NAME_CIS}
     sm_get_secret_file ${SECRET_NAME_CIS} ${CIS_SECRET_FILE}
     IBM_APIKEY_VALUE=$(jq -r .ibm_apikey $CIS_SECRET_FILE)
     echo "IBM_APIKEY_VALUE ${IBM_APIKEY_VALUE:0:4}<snip>"
@@ -522,6 +523,7 @@ function gitops_suite() {
   export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
   export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
 
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
   sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
 
   jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
@@ -544,6 +546,7 @@ function gitops_suite() {
 
   
   export MONGO_INSTANCE_SECRET_FILE=$TEMP_DIR/mongo-instance-secret.json
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
   sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_INSTANCE_SECRET_FILE
   INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
   INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
