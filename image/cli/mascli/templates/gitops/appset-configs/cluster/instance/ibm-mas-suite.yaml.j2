@@ -13,6 +13,13 @@ ibm_mas_suite:
   mas_domain: "{{ MAS_DOMAIN }}"
   ocp_cluster_domain: "{{ OCP_CLUSTER_DOMAIN }}"
 {%- endif %}
+
+{% if INGRESS == 'true' %}
+  ingress: true
+{% else %}
+  ingress: false
+{% endif %}
+
 {%- if DNS_PROVIDER is defined and DNS_PROVIDER == 'cis' %}
   cis_mas_domain: "{{ CIS_MAS_DOMAIN }}"
   cis_subdomain: "{{ CIS_SUBDOMAIN }}"
