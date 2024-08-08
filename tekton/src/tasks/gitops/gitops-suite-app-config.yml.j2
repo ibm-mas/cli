@@ -67,6 +67,9 @@ spec:
     - name: mas_manual_certs_yaml
       type: string
       default: ""
+    - name: ingress
+      type: string
+      default: "false"
 
   stepTemplate:
     name: gitops-suite-app-config
@@ -121,6 +124,8 @@ spec:
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_MANUAL_CERTS_YAML
         value: $(params.mas_manual_certs_yaml)
+      - name: INGRESS
+        value: $(params.ingress)
     envFrom:
       - configMapRef:
           name: environment-properties

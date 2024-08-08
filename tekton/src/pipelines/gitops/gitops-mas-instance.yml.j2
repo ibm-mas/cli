@@ -98,6 +98,9 @@ spec:
     - name: dns_provider
       type: string
       default: cis
+    - name: ingress
+      type: string
+      default: "false"
     - name: cis_subdomain
       type: string
       default: ""
@@ -285,6 +288,8 @@ spec:
           value: $(params.cert_manager_namespace)
         - name: dns_provider
           value: $(params.dns_provider)
+        - name: ingress
+          value: $(params.ingress)
         - name: cis_subdomain
           value: $(params.cis_subdomain)
         - name: cis_mas_domain
