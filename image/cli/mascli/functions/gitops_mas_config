@@ -47,8 +47,8 @@ IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
   --ldap-basedn ${COLOR_YELLOW}LDAP_BASEDN${TEXT_RESET}                       The baseDN for the LDAP server
   --ldap-userid-map ${COLOR_YELLOW}LDAP_USERID_MAP${TEXT_RESET}               LDAP UserId map
   --ldap-certificate-file ${COLOR_YELLOW}LDAP_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for LDAP server
-  --ldap-bind-dn ${COLOR_YELLOW}LDAP_BIND_DN${TEXT_RESET}                     DN for LDAP server authentication
-  --ldap-bind-password ${COLOR_YELLOW}LDAP_BIND_PASSWORD${TEXT_RESET}         Password for LDAP server authenticaiton
+  --ldap-bind-dn ${COLOR_YELLOW}LDAP_BIND_DN${TEXT_RESET}                     DN for LDAP server authentication (Optional, if secret is already set in SM)
+  --ldap-bind-password ${COLOR_YELLOW}LDAP_BIND_PASSWORD${TEXT_RESET}         Password for LDAP server authenticaiton (Optional, if secret is already set in SM)
 
 JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):
   --jdbc-type ${COLOR_YELLOW}JDBC_TYPE${TEXT_RESET}                           Set to 'incluster-db2' when wanting to use the gitops configured, via gitops-db2u-database, db2u cluster (defaults to incluster-db2)
@@ -66,8 +66,8 @@ SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"):
   --smtp-default-sender-name ${COLOR_YELLOW}SMTP_DEFAULT_SENDER_NAME${TEXT_RESET}                         The default sender name
   --smtp-default-recipient-email ${COLOR_YELLOW}SMTP_DEFAULT_RECIPIENT_EMAIL${TEXT_RESET}                 The default recipient email
   --smtp-default-should-email-passwords ${COLOR_YELLOW}SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS${TEXT_RESET}   true or false on sending email passwords
-  --smtp-username ${COLOR_YELLOW}SMTP_USERNAME${TEXT_RESET}                                               Username for SMTP server authentication
-  --smtp-password ${COLOR_YELLOW}SMTP_PASSWORD${TEXT_RESET}          
+  --smtp-username ${COLOR_YELLOW}SMTP_USERNAME${TEXT_RESET}                                               Username for SMTP server authentication (Optional, if secret is already set in SM)
+  --smtp-password ${COLOR_YELLOW}SMTP_PASSWORD${TEXT_RESET}                                               Password for SMTP server authentication (Optional, if secret is already set in SM)
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -346,8 +346,6 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$LDAP_BASEDN" ]] && gitops_mas_config_help "LDAP_BASEDN is not set"
       [[ -z "$LDAP_USERID_MAP" ]] && gitops_mas_config_help "LDAP_USERID_MAP is not set"
       [[ -z "$LDAP_CERTIFICATE_FILE" ]] && gitops_mas_config_help "LDAP_CERTIFICATE_FILE is not set"
-      [[ -z "$LDAP_BIND_DN" ]] && gitops_mas_config_help "LDAP_BIND_DN is not set"
-      [[ -z "$LDAP_BIND_PASSWORD" ]] && gitops_mas_config_help "LDAP_BIND_PASSWORD is not set"
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "jdbc" ]; then
@@ -374,8 +372,6 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$SMTP_DEFAULT_SENDER_NAME" ]] && gitops_mas_config_help "SMTP_DEFAULT_SENDER_NAME is not set"
       [[ -z "$SMTP_DEFAULT_RECIPIENT_EMAIL" ]] && gitops_mas_config_help "SMTP_DEFAULT_RECIPIENT_EMAIL is not set"
       [[ -z "$SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS" ]] && gitops_mas_config_help "SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS is not set"
-      [[ -z "$SMTP_USERNAME" ]] && gitops_mas_config_help "SMTP_USERNAME is not set"
-      [[ -z "$SMTP_PASSWORD" ]] && gitops_mas_config_help "SMTP_PASSWORD is not set"
     fi
   fi # [ "${CONFIG_ACTION}" == "upsert" ]
 
@@ -621,8 +617,10 @@ function gitops_mas_config() {
       export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
       sm_login
       if [ $MONGODB_PROVIDER == 'yaml' ]; then
+        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
         sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
       elif [ $MONGODB_PROVIDER == 'aws' ]; then
+        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
         sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
       fi
 
@@ -662,6 +660,7 @@ function gitops_mas_config() {
       fi
       export KAFKA_SECRET_FILE=$TEMP_DIR/kafka-secret.json
       sm_login
+      sm_verify_secret_exists ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
       sm_get_secret_file ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka $KAFKA_SECRET_FILE
       jq -r .info $KAFKA_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
       export AWS_MSK_SECRET=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
@@ -674,7 +673,11 @@ function gitops_mas_config() {
     if [ "${MAS_CONFIG_TYPE}" == "ldap-default" ]; then
       sm_login
       SECRET_NAME_LDAP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
-      sm_update_secret $SECRET_NAME_LDAP "{\"bindDN\": \"$LDAP_BIND_DN\", \"bindPassword\": \"$LDAP_BIND_PASSWORD\"}"
+      if [ -z "${LDAP_BIND_DN}" ] || [ -z "${LDAP_BIND_PASSWORD}" ]; then
+        sm_verify_secret_exists $SECRET_NAME_LDAP
+      else
+        sm_update_secret $SECRET_NAME_LDAP "{\"bindDN\": \"$LDAP_BIND_DN\", \"bindPassword\": \"$LDAP_BIND_PASSWORD\"}"
+      fi
       export SECRET_KEY_LDAP_BIND_DN=${SECRET_NAME_LDAP}#bindDN
       export SECRET_KEY_LDAP_BIND_PASSWORD=${SECRET_NAME_LDAP}#bindPassword
       export LDAP_CERTIFICATE_CONTENT=$(<$LDAP_CERTIFICATE_FILE)
@@ -687,6 +690,7 @@ function gitops_mas_config() {
       export SECRET_KEY_OBJECTSTORAGE_INFO=${OBJECTSTORAGE_SECRET}#info
       export COS_SECRET_FILE=$TEMP_DIR/cos-secret.json
       sm_login
+      sm_verify_secret_exists ${OBJECTSTORAGE_SECRET}
       sm_get_secret_file ${OBJECTSTORAGE_SECRET} $COS_SECRET_FILE
 
       jq -r .info $COS_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
@@ -749,7 +753,12 @@ function gitops_mas_config() {
     if [ "${MAS_CONFIG_TYPE}" == "smtp" ]; then
       sm_login
       SECRET_NAME_SMTP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
-      sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}"
+      if [ -z "${SMTP_USERNAME}" ] || [ -z "${SMTP_PASSWORD}" ]; then
+        sm_verify_secret_exists $SECRET_NAME_SMTP
+      else
+        sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}"
+      fi
+
       export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username
       export SECRET_KEY_SMTP_PASSWORD=${SECRET_NAME_SMTP}#password
     fi
