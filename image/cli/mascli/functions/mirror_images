@@ -19,6 +19,9 @@ Registry Details (Required):
   -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
   -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
 
+Registry Prefix (Optional):
+  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}            Prefix for the mirror image
+
 Source Registry Entitlements (Required based on what content you choose to mirror):
       --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
       --redhat-username ${COLOR_YELLOW}REDHAT_CONNECT_USERNAME${TEXT_RESET}   Red Hat Connect Username (only required when mirroring UDS images)
@@ -160,6 +163,9 @@ function mirror_to_registry_noninteractive() {
         ;;
       -P|--port)
         REGISTRY_PUBLIC_PORT=$1 && shift
+        ;;
+      -x| --prefix)
+        REGISTRY_PREFIX=$1 && shift        
         ;;
       -u|--username)
         REGISTRY_USERNAME=$1 && shift
@@ -355,6 +361,7 @@ function mirror_to_registry_interactive() {
   echo_h2 "Configure Target Mirror"
   prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
   prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
+  prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX
 
   if [[ $MIRROR_MODE != "to-filesystem" ]]; then
     echo
@@ -512,6 +519,7 @@ function mirror_to_registry() {
 
   export REGISTRY_PUBLIC_HOST
   export REGISTRY_PUBLIC_PORT
+  export REGISTRY_PREFIX
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
 
@@ -578,6 +586,8 @@ function mirror_to_registry() {
   echo_h4 "Target Registry" "    "
   echo_reset_dim "Registry Host ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
   echo_reset_dim "Registry Port ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
+  echo_reset_dim "Registry Prefix ..................... ${COLOR_MAGENTA}${REGISTRY_PREFIX}"
+
 
   echo
   reset_colors

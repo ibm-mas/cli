@@ -34,6 +34,9 @@ function mirror_redhat_noninteractive() {
       -P|--port)
         REGISTRY_PUBLIC_PORT=$1 && shift
         ;;
+      -x| --prefix)
+        REGISTRY_PREFIX=$1 && shift        
+        ;;
       -u|--username)
         REGISTRY_USERNAME=$1 && shift
         ;;
@@ -127,6 +130,7 @@ function mirror_redhat_interactive() {
     echo_h2 "Configure Target Mirror"
     prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
     prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
+    prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX
     prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
     prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?"
   fi
@@ -241,6 +245,7 @@ function mirror_redhat() {
   # Target Registry
   export REGISTRY_PUBLIC_HOST
   export REGISTRY_PUBLIC_PORT
+  export REGISTRY_PREFIX
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
 
@@ -259,6 +264,7 @@ function mirror_redhat() {
     echo_h4 "Target Registry" "    "
     echo_reset_dim "Registry Host ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
     echo_reset_dim "Registry Port ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
+    echo_reset_dim "Registry Prefix ....................... ${COLOR_MAGENTA}${REGISTRY_PREFIX}"
     reset_colors
   fi
 
