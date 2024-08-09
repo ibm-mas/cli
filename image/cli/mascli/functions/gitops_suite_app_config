@@ -464,8 +464,8 @@ function gitops_suite_app_config() {
     yq eval '.mas_appws_spec.settings.customizationList  | to_entries | .[].value.customizationArchiveCredentials.secretName | [] + .' ${MAS_APPWS_SPEC_YAML} | yq '{"CUSTOMIZATION_ARCHIVE_SECRET_NAMES": [] + .}'  > $ADDITIONAL_JINJA_PARAMS_FILE
     export MANAGE_ATTACHMENTS_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.db.attachmentProvider.providerCredentials.secretName // ""' ${MAS_APPWS_SPEC_YAML})
     export MANAGE_LOGGING_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.deployment.loggingS3Destination.secretKey.secretName // ""' ${MAS_APPWS_SPEC_YAML})
-    export MANAGE_ATTACHMENTS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_logging${SECRETS_KEY_SEPERATOR}
-    export MANAGE_LOGGING_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_attachments${SECRETS_KEY_SEPERATOR}
+    export MANAGE_ATTACHMENTS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_attachments${SECRETS_KEY_SEPERATOR}
+    export MANAGE_LOGGING_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_logging${SECRETS_KEY_SEPERATOR}
   else
     echo
     echo_h2 "Using default application spec for $MAS_APP_ID"
