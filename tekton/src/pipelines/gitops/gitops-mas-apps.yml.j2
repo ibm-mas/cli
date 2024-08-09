@@ -63,6 +63,9 @@ spec:
     - name: jdbc_certificate_file_iot
       type: string
       default: ""
+    - name: jdbc_route_iot
+      type: string
+      default: ""
 
     - name: jdbc_type_manage
       type: string
@@ -72,6 +75,9 @@ spec:
       type: string
       default: ""
     - name: jdbc_certificate_file_manage
+      type: string
+      default: ""
+    - name: jdbc_route_manage
       type: string
       default: ""
 
@@ -198,6 +204,9 @@ spec:
       type: string
       default: ""
     - name: db2_tolerate_effect
+      type: string
+      default: ""
+    - name: db2_timezone
       type: string
       default: ""
 
@@ -451,6 +460,10 @@ spec:
       type: string
       default: ""
 
+    - name: ingress
+      type: string
+      default: "false"
+
   tasks:
     # 2. Kafka
     # -------------------------------------------------------------------------
@@ -573,6 +586,10 @@ spec:
           value: $(params.db2_tolerate_value)
         - name: db2_tolerate_effect
           value: $(params.db2_tolerate_effect)
+        - name: jdbc_route
+          value: $(params.jdbc_route_iot)
+        - name: db2_timezone
+          value: $(params.db2_timezone)
 
       workspaces:
         - name: configs
@@ -617,7 +634,6 @@ spec:
           value: $(params.jdbc_connection_url_iot)
         - name: jdbc_certificate_file
           value: $(params.jdbc_certificate_file_iot)
-
       workspaces:
         - name: configs
           workspace: configs
@@ -728,6 +744,10 @@ spec:
           value: $(params.db2_tolerate_value)
         - name: db2_tolerate_effect
           value: $(params.db2_tolerate_effect)
+        - name: jdbc_route
+          value: $(params.jdbc_route_manage)
+        - name: db2_timezone
+          value: $(params.db2_timezone)
         
       workspaces:
         - name: configs
@@ -773,7 +793,6 @@ spec:
           value: $(params.jdbc_connection_url_manage)
         - name: jdbc_certificate_file
           value: $(params.jdbc_certificate_file_manage)
-
       workspaces:
         - name: configs
           workspace: configs
@@ -1570,7 +1589,8 @@ spec:
           value: $(params.jdbc_connection_url_manage)
         - name: jdbc_certificate_file
           value: $(params.jdbc_certificate_file_manage)
-
+        - name: jdbc_route
+          value: $(params.jdbc_route_manage)
       workspaces:
         - name: configs
           workspace: configs

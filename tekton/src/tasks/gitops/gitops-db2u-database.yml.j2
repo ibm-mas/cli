@@ -100,10 +100,15 @@ spec:
       type: string
     - name: db2_tolerate_effect
       type: string
+    - name: db2_timezone
+      type: string
     - name: mas_instance_id
       type: string
     - name: mas_app_id
       type: string
+    - name: jdbc_route
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-db2u-database
     env:
@@ -203,8 +208,12 @@ spec:
         value: $(params.db2_tolerate_value)
       - name: DB2_TOLERATE_EFFECT
         value: $(params.db2_tolerate_effect)
+      - name: DB2_TIMEZONE
+        value: $(params.db2_timezone)
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
+      - name: JDBC_ROUTE
+        value: $(params.jdbc_route)
     envFrom:
       - configMapRef:
           name: environment-properties
