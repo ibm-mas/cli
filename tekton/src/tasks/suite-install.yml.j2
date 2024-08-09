@@ -23,6 +23,9 @@ spec:
     - name: mas_add_catalog
       type: string
       default: ""
+    - name: enable_walkme
+      type: string
+      default: "enabled"
 
     - name: mas_annotations
       default: ''
@@ -132,6 +135,8 @@ spec:
 
       - name: MAS_ADD_CATALOG
         value: $(params.mas_add_catalog)
+      - name: ENABLE_WALKME
+        value: $(params.enable_walkme)
       - name: MAS_ADD_CHANNEL
         value: $(params.mas_add_channel)
 
