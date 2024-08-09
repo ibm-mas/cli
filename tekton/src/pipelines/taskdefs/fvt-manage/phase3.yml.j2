@@ -3,7 +3,6 @@
 # - fvt-manage-base-ui-classification (selenium)
 # - fvt-manage-base-ui-helplinks (selenium)
 # - fvt-manage-base-ui-wo-basic (selenium)
-# - fvt-manage-base-ui-mif-setup (selenium)
 # - fvt-manage-base-ui-mas-navigation (selenium)
 # -------------------------------------------------------------
 
@@ -45,20 +44,6 @@
       value: base-ui
     - name: fvt_test_suite
       value: wo-basic
-  runAfter:
-    - fvt-manage-base-api-system
-    - fvt-manage-base-api-mif
-
-# Manage MIF setup
-- name: fvt-manage-base-ui-mif-setup
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base-ui
-    - name: fvt_test_suite
-      value: mif-setup
   runAfter:
     - fvt-manage-base-api-system
     - fvt-manage-base-api-mif
