@@ -70,6 +70,7 @@ IBM Maximo Application Suite:
       --update-dns-entries ${COLOR_YELLOW}UPDATE_DNS_ENTRIES${TEXT_RESET}             Set this to false if you want to not update DNS entries if they already exist
       --delete-wildcards ${COLOR_YELLOW}DELETE_WILDCARDS${TEXT_RESET}                 Set this to true to force deletion of wildcard dns entries in cis
       --override-edge-certs ${COLOR_YELLOW}OVERRIDE_EDGE_CERTS${TEXT_RESET}           Set this to false to not override and delete any existing edge certificates in cis instance when creating new edge certificates
+      --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                   true/false, If true, ingress-controller for cis-proxy will be configured
 
       --mas-wipe-mongo-data ${COLOR_YELLOW}MAS_WIPE_MONGO_DATA${TEXT_RESET}           Set to "true" to wipe all mongo data for this MAS instance on uninstall (optional, defaults to false)
 
@@ -245,6 +246,10 @@ function gitops_suite_noninteractive() {
         export OCP_CLUSTER_DOMAIN=$1 && shift
         ;;
 
+      --ingress)
+        export INGRESS=$1 && shift
+        ;;
+
       --cis-enhanced-security)
         export CIS_ENHANCED_SECURITY=$1 && shift
         ;;
@@ -367,6 +372,8 @@ function gitops_suite() {
     export DELETE_WILDCARDS=${DELETE_WILDCARDS:-"true"}
 
     export DOMAIN=${CIS_MAS_DOMAIN}
+    # Disable provision public ingress controller by default
+    export INGRESS=${INGRESS:-"false"}
   fi
 
   mkdir -p ${GITOPS_WORKING_DIR}
@@ -439,6 +446,7 @@ function gitops_suite() {
     echo_reset_dim "Update DNS entries Flag ........ ${COLOR_MAGENTA}${UPDATE_DNS_ENTRIES}"
     echo_reset_dim "DELETE_WILDCARDS Flag .......... ${COLOR_MAGENTA}${DELETE_WILDCARDS}"
     echo_reset_dim "OVERRIDE_EDGE_CERTS Flag ....... ${COLOR_MAGENTA}${OVERRIDE_EDGE_CERTS}"
+    echo_reset_dim "Public Ingress Controller ....... ${COLOR_MAGENTA}${INGRESS}"
     reset_colors
   fi
 
@@ -498,6 +506,7 @@ function gitops_suite() {
 
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then
     export CIS_SECRET_FILE=$TEMP_DIR/cis-secret.json
+    sm_verify_secret_exists ${SECRET_NAME_CIS}
     sm_get_secret_file ${SECRET_NAME_CIS} ${CIS_SECRET_FILE}
     IBM_APIKEY_VALUE=$(jq -r .ibm_apikey $CIS_SECRET_FILE)
     echo "IBM_APIKEY_VALUE ${IBM_APIKEY_VALUE:0:4}<snip>"
@@ -514,6 +523,7 @@ function gitops_suite() {
   export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
   export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
 
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
   sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
 
   jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
@@ -536,6 +546,7 @@ function gitops_suite() {
 
   
   export MONGO_INSTANCE_SECRET_FILE=$TEMP_DIR/mongo-instance-secret.json
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
   sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_INSTANCE_SECRET_FILE
   INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
   INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
