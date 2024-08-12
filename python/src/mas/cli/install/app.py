@@ -881,7 +881,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.noConfirm = args.no_confirm
         self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
-        self.devMode = True
+        self.devMode = args.dev_mode
 
         self.approvals = {}
 
