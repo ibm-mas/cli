@@ -555,7 +555,7 @@ function gitops_suite() {
 
   ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
   ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
-  TAGS="[{\"Key\" \"source\", \"Value\": \"gitops_suite\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
   sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}" "${TAGS}"
   
 

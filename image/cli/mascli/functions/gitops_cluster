@@ -405,13 +405,13 @@ function gitops_cluster() {
   export IBM_ENTITLEMENT_PULL_SECRET_B64=$(echo -n $IBM_ENTITLEMENT_WITH_ARTIFACTORY | base64 -w 0)
   export IBM_ENTITLEMENT_B64=$(echo -n $ICR_PASSWORD | base64 -w 0)
 
-  TAGS="[{\"Key\" \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
   sm_update_secret $SECRET_NAME_IBM_ENTITLEMENT "{\"image_pull_secret_b64\": \"${IBM_ENTITLEMENT_PULL_SECRET_B64}\", \"entitlement_key\": \"${IBM_ENTITLEMENT_B64}\"}" "${TAGS}"
 
   if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
     export SECRET_NAME_GITHUB_PAT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}github_pat
     export SECRET_KEY_GITHUB_PAT=${SECRET_NAME_GITHUB_PAT}#github_pat
-    TAGS="[{\"Key\" \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_GITHUB_PAT "{\"github_pat\": \"${CLUSTER_PROMOTION_TARGET_GITHUB_PAT}\"}" "${TAGS}"
   fi
 
@@ -421,7 +421,7 @@ function gitops_cluster() {
   echo "- Generate AWS secret"
   # This is used by some of the ArgoCD sync hooks to make updates to AWS SM from within the cluster
   export SECRET_NAME_AWS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}aws
-  TAGS="[{\"Key\" \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": cluster\", \"Value\": \"${CLUSTER_ID}\"}]
+  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]
   sm_update_secret $SECRET_NAME_AWS "{\"sm_aws_access_key_id\": \"${SM_AWS_ACCESS_KEY_ID}\", \"sm_aws_secret_access_key\": \"${SM_AWS_SECRET_ACCESS_KEY}\"}" "${TAGS}"
 
 

@@ -648,7 +648,7 @@ function gitops_mas_config() {
       
       if [[ -n "${MAS_SEGMENT_KEY}" ]]; then
         sm_login
-        TAGS="[{\"Key\" \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+        TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $SECRET_NAME_MAS_SEGMENT_KEY "{\"mas_segment_key\": \"$MAS_SEGMENT_KEY\"}" "${TAGS}"
       fi
     fi
@@ -684,7 +684,7 @@ function gitops_mas_config() {
       if [ -z "${LDAP_BIND_DN}" ] || [ -z "${LDAP_BIND_PASSWORD}" ]; then
         sm_verify_secret_exists $SECRET_NAME_LDAP
       else
-        TAGS="[{\"Key\" \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+        TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $SECRET_NAME_LDAP "{\"bindDN\": \"$LDAP_BIND_DN\", \"bindPassword\": \"$LDAP_BIND_PASSWORD\"}" "${TAGS}"
       fi
       export SECRET_KEY_LDAP_BIND_DN=${SECRET_NAME_LDAP}#bindDN
@@ -732,7 +732,7 @@ function gitops_mas_config() {
           echo_reset_dim "JDBC_PASSWORD ........................... ${COLOR_MAGENTA}${JDBC_PASSWORD:0:8}<snip> is available in the secret, using that value"
         fi
         echo_reset_dim "JDBC_PASSWORD ............................. ${COLOR_MAGENTA}${JDBC_PASSWORD:0:8}<snip>"
-        TAGS="[{\"Key\" \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+        TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $JDBC_CREDENTIALS_SECRET_ID "{ \"username\": \"$JDBC_USERNAME\", \"password\": \"$JDBC_PASSWORD\"}" "${TAGS}"
       fi
 
@@ -748,7 +748,7 @@ function gitops_mas_config() {
         # This secret we are creating here
         export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
         export JDBC_CERTIFICATE_CONTENT_B64=$(cat $JDBC_CERTIFICATE_FILE | base64 -w0)
-        TAGS="[{\"Key\" \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+        TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $JDBC_CONFIG_SECRET_ID "{ \"jdbc_connection_url\": \"${JDBC_CONNECTION_URL}\", \"jdbc_instance_name\": \"${JDBC_INSTANCE_NAME}\", \"ca_b64\": \"${JDBC_CERTIFICATE_CONTENT_B64}\" }" "${TAGS}"
         echo_reset_dim "JDBC_INSTANCE_NAME ........................ ${COLOR_MAGENTA}$JDBC_INSTANCE_NAME"
         echo_reset_dim "JDBC_CONNECTION_URL ....................... ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
@@ -767,7 +767,7 @@ function gitops_mas_config() {
       if [ -z "${SMTP_USERNAME}" ] || [ -z "${SMTP_PASSWORD}" ]; then
         sm_verify_secret_exists $SECRET_NAME_SMTP
       else
-        TAGS="[{\"Key\" \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+        TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}" "${TAGS}"
       fi
 

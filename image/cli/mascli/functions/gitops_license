@@ -129,7 +129,7 @@ function gitops_license() {
   ESCAPED_LICENSE=${ESCAPED_LICENSE//$'\t'/\\t}
   ESCAPED_LICENSE=${ESCAPED_LICENSE//$'\r'/''}
 
-  TAGS="[{\"Key\" \"source\", \"Value\": \"gitops_license\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_license\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
   sm_update_secret $SECRET_NAME_LICENSE_FILE "{\"license_file\": \"$ESCAPED_LICENSE\"}" "${TAGS}"
 
 }
