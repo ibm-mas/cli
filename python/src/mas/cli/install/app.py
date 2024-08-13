@@ -227,7 +227,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "By default, Maximo Application Suite is configured with guided tour, you can disable this if it not required"
         ])
         if not self.yesOrNo("Enable Guided Tour"):
-            self.setParam("mas_enable_walkme","disabled")
+            self.setParam("mas_enable_walkme","false")
 
     def configMAS(self):
         self.printH1("Configure MAS Instance")

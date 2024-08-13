@@ -83,7 +83,7 @@ class InstallSummarizerMixin():
 
         if self.getParam("mas_enable_walkme") != "":
             print()
-            self.printParamSummary("Guided Tour", "mas_enable_walkme")
+            self.printParamSummary("Enable Guided Tour", "mas_enable_walkme")
 
         print()
         self.printParamSummary("Catalog Version", "mas_catalog_version")
