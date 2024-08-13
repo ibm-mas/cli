@@ -360,7 +360,7 @@ spec:
         name: mas-devops-update-configmap
       params:
         - name: image_pull_policy
-          value: Always
+          value: $(params.image_pull_policy)
         - name: configmap_name
           value: sync-install
         - name: configmap_key

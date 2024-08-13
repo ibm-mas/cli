@@ -165,7 +165,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         try:
             packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
             packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
-            self.setParam("grafana_action", "install")
+            if self.skipGrafanaInstall:
+                self.setParam("grafana_action", "none")
+            else:
+                self.setParam("grafana_action", "install")
         except NotFoundError:
             self.setParam("grafana_action", "none")
 
@@ -183,7 +186,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configSpecialCharacters(self):
         self.printH1("Configure special characters for userID and username")
-        self.yesOrNo("Do you want to allow special characters for userID/username?", "special_characters")
+        self.yesOrNo("Do you want to allow special characters for ID/username?", "special_characters")
          
     def configCP4D(self):
         # TODO: It's probably time to remove v8-amd64 support from the CLI entirely now
@@ -847,7 +850,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "no_confirm", "no_wait_for_pvc", "help"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install" ,"no_confirm", "no_wait_for_pvc", "help"]:
                 pass
 
             elif key == "manual_certificates":
@@ -891,6 +894,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
+        if args.skip_grafana_install:
+            self.skipGrafanaInstall = True
 
         self.installOptions = [
             {
