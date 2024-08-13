@@ -187,7 +187,8 @@ function gitops_cos() {
     ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
     ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
 
-    sm_update_secret $COS_SECRET "{\"username\": \"$COS_USERNAME\", \"password\": \"$COS_PASSWORD\", \"info\": \"$ESCAPED_INFO\"}"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cos\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $COS_SECRET "{\"username\": \"$COS_USERNAME\", \"password\": \"$COS_PASSWORD\", \"info\": \"$ESCAPED_INFO\"}" "${TAGS}"
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
