@@ -736,7 +736,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "artifactory_token",
             # TODO: The way arcgis has been implemented needs to be fixed
             "install_arcgis",
-            "mas_arcgis_channel"
+            "mas_arcgis_channel",
             # Guided Tour
             "mas_enable_walkme"
         ]
