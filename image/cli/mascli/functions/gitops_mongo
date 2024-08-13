@@ -271,14 +271,16 @@ function gitops_mongo() {
     ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
 
     echo -e "init_mongo : DOCDB_HOST=$DOCDB_HOST \t DOCDB_PORT=$DOCDB_PORT \t DOCDB_MASTER_USERNAME=$MONGO_USERNAME \t DOCDB_MASTER_PASSWORD=$MONGO_PASSWORD"
-    sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$MONGO_USERNAME\", \"password\": \"$MONGO_PASSWORD\", \"docdb_host\": \"$DOCDB_HOST\", \"docdb_port\": \"$DOCDB_PORT\" }"
+    TAGS="[{Key=source,Value=gitops_mongo}, {Key=account,Value=\"${ACCOUNT_ID}\", {Key=cluster,Value=\"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$MONGO_USERNAME\", \"password\": \"$MONGO_PASSWORD\", \"docdb_host\": \"$DOCDB_HOST\", \"docdb_port\": \"$DOCDB_PORT\" }" "${TAGS}"
     rm -rf $TEMP_DIR
 
   elif [ $MONGODB_PROVIDER == 'yaml' ]; then
     UNESCAPED_INFO="$(cat $MONGO_YAML_FILE)"
     ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
     ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
-    sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$MONGO_USERNAME\", \"password\": \"$MONGO_PASSWORD\"}"
+    TAGS="[{Key=source,Value=gitops_mas_config}, {Key=account,Value=\"${ACCOUNT_ID}\", {Key=cluster,Value=\"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$MONGO_USERNAME\", \"password\": \"$MONGO_PASSWORD\"}" "${TAGS}"
   fi
 
   exit 0
