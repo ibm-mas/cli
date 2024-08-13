@@ -18,12 +18,12 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
 
 IBM Maximo Application Suite:
-  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                    IBM Suite Maximo Application Suite Instance ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                    IBM Suite Maximo Application Suite Instance ID  
       --mas-config-dir ${COLOR_YELLOW}MAS_CONFIG_DIR${TEXT_RESET}                                      IBM Suite Maximo Application Suite config dir to hold config
 
 COS Provider:
       --cos-action ${COLOR_YELLOW}COS_ACTION${TEXT_RESET}                                                  provision or deprovision
-      --cos-type ${COLOR_YELLOW}COS_TYPE${TEXT_RESET}                                                      COS type, only ibm supported. (aws only supported internal to IBM)
+      --cos-type ${COLOR_YELLOW}COS_TYPE${TEXT_RESET}                                                      COS type, only ibm supported
       --ibmcloud-resourcegroup ${COLOR_YELLOW}IBMCLOUD_RESOURCEGROUP${TEXT_RESET}                          IBM Cloud resource group to set
       --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                                        IBM Cloud APIkey
 
@@ -35,7 +35,7 @@ EOM
 
 
 function gitops_cos_noninteractive() {
-  GITOPS_WORKING_DIR=$PWD/working-dir
+  GITOPS_WORKING_DIR=$PWD/working-dir  
   SECRETS_KEY_SEPERATOR="/"
 
   while [[ $# -gt 0 ]]
@@ -117,7 +117,7 @@ function gitops_cos() {
     exit 1
     gitops_cos_interactive
   fi
-
+  
   # catch errors
   set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
@@ -135,7 +135,7 @@ function gitops_cos() {
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${TEMP_DIR}"
+  echo_reset_dim "Application Directory ................. ${COLOR_MAGENTA}${TEMP_DIR}"  
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -166,16 +166,17 @@ function gitops_cos() {
 
     export COS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}cos
     export ROLE_NAME=cos && ansible-playbook ibm.mas_devops.run_role
+
     rc=$?
     [ $rc -ne 0 ] && exit $rc
 
     # Extract the required details from the generated coscfg/secret.
     export COS_USERNAME
-    COS_USERNAME=$(yq 'select(di == 0) | .stringData.username' $MAS_CONFIG_DIR/cos-ibm-system.yml)
+    COS_USERNAME=$(yq 'select(di == 0) | .data.username' $MAS_CONFIG_DIR/cos-ibm-system.yml | base64 -d)
     rc=$?
     [ $rc -ne 0 ] && exit $rc
     export COS_PASSWORD
-    COS_PASSWORD=$(yq 'select(di == 0) | .stringData.password' $MAS_CONFIG_DIR/cos-ibm-system.yml)
+    COS_PASSWORD=$(yq 'select(di == 0) | .data.password' $MAS_CONFIG_DIR/cos-ibm-system.yml | base64 -d)
     rc=$?
     [ $rc -ne 0 ] && exit $rc
     yq 'select(di == 1) | .spec' $MAS_CONFIG_DIR/cos-ibm-system.yml >> $TEMP_DIR/cos-info.yaml
@@ -349,7 +350,5 @@ EOF
   fi
 
   rm -rf $TEMP_DIR
-
   exit 0
 }
-
