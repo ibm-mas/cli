@@ -305,7 +305,7 @@ function gitops_kafka() {
     
     ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
     ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
-    TAGS="[{Key=source,Value=gitops_kafka}, {Key=account,Value=\"${ACCOUNT_ID}\", {Key=cluster,Value=\"${CLUSTER_ID}\"}]"
+    TAGS="[{Key=source,Value=gitops_kafka}, {Key=account,Value=\"${ACCOUNT_ID}\"}, {Key=cluster,Value=\"${CLUSTER_ID}\"}]"
     sm_update_secret $AWS_MSK_SECRET "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$KAFKA_USERNAME\", \"password\": \"$KAFKA_PASSWORD\"}" "${TAGS}"
 
     rm -rf $TEMP_DIR

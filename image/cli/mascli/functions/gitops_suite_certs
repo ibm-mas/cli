@@ -215,7 +215,7 @@ function gitops_suite_certs() {
           PUBLIC_TLS_KEY=${PUBLIC_TLS_KEY//\"/\\\"}
           PUBLIC_TLS_KEY=${PUBLIC_TLS_KEY//$'\n'/\\n}
         fi    
-        TAGS="[{Key=source,Value=gitops_suite_certs}, {Key=account,Value=\"${ACCOUNT_ID}\", {Key=cluster,Value=\"${CLUSTER_ID}\"}]"
+        TAGS="[{Key=source,Value=gitops_suite_certs}, {Key=account,Value=\"${ACCOUNT_ID}\"}, {Key=cluster,Value=\"${CLUSTER_ID}\"}]"
         sm_update_secret $PUBLIC_CERT_SECRET_NAME "{\"cert_ca\": \"$PUBLIC_CERT_CA\", \"cert_tls\": \"$PUBLIC_CERT_TLS\", \"tls_key\": \"$PUBLIC_TLS_KEY\"}" "${TAGS}"
 
       done  
