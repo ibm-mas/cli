@@ -284,9 +284,9 @@ function gitops_cluster() {
   echo_h2 "Review Settings"
 
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then
-    # Replace first occurance of apps. with public. only if OCP_CLUSTER_DOMAIN starts with apps.
+    # Replace first occurance of 'apps.' with 'public.' only if OCP_CLUSTER_DOMAIN starts with 'apps.'
     export OCP_PUBLIC_CLUSTER_DOMAIN=$(echo $OCP_CLUSTER_DOMAIN | sed 's/^apps./public./')
-    # Disable provision public ingress controller by default
+    # Disable provision public ingress controller by default 
     export INGRESS=${INGRESS:-"false"}
   fi
   echo "${TEXT_DIM}"
