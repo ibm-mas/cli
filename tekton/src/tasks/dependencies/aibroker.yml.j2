@@ -1,0 +1,198 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-aibroker
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    # Pre-Release Support
+    - name: artifactory_username
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+    - name: artifactory_token
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+
+    # Entitlement
+    - name: ibm_entitlement_key
+      type: string
+
+    # MAS Details
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+
+    # Application - Operator
+    - name: mas_aibroker_channel
+      type: string
+      description: Catalog channel for the application operator subscription
+
+    # Application - Operand
+    - name: mas_app_bindings_jdbc
+      default: ""
+      type: string
+      
+    - name: mas_app_plan
+      type: string
+      description: Application installation plan
+      default: ""
+
+    # Custom Label Support
+    - name: custom_labels
+      type: string
+      description: Optional MAS custom labels, comma separated list of key=value pairs
+      default: ""
+
+    # AI Broker actions 
+    - name: mas_aibroker_s3_action      
+      type: string
+      description: 
+      default: "This option is optional"
+    - name: mas_aibroker_apikey_action      
+      type: string
+      description: 
+      default: "This option is optional"
+
+    # WatsonX params
+    - name: mas_aibroker_watsonxai_apikey      
+      type: string
+      description: 
+      default: "This option is mandatory"
+    - name: mas_aibroker_watsonxai_url
+      type: string
+      description: 
+      default: "This option is mandatory"   
+    - name: mas_aibroker_watsonxai_project_id
+      type: string
+      description: 
+      default: "This option is mandatory"
+    - name: mas_aibroker_watsonx_action
+      type: string
+      description: 
+      default: "This option is mandatory"
+
+    # AI Broker storage 
+    - name: mas_aibroker_storage_provider
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_accesskey
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_secretkey
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_host
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_port
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_ssl
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_region
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_piplines_bucket
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_tenants_bucket
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_templates_bucket
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # Pre-Release Support
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
+
+      # Entitlement
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+
+      # MAS Details
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      # Application - Operator
+      - name: MAS_AIBROKER_CHANNEL
+        value: $(params.mas_aibroker_channel)
+
+      # Custom Label Support
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
+      
+      # AI Broker action for create/delete s3 secret 
+      - name: MAS_AIBROKER_S3_ACTION
+        value: $(params.mas_aibroker_s3_action)
+
+      # AI Broker action for create/delete api key 
+      - name: MAS_AIBROKER_APIKEY_ACTION
+        value: $(params.mas_aibroker_apikey_action)
+
+      # WatsonX api key
+      - name: MAS_AIBROKER_WATSONXAI_APIKEY
+        value: $(params.mas_aibroker_watsonxai_apikey)
+
+      # WatsonX url
+      - name: MAS_AIBROKER_WATSONXAI_URL
+        value: $(params.mas_aibroker_watsonxai_url)
+      
+      # WatsonX project id
+      - name: MAS_AIBROKER_WATSONXAI_PROJECT_ID
+        value: $(params.mas_aibroker_watsonxai_project_id)
+      
+      # WatsonX action
+      - name: MAS_AIBROKER_WATSONX_ACTION
+        value: $(params.mas_aibroker_watsonx_action)
+      
+      # Opendatahub storage details
+      - name: MAS_AIBROKER_STORAGE_PROVIDER
+        value: $(params.mas_aibroker_storage_provider)
+      - name: MAS_AIBROKER_STORAGE_ACCESSKEY
+        value: $(params.mas_aibroker_storage_accesskey)
+      - name: MAS_AIBROKER_STORAGE_SECRETKEY
+        value: $(params.mas_aibroker_storage_secretkey)
+      - name: MAS_AIBROKER_STORAGE_HOST
+        value: $(params.mas_aibroker_storage_host)
+      - name: MAS_AIBROKER_STORAGE_PORT
+        value: $(params.mas_aibroker_storage_port)
+      - name: MAS_AIBROKER_STORAGE_SSL
+        value: $(params.mas_aibroker_storage_ssl)
+      - name: MAS_AIBROKER_STORAGE_REGION
+        value: $(params.mas_aibroker_storage_region)
+      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
+        value: $(params.mas_aibroker_storage_piplines_bucket)
+      - name: MAS_AIBROKER_STORAGE_TENANTS_BUCKET
+        value: $(params.mas_aibroker_storage_tenants_bucket)
+      - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
+        value: $(params.mas_aibroker_storage_templates_bucket)
+
+  steps:
+    - name: aibroker
+      command:
+        - /opt/app-root/src/run-role.sh
+        - aibroker
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)

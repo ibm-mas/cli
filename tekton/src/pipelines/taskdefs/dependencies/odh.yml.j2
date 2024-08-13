@@ -1,0 +1,64 @@
+- name: odh
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: odh
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_app_id
+      value: aibroker
+    - name: artifactory_username
+      value: $(params.artifactory_username)
+    - name: artifactory_token
+      value: $(params.artifactory_token)
+    - name: mas_app_channel
+      value: "$(params.mas_app_channel_manage)"
+    - name: ibm_entitlement_key
+      value: $(params.ibm_entitlement_key)
+    - name: custom_labels
+      value: $(params.custom_labels)
+    - name: mas_aibroker_channel
+      value: $(params.mas_aibroker_channel)
+    - name: mas_aibroker_storage_provider
+      value: $(params.mas_aibroker_storage_provider)
+    - name: mas_aibroker_storage_accesskey
+      value: $(params.mas_aibroker_storage_accesskey)
+    - name: mas_aibroker_storage_secretkey
+      value: $(params.mas_aibroker_storage_secretkey)
+    - name: mas_aibroker_storage_host
+      value: $(params.mas_aibroker_storage_host)
+    - name: mas_aibroker_storage_port
+      value: $(params.mas_aibroker_storage_port)
+    - name: mas_aibroker_storage_ssl
+      value: $(params.mas_aibroker_storage_ssl)
+    - name: mas_aibroker_storage_region
+      value: $(params.mas_aibroker_storage_region)
+    - name: mas_aibroker_storage_piplines_bucket
+      value: $(params.mas_aibroker_storage_piplines_bucket)
+    - name: mas_aibroker_storage_tenants_bucket
+      value: $(params.mas_aibroker_storage_tenants_bucket)
+    - name: mas_aibroker_storage_templates_bucket
+      value: $(params.mas_aibroker_storage_templates_bucket)
+    - name: mas_aibroker_tenant_name
+      value: $(params.mas_aibroker_tenant_name)
+    - name: mas_aibroker_db_host
+      value: $(params.mas_aibroker_db_host)
+    - name: mas_aibroker_db_port
+      value: $(params.mas_aibroker_db_port)
+    - name: mas_aibroker_db_user
+      value: $(params.mas_aibroker_db_user)
+    - name: mas_aibroker_db_database
+      value: $(params.mas_aibroker_db_database)
+    - name: mas_aibroker_db_secret_name
+      value: $(params.mas_aibroker_db_secret_name)
+    - name: mas_aibroker_db_secret_key
+      value: $(params.mas_aibroker_db_secret_key)
+    - name: mas_aibroker_db_secret_value
+      value: $(params.mas_aibroker_db_secret_value)
+  taskRef:
+    name: mas-devops-odh
+    kind: Task
+  when:
+    - input: "$(params.mas_aibroker_channel)"
+      operator: notin
+      values: [""]
