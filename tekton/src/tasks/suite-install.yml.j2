@@ -208,7 +208,7 @@ spec:
         - /opt/app-root/src/run-role.sh
         - suite_install
       image: quay.io/ibmmas/cli:latest
-      imagePullPolicy: Always
+      imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
   workspaces:
