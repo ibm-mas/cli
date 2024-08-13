@@ -1,8 +1,6 @@
 # -------------------------------------------------------------
 # PHASE 4
 # - fvt-manage-base-ui-escalation-action (selenium)
-# - fvt-manage-base-ui-jms-inbound (selenium)
-# - fvt-manage-base-ui-mif-kafka-setup (selenium)
 # - fvt-manage-base-ui-birt-report (selenium)
 # - fvt-manage-base-ui-user-crud (selenium)
 # - fvt-manage-base-ui-user-consumption (selenium)
@@ -23,41 +21,6 @@
     - fvt-manage-base-ui-classification
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-ui-mif-setup
-    - fvt-manage-base-ui-mas-navigation
-
-# Manage JMS Integration - Inbound
-- name: fvt-manage-base-ui-jms-inbound
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base-ui
-    - name: fvt_test_suite
-      value: mif-jms-inbound
-  runAfter:
-    - fvt-manage-base-ui-classification
-    - fvt-manage-base-ui-helplinks
-    - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-ui-mif-setup
-    - fvt-manage-base-ui-mas-navigation
-
-# Manage FVT Kafka Setup
-- name: fvt-manage-base-ui-mif-kafka-setup
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base-ui
-    - name: fvt_test_suite
-      value: mif-kafka-setup
-  runAfter:
-    - fvt-manage-base-ui-classification
-    - fvt-manage-base-ui-helplinks
-    - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-ui-mif-setup
     - fvt-manage-base-ui-mas-navigation
 
 # Manage FVT BIRT Reports
@@ -72,7 +35,6 @@
     - fvt-manage-base-ui-classification
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-ui-mif-setup
     - fvt-manage-base-ui-mas-navigation
 
 # Manage FVT New User Update/Delete/Verufy
@@ -89,7 +51,6 @@
     - fvt-manage-base-ui-classification
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-ui-mif-setup
     - fvt-manage-base-ui-mas-navigation
 
 # Manage FVT User Consumption verification
@@ -106,7 +67,6 @@
     - fvt-manage-base-ui-classification
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-ui-mif-setup
     - fvt-manage-base-ui-mas-navigation
 
 # Manage FVT Communication Template
@@ -123,5 +83,4 @@
     - fvt-manage-base-ui-classification
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
-    - fvt-manage-base-ui-mif-setup
     - fvt-manage-base-ui-mas-navigation

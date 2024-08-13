@@ -891,6 +891,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
+        self.skipGrafanaInstall = args.skip_grafana_install
 
         self.approvals = {}
 
@@ -900,9 +901,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
-        if args.skip_grafana_install:
-            self.skipGrafanaInstall = True
-
+        
         self.installOptions = [
             {
                 "#": 1,
