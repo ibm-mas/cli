@@ -169,11 +169,11 @@ function gitops_cos() {
   
   # Extract the required details from the generated coscfg/secret.
   export COS_USERNAME
-  COS_USERNAME=$(yq 'select(di == 0) | .stringData.username' $MAS_CONFIG_DIR/cos-ibm-system.yml)
+  COS_USERNAME=$(yq 'select(di == 0) | .data.username' $MAS_CONFIG_DIR/cos-ibm-system.yml | base64 -d)
   rc=$?
   [ $rc -ne 0 ] && exit $rc
   export COS_PASSWORD
-  COS_PASSWORD=$(yq 'select(di == 0) | .stringData.password' $MAS_CONFIG_DIR/cos-ibm-system.yml)
+  COS_PASSWORD=$(yq 'select(di == 0) | .data.password' $MAS_CONFIG_DIR/cos-ibm-system.yml | base64 -d)
   rc=$?
   [ $rc -ne 0 ] && exit $rc
   yq 'select(di == 1) | .spec' $MAS_CONFIG_DIR/cos-ibm-system.yml >> $TEMP_DIR/cos-info.yaml

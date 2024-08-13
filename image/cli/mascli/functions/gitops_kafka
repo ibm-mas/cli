@@ -294,8 +294,8 @@ function gitops_kafka() {
     rc=$?
     [ $rc -ne 0 ] && exit $rc
     # Extract the required details from the generated kafkacfg/secret. For msk this is in plain text (stringData)
-    export KAFKA_USERNAME=$(yq 'select(di == 0) | .stringData.username' $TEMP_DIR/${KAFKACFG_FILE_NAME})
-    export KAFKA_PASSWORD=$(yq 'select(di == 0) | .stringData.password' $TEMP_DIR/${KAFKACFG_FILE_NAME})
+    export KAFKA_USERNAME=$(yq 'select(di == 0) | .data.username' $TEMP_DIR/${KAFKACFG_FILE_NAME} | base64 -d)
+    export KAFKA_PASSWORD=$(yq 'select(di == 0) | .data.password' $TEMP_DIR/${KAFKACFG_FILE_NAME} | base64 -d)
     yq 'select(di == 1) | .spec' $TEMP_DIR/${KAFKACFG_FILE_NAME} >> $TEMP_DIR/kafka-info.yaml
     yq -i 'del(.config.credentials)' $TEMP_DIR/kafka-info.yaml
     yq -i 'del(.displayName)' $TEMP_DIR/kafka-info.yaml
