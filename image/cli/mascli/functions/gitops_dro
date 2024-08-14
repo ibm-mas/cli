@@ -239,7 +239,8 @@ function gitops_dro() {
   if [ "$DRO_CMM_SETUP" == "true" ]; then
     export SECRET_KEY_DRO_CMM_AUTH_APIKEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro_cmm_auth#api_key
     export SECRET_NAME_DRO_CMM_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro_cmm_auth
-    sm_update_secret $SECRET_NAME_DRO_CMM_AUTH "{\"api_key\": \"$DRO_CMM_AUTH_APIKEY\"}"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_dro\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_DRO_CMM_AUTH "{\"api_key\": \"$DRO_CMM_AUTH_APIKEY\"}" "${TAGS}"
   fi
 
   if [ -z $GIT_SSH ]; then
