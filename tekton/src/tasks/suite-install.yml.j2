@@ -80,7 +80,7 @@ spec:
       description: Required to install development MAS catalogs
 
     # Special characters configuration
-    - name: special_characters
+    - name: mas_special_characters
       type: string
       default: ''
     # SSO Configuration
@@ -188,8 +188,8 @@ spec:
         value: $(params.default_idp)
       - name: SEAMLESS_LOGIN
         value: $(params.seamless_login)
-      - name: SPECIAL_CHARACTERS
-        value: $(params.special_characters)
+      - name: MAS_SPECIAL_CHARACTERS
+        value: $(params.mas_special_characters)
       - name: SSO_COOKIE_NAME
         value: $(params.sso_cookie_name)
       - name: ALLOW_DEFAULT_SSO_COOKIE_NAME

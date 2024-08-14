@@ -186,7 +186,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configSpecialCharacters(self):
         self.printH1("Configure special characters for userID and username")
-        self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "special_characters")
+        self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "mas_special_characters")
          
     def configCP4D(self):
         # TODO: It's probably time to remove v8-amd64 support from the CLI entirely now
