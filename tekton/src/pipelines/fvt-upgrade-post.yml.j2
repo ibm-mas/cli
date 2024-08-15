@@ -106,7 +106,7 @@ spec:
           value: $(params.mas_app_channel_optimizer)
       taskRef:
         kind: Task
-        name: mas-fvt-optimizer
+        name: mas-fvt-run-suite
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
