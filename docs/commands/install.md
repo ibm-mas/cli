@@ -46,6 +46,7 @@ usage: mas install [-c MAS_CATALOG_VERSION] [--ibm-entitlement-key IBM_ENTITLEME
                    [--approval-assist APPROVAL_ASSIST] [--approval-iot APPROVAL_IOT] [--approval-manage APPROVAL_MANAGE] [--approval-monitor APPROVAL_MONITOR]
                    [--approval-optimizer APPROVAL_OPTIMIZER] [--approval-predict APPROVAL_PREDICT] [--approval-visualinspection APPROVAL_VISUALINSPECTION]
                    [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check] [--skip-grafana-install] [--no-confirm] [-h]
+                   [--mas-enable-walkme MAS_ENABLE_WALKME]
 
 IBM Maximo Application Suite Admin CLI v100.0.0
 Install MAS by configuring and launching the MAS Uninstall Tekton Pipeline.
@@ -82,6 +83,7 @@ MAS Advanced Configuration:
   --non-prod                                      Install MAS in non-production mode
   --disable-ca-trust                              Disable built-in trust of well-known CAs
   --manual-certificates MANUAL_CERTIFICATES       Path to directory containing the certificates to be applied
+  --mas-enable-walkme MAS_ENABLE_WALKME           Enable or disable guided tour
 
 Storage:
   --storage-class-rwo STORAGE_CLASS_RWO           ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)
