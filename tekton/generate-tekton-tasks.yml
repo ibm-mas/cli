@@ -68,7 +68,6 @@
         - fvt-manage-last-phase
         - fvt-manage-pytest
         - fvt-monitor
-        - fvt-optimizer
         - fvt-run-suite
         - fvt-sls
         - fvt-uninstall
