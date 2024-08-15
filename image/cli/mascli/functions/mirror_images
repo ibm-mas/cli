@@ -63,6 +63,7 @@ Content Selection (Other Dependencies):
       --mirror-mongo-v7                           Mirror images for MongoDb Community Edition version 7
       --mirror-db2                                Mirror images for IBM Db2
       --mirror-appconnect                         Mirror images for IBM AppConnect
+      --mirror-odf                                Mirror images for ODF
 
 Content Selection (All images included):
       --mirror-everything                         Mirror all MAS related images (including dependencies)
@@ -102,6 +103,7 @@ function mirror_everything() {
 
     MIRROR_DB2U=true
     MIRROR_APPCONNECT=true
+    MIRROR_ODF=true
 
     # Dependencies (CP4D)
     MIRROR_CP4D=true
@@ -140,6 +142,7 @@ function mirror_to_registry_noninteractive() {
   MIRROR_SPARK=false
   MIRROR_COGNOS=false
   MIRROR_APPCONNECT=false
+  MIRROR_ODF=false
 
   while [[ $# -gt 0 ]]
   do
@@ -256,6 +259,9 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-appconnect)
         MIRROR_APPCONNECT=true
+        ;;
+      --mirror-odf)
+        MIRROR_ODF=true
         ;;
 
       # Content Selection (Cloud Pak for Data)
@@ -430,6 +436,7 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Cognos Analytics" MIRROR_COGNOS
 
     prompt_for_confirm "IBM AppConnect" MIRROR_APPCONNECT
+    prompt_for_confirm "RedHat ODF" MIRROR_ODF
   fi
 
   if [[ "$MIRROR_MAS_ICD" == "true" ]]; then
@@ -539,6 +546,7 @@ function mirror_to_registry() {
     "$MIRROR_MONGOCE_V7" == true ||
     "$MIRROR_DB2U" == true ||
     "$MIRROR_APPCONNECT" == true ||
+    "$MIRROR_ODF" == true ||
     "$MIRROR_CP4D" == true ||
     "$MIRROR_WSL" == true ||
     "$MIRROR_WML" == true ||
@@ -615,6 +623,7 @@ function mirror_to_registry() {
   show_mirror_status "+ Version 7 ........................." $MIRROR_MONGOCE_V7
   show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "IBM AppConnect ......................" $MIRROR_APPCONNECT
+  show_mirror_status "RedHat ODF .........................." $MIRROR_ODF
 
   echo
   reset_colors
