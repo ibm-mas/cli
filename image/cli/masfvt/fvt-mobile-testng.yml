@@ -41,14 +41,13 @@
           - ""
           - "fvt_image_registry ....................... {{ fvt_image_registry }}"
           - "fvt_artifactory_token .................... {{ fvt_artifactory_token }}"
-          - "fvt_digest_mobile_pytest ................. {{ fvt_digest_mobile_pytest }}"
           - "fvt_digest_mobile_testng ................. {{ fvt_digest_mobile_testng }}"
           - "fvt_digest_manage_civil_selenium ......... {{ fvt_digest_manage_civil_selenium }}"
           - ""
           - "fvt_blacklist ..................... {{ fvt_blacklist }}"
           - "fvt_whitelist ..................... {{ fvt_whitelist }}"
 
-    - name: "Start fvt-mobile pipeline"
+    - name: "Start fvt-mobile-testng pipeline"
       kubernetes.core.k8s:
         apply: true
         template: templates/mas-fvt-mobile-testng.yml.j2

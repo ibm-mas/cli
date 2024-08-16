@@ -45,7 +45,7 @@
           - "fvt_blacklist ..................... {{ fvt_blacklist }}"
           - "fvt_whitelist ..................... {{ fvt_whitelist }}"
 
-    - name: "Start fvt-mobile pipeline"
+    - name: "Start fvt-mobile-pytest pipeline"
       kubernetes.core.k8s:
         apply: true
         template: templates/mas-fvt-mobile-pytest.yml.j2
