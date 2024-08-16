@@ -527,6 +527,7 @@ function mirror_to_registry() {
   export MIRROR_SPARK
   export MIRROR_COGNOS
   export MIRROR_APPCONNECT
+  export MIRROR_ODF
   export MIRROR_MAS_ICD
   export MIRROR_EVERYTHING
 
