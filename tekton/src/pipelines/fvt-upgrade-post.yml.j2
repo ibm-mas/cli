@@ -76,6 +76,8 @@ spec:
           value: $(params.fvt_digest_ctf)
         - name: fvt_test_suite
           value: monitor_upgrade_post # Post upgrade tests
+        - name: fvt_image_name
+          value: common-test-framework
         - name: product_channel
           value: $(params.mas_app_channel_monitor)
       taskRef:
