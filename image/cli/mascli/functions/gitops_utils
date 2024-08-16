@@ -41,8 +41,9 @@ function sm_list_cluster_secrets() {
 function sm_update_secret(){
   SECRET_NAME=$1
   SECRET_VALUE=$2
+  SECRET_TAGS=$3
 
-  echo "Secret Manager: Updating $SECRET_NAME"
+  echo "Secret Manager: Updating $SECRET_NAME with tags $SECRET_TAGS"
   if [[ "$AVP_TYPE" == "aws" ]]; then
     # There's a different command to run depending on whether we are creating or updating a secret
     # It's annoying there isn't an upsert/idemopotent command as we don't really care either way, but
@@ -55,12 +56,15 @@ function sm_update_secret(){
 
     if [[ "$CURRENT_SECRET_VALUE" == "" ]]; then
       # Create the secret
-      aws secretsmanager create-secret --name ${SECRET_NAME} --secret-string "${SECRET_VALUE}" || exit 1
+      echo "- Secret $SECRET_NAME creating"
+      aws secretsmanager create-secret --name ${SECRET_NAME} --secret-string "${SECRET_VALUE}" --tags "${SECRET_TAGS}" || exit 1
       echo "- Secret $SECRET_NAME created"
     elif [[ "$SECRET_VALUE" != "$CURRENT_SECRET_VALUE" ]]; then
       # Update the secret
-      echo "- Secret $SECRET_NAME updated"
+      echo "- Secret $SECRET_NAME updating"
       aws secretsmanager update-secret --secret-id ${SECRET_NAME} --secret-string "${SECRET_VALUE}" || exit 1
+      aws secretsmanager tag-resource --secret-id ${SECRET_NAME} --tags "${SECRET_TAGS}"
+      echo "- Secret $SECRET_NAME updated"
     else
       # No change
       echo "- Secret $SECRET_NAME unchanged"
@@ -158,8 +162,9 @@ function sm_update_account_secret() {
   ACCOUNT=$1
   SECRET_NAME=$2
   SECRET_VALUE=$3
+  SECRET_TAGS=$4
 
-  sm_update_secret ${ACCOUNT}${DELIMIITER}${SECRET_NAME} "${SECRET_VALUE}"
+  sm_update_secret ${ACCOUNT}${DELIMIITER}${SECRET_NAME} "${SECRET_VALUE}" "${TAGS}"
 }
 
 function sm_update_cluster_secret() {
@@ -167,8 +172,9 @@ function sm_update_cluster_secret() {
   CLUSTER_ID=$2
   SECRET_NAME=$3
   SECRET_VALUE=$4
+  SECRET_TAGS=$5
 
-  sm_update_secret ${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${SECRET_NAME} "${SECRET_VALUE}"
+  sm_update_secret ${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${SECRET_NAME} "${SECRET_VALUE}" "${TAGS}"
 }
 
 function sm_update_mas_secret() {
@@ -177,8 +183,9 @@ function sm_update_mas_secret() {
   MAS_INSTANCE_ID=$3
   SECRET_NAME=$4
   SECRET_VALUE=$5
+  SECRET_TAGS=$6
 
-  sm_update_secret ${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${MAS_INSTANCE_ID}${DELIMIITER}${SECRET_NAME} "${SECRET_VALUE}"
+  sm_update_secret ${ACCOUNT}${DELIMIITER}${CLUSTER_ID}${DELIMIITER}${MAS_INSTANCE_ID}${DELIMIITER}${SECRET_NAME} "${SECRET_VALUE}" "${TAGS}"
 }
 
 function sm_get_cluster_secret() {
