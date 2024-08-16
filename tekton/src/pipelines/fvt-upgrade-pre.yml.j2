@@ -85,6 +85,9 @@ spec:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
           values: [""]
+        - input: "$(params.mas_app_channel_monitor)" # Only run if Monitor channel is declared
+          operator: notin
+          values: [""]
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -119,7 +122,7 @@ spec:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_monitor)"
+        - input: "$(params.mas_app_channel_optimizer)" # Only run if Optimizer channel is declared
           operator: notin
           values: [""]
       workspaces:
