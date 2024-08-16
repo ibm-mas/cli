@@ -76,6 +76,8 @@ spec:
           value: $(params.fvt_digest_ctf)
         - name: fvt_test_suite
           value: monitor_upgrade_post # Post upgrade tests
+        - name: fvt_test_dir
+          value: optimizer # Test directory to lookup for tests. It will be relative to workingDir value (eg. /opt/ibm/test/src)
         - name: fvt_image_name
           value: common-test-framework
         - name: product_channel
