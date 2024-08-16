@@ -102,6 +102,8 @@ spec:
           value: $(params.fvt_digest_ctf)
         - name: fvt_test_suite
           value: optimizer_upgrade_pre # Pre upgrade tests
+        - name: fvt_test_dir
+          value: optimizer # Test directory to lookup for tests. It will be relative to workingDir value (eg. /opt/ibm/test/src)
         - name: product_channel
           value: $(params.mas_app_channel_optimizer)
         - name: fvt_image_namespace
