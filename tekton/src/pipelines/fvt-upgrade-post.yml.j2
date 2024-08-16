@@ -89,6 +89,9 @@ spec:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
           values: [""]
+        - input: "$(params.mas_app_channel_monitor)"
+          operator: notin
+          values: [""]
       workspaces:
         - name: configs
           workspace: shared-configs
