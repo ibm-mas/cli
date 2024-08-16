@@ -56,12 +56,15 @@ function sm_update_secret(){
 
     if [[ "$CURRENT_SECRET_VALUE" == "" ]]; then
       # Create the secret
+      echo "- Secret $SECRET_NAME creating"
       aws secretsmanager create-secret --name ${SECRET_NAME} --secret-string "${SECRET_VALUE}" --tags "${SECRET_TAGS}" || exit 1
       echo "- Secret $SECRET_NAME created"
     elif [[ "$SECRET_VALUE" != "$CURRENT_SECRET_VALUE" ]]; then
       # Update the secret
+      echo "- Secret $SECRET_NAME updating"
+      aws secretsmanager update-secret --secret-id ${SECRET_NAME} --secret-string "${SECRET_VALUE}" || exit 1
+      aws secretsmanager tag-resource --secret-id ${SECRET_NAME} --tags "${SECRET_TAGS}"
       echo "- Secret $SECRET_NAME updated"
-      aws secretsmanager update-secret --secret-id ${SECRET_NAME} --secret-string "${SECRET_VALUE}" --tags "${SECRET_TAGS}" || exit 1
     else
       # No change
       echo "- Secret $SECRET_NAME unchanged"
