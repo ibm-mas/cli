@@ -58,6 +58,7 @@ IBM DB2U:
       --db2-instance-dbm-config-yaml ${COLOR_YELLOW}DB2_INSTANCE_DBM_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster instance dbm config section.
       --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}                   Yaml file containing the db2ucluster database db config section.
       --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster addons audit config section.
+      --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
       --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
 
 Secrets Manager:
@@ -264,6 +265,9 @@ function gitops_db2u_database_noninteractive() {
       --db2-tolerate-effect)
         export DB2_TOLERATE_EFFECT=$1 && shift
         ;;
+      --jdbc-route)
+        export JDBC_ROUTE=$1 && shift
+        ;;
       --db2-timezone)
         export DB2_TIMEZONE=$1 && shift
         ;;
@@ -452,6 +456,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
   export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
+  export JDBC_ROUTE=${JDBC_ROUTE:-"default"}
 
   echo
   reset_colors
@@ -540,6 +545,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-tolerate-key .............................. ${COLOR_MAGENTA}${DB2_TOLERATE_KEY}"
   echo_reset_dim "db2-tolerate-value ............................ ${COLOR_MAGENTA}${DB2_TOLERATE_VALUE}"
   echo_reset_dim "db2-tolerate-effect ........................... ${COLOR_MAGENTA}${DB2_TOLERATE_EFFECT}"
+  echo_reset_dim "JDBC_ROUTE .................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
   echo_reset_dim "db2-timezone .................................. ${COLOR_MAGENTA}${DB2_TIMEZONE}"
   reset_colors
 

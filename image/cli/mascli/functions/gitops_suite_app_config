@@ -33,6 +33,7 @@ Maximo Application Suite:
   --mas-appws-kind ${COLOR_YELLOW}MAS_APPWS_KIND${TEXT_RESET}                                             IBM Suite Maximo Application Suite Application Workspace Kind
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}                                 MAS Manual Cert Management
   --mas-manual-certs-yaml ${COLOR_YELLOW}MAS_MANUAL_CERTS_YAML${TEXT_RESET}                               YAML file location containing combined MAS Manual Certs of manage app
+  --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                                           true/false, If true, ingress-controller for cis-proxy will be configured
 
   Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
   where key is <<app>>_<<filename . replaced by _>> name and value will be base64 encoded of the respective ca/tls file, 
@@ -148,6 +149,9 @@ function gitops_suite_app_config_noninteractive() {
         ;;
       -W|--mas-workspace-id)
         export MAS_WORKSPACE_ID=$1 && shift
+        ;;
+      --ingress)
+        export INGRESS=$1 && shift
         ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
@@ -265,7 +269,8 @@ function gitops_suite_app_config() {
   mkdir -p $TEMP_DIR
 
   export CPD_INSTANCE_NAMESPACE=${CPD_INSTANCE_NAMESPACE:-"ibm-cpd-${MAS_INSTANCE_ID}-instance"}
-
+  # Disable provision public ingress controller by default
+  export INGRESS=${INGRESS:-"false"}
   echo
   reset_colors
   echo_h2 "Review Settings"
@@ -324,6 +329,7 @@ function gitops_suite_app_config() {
 
   echo_reset_dim "MAS Manual Cert Mgt ..................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
   echo_reset_dim "MAS MANUAL CERTS YAML ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"  
+  echo_reset_dim "Public Ingress Controller ............... ${COLOR_MAGENTA}${INGRESS}"
 
   reset_colors
 
@@ -458,8 +464,8 @@ function gitops_suite_app_config() {
     yq eval '.mas_appws_spec.settings.customizationList  | to_entries | .[].value.customizationArchiveCredentials.secretName | [] + .' ${MAS_APPWS_SPEC_YAML} | yq '{"CUSTOMIZATION_ARCHIVE_SECRET_NAMES": [] + .}'  > $ADDITIONAL_JINJA_PARAMS_FILE
     export MANAGE_ATTACHMENTS_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.db.attachmentProvider.providerCredentials.secretName // ""' ${MAS_APPWS_SPEC_YAML})
     export MANAGE_LOGGING_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.deployment.loggingS3Destination.secretKey.secretName // ""' ${MAS_APPWS_SPEC_YAML})
-    export MANAGE_ATTACHMENTS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_logging${SECRETS_KEY_SEPERATOR}
-    export MANAGE_LOGGING_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_attachments${SECRETS_KEY_SEPERATOR}
+    export MANAGE_ATTACHMENTS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_attachments${SECRETS_KEY_SEPERATOR}
+    export MANAGE_LOGGING_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_logging${SECRETS_KEY_SEPERATOR}
   else
     echo
     echo_h2 "Using default application spec for $MAS_APP_ID"

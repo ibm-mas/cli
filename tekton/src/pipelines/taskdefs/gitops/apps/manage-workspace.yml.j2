@@ -36,6 +36,8 @@
       value: $(params.default_file_storage_class)
     - name: mas_manual_certs_yaml
       value: $(params.mas_manual_certs_yaml)
+    - name: ingress
+      value: $(params.ingress)
   taskRef:
     name: gitops-suite-app-config
     kind: Task
