@@ -246,6 +246,7 @@ function gitops_process_mongo_user() {
     export MAS_CONFIG_DIR=$TEMP_DIR
     
     export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
+    sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
     sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
 
     export DOCDB_HOST=$(jq -r .docdb_host $MONGO_SECRET_FILE)

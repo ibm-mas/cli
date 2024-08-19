@@ -32,6 +32,7 @@ class InstallSummarizerMixin():
             self.printSummary("Single Node OpenShift", "No")
 
         self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
+        self.printSummary("Skip Grafana-Install", "Yes" if self.getParam('grafana_action') == "none" else "No")
 
     def icrSummary(self) -> None:
         self.printH2("IBM Container Registry Credentials")

@@ -45,7 +45,7 @@ usage: mas install [-c MAS_CATALOG_VERSION] [--ibm-entitlement-key IBM_ENTITLEME
                    [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--approval-core APPROVAL_CORE]
                    [--approval-assist APPROVAL_ASSIST] [--approval-iot APPROVAL_IOT] [--approval-manage APPROVAL_MANAGE] [--approval-monitor APPROVAL_MONITOR]
                    [--approval-optimizer APPROVAL_OPTIMIZER] [--approval-predict APPROVAL_PREDICT] [--approval-visualinspection APPROVAL_VISUALINSPECTION]
-                   [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check] [--no-confirm] [-h]
+                   [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check] [--skip-grafana-install] [--no-confirm] [-h]
 
 IBM Maximo Application Suite Admin CLI v100.0.0
 Install MAS by configuring and launching the MAS Uninstall Tekton Pipeline.
@@ -247,6 +247,7 @@ More:
   --dev-mode                                      Configure installation for development mode
   --no-wait-for-pvc                               Disable the wait for pipeline PVC to bind before starting the pipeline
   --skip-pre-check                                Disable the 'pre-install-check' at the start of the install pipeline
+  --skip-grafana-install                          Skips Grafana install action
   --no-confirm                                    Launch the upgrade without prompting for confirmation
   -h, --help                                      Show this help message and exit
 ```
@@ -256,7 +257,7 @@ Non-Interactive Install
 ```bash
 docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
 export ENTITLEMENT_KEY=xxx
-mas install -i mas1 -w ws1 -W "My Workspace" -c v9-240625-amd64 --mas-channel 9.0.x \
+mas install -i mas1 -w ws1 -W "My Workspace" -c @@MAS_LATEST_CATALOG@@ --mas-channel @@MAS_LATEST_CHANNEL@@ \
   --ibm-entitlement-key $ENTITLEMENT_KEY \
   --license-id xxxxxxxxxxxx --license-file /mnt/home/entitlement.lic \
   --uds-email myemail@email.com --uds-firstname John --uds-lastname Barnes \
