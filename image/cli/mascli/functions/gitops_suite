@@ -523,7 +523,7 @@ function gitops_suite() {
   export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
   export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
 
-  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password,info,docdb_host,docdb_port"
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password,info"
   sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
 
   jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
