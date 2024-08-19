@@ -149,9 +149,12 @@ masAdvancedArgGroup.add_argument(
     help="Path to directory containing the certificates to be applied"
 )
 masAdvancedArgGroup.add_argument(
-    "--mas-enable-walkme",
+    "--disable-walkme",
+    dest="mas_enable_walkme",
     required=False,
-    help="Enable or disable guided tour"
+    help="Disable MAS guided tour",
+    action="store_const",
+    const="false"
 )
 
 # Storage
