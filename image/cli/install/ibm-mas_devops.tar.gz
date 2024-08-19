@@ -1,0 +1,6 @@
+{
+  "errors" : [ {
+    "status" : 401,
+    "message" : "Token failed verification: revoked"
+  } ]
+}
