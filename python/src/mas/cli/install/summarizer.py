@@ -81,9 +81,8 @@ class InstallSummarizerMixin():
             print()
             self.printSummary("Manual Certificates", "Not Configured")
 
-        if self.getParam("mas_enable_walkme") != "":
-            print()
-            self.printParamSummary("Enable Guided Tour", "mas_enable_walkme")
+        print()
+        self.printParamSummary("Enable Guided Tour", "mas_enable_walkme")
 
         print()
         self.printParamSummary("Catalog Version", "mas_catalog_version")
