@@ -104,6 +104,12 @@ spec:
           value: optimizer_upgrade_post # Post upgrade tests
         - name: product_channel
           value: $(params.mas_app_channel_optimizer)
+        - name: fvt_image_namespace
+          value: ai-solutions
+        - name: fvt_image_name
+          value: common-test-framework
+        - name: product_id
+          value: ibm-mas-optimizer
       taskRef:
         kind: Task
         name: mas-fvt-run-suite
