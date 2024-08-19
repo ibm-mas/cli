@@ -1,239 +1,80 @@
 - name: fvt-mobile-test-sr
-  taskRef:
-    kind: Task
-    name: mas-fvt-mobile-pytest
-  workspaces:
-    - name: configs
-      workspace: shared-configs
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_mobile_pytest)
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile_api_sr
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-  when:
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.fvt_digest_mobile_pytest)"
-      operator: notin
-      values: [""]
+      value: mobile_api_sr    
   runAfter:
     - fvt-mobile-setup-data
 
 - name: fvt-mobile-test-insp
-  taskRef:
-    kind: Task
-    name: mas-fvt-mobile-pytest
-  workspaces:
-    - name: configs
-      workspace: shared-configs
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_mobile_pytest)
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mobile_api_insp
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-  when:
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.fvt_digest_mobile_pytest)"
-      operator: notin
-      values: [""]
   runAfter:
-    - fvt-mobile-test-sr
+    - fvt-mobile-setup-data
 
 - name: fvt-mobile-test-tech
-  taskRef:
-    kind: Task
-    name: mas-fvt-mobile-pytest
-  workspaces:
-    - name: configs
-      workspace: shared-configs
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_mobile_pytest)
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mobile_api_tech
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-  when:
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.fvt_digest_mobile_pytest)"
-      operator: notin
-      values: [""]
   runAfter:
+    - fvt-mobile-test-sr
     - fvt-mobile-test-insp
 
 - name: fvt-mobile-test-assetmanager
-  taskRef:
-    kind: Task
-    name: mas-fvt-mobile-pytest
-  workspaces:
-    - name: configs
-      workspace: shared-configs
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_mobile_pytest)
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mobile_api_assetm
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-  when:
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.fvt_digest_mobile_pytest)"
-      operator: notin
-      values: [""]
   runAfter:
-    - fvt-mobile-test-tech
-
-- name: fvt-mobile-test-ic
-  taskRef:
-    kind: Task
-    name: mas-fvt-mobile-pytest
-  workspaces:
-    - name: configs
-      workspace: shared-configs
-  params:
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_mobile_pytest)
-    - name: fvt_test_suite
-      value: mobile_api_ic
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-  when:
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.fvt_digest_mobile_pytest)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-mobile-test-assetmanager
-
-- name: fvt-mobile-test-ir
-  taskRef:
-    kind: Task
-    name: mas-fvt-mobile-pytest
-  workspaces:
-    - name: configs
-      workspace: shared-configs
-  params:
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_mobile_pytest)
-    - name: fvt_test_suite
-      value: mobile_api_ir
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-  when:
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.fvt_digest_mobile_pytest)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-mobile-test-ic
-    
-- name: fvt-mobile-test-it
-  taskRef:
-    kind: Task
-    name: mas-fvt-mobile-pytest
-  workspaces:
-    - name: configs
-      workspace: shared-configs
-  params:
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_mobile_pytest)
-    - name: fvt_test_suite
-      value: mobile_api_it
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-  when:
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.fvt_digest_mobile_pytest)"
-      operator: notin
-      values: [""]
-  runAfter:
-    - fvt-mobile-test-ir
+    - fvt-mobile-test-sr
+    - fvt-mobile-test-insp
 
 - name: fvt-mobile-test-supervisor
-  taskRef:
-    kind: Task
-    name: mas-fvt-mobile-pytest
-  workspaces:
-    - name: configs
-      workspace: shared-configs
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_mobile_pytest)
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mobile_api_supervisor
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-  when:
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-    - input: "$(params.fvt_digest_mobile_pytest)"
-      operator: notin
-      values: [""]
   runAfter:
-    - fvt-mobile-test-it
+    - fvt-mobile-test-sr
+    - fvt-mobile-test-insp
+
+- name: fvt-mobile-test-ic
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile_api_ic
+  runAfter:
+    - fvt-mobile-test-tech
+    - fvt-mobile-test-assetmanager
+    - fvt-mobile-test-supervisor
+
+- name: fvt-mobile-test-ir
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile_api_ir
+  runAfter:
+    - fvt-mobile-test-tech
+    - fvt-mobile-test-assetmanager
+    - fvt-mobile-test-supervisor
+    
+- name: fvt-mobile-test-it
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile_api_it
+  runAfter:
+    - fvt-mobile-test-tech
+    - fvt-mobile-test-assetmanager
+    - fvt-mobile-test-supervisor

@@ -54,12 +54,9 @@ spec:
     # 2. Manage FVT - Manage Mobile
     # -------------------------------------------------------------------------
     
-    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase1-selenium-civil.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase2-android-part1.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase3-android-part2.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase4-android-part3.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase5-ios-part1.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase6-ios-part2.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase7-ios-part3.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase8-desktop.yml.j2') | indent(4) }}
-
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase0-civil.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase1-android.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase2-android.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase3-ios.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase4-ios.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase5-desktop.yml.j2') | indent(4) }}

@@ -295,7 +295,7 @@ def get_mobile_and_is_image_tags():
 
 def artifactory_upload():
 
-    url = artDir + "/" + output_filename
+    url = artDir + "/fvt-mobile/" + output_filename
     bearer = f"Bearer {artKey}"
     headers = {"content-type": "application/json", "Authorization": bearer}
 

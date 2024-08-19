@@ -8,9 +8,9 @@
 
 ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-civil-defects-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
     - name: fvt_mobile_app
       value: civil-defects-app
     - name: mobile_device_type
@@ -22,9 +22,9 @@
 
 # Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-civil-defects-mvt-ios
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
     - name: fvt_mobile_app
       value: civil-defects-app
     - name: mobile_device_type

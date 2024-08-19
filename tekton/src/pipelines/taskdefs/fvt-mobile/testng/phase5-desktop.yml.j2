@@ -1,7 +1,7 @@
 - name: fvt-inventorycounting-mvt-desktop-chrome
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
     - name: fvt_mobile_app
       value: ic-automation-testcases
     - name: mobile_device_type
@@ -12,11 +12,13 @@
     - fvt-supervisor-mvt-ios
     - fvt-calibration-mvt-ios
     - fvt-issuesandtransfers-mvt-ios
+    - fvt-inventoryreceiving-mvt-ios
+    - fvt-technician-mvt-ios
 
 - name: fvt-inspection-forms-mvt-desktop-chrome
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
     - name: fvt_mobile_app
       value: inspection-forms-app
     - name: mobile_device_type
@@ -27,3 +29,5 @@
     - fvt-supervisor-mvt-ios
     - fvt-calibration-mvt-ios
     - fvt-issuesandtransfers-mvt-ios
+    - fvt-inventoryreceiving-mvt-ios
+    - fvt-technician-mvt-ios
