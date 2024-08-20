@@ -9,11 +9,11 @@
     - name: fvt_test_suite
       value: inventory-counting-mvt-desktop
   runAfter:
-    - fvt-supervisor-mvt-ios
-    - fvt-calibration-mvt-ios
-    - fvt-issuesandtransfers-mvt-ios
-    - fvt-inventoryreceiving-mvt-ios
-    - fvt-technician-mvt-ios
+    - fvt-mobile-testng-ir-ios
+    - fvt-mobile-testng-technician-ios
+    - fvt-mobile-testng-supervisor-ios
+    - fvt-mobile-testng-calibration-ios
+    - fvt-mobile-testng-it-ios
 
 - name: fvt-mobile-testng-inspforms-desktop
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
@@ -26,8 +26,8 @@
     - name: fvt_test_suite
       value: inspection-forms-mvt-desktop
   runAfter:
-    - fvt-supervisor-mvt-ios
-    - fvt-calibration-mvt-ios
-    - fvt-issuesandtransfers-mvt-ios
-    - fvt-inventoryreceiving-mvt-ios
-    - fvt-technician-mvt-ios
+    - fvt-mobile-testng-ir-ios
+    - fvt-mobile-testng-technician-ios
+    - fvt-mobile-testng-supervisor-ios
+    - fvt-mobile-testng-calibration-ios
+    - fvt-mobile-testng-it-ios
