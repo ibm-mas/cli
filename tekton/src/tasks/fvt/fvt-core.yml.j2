@@ -102,6 +102,12 @@ spec:
             name: mas-fvt-core
             key: FVT_ENABLE_IMAGE_SCAN
             optional: True
+      - name: FVT_ENABLE_DYNAMIC_SCAN
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: FVT_ENABLE_DYNAMIC_SCAN
+            optional: True
 
       # Black and white listing
       - name: FVT_BLACKLIST
