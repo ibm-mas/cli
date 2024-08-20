@@ -18,6 +18,11 @@ spec:
       default: "true"
       description: "Enable deprovision of the target cluster & associated resources following the completion of this pipeline"
 
+    - name: set_finished
+      type: string
+      default: "true"
+      description: "Determines whether to run final tasks or just the data collection task"
+
   tasks:
     # Collect must-gather
     # -------------------------------------------------------------------------
@@ -32,6 +37,10 @@ spec:
       workspaces:
         - name: mustgather
           workspace: shared-mustgather
+      when:
+        - input: $(params.set_finished)
+          operator: in
+          values: ["true", "True"]
 
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------

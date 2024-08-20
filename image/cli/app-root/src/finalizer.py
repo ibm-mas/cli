@@ -208,6 +208,10 @@ if __name__ == "__main__":
     print(f"Build .................. {build}")
     print(f"Run ID ................. {runId}")
 
+    setFinished=True
+    if "SET_FINISHED" in os.environ:
+        setFinished = os.getenv("SET_FINISHED")
+
     # Create Kubernetes client
     # -------------------------------------------------------------------------
     if "KUBERNETES_SERVICE_HOST" in os.environ:
@@ -219,9 +223,12 @@ if __name__ == "__main__":
         k8s_client = config.new_client_from_config()
         dynClient = DynamicClient(k8s_client)
 
-    setObject = {
-        "timestampFinished": datetime.utcnow()
-    }
+    if setFinished:
+        setObject = {
+            "timestampFinished": datetime.utcnow()
+        }
+    else:
+        setObject = {}
 
     # Set CLI and ansible-devops version
     # -------------------------------------------------------------------------
