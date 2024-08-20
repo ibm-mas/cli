@@ -7,6 +7,15 @@
   runAfter:
     - fvt-mobile-setup-data
 
+- name: fvt-mobile-test-assetmanager
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile_api_assetm
+  runAfter:
+    - fvt-mobile-setup-data
+    
 - name: fvt-mobile-test-insp
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
@@ -14,7 +23,8 @@
     - name: fvt_test_suite
       value: mobile_api_insp
   runAfter:
-    - fvt-mobile-setup-data
+    - fvt-mobile-test-sr
+    - fvt-mobile-test-assetmanager
 
 - name: fvt-mobile-test-tech
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
@@ -24,17 +34,7 @@
       value: mobile_api_tech
   runAfter:
     - fvt-mobile-test-sr
-    - fvt-mobile-test-insp
-
-- name: fvt-mobile-test-assetmanager
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: mobile_api_assetm
-  runAfter:
-    - fvt-mobile-test-sr
-    - fvt-mobile-test-insp
+    - fvt-mobile-test-assetmanager
 
 - name: fvt-mobile-test-supervisor
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
@@ -44,7 +44,7 @@
       value: mobile_api_supervisor
   runAfter:
     - fvt-mobile-test-sr
-    - fvt-mobile-test-insp
+    - fvt-mobile-test-assetmanager
 
 - name: fvt-mobile-test-ic
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
@@ -54,7 +54,7 @@
       value: mobile_api_ic
   runAfter:
     - fvt-mobile-test-tech
-    - fvt-mobile-test-assetmanager
+    - fvt-mobile-test-insp
     - fvt-mobile-test-supervisor
 
 - name: fvt-mobile-test-ir
@@ -65,7 +65,7 @@
       value: mobile_api_ir
   runAfter:
     - fvt-mobile-test-tech
-    - fvt-mobile-test-assetmanager
+    - fvt-mobile-test-insp
     - fvt-mobile-test-supervisor
     
 - name: fvt-mobile-test-it
@@ -76,5 +76,5 @@
       value: mobile_api_it
   runAfter:
     - fvt-mobile-test-tech
-    - fvt-mobile-test-assetmanager
+    - fvt-mobile-test-insp
     - fvt-mobile-test-supervisor
