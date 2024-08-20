@@ -1,5 +1,5 @@
 ## All Mobile Foundation MAS test suites
-- name: fvt-mobfoundation-mvt-android
+- name: fvt-mobile-testng-mobfound-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -11,7 +11,7 @@
       value: mobfoundation-mvt-android
 
 ## Minimum Verification Test for Mobile Inspection MAS test suites
-- name: fvt-inspections-mvt-android
+- name: fvt-mobile-testng-inspections-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -23,7 +23,7 @@
       value: inspections-mvt-android
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
-- name: fvt-asset-manager-mvt-android
+- name: fvt-mobile-testng-assetmng-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -35,7 +35,7 @@
       value: asset-manager-mvt-android
 
 ## Mobile FVT - Inventory Counting Android
-- name: fvt-inventorycounting-mvt-android
+- name: fvt-mobile-testng-ic-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -47,7 +47,7 @@
       value: inventory-counting-mvt-android
 
 ## Minimum Verification Test for Mobile Service Request MAS test suites
-- name: fvt-service-request-mvt-android
+- name: fvt-mobile-testng-sr-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}

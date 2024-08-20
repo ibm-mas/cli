@@ -1,4 +1,4 @@
-- name: fvt-inventorycounting-mvt-desktop-chrome
+- name: fvt-mobile-testng-ic-desktop
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -15,7 +15,7 @@
     - fvt-inventoryreceiving-mvt-ios
     - fvt-technician-mvt-ios
 
-- name: fvt-inspection-forms-mvt-desktop-chrome
+- name: fvt-mobile-testng-inspforms-desktop
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -24,7 +24,7 @@
     - name: mobile_device_type
       value: chrome
     - name: fvt_test_suite
-      value: inspection-forms-mvt-chrome
+      value: inspection-forms-mvt-desktop
   runAfter:
     - fvt-supervisor-mvt-ios
     - fvt-calibration-mvt-ios
