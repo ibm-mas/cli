@@ -1,80 +1,80 @@
-- name: fvt-mobile-test-sr
+- name: fvt-mobile-pytest-sr
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile_api_sr    
+      value: mobile-api-sr    
   runAfter:
-    - fvt-mobile-setup-data
+    - fvt-mobile-pytest-setup
 
-- name: fvt-mobile-test-assetmanager
+- name: fvt-mobile-pytest-assetmanager
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile_api_assetm
+      value: mobile-api-assetm
   runAfter:
-    - fvt-mobile-setup-data
+    - fvt-mobile-pytest-setup
     
-- name: fvt-mobile-test-insp
+- name: fvt-mobile-pytest-insp
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile_api_insp
+      value: mobile-api-insp
   runAfter:
-    - fvt-mobile-test-sr
-    - fvt-mobile-test-assetmanager
+    - fvt-mobile-pytest-sr
+    - fvt-mobile-pytest-assetmanager
 
-- name: fvt-mobile-test-tech
+- name: fvt-mobile-pytest-tech
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile_api_tech
+      value: mobile-api-tech
   runAfter:
-    - fvt-mobile-test-sr
-    - fvt-mobile-test-assetmanager
+    - fvt-mobile-pytest-sr
+    - fvt-mobile-pytest-assetmanager
 
-- name: fvt-mobile-test-supervisor
+- name: fvt-mobile-pytest-supervisor
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile_api_supervisor
+      value: mobile-api-supervisor
   runAfter:
-    - fvt-mobile-test-sr
-    - fvt-mobile-test-assetmanager
+    - fvt-mobile-pytest-sr
+    - fvt-mobile-pytest-assetmanager
 
-- name: fvt-mobile-test-ic
+- name: fvt-mobile-pytest-ic
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile_api_ic
+      value: mobile-api-ic
   runAfter:
-    - fvt-mobile-test-tech
-    - fvt-mobile-test-insp
-    - fvt-mobile-test-supervisor
+    - fvt-mobile-pytest-tech
+    - fvt-mobile-pytest-insp
+    - fvt-mobile-pytest-supervisor
 
-- name: fvt-mobile-test-ir
+- name: fvt-mobile-pytest-ir
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile_api_ir
+      value: mobile-api-ir
   runAfter:
-    - fvt-mobile-test-tech
-    - fvt-mobile-test-insp
-    - fvt-mobile-test-supervisor
+    - fvt-mobile-pytest-tech
+    - fvt-mobile-pytest-insp
+    - fvt-mobile-pytest-supervisor
     
-- name: fvt-mobile-test-it
+- name: fvt-mobile-pytest-it
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile_api_it
+      value: mobile-api-it
   runAfter:
-    - fvt-mobile-test-tech
-    - fvt-mobile-test-insp
-    - fvt-mobile-test-supervisor
+    - fvt-mobile-pytest-tech
+    - fvt-mobile-pytest-insp
+    - fvt-mobile-pytest-supervisor
