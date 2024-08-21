@@ -7,6 +7,10 @@ spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
+    - name: eck_action
+      type: string
+      default: ""
+
     # Internal Stack
     - name: eck_enable_elasticsearch
       type: string
@@ -38,6 +42,9 @@ spec:
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      - name: ECK_ACTION
+        value: $(params.eck_action)
 
       # Internal Stack
       - name: ECK_ENABLE_ELASTICSEARCH
