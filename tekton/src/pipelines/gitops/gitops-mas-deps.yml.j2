@@ -85,6 +85,10 @@ spec:
       type: string
       description: COS action to be performed (provision or deprovision)
       default: ""
+    - name: use_hmac
+      type: string
+      description: Optional boolean variable weather hmac is enabled or not
+      default: ""
 
     - name: ibmcloud_apikey
       type: string
@@ -214,6 +218,8 @@ spec:
           value: $(params.ibmcloud_resourcegroup)
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey)
+        - name: USE_HMAC
+          value: $(params.use_hmac
 
       workspaces:
         - name: configs

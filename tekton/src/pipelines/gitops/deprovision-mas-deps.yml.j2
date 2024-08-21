@@ -84,6 +84,9 @@ spec:
     - name: ibmcloud_apikey
       type: string
       default: ""
+    - name: use_hmac
+      type: string
+      default: ""
 
   tasks:
 {% if wait_for_deprovision == true %}
@@ -198,6 +201,8 @@ spec:
           value: $(params.ibmcloud_resourcegroup)
         - name: ibmcloud_apikey
           value: $(params.ibmcloud_apikey)
+        - name: USE_HMAC
+          value: $(params.use_hmac)
 
       workspaces:
         - name: configs
