@@ -225,6 +225,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.yesOrNo("Disable LDAP cookie", "disable_ldap_cookie")
             self.yesOrNo("Allow custom cache key", "allow_custom_cache_key")
 
+    def configGuidedTour(self):
+        self.printH1("Enable Guided Tour")
+        self.printDescription([
+            "By default, Maximo Application Suite is configured with guided tour, you can disable this if it not required"
+        ])
+        if not self.yesOrNo("Enable Guided Tour"):
+            self.setParam("mas_enable_walkme","false")
+
     def configMAS(self):
         self.printH1("Configure MAS Instance")
         self.printDescription([
@@ -255,6 +263,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configDNSAndCerts()
         self.configSSOProperties()
         self.configSpecialCharacters()
+        self.configGuidedTour()
 
     def configCATrust(self) -> None:
         self.printH1("Certificate Authority Trust")
@@ -732,7 +741,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "artifactory_token",
             # TODO: The way arcgis has been implemented needs to be fixed
             "install_arcgis",
-            "mas_arcgis_channel"
+            "mas_arcgis_channel",
+            # Guided Tour
+            "mas_enable_walkme"
         ]
 
         for key, value in vars(self.args).items():
