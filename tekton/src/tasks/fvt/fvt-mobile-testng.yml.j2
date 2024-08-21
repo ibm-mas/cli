@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-mobile
+  name: mas-fvt-mobile-testng
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -56,7 +56,7 @@ spec:
       default: ""
     
   stepTemplate:
-    name: 'fvt-mobile'
+    name: 'fvt-mobile-testng-$(params.fvt_mobile_app)-$(params.mobile_device_type)'
     securityContext:
       privileged: true
       runAsUser: 0
