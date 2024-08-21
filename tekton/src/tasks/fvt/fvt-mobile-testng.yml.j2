@@ -56,7 +56,7 @@ spec:
       default: ""
     
   stepTemplate:
-    name: 'fvt-mobile-testng-$(params.fvt_mobile_app)-$(params.mobile_device_type)'
+    name: 'fvt-mobile-testng'
     securityContext:
       privileged: true
       runAsUser: 0
@@ -177,7 +177,8 @@ spec:
         value: $(params.mobile_device_type)
 
   steps:
-    - image: '$(params.fvt_image_registry)/fvt-mobile/fvt-mobile-testng@$(params.fvt_image_digest)'
+    - name: 'fvt-mobile-testng'
+      image: '$(params.fvt_image_registry)/fvt-mobile/fvt-mobile-testng@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
       timeout: 3h # Ensure bad FVTs don't run forever
       onError: continue # Ensure bad FVTs don't break the pipeline
