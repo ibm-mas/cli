@@ -272,7 +272,7 @@ function gitops_cos() {
     }
 
     module "s3c_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3c.s3_bucket_id
       s3_bucket_arn                  = module.s3c.s3_bucket_arn
@@ -288,7 +288,7 @@ function gitops_cos() {
     }
 
     module "s3a_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3a.s3_bucket_id
       s3_bucket_arn                  = module.s3a.s3_bucket_arn
@@ -304,7 +304,7 @@ function gitops_cos() {
     }
 
     module "s3l_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3l.s3_bucket_id
       s3_bucket_arn                  = module.s3l.s3_bucket_arn
