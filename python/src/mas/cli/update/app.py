@@ -586,8 +586,8 @@ class UpdateApp(BaseApp):
                             self.printDescription([
                                 f"{kind}s were found in multiple namespaces, select the namespace to target from the list below:"
                             ])
-                            for ns in sorted(namespaces):
-                                self.printDescription([f"1. {ns}"])
+                            for index, ns in enumerate(sorted(namespaces), start=1):
+                                self.printDescription([f"{index}. {ns}"])
                             self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
                 else:
                     logger.debug(f"Found no instances of {kind} to update")
