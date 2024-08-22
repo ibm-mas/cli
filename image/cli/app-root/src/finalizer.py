@@ -223,12 +223,9 @@ if __name__ == "__main__":
         k8s_client = config.new_client_from_config()
         dynClient = DynamicClient(k8s_client)
 
+    setObject = {}
     if setFinished:
-        setObject = {
-            "timestampFinished": datetime.utcnow()
-        }
-    else:
-        setObject = {}
+        setObject["timestampFinished"] = datetime.utcnow()
 
     # Set CLI and ansible-devops version
     # -------------------------------------------------------------------------
