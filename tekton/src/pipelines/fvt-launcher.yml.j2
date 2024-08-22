@@ -511,8 +511,10 @@ spec:
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-mobile"
+        - name: pipelinerun_name_testng
+          value: "$(params.mas_instance_id)-fvt-mobile-testng"
+        - name: pipelinerun_name_pytest
+          value: "$(params.mas_instance_id)-fvt-mobile-pytest"
       taskRef:
         kind: Task
         name: mas-launchfvt-mobile
