@@ -402,9 +402,9 @@ spec:
           operator: in
           values: ["true", "True"]
         # All these launchers require manage in place to then run setup, therefore the criteria
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt_manage)
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_predict)$(params.launchivt_manage)
           operator: notin
-          values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
+          values: ["falsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
       runAfter:
         - approval-suite-verify
 
@@ -669,7 +669,6 @@ spec:
           values: ["true", "True"]
       runAfter:
         - waitfor-optimizer
-        - manage-setup
 
     - name: approval-optimizer
       timeout: "0"
