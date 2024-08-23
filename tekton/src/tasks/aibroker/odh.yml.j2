@@ -169,22 +169,22 @@ spec:
         value: $(params.mas_aibroker_storage_templates_bucket)
       - name: MAS_AIBROKER_TENANT_NAME
         value: $(params.mas_aibroker_tenant_name)
-    
-    # MariaDB details
-    - name: MAS_AIBROKER_DB_HOST
-      value: $(params.mas_aibroker_db_host)
-    - name: MAS_AIBROKER_DB_PORT
-      value: $(params.mas_aibroker_db_port)
-    - name: MAS_AIBROKER_DB_USER
-      value: $(params.mas_aibroker_db_user)
-    - name: MAS_AIBROKER_DB_DATABASE
-      value: $(params.mas_aibroker_db_database)
-    - name: MAS_AIBROKER_DB_SECRET_NAME
-      value: $(params.mas_aibroker_db_secret_name)
-    - name: MAS_AIBROKER_DB_SECRET_KEY
-      value: $(params.mas_aibroker_db_secret_key)
-    - name: MAS_AIBROKER_DB_SECRET_VALUE
-      value: $(params.mas_aibroker_db_secret_value)
+
+      # MariaDB details
+      - name: MAS_AIBROKER_DB_HOST
+        value: $(params.mas_aibroker_db_host)
+      - name: MAS_AIBROKER_DB_PORT
+        value: $(params.mas_aibroker_db_port)
+      - name: MAS_AIBROKER_DB_USER
+        value: $(params.mas_aibroker_db_user)
+      - name: MAS_AIBROKER_DB_DATABASE
+        value: $(params.mas_aibroker_db_database)
+      - name: MAS_AIBROKER_DB_SECRET_NAME
+        value: $(params.mas_aibroker_db_secret_name)
+      - name: MAS_AIBROKER_DB_SECRET_KEY
+        value: $(params.mas_aibroker_db_secret_key)
+      - name: MAS_AIBROKER_DB_SECRET_VALUE
+        value: $(params.mas_aibroker_db_secret_value)
 
   steps:
     - name: odh
