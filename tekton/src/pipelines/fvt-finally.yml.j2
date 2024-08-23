@@ -46,6 +46,9 @@ spec:
     # -------------------------------------------------------------------------
     - name: finalize
       timeout: "0"
+      params:
+        - name: set_finished
+          value: $(params.set_finished)
       taskRef:
         kind: Task
         name: mas-fvt-finalize

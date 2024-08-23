@@ -6,6 +6,9 @@ metadata:
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+    
+    - name: set_finished
+      type: string
 
   steps:
     - name: finalize
