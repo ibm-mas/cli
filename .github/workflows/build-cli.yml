@@ -207,6 +207,14 @@ jobs:
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
 
+      - name: Push the container image (master)
+        id: docker-push-master
+        if: github.ref == 'refs/heads/master'
+        run: |
+          docker tag ibmmas/cli quay.io/ibmmas/cli:master
+          docker images
+          docker push quay.io/ibmmas/cli:master
+
       - name: Push the container image (latest)
         id: docker-push-latest
         if: github.event_name == 'release'
