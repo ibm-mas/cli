@@ -49,6 +49,9 @@ spec:
       taskRef:
         kind: Task
         name: mas-fvt-finalize
+      params:
+        - name: set_finished
+          value: $(params.set_finished)
       runAfter:
         - must-gather
       when:
