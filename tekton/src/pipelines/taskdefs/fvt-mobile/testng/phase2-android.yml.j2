@@ -1,0 +1,89 @@
+## Mobile FVT - Inventory Receiving Android
+- name: fvt-mobile-testng-ir-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: ir-automation-testcases
+    - name: mobile_device_type
+      value: android
+    - name: fvt_test_suite
+      value: inventory-receiving-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
+    - fvt-mobile-testng-inspections-android
+    - fvt-mobile-testng-assetmng-android
+    - fvt-mobile-testng-ic-android
+    - fvt-mobile-testng-sr-android
+
+## Minimum Verification Test for Mobile Technician MAS test suites
+- name: fvt-mobile-testng-technician-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: technician-app
+    - name: mobile_device_type
+      value: android
+    - name: fvt_test_suite
+      value: technician-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
+    - fvt-mobile-testng-inspections-android
+    - fvt-mobile-testng-assetmng-android
+    - fvt-mobile-testng-ic-android
+    - fvt-mobile-testng-sr-android
+
+## Minimum Verification Test for Mobile Supervisor MAS test suites
+- name: fvt-mobile-testng-supervisor-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: supervisor-app
+    - name: mobile_device_type
+      value: android
+    - name: fvt_test_suite
+      value: supervisor-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
+    - fvt-mobile-testng-inspections-android
+    - fvt-mobile-testng-assetmng-android
+    - fvt-mobile-testng-ic-android
+    - fvt-mobile-testng-sr-android
+
+## Minimum Verification Test for Mobile calibration MAS test suites
+- name: fvt-mobile-testng-calibration-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: calibration-app
+    - name: mobile_device_type
+      value: android
+    - name: fvt_test_suite
+      value: calibration-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
+    - fvt-mobile-testng-inspections-android
+    - fvt-mobile-testng-assetmng-android
+    - fvt-mobile-testng-ic-android
+    - fvt-mobile-testng-sr-android
+
+## Mobile FVT - Issues and Transfers Android
+- name: fvt-mobile-testng-it-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: it-automation-testcases
+    - name: mobile_device_type
+      value: android
+    - name: fvt_test_suite
+      value: issues-transfer-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
+    - fvt-mobile-testng-inspections-android
+    - fvt-mobile-testng-assetmng-android
+    - fvt-mobile-testng-ic-android
+    - fvt-mobile-testng-sr-android

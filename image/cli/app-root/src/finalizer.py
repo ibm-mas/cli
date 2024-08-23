@@ -565,8 +565,11 @@ if __name__ == "__main__":
 
     messageBlocks.append(buildSection(f"Download Must Gather from <https://na.artifactory.swg-devops.com/ui/repos/tree/General/wiotp-generic-logs/mas-fvt/{instanceId}/{build}|Artifactory> (may not be available yet), see thread for more information ..."))
     response = postMessage(FVT_SLACK_CHANNEL, messageBlocks)
-    threadId = response["ts"]
-
+    if response["ok"]:
+        threadId = response["ts"]
+    else:
+        print(f"Unable to post FVT summary to Slack: {response['error']}")
+        sys.exit(0)
 
     # Generate threaded messages with failure details
     # -------------------------------------------------------------------------
