@@ -81,7 +81,7 @@ spec:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-uninstall-finally"
+          value: "$(params.mas_instance_id)-pre-fvt-uninstall-finally"
         - name: set_finished
           value: "False"
       runAfter:
