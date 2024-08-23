@@ -1,0 +1,33 @@
+- name: fvt-mobile-testng-ic-desktop
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: ic-automation-testcases
+    - name: mobile_device_type
+      value: chrome
+    - name: fvt_test_suite
+      value: inventory-counting-mvt-desktop
+  runAfter:
+    - fvt-mobile-testng-ir-ios
+    - fvt-mobile-testng-technician-ios
+    - fvt-mobile-testng-supervisor-ios
+    - fvt-mobile-testng-calibration-ios
+    - fvt-mobile-testng-it-ios
+
+- name: fvt-mobile-testng-inspforms-desktop
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: inspection-forms-app
+    - name: mobile_device_type
+      value: chrome
+    - name: fvt_test_suite
+      value: inspection-forms-mvt-desktop
+  runAfter:
+    - fvt-mobile-testng-ir-ios
+    - fvt-mobile-testng-technician-ios
+    - fvt-mobile-testng-supervisor-ios
+    - fvt-mobile-testng-calibration-ios
+    - fvt-mobile-testng-it-ios

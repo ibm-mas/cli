@@ -60,7 +60,7 @@
         - fvt-finalize
         - fvt-iot
         - fvt-manage
-        - fvt-mobile
+        - fvt-mobile-testng
         - fvt-mobile-pytest
         - fvt-manage-directprint
         - fvt-manage-adhoc-report
