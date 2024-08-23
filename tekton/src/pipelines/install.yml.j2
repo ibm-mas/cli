@@ -63,11 +63,19 @@ spec:
 
     # 1.4 Configure Grafana
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/grafana.yml.j2') | indent(4) }}
+      when:
+        - input: "$(params.grafana_action)"
+          operator: in
+          values: ["install"]
       runAfter:
         - pre-install-check
 
     # 1.5 Configure ECK
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/eck.yml.j2') | indent(4) }}
+      when:
+        - input: "$(params.eck_action)"
+          operator: in
+          values: ["install"]
       runAfter:
         - pre-install-check
 
