@@ -100,7 +100,9 @@ function gitops_cos_noninteractive() {
 
   [[ -z "$CLUSTER_ID" ]] && gitops_cos_help "CLUSTER_ID is not set"
   [[ -z "$COS_TYPE" ]] && gitops_cos_help "COS_TYPE is not set"
-  [[ -z "$IBMCLOUD_APIKEY" ]] && gitops_cos_help "IBMCLOUD_APIKEY is not set"
+  if [[ "${COS_TYPE}" == "ibm" ]]; then
+    [[ -z "$IBMCLOUD_APIKEY" ]] && gitops_cos_help "IBMCLOUD_APIKEY is not set"
+  fi
   [[ -z "$ACCOUNT_ID" ]] && gitops_cos_help "ACCOUNT_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cos_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_CONFIG_DIR" ]] && gitops_cp4d_service_help "MAS_CONFIG_DIR is not set"
@@ -147,9 +149,11 @@ function gitops_cos() {
   echo_h2 "COS" "    "
   echo_reset_dim "COS action  ........................... ${COLOR_MAGENTA}${COS_ACTION}"
   echo_reset_dim "COS type  ............................. ${COLOR_MAGENTA}${COS_TYPE}"
-  echo_reset_dim "IBMCLOUD Resource Group  .............. ${COLOR_MAGENTA}${IBMCLOUD_RESOURCEGROUP}"
-  echo_reset_dim "IBMCLOUD ApiKey ....................... ${COLOR_MAGENTA}${IBMCLOUD_APIKEY:0:8}<snip>"
-
+  if [[ "${COS_TYPE}" == "ibm" ]]; then
+    echo_reset_dim "IBMCLOUD Resource Group  .............. ${COLOR_MAGENTA}${IBMCLOUD_RESOURCEGROUP}"
+    echo_reset_dim "IBMCLOUD ApiKey ....................... ${COLOR_MAGENTA}${IBMCLOUD_APIKEY:0:8}<snip>"
+  fi
+  
   echo "${TEXT_DIM}"
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
@@ -268,7 +272,7 @@ function gitops_cos() {
     }
 
     module "s3c_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3c.s3_bucket_id
       s3_bucket_arn                  = module.s3c.s3_bucket_arn
@@ -284,7 +288,7 @@ function gitops_cos() {
     }
 
     module "s3a_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3a.s3_bucket_id
       s3_bucket_arn                  = module.s3a.s3_bucket_arn
@@ -300,7 +304,7 @@ function gitops_cos() {
     }
 
     module "s3l_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3l.s3_bucket_id
       s3_bucket_arn                  = module.s3l.s3_bucket_arn

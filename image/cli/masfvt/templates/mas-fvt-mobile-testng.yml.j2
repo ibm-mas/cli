@@ -5,10 +5,10 @@ metadata:
   name: "{{ pipelinerun_name }}"
   namespace: "{{ pipelinerun_namespace }}"
   labels:
-    tekton.dev/pipeline: mas-fvt-mobile
+    tekton.dev/pipeline: mas-fvt-mobile-testng
 spec:
   pipelineRef:
-    name: mas-fvt-mobile
+    name: mas-fvt-mobile-testng
 
   serviceAccountName: pipeline
   timeouts:
@@ -36,8 +36,6 @@ spec:
       value: "{{ mas_workspace_id }}"
         
     # Digests
-    - name: fvt_digest_mobile_pytest
-      value: "{{ fvt_digest_mobile_pytest }}"
     - name: fvt_digest_mobile_testng
       value: "{{ fvt_digest_mobile_testng }}"
     - name: fvt_digest_manage_civil_selenium

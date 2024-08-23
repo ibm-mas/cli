@@ -624,10 +624,14 @@ function gitops_mas_config() {
       export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
       sm_login
       if [ $MONGODB_PROVIDER == 'yaml' ]; then
-        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo
+        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password,info"
         sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
       elif [ $MONGODB_PROVIDER == 'aws' ]; then
-        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo
+        #check if username,password,info exist at cluster level. Please note if username password not exist at instance level, it will be created 
+        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password,info" 
+
+        #enforce validation set to false for instance level check
+        sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password" false
         sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
       fi
 
@@ -668,11 +672,11 @@ function gitops_mas_config() {
       fi
       export KAFKA_SECRET_FILE=$TEMP_DIR/kafka-secret.json
       sm_login
-      sm_verify_secret_exists ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
+      sm_verify_secret_exists ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka "username,password"
       sm_get_secret_file ${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka $KAFKA_SECRET_FILE
       jq -r .info $KAFKA_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
       export AWS_MSK_SECRET=${SECRET_PREFIX}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}kafka
-      export ECRET_KEY_KAFKA_USERNAME=${AWS_MSK_SECRET}#username
+      export SECRET_KEY_KAFKA_USERNAME=${AWS_MSK_SECRET}#username
       export SECRET_KEY_KAFKA_PASSWORD=${AWS_MSK_SECRET}#password
     fi
 
@@ -682,7 +686,7 @@ function gitops_mas_config() {
       sm_login
       SECRET_NAME_LDAP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ldap
       if [ -z "${LDAP_BIND_DN}" ] || [ -z "${LDAP_BIND_PASSWORD}" ]; then
-        sm_verify_secret_exists $SECRET_NAME_LDAP
+        sm_verify_secret_exists $SECRET_NAME_LDAP "bindDN,bindPassword"
       else
         TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $SECRET_NAME_LDAP "{\"bindDN\": \"$LDAP_BIND_DN\", \"bindPassword\": \"$LDAP_BIND_PASSWORD\"}" "${TAGS}"
@@ -699,7 +703,7 @@ function gitops_mas_config() {
       export SECRET_KEY_OBJECTSTORAGE_INFO=${OBJECTSTORAGE_SECRET}#info
       export COS_SECRET_FILE=$TEMP_DIR/cos-secret.json
       sm_login
-      sm_verify_secret_exists ${OBJECTSTORAGE_SECRET}
+      sm_verify_secret_exists ${OBJECTSTORAGE_SECRET} "username,password,info"
       sm_get_secret_file ${OBJECTSTORAGE_SECRET} $COS_SECRET_FILE
 
       jq -r .info $COS_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
@@ -765,7 +769,7 @@ function gitops_mas_config() {
       sm_login
       SECRET_NAME_SMTP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}smtp
       if [ -z "${SMTP_USERNAME}" ] || [ -z "${SMTP_PASSWORD}" ]; then
-        sm_verify_secret_exists $SECRET_NAME_SMTP
+        sm_verify_secret_exists $SECRET_NAME_SMTP "username,password"
       else
         TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}" "${TAGS}"
