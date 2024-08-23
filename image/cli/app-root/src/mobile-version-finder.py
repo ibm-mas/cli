@@ -252,7 +252,7 @@ def get_mobile_and_is_image_tags():
             images = yaml.safe_load(cat_result)
             images_json.update({"mobileapi": images["defaultTags"]["mobileapi"]})
     except Exception as e:
-        print(f"Unable to catch images file from entitymgr pod: {e}")
+        print(f"Unable to catch images file from core's entitymgr-suite pod: {e}")
         sys.exit(1)
 
     # getting industry solutions images version from entitymgr-ws
@@ -285,7 +285,7 @@ def get_mobile_and_is_image_tags():
             images_json.update(images["defaultTags"])
 
     except Exception as e:
-        print(f"Unable to catch images file from entitymgr pod: {e}")
+        print(f"Unable to catch images file from Manage's entitymgr-ws pod: {e}")
         sys.exit(1)
 
     images_json_sorted = OrderedDict(sorted(images_json.items()))
@@ -295,7 +295,7 @@ def get_mobile_and_is_image_tags():
 
 def artifactory_upload():
 
-    url = artDir + "/" + output_filename
+    url = artDir + "/fvt-mobile/" + output_filename
     bearer = f"Bearer {artKey}"
     headers = {"content-type": "application/json", "Authorization": bearer}
 
