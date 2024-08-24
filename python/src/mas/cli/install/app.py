@@ -901,7 +901,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
-        
+
         self.installOptions = [
             {
                 "#": 1,
@@ -1060,6 +1060,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Prepare the namespace and launch the installation pipeline
         if self.noConfirm or continueWithInstall:
+            self.createTektonFileWithDigest()
+
             self.printH1("Launch Install")
             pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
 

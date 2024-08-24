@@ -168,6 +168,8 @@ class UpdateApp(BaseApp):
 
         # Prepare the namespace and launch the installation pipeline
         if self.noConfirm or continueWithUpdate:
+            self.createTektonFileWithDigest()
+
             self.printH1("Launch Update")
             pipelinesNamespace = f"mas-pipelines"
 
