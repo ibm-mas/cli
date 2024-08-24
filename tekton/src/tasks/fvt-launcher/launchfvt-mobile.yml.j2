@@ -202,11 +202,11 @@ spec:
               name: mas-fvt-mobile
               key: FVT_DIGEST_MOBILE_TESTNG
               optional: false
-        - name: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
+        - name: FVT_DIGEST_MANAGE
           valueFrom:
             secretKeyRef:
               name: mas-fvt-mobile
-              key: FVT_DIGEST_MANAGE_CIVIL_SELENIUM
+              key: FVT_DIGEST_MANAGE
               optional: false
 
     - name: wait-for-testng-pipelinerun
