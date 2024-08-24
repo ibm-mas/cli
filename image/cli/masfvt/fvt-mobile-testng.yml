@@ -21,7 +21,7 @@
 
     # FVT Configuration
     fvt_digest_mobile_testng: "{{ lookup('env', 'FVT_DIGEST_MOBILE_TESTNG') }}"
-    fvt_digest_manage_civil_selenium: "{{ lookup('env', 'FVT_DIGEST_MANAGE_CIVIL_SELENIUM') }}"
+    fvt_digest_manage: "{{ lookup('env', 'FVT_DIGEST_MANAGE') }}"
 
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
@@ -42,7 +42,7 @@
           - "fvt_image_registry ....................... {{ fvt_image_registry }}"
           - "fvt_artifactory_token .................... {{ fvt_artifactory_token }}"
           - "fvt_digest_mobile_testng ................. {{ fvt_digest_mobile_testng }}"
-          - "fvt_digest_manage_civil_selenium ......... {{ fvt_digest_manage_civil_selenium }}"
+          - "fvt_digest_manage ........................ {{ fvt_digest_manage }}"
           - ""
           - "fvt_blacklist ..................... {{ fvt_blacklist }}"
           - "fvt_whitelist ..................... {{ fvt_whitelist }}"
