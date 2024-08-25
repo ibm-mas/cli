@@ -185,11 +185,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
 
     def configCP4D(self):
-        # TODO: It's probably time to remove v8-amd64 support from the CLI entirely now
-        if self.getParam("mas_catalog_version") in ["v8-amd64", "v9-240625-amd64", "v9-240730-amd64"]:
+        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64"]:
             self.setParam("cpd_product_version", "4.8.0")
-        elif self.getParam("mas_catalog_version") in ["v8-240528-amd64"]:
-            self.setParam("cpd_product_version", "4.6.6")
         else:
             self.printDescription([
                 f"Unknown catalog {self.getParam('mas_catalog_version')}, please manually select the version of Cloud Pak for Data to use"
@@ -979,32 +976,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "manage": "8.6.15",
                 "monitor": "8.10.11",
                 "optimizer": "8.4.7",
-                "predict": "N/A",
-                "inspection": "8.8.4"
-            },
-            {
-                "#": 7,
-                "catalog": "v8-240528-amd64",
-                "release": "8.11.x",
-                "core": "8.11.11",
-                "assist": "N/A",
-                "iot": "8.8.9",
-                "manage": "8.7.8",
-                "monitor": "8.11.7",
-                "optimizer": "8.5.5",
-                "predict": "8.9.2",
-                "inspection": "8.9.3"
-            },
-            {
-                "#": 8,
-                "catalog": "v8-240528-amd64",
-                "release": "8.10.x",
-                "core": "8.10.14",
-                "assist": "N/A",
-                "iot": "8.7.13",
-                "manage": "8.6.14",
-                "monitor": "8.10.10",
-                "optimizer": "8.4.6",
                 "predict": "N/A",
                 "inspection": "8.8.4"
             }
