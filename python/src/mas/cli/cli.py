@@ -30,7 +30,6 @@ from prompt_toolkit import prompt, print_formatted_text, HTML
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import connect, isSNO
 
-from . import __version__ as packageVersion
 from .validators import YesNoValidator
 from .displayMixins import PrintMixin, PromptMixin
 
@@ -108,7 +107,8 @@ class BaseApp(PrintMixin, PromptMixin):
         rootLogger.addHandler(ch)
         rootLogger.setLevel(logging.DEBUG)
 
-        self.version = packageVersion
+        # Supports extended semver, unlike mas.cli.__version__
+        self.version = "100.0.0-pre.local"
         self.h1count = 0
         self.h2count = 0
 
@@ -185,33 +185,37 @@ class BaseApp(PrintMixin, PromptMixin):
             self.printDescription([
                 f"Unless the {imageWithoutDigest} image is accessible from your cluster the MAS CLI container image must be present in your mirror registry"
             ])
-            if self.yesOrNo(f"Override image tag '{self.version}' with digest"):
-                cmdArray = ["skopeo", "inspect", f"docker://{imageWithoutDigest}"]
-                logger.info(f"Skopeo inspect command: {' '.join(cmdArray)}")
-                skopeoResult = runCmd(cmdArray)
-                if skopeoResult.successful():
-                    skopeoData = json.loads(skopeoResult.out)
-                    logger.info(f"Skopeo Data for {imageWithoutDigest}: {skopeoData}")
-                    cliImageDigest = skopeoData["Digest"]
+            cmdArray = ["skopeo", "inspect", f"docker://{imageWithoutDigest}"]
+            logger.info(f"Skopeo inspect command: {' '.join(cmdArray)}")
+            skopeoResult = runCmd(cmdArray)
+            if skopeoResult.successful():
+                skopeoData = json.loads(skopeoResult.out)
+                logger.info(f"Skopeo Data for {imageWithoutDigest}: {skopeoData}")
+                if "Digest" not in skopeoData:
+                    self.fatalError("Recieved bad data inspecting CLI manifest to determine digest")
+                cliImageDigest = skopeoData["Digest"]
+            else:
+                warning = f"Unable to retrieve image digest for {imageWithoutDigest} ({skopeoResult.rc})"
+                self.printWarning(warning)
+                logger.warning(warning)
+                logger.warning(skopeoResult.err)
+                if self.noConfirm:
+                    self.fatalError("Unable to automatically determine CLI image digest and --no-confirm flag has been set")
                 else:
-                    warning = f"Unable to retrieve image digest for {imageWithoutDigest} ({skopeoResult.rc})"
-                    self.printWarning(warning)
-                    logger.warning(warning)
-                    logger.warning(skopeoResult.err)
                     cliImageDigest = self.promptForString(f"Enter {imageWithoutDigest} image digest")
 
-                # Overwrite the tekton definitions with one that uses the looked up image digest
-                imageWithDigest = f"quay.io/ibmmas/cli@{cliImageDigest}"
-                self.printHighlight(f"\nConverting Tekton definitions to use {imageWithDigest}")
-                with open(self.tektonDefsPath, 'r') as file:
-                    tektonDefsWithoutDigest = file.read()
+            # Overwrite the tekton definitions with one that uses the looked up image digest
+            imageWithDigest = f"quay.io/ibmmas/cli@{cliImageDigest}"
+            self.printHighlight(f"\nConverting Tekton definitions to use {imageWithDigest}")
+            with open(self.tektonDefsPath, 'r') as file:
+                tektonDefsWithoutDigest = file.read()
 
-                tektonDefsWithDigest = tektonDefsWithoutDigest.replace(imageWithoutDigest, imageWithDigest)
+            tektonDefsWithDigest = tektonDefsWithoutDigest.replace(imageWithoutDigest, imageWithDigest)
 
-                with open(self.tektonDefsWithDigestPath, 'w') as file:
-                    file.write(tektonDefsWithDigest)
+            with open(self.tektonDefsWithDigestPath, 'w') as file:
+                file.write(tektonDefsWithDigest)
 
-                self.tektonDefsPath = self.tektonDefsWithDigestPath
+            self.tektonDefsPath = self.tektonDefsWithDigestPath
 
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
         if coreChannel in self.compatibilityMatrix:
