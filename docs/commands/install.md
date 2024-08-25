@@ -3,256 +3,54 @@ Install
 
 Usage
 -------------------------------------------------------------------------------
+For full usage information run `mas install --help`
+
 ```
-usage: mas install [-c MAS_CATALOG_VERSION] [--ibm-entitlement-key IBM_ENTITLEMENT_KEY] [-i MAS_INSTANCE_ID] [-w MAS_WORKSPACE_ID] [-W MAS_WORKSPACE_NAME]
-                   [--mas-channel MAS_CHANNEL] [--eck] [--eck-enable-logstash] [--eck-remote-es-hosts ECK_REMOTE_ES_HOSTS]
-                   [--eck-remote-es-username ECK_REMOTE_ES_USERNAME] [--eck-remote-es-password ECK_REMOTE_ES_PASSWORD]
-                   [--superuser-username MAS_SUPERUSER_USERNAME] [--superuser-password MAS_SUPERUSER_PASSWORD] [--additional-configs ADDITIONAL_CONFIGS]
-                   [--pod-templates POD_TEMPLATES] [--non-prod] [--disable-ca-trust] [--manual-certificates MANUAL_CERTIFICATES]
-                   [--storage-class-rwo STORAGE_CLASS_RWO] [--storage-class-rwx STORAGE_CLASS_RWX] [--storage-pipeline STORAGE_PIPELINE]
-                   [--storage-accessmode {ReadWriteMany,ReadWriteOnce}] [--license-file LICENSE_FILE] [--uds-email UDS_CONTACT_EMAIL]
-                   [--uds-firstname UDS_CONTACT_FIRSTNAME] [--uds-lastname UDS_CONTACT_LASTNAME] [--dro-namespace DRO_NAMESPACE]
-                   [--mongodb-namespace MONGODB_NAMESPACE] [--ocp-ingress-tls-secret-name OCP_INGRESS_TLS_SECRET_NAME] [--assist-channel ASSIST_CHANNEL]
-                   [--iot-channel IOT_CHANNEL] [--monitor-channel MONITOR_CHANNEL] [--manage-channel MANAGE_CHANNEL] [--predict-channel PREDICT_CHANNEL]
-                   [--visualinspection-channel VISUALINSPECTION_CHANNEL] [--optimizer-channel OPTIMIZER_CHANNEL] [--optimizer-plan {full,limited}]
-                   [--install-arcgis] [--arcgis-channel MAS_ARCGIS_CHANNEL] [--manage-server-bundle-size {dev,snojms,small,jms}] [--manage-jms]
-                   [--manage-persistent-volumes] [--manage-jdbc {system,workspace-application}] [--manage-demodata] [--manage-components MAS_APPWS_COMPONENTS]
-                   [--manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME]
-                   [--manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL]
-                   [--manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME]
-                   [--manage-customization-archive-password MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD]
-                   [--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE] [--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE]
-                   [--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA] [--manage-crypto-key MAS_APP_SETTINGS_CRYPTO_KEY]
-                   [--manage-cryptox-key MAS_APP_SETTINGS_CRYPTOX_KEY] [--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY]
-                   [--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY] [--manage-override-encryption-secrets]
-                   [--manage-base-language MAS_APP_SETTINGS_BASE_LANG] [--manage-secondary-languages MAS_APP_SETTINGS_SECONDARY_LANGS]
-                   [--manage-server-timezone MAS_APP_SETTINGS_SERVER_TIMEZONE] [--cp4d-version CPD_PRODUCT_VERSION] [--cp4d-install-spss]
-                   [--cp4d-installopenscale] [--cp4d-install-cognos] [--db2-namespace DB2_NAMESPACE] [--db2-channel DB2_CHANNEL] [--db2-system] [--db2-manage]
-                   [--db2-type DB2_TYPE] [--db2-timezone DB2_TIMEZONE] [--db2-affinity-key DB2_AFFINITY_KEY] [--db2-affinity-value DB2_AFFINITY_VALUE]
-                   [--db2-tolerate-key DB2_TOLERATE_KEY] [--db2-tolerate-value DB2_TOLERATE_VALUE] [--db2-tolerate-effect DB2_TOLERATE_EFFECT]
-                   [--db2-cpu-requests DB2_CPU_REQUESTS] [--db2-cpu-limits DB2_CPU_LIMITS] [--db2-memory-requests DB2_MEMORY_REQUESTS]
-                   [--db2-memory-limits DB2_MEMORY_LIMITS] [--db2-backup-storage DB2_BACKUP_STORAGE_SIZE] [--db2-data-storage DB2_DATA_STORAGE_SIZE]
-                   [--db2-logs-storage DB2_LOGS_STORAGE_SIZE] [--db2-meta-storage DB2_META_STORAGE_SIZE] [--db2-temp-storage DB2_TEMP_STORAGE_SIZE]
-                   [--kafka-provider {strimzi,redhat,ibm,aws}] [--kafka-username KAFKA_USERNAME] [--kafka-password KAFKA_PASSWORD]
-                   [--kafka-namespace KAFKA_NAMESPACE] [--kafka-version KAFKA_VERSION] [--msk-instance-type AWS_MSK_INSTANCE_TYPE]
-                   [--msk-instance-nodes AWS_MSK_INSTANCE_NUMBER] [--msk-instance-volume-size AWS_MSK_VOLUME_SIZE] [--msk-cidr-az1 AWS_MSK_CIDR_AZ1]
-                   [--msk-cidr-az2 AWS_MSK_CIDR_AZ2] [--msk-cidr-az3 AWS_MSK_CIDR_AZ3] [--msk-cidr-egress AWS_MSK_EGRESS_CIDR]
-                   [--msk-cidr-ingress AWS_MSK_INGRESS_CIDR] [--eventstreams-resource-group EVENTSTREAMS_RESOURCE_GROUP]
-                   [--eventstreams-instance-name EVENTSTREAMS_INSTANCE_NAME] [--eventstreams-instance-location EVENTSTREAMS_INSTANCE_LOCATION]
-                   [--turbonomic-name TURBONOMIC_TARGET_NAME] [--turbonomic-url TURBONOMIC_SERVER_URL] [--turbonomic-version TURBONOMIC_SERVER_VERSION]
-                   [--turbonomic-username TURBONOMIC_USERNAME] [--turbonomic-password TURBONOMIC_PASSWORD] [--ibmcloud-apikey IBMCLOUD_APIKEY]
-                   [--aws-region AWS_REGION] [--aws-access-key-id AWS_ACCESS_KEY_ID] [--secret-access-key SECRET_ACCESS_KEY] [--aws-vpc-id AWS_VPC_ID]
-                   [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--approval-core APPROVAL_CORE]
-                   [--approval-assist APPROVAL_ASSIST] [--approval-iot APPROVAL_IOT] [--approval-manage APPROVAL_MANAGE] [--approval-monitor APPROVAL_MONITOR]
-                   [--approval-optimizer APPROVAL_OPTIMIZER] [--approval-predict APPROVAL_PREDICT] [--approval-visualinspection APPROVAL_VISUALINSPECTION]
-                   [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check] [--skip-grafana-install] [--no-confirm] [-h]
-                   [--disable-walkme]
-
-IBM Maximo Application Suite Admin CLI v100.0.0
-Install MAS by configuring and launching the MAS Uninstall Tekton Pipeline.
-
-Interactive Mode:
-Omitting the --instance-id option will trigger an interactive prompt
-
-MAS Catalog Selection & Entitlement:
-  -c MAS_CATALOG_VERSION, --mas-catalog-version MAS_CATALOG_VERSION
-                                                  IBM Maximo Operator Catalog to install
-  --ibm-entitlement-key IBM_ENTITLEMENT_KEY       IBM entitlement key
-
-MAS Basic Configuration:
-  -i MAS_INSTANCE_ID, --mas-instance-id MAS_INSTANCE_ID
-                                                  MAS Instance ID
-  -w MAS_WORKSPACE_ID, --mas-workspace-id MAS_WORKSPACE_ID
-                                                  MAS Workspace ID
-  -W MAS_WORKSPACE_NAME, --mas-workspace-name MAS_WORKSPACE_NAME
-                                                  MAS Workspace Name
-  --mas-channel MAS_CHANNEL                       Subscription channel for the Core Platform
-
-ECK Integration:
-  --eck
-  --eck-enable-logstash
-  --eck-remote-es-hosts ECK_REMOTE_ES_HOSTS
-  --eck-remote-es-username ECK_REMOTE_ES_USERNAME
-  --eck-remote-es-password ECK_REMOTE_ES_PASSWORD
-
-MAS Advanced Configuration:
-  --superuser-username MAS_SUPERUSER_USERNAME
-  --superuser-password MAS_SUPERUSER_PASSWORD
-  --additional-configs ADDITIONAL_CONFIGS         Path to a directory containing additional configuration files to be applied
-  --pod-templates POD_TEMPLATES                   Path to directory containing custom podTemplates configuration files to be applied
-  --non-prod                                      Install MAS in non-production mode
-  --disable-ca-trust                              Disable built-in trust of well-known CAs
-  --manual-certificates MANUAL_CERTIFICATES       Path to directory containing the certificates to be applied
-  --disable-walkme                                Disable MAS guided tour
-
-Storage:
-  --storage-class-rwo STORAGE_CLASS_RWO           ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)
-  --storage-class-rwx STORAGE_CLASS_RWX           ReadWriteMany (RWX) storage class (e.g. ibmc-file-gold-gid)
-  --storage-pipeline STORAGE_PIPELINE             Install pipeline storage class (e.g. ibmc-file-gold-gid)
-  --storage-accessmode {ReadWriteMany,ReadWriteOnce}
-                                                  Install pipeline storage class access mode (ReadWriteMany or ReadWriteOnce)
-
-IBM Suite License Service:
-  --license-file LICENSE_FILE                     Path to MAS license file
-
-IBM Data Reporting Operator (DRO):
-  --uds-email UDS_CONTACT_EMAIL                   Contact e-mail address
-  --uds-firstname UDS_CONTACT_FIRSTNAME           Contact first name
-  --uds-lastname UDS_CONTACT_LASTNAME             Contact last name
-  --dro-namespace DRO_NAMESPACE
-
-MongoDb Community Operator:
-  --mongodb-namespace MONGODB_NAMESPACE
-
-OCP Configuration:
-  --ocp-ingress-tls-secret-name OCP_INGRESS_TLS_SECRET_NAME
-                                                  Name of the secret holding the cluster's ingress certificates
-
-MAS Applications:
-  --assist-channel ASSIST_CHANNEL                 Subscription channel for Maximo Assist
-  --iot-channel IOT_CHANNEL                       Subscription channel for Maximo IoT
-  --monitor-channel MONITOR_CHANNEL               Subscription channel for Maximo Monitor
-  --manage-channel MANAGE_CHANNEL                 Subscription channel for Maximo Manage
-  --predict-channel PREDICT_CHANNEL               Subscription channel for Maximo Predict
-  --visualinspection-channel VISUALINSPECTION_CHANNEL
-                                                  Subscription channel for Maximo Visual Inspection
-  --optimizer-channel OPTIMIZER_CHANNEL           Subscription channel for Maximo optimizer
-  --optimizer-plan {full,limited}                 Install plan for Maximo Optimizer
-
-Maximo Location Services for Esri (arcgis):
-  --install-arcgis                                Enables IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial
-  --arcgis-channel MAS_ARCGIS_CHANNEL
-
-Advanced Settings - Manage:
-  --manage-server-bundle-size {dev,snojms,small,jms}
-                                                  Set Manage server bundle size configuration
-  --manage-jms
-  --manage-persistent-volumes
-  --manage-jdbc {system,workspace-application}
-  --manage-demodata
-  --manage-components MAS_APPWS_COMPONENTS        Set Manage Components to be installed (e.g 'base=latest,health=latest,civil=latest')
-  --manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
-                                                  Manage Archive name
-  --manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
-                                                  Manage Archive url
-  --manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME
-                                                  Manage Archive username (HTTP basic auth)
-  --manage-customization-archive-password MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
-                                                  Manage Archive password (HTTP basic auth)
-  --manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE
-                                                  Database tablespace name that Manage will use to be installed. Default is 'MAXDATA'
-  --manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE
-                                                  Database indexspace name that Manage will use to be installed. Default is 'MAXINDEX'
-  --manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA  Database schema name that Manage will use to be installed. Default is 'maximo'
-  --manage-crypto-key MAS_APP_SETTINGS_CRYPTO_KEY
-                                                  Customize Manage database encryption keys
-  --manage-cryptox-key MAS_APP_SETTINGS_CRYPTOX_KEY
-                                                  Customize Manage database encryption keys
-  --manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY
-                                                  Customize Manage database encryption keys
-  --manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY
-                                                  Customize Manage database encryption keys
-  --manage-override-encryption-secrets            Override any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys
-  --manage-base-language MAS_APP_SETTINGS_BASE_LANG
-                                                  Manage base language to be installed. Default is `EN` (English)
-  --manage-secondary-languages MAS_APP_SETTINGS_SECONDARY_LANGS
-                                                  Comma-separated list of Manage secondary languages to be installed (e.g. 'JA,DE,AR')
-  --manage-server-timezone MAS_APP_SETTINGS_SERVER_TIMEZONE
-                                                  Manage server timezone. Default is `GMT`
-
-IBM Cloud Pak for Data:
-  --cp4d-version CPD_PRODUCT_VERSION              Product version of CP4D to use
-  --cp4d-install-spss                             Add SPSS Modeler as part of Cloud Pak for Data
-  --cp4d-installopenscale                         Add Watson Openscale as part of Cloud Pak for Data
-  --cp4d-install-cognos                           Add Cognos as part of Cloud Pak for Data
-
-IBM Db2 Universal Operator:
-  --db2-namespace DB2_NAMESPACE                   Change namespace where Db2u instances will be created
-  --db2-channel DB2_CHANNEL                       Subscription channel for Db2u
-  --db2-system                                    Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)
-  --db2-manage                                    Install a dedicated Db2u instance for Maximo Manage (supported by Manage)
-  --db2-type DB2_TYPE                             Choose the type of the Manage dedicated Db2u instance. Available options are `db2wh` (default) or `db2oltp`
-  --db2-timezone DB2_TIMEZONE
-  --db2-affinity-key DB2_AFFINITY_KEY             Set a node label to declare affinity to
-  --db2-affinity-value DB2_AFFINITY_VALUE         Set the value of the node label to affine with
-  --db2-tolerate-key DB2_TOLERATE_KEY             Set a node taint to tolerate
-  --db2-tolerate-value DB2_TOLERATE_VALUE         Set the value of the taint to tolerate
-  --db2-tolerate-effect DB2_TOLERATE_EFFECT       Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)
-  --db2-cpu-requests DB2_CPU_REQUESTS             Customize Db2 CPU request
-  --db2-cpu-limits DB2_CPU_LIMITS                 Customize Db2 CPU limit
-  --db2-memory-requests DB2_MEMORY_REQUESTS       Customize Db2 memory request
-  --db2-memory-limits DB2_MEMORY_LIMITS           Customize Db2 memory limit
-  --db2-backup-storage DB2_BACKUP_STORAGE_SIZE    Customize Db2 storage capacity
-  --db2-data-storage DB2_DATA_STORAGE_SIZE        Customize Db2 storage capacity
-  --db2-logs-storage DB2_LOGS_STORAGE_SIZE        Customize Db2 storage capacity
-  --db2-meta-storage DB2_META_STORAGE_SIZE        Customize Db2 storage capacity
-  --db2-temp-storage DB2_TEMP_STORAGE_SIZE        Customize Db2 storage capacity
-
-Kafka - Common:
-  --kafka-provider {strimzi,redhat,ibm,aws}       Set Kafka provider.  Supported options are `redhat` (Red Hat AMQ Streams), `strimzi` and `ibm` (IBM Event Streams) and `aws` (AWS MSK)
-  --kafka-username KAFKA_USERNAME                 Set Kafka instance username. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
-  --kafka-password KAFKA_PASSWORD                 Set Kafka instance password. Only applicable if installing `redhat` (Red Hat AMQ Streams), `strimzi` or `aws` (AWS MSK)
-  --kafka-namespace KAFKA_NAMESPACE               Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`
-
-Kafka - Strimzi and AMQ Streams:
-  --kafka-version KAFKA_VERSION                   Set version of the Kafka cluster that the Strimzi or AMQ Streams operator will create
-
-Kafka - AWS MSK:
-  --msk-instance-type AWS_MSK_INSTANCE_TYPE       Set the MSK instance type
-  --msk-instance-nodes AWS_MSK_INSTANCE_NUMBER    Set total number of MSK instance nodes
-  --msk-instance-volume-size AWS_MSK_VOLUME_SIZE  Set storage/volume size for the MSK instance
-  --msk-cidr-az1 AWS_MSK_CIDR_AZ1                 Set the CIDR subnet for availability zone 1 for the MSK instance
-  --msk-cidr-az2 AWS_MSK_CIDR_AZ2                 Set the CIDR subnet for availability zone 2 for the MSK instance
-  --msk-cidr-az3 AWS_MSK_CIDR_AZ3                 Set the CIDR subnet for availability zone 3 for the MSK instance
-  --msk-cidr-egress AWS_MSK_EGRESS_CIDR           Set the CIDR for egress connectivity
-  --msk-cidr-ingress AWS_MSK_INGRESS_CIDR         Set the CIDR for ingress connectivity
-
-Kafka - Event Streams:
-  --eventstreams-resource-group EVENTSTREAMS_RESOURCE_GROUP
-                                                  Set IBM Cloud resource group to target the Event Streams instance provisioning
-  --eventstreams-instance-name EVENTSTREAMS_INSTANCE_NAME
-                                                  Set IBM Event Streams instance name
-  --eventstreams-instance-location EVENTSTREAMS_INSTANCE_LOCATION
-                                                  Set IBM Event Streams instance location
-
-Turbonomic Integration:
-  --turbonomic-name TURBONOMIC_TARGET_NAME
-  --turbonomic-url TURBONOMIC_SERVER_URL
-  --turbonomic-version TURBONOMIC_SERVER_VERSION
-  --turbonomic-username TURBONOMIC_USERNAME
-  --turbonomic-password TURBONOMIC_PASSWORD
-
-Cloud Providers:
-  --ibmcloud-apikey IBMCLOUD_APIKEY               Set IBM Cloud API Key
-  --aws-region AWS_REGION                         Set target AWS region for the MSK instance
-  --aws-access-key-id AWS_ACCESS_KEY_ID           Set AWS access key ID for the target AWS account
-  --secret-access-key SECRET_ACCESS_KEY           Set AWS secret access key for the target AWS account
-  --aws-vpc-id AWS_VPC_ID                         Set target Virtual Private Cloud ID for the MSK instance
-
-Development Mode:
-  --artifactory-username ARTIFACTORY_USERNAME     Username for access to development builds on Artifactory
-  --artifactory-token ARTIFACTORY_TOKEN           API Token for access to development builds on Artifactory
-
-Integrated Approval Workflow (APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE):
-  --approval-core APPROVAL_CORE                   Require approval after the Core Platform has been configured
-  --approval-assist APPROVAL_ASSIST               Require approval after the Maximo Assist workspace has been configured
-  --approval-iot APPROVAL_IOT                     Require approval after the Maximo IoT workspace has been configured
-  --approval-manage APPROVAL_MANAGE               Require approval after the Maximo Manage workspace has been configured
-  --approval-monitor APPROVAL_MONITOR             Require approval after the Maximo Monitor workspace has been configured
-  --approval-optimizer APPROVAL_OPTIMIZER         Require approval after the Maximo Optimizer workspace has been configured
-  --approval-predict APPROVAL_PREDICT             Require approval after the Maximo Predict workspace has been configured
-  --approval-visualinspection APPROVAL_VISUALINSPECTION
-                                                  Require approval after the Maximo Visual Inspection workspace has been configured
-
-More:
-  --accept-license                                Accept all license terms without prompting
-  --dev-mode                                      Configure installation for development mode
-  --no-wait-for-pvc                               Disable the wait for pipeline PVC to bind before starting the pipeline
-  --skip-pre-check                                Disable the 'pre-install-check' at the start of the install pipeline
-  --skip-grafana-install                          Skips Grafana install action
-  --no-confirm                                    Launch the upgrade without prompting for confirmation
-  -h, --help                                      Show this help message and exit
+mas install [-c MAS_CATALOG_VERSION] [--mas-catalog-digest MAS_CATALOG_DIGEST] [--ibm-entitlement-key IBM_ENTITLEMENT_KEY] [-i MAS_INSTANCE_ID]
+            [-w MAS_WORKSPACE_ID] [-W MAS_WORKSPACE_NAME] [--mas-channel MAS_CHANNEL] [--eck] [--eck-enable-logstash]
+            [--eck-remote-es-hosts ECK_REMOTE_ES_HOSTS] [--eck-remote-es-username ECK_REMOTE_ES_USERNAME]
+            [--eck-remote-es-password ECK_REMOTE_ES_PASSWORD] [--superuser-username MAS_SUPERUSER_USERNAME] [--superuser-password MAS_SUPERUSER_PASSWORD]
+            [--additional-configs ADDITIONAL_CONFIGS] [--pod-templates POD_TEMPLATES] [--non-prod] [--disable-ca-trust]
+            [--manual-certificates MANUAL_CERTIFICATES] [--disable-walkme] [--storage-class-rwo STORAGE_CLASS_RWO]
+            [--storage-class-rwx STORAGE_CLASS_RWX] [--storage-pipeline STORAGE_PIPELINE] [--storage-accessmode {ReadWriteMany,ReadWriteOnce}]
+            [--license-file LICENSE_FILE] [--uds-email UDS_CONTACT_EMAIL] [--uds-firstname UDS_CONTACT_FIRSTNAME] [--uds-lastname UDS_CONTACT_LASTNAME]
+            [--dro-namespace DRO_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--ocp-ingress-tls-secret-name OCP_INGRESS_TLS_SECRET_NAME]
+            [--assist-channel ASSIST_CHANNEL] [--iot-channel IOT_CHANNEL] [--monitor-channel MONITOR_CHANNEL] [--manage-channel MANAGE_CHANNEL]
+            [--predict-channel PREDICT_CHANNEL] [--visualinspection-channel VISUALINSPECTION_CHANNEL] [--optimizer-channel OPTIMIZER_CHANNEL]
+            [--optimizer-plan {full,limited}] [--install-arcgis] [--arcgis-channel MAS_ARCGIS_CHANNEL]
+            [--manage-server-bundle-size {dev,snojms,small,jms}] [--manage-jms] [--manage-persistent-volumes]
+            [--manage-jdbc {system,workspace-application}] [--manage-demodata] [--manage-components MAS_APPWS_COMPONENTS]
+            [--manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME]
+            [--manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL]
+            [--manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME]
+            [--manage-customization-archive-password MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD]
+            [--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE] [--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE]
+            [--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA] [--manage-crypto-key MAS_APP_SETTINGS_CRYPTO_KEY]
+            [--manage-cryptox-key MAS_APP_SETTINGS_CRYPTOX_KEY] [--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY]
+            [--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY] [--manage-override-encryption-secrets]
+            [--manage-base-language MAS_APP_SETTINGS_BASE_LANG] [--manage-secondary-languages MAS_APP_SETTINGS_SECONDARY_LANGS]
+            [--manage-server-timezone MAS_APP_SETTINGS_SERVER_TIMEZONE] [--cp4d-version CPD_PRODUCT_VERSION] [--cp4d-install-spss]
+            [--cp4d-installopenscale] [--cp4d-install-cognos] [--db2-namespace DB2_NAMESPACE] [--db2-channel DB2_CHANNEL] [--db2-system] [--db2-manage]
+            [--db2-type DB2_TYPE] [--db2-timezone DB2_TIMEZONE] [--db2-affinity-key DB2_AFFINITY_KEY] [--db2-affinity-value DB2_AFFINITY_VALUE]
+            [--db2-tolerate-key DB2_TOLERATE_KEY] [--db2-tolerate-value DB2_TOLERATE_VALUE] [--db2-tolerate-effect DB2_TOLERATE_EFFECT]
+            [--db2-cpu-requests DB2_CPU_REQUESTS] [--db2-cpu-limits DB2_CPU_LIMITS] [--db2-memory-requests DB2_MEMORY_REQUESTS]
+            [--db2-memory-limits DB2_MEMORY_LIMITS] [--db2-backup-storage DB2_BACKUP_STORAGE_SIZE] [--db2-data-storage DB2_DATA_STORAGE_SIZE]
+            [--db2-logs-storage DB2_LOGS_STORAGE_SIZE] [--db2-meta-storage DB2_META_STORAGE_SIZE] [--db2-temp-storage DB2_TEMP_STORAGE_SIZE]
+            [--kafka-provider {strimzi,redhat,ibm,aws}] [--kafka-username KAFKA_USERNAME] [--kafka-password KAFKA_PASSWORD]
+            [--kafka-namespace KAFKA_NAMESPACE] [--kafka-version KAFKA_VERSION] [--msk-instance-type AWS_MSK_INSTANCE_TYPE]
+            [--msk-instance-nodes AWS_MSK_INSTANCE_NUMBER] [--msk-instance-volume-size AWS_MSK_VOLUME_SIZE] [--msk-cidr-az1 AWS_MSK_CIDR_AZ1]
+            [--msk-cidr-az2 AWS_MSK_CIDR_AZ2] [--msk-cidr-az3 AWS_MSK_CIDR_AZ3] [--msk-cidr-egress AWS_MSK_EGRESS_CIDR]
+            [--msk-cidr-ingress AWS_MSK_INGRESS_CIDR] [--eventstreams-resource-group EVENTSTREAMS_RESOURCE_GROUP]
+            [--eventstreams-instance-name EVENTSTREAMS_INSTANCE_NAME] [--eventstreams-instance-location EVENTSTREAMS_INSTANCE_LOCATION]
+            [--turbonomic-name TURBONOMIC_TARGET_NAME] [--turbonomic-url TURBONOMIC_SERVER_URL] [--turbonomic-version TURBONOMIC_SERVER_VERSION]
+            [--turbonomic-username TURBONOMIC_USERNAME] [--turbonomic-password TURBONOMIC_PASSWORD] [--ibmcloud-apikey IBMCLOUD_APIKEY]
+            [--aws-region AWS_REGION] [--aws-access-key-id AWS_ACCESS_KEY_ID] [--secret-access-key SECRET_ACCESS_KEY] [--aws-vpc-id AWS_VPC_ID]
+            [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--approval-core APPROVAL_CORE]
+            [--approval-assist APPROVAL_ASSIST] [--approval-iot APPROVAL_IOT] [--approval-manage APPROVAL_MANAGE] [--approval-monitor APPROVAL_MONITOR]
+            [--approval-optimizer APPROVAL_OPTIMIZER] [--approval-predict APPROVAL_PREDICT] [--approval-visualinspection APPROVAL_VISUALINSPECTION]
+            [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check] [--skip-grafana-install] [--no-confirm] [-h]
 ```
+
 
 Non-Interactive Install
 -------------------------------------------------------------------------------

@@ -644,6 +644,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         ]
         optionalParams = [
             # MAS
+            "mas_catalog_digest",
             "mas_superuser_username",
             "mas_superuser_password",
             "mas_trust_default_cas",
