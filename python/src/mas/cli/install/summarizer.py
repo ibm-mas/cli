@@ -335,6 +335,7 @@ class InstallSummarizerMixin():
         self.optimizerSummary()
         self.assistSummary()
         self.inspectionSummary()
+        self.aibrokerSummary()
 
         # Application Dependencies
         self.mongoSummary()
