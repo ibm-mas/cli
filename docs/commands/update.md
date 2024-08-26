@@ -25,6 +25,7 @@ Update Dependencies:
   --mongodb-namespace MONGODB_NAMESPACE           Namespace where MongoCE operator and instances will be updated
   --mongodb-v5-upgrade                            Required to confirm a major version update for MongoDb to version 5
   --mongodb-v6-upgrade                            Required to confirm a major version update for MongoDb to version 6
+  --mongodb-v7-upgrade                            Required to confirm a major version update for MongoDb to version 7
   --kafka-namespace KAFKA_NAMESPACE               Namespace where Kafka operator and instances will be updated
   --kafka-provider {redhat,strimzi}               The type of Kakfa operator installed in the target namespace for updte
 

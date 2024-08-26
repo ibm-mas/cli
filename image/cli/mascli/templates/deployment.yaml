@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     app: mas-cli
@@ -16,6 +16,22 @@ spec:
       labels:
         app: mas-cli
     spec:
+      volumeClaimTemplates:
+      - apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          creationTimestamp: null
+          name: datadir
+        spec:
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 100GB
+          storageClassName: ibmc-block-bronze-kafka-xfs
+          volumeMode: Filesystem
+        status: {}
+      replicas: 1
       containers:
         - name: mas-cli
           imagePullPolicy: IfNotPresent
