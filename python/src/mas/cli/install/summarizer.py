@@ -151,6 +151,12 @@ class InstallSummarizerMixin():
             self.printSummary(" + Storage Class", self.params["storage_class_rwx"])
         else:
             self.printSummary("Visual Inspection", "Do Not Install")
+    
+    def aibrokerSummary(self) -> None:
+        if self.installAiroker:
+            self.printSummary("AI Broker", self.params["mas_app_channel_aibroker"])
+        else:
+            self.printSummary("AI Broker", "Do Not Install")
 
     def manageSummary(self) -> None:
         if self.installManage:
