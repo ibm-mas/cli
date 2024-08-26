@@ -639,6 +639,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installPredict = False
         self.installInspection = False
         self.installOptimizer = False
+        self.installAiroker = False
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
@@ -840,6 +841,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None:
                     self.setParam("mas_app_channel_visualinspection", value)
                     self.installInspection = True
+            elif key == "aibroker_channel":
+                if value is not None:
+                    self.setParam("mas_app_channel_aibroker", value)
+                    self.installAiroker = True
             elif key == "optimizer_channel":
                 if value is not None:
                     self.setParam("mas_app_channel_optimizer", value)
@@ -945,7 +950,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "monitor": "9.0.1",
                 "optimizer": "9.0.1",
                 "predict": "9.0.0",
-                "inspection": "9.0.0"
+                "inspection": "9.0.0",
+                "aibroker": "9.0.1"
             },
             {
                 "#": 2,

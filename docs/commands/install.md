@@ -118,6 +118,7 @@ MAS Applications:
                                                   Subscription channel for Maximo Visual Inspection
   --optimizer-channel OPTIMIZER_CHANNEL           Subscription channel for Maximo optimizer
   --optimizer-plan {full,limited}                 Install plan for Maximo Optimizer
+  --aibroker-channel AIBROKER_CHANNEL             Subscription channel for AI Broker
 
 Maximo Location Services for Esri (arcgis):
   --install-arcgis                                Enables IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial
