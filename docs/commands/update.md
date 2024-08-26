@@ -6,7 +6,7 @@ Usage
 Usage information can be obtained using `mas update --help`
 
 ```
-usage: mas update [-c MAS_CATALOG_VERSION] [--db2-namespace DB2_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade] [--mongodb-v6-upgrade]
+usage: mas update [-c MAS_CATALOG_VERSION] [--db2-namespace DB2_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade] [--mongodb-v6-upgrade] [--mongodb-v7-upgrade]
                   [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {redhat,strimzi}] [--dro-migration DRO_MIGRATION]
                   [--dro-storage-class DRO_STORAGE_CLASS] [--dro-namespace DRO_NAMESPACE] [--no-confirm] [--skip-pre-check] [-h]
 
