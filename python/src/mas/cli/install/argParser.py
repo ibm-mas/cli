@@ -469,7 +469,7 @@ cpdAppsArgGroup.add_argument(
     const="install"
 )
 cpdAppsArgGroup.add_argument(
-    "--cp4d-installopenscale",
+    "--cp4d-install-openscale",
     dest="cpd_install_openscale",
     required=False,
     help="Add Watson Openscale as part of Cloud Pak for Data",

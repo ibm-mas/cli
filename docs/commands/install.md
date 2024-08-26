@@ -30,7 +30,7 @@ mas install [-c MAS_CATALOG_VERSION] [--mas-catalog-digest MAS_CATALOG_DIGEST] [
             [--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY] [--manage-override-encryption-secrets]
             [--manage-base-language MAS_APP_SETTINGS_BASE_LANG] [--manage-secondary-languages MAS_APP_SETTINGS_SECONDARY_LANGS]
             [--manage-server-timezone MAS_APP_SETTINGS_SERVER_TIMEZONE] [--cp4d-version CPD_PRODUCT_VERSION] [--cp4d-install-spss]
-            [--cp4d-installopenscale] [--cp4d-install-cognos] [--db2-namespace DB2_NAMESPACE] [--db2-channel DB2_CHANNEL] [--db2-system] [--db2-manage]
+            [--cp4d-install-openscale] [--cp4d-install-cognos] [--db2-namespace DB2_NAMESPACE] [--db2-channel DB2_CHANNEL] [--db2-system] [--db2-manage]
             [--db2-type DB2_TYPE] [--db2-timezone DB2_TIMEZONE] [--db2-affinity-key DB2_AFFINITY_KEY] [--db2-affinity-value DB2_AFFINITY_VALUE]
             [--db2-tolerate-key DB2_TOLERATE_KEY] [--db2-tolerate-value DB2_TOLERATE_VALUE] [--db2-tolerate-effect DB2_TOLERATE_EFFECT]
             [--db2-cpu-requests DB2_CPU_REQUESTS] [--db2-cpu-limits DB2_CPU_LIMITS] [--db2-memory-requests DB2_MEMORY_REQUESTS]
