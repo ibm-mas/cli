@@ -186,13 +186,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configCP4D(self):
         if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64"]:
+            logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
             self.setParam("cpd_product_version", "4.8.0")
-        else:
+        elif self.getParam("cpd_product_version") == "":
+            if self.noConfirm:
+                self.fatalError("Cloud Pak for Data version must be set manually, but --no-confirm flag has been set")
             self.printDescription([
                 f"Unknown catalog {self.getParam('mas_catalog_version')}, please manually select the version of Cloud Pak for Data to use"
             ])
             self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="4.8.0")
-
+            logger.debug(f"Using user-provided (prompt) CP4D product version: {self.getParam('cpd_product_version')}")
+        else:
+            logger.debug(f"Using user-provided (flags) CP4D product version: {self.getParam('cpd_product_version')}")
         self.deployCP4D = True
 
     def configSSOProperties(self):
