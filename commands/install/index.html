@@ -245,14 +245,15 @@
             [--msk-instance-nodes AWS_MSK_INSTANCE_NUMBER] [--msk-instance-volume-size AWS_MSK_VOLUME_SIZE] [--msk-cidr-az1 AWS_MSK_CIDR_AZ1]
             [--msk-cidr-az2 AWS_MSK_CIDR_AZ2] [--msk-cidr-az3 AWS_MSK_CIDR_AZ3] [--msk-cidr-egress AWS_MSK_EGRESS_CIDR]
             [--msk-cidr-ingress AWS_MSK_INGRESS_CIDR] [--eventstreams-resource-group EVENTSTREAMS_RESOURCE_GROUP]
-            [--eventstreams-instance-name EVENTSTREAMS_INSTANCE_NAME] [--eventstreams-instance-location EVENTSTREAMS_INSTANCE_LOCATION]
-            [--turbonomic-name TURBONOMIC_TARGET_NAME] [--turbonomic-url TURBONOMIC_SERVER_URL] [--turbonomic-version TURBONOMIC_SERVER_VERSION]
-            [--turbonomic-username TURBONOMIC_USERNAME] [--turbonomic-password TURBONOMIC_PASSWORD] [--ibmcloud-apikey IBMCLOUD_APIKEY]
-            [--aws-region AWS_REGION] [--aws-access-key-id AWS_ACCESS_KEY_ID] [--secret-access-key SECRET_ACCESS_KEY] [--aws-vpc-id AWS_VPC_ID]
-            [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--approval-core APPROVAL_CORE]
-            [--approval-assist APPROVAL_ASSIST] [--approval-iot APPROVAL_IOT] [--approval-manage APPROVAL_MANAGE] [--approval-monitor APPROVAL_MONITOR]
-            [--approval-optimizer APPROVAL_OPTIMIZER] [--approval-predict APPROVAL_PREDICT] [--approval-visualinspection APPROVAL_VISUALINSPECTION]
-            [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check] [--skip-grafana-install] [--no-confirm] [-h]
+            [--eventstreams-instance-name EVENTSTREAMS_INSTANCE_NAME] [--eventstreams-instance-location EVENTSTREAMS_INSTANCE_LOCATION] [--cos {ibm,ocs}]
+            [--cos-resourcegroup COS_RESOURCEGROUP] [--turbonomic-name TURBONOMIC_TARGET_NAME] [--turbonomic-url TURBONOMIC_SERVER_URL]
+            [--turbonomic-version TURBONOMIC_SERVER_VERSION] [--turbonomic-username TURBONOMIC_USERNAME] [--turbonomic-password TURBONOMIC_PASSWORD]
+            [--ibmcloud-apikey IBMCLOUD_APIKEY] [--aws-region AWS_REGION] [--aws-access-key-id AWS_ACCESS_KEY_ID] [--secret-access-key SECRET_ACCESS_KEY]
+            [--aws-vpc-id AWS_VPC_ID] [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN]
+            [--approval-core APPROVAL_CORE] [--approval-assist APPROVAL_ASSIST] [--approval-iot APPROVAL_IOT] [--approval-manage APPROVAL_MANAGE]
+            [--approval-monitor APPROVAL_MONITOR] [--approval-optimizer APPROVAL_OPTIMIZER] [--approval-predict APPROVAL_PREDICT]
+            [--approval-visualinspection APPROVAL_VISUALINSPECTION] [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check]
+            [--skip-grafana-install] [--no-confirm] [-h]
 </code></pre>
 <h2 id="non-interactive-install">Non-Interactive Install<a class="headerlink" href="#non-interactive-install" title="Permanent link"></a></h2>
 <pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
