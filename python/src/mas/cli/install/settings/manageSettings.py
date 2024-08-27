@@ -224,11 +224,9 @@ class ManageSettingsMixin():
         if self.installAiroker:
             self.printH2("Maximo AI Broker Settings - Storage, WatsonX, MariaDB details")
             self.printDescription(["Customise AI Broker details"])
-            # if self.yesOrNo("Include IBM Maximo AI Broker"):
-            # self.setParam("install_aibroker", "true")
             self.promptForString("Storage provider", "mas_aibroker_storage_provider")
-            self.promptForSecret("Storage access key", "mas_aibroker_storage_accesskey")
-            self.promptForSecret("Storage secret key", "mas_aibroker_storage_secretkey")
+            self.promptForString("Storage access key", "mas_aibroker_storage_accesskey")
+            self.promptForString("Storage secret key", "mas_aibroker_storage_secretkey")
             self.promptForString("Storage host", "mas_aibroker_storage_host")
             self.promptForString("Storage port", "mas_aibroker_storage_port")
             self.promptForString("Storage ssl", "mas_aibroker_storage_ssl")
@@ -236,7 +234,7 @@ class ManageSettingsMixin():
             self.promptForString("Storage pipelines bucket", "mas_aibroker_storage_pipelines_bucket")
             self.promptForString("Storage tenants bucket", "mas_aibroker_storage_tenants_bucket")
             self.promptForString("Storage templates bucket", "mas_aibroker_storage_templates_bucket")
-            self.promptForSecret("Watsonxai api key", "mas_aibroker_watsonxai_apikey")
+            self.promptForString("Watsonxai api key", "mas_aibroker_watsonxai_apikey")
             self.promptForString("Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
             self.promptForString("Watsonxai project id", "mas_aibroker_watsonxai_project_id")
             self.promptForString("Database host", "mas_aibroker_db_host")
@@ -244,4 +242,4 @@ class ManageSettingsMixin():
             self.promptForString("Database user", "mas_aibroker_db_user")
             self.promptForString("Database name", "mas_aibroker_db_database")
             self.promptForString("Database Secretname", "mas_aibroker_db_secret_name")
-            self.promptForSecret("Database password", "mas_aibroker_db_secret_value")
+            self.promptForString("Database password", "mas_aibroker_db_secret_value")
