@@ -221,7 +221,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.yesOrNo("Disable LDAP cookie", "disable_ldap_cookie")
             self.yesOrNo("Allow custom cache key", "allow_custom_cache_key")
 
-    def aiBrokerSettings(self) -> None:
+    def aibrokerSettings(self) -> None:
             # self.setParam("mas_app_channel", self.getParam("mas_app_channel_manage"))
             self.printH2("Maximo AI Broker Settings - Storage, WatsonX, MariaDB details")
             self.printDescription(["Customise AI Broker details"])
@@ -614,6 +614,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.optimizerSettings()
         self.predictSettings()
         self.assistSettings()
+        self.aibrokerSettings()
 
         # Dependencies
         self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
