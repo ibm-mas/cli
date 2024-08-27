@@ -25,6 +25,7 @@ from halo import Halo
 
 from ..cli import BaseApp
 from ..gencfg import ConfigGeneratorMixin
+from .argBuilder import installArgBuilderMixin
 from .argParser import installArgParser
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
@@ -51,7 +52,7 @@ from mas.devops.tekton import (
 logger = logging.getLogger(__name__)
 
 
-class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin):
+class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
     def validateCatalogSource(self):
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         try:
@@ -1026,6 +1027,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.manualCertificates()
 
         # Show a summary of the installation configuration
+        self.printH1("Non-Interactive Install Command")
+        self.printDescription([
+            "Save and re-use the following script to re-run this install without needing to answer the interactive prompts again",
+            "",
+            self.buildCommand()
+        ])
+
         self.displayInstallSummary()
 
         if not self.noConfirm:
