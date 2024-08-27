@@ -30,7 +30,7 @@ spec:
     # - name: mas_aibroker_channel
     #   type: string
     #   description: Catalog channel for the application operator subscription
-    - name: mas_app_channel_aibroker
+    - name: mas_app_channel
       type: string
       description: Catalog channel for the application operator subscription
 
@@ -141,8 +141,8 @@ spec:
       # Application - Operator
       # - name: MAS_AIBROKER_CHANNEL
       #   value: $(params.mas_aibroker_channel)
-      - name: MAS_APP_CHANNEL_AIBROKER
-        value: $(params.mas_app_channel_aibroker)
+      - name: MAS_APP_CHANNEL
+        value: $(params.mas_app_channel)
 
       # Custom Label Support
       - name: CUSTOM_LABELS
