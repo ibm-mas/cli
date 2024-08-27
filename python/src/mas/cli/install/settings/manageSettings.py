@@ -52,13 +52,21 @@ class ManageSettingsMixin():
             self.manageSettingsCustomizationArchive()
             self.manageSettingsOther()
 
-            self.setParam("mas_app_settings_doclinks_pvc_storage_class", self.getParam("storage_class_rwx"))
-            self.setParam("mas_app_settings_bim_pvc_storage_class", self.getParam("storage_class_rwx"))
-            self.setParam("mas_app_settings_jms_queue_pvc_storage_class", self.getParam("storage_class_rwx"))
+            # Default to RWX storage classes, but fall back to RWO in SNO or when user 
+            # has chosen not to provide a RWX storage class
+            storageClass = self.getParam("storage_class_rwx")
+            accessMode = "ReadWriteMany"
+            if self.isSNO() or self.getParam("storage_class_rwx") == "none":
+                storageClass = self.getParam("storage_class_rwo")
+                accessMode = "ReadWriteOnce"
 
-            self.setParam("mas_app_settings_doclinks_pvc_accessmode", "ReadWriteMany")
-            self.setParam("mas_app_settings_bim_pvc_accessmode", "ReadWriteMany")
-            self.setParam("mas_app_settings_jms_queue_pvc_accessmode", "ReadWriteMany")
+            self.setParam("mas_app_settings_doclinks_pvc_storage_class", storageClass)
+            self.setParam("mas_app_settings_bim_pvc_storage_class", storageClass)
+            self.setParam("mas_app_settings_jms_queue_pvc_storage_class", storageClass)
+    
+            self.setParam("mas_app_settings_doclinks_pvc_accessmode", accessMode)
+            self.setParam("mas_app_settings_bim_pvc_accessmode", accessMode)
+            self.setParam("mas_app_settings_jms_queue_pvc_accessmode", accessMode)
 
     def manageSettingsComponents(self) -> None:
         self.printH2("Maximo Manage Components")
