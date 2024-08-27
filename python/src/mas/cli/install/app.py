@@ -481,11 +481,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # 3. Azure
         elif getStorageClass(self.dynamicClient, "managed-premium") is not None:
             print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: Azure Managed</MediumSeaGreen>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): azurefiles-premium</LightSlateGrey>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): managed-premium</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): managed-premium</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): azurefiles-premium</LightSlateGrey>"))
             self.storageClassProvider = "azure"
-            self.params["storage_class_rwo"] = "azurefiles-premium"
-            self.params["storage_class_rwx"] = "managed-premium"
+            self.params["storage_class_rwo"] = "managed-premium"
+            self.params["storage_class_rwx"] = "azurefiles-premium"
         # 4. AWS
         elif getStorageClass(self.dynamicClient, "gp2") is not None:
             print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: AWS gp2</MediumSeaGreen>"))
