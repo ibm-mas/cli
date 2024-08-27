@@ -600,7 +600,6 @@ db2ArgGroup.add_argument(
     help="Customize Db2 storage capacity"
 )
 
-
 # Kafka - Common
 # -----------------------------------------------------------------------------
 kafkaCommonArgGroup = installArgParser.add_argument_group("Kafka - Common")
@@ -704,6 +703,22 @@ eventstreamsArgGroup.add_argument(
     "--eventstreams-instance-location",
     required=False,
     help="Set IBM Event Streams instance location"
+)
+
+# COS
+# -----------------------------------------------------------------------------
+cosArgGroup = installArgParser.add_argument_group("Cloud Object Storage")
+cosArgGroup.add_argument(
+    "--cos",
+    dest="cos_type",
+    required=False,
+    help="Set cloud object storage provider.  Supported options are `ibm` and `ocs`",
+    choices=["ibm", "ocs"]
+)
+cosArgGroup.add_argument(
+    "--cos-resourcegroup",
+    required=False,
+    help="When using IBM COS, set the resource group where the instance will run"
 )
 
 # Turbonomic Integration
