@@ -717,6 +717,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "eventstreams_resource_group",
             "eventstreams_instance_name",
             "eventstreams_instance_location",
+            # COS
+            "cos_type",
+            "cos_resourcegroup",
             # ECK
             "eck_action",
             "eck_enable_logstash",

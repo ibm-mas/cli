@@ -299,6 +299,14 @@ class installArgBuilderMixin():
                     command += f" --eventstreams-instance-name \"{self.getParam('eventstreams_instance_name')}\""
                     command += f" --eventstreams-instance-location \"{self.getParam('eventstreams_instance_location')}\"{newline}"
 
+            # COS
+            # -----------------------------------------------------------------------------
+            if self.getParam('cos_type') != "":
+                command += f"  --cos \"{self.getParam('cos_type')}\""
+                if self.getParam('cos_resourcegroup') != "":
+                    command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
+                command += newline
+
             # Turbonomic Integration
             # -----------------------------------------------------------------------------
             if self.getParam('turbonomic_target_name') != "":
