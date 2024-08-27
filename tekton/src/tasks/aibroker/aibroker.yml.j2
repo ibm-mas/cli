@@ -27,7 +27,10 @@ spec:
       description: Instance ID
 
     # Application - Operator
-    - name: mas_aibroker_channel
+    # - name: mas_aibroker_channel
+    #   type: string
+    #   description: Catalog channel for the application operator subscription
+    - name: mas_app_channel_aibroker
       type: string
       description: Catalog channel for the application operator subscription
 
@@ -136,8 +139,10 @@ spec:
         value: $(params.mas_instance_id)
 
       # Application - Operator
-      - name: MAS_AIBROKER_CHANNEL
-        value: $(params.mas_aibroker_channel)
+      # - name: MAS_AIBROKER_CHANNEL
+      #   value: $(params.mas_aibroker_channel)
+      - name: MAS_APP_CHANNEL_AIBROKER
+        value: $(params.mas_app_channel_aibroker)
 
       # Custom Label Support
       - name: CUSTOM_LABELS
