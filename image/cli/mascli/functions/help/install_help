@@ -128,6 +128,7 @@ Manage Application - Advanced Configuration (Optional):
       --install-arcgis                                                                                                    Optional. Enables IBM Maximo Location Services for Esri installation. Only applicable if installing Manage with Spatial.
 
 Other Commands:
+      --allow-special-chars   Allow special characters for users username and ID
       --dev-mode              Enable developer mode (e.g. for access to pre-release builds)
       --no-wait-for-pvcs      If you are using using storage classes that utilize 'WaitForFirstConsumer' binding mode use this flag
       --no-confirm            Launch the install without prompting for confirmation

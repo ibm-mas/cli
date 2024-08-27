@@ -743,7 +743,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "install_arcgis",
             "mas_arcgis_channel",
             # Guided Tour
-            "mas_enable_walkme"
+            "mas_enable_walkme",
+            # Special chars
+            "mas_special_characters"
         ]
 
         for key, value in vars(self.args).items():

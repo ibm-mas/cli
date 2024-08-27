@@ -45,7 +45,7 @@ usage: mas install [-c MAS_CATALOG_VERSION] [--ibm-entitlement-key IBM_ENTITLEME
                    [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--approval-core APPROVAL_CORE]
                    [--approval-assist APPROVAL_ASSIST] [--approval-iot APPROVAL_IOT] [--approval-manage APPROVAL_MANAGE] [--approval-monitor APPROVAL_MONITOR]
                    [--approval-optimizer APPROVAL_OPTIMIZER] [--approval-predict APPROVAL_PREDICT] [--approval-visualinspection APPROVAL_VISUALINSPECTION]
-                   [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check] [--skip-grafana-install] [--no-confirm] [-h]
+                   [--accept-license] [--allow-special-chars MAS_SPECIAL_CHARACTERS ] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check] [--skip-grafana-install] [--no-confirm] [-h]
                    [--disable-walkme]
 
 IBM Maximo Application Suite Admin CLI v100.0.0
@@ -245,6 +245,7 @@ Integrated Approval Workflow (APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILUR
                                                   Require approval after the Maximo Visual Inspection workspace has been configured
 
 More:
+  --allow-special-chars                           Allow special characters for users username and ID 
   --accept-license                                Accept all license terms without prompting
   --dev-mode                                      Configure installation for development mode
   --no-wait-for-pvc                               Disable the wait for pipeline PVC to bind before starting the pipeline

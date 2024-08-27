@@ -70,7 +70,15 @@ masArgGroup.add_argument(
     required=False,
     help="Subscription channel for the Core Platform"
 )
-
+# MAS Special characters 
+# -----------------------------------------------------------------------------
+masSpecialCharacters = installArgParser.add_argument_group("Mas Special Characters")
+masSpecialCharacters.add_argument(
+    "--allow-special-chars",
+    dest="mas_special_characters",
+    required=False,
+    help="Allow special chars for users username/ID",
+)
 # ECK Integration
 # -----------------------------------------------------------------------------
 eckArgGroup = installArgParser.add_argument_group("ECK Integration")
