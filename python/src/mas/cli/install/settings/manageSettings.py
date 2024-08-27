@@ -220,7 +220,7 @@ class ManageSettingsMixin():
             self.manageSettingsLanguages()
             self.manageSettingsCP4D()
 
-    def aiBrokerSettings(self) -> None:
+    def aibrokerSettings(self) -> None:
         if self.installAiroker:
             self.printH2("Maximo AI Broker Settings - Storage, WatsonX, MariaDB details")
             self.printDescription(["Customise AI Broker details"])
