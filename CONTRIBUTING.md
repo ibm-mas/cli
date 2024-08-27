@@ -14,11 +14,13 @@ The tekton defintions can be built locally using `build/bin/build-tekton.sh`:
 
 ```bash
 # Build, and install the MAS Pipeline & Task definitions
-DEV_MODE=true VERSION=10.1.0 build/bin/build-tekton.sh && oc apply -f tekton/target/ibm-mas-tekton-fvt.yaml
+DEV_MODE=true VERSION=100.0.0-pre.local build/bin/build-tekton.sh && oc apply -f tekton/target/ibm-mas-tekton-fvt.yaml
 
 # Build, and install the MAS Pipeline & Task definitions 1-by-1
-DEV_MODE=true VERSION=7.8.0-pre.fvtsplit build/bin/build-tekton.sh && tekton/test.sh
+DEV_MODE=true VERSION=100.0.0-pre.local build/bin/build-tekton.sh && tekton/test.sh
 ```
+
+Note that we use the version `100.0.0-pre.local` as this is the version that is defaulted into the CLI Python code before it's modifyed during the build.
 
 Once built, use `tekton/test-install.sh` to apply the definitions to a cluster one-by-one.  This makes it much easier to determine where any problems in the built definition lay versus applying the combined `ibm-mas-tekton.yaml` file directly (although both achieves the same end result):
 
@@ -28,10 +30,10 @@ tekton/test-install.sh
 
 
 ## 2. Building the container image locally
+Build & install ansible collections and the mas.devops & mas.cli Python packages, save each into image/cli/install, build the docker container, then run the container.
 ```bash
-# Build & install ansible collections, save them to image/cli/, build the docker container, then run the container
-make
-docker run -ti --rm quay.io/ibmmas/cli:local
+make all
+make run
 ```
 
 

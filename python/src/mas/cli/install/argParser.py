@@ -42,6 +42,11 @@ catArgGroup.add_argument(
     help="IBM Maximo Operator Catalog to install"
 )
 catArgGroup.add_argument(
+    "--mas-catalog-digest",
+    required=False,
+    help="IBM Maximo Operator Catalog Digest, only required when installing development catalog sources"
+)
+catArgGroup.add_argument(
     "--ibm-entitlement-key",
     required=False,
     help="IBM entitlement key"
@@ -464,7 +469,7 @@ cpdAppsArgGroup.add_argument(
     const="install"
 )
 cpdAppsArgGroup.add_argument(
-    "--cp4d-installopenscale",
+    "--cp4d-install-openscale",
     dest="cpd_install_openscale",
     required=False,
     help="Add Watson Openscale as part of Cloud Pak for Data",
