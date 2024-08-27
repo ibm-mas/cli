@@ -158,6 +158,26 @@ class InstallSummarizerMixin():
     def aibrokerSummary(self) -> None:
         if self.installAiroker:
             self.printSummary("AI Broker", self.params["mas_app_channel_aibroker"])
+            print_formatted_text(HTML(f"  <SkyBlue>+ Maximo AI Broker Settings</SkyBlue>"))
+            self.printParamSummary("  + Storage provider", "mas_aibroker_storage_provider")
+            self.printParamSummary("  + Storage access key", "mas_aibroker_storage_accesskey")
+            self.printParamSummary("  + Storage secret key", "mas_aibroker_storage_secretkey")
+            self.printParamSummary("  + Storage host", "mas_aibroker_storage_host")
+            self.printParamSummary("  + Storage port", "mas_aibroker_storage_port")
+            self.printParamSummary("  + Storage ssl", "mas_aibroker_storage_ssl")
+            self.printParamSummary("  + Storage region", "mas_aibroker_storage_region")
+            self.printParamSummary("  + Storage pipelines bucket", "mas_aibroker_storage_pipelines_bucket")
+            self.printParamSummary("  + Storage tenants bucket", "mas_aibroker_storage_tenants_bucket")
+            self.printParamSummary("  + Storage templates bucket", "mas_aibroker_storage_templates_bucket")
+            self.printParamSummary("  + Watsonxai api key", "mas_aibroker_watsonxai_apikey")
+            self.printParamSummary("  + Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
+            self.printParamSummary("  + Watsonxai project id", "mas_aibroker_watsonxai_project_id")
+            self.printParamSummary("  + Database host", "mas_aibroker_db_host")
+            self.printParamSummary("  + Database port", "mas_aibroker_db_port")
+            self.printParamSummary("  + Database user", "mas_aibroker_db_user")
+            self.printParamSummary("  + Database name", "mas_aibroker_db_database")
+            self.printParamSummary("  + Database Secretname", "mas_aibroker_db_secret_name")
+            self.printParamSummary("  + Database password", "mas_aibroker_db_secret_value")
         else:
             self.printSummary("AI Broker", "Do Not Install")
 
