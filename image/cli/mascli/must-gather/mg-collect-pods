@@ -88,7 +88,7 @@ for POD in ${PODS[@]}; do
       CONTAINERS=$(oc -n "${NAMESPACE}" get "${POD}" -o json -o jsonpath='{range .status.containerStatuses[*]}[{.name}] {end}' | tr -d '[]')
       for CONTAINER in ${CONTAINERS[@]}; do
         oc -n "${NAMESPACE}" logs "${POD}" -c "${CONTAINER}"    &> "${APP_LOG_DIR}/${POD_NAME}_${CONTAINER}.log"      || { echo_warning "  Error fetching current logs for container ${CONTAINER} in pod $POD_NAME"; continue; }
-        oc -n "${NAMESPACE}" logs "${POD}" -c "${CONTAINER}" -p &> "${APP_LOG_DIR}/prev_${POD_NAME}_${CONTAINER}.log" || { echo_warning "  Error fetching previous logs for container ${CONTAINER} in pod $POD_NAME"; continue; }
+        oc -n "${NAMESPACE}" logs "${POD}" -c "${CONTAINER}" -p &> "${APP_LOG_DIR}/${POD_NAME}_${CONTAINER}_prev.log"
       done
     fi
   fi

@@ -81,6 +81,8 @@ class UpgradeApp(BaseApp):
             continueWithUpgrade = prompt(HTML(f'<Yellow>Proceed with these settings?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
 
         if self.noConfirm or continueWithUpgrade in ["y", "yes"]:
+            self.createTektonFileWithDigest()
+
             self.printH1("Launch Upgrade")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 

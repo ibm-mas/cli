@@ -17,6 +17,9 @@ Private Registry Details (Required):
   -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}    Username to authenticate to the private registry
   -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}    Password to authenticate to the private registry
 
+Private Registry Prefix (Optional):
+  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}            Prefix for the mirror image
+
 Setup Red Hat Operator Catalogs (Optional):
   --setup-redhat-catalogs                 Set up Red Hat Operator, Community, and Certified catalogs with ICSP
 
@@ -44,6 +47,9 @@ function configure_ocp_for_mirror_noninteractive() {
         ;;
       -P|--port)
         REGISTRY_PRIVATE_PORT=$1 && shift
+        ;;
+       -x|--prefix)
+        REGISTRY_PREFIX=$1 && shift
         ;;
       -c|--ca-file)
         REGISTRY_PRIVATE_CA_FILE=$1 && shift
@@ -98,6 +104,7 @@ function configure_ocp_for_mirror_interactive() {
   echo_h2 "Configure Target Mirror"
   prompt_for_input "Mirror Registry Host" REGISTRY_PRIVATE_HOST && export REGISTRY_PRIVATE_HOST
   prompt_for_input "Mirror Registry Port" REGISTRY_PRIVATE_PORT && export REGISTRY_PRIVATE_PORT
+  prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX && export REGISTRY_PREFIX
   prompt_for_input "Mirror Registry CA File" REGISTRY_PRIVATE_CA_FILE && export REGISTRY_PRIVATE_CA_FILE
   if [[ ! -e $REGISTRY_PRIVATE_CA_FILE ]]; then
     echo_warning "Certificate file '$REGISTRY_PRIVATE_CA_FILE' does not exist"
@@ -138,6 +145,7 @@ function configure_ocp_for_mirror() {
   # Ensure all environment variables are available to ansible-playbook
   export REGISTRY_PRIVATE_HOST
   export REGISTRY_PRIVATE_PORT
+  export REGISTRY_PREFIX
   export REGISTRY_PRIVATE_CA_FILE
 
   export REGISTRY_USERNAME
@@ -155,6 +163,7 @@ function configure_ocp_for_mirror() {
   echo_h4 "Private Registry Connection" "    "
   echo_reset_dim "Host ...................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_HOST}"
   echo_reset_dim "Port ...................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_PORT}"
+  echo_reset_dim "Prefix .................... ${COLOR_MAGENTA}${REGISTRY_PREFIX}"
   echo_reset_dim "CA File ................... ${COLOR_MAGENTA}${REGISTRY_PRIVATE_CA_FILE}"
   echo "${TEXT_RESET}${TEXT_DIM}"
 

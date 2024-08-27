@@ -25,12 +25,12 @@ tekton:
 	DEV_MODE=true build/bin/build-tekton.sh
 
 docker:
-	docker build -t quay.io/ibmmas/cli:local image/cli
+	docker build -t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
 
-all: ansible tekton docker
+all: ansible python-build tekton docker
 
 run:
-	docker run -ti cli:local
+	docker run -ti quay.io/ibmmas/cli:100.0.0-pre.local
 
 clean:
 	rm image/cli/install/ibm-mas_devops.tar.gz
