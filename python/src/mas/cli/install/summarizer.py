@@ -86,6 +86,9 @@ class InstallSummarizerMixin():
 
         print()
         self.printParamSummary("Catalog Version", "mas_catalog_version")
+        # We only list the digest if it's specified (primary use case is when running development builds in airgap environments)
+        if self.getParam("mas_catalog_digest" != ""):
+            self.printParamSummary("Catalog Digest", "mas_catalog_digest")
         self.printParamSummary("Subscription Channel", "mas_channel")
 
         print()
