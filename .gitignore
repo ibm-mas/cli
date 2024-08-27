@@ -14,7 +14,6 @@ tekton/tmp
 
 image/cli/tmp-*
 
-
 image/cli/mascli/tmp_params
 image/cli/mascli/.env
 image/cli/mascli/working-dir
@@ -45,13 +44,13 @@ image/cli/mascli/tmp-suite-workspace-deprovision
 kubectl.exe
 mas.log
 
-python/pandoc-*-amd64.deb
-python/pandoc-*-windows-x86_64.msi
+python/pandoc-*
 python/build
 python/dist
 python/venv
 python/src/mas_cli.egg-info
 python/src/mas/cli/templates/ibm-mas-tekton.yaml
+python/src/mas/cli/templates/ibm-mas-tekton-with-digest.yaml
 python/mas-*.spec
 python/README.rst
 .env
