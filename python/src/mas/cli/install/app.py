@@ -747,7 +747,30 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "install_arcgis",
             "mas_arcgis_channel",
             # Guided Tour
-            "mas_enable_walkme"
+            "mas_enable_walkme",
+            # Aibroker
+            "mas_aibroker_storage_provider",
+            "mas_aibroker_storage_accesskey",
+            "mas_aibroker_storage_secretkey",
+            "mas_aibroker_storage_host",
+            "mas_aibroker_storage_port",
+            "mas_aibroker_storage_ssl",
+            "mas_aibroker_storage_region",
+            "mas_aibroker_storage_pipelines_bucket",
+            "mas_aibroker_storage_tenants_bucket",
+            "mas_aibroker_storage_templates_bucket",
+            "mas_aibroker_tenant_name",
+            "mas_aibroker_watsonxai_apikey",
+            "mas_aibroker_watsonxai_url",
+            "mas_aibroker_watsonxai_project_id",
+            "mas_aibroker_watsonx_action",
+            "mas_aibroker_db_host",
+            "mas_aibroker_db_port",
+            "mas_aibroker_db_user",
+            "mas_aibroker_db_database",
+            "mas_aibroker_db_secret_name",
+            "mas_aibroker_db_secret_key",
+            "mas_aibroker_db_secret_value"
         ]
 
         for key, value in vars(self.args).items():
