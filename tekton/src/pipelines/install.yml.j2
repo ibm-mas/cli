@@ -51,27 +51,30 @@ spec:
       runAfter:
         - pre-install-check
 
-    # 1.2 IBM Cloud Pak Foundational Services
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/common-services.yml.j2') | indent(4) }}
-      runAfter:
-        - ibm-catalogs
-
-    # 1.3 IBM Certificate Manager
+    # 1.2 Red Hat Certificate Manager
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
       runAfter:
-        - common-services
+        - pre-install-check
 
-    # 1.4 Configure Grafana
+    # 1.3 Configure Grafana
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/grafana.yml.j2') | indent(4) }}
+      when:
+        - input: "$(params.grafana_action)"
+          operator: in
+          values: ["install"]
       runAfter:
         - pre-install-check
 
-    # 1.5 Configure ECK
+    # 1.4 Configure ECK
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/eck.yml.j2') | indent(4) }}
+      when:
+        - input: "$(params.eck_action)"
+          operator: in
+          values: ["install"]
       runAfter:
         - pre-install-check
 
-    # 1.6 Configure Turbonomic
+    # 1.5 Configure Turbonomic
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/turbonomic.yml.j2') | indent(4) }}
       runAfter:
         - pre-install-check
@@ -106,10 +109,10 @@ spec:
       runAfter:
         - mongodb
 
-    # 2.5 UDS/DRO
+    # 2.5 DRO
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/uds.yml.j2') | indent(4) }}
       runAfter:
-        - common-services
+        - ibm-catalogs
 
 
     # 3. Cloud Pak for Data

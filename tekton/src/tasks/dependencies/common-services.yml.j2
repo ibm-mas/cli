@@ -3,6 +3,9 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: mas-devops-common-services
+  # Although we don't use this Task in the install of MAS anymore, it is still
+  # part of the uninstall pipeline to allow the removal of IBM Common Services
+  # from older MAS installations.
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}

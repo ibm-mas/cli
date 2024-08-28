@@ -42,6 +42,11 @@ catArgGroup.add_argument(
     help="IBM Maximo Operator Catalog to install"
 )
 catArgGroup.add_argument(
+    "--mas-catalog-digest",
+    required=False,
+    help="IBM Maximo Operator Catalog Digest, only required when installing development catalog sources"
+)
+catArgGroup.add_argument(
     "--ibm-entitlement-key",
     required=False,
     help="IBM entitlement key"
@@ -464,7 +469,7 @@ cpdAppsArgGroup.add_argument(
     const="install"
 )
 cpdAppsArgGroup.add_argument(
-    "--cp4d-installopenscale",
+    "--cp4d-install-openscale",
     dest="cpd_install_openscale",
     required=False,
     help="Add Watson Openscale as part of Cloud Pak for Data",
@@ -595,7 +600,6 @@ db2ArgGroup.add_argument(
     help="Customize Db2 storage capacity"
 )
 
-
 # Kafka - Common
 # -----------------------------------------------------------------------------
 kafkaCommonArgGroup = installArgParser.add_argument_group("Kafka - Common")
@@ -684,21 +688,37 @@ mskArgGroup.add_argument(
 
 # Kafka - Event Streams
 # -----------------------------------------------------------------------------
-mskArgGroup = installArgParser.add_argument_group("Kafka - Event Streams")
-mskArgGroup.add_argument(
+eventstreamsArgGroup = installArgParser.add_argument_group("Kafka - Event Streams")
+eventstreamsArgGroup.add_argument(
     "--eventstreams-resource-group",
     required=False,
     help="Set IBM Cloud resource group to target the Event Streams instance provisioning"
 )
-mskArgGroup.add_argument(
+eventstreamsArgGroup.add_argument(
     "--eventstreams-instance-name",
     required=False,
     help="Set IBM Event Streams instance name"
 )
-mskArgGroup.add_argument(
+eventstreamsArgGroup.add_argument(
     "--eventstreams-instance-location",
     required=False,
     help="Set IBM Event Streams instance location"
+)
+
+# COS
+# -----------------------------------------------------------------------------
+cosArgGroup = installArgParser.add_argument_group("Cloud Object Storage")
+cosArgGroup.add_argument(
+    "--cos",
+    dest="cos_type",
+    required=False,
+    help="Set cloud object storage provider.  Supported options are `ibm` and `ocs`",
+    choices=["ibm", "ocs"]
+)
+cosArgGroup.add_argument(
+    "--cos-resourcegroup",
+    required=False,
+    help="When using IBM COS, set the resource group where the instance will run"
 )
 
 # Turbonomic Integration
