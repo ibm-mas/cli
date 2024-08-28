@@ -870,7 +870,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install" ,"no_confirm", "no_wait_for_pvc", "help"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help"]:
                 pass
 
             elif key == "manual_certificates":
