@@ -235,12 +235,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)",
-            "  2) June 25 2024 Update (MAS 9.0.0, 8.11.12, &amp; 8.10.15)"
+            "  1) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
+            "  2) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)",
+            "  3) June 25 2024 Update (MAS 9.0.0, 8.11.12, &amp; 8.10.15)"
         ])
 
         catalogOptions = [
-           "v9-240730-amd64", "v9-240625-amd64"
+           "v9-240827-amd64", "v9-240730-amd64", "v9-240625-amd64"
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -333,7 +334,8 @@ class UpdateApp(BaseApp):
                     # where it can be made available to both the ansible collection and this python package.
                     mongoVersions = {
                         "v9-240625-amd64": "6.0.12",
-                        "v9-240730-amd64": "6.0.12"
+                        "v9-240730-amd64": "6.0.12",
+                        "v9-240827-amd64": "6.0.12"
                     }
 
                     targetMongoVersion = mongoVersions[self.getParam('mas_catalog_version')]
@@ -446,7 +448,9 @@ class UpdateApp(BaseApp):
         # where it can be made available to both the ansible collection and this python package.
         cp4dVersions = {
             "v9-240625-amd64": "4.8.0",
-            "v9-240730-amd64": "4.8.0"
+            "v9-240730-amd64": "4.8.0",
+            "v9-240827-amd64": "4.8.0"
+            
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:

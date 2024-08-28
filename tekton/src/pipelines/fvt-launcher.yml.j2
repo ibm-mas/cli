@@ -78,6 +78,20 @@ spec:
       default: "false"
       description: "Set this to 'true' to enable launch of the IVT pipeline at the end of applications FVT"
 
+    # Customize Final Wait
+    # -------------------------------------------------------------------------
+    # When skipping FVT for applications that are installed it will be necessary
+    # to customize the delay & retries, which default to values that assume
+    # every application installed will have it's FVT executed.
+    - name: waitforinstall_delay
+      type: string
+      default: "300"
+      description: "Set this to customize the time that the FVT Launcher pipeline will wait for the install to complete"
+    - name: waitforinstall_retries
+      type: string
+      default: "25"
+      description: "Set this to customize the time that the FVT Launcher pipeline will wait for the install to complete"
+
     # Finalize
     # -------------------------------------------------------------------------
     - name: finalize
@@ -274,9 +288,6 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: $(params.launchfvt_assist)
-          operator: in
-          values: ["true", "True"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -357,9 +368,6 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: "$(params.launchfvt_iot)$(params.launchfvt_monitor)"
-          operator: in
-          values: ["true", "True", "truetrue", "TrueTrue", "falsetrue", "FalseTrue", "truefalse","TrueFalse" ]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -491,10 +499,6 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        # Same criteria used in waitfor-manage task
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_optimizer)$(params.launchfvt_predict)$(params.launchivt_manage)
-          operator: notin
-          values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -603,9 +607,6 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: $(params.launchfvt_monitor)
-          operator: in
-          values: ["true", "True"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -685,9 +686,6 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: $(params.launchfvt_optimizer)
-          operator: in
-          values: ["true", "True"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -773,9 +771,6 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: $(params.launchfvt_predict)
-          operator: in
-          values: ["true", "True"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -855,9 +850,6 @@ spec:
         - name: configmap_value
           value: approved
       when:
-        - input: $(params.launchfvt_visualinspection)
-          operator: in
-          values: ["true", "True"]
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
@@ -916,11 +908,11 @@ spec:
           value: sync-install
         - name: escape_configmap_key
           value: INSTALL_STATUS
-        # 25 retries at 5 minute intervals = 2 hours
+        # Default to 25 retries at 5 minute intervals = 2 hours
         - name: delay
-          value: "300"
+          value: $(params.waitforinstall_delay)
         - name: max_retries
-          value: "25"
+          value: $(params.waitforinstall_retries)
         - name: ignore_failure
           value: "False"
       when:

@@ -275,6 +275,15 @@ class InstallSummarizerMixin():
         self.printSummary("License File", self.slsLicenseFileLocal)
         self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
 
+    def cosSummary(self) -> None:
+        self.printH2("Cloud Object Storage")
+        if self.getParam("cos_type") != "":
+            self.printParamSummary("Type", "cos_type")
+            if self.getParam("cos_resourcegroup") != "":
+                self.printParamSummary("Resource Group", "cos_resourcegroup")
+        else:
+            self.printSummary("Type", "None")
+
     def eckSummary(self) -> None:
         self.printH2("Elastic Cloud on Kubernetes")
         if self.getParam("eck_action") == "install":
@@ -363,6 +372,7 @@ class InstallSummarizerMixin():
         # Application Dependencies
         self.mongoSummary()
         self.db2Summary()
+        self.cosSummary()
         self.kafkaSummary()
         self.cp4dSummary()
         self.grafanaSummary()

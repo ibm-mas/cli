@@ -25,6 +25,7 @@ from halo import Halo
 
 from ..cli import BaseApp
 from ..gencfg import ConfigGeneratorMixin
+from .argBuilder import installArgBuilderMixin
 from .argParser import installArgParser
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
@@ -51,7 +52,7 @@ from mas.devops.tekton import (
 logger = logging.getLogger(__name__)
 
 
-class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin):
+class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
     def validateCatalogSource(self):
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         try:
@@ -185,7 +186,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
 
     def configCP4D(self):
-        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64"]:
+        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64"]:
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
             self.setParam("cpd_product_version", "4.8.0")
         elif self.getParam("cpd_product_version") == "":
@@ -484,11 +485,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # 3. Azure
         elif getStorageClass(self.dynamicClient, "managed-premium") is not None:
             print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: Azure Managed</MediumSeaGreen>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): azurefiles-premium</LightSlateGrey>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): managed-premium</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): managed-premium</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): azurefiles-premium</LightSlateGrey>"))
             self.storageClassProvider = "azure"
-            self.params["storage_class_rwo"] = "azurefiles-premium"
-            self.params["storage_class_rwx"] = "managed-premium"
+            self.params["storage_class_rwo"] = "managed-premium"
+            self.params["storage_class_rwx"] = "azurefiles-premium"
         # 4. AWS
         elif getStorageClass(self.dynamicClient, "gp2") is not None:
             print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: AWS gp2</MediumSeaGreen>"))
@@ -722,6 +723,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "eventstreams_resource_group",
             "eventstreams_instance_name",
             "eventstreams_instance_location",
+            # COS
+            "cos_type",
+            "cos_resourcegroup",
             # ECK
             "eck_action",
             "eck_enable_logstash",
@@ -941,6 +945,45 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installOptions = [
             {
                 "#": 1,
+                "catalog": "v9-240827-amd64",
+                "release": "9.0.x",
+                "core": "9.0.2",
+                "assist": "9.0.2",
+                "iot": "9.0.2",
+                "manage": "9.0.2",
+                "monitor": "9.0.2",
+                "optimizer": "9.0.2",
+                "predict": "9.0.1",
+                "inspection": "9.0.2"
+            },
+            {
+                "#": 2,
+                "catalog": "v9-240827-amd64",
+                "release": "8.11.x",
+                "core": "8.11.14",
+                "assist": "8.8.6",
+                "iot": "8.8.12",
+                "manage": "8.7.11",
+                "monitor": "8.11.10",
+                "optimizer": "8.5.8",
+                "predict": "8.9.3",
+                "inspection": "8.9.5"
+            },
+            {
+                "#": 3,
+                "catalog": "v9-240827-amd64",
+                "release": "8.10.x",
+                "core": "8.10.17",
+                "assist": "8.7.7",
+                "iot": "8.7.16",
+                "manage": "8.6.17",
+                "monitor": "8.10.13",
+                "optimizer": "8.4.9",
+                "predict": "8.8.3",
+                "inspection": "8.8.4"
+            },
+            {
+                "#": 4,
                 "catalog": "v9-240730-amd64",
                 "release": "9.0.x",
                 "core": "9.0.1",
@@ -954,7 +997,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "aibroker": "9.0.1"
             },
             {
-                "#": 2,
+                "#": 5,
                 "catalog": "v9-240730-amd64",
                 "release": "8.11.x",
                 "core": "8.11.13",
@@ -967,7 +1010,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.9.4"
             },
             {
-                "#": 3,
+                "#": 6,
                 "catalog": "v9-240730-amd64",
                 "release": "8.10.x",
                 "core": "8.10.16",
@@ -980,7 +1023,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.8.4"
             },
             {
-                "#": 4,
+                "#": 7,
                 "catalog": "v9-240625-amd64",
                 "release": "9.0.x",
                 "core": "9.0.0",
@@ -993,7 +1036,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "9.0.0"
             },
             {
-                "#": 5,
+                "#": 8,
                 "catalog": "v9-240625-amd64",
                 "release": "8.11.x",
                 "core": "8.11.12",
@@ -1006,7 +1049,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.9.3"
             },
             {
-                "#": 6,
+                "#": 9,
                 "catalog": "v9-240625-amd64",
                 "release": "8.10.x",
                 "core": "8.10.15",
@@ -1060,6 +1103,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.manualCertificates()
 
         # Show a summary of the installation configuration
+        self.printH1("Non-Interactive Install Command")
+        self.printDescription([
+            "Save and re-use the following script to re-run this install without needing to answer the interactive prompts again",
+            "",
+            self.buildCommand()
+        ])
+
         self.displayInstallSummary()
 
         if not self.noConfirm:
