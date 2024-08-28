@@ -303,7 +303,7 @@ aibrokerArgGroup.add_argument(
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-provider",
+    "--mas-aibroker-storage-accesskey",
     dest="mas_aibroker_storage_accesskey",
     required=False,
     help="Customize Manage database encryption keys"
