@@ -103,11 +103,11 @@ spec:
     # They were moved from fvt-manage pipeline into ivt because they should not be running in parallel with IS and Mobile FVT
     # -------------------------------------------------------------------------
     - name: fvt-manage-base-ui-last-phase
-      {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+      {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(6) }}
       taskRef:
         kind: Task
         name: mas-fvt-manage-last-phase
       params:
-        {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}    
+        {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(8) }}
       runAfter:
         - ivt-manage
