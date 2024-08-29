@@ -36,6 +36,13 @@ spec:
     - name: fvt_artifactory_token
       type: string
       default: ""
+    - name: launchfvt_manage
+      type: string
+      default: ""
+      description: Used to decide whether pipeline should wait for Manage's IVT core completion
+    - name: build_num
+      type: string
+      default: ""
     
     # FVT: Mobile Digests
     - name: fvt_digest_mobile_pytest
@@ -46,6 +53,7 @@ spec:
     # 2. Manage FVT - Manage Mobile
     # -------------------------------------------------------------------------
     
-    {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase1-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase2-apps.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase1-waitfor-manage-coreivt.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase2-setup.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase3-apps.yml.j2') | indent(4) }}
     
