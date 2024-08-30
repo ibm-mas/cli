@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+
+
 function gitops_suite_app_config_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
@@ -52,6 +54,8 @@ Maximo Manage:
       masdev-manage-d-sb1ascsn: <<base64 encoded content of masdev-manage-dsb1asc-sn.xml>>
       ...
       masdev-manage-d-sbNascsn: <<base64 encoded content of masdev-manage-dsbNasc-sn.xml>>
+
+  --mas-app-global-secrets-yaml ${COLOR_YELLOW}MAS_APP_GLOBAL_SECRETS_YAML${TEXT_RESET} yaml file location containing secret key/values that will be added to the Manage encryption secret
 
 
 Secrets Manager:
@@ -172,6 +176,9 @@ function gitops_suite_app_config_noninteractive() {
       --mas-app-server-bundles-combined-add-server-config-yaml)
         export MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML=$1 && shift
         ;;
+      --mas-app-global-secrets-yaml)
+        export MAS_APP_GLOBAL_SECRETS_YAML=$1 && shift
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -220,6 +227,11 @@ function gitops_suite_app_config_noninteractive() {
   [[ -z "${MAS_APPWS_API_VERSION}" ]] && gitops_suite_app_config_help "MAS_APPWS_API_VERSION is not set"
   [[ -z "${MAS_APPWS_KIND}" ]] && gitops_suite_app_config_help "MAS_APPWS_KIND is not set"
 
+  if [ -z $SM_AWS_ACCESS_KEY_ID ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_REGION ]; then
+    echo 'Missing required params for AWS mongo provider, make sure to provide $SM_AWS_ACCESS_KEY_ID, $SM_AWS_SECRET_ACCESS_KEY, $SM_AWS_REGION'
+    exit 1
+  fi
+
   if [[ "${MAS_APP_ID}" == "manage" || "${MAS_APP_ID}" == "health" ]]; then
     [[ -z "${DEFAULT_FILE_STORAGE_CLASS}" || "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_FILE_STORAGE_CLASS is not set"
   fi
@@ -230,12 +242,12 @@ function gitops_suite_app_config_noninteractive() {
     fi
   fi
 
-  if [[ "${GITHUB_PUSH}" == "true" ]]; then
-    [[ -z "${GITHUB_HOST}" ]] && gitops_suite_app_config_help "GITHUB_HOST is not set"
-    [[ -z "${GITHUB_ORG}" ]] && gitops_suite_app_config_help "GITHUB_ORG is not set"
-    [[ -z "${GITHUB_REPO}" ]] && gitops_suite_app_config_help "GITHUB_REPO is not set"
-    [[ -z "${GIT_BRANCH}" ]] && gitops_suite_app_config_help "GIT_BRANCH is not set"
-  fi
+  # We have to checkout the repo regardless of GITHUB_PUSH because we are modifying the existing ibm-mas-masapp-configs.yaml file here
+  # So these params are still required even if GITHUB_PUSH is false
+  [[ -z "${GITHUB_HOST}" ]] && gitops_suite_app_config_help "GITHUB_HOST is not set"
+  [[ -z "${GITHUB_ORG}" ]] && gitops_suite_app_config_help "GITHUB_ORG is not set"
+  [[ -z "${GITHUB_REPO}" ]] && gitops_suite_app_config_help "GITHUB_REPO is not set"
+  [[ -z "${GIT_BRANCH}" ]] && gitops_suite_app_config_help "GIT_BRANCH is not set"
 
 }
 
@@ -290,19 +302,18 @@ function gitops_suite_app_config() {
   reset_colors
 
   echo "${TEXT_DIM}"
+  echo_h2 "GitOps Target" "    "
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    echo_h2 "GitOps Target" "    "
     echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
-    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
-    echo_reset_dim "Host .................................. ${COLOR_MAGENTA}${GITHUB_HOST}"
-    echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
-    echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
-    echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
   else
     echo_h2 "GitOps Target" "    "
     echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
-    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
   fi
+  echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  echo_reset_dim "Host .................................. ${COLOR_MAGENTA}${GITHUB_HOST}"
+  echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+  echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
+  echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -313,6 +324,7 @@ function gitops_suite_app_config() {
   echo_reset_dim "Application WS Kind ..................... ${COLOR_MAGENTA}${MAS_APPWS_KIND}"
   echo_reset_dim "Application WS Spec Yaml file ........... ${COLOR_MAGENTA}${MAS_APPWS_SPEC_YAML}"
   echo_reset_dim "Combined additional server configs ...... ${COLOR_MAGENTA}${MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML}"
+  echo_reset_dim "Global Secrets (Manage) ................. ${COLOR_MAGENTA}${MAS_APP_GLOBAL_SECRETS_YAML}"
 
   if [[ -n "$MAS_APPWS_SPEC_YAML" ]] && [[ -s "$MAS_APPWS_SPEC_YAML" ]]; then
     echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}False"
@@ -462,9 +474,7 @@ function gitops_suite_app_config() {
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APPWS_SPEC_YAML"
     export MAS_APPWS_SPEC=$(cat ${MAS_APPWS_SPEC_YAML} | yq '.' --output-format yaml)
     yq eval '.mas_appws_spec.settings.customizationList  | to_entries | .[].value.customizationArchiveCredentials.secretName | [] + .' ${MAS_APPWS_SPEC_YAML} | yq '{"CUSTOMIZATION_ARCHIVE_SECRET_NAMES": [] + .}'  > $ADDITIONAL_JINJA_PARAMS_FILE
-    export MANAGE_ATTACHMENTS_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.db.attachmentProvider.providerCredentials.secretName // ""' ${MAS_APPWS_SPEC_YAML})
     export MANAGE_LOGGING_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.deployment.loggingS3Destination.secretKey.secretName // ""' ${MAS_APPWS_SPEC_YAML})
-    export MANAGE_ATTACHMENTS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_attachments${SECRETS_KEY_SEPERATOR}
     export MANAGE_LOGGING_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_logging${SECRETS_KEY_SEPERATOR}
   else
     echo
@@ -475,6 +485,12 @@ function gitops_suite_app_config() {
   echo 
   echo "- MAS_APPWS_SPEC CONTENT ${MAS_APPWS_SPEC}"
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
+
+
+  if [[ -n "$MAS_APP_GLOBAL_SECRETS_YAML" ]] && [[ -s "$MAS_APP_GLOBAL_SECRETS_YAML" ]]; then
+    export MAS_APP_GLOBAL_SECRETS=$(cat ${MAS_APP_GLOBAL_SECRETS_YAML} | yq '.' --output-format yaml)
+    echo "- MAS_APP_GLOBAL_SECRETS CONTENT ${MAS_APP_GLOBAL_SECRETS}"
+  fi
 
   # Set certs only if manual cert is True (to create k8s secret in gitops) only required for manage
   # ---------------------------------------------------------------------------
