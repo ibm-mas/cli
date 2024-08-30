@@ -316,7 +316,7 @@ jobs:
           docker push quay.io/ibmmas/cli:latest
   build-cli-manifest:
     runs-on: ubuntu-latest
-    needs: [ build-cli-base-amd64, build-cli-base-s390x ]
+    needs: [ build-container-amd64, build-container-s390x ]
     steps:
       # 1. Setup
       # -------------------------------------------------------------------------------------------
