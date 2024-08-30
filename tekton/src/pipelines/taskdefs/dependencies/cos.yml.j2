@@ -1,4 +1,4 @@
-- name: cos
+- name: cos-{{ suffix }}
   timeout: "0"
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
@@ -21,8 +21,20 @@
 
     - name: custom_labels
       value: $(params.custom_labels)
+
+{% if suffix == "system" %}
+    - name: mas_config_scope
+      value: system
     - name: use_hmac
-      value: $(params.use_hmac)
+      value: false
+{% endif %}
+{% if suffix == "manage" or %}
+    - name: mas_config_scope
+      value: wsapp
+    - name: use_hmac
+      value: true
+{% endif %}
+
   taskRef:
     kind: Task
     name: mas-devops-cos
