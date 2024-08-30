@@ -161,9 +161,13 @@ spec:
     # 4. Other Dependecies
     # -------------------------------------------------------------------------
     # 4.1 Install Cloud Object Storage (COS)
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/cos.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/cos.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
       runAfter:
         - pre-install-check
+
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/cos.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
+      runAfter:
+        - suite-verify
 
     # 4.2 Configure COS in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-cos.yml.j2') | indent(4) }}
