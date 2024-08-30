@@ -780,6 +780,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.operationalMode = 1
                 else:
                     self.operationalMode = 2
+                    self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
