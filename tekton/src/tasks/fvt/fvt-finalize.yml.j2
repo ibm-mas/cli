@@ -6,6 +6,9 @@ metadata:
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+    
+    - name: set_finished
+      type: string
 
   steps:
     - name: finalize
@@ -16,6 +19,9 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       env:
         {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
+
+        - name: SET_FINISHED
+          value: $(params.set_finished)
 
         # The following optional environment variables enable reporting of FVT results via Slack
         - name: FVT_SLACK_TOKEN
