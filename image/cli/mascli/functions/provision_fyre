@@ -27,8 +27,14 @@ Worker Node Configuration (Optional, only takes effect when quota-type is set to
       --worker-cpu ${COLOR_YELLOW}FYRE_WORKER_CPU${TEXT_RESET}        How many CPUs to allocate per worker node
       --worker-memory ${COLOR_YELLOW}FYRE_WORKER_MEMORY${TEXT_RESET}  How much memory to allocate per worker node
 
+Storage Provisioner Configuration:
+      --odf-storage ${COLOR_YELLOW}FYRE_CONFIG_STORAGE${TEXT_RESET}                         Enable ODF as default storage provisioner
+      --odf-worker-additional-disk ${COLOR_YELLOW}FYRE_WORKER_ADDITIONAL_DISK${TEXT_RESET}  The size of additional disk in Gb added to each worker node when using ODF
+      --nfs-storage ${COLOR_YELLOW}FYRE_CONFIG_STORAGE${TEXT_RESET}                         Enable NFS as default storage provisioner
+      --nfs-image-registry-size ${COLOR_YELLOW}IMAGE_REGISTRY_STORAGE_SIZE${TEXT_RESET}     Defines the image registry storage size when configured to use NFS. The size allocated cannot be superior of storage available in the Fyre Infrastructure node.
+      --no-storage                                                                          Disable automatic configuration of storage in the cluster
+
 Other Commands:
-      --no-storage                        Disable automatic configuration of storage in the cluster
       --no-confirm                        Provision the cluster without prompting for confirmation
   -h, --help                              Show this help message
 
@@ -37,8 +43,10 @@ EOM
 }
 
 function provision_fyre_noninteractive() {
-  # Default to provisioning with storage enabled
-  FYRE_CONFIG_STORAGE=true
+  # Default to provisioning with NFS storage enabled
+  if [[ -z "$FYRE_CONFIG_STORAGE" ]]; then
+    FYRE_CONFIG_STORAGE=nfs
+  fi
 
   while [[ $# -gt 0 ]]
   do
@@ -80,6 +88,18 @@ function provision_fyre_noninteractive() {
         ;;
       --no-storage)
         FYRE_CONFIG_STORAGE=false
+        ;;
+      --nfs-storage)
+        FYRE_CONFIG_STORAGE=nfs
+        ;;
+      --nfs-image-registry-size)
+        IMAGE_REGISTRY_STORAGE_SIZE=$1 && shift
+        ;;
+      --odf-storage)
+        FYRE_CONFIG_STORAGE=ocs
+        ;;
+      --odf-worker-additional-disk)
+        FYRE_WORKER_ADDITIONAL_DISK=$1 && shift
         ;;
       --no-confirm)
         NO_CONFIRM=true
@@ -167,10 +187,22 @@ function provision_fyre_interactive() {
     fi
   fi
 
-  prompt_for_input "Configure Storage (ODF)" FYRE_CONFIG_STORAGE
+  echo "Configure Storage Provisioner:"
+  echo "  1. NFS"
+  echo "  2. ODF"
+  prompt_for_input "Select Storage Provisioner" FYRE_CONFIG_STORAGE_SELECTION "1"
+
+  if [[ "$FYRE_CONFIG_STORAGE_SELECTION" == "1" ]]; then
+    FYRE_CONFIG_STORAGE=nfs
+    prompt_for_input "Image Registry Storage Size" IMAGE_REGISTRY_STORAGE_SIZE "100Gi"
+  fi
+
+  if [[ "$FYRE_CONFIG_STORAGE_SELECTION" == "2" ]]; then
+    FYRE_CONFIG_STORAGE=ocs
+    prompt_for_input "Workers Additional Disk Size (GB)" FYRE_WORKER_ADDITIONAL_DISK "400"
+  fi
 
 }
-
 
 function provision_fyre() {
   # Take the first parameter off (it will be provision-fyre)

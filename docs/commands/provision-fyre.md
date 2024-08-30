@@ -21,11 +21,17 @@ Usage
 - `--worker-cpu FYRE_WORKER_CPU` How many CPUs to allocate per worker node
 - `--worker-memory FYRE_WORKER_MEMORY` How much memory to allocate per worker node
 
+### Storage Provisioner Configuration
+- `--odf-storage FYRE_CONFIG_STORAGE` Enable ODF as default storage provisioner
+- `--odf-worker-additional-disk FYRE_WORKER_ADDITIONAL_DISK` The size of additional disk in Gb added to each worker node when using ODF
+- `--nfs-storage FYRE_CONFIG_STORAGE` Enable NFS as default storage provisioner
+- `--nfs-image-registry-size IMAGE_REGISTRY_STORAGE_SIZE` Defines the image registry storage size when configured to use NFS. The size allocated cannot be superior of storage available in the Fyre Infrastructure node
+- `--no-storage` Disable automatic configuration of storage in the cluster
+
 ### Other Commands
 - `-s|--simulate-airgap` Set flag to apply the simulated airgap network configuration to the cluster after provisioning
 - `--no-confirm` Provision the cluster without prompting for confirmation
 - `-h|--help` Show this help message
-
 
 Examples
 -------------------------------------------------------------------------------
