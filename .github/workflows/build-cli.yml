@@ -137,7 +137,7 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: python/dist
 
-  build-container:
+  build-container-amd64:
     name: Build Container Image
     runs-on: ubuntu-latest
     needs:
@@ -172,6 +172,7 @@ jobs:
           if [[ -e $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz ]]; then
             echo "Found a local Ansible collection to be used in $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz! Skip download from Artifactory..."
           else
+          
             echo "Downloading from ***/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz"
             wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
           fi
@@ -197,15 +198,15 @@ jobs:
       - name: Build the container image
         id: docker-build
         run: |
-          $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i cli
+          $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i cli --target-platform amd64
 
       - name: Push the container image
         id: docker-push
         run: |
-          docker tag ibmmas/cli quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+          docker tag ibmmas/cli quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-amd64
           docker images
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
-          docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+          docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-amd64
 
       - name: Push the container image (latest)
         id: docker-push-latest
@@ -232,72 +233,12 @@ jobs:
         id: upload-owasp
         uses: actions/upload-artifact@v4
         with:
-           name: OWASP dependency check report
-           path: ${{github.workspace}}/reports
-           retention-days: 30
-
-  pyinstaller-windows:
-    name: Build Windows CLI
-    runs-on: windows-latest
-    needs:
-      - build-tekton
-      - build-python
-    steps:
-      # 1. Initialize the build
-      # -------------------------------------------------------------------------------------------
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v4
-
-      # 2. Run PyInstaller
-      # -------------------------------------------------------------------------------------------
-      - name: Download the tekton file
-        id: download-tekton
-        uses: actions/download-artifact@v4
-        with:
-          name: ibm-mas-tekton.yaml
-          path: ${{ github.workspace }}/python/src/mas/cli/templates/
-
-      - name: Download the python package
-        id: download-python
-        uses: actions/download-artifact@v4
-        with:
-          name: mas_cli.tar.gz
-          path: ${{ github.workspace }}/
-
-      - name: Build the Windows executable
-        id: build
-        run: |
-          python -m pip install --upgrade pip virtualenv
-          python -m venv .venv
-          .\.venv\Scripts\activate
-          python -m pip install "./mas_cli.tar.gz[dev]"
-          python -m pip list
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-cli
-
-      # 3. Upload and Publish
-      # -------------------------------------------------------------------------------------------
-      - name: Upload mas-cli
-        id: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: mas-cli-windows-amd64
-          path: ${{ github.workspace }}/python/dist/mas-cli.exe
+          name: OWASP dependency check report
+          path: ${{github.workspace}}/reports
           retention-days: 30
 
-      - name: Publish the new cli
-        id: publish
-        if: github.event_name == 'release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/python/dist/mas-cli.exe
-          asset_name: mas-cli-windows-amd64-${{ env.VERSION }}.exe
-          tag: ${{ github.ref }}
-          overwrite: true
-
-  pyinstaller-linux:
-    name: Build Linux CLI
+  build-container-s390x:
+    name: Build Container Image
     runs-on: ubuntu-latest
     needs:
       - build-tekton
@@ -308,110 +249,90 @@ jobs:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
+        # Without this option, we don't get the tag information
+        with:
+          fetch-depth: 0
 
-      # 2. Run PyInstaller
+      - name: Initialise the build system
+        id: init
+        run: |
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          $GITHUB_WORKSPACE/build/bin/initbuild.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+
+      # 2. Download Ansible collection from Artifactory
       # -------------------------------------------------------------------------------------------
-      - name: Download the tekton file
+      - name: Download Ansible collection from Artifactory
+        id: download-ansible
+        if: contains(fromJson('["push", "workflow_dispatch", "repository_dispatch"]'), github.event_name)
+        env:
+          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
+          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
+        run: |
+          if [[ -e $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz ]]; then
+           echo "Found a local Ansible collection to be used in $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz! Skip download from Artifactory..."
+          else      
+           echo "Downloading from ***/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz"
+           wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
+          fi
+
+      # 3. Download Built Artifacts
+      # -------------------------------------------------------------------------------------------
+      - name: Download the tekton file built in the other job
         id: download-tekton
         uses: actions/download-artifact@v4
         with:
           name: ibm-mas-tekton.yaml
-          path: ${{ github.workspace }}/python/src/mas/cli/templates/
+          path: ${{ github.workspace }}/image/cli/mascli/templates/
 
       - name: Download the python package
         id: download-python
         uses: actions/download-artifact@v4
         with:
           name: mas_cli.tar.gz
-          path: ${{ github.workspace }}/
+          path: ${{ github.workspace }}/image/cli/install/
 
-      - name: Build the Linux executable
-        id: build
-        run: |
-          python -m pip install --upgrade pip virtualenv
-          python -m venv .venv
-          source .venv/bin/activate
-          python -m pip install ./mas_cli.tar.gz[dev]
-          python -m pip list
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-cli
-
-      # 3. Upload and Publish
+      # 4. CLI container image
       # -------------------------------------------------------------------------------------------
-      - name: Upload mas-cli
-        id: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: mas-cli-linux-amd64
-          path: ${{ github.workspace }}/python/dist/mas-cli
-          retention-days: 30
+      - name: Build the container image
+        id: docker-build
+        run: |
+          $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i cli --target-platform s390x
 
-      - name: Publish the new cli
-        id: publish
+      - name: Push the container image
+        id: docker-push
+        run: |
+          docker tag ibmmas/cli quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-s390x
+          docker images
+          docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
+          docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-s390x
+
+      - name: Push the container image (latest)
+        id: docker-push-latest
         if: github.event_name == 'release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/python/dist/mas-cli
-          asset_name: mas-cli-linux-amd64-${{ env.VERSION }}
-          tag: ${{ github.ref }}
-          overwrite: true
-
-  pyinstaller-macos:
-    name: Build MacOS CLI
-    runs-on: macos-latest
-    needs:
-      - build-tekton
-      - build-python
+        run: |
+          docker tag ibmmas/cli quay.io/ibmmas/cli:latest
+          docker images
+          docker push quay.io/ibmmas/cli:latest
+  build-cli-manifest:
+    runs-on: ubuntu-latest
+    needs: [ build-cli-base-amd64, build-cli-base-s390x ]
     steps:
-      # 1. Initialize the build
+      # 1. Setup
       # -------------------------------------------------------------------------------------------
       - name: Checkout
-        id: checkout
         uses: actions/checkout@v4
-
-      # 2. Run PyInstaller
-      # -------------------------------------------------------------------------------------------
-      - name: Download the tekton file
-        id: download-tekton
-        uses: actions/download-artifact@v4
+        # Without this option, we don't get the tag information
         with:
-          name: ibm-mas-tekton.yaml
-          path: ${{ github.workspace }}/python/src/mas/cli/templates/
-
-      - name: Download the python package
-        id: download-python
-        uses: actions/download-artifact@v4
-        with:
-          name: mas_cli.tar.gz
-          path: ${{ github.workspace }}/
-
-      - name: Build the Linux executable
-        id: build
+          fetch-depth: 0
+      - name: Initialise the build system
         run: |
-          python -m pip install --upgrade pip virtualenv
-          python -m venv .venv
-          source .venv/bin/activate
-          python -m pip install ./mas_cli.tar.gz[dev]
-          python -m pip list
-          pyinstaller --distpath python/dist --onefile --noconfirm --collect-data mas.devops --collect-data mas.cli python/src/mas-cli
-
-      # 3. Upload and Publish
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          $GITHUB_WORKSPACE/build/bin/initbuild.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+      # 3. Manifest and publish release base container image of cli
       # -------------------------------------------------------------------------------------------
-      - name: Upload mas-cli
-        id: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: mas-cli-macos-arm64
-          path: ${{ github.workspace }}/python/dist/mas-cli
-          retention-days: 30
-
-      - name: Publish the new cli
-        id: publish
-        if: github.event_name == 'release'
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ github.workspace }}/python/dist/mas-cli
-          asset_name: mas-cli-macos-arm64-${{ env.VERSION }}
-          tag: ${{ github.ref }}
-          overwrite: true
+      - name: Publish release cli
+        run: |
+          docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
+          $GITHUB_WORKSPACE/build/bin/docker-manifest.sh -n ibmmas -i cli --target-platforms amd64,s390x
