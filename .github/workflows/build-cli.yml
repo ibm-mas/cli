@@ -203,7 +203,7 @@ jobs:
       - name: Push the container image
         id: docker-push
         run: |
-          docker tag ibmmas/cli quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-amd64
+          docker tag ibmmas/cli:${{ env.DOCKER_TAG }}-amd64  quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-amd64
           docker images
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-amd64
@@ -302,7 +302,8 @@ jobs:
       - name: Push the container image
         id: docker-push
         run: |
-          docker tag ibmmas/cli quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-s390x
+          docker images
+          docker tag ibmmas/cli:${{ env.DOCKER_TAG }}-s390x  quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-s390x
           docker images
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-s390x
