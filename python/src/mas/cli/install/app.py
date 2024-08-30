@@ -282,6 +282,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         ])
         self.operationalMode = self.promptForInt("Operational Mode", default=1)
 
+    def configAnnotations(self):
         if self.operationalMode == 2:
             self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
 
@@ -1076,6 +1077,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "",
             self.buildCommand()
         ])
+
+        # Based on the parameters set the annotations correctly
+        self.configAnnotations()
 
         self.displayInstallSummary()
 
