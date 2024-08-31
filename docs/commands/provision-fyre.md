@@ -20,6 +20,7 @@ Usage
 - `--worker-count FYRE_WORKER_COUNT` Number of worker nodes to provision
 - `--worker-cpu FYRE_WORKER_CPU` How many CPUs to allocate per worker node
 - `--worker-memory FYRE_WORKER_MEMORY` How much memory to allocate per worker node
+- `--fyre-cluster-size FYRE_CLUSTER_SIZE` When Fyre Quick Burn, defines the size category ("medium" or "large")
 
 ### Storage Provisioner Configuration
 - `--odf-storage FYRE_CONFIG_STORAGE` Enable ODF as default storage provisioner

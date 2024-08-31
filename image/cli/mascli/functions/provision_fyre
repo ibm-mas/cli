@@ -27,6 +27,9 @@ Worker Node Configuration (Optional, only takes effect when quota-type is set to
       --worker-cpu ${COLOR_YELLOW}FYRE_WORKER_CPU${TEXT_RESET}        How many CPUs to allocate per worker node
       --worker-memory ${COLOR_YELLOW}FYRE_WORKER_MEMORY${TEXT_RESET}  How much memory to allocate per worker node
 
+Fyre Quick Burn Worker Node Configuration (Optional, only takes effect when quota-type is set to "quickburn"):
+      --fyre-cluster-size ${COLOR_YELLOW}FYRE_CLUSTER_SIZE${TEXT_RESET} When Fyre Quick Burn, defines the size category ("medium" or "large")
+
 Storage Provisioner Configuration:
       --odf-storage ${COLOR_YELLOW}FYRE_CONFIG_STORAGE${TEXT_RESET}                         Enable ODF as default storage provisioner
       --odf-worker-additional-disk ${COLOR_YELLOW}FYRE_WORKER_ADDITIONAL_DISK${TEXT_RESET}  The size of additional disk in Gb added to each worker node when using ODF
@@ -86,6 +89,9 @@ function provision_fyre_noninteractive() {
       --worker-memory)
         FYRE_WORKER_MEMORY=$1 && shift
         ;;
+      --fyre-cluster-size)
+        FYRE_CLUSTER_SIZE=$1 && shift
+        ;;      
       --no-storage)
         FYRE_CONFIG_STORAGE=false
         ;;
@@ -185,6 +191,21 @@ function provision_fyre_interactive() {
       echo -e "${COLOR_RED}Usage Error: QuickBurn is only supported in svl${TEXT_RESET}\n"
       exit 1
     fi
+
+    echo
+    echo "Fyre cluster size:"
+    echo "  1. medium"
+    echo "  2. large"
+    prompt_for_input "Select the Fyre cluster size" FYRE_CLUSTER_SIZE_SELECTION "1"
+
+    if [[ "$FYRE_CLUSTER_SIZE_SELECTION" == "1" ]]; then
+      FYRE_CLUSTER_SIZE=medium
+    elif [[ "$FYRE_CLUSTER_SIZE_SELECTION" == "2" ]]; then
+      FYRE_CLUSTER_SIZE=large
+    else
+      echo -e "${COLOR_RED}Usage Error: QuickBurn only supports size definitions medium or large${TEXT_RESET}\n"
+      exit 1
+    fi
   fi
 
   echo "Configure Storage Provisioner:"
@@ -236,6 +257,7 @@ function provision_fyre() {
   export FYRE_WORKER_COUNT
   export FYRE_WORKER_CPU
   export FYRE_WORKER_MEMORY
+  export FYRE_CLUSTER_SIZE
 
   export FYRE_CONFIG_STORAGE
   export IMAGE_REGISTRY_STORAGE_SIZE
