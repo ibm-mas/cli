@@ -37,8 +37,6 @@ spec:
       type: string
     - name: ibmcloud_apikey
       type: string
-    - name: use_hmac
-      type: string
 
   stepTemplate:
     name: gitops-deprovision-cos
@@ -77,8 +75,6 @@ spec:
         value: $(params.ibmcloud_resourcegroup)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
-      - name: USE_HMAC
-        value: $(params.use_hmac)
   steps:
     - args:
       - |-
