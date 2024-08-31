@@ -238,6 +238,8 @@ function provision_fyre() {
   export FYRE_WORKER_MEMORY
 
   export FYRE_CONFIG_STORAGE
+  export IMAGE_REGISTRY_STORAGE_SIZE
+  export FYRE_WORKER_ADDITIONAL_DISK
 
   echo
   reset_colors
