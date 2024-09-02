@@ -5,6 +5,7 @@
     image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
     deprovision: "{{ lookup('env', 'DEPROVISION') }}"
     finalize: "{{ lookup('env', 'FINALIZE') }}"
+    set_finished: "{{ lookup('env', 'SET_FINISHED') }}"
 
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
@@ -21,6 +22,7 @@
           - "image_pull_policy ........... {{ image_pull_policy }}"
           - "deprovision ................. {{ deprovision }}"
           - "finalize .................... {{ finalize }}"
+          - "set finished .................... {{ set_finished }}"
           - ""
 
     - name: "Start FVT-finally pipeline"

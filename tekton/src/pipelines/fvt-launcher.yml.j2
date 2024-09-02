@@ -875,6 +875,7 @@ spec:
       runAfter:
         - approval-manage
         - approval-monitor
+        - launchfvt-mobile
 
     # Last Sync Point
     # -------------------------------------------------------------------------
@@ -902,12 +903,7 @@ spec:
         - name: configmap_key
           value: INSTALL_STATUS
         - name: configmap_target_value
-          value: Completed,Succeeded
-        # Escape route
-        - name: escape_configmap_name
-          value: sync-install
-        - name: escape_configmap_key
-          value: INSTALL_STATUS
+          value: Completed,Succeeded,Failed
         # Default to 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: $(params.waitforinstall_delay)
