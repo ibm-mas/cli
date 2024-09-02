@@ -198,6 +198,7 @@ jobs:
       - name: Build the container image
         id: docker-build
         run: |
+          docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
           $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i cli --target-platform amd64
           docker images
       - name: Push the container image
