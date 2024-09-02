@@ -519,6 +519,8 @@ spec:
           value: "$(params.mas_instance_id)-fvt-mobile-testng"
         - name: pipelinerun_name_pytest
           value: "$(params.mas_instance_id)-fvt-mobile-pytest"
+        - name: launchfvt_manage
+          value: "$(params.launchfvt_manage)"
       taskRef:
         kind: Task
         name: mas-launchfvt-mobile
