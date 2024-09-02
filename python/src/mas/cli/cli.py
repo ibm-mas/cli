@@ -15,6 +15,9 @@ from argparse import RawTextHelpFormatter
 from shutil import which
 from os import path, environ
 from sys import exit
+from subprocess import PIPE, Popen, TimeoutExpired
+import threading
+import json
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from kubernetes import config
@@ -24,9 +27,9 @@ from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
 
+from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import connect, isSNO
 
-from . import __version__ as packageVersion
 from .validators import YesNoValidator
 from .displayMixins import PrintMixin, PromptMixin
 
@@ -35,6 +38,7 @@ logger = logging.getLogger(__name__)
 
 # Disable warnings when users are connecting to OCP clusters with self-signed certificates
 urllib3.disable_warnings()
+
 
 def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
     """
@@ -49,6 +53,41 @@ def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
     except TypeError:
         logger.warn("argparse help formatter failed, falling back.")
         return formatter
+
+
+class RunCmdResult(object):
+    def __init__(self, returnCode, output, error):
+        self.rc = returnCode
+        self.out = output
+        self.err = error
+
+    def successful(self):
+        return self.rc == 0
+
+    def failed(self):
+        return self.rc != 0
+
+
+def runCmd(cmdArray, timeout=630):
+    """
+    Run a command on the local host.  This drives all the helm operations,
+    as there is no python Helm client available.
+    # Parameters
+    cmdArray (list<string>): Command to execute
+    timeout (int): How long to allow for the command to complete
+    # Returns
+    [int, string, string]: `returnCode`, `stdOut`, `stdErr`
+    """
+
+    lock = threading.Lock()
+
+    with lock:
+        p = Popen(cmdArray, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=-1)
+        try:
+            output, error = p.communicate(timeout=timeout)
+            return RunCmdResult(p.returncode, output, error)
+        except TimeoutExpired as e:
+            return RunCmdResult(127, 'TimeoutExpired', str(e))
 
 
 class BaseApp(PrintMixin, PromptMixin):
@@ -68,13 +107,18 @@ class BaseApp(PrintMixin, PromptMixin):
         rootLogger.addHandler(ch)
         rootLogger.setLevel(logging.DEBUG)
 
-        self.version = packageVersion
+        # Supports extended semver, unlike mas.cli.__version__
+        self.version = "100.0.0-pre.local"
         self.h1count = 0
         self.h2count = 0
 
         self.localConfigDir = None
         self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
-        self.tektonDefsPath = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
+        self.tektonDefsWithoutDigestPath = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
+        self.tektonDefsWithDigestPath = path.join(self.templatesDir, "ibm-mas-tekton-with-digest.yaml")
+
+        # Default to using the tekton definitions without image digests
+        self.tektonDefsPath = self.tektonDefsWithoutDigestPath
 
         # Initialize the dictionary that will hold the parameters we pass to a PipelineRun
         self.params = dict()
@@ -130,6 +174,48 @@ class BaseApp(PrintMixin, PromptMixin):
         print_formatted_text(HTML("Powered by <DarkGoldenRod><u>https://github.com/ibm-mas/ansible-devops/</u></DarkGoldenRod> and <DarkGoldenRod><u>https://tekton.dev/</u></DarkGoldenRod>\n"))
         if which("kubectl") is None:
             self.fatalError("Could not find kubectl on the path, see <DarkGoldenRod><u>https://kubernetes.io/docs/tasks/tools/#kubectl</u></DarkGoldenRod> for installation instructions")
+
+    def createTektonFileWithDigest(self) -> None:
+        if path.exists(self.tektonDefsWithDigestPath):
+            logger.debug(f"We have already generated {self.tektonDefsWithDigestPath}")
+        elif isAirgapInstall(self.dynamicClient):
+            # We need to modify the tekton definitions to
+            imageWithoutDigest = f"quay.io/ibmmas/cli:{self.version}"
+            self.printH1("Disconnected OpenShift Preparation")
+            self.printDescription([
+                f"Unless the {imageWithoutDigest} image is accessible from your cluster the MAS CLI container image must be present in your mirror registry"
+            ])
+            cmdArray = ["skopeo", "inspect", f"docker://{imageWithoutDigest}"]
+            logger.info(f"Skopeo inspect command: {' '.join(cmdArray)}")
+            skopeoResult = runCmd(cmdArray)
+            if skopeoResult.successful():
+                skopeoData = json.loads(skopeoResult.out)
+                logger.info(f"Skopeo Data for {imageWithoutDigest}: {skopeoData}")
+                if "Digest" not in skopeoData:
+                    self.fatalError("Recieved bad data inspecting CLI manifest to determine digest")
+                cliImageDigest = skopeoData["Digest"]
+            else:
+                warning = f"Unable to retrieve image digest for {imageWithoutDigest} ({skopeoResult.rc})"
+                self.printWarning(warning)
+                logger.warning(warning)
+                logger.warning(skopeoResult.err)
+                if self.noConfirm:
+                    self.fatalError("Unable to automatically determine CLI image digest and --no-confirm flag has been set")
+                else:
+                    cliImageDigest = self.promptForString(f"Enter {imageWithoutDigest} image digest")
+
+            # Overwrite the tekton definitions with one that uses the looked up image digest
+            imageWithDigest = f"quay.io/ibmmas/cli@{cliImageDigest}"
+            self.printHighlight(f"\nConverting Tekton definitions to use {imageWithDigest}")
+            with open(self.tektonDefsPath, 'r') as file:
+                tektonDefsWithoutDigest = file.read()
+
+            tektonDefsWithDigest = tektonDefsWithoutDigest.replace(imageWithoutDigest, imageWithDigest)
+
+            with open(self.tektonDefsWithDigestPath, 'w') as file:
+                file.write(tektonDefsWithDigest)
+
+            self.tektonDefsPath = self.tektonDefsWithDigestPath
 
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
         if coreChannel in self.compatibilityMatrix:

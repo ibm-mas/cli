@@ -156,6 +156,8 @@ class UninstallApp(BaseApp):
             continueWithUninstall = self.yesOrNo("Proceed with these settings")
 
         if self.noConfirm or continueWithUninstall:
+            self.createTektonFileWithDigest()
+
             self.printH1("Launch uninstall")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 

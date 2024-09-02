@@ -95,6 +95,16 @@ oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o yaml 2> /dev/null
 CM_EXISTS=$?
 echo
 
+# Check if the configmap already has the desired state, for example if we pre-approve a checkpoint
+# in the pipeline before that checkpoint has been reached
+# This is used to prevent the install pipeline from changing a configmap that is
+# already set to "approved" back to "pending"
+KEY_VALUE=$(oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o jsonpath="{.data.${CONFIGMAP_KEY}}" 2> /dev/null)
+if [[ "$KEY_VALUE" == "$CONFIGMAP_TARGET_VALUE" ]]; then
+  echo "The key ${CONFIGMAP_KEY} in configmap/${CONFIGMAP_NAME} is already set to ${CONFIGMAP_TARGET_VALUE}"
+  exit 0
+fi
+
 if [[ -n "$CONFIGMAP_INITIAL_VALUE" ]]; then
   if [[ "$CM_EXISTS" == "0" ]]; then
     echo "Updating existing configmap to set initial value of ${CONFIGMAP_INITIAL_VALUE}"
