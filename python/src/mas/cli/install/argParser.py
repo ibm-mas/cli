@@ -83,6 +83,7 @@ masSpecialCharacters.add_argument(
     dest="mas_special_characters",
     required=False,
     help="Allow special chars for users username/ID",
+    action="store_true"
 )
 # ECK Integration
 # -----------------------------------------------------------------------------
