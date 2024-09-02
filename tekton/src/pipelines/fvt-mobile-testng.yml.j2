@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-fvt-mobile
+  name: mas-fvt-mobile-testng
 spec:
   workspaces:
     # The generated configuration files
@@ -46,7 +46,7 @@ spec:
       default: ""
   
       # Image Digests
-    - name: fvt_digest_manage_civil_selenium
+    - name: fvt_digest_manage
       type: string
       default: ""
 
@@ -54,14 +54,9 @@ spec:
     # 2. Manage FVT - Manage Mobile
     # -------------------------------------------------------------------------
     
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase1-setup.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase1.4-pytest.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase1.5-selenium-civil.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase2-android-part1.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase3-android-part2.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase4-android-part3.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase5-ios-part1.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase6-ios-part2.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase7-ios-part3.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-mobile/phase8-desktop.yml.j2') | indent(4) }}
-
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase0-civil.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase1-android.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase2-android.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase3-ios.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase4-ios.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/testng/phase5-desktop.yml.j2') | indent(4) }}

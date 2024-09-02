@@ -21,12 +21,10 @@
 
     # FVT Configuration
     fvt_digest_mobile_pytest: "{{ lookup('env', 'FVT_DIGEST_MOBILE_PYTEST') }}"
-    fvt_digest_mobile_testng: "{{ lookup('env', 'FVT_DIGEST_MOBILE_TESTNG') }}"
-    fvt_digest_manage_civil_selenium: "{{ lookup('env', 'FVT_DIGEST_MANAGE_CIVIL_SELENIUM') }}"
-
+    
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
-    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-mobile', True) }}-{{ devops_build_number }}"
+    pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-mobile-pytest', True) }}-{{ devops_build_number }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
   tasks:
     - name: "Debug"
@@ -43,13 +41,11 @@
           - "fvt_image_registry ....................... {{ fvt_image_registry }}"
           - "fvt_artifactory_token .................... {{ fvt_artifactory_token }}"
           - "fvt_digest_mobile_pytest ................. {{ fvt_digest_mobile_pytest }}"
-          - "fvt_digest_mobile_testng ................. {{ fvt_digest_mobile_testng }}"
-          - "fvt_digest_manage_civil_selenium ......... {{ fvt_digest_manage_civil_selenium }}"
           - ""
           - "fvt_blacklist ..................... {{ fvt_blacklist }}"
           - "fvt_whitelist ..................... {{ fvt_whitelist }}"
 
-    - name: "Start fvt-mobile pipeline"
+    - name: "Start fvt-mobile-pytest pipeline"
       kubernetes.core.k8s:
         apply: true
-        template: templates/mas-fvt-mobile.yml.j2
+        template: templates/mas-fvt-mobile-pytest.yml.j2
