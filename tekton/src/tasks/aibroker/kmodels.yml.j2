@@ -80,7 +80,34 @@ spec:
       type: string
       description: This option is mandatory
       default: ""
-
+    - name: mas_aibroker_storage_provider
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_accesskey
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_secretkey
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_host
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_port
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_ssl
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_region
+      type: string
+      default: "This option is mandatory"
+      default: ""
 
   stepTemplate:
     env:
@@ -127,6 +154,20 @@ spec:
         value: $(params.mas_aibroker_storage_tenants_bucket)
       - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
         value: $(params.mas_aibroker_storage_templates_bucket)
+      - name: MAS_AIBROKER_STORAGE_PROVIDER
+        value: $(params.mas_aibroker_storage_provider)
+      - name: MAS_AIBROKER_STORAGE_ACCESSKEY
+        value: $(params.mas_aibroker_storage_accesskey)
+      - name: MAS_AIBROKER_STORAGE_SECRETKEY
+        value: $(params.mas_aibroker_storage_secretkey)
+      - name: MAS_AIBROKER_STORAGE_HOST
+        value: $(params.mas_aibroker_storage_host)
+      - name: MAS_AIBROKER_STORAGE_PORT
+        value: $(params.mas_aibroker_storage_port)
+      - name: MAS_AIBROKER_STORAGE_SSL
+        value: $(params.mas_aibroker_storage_ssl)
+      - name: MAS_AIBROKER_STORAGE_REGION
+        value: $(params.mas_aibroker_storage_region)
 
   steps:
     - name: kmodels
