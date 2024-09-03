@@ -34,6 +34,12 @@ spec:
       value: "{{ mas_instance_id }}"
     - name: mas_workspace_id
       value: "{{ mas_workspace_id }}"
+
+    # manage launcher
+    - name: launchfvt_manage
+      value: "{{ launchfvt_manage }}"
+    - name: build_num
+      value: "{{ devops_build_number }}"
         
     # Digests
     - name: fvt_digest_mobile_pytest

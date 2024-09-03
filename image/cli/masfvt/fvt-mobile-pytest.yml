@@ -26,12 +26,15 @@
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-mobile-pytest', True) }}-{{ devops_build_number }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
+    launchfvt_manage: "{{ lookup('env', 'LAUNCHFVT_MANAGE') | default('', True) }}"
+
   tasks:
     - name: "Debug"
       debug:
         msg:
           - "pipelinerun_name ......................... {{ pipelinerun_name }}"
           - "pipelinerun_namespace .................... {{ pipelinerun_namespace }}"
+          - "launchfvt_manage ......................... {{ launchfvt_manage }}"
           - ""
           - "mas_channel .............................. {{ mas_channel }}"
           - "mas_app_channel_manage ................... {{ mas_app_channel_manage }}"
@@ -42,8 +45,8 @@
           - "fvt_artifactory_token .................... {{ fvt_artifactory_token }}"
           - "fvt_digest_mobile_pytest ................. {{ fvt_digest_mobile_pytest }}"
           - ""
-          - "fvt_blacklist ..................... {{ fvt_blacklist }}"
-          - "fvt_whitelist ..................... {{ fvt_whitelist }}"
+          - "fvt_blacklist ............................ {{ fvt_blacklist }}"
+          - "fvt_whitelist ............................ {{ fvt_whitelist }}"
 
     - name: "Start fvt-mobile-pytest pipeline"
       kubernetes.core.k8s:
