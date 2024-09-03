@@ -23,9 +23,8 @@ manage_logging_secret_name: {{ MANAGE_LOGGING_SECRET_NAME }}
 manage_logging_access_secret_key: <path:{{ SECRETS_PATH }}:{{ MANAGE_LOGGING_SECRET }}{{ MANAGE_LOGGING_SECRET_NAME }}#access_secret_key>
 {%- endif %}
 
-{%- if MANAGE_ATTACHMENTS_SECRET_NAME is defined and MANAGE_ATTACHMENTS_SECRET_NAME !='' %}
-manage_attachments_secret_name: {{ MANAGE_ATTACHMENTS_SECRET_NAME }}
-manage_attachments_access_secret_key: <path:{{ SECRETS_PATH }}:{{ MANAGE_ATTACHMENTS_SECRET }}{{ MANAGE_ATTACHMENTS_SECRET_NAME }}#access_secret_key>
+{%- if MAS_APP_GLOBAL_SECRETS is defined and MAS_APP_GLOBAL_SECRETS !='' %}
+{{ MAS_APP_GLOBAL_SECRETS | indent(2) }}
 {%- endif %}
 
 {{ MAS_APPWS_SPEC | indent(2) }}
