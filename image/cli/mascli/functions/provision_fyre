@@ -22,24 +22,22 @@ Cluster Configuration (Required):
   -d, --description ${COLOR_YELLOW}FYRE_DESCRIPTION${TEXT_RESET}      Description of the OCP cluster
   -l, --location ${COLOR_YELLOW}FYRE_SITE${TEXT_RESET}                FYRE site where cluster will be provisioned (default is svl)
 
-Worker Node Configuration (Optional, only takes effect when quota-type is set to "product_group"):
-      --worker-count ${COLOR_YELLOW}FYRE_WORKER_COUNT${TEXT_RESET}    Number of worker nodes to provision
-      --worker-cpu ${COLOR_YELLOW}FYRE_WORKER_CPU${TEXT_RESET}        How many CPUs to allocate per worker node
-      --worker-memory ${COLOR_YELLOW}FYRE_WORKER_MEMORY${TEXT_RESET}  How much memory to allocate per worker node
-
 Fyre Quick Burn Worker Node Configuration (Optional, only takes effect when quota-type is set to "quickburn"):
-      --fyre-cluster-size ${COLOR_YELLOW}FYRE_CLUSTER_SIZE${TEXT_RESET} When Fyre Quick Burn, defines the size category ("medium" or "large")
+      --cluster-size ${COLOR_YELLOW}FYRE_CLUSTER_SIZE${TEXT_RESET}    When Fyre Quick Burn, defines the size category ("medium" or "large")
+
+Worker Node Configuration (Optional, only takes effect when quota-type is set to "product_group"):
+      --worker-count ${COLOR_YELLOW}FYRE_WORKER_COUNT${TEXT_RESET}                        Number of worker nodes to provision (default 2)
+      --worker-cpu ${COLOR_YELLOW}FYRE_WORKER_CPU${TEXT_RESET}                            How many CPUs to allocate per worker node (default 8)
+      --worker-memory ${COLOR_YELLOW}FYRE_WORKER_MEMORY${TEXT_RESET}                      How much memory to allocate per worker node (default 32)
+      --worker-additional-disks ${COLOR_YELLOW}FYRE_WORKER_ADDITIONAL_DISKS${TEXT_RESET}  Comma-seperated list of sizes for additional disks to attach (e.g. "200,200" to attach two 400gb additional disks)
 
 Storage Provisioner Configuration:
-      --odf-storage ${COLOR_YELLOW}FYRE_CONFIG_STORAGE${TEXT_RESET}                         Enable ODF as default storage provisioner
-      --odf-worker-additional-disk ${COLOR_YELLOW}FYRE_WORKER_ADDITIONAL_DISK${TEXT_RESET}  The size of additional disk in Gb added to each worker node when using ODF
-      --nfs-storage ${COLOR_YELLOW}FYRE_CONFIG_STORAGE${TEXT_RESET}                         Enable NFS as default storage provisioner
-      --nfs-image-registry-size ${COLOR_YELLOW}IMAGE_REGISTRY_STORAGE_SIZE${TEXT_RESET}     Defines the image registry storage size when configured to use NFS. The size allocated cannot be superior of storage available in the Fyre Infrastructure node.
-      --no-storage                                                                          Disable automatic configuration of storage in the cluster
+      --nfs-image-registry-size ${COLOR_YELLOW}FYRE_NFS_IMAGE_REGISTRY_SIZE${TEXT_RESET}  Defines the image registry storage size when configured to use NFS (default 100gb). The size allocated cannot be superior of storage available in the Fyre Infrastructure node.
+      --no-storage                                            Disable setup of the nfs-client storage class
 
 Other Commands:
-      --no-confirm                        Provision the cluster without prompting for confirmation
-  -h, --help                              Show this help message
+      --no-confirm        Provision the cluster without prompting for confirmation
+  -h, --help              Show this help message
 
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
@@ -47,8 +45,8 @@ EOM
 
 function provision_fyre_noninteractive() {
   # Default to provisioning with NFS storage enabled
-  if [[ -z "$FYRE_CONFIG_STORAGE" ]]; then
-    FYRE_CONFIG_STORAGE=nfs
+  if [[ -z "$FYRE_NFS_SETUP" ]]; then
+    FYRE_NFS_SETUP=true
   fi
 
   while [[ $# -gt 0 ]]
@@ -56,18 +54,23 @@ function provision_fyre_noninteractive() {
     key="$1"
     shift
     case $key in
+      # Authentication
       -u|--username)
         FYRE_USERNAME=$1 && shift
         ;;
       -a|--apikey)
         FYRE_APIKEY=$1 && shift
         ;;
+
+      # Product Group & Quota Type
       -p|--product-id)
         FYRE_PRODUCT_ID=$1 && shift
         ;;
       -q|--quota-type)
         FYRE_QUOTA_TYPE=$1 && shift
         ;;
+
+      # CLuster Definition
       -c|--cluster-name)
         CLUSTER_NAME=$1 && shift
         ;;
@@ -80,6 +83,8 @@ function provision_fyre_noninteractive() {
       -l|--location)
         FYRE_SITE=$1 && shift
         ;;
+
+      # Worker configuration
       --worker-count)
         FYRE_WORKER_COUNT=$1 && shift
         ;;
@@ -89,24 +94,24 @@ function provision_fyre_noninteractive() {
       --worker-memory)
         FYRE_WORKER_MEMORY=$1 && shift
         ;;
-      --fyre-cluster-size)
-        FYRE_CLUSTER_SIZE=$1 && shift
-        ;;      
-      --no-storage)
-        FYRE_CONFIG_STORAGE=false
+      --worker-additional-disks)
+        FYRE_WORKER_ADDITIONAL_DISKS=$1 && shift
         ;;
-      --nfs-storage)
-        FYRE_CONFIG_STORAGE=nfs
+
+      # Quickburn configuration
+      --cluster-size)
+        FYRE_CLUSTER_SIZE=$1 && shift
+        ;;
+
+      # Storage Configuration
+      --no-storage)
+        FYRE_NFS_SETUP=false
         ;;
       --nfs-image-registry-size)
         IMAGE_REGISTRY_STORAGE_SIZE=$1 && shift
         ;;
-      --odf-storage)
-        FYRE_CONFIG_STORAGE=ocs
-        ;;
-      --odf-worker-additional-disk)
-        FYRE_WORKER_ADDITIONAL_DISK=$1 && shift
-        ;;
+
+      # Other options
       --no-confirm)
         NO_CONFIRM=true
         ;;
@@ -157,8 +162,8 @@ function provision_fyre_interactive() {
 
   echo
   echo "OCP Version:"
-  echo "  1. 4.15 (MAS 8.10-9.0)"
-  echo "  2. 4.14 (MAS 8.10-9.0)"
+  echo "  1. 4.15"
+  echo "  2. 4.14"
   prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
 
   case $OCP_VERSION_SELECTION in
@@ -182,12 +187,13 @@ function provision_fyre_interactive() {
   prompt_for_confirm "Use Product Group Quota?" USE_PRODUCT_GROUP_QUOTA
   if [[ "$USE_PRODUCT_GROUP_QUOTA" == "true" ]]; then
     FYRE_QUOTA_TYPE="product_group"
-    prompt_for_number "Number of Worker Nodes (min 3)" FYRE_WORKER_COUNT
-    prompt_for_number "Worker Node CPU (max 16)" FYRE_WORKER_CPU
-    prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY
+    prompt_for_number "Number of Worker Nodes" FYRE_WORKER_COUNT "2"
+    prompt_for_number "Worker Node CPU (max 16)" FYRE_WORKER_CPU "8"
+    prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY "32"
+    prompt_for_input "Worker Additional Disk Sizes (GB, comma-seperated list)" FYRE_WORKER_ADDITIONAL_DISKS
   else
     FYRE_QUOTA_TYPE="quick_burn"
-    if [[ "$FYRE_SITE" != "svl" ]]; then 
+    if [[ "$FYRE_SITE" != "svl" ]]; then
       echo -e "${COLOR_RED}Usage Error: QuickBurn is only supported in svl${TEXT_RESET}\n"
       exit 1
     fi
@@ -208,19 +214,11 @@ function provision_fyre_interactive() {
     fi
   fi
 
-  echo "Configure Storage Provisioner:"
-  echo "  1. NFS"
-  echo "  2. ODF"
-  prompt_for_input "Select Storage Provisioner" FYRE_CONFIG_STORAGE_SELECTION "1"
-
-  if [[ "$FYRE_CONFIG_STORAGE_SELECTION" == "1" ]]; then
-    FYRE_CONFIG_STORAGE=nfs
-    prompt_for_input "Image Registry Storage Size" IMAGE_REGISTRY_STORAGE_SIZE "100Gi"
-  fi
-
-  if [[ "$FYRE_CONFIG_STORAGE_SELECTION" == "2" ]]; then
-    FYRE_CONFIG_STORAGE=ocs
-    prompt_for_input "Workers Additional Disk Size (GB)" FYRE_WORKER_ADDITIONAL_DISK "400"
+  prompt_for_confirm_default_yes "Enable NFS storage class (nfs-client) in the cluster?" CONFIGURE_NFS
+  if [[ "$CONFIGURE_NFS" == "false" ]]; then
+    export FYRE_NFS_SETUP=false
+  else
+    prompt_for_input "Image Registry PVC Size" FYRE_IMAGE_REGISTRY_SIZE "100Gi"
   fi
 
 }
@@ -254,14 +252,16 @@ function provision_fyre() {
   export OCP_VERSION
   export FYRE_CLUSTER_DESCRIPTION
   export FYRE_SITE
+
   export FYRE_WORKER_COUNT
   export FYRE_WORKER_CPU
   export FYRE_WORKER_MEMORY
+  export FYRE_WORKER_ADDITIONAL_DISK
+
   export FYRE_CLUSTER_SIZE
 
-  export FYRE_CONFIG_STORAGE
-  export IMAGE_REGISTRY_STORAGE_SIZE
-  export FYRE_WORKER_ADDITIONAL_DISK
+  export FYRE_NFS_SETUP
+  export FYRE_IMAGE_REGISTRY_SIZE
 
   echo
   reset_colors
@@ -290,6 +290,15 @@ function provision_fyre() {
     echo_reset_dim "Worker Node Count ......... ${COLOR_MAGENTA}${FYRE_WORKER_COUNT:-Default}"
     echo_reset_dim "Worker Node CPU ........... ${COLOR_MAGENTA}${FYRE_WORKER_CPU:-Default}"
     echo_reset_dim "Worker Node Memory ........ ${COLOR_MAGENTA}${FYRE_WORKER_MEMORY:-Default}"
+    echo_reset_dim "Worker Node Disks ......... ${COLOR_MAGENTA}${FYRE_WORKER_ADDITIONAL_DISKS:-None}"
+  fi
+
+  reset_colors
+  echo "${TEXT_DIM}"
+  echo_h2 "Storage" "    "
+  echo_reset_dim "Enable NFS Storage Class .. ${COLOR_MAGENTA}${FYRE_NFS_SETUP}"
+  if [[ "${FYRE_NFS_SETUP}" == "true" ]]; then
+    echo_reset_dim "Image Registry Size ....... ${COLOR_MAGENTA}${FYRE_NFS_IMAGE_REGISTRY_SIZE:-Default}"
   fi
 
   echo
