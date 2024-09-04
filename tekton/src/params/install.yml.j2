@@ -280,6 +280,10 @@
   type: string
   description: COS action to be performed (provision or deprovision)
   default: ""
+- name: use_hmac
+  type: string
+  description: Optional boolean variable weather hmac is enabled or not
+  default: ""
 
 # MAS Integration - Grafana
 # -----------------------------------------------------------------------------
@@ -633,7 +637,7 @@
   default: ""
 - name: mas_arcgis_channel
   type: string
-  description: Default channel for IBM Maximo Location Services for ESRI 
+  description: Default channel for IBM Maximo Location Services for ESRI
   default: "" # default is handled by ansible-devops
 
 # MAS Application Configuration - Health Application
