@@ -68,6 +68,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#worker-node-configuration">Worker Node Configuration</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#storage-provisioner-configuration">Storage Provisioner Configuration</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#other-commands">Other Commands</a>
     </li>
         </ul>
@@ -186,10 +188,16 @@
 <li><code>--worker-count FYRE_WORKER_COUNT</code> Number of worker nodes to provision</li>
 <li><code>--worker-cpu FYRE_WORKER_CPU</code> How many CPUs to allocate per worker node</li>
 <li><code>--worker-memory FYRE_WORKER_MEMORY</code> How much memory to allocate per worker node</li>
+<li><code>--worker-additional-disks FYRE_WORKER_ADDITIONAL_DISKS</code> Comma-seperated list of additional disks (in Gb) added to each worker node (e.g. "200,200")</li>
+<li><code>--fyre-cluster-size FYRE_CLUSTER_SIZE</code> When Fyre Quick Burn, defines the size category ("medium" or "large")</li>
+</ul>
+<h3 id="storage-provisioner-configuration">Storage Provisioner Configuration<a class="headerlink" href="#storage-provisioner-configuration" title="Permanent link"></a></h3>
+<ul>
+<li><code>--no-storage</code>  Disable setup of the nfs-client storage class</li>
+<li><code>--nfs-image-registry-size FYRE_NFS_IMAGE_REGISTRY_SIZE</code> Defines the image registry storage size when configured to use NFS (default 100gb). The size allocated cannot be superior of storage available in the Fyre Infrastructure node.</li>
 </ul>
 <h3 id="other-commands">Other Commands<a class="headerlink" href="#other-commands" title="Permanent link"></a></h3>
 <ul>
-<li><code>-s|--simulate-airgap</code> Set flag to apply the simulated airgap network configuration to the cluster after provisioning</li>
 <li><code>--no-confirm</code> Provision the cluster without prompting for confirmation</li>
 <li><code>-h|--help</code> Show this help message</li>
 </ul>
