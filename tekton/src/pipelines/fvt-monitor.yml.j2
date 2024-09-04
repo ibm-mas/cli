@@ -120,7 +120,7 @@ spec:
           value: $(params.fvt_test_suite) # pytest_marker in Common Test Framework
         - name: product_channel
           value: $(params.mas_app_channel_monitor)
-
+      timeout: "0"  
       taskRef:
         kind: Task
         name: mas-fvt-monitor
