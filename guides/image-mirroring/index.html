@@ -160,7 +160,7 @@
                 <h1 id="image-mirroring">Image Mirroring<a class="headerlink" href="#image-mirroring" title="Permanent link"></a></h1>
 <h2 id="image-mirroring-overview">Image Mirroring Overview<a class="headerlink" href="#image-mirroring-overview" title="Permanent link"></a></h2>
 <p>We recommend the use of two-phase mirroring, it is slower than direct mirroring and requires more storage capacity, but can allow you to more easily recover from network glitches and creates a clean seperation of the tasks of getting the content from the source registry and putting it into the target registry which can make debugging failures easier.</p>
-<p>This guide assumes that you are looking to mirror content for the latest release (<strong>9.0.x</strong>) from the most recent catalog update (<strong>v9-240827-amd64</strong>), and that you are installing all MAS applications.  If you are not installing certain applications or dependencies take care to remove the appropriate <code>--mirror-x</code> flags to avoid mirroring unnecessary images.</p>
+<p>This guide assumes that you are looking to mirror content for the latest release (<strong>9.0.x</strong>) from the most recent catalog update (<strong>v9-240827-amd64</strong>), and that you are installing all MAS applications &amp; dependencies.  If you are not installing certain applications or dependencies take care to remove the appropriate <code>--mirror-x</code> flags to avoid mirroring unnecessary images.</p>
 <h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link"></a></h2>
 <p>Set the following environment variables that will be used in each stage:</p>
 <pre><code class="language-bash">export IBM_ENTITLEMENT_KEY=xxx
@@ -169,8 +169,6 @@ export REGISTRY_HOST=xxx
 export REGISTRY_PORT=xxx
 export REGISTRY_USERNAME=xxx
 export REGISTRY_PASSWORD=xxx
-export REDHAT_USERNAME=xxx
-export REDHAT_PASSWORD=xxx
 </code></pre>
 <h2 id="stage-1-core">Stage 1 - Core<a class="headerlink" href="#stage-1-core" title="Permanent link"></a></h2>
 <p>Let's start simple and just get the MAS Core and IBM Maximo Operator Catalog mirrored to the registry, this shouldn't take long and provides an early measure of the download and upload performance to help estimate the time to complete the larger stages.</p>
@@ -190,37 +188,37 @@ export REDHAT_PASSWORD=xxx
 <pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-240827-amd64 -C 9.0.x \
-  --mirror-assist --mirror-hputilities --mirror-iot --mirror-manage --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
 <pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-240827-amd64 -C 9.0.x \
-  --mirror-assist --mirror-hputilities --mirror-iot --mirror-manage --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
 </code></pre>
 <h2 id="stage-3-cp4d">Stage 3 - CP4D<a class="headerlink" href="#stage-3-cp4d" title="Permanent link"></a></h2>
 <pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-240827-amd64 -C 9.0.x \
-  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl \
+  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
 <pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-240827-amd64 -C 9.0.x \
-  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl
+  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos
 </code></pre>
 <h2 id="stage-4-other-dependencies">Stage 4 - Other Dependencies<a class="headerlink" href="#stage-4-other-dependencies" title="Permanent link"></a></h2>
 <pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-240827-amd64 -C 9.0.x \
-  --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs --mirror-appconnect --mirror-db2 \
-  --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
 <pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-240827-amd64 -C 9.0.x \
-  --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs --mirror-appconnect --mirror-db2
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
 </code></pre>
               
             </div>

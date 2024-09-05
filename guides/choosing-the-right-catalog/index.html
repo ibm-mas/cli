@@ -45,13 +45,13 @@
               <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">Choosing the Right Catalog</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#automatic-updates">Automatic Updates</a>
-    </li>
     <li class="toctree-l2"><a class="reference internal" href="#user-controlled-updates">User-Controlled Updates</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#multi-cluster-version-equivalency">Multi-Cluster Version Equivalency</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#disconnected-install">Disconnected Install</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#automatic-updates">Automatic Updates</a>
     </li>
     </ul>
                   </li>
@@ -156,19 +156,8 @@
                 <h1 id="choosing-the-right-catalog">Choosing the Right Catalog<a class="headerlink" href="#choosing-the-right-catalog" title="Permanent link"></a></h1>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>In all cases we <strong>strongly discourage the use of manual update approval strategy for operator subscriptions</strong>.  In our experience it leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. <strong>If you desire control over when updates are introduced to your cluster, we highly recommend the use of our static operator catalogs.</strong> This not only provides more control but also allows for the use of <a href="../update/"><code>mas update</code></a> to manage MAS and update MAS dependencies.</p>
+<p>In all cases we <strong>strongly discourage the use of manual update approval strategy for operator subscriptions</strong> and all IBM-provided automation is designed to work with the automatic update approval strategy only.  In our experience it leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. <strong>To control when updates are introduced to your cluster, control them at the catalog level</strong>, this not only provides more control but also allows for the use of <a href="../update/"><code>mas update</code></a> to manage the update lifecycle of both MAS and it's dependencies because there is often more to performing an update than just delivering a new operator version.</p>
 </div>
-<h2 id="automatic-updates">Automatic Updates<a class="headerlink" href="#automatic-updates" title="Permanent link"></a></h2>
-<ul>
-<li>Goal: I want to receive updates automatically as soon as they are available</li>
-<li>Solution: Use the <strong>dynamic catalogs and automatic update approval strategy</strong></li>
-</ul>
-<p>The content in this catalog is updated regularly. Multiple installations at different times will not necessarily be identical because package updates are being delivered to the channels.</p>
-<ul>
-<li>Only security updates and bug fixes will be delivered this way (software updates).</li>
-<li>Software upgrades require the user to explicitly change a subscription channel.</li>
-<li>Automatic updates delivered do not include updates to MAS dependencies and hence have to be done manually.</li>
-</ul>
 <h2 id="user-controlled-updates">User-Controlled Updates<a class="headerlink" href="#user-controlled-updates" title="Permanent link"></a></h2>
 <ul>
 <li>Goal: I want to control when updates are introduced into my cluster</li>
@@ -192,6 +181,21 @@
 <p class="admonition-title">Important</p>
 <p>To apply updates in a disconnected cluster, run the <code>mirror-images</code> command with the name of the new static catalog you wish to update to <strong>before</strong> updating the CatalogSource in your cluster</p>
 </div>
+<h2 id="automatic-updates">Automatic Updates<a class="headerlink" href="#automatic-updates" title="Permanent link"></a></h2>
+<ul>
+<li>Goal: I want to receive updates automatically as soon as they are available</li>
+<li>Solution: Use the <strong>dynamic catalogs and automatic update approval strategy</strong></li>
+</ul>
+<p>The content in this catalog is updated regularly. Multiple installations at different times will not necessarily be identical because package updates are being delivered to the channels.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>From MAS 9.0 onwards the dynamic operator catalog is no longer supported, only static operator catalogs are available.</p>
+</div>
+<ul>
+<li>Only security updates and bug fixes will be delivered this way (software updates).</li>
+<li>Software upgrades require the user to explicitly change a subscription channel.</li>
+<li>Automatic updates delivered do not include updates to MAS dependencies and hence have to be done manually.</li>
+</ul>
               
             </div>
           </div><footer>
