@@ -9,11 +9,16 @@
     - name: fvt_test_suite
       value: inventory-counting-mvt-desktop
   runAfter:
-    - fvt-mobile-testng-ir-ios
-    - fvt-mobile-testng-technician-ios
-    - fvt-mobile-testng-supervisor-ios
+    - fvt-mobile-testng-assetmng-ios
     - fvt-mobile-testng-calibration-ios
+    - fvt-mobile-testng-inspections-ios
+    - fvt-mobile-testng-ic-ios
+    - fvt-mobile-testng-ir-ios
     - fvt-mobile-testng-it-ios
+    - fvt-mobile-testng-mobfound-ios
+    - fvt-mobile-testng-sr-ios
+    - fvt-mobile-testng-supervisor-ios
+    - fvt-mobile-testng-technician-ios
 
 - name: fvt-mobile-testng-inspforms-desktop
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
@@ -26,8 +31,13 @@
     - name: fvt_test_suite
       value: inspection-forms-mvt-desktop
   runAfter:
-    - fvt-mobile-testng-ir-ios
-    - fvt-mobile-testng-technician-ios
-    - fvt-mobile-testng-supervisor-ios
+    - fvt-mobile-testng-assetmng-ios
     - fvt-mobile-testng-calibration-ios
+    - fvt-mobile-testng-inspections-ios
+    - fvt-mobile-testng-ic-ios
+    - fvt-mobile-testng-ir-ios
     - fvt-mobile-testng-it-ios
+    - fvt-mobile-testng-mobfound-ios
+    - fvt-mobile-testng-sr-ios
+    - fvt-mobile-testng-supervisor-ios
+    - fvt-mobile-testng-technician-ios

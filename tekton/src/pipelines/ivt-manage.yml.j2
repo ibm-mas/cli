@@ -60,6 +60,7 @@ spec:
     # - Requires in the same pipeline:
     #   - fvt-apps/manage.yml.j2
     #   - fvt-apps/monitor.yml.j2
+    # -------------------------------------------------------------------------
     - name: ivt-manage
       params:
         - name: mas_instance_id
@@ -95,3 +96,18 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
+  
+    # Manage Last Phase
+    # -------------------------------------------------------------------------
+    # These task runs multiple tests in sequence as they must be executed isolated from the rest
+    # They were moved from fvt-manage pipeline into ivt because they should not be running in parallel with IS and Mobile FVT
+    # -------------------------------------------------------------------------
+    - name: fvt-manage-base-ui-last-phase
+      {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(6) }}
+      taskRef:
+        kind: Task
+        name: mas-fvt-manage-last-phase
+      params:
+        {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(8) }}
+      runAfter:
+        - ivt-manage
