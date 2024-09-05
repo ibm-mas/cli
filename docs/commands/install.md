@@ -45,7 +45,7 @@ mas install [-c MAS_CATALOG_VERSION] [--mas-catalog-digest MAS_CATALOG_DIGEST] [
             [--cos-resourcegroup COS_RESOURCEGROUP] [--turbonomic-name TURBONOMIC_TARGET_NAME] [--turbonomic-url TURBONOMIC_SERVER_URL]
             [--turbonomic-version TURBONOMIC_SERVER_VERSION] [--turbonomic-username TURBONOMIC_USERNAME] [--turbonomic-password TURBONOMIC_PASSWORD]
             [--ibmcloud-apikey IBMCLOUD_APIKEY] [--aws-region AWS_REGION] [--aws-access-key-id AWS_ACCESS_KEY_ID] [--secret-access-key SECRET_ACCESS_KEY]
-            [--aws-vpc-id AWS_VPC_ID] [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN]
+            [--aws-vpc-id AWS_VPC_ID] [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--allow-special-chars MAS_SPECIAL_CHARACTERS]
             [--approval-core APPROVAL_CORE] [--approval-assist APPROVAL_ASSIST] [--approval-iot APPROVAL_IOT] [--approval-manage APPROVAL_MANAGE]
             [--approval-monitor APPROVAL_MONITOR] [--approval-optimizer APPROVAL_OPTIMIZER] [--approval-predict APPROVAL_PREDICT]
             [--approval-visualinspection APPROVAL_VISUALINSPECTION] [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check]
