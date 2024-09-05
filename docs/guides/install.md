@@ -38,13 +38,13 @@ The other values can be left at their defaults.  Finally, click **Generate** and
     For more information about how to access the IBM License Key Center review the [getting started documentation](https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf) available from the IBM support website.
 
 ### 1.3 OpenShift Cluster
-You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.openshift.com/container-platform/4.12/installing/index.html).
+You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.openshift.com/container-platform/4.15/installing/index.html).
 
 The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
 - [AWS](../commands/provision-rosa.md)
 - [IBM Cloud](../commands/provision-roks.md)
-- [IBM DevIT FYRE(Internal)](../commands/provision-fyre.md)
+- [IBM DevIT FYRE (Internal)](../commands/provision-fyre.md)
 
 
 ### 1.4 Operator Catalog Selection
