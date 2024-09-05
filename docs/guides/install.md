@@ -86,15 +86,17 @@ docker run -ti --pull always quay.io/ibmmas/cli mas mirror-images
 
 You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](choosing-the-right-catalog.md) and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
 
-This command can also be ran non-interactive, for full usgae information refer to the [mirror-images](../commands/mirror-images.md) command documentation, if you are looking for more detailed guidance on how to approach this activity refer to the [image mirroring guide](image-mirroring.md).
+The following command will mirror all required and optional content that makes up the IBM Maximo Operator Catalog directly to your mirror registry, for full usgae information refer to the [mirror-images](../commands/mirror-images.md) command documentation, if you are looking for more detailed guidance on how to approach this activity refer to the [image mirroring guide](image-mirroring.md).
 
 ```bash
 mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-catalog --mirror-core --mirror-manage --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs \
+  --mirror-catalog --mirror-core \
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
+  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos \
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY \
-  --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   --no-confirm
 ```
 

@@ -16,6 +16,7 @@ jobs:
   build-tekton:
     name: Build Tekton Definitions
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     steps:
       # 1. Initialize the build
       # -------------------------------------------------------------------------------------------
@@ -61,6 +62,7 @@ jobs:
   build-python:
     name: Build Python Package
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs: build-tekton
     steps:
       # 1. Initialize the build
@@ -141,6 +143,7 @@ jobs:
   build-container:
     name: Build Container Image
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -248,6 +251,7 @@ jobs:
   pyinstaller-windows:
     name: Build Windows CLI
     runs-on: windows-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -308,6 +312,7 @@ jobs:
   pyinstaller-linux:
     name: Build Linux CLI
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -368,6 +373,7 @@ jobs:
   pyinstaller-macos:
     name: Build MacOS CLI
     runs-on: macos-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
