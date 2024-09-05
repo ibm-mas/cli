@@ -16,6 +16,7 @@ jobs:
   build-tekton:
     name: Build Tekton Definitions
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     steps:
       # 1. Initialize the build
       # -------------------------------------------------------------------------------------------
@@ -61,6 +62,7 @@ jobs:
   build-python:
     name: Build Python Package
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs: build-tekton
     steps:
       # 1. Initialize the build
@@ -93,6 +95,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/python
           sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
+          sed -i "s#self.version = \"100.0.0-pre.local\"#self.version = \"${{ env.VERSION }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/cli.py
           cat ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
 
           python -m pip install --upgrade pip
@@ -140,6 +143,7 @@ jobs:
   build-container:
     name: Build Container Image
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -247,6 +251,7 @@ jobs:
   pyinstaller-windows:
     name: Build Windows CLI
     runs-on: windows-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -307,6 +312,7 @@ jobs:
   pyinstaller-linux:
     name: Build Linux CLI
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -367,6 +373,7 @@ jobs:
   pyinstaller-macos:
     name: Build MacOS CLI
     runs-on: macos-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python

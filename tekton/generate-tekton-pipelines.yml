@@ -28,7 +28,6 @@
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items:
         # Main Pipelines
-        - db2
         - install
         - update
         - upgrade

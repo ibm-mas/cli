@@ -438,6 +438,11 @@
   default: "True"
   description: Optional parameter to enable or disable guided tour
 
+# Special characters configuration
+- name: mas_special_characters
+  type: string
+  default: ''
+
 # SSO Configuration
 # -----------------------------------------------------------------------------
 - name: idle_timeout
@@ -516,11 +521,11 @@
   type: string
   description: Flag indicating if manage demodata should be loaded or not
   default: ""
-- name: mas_app_settings_base_language
+- name: mas_app_settings_base_lang
   type: string
   description: Defines Manage application base language
   default: "EN"
-- name: mas_app_settings_secondary_languages
+- name: mas_app_settings_secondary_langs
   type: string
   description: Defines Manage application list of secondary languages
   default: ""
