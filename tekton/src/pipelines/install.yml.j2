@@ -121,6 +121,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-platform.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
+        - ibm-catalogs
 
     # 3.2 Watson Studio
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-wsl.yml.j2') | indent(4) }}
