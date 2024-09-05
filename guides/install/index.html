@@ -293,13 +293,15 @@
 <pre><code class="language-bash">docker run -ti --pull always quay.io/ibmmas/cli mas mirror-images
 </code></pre>
 <p>You will be prompted to set the target registry for the image mirroring and to <a href="../choosing-the-right-catalog/">select the version of IBM Maximo Operator Catalog to mirror</a> and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.</p>
-<p>This command can also be ran non-interactive, for full usgae information refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation, if you are looking for more detailed guidance on how to approach this activity refer to the <a href="../image-mirroring/">image mirroring guide</a>.</p>
+<p>The following command will mirror all required and optional content that makes up the IBM Maximo Operator Catalog directly to your mirror registry, for full usgae information refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation, if you are looking for more detailed guidance on how to approach this activity refer to the <a href="../image-mirroring/">image mirroring guide</a>.</p>
 <pre><code class="language-bash">mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-240827-amd64 -C 9.0.x \
-  --mirror-catalog --mirror-core --mirror-manage --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs \
+  --mirror-catalog --mirror-core \
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
+  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos \
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY \
-  --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   --no-confirm
 </code></pre>
 <h3 id="23-configure-openshift-to-use-your-private-registry-for-mas">2.3 Configure OpenShift to use your Private Registry for MAS<a class="headerlink" href="#23-configure-openshift-to-use-your-private-registry-for-mas" title="Permanent link"></a></h3>
