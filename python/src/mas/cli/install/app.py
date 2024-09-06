@@ -185,6 +185,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("Configure MongoDb")
         self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
 
+    def configSpecialCharacters(self):
+        self.printH1("Configure special characters for userID and username")
+        self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "mas_special_characters")
+         
     def configCP4D(self):
         if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64"]:
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
@@ -261,6 +265,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configCATrust()
         self.configDNSAndCerts()
         self.configSSOProperties()
+        self.configSpecialCharacters()
         self.configGuidedTour()
 
     def configCATrust(self) -> None:
@@ -746,7 +751,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "install_arcgis",
             "mas_arcgis_channel",
             # Guided Tour
-            "mas_enable_walkme"
+            "mas_enable_walkme",
+            # Special chars
+            "mas_special_characters"
         ]
 
         for key, value in vars(self.args).items():
