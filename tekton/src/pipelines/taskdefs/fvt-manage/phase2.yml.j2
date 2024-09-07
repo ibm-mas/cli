@@ -3,6 +3,10 @@
 # - fvt-manage-base-api-system (pytest)
 # - fvt-manage-base-api-mif (pytest)
 # - fvt-manage-base-api-mif-setup (pytest)
+# - fvt-manage-base-api-jms-setup (pytest)
+# - fvt-manage-base-api-kafka-setup (pytest)
+# - fvt-manage-base-api-s3-with-jms-setup (pytest)
+# - fvt-manage-base-api-s3-with-kafka-setup (pytest)
 # -------------------------------------------------------------
 
 # Manage FVT System
@@ -35,3 +39,48 @@
   runAfter:
     - fvt-manage-base-api-ivt
 
+# Manage FVT JMS-SETUP
+- name: fvt-manage-base-api-jms-setup
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-api-jms-setup
+  runAfter:
+    - fvt-manage-base-api-ivt
+    - fvt-manage-base-api-mif-setup
+
+# Manage FVT KAFKA-SETUP
+- name: fvt-manage-base-api-kafka-setup
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-api-kafka-setup
+  runAfter:
+    - fvt-manage-base-api-ivt
+    - fvt-manage-base-api-mif-setup
+
+# Manage FVT S3/COS-JMS-SETUP
+- name: fvt-manage-base-api-s3-with-jms-setup
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-api-s3-with-jms-setup
+  runAfter:
+    - fvt-manage-base-api-ivt
+    - fvt-manage-base-api-mif-setup
+    - fvt-manage-base-api-jms-setup
+
+# Manage FVT S3/COS-KAFKA-SETUP
+- name: fvt-manage-base-api-s3-with-kafka-setup
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-api-s3-with-kafka-setup
+  runAfter:
+    - fvt-manage-base-api-ivt
+    - fvt-manage-base-api-mif-setup
+    - fvt-manage-base-api-kafka-setup
