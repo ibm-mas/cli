@@ -1,7 +1,7 @@
 Mirror IBM Db2 Content
 ===============================================================================
 
-This example shows how to mirror jsut the IBM Db2u content associated with a specific release of the **IBM Maximo Operator Catalog**
+This example shows how to mirror just the IBM Db2u content associated with a specific release of the **IBM Maximo Operator Catalog**
 
 ```bash
 #!/bin/bash
@@ -16,7 +16,7 @@ export REGISTRY_PASSWORD=x
 export IBM_ENTITLEMENT_KEY=x
 
 # Catalog
-export CATALOG=v9-240730-amd64
+export CATALOG=v9-240827-amd64
 
 mas mirror-images -m to-filesystem -d /pvc/mirror/$CATALOG --no-confirm \
   -H $REGISTRY_PRIVATE_HOST -P $REGISTRY_PRIVATE_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
