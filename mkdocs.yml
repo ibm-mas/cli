@@ -44,6 +44,9 @@ nav:
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
       - "Cluster Extensions": reference/cluster-extensions.md
+  - "Examples":
+      - "EAM Migration": examples/eam-migration.md
+      - "Mirror Db2 Images": examples/mirror-db2.md
 theme:
   name: readthedocs
   highlightjs: true

@@ -3,8 +3,8 @@ Migration from EAM 7 to MAS 9
 
 This example demonstrates how to migrate from EAM 7 to Maximo Manage v9 running on an IBM-managed OpenShift in IBMCloud (ROKS).
 
-- The existing database instance used by EAM v7 is configured without TLS (so we do not need to worry about providing the certificates in the configuration)
-- Normally you would take a backup of the database and use that, but for the purpose of this example we are going to take over the database currently in use, if you wish to follow this example using a backup of your database simply skip step 2.
+- For this demo we are using an existing database instance that is configured without TLS enabled (so we do not need to worry about providing the certificates in the configuration)
+- Normally you would take a backup of the database and use that, but for the purpose of this example we are going to take over the database currently in use, if you wish to follow this example using a restored backup of your database simply skip step 2.
 
 
 Pre-Requisites
@@ -43,7 +43,7 @@ We are going to provision the cluster using **Red Hat OpenShift on IBM Cloud** v
 ```bash
 export IBMCLOUD_APIKEY=x
 
-docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:latest \
+docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ \
   mas provision-roks -r mas-development -c mas9demo -v 4.14_openshift \
   --worker-count 3 --worker-flavor b3c.8x32 --worker-zone lon02 \
   --no-confirm
@@ -51,19 +51,18 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 
 This will provision an OpenShift cluster with three 8x32 worker nodes. It will take approximately **1 hour** to provision the cluster.
 
-> [!NOTE]
-> At time of writing the approximate cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours.
+!!! note
+    At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours.
 
 
 Step 2 - Shutdown EAM
 -------------------------------------------------------------------------------
-While the cluster is being provisioned, because we are going to take over the same database that is in use by the existing EAM 7 instance we must first stop EAM.
-
-Log into the WebSphere administrative console and stop the servers.
+We must stop EAM because we are going to take over the same database that is currently using; log into the WebSphere administrative console and stop the servers.
 
 ![alt text](images/shutdown_eam.png)
 
-You can skip this step if you took a backup of your database and instead are using that.
+!!! note
+    You can skip this step if you took a backup of your database and instead are using that.
 
 
 Step 3 - Prepare the JDBCCfg
@@ -77,7 +76,7 @@ kind: Secret
 type: Opaque
 metadata:
   name: "jdbc-demo-credentials"
-  namespace: "mas-prod-core"
+  namespace: "mas-dev-core"
 stringData:
   username: "{DB_USERNAME}"
   password: "{DB_PASSWORD}"
@@ -85,15 +84,15 @@ stringData:
 apiVersion: config.mas.ibm.com/v1
 kind: JdbcCfg
 metadata:
-  name: "prod-jdbc-wsapp-demo-manage"
-  namespace: "mas-prod-core"
+  name: "dev-jdbc-wsapp-demo-manage"
+  namespace: "mas-dev-core"
   labels:
     "mas.ibm.com/configScope": "workspace-application"
-    "mas.ibm.com/instanceId": "prod"
+    "mas.ibm.com/instanceId": "dev"
     "mas.ibm.com/workspaceId": "demo"
     "mas.ibm.com/applicationId": "manage"
 spec:
-  displayName: "prod-jdbc-manage"
+  displayName: "dev-jdbc-manage"
   config:
     url: "{JDBC_URL}"
     sslEnabled: false
@@ -124,24 +123,24 @@ Ensure the following environment variables are all set:
 
 We will install MAS in **non-production mode**, with an instance ID of `dev` and a workspace ID of `demo` using the latest (at time of writing) catalog update.
 
-> [!NOTE]
-> Note that when we launch the CLI container we are mounting your home directory into the container image, this is how the installer will access the `entitlement.lic` and `mas9demo-jdbc.yaml` files that you created earlier.
+!!! note
+    When we launch the CLI container we are mounting your home directory into the container image, this is how the installer will access the `entitlement.lic` and `mas9demo-jdbc.yaml` files that you created earlier.
 
 ```bash
 export IBMCLOUD_APIKEY=x
 export SUPERUSER_PASSWORD=x
 export IBM_ENTITLEMENT_KEY=x
 
-docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:latest bash -c "
-  CLUSTER_TYPE=roks CLUSTER_NAME=mas9demo4-8x32 ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role &&
+docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ bash -c "
+  CLUSTER_TYPE=roks CLUSTER_NAME=mas9demo ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role &&
   mas install \
   --non-prod \
   --mas-instance-id dev \
   --mas-workspace-id demo \
   --mas-workspace-name 'EAM Migration Demo' \
-  --mas-catalog-version v9-240827-amd64 \
-  --mas-channel 9.0.x \
-  --manage-channel 9.0.x \
+  --mas-catalog-version @@MAS_LATEST_CATALOG@@ \
+  --mas-channel @@MAS_LATEST_CHANNEL@@ \
+  --manage-channel @@MAS_LATEST_CHANNEL_MANAGE@@ \
   --manage-jdbc workspace-application \
   --manage-components base=latest \
   --additional-configs /mnt/home/mas9demo \
@@ -163,7 +162,11 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 
 The install itself is performed on the cluster, the CLI merely prepares the installation pipeline, you will be presented with a URL to view the install pipeline in the OpenShift Console.
 
-> [!TIP]
-> You can either monitor the install in the OpenShift Console or go get lunch, the install will take approximately 2-3 hours depending on network conditions.
+!!! tip
+    You can either monitor the install in the OpenShift Console or go get lunch, the install will take approximately 2-3 hours depending on network conditions.
 
 ![alt text](images/install-pipeline.png)
+
+Once the installation has completed you will be able to log into Maximo Application Suite & Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's **Application Menu**:
+
+![alt text](images/dashboard-link.png)
