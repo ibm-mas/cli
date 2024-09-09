@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/examples/eam-migration/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>EAM Migration - MAS CLI</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "EAM Migration";
+        var mkdocs_page_input_path = "examples/eam-migration.md";
+        var mkdocs_page_url = "/cli/examples/eam-migration/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> MAS CLI
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Guides</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/choosing-the-right-catalog/">Choosing the Right Catalog</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/image-mirroring/">Image Mirroring</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/install/">Install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/update/">Update</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/upgrade/">Upgrade</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../guides/uninstall/">Uninstall</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">OpenShift Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-fyre/">provision-fyre</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-roks/">provision-roks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-rosa/">provision-rosa</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Image Mirroring</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/setup-registry/">setup-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/teardown-registry/">teardown-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-images/">mirror-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-redhat-images/">mirror-redhat-images</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">MAS Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configtool-oidc/">configtool-oidc</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/install/">install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/update/">update</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/upgrade/">upgrade</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/uninstall/">uninstall</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Troubleshooting</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/must-gather/">must-gather</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Catalogs</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240827-amd64/">Aug 27 2024</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240730-amd64/">Jul 30 2024</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240625-amd64/">Jun 25 2024</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-240528-amd64/">May 28 2024</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/dependencies/">Dependencies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">EAM Migration</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#pre-requisites">Pre-Requisites</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-1-provision-a-new-openshift-cluster">Step 1 - Provision a new OpenShift Cluster</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-2-shutdown-eam">Step 2 - Shutdown EAM</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-3-prepare-the-jdbccfg">Step 3 - Prepare the JDBCCfg</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-4-install-mas">Step 4 - Install MAS</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mirror-db2/">Mirror Db2 Images</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">MAS CLI</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Examples</li>
+      <li class="breadcrumb-item active">EAM Migration</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/examples/eam-migration.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="migration-from-eam-7-to-mas-9">Migration from EAM 7 to MAS 9<a class="headerlink" href="#migration-from-eam-7-to-mas-9" title="Permanent link"></a></h1>
+<p>This example demonstrates how to migrate from EAM 7 to Maximo Manage v9 running on an IBM-managed OpenShift in IBMCloud (ROKS).</p>
+<ul>
+<li>For this demo we are using an existing database instance that is configured without TLS enabled (so we do not need to worry about providing the certificates in the configuration)</li>
+<li>Normally you would take a backup of the database and use that, but for the purpose of this example we are going to take over the database currently in use, if you wish to follow this example using a restored backup of your database simply skip step 2.</li>
+</ul>
+<h2 id="pre-requisites">Pre-Requisites<a class="headerlink" href="#pre-requisites" title="Permanent link"></a></h2>
+<p><strong>1 An IBMCloud API Key</strong>
+- Login in your IBM Cloud account
+- Go to Manage menu and select <strong>Access (IAM)</strong>
+- Go to API keys menu, click Create an IBM Cloud API key
+- Enter a name and description for your API Key and click <strong>Create</strong></p>
+<p><strong>2 A MAS License File</strong></p>
+<p>Access <a href="https://licensing.subscribenet.com/control/ibmr/login">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>. Select <strong>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</strong> and on the next page fill in the information as below:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Number of Keys</td>
+<td>How many AppPoints to assign to the license file</td>
+</tr>
+<tr>
+<td>Host ID Type</td>
+<td>Set to Ethernet Address</td>
+</tr>
+<tr>
+<td>Host ID</td>
+<td>Enter any 12 digit hexadecimal string</td>
+</tr>
+<tr>
+<td>Hostname</td>
+<td>Set to the hostname of your OCP instance, but this can be any value really</td>
+</tr>
+<tr>
+<td>Port</td>
+<td>Set to 27000</td>
+</tr>
+</tbody>
+</table>
+<p>Create a new folder <code>mas9demo</code> in your home directory and save this file there as <code>~/mas9demo/entitlement.lic</code></p>
+<p><strong>3 An IBM Entitlement Key</strong></p>
+<p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
+<h2 id="step-1-provision-a-new-openshift-cluster">Step 1 - Provision a new OpenShift Cluster<a class="headerlink" href="#step-1-provision-a-new-openshift-cluster" title="Permanent link"></a></h2>
+<p>We are going to provision the cluster using <strong>Red Hat OpenShift on IBM Cloud</strong> via the MAS CLI container image.  Ensure that you set the <code>IBMCLOUD_APIKEY</code> environment variable to the key you obtained from the <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a>.</p>
+<pre><code class="language-bash">export IBMCLOUD_APIKEY=x
+
+docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:10.9.0 \
+  mas provision-roks -r mas-development -c mas9demo -v 4.14_openshift \
+  --worker-count 3 --worker-flavor b3c.8x32 --worker-zone lon02 \
+  --no-confirm
+</code></pre>
+<p>This will provision an OpenShift cluster with three 8x32 worker nodes. It will take approximately <strong>1 hour</strong> to provision the cluster.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours.</p>
+</div>
+<h2 id="step-2-shutdown-eam">Step 2 - Shutdown EAM<a class="headerlink" href="#step-2-shutdown-eam" title="Permanent link"></a></h2>
+<p>We must stop EAM because we are going to take over the same database that is currently using; log into the WebSphere administrative console and stop the servers.</p>
+<p><img alt="alt text" src="../images/shutdown_eam.png" /></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can skip this step if you took a backup of your database and instead are using that.</p>
+</div>
+<h2 id="step-3-prepare-the-jdbccfg">Step 3 - Prepare the JDBCCfg<a class="headerlink" href="#step-3-prepare-the-jdbccfg" title="Permanent link"></a></h2>
+<p>IBM Maximo Application Suite (MAS) configuration is held in Kubernetes resources, when we install MAS we will tell the installer to apply this configuration as part of the installation.</p>
+<pre><code class="language-yaml">---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: &quot;jdbc-demo-credentials&quot;
+  namespace: &quot;mas-dev-core&quot;
+stringData:
+  username: &quot;{DB_USERNAME}&quot;
+  password: &quot;{DB_PASSWORD}&quot;
+---
+apiVersion: config.mas.ibm.com/v1
+kind: JdbcCfg
+metadata:
+  name: &quot;dev-jdbc-wsapp-demo-manage&quot;
+  namespace: &quot;mas-dev-core&quot;
+  labels:
+    &quot;mas.ibm.com/configScope&quot;: &quot;workspace-application&quot;
+    &quot;mas.ibm.com/instanceId&quot;: &quot;dev&quot;
+    &quot;mas.ibm.com/workspaceId&quot;: &quot;demo&quot;
+    &quot;mas.ibm.com/applicationId&quot;: &quot;manage&quot;
+spec:
+  displayName: &quot;dev-jdbc-manage&quot;
+  config:
+    url: &quot;{JDBC_URL}&quot;
+    sslEnabled: false
+    credentials:
+      secretName: &quot;jdbc-demo-credentials&quot;
+</code></pre>
+<p>Replace <code>{JDBC_URL}</code>, <code>{DB_USERNAME}</code>, and <code>{DB_PASSWORD}</code> with the actual values for your database, for example:</p>
+<ul>
+<li><strong>JDBC_URL</strong> = <code>jdbc:db2://1.2.3.4:50005/maxdb76:sslConnection=false;</code></li>
+<li><strong>DB_USERNAME</strong> = <code>maximo</code></li>
+<li><strong>DB_PASSWORD</strong> = <code>maximo</code></li>
+</ul>
+<p>Save this file into the same directory where we saved the MAS entitlement file, as <code>~/mas9demo/mas9demo-jdbc.yaml</code></p>
+<p>Validate that the JDBC URL and username/password are correct by running the command <code>SELECT VARNAME, VARVALUE FROM MAXIMO.MAXVARS WHERE VARNAME='MAXUPG';</code>, which will confirm the database is currently running at version 7.</p>
+<p><img alt="alt text" src="../images/dbeaver.png" /></p>
+<h2 id="step-4-install-mas">Step 4 - Install MAS<a class="headerlink" href="#step-4-install-mas" title="Permanent link"></a></h2>
+<p>Ensure the following environment variables are all set:</p>
+<ul>
+<li><code>IBMCLOUD_APIKEY</code> (see pre-reqs)</li>
+<li><code>SUPERUSER_PASSWORD</code> (choose the password for the MAS superuser account)</li>
+<li><code>IBM_ENTITLEMENT_KEY</code> (see pre-reqs)</li>
+</ul>
+<p>We will install MAS in <strong>non-production mode</strong>, with an instance ID of <code>dev</code> and a workspace ID of <code>demo</code> using the latest (at time of writing) catalog update.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When we launch the CLI container we are mounting your home directory into the container image, this is how the installer will access the <code>entitlement.lic</code> and <code>mas9demo-jdbc.yaml</code> files that you created earlier.</p>
+</div>
+<pre><code class="language-bash">export IBMCLOUD_APIKEY=x
+export SUPERUSER_PASSWORD=x
+export IBM_ENTITLEMENT_KEY=x
+
+docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:10.9.0 bash -c &quot;
+  CLUSTER_TYPE=roks CLUSTER_NAME=mas9demo ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role &amp;&amp;
+  mas install \
+  --non-prod \
+  --mas-instance-id dev \
+  --mas-workspace-id demo \
+  --mas-workspace-name 'EAM Migration Demo' \
+  --mas-catalog-version v9-240827-amd64 \
+  --mas-channel 9.0.x \
+  --manage-channel 9.0.x \
+  --manage-jdbc workspace-application \
+  --manage-components base=latest \
+  --additional-configs /mnt/home/mas9demo \
+  --license-file /mnt/home/mas9demo/entitlement.lic \
+  --uds-email parkerda@uk.ibm.com \
+  --uds-firstname David \
+  --uds-lastname Parker \
+  --storage-class-rwo ibmc-block-gold \
+  --storage-class-rwx ibmc-file-gold-gid \
+  --storage-pipeline ibmc-file-gold-gid \
+  --storage-accessmode ReadWriteMany \
+  --superuser-username superuser \
+  --superuser-password '$SUPERUSER_PASSWORD' \
+  --ibm-entitlement-key '$IBM_ENTITLEMENT_KEY' \
+  --accept-license \
+  --no-confirm
+&quot;
+</code></pre>
+<p>The install itself is performed on the cluster, the CLI merely prepares the installation pipeline, you will be presented with a URL to view the install pipeline in the OpenShift Console.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>You can either monitor the install in the OpenShift Console or go get lunch, the install will take approximately 2-3 hours depending on network conditions.</p>
+</div>
+<p><img alt="alt text" src="../images/install-pipeline.png" /></p>
+<p>Once the installation has completed you will be able to log into Maximo Application Suite &amp; Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's <strong>Application Menu</strong>:</p>
+<p><img alt="alt text" src="../images/dashboard-link.png" /></p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/ibm-mas/cli" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../reference/cluster-extensions/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../mirror-db2/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

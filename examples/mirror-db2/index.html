@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/provision-rosa/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/examples/mirror-db2/" />
       <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>provision-rosa - MAS CLI</title>
+    <title>Mirror Db2 Images - MAS CLI</title>
     <link rel="stylesheet" href="../../css/theme.css" />
     <link rel="stylesheet" href="../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,9 +13,9 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "provision-rosa";
-        var mkdocs_page_input_path = "commands/provision-rosa.md";
-        var mkdocs_page_url = "/cli/commands/provision-rosa/";
+        var mkdocs_page_name = "Mirror Db2 Images";
+        var mkdocs_page_input_path = "examples/mirror-db2.md";
+        var mkdocs_page_url = "/cli/examples/mirror-db2/";
       </script>
     
     <!--[if lt IE 9]>
@@ -57,51 +57,43 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">OpenShift Management</span></p>
-              <ul class="current">
-                  <li class="toctree-l1"><a class="reference internal" href="../provision-fyre/">provision-fyre</a>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-fyre/">provision-fyre</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../provision-roks/">provision-roks</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-roks/">provision-roks</a>
                   </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">provision-rosa</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#non-interactive-mode">Non-Interactive Mode</a>
-    </li>
-        </ul>
-    </li>
-    </ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-rosa/">provision-rosa</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Image Mirroring</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/setup-registry/">setup-registry</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../teardown-registry/">teardown-registry</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/teardown-registry/">teardown-registry</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-images/">mirror-images</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-redhat-images/">mirror-redhat-images</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-redhat-images/">mirror-redhat-images</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">MAS Management</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../configtool-oidc/">configtool-oidc</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configtool-oidc/">configtool-oidc</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../install/">install</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/install/">install</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../update/">update</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/update/">update</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../upgrade/">upgrade</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/upgrade/">upgrade</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../uninstall/">uninstall</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/uninstall/">uninstall</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Troubleshooting</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../must-gather/">must-gather</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/must-gather/">must-gather</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Catalogs</span></p>
@@ -127,10 +119,16 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Examples</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/eam-migration/">EAM Migration</a>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../eam-migration/">EAM Migration</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/mirror-db2/">Mirror Db2 Images</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Mirror Db2 Images</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#direct-mirroring">Direct Mirroring</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#two-phase-mirroring">Two-Phase Mirroring</a>
+    </li>
+    </ul>
                   </li>
               </ul>
       </div>
@@ -147,10 +145,10 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">OpenShift Management</li>
-      <li class="breadcrumb-item active">provision-rosa</li>
+          <li class="breadcrumb-item">Examples</li>
+      <li class="breadcrumb-item active">Mirror Db2 Images</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/provision-rosa.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/ibm-mas/cli/blob/master/docs/examples/mirror-db2.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -158,10 +156,55 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="provision-ocp-on-aws-rosa">Provision OCP on AWS ROSA<a class="headerlink" href="#provision-ocp-on-aws-rosa" title="Permanent link"></a></h1>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
-<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link"></a></h3>
-<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-rosa
+                <h1 id="mirror-ibm-db2-content">Mirror IBM Db2 Content<a class="headerlink" href="#mirror-ibm-db2-content" title="Permanent link"></a></h1>
+<p>This example shows how to mirror just the IBM Db2u content associated with a specific release of the <strong>IBM Maximo Operator Catalog</strong>.</p>
+<h2 id="direct-mirroring">Direct Mirroring<a class="headerlink" href="#direct-mirroring" title="Permanent link"></a></h2>
+<p>With direct image mirroring the content is transferred directly from the IBM Container Registry (ICR) to your private container registry.</p>
+<pre><code class="language-bash">#!/bin/bash
+
+# Destination registry
+export REGISTRY_PRIVATE_HOST=x
+export REGISTRY_PRIVATE_PORT=x
+export REGISTRY_USERNAME=x
+export REGISTRY_PASSWORD=x
+
+# Source registry
+export IBM_ENTITLEMENT_KEY=x
+
+docker run -e IBM_ENTITLEMENT_KEY -ti --rm --pull always quay.io/ibmmas/cli:10.9.0 \
+  mas mirror-images -m direct -d /tmp/mirror --no-confirm \
+    -H $REGISTRY_PRIVATE_HOST -P $REGISTRY_PRIVATE_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+    -c v9-240827-amd64 -C 9.0.x \
+    --mirror-db2
+</code></pre>
+<h2 id="two-phase-mirroring">Two-Phase Mirroring<a class="headerlink" href="#two-phase-mirroring" title="Permanent link"></a></h2>
+<p>Two-phase mirroring first mirrors the content to your local filesystem, which can then be mirrored to your private container registry.</p>
+<pre><code class="language-bash">#!/bin/bash
+
+# Destination registry
+export REGISTRY_PRIVATE_HOST=x
+export REGISTRY_PRIVATE_PORT=x
+export REGISTRY_USERNAME=x
+export REGISTRY_PASSWORD=x
+
+# Source registry
+export IBM_ENTITLEMENT_KEY=x
+
+# Catalog
+export CATALOG=v9-240827-amd64
+
+docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v /tmp/mirror/$CATALOG:/mnt/mirror --pull always quay.io/ibmmas/cli:10.9.0 \
+  mas mirror-images -m to-filesystem -d /mnt/mirror --no-confirm \
+    -H $REGISTRY_PRIVATE_HOST -P $REGISTRY_PRIVATE_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+    -c $CATALOG -C 9.0.x \
+    --mirror-db2
+</code></pre>
+<p>Once the images are mirrored to the local filesystem we can mirror them to the target registry using the<code>--from-filesystem</code> mode flag.</p>
+<pre><code class="language-bash">docker run -ti --rm -v /tmp/mirror/$CATALOG:/mnt/mirror --pull always quay.io/ibmmas/cli:10.9.0 \
+  mas mirror-images -m from-filesystem -d /mnt/mirror --no-confirm \
+    -H $REGISTRY_PRIVATE_HOST -P $REGISTRY_PRIVATE_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+    -c $CATALOG -C 9.0.x \
+    --mirror-db2
 </code></pre>
               
             </div>
@@ -191,10 +234,8 @@
         </span>
     
     
-      <span><a href="../provision-roks/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../eam-migration/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
-    
-      <span><a href="../configure-airgap/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
