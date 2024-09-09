@@ -1,19 +1,20 @@
 Migration from EAM 7 to MAS 9
 ===============================================================================
 
-This example demonstrates how to migrate from EAM 7 to Maximo Manage v9 running on an IBM-managed OpenShift in IBMCloud (ROKS).
+This example demonstrates how to migrate from EAM 7 to Maximo Manage v9 running on [Red Hat OpenShift on IBM Cloud](https://www.ibm.com/products/openshift) (ROKS).
 
 - For this demo we are using an existing database instance that is configured without TLS enabled (so we do not need to worry about providing the certificates in the configuration)
 - Normally you would take a backup of the database and use that, but for the purpose of this example we are going to take over the database currently in use, if you wish to follow this example using a restored backup of your database simply skip step 2.
 
 
-Pre-Requisites
+Prerequisites
 -------------------------------------------------------------------------------
 
 **1 An IBMCloud API Key**
+
 - Login in your IBM Cloud account
-- Go to Manage menu and select **Access (IAM)**
-- Go to API keys menu, click Create an IBM Cloud API key
+- Go to **Manage** menu and select **Access (IAM)**
+- Go to **API keys** menu, click **Create an IBM Cloud API key**
 - Enter a name and description for your API Key and click **Create**
 
 **2 A MAS License File**
@@ -35,7 +36,7 @@ Create a new folder `mas9demo` in your home directory and save this file there a
 Access [IBM Container Software Library](https://myibm.ibm.com/products-services/containerlibrary) using your IBMId to obtain your entitlement key.
 
 
-Step 1 - Provision a new OpenShift Cluster
+Step 1 - Provision OpenShift
 -------------------------------------------------------------------------------
 We are going to provision the cluster using **Red Hat OpenShift on IBM Cloud** via the MAS CLI container image.  Ensure that you set the `IBMCLOUD_APIKEY` environment variable to the key you obtained from the [IBM Container Software Library](https://myibm.ibm.com/products-services/containerlibrary).
 
@@ -117,9 +118,9 @@ Step 4 - Install MAS
 -------------------------------------------------------------------------------
 Ensure the following environment variables are all set:
 
-- `IBMCLOUD_APIKEY` (see pre-reqs)
+- `IBMCLOUD_APIKEY` (see [prerequisites](#prerequisites))
 - `SUPERUSER_PASSWORD` (choose the password for the MAS superuser account)
-- `IBM_ENTITLEMENT_KEY` (see pre-reqs)
+- `IBM_ENTITLEMENT_KEY` (see [prerequisites](#prerequisites))
 
 We will install MAS in **non-production mode**, with an instance ID of `dev` and a workspace ID of `demo` using the latest (at time of writing) catalog update.
 
