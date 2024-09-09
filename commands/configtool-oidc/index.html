@@ -56,30 +56,41 @@
                   <li class="toctree-l1"><a class="reference internal" href="../../guides/uninstall/">Uninstall</a>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">OpenShift Management</span></p>
+              <p class="caption"><span class="caption-text">Examples</span></p>
               <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/eam-migration/">EAM Migration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/mirror-db2/">Mirror Db2 Images</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Command Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../install/">install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../update/">update</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../upgrade/">upgrade</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../uninstall/">uninstall</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../must-gather/">must-gather</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mirror-redhat-images/">mirror-redhat-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../teardown-registry/">teardown-registry</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-fyre/">provision-fyre</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-roks/">provision-roks</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-rosa/">provision-rosa</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Image Mirroring</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../teardown-registry/">teardown-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-redhat-images/">mirror-redhat-images</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">MAS Management</span></p>
-              <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">configtool-oidc</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
@@ -110,21 +121,8 @@
     </li>
     </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../install/">install</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../update/">update</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../upgrade/">upgrade</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../uninstall/">uninstall</a>
-                  </li>
               </ul>
-              <p class="caption"><span class="caption-text">Troubleshooting</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../must-gather/">must-gather</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Catalogs</span></p>
+              <p class="caption"><span class="caption-text">Operator Catalogs</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
                   </li>
@@ -146,13 +144,6 @@
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">Examples</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/eam-migration/">EAM Migration</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/mirror-db2/">Mirror Db2 Images</a>
-                  </li>
-              </ul>
       </div>
     </div>
     </nav>
@@ -167,7 +158,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">MAS Management</li>
+          <li class="breadcrumb-item">Command Reference</li>
       <li class="breadcrumb-item active">configtool-oidc</li>
     <li class="wy-breadcrumbs-aside">
           <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/configtool-oidc.md" class="icon icon-github"> Edit on GitHub</a>
@@ -255,10 +246,10 @@ example: <code>oc login --token=sha256~COA8-2Hd6G45rUN0HZLLh47sFByoX8QCC8j92jWB3
         </span>
     
     
-      <span><a href="../mirror-redhat-images/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../provision-rosa/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../install/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../../catalogs/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>

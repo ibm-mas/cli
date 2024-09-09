@@ -56,8 +56,35 @@
                   <li class="toctree-l1"><a class="reference internal" href="../../guides/uninstall/">Uninstall</a>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">OpenShift Management</span></p>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/eam-migration/">EAM Migration</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../examples/mirror-db2/">Mirror Db2 Images</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Command Reference</span></p>
               <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../install/">install</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../update/">update</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../upgrade/">upgrade</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../uninstall/">uninstall</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../must-gather/">must-gather</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mirror-redhat-images/">mirror-redhat-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../teardown-registry/">teardown-registry</a>
+                  </li>
                   <li class="toctree-l1 current"><a class="reference internal current" href="#">provision-fyre</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
@@ -88,39 +115,10 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../provision-rosa/">provision-rosa</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Image Mirroring</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../teardown-registry/">teardown-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-redhat-images/">mirror-redhat-images</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">MAS Management</span></p>
-              <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../configtool-oidc/">configtool-oidc</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../install/">install</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../update/">update</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../upgrade/">upgrade</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../uninstall/">uninstall</a>
-                  </li>
               </ul>
-              <p class="caption"><span class="caption-text">Troubleshooting</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../must-gather/">must-gather</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Catalogs</span></p>
+              <p class="caption"><span class="caption-text">Operator Catalogs</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
                   </li>
@@ -142,13 +140,6 @@
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">Examples</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/eam-migration/">EAM Migration</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/mirror-db2/">Mirror Db2 Images</a>
-                  </li>
-              </ul>
       </div>
     </div>
     </nav>
@@ -163,7 +154,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">OpenShift Management</li>
+          <li class="breadcrumb-item">Command Reference</li>
       <li class="breadcrumb-item active">provision-fyre</li>
     <li class="wy-breadcrumbs-aside">
           <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/provision-fyre.md" class="icon icon-github"> Edit on GitHub</a>
@@ -250,7 +241,7 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas provision-fyre \
         </span>
     
     
-      <span><a href="../../guides/uninstall/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../teardown-registry/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../provision-roks/" style="color: #fcfcfc">Next &raquo;</a></span>

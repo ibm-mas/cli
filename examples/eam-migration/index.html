@@ -56,32 +56,27 @@
                   <li class="toctree-l1"><a class="reference internal" href="../../guides/uninstall/">Uninstall</a>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">OpenShift Management</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-fyre/">provision-fyre</a>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">EAM Migration</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-1-provision-openshift">Step 1 - Provision OpenShift</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-2-shutdown-eam">Step 2 - Shutdown EAM</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-3-prepare-the-jdbccfg">Step 3 - Prepare the JDBCCfg</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-4-install-mas">Step 4 - Install MAS</a>
+    </li>
+    </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-roks/">provision-roks</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-rosa/">provision-rosa</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Image Mirroring</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/setup-registry/">setup-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/teardown-registry/">teardown-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-images/">mirror-images</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-redhat-images/">mirror-redhat-images</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../mirror-db2/">Mirror Db2 Images</a>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">MAS Management</span></p>
+              <p class="caption"><span class="caption-text">Command Reference</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configtool-oidc/">configtool-oidc</a>
-                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/install/">install</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/update/">update</a>
@@ -90,13 +85,28 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/uninstall/">uninstall</a>
                   </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Troubleshooting</span></p>
-              <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/must-gather/">must-gather</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-images/">mirror-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-redhat-images/">mirror-redhat-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/setup-registry/">setup-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/teardown-registry/">teardown-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-fyre/">provision-fyre</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-roks/">provision-roks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-rosa/">provision-rosa</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configtool-oidc/">configtool-oidc</a>
+                  </li>
               </ul>
-              <p class="caption"><span class="caption-text">Catalogs</span></p>
+              <p class="caption"><span class="caption-text">Operator Catalogs</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
                   </li>
@@ -116,25 +126,6 @@
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Examples</span></p>
-              <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">EAM Migration</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#pre-requisites">Pre-Requisites</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#step-1-provision-a-new-openshift-cluster">Step 1 - Provision a new OpenShift Cluster</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#step-2-shutdown-eam">Step 2 - Shutdown EAM</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#step-3-prepare-the-jdbccfg">Step 3 - Prepare the JDBCCfg</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#step-4-install-mas">Step 4 - Install MAS</a>
-    </li>
-    </ul>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-db2/">Mirror Db2 Images</a>
                   </li>
               </ul>
       </div>
@@ -163,17 +154,19 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="migration-from-eam-7-to-mas-9">Migration from EAM 7 to MAS 9<a class="headerlink" href="#migration-from-eam-7-to-mas-9" title="Permanent link"></a></h1>
-<p>This example demonstrates how to migrate from EAM 7 to Maximo Manage v9 running on an IBM-managed OpenShift in IBMCloud (ROKS).</p>
+<p>This example demonstrates how to migrate from EAM 7 to Maximo Manage v9 running on <a href="https://www.ibm.com/products/openshift">Red Hat OpenShift on IBM Cloud</a> (ROKS).</p>
 <ul>
 <li>For this demo we are using an existing database instance that is configured without TLS enabled (so we do not need to worry about providing the certificates in the configuration)</li>
 <li>Normally you would take a backup of the database and use that, but for the purpose of this example we are going to take over the database currently in use, if you wish to follow this example using a restored backup of your database simply skip step 2.</li>
 </ul>
-<h2 id="pre-requisites">Pre-Requisites<a class="headerlink" href="#pre-requisites" title="Permanent link"></a></h2>
-<p><strong>1 An IBMCloud API Key</strong>
-- Login in your IBM Cloud account
-- Go to Manage menu and select <strong>Access (IAM)</strong>
-- Go to API keys menu, click Create an IBM Cloud API key
-- Enter a name and description for your API Key and click <strong>Create</strong></p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link"></a></h2>
+<p><strong>1 An IBMCloud API Key</strong></p>
+<ul>
+<li>Login in your IBM Cloud account</li>
+<li>Go to <strong>Manage</strong> menu and select <strong>Access (IAM)</strong></li>
+<li>Go to <strong>API keys</strong> menu, click <strong>Create an IBM Cloud API key</strong></li>
+<li>Enter a name and description for your API Key and click <strong>Create</strong></li>
+</ul>
 <p><strong>2 A MAS License File</strong></p>
 <p>Access <a href="https://licensing.subscribenet.com/control/ibmr/login">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>. Select <strong>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</strong> and on the next page fill in the information as below:</p>
 <table>
@@ -209,7 +202,7 @@
 <p>Create a new folder <code>mas9demo</code> in your home directory and save this file there as <code>~/mas9demo/entitlement.lic</code></p>
 <p><strong>3 An IBM Entitlement Key</strong></p>
 <p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
-<h2 id="step-1-provision-a-new-openshift-cluster">Step 1 - Provision a new OpenShift Cluster<a class="headerlink" href="#step-1-provision-a-new-openshift-cluster" title="Permanent link"></a></h2>
+<h2 id="step-1-provision-openshift">Step 1 - Provision OpenShift<a class="headerlink" href="#step-1-provision-openshift" title="Permanent link"></a></h2>
 <p>We are going to provision the cluster using <strong>Red Hat OpenShift on IBM Cloud</strong> via the MAS CLI container image.  Ensure that you set the <code>IBMCLOUD_APIKEY</code> environment variable to the key you obtained from the <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a>.</p>
 <pre><code class="language-bash">export IBMCLOUD_APIKEY=x
 
@@ -273,9 +266,9 @@ spec:
 <h2 id="step-4-install-mas">Step 4 - Install MAS<a class="headerlink" href="#step-4-install-mas" title="Permanent link"></a></h2>
 <p>Ensure the following environment variables are all set:</p>
 <ul>
-<li><code>IBMCLOUD_APIKEY</code> (see pre-reqs)</li>
+<li><code>IBMCLOUD_APIKEY</code> (see <a href="#prerequisites">prerequisites</a>)</li>
 <li><code>SUPERUSER_PASSWORD</code> (choose the password for the MAS superuser account)</li>
-<li><code>IBM_ENTITLEMENT_KEY</code> (see pre-reqs)</li>
+<li><code>IBM_ENTITLEMENT_KEY</code> (see <a href="#prerequisites">prerequisites</a>)</li>
 </ul>
 <p>We will install MAS in <strong>non-production mode</strong>, with an instance ID of <code>dev</code> and a workspace ID of <code>demo</code> using the latest (at time of writing) catalog update.</p>
 <div class="admonition note">
@@ -350,7 +343,7 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
         </span>
     
     
-      <span><a href="../../reference/cluster-extensions/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../../guides/uninstall/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../mirror-db2/" style="color: #fcfcfc">Next &raquo;</a></span>

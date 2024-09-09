@@ -56,32 +56,21 @@
                   <li class="toctree-l1"><a class="reference internal" href="../../guides/uninstall/">Uninstall</a>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">OpenShift Management</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-fyre/">provision-fyre</a>
+              <p class="caption"><span class="caption-text">Examples</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../eam-migration/">EAM Migration</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-roks/">provision-roks</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-rosa/">provision-rosa</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Image Mirroring</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/setup-registry/">setup-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/teardown-registry/">teardown-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-images/">mirror-images</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-redhat-images/">mirror-redhat-images</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Mirror Db2 Images</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#direct-mirroring">Direct Mirroring</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#two-phase-mirroring">Two-Phase Mirroring</a>
+    </li>
+    </ul>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">MAS Management</span></p>
+              <p class="caption"><span class="caption-text">Command Reference</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configtool-oidc/">configtool-oidc</a>
-                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/install/">install</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/update/">update</a>
@@ -90,13 +79,28 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/uninstall/">uninstall</a>
                   </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Troubleshooting</span></p>
-              <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../commands/must-gather/">must-gather</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-images/">mirror-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-redhat-images/">mirror-redhat-images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/setup-registry/">setup-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/teardown-registry/">teardown-registry</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-fyre/">provision-fyre</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-roks/">provision-roks</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-rosa/">provision-rosa</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configtool-oidc/">configtool-oidc</a>
+                  </li>
               </ul>
-              <p class="caption"><span class="caption-text">Catalogs</span></p>
+              <p class="caption"><span class="caption-text">Operator Catalogs</span></p>
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
                   </li>
@@ -116,19 +120,6 @@
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Examples</span></p>
-              <ul class="current">
-                  <li class="toctree-l1"><a class="reference internal" href="../eam-migration/">EAM Migration</a>
-                  </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Mirror Db2 Images</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#direct-mirroring">Direct Mirroring</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#two-phase-mirroring">Two-Phase Mirroring</a>
-    </li>
-    </ul>
                   </li>
               </ul>
       </div>
@@ -236,6 +227,8 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v /tmp/mirror/$CATALOG:/mnt/mirror -
     
       <span><a href="../eam-migration/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
+    
+      <span><a href="../../commands/install/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
