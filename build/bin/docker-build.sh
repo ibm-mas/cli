@@ -80,10 +80,10 @@ else
     --load \
     --platform linux/$TARGET_PLATFORM \
     --build-arg ARCHITECTURE=$TARGET_PLATFORM \
-  --build-arg VERSION_LABEL=$DOCKER_TAG \
-  --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
-  --build-arg VCS_REF=$GITHUB_SHA \
-  --build-arg VCS_URL=https://github.com/$GITHUB_REPOSITORY \
+    --build-arg VERSION_LABEL=$DOCKER_TAG \
+    --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
+    --build-arg VCS_REF=$GITHUB_SHA \
+    --build-arg VCS_URL=https://github.com/$GITHUB_REPOSITORY \
     -t $LOCAL_TAG $EXTRA_PARAMS -f $DOCKERFILE $BUILDPATH || exit 1
 
 fi
