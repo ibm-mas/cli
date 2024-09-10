@@ -173,8 +173,8 @@ jobs:
           if [[ -e $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz ]]; then
             echo "Found a local Ansible collection to be used in $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz! Skip download from Artifactory..."
           else
-            echo "Downloading from ***/ibm-mas/ansible-devops/22.5.3-pre.mascore3335/ibm-mas_devops-22.5.3-pre.mascore3335.tar.gz"
-            wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/22.5.3-pre.mascore3335/ibm-mas_devops-22.5.3-pre.mascore3335.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
+            echo "Downloading from ***/ibm-mas/ansible-devops/23.0.0-pre.mascore-3802b/ibm-mas_devops-23.0.0-pre.mascore-3802b.tar.gz"
+            wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/23.0.0-pre.mascore-3802b/ibm-mas_devops-23.0.0-pre.mascore-3802b.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
           fi
 
       # 3. Download Built Artifacts
