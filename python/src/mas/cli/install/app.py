@@ -69,15 +69,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                else:
                      self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
             else:
-               m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
-               if m:
-                   # catalogId = v8-yymmdd-amd64
-                   # catalogVersion = yymmdd
-                   catalogId = m.group("catalogId")
-               elif re.match(r".+v8-amd64", catalogDisplayName):
-                    catalogId = "v8-amd64"
-               else:
-                    self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
+            if m:
+                # catalogId = v8-yymmdd-amd64
+                # catalogVersion = yymmdd
+                catalogId = m.group("catalogId")
+            elif re.match(r".+v8-amd64", catalogDisplayName):
+                catalogId = "v8-amd64"
+            else:
+                self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
 
             if catalogId != self.getParam("mas_catalog_version"):
                 self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
@@ -593,25 +593,25 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # MAS Core
         self.configCertManager()
         if not self.preview:
-            self.configMAS()
+        self.configMAS()
 
-            # MAS Applications
-            self.configApps()
-            self.validateInternalRegistryAvailable()
-            # Note: manageSettings(), predictSettings(), or assistSettings() functions can trigger configCP4D()
-            self.manageSettings()
-            self.optimizerSettings()
-            self.predictSettings()
-            self.assistSettings()
+        # MAS Applications
+        self.configApps()
+        self.validateInternalRegistryAvailable()
+        # Note: manageSettings(), predictSettings(), or assistSettings() functions can trigger configCP4D()
+        self.manageSettings()
+        self.optimizerSettings()
+        self.predictSettings()
+        self.assistSettings()
 
         # Dependencies
         if not self.preview:
-            self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
-            self.configDb2()
-            self.configKafka()  # Will only do anything if IoT has been selected for install
+        self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
+        self.configDb2()
+        self.configKafka()  # Will only do anything if IoT has been selected for install
 
-            self.configGrafana()
-            self.configTurbonomic()
+        self.configGrafana()
+        self.configTurbonomic()
 
         # TODO: Support ECK integration via the interactive install mode
         # TODO: Support MAS superuser username/password via the interactive install mode
@@ -947,7 +947,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             }
             ]
         else:
-            self.installOptions = [
+        self.installOptions = [
             {
                 "#": 1,
                 "catalog": "v9-240827-amd64",
@@ -1065,7 +1065,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "predict": "N/A",
                 "inspection": "8.8.4"
             }
-            ]
+        ]
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
