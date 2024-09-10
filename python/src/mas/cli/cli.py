@@ -72,7 +72,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.h1count = 0
         self.h2count = 0
         #s390x
-        self.preview = true
+        self.preview = True
 
         self.localConfigDir = None
         self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
