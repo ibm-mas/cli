@@ -25,6 +25,7 @@ from halo import Halo
 
 from ..cli import BaseApp
 from ..gencfg import ConfigGeneratorMixin
+from .argBuilder import installArgBuilderMixin
 from .argParser import installArgParser
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
@@ -51,22 +52,32 @@ from mas.devops.tekton import (
 logger = logging.getLogger(__name__)
 
 
-class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin):
+class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
     def validateCatalogSource(self):
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         try:
             catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
             catalogDisplayName = catalog.spec.displayName
-
-            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
-            if m:
+            if self.preview:
+               m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-s390x)", catalogDisplayName)
+                if m:
+                   # catalogId = v8-yymmdd-amd64
+                    # catalogVersion = yymmdd
+                    catalogId = m.group("catalogId")
+                    elif re.match(r".+v8-s390x", catalogDisplayName):
+                       catalogId = "v8-s390x"
+                   else:
+                       self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+            else:
+                m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
+                if m:
                 # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
-                catalogId = m.group("catalogId")
-            elif re.match(r".+v8-amd64", catalogDisplayName):
-                catalogId = "v8-amd64"
-            else:
-                self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+                  catalogId = m.group("catalogId")
+                elif re.match(r".+v8-amd64", catalogDisplayName):
+                    catalogId = "v8-amd64"
+                 else:
+                     self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
 
             if catalogId != self.getParam("mas_catalog_version"):
                 self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
@@ -184,18 +195,24 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("Configure MongoDb")
         self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
 
+    def configSpecialCharacters(self):
+        self.printH1("Configure special characters for userID and username")
+        self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "mas_special_characters")
+
     def configCP4D(self):
-        # TODO: It's probably time to remove v8-amd64 support from the CLI entirely now
-        if self.getParam("mas_catalog_version") in ["v8-amd64", "v9-240625-amd64", "v9-240730-amd64"]:
+        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64"]:
+            logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
             self.setParam("cpd_product_version", "4.8.0")
-        elif self.getParam("mas_catalog_version") in ["v8-240528-amd64"]:
-            self.setParam("cpd_product_version", "4.6.6")
-        else:
+        elif self.getParam("cpd_product_version") == "":
+            if self.noConfirm:
+                self.fatalError("Cloud Pak for Data version must be set manually, but --no-confirm flag has been set")
             self.printDescription([
                 f"Unknown catalog {self.getParam('mas_catalog_version')}, please manually select the version of Cloud Pak for Data to use"
             ])
             self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="4.8.0")
-
+            logger.debug(f"Using user-provided (prompt) CP4D product version: {self.getParam('cpd_product_version')}")
+        else:
+            logger.debug(f"Using user-provided (flags) CP4D product version: {self.getParam('cpd_product_version')}")
         self.deployCP4D = True
 
     def configSSOProperties(self):
@@ -220,6 +237,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.yesOrNo("Use only custom cookie name", "use_only_custom_cookie_name")
             self.yesOrNo("Disable LDAP cookie", "disable_ldap_cookie")
             self.yesOrNo("Allow custom cache key", "allow_custom_cache_key")
+
+    def configGuidedTour(self):
+        self.printH1("Enable Guided Tour")
+        self.printDescription([
+            "By default, Maximo Application Suite is configured with guided tour, you can disable this if it not required"
+        ])
+        if not self.yesOrNo("Enable Guided Tour"):
+            self.setParam("mas_enable_walkme","false")
 
     def configMAS(self):
         self.printH1("Configure MAS Instance")
@@ -250,6 +275,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configCATrust()
         self.configDNSAndCerts()
         self.configSSOProperties()
+        self.configSpecialCharacters()
+        self.configGuidedTour()
 
     def configCATrust(self) -> None:
         self.printH1("Certificate Authority Trust")
@@ -270,6 +297,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         ])
         self.operationalMode = self.promptForInt("Operational Mode", default=1)
 
+    def configAnnotations(self):
         if self.operationalMode == 2:
             self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
 
@@ -469,11 +497,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # 3. Azure
         elif getStorageClass(self.dynamicClient, "managed-premium") is not None:
             print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: Azure Managed</MediumSeaGreen>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): azurefiles-premium</LightSlateGrey>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): managed-premium</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): managed-premium</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): azurefiles-premium</LightSlateGrey>"))
             self.storageClassProvider = "azure"
-            self.params["storage_class_rwo"] = "azurefiles-premium"
-            self.params["storage_class_rwx"] = "managed-premium"
+            self.params["storage_class_rwo"] = "managed-premium"
+            self.params["storage_class_rwx"] = "azurefiles-premium"
         # 4. AWS
         elif getStorageClass(self.dynamicClient, "gp2") is not None:
             print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: AWS gp2</MediumSeaGreen>"))
@@ -564,24 +592,26 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # MAS Core
         self.configCertManager()
-        self.configMAS()
+        if not self.preview:
+            self.configMAS()
 
-        # MAS Applications
-        self.configApps()
-        self.validateInternalRegistryAvailable()
-        # Note: manageSettings(), predictSettings(), or assistSettings() functions can trigger configCP4D()
-        self.manageSettings()
-        self.optimizerSettings()
-        self.predictSettings()
-        self.assistSettings()
+            # MAS Applications
+            self.configApps()
+            self.validateInternalRegistryAvailable()
+            # Note: manageSettings(), predictSettings(), or assistSettings() functions can trigger configCP4D()
+            self.manageSettings()
+            self.optimizerSettings()
+            self.predictSettings()
+            self.assistSettings()
 
         # Dependencies
-        self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
-        self.configDb2()
-        self.configKafka()  # Will only do anything if IoT has been selected for install
+        if not self.preview:
+            self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
+            self.configDb2()
+            self.configKafka()  # Will only do anything if IoT has been selected for install
 
-        self.configGrafana()
-        self.configTurbonomic()
+            self.configGrafana()
+            self.configTurbonomic()
 
         # TODO: Support ECK integration via the interactive install mode
         # TODO: Support MAS superuser username/password via the interactive install mode
@@ -635,6 +665,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         ]
         optionalParams = [
             # MAS
+            "mas_catalog_digest",
             "mas_superuser_username",
             "mas_superuser_password",
             "mas_trust_default_cas",
@@ -704,6 +735,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "eventstreams_resource_group",
             "eventstreams_instance_name",
             "eventstreams_instance_location",
+            # COS
+            "cos_type",
+            "cos_resourcegroup",
             # ECK
             "eck_action",
             "eck_enable_logstash",
@@ -727,7 +761,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "artifactory_token",
             # TODO: The way arcgis has been implemented needs to be fixed
             "install_arcgis",
-            "mas_arcgis_channel"
+            "mas_arcgis_channel",
+            # Guided Tour
+            "mas_enable_walkme",
+            # Special chars
+            "mas_special_characters"
         ]
 
         for key, value in vars(self.args).items():
@@ -762,6 +800,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.operationalMode = 1
                 else:
                     self.operationalMode = 2
+                    self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -890,10 +929,66 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
-        
-        self.installOptions = [
+        #Setting for Install option  for s390x
+        if self.preview:
+           self.installOptions = [
             {
                 "#": 1,
+                "catalog": "v9-240827-s390x",
+                "release": "9.0.x",
+                "core": "9.0.2",
+                "assist": "9.0.2",
+                "iot": "9.0.2",
+                "manage": "9.0.2",
+                "monitor": "9.0.2",
+                "optimizer": "9.0.2",
+                "predict": "9.0.1",
+                "inspection": "9.0.2"
+            }
+            ]
+        else:
+            self.installOptions = [
+            {
+                "#": 1,
+                "catalog": "v9-240827-amd64",
+                "release": "9.0.x",
+                "core": "9.0.2",
+                "assist": "9.0.2",
+                "iot": "9.0.2",
+                "manage": "9.0.2",
+                "monitor": "9.0.2",
+                "optimizer": "9.0.2",
+                "predict": "9.0.1",
+                "inspection": "9.0.2"
+            },
+            {
+                "#": 2,
+                "catalog": "v9-240827-amd64",
+                "release": "8.11.x",
+                "core": "8.11.14",
+                "assist": "8.8.6",
+                "iot": "8.8.12",
+                "manage": "8.7.11",
+                "monitor": "8.11.10",
+                "optimizer": "8.5.8",
+                "predict": "8.9.3",
+                "inspection": "8.9.5"
+            },
+            {
+                "#": 3,
+                "catalog": "v9-240827-amd64",
+                "release": "8.10.x",
+                "core": "8.10.17",
+                "assist": "8.7.7",
+                "iot": "8.7.16",
+                "manage": "8.6.17",
+                "monitor": "8.10.13",
+                "optimizer": "8.4.9",
+                "predict": "8.8.3",
+                "inspection": "8.8.4"
+            },
+            {
+                "#": 4,
                 "catalog": "v9-240730-amd64",
                 "release": "9.0.x",
                 "core": "9.0.1",
@@ -906,7 +1001,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "9.0.0"
             },
             {
-                "#": 2,
+                "#": 5,
                 "catalog": "v9-240730-amd64",
                 "release": "8.11.x",
                 "core": "8.11.13",
@@ -919,7 +1014,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.9.4"
             },
             {
-                "#": 3,
+                "#": 6,
                 "catalog": "v9-240730-amd64",
                 "release": "8.10.x",
                 "core": "8.10.16",
@@ -932,7 +1027,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.8.4"
             },
             {
-                "#": 4,
+                "#": 7,
                 "catalog": "v9-240625-amd64",
                 "release": "9.0.x",
                 "core": "9.0.0",
@@ -945,7 +1040,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "9.0.0"
             },
             {
-                "#": 5,
+                "#": 8,
                 "catalog": "v9-240625-amd64",
                 "release": "8.11.x",
                 "core": "8.11.12",
@@ -958,7 +1053,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.9.3"
             },
             {
-                "#": 6,
+                "#": 9,
                 "catalog": "v9-240625-amd64",
                 "release": "8.10.x",
                 "core": "8.10.15",
@@ -969,34 +1064,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "optimizer": "8.4.7",
                 "predict": "N/A",
                 "inspection": "8.8.4"
-            },
-            {
-                "#": 7,
-                "catalog": "v8-240528-amd64",
-                "release": "8.11.x",
-                "core": "8.11.11",
-                "assist": "N/A",
-                "iot": "8.8.9",
-                "manage": "8.7.8",
-                "monitor": "8.11.7",
-                "optimizer": "8.5.5",
-                "predict": "8.9.2",
-                "inspection": "8.9.3"
-            },
-            {
-                "#": 8,
-                "catalog": "v8-240528-amd64",
-                "release": "8.10.x",
-                "core": "8.10.14",
-                "assist": "N/A",
-                "iot": "8.7.13",
-                "manage": "8.6.14",
-                "monitor": "8.10.10",
-                "optimizer": "8.4.6",
-                "predict": "N/A",
-                "inspection": "8.8.4"
             }
-        ]
+            ]
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -1038,6 +1107,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.manualCertificates()
 
         # Show a summary of the installation configuration
+        self.printH1("Non-Interactive Install Command")
+        self.printDescription([
+            "Save and re-use the following script to re-run this install without needing to answer the interactive prompts again",
+            "",
+            self.buildCommand()
+        ])
+
+        # Based on the parameters set the annotations correctly
+        self.configAnnotations()
+
         self.displayInstallSummary()
 
         if not self.noConfirm:
@@ -1049,6 +1128,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Prepare the namespace and launch the installation pipeline
         if self.noConfirm or continueWithInstall:
+            self.createTektonFileWithDigest()
+
             self.printH1("Launch Install")
             pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
 

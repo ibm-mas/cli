@@ -71,6 +71,8 @@ class BaseApp(PrintMixin, PromptMixin):
         self.version = packageVersion
         self.h1count = 0
         self.h2count = 0
+        #s390x
+        self.preview = true
 
         self.localConfigDir = None
         self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
@@ -182,16 +184,17 @@ class BaseApp(PrintMixin, PromptMixin):
                 k8s_config = Configuration.get_default_copy()
                 self._apiClient = api_client.ApiClient(configuration=k8s_config)
                 self._dynClient = DynamicClient(self._apiClient)
-                api_response = self._apiClient.list_node()
-                for node in api_response.items:
-                   print("The architecture of node %s is %s" % (node.metadata.name, node.status.node_info.architecture))
+                #v1 = client.CoreV1Api()
+                #response = v1.list_node()
+                #for node in response.items:
+                 #  print("The architecture of node %s is %s" % (node.metadata.name, node.status.node_info.architecture))
             else:
                 config.load_kube_config()
                 self._apiClient = api_client.ApiClient()
                 self._dynClient = DynamicClient(self._apiClient)
-                api_response = self._apiClient.list_node()
-                for node in api_response.items:
-                   print("The architecture of node %s is %s" % (node.metadata.name, node.status.node_info.architecture))
+                #api_response = self._apiClient.list_node()
+                #for node in api_response.items:
+                  # print("The architecture of node %s is %s" % (node.metadata.name, node.status.node_info.architecture))
             return self._dynClient
         except Exception as e:
             logger.warning(f"Error: Unable to connect to OpenShift Container Platform: {e}")
