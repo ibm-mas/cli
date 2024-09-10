@@ -206,7 +206,7 @@
 <p>We are going to provision the cluster using <strong>Red Hat OpenShift on IBM Cloud</strong> via the MAS CLI container image.  Ensure that you set the <code>IBMCLOUD_APIKEY</code> environment variable to the key you obtained from the <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a>.</p>
 <pre><code class="language-bash">export IBMCLOUD_APIKEY=x
 
-docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:10.9.0 \
+docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:10.9.2 \
   mas provision-roks -r mas-development -c mas9demo -v 4.14_openshift \
   --worker-count 3 --worker-flavor b3c.8x32 --worker-zone lon02 \
   --no-confirm
@@ -279,7 +279,7 @@ spec:
 export SUPERUSER_PASSWORD=x
 export IBM_ENTITLEMENT_KEY=x
 
-docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:10.9.0 bash -c &quot;
+docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:10.9.2 bash -c &quot;
   CLUSTER_TYPE=roks CLUSTER_NAME=mas9demo ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role &amp;&amp;
   mas install \
   --non-prod \
@@ -313,8 +313,13 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 <p>You can either monitor the install in the OpenShift Console or go get lunch, the install will take approximately 2-3 hours depending on network conditions.</p>
 </div>
 <p><img alt="alt text" src="../images/install-pipeline.png" /></p>
-<p>Once the installation has completed you will be able to log into Maximo Application Suite &amp; Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's <strong>Application Menu</strong>:</p>
+<p>Once the installation has completed you will be able to log into Maximo Application Suite &amp; Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's <strong>Application Menu</strong>, and we can log into MAS using the superuser username and password supplied during install:</p>
 <p><img alt="alt text" src="../images/dashboard-link.png" /></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this demo we have not configured integration to an SMTP server, as a result we must manually set a new password for the migrated users (including <strong>maxadmin</strong>) before they can be used.</p>
+<p>If e-mail services are enabled during the MAS install then a new password would be generated automatically for each migrated user and a welcome e-mail containing their new Maximo Application Suite password would be sent.</p>
+</div>
               
             </div>
           </div><footer>

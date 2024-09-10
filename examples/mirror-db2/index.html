@@ -162,7 +162,7 @@ export REGISTRY_PASSWORD=x
 # Source registry
 export IBM_ENTITLEMENT_KEY=x
 
-docker run -e IBM_ENTITLEMENT_KEY -ti --rm --pull always quay.io/ibmmas/cli:10.9.0 \
+docker run -e IBM_ENTITLEMENT_KEY -ti --rm --pull always quay.io/ibmmas/cli:10.9.2 \
   mas mirror-images -m direct -d /tmp/mirror --no-confirm \
     -H $REGISTRY_PRIVATE_HOST -P $REGISTRY_PRIVATE_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
     -c v9-240827-amd64 -C 9.0.x \
@@ -184,14 +184,14 @@ export IBM_ENTITLEMENT_KEY=x
 # Catalog
 export CATALOG=v9-240827-amd64
 
-docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v /tmp/mirror/$CATALOG:/mnt/mirror --pull always quay.io/ibmmas/cli:10.9.0 \
+docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v /tmp/mirror/$CATALOG:/mnt/mirror --pull always quay.io/ibmmas/cli:10.9.2 \
   mas mirror-images -m to-filesystem -d /mnt/mirror --no-confirm \
     -H $REGISTRY_PRIVATE_HOST -P $REGISTRY_PRIVATE_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
     -c $CATALOG -C 9.0.x \
     --mirror-db2
 </code></pre>
 <p>Once the images are mirrored to the local filesystem we can mirror them to the target registry using the<code>--from-filesystem</code> mode flag.</p>
-<pre><code class="language-bash">docker run -ti --rm -v /tmp/mirror/$CATALOG:/mnt/mirror --pull always quay.io/ibmmas/cli:10.9.0 \
+<pre><code class="language-bash">docker run -ti --rm -v /tmp/mirror/$CATALOG:/mnt/mirror --pull always quay.io/ibmmas/cli:10.9.2 \
   mas mirror-images -m from-filesystem -d /mnt/mirror --no-confirm \
     -H $REGISTRY_PRIVATE_HOST -P $REGISTRY_PRIVATE_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
     -c $CATALOG -C 9.0.x \
