@@ -62,21 +62,21 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-s390x)", catalogDisplayName)
                 if m:
                    # catalogId = v8-yymmdd-amd64
-                    # catalogVersion = yymmdd
-                    catalogId = m.group("catalogId")
-                    elif re.match(r".+v8-s390x", catalogDisplayName):
-                       catalogId = "v8-s390x"
-                   else:
-                       self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+                   # catalogVersion = yymmdd
+                   catalogId = m.group("catalogId")
+                elif re.match(r".+v8-s390x", catalogDisplayName):
+                     catalogId = "v8-s390x"
+                else:
+                     self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
             else:
                 m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
                 if m:
-                # catalogId = v8-yymmdd-amd64
-                # catalogVersion = yymmdd
-                  catalogId = m.group("catalogId")
+                    # catalogId = v8-yymmdd-amd64
+                    # catalogVersion = yymmdd
+                    catalogId = m.group("catalogId")
                 elif re.match(r".+v8-amd64", catalogDisplayName):
-                    catalogId = "v8-amd64"
-                 else:
+                     catalogId = "v8-amd64"
+                else:
                      self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
 
             if catalogId != self.getParam("mas_catalog_version"):
