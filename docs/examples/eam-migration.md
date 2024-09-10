@@ -168,6 +168,11 @@ The install itself is performed on the cluster, the CLI merely prepares the inst
 
 ![alt text](images/install-pipeline.png)
 
-Once the installation has completed you will be able to log into Maximo Application Suite & Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's **Application Menu**:
+Once the installation has completed you will be able to log into Maximo Application Suite & Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's **Application Menu**, and we can log into MAS using the superuser username and password supplied during install:
 
 ![alt text](images/dashboard-link.png)
+
+!!! note
+    In this demo we have not configured integration to an SMTP server, as a result we must manually set a new password for the migrated users (including **maxadmin**) before they can be used.
+
+    If e-mail services are enabled during the MAS install then a new password would be generated automatically for each migrated user and a welcome e-mail containing their new Maximo Application Suite password would be sent.
