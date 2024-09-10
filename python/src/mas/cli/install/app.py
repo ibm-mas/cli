@@ -593,7 +593,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # MAS Core
         self.configCertManager()
         if not self.preview:
-        self.configMAS()
+            self.configMAS()
 
         # MAS Applications
         self.configApps()
