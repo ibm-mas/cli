@@ -606,9 +606,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Dependencies
         if not self.preview:
-        self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
-        self.configDb2()
-        self.configKafka()  # Will only do anything if IoT has been selected for install
+            self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
+            self.configDb2()
+            self.configKafka()  # Will only do anything if IoT has been selected for install
 
         self.configGrafana()
         self.configTurbonomic()
@@ -947,7 +947,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             }
             ]
         else:
-        self.installOptions = [
+           self.installOptions = [
             {
                 "#": 1,
                 "catalog": "v9-240827-amd64",
