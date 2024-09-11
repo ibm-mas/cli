@@ -291,6 +291,26 @@ function prompt_for_confirm_default_yes() {
   fi
 }
 
+function prompt_for_confirm_default_yes() {
+  msg=$1
+  varname=$2
+  if confirm_default_yes "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}[Y/n]"; then
+    # Reset colours and clear the current line (\033[1K)
+    echo -ne "${TEXT_RESET}\033[1K"
+    if [[ "$varname" != "" ]]; then
+      printf -v "$varname" "%s" "true"
+    fi
+    true
+  else
+    # Reset colours and clear the current line (\033[1K)
+    echo -ne "${TEXT_RESET}\033[1K"
+    if [[ "$varname" != "" ]]; then
+      printf -v "$varname" "%s" "false"
+    fi
+    false
+  fi
+}
+
 function install_dependencies_ubuntu() {
   # APT package installations
   # python3-pip is required to install additional python packages
