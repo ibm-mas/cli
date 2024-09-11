@@ -589,7 +589,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # MAS Core
         self.configCertManager()
         #if not self.preview:
-            self.configMAS()
+        self.configMAS()
 
         # MAS Applications
         self.configApps()
@@ -602,9 +602,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Dependencies
         #if not self.preview:
-            self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
-            self.configDb2()
-            self.configKafka()  # Will only do anything if IoT has been selected for install
+        self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
+        self.configDb2()
+        self.configKafka()  # Will only do anything if IoT has been selected for install
 
         self.configGrafana()
         self.configTurbonomic()
