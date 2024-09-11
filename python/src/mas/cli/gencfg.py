@@ -63,3 +63,35 @@ class ConfigGeneratorMixin():
         with open(destination, 'w') as f:
             f.write(cfg)
             f.write('\n')
+
+    def generateMongoCfg(
+                self,
+                instanceId: str,
+                destination: str) -> None:
+
+            templateFile = path.join(self.templatesDir, "suite_mongocfg.yml.j2")
+            with open(templateFile) as tFile:
+                template = Template(tFile.read())
+
+            name = self.promptForString("Configuration Display Name")
+            hosts = self.promptForString("mongodb hosts")
+
+            username = self.promptForString("mongodb admin username")
+            password = self.promptForString("mongodb admin password", isPassword=True)
+
+            sslCertFile = self.promptForFile("Path to certificate file")
+            with open(sslCertFile) as cFile:
+                   certLocalFileContent = cFile.read()
+
+            cfg = template.render(
+                mas_instance_id=instanceId,
+                cfg_display_name=name,
+                mongodb_hosts=hosts,
+                mongodb_admin_username=username,
+                mongodb_admin_password=password,
+                mongodb_ca_pem_local_file=certLocalFileContent
+            )
+
+            with open(destination, 'w') as f:
+                f.write(cfg)
+                f.write('\n')

@@ -154,7 +154,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             print(tabulate(self.installOptions, headers="keys", tablefmt="simple_grid"))
             catalogSelection = self.promptForInt("Select catalog and release", default=1)
-
             self.setParam("mas_catalog_version", self.installOptions[catalogSelection-1]["catalog"])
             self.setParam("mas_channel", self.installOptions[catalogSelection-1]["release"])
 
@@ -191,9 +190,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
                 self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
 
-    def configMongoDb(self) -> None:
-        self.printH1("Configure MongoDb")
-        self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
 
     def configSpecialCharacters(self):
         self.printH1("Configure special characters for userID and username")
@@ -592,7 +588,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # MAS Core
         self.configCertManager()
-        if not self.preview:
+        #if not self.preview:
             self.configMAS()
 
         # MAS Applications
@@ -605,7 +601,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.assistSettings()
 
         # Dependencies
-        if not self.preview:
+        #if not self.preview:
             self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
             self.configDb2()
             self.configKafka()  # Will only do anything if IoT has been selected for install
@@ -1079,6 +1075,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             exit(1)
 
         # Basic settings before the user provides any input
+
         self.configICR()
         self.configCertManager()
         self.deployCP4D = False

@@ -184,7 +184,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 k8s_config = Configuration.get_default_copy()
                 self._apiClient = api_client.ApiClient(configuration=k8s_config)
                 self._dynClient = DynamicClient(self._apiClient)
-                #v1 = client.CoreV1Api()
+                #v1 =  self._apiClient.CoreV1Api()
                 #response = v1.list_node()
                 #for node in response.items:
                  #  print("The architecture of node %s is %s" % (node.metadata.name, node.status.node_info.architecture))
