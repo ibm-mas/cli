@@ -23,6 +23,9 @@
       value: "MobileSetup4MAS.data"
     - name: upload_file
       value: "True"
+    - name: enable_perf_debug
+      value: "True"
+
   when:
     - input: "$(params.mas_app_channel_manage)"
       operator: notin
