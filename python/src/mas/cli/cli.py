@@ -114,7 +114,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.h2count = 0
 
         #s390x
-        self.preview = False
+        #self.preview = False
         self.localConfigDir = None
         self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
         self.tektonDefsWithoutDigestPath = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
@@ -324,8 +324,10 @@ class BaseApp(PrintMixin, PromptMixin):
     def setPreview(self):
         if self.architecture == 2:
             self.setParam("preview",True)
+            print_formatted_text(HTML("Preview"+self.preview))
         else:
             self.setParam("preview",False)
+             print_formatted_text(HTML("Preview"+self.preview))
 
 
     def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:

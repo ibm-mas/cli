@@ -1071,6 +1071,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             # Connect to the target cluster
             self.connect()
             self.setPreview()
+            self.preview = self.getParam("preview")
         else:
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
 
