@@ -132,7 +132,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.certsSecret = None
 
         self._isSNO = None
-        self.architecture = amd64
+        self.architecture = "amd64"
         self.compatibilityMatrix = {
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
