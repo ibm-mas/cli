@@ -3,7 +3,10 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: mobile-api-sr    
+      value: mobile-api-sr  
+    - name: enable_perf_debug
+      value: "True"
+  
   runAfter:
     - fvt-mobile-pytest-setup
 
