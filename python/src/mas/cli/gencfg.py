@@ -10,7 +10,7 @@
 
 from os import path
 from jinja2 import Template
-
+from prompt_toolkit import HTML, print_formatted_text
 class ConfigGeneratorMixin():
     def generateJDBCCfg(
             self,
