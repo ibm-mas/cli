@@ -324,7 +324,7 @@ class BaseApp(PrintMixin, PromptMixin):
     def setPreview(self):
         if self.architecture == 2:
             self.setParam("preview",True)
-         else
+        else:
             self.setParam("preview",False)
 
 
