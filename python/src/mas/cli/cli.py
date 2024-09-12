@@ -322,7 +322,7 @@ class BaseApp(PrintMixin, PromptMixin):
         if self.architecture == 's390x':
             self.preview = True
             self.printTitle(f"\n Preview : {self.preview}")
-            print_formatted_text(HTML("Preview"+self.preview))
+            
         else:
            self.preview = False
            self.printTitle(f"\n Preview : {self.preview}")
