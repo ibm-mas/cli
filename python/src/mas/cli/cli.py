@@ -327,7 +327,7 @@ class BaseApp(PrintMixin, PromptMixin):
             print_formatted_text(HTML("Preview"+self.preview))
         else:
             self.setParam("preview",False)
-             print_formatted_text(HTML("Preview"+self.preview))
+            print_formatted_text(HTML("Preview"+self.preview))
 
 
     def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:
