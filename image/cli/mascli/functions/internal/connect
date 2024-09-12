@@ -9,17 +9,6 @@ function connect() {
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
     echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}"
     echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE\n" >> $LOGFILE
-    self.printH1("Choose OS Architecture")
-    self.printDescription([
-         " - These specifications are also visible in the metrics that are shared with IBM and in the product UI.",
-         "",
-         "  1. AMD64",
-         "  2. S390X"
-    ])
-    self.architecture = self.promptForInt("Architecture", default=1)
-     if [[ "$Architecture" != true ]]; then
-
-
     if [[ "$NO_CONFIRM" != true ]]; then
       if ! prompt_for_confirm_default_yes "Proceed with this cluster?"; then
         PROMPT_FOR_LOGIN=true
@@ -43,16 +32,6 @@ function connect() {
     OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
     echo -e "Connected to OCP cluster: \n   ${COLOR_CYAN}${TEXT_UNDERLINE}https://$OCP_CONSOLE_ROUTE${TEXT_RESET}"
     echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE\n" >> $LOGFILE
-
-     self.printH1("Choose OS Architecture")
-     self.printDescription([
-         " - These specifications are also visible in the metrics that are shared with IBM and in the product UI.",
-         "",
-         "  1. AMD64",
-         "  2. S390X"
-     ])
-     self.preview = self.promptForInt("Architecture", default=1)
-
     prompt_for_confirm "Proceed with installation on this cluster?" || exit 0
   fi
   ALREADY_CONFIRMED=true

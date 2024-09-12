@@ -114,7 +114,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.h2count = 0
 
         #s390x
-        self.preview = True
+        #self.preview = True
         self.localConfigDir = None
         self.templatesDir = path.join(path.abspath(path.dirname(__file__)), "templates")
         self.tektonDefsWithoutDigestPath = path.join(self.templatesDir, "ibm-mas-tekton.yaml")
@@ -309,10 +309,21 @@ class BaseApp(PrintMixin, PromptMixin):
             token = prompt(HTML('<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
             skipVerify = self.yesOrNo('Disable TLS Verify')
             connect(server, token, skipVerify)
-            self.reloadDynamicClient()
-            if self._dynClient is None:
-                print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
-                exit(1)
+        self.printH1("OCP OS Architecture ")
+        self.printDescription([
+            "Choose your OCP architecture",
+            "  1. amd64",
+            "  2. s390x"
+           ])
+        self.reloadDynamicClient()
+        if self._dynClient is None:
+             print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
+             exit(1)
+        self.architecture = self.promptForInt("OCP architecture", default=1)
+
+    def setPreview(self):
+        if self.architecture == 2:
+            self.preview = True
 
     def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:
         """
