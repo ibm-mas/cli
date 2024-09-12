@@ -70,8 +70,11 @@ class ConfigGeneratorMixin():
                 destination: str) -> None:
 
             templateFile = path.join(self.templatesDir, "suite_mongocfg.yml.j2")
+            print_formatted_text(f"Searching  in generateMongocfg for configuration file in {templateFile} ...")
+
             with open(templateFile) as tFile:
                 template = Template(tFile.read())
+            print_formatted_text(f"template n {template} ...")
 
             name = self.promptForString("Configuration Display Name")
             hosts = self.promptForString("mongodb hosts")
