@@ -309,7 +309,7 @@ class BaseApp(PrintMixin, PromptMixin):
             token = prompt(HTML('<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
             skipVerify = self.yesOrNo('Disable TLS Verify')
             connect(server, token, skipVerify)
-        setPreview(self)
+        self.setPreview(self)
         self.reloadDynamicClient()
         if self._dynClient is None:
              print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
