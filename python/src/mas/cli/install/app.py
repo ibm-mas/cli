@@ -54,36 +54,27 @@ logger = logging.getLogger(__name__)
 
 class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
     def validateCatalogSource(self):
-        catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
-        try:
-            catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
-            catalogDisplayName = catalog.spec.displayName
-            if self.preview:
-               m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-s390x)", catalogDisplayName)
-               if m:
-                   # catalogId = v8-yymmdd-amd64
-                   # catalogVersion = yymmdd
-                   catalogId = m.group("catalogId")
-               elif re.match(r".+v8-s390x", catalogDisplayName):
-                     catalogId = "v8-s390x"
-               else:
-                     self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
-            else:
-               m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
-            if m:
-                # catalogId = v8-yymmdd-amd64
-                # catalogVersion = yymmdd
-                catalogId = m.group("catalogId")
-            elif re.match(r".+v8-amd64", catalogDisplayName):
-                catalogId = "v8-amd64"
-            else:
-                self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
 
-            if catalogId != self.getParam("mas_catalog_version"):
-                self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
-        except NotFoundError:
-            # There's no existing catalog installed
-            pass
+            catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
+            try:
+                catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
+                catalogDisplayName = catalog.spec.displayName
+                arch=self.architecture
+                m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-{arch})", catalogDisplayName)
+                if m:
+                    # catalogId = v8-yymmdd-amd64
+                    # catalogVersion = yymmdd
+                    catalogId = m.group("catalogId")
+                elif re.match(r".+v8-{arch}", catalogDisplayName):
+                    catalogId = "v8-{arch}"
+                else:
+                    self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+
+                if catalogId != self.getParam("mas_catalog_version"):
+                    self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
+            except NotFoundError:
+                # There's no existing catalog installed
+                pass
 
     def validateInternalRegistryAvailable(self):
         """
@@ -148,11 +139,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configCatalog(self):
         self.printH1("IBM Maximo Operator Catalog Selection")
+        arch=self.architecture
         if self.devMode:
-            self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
+            self.promptForString("Select catalog source", "mas_catalog_version", default=f"v9-master-{arch}")
             self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
         else:
-            print(tabulate(self.installOptions, headers="keys", tablefmt="simple_grid"))
+            print(tabulate(f"self.installOptions_{arch}", headers="keys", tablefmt="simple_grid"))
             catalogSelection = self.promptForInt("Select catalog and release", default=1)
             self.setParam("mas_catalog_version", self.installOptions[catalogSelection-1]["catalog"])
             self.setParam("mas_channel", self.installOptions[catalogSelection-1]["release"])
@@ -929,142 +921,142 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
         #Setting for Install option  for s390x
-        if self.preview:
-           self.installOptions = [
-            {
-                "#": 1,
-                "catalog": "v9-240827-s390x",
-                "release": "9.0.x",
-                "core": "9.0.2",
-                "assist": "9.0.2",
-                "iot": "9.0.2",
-                "manage": "9.0.2",
-                "monitor": "9.0.2",
-                "optimizer": "9.0.2",
-                "predict": "9.0.1",
-                "inspection": "9.0.2"
-            }
-            ]
-        else:
-           self.installOptions = [
-            {
-                "#": 1,
-                "catalog": "v9-240827-amd64",
-                "release": "9.0.x",
-                "core": "9.0.2",
-                "assist": "9.0.2",
-                "iot": "9.0.2",
-                "manage": "9.0.2",
-                "monitor": "9.0.2",
-                "optimizer": "9.0.2",
-                "predict": "9.0.1",
-                "inspection": "9.0.2"
-            },
-            {
-                "#": 2,
-                "catalog": "v9-240827-amd64",
-                "release": "8.11.x",
-                "core": "8.11.14",
-                "assist": "8.8.6",
-                "iot": "8.8.12",
-                "manage": "8.7.11",
-                "monitor": "8.11.10",
-                "optimizer": "8.5.8",
-                "predict": "8.9.3",
-                "inspection": "8.9.5"
-            },
-            {
-                "#": 3,
-                "catalog": "v9-240827-amd64",
-                "release": "8.10.x",
-                "core": "8.10.17",
-                "assist": "8.7.7",
-                "iot": "8.7.16",
-                "manage": "8.6.17",
-                "monitor": "8.10.13",
-                "optimizer": "8.4.9",
-                "predict": "8.8.3",
-                "inspection": "8.8.4"
-            },
-            {
-                "#": 4,
-                "catalog": "v9-240730-amd64",
-                "release": "9.0.x",
-                "core": "9.0.1",
-                "assist": "9.0.1",
-                "iot": "9.0.1",
-                "manage": "9.0.1",
-                "monitor": "9.0.1",
-                "optimizer": "9.0.1",
-                "predict": "9.0.0",
-                "inspection": "9.0.0"
-            },
-            {
-                "#": 5,
-                "catalog": "v9-240730-amd64",
-                "release": "8.11.x",
-                "core": "8.11.13",
-                "assist": "8.8.5",
-                "iot": "8.8.11",
-                "manage": "8.7.10",
-                "monitor": "8.11.9",
-                "optimizer": "8.5.7",
-                "predict": "8.9.3",
-                "inspection": "8.9.4"
-            },
-            {
-                "#": 6,
-                "catalog": "v9-240730-amd64",
-                "release": "8.10.x",
-                "core": "8.10.16",
-                "assist": "8.7.6",
-                "iot": "8.7.15",
-                "manage": "8.6.16",
-                "monitor": "8.10.12",
-                "optimizer": "8.4.8",
-                "predict": "8.8.3",
-                "inspection": "8.8.4"
-            },
-            {
-                "#": 7,
-                "catalog": "v9-240625-amd64",
-                "release": "9.0.x",
-                "core": "9.0.0",
-                "assist": "9.0.0",
-                "iot": "9.0.0",
-                "manage": "9.0.0",
-                "monitor": "9.0.0",
-                "optimizer": "9.0.0",
-                "predict": "9.0.0",
-                "inspection": "9.0.0"
-            },
-            {
-                "#": 8,
-                "catalog": "v9-240625-amd64",
-                "release": "8.11.x",
-                "core": "8.11.12",
-                "assist": "N/A",
-                "iot": "8.8.10",
-                "manage": "8.7.9",
-                "monitor": "8.11.8",
-                "optimizer": "8.5.6",
-                "predict": "8.9.3",
-                "inspection": "8.9.3"
-            },
-            {
-                "#": 9,
-                "catalog": "v9-240625-amd64",
-                "release": "8.10.x",
-                "core": "8.10.15",
-                "assist": "N/A",
-                "iot": "8.7.14",
-                "manage": "8.6.15",
-                "monitor": "8.10.11",
-                "optimizer": "8.4.7",
-                "predict": "N/A",
-                "inspection": "8.8.4"
-            }
-        ]
+
+        self.installOptions_s390x = [
+         {
+            "#": 1,
+            "catalog": "v9-240827-s390x",
+            "release": "9.0.x",
+            "core": "9.0.2",
+            "assist": "9.0.2",
+            "iot": "9.0.2",
+            "manage": "9.0.2",
+            "monitor": "9.0.2",
+            "optimizer": "9.0.2",
+            "predict": "9.0.1",
+            "inspection": "9.0.2"
+         }
+         ]
+
+        self.installOptions_amd64 = [
+         {
+            "#": 1,
+            "catalog": "v9-240827-amd64",
+            "release": "9.0.x",
+            "core": "9.0.2",
+            "assist": "9.0.2",
+            "iot": "9.0.2",
+            "manage": "9.0.2",
+            "monitor": "9.0.2",
+            "optimizer": "9.0.2",
+            "predict": "9.0.1",
+            "inspection": "9.0.2"
+        },
+        {
+            "#": 2,
+            "catalog": "v9-240827-amd64",
+            "release": "8.11.x",
+            "core": "8.11.14",
+            "assist": "8.8.6",
+            "iot": "8.8.12",
+            "manage": "8.7.11",
+            "monitor": "8.11.10",
+            "optimizer": "8.5.8",
+            "predict": "8.9.3",
+            "inspection": "8.9.5"
+        },
+        {
+            "#": 3,
+            "catalog": "v9-240827-amd64",
+            "release": "8.10.x",
+            "core": "8.10.17",
+            "assist": "8.7.7",
+            "iot": "8.7.16",
+            "manage": "8.6.17",
+            "monitor": "8.10.13",
+            "optimizer": "8.4.9",
+            "predict": "8.8.3",
+            "inspection": "8.8.4"
+        },
+        {
+            "#": 4,
+            "catalog": "v9-240730-amd64",
+            "release": "9.0.x",
+            "core": "9.0.1",
+            "assist": "9.0.1",
+            "iot": "9.0.1",
+            "manage": "9.0.1",
+            "monitor": "9.0.1",
+            "optimizer": "9.0.1",
+            "predict": "9.0.0",
+            "inspection": "9.0.0"
+        },
+        {
+            "#": 5,
+            "catalog": "v9-240730-amd64",
+            "release": "8.11.x",
+            "core": "8.11.13",
+            "assist": "8.8.5",
+            "iot": "8.8.11",
+            "manage": "8.7.10",
+            "monitor": "8.11.9",
+            "optimizer": "8.5.7",
+            "predict": "8.9.3",
+            "inspection": "8.9.4"
+        },
+        {
+            "#": 6,
+            "catalog": "v9-240730-amd64",
+            "release": "8.10.x",
+            "core": "8.10.16",
+            "assist": "8.7.6",
+            "iot": "8.7.15",
+            "manage": "8.6.16",
+            "monitor": "8.10.12",
+            "optimizer": "8.4.8",
+            "predict": "8.8.3",
+            "inspection": "8.8.4"
+        },
+        {
+            "#": 7,
+            "catalog": "v9-240625-amd64",
+            "release": "9.0.x",
+            "core": "9.0.0",
+            "assist": "9.0.0",
+            "iot": "9.0.0",
+            "manage": "9.0.0",
+            "monitor": "9.0.0",
+            "optimizer": "9.0.0",
+            "predict": "9.0.0",
+            "inspection": "9.0.0"
+        },
+        {
+            "#": 8,
+            "catalog": "v9-240625-amd64",
+            "release": "8.11.x",
+            "core": "8.11.12",
+            "assist": "N/A",
+            "iot": "8.8.10",
+            "manage": "8.7.9",
+            "monitor": "8.11.8",
+            "optimizer": "8.5.6",
+            "predict": "8.9.3",
+            "inspection": "8.9.3"
+        },
+        {
+            "#": 9,
+            "catalog": "v9-240625-amd64",
+            "release": "8.10.x",
+            "core": "8.10.15",
+            "assist": "N/A",
+            "iot": "8.7.14",
+            "manage": "8.6.15",
+            "monitor": "8.10.11",
+            "optimizer": "8.4.7",
+            "predict": "N/A",
+            "inspection": "8.8.4"
+        }
+    ]
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")

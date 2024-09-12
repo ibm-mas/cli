@@ -132,7 +132,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.certsSecret = None
 
         self._isSNO = None
-
+        self.architecture = amd64
         self.compatibilityMatrix = {
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
@@ -309,7 +309,7 @@ class BaseApp(PrintMixin, PromptMixin):
             token = prompt(HTML('<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
             skipVerify = self.yesOrNo('Disable TLS Verify')
             connect(server, token, skipVerify)
-        self.setPreview(self)
+        self.setPreview()
         self.reloadDynamicClient()
         if self._dynClient is None:
              print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
