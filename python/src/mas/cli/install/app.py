@@ -146,8 +146,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             print(tabulate(installoption, headers="keys", tablefmt="simple_grid"))
             catalogSelection = self.promptForInt("Select catalog and release", default=1)
-            self.setParam("mas_catalog_version", self.installOptions[catalogSelection-1]["catalog"])
-            self.setParam("mas_channel", self.installOptions[catalogSelection-1]["release"])
+            self.setParam("mas_catalog_version", installOption[catalogSelection-1]["catalog"])
+            self.setParam("mas_channel", installOption[catalogSelection-1]["release"])
 
     def configSLS(self) -> None:
         self.printH1("Configure Product License")
