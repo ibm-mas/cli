@@ -21,8 +21,7 @@ class MongodbSettingsMixin():
          self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
 
 
-         if self.yesOrNo("CConfigure MongoDb in your OpenShift cluster"):
-
+         if self.yesOrNo("Configure MongoDb in your OpenShift cluster"):
             self.setParam("mongo_action_system", "install")
          else:
             mongodb_namespace = 'mongoce'
@@ -39,4 +38,3 @@ class MongodbSettingsMixin():
             else:
                 print_formatted_text(f"Expected file ({mongoCfgFile}) was not found, generating a valid system database configuration file now ...")
                 self.generateMongoCfg(instanceId=instanceId,destination=mongoCfgFile)
-
