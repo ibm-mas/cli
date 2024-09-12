@@ -309,25 +309,24 @@ class BaseApp(PrintMixin, PromptMixin):
             token = prompt(HTML('<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
             skipVerify = self.yesOrNo('Disable TLS Verify')
             connect(server, token, skipVerify)
-        self.printH1("OCP OS Architecture ")
-        self.printDescription([
-            "Choose your OCP architecture",
-            "  1. amd64",
-            "  2. s390x"
-           ])
+        setPreview(self)
         self.reloadDynamicClient()
         if self._dynClient is None:
              print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
              exit(1)
-        self.architecture = self.promptForInt("OCP architecture", default=1)
+
 
     def setPreview(self):
-        if self.architecture == 2:
-            self.setParam("preview",True)
+        command = "oc get nodes -o jsonpath='{.items[0].status.nodeInfo.architecture}'"
+        self.architecture = os.popen(command).read().strip()
+        if self.architecture == 's390x':
+            self.preview = True
+            self.printTitle(f"\n Preview : {self.preview}")
             print_formatted_text(HTML("Preview"+self.preview))
         else:
-            self.setParam("preview",False)
-            print_formatted_text(HTML("Preview"+self.preview))
+           self.preview = False
+           self.printTitle(f"\n Preview : {self.preview}")
+           self.printTitle(f"\n Final Preview : {self.preview}")
 
 
     def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:
