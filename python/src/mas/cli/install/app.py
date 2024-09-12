@@ -137,14 +137,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.setParam("cert_manager_provider", "redhat")
         self.setParam("cert_manager_action", "install")
 
-    def configCatalog(self):
+    def configCatalog(self,installoption):
         self.printH1("IBM Maximo Operator Catalog Selection")
         arch=self.architecture
         if self.devMode:
             self.promptForString("Select catalog source", "mas_catalog_version", default=f"v9-master-{arch}")
             self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
         else:
-            print(tabulate(f"self.installOptions_{arch}", headers="keys", tablefmt="simple_grid"))
+            print(tabulate(installoption, headers="keys", tablefmt="simple_grid"))
             catalogSelection = self.promptForInt("Select catalog and release", default=1)
             self.setParam("mas_catalog_version", self.installOptions[catalogSelection-1]["catalog"])
             self.setParam("mas_channel", self.installOptions[catalogSelection-1]["release"])
@@ -569,7 +569,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.interactiveMode = True
 
         # Catalog
-        self.configCatalog()
+        if not self.preview:
+            self.configCatalog(self.installOptions_amd64)
+        else:
+            self.configCatalog(self.installOptions_s390x)
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
