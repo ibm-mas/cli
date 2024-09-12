@@ -18,6 +18,7 @@ from sys import exit
 from subprocess import PIPE, Popen, TimeoutExpired
 import threading
 import json
+import os
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from kubernetes import config
