@@ -190,6 +190,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
                 self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
 
+    def configMongoDb(self) -> None:
+            self.printH1("Configure MongoDb")
+            self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
+
 
     def configSpecialCharacters(self):
         self.printH1("Configure special characters for userID and username")
