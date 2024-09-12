@@ -291,18 +291,7 @@ function prompt_for_confirm_default_yes() {
   fi
 }
 
-function prompt_for_s390x_architecture() {
-  local prompt="Do you want to proceed with s390x architecture?"
-  local varname="USE_S390X"
 
-  prompt_for_confirm "$prompt" $varname
-
-  if [[ "$USE_S390X" == "true" ]]; then
-    echo "Proceed with s390x architecture"
-  else
-    echo "proceed with amd64 architecture"
-  fi
-}
 
 function install_dependencies_ubuntu() {
   # APT package installations

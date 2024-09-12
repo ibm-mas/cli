@@ -1070,6 +1070,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
             self.connect()
+            self.setPreview()
         else:
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
 
