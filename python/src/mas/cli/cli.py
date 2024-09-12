@@ -323,11 +323,11 @@ class BaseApp(PrintMixin, PromptMixin):
 
     def setPreview(self):
         if self.architecture == 2:
-            self.setParam("preview",True)
-            print_formatted_text(HTML("Preview"+self.preview))
+            self.setParam("preview",True) 
+            print_formatted_text(HTML(f"Preview {str(self.preview)}"))
         else:
             self.setParam("preview",False)
-            print_formatted_text(HTML("Preview"+self.preview))
+            print_formatted_text(HTML(f"Preview {str(self.preview)}"))
 
 
     def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:
