@@ -291,23 +291,16 @@ function prompt_for_confirm_default_yes() {
   fi
 }
 
-function prompt_for_confirm_default_yes() {
-  msg=$1
-  varname=$2
-  if confirm_default_yes "${COLOR_YELLOW}$msg ${COLOR_MAGENTA}[Y/n]"; then
-    # Reset colours and clear the current line (\033[1K)
-    echo -ne "${TEXT_RESET}\033[1K"
-    if [[ "$varname" != "" ]]; then
-      printf -v "$varname" "%s" "true"
-    fi
-    true
+function prompt_for_s390x_architecture() {
+  local prompt="Do you want to proceed with s390x architecture?"
+  local varname="USE_S390X"
+
+  prompt_for_confirm "$prompt" $varname
+
+  if [[ "$USE_S390X" == "true" ]]; then
+    echo "Proceed with s390x architecture"
   else
-    # Reset colours and clear the current line (\033[1K)
-    echo -ne "${TEXT_RESET}\033[1K"
-    if [[ "$varname" != "" ]]; then
-      printf -v "$varname" "%s" "false"
-    fi
-    false
+    echo "proceed with amd64 architecture"
   fi
 }
 

@@ -11,6 +11,11 @@ function connect() {
     echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE\n" >> $LOGFILE
     if [[ "$NO_CONFIRM" != true ]]; then
       if ! prompt_for_confirm_default_yes "Proceed with this cluster?"; then
+        if [ "$PREVIEW" == "true" ]; then
+            echo "Running in s390x architecture"
+            # Add any preview-specific logic here
+        else
+            echo "Running in amd64 architecture"
         PROMPT_FOR_LOGIN=true
       fi
     fi

@@ -283,6 +283,7 @@ class BaseApp(PrintMixin, PromptMixin):
     def connect(self):
         promptForNewServer = False
         self.reloadDynamicClient()
+        os.environ['PREVIEW'] = 'true' if self.preview else 'false'  # Export the preview variable
         if self._dynClient is not None:
             try:
                 routesAPI = self._dynClient.resources.get(api_version="route.openshift.io/v1", kind="Route")
