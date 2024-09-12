@@ -37,7 +37,7 @@ spec:
       type: string
     - name: ibmcloud_apikey
       type: string
-    - name: use_hmac
+    - name: cos_use_hmac
       type: string
 
   stepTemplate:
@@ -77,8 +77,8 @@ spec:
         value: $(params.ibmcloud_resourcegroup)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
-      - name: USE_HMAC
-        value: $(params.use_hmac)
+      - name: COS_USE_HMAC
+        value: $(params.cos_use_hmac)
   steps:
     - args:
       - |-
