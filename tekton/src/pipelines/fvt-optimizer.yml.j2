@@ -88,7 +88,7 @@ spec:
 
     # 2. Run "integrity_checker_fvt" (CTF)
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer
+    - name: fvt-optimizer-integrity_checker
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -126,7 +126,7 @@ spec:
 
     # 3. Run "job_fvt" (CTF)
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer
+    - name: fvt-optimizer-job
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -164,7 +164,7 @@ spec:
 
     # 4. Run "model_fvt" (CTF)
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer
+    - name: fvt-optimizer-model
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -202,7 +202,7 @@ spec:
 
     # 5. Run "project_fvt" (CTF)
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer
+    - name: fvt-optimizer-project
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -240,7 +240,7 @@ spec:
 
     # 6. Run "python_fvt" (CTF)
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer
+    - name: fvt-optimizer-python
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
