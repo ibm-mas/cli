@@ -67,6 +67,19 @@ spec:
         # Lookups from mas-fvt-manage
         # -----------------------------------------------------------------------
         # Framework Information
+        
+        - name: MAS_APP_CHANNEL_ASSIST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-assist
+              key: MAS_APP_CHANNEL_ASSIST
+              optional: false
+        - name: MAS_APP_CHANNEL_IOT
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-iot
+              key: MAS_APP_CHANNEL_IOT
+              optional: false
         - name: MAS_APP_CHANNEL_MANAGE
           valueFrom:
             secretKeyRef:
@@ -79,6 +92,25 @@ spec:
               name: mas-fvt-monitor
               key: MAS_APP_CHANNEL_MONITOR
               optional: false
+        - name: MAS_APP_CHANNEL_OPTIMIZER
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-optimizer
+              key: MAS_APP_CHANNEL_OPTIMIZER
+              optional: false
+        - name: MAS_APP_CHANNEL_PREDICT
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-predict
+              key: MAS_APP_CHANNEL_PREDICT
+              optional: false
+        - name: MAS_APP_CHANNEL_VISUALINSPECTION
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-visualinspection
+              key: MAS_APP_CHANNEL_VISUALINSPECTION
+              optional: false
+        
         - name: MAS_WORKSPACE_ID
           valueFrom:
             secretKeyRef:
@@ -103,6 +135,12 @@ spec:
             secretKeyRef:
               name: mas-fvt-monitor
               key: FVT_DIGEST_CTF
+              optional: false
+        - name: IVT_DIGEST_CORE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-core
+              key: IVT_DIGEST_CORE
               optional: false
 
         # Black and white listing

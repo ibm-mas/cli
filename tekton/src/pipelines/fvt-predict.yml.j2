@@ -46,42 +46,8 @@ spec:
       default: ""
 
   tasks:
-    # 1. Core x predict
-    # -------------------------------------------------------------------------
-    - name: ivtcore-predict
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-predict
-        - name: product_channel
-          value: $(params.mas_app_channel_predict)
-        - name: fvt_test_suite
-          value: coreivt
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_predict)"
-          operator: notin
-          values: [""]
 
-    - name: imagescan-predict
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-predict
-        - name: product_channel
-          value: $(params.mas_app_channel_predict)
-        - name: fvt_test_suite
-          value: imagescan
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-
-    # 2. Prepare data for Python and Desktop suites
+    # Prepare data for Python and Desktop suites
     # -----------------------------------------------------------------------------
     - name: fvt-predict
       params:
@@ -115,14 +81,12 @@ spec:
         - input: "$(params.mas_app_channel_predict)"
           operator: notin
           values: [""]
-      runAfter:
-        - ivtcore-predict
       workspaces:
         - name: configs
           workspace: shared-configs
 
   finally:
-    # 1. Run CV
+    # Run CV
     # -----------------------------------------------------------------------------
     - name: cv-predict
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}

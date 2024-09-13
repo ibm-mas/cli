@@ -58,42 +58,8 @@ spec:
       default: ""
 
   tasks:
-    # 1. Core x Assist
-    # -------------------------------------------------------------------------
-    - name: ivtcore-assist
-      {{ lookup('template', pipeline_src_dir ~ '/taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-assist
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: coreivt
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_assist)"
-          operator: notin
-          values: [""]
 
-    - name: imagescan-assist
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-assist
-        - name: product_channel
-          value: $(params.mas_app_channel_assist)
-        - name: fvt_test_suite
-          value: imagescan
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-
-    # 2. Prepare data for Python and Desktop suites
+    # 1. Prepare data for Python and Desktop suites
     # -----------------------------------------------------------------------------
     - name: fvt-assist-preparedata
       taskRef:
@@ -124,11 +90,8 @@ spec:
           value: $(params.mas_app_channel_assist)
         - name: fvt_test_suite
           value: prepare
-      runAfter:
-        - ivtcore-assist
 
-
-    # 3. Python
+    # 2. Python
     # -----------------------------------------------------------------------------
     - name: fvt-assist-python
       taskRef:
@@ -163,7 +126,7 @@ spec:
         - fvt-assist-preparedata
 
 
-    # 4. Test NG - Desktop
+    # 3. Test NG - Desktop
     # -----------------------------------------------------------------------------
     - name: fvt-assist-testng-desktop
       {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/taskref-testng.yml.j2') | indent(6) }}
@@ -175,7 +138,7 @@ spec:
         - fvt-assist-preparedata
 
 
-    # 5. Test NG - Mobile
+    # 4. Test NG - Mobile
     # -----------------------------------------------------------------------------
     - name: fvt-assist-testng-mobile
       {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-assist/common/taskref-testng.yml.j2') | indent(6) }}
@@ -191,7 +154,7 @@ spec:
         - fvt-assist-preparedata
 
 
-    # 6. Cucumber
+    # 5. Cucumber
     # -----------------------------------------------------------------------------
     - name: fvt-assist-cucumber
       taskRef:
@@ -220,11 +183,9 @@ spec:
           value: $(params.fvt_digest_assist_cucumber)
         - name: product_channel
           value: $(params.mas_app_channel_assist)
-      runAfter:
-        - ivtcore-assist
 
   finally:
-    # 3. Run CV
+    # Run CV
     # -----------------------------------------------------------------------------
     - name: cv-assist
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}

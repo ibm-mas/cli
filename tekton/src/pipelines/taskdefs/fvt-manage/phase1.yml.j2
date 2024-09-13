@@ -14,5 +14,3 @@
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: base-api-ivt
-  runAfter:
-    - ivtcore-manage
