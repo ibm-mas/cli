@@ -939,7 +939,7 @@ spec:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-finally"
+          value: "$(context.pipelineRun.name)-fvt-finally"
 
   workspaces:
     # The generated configuration files
