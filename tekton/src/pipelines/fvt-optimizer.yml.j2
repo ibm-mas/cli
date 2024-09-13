@@ -157,7 +157,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - integrity_checker_fvt
+        - fvt-optimizer-integrity-checker
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -195,7 +195,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - job_fvt
+        - fvt-optimizer-job
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -233,7 +233,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - model_fvt
+        - fvt-optimizer-model
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -271,7 +271,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - project_fvt
+        - fvt-optimizer-project
       workspaces:
         - name: configs
           workspace: shared-configs
