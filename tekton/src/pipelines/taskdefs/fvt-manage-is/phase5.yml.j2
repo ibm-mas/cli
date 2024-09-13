@@ -5,3 +5,7 @@
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: operationalmap-api
+  runAfter:
+    - fvt-manage-maintmanager-api
+    - fvt-manage-maintmanager-setup
+    - fvt-manage-aviation-api  
