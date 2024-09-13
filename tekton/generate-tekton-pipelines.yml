@@ -53,7 +53,7 @@
         - fvt-visualinspection
         - fvt-launcher
         - fvt-launcher-uninstall
-        - ivt-manage
+        - ivt
 
     # 2. Generate Pipelines
     # -------------------------------------------------------------------------
