@@ -86,7 +86,7 @@ spec:
           values: [""]
           
 
-    # 2. Run "integrity_checker_fvt" (CTF)
+    # 2. Run "api_java_optim_model" (CTF)
     # -----------------------------------------------------------------------------
     - name: fvt-optimizer-java-model
       params:
@@ -104,7 +104,7 @@ spec:
         - name: fvt_image_digest
           value: $(params.fvt_digest_ctf)
         - name: fvt_test_suite
-          value: api-java-optim-model # pytest_marker in Common Test Framework
+          value: api_java_optim_model # pytest_marker in Common Test Framework
         - name: product_channel
           value: $(params.mas_app_channel_optimizer)
         - name: product_id
@@ -124,7 +124,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 3. Run "job_fvt" (CTF)
+    # 3. Run "api_python_optim_model" (CTF)
     # -----------------------------------------------------------------------------
     - name: fvt-optimizer-python-model
       params:
@@ -142,7 +142,7 @@ spec:
         - name: fvt_image_digest
           value: $(params.fvt_digest_ctf)
         - name: fvt_test_suite
-          value: api-python-optim-model # pytest_marker in Common Test Framework
+          value: api_python_optim_model # pytest_marker in Common Test Framework
         - name: product_channel
           value: $(params.mas_app_channel_optimizer)
         - name: product_id
@@ -162,7 +162,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 4. Run "model_fvt" (CTF)
+    # 4. Run "api_model_endpoints" (CTF)
     # -----------------------------------------------------------------------------
     - name: fvt-optimizer-model-endpoints
       params:
@@ -180,7 +180,7 @@ spec:
         - name: fvt_image_digest
           value: $(params.fvt_digest_ctf)
         - name: fvt_test_suite
-          value: api-model-endpoints # pytest_marker in Common Test Framework
+          value: api_model_endpoints # pytest_marker in Common Test Framework
         - name: product_channel
           value: $(params.mas_app_channel_optimizer)
         - name: product_id
@@ -200,7 +200,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 5. Run "project_fvt" (CTF)
+    # 5. Run "api_job_endpoints" (CTF)
     # -----------------------------------------------------------------------------
     - name: fvt-optimizer-job-endpoints
       params:
@@ -218,7 +218,7 @@ spec:
         - name: fvt_image_digest
           value: $(params.fvt_digest_ctf)
         - name: fvt_test_suite
-          value: api-job-endpoints # pytest_marker in Common Test Framework
+          value: api_job_endpoints # pytest_marker in Common Test Framework
         - name: product_channel
           value: $(params.mas_app_channel_optimizer)
         - name: product_id
@@ -238,7 +238,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 6. Run "python_fvt" (CTF)
+    # 6. Run "api_project_endpoints" (CTF)
     # -----------------------------------------------------------------------------
     - name: fvt-optimizer-project-endpoints
       params:
@@ -256,7 +256,7 @@ spec:
         - name: fvt_image_digest
           value: $(params.fvt_digest_ctf)
         - name: fvt_test_suite
-          value: api-project-endpoints # pytest_marker in Common Test Framework
+          value: api_project_endpoints # pytest_marker in Common Test Framework
         - name: product_channel
           value: $(params.mas_app_channel_optimizer)
         - name: product_id
