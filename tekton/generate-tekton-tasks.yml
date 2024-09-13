@@ -101,7 +101,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - ivt-core
-        - ivt-manage
+        - ivt-manage-monitor
 
     # 5. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
