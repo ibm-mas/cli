@@ -114,14 +114,21 @@ spec:
     # 0. Wait for the provsion pipeline to complete
     # -------------------------------------------------------------------------
     - name: wait-for-provision
-      params:
-        - name: pipelinerun_name
-          value: $(params.pipelinerun_name)
-        - name: ignore_failure
-          value: $(params.ignore_failure)
+      timeout: "0"
       taskRef:
         kind: Task
-        name: mas-fvt-wait-for-pipelinerun
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: $(params.pipelinerun_name)
+        - name: delay
+          value: 120  # seconds between checking the status of the pipelinerun
+        - name: retries
+          value: 50  # attempts before giving up
+        - name: ignore_failure
+          value: $(params.ignore_failure)  # fails and exit once the first failure is detected
 {% endif %}
     - name: gitops-mas-initiator
 {% if wait_for_provision == true %}
