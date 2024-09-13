@@ -91,7 +91,7 @@
         - launchfvt-visualinspection
         - launchfvt-upgrade-post
         - launchfvt-upgrade-pre
-        - launchivt-manage
+        - launchivt
 
     # 4. Generate Tasks (IVT)
     # -------------------------------------------------------------------------

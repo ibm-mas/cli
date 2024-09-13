@@ -73,7 +73,7 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable launch of the Visual Inspection FVT pipeline after app-cfg-visualinspection completes"
-    - name: launchivt_manage
+    - name: launchivt
       type: string
       default: "false"
       description: "Set this to 'true' to enable launch of the IVT pipeline at the end of applications FVT"
@@ -410,7 +410,7 @@ spec:
           operator: in
           values: ["true", "True"]
         # All these launchers require manage in place to then run setup, therefore the criteria
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_predict)$(params.launchivt_manage)
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_predict)$(params.launchivt)
           operator: notin
           values: ["falsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
       runAfter:
@@ -860,18 +860,18 @@ spec:
 
     # 11. IVT
     # -------------------------------------------------------------------------
-    - name: launchivt-manage
+    - name: launchivt
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-launchivt-manage
+        name: mas-launchivt
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
           value: "$(params.mas_instance_id)-ivt-manage"
       when:
-        - input: $(params.launchivt_manage)
+        - input: $(params.launchivt)
           operator: in
           values: ["true", "True"]
       runAfter:
@@ -923,7 +923,7 @@ spec:
         - approval-optimizer
         - approval-predict # Infers Manage, Monitor and IoT completed
         - approval-visualinspection
-        - launchivt-manage
+        - launchivt
 
   finally:
     - name: launchfvt-finally

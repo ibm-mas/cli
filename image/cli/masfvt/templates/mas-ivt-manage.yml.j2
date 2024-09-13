@@ -5,10 +5,10 @@ metadata:
   name: "{{ pipelinerun_name }}"
   namespace: "{{ pipelinerun_namespace }}"
   labels:
-    tekton.dev/pipeline: mas-ivt-manage
+    tekton.dev/pipeline: mas-ivt
 spec:
   pipelineRef:
-    name: mas-ivt-manage
+    name: mas-ivt
 
   serviceAccountName: pipeline
   timeouts:

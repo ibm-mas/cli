@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-ivt-manage
+  name: mas-ivt
 spec:
   workspaces:
     # The generated configuration files
@@ -79,7 +79,7 @@ spec:
           value: $(params.mas_app_channel_monitor)
       taskRef:
         kind: Task
-        name: mas-ivt-manage
+        name: mas-ivt
       when:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
