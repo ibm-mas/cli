@@ -86,7 +86,7 @@ spec:
           values: [""]
           
 
-    # 2. Run "optimizer_fvt" (CTF)
+    # 2. Run "integrity_checker_fvt" (CTF)
     # -----------------------------------------------------------------------------
     - name: fvt-optimizer
       params:
@@ -104,7 +104,7 @@ spec:
         - name: fvt_image_digest
           value: $(params.fvt_digest_ctf)
         - name: fvt_test_suite
-          value: optimizer_fvt # pytest_marker in Common Test Framework
+          value: integrity_checker_fvt # pytest_marker in Common Test Framework
         - name: product_channel
           value: $(params.mas_app_channel_optimizer)
         - name: product_id
@@ -120,6 +120,158 @@ spec:
           values: [""]
       runAfter:
         - ivtcore-optimizer
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 3. Run "job_fvt" (CTF)
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: ai-solutions
+        - name: fvt_image_name
+          value: common-test-framework
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: job_fvt # pytest_marker in Common Test Framework
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - integrity_checker_fvt
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 4. Run "model_fvt" (CTF)
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: ai-solutions
+        - name: fvt_image_name
+          value: common-test-framework
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: model_fvt # pytest_marker in Common Test Framework
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - job_fvt
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 5. Run "project_fvt" (CTF)
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: ai-solutions
+        - name: fvt_image_name
+          value: common-test-framework
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: project_fvt # pytest_marker in Common Test Framework
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - model_fvt
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 6. Run "python_fvt" (CTF)
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: ai-solutions
+        - name: fvt_image_name
+          value: common-test-framework
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: python_fvt # pytest_marker in Common Test Framework
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - project_fvt
       workspaces:
         - name: configs
           workspace: shared-configs
