@@ -869,7 +869,7 @@ spec:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-ivt-manage"
+          value: "$(params.mas_instance_id)-ivt"
       when:
         - input: $(params.launchivt)
           operator: in

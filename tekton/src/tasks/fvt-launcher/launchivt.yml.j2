@@ -64,8 +64,9 @@ spec:
               key: FVT_ARTIFACTORY_TOKEN
               optional: false
 
-        # Lookups from mas-fvt-manage
+        # Lookups from several secrets
         # -----------------------------------------------------------------------
+        
         # Framework Information
         
         - name: MAS_APP_CHANNEL_ASSIST
@@ -114,7 +115,7 @@ spec:
         - name: MAS_WORKSPACE_ID
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-manage
+              name: mas-fvt-core
               key: MAS_WORKSPACE_ID
               optional: false
         # Digests

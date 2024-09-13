@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-ivt
+  name: mas-ivt-manage-monitor
 spec:
   params:
     # Common Test Information
@@ -60,7 +60,7 @@ spec:
       default: "false"
 
   stepTemplate:
-    name: 'ivt-manage'
+    name: 'ivt-manage-monitor'
     env:
       - name: INSTANCE_ID
         value: "$(params.mas_instance_id)"
