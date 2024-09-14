@@ -125,7 +125,7 @@ spec:
           value: $(params.pipelinerun_name)
         - name: delay
           value: 120  # seconds between checking the status of the pipelinerun
-        - name: retries
+        - name: max_retries
           value: 120  # attempts before giving up
         - name: ignore_failure
           value: $(params.ignore_failure)  # fails and exit once the first failure is detected
