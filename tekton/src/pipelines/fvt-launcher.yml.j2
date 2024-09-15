@@ -98,6 +98,10 @@ spec:
       type: string
       default: "true"
       description: "Set this to 'false' to stop the finalize task from running for this launcher"
+    - name: set_finished
+      type: string
+      default: "true"
+      description: "Set this to 'false' to stop the the fvt test being marked as complete"
 
     # Deprovision Resources
     # -------------------------------------------------------------------------
@@ -936,6 +940,8 @@ spec:
           value: "$(params.deprovision)"
         - name: finalize
           value: "$(params.finalize)"
+        - name: set_finished
+          value: "$(params.set_finished)"
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
