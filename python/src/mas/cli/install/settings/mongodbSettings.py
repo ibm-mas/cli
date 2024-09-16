@@ -24,7 +24,7 @@ class MongodbSettingsMixin():
          if self.yesOrNo("Configure MongoDb in your OpenShift cluster"):
             self.setParam("mongodb_action", "install")
          else:
-            mongodb_namespace = 'mongoce'
+            mongodb_namespace = 'mongodb'
             self.setParam("mongodb_action", "byo")
             self.selectLocalConfigDir()
 
