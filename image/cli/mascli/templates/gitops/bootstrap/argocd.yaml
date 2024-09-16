@@ -940,8 +940,10 @@ spec:
           end
           hs.status = "Progressing"
           hs.message = "Unknown"
-          if obj.status.state ~= nil then
-            hs.message = obj.status.state
+          if obj.status ~= nil then
+            if obj.status.state ~= nil then
+              hs.message = obj.status.state
+            end
           end
           return hs
 
