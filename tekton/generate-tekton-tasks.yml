@@ -35,6 +35,7 @@
         - grafana
         - ibm-catalogs
         - kafka
+        - mongodb
         - nvidia-gpu
         - ocs
         - sls-registry-update

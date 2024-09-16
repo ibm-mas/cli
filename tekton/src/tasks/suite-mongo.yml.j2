@@ -29,6 +29,6 @@ spec:
     - name: suite-mongo
       command:
         - /opt/app-root/src/run-role.sh
-        - suite_db2_setup_for_manage
+        - mongodb
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
