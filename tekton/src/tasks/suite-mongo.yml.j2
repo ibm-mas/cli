@@ -1,0 +1,34 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-mongodb-setup
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: mongo_instance_name
+      type: string
+      description: Name (specifically, not the ID) of the DB2 Warehouse instance to execute the hack
+    - name: mongo_namespace
+      type: string
+      description: Namespace where the DB2 Warehouse instance to execute the hack resides
+      default: "mongoce"
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # General
+      - name: MONGO_INSTANCE_NAME
+        value: $(params.mongo_instance_name)
+      - name: MONGO_NAMESPACE
+        value: $(params.mongo_namespace)
+
+  steps:
+    - name: suite-mongo
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_db2_setup_for_manage
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
