@@ -684,6 +684,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "dro_namespace",
             # MongoDb
             "mongodb_namespace",
+            "mongodb_action"
             # Db2
             "db2_action_system",
             "db2_action_manage",
