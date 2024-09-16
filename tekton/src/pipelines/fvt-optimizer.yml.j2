@@ -84,47 +84,8 @@ spec:
         - input: "$(params.ivt_digest_core)"
           operator: notin
           values: [""]
-          
 
-    # 2. Run "api_java_optim_model" (CTF)
-    # -----------------------------------------------------------------------------
-    - name: fvt-optimizer-java-model
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_namespace
-          value: ai-solutions
-        - name: fvt_image_name
-          value: common-test-framework
-        - name: fvt_image_digest
-          value: $(params.fvt_digest_ctf)
-        - name: fvt_test_suite
-          value: api_java_optim_model # pytest_marker in Common Test Framework
-        - name: product_channel
-          value: $(params.mas_app_channel_optimizer)
-        - name: product_id
-          value: ibm-mas-optimizer
-
-      taskRef:
-        kind: Task
-        name: mas-fvt-run-suite
-      # Only if we've set a digest of the Predict FVT to run
-      when:
-        - input: "$(params.fvt_digest_ctf)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - ivtcore-optimizer
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-
-    # 3. Run "api_python_optim_model" (CTF)
+    # 2. Run "api_python_optim_model" (CTF)
     # -----------------------------------------------------------------------------
     - name: fvt-optimizer-python-model
       params:
@@ -157,7 +118,45 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - fvt-optimizer-java-model
+        - ivtcore-optimizer
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+    
+    # 3. Run "api_java_optim_model" (CTF)
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-java-model
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: ai-solutions
+        - name: fvt_image_name
+          value: common-test-framework
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: api_java_optim_model # pytest_marker in Common Test Framework
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - fvt-optimizer-python-model
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -233,7 +232,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - fvt-optimizer-model-endpoints
+        - fvt-optimizer-python-model
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -271,7 +270,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - fvt-optimizer-job-endpoints
+        - fvt-optimizer-python-model
       workspaces:
         - name: configs
           workspace: shared-configs
