@@ -12,7 +12,7 @@
 import logging
 import logging.handlers
 from sys import exit
-from os import path
+from os import path, getenv
 import re
 
 from openshift.dynamic.exceptions import NotFoundError
@@ -116,13 +116,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configICR(self):
         if self.devMode:
-            self.setParam("mas_icr_cp", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local")
-            self.setParam("mas_icr_cpopen", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen")
-            self.setParam("sls_icr_cpopen", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen")
+            self.setParam("mas_icr_cp", getenv("MAS_ICR_CP", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"))
+            self.setParam("mas_icr_cpopen", getenv("MAS_ICR_CPOPEN", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"))
+            self.setParam("sls_icr_cpopen", getenv("SLS_ICR_CPOPEN", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"))
         else:
-            self.setParam("mas_icr_cp", "cp.icr.io/cp")
-            self.setParam("mas_icr_cpopen", "icr.io/cpopen")
-            self.setParam("sls_icr_cpopen", "icr.io/cpopen")
+            self.setParam("mas_icr_cp", getenv("MAS_ICR_CP", "cp.icr.io/cp"))
+            self.setParam("mas_icr_cpopen", getenv("MAS_ICR_CPOPEN", "icr.io/cpopen"))
+            self.setParam("sls_icr_cpopen", getenv("SLS_ICR_CPOPEN", "icr.io/cpopen"))
 
     def configICRCredentials(self):
         self.printH1("Configure IBM Container Registry")
