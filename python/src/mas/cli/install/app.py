@@ -128,7 +128,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("Configure IBM Container Registry")
         self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
         if self.devMode:
-            self.promptForString("Artifactory username", "artifactory_username", isPassword=True)
+            self.promptForString("Artifactory username", "artifactory_username")
             self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
 
     def configCertManager(self):
