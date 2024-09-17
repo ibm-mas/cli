@@ -289,8 +289,9 @@ class BaseApp(PrintMixin, PromptMixin):
                 print()
                 if not self.noConfirm:
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
-                    continueWithExistingCluster = prompt(HTML('<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
-                    promptForNewServer = continueWithExistingCluster in ["n", "no"]
+                    promptForNewServer = not self.yesOrNo("Proceed with this cluster?")
+                    # continueWithExistingCluster = prompt(HTML('<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
+                    # promptForNewServer = continueWithExistingCluster in ["n", "no"]
             except Exception as e:
                 # We are already connected to a cluster, but the connection is not valid so prompt for connection details
                 logger.debug("Failed looking up OpenShift Console route to verify connection")
