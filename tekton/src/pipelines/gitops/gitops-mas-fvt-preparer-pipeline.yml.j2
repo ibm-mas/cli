@@ -81,6 +81,8 @@ spec:
 
     - name: mas_workspace_id
       type: string
+    - name: mas_channel
+      type: string
 
     - name: launchfvt_core
       type: string
@@ -229,6 +231,8 @@ spec:
 
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
+        - name: mas_channel
+          value: $(params.mas_channel)
 
         - name: launchfvt_core
           value: $(params.launchfvt_core)
