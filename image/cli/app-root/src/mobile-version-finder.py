@@ -309,8 +309,8 @@ def artifactory_upload():
         print("Download URL:", r.json()["downloadUri"])
 
 
-if __name__ == "__main__":
-
+def initClient():
+    global dynClient
     if "KUBERNETES_SERVICE_HOST" in os.environ:
         config.load_incluster_config()
         k8s_config = Configuration.get_default_copy()
@@ -320,6 +320,10 @@ if __name__ == "__main__":
         k8s_client = config.new_client_from_config()
         dynClient = DynamicClient(k8s_client)
 
+if __name__ == "__main__":
+
+    initClient()
+    
     if os.path.isfile(output_filename):
         print("Found an existing output file. Deleting...")
         os.remove(output_filename)
