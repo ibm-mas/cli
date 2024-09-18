@@ -51,6 +51,10 @@ spec:
 
     # Test-specific Information (all optional)
     # -------------------------------------------------------------------------
+    - name: enable_perf_debug
+      type: string
+      description: Used to determine if response time will be displayed and saved or not
+      default: "False"
     - name: upload_file
       type: string
       description: Used only by fvt-mobile-version step to upload version file to artifactory
@@ -110,7 +114,9 @@ spec:
 
       - name: UPLOAD_FILE
         value: "$(params.upload_file)"
-      
+      - name: ENABLE_PERF_DEBUG
+        value: "$(params.enable_perf_debug)"
+
       - name: WORKSPACE_MANAGEDATA_PATH
         value: "$(params.workspace_managedata_path)"
       - name: INPUT_DATA_FILE
