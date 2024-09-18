@@ -484,6 +484,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.storageClassProvider = "ocs"
             self.params["storage_class_rwo"] = "ocs-storagecluster-ceph-rbd"
             self.params["storage_class_rwx"] = "ocs-storagecluster-cephfs"
+        # OCS quick burn uses nfs-client now
+        elif getStorageClass(self.dynamicClient, "nfs-client") is not None:
+            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: OpenShift Container Storage</MediumSeaGreen>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): nfs-client</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): nfs-client</LightSlateGrey>"))
+            self.storageClassProvider = "ocs"
+            self.params["storage_class_rwo"] = "nfs-client"
+            self.params["storage_class_rwx"] = "nfs-client"
         # 3. Azure
         elif getStorageClass(self.dynamicClient, "managed-premium") is not None:
             print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: Azure Managed</MediumSeaGreen>"))
