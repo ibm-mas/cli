@@ -43,7 +43,7 @@ spec:
       type: string
       description: Name of COS instance in IBM Cloud account
       default: ""
-    - name: use_hmac
+    - name: cos_use_hmac
       type: string
       description: Optional boolean variable weather hmac is enabled or not
       default: ""
@@ -76,8 +76,8 @@ spec:
         value: $(params.cos_resourcegroup)
       - name: IBMCLOUD_RESOURCEGROUP
         value: $(params.ibmcloud_resourcegroup)
-      - name: USE_HMAC
-        value: $(params.use_hmac)
+      - name: COS_USE_HMAC
+        value: $(params.cos_use_hmac)
   steps:
     - name: cos
       command:
