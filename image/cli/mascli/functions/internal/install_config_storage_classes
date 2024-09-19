@@ -68,7 +68,7 @@ function install_config_storage_classes() {
   if [[ "$STORAGE_CLASS_RWX" == "" ]]; then
     oc get storageclass nfs-client &>> $LOGFILE
     if [[ $? == "0" ]]; then
-      echo -e "${COLOR_GREEN}Storage provider auto-detected: OpenShift Container Storage${TEXT_RESET}"
+      echo -e "${COLOR_GREEN}Storage provider auto-detected: NFS Client${TEXT_RESET}"
       echo "${TEXT_DIM}  - Storage class (ReadWriteOnce): nfs-client"
       echo "${TEXT_DIM}  - Storage class (ReadWriteMany): nfs-client"
       STORAGE_CLASS_PROVIDER=ocs
