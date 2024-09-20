@@ -10,6 +10,7 @@
 
 from os import path
 from jinja2 import Template
+from base64 import b64encode
 from prompt_toolkit import HTML, print_formatted_text
 class ConfigGeneratorMixin():
     def generateJDBCCfg(
@@ -81,7 +82,8 @@ class ConfigGeneratorMixin():
 
             username = self.promptForString("mongodb admin username")
             password = self.promptForString("mongodb admin password", isPassword=True)
-
+            encoded_username = b64encode(username.encode('ascii')).decode("ascii")
+            encoded_password = b64encode(password.encode('ascii')).decode("ascii")
             sslCertFile = self.promptForFile("Path to certificate file")
             with open(sslCertFile) as cFile:
                    certLocalFileContent = cFile.read()
@@ -90,8 +92,8 @@ class ConfigGeneratorMixin():
                 mas_instance_id=instanceId,
                 cfg_display_name=name,
                 mongodb_hosts=hosts,
-                mongodb_admin_username=username,
-                mongodb_admin_password=password,
+                mongodb_admin_username=encoded_username,
+                mongodb_admin_password=encoded_password,
                 mongodb_ca_pem_local_file=certLocalFileContent
             )
 
