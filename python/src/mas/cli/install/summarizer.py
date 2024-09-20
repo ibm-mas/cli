@@ -267,9 +267,8 @@ class InstallSummarizerMixin():
 
     def mongoSummary(self) -> None:
         self.printH2("MongoDb")
-
         if self.getParam("mongodb_action") == "install":
-                self.printParamSummary("Install Namespace", "mongodb_namespace")
+            self.printParamSummary("Install Namespace", "mongodb_namespace")
 
     def kafkaSummary(self) -> None:
         if self.getParam("kafka_action_system") != "":

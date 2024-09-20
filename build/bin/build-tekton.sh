@@ -29,6 +29,14 @@ else
   TARGET_FILE_IN_PY=$DIR/../../python/src/mas/cli/templates/ibm-mas-tekton.yaml
 fi
 
+#call the function s390x
+
+#we dont need all the dependencies to be run
+#how to remove it
+
+#we need to have 2 more tekton pipelines/tasks for s390x
+
+
 
 # 1. Generate tasks and pipelines
 # -----------------------------------------------------------------------------

@@ -1,0 +1,32 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-common-services
+  # Although we don't use this Task in the install of MAS anymore, it is still
+  # part of the uninstall pipeline to allow the removal of IBM Common Services
+  # from older MAS installations.
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    # Optional parameter to upgrade or uninstall Common Services
+    - name: common_services_action
+      type: string
+      description: Optional. Used to upgrade or uninstall IBM Common Services
+      default: ""
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+      # Optional parameter to upgrade or uninstall IBM Common Services
+      - name: COMMON_SERVICES_ACTION
+        value: $(params.common_services_action)
+  steps:
+    - name: common-services
+      command:
+        - /opt/app-root/src/run-role.sh
+        - common_services
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
