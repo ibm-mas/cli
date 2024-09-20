@@ -566,10 +566,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Catalog
         if not self.preview:
             self.configCatalog(self.installOptions_amd64)
-            self.architecture = amd64
+            self.architecture = 'amd64'
         else:
             self.configCatalog(self.installOptions_s390x)
-            self.architecture = s390x
+            self.architecture = 's390x'
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
