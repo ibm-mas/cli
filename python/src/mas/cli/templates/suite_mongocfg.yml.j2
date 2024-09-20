@@ -48,8 +48,8 @@ spec:
     {%- endfor %}
     {%- endif %}
   {%- if mongodb_ca_pem_local_file is defined and mongodb_ca_pem_local_file | length > 0 %}
-    certificates:
-      - alias: "part1"
-        crt: |
+  certificates:
+    - alias: "part1"
+      crt: |
         {{ mongodb_ca_pem_local_file | indent(width=8, first=False) }}
   {%- endif %}
