@@ -35,7 +35,7 @@ spec:
   type: external
   config:
     configDb: admin
-    retryWrites: {{mongodb_retry_writes}}
+    retryWrites: true
     authMechanism: DEFAULT
     credentials:
       secretName: mongodb-{{mas_instance_id|lower}}-admin
@@ -45,8 +45,8 @@ spec:
      {%- set host_port = host.split(':') %}
      - host: "{{ host_port[0] }}"
        port: {{ host_port[1] }}
-    {% endfor %}
-    {% endif %}
+    {%- endfor %}
+    {%- endif %}
   {%- if mongodb_ca_pem_local_file is defined and mongodb_ca_pem_local_file | length > 0 %}
     certificates:
       - alias: "part1"
