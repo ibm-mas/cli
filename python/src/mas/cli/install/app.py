@@ -599,7 +599,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
         self.configDb2()
         self.configKafka()
-        self.configGrafana()
+        if not self.preview:
+         self.configGrafana()
+        else:
+         self.setParam("grafana_action", "none")
+
         self.configTurbonomic()
 
         # TODO: Support ECK integration via the interactive install mode
