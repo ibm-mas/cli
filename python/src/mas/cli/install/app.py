@@ -566,8 +566,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Catalog
         if not self.preview:
             self.configCatalog(self.installOptions_amd64)
+            self.architecture = amd64
         else:
             self.configCatalog(self.installOptions_s390x)
+            self.architecture = s390x
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
@@ -684,6 +686,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "mas_app_settings_secondary_langs",
             "mas_app_settings_server_timezone",
             "ocp_ingress_tls_secret_name",
+            "mas_architecture",
             # DRO
             "dro_namespace",
             # MongoDb
