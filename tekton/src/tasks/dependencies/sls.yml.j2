@@ -63,7 +63,7 @@ spec:
 
       # General
       - name: MAS_CONFIG_DIR
-        value: /workspace/configs
+        value: $(params.mas_config_dir)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: CUSTOM_LABELS

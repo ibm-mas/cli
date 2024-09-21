@@ -162,6 +162,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.localConfigDir is None:
             # You need to tell us where the configuration file can be found
             self.localConfigDir = self.promptForDir("Select Local configuration directory")
+            self.setParam("mas_config_dir", self.localConfigDir)
 
     def configGrafana(self) -> None:
         try:
