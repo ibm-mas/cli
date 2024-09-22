@@ -19,8 +19,6 @@ class MongodbSettingsMixin():
          ])
 
          self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
-
-
          if self.yesOrNo("Configure MongoDb in your OpenShift cluster"):
             self.setParam("mongodb_action", "install")
          else:
@@ -32,7 +30,7 @@ class MongodbSettingsMixin():
             # Check if a configuration already exists before creating a new one
             self.localConfigDir
             mongoCfgFile = path.join(self.localConfigDir, f"mongo-{mongodb_namespace}.yaml")
-            self.setParam("sls_mongodb_cfg_file",mongoCfgFile)
+
             print_formatted_text(f"Searching for system database configuration file in {mongoCfgFile} ...")
             if path.exists(mongoCfgFile):
                 if self.yesOrNo(f"System database configuration file 'mongo-{mongodb_namespace}.yaml' already exists.  Do you want to generate a new one"):
@@ -40,3 +38,4 @@ class MongodbSettingsMixin():
             else:
                 print_formatted_text(f"Expected file ({mongoCfgFile}) was not found, generating a valid system database configuration file now ...")
                 self.generateMongoCfg(instanceId=instanceId,destination=mongoCfgFile)
+            self.setParam("sls_mongodb_cfg_file",mongoCfgFile)
