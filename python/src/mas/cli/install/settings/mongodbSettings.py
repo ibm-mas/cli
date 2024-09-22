@@ -28,7 +28,6 @@ class MongodbSettingsMixin():
 
             instanceId = self.getParam('mas_instance_id')
             # Check if a configuration already exists before creating a new one
-            self.localConfigDir
             mongoCfgFile = path.join(self.localConfigDir, f"mongo-{mongodb_namespace}.yaml")
 
             print_formatted_text(f"Searching for system database configuration file in {mongoCfgFile} ...")
