@@ -31,7 +31,7 @@ spec:
 
   steps:
     - name: grafana
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:10.8.0-pre.catalog-390x-shree
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/run-role.sh
