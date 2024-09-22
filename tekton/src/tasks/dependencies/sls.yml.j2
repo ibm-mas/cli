@@ -62,8 +62,6 @@ spec:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
 
       # General
-      - name: MAS_CONFIG_DIR
-        value: $(params.mas_config_dir)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: CUSTOM_LABELS
