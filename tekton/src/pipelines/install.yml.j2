@@ -43,7 +43,10 @@ spec:
     # 13. Install & Configure Visual Inspection
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
-
+      when:
+        - input: "$(params.skip_pre_check)"
+          operator: notin
+          values: [ "true" ]
     # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
     # -------------------------------------------------------------------------
     # 1.1 IBM Operator Catalog
