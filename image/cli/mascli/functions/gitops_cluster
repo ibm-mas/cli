@@ -33,6 +33,9 @@ Operator Catalog (Optional):
       --catalog-image ${COLOR_YELLOW}MAS_CATALOG_IMAGE${TEXT_RESET}       Container image to use for IBM Maximo Operator Catalog (defaults to 'icr.io/cpopen/ibm-maximo-operator-catalog')
       --catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}     Action to take for IBM Maximo Operator Catalog ('install', 'update' or 'none'. Default is 'install')
 
+Redhat Cert Manager (Optional):
+      --redhat_cert_manager_install_plan ${COLOR_YELLOW}REDHAT_CERT_MANAGER_INSTALL_PLAN${TEXT_RESET}     Set Redhat Cert manager subscription install plan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+
 IBM CIS Cert Manager:
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
       --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                   true/false, If true, ingress-controller for cis-proxy will be configured
@@ -138,6 +141,11 @@ function gitops_cluster_noninteractive() {
         ;;
       --catalog-image)
         export MAS_CATALOG_IMAGE=$1 && shift
+        ;;
+
+      # Redhat Cert Manager
+      --redhat_cert_manager_install_plan)
+        export REDHAT_CERT_MANAGER_INSTALL_PLAN=$1 && shift
         ;;
 
       # Automatic GitHub Push (Optional)
@@ -326,6 +334,11 @@ function gitops_cluster() {
   echo_h2 "IBM Maximo Operator Catalog" "    "
   echo_reset_dim "Catalog Version ................ ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
   echo_reset_dim "Catalog Image .................. ${COLOR_MAGENTA}${MAS_CATALOG_IMAGE}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Redhat Certificate Manager" "    "
+  echo_reset_dim "Redhat Certificate Manager Subscription Install Plan Approval ................ ${COLOR_MAGENTA}${REDHAT_CERT_MANAGER_INSTALL_PLAN}"
   reset_colors
 
   echo "${TEXT_DIM}"
