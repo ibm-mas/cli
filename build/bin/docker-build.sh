@@ -49,6 +49,9 @@ echo "RELEASE_LABEL .. $GITHUB_RUN_ID"
 echo "VCS_REF ........ $GITHUB_SHA"
 echo "VCS_URL ........ https://github.com/$GITHUB_REPOSITORY"
 
+# remove expires-after
+sed -i "/quay.expires-after=3/d" $DOCKERFILE 
+
 docker build \
   --build-arg VERSION_LABEL=$DOCKER_TAG \
   --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
