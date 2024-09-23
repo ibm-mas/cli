@@ -8,6 +8,17 @@
       value: catalogapi
   runAfter: {{ runAfter }}
 
+# grafana ~5m
+# -----------------------------------------------------------------------------
+- name: grafana
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: grafana
+  runAfter:
+    - catalogapi
+
 # ibmadminissuer ~5m
 # -----------------------------------------------------------------------------
 - name: ibmadminissuer
@@ -17,7 +28,7 @@
     - name: fvt_test_suite
       value: ibmadminissuer
   runAfter:
-    - catalogapi
+    - grafana
 
 # milestonesapi ~5m
 # -----------------------------------------------------------------------------
