@@ -68,6 +68,25 @@ spec:
           operator: in
           values: ["true", "True"]
 
+    - name: pre-launchfvt-finally
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-finally
+      params:
+        - name: deprovision
+          value: "False"
+        - name: finalize
+          value: "$(params.finalize)"
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-pre-fvt-uninstall-finally"
+        - name: set_finished
+          value: "False"
+      runAfter:
+        - waitfor-installation
+
     # This task will launch an uninstall pipeline using the MAS CLI
     # IMPORTANT: No additional verification of the success/failure of the uninstall
     # should be introduced.  If there are validations to run, add them directly to

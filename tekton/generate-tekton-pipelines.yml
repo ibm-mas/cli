@@ -28,7 +28,6 @@
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items:
         # Main Pipelines
-        - db2
         - install
         - update
         - upgrade
@@ -43,7 +42,8 @@
         - fvt-manage
         - fvt-manage-is
         - fvt-manage-regr
-        - fvt-mobile
+        - fvt-mobile-pytest
+        - fvt-mobile-testng
         - fvt-monitor
         - fvt-optimizer
         - fvt-predict

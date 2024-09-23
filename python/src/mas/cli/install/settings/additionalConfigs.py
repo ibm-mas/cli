@@ -164,12 +164,13 @@ class AdditionalConfigsMixin():
                         "keyPrefix": "optimizer." 
                     }
                 }
+
             for file in ["ca.crt", "tls.crt", "tls.key"]:
                 if file not in map(path.basename, glob(f'{self.getParam("mas_manual_cert_dir")}/core/*')):
                     self.fatalError(f'{file} is not present in {self.getParam("mas_manual_cert_dir")}/core/')
             for ext in extensions:
                 certsSecret = self.addFilesToSecret(certsSecret, self.getParam("mas_manual_cert_dir")+'/core/', ext, "core.")
-            
+
             for app in apps:
                 if self.getParam(app) != "":
                     for file in ["ca.crt", "tls.crt", "tls.key"]:
@@ -179,7 +180,6 @@ class AdditionalConfigsMixin():
                         certsSecret = self.addFilesToSecret(certsSecret, apps[app]["dir"], ext, apps[app]["keyPrefix"])
 
             self.certsSecret = certsSecret
-
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str='') -> dict:
         """
