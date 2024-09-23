@@ -37,6 +37,4 @@ class MongodbSettingsMixin():
             else:
                 print_formatted_text(f"Expected file ({mongoCfgFile}) was not found, generating a valid system database configuration file now ...")
                 self.generateMongoCfg(instanceId=instanceId,destination=mongoCfgFile)
-
-            mongoCfgFileBaseName = path.basename(mongoCfgFile)
-            self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/{mongoCfgFileBaseName}")
+            self.setParam("sls_mongodb_cfg_file", f"{{mongoCfgFile}}")

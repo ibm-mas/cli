@@ -54,7 +54,6 @@ logger = logging.getLogger(__name__)
 
 class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
     def validateCatalogSource(self):
-
             catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
             try:
                 catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")

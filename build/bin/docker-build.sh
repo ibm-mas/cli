@@ -27,8 +27,8 @@ do
         ;;
 
         --target-platform)
-         TARGET_PLATFORM="$2"
-         ;;
+        TARGET_PLATFORM="$2"
+        ;;
 
         *)
         # unknown option, use as additional params directly to docker
