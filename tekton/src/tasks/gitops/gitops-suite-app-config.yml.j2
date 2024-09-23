@@ -21,6 +21,9 @@ spec:
     - name: mas_app_server_bundles_combined_add_server_config_yaml
       type: string
       default: ""
+    - name: mas_app_global_secrets_yaml_manage
+      type: string
+      default: ""
     - name: default_file_storage_class
       type: string
       default: ""
@@ -70,6 +73,9 @@ spec:
     - name: ingress
       type: string
       default: "false"
+    - name: run_sanity_test
+      type: string
+      default: "false"
 
   stepTemplate:
     name: gitops-suite-app-config
@@ -90,6 +96,8 @@ spec:
         value: $(params.mas_appws_spec_yaml)
       - name: MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML 
         value: $(params.mas_app_server_bundles_combined_add_server_config_yaml)
+      - name: MAS_APP_GLOBAL_SECRETS_YAML 
+        value: $(params.mas_app_global_secrets_yaml_manage)
       - name: DEFAULT_FILE_STORAGE_CLASS
         value: $(params.default_file_storage_class)
       - name: CPD_WSL_PROJECT_ID
@@ -126,6 +134,8 @@ spec:
         value: $(params.mas_manual_certs_yaml)
       - name: INGRESS
         value: $(params.ingress)
+      - name: RUN_SANITY_TEST
+        value: $(params.run_sanity_test)
     envFrom:
       - configMapRef:
           name: environment-properties

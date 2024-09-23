@@ -37,11 +37,18 @@ spec:
       workspaces:
         - name: mustgather
           workspace: shared-mustgather
+      when:
+        - input: $(params.set_finished)
+          operator: in
+          values: ["true", "True"]
 
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------
     - name: finalize
       timeout: "0"
+      params:
+        - name: set_finished
+          value: $(params.set_finished)
       taskRef:
         kind: Task
         name: mas-fvt-finalize

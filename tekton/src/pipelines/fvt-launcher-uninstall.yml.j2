@@ -102,7 +102,7 @@ spec:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
       runAfter:
-        - waitfor-installation
+        - pre-launchfvt-finally
 
     # The uninstall pipeline, on completion, will create a configmap named "sync-uninstall"
     # which can be used to track the completion of the install

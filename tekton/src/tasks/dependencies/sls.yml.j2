@@ -62,6 +62,8 @@ spec:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
 
       # General
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
       - name: CUSTOM_LABELS
@@ -103,7 +105,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - sls
-      image: quay.io/ibmmas/cli:10.8.0-pre.catalog-390x-shree
+      image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 

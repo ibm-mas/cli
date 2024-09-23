@@ -54,6 +54,10 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 6 if needed
       default: ""
+    - name: mongodb_v7_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 7 if needed
+      default: ""
 
     # Dependencies - IBM Cloud MongoDb
     # -------------------------------------------------------------------------
@@ -115,6 +119,8 @@ spec:
         value: $(params.mongodb_v5_upgrade)
       - name: MONGODB_V6_UPGRADE
         value: $(params.mongodb_v6_upgrade)
+      - name: MONGODB_V7_UPGRADE
+        value: $(params.mongodb_v7_upgrade)
 
       # Dependencies - IBM Cloud MongoDb
       - name: IBM_MONGO_NAME
@@ -135,11 +141,9 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - mongodb
-      image: quay.io/ibmmas/cli:10.8.0-pre.catalog-390x-shree
+      image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
-
-
 
   workspaces:
     - name: configs

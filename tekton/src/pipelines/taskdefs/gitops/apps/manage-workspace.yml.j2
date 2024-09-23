@@ -24,6 +24,8 @@
       value: $(params.mas_appws_spec_yaml_manage)
     - name: mas_app_server_bundles_combined_add_server_config_yaml
       value: $(params.mas_app_server_bundles_combined_add_server_config_yaml_manage)
+    - name: mas_app_global_secrets_yaml_manage
+      value: $(params.mas_app_global_secrets_yaml_manage)
     - name: mas_appws_api_version
       value: $(params.mas_appws_api_version_manage)
     - name: mas_appws_kind
@@ -38,6 +40,8 @@
       value: $(params.mas_manual_certs_yaml)
     - name: ingress
       value: $(params.ingress)
+    - name: run_sanity_test
+      value: $(params.run_sanity_test)
   taskRef:
     name: gitops-suite-app-config
     kind: Task
