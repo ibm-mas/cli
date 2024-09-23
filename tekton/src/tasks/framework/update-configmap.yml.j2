@@ -18,7 +18,7 @@ spec:
 
   steps:
     - name: update-configmap
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:10.8.0-pre.multiarch-existingmongo-s390x
       command:
         - /opt/app-root/src/update-configmap.sh
       env:

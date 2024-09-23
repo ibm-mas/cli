@@ -30,7 +30,7 @@ spec:
 
   steps:
     - name: wait
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:10.8.0-pre.multiarch-existingmongo-s390x
       command:
         - /opt/app-root/src/wait-for-tekton.sh
       env:

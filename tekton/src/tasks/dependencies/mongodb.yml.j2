@@ -141,7 +141,7 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - mongodb
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:10.8.0-pre.multiarch-existingmongo-s390x
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 

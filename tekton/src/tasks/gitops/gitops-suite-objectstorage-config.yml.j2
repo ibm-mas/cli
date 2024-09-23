@@ -88,7 +88,7 @@ spec:
         - -c
       name: gitops-suite-objectstorage-config
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:10.8.0-pre.multiarch-existingmongo-s390x
   workspaces:
     - name: configs
     - name: shared-gitops-configs

@@ -124,7 +124,7 @@ spec:
         - -c
       name: gitops-jdbc-config
       imagePullPolicy: Always
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:10.8.0-pre.multiarch-existingmongo-s390x
   workspaces:
     - name: configs
     - name: shared-gitops-configs

@@ -15,7 +15,7 @@ spec:
       command:
         - python3
         - /opt/app-root/src/finalizer.py
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:10.8.0-pre.multiarch-existingmongo-s390x
       imagePullPolicy: $(params.image_pull_policy)
       env:
         {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
