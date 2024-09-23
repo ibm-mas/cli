@@ -164,7 +164,6 @@ class AdditionalConfigsMixin():
                         "keyPrefix": "optimizer." 
                     }
                 }
-            
             for file in ["ca.crt", "tls.crt", "tls.key"]:
                 if file not in map(path.basename, glob(f'{self.getParam("mas_manual_cert_dir")}/core/*')):
                     self.fatalError(f'{file} is not present in {self.getParam("mas_manual_cert_dir")}/core/')
