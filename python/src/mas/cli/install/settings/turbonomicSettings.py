@@ -17,9 +17,9 @@ class TurbonomicSettingsMixin():
             " - Learn more: <u>https://www.ibm.com/products/turbonomic</u>"
         ])
 
-        if isAirgapInstall(self.dynamicClient):
-            self.printHighlight("The Turbonomic Kubernetes Operator does not support disconnected installation at this time")
-        elif self.yesOrNo("Configure IBM Turbonomic integration"):
+       # if isAirgapInstall(self.dynamicClient):
+        #    self.printHighlight("The Turbonomic Kubernetes Operator does not support disconnected installation at this time")
+        if self.yesOrNo("Configure IBM Turbonomic integration"):
             self.promptForString("Turbonomic Target Name", "turbonomic_target_name")
             self.promptForString("Turbonomic Server URL", "turbonomic_server_url")
             self.promptForString("Turbonomic Server Version", "turbonomic_server_version")
