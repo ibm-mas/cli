@@ -305,7 +305,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/python/dist/mas-cli.exe
-          asset_name: mas-cli-windows-amd64-${{ env.VERSION }}.exe
+          asset_name: mas-cli-windows-amd64.exe
           tag: ${{ github.ref }}
           overwrite: true
 
@@ -366,7 +366,7 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/python/dist/mas-cli
-          asset_name: mas-cli-linux-amd64-${{ env.VERSION }}
+          asset_name: mas-cli-linux-amd64
           tag: ${{ github.ref }}
           overwrite: true
 
@@ -427,6 +427,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/python/dist/mas-cli
-          asset_name: mas-cli-macos-arm64-${{ env.VERSION }}
+          asset_name: mas-cli-macos-arm64
           tag: ${{ github.ref }}
           overwrite: true
