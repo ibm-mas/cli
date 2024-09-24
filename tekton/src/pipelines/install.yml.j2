@@ -105,7 +105,7 @@ spec:
       # 2.4 IBM SLS
       {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2') | indent(4) }}
       runAfter:
-        - mongodb
+        - cert-manager
 
       # 2.5 DRO
       {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/uds.yml.j2') | indent(4) }}
