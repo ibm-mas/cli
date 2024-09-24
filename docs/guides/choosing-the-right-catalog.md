@@ -2,18 +2,8 @@ Choosing the Right Catalog
 ===============================================================================
 
 !!! important
-    In all cases we **strongly discourage the use of manual update approval strategy for operator subscriptions**.  In our experience it leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. **If you desire control over when updates are introduced to your cluster, we highly recommend the use of our static operator catalogs.** This not only provides more control but also allows for the use of [`mas update`](./update.md) to manage MAS and update MAS dependencies.
+    In all cases we **strongly discourage the use of manual update approval strategy for operator subscriptions** and all IBM-provided automation is designed to work with the automatic update approval strategy only.  In our experience it leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. **To control when updates are introduced to your cluster, control them at the catalog level**, this not only provides more control but also allows for the use of [`mas update`](./update.md) to manage the update lifecycle of both MAS and it's dependencies because there is often more to performing an update than just delivering a new operator version.
 
-Automatic Updates
--------------------------------------------------------------------------------
-- Goal: I want to receive updates automatically as soon as they are available
-- Solution: Use the **dynamic catalogs and automatic update approval strategy**
-
-The content in this catalog is updated regularly. Multiple installations at different times will not necessarily be identical because package updates are being delivered to the channels.
-
-- Only security updates and bug fixes will be delivered this way (software updates).
-- Software upgrades require the user to explicitly change a subscription channel.
-- Automatic updates delivered do not include updates to MAS dependencies and hence have to be done manually.
 
 User-Controlled Updates
 -------------------------------------------------------------------------------
@@ -42,3 +32,19 @@ The MAS CLI `mirror-images` command accepts the name of a static catalog to cont
 
 !!! important
     To apply updates in a disconnected cluster, run the `mirror-images` command with the name of the new static catalog you wish to update to **before** updating the CatalogSource in your cluster
+
+
+Automatic Updates
+-------------------------------------------------------------------------------
+- Goal: I want to receive updates automatically as soon as they are available
+- Solution: Use the **dynamic catalogs and automatic update approval strategy**
+
+The content in this catalog is updated regularly. Multiple installations at different times will not necessarily be identical because package updates are being delivered to the channels.
+
+!!! important
+    From MAS 9.0 onwards the dynamic operator catalog is no longer supported, only static operator catalogs are available.
+
+- Only security updates and bug fixes will be delivered this way (software updates).
+- Software upgrades require the user to explicitly change a subscription channel.
+- Automatic updates delivered do not include updates to MAS dependencies and hence have to be done manually.
+

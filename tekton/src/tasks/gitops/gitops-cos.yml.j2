@@ -32,6 +32,8 @@ spec:
       type: string
     - name: ibmcloud_apikey
       type: string
+    - name: cos_use_hmac
+      type: string
 
   stepTemplate:
     name: gitops-cos
@@ -62,17 +64,19 @@ spec:
         value: $(params.ibmcloud_resourcegroup)
       - name: IBMCLOUD_APIKEY
         value: $(params.ibmcloud_apikey)
+      - name: COS_USE_HMAC
+        value: $(params.cos_use_hmac)
   steps:
     - args:
       - |-
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-        
+
         export MAS_CONFIG_DIR=/workspace/configs/$MAS_INSTANCE_ID-cos
         mkdir -p /workspace/configs/$MAS_INSTANCE_ID-cos
         mkdir -p /tmp/init-cos
-        
+
         mas gitops-cos -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-cos \
         --secrets-path $SECRET_PATH
