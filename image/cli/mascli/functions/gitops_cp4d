@@ -26,9 +26,13 @@ IBM CP4D:
       --cpd-product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                    CP4D Product Version
       --cpd-instance-namespace ${COLOR_YELLOW}CPD_INSTANCE_NAMESPACE{TEXT_RESET}               CP4D Instance namespace to use
       --cpd-operators-namespace ${COLOR_YELLOW}CPD_OPERATORS_NAMESPACE${TEXT_RESET}            CP4D Operators namespace to use
+      --cpd_platform-install-plan  ${COLOR_YELLOW}CPD_PLATFORM_INSTALL_PLAN${TEXT_RESET}            CP4D Platform subscription install plan approval to use ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-namespace-scope-install-plan  ${COLOR_YELLOW}NAMESPACE_SCOPE_INSTALL_PLAN${TEXT_RESET}  CP4D Namespace scope subscription install plan approval to use ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-licensing-install-plan  ${COLOR_YELLOW}CPD_LICENSING_INSTALL_PLAN${TEXT_RESET}          CP4D Licensing subscription install plan approval to use ('Automatic' or 'Manual'. Default is 'Automatic')
       --cpd-primary-storage-class ${COLOR_YELLOW}CPD_PRIMARY_STORAGE_CLASS${TEXT_RESET}        CP4D Primary StorageClass
       --cpd-metadata-storage-class ${COLOR_YELLOW}CPD_METADATA_STORAGE_CLASS${TEXT_RESET}      CP4D MetaData StorageClass
       --cpfs-size ${COLOR_YELLOW}CPFS_SIZE${TEXT_RESET}                                        CommonServices CR Size
+      --cpd-cpfs-install-plan  ${COLOR_YELLOW}CPFS_INSTALL_PLAN${TEXT_RESET}                   CommonServices subscription install plan approval to use ('Automatic' or 'Manual'. Default is 'Automatic')
       --cpd-scale-config ${COLOR_YELLOW}CPD_SCALE_CONFIG${TEXT_RESET}                          Scale config for IBM ZenServices
 
 Automatic GitHub Push:
@@ -52,7 +56,10 @@ function gitops_cp4d_noninteractive() {
   GIT_COMMIT_MSG="gitops-cp4d commit"
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
-
+  export CPD_PLATFORM_INSTALL_PLAN="Automatic"
+  export NAMESPACE_SCOPE_INSTALL_PLAN="Automatic"
+  export CPD_LICENSING_INSTALL_PLAN="Automatic"
+  export CPFS_INSTALL_PLAN="Automatic"
 
   while [[ $# -gt 0 ]]
   do
@@ -111,6 +118,18 @@ function gitops_cp4d_noninteractive() {
         ;;
       --cpd-scale-config)
       export CPD_SCALE_CONFIG=$1 && shift
+        ;;
+      --cpd_platform-install-plan)
+      export CPD_PLATFORM_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-namespace-scope-install-plan)
+      export NAMESPACE_SCOPE_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-licensing-install-plan)
+      export CPD_LICENSING_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-cpfs-install-plan)
+      export CPFS_INSTALL_PLAN=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -231,6 +250,10 @@ function gitops_cp4d() {
   echo_reset_dim "CPD_INSTANCE_NAMESPACE  .................. ${COLOR_MAGENTA}${CPD_INSTANCE_NAMESPACE}"
   echo_reset_dim "CPD_PRIMARY_STORAGE_CLASS  ............... ${COLOR_MAGENTA}${CPD_PRIMARY_STORAGE_CLASS}"
   echo_reset_dim "CPD_METADATA_STORAGE_CLASS  .............. ${COLOR_MAGENTA}${CPD_METADATA_STORAGE_CLASS}"
+  echo_reset_dim "CPD_PLATFORM_INSTALL_PLAN  ............... ${COLOR_MAGENTA}${CPD_PLATFORM_INSTALL_PLAN}"
+  echo_reset_dim "NAMESPACE_SCOPE_INSTALL_PLAN  ............ ${COLOR_MAGENTA}${NAMESPACE_SCOPE_INSTALL_PLAN}"
+  echo_reset_dim "CPD_LICENSING_INSTALL_PLAN  .............. ${COLOR_MAGENTA}${CPD_LICENSING_INSTALL_PLAN}"
+  echo_reset_dim "CPFS_INSTALL_PLAN  ....................... ${COLOR_MAGENTA}${CPFS_INSTALL_PLAN}"
 
   reset_colors
 

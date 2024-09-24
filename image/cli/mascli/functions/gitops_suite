@@ -27,10 +27,12 @@ MongoDb Provider Selection (Required):
 
 IBM Suite License Service:
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
+      --sls-install-plan ${COLOR_YELLOW}SLS_INSTALL_PLAN${TEXT_RESET}  IBM Suite License Service Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
 
 IBM Maximo Application Suite:
       --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}                   MAS Annotations definition in dict format
       --mas-channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                           MAS Core Platform Subscription Channel
+      --mas-install-plan ${COLOR_YELLOW}MAS_INSTALL_PLAN${TEXT_RESET}                 MAS Core Platform Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
       --mas-domain ${COLOR_YELLOW}MAS_DOMAIN${TEXT_RESET}                             MAS Domain
       --mas-image-tags ${COLOR_YELLOW}MAS_IMAGE_TAGS${TEXT_RESET}                     MAS Image tags definition in dict format
       --mas-labels ${COLOR_YELLOW}MAS_LABELS${TEXT_RESET}                             MAS Labels definition in dict format
@@ -102,6 +104,9 @@ function gitops_suite_noninteractive() {
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
+  export SLS_INSTALL_PLAN="Automatic"
+  export MAS_INSTALL_PLAN="Automatic"
+
   # Target the local (to ArgoCD) cluster
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
 
@@ -172,6 +177,9 @@ function gitops_suite_noninteractive() {
       --sls-channel)
         export SLS_CHANNEL=$1 && shift
         ;;
+      --sls-install-plan)
+        export SLS_INSTALL_PLAN=$1 && shift
+        ;;
 
       # MAS
       --mas-annotations)
@@ -179,6 +187,9 @@ function gitops_suite_noninteractive() {
         ;;
       --mas-channel)
         export MAS_CHANNEL=$1 && shift
+        ;;
+      --mas-install-plan)
+        export MAS_INSTALL_PLAN=$1 && shift
         ;;
       --mas-domain)
         export MAS_DOMAIN=$1 && shift
@@ -410,11 +421,13 @@ function gitops_suite() {
   echo "${TEXT_DIM}"
   echo_h4 "IBM Suite License Service" "    "
   echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${SLS_CHANNEL}"
+  echo_reset_dim "Subscription Install Plan ...... ${COLOR_MAGENTA}${SLS_INSTALL_PLAN}"
   reset_colors
 
   echo "${TEXT_DIM}"
   echo_h4 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${MAS_CHANNEL}"
+  echo_reset_dim "Subscription Install Plan ...... ${COLOR_MAGENTA}${MAS_INSTALL_PLAN}"
   echo_reset_dim "MAS Domain ..................... ${COLOR_MAGENTA}${MAS_DOMAIN}"
   echo_reset_dim "Domain ......................... ${COLOR_MAGENTA}${DOMAIN}"
   echo_reset_dim "Image Tags ..................... ${COLOR_MAGENTA}${MAS_IMAGE_TAGS}"
