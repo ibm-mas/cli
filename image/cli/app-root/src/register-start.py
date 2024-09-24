@@ -25,8 +25,8 @@ if __name__ == "__main__":
     instanceId = os.getenv("DEVOPS_ENVIRONMENT", "none")
     build = os.getenv("DEVOPS_BUILD_NUMBER")
     suite = os.getenv("DEVOPS_SUITE_NAME", "")
+    productId = os.getenv("PRODUCT_ID", "ibm-mas-devops")
 
-    productId = "ibm-mas-devops"
     channelId = "n/a"
     cliVersion = os.getenv("VERSION", "unknown")
     ansibleDevopsVersion = os.getenv("ANSIBLE_DEVOPS_VERSION", "unknown")
