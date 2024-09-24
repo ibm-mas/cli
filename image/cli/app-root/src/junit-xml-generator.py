@@ -30,8 +30,10 @@ if __name__ == "__main__":
     test_cases_dict = []
     test_case_list = args.test_cases.split(',')
     for test_case in test_case_list:
-        test_cases_dict.append(TestCase(test_case))
+        print(f"Adding test_case: {test_case}")
+        test_cases_dict.append(TestCase(test_case, test_case))
 
+    print(f"Creating testsuite : {args.test_suite_name}")
     ts = TestSuite(args.test_suite_name, test_cases_dict)
 
     with open(os.path.join(args.output_dir, 'output.xml'), 'w') as f:
