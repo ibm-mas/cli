@@ -56,4 +56,5 @@
     - name: fvt_test_suite
       value: coreapi-selfreg
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-  runAfter: {{ runAfter }}
+  runAfter:
+    - useractivation-inactivity

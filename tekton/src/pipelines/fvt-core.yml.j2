@@ -79,12 +79,12 @@ spec:
     # Phase 1
     # -------------------------------------------------------------------------
     # Only suites that take less than 5 minutes
-    {{ lookup('template', 'taskdefs/fvt-core/phase1-under5min.yml.j2', template_vars={'runAfter': ['coreidp-auth', 'authservice']}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-core/phase1-under5min.yml.j2', template_vars={'runAfter': ['coreidp-auth']}) | indent(4) }}
 
     # Phase 2
     # -------------------------------------------------------------------------
     # Suites that take less than 25 minutes
-    {{ lookup('template', 'taskdefs/fvt-core/phase2-under30min.yml.j2', template_vars={'runAfter': [ 'ibmadminissuer', 'adoptionusageapi', 'coreapi-apikeymgmt', 'coreapi-mobileapi', 'coreapi-messages', 'coreapi-graphiteconfigtool', 'coreapi-scimv2', 'coreapi-uicustomizations', 'coreapi-selfreg']}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-core/phase2-under30min.yml.j2', template_vars={'runAfter': [ 'ibmadminissuer', 'adoptionusageapi', 'coreapi-apikeymgmt', 'coreapi-mobileapi', 'coreapi-messages', 'coreapi-graphiteconfigtool', 'coreapi-scimv2', 'coreapi-uicustomizations']}) | indent(4) }}
 
     # Phase 3
     # -------------------------------------------------------------------------

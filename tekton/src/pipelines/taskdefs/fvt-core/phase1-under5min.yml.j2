@@ -163,4 +163,5 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: authservice
-  runAfter: {{ runAfter }}
+  runAfter:
+    - coreapi-scimv2
