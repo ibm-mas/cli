@@ -454,9 +454,45 @@ function clone_and_lock_target_git_repo() {
       # Now we've created the remote lock branch, we are blocking any other invokations of this script
       # Register an exit trap to ensure we delete the remote branch whatever happens
       trap "unlock_git_repo ${GIT_LOCK_BRANCH} ${GITOPS_REPO_DIR}" EXIT
+
       echo ""
-      echo "= clone_and_lock_git_repo: acquired lock on branch ${GIT_LOCK_BRANCH}; proceeding..."
+      echo "clone_and_lock_git_repo: acquired lock on branch ${GIT_LOCK_BRANCH}; ensuring that we have the latest from ${GIT_BRANCH}..."
+      
+      # It's possible that *conflicting* commits (i.e. from another run sharing the same GIT_LOCK_BRANCH)
+      # have been made to GIT_BRANCH between cloning GIT_BRANCH here (clone_target_git_repo call above) 
+      # and successfully acquiring GIT_LOCK_BRANCH
+      
+      # The sequence of events that hit this race condition are as follows:
+      # - this process clones GIT_BRANCH that has commits up to X
+      # - another process with the same GIT_LOCK_BRANCH pushes commit Y to GIT_BRANCH and deletes the GIT_LOCK_BRANCH
+      # - this process successfully acquires GIT_LOCK_BRANCH and so proceeds
+      # - but the version of GIT_BRANCH cloned in this process does not have commit Y in it, so the GIT_LOCK_BRANCH does not include Y
+
+      # because Y (in this case) originates from a process sharing GIT_LOCK_BRANCH, it's likely that it affects the same
+      # file that this process is about to update and so is likely to lead to an unresolvable merge conflict when we attempt to
+      # merge GIT_LOCK_BRANCH updates back into GIT_BRANCH in the save_and_unlock_target_git_repo call at the end
+
+      # So, now we've acquired GIT_LOCK_BRANCH (thus ensuring no further conflicting commits can be made to master),
+      # we need to ensure we are basing our changes on the latest version of GIT_BRANCH.
+
+      # NOTE: of course other processes could be making other commits to git at any time during execution of this process.
+      # this is fine since they *must* be from processes that do not share GIT_LOCK_BRANCH, so will not affect
+      # the same files updated by this process and so will be auto-mergable.
+
+      # This is acheived by rebasing GIT_LOCK_BRANCH on GIT_BRANCH then forcing the remote lock branch to line up using a --force push
+      # NOTE: --force is safe here since we are the sole current "owners" of GIT_LOCK_BRANCH
+      # so any commits made to GIT_LOCK_BRANCH by any other concurrent processes can be disregarded
+      echo
+      echo "- clone_and_lock_git_repo: pull origin $GIT_BRANCH --rebase"
+      echo "-------------------------------------------------"
+      git -C "${GITOPS_REPO_DIR}" pull origin $GIT_BRANCH --rebase || exit 1
+
+      echo
+      echo "- clone_and_lock_git_repo: push --force -u origin ${GIT_LOCK_BRANCH}"
+      echo "-------------------------------------------------"
+      git -C "${GITOPS_REPO_DIR}" push --force -u "origin" "${GIT_LOCK_BRANCH}"
       echo "================================================="
+
       return 0
     fi 
 
