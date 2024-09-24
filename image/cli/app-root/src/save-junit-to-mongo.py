@@ -26,8 +26,8 @@ if __name__ == "__main__":
     build = os.getenv("DEVOPS_BUILD_NUMBER")
     suite = os.getenv("DEVOPS_SUITE_NAME", "")
     junitOutputDir = os.getenv("JUNIT_OUTPUT_DIR", "/tmp")
+    productId = os.getenv("PRODUCT_ID", "ibm-mas-devops")
 
-    productId = "ibm-mas-devops"
     channelId = "n/a"
     cliVersion = os.getenv("VERSION", "unknown")
     ansibleDevopsVersion = os.getenv("ANSIBLE_DEVOPS_VERSION", "unknown")
