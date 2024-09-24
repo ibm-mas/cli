@@ -280,7 +280,9 @@ function save_to_target_git_repo() {
   echo "git: Changing to directory $LOCAL_DIR"
   cd $LOCAL_DIR || exit 1
 
-  echo "git: Adding all files in $LOCAL_DIR working directory"
+  echo ""
+  echo "$(logts) git add -v ."
+  echo "-------------------------------------------------"
   FILES_ADDED_OUTPUT="$(git add -v .)"
   return_code=$?
   if [ $return_code -ne 0 ]; then
@@ -291,22 +293,32 @@ function save_to_target_git_repo() {
   echo "git: Added ${FILES_ADDED} files"
 
   if [ "$FILES_ADDED" != "0" ]; then
-    echo "git: Committing files using message $COMMIT_MSG"
+    echo ""
+    echo "$(logts) git commit -m \"$COMMIT_MSG\""
+    echo "-------------------------------------------------"
     git commit -m "$COMMIT_MSG" || exit 1
     retries=5
     interval=30
     index=0
     while true; do
-      echo "git: fetch origin $GIT_BRANCH"
+      echo ""
+      echo "$(logts) git fetch origin $GIT_BRANCH"
+      echo "-------------------------------------------------"
       git fetch origin $GIT_BRANCH || exit 1
 
-      echo "git: pull origin --rebase"
+      echo ""
+      echo "$(logts) git pull origin --rebase"
+      echo "-------------------------------------------------"
       git pull origin --rebase || exit 1
 
-      echo "git: pull origin $GIT_BRANCH --rebase"
+      echo ""
+      echo "$(logts) git pull origin $GIT_BRANCH --rebase"
+      echo "-------------------------------------------------"
       git pull origin $GIT_BRANCH --rebase || exit 1
 
-      echo "git: Pushing changes to branch $GIT_BRANCH"
+      echo ""
+      echo "$(logts) git push -u origin $GIT_BRANCH"
+      echo "-------------------------------------------------"
       git push -u origin $GIT_BRANCH
       return_code=$?
       if [ $return_code -eq 0 ]; then
