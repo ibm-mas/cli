@@ -30,6 +30,7 @@ if __name__ == "__main__":
     channelId = "n/a"
     cliVersion = os.getenv("VERSION", "unknown")
     ansibleDevopsVersion = os.getenv("ANSIBLE_DEVOPS_VERSION", "unknown")
+    gitopsVersion = os.getenv("GITOPS_VERSION", "unknown")
 
     if suite == "":
         print ("Results not recorded because DEVOPS_SUITE_NAME is not defined")
@@ -52,6 +53,7 @@ if __name__ == "__main__":
 
     print(f"CLI Version ............ {cliVersion}")
     print(f"mas_devops Version ..... {ansibleDevopsVersion}")
+    print(f"gitops Version ......... {gitopsVersion}")
 
     print(f"Run ID ................. {runId}")
     print(f"Result ID .............. {resultId}")
@@ -84,11 +86,12 @@ if __name__ == "__main__":
                 }
             },
             '$set': {
-                f"products.ibm-mas-devops.productId": productId,
-                f"products.ibm-mas-devops.channelId": channelId,
-                f"products.ibm-mas-devops.version": cliVersion,
-                f"products.ibm-mas-devops.ansibleDevopsVersion": ansibleDevopsVersion,
-                f"products.ibm-mas-devops.results.{suite}": suiteSummary
+                f"products.{productId}.productId": productId,
+                f"products.{productId}.channelId": channelId,
+                f"products.{productId}.version": cliVersion,
+                f"products.{productId}.ansibleDevopsVersion": ansibleDevopsVersion,
+                f"products.{productId}.gitopsVersion": gitopsVersion,
+                f"products.{productId}.results.{suite}": suiteSummary
             }
         },
         upsert=True
