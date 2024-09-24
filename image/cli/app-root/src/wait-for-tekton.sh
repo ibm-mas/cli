@@ -85,7 +85,10 @@ done
 
 echo "Completion Time = $COMPLETION_TIME"
 echo "Retries Used    = $RETRIES_USED"
-RESULT=$(oc -n ${NAMESPACE} get ${TYPE}/$NAME -o jsonpath='{.status.conditions[0].status}')
+RESULT=""
+while [[ "$RESULT" == "" ]]; do
+  RESULT=$(oc -n ${NAMESPACE} get ${TYPE}/$NAME -o jsonpath='{.status.conditions[0].status}')
+done
 
 if [[ "$RESULT" == "True" ]]; then
   echo "Result          = ${TYPE} completed successfully"

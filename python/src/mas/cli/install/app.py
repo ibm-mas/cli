@@ -188,7 +188,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def configSpecialCharacters(self):
         self.printH1("Configure special characters for userID and username")
         self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "mas_special_characters")
-         
+
     def configCP4D(self):
         if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64"]:
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
@@ -484,7 +484,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.storageClassProvider = "ocs"
             self.params["storage_class_rwo"] = "ocs-storagecluster-ceph-rbd"
             self.params["storage_class_rwx"] = "ocs-storagecluster-cephfs"
-        # 3. Azure
+        # 3. NFS Client
+        elif getStorageClass(self.dynamicClient, "nfs-client") is not None:
+            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: NFS Client</MediumSeaGreen>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): nfs-client</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): nfs-client</LightSlateGrey>"))
+            self.storageClassProvider = "nfs"
+            self.params["storage_class_rwo"] = "nfs-client"
+            self.params["storage_class_rwx"] = "nfs-client"
+        # 4. Azure
         elif getStorageClass(self.dynamicClient, "managed-premium") is not None:
             print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: Azure Managed</MediumSeaGreen>"))
             print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): managed-premium</LightSlateGrey>"))
@@ -492,7 +500,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.storageClassProvider = "azure"
             self.params["storage_class_rwo"] = "managed-premium"
             self.params["storage_class_rwx"] = "azurefiles-premium"
-        # 4. AWS
+        # 5. AWS
         elif getStorageClass(self.dynamicClient, "gp2") is not None:
             print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: AWS gp2</MediumSeaGreen>"))
             print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): gp2</LightSlateGrey>"))

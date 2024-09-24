@@ -28,6 +28,8 @@
       value: $(params.mas_app_kind_monitor)
     - name: ingress
       value: $(params.ingress)
+    - name: run_sanity_test
+      value: $(params.run_sanity_test)
   taskRef:
     name: gitops-suite-app-config
     kind: Task
