@@ -480,13 +480,14 @@ function clone_and_lock_target_git_repo() {
       # So, now we've acquired GIT_LOCK_BRANCH (thus ensuring no further conflicting commits can be made to master),
       # we need to ensure we are basing our changes on the latest version of GIT_BRANCH.
 
+      # This is acheived by rebasing GIT_LOCK_BRANCH on GIT_BRANCH then forcing the remote lock branch to line up using a --force push
+      # NOTE: --force is safe here since we are the sole current "owners" of GIT_LOCK_BRANCH
+      # so any commits made to GIT_LOCK_BRANCH by any other concurrent processes can be disregarded
+
       # NOTE: of course other processes could be making other commits to git at any time during execution of this process.
       # this is fine since they *must* be from processes that do not share GIT_LOCK_BRANCH, so will not affect
       # the same files updated by this process and so will be auto-mergable.
 
-      # This is acheived by rebasing GIT_LOCK_BRANCH on GIT_BRANCH then forcing the remote lock branch to line up using a --force push
-      # NOTE: --force is safe here since we are the sole current "owners" of GIT_LOCK_BRANCH
-      # so any commits made to GIT_LOCK_BRANCH by any other concurrent processes can be disregarded
       echo
       echo "$(logts) git pull origin $GIT_BRANCH --rebase"
       echo "-------------------------------------------------"
