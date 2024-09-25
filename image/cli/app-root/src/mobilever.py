@@ -57,113 +57,122 @@ def run_cmd(cmdArray, timeout=630):
             return RunCmdResult(127, "TimeoutExpired", str(e))
 
 
-def get_graphite_versions():
-    # This list will contains all files found in the maxinst pod
-    apps_list = []
+def get_maxinst_and_mobileapi_pods(dyn):
 
-    # Downloads all zip files from maxinst container
+    podName = []
+    # retrieving maxinst pod in manage namespace
     try:
-        pods = dynClient.resources.get(api_version="v1", kind="Pod")
+        pods = dyn.resources.get(api_version="v1", kind="Pod")
         podList = pods.get(
             namespace=f"mas-{instanceId}-manage",
             label_selector="mas.ibm.com/appType=maxinstudb",
         )
 
         if podList is None or podList.items is None or len(podList.items) == 0:
-            pass
+            print("Pod with label mas.ibm.com/appType=maxinstudb was not found")
         else:
-            podName = podList.items[0].metadata.name
-
-            # list all graphite zip packages in maxinst pod
-            ocExecCommand = [
-                "oc",
-                "exec",
-                "-n",
-                f"mas-{instanceId}-manage",
-                podName,
-                "--",
-                "ls",
-                "/opt/IBM/SMP/maximo/tools/maximo/en/graphite/apps",
-            ]
-            result = run_cmd(ocExecCommand)
-            ls_result = result.out.decode("utf-8")
-            apps_list = ls_result.split("\n")
-            # removes last empty value from the list
-            apps_list.pop()
-
-            # Download all packages that were found
-            for a in apps_list:
-                print("Downloading:", a)
-                ocExecCommand = [
-                    "oc",
-                    "cp",
-                    "-n",
-                    f"mas-{instanceId}-manage",
-                    f"{podName}:/opt/IBM/SMP/maximo/tools/maximo/en/graphite/apps/{a}",
-                    f"./{a}",
-                    "--retries=10",
-                ]
-                run_cmd(ocExecCommand)
+            podName.append(podList.items[0].metadata.name)
 
     except Exception as e:
         print(f"Unable to download mobile packages from maxinst pod: {e}")
         sys.exit(1)
 
-    # Downloading navigator from mobileapi pod
+    # retrieving mobile api pod in core namespace
     try:
-        pods = dynClient.resources.get(api_version="v1", kind="Pod")
+        pods = dyn.resources.get(api_version="v1", kind="Pod")
         podList = pods.get(
             namespace=f"mas-{instanceId}-core",
             label_selector=f"app={instanceId}-mobileapi",
         )
 
         if podList is None or podList.items is None or len(podList.items) == 0:
-            pass
+            print(f"Pod with label app={instanceId}-mobileapi was not found")
         else:
-            podName = podList.items[0].metadata.name
+            podName.append(podList.items[0].metadata.name)
 
-            # list navigator zip packages in mobileapi pod
-            ocExecCommand = [
-                "oc",
-                "exec",
-                "-n",
-                f"mas-{instanceId}-core",
-                podName,
-                "--",
-                "ls",
-                "/etc/mobile/packages",
-            ]
-            result = run_cmd(ocExecCommand)
-            ls_result = result.out.decode("utf-8")
-            apps_list = ls_result.split("\n")
-            # removes last empty value from the list
-            apps_list.pop()
-
-            for a in apps_list:
-                print("Downloading:", a)
-                ocExecCommand = [
-                    "oc",
-                    "cp",
-                    "-n",
-                    f"mas-{instanceId}-core",
-                    f"{podName}:/etc/mobile/packages/{a}",
-                    f"./{a}",
-                    "--retries=10",
-                ]
-                run_cmd(ocExecCommand)
     except Exception as e:
         print(f"Unable to download mobileapi navigator package from mobileapi pod: {e}")
         sys.exit(1)
 
+    return podName
+
+
+def download_mobile_packages(podName):
+    # list all graphite zip packages in maxinst pod
+    ocExecCommand = [
+        "oc",
+        "exec",
+        "-n",
+        f"mas-{instanceId}-manage",
+        podName,
+        "--",
+        "ls",
+        "/opt/IBM/SMP/maximo/tools/maximo/en/graphite/apps",
+    ]
+    result = run_cmd(ocExecCommand)
+    ls_result = result.out.decode("utf-8")
+    apps_list = ls_result.split("\n")
+    # removes last empty value from the list
+    apps_list.pop()
+
+    # Download all packages that were found
+    for a in apps_list:
+        print("Downloading:", a)
+        ocExecCommand = [
+            "oc",
+            "cp",
+            "-n",
+            f"mas-{instanceId}-manage",
+            f"{podName}:/opt/IBM/SMP/maximo/tools/maximo/en/graphite/apps/{a}",
+            f"./{a}",
+            "--retries=10",
+        ]
+        run_cmd(ocExecCommand)
+
+
+def download_navigator_package(podName):
+
+    ocExecCommand = [
+        "oc",
+        "exec",
+        "-n",
+        f"mas-{instanceId}-core",
+        podName,
+        "--",
+        "ls",
+        "/etc/mobile/packages",
+    ]
+    result = run_cmd(ocExecCommand)
+    ls_result = result.out.decode("utf-8")
+    apps_list = ls_result.split("\n")
+    # removes last empty value from the list
+    apps_list.pop()
+
+    for a in apps_list:
+        print("Downloading:", a)
+        ocExecCommand = [
+            "oc",
+            "cp",
+            "-n",
+            f"mas-{instanceId}-core",
+            f"{podName}:/etc/mobile/packages/{a}",
+            f"./{a}",
+            "--retries=10",
+        ]
+        run_cmd(ocExecCommand)
+
+
+def extract_build_json_from_zip_files(source_zip_files_path):
     # Extracting build.json from each file and deleting zip
-    pathlist = Path(".").glob("*.zip")
+    pathlist = Path(source_zip_files_path).glob("*.zip")
+
     for app_zip_file in pathlist:
-        zip_file_path = f"./{str(app_zip_file)}"
-        zip_file_prefix = zip_file_path.split(".zip")
+
+        zip_file_path = f"{source_zip_files_path}/{str(app_zip_file)}"
         with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
             try:
                 zip_ref.extract("build.json", ".")
-            except KeyError as e:
+            except KeyError:
                 print(f"There is no build.json file in {app_zip_file}")
                 with open("build.json", "w", encoding="utf-8") as dummy_file:
                     warn_json = {
@@ -173,9 +182,18 @@ def get_graphite_versions():
                     }
                     json.dump(warn_json, dummy_file, indent=4)
             zip_ref.close()
-        os.rename("./build.json", f"{zip_file_prefix[0]}.json")
+        
+        zip_file_prefix = zip_file_path.split(".zip")    
+        os.rename(f"{source_zip_files_path}/build.json", f"{zip_file_prefix[0]}.json")
         os.remove(zip_file_path)
 
+    jsonlist = Path(source_zip_files_path).glob("*.json")
+    print("List of extracted build.json files: ")
+    for jsonFileName in jsonlist:
+        print(str(jsonFileName))
+
+
+def extract_build_info_from_json_files(source_json_files_path):
     # dictionary that will contain all graphite versions for all found zips
     graphite_json = {}
 
@@ -217,6 +235,24 @@ def get_graphite_versions():
     graphite_json_sorted = OrderedDict(sorted(graphite_json.items()))
 
     return graphite_json_sorted
+
+
+def get_graphite_versions(dyn):
+    # This list will contains all files found in the maxinst pod
+    pods_list = get_maxinst_and_mobileapi_pods(dyn)
+
+    maxinst_pod = pods_list[0]
+    mobileapi_pod = pods_list[1]
+
+    download_mobile_packages(podName=maxinst_pod)
+
+    download_navigator_package(podName=mobileapi_pod)
+
+    extract_build_json_from_zip_files(source_zip_files_path=".")
+
+    graphite_ver = extract_build_info_from_json_files(source_json_files_path=".")
+
+    return graphite_ver
 
 
 def get_mobile_and_is_image_tags():
@@ -309,8 +345,8 @@ def artifactory_upload():
         print("Download URL:", r.json()["downloadUri"])
 
 
-def initClient():
-    global dynClient
+if __name__ == "__main__":
+
     if "KUBERNETES_SERVICE_HOST" in os.environ:
         config.load_incluster_config()
         k8s_config = Configuration.get_default_copy()
@@ -320,16 +356,12 @@ def initClient():
         k8s_client = config.new_client_from_config()
         dynClient = DynamicClient(k8s_client)
 
-if __name__ == "__main__":
-
-    initClient()
-    
     if os.path.isfile(output_filename):
         print("Found an existing output file. Deleting...")
         os.remove(output_filename)
 
     print("Retrieving Graphite versions for Manage apps")
-    graphite_versions = get_graphite_versions()
+    graphite_versions = get_graphite_versions(dynClient)
 
     print("Retrieving image versions for Manage IS and Add-ons ")
     img_versions = get_mobile_and_is_image_tags()

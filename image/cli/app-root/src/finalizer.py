@@ -7,10 +7,11 @@ from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
 from slackclient import SlackClient
 from subprocess import PIPE, Popen, TimeoutExpired
+from mobilever import get_graphite_versions
 import threading
 import importlib  
 from jira import JIRA
-mobileversionfinder = importlib.import_module("mobile-version-finder")
+
 
 class RunCmdResult(object):
     def __init__(self, returnCode, output, error):
@@ -375,13 +376,12 @@ if __name__ == "__main__":
         print(f"Unable to determine Manage installed components: {e}")
     try:
         #getting versions from mobile
-        mobileversionfinder.initClient()
-        mobileComponents = dict(mobileversionfinder.get_graphite_versions())
+        mobileComponents = get_graphite_versions(dyn=dynClient)
         treatedComponents={}
         for key,value in mobileComponents.items():
             if "mobileVersion" in value:
                 treatedComponents[key]={"enabled":True,"version":(value["mobileVersion"]+" || "+value["buildToolsVersion"])}
-        
+
         setObject[f"products.ibm-mas-mobile.buildId"] = "NA"
         setObject[f"products.ibm-mas-mobile.buildNumber"] = "NA"
         setObject[f"products.ibm-mas-mobile.version"] = mobileComponents["navigator"]["mobileVersion"]
