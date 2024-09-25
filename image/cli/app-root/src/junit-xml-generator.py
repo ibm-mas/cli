@@ -33,7 +33,7 @@ if __name__ == "__main__":
     test_case_list = args.test_cases.split(',')
     for test_case in test_case_list:
         test_case_name = test_case.split(':')[0]
-        test_case_time = test_case.split(':')[1]
+        test_case_time = int(test_case.split(':')[1])
         print(f"Adding test_case: {test_case_name} with elapsed time {test_case_time}")
         test_cases_dict.append(TestCase(test_case_name, test_case_name, test_case_time))
 
