@@ -46,6 +46,7 @@ To receive security updates and bug fixes you must periodically update the versi
 #### 2024
 | Catalog                               | OCP Support | Recommended CLI | End of Support                  |
 | ------------------------------------- | ----------- | --------------- | ------------------------------- |
+| [v9-241003-amd64](v9-241003-amd64.md) | 4.12 - 4.15 | latest          | OCP 4.14 EOS October 31, 2025   |
 | [v9-240827-amd64](v9-240827-amd64.md) | 4.12 - 4.15 | latest          | OCP 4.14 EOS October 31, 2025   |
 | [v9-240730-amd64](v9-240730-amd64.md) | 4.12 - 4.15 | latest          | OCP 4.14 EOS October 31, 2025   |
 | [v9-240625-amd64](v9-240625-amd64.md) | 4.12 - 4.14 | latest          | OCP 4.14 EOS October 31, 2025   |
