@@ -13,8 +13,10 @@ import os
 from junit_xml import TestSuite, TestCase
 
 #
+# The test-cases is a command seperated list of testcasename:timetaken
 # Execute: 
-#  `python junit-xml-generator.py --test-suite-name testsuite1 --test-cases operator-catalog,secret-update --output-dir .`
+#  `python junit-xml-generator.py --test-suite-name testsuite1 --test-cases operator-catalog:54,secret-update:9 --output-dir .`
+# 
 #
 if __name__ == "__main__":
     # Initialize the properties we need
@@ -30,8 +32,10 @@ if __name__ == "__main__":
     test_cases_dict = []
     test_case_list = args.test_cases.split(',')
     for test_case in test_case_list:
-        print(f"Adding test_case: {test_case}")
-        test_cases_dict.append(TestCase(test_case, test_case))
+        test_case_name = test_case.split(':')[0]
+        test_case_time = test_case.split(':')[1]
+        print(f"Adding test_case: {test_case_name} with elapsed time {test_case_time}")
+        test_cases_dict.append(TestCase(test_case_name, test_case_name, test_case_time))
 
     print(f"Creating testsuite : {args.test_suite_name}")
     ts = TestSuite(args.test_suite_name, test_cases_dict)
