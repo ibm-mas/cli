@@ -190,7 +190,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "mas_special_characters")
 
     def configCP4D(self):
-        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64"]:
+        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64", "v9-241003-amd64"]:
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
             self.setParam("cpd_product_version", "4.8.0")
         elif self.getParam("cpd_product_version") == "":
@@ -929,6 +929,45 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installOptions = [
             {
                 "#": 1,
+                "catalog": "v9-241003-amd64",
+                "release": "9.0.x",
+                "core": "9.0.2",
+                "assist": "9.0.2",
+                "iot": "9.0.2",
+                "manage": "9.0.2",
+                "monitor": "9.0.2",
+                "optimizer": "9.0.3",
+                "predict": "9.0.1",
+                "inspection": "9.0.2"
+            },
+            {
+                "#": 2,
+                "catalog": "v9-241003-amd64",
+                "release": "8.11.x",
+                "core": "8.11.14",
+                "assist": "8.8.6",
+                "iot": "8.8.12",
+                "manage": "8.7.11",
+                "monitor": "8.11.10",
+                "optimizer": "8.5.9",
+                "predict": "8.9.3",
+                "inspection": "8.9.5"
+            },
+            {
+                "#": 3,
+                "catalog": "v9-241003-amd64",
+                "release": "8.10.x",
+                "core": "8.10.17",
+                "assist": "8.7.7",
+                "iot": "8.7.16",
+                "manage": "8.6.17",
+                "monitor": "8.10.13",
+                "optimizer": "8.4.10",
+                "predict": "8.8.3",
+                "inspection": "8.8.4"
+            },            
+            {
+                "#": 4,
                 "catalog": "v9-240827-amd64",
                 "release": "9.0.x",
                 "core": "9.0.2",
@@ -941,7 +980,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "9.0.2"
             },
             {
-                "#": 2,
+                "#": 5,
                 "catalog": "v9-240827-amd64",
                 "release": "8.11.x",
                 "core": "8.11.14",
@@ -954,7 +993,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.9.5"
             },
             {
-                "#": 3,
+                "#": 6,
                 "catalog": "v9-240827-amd64",
                 "release": "8.10.x",
                 "core": "8.10.17",
@@ -967,7 +1006,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.8.4"
             },
             {
-                "#": 4,
+                "#": 7,
                 "catalog": "v9-240730-amd64",
                 "release": "9.0.x",
                 "core": "9.0.1",
@@ -980,7 +1019,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "9.0.0"
             },
             {
-                "#": 5,
+                "#": 8,
                 "catalog": "v9-240730-amd64",
                 "release": "8.11.x",
                 "core": "8.11.13",
@@ -993,7 +1032,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.9.4"
             },
             {
-                "#": 6,
+                "#": 9,
                 "catalog": "v9-240730-amd64",
                 "release": "8.10.x",
                 "core": "8.10.16",
@@ -1003,45 +1042,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "monitor": "8.10.12",
                 "optimizer": "8.4.8",
                 "predict": "8.8.3",
-                "inspection": "8.8.4"
-            },
-            {
-                "#": 7,
-                "catalog": "v9-240625-amd64",
-                "release": "9.0.x",
-                "core": "9.0.0",
-                "assist": "9.0.0",
-                "iot": "9.0.0",
-                "manage": "9.0.0",
-                "monitor": "9.0.0",
-                "optimizer": "9.0.0",
-                "predict": "9.0.0",
-                "inspection": "9.0.0"
-            },
-            {
-                "#": 8,
-                "catalog": "v9-240625-amd64",
-                "release": "8.11.x",
-                "core": "8.11.12",
-                "assist": "N/A",
-                "iot": "8.8.10",
-                "manage": "8.7.9",
-                "monitor": "8.11.8",
-                "optimizer": "8.5.6",
-                "predict": "8.9.3",
-                "inspection": "8.9.3"
-            },
-            {
-                "#": 9,
-                "catalog": "v9-240625-amd64",
-                "release": "8.10.x",
-                "core": "8.10.15",
-                "assist": "N/A",
-                "iot": "8.7.14",
-                "manage": "8.6.15",
-                "monitor": "8.10.11",
-                "optimizer": "8.4.7",
-                "predict": "N/A",
                 "inspection": "8.8.4"
             }
         ]
