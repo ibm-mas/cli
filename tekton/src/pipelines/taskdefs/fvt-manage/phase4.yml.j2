@@ -24,7 +24,7 @@
     - fvt-manage-base-ui-mas-navigation
     - fvt-manage-base-ui-requestreport-pages
 
-# Manage FVT BIRT Reports
+# Manage FVT BIRT Reports 
 - name: fvt-manage-base-ui-birt-report
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   taskRef:
