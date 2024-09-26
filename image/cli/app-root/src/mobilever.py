@@ -12,6 +12,7 @@ from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
 from kubernetes import client, config
 
+
 class RunCmdResult(object):
     def __init__(self, returnCode, output, error):
         self.rc = returnCode
@@ -23,6 +24,7 @@ class RunCmdResult(object):
 
     def failed(self):
         return self.rc != 0
+
 
 class MobVer(object):
 
@@ -40,13 +42,16 @@ class MobVer(object):
         else:
             self.dynClient = dynClient
 
-        self.instanceId = instanceId if instanceId is not None else os.getenv("INSTANCE_ID")
+        self.instanceId = (
+            instanceId if instanceId is not None else os.getenv("INSTANCE_ID")
+        )
         self.uploadFile = os.getenv("UPLOAD_FILE")
         self.buildNum = os.getenv("BUILD_NUM")
         self.artKey = os.getenv("ARTIFACTORY_TOKEN")
         self.artDir = os.getenv("ARTIFACTORY_UPLOAD_DIR")
-        self.output_filename = f"{self.instanceId}-{self.buildNum}-mobile-is-versions.json"
-
+        self.output_filename = (
+            f"{self.instanceId}-{self.buildNum}-mobile-is-versions.json"
+        )
 
     def run_cmd(self, cmdArray, timeout=630):
         """
@@ -68,7 +73,6 @@ class MobVer(object):
                 return RunCmdResult(p.returncode, output, error)
             except TimeoutExpired as e:
                 return RunCmdResult(127, "TimeoutExpired", str(e))
-
 
     def get_maxinst_and_mobileapi_pods(self):
 
@@ -104,11 +108,12 @@ class MobVer(object):
                 podName.append(podList.items[0].metadata.name)
 
         except Exception as e:
-            print(f"Unable to download mobileapi navigator package from mobileapi pod: {e}")
+            print(
+                f"Unable to download mobileapi navigator package from mobileapi pod: {e}"
+            )
             sys.exit(1)
 
         return podName
-
 
     def download_mobile_packages(self, podName):
         # list all graphite zip packages in maxinst pod
@@ -130,7 +135,6 @@ class MobVer(object):
 
         # Download all packages that were found
         for a in apps_list:
-            print("Downloading:", a)
             ocExecCommand = [
                 "oc",
                 "cp",
@@ -141,7 +145,6 @@ class MobVer(object):
                 "--retries=10",
             ]
             self.run_cmd(ocExecCommand)
-
 
     def download_navigator_package(self, podName):
 
@@ -162,7 +165,6 @@ class MobVer(object):
         apps_list.pop()
 
         for a in apps_list:
-            print("Downloading:", a)
             ocExecCommand = [
                 "oc",
                 "cp",
@@ -173,7 +175,6 @@ class MobVer(object):
                 "--retries=10",
             ]
             self.run_cmd(ocExecCommand)
-
 
     def extract_build_json_from_zip_files(self, source_zip_files_path):
         # Extracting build.json from each file and deleting zip
@@ -190,20 +191,19 @@ class MobVer(object):
                     with open("build.json", "w", encoding="utf-8") as dummy_file:
                         warn_json = {
                             "WARN": {
-                                str(app_zip_file): "File does not contain version information"
+                                str(
+                                    app_zip_file
+                                ): "File does not contain version information"
                             }
                         }
                         json.dump(warn_json, dummy_file, indent=4)
                 zip_ref.close()
 
             zip_file_prefix = zip_file_path.split(".zip")
-            os.rename(f"{source_zip_files_path}/build.json", f"{zip_file_prefix[0]}.json")
+            os.rename(
+                f"{source_zip_files_path}/build.json", f"{zip_file_prefix[0]}.json"
+            )
             os.remove(zip_file_path)
-
-        jsonlist = Path(source_zip_files_path).glob("*.json")
-        for jsonFileName in jsonlist:
-            print(str(jsonFileName))
-
 
     def extract_build_info_from_json_files(self, source_json_files_path):
         # dictionary that will contain all graphite versions for all found zips
@@ -227,7 +227,9 @@ class MobVer(object):
                             "applicationTitle": json_object.get("applicationTitle"),
                             "mobileVersion": json_object.get("mobileVersion"),
                             "buildToolsVersion": json_object.get("buildToolsVersion"),
-                            "appProcessorVersion": json_object.get("appProcessorVersion"),
+                            "appProcessorVersion": json_object.get(
+                                "appProcessorVersion"
+                            ),
                         }
                     }
                 )
@@ -238,7 +240,9 @@ class MobVer(object):
 
                 # removing empty title from apps with no title
                 if json_object.get("applicationTitle") is None:
-                    del graphite_json[json_object.get("applicationId")]["applicationTitle"]
+                    del graphite_json[json_object.get("applicationId")][
+                        "applicationTitle"
+                    ]
 
             # delete build.json file
             os.remove(path_in_str)
@@ -247,7 +251,6 @@ class MobVer(object):
         graphite_json_sorted = OrderedDict(sorted(graphite_json.items()))
 
         return graphite_json_sorted
-
 
     def get_graphite_versions(self):
         # This list will contains all files found in the maxinst pod
@@ -262,10 +265,11 @@ class MobVer(object):
 
         self.extract_build_json_from_zip_files(source_zip_files_path=".")
 
-        graphite_ver = self.extract_build_info_from_json_files(source_json_files_path=".")
+        graphite_ver = self.extract_build_info_from_json_files(
+            source_json_files_path="."
+        )
 
         return graphite_ver
-
 
     def get_mobile_and_is_image_tags(self):
 
@@ -339,7 +343,6 @@ class MobVer(object):
         images_json_sorted = OrderedDict(sorted(images_json.items()))
 
         return images_json_sorted
-
 
     def artifactory_upload(self):
 
