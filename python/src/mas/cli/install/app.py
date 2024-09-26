@@ -935,10 +935,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "assist": "9.0.2",
                 "iot": "9.0.2",
                 "manage": "9.0.2",
-                "monitor": "9.0.2",
+                "monitor": "9.0.3",
                 "optimizer": "9.0.3",
                 "predict": "9.0.2",
-                "inspection": "9.0.2"
+                "inspection": "9.0.3"
             },
             {
                 "#": 2,
@@ -948,10 +948,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "assist": "8.8.6",
                 "iot": "8.8.12",
                 "manage": "8.7.11",
-                "monitor": "8.11.10",
+                "monitor": "8.11.11",
                 "optimizer": "8.5.9",
                 "predict": "8.9.5",
-                "inspection": "8.9.5"
+                "inspection": "8.9.6"
             },
             {
                 "#": 3,
@@ -961,7 +961,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "assist": "8.7.7",
                 "iot": "8.7.16",
                 "manage": "8.6.17",
-                "monitor": "8.10.13",
+                "monitor": "8.10.14",
                 "optimizer": "8.4.10",
                 "predict": "8.8.3",
                 "inspection": "8.8.4"
