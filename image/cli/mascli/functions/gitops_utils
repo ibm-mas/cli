@@ -779,7 +779,7 @@ function check_argo_app_healthy() {
       sleep 30
       if [[ -n "$MAX_CHECKS" ]]; then
         if [[ $COUNT -eq $MAX_CHECKS ]]; then
-          echo "argo:check_argo_app_healthy : App not healthy after $MAX_CHECKS, exiting"
+          echo "argo:check_argo_app_healthy : App not healthy after $MAX_CHECKS checks, exiting"
           exit 1
         fi
       fi
