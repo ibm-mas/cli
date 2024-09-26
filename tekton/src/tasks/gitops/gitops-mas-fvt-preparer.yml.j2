@@ -296,6 +296,7 @@ spec:
     - args:
       - |-
 
+        set -o pipefail
         trap 'mas must-gather --directory /workspace/mustgather --extra-namespaces selenium' ERR
 
         export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
