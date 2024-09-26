@@ -7,7 +7,7 @@ from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
 from slackclient import SlackClient
 from subprocess import PIPE, Popen, TimeoutExpired
-from mobilever import get_graphite_versions
+from mobilever import MobVer
 import threading
 import importlib  
 from jira import JIRA
@@ -374,9 +374,14 @@ if __name__ == "__main__":
             print(f"Unable to determine Manage installed components: status.components unavailable")
     except Exception as e:
         print(f"Unable to determine Manage installed components: {e}")
+    
+    # Get Mobile Components
+    # -------------------------------------------------------------------------
+    # Note: Only works for workspace "masdev"
     try:
         #getting versions from mobile
-        mobileComponents = get_graphite_versions(dyn=dynClient)
+        mobileVer = MobVer(instanceId=instanceId, dynClient=dynClient)
+        mobileComponents = mobileVer.get_graphite_versions()
         treatedComponents={}
         for key,value in mobileComponents.items():
             if "mobileVersion" in value:
