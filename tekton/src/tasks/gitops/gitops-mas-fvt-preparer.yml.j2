@@ -426,7 +426,7 @@ spec:
           # Fourth wave
           if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
             MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 60
+            check_argo_app_healthy "${MASAPP_APP}" 80
           fi
           if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
             MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
