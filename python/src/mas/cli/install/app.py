@@ -937,7 +937,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "manage": "9.0.2",
                 "monitor": "9.0.2",
                 "optimizer": "9.0.3",
-                "predict": "9.0.1",
+                "predict": "9.0.2",
                 "inspection": "9.0.2"
             },
             {
@@ -950,7 +950,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "manage": "8.7.11",
                 "monitor": "8.11.10",
                 "optimizer": "8.5.9",
-                "predict": "8.9.3",
+                "predict": "8.9.5",
                 "inspection": "8.9.5"
             },
             {
