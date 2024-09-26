@@ -683,7 +683,7 @@ function argocd_hard_refresh(){
   argocd app get $APP_NAME --hard-refresh
   RC=$?
   echo "ArgoCD response for Force Application $APP_NAME to hard refresh: $RC"
-
+}
 
 function check_argo_app_deleted(){
   APPLICATION=$1
