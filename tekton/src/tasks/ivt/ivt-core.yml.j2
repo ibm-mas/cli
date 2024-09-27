@@ -108,7 +108,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/ivt-core@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 4h0m0s # SPS Multi-Scan can take over three hours to run for IoT
+      timeout: 6h40m0s # SPS Multi-Scan can take over three hours to run for IoT
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
