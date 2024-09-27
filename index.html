@@ -40,7 +40,9 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Home</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a>
+    <li class="toctree-l2"><a class="reference internal" href="#container-image">Container Image</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#standalone-binary">Standalone Binary</a>
     </li>
     </ul>
                 </li>
@@ -145,28 +147,111 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="ibm-maximo-application-suite-cli-utility">IBM Maximo Application Suite CLI Utility<a class="headerlink" href="#ibm-maximo-application-suite-cli-utility" title="Permanent link"></a></h1>
-<p>There are various dependencies to meet on your own computer to use the CLI, depending on which functions you are using:</p>
-<ul>
-<li>Bash (v4)</li>
-<li>OpenShift client</li>
-<li>IBMCloud client with container plugin enabled</li>
-<li>Ansible</li>
-<li>Python</li>
-<li>Network access to the OpenShift cluster</li>
-</ul>
-<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link"></a></h2>
-<p>The best way to use the CLI is to not install it at all and use the container image we publish:</p>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
+<p>The CLI comes in two flavours; <strong>container image</strong> and <strong>standalone binary</strong>.</p>
+<p>The standalone CLI is available for three platforms, and available from the downloads page on each <a href="https://github.com/ibm-mas/cli/releases/tag/11.1.3">GitHub release</a>, however it does not currently support everything supported by the container image:</p>
+<table>
+<thead>
+<tr>
+<th>CLI Function</th>
+<th style="text-align: center;">Image</th>
+<th style="text-align: center;">Binary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="commands/install/">install</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10003;</td>
+</tr>
+<tr>
+<td><a href="commands/update/">update</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10003;</td>
+</tr>
+<tr>
+<td><a href="commands/upgrade/">upgrade</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10003;</td>
+</tr>
+<tr>
+<td><a href="commands/uninstall/">uninstall</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10003;</td>
+</tr>
+<tr>
+<td><a href="commands/must-gather/">must-gather</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10005;</td>
+</tr>
+<tr>
+<td><a href="commands/configure-airgap/">configure-airgap</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10005;</td>
+</tr>
+<tr>
+<td><a href="commands/mirror-images/">mirror-images</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10005;</td>
+</tr>
+<tr>
+<td><a href="commands/mirror-redhat-images/">mirror-redhat-images</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10005;</td>
+</tr>
+<tr>
+<td><a href="commands/setup-registry/">setup-registry</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10005;</td>
+</tr>
+<tr>
+<td><a href="commands/teardown-registry/">teardown-registry</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10005;</td>
+</tr>
+<tr>
+<td><a href="commands/provision-fyre/">provision-fyre</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10005;</td>
+</tr>
+<tr>
+<td><a href="commands/provision-roks/">provision-roks</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10005;</td>
+</tr>
+<tr>
+<td><a href="commands/provision-rosa/">provision-rosa</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10005;</td>
+</tr>
+<tr>
+<td><a href="commands/configtool-oidc/">configtool-oidc</a></td>
+<td style="text-align: center;">&#10003;</td>
+<td style="text-align: center;">&#10005;</td>
+</tr>
+</tbody>
+</table>
+<h2 id="container-image">Container Image<a class="headerlink" href="#container-image" title="Permanent link"></a></h2>
+<p>The best way to use the MAS CLI is to use the container image we publish to quay.io:</p>
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli mas install --help
 </code></pre>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Running <code>docker pull</code> before <code>docker run</code> will ensure you are using the latest release of the container image.</p>
-<p>If you want to stick with a specific release of the image you can attach a specific version tag to the docker run command: <code>docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:x.y.z</code></p>
+<p>If you want to stick with a specific release of the image you can attach a  version tag to the docker run command: <code>docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:11.1.3</code></p>
 </div>
-<p>If you prefer to install the client it can be obtained from the <a href="https://github.com/ibm-mas/cli/releases">GitHub releases page</a>.</p>
-<pre><code class="language-bash">wget https://github.com/ibm-mas/cli/releases/download/7.0.0/ibm-mas-cli-7.0.0.tgz
-tar -xvf ibm-mas-cli-7.0.0.tgz
-./mas mirror-images
+<p>The container image provides an out of the box environment for managing MAS on OpenShift, with numerous dependencies pre-installed (see <a href="https://github.com/ibm-mas/cli-base">cli-base</a> for details).  The Maximo Application Suite Ansible Collection is included in these dependencies, so even if you prefer to drive Ansible directy the CLI image can be a useful tool:</p>
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-playbook ibm.mas_devops.oneclick_core
+</code></pre>
+<h2 id="standalone-binary">Standalone Binary<a class="headerlink" href="#standalone-binary" title="Permanent link"></a></h2>
+<p>Introduced in Summer 2024, the standalone binary is a new way to use the MAS CLI, you can download version 11.1.3 of the CLI for following platforms using the links below:</p>
+<ul>
+<li><a href="https://github.com/ibm-mas/cli/releases/download/11.1.3/mas-cli-windows-amd64">Windows (amd64)</a></li>
+<li><a href="https://github.com/ibm-mas/cli/releases/download/11.1.3/mas-cli-linux-amd64">Linux (amd64)</a></li>
+<li><a href="https://github.com/ibm-mas/cli/releases/download/11.1.3/mas-cli-macos-arm64">MacOS (arm64)</a></li>
+</ul>
+<p>For example, to install the CLI and launch a MAS install on Linux:</p>
+<pre><code class="language-bash">wget https://github.com/ibm-mas/cli/releases/download/11.1.3/mas-cli-linux-amd64
+cp mas-cli-linux-amd64 /usr/local/bin/mas-cli
+mas-cli install --help
 </code></pre>
               
             </div>
@@ -216,5 +301,5 @@ tar -xvf ibm-mas-cli-7.0.0.tgz
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2024-09-27 06:48:24.631823+00:00
+Build Date UTC : 2024-09-27 07:34:46.246878+00:00
 -->
