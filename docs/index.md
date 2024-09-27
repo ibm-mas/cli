@@ -17,7 +17,7 @@ The standalone CLI is available for three platforms, and available from the down
 | [setup-registry](commands/setup-registry.md)             | &#10003; | &#10005; |
 | [teardown-registry](commands/teardown-registry.md)       | &#10003; | &#10005; |
 | [provision-fyre](commands/provision-fyre.md)             | &#10003; | &#10005; |
-| [provision-roks](commands/provision-rosk.md)             | &#10003; | &#10005; |
+| [provision-roks](commands/provision-roks.md)             | &#10003; | &#10005; |
 | [provision-rosa](commands/provision-rosa.md)             | &#10003; | &#10005; |
 | [configtool-oidc](commands/configtool-oidc.md)           | &#10003; | &#10005; |
 
