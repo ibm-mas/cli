@@ -18,6 +18,7 @@ Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                IBM Suite Maximo Application Suite Instance ID
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                              IBM Suite Maximo Application Suite Application ID
   --mas-app-channel ${COLOR_YELLOW}MAS_APP_CHANNEL${TEXT_RESET}                    IBM Suite Maximo Application Suite Application Channel
+  --mas-app-install-plan ${COLOR_YELLOW}MAS_APP_INSTALL_PLAN{TEXT_RESET}               IBM Suite Maximo Application Suite Application Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
   --mas-app-catalog-source ${COLOR_YELLOW}MAS_APP_CATALOG_SOURCE${TEXT_RESET}      IBM Suite Maximo Application Suite Application Catalog Source
   --mas-app-api-version ${COLOR_YELLOW}MAS_APP_API_VERSION${TEXT_RESET}            IBM Suite Maximo Application Suite Application API Version
   --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                          IBM Suite Maximo Application Suite Application Kind
@@ -71,6 +72,8 @@ function gitops_suite_app_install_noninteractive() {
   export REGION=${REGION:-${SM_AWS_REGION}}
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
 
+  export MAS_APP_INSTALL_PLAN="Automatic"
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -123,6 +126,9 @@ function gitops_suite_app_install_noninteractive() {
         ;;
       --mas-app-channel)
         export MAS_APP_CHANNEL=$1 && shift
+        ;;
+      --mas-app-install-plan)
+        export MAS_APP_INSTALL_PLAN=$1 && shift
         ;;
       --mas-app-catalog-source)
         export MAS_APP_CATALOG_SOURCE=$1 && shift
@@ -272,6 +278,7 @@ function gitops_suite_app_install() {
   echo_reset_dim "Instance ID ........................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Application ID ........................ ${COLOR_MAGENTA}${MAS_APP_ID}"
   echo_reset_dim "Application Channel ................... ${COLOR_MAGENTA}${MAS_APP_CHANNEL}"
+  echo_reset_dim "Application Install Plan .............. ${COLOR_MAGENTA}${MAS_APP_INSTALL_PLAN}"
   echo_reset_dim "Application Catalog Source ............ ${COLOR_MAGENTA}${MAS_APP_CATALOG_SOURCE}"
   echo_reset_dim "Application API Version ............... ${COLOR_MAGENTA}${MAS_APP_API_VERSION}"
   echo_reset_dim "Application Kind ...................... ${COLOR_MAGENTA}${MAS_APP_KIND}"
