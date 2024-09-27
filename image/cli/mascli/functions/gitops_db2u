@@ -133,7 +133,7 @@ function gitops_db2u_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_help "ACCOUNT_ID is not set"
   [[ -z "$REGION" ]] && gitops_db2u_help "REGION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_db2u_help "CLUSTER_ID is not set"
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cluster_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_help "MAS_INSTANCE_ID is not set"
 
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then

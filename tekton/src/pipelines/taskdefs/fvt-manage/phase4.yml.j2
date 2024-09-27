@@ -22,8 +22,9 @@
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
     - fvt-manage-base-ui-mas-navigation
+    - fvt-manage-base-ui-requestreport-pages
 
-# Manage FVT BIRT Reports
+# Manage FVT BIRT Reports 
 - name: fvt-manage-base-ui-birt-report
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
   taskRef:
@@ -36,6 +37,7 @@
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
     - fvt-manage-base-ui-mas-navigation
+    - fvt-manage-base-ui-requestreport-pages
 
 # Manage FVT New User Update/Delete/Verufy
 - name: fvt-manage-base-ui-user-crud
@@ -52,6 +54,7 @@
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
     - fvt-manage-base-ui-mas-navigation
+    - fvt-manage-base-ui-requestreport-pages
 
 # Manage FVT User Consumption verification
 - name: fvt-manage-base-ui-user-consumption
@@ -68,6 +71,7 @@
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
     - fvt-manage-base-ui-mas-navigation
+    - fvt-manage-base-ui-requestreport-pages
 
 # Manage FVT Communication Template
 - name: fvt-manage-base-ui-communication-temp
@@ -84,3 +88,4 @@
     - fvt-manage-base-ui-helplinks
     - fvt-manage-base-ui-wo-basic
     - fvt-manage-base-ui-mas-navigation
+    - fvt-manage-base-ui-requestreport-pages
