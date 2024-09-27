@@ -140,7 +140,7 @@ function gitops_dro_noninteractive() {
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_dro_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_dro_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_dro_help "CLUSTER_ID is not set"
-  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_cluster_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_dro_help "REGION_ID or SM_AWS_REGION is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_dro_help "GITHUB_HOST is not set"

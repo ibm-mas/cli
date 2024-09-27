@@ -107,6 +107,9 @@ spec:
     - name: cluster_promotion_cluster_values
       type: string
       default: ''
+    - name: devops_build_number
+      type: string
+      default: ''
     - name: dns_provider
       type: string
       default: cis
@@ -168,6 +171,9 @@ spec:
           value: $(params.cluster_promotion_target_pr_title)
         - name: cluster_promotion_cluster_values
           value: $(params.cluster_promotion_cluster_values)
+
+        - name: devops_build_number
+          value: $(params.devops_build_number)
 
         - name: ocp_cluster_domain
           value: $(params.ocp_cluster_domain)
