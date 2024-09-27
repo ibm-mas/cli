@@ -68,7 +68,7 @@ class UpdateApp(BaseApp):
                         self.setParam(key, value)
 
                 # Arguments that we don't need to do anything with
-                elif key in ["skip_pre_check", "no_confirm", "help"]:
+                elif key in [ "no_confirm", "help"]:
                     pass
 
                 # Fail if there's any arguments we don't know how to handle
