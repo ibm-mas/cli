@@ -9,7 +9,6 @@ from slackclient import SlackClient
 from subprocess import PIPE, Popen, TimeoutExpired
 from mobilever import MobVer
 import threading
-import importlib  
 from jira import JIRA
 
 
