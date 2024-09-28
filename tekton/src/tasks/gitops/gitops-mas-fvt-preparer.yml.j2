@@ -392,11 +392,11 @@ spec:
           # Second wave
           if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
             MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 30
+            check_argo_app_healthy "${MASAPP_APP}" 120
           fi
           if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
             MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 30
+            check_argo_app_healthy "${MASAPP_APP}" 120
           fi
           if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
             MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
@@ -413,15 +413,15 @@ spec:
           # Third wave
           if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
             MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 60
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
           fi
           if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
             MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 60
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
           fi
           if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
             MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 10
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 20
           fi
           # Fourth wave
           if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
@@ -430,7 +430,7 @@ spec:
           fi
           if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
             MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}" 40
+            check_argo_app_healthy "${MASAPP_APP}" 60
           fi
           # Fifth wave
           if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
