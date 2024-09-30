@@ -26,7 +26,7 @@ IBM CP4D:
       --cpd-product-version ${COLOR_YELLOW}CPD_PRODUCT_VERSION${TEXT_RESET}                    CP4D Product Version
       --cpd-instance-namespace ${COLOR_YELLOW}CPD_INSTANCE_NAMESPACE{TEXT_RESET}               CP4D Instance namespace to use
       --cpd-operators-namespace ${COLOR_YELLOW}CPD_OPERATORS_NAMESPACE${TEXT_RESET}            CP4D Operators namespace to use
-      --cpd_platform-install-plan  ${COLOR_YELLOW}CPD_PLATFORM_INSTALL_PLAN${TEXT_RESET}            CP4D Platform subscription install plan approval to use ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-platform-install-plan  ${COLOR_YELLOW}CPD_PLATFORM_INSTALL_PLAN${TEXT_RESET}            CP4D Platform subscription install plan approval to use ('Automatic' or 'Manual'. Default is 'Automatic')
       --cpd-namespace-scope-install-plan  ${COLOR_YELLOW}NAMESPACE_SCOPE_INSTALL_PLAN${TEXT_RESET}  CP4D Namespace scope subscription install plan approval to use ('Automatic' or 'Manual'. Default is 'Automatic')
       --cpd-licensing-install-plan  ${COLOR_YELLOW}CPD_LICENSING_INSTALL_PLAN${TEXT_RESET}          CP4D Licensing subscription install plan approval to use ('Automatic' or 'Manual'. Default is 'Automatic')
       --cpd-primary-storage-class ${COLOR_YELLOW}CPD_PRIMARY_STORAGE_CLASS${TEXT_RESET}        CP4D Primary StorageClass
@@ -119,7 +119,7 @@ function gitops_cp4d_noninteractive() {
       --cpd-scale-config)
       export CPD_SCALE_CONFIG=$1 && shift
         ;;
-      --cpd_platform-install-plan)
+      --cpd-platform-install-plan)
       export CPD_PLATFORM_INSTALL_PLAN=$1 && shift
         ;;
       --cpd-namespace-scope-install-plan)
