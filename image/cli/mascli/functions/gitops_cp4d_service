@@ -282,11 +282,11 @@ function gitops_cp4d_service() {
   echo_reset_dim "CPD_SERVICE_BLOCK_STORAGE_CLASS  ............ ${COLOR_MAGENTA}${CPD_SERVICE_BLOCK_STORAGE_CLASS}"
   echo_reset_dim "CPD_SERVICE_STORAGE_CLASS  .................. ${COLOR_MAGENTA}${CPD_SERVICE_STORAGE_CLASS}"
   echo_reset_dim "CPD_SERVICE_DEPLOYMENT_TYPE  ................ ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
-  echo_reset_dim "CPD_CCS_INSTALL_PLAN  ....................... ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
-  echo_reset_dim "CPD_DATAREFINERY_INSTALL_PLAN  .............. ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
-  echo_reset_dim "CPD_WS_INSTALL_PLAN  ........................ ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
-  echo_reset_dim "RABBITMQ_INSTALL_PLAN  ...................... ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
-  echo_reset_dim "ELASTICSEARCH_INSTALL_PLAN  ................. ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
+  echo_reset_dim "CPD_CCS_INSTALL_PLAN  ....................... ${COLOR_MAGENTA}${CPD_CCS_INSTALL_PLAN}"
+  echo_reset_dim "CPD_DATAREFINERY_INSTALL_PLAN  .............. ${COLOR_MAGENTA}${CPD_DATAREFINERY_INSTALL_PLAN}"
+  echo_reset_dim "CPD_WS_INSTALL_PLAN  ........................ ${COLOR_MAGENTA}${CPD_WS_INSTALL_PLAN}"
+  echo_reset_dim "RABBITMQ_INSTALL_PLAN  ...................... ${COLOR_MAGENTA}${RABBITMQ_INSTALL_PLAN}"
+  echo_reset_dim "ELASTICSEARCH_INSTALL_PLAN  ................. ${COLOR_MAGENTA}${ELASTICSEARCH_INSTALL_PLAN}"
   reset_colors
 
 
