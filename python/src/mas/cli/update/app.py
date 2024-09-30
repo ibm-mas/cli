@@ -440,6 +440,7 @@ class UpdateApp(BaseApp):
                                     print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
                                 self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
 
+
             except (ResourceNotFoundError, NotFoundError) as e:
                 # UDS has never been installed on this cluster
                 logger.debug("UDS has not been installed on this cluster before")
