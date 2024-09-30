@@ -38,6 +38,8 @@ spec:
       type: string
     - name: artifactory_generic_release_url
       type: string
+    - name: artifactory_generic_logs_url
+      type: string
     - name: fvt_ansible_version
       type: string
 
@@ -188,6 +190,8 @@ spec:
 
         - name: artifactory_generic_release_url
           value: $(params.artifactory_generic_release_url)
+        - name: artifactory_generic_logs_url
+          value: $(params.artifactory_generic_logs_url)
         - name: fvt_ansible_version
           value: $(params.fvt_ansible_version)
 

@@ -18,6 +18,11 @@ data:
             - sh
             - "-c"
             - "find . -name 'Chart.yaml' && find . -name 'values.yaml'"
+      init:
+        command:
+          - sh
+          - "-c"
+          - helm dependency update;
       generate:
         command:
         - bash

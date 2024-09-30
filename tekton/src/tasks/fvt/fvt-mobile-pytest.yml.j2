@@ -212,7 +212,7 @@ spec:
     - name: fvt-mobile-version
       command:
         - python3
-        - /opt/app-root/src/mobile-version-finder.py
+        - /opt/app-root/src/mobilever.py
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       onError: continue
