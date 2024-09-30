@@ -1,32 +1,57 @@
 IBM Maximo Application Suite CLI Utility
 ===============================================================================
-There are various dependencies to meet on your own computer to use the CLI, depending on which functions you are using:
+The CLI comes in two flavours; **container image** and **standalone binary**.
 
-- Bash (v4)
-- OpenShift client
-- IBMCloud client with container plugin enabled
-- Ansible
-- Python
-- Network access to the OpenShift cluster
+The standalone CLI is available for three platforms, and available from the downloads page on each [GitHub release](https://github.com/ibm-mas/cli/releases/tag/@@CLI_LATEST_VERSION@@), however it does not currently support everything supported by the container image:
+
+| CLI Function                                             | Image    | Binary   |
+| -------------------------------------------------------- | :------: | :------: |
+| [install](commands/install.md)                           | &#10003; | &#10003; |
+| [update](commands/update.md)                             | &#10003; | &#10003; |
+| [upgrade](commands/upgrade.md)                           | &#10003; | &#10003; |
+| [uninstall](commands/uninstall.md)                       | &#10003; | &#10003; |
+| [must-gather](commands/must-gather.md)                   | &#10003; | &#10005; |
+| [configure-airgap](commands/configure-airgap.md)         | &#10003; | &#10005; |
+| [mirror-images](commands/mirror-images.md)               | &#10003; | &#10005; |
+| [mirror-redhat-images](commands/mirror-redhat-images.md) | &#10003; | &#10005; |
+| [setup-registry](commands/setup-registry.md)             | &#10003; | &#10005; |
+| [teardown-registry](commands/teardown-registry.md)       | &#10003; | &#10005; |
+| [provision-fyre](commands/provision-fyre.md)             | &#10003; | &#10005; |
+| [provision-roks](commands/provision-roks.md)             | &#10003; | &#10005; |
+| [provision-rosa](commands/provision-rosa.md)             | &#10003; | &#10005; |
+| [configtool-oidc](commands/configtool-oidc.md)           | &#10003; | &#10005; |
 
 
-Installation
+Container Image
 -------------------------------------------------------------------------------
-The best way to use the CLI is to not install it at all and use the container image we publish:
+The best way to use the MAS CLI is to use the container image we publish to quay.io:
 
 ```bash
-docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
+docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli mas install --help
 ```
 
 !!! tip
-    Running `docker pull` before `docker run` will ensure you are using the latest release of the container image.
+    If you want to stick with a specific release of the image you can attach a  version tag to the docker run command: `docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@`
 
-    If you want to stick with a specific release of the image you can attach a specific version tag to the docker run command: `docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:x.y.z`
-
-If you prefer to install the client it can be obtained from the [GitHub releases page](https://github.com/ibm-mas/cli/releases).
+The container image provides an out of the box environment for managing MAS on OpenShift, with numerous dependencies pre-installed (see [cli-base](https://github.com/ibm-mas/cli-base) for details).  The Maximo Application Suite Ansible Collection is included in these dependencies, so even if you prefer to drive Ansible directy the CLI image can be a useful tool:
 
 ```bash
-wget https://github.com/ibm-mas/cli/releases/download/7.0.0/ibm-mas-cli-7.0.0.tgz
-tar -xvf ibm-mas-cli-7.0.0.tgz
-./mas mirror-images
+docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-playbook ibm.mas_devops.oneclick_core
+```
+
+
+Standalone Binary
+-------------------------------------------------------------------------------
+Introduced in Summer 2024, the standalone binary is a new way to use the MAS CLI, you can download version @@CLI_LATEST_VERSION@@ of the CLI for following platforms using the links below:
+
+- [Windows (amd64)](https://github.com/ibm-mas/cli/releases/download/@@CLI_LATEST_VERSION@@/mas-cli-windows-amd64)
+- [Linux (amd64)](https://github.com/ibm-mas/cli/releases/download/@@CLI_LATEST_VERSION@@/mas-cli-linux-amd64)
+- [MacOS (arm64)](https://github.com/ibm-mas/cli/releases/download/@@CLI_LATEST_VERSION@@/mas-cli-macos-arm64)
+
+For example, to install the CLI and launch a MAS install on Linux:
+
+```bash
+wget https://github.com/ibm-mas/cli/releases/download/@@CLI_LATEST_VERSION@@/mas-cli-linux-amd64
+cp mas-cli-linux-amd64 /usr/local/bin/mas-cli
+mas-cli install --help
 ```
