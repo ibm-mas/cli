@@ -18,7 +18,7 @@ Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                IBM Suite Maximo Application Suite Instance ID
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                              IBM Suite Maximo Application Suite Application ID
   --mas-app-channel ${COLOR_YELLOW}MAS_APP_CHANNEL${TEXT_RESET}                    IBM Suite Maximo Application Suite Application Channel
-  --mas-app-install-plan ${COLOR_YELLOW}MAS_APP_INSTALL_PLAN{TEXT_RESET}               IBM Suite Maximo Application Suite Application Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
+  --mas-app-install-plan ${COLOR_YELLOW}MAS_APP_INSTALL_PLAN{TEXT_RESET}           IBM Suite Maximo Application Suite Application Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
   --mas-app-catalog-source ${COLOR_YELLOW}MAS_APP_CATALOG_SOURCE${TEXT_RESET}      IBM Suite Maximo Application Suite Application Catalog Source
   --mas-app-api-version ${COLOR_YELLOW}MAS_APP_API_VERSION${TEXT_RESET}            IBM Suite Maximo Application Suite Application API Version
   --mas-app-kind ${COLOR_YELLOW}MAS_APP_KIND${TEXT_RESET}                          IBM Suite Maximo Application Suite Application Kind
