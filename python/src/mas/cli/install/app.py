@@ -937,7 +937,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
-            self.setParam("skip_pre_check", "false")
+            self.setParam("skip_pre_check", "true")
 
         #Setting for Install option for s390x
         self.installOptions_s390x = [

@@ -48,7 +48,8 @@ spec:
     # -------------------------------------------------------------------------
     # 1.1 IBM Operator Catalog
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
-
+      runAfter:
+        - pre-install-check
 
     # 1.2 Red Hat Certificate Manager
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
@@ -70,8 +71,8 @@ spec:
         - input: "$(params.eck_action)"
           operator: in
           values: ["install"]
-
-
+      runAfter:
+        - pre-install-check
 
     # 1.5 Configure Turbonomic
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/turbonomic.yml.j2') | indent(4) }}
@@ -180,7 +181,8 @@ spec:
     # -------------------------------------------------------------------------
     # 5.1 Configure Workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
-
+      runAfter:
+        - pre-install-check
 
     # 5.2 DNS Setup
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-dns.yml.j2') | indent(4) }}
