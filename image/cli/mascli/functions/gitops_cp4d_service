@@ -32,6 +32,13 @@ IBM CP4D Service:
       --cpd-service-storage-class ${COLOR_YELLOW}CPD_SERVICE_STORAGE_CLASS${TEXT_RESET}                 CP4D Service storage clas
       --cpd-service-deployment-type ${COLOR_YELLOW}CPD_SERVICE_DEPLOYMENT_TYPE${TEXT_RESET}             CP4D Service Deployment Type
       --cpd-service-scale-config ${COLOR_YELLOW}CPD_SERVICE_SCALE_CONFIG${TEXT_RESET}                   CP4D Service Scale Config
+  (optional)
+      --cpd-ccs-installplan ${COLOR_YELLOW}CPD_CCS_INSTALL_PLAN${TEXT_RESET}                            CP4D CCS installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-datarefinery-installplan ${COLOR_YELLOW}CPD_DATAREFINERY_INSTALL_PLAN${TEXT_RESET}          CP4D Datarinery installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-ws-installplan ${COLOR_YELLOW}CPD_WS_INSTALL_PLAN${TEXT_RESET}                              CP4D WS installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-rabbitmq-installplan ${COLOR_YELLOW}RABBITMQ_INSTALL_PLAN${TEXT_RESET}                      CP4D Rabbitmq installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-elasticsearch-installplan ${COLOR_YELLOW}ELASTICSEARCH_INSTALL_PLAN${TEXT_RESET}            CP4D Elasticsearch installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-canvasbase-installplan ${COLOR_YELLOW}CANVASBASE_INSTALL_PLAN${TEXT_RESET}                  CP4D Canvasbase installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
 
 
 Automatic GitHub Push:
@@ -56,6 +63,12 @@ function gitops_cp4d_service_noninteractive() {
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
   export CPD_SERVICE_INSTALLPLAN_APPROVAL="Automatic"
+  export CPD_CCS_INSTALL_PLAN="Automatic"
+  export CPD_DATAREFINERY_INSTALL_PLAN="Automatic"
+  export CPD_WS_INSTALL_PLAN="Automatic"
+  export RABBITMQ_INSTALL_PLAN="Automatic"
+  export ELASTICSEARCH_INSTALL_PLAN="Automatic"
+  export CANVASBASE_INSTALL_PLAN="Automatic"
 
 
   while [[ $# -gt 0 ]]
@@ -121,6 +134,25 @@ function gitops_cp4d_service_noninteractive() {
         ;;
       --cpd-service-scale-config)
       export CPD_SERVICE_SCALE_CONFIG=$1 && shift
+        ;;
+
+      --cpd-ccs-installplan)
+      export CPD_CCS_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-datarefinery-installplan)
+      export CPD_DATAREFINERY_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-ws-installplan)
+      export CPD_WS_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-rabbitmq-installplan)
+      export RABBITMQ_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-elasticsearch-installplan)
+      export ELASTICSEARCH_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-canvasbase-installplan)
+      export CANVASBASE_INSTALL_PLAN=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -250,6 +282,11 @@ function gitops_cp4d_service() {
   echo_reset_dim "CPD_SERVICE_BLOCK_STORAGE_CLASS  ............ ${COLOR_MAGENTA}${CPD_SERVICE_BLOCK_STORAGE_CLASS}"
   echo_reset_dim "CPD_SERVICE_STORAGE_CLASS  .................. ${COLOR_MAGENTA}${CPD_SERVICE_STORAGE_CLASS}"
   echo_reset_dim "CPD_SERVICE_DEPLOYMENT_TYPE  ................ ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
+  echo_reset_dim "CPD_CCS_INSTALL_PLAN  ....................... ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
+  echo_reset_dim "CPD_DATAREFINERY_INSTALL_PLAN  .............. ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
+  echo_reset_dim "CPD_WS_INSTALL_PLAN  ........................ ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
+  echo_reset_dim "RABBITMQ_INSTALL_PLAN  ...................... ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
+  echo_reset_dim "ELASTICSEARCH_INSTALL_PLAN  ................. ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
   reset_colors
 
 
@@ -308,6 +345,7 @@ function gitops_cp4d_service() {
     export SECRET_KEY_SPSS_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}spss_version#spss_version
     export SECRET_KEY_CANVASBASE_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}canvasbase_channel#canvasbase_channel
     export SPSS_INSTALL_PLAN=${CPD_SERVICE_INSTALLPLAN_APPROVAL}
+    export CANVASBASE_INSTALL_PLAN=${CANVASBASE_INSTALL_PLAN}
   fi
 
   # Set and Validate App Names
