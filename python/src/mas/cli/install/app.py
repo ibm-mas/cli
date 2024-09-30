@@ -937,7 +937,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
-            self.setParam("skip_pre_check", "true")
+            self.setParam("skip_pre_check", "false")
 
         #Setting for Install option for s390x
         self.installOptions_s390x = [
@@ -953,13 +953,26 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "optimizer": "9.0.2",
                 "predict": "9.0.1",
                 "inspection": "9.0.2"
+            },
+            {
+                "#": 2,
+                "catalog": "v9-240827-s390x",
+                "release": "9.0.x",
+                "core": "9.0.2",
+                "assist": "9.0.2",
+                "iot": "9.0.2",
+                "manage": "9.0.2",
+                "monitor": "9.0.2",
+                "optimizer": "9.0.2",
+                "predict": "9.0.1",
+                "inspection": "9.0.2"
             }
-            ]
+        ]
 
         self.installOptions_amd64 = [
             {
                  "#": 1,
-                 "catalog": "v9-240827-s390x",
+                 "catalog": "v9-240827-amd64",
                  "release": "9.0.x",
                  "core": "9.0.2",
                  "assist": "9.0.2",

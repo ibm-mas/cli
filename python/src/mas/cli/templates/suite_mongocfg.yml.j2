@@ -43,7 +43,7 @@ spec:
      {%- if mongodb_hosts is defined %}
      {%- for host in mongodb_hosts.split(',') %}
      {%- set host_port = host.split(':') %}
-     - host: "{{ host_port[0] }}"
+     - host: {{ host_port[0] }}
        port: {{ host_port[1] }}
     {%- endfor %}
     {%- endif %}
