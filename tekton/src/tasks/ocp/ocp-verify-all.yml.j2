@@ -15,7 +15,7 @@ spec:
     # Verify Cluster
     # -------------------------------------------------------------------------
     - name: ocp-verify-cluster
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:11.2.0-pre.mascore3901
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/run-role.sh
@@ -39,7 +39,7 @@ spec:
     # Verify Catalogs
     # -------------------------------------------------------------------------
     - name: ocp-verify-catalogs
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:11.2.0-pre.mascore3901
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/run-role.sh
@@ -63,7 +63,7 @@ spec:
     # Verify Subscriptions
     # -------------------------------------------------------------------------
     - name: ocp-verify-subscriptions
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:11.2.0-pre.mascore3901
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/run-role.sh
@@ -87,7 +87,7 @@ spec:
     # Verify Workloads
     # -------------------------------------------------------------------------
     - name: ocp-verify-workloads
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:11.2.0-pre.mascore3901
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/run-role.sh
@@ -111,7 +111,7 @@ spec:
     # Verify Catalogs - Ingress TLS
     # -------------------------------------------------------------------------
     - name: ocp-verify-ingress
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:11.2.0-pre.mascore3901
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/run-role.sh
