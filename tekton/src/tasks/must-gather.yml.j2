@@ -21,7 +21,7 @@ spec:
         - $(params.base_output_dir)
         - --extra-namespaces
         - selenium
-      image: quay.io/ibmmas/cli:11.2.0-pre.mascore3901
+      image: quay.io/ibmmas/cli:11.2.1-pre.mascore3901
       imagePullPolicy: $(params.image_pull_policy)
       env:
         {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
