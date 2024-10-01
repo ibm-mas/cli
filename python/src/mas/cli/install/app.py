@@ -943,7 +943,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installOptions_s390x = [
             {
                 "#": 1,
-                "catalog": "v9-240827-s390x",
+                "catalog": "v9-multiarch-s390x",
                 "release": "9.0.x",
                 "core": "9.0.2",
                 "assist": "9.0.2",
