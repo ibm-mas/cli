@@ -6,6 +6,14 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 NAMESPACE=$1
 OUTPUT_DIR=$2
 
+# Collect build Resources
+# -----------------------------------------------------------------------------
+echo_h4 "Collect Build Resources"
+for RESOURCE in build buildconfig imagestream imagestreamtag
+do
+  $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+done
+
 # Collect Manage Logs
 # -----------------------------------------------------------------------------
 echo_h4 "Collect Manage Files"

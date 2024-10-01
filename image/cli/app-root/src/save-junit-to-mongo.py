@@ -26,8 +26,8 @@ if __name__ == "__main__":
     build = os.getenv("DEVOPS_BUILD_NUMBER")
     suite = os.getenv("DEVOPS_SUITE_NAME", "")
     junitOutputDir = os.getenv("JUNIT_OUTPUT_DIR", "/tmp")
+    productId = os.getenv("PRODUCT_ID", "ibm-mas-devops")
 
-    productId = "ibm-mas-devops"
     channelId = "n/a"
     cliVersion = os.getenv("VERSION", "unknown")
     ansibleDevopsVersion = os.getenv("ANSIBLE_DEVOPS_VERSION", "unknown")
@@ -71,7 +71,18 @@ if __name__ == "__main__":
         bf = Yahoo(dict_type=dict)
         resultDoc = bf.data(root)
 
-        for testcase in resultDoc["testsuites"]["testsuite"]["testcase"]:
+        if isinstance(resultDoc["testsuites"]["testsuite"]["testcase"], list) :
+            for testcase in resultDoc["testsuites"]["testsuite"]["testcase"]:
+                testcase["name"] = testcase["name"].replace("[localhost] localhost: ", "")
+                # Playbooks don't have ibm/mas_devops in the classname but do have /opt/app-root.
+                # Roles have both ibm/mas_devops and /opt/app-root.
+                # Guard against both and remove when required.
+                if "/opt/app-root/" in testcase["classname"]:
+                    testcase["classname"] = testcase["classname"].split("/opt/app-root/")[1]
+                if "ibm/mas_devops/" in testcase["classname"]:
+                    testcase["classname"] = testcase["classname"].split("ibm/mas_devops/")[1]
+        else:
+            testcase = resultDoc["testsuites"]["testsuite"]["testcase"]
             testcase["name"] = testcase["name"].replace("[localhost] localhost: ", "")
             # Playbooks don't have ibm/mas_devops in the classname but do have /opt/app-root.
             # Roles have both ibm/mas_devops and /opt/app-root.
@@ -121,11 +132,11 @@ if __name__ == "__main__":
                     }
                 },
                 '$set': {
-                    f"products.ibm-mas-devops.productId": productId,
-                    f"products.ibm-mas-devops.channelId": channelId,
-                    f"products.ibm-mas-devops.version": cliVersion,
-                    f"products.ibm-mas-devops.ansibleDevopsVersion": ansibleDevopsVersion,
-                    f"products.ibm-mas-devops.results.{suite}": suiteSummary
+                    f"products.{productId}.productId": productId,
+                    f"products.{productId}.channelId": channelId,
+                    f"products.{productId}.version": cliVersion,
+                    f"products.{productId}.ansibleDevopsVersion": ansibleDevopsVersion,
+                    f"products.{productId}.results.{suite}": suiteSummary
                 }
             },
             upsert=True
