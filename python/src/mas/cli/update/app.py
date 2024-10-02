@@ -214,11 +214,11 @@ class UpdateApp(BaseApp):
 
             m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-{arch})", catalogDisplayName)
             if m:
-                # catalogId = v8-yymmdd-{arch}
+                # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
                 self.installedCatalogId = m.group("catalogId")
-            elif re.match(r".+v8-{arch}", catalogDisplayName):
-                self.installedCatalogId = "v8-{arch}"
+            elif re.match(r".+v8-amd64", catalogDisplayName):
+                self.installedCatalogId = "v8-amd64"
             else:
                 self.installedCatalogId = None
                 self.printWarning(f"Unable to determine identity & version of currently installed ibm-maximo-operator-catalog")
