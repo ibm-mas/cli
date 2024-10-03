@@ -10,6 +10,8 @@
 
 from os import path
 from jinja2 import Template
+from base64 import b64encode
+from prompt_toolkit import HTML, print_formatted_text
 
 class ConfigGeneratorMixin():
     def generateJDBCCfg(
@@ -63,3 +65,40 @@ class ConfigGeneratorMixin():
         with open(destination, 'w') as f:
             f.write(cfg)
             f.write('\n')
+
+
+    def generateMongoCfg(
+                self,
+                instanceId: str,
+                destination: str) -> None:
+
+            templateFile = path.join(self.templatesDir, "suite_mongocfg.yml.j2")
+            print_formatted_text(f"Searching  in generateMongocfg for configuration file in {templateFile} ...")
+
+            with open(templateFile) as tFile:
+                template = Template(tFile.read())
+            print_formatted_text(f"template n {template} ...")
+
+            name = self.promptForString("Configuration Display Name")
+            hosts = self.promptForString("mongodb hosts")
+
+            username = self.promptForString("mongodb admin username")
+            password = self.promptForString("mongodb admin password", isPassword=True)
+            encoded_username = b64encode(username.encode('ascii')).decode("ascii")
+            encoded_password = b64encode(password.encode('ascii')).decode("ascii")
+            sslCertFile = self.promptForFile("Path to certificate file")
+            with open(sslCertFile) as cFile:
+                   certLocalFileContent = cFile.read()
+
+            cfg = template.render(
+                mas_instance_id=instanceId,
+                cfg_display_name=name,
+                mongodb_hosts=hosts,
+                mongodb_admin_username=encoded_username,
+                mongodb_admin_password=encoded_password,
+                mongodb_ca_pem_local_file=certLocalFileContent
+            )
+
+            with open(destination, 'w') as f:
+                f.write(cfg)
+                f.write('\n')

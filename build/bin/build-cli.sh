@@ -15,3 +15,5 @@ cd $GITHUB_WORKSPACE/image/cli/mascli
 chmod ug+x $GITHUB_WORKSPACE/image/cli/mascli/mas
 chmod ug+x $GITHUB_WORKSPACE/image/cli/mascli/must-gather/*
 tar -czvf $GITHUB_WORKSPACE/ibm-mas-cli-$VERSION.tgz --directory $GITHUB_WORKSPACE/image/cli/mascli *
+echo "check cli version..."
+ls -lrt $GITHUB_WORKSPACE/image/cli/mascli
