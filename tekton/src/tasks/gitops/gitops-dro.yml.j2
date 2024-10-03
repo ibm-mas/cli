@@ -102,7 +102,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-dro
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
   workspaces:
     - name: configs
