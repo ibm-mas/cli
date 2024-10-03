@@ -619,7 +619,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             self.setParam("grafana_action", "none")
 
-        self.configTurbonomic()
+       # Disable Turbonomic for s390x
+       if not self.preview:
+            self.configTurbonomic()
+       else:
+            pass  # Skip Turbonomic configuration#
 
         # TODO: Support ECK integration via the interactive install mode
         # TODO: Support MAS superuser username/password via the interactive install mode

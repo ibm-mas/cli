@@ -320,7 +320,7 @@ class InstallSummarizerMixin():
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
-            "Connected to:",
+            f"Connected to: Architecture: {self.architecture}",
             f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
         ])
 
