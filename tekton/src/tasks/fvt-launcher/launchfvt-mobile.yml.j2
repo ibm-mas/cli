@@ -21,7 +21,7 @@ spec:
 
   steps:
     - name: start-pytest-pipelinerun
-      image: quay.io/ibmmas/cli:11.2.1-pre.mascore3901
+      image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
@@ -104,7 +104,7 @@ spec:
               optional: false
 
     - name: wait-for-pytest-pipelinerun
-      image: quay.io/ibmmas/cli:11.2.1-pre.mascore3901
+      image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
       imagePullPolicy: $(params.image_pull_policy)
       # 50 retries at 10 minute intervals = just over 8 hours
       command:
@@ -130,7 +130,7 @@ spec:
           value: "True"
 
     - name: start-testng-pipelinerun
-      image: quay.io/ibmmas/cli:11.2.1-pre.mascore3901
+      image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
@@ -216,7 +216,7 @@ spec:
               optional: false
 
     - name: wait-for-testng-pipelinerun
-      image: quay.io/ibmmas/cli:11.2.1-pre.mascore3901
+      image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
       imagePullPolicy: $(params.image_pull_policy)
       # 50 retries at 10 minute intervals = just over 8 hours
       command:
