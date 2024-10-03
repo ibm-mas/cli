@@ -38,6 +38,7 @@
     - name: ibmcloud_resourcegroup
       value: $(params.ibmcloud_resourcegroup)
 
+# for s390x arch
   when:
     - input: "$(params.mongodb_action)"
       operator: in

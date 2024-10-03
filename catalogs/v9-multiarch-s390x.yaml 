@@ -1,0 +1,12 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Maximo Operators (v9-multiarch-s390x)
+  publisher: IBM
+  description: Catalog Source for IBM Maximo Application Suite (Internal Use Only)
+  sourceType: grpc
+  image: docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen/ibm-maximo-operator-catalog@sha256:47f6b234d273d73c124d33cc4230890216121bc9b7726b85ef847d485eded741
+  priority: 90
