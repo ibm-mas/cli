@@ -281,7 +281,6 @@ class InstallSummarizerMixin():
             self.printSummary("Turbonomic Integration", "Disabled")
 
     def mongoSummary(self) -> None:
-        self.printH2("MongoDb")
         if self.getParam("mongodb_action") == "install":
             self.printParamSummary("Install Namespace", "mongodb_namespace")
 
