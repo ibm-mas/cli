@@ -9,6 +9,9 @@ spec:
       type: string
     - name: mas_app_channel
       type: string
+    - name: mas_app_install_plan
+      type: string
+      default: "Automatic"
     - name: mas_app_catalog_source
       type: string
     - name: mas_app_api_version
@@ -69,6 +72,8 @@ spec:
         value: $(params.mas_app_id)
       - name: MAS_APP_CHANNEL
         value: $(params.mas_app_channel)
+      - name: MAS_APP_INSTALL_PLAN
+        value: $(params.mas_app_install_plan)
       - name: MAS_APP_CATALOG_SOURCE
         value: $(params.mas_app_catalog_source)
       - name: MAS_APP_API_VERSION

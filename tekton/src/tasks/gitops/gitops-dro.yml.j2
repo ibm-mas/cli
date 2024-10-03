@@ -35,6 +35,12 @@ spec:
     - name: dro_cmm_cmm_url
       type: string
       default: ""
+    - name: dro_install_plan
+      type: string
+      default: "Automatic"
+    - name: imo_install_plan
+      type: string
+      default: "Automatic"
   stepTemplate:
     name: gitops-dro
     env:
@@ -64,6 +70,10 @@ spec:
         value: $(params.dro_cmm_auth_url)
       - name: DRO_CMM_CMM_URL
         value: $(params.dro_cmm_cmm_url)
+      - name: DRO_INSTALL_PLAN
+        value: $(params.dro_install_plan)
+      - name: IMO_INSTALL_PLAN
+        value: $(params.imo_install_plan)
     envFrom:
       - configMapRef:
           name: environment-properties

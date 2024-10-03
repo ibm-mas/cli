@@ -33,18 +33,39 @@ spec:
       type: string
     - name: mas_app_channel_assist
       type: string
+    - name: mas_app_install_plan_assist
+      type: string
+      default: "Automatic"
     - name: mas_app_channel_iot
       type: string
+    - name: mas_app_install_plan_iot
+      type: string
+      default: "Automatic"
     - name: mas_app_channel_manage
       type: string
+    - name: mas_app_install_plan_manage
+      type: string
+      default: "Automatic"
     - name: mas_app_channel_monitor
       type: string
+    - name: mas_app_install_plan_monitor
+      type: string
+      default: "Automatic"
     - name: mas_app_channel_optimizer
       type: string
+    - name: mas_app_install_plan_optimizer
+      type: string
+      default: "Automatic"
     - name: mas_app_channel_predict
       type: string
+    - name: mas_app_install_plan_predict
+      type: string
+      default: "Automatic"
     - name: mas_app_channel_visualinspection
       type: string
+    - name: mas_app_install_plan_visualinspection
+      type: string
+      default: "Automatic"
     - name: github_pat
       type: string
     - name: avp_aws_secret_region
@@ -113,18 +134,32 @@ spec:
         value: $(params.mas_operationalmode)
       - name: MAS_APP_CHANNEL_ASSIST
         value: $(params.mas_app_channel_assist)
+      - name: MAS_APP_INSTALL_PLAN_ASSIST
+        value: $(params.mas_app_install_plan_assist)
       - name: MAS_APP_CHANNEL_IOT
         value: $(params.mas_app_channel_iot)
+      - name: MAS_APP_INSTALL_PLAN_IOT
+        value: $(params.mas_app_install_plan_iot)
       - name: MAS_APP_CHANNEL_MANAGE
         value: $(params.mas_app_channel_manage)
+      - name: MAS_APP_INSTALL_PLAN_MANAGE
+        value: $(params.mas_app_install_plan_manage)
       - name: MAS_APP_CHANNEL_MONITOR
         value: $(params.mas_app_channel_monitor)
+      - name: MAS_APP_INSTALL_PLAN_MONITOR
+        value: $(params.mas_app_install_plan_monitor)
       - name: MAS_APP_CHANNEL_OPTIMIZER
         value: $(params.mas_app_channel_optimizer)
+      - name: MAS_APP_INSTALL_PLAN_OPTIMIZER
+        value: $(params.mas_app_install_plan_optimizer)
       - name: MAS_APP_CHANNEL_PREDICT
         value: $(params.mas_app_channel_predict)
+      - name: MAS_APP_INSTALL_PLAN_PREDICT
+        value: $(params.mas_app_install_plan_predict)
       - name: MAS_APP_CHANNEL_VISUALINSPECTION
         value: $(params.mas_app_channel_visualinspection)
+      - name: MAS_APP_INSTALL_PLAN_VISUALINSPECTION
+        value: $(params.mas_app_install_plan_visualinspection)
       - name: GITHUB_PAT
         value: $(params.github_pat)
       - name: SM_AWS_REGION
