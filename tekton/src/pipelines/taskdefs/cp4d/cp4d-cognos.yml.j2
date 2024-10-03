@@ -23,7 +23,7 @@
     name: mas-devops-cp4d-service
   # Only needed if Manage is being installed and Cognos is chosen to be installed
   when:
-    - input: "$(params.mas_app_channel_manage)"
+    - input: "$(params.mas_app_channel_manage)$(params.cpd_install_all)"
       operator: notin
       values: [""]
     - input: "$(params.cpd_install_cognos)"

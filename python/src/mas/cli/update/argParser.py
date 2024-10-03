@@ -104,8 +104,36 @@ droArgGroup.add_argument(
     help="Set Custom Namespace for DRO(Default: redhat-marketplace)",
 )
 
+# Development Mode
+# -----------------------------------------------------------------------------
+devArgGroup = updateArgParser.add_argument_group("Development Mode")
+devArgGroup.add_argument(
+    "--artifactory-username",
+    required=False,
+    help="Username for access to development builds on Artifactory"
+)
+devArgGroup.add_argument(
+    "--artifactory-token",
+    required=False,
+    help="API Token for access to development builds on Artifactory"
+)
 
+# More Options
+# -----------------------------------------------------------------------------
 otherArgGroup = updateArgParser.add_argument_group('More')
+otherArgGroup.add_argument(
+    "--dev-mode",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Configure installation for development mode",
+)
+otherArgGroup.add_argument(
+    "--cp4d-version",
+    dest="cpd_product_version",
+    required=False,
+    help="Product version of CP4D to use"
+)
 otherArgGroup.add_argument(
     '--no-confirm',
     required=False,
