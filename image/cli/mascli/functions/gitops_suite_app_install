@@ -72,7 +72,7 @@ function gitops_suite_app_install_noninteractive() {
   export REGION=${REGION:-${SM_AWS_REGION}}
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"} # use an in-cluster argocd worker (which fvtsaas does)
 
-  export MAS_APP_INSTALL_PLAN="Automatic"
+  export MAS_APP_INSTALL_PLAN=${MAS_APP_INSTALL_PLAN:-"Automatic"}
 
   while [[ $# -gt 0 ]]
   do

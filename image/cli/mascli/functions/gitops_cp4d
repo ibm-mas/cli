@@ -56,10 +56,10 @@ function gitops_cp4d_noninteractive() {
   GIT_COMMIT_MSG="gitops-cp4d commit"
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
-  export CPD_PLATFORM_INSTALL_PLAN="Automatic"
-  export NAMESPACE_SCOPE_INSTALL_PLAN="Automatic"
-  export CPD_LICENSING_INSTALL_PLAN="Automatic"
-  export CPFS_INSTALL_PLAN="Automatic"
+  export CPD_PLATFORM_INSTALL_PLAN=${CPD_PLATFORM_INSTALL_PLAN:-"Automatic"}
+  export NAMESPACE_SCOPE_INSTALL_PLAN=${NAMESPACE_SCOPE_INSTALL_PLAN:-"Automatic"}
+  export CPD_LICENSING_INSTALL_PLAN=${CPD_LICENSING_INSTALL_PLAN:-"Automatic"}
+  export CPFS_INSTALL_PLAN=${CPFS_INSTALL_PLAN:-"Automatic"}
 
   while [[ $# -gt 0 ]]
   do

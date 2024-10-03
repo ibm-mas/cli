@@ -53,8 +53,8 @@ function gitops_nvidia_gpu_noninteractive() {
   # defaults for fvtsaas
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
-  export NFD_INSTALL_PLAN="Automatic"
-  export GPU_INSTALL_PLAN="Automatic"
+  export NFD_INSTALL_PLAN=${NFD_INSTALL_PLAN:-"Automatic"}
+  export GPU_INSTALL_PLAN=${GPU_INSTALL_PLAN:-"Automatic"}
 
   while [[ $# -gt 0 ]]
   do

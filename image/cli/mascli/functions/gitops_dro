@@ -55,8 +55,8 @@ function gitops_dro_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   export DRO_NAMESPACE=${DRO_NAMESPACE:-"ibm-software-central"}
-  export DRO_INSTALL_PLAN="Automatic"
-  export IMO_INSTALL_PLAN="Automatic"
+  export DRO_INSTALL_PLAN=${DRO_INSTALL_PLAN:-"Automatic"}
+  export IMO_INSTALL_PLAN=${IMO_INSTALL_PLAN:-"Automatic"}
 
   while [[ $# -gt 0 ]]
   do

@@ -86,7 +86,7 @@ function gitops_cluster_noninteractive() {
   export MAS_CATALOG_IMAGE=${MAS_CATALOG_IMAGE:-"icr.io/cpopen/ibm-maximo-operator-catalog"}
   export ICR_USERNAME=cp
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
-  export REDHAT_CERT_MANAGER_INSTALL_PLAN="Automatic"
+  export REDHAT_CERT_MANAGER_INSTALL_PLAN=${REDHAT_CERT_MANAGER_INSTALL_PLAN:-"Automatic"}
 
   # Target the local (to ArgoCD) cluster
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}

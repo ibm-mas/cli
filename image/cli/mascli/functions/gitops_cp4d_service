@@ -62,13 +62,13 @@ function gitops_cp4d_service_noninteractive() {
   GIT_COMMIT_MSG="gitops-cp4d-service commit"
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
-  export CPD_SERVICE_INSTALLPLAN_APPROVAL="Automatic"
-  export CPD_CCS_INSTALL_PLAN="Automatic"
-  export CPD_DATAREFINERY_INSTALL_PLAN="Automatic"
-  export CPD_WS_INSTALL_PLAN="Automatic"
-  export RABBITMQ_INSTALL_PLAN="Automatic"
-  export ELASTICSEARCH_INSTALL_PLAN="Automatic"
-  export CANVASBASE_INSTALL_PLAN="Automatic"
+  export CPD_SERVICE_INSTALLPLAN_APPROVAL=${CPD_SERVICE_INSTALLPLAN_APPROVAL:-"Automatic"}
+  export CPD_CCS_INSTALL_PLAN=${CPD_CCS_INSTALL_PLAN:-"Automatic"}
+  export CPD_DATAREFINERY_INSTALL_PLAN=${CPD_DATAREFINERY_INSTALL_PLAN:-"Automatic"}
+  export CPD_WS_INSTALL_PLAN=${CPD_WS_INSTALL_PLAN:-"Automatic"}
+  export RABBITMQ_INSTALL_PLAN=${RABBITMQ_INSTALL_PLAN:-"Automatic"}
+  export ELASTICSEARCH_INSTALL_PLAN=${ELASTICSEARCH_INSTALL_PLAN:-"Automatic"}
+  export CANVASBASE_INSTALL_PLAN=${CANVASBASE_INSTALL_PLAN:-"Automatic"}
 
 
   while [[ $# -gt 0 ]]

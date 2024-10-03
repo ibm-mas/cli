@@ -48,7 +48,7 @@ function gitops_db2u_noninteractive() {
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
 
-  export DB2_INSTALL_PLAN="Automatic"
+  export DB2_INSTALL_PLAN=${DB2_INSTALL_PLAN:-"Automatic"}
 
   while [[ $# -gt 0 ]]
   do
