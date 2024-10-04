@@ -5,6 +5,8 @@ ibm_dro:
     ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
     run_sync_hooks: true
     dro_cmm_setup: {{ DRO_CMM_SETUP }}
+    dro_install_plan: {{ DRO_INSTALL_PLAN }}
+    imo_install_plan: {{ IMO_INSTALL_PLAN }}
 {% if DRO_CMM_SETUP is defined and DRO_CMM_SETUP %}
     dro_cmm:
         auth_apikey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DRO_CMM_AUTH_APIKEY }}>"

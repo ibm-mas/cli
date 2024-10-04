@@ -29,6 +29,10 @@ AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
 
+IBM DRO & IMO Config (Optional):
+      --dro-install-plan ${COLOR_YELLOW}DRO_INSTALL_PLAN${TEXT_RESET} DRO subscription install plan approval('Automatic' or 'Manual'. Default is 'Automatic')
+      --imo-install-plan ${COLOR_YELLOW}IMO_INSTALL_PLAN${TEXT_RESET} IMO subscription install plan approval('Automatic' or 'Manual'. Default is 'Automatic')
+
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
@@ -51,6 +55,8 @@ function gitops_dro_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   export DRO_NAMESPACE=${DRO_NAMESPACE:-"ibm-software-central"}
+  export DRO_INSTALL_PLAN=${DRO_INSTALL_PLAN:-"Automatic"}
+  export IMO_INSTALL_PLAN=${IMO_INSTALL_PLAN:-"Automatic"}
 
   while [[ $# -gt 0 ]]
   do
@@ -101,6 +107,14 @@ function gitops_dro_noninteractive() {
         ;;
       --dro-cmm-cmm-url)
       export DRO_CMM_CMM_URL=$1 && shift
+        ;;
+
+      # DRO & IMO Config
+      --dro-install-plan)
+      export DRO_INSTALL_PLAN=$1 && shift
+        ;;
+      --imo-install-plan)
+      export IMO_INSTALL_PLAN=$1 && shift
         ;;
 
       # Automatic GitHub Push
