@@ -69,6 +69,8 @@ spec:
 
     - name: artifactory_generic_release_url
       type: string
+    - name: artifactory_generic_logs_url
+      type: string
     - name: fvt_ansible_version
       type: string
 
@@ -196,6 +198,8 @@ spec:
         value: $(params.fvt_image_registry)
       - name: ARTIFACTORY_GENERIC_RELEASE_URL
         value: $(params.artifactory_generic_release_url)
+      - name: ARTIFACTORY_GENERIC_LOGS_URL
+        value: $(params.artifactory_generic_logs_url)
       - name: FVT_ANSIBLE_VERSION
         value: $(params.fvt_ansible_version)
       - name: MAS_WORKSPACE_ID
@@ -292,7 +296,13 @@ spec:
     - args:
       - |-
 
-        CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
+        set -o pipefail
+        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --extra-namespaces selenium' ERR EXIT
+
+        export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
+        export ARTIFACTORY_UPLOAD_DIR=${ARTIFACTORY_GENERIC_LOGS_URL}/mas-fvt/${MAS_INSTANCE_ID}/${DEVOPS_BUILD_NUMBER}
+
+        CLI_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
         . $CLI_DIR/functions/gitops_utils
 
         ROSA_CONFIG=/workspace/configs/tmp-rosa/rosa-$(params.cluster_name)-details.yaml
@@ -360,55 +370,84 @@ spec:
           SUITE_APP_NAME="suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
 
-          check_argo_app_healthy "${MONGO_CONFIG_APP}" 
-          check_argo_app_healthy "${SLS_CONFIG_APP}"
-          check_argo_app_healthy "${BAS_CONFIG_APP}"
-          check_argo_app_healthy "${SLS_APP_NAME}"
-          check_argo_app_healthy "${SUITE_APP_NAME}"
-          check_argo_app_healthy "${WORKSPACE_APP}"
+          check_argo_app_healthy "${SLS_APP_NAME}" 180 #90 minutes
+          check_argo_app_healthy "${MONGO_CONFIG_APP}" 30 #15 minutes
+          check_argo_app_healthy "${SLS_CONFIG_APP}" 30
+          check_argo_app_healthy "${BAS_CONFIG_APP}" 30
+          check_argo_app_healthy "${SUITE_APP_NAME}" 30
+          check_argo_app_healthy "${WORKSPACE_APP}" 30
         fi
       
         if [[ "$LAUNCHER_ID" == "apps" ]]; then
-          if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
-            MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
-          fi
-          if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
-            MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
-          fi
+          # The following order is defined by the sync wave order in https://github.com/ibm-mas/gitops/tree/main/root-applications/ibm-mas-instance-root/templates
+          # First wave (has to include the prereqs cp4d, db2)
           if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
             MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+            check_argo_app_healthy "${MASAPP_APP}" 240
           fi
           if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
             MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+            check_argo_app_healthy "${MASAPP_APP}" 240
           fi
-          if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
-            MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
-          fi
-          if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
-            MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
-          fi
-          if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
-            MASAPP_APP="predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+          # Second wave
+          if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
+            MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 120
           fi
           if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
             MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MASAPP_APP}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}"
+            check_argo_app_healthy "${MASAPP_APP}" 120
           fi
+          if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
+            MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 240
+          fi
+          if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
+            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 840
+          fi
+          if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
+            MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 840
+          fi
+          # Third wave
+          if [[ "$LAUNCHFVT_ASSIST" == "true" ]]; then
+            MASAPP_APP="assist.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
+          fi
+          if [[ "$LAUNCHFVT_VISUALINSPECTION" == "true" ]]; then
+            MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
+          fi
+          if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
+            MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 20
+          fi
+          # Fourth wave
+          if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
+            MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 80
+          fi
+          if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
+            MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 60
+          fi
+          # Fifth wave
+          if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
+            MASAPP_APP="monitor.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 180
+          fi
+          if [[ "$LAUNCHFVT_OPTIMIZER" == "true" ]]; then
+            MASAPP_APP="optimizer.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 60
+          fi
+          # Sixth wave
+          if [[ "$LAUNCHFVT_PREDICT" == "true" ]]; then
+            MASAPP_APP="predict.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 120
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
+          fi
+
         fi
 
         echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"  

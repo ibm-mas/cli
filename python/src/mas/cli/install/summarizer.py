@@ -281,7 +281,6 @@ class InstallSummarizerMixin():
             self.printSummary("Turbonomic Integration", "Disabled")
 
     def mongoSummary(self) -> None:
-        self.printH2("MongoDb")
         if self.getParam("mongodb_action") == "install":
             self.printParamSummary("Install Namespace", "mongodb_namespace")
 
@@ -320,7 +319,7 @@ class InstallSummarizerMixin():
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
-            "Connected to:",
+            f"Connected to: Architecture: {self.architecture}",
             f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
         ])
 

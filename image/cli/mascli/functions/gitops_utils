@@ -3,6 +3,10 @@
 AVP_TYPE="aws"  # I haven't added support for IBM
 DELIMIITER="/"
 
+function logts() {
+  echo "[$(date '+%Y-%m-%d %H:%M:%S.%3N')]"
+}
+
 function sm_login() {
   if [[ "$AVP_TYPE" == "aws" ]]; then
     echo "Logging into AWS SecretsManager ..."
@@ -251,11 +255,15 @@ function clone_target_git_repo() {
   SSH_PATH=$6
   CURRENT_DIR=$PWD
   cd $LOCAL_DIR
-
-  echo "git: Cloning $GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO branch $GIT_BRANCH into $LOCAL_DIR working directory"
   if [ "$SSH_PATH" == "false" ]; then
+    echo ""
+    echo "$(logts) git clone https://git:****@$GITHUB_HOST/$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH"
+    echo "-------------------------------------------------"
     git clone https://git:$GITHUB_PAT@$GITHUB_HOST/$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH || exit 1
   else
+    echo ""
+    echo "$(logts) git -c \"core.sshCommand=ssh -i $SSH_PATH -F /dev/null\" clone git@$GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH"
+    echo "-------------------------------------------------"
     git -c "core.sshCommand=ssh -i $SSH_PATH -F /dev/null" clone git@$GITHUB_HOST:$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH || exit 1
   fi
   cd $PWD
@@ -274,7 +282,9 @@ function save_to_target_git_repo() {
   echo "git: Changing to directory $LOCAL_DIR"
   cd $LOCAL_DIR || exit 1
 
-  echo "git: Adding all files in $LOCAL_DIR working directory"
+  echo ""
+  echo "$(logts) git add -v ."
+  echo "-------------------------------------------------"
   FILES_ADDED_OUTPUT="$(git add -v .)"
   return_code=$?
   if [ $return_code -ne 0 ]; then
@@ -285,22 +295,32 @@ function save_to_target_git_repo() {
   echo "git: Added ${FILES_ADDED} files"
 
   if [ "$FILES_ADDED" != "0" ]; then
-    echo "git: Committing files using message $COMMIT_MSG"
+    echo ""
+    echo "$(logts) git commit -m \"$COMMIT_MSG\""
+    echo "-------------------------------------------------"
     git commit -m "$COMMIT_MSG" || exit 1
     retries=5
     interval=30
     index=0
     while true; do
-      echo "git: fetch origin $GIT_BRANCH"
+      echo ""
+      echo "$(logts) git fetch origin $GIT_BRANCH"
+      echo "-------------------------------------------------"
       git fetch origin $GIT_BRANCH || exit 1
 
-      echo "git: pull origin --rebase"
+      echo ""
+      echo "$(logts) git pull origin --rebase"
+      echo "-------------------------------------------------"
       git pull origin --rebase || exit 1
 
-      echo "git: pull origin $GIT_BRANCH --rebase"
+      echo ""
+      echo "$(logts) git pull origin $GIT_BRANCH --rebase"
+      echo "-------------------------------------------------"
       git pull origin $GIT_BRANCH --rebase || exit 1
 
-      echo "git: Pushing changes to branch $GIT_BRANCH"
+      echo ""
+      echo "$(logts) git push -u origin $GIT_BRANCH"
+      echo "-------------------------------------------------"
       git push -u origin $GIT_BRANCH
       return_code=$?
       if [ $return_code -eq 0 ]; then
@@ -340,14 +360,17 @@ function unlock_git_repo() {
 
   if [[ -d "${GITOPS_REPO_DIR}" ]]; then
     echo ""
-    echo "Deleting "${GIT_LOCK_BRANCH}" from remote"
+    echo "$(logts) git push origin --delete ${GIT_LOCK_BRANCH}"
+    echo "-------------------------------------------------"
     git -C "${GITOPS_REPO_DIR}" push origin --delete "${GIT_LOCK_BRANCH}" || exit 1
 
     echo ""
-    echo "Deleting ${GITOPS_REPO_DIR} from filesystem"
+    echo "$(logts) rm -rf \"${GITOPS_REPO_DIR}\""
+    echo "-------------------------------------------------"
     rm -rf "${GITOPS_REPO_DIR}" || exit 1
   fi
 }
+
 
 
 
@@ -395,25 +418,21 @@ function clone_and_lock_target_git_repo() {
 
   for (( c=1; c<="${RETRIES}"; c++ )); do
     echo ""
-    echo "= clone_and_lock_git_repo: attempt ${c} of ${RETRIES}"
+    echo "clone_and_lock_git_repo: attempt ${c} of ${RETRIES}"
     echo "================================================="
 
     # Remove any clones created by prior attempts
     rm -rf "${GITOPS_REPO_DIR}"
 
-    echo
-    echo "- clone_target_git_repo: ${GITHUB_HOST} ${GITHUB_ORG} ${GITHUB_REPO} ${GIT_BRANCH} ${LOCAL_DIR} ${SSH_PATH}"
-    echo "-------------------------------------------------"
     clone_target_git_repo "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${LOCAL_DIR}" "${SSH_PATH}"
-
 
     # If the lock branch exists currently on the remote, retry after a delay
     echo
-    echo "- clone_and_lock_git_repo: ls-remote --heads origin ${GIT_LOCK_BRANCH}"
+    echo "$(logts) git ls-remote --heads origin ${GIT_LOCK_BRANCH}"
     echo "-------------------------------------------------"
     LS_REMOTE_STDOUT=$(git -C "${GITOPS_REPO_DIR}" ls-remote --heads origin ${GIT_LOCK_BRANCH})
     if [[ -n "${LS_REMOTE_STDOUT}"  ]]; then
-      echo "clone_and_lock_git_repo: Lock branch ${GIT_LOCK_BRANCH} currently in use by another process, retry in ${RETRY_DELAY_SECONDS}s"
+      echo "Lock branch ${GIT_LOCK_BRANCH} currently in use by another process, retry in ${RETRY_DELAY_SECONDS}s"
       echo "..."
       sleep ${RETRY_DELAY_SECONDS}
       continue
@@ -425,27 +444,43 @@ function clone_and_lock_target_git_repo() {
 
     # Create the lock branch locally
     echo
-    echo "- clone_and_lock_git_repo: checkout -b ${GIT_LOCK_BRANCH}"
+    echo "$(logts) git checkout -b ${GIT_LOCK_BRANCH}"
     echo "-------------------------------------------------"
     git -C "${GITOPS_REPO_DIR}" checkout -b "${GIT_LOCK_BRANCH}"
 
-    # To definitively acquire the "lock", we create and commit a temporary "lock file";
-    # This will mean that, amongst n scripts running in parallel and in sync (i.e. where all invokations have passed the initial git ls-remote check),
-    # at most 1 invokation will be able to successfully perform the push below.
-    touch "${GITOPS_REPO_DIR}/${LOCKFILE_NAME}"
+    # To definitively acquire the "lock", we attempt to create, commit and push a temporary "lock file";
+    # This will mean that, amongst n processes running in parallel and in sync (i.e. where all processes have passed the initial git ls-remote check),
+    # at most 1 process will be able to successfully perform the push below.
+
+    # Additionally, we need to ensure the commit hash generated by git is unique amongst all concurrent processes competing for the lock.
+    # The commit hash is generated from tree hash (e.g. file content), parent commit hash, committer information, commit message and timestamp (with second-level precision).
+
+    # It's entirely possible that these could all be the same across 2 or more competing processes. If this happens, 2 or more processes may successfully
+    # execute the push below.
+    # One process will create the branch (reporting "[new branch]"), the others will see that the remote has the same commit hashes in its history and will just report "Everything up-to-date".
+
+    # If this happens, 2 or more competing processes will have successfully acquired the lock, which defeats the point of the lock and will likely result
+    # in an unresolvable merge conflict in one or more of the competing processes when they attempt to merge their updates to GIT_BRANCH.
+
+    # To fix this, we need to ensure each process generates a unique commmit hash. The easiest way to do this (without requiring additional parameters)
+    # is to stick a UUID in the lockfile. This will result in a different tree hash and thus overall commit hash in all competing processes.
+    cat /proc/sys/kernel/random/uuid > "${GITOPS_REPO_DIR}/${LOCKFILE_NAME}"
+    echo ""
+    echo "Created ${GITOPS_REPO_DIR}/${LOCKFILE_NAME} with content:"
+    cat "${GITOPS_REPO_DIR}/${LOCKFILE_NAME}"
 
     echo
-    echo "- clone_and_lock_git_repo: add ${LOCKFILE_NAME}"
+    echo "$(logts) git add ${LOCKFILE_NAME}"
     echo "-------------------------------------------------"
     git -C "${GITOPS_REPO_DIR}" add ${LOCKFILE_NAME}
 
     echo
-    echo "- clone_and_lock_git_repo: commit -m 'Acquire lock branch'"
+    echo "$(logts) git commit -m 'Acquire lock branch'"
     echo "-------------------------------------------------"
     git -C "${GITOPS_REPO_DIR}" commit -m 'Acquire lock branch'
 
     echo
-    echo "- clone_and_lock_git_repo: push --atomic -u origin ${GIT_LOCK_BRANCH}"
+    echo "$(logts) git push --atomic -u origin ${GIT_LOCK_BRANCH}"
     echo "-------------------------------------------------"
     git -C "${GITOPS_REPO_DIR}" push --atomic -u origin "${GIT_LOCK_BRANCH}"
     GIT_PUSH_RC=$?
@@ -454,20 +489,57 @@ function clone_and_lock_target_git_repo() {
       # Now we've created the remote lock branch, we are blocking any other invokations of this script
       # Register an exit trap to ensure we delete the remote branch whatever happens
       trap "unlock_git_repo ${GIT_LOCK_BRANCH} ${GITOPS_REPO_DIR}" EXIT
+
       echo ""
-      echo "= clone_and_lock_git_repo: acquired lock on branch ${GIT_LOCK_BRANCH}; proceeding..."
+      echo "acquired lock on branch ${GIT_LOCK_BRANCH}; ensuring that we have the latest from ${GIT_BRANCH}..."
+
+      # It's possible that *conflicting* commits (i.e. from another run sharing the same GIT_LOCK_BRANCH)
+      # have been made to GIT_BRANCH between cloning GIT_BRANCH here (clone_target_git_repo call above)
+      # and successfully acquiring GIT_LOCK_BRANCH
+
+      # The sequence of events that hit this race condition are as follows:
+      # - this process clones GIT_BRANCH that has commits up to X
+      # - another process with the same GIT_LOCK_BRANCH pushes commit Y to GIT_BRANCH and deletes the GIT_LOCK_BRANCH
+      # - this process successfully acquires GIT_LOCK_BRANCH and so proceeds
+      # - but the version of GIT_BRANCH cloned in this process does not have commit Y in it, so the GIT_LOCK_BRANCH does not include Y
+
+      # because Y (in this case) originates from a process sharing GIT_LOCK_BRANCH, it's likely that it affects the same
+      # file that this process is about to update and so is likely to lead to an unresolvable merge conflict when we attempt to
+      # merge GIT_LOCK_BRANCH updates back into GIT_BRANCH in the save_and_unlock_target_git_repo call at the end
+
+      # So, now we've acquired GIT_LOCK_BRANCH (thus ensuring no further conflicting commits can be made to master),
+      # we need to ensure we are basing our changes on the latest version of GIT_BRANCH.
+
+      # This is acheived by rebasing GIT_LOCK_BRANCH on GIT_BRANCH then forcing the remote lock branch to line up using a --force push
+      # NOTE: --force is safe here since we are the sole current "owners" of GIT_LOCK_BRANCH
+      # so any commits made to GIT_LOCK_BRANCH by any other concurrent processes can be disregarded
+
+      # NOTE: of course other processes could be making other commits to git at any time during execution of this process.
+      # this is fine since they *must* be from processes that do not share GIT_LOCK_BRANCH, so will not affect
+      # the same files updated by this process and so will be auto-mergable.
+
+      echo
+      echo "$(logts) git pull origin $GIT_BRANCH --rebase"
+      echo "-------------------------------------------------"
+      git -C "${GITOPS_REPO_DIR}" pull origin $GIT_BRANCH --rebase || exit 1
+
+      echo
+      echo "$(logts) git push --force -u origin ${GIT_LOCK_BRANCH}"
+      echo "-------------------------------------------------"
+      git -C "${GITOPS_REPO_DIR}" push --force -u "origin" "${GIT_LOCK_BRANCH}"
       echo "================================================="
+
       return 0
     fi 
 
     echo ""
-    echo "- clone_and_lock_git_repo: failed to acquire Lock branch ${GIT_LOCK_BRANCH}, retry in ${RETRY_DELAY_SECONDS}s"
+    echo "failed to acquire Lock branch ${GIT_LOCK_BRANCH}, retry in ${RETRY_DELAY_SECONDS}s"
     echo "..."
     sleep ${RETRY_DELAY_SECONDS}
 
   done
 
-  echo "= clone_and_lock_git_repo: non-recoverable failure"
+  echo "clone_and_lock_git_repo: non-recoverable failure"
   echo "================================================="
   return 1
 
@@ -491,34 +563,34 @@ function git_push_with_retries {
   for (( c=1; c<="${RETRIES}"; c++ )); do
 
     echo
-    echo "= git_push_with_retries: attempt ${c} of ${RETRIES}"
+    echo "git_push_with_retries: attempt ${c} of ${RETRIES}"
     echo "================================================="
 
     echo
-    echo "- git_push_with_retries: pull origin $GIT_BRANCH --rebase"
+    echo "$(logts) git pull origin $GIT_BRANCH --rebase"
     echo "-------------------------------------------------"
     git -C "${GITOPS_REPO_DIR}" pull origin "${GIT_BRANCH}" --rebase
 
     echo
-    echo "- git_push_with_retries: push -u origin ${GIT_BRANCH}"
+    echo "$(logts) git push -u origin ${GIT_BRANCH}"
     echo "-------------------------------------------------"
     git -C "${GITOPS_REPO_DIR}" push -u origin "${GIT_BRANCH}"
     rc=$?
     if [[ $rc == "0" ]]; then
       echo ""
-      echo "= git_push_with_retries: success"
+      echo "git_push_with_retries: success"
       echo "================================================="
       return 0
     fi
 
     echo ""
-    echo "- git_push_with_retries: failed (rc: ${rc}), retry in ${RETRY_DELAY_SECONDS}s"
+    echo "git_push_with_retries: failed (rc: ${rc}), retry in ${RETRY_DELAY_SECONDS}s"
     echo "..."
     sleep $RETRY_DELAY_SECONDS
   done
 
   echo ""
-  echo "= git_push_with_retries: non-recoverable failure"
+  echo "git_push_with_retries: non-recoverable failure"
   echo "================================================="
   return 1
 }
@@ -535,7 +607,7 @@ function git_push_with_retries {
 #   fi
 function save_and_unlock_target_git_repo {
   echo
-  echo "= save_and_unlock_target_git_repo"
+  echo "save_and_unlock_target_git_repo"
   echo "================================================="
   GITHUB_REPO="$1"
   GIT_BRANCH="$2"
@@ -552,12 +624,12 @@ function save_and_unlock_target_git_repo {
 
   # commit and push all changes
   echo
-  echo "- save_and_unlock_target_git_repo: add -v ."
+  echo "$(logts) git add -v ."
   echo "-------------------------------------------------"
   git -C "${GITOPS_REPO_DIR}" add -v . || exit 1
 
   echo
-  echo "- save_and_unlock_target_git_repo: commit -m ${GIT_COMMIT_MSG}"
+  echo "$(logts) git commit -m ${GIT_COMMIT_MSG}"
   echo "-------------------------------------------------"
   git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}"
   
@@ -569,23 +641,23 @@ function save_and_unlock_target_git_repo {
   fi
 
   echo
-  echo "- save_and_unlock_target_git_repo: push -u origin ${GIT_LOCK_BRANCH}"
+  echo "$(logts) git push -u origin ${GIT_LOCK_BRANCH}"
   echo "-------------------------------------------------"
   git -C "${GITOPS_REPO_DIR}" push -u origin "${GIT_LOCK_BRANCH}" || exit 1
 
   # Merge back to master
   echo
-  echo "- save_and_unlock_target_git_repo: switch ${GIT_BRANCH}"
+  echo "$(logts) git switch ${GIT_BRANCH}"
   echo "-------------------------------------------------"
   git -C "${GITOPS_REPO_DIR}" switch "${GIT_BRANCH}" || exit 1
 
   echo
-  echo "- save_and_unlock_target_git_repo: pull origin $GIT_BRANCH --rebase"
+  echo "$(logts) git pull origin $GIT_BRANCH --rebase"
   echo "-------------------------------------------------"
   git -C "${GITOPS_REPO_DIR}" pull origin $GIT_BRANCH --rebase || exit 1
 
   echo
-  echo "- save_and_unlock_target_git_repo: merge --squash ${GIT_LOCK_BRANCH}"
+  echo "$(logts) git merge --squash ${GIT_LOCK_BRANCH}"
   echo "-------------------------------------------------"
   git -C "${GITOPS_REPO_DIR}" merge --squash "${GIT_LOCK_BRANCH}" || exit 1
 
@@ -601,7 +673,7 @@ function save_and_unlock_target_git_repo {
   fi
 
   echo
-  echo "- save_and_unlock_target_git_repo:: commit -m ${GIT_COMMIT_MSG}"
+  echo "$(logts) git commit -m ${GIT_COMMIT_MSG}"
   echo "-------------------------------------------------"
   git -C "${GITOPS_REPO_DIR}" commit -m "${GIT_COMMIT_MSG}" 
 
@@ -624,7 +696,7 @@ function save_and_unlock_target_git_repo {
 
 
   echo
-  echo "= save_and_unlock_target_git_repo: success"
+  echo "save_and_unlock_target_git_repo: success"
   echo "================================================="
 
 }
@@ -761,10 +833,14 @@ function check_argo_app_synced() {
 
 function check_argo_app_healthy() {
   APPLICATION=$1
-  CLUSTER_WATCHER=$2
+  MAX_CHECKS=$2
   COUNT=0
   while true; do
-    echo "argo:check_argo_app_healthy : Checking health status for $APPLICATION"
+    if [[ -n "$MAX_CHECKS" ]]; then
+      echo "argo:check_argo_app_healthy : Checking health status for $APPLICATION up to $MAX_CHECKS times"
+    else
+      echo "argo:check_argo_app_healthy : Checking health status for $APPLICATION with no timeout"
+    fi
     HEALTH_STATUS=$(argocd app get $APPLICATION -o json 2> /dev/null | jq -r .status.health.status)
     if [ "$HEALTH_STATUS" == "Healthy" ]; then
       echo "Health Status is Healthy"
@@ -773,10 +849,10 @@ function check_argo_app_healthy() {
       ((COUNT++))
       echo "argo:check_argo_app_healthy : Health Status is $HEALTH_STATUS, Waiting 30s before checking status again - $COUNT"
       sleep 30
-      if ! (( $COUNT % 5 )) ; then
-        if [[ -n "$CLUSTER_WATCHER" ]]; then
-          # sync watcher as sometimes current application health status not reflected rightly (like returned empty status)
-          argocd_sync $CLUSTER_WATCHER
+      if [[ -n "$MAX_CHECKS" ]]; then
+        if [[ $COUNT -eq $MAX_CHECKS ]]; then
+          echo "argo:check_argo_app_healthy : App not healthy after $MAX_CHECKS checks, exiting"
+          exit 1
         fi
       fi
     fi

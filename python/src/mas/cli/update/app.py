@@ -52,7 +52,8 @@ class UpdateApp(BaseApp):
                 "kafka_provider",
                 "dro_migration",
                 "dro_storage_class",
-                "dro_namespace"
+                "dro_namespace",
+                "skip_pre_check"
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -67,7 +68,7 @@ class UpdateApp(BaseApp):
                         self.setParam(key, value)
 
                 # Arguments that we don't need to do anything with
-                elif key in ["skip_pre_check", "no_confirm", "help"]:
+                elif key in [ "no_confirm", "help"]:
                     pass
 
                 # Fail if there's any arguments we don't know how to handle
@@ -425,16 +426,17 @@ class UpdateApp(BaseApp):
                     else:
                         h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
                         self.showUDSUpdateNotice()
-                        if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
-                            # If the user did not approve the update, abort
-                            exit(1)
-                        self.printDescription([
-                            "",
-                            "Select the storage class for DRO to use from the list below:"
-                        ])
-                        for storageClass in getStorageClasses(self.dynamicClient):
-                            print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-                        self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
+                        if self.getParam("dro_migration") == "true" and self.getParam("dro_storage_class") is None:
+                            if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
+                                # If the user did not approve the update, abort
+                                exit(1)
+                            self.printDescription([
+                                "",
+                                "Select the storage class for DRO to use from the list below:"
+                            ])
+                            for storageClass in getStorageClasses(self.dynamicClient):
+                                print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+                            self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
 
             except (ResourceNotFoundError, NotFoundError) as e:
                 # UDS has never been installed on this cluster

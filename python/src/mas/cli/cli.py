@@ -130,6 +130,8 @@ class BaseApp(PrintMixin, PromptMixin):
         self.certsSecret = None
 
         self._isSNO = None
+
+        # For multi-architecture purpose
         self.architecture = "amd64"
 
         self.compatibilityMatrix = {
@@ -318,13 +320,10 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture = os.popen(command).read().strip()
         if self.architecture == 's390x':
             self.preview = True
-            self.printTitle(f"\n architecture : {self.architecture}")
-            self.printTitle(f"\n Preview : {self.preview}")
+            self.printTitle(f"\n Architecture : {self.architecture}")
         else:
            self.preview = False
-           self.printTitle(f"\n architecture : {self.architecture}")
-        self.printTitle(f"\n Final Preview : {self.preview}")
-
+           self.printTitle(f"\n Architecture : {self.architecture}")
 
     def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:
         """

@@ -577,7 +577,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Interactive mode
         self.interactiveMode = True
 
-        # Catalog
+        # Catalog for multi-architecture
         if not self.preview:
             self.configCatalog(self.installOptions_amd64)
         else:
@@ -613,12 +613,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
 
+        # Disable Grafana for s390x
         if not self.preview:
             self.configGrafana()
         else:
             self.setParam("grafana_action", "none")
 
-        self.configTurbonomic()
+       # Disable Turbonomic for s390x
+        if not self.preview:
+            self.configTurbonomic()
+        else:
+            pass  # Skip Turbonomic configuration#
 
         # TODO: Support ECK integration via the interactive install mode
         # TODO: Support MAS superuser username/password via the interactive install mode

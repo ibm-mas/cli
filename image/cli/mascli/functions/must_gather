@@ -198,7 +198,7 @@ function mustgather() {
     echo_h3 "Cluster Resources"
     startTimer
 
-    for RESOURCE in nodes storageclasses clusterversions
+    for RESOURCE in nodes storageclasses clusterversions imagecontentsourcepolicy
     do
       $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources
     done
@@ -245,21 +245,20 @@ function mustgather() {
     fi
 
     echo_h3 "IBM Db2 Universal Operator"
-    NAMESPACE_LOOKUP=$(oc get namespace db2u --ignore-not-found)
-    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+    DB2U_NAMESPACES=$(oc get db2ucluster -A --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}' | tr " " "\n"  |sort  | uniq)
+    for DB2U_NAMESPACE in $DB2U_NAMESPACES
+    do
       $MG_SCRIPT_DIR/mg-summary-db2u &> ${OUTPUT_DIR}/db2u.txt
-      genericMustGather db2u
-    else
-      echo_highlight "Unable to find db2u namespace"
-    fi
+      genericMustGather $DB2U_NAMESPACE
+    done
 
     echo_h3 "IBM Data Reporter Operator"
-    NAMESPACE_LOOKUP=$(oc get namespace redhat-marketplace --ignore-not-found)
-    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+    DRO_NAMESPACE_LOOKUP=$(oc get DataReporterConfig -A --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+    if [[ "$DRO_NAMESPACE_LOOKUP" != "" ]]; then
       $MG_SCRIPT_DIR/mg-summary-dro &> ${OUTPUT_DIR}/dro.txt
-      genericMustGather redhat-marketplace DataReporterConfig,MarketplaceConfig,MeterReport,MeterBase,RazeeDeployment,MeterDefinition
+      genericMustGather $DRO_NAMESPACE_LOOKUP DataReporterConfig,MarketplaceConfig,MeterReport,MeterBase,RazeeDeployment,MeterDefinition
     else
-      echo_highlight "Unable to find redhat-marketplace namespace"
+      echo_highlight "Unable to find namespace for DRO"
     fi
 
     echo_h3 "Red Hat Certificate Manager"
@@ -278,6 +277,21 @@ function mustgather() {
       echo_highlight "Unable to find cert-manager namespace"
     fi
 
+    echo_h3 "Kafka"
+    KAFKA_NAMESPACES=$(oc get Kafka -A --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+    for KAFKA_NAMESPACE in $KAFKA_NAMESPACES
+    do
+      $MG_SCRIPT_DIR/mg-summary-kafka &> ${OUTPUT_DIR}/kafka.txt
+      genericMustGather $KAFKA_NAMESPACE Kafka,KafkaUser
+    done
+
+    echo_h3 "Grafana"
+    GRAFANA_NAMESPACES=$(oc get Grafana -A --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+    for GRAFANA_NAMESPACE in $GRAFANA_NAMESPACES
+    do
+      $MG_SCRIPT_DIR/mg-summary-kafka &> ${OUTPUT_DIR}/kafka.txt
+      genericMustGather $GRAFANA_NAMESPACE Grafana,GrafanaDatasource
+    done
 
     MONGOCE_NAMESPACES=$(oc get mongodbcommunity --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
     for MONGOCE_NAMESPACE in $MONGOCE_NAMESPACES

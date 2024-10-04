@@ -58,8 +58,12 @@ Cluster Promotion (Optional):
       --cluster-promotion-target-pr-title ${COLOR_YELLOW}CLUSTER_PROMOTION_TARGET_PR_TITLE${TEXT_RESET}         The title of the PR if a PR is to be created
       --cluster-promotion-cluster-values ${COLOR_YELLOW}CLUSTER_PROMOTION_CLUSTER_VALUES${TEXT_RESET}           A list of values in json format to update in the target git repo.
 
-Notifications:
-      --slack-channel-id ${COLOR_YELLOW}SLACK_CHANNEL_ID${TEXT_RESET} Slack channel for ArgoCD to notify when an app sync has completed or failed
+DevOps Details (Optional):
+      --devops-build-number ${COLOR_YELLOW}DEVOPS_BUILD_NUMBER${TEXT_RESET}                                     The build number to associate with the junitreporter for each argocd app sync
+      --devops-mongo-uri ${COLOR_YELLOW}DEVOPS_MONGO_URI${TEXT_RESET}                                           The Mongo uri used by the junitreporter to store test/run records
+
+Notifications (Optional):
+      --slack-channel-id ${COLOR_YELLOW}SLACK_CHANNEL_ID${TEXT_RESET}                                           Slack channel for ArgoCD to notify when an app sync has completed or failed
 
 Other Commands:
   -h, --help                              Show this help message
@@ -200,7 +204,16 @@ function gitops_cluster_noninteractive() {
         export CLUSTER_PROMOTION_CLUSTER_VALUES=$1 && shift
         ;;
 
-      # IBM CIS Cert Manager 
+
+      # DevOps Details
+      --devops-build-number)
+        export DEVOPS_BUILD_NUMBER=$1 && shift
+        ;;
+      --devops-mongo-uri)
+        export DEVOPS_MONGO_URI=$1 && shift
+        ;;
+
+      # IBM CIS Cert Manager
       --dns-provider)
         export DNS_PROVIDER=$1 && shift
         ;;
@@ -240,6 +253,10 @@ function gitops_cluster_noninteractive() {
   fi
 
   [[ -z "$SECRETS_PATH" ]] && gitops_cluster_help "SECRETS_PATH is not set"
+
+  if [[ -n "$DEVOPS_MONGO_URI" ]]; then
+    [[ -z "$DEVOPS_BUILD_NUMBER" ]] && gitops_cluster_help "DEVOPS_BUILD_NUMBER is not set"
+  fi
 
   if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
     [[ -z "$CLUSTER_PROMOTION_TARGET_GITHUB_PAT" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_GITHUB_PAT is not set"
@@ -354,6 +371,12 @@ function gitops_cluster() {
     reset_colors
   fi
 
+  echo "${TEXT_DIM}"
+  echo_h2 "DevOps Details" "    "
+  echo_reset_dim "Devops Build Number ............. ${COLOR_MAGENTA}${DEVOPS_BUILD_NUMBER}"
+  echo_reset_dim "Devops Mongo Uri ................ ${COLOR_MAGENTA}${DEVOPS_MONGO_URI:0:8}<snip>"
+  reset_colors
+
   # Set up secrets
   # ---------------------------------------------------------------------------
   echo
@@ -366,6 +389,15 @@ function gitops_cluster() {
 
   export SECRET_NAME_CIS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}cis
   export SECRET_KEY_IBM_APIKEY=${SECRET_NAME_CIS}#ibm_apikey
+
+  export SECRET_NAME_DEVOPS_MONGO=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}devops
+  export SECRET_KEY_DEVOPS_MONGO=${SECRET_NAME_DEVOPS_MONGO}#devops_mongo_uri
+
+  if [ -n "$DEVOPS_MONGO_URI" ];then
+    echo "- Update DEVOPS_MONGO_URI secret"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_DEVOPS_MONGO "{\"devops_mongo_uri\": \"${DEVOPS_MONGO_URI}\"}" "${TAGS}"
+  fi
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
