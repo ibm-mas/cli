@@ -15,7 +15,7 @@ spec:
 
   steps:
     - name: start-pipelinerun
-      image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
+      image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
@@ -111,7 +111,7 @@ spec:
               optional: false
 
     - name: wait-for-pipelinerun
-      image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
+      image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       # 10 retries at 5 minute intervals = 50 min
       command:

@@ -25,12 +25,12 @@ spec:
       command:
         - /opt/app-root/src/run-role.sh
         - suite_verify
-      image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
+      image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
 
     # If configmap/approval-suite-verify exists then set CONFIGMAP_KEY=pending and wait for it to be changed to "approved"
     - name: suite-post-verify
-      image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
+      image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - /opt/app-root/src/wait-for-configmap.sh

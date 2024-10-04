@@ -64,7 +64,7 @@ spec:
     # IBM User Data Services (UDS)
     # -------------------------------------------------------------------------
     - name: uds
-      image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
+      image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
       command:
@@ -109,7 +109,7 @@ spec:
     # IBM Data Reporter Operator (DRO)
     # -------------------------------------------------------------------------
     - name: dro
-      image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
+      image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
       command:

@@ -18,7 +18,7 @@ spec:
           echo "No EventStreams instance to delete"
         fi
         exit 0
-      image: quay.io/ibmmas/cli:11.3.0-pre.mascore3901
+      image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
       env:
