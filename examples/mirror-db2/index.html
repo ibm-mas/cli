@@ -104,13 +104,13 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-241003-amd64/">Oct 03 2024</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240827-amd64/">Aug 27 2024</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240730-amd64/">Jul 30 2024</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240625-amd64/">Jun 25 2024</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-240528-amd64/">May 28 2024</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Reference</span></p>
@@ -165,7 +165,7 @@ export IBM_ENTITLEMENT_KEY=x
 docker run -e IBM_ENTITLEMENT_KEY -ti --rm --pull always quay.io/ibmmas/cli:11.1.3 \
   mas mirror-images -m direct -d /tmp/mirror --no-confirm \
     -H $REGISTRY_PRIVATE_HOST -P $REGISTRY_PRIVATE_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-    -c v9-240827-amd64 -C 9.0.x \
+    -c v9-241003-amd64 -C 9.0.x \
     --mirror-db2
 </code></pre>
 <h2 id="two-phase-mirroring">Two-Phase Mirroring<a class="headerlink" href="#two-phase-mirroring" title="Permanent link"></a></h2>
@@ -182,7 +182,7 @@ export REGISTRY_PASSWORD=x
 export IBM_ENTITLEMENT_KEY=x
 
 # Catalog
-export CATALOG=v9-240827-amd64
+export CATALOG=v9-241003-amd64
 
 docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v /tmp/mirror/$CATALOG:/mnt/mirror --pull always quay.io/ibmmas/cli:11.1.3 \
   mas mirror-images -m to-filesystem -d /mnt/mirror --no-confirm \

@@ -126,13 +126,13 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-241003-amd64/">Oct 03 2024</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240827-amd64/">Aug 27 2024</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240730-amd64/">Jul 30 2024</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240625-amd64/">Jun 25 2024</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v8-240528-amd64/">May 28 2024</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Reference</span></p>
@@ -294,7 +294,7 @@
 <p>The following command will mirror all required and optional content that makes up the IBM Maximo Operator Catalog directly to your mirror registry, for full usgae information refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation, if you are looking for more detailed guidance on how to approach this activity refer to the <a href="../image-mirroring/">image mirroring guide</a>.</p>
 <pre><code class="language-bash">mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-240827-amd64 -C 9.0.x \
+  -c v9-241003-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core \
   --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
   --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos \
