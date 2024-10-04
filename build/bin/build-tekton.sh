@@ -18,7 +18,7 @@ if [ "$DEV_MODE" != "true" ]; then
   TARGET_FILE_IN_PY=$GITHUB_WORKSPACE/python/src/mas/cli/templates/ibm-mas-tekton.yaml
 else
   TARGET_DIR=$DIR/../../tekton/target
-  VERSION=${VERSION:-100.0.0-pre.localbuild}
+  VERSION=${VERSION:-11.3.0-pre.uninstallDRO}
 
   TASK_FILES=$TARGET_DIR/tasks/*.yaml
   PIPELINE_FILES=$TARGET_DIR/pipelines/*.yaml
