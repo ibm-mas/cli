@@ -178,6 +178,7 @@ class UninstallApp(BaseApp):
                 pipelineURL = launchUninstallPipeline(
                     dynClient = self.dynamicClient,
                     instanceId = instanceId,
+                    droNamespace = droNamespace,
                     certManagerProvider = "redhat",
                     uninstallCertManager = uninstallCertManager,
                     uninstallGrafana = uninstallGrafana,
@@ -185,8 +186,7 @@ class UninstallApp(BaseApp):
                     uninstallCommonServices = uninstallCommonServices,
                     uninstallUDS = uninstallUDS,
                     uninstallMongoDb = uninstallMongoDb,
-                    uninstallSLS = uninstallSLS,
-                    droNamespace = droNamespace
+                    uninstallSLS = uninstallSLS
                 )
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} uninstall submitted")
