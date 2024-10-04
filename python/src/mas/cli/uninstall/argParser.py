@@ -33,6 +33,13 @@ masArgGroup.add_argument(
     help="The MAS instance ID to be uninstalled"
 )
 
+masArgGroup.add_argument(
+    '--dro-namespace',
+    required=False,
+    default='redhat-marketplace',
+    help="The DRO namespace to be uninstalled"
+)
+
 depsArgGroup = uninstallArgParser.add_argument_group('MAS Dependencies Selection')
 depsArgGroup.add_argument(
     '--uninstall-all-deps',
