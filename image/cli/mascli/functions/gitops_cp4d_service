@@ -27,11 +27,18 @@ IBM CP4D Service:
       --cpd-instance-namespace ${COLOR_YELLOW}CPD_INSTANCE_NAMESPACE${TEXT_RESET}                       CP4D Instance namespace to use
       --cpd-operators-namespace ${COLOR_YELLOW}CPD_OPERATORS_NAMESPACE${TEXT_RESET}                     CP4D Operators namespace to use
       --cpd-service-name ${COLOR_YELLOW}CPD_SERVICE_NAME${TEXT_RESET}                                   CP4D Service Name
-      --cpd-service-installplan-approval ${COLOR_YELLOW}CPD_SERVICE_INSTALLPLAN_APPROVAL${TEXT_RESET}   CP4D Service installplan approval
+      --cpd-service-installplan-approval ${COLOR_YELLOW}CPD_SERVICE_INSTALLPLAN_APPROVAL${TEXT_RESET}   CP4D Service installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
       --cpd-service-block-storage-class ${COLOR_YELLOW}CPD_SERVICE_BLOCK_STORAGE_CLASS${TEXT_RESET}     CP4D Service blockstorage clas
       --cpd-service-storage-class ${COLOR_YELLOW}CPD_SERVICE_STORAGE_CLASS${TEXT_RESET}                 CP4D Service storage clas
       --cpd-service-deployment-type ${COLOR_YELLOW}CPD_SERVICE_DEPLOYMENT_TYPE${TEXT_RESET}             CP4D Service Deployment Type
       --cpd-service-scale-config ${COLOR_YELLOW}CPD_SERVICE_SCALE_CONFIG${TEXT_RESET}                   CP4D Service Scale Config
+  (optional)
+      --cpd-ccs-installplan ${COLOR_YELLOW}CPD_CCS_INSTALL_PLAN${TEXT_RESET}                            CP4D CCS installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-datarefinery-installplan ${COLOR_YELLOW}CPD_DATAREFINERY_INSTALL_PLAN${TEXT_RESET}          CP4D Datarinery installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-ws-installplan ${COLOR_YELLOW}CPD_WS_INSTALL_PLAN${TEXT_RESET}                              CP4D WS installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-rabbitmq-installplan ${COLOR_YELLOW}RABBITMQ_INSTALL_PLAN${TEXT_RESET}                      CP4D Rabbitmq installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-elasticsearch-installplan ${COLOR_YELLOW}ELASTICSEARCH_INSTALL_PLAN${TEXT_RESET}            CP4D Elasticsearch installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-canvasbase-installplan ${COLOR_YELLOW}CANVASBASE_INSTALL_PLAN${TEXT_RESET}                  CP4D Canvasbase installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
 
 
 Automatic GitHub Push:
@@ -55,6 +62,13 @@ function gitops_cp4d_service_noninteractive() {
   GIT_COMMIT_MSG="gitops-cp4d-service commit"
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+  export CPD_SERVICE_INSTALLPLAN_APPROVAL=${CPD_SERVICE_INSTALLPLAN_APPROVAL:-"Automatic"}
+  export CPD_CCS_INSTALL_PLAN=${CPD_CCS_INSTALL_PLAN:-"Automatic"}
+  export CPD_DATAREFINERY_INSTALL_PLAN=${CPD_DATAREFINERY_INSTALL_PLAN:-"Automatic"}
+  export CPD_WS_INSTALL_PLAN=${CPD_WS_INSTALL_PLAN:-"Automatic"}
+  export RABBITMQ_INSTALL_PLAN=${RABBITMQ_INSTALL_PLAN:-"Automatic"}
+  export ELASTICSEARCH_INSTALL_PLAN=${ELASTICSEARCH_INSTALL_PLAN:-"Automatic"}
+  export CANVASBASE_INSTALL_PLAN=${CANVASBASE_INSTALL_PLAN:-"Automatic"}
 
 
   while [[ $# -gt 0 ]]
@@ -120,6 +134,25 @@ function gitops_cp4d_service_noninteractive() {
         ;;
       --cpd-service-scale-config)
       export CPD_SERVICE_SCALE_CONFIG=$1 && shift
+        ;;
+
+      --cpd-ccs-installplan)
+      export CPD_CCS_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-datarefinery-installplan)
+      export CPD_DATAREFINERY_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-ws-installplan)
+      export CPD_WS_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-rabbitmq-installplan)
+      export RABBITMQ_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-elasticsearch-installplan)
+      export ELASTICSEARCH_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-canvasbase-installplan)
+      export CANVASBASE_INSTALL_PLAN=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -249,6 +282,11 @@ function gitops_cp4d_service() {
   echo_reset_dim "CPD_SERVICE_BLOCK_STORAGE_CLASS  ............ ${COLOR_MAGENTA}${CPD_SERVICE_BLOCK_STORAGE_CLASS}"
   echo_reset_dim "CPD_SERVICE_STORAGE_CLASS  .................. ${COLOR_MAGENTA}${CPD_SERVICE_STORAGE_CLASS}"
   echo_reset_dim "CPD_SERVICE_DEPLOYMENT_TYPE  ................ ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
+  echo_reset_dim "CPD_CCS_INSTALL_PLAN  ....................... ${COLOR_MAGENTA}${CPD_CCS_INSTALL_PLAN}"
+  echo_reset_dim "CPD_DATAREFINERY_INSTALL_PLAN  .............. ${COLOR_MAGENTA}${CPD_DATAREFINERY_INSTALL_PLAN}"
+  echo_reset_dim "CPD_WS_INSTALL_PLAN  ........................ ${COLOR_MAGENTA}${CPD_WS_INSTALL_PLAN}"
+  echo_reset_dim "RABBITMQ_INSTALL_PLAN  ...................... ${COLOR_MAGENTA}${RABBITMQ_INSTALL_PLAN}"
+  echo_reset_dim "ELASTICSEARCH_INSTALL_PLAN  ................. ${COLOR_MAGENTA}${ELASTICSEARCH_INSTALL_PLAN}"
   reset_colors
 
 
@@ -279,6 +317,7 @@ function gitops_cp4d_service() {
   if [[ "$CPD_SERVICE_NAME" == "aiopenscale" ]]; then
     export SECRET_KEY_AIOPENSCALE_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}aiopenscale_version#aiopenscale_version
     export SECRET_KEY_AIOPENSCALE_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}aiopenscale_channel#aiopenscale_channel
+    export AIOPENSCALE_INSTALL_PLAN=${CPD_SERVICE_INSTALLPLAN_APPROVAL}
   fi
 
   if [[ "$CPD_SERVICE_NAME" == "wsl" ]]; then
@@ -286,22 +325,27 @@ function gitops_cp4d_service() {
     export SECRET_KEY_WSL_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl_channel#wsl_channel
     export SECRET_KEY_DATAREFINERY_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}datarefinery_version#datarefinery_version
     export SECRET_KEY_WS_RUNTIMES_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ws_runtimes_version#ws_runtimes_version
+    export WSL_INSTALL_PLAN=${CPD_SERVICE_INSTALLPLAN_APPROVAL}
   fi
 
   if [[ "$CPD_SERVICE_NAME" == "wml" ]]; then
     export SECRET_KEY_WML_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wml_version#wml_version
     export SECRET_KEY_WML_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wml_channel#wml_channel
+    export WML_INSTALL_PLAN=${CPD_SERVICE_INSTALLPLAN_APPROVAL}
   fi
 
   if [[ "$CPD_SERVICE_NAME" == "spark" ]]; then
     export SECRET_KEY_SPARK_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}spark_channel#spark_channel
     export SECRET_KEY_SPARK_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}spark_version#spark_version
+    export SPARK_INSTALL_PLAN=${CPD_SERVICE_INSTALLPLAN_APPROVAL}
   fi
 
   if [[ "$CPD_SERVICE_NAME" == "spss" ]]; then
     export SECRET_KEY_SPSS_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}spss_channel#spss_channel
     export SECRET_KEY_SPSS_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}spss_version#spss_version
     export SECRET_KEY_CANVASBASE_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}canvasbase_channel#canvasbase_channel
+    export SPSS_INSTALL_PLAN=${CPD_SERVICE_INSTALLPLAN_APPROVAL}
+    export CANVASBASE_INSTALL_PLAN=${CANVASBASE_INSTALL_PLAN}
   fi
 
   # Set and Validate App Names
