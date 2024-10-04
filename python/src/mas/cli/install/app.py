@@ -414,17 +414,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
 
     def configApps(self):
-        self.printH1("Application Selection")
-        self.installIoT = self.yesOrNo("Install IoT")
+        if not self.preview:
+            self.printH1("Application Selection")
+            self.installIoT = self.yesOrNo("Install IoT")
 
-        if self.installIoT:
-            self.configAppChannel("iot")
-            self.installMonitor = self.yesOrNo("Install Monitor")
-        else:
-            self.installMonitor = False
+            if self.installIoT:
+                self.configAppChannel("iot")
+                self.installMonitor = self.yesOrNo("Install Monitor")
+            else:
+                self.installMonitor = False
 
-        if self.installMonitor:
-            self.configAppChannel("monitor")
+            if self.installMonitor:
+                self.configAppChannel("monitor")
 
         self.installManage = self.yesOrNo("Install Manage")
 
@@ -447,14 +448,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.configAppChannel("assist")
         else:
             self.installAssist = False
+        if not self.preview:
+            self.installOptimizer = self.yesOrNo("Install Optimizer")
+            if self.installOptimizer:
+                self.configAppChannel("optimizer")
 
-        self.installOptimizer = self.yesOrNo("Install Optimizer")
-        if self.installOptimizer:
-            self.configAppChannel("optimizer")
-
-        self.installInspection = self.yesOrNo("Install Visual Inspection")
-        if self.installInspection:
-            self.configAppChannel("visualinspection")
+            self.installInspection = self.yesOrNo("Install Visual Inspection")
+            if self.installInspection:
+                self.configAppChannel("visualinspection")
 
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
@@ -611,18 +612,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Dependencies
         self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
         self.configDb2()
-        self.configKafka()  # Will only do anything if IoT has been selected for install
-
         # Disable Grafana for s390x
         if not self.preview:
+            self.configKafka()  # Will only do anything if IoT has been selected for install
             self.configGrafana()
-        else:
-            self.setParam("grafana_action", "none")
-
-       # Disable Turbonomic for s390x
-        if not self.preview:
             self.configTurbonomic()
         else:
+            self.setParam("grafana_action", "none")
             pass  # Skip Turbonomic configuration#
 
         # TODO: Support ECK integration via the interactive install mode
@@ -951,26 +947,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "catalog": "v9-240827-s390x",
                 "release": "9.0.x",
                 "core": "9.0.2",
-                "assist": "9.0.2",
-                "iot": "9.0.2",
-                "manage": "9.0.2",
-                "monitor": "9.0.2",
-                "optimizer": "9.0.2",
-                "predict": "9.0.1",
-                "inspection": "9.0.2"
+                "manage": "9.0.2"
             },
             {
                 "#": 2,
                 "catalog": "v9-multiarch-s390x",
                 "release": "9.0.x",
                 "core": "9.0.2",
-                "assist": "9.0.2",
-                "iot": "9.0.2",
-                "manage": "9.0.2",
-                "monitor": "9.0.2",
-                "optimizer": "9.0.2",
-                "predict": "9.0.1",
-                "inspection": "9.0.2"
+                "manage": "9.0.2"
             }
         ]
 
