@@ -73,6 +73,9 @@ spec:
     - name: ingress
       type: string
       default: "false"
+    - name: run_sanity_test
+      type: string
+      default: "false"
 
   stepTemplate:
     name: gitops-suite-app-config
@@ -131,6 +134,8 @@ spec:
         value: $(params.mas_manual_certs_yaml)
       - name: INGRESS
         value: $(params.ingress)
+      - name: RUN_SANITY_TEST
+        value: $(params.run_sanity_test)
     envFrom:
       - configMapRef:
           name: environment-properties

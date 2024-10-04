@@ -24,8 +24,6 @@ Registry Prefix (Optional):
 
 Source Registry Entitlements (Required based on what content you choose to mirror):
       --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
-      --redhat-username ${COLOR_YELLOW}REDHAT_CONNECT_USERNAME${TEXT_RESET}   Red Hat Connect Username (only required when mirroring UDS images)
-      --redhat-password ${COLOR_YELLOW}REDHAT_CONNECT_PASSWORD${TEXT_RESET}   Red Hat Connect Password (only required when mirroring UDS images)
       --artifactory-username ${COLOR_YELLOW}ARTIFACTORY_USERNAME${TEXT_RESET} Artifactory Username
       --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}       Artifactory Token
 
@@ -39,7 +37,6 @@ Content Selection (Core Platform):
 
 Content Selection (Applications):
       --mirror-assist                             Mirror images for IBM Maximo Assist
-      --mirror-hputilities                        Mirror images for IBM Maximo Health & Predict Utilities
       --mirror-iot                                Mirror images for IBM Maximo IoT
       --mirror-manage                             Mirror images for IBM Maximo Manage
       --mirror-icd                                Mirror image  for IBM Maximo IT (Separately entitled IBM Maximo Manage extension)
@@ -63,8 +60,10 @@ Content Selection (Other Dependencies):
       --mirror-mongo                              Mirror images for MongoDb Community Edition
       --mirror-mongo-v5                           Mirror images for MongoDb Community Edition version 5
       --mirror-mongo-v6                           Mirror images for MongoDb Community Edition version 6
+      --mirror-mongo-v7                           Mirror images for MongoDb Community Edition version 7
       --mirror-db2                                Mirror images for IBM Db2
       --mirror-appconnect                         Mirror images for IBM AppConnect
+      --mirror-odf                                Mirror images for ODF
 
 Content Selection (All images included):
       --mirror-everything                         Mirror all MAS related images (including dependencies)
@@ -94,16 +93,17 @@ function mirror_everything() {
     # Dependencies (Other)
     MIRROR_CATALOG=true
     MIRROR_COMMONSERVICES=true
-    MIRROR_UDS=true
     MIRROR_SLS=true
     MIRROR_TRUSTSTOREMGR=true
     MIRROR_MONGOCE=true
     MIRROR_MONGOCE_V4=true
     MIRROR_MONGOCE_V5=true
     MIRROR_MONGOCE_V6=true
+    MIRROR_MONGOCE_V7=true
 
     MIRROR_DB2U=true
     MIRROR_APPCONNECT=true
+    MIRROR_ODF=true
 
     # Dependencies (CP4D)
     MIRROR_CP4D=true
@@ -117,7 +117,6 @@ function mirror_to_registry_noninteractive() {
   # Main content
   MIRROR_MAS_CORE=false
   MIRROR_MAS_ASSIST=false
-  MIRROR_MAS_HPUTILITIES=false
   MIRROR_MAS_IOT=false
   MIRROR_MAS_MANAGE=false
   MIRROR_MAS_ICD=false
@@ -129,13 +128,13 @@ function mirror_to_registry_noninteractive() {
   # Dependencies
   MIRROR_CATALOG=false
   MIRROR_COMMONSERVICES=false
-  MIRROR_UDS=false
   MIRROR_SLS=false
   MIRROR_TRUSTSTOREMGR=false
   MIRROR_MONGOCE=false
   MIRROR_MONGOCE_V4=false
   MIRROR_MONGOCE_V5=false
   MIRROR_MONGOCE_V6=false
+  MIRROR_MONGOCE_V7=false
   MIRROR_DB2U=false
   MIRROR_CP4D=false
   MIRROR_WSL=false
@@ -143,6 +142,7 @@ function mirror_to_registry_noninteractive() {
   MIRROR_SPARK=false
   MIRROR_COGNOS=false
   MIRROR_APPCONNECT=false
+  MIRROR_ODF=false
 
   while [[ $# -gt 0 ]]
   do
@@ -165,7 +165,7 @@ function mirror_to_registry_noninteractive() {
         REGISTRY_PUBLIC_PORT=$1 && shift
         ;;
       -x| --prefix)
-        REGISTRY_PREFIX=$1 && shift        
+        REGISTRY_PREFIX=$1 && shift
         ;;
       -u|--username)
         REGISTRY_USERNAME=$1 && shift
@@ -177,12 +177,6 @@ function mirror_to_registry_noninteractive() {
       # Source Registry Entitlements
       --ibm-entitlement)
         IBM_ENTITLEMENT_KEY=$1 && shift
-        ;;
-      --redhat-username)
-        REDHAT_CONNECT_USERNAME=$1 && shift
-        ;;
-      --redhat-password)
-        REDHAT_CONNECT_PASSWORD=$1 && shift
         ;;
       --artifactory-username)
         ARTIFACTORY_USERNAME=$1 && shift
@@ -211,9 +205,6 @@ function mirror_to_registry_noninteractive() {
       --mirror-assist)
         MIRROR_MAS_ASSIST=true
         ;;
-      --mirror-hputilities)
-        MIRROR_MAS_HPUTILITIES=true
-        ;;
       --mirror-iot)
         MIRROR_MAS_IOT=true
         ;;
@@ -221,6 +212,8 @@ function mirror_to_registry_noninteractive() {
         MIRROR_MAS_MANAGE=true
         ;;
       --mirror-icd)
+        # Handle case where user selects to mirror ICD without selecting to mirror manage explicitly
+        MIRROR_MAS_MANAGE=true
         MIRROR_MAS_ICD=true
         ;;
       --mirror-monitor)
@@ -240,9 +233,6 @@ function mirror_to_registry_noninteractive() {
       --mirror-cfs)
         MIRROR_COMMONSERVICES=true
         ;;
-      --mirror-uds)
-        MIRROR_UDS=true
-        ;;
       --mirror-sls)
         MIRROR_SLS=true
         ;;
@@ -261,11 +251,17 @@ function mirror_to_registry_noninteractive() {
       --mirror-mongo-v6)
         MIRROR_MONGOCE_V6=true
         ;;
+      --mirror-mongo-v7)
+        MIRROR_MONGOCE_V7=true
+        ;;
       --mirror-db2)
         MIRROR_DB2U=true
         ;;
       --mirror-appconnect)
         MIRROR_APPCONNECT=true
+        ;;
+      --mirror-odf)
+        MIRROR_ODF=true
         ;;
 
       # Content Selection (Cloud Pak for Data)
@@ -317,11 +313,6 @@ function mirror_to_registry_noninteractive() {
   if [[ $MIRROR_MODE != "to-filesystem" ]]; then
     [[ -z "$REGISTRY_USERNAME" ]] && mirror_to_registry_help "REGISTRY_USERNAME is not set"
     [[ -z "$REGISTRY_PASSWORD" ]] && mirror_to_registry_help "REGISTRY_PASSWORD is not set"
-  fi
-
-  if [[ $MIRROR_UDS == "true" ]]; then
-    [[ -z "$REDHAT_CONNECT_USERNAME" ]] && mirror_to_registry_help "REDHAT_CONNECT_USERNAME is not set"
-    [[ -z "$REDHAT_CONNECT_PASSWORD" ]] && mirror_to_registry_help "REDHAT_CONNECT_PASSWORD is not set"
   fi
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
@@ -398,7 +389,6 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Maximo Application Suite - Visual Inspection" MIRROR_MAS_VISUALINSPECTION
 
     prompt_for_confirm_default_yes "IBM Foundational Services" MIRROR_COMMONSERVICES
-    prompt_for_confirm_default_yes "IBM User Data Services" MIRROR_UDS
     prompt_for_confirm_default_yes "IBM Suite License Service" MIRROR_SLS
     prompt_for_confirm_default_yes "IBM Truststore Manager" MIRROR_TRUSTSTOREMGR
     if prompt_for_confirm_default_yes "MongoDb Community Edition"; then
@@ -444,8 +434,9 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Watson Machine Learning" MIRROR_WML
     prompt_for_confirm "IBM Analytics Engine (Spark)" MIRROR_SPARK
     prompt_for_confirm "IBM Cognos Analytics" MIRROR_COGNOS
-    
+
     prompt_for_confirm "IBM AppConnect" MIRROR_APPCONNECT
+    prompt_for_confirm "RedHat ODF" MIRROR_ODF
   fi
 
   if [[ "$MIRROR_MAS_ICD" == "true" ]]; then
@@ -461,10 +452,6 @@ function mirror_to_registry_interactive() {
   echo_h2 "Configure Authentication"
   prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
 
-  if [[ $MIRROR_UDS == "true" ]]; then
-    prompt_for_input "Red Hat Connect Username" REDHAT_CONNECT_USERNAME
-    prompt_for_secret "Red Hat Connect Password" REDHAT_CONNECT_PASSWORD "Re-use saved password?"
-  fi
 }
 
 
@@ -482,7 +469,7 @@ function mirror_one_thing() {
     echo -en "\033[u" # Restore cursor position
     if [[ $mirror_result == "0" ]];
     then echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
-    else 
+    else
       echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
       echo
       cat "$MOT_LOGFILE"
@@ -526,13 +513,13 @@ function mirror_to_registry() {
   # Dependency control
   export MIRROR_CATALOG
   export MIRROR_COMMONSERVICES
-  export MIRROR_UDS
   export MIRROR_SLS
   export MIRROR_TRUSTSTOREMGR
   export MIRROR_MONGOCE
   export MIRROR_MONGOCE_V4
   export MIRROR_MONGOCE_V5
   export MIRROR_MONGOCE_V6
+  export MIRROR_MONGOCE_V7
   export MIRROR_DB2U
   export MIRROR_CP4D
   export MIRROR_WML
@@ -540,27 +527,27 @@ function mirror_to_registry() {
   export MIRROR_SPARK
   export MIRROR_COGNOS
   export MIRROR_APPCONNECT
+  export MIRROR_ODF
   export MIRROR_MAS_ICD
   export MIRROR_EVERYTHING
 
   # Authentication
   export IBM_ENTITLEMENT_KEY
-  export REDHAT_CONNECT_USERNAME
-  export REDHAT_CONNECT_PASSWORD
   export ARTIFACTORY_USERNAME
   export ARTIFACTORY_TOKEN
 
   if [[ "$MIRROR_CATALOG" == true ||
     "$MIRROR_COMMONSERVICES" == true ||
-    "$MIRROR_UDS" == true ||
     "$MIRROR_SLS" == true ||
     "$MIRROR_TRUSTSTOREMGR" == true ||
     "$MIRROR_MONGOCE" == true ||
     "$MIRROR_MONGOCE_V4" == true ||
     "$MIRROR_MONGOCE_V5" == true ||
     "$MIRROR_MONGOCE_V6" == true ||
+    "$MIRROR_MONGOCE_V7" == true ||
     "$MIRROR_DB2U" == true ||
     "$MIRROR_APPCONNECT" == true ||
+    "$MIRROR_ODF" == true ||
     "$MIRROR_CP4D" == true ||
     "$MIRROR_WSL" == true ||
     "$MIRROR_WML" == true ||
@@ -628,15 +615,16 @@ function mirror_to_registry() {
   reset_colors
   echo_h4 "Content Selection (Other Dependencies)" "    "
   show_mirror_status "IBM Cloud Pak Foundation Services ..." $MIRROR_COMMONSERVICES
-  show_mirror_status "IBM User Data Services .............." $MIRROR_UDS
   show_mirror_status "IBM Suite License Service ..........." $MIRROR_SLS
   show_mirror_status "IBM Truststore Manager .............." $MIRROR_TRUSTSTOREMGR
   show_mirror_status "MongoDb Community Edition ..........." $MIRROR_MONGOCE
   show_mirror_status "+ Version 4 ........................." $MIRROR_MONGOCE_V4
   show_mirror_status "+ Version 5 ........................." $MIRROR_MONGOCE_V5
   show_mirror_status "+ Version 6 ........................." $MIRROR_MONGOCE_V6
+  show_mirror_status "+ Version 7 ........................." $MIRROR_MONGOCE_V7
   show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "IBM AppConnect ......................" $MIRROR_APPCONNECT
+  show_mirror_status "RedHat ODF .........................." $MIRROR_ODF
 
   echo
   reset_colors
@@ -657,7 +645,6 @@ function mirror_to_registry() {
 
   mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"     "$LOG_PREFIX-core.log"             mirror_core
   mirror_one_thing $MIRROR_MAS_ASSIST           "IBM Maximo Assist"                     "$LOG_PREFIX-assist.log"           mirror_add_assist
-  mirror_one_thing $MIRROR_MAS_HPUTILITIES      "IBM Maximo Health & Predict Utilities" "$LOG_PREFIX-hputilities.log"      mirror_add_hputilities
   mirror_one_thing $MIRROR_MAS_IOT              "IBM Maximo IoT"                        "$LOG_PREFIX-iot.log"              mirror_add_iot
   mirror_one_thing $MIRROR_MAS_MANAGE           "IBM Maximo Manage"                     "$LOG_PREFIX-manage.log"           mirror_add_manage
   mirror_one_thing $MIRROR_MAS_MONITOR          "IBM Maximo Monitor"                    "$LOG_PREFIX-monitor.log"          mirror_add_monitor

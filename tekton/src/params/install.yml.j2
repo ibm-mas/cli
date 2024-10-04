@@ -233,7 +233,10 @@
 - name: cpd_install_cognos
   type: string
   default: ""
-
+- name: cpd_install_all
+  type: string
+  default: ""
+  
 # Dependencies - UDS
 # -----------------------------------------------------------------------------
 - name: uds_contact_email
@@ -279,6 +282,10 @@
 - name: cos_action
   type: string
   description: COS action to be performed (provision or deprovision)
+  default: ""
+- name: cos_use_hmac
+  type: string
+  description: Optional boolean variable weather hmac is enabled or not
   default: ""
 
 # MAS Integration - Grafana
@@ -437,6 +444,11 @@
   type: string
   default: "True"
   description: Optional parameter to enable or disable guided tour
+
+# Special characters configuration
+- name: mas_special_characters
+  type: string
+  default: ''
 
 # SSO Configuration
 # -----------------------------------------------------------------------------
@@ -633,7 +645,7 @@
   default: ""
 - name: mas_arcgis_channel
   type: string
-  description: Default channel for IBM Maximo Location Services for ESRI 
+  description: Default channel for IBM Maximo Location Services for ESRI
   default: "" # default is handled by ansible-devops
 
 # MAS Application Configuration - Health Application

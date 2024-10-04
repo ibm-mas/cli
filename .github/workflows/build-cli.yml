@@ -16,6 +16,7 @@ jobs:
   build-tekton:
     name: Build Tekton Definitions
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     steps:
       # 1. Initialize the build
       # -------------------------------------------------------------------------------------------
@@ -61,6 +62,7 @@ jobs:
   build-python:
     name: Build Python Package
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs: build-tekton
     steps:
       # 1. Initialize the build
@@ -141,6 +143,7 @@ jobs:
   build-container:
     name: Build Container Image
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -176,6 +179,7 @@ jobs:
             echo "Downloading from ***/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz"
             wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
           fi
+
 
       # 3. Download Built Artifacts
       # -------------------------------------------------------------------------------------------
@@ -248,6 +252,7 @@ jobs:
   pyinstaller-windows:
     name: Build Windows CLI
     runs-on: windows-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -301,13 +306,14 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/python/dist/mas-cli.exe
-          asset_name: mas-cli-windows-amd64-${{ env.VERSION }}.exe
+          asset_name: mas-cli-windows-amd64.exe
           tag: ${{ github.ref }}
           overwrite: true
 
   pyinstaller-linux:
     name: Build Linux CLI
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -361,13 +367,14 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/python/dist/mas-cli
-          asset_name: mas-cli-linux-amd64-${{ env.VERSION }}
+          asset_name: mas-cli-linux-amd64
           tag: ${{ github.ref }}
           overwrite: true
 
   pyinstaller-macos:
     name: Build MacOS CLI
     runs-on: macos-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -421,6 +428,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/python/dist/mas-cli
-          asset_name: mas-cli-macos-arm64-${{ env.VERSION }}
+          asset_name: mas-cli-macos-arm64
           tag: ${{ github.ref }}
           overwrite: true

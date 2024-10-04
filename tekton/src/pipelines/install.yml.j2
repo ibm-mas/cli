@@ -54,7 +54,7 @@ spec:
     # 1.2 Red Hat Certificate Manager
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
       runAfter:
-        - pre-install-check
+        - ibm-catalogs
 
     # 1.3 Configure Grafana
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/grafana.yml.j2') | indent(4) }}
@@ -63,7 +63,7 @@ spec:
           operator: in
           values: ["install"]
       runAfter:
-        - pre-install-check
+        - ibm-catalogs
 
     # 1.4 Configure ECK
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/eck.yml.j2') | indent(4) }}
@@ -121,6 +121,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-platform.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
+        - ibm-catalogs
 
     # 3.2 Watson Studio
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-wsl.yml.j2') | indent(4) }}

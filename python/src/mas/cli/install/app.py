@@ -185,8 +185,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("Configure MongoDb")
         self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
 
+    def configSpecialCharacters(self):
+        self.printH1("Configure special characters for userID and username")
+        self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "mas_special_characters")
+
     def configCP4D(self):
-        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64"]:
+        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64", "v9-241003-amd64"]:
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
             self.setParam("cpd_product_version", "4.8.0")
         elif self.getParam("cpd_product_version") == "":
@@ -261,6 +265,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configCATrust()
         self.configDNSAndCerts()
         self.configSSOProperties()
+        self.configSpecialCharacters()
         self.configGuidedTour()
 
     def configCATrust(self) -> None:
@@ -483,7 +488,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.storageClassProvider = "ocs"
             self.params["storage_class_rwo"] = "ocs-storagecluster-ceph-rbd"
             self.params["storage_class_rwx"] = "ocs-storagecluster-cephfs"
-        # 3. Azure
+        # 3. NFS Client
+        elif getStorageClass(self.dynamicClient, "nfs-client") is not None:
+            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: NFS Client</MediumSeaGreen>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): nfs-client</LightSlateGrey>"))
+            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): nfs-client</LightSlateGrey>"))
+            self.storageClassProvider = "nfs"
+            self.params["storage_class_rwo"] = "nfs-client"
+            self.params["storage_class_rwx"] = "nfs-client"
+        # 4. Azure
         elif getStorageClass(self.dynamicClient, "managed-premium") is not None:
             print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: Azure Managed</MediumSeaGreen>"))
             print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): managed-premium</LightSlateGrey>"))
@@ -491,7 +504,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.storageClassProvider = "azure"
             self.params["storage_class_rwo"] = "managed-premium"
             self.params["storage_class_rwx"] = "azurefiles-premium"
-        # 4. AWS
+        # 5. AWS
         elif getStorageClass(self.dynamicClient, "gp2") is not None:
             print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: AWS gp2</MediumSeaGreen>"))
             print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): gp2</LightSlateGrey>"))
@@ -947,6 +960,45 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installOptions = [
             {
                 "#": 1,
+                "catalog": "v9-241003-amd64",
+                "release": "9.0.x",
+                "core": "9.0.3",
+                "assist": "9.0.2",
+                "iot": "9.0.3",
+                "manage": "9.0.3",
+                "monitor": "9.0.3",
+                "optimizer": "9.0.3",
+                "predict": "9.0.2",
+                "inspection": "9.0.3"
+            },
+            {
+                "#": 2,
+                "catalog": "v9-241003-amd64",
+                "release": "8.11.x",
+                "core": "8.11.15",
+                "assist": "8.8.6",
+                "iot": "8.8.13",
+                "manage": "8.7.12",
+                "monitor": "8.11.11",
+                "optimizer": "8.5.9",
+                "predict": "8.9.5",
+                "inspection": "8.9.6"
+            },
+            {
+                "#": 3,
+                "catalog": "v9-241003-amd64",
+                "release": "8.10.x",
+                "core": "8.10.18",
+                "assist": "8.7.7",
+                "iot": "8.7.17",
+                "manage": "8.6.18",
+                "monitor": "8.10.14",
+                "optimizer": "8.4.10",
+                "predict": "8.8.3",
+                "inspection": "8.8.4"
+            },            
+            {
+                "#": 4,
                 "catalog": "v9-240827-amd64",
                 "release": "9.0.x",
                 "core": "9.0.2",
@@ -960,7 +1012,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "aibroker": "9.0.1"
             },
             {
-                "#": 2,
+                "#": 5,
                 "catalog": "v9-240827-amd64",
                 "release": "8.11.x",
                 "core": "8.11.14",
@@ -974,7 +1026,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "aibroker": "9.0.1"
             },
             {
-                "#": 3,
+                "#": 6,
                 "catalog": "v9-240827-amd64",
                 "release": "8.10.x",
                 "core": "8.10.17",
@@ -988,7 +1040,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "aibroker": "9.0.1"
             },
             {
-                "#": 4,
+                "#": 7,
                 "catalog": "v9-240730-amd64",
                 "release": "9.0.x",
                 "core": "9.0.1",
@@ -1002,7 +1054,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "aibroker": "9.0.1"
             },
             {
-                "#": 5,
+                "#": 8,
                 "catalog": "v9-240730-amd64",
                 "release": "8.11.x",
                 "core": "8.11.13",
@@ -1015,7 +1067,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.9.4"
             },
             {
-                "#": 6,
+                "#": 9,
                 "catalog": "v9-240730-amd64",
                 "release": "8.10.x",
                 "core": "8.10.16",
@@ -1025,45 +1077,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "monitor": "8.10.12",
                 "optimizer": "8.4.8",
                 "predict": "8.8.3",
-                "inspection": "8.8.4"
-            },
-            {
-                "#": 7,
-                "catalog": "v9-240625-amd64",
-                "release": "9.0.x",
-                "core": "9.0.0",
-                "assist": "9.0.0",
-                "iot": "9.0.0",
-                "manage": "9.0.0",
-                "monitor": "9.0.0",
-                "optimizer": "9.0.0",
-                "predict": "9.0.0",
-                "inspection": "9.0.0"
-            },
-            {
-                "#": 8,
-                "catalog": "v9-240625-amd64",
-                "release": "8.11.x",
-                "core": "8.11.12",
-                "assist": "N/A",
-                "iot": "8.8.10",
-                "manage": "8.7.9",
-                "monitor": "8.11.8",
-                "optimizer": "8.5.6",
-                "predict": "8.9.3",
-                "inspection": "8.9.3"
-            },
-            {
-                "#": 9,
-                "catalog": "v9-240625-amd64",
-                "release": "8.10.x",
-                "core": "8.10.15",
-                "assist": "N/A",
-                "iot": "8.7.14",
-                "manage": "8.6.15",
-                "monitor": "8.10.11",
-                "optimizer": "8.4.7",
-                "predict": "N/A",
                 "inspection": "8.8.4"
             }
         ]
