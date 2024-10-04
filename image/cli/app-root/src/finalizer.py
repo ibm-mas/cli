@@ -7,8 +7,10 @@ from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
 from slackclient import SlackClient
 from subprocess import PIPE, Popen, TimeoutExpired
+from mobilever import MobVer
 import threading
 from jira import JIRA
+
 
 class RunCmdResult(object):
     def __init__(self, returnCode, output, error):
@@ -208,6 +210,12 @@ if __name__ == "__main__":
     print(f"Build .................. {build}")
     print(f"Run ID ................. {runId}")
 
+    setFinished="True"
+    if "SET_FINISHED" in os.environ:
+        setFinished = os.getenv("SET_FINISHED")
+
+    print(f"set_finished Flag ...... {setFinished}")
+
     # Create Kubernetes client
     # -------------------------------------------------------------------------
     if "KUBERNETES_SERVICE_HOST" in os.environ:
@@ -219,9 +227,9 @@ if __name__ == "__main__":
         k8s_client = config.new_client_from_config()
         dynClient = DynamicClient(k8s_client)
 
-    setObject = {
-        "timestampFinished": datetime.utcnow()
-    }
+    setObject = {}
+    if setFinished.lower() == "true":
+        setObject["timestampFinished"] = datetime.utcnow()
 
     # Set CLI and ansible-devops version
     # -------------------------------------------------------------------------
@@ -365,6 +373,25 @@ if __name__ == "__main__":
             print(f"Unable to determine Manage installed components: status.components unavailable")
     except Exception as e:
         print(f"Unable to determine Manage installed components: {e}")
+    
+    # Get Mobile Components
+    # -------------------------------------------------------------------------
+    # Note: Only works for workspace "masdev"
+    try:
+        #getting versions from mobile
+        mobileVer = MobVer(instanceId=instanceId, dynClient=dynClient)
+        mobileComponents = mobileVer.get_graphite_versions()
+        treatedComponents={}
+        for key,value in mobileComponents.items():
+            if "mobileVersion" in value:
+                treatedComponents[key]={"enabled":True,"version":(value["mobileVersion"]+" || "+value["buildToolsVersion"])}
+
+        setObject[f"products.ibm-mas-mobile.buildId"] = "NA"
+        setObject[f"products.ibm-mas-mobile.buildNumber"] = "NA"
+        setObject[f"products.ibm-mas-mobile.version"] = mobileComponents["navigator"]["mobileVersion"]
+        setObject[f"products.ibm-mas-mobile.components"] = treatedComponents
+    except Exception as e:
+        print(f"Unable to determine Mobile installed components: {e}")
 
     # Get Maximo Process Automation Engine (MPAE) version
     # -------------------------------------------------------------------------
@@ -559,8 +586,11 @@ if __name__ == "__main__":
 
     messageBlocks.append(buildSection(f"Download Must Gather from <https://na.artifactory.swg-devops.com/ui/repos/tree/General/wiotp-generic-logs/mas-fvt/{instanceId}/{build}|Artifactory> (may not be available yet), see thread for more information ..."))
     response = postMessage(FVT_SLACK_CHANNEL, messageBlocks)
-    threadId = response["ts"]
-
+    if response["ok"]:
+        threadId = response["ts"]
+    else:
+        print(f"Unable to post FVT summary to Slack: {response['error']}")
+        sys.exit(0)
 
     # Generate threaded messages with failure details
     # -------------------------------------------------------------------------

@@ -1,7 +1,13 @@
-# Looking at the smtp and trustcas suites ...
-# Although they are disruptive, they appear to my eyes to bedisruptive to different parts of MAS with no impact on one another ...
+# Why are these suites disruptive?
 # - smtp: only test_smtpcfg is disruptive - deletes and recreates SMTPCfg multiple times
 # - trustcas: changes Suite config and verifies using SCIM whether defult CAs are included (or not) in the truststore
+# - adoptionusagemetering: I can't see anything disruptive happening in this suite at all !?
+# - coreidp-ldap: reconfigures MAS IDP multiple times
+# - coreidp-saml: reconfigures MAS IDP multiple times
+# - coreidp-saml-ui: ??
+# - coreidp-ssoconfig: ??
+# - licensingapi: ??
+# - operatormaturity: non-disruptive, we just want it to be the last thing that runs
 
 # 1. smtp
 # -------------------------------------------------------------------------
@@ -31,9 +37,7 @@
     - name: fvt_test_suite
       value: adoptionusagemetering
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-  runAfter:
-    - smtp
-    - core-trustcas
+  runAfter: {{ runAfter }}
 
 # 4. coreidp-ldap
 # -------------------------------------------------------------------------
@@ -44,6 +48,8 @@
       value: coreidp-ldap
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
+    - smtp
+    - core-trustcas
     - adoptionusagemetering
 
 # 5. coreidp-saml

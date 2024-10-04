@@ -16,6 +16,7 @@ jobs:
   build-tekton:
     name: Build Tekton Definitions
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     steps:
       # 1. Initialize the build
       # -------------------------------------------------------------------------------------------
@@ -61,6 +62,7 @@ jobs:
   build-python:
     name: Build Python Package
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs: build-tekton
     steps:
       # 1. Initialize the build
@@ -93,6 +95,7 @@ jobs:
         run: |
           cd $GITHUB_WORKSPACE/python
           sed -i "s#__version__ = \"100.0.0\"#__version__ = \"${{ env.VERSION_NOPREREL }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
+          sed -i "s#self.version = \"100.0.0-pre.local\"#self.version = \"${{ env.VERSION }}\"#g" ${GITHUB_WORKSPACE}/python/src/mas/cli/cli.py
           cat ${GITHUB_WORKSPACE}/python/src/mas/cli/__init__.py
 
           python -m pip install --upgrade pip
@@ -140,6 +143,7 @@ jobs:
   build-container:
     name: Build Container Image
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -176,6 +180,7 @@ jobs:
             wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
           fi
 
+
       # 3. Download Built Artifacts
       # -------------------------------------------------------------------------------------------
       - name: Download the tekton file built in the other job
@@ -206,6 +211,14 @@ jobs:
           docker images
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+
+      - name: Push the container image (master)
+        id: docker-push-master
+        if: github.ref == 'refs/heads/master'
+        run: |
+          docker tag ibmmas/cli quay.io/ibmmas/cli:master
+          docker images
+          docker push quay.io/ibmmas/cli:master
 
       - name: Push the container image (latest)
         id: docker-push-latest
@@ -239,6 +252,7 @@ jobs:
   pyinstaller-windows:
     name: Build Windows CLI
     runs-on: windows-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -292,13 +306,14 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/python/dist/mas-cli.exe
-          asset_name: mas-cli-windows-amd64-${{ env.VERSION }}.exe
+          asset_name: mas-cli-windows-amd64.exe
           tag: ${{ github.ref }}
           overwrite: true
 
   pyinstaller-linux:
     name: Build Linux CLI
     runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -352,13 +367,14 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/python/dist/mas-cli
-          asset_name: mas-cli-linux-amd64-${{ env.VERSION }}
+          asset_name: mas-cli-linux-amd64
           tag: ${{ github.ref }}
           overwrite: true
 
   pyinstaller-macos:
     name: Build MacOS CLI
     runs-on: macos-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
       - build-python
@@ -412,6 +428,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/python/dist/mas-cli
-          asset_name: mas-cli-macos-arm64-${{ env.VERSION }}
+          asset_name: mas-cli-macos-arm64
           tag: ${{ github.ref }}
           overwrite: true

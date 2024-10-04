@@ -84,11 +84,10 @@ spec:
         - input: "$(params.ivt_digest_core)"
           operator: notin
           values: [""]
-          
 
-    # 2. Run "optimizer_fvt" (CTF)
+    # 2. Run "api_python_optim_model" (CTF)
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer
+    - name: fvt-optimizer-python-model
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -104,7 +103,7 @@ spec:
         - name: fvt_image_digest
           value: $(params.fvt_digest_ctf)
         - name: fvt_test_suite
-          value: optimizer_fvt # pytest_marker in Common Test Framework
+          value: api_python_optim_model # pytest_marker in Common Test Framework
         - name: product_channel
           value: $(params.mas_app_channel_optimizer)
         - name: product_id
@@ -120,6 +119,158 @@ spec:
           values: [""]
       runAfter:
         - ivtcore-optimizer
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+    
+    # 3. Run "api_java_optim_model" (CTF)
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-java-model
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: ai-solutions
+        - name: fvt_image_name
+          value: common-test-framework
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: api_java_optim_model # pytest_marker in Common Test Framework
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - fvt-optimizer-python-model
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 4. Run "api_model_endpoints" (CTF)
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-model-endpoints
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: ai-solutions
+        - name: fvt_image_name
+          value: common-test-framework
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: api_model_endpoints # pytest_marker in Common Test Framework
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - fvt-optimizer-python-model
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 5. Run "api_job_endpoints" (CTF)
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-job-endpoints
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: ai-solutions
+        - name: fvt_image_name
+          value: common-test-framework
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: api_job_endpoints # pytest_marker in Common Test Framework
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - fvt-optimizer-python-model
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 6. Run "api_project_endpoints" (CTF)
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-project-endpoints
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: ai-solutions
+        - name: fvt_image_name
+          value: common-test-framework
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: api_project_endpoints # pytest_marker in Common Test Framework
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - fvt-optimizer-python-model
       workspaces:
         - name: configs
           workspace: shared-configs

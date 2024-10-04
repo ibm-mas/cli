@@ -310,6 +310,9 @@ spec:
     - name: manage_workspace_action
       type: string
       default: "deactivate"
+    - name: mas_app_global_secrets_yaml_manage
+      type: string
+      default: ""
 
     - name: mas_app_channel_monitor
       type: string
@@ -461,6 +464,10 @@ spec:
       default: ""
 
     - name: ingress
+      type: string
+      default: "false"
+
+    - name: run_sanity_test
       type: string
       default: "false"
 

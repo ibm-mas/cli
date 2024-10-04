@@ -1,18 +1,16 @@
 # Manage FVT - Civil Infrastructure Selenium
-- name: fvt-manage-civil-selenium
+- name: fvt-manage-selenium-civil
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-manage.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: civil-bvt
-  runAfter:
-    - fvt-mobile-setup-data
 
 ## Minimum Verification Test for Mobile Defects MAS test suites
-- name: fvt-civil-defects-mvt-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
+- name: fvt-mobile-testng-defects-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
     - name: fvt_mobile_app
       value: civil-defects-app
     - name: mobile_device_type
@@ -20,13 +18,13 @@
     - name: fvt_test_suite
       value: civil-defects-mvt-android
   runAfter:
-    - fvt-manage-civil-selenium
+    - fvt-manage-selenium-civil
 
 # Minimum Verification Test for Mobile Defects MAS test suites
-- name: fvt-civil-defects-mvt-ios
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref.yml.j2') | indent(2) }}
+- name: fvt-mobile-testng-defects-ios
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
     - name: fvt_mobile_app
       value: civil-defects-app
     - name: mobile_device_type
@@ -34,4 +32,4 @@
     - name: fvt_test_suite
       value: civil-defects-mvt-ios
   runAfter:
-    - fvt-civil-defects-mvt-android
+    - fvt-mobile-testng-defects-android

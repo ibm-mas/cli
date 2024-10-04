@@ -16,30 +16,34 @@ nav:
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
       - "Uninstall": guides/uninstall.md
-  - "OpenShift Management":
-      - "provision-fyre": commands/provision-fyre.md
-      - "provision-roks": commands/provision-roks.md
-      - "provision-rosa": commands/provision-rosa.md
-      - "configure-airgap": commands/configure-airgap.md
-  - "Image Mirroring":
-      - "setup-registry": commands/setup-registry.md
-      - "teardown-registry": commands/teardown-registry.md
-      - "mirror-images": commands/mirror-images.md
-      - "mirror-redhat-images": commands/mirror-redhat-images.md
-  - "MAS Management":
-      - "configtool-oidc": commands/configtool-oidc.md
+  - "Examples":
+      - "EAM Migration": examples/eam-migration.md
+      - "Mirror Db2 Images": examples/mirror-db2.md
+  - "Command Reference":
       - "install": commands/install.md
       - "update": commands/update.md
       - "upgrade": commands/upgrade.md
       - "uninstall": commands/uninstall.md
-  - "Troubleshooting":
       - "must-gather": commands/must-gather.md
-  - "Catalogs":
+
+      - "configure-airgap": commands/configure-airgap.md
+      - "mirror-images": commands/mirror-images.md
+      - "mirror-redhat-images": commands/mirror-redhat-images.md
+
+      - "setup-registry": commands/setup-registry.md
+      - "teardown-registry": commands/teardown-registry.md
+
+      - "provision-fyre": commands/provision-fyre.md
+      - "provision-roks": commands/provision-roks.md
+      - "provision-rosa": commands/provision-rosa.md
+
+      - "configtool-oidc": commands/configtool-oidc.md
+  - "Operator Catalogs":
       - "All Catalogs": catalogs/index.md
-      - "Jul 25 2024": catalogs/v9-240730-amd64.md
+      - "Aug 27 2024": catalogs/v9-240827-amd64.md
+      - "Jul 30 2024": catalogs/v9-240730-amd64.md
       - "Jun 25 2024": catalogs/v9-240625-amd64.md
       - "May 28 2024": catalogs/v8-240528-amd64.md
-      - "Apr 30 2024": catalogs/v8-240430-amd64.md
   - "Reference":
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md

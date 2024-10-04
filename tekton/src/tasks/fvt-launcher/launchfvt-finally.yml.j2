@@ -14,6 +14,9 @@ spec:
       default: IfNotPresent
     - name: pipelinerun_name
       type: string
+    - name: set_finished
+      type: string
+      default: "True"
 
   steps:
     - name: start-pipelinerun
@@ -33,6 +36,8 @@ spec:
           value: $(params.pipelinerun_name)
         - name: PIPELINERUN_NAMESPACE
           value: $(context.taskRun.namespace)
+        - name: SET_FINISHED
+          value: $(params.set_finished)
         - name: DEVOPS_BUILD_NUMBER
           valueFrom:
             secretKeyRef:

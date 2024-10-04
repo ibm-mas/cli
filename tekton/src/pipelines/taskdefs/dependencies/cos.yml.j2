@@ -21,6 +21,8 @@
 
     - name: custom_labels
       value: $(params.custom_labels)
+    - name: cos_use_hmac
+      value: $(params.cos_use_hmac)
   taskRef:
     kind: Task
     name: mas-devops-cos

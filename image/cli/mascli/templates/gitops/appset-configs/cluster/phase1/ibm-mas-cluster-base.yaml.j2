@@ -21,3 +21,9 @@ notifications:
 custom_labels:
   {{ CUSTOM_LABELS | indent(2) }}
 {% endif %}
+
+{% if DEVOPS_MONGO_URI is defined and DEVOPS_MONGO_URI !='' %}
+devops:
+  mongo_uri: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DEVOPS_MONGO }}>"
+  build_number: {{ DEVOPS_BUILD_NUMBER }}
+{% endif %}

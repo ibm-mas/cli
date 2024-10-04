@@ -37,6 +37,7 @@ class UpdateApp(BaseApp):
         """
         self.args = updateArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
+        self.devMode = self.args.dev_mode
 
         if self.args.mas_catalog_version:
             # Non-interactive mode
@@ -47,11 +48,19 @@ class UpdateApp(BaseApp):
                 "mongodb_namespace",
                 "mongodb_v5_upgrade",
                 "mongodb_v6_upgrade",
+                "mongodb_v7_upgrade",
                 "kafka_namespace",
                 "kafka_provider",
                 "dro_migration",
                 "dro_storage_class",
-                "dro_namespace"
+                "dro_namespace",
+                "skip_pre_check",
+                "dev_mode",
+                "cpd_product_version",
+                # Dev Mode
+                "artifactory_username",
+                "artifactory_token"
+
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -66,7 +75,7 @@ class UpdateApp(BaseApp):
                         self.setParam(key, value)
 
                 # Arguments that we don't need to do anything with
-                elif key in ["skip_pre_check", "no_confirm", "help"]:
+                elif key in [ "no_confirm", "help"]:
                     pass
 
                 # Fail if there's any arguments we don't know how to handle
@@ -90,7 +99,8 @@ class UpdateApp(BaseApp):
             self.chooseCatalog()
 
         # Validations
-        self.validateCatalog()
+        if not self.devMode:
+            self.validateCatalog()
 
         self.printH1("Dependency Update Checks")
         with Halo(text='Checking for IBM Watson Discovery', spinner=self.spinner) as h:
@@ -165,9 +175,10 @@ class UpdateApp(BaseApp):
                 "Please carefully review your choices above, correcting mistakes now is much easier than after the update has begun"
             ])
             continueWithUpdate = self.yesOrNo("Proceed with these settings")
-
         # Prepare the namespace and launch the installation pipeline
         if self.noConfirm or continueWithUpdate:
+            self.createTektonFileWithDigest()
+
             self.printH1("Launch Update")
             pipelinesNamespace = f"mas-pipelines"
 
@@ -233,13 +244,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)",
-            "  2) June 25 2024 Update (MAS 9.0.0, 8.11.12, &amp; 8.10.15)",
-            "  3) May 28 2024 Update (MAS 8.11.11 &amp; 8.10.14)"
+            "  1) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
+            "  2) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)",
+            "  3) June 25 2024 Update (MAS 9.0.0, 8.11.12, &amp; 8.10.15)"
         ])
 
         catalogOptions = [
-           "v9-240730-amd64", "v9-240625-amd64", "v8-240528-amd64"
+           "v9-240827-amd64", "v9-240730-amd64", "v9-240625-amd64"
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -330,13 +341,18 @@ class UpdateApp(BaseApp):
                     # the case bundles in there anymore
                     # Longer term we will centralise this information inside the mas-devops python collection,
                     # where it can be made available to both the ansible collection and this python package.
+                    defaultMongoVersion = "6.0.12"
                     mongoVersions = {
-                        "v8-240528-amd64": "5.0.23",
                         "v9-240625-amd64": "6.0.12",
-                        "v9-240730-amd64": "6.0.12"
+                        "v9-240730-amd64": "6.0.12",
+                        "v9-240827-amd64": "6.0.12"
                     }
+                    catalogVersion = self.getParam('mas_catalog_version')
+                    if catalogVersion in mongoVersions:
+                        targetMongoVersion = mongoVersions[self.getParam('mas_catalog_version')]
+                    else:
+                        targetMongoVersion = defaultMongoVersion
 
-                    targetMongoVersion = mongoVersions[self.getParam('mas_catalog_version')]
                     self.setParam("mongodb_version", targetMongoVersion)
 
                     targetMongoVersionMajor = targetMongoVersion.split(".")[0]
@@ -422,16 +438,20 @@ class UpdateApp(BaseApp):
                     else:
                         h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
                         self.showUDSUpdateNotice()
-                        if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
-                            # If the user did not approve the update, abort
-                            exit(1)
-                        self.printDescription([
-                            "",
-                            "Select the storage class for DRO to use from the list below:"
-                        ])
-                        for storageClass in getStorageClasses(self.dynamicClient):
-                            print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-                        self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
+                        if self.getParam("dro_migration") == "true" and self.getParam("dro_storage_class") is None:  
+                            if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
+                                # If the user did not approve the update, abort
+                                exit(1)
+                            self.printDescription([
+                                "",
+                                "Select the storage class for DRO to use from the list below:"
+                            ])
+                            for storageClass in getStorageClasses(self.dynamicClient):
+                                print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+                            self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
+
+                if self.getParam("dro_migration") == "true":
+                    self.setParam("uds_action", "install-dro")
 
             except (ResourceNotFoundError, NotFoundError) as e:
                 # UDS has never been installed on this cluster
@@ -445,9 +465,9 @@ class UpdateApp(BaseApp):
         # Longer term we will centralise this information inside the mas-devops python collection,
         # where it can be made available to both the ansible collection and this python package.
         cp4dVersions = {
-            "v8-240528-amd64": "4.6.6",
             "v9-240625-amd64": "4.8.0",
-            "v9-240730-amd64": "4.8.0"
+            "v9-240730-amd64": "4.8.0",
+            "v9-240827-amd64": "4.8.0" 
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
@@ -468,7 +488,10 @@ class UpdateApp(BaseApp):
                 if len(cpds) > 0:
                     cpdInstanceNamespace = cpds[0]["metadata"]["namespace"]
                     cpdInstanceVersion = cpds[0]["spec"]["version"]
-                    cpdTargetVersion = cp4dVersions[self.getParam("mas_catalog_version")]
+                    if self.args.cpd_product_version:
+                        cpdTargetVersion = self.getParam("cpd_product_version")
+                    else:
+                        cpdTargetVersion = cp4dVersions[self.getParam("mas_catalog_version")]
 
                     currentCpdVersionMajorMinor = f"{cpdInstanceVersion.split('.')[0]}.{cpdInstanceVersion.split('.')[1]}"
                     targetCpdVersionMajorMinor = f"{cpdTargetVersion.split('.')[0]}.{cpdTargetVersion.split('.')[1]}"
@@ -484,7 +507,7 @@ class UpdateApp(BaseApp):
                                 "<u>Dependency Update Notice</u>",
                                 f"Cloud Pak For Data is currently running version {cpdInstanceVersion} and will be updated to version {cpdTargetVersion}",
                                 "It is recommended that you backup your Cloud Pak for Data instance before proceeding:",
-                                "  <u>https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data</u>"
+                                "  <u>https://www.ibm.com/docs/en/cloud-paks/cp-data/5.0.x?topic=administering-backing-up-restoring-cloud-pak-data</u>"
                             ])
 
                         # Lookup the storage classes already used by CP4D
@@ -586,8 +609,8 @@ class UpdateApp(BaseApp):
                             self.printDescription([
                                 f"{kind}s were found in multiple namespaces, select the namespace to target from the list below:"
                             ])
-                            for ns in sorted(namespaces):
-                                self.printDescription([f"1. {ns}"])
+                            for index, ns in enumerate(sorted(namespaces), start=1):
+                                self.printDescription([f"{index}. {ns}"])
                             self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
                 else:
                     logger.debug(f"Found no instances of {kind} to update")

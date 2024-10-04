@@ -20,8 +20,6 @@
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
-    - fvt-manage-scheduler-api
-    - fvt-manage-scheduler-setup
 
 # ACM - UI
 - name: fvt-manage-acm-ui
@@ -30,7 +28,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: acm-1
+      value: acm-ui-bvt
     - name: fvt_mas_appws_component
       value: acm
     - name: fvt_test_driver
@@ -38,9 +36,6 @@
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
-    - fvt-manage-scheduler-api
-    - fvt-manage-scheduler-setup
-
 
 # HSE
 # -----------------------------------------------------------------------------
@@ -54,8 +49,6 @@
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
-    - fvt-manage-scheduler-api
-    - fvt-manage-scheduler-setup
 
 # HSE - UI
 - name: fvt-manage-hse-ui
@@ -72,9 +65,6 @@
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
-    - fvt-manage-scheduler-api
-    - fvt-manage-scheduler-setup
-
 
 # Service Provider
 # -----------------------------------------------------------------------------
@@ -88,8 +78,6 @@
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
-    - fvt-manage-scheduler-api
-    - fvt-manage-scheduler-setup
 
 # Service Provider - UI
 - name: fvt-manage-serviceprovider-ui
@@ -98,7 +86,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: sp-1
+      value: sp-ui-bvt
     - name: fvt_mas_appws_component
       value: serviceprovider
     - name: fvt_test_driver
@@ -106,5 +94,3 @@
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
-    - fvt-manage-scheduler-api
-    - fvt-manage-scheduler-setup

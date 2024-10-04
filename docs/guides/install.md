@@ -21,7 +21,7 @@ Installation Overview
 Access [Container Software Library](https://myibm.ibm.com/products-services/containerlibrary) using your IBMId to obtain your entitlement key.
 
 ### 1.2 MAS License File
-Access [IBM License Key Center](https://licensing.subscribenet.com/control/ibmr/login), on the **Get Keys** menu select **IBM AppPoint Suites**.  Select `IBM MAXIMO APPLICATION SUITE AppPOINT LIC` and on the next page fill in the information as below:
+Access [IBM License Key Center](https://licensing.flexnetoperations.com/), on the **Get Keys** menu select **IBM AppPoint Suites**.  Select `IBM MAXIMO APPLICATION SUITE AppPOINT LIC` and on the next page fill in the information as below:
 
 | Field            | Content                                                                       |
 | ---------------- | ----------------------------------------------------------------------------- |
@@ -38,13 +38,13 @@ The other values can be left at their defaults.  Finally, click **Generate** and
     For more information about how to access the IBM License Key Center review the [getting started documentation](https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf) available from the IBM support website.
 
 ### 1.3 OpenShift Cluster
-You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.openshift.com/container-platform/4.12/installing/index.html).
+You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the [OpenShift Container Platform installation overview](https://docs.openshift.com/container-platform/4.15/installing/index.html).
 
 The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
 - [AWS](../commands/provision-rosa.md)
 - [IBM Cloud](../commands/provision-roks.md)
-- [IBM DevIT FYRE(Internal)](../commands/provision-fyre.md)
+- [IBM DevIT FYRE (Internal)](../commands/provision-fyre.md)
 
 
 ### 1.4 Operator Catalog Selection
@@ -86,15 +86,17 @@ docker run -ti --pull always quay.io/ibmmas/cli mas mirror-images
 
 You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](choosing-the-right-catalog.md) and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
 
-This command can also be ran non-interactive, for full usgae information refer to the [mirror-images](../commands/mirror-images.md) command documentation, if you are looking for more detailed guidance on how to approach this activity refer to the [image mirroring guide](image-mirroring.md).
+The following command will mirror all required and optional content that makes up the IBM Maximo Operator Catalog directly to your mirror registry, for full usgae information refer to the [mirror-images](../commands/mirror-images.md) command documentation, if you are looking for more detailed guidance on how to approach this activity refer to the [image mirroring guide](image-mirroring.md).
 
 ```bash
 mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-catalog --mirror-core --mirror-manage --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs \
+  --mirror-catalog --mirror-core \
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
+  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos \
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY \
-  --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   --no-confirm
 ```
 

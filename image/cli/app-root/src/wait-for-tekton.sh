@@ -13,7 +13,7 @@
 MAX_RETRIES=${MAX_RETRIES:-50}  # Just over 4 hours hours
 DELAY=${DELAY:-300}  # 5 minute interval
 IGNORE_FAILURE=${IGNORE_FAILURE:-False}  # Return success RC even if pipelinerun failed
-TYPE=pipelinerun  # Set whether to wait for a pipelinerun or a taskrun of the given name
+TYPE=${TYPE:-pipelinerun}  # Set whether to wait for a pipelinerun or a taskrun of the given name
 while [[ $# -gt 0 ]]
 do
   key="$1"
@@ -85,7 +85,10 @@ done
 
 echo "Completion Time = $COMPLETION_TIME"
 echo "Retries Used    = $RETRIES_USED"
-RESULT=$(oc -n ${NAMESPACE} get ${TYPE}/$NAME -o jsonpath='{.status.conditions[0].status}')
+RESULT=""
+while [[ "$RESULT" == "" ]]; do
+  RESULT=$(oc -n ${NAMESPACE} get ${TYPE}/$NAME -o jsonpath='{.status.conditions[0].status}')
+done
 
 if [[ "$RESULT" == "True" ]]; then
   echo "Result          = ${TYPE} completed successfully"
