@@ -65,9 +65,12 @@ class UninstallApp(BaseApp):
             self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
 
         if instanceId is None:
-            # Interactive mode
-            self.printH1("Instance Selection")
-            self.printDescription(["Select a MAS instance to uninstall from the list below:"])
+            # Check the architecture
+            if self.architecture == 's390x':
+                self.fatalError("No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available). See log file for details")
+            else:
+                self.printH1("Instance Selection")
+                self.printDescription(["Select a MAS instance to uninstall from the list below:"])
 
             suiteOptions = []
             try:
