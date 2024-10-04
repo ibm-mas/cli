@@ -15,6 +15,8 @@
       value: $(params.artifactory_token)
     - name: mas_app_channel
       value: "$(params.mas_app_channel_visualinspection)"
+    - name: mas_app_install_plan
+      value: $(params.mas_app_install_plan_visualinspection)
     - name: mas_app_settings_visualinspection_storage_class
       value: $(params.storage_class_rwx) # use common rwx storage class as user is not prompted to choose this storage class
     - name: ibm_entitlement_key
