@@ -22,6 +22,9 @@ spec:
     - name: cluster_url
       type: string
       default: ""
+    - name: cis_compliance_install_plan
+      type: string
+      default: "Automatic"
   stepTemplate:
     name: gitops-cis-compliance
     env:
@@ -41,6 +44,8 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: CIS_INSTALL_PLAN
+        value: $(params.cis_compliance_install_plan)
     envFrom:
       - configMapRef:
           name: environment-properties

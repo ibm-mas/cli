@@ -2,6 +2,7 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
 ibm_db2u:
   db2_namespace: {{ DB2_NAMESPACE }}
+  db2_install_plan: {{ DB2_INSTALL_PLAN }}
 {% if DB2_CHANNEL is defined and DB2_CHANNEL !='' %}
   db2_channel: {{ DB2_CHANNEL }}
 {% else %}

@@ -28,6 +28,9 @@ spec:
       type: string
     - name: db2_channel
       type: string
+    - name: db2_subscription_install_plan
+      type: string
+      default: "Automatic"
   stepTemplate:
     name: gitops-db2u
     env:
@@ -55,6 +58,8 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: DB2_CHANNEL
         value: $(params.db2_channel)
+      - name: DB2_INSTALL_PLAN
+        value: $(params.db2_subscription_install_plan)
     envFrom:
       - configMapRef:
           name: environment-properties
