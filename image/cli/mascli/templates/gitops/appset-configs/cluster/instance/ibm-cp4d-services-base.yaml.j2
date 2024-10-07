@@ -2,7 +2,12 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
 ibm_cp4d_services_base:
   ccs_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CCS_CHANNEL }}>"
+  cpd_ccs_install_plan : "{{ CPD_CCS_INSTALL_PLAN }}"
   datarefinery_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DATAREFINERY_CHANNEL }}>"
+  cpd_datarefinery_install_plan : "{{ CPD_DATAREFINERY_INSTALL_PLAN }}"
   ws_runtimes_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WS_RUNTIMES_CHANNEL }}>"
+  cpd_ws_install_plan : "{{ CPD_WS_INSTALL_PLAN }}"
   opencontent_rabbitmq_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OPENCONTENT_RABBITMQ_CHANNEL }}>"
+  rabbitmq_install_plan : "{{ RABBITMQ_INSTALL_PLAN }}"
   opencontent_elasticsearch_channel: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OPENCONTENT_ELASTICSEARCH_CHANNEL }}>"
+  elasticsearch_install_plan: "{{ ELASTICSEARCH_INSTALL_PLAN }}"

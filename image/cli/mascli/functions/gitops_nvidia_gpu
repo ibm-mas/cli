@@ -22,8 +22,10 @@ Secrets Manager:
 NVIDIA GPU OPERATOR:
       --nfd-namespace ${COLOR_YELLOW}NFD_NAMESPACE${TEXT_RESET}                                 NFD Namespace, defaults to openshift-nfd
       --nfd-channel ${COLOR_YELLOW}NFD_CHANNEL${TEXT_RESET}                                     NFD Channel, defaults to stable
+      --nfd-install-plan ${COLOR_YELLOW}NFD_INSTALL_PLAN${TEXT_RESET}                           NFD Subscription install plan, ('Automatic' or 'Manual'. Default is 'Automatic')
       --gpu-namespace ${COLOR_YELLOW}GPU_NAMESPACE${TEXT_RESET}                                 GPU Namespace, defaults to nvidia-gpu-operator
       --gpu-channel ${COLOR_YELLOW}GPU_CHANNEL${TEXT_RESET}                                     GPU Channel, defaults to v24.3
+      --gpu-install-plan ${COLOR_YELLOW}GPU_INSTALL_PLAN${TEXT_RESET}                           GPU Subscription install plan, ('Automatic' or 'Manual'. Default is 'Automatic')
       --gpu-driver-version ${COLOR_YELLOW}GPU_DRIVER_VERSION${TEXT_RESET}                       GPU Driver Version, defaults to 550.90.07
       --gpu-driver-repository-path ${COLOR_YELLOW}GPU_DRIVER_REPOSITORY_PATH${TEXT_RESET}       GPU Driver Repository, defaults to nvcr.io/nvidia
 
@@ -51,6 +53,8 @@ function gitops_nvidia_gpu_noninteractive() {
   # defaults for fvtsaas
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
+  export NFD_INSTALL_PLAN=${NFD_INSTALL_PLAN:-"Automatic"}
+  export GPU_INSTALL_PLAN=${GPU_INSTALL_PLAN:-"Automatic"}
 
   while [[ $# -gt 0 ]]
   do
@@ -90,11 +94,17 @@ function gitops_nvidia_gpu_noninteractive() {
       --nfd-channel)
         export NFD_CHANNEL=$1 && shift
         ;;
+      --nfd-install-plan)
+        export NFD_INSTALL_PLAN=$1 && shift
+        ;;
       --gpu-namespace)
         export GPU_NAMESPACE=$1 && shift
         ;;
       --gpu-channel)
         export GPU_CHANNEL=$1 && shift
+        ;;
+      --gpu-install-plan)
+        export GPU_INSTALL_PLAN=$1 && shift
         ;;
       --gpu-driver-version)
         export GPU_DRIVER_VERSION=$1 && shift
@@ -230,8 +240,10 @@ function gitops_nvidia_gpu() {
   echo_h2 "Nvidia GPU Operator" "    "
   echo_reset_dim "NFD_NAMESPACE ............................. ${COLOR_MAGENTA}${NFD_NAMESPACE}"
   echo_reset_dim "NFD_CHANNEL ............................... ${COLOR_MAGENTA}${NFD_CHANNEL}"
+  echo_reset_dim "NFD_INSTALL_PLAN .......................... ${COLOR_MAGENTA}${NFD_INSTALL_PLAN}"
   echo_reset_dim "GPU_NAMESPACE ............................. ${COLOR_MAGENTA}${GPU_NAMESPACE}"
   echo_reset_dim "GPU_CHANNEL ............................... ${COLOR_MAGENTA}${GPU_CHANNEL}"
+  echo_reset_dim "GPU_INSTALL_PLAN .......................... ${COLOR_MAGENTA}${GPU_INSTALL_PLAN}"
   echo_reset_dim "GPU_DRIVER_VERSION ........................ ${COLOR_MAGENTA}${GPU_DRIVER_VERSION}"
   echo_reset_dim "GPU_DRIVER_REPOSITORY_PATH ................ ${COLOR_MAGENTA}${GPU_DRIVER_REPOSITORY_PATH}"
   reset_colors
