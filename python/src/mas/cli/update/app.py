@@ -203,14 +203,15 @@ class UpdateApp(BaseApp):
             catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
             catalogDisplayName = catalog.spec.displayName
             catalogImage = catalog.spec.image
+            arch=self.architecture
 
-            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
+            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-{arch})", catalogDisplayName)
             if m:
                 # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
                 self.installedCatalogId = m.group("catalogId")
-            elif re.match(r".+v8-amd64", catalogDisplayName):
-                self.installedCatalogId = "v8-amd64"
+            elif re.match(r".+v8-{arch}", catalogDisplayName):
+                self.installedCatalogId = "v8-{arch}"
             else:
                 self.installedCatalogId = None
                 self.printWarning(f"Unable to determine identity & version of currently installed ibm-maximo-operator-catalog")
@@ -235,6 +236,7 @@ class UpdateApp(BaseApp):
 
     def chooseCatalog(self) -> None:
         self.printH1("Select IBM Maximo Operator Catalog Version")
+        arch = self.architecture
         self.printDescription([
             "Select MAS Catalog",
             "  1) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
@@ -242,9 +244,14 @@ class UpdateApp(BaseApp):
             "  3) June 25 2024 Update (MAS 9.0.0, 8.11.12, &amp; 8.10.15)"
         ])
 
-        catalogOptions = [
-           "v9-240827-amd64", "v9-240730-amd64", "v9-240625-amd64"
-        ]
+        if arch == "s390x":
+            catalogOptions = [
+               "v9-240827-s390x", "v9-multiarch-s390x"
+            ]
+        else:
+            catalogOptions = [
+               "v9-240827-amd64", "v9-240730-amd64", "v9-240625-amd64"
+            ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
     def validateCatalog(self) -> None:
