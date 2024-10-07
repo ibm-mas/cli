@@ -207,7 +207,7 @@ class UpdateApp(BaseApp):
 
             m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-{arch})", catalogDisplayName)
             if m:
-                # catalogId = v8-yymmdd-amd64
+                # catalogId = v8-yymmdd-{arch}
                 # catalogVersion = yymmdd
                 self.installedCatalogId = m.group("catalogId")
             elif re.match(r".+v8-{arch}", catalogDisplayName):
