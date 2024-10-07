@@ -237,24 +237,30 @@ class UpdateApp(BaseApp):
     def chooseCatalog(self) -> None:
         self.printH1("Select IBM Maximo Operator Catalog Version")
         arch = self.architecture
-        self.printDescription([
-            "Select MAS Catalog",
-            "  1) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
-            "  2) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)",
-            "  3) June 25 2024 Update (MAS 9.0.0, 8.11.12, &amp; 8.10.15)"
-        ])
-
         if arch == "s390x":
+            self.printDescription([
+                "Select MAS Catalog",
+                "  1) Oct 07 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
+                "  2) Sept 15 2024 Update (MAS 9.0.2, 8.11.13, &amp; 8.10.16)"
+            ])
             catalogOptions = [
-               "v9-240827-s390x", "v9-multiarch-s390x"
+               "v9-multiarch-s390x", "v9-240827-s390x"
             ]
         else:
+            self.printDescription([
+                "Select MAS Catalog",
+                "  1) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
+                "  2) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)",
+                "  3) June 25 2024 Update (MAS 9.0.0, 8.11.12, &amp; 8.10.15)"
+            ])
             catalogOptions = [
                "v9-240827-amd64", "v9-240730-amd64", "v9-240625-amd64"
             ]
+
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
     def validateCatalog(self) -> None:
+        arch = self.architecture
         if self.installedCatalogId is not None and self.installedCatalogId > self.getParam("mas_catalog_version"):
             self.fatalError(f"Selected catalog is older than the currently installed catalog.  Unable to update catalog from {self.installedCatalogId} to {self.getParam('mas_catalog_version')}")
 
