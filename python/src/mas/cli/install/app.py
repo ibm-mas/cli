@@ -985,8 +985,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "monitor": "8.11.11",
                 "optimizer": "8.5.9",
                 "predict": "8.9.5",
-                "inspection": "8.9.6",
-                "aibroker": "9.0.2"
+                "inspection": "8.9.6"
             },
             {
                 "#": 3,
@@ -999,8 +998,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "monitor": "8.10.14",
                 "optimizer": "8.4.10",
                 "predict": "8.8.3",
-                "inspection": "8.8.4",
-                "aibroker": "9.0.2"
+                "inspection": "8.8.4"
             },            
             {
                 "#": 4,
