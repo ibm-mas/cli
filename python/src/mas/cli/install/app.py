@@ -1013,8 +1013,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "monitor": "9.0.2",
                 "optimizer": "9.0.2",
                 "predict": "9.0.1",
-                "inspection": "9.0.2",
-                "aibroker": "9.0.1"
+                "inspection": "9.0.2"
             },
             {
                 "#": 5,
@@ -1027,8 +1026,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "monitor": "8.11.10",
                 "optimizer": "8.5.8",
                 "predict": "8.9.3",
-                "inspection": "8.9.5",
-                "aibroker": "9.0.1"
+                "inspection": "8.9.5"
             },
             {
                 "#": 6,
@@ -1041,8 +1039,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "monitor": "8.10.13",
                 "optimizer": "8.4.9",
                 "predict": "8.8.3",
-                "inspection": "8.8.4",
-                "aibroker": "9.0.1"
+                "inspection": "8.8.4"
             },
             {
                 "#": 7,
@@ -1055,8 +1052,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "monitor": "9.0.1",
                 "optimizer": "9.0.1",
                 "predict": "9.0.0",
-                "inspection": "9.0.0",
-                "aibroker": "9.0.1"
+                "inspection": "9.0.0"
             },
             {
                 "#": 8,
