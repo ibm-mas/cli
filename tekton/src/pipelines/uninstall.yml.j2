@@ -55,6 +55,9 @@ spec:
       type: string
       description: Optional. Used to uninstall UDS or DRO
       default: "none"
+    - name: dro_namespace
+      default: "redhat-marketplace"
+      type: string
 
   tasks:
     # Content
@@ -251,6 +254,8 @@ spec:
           value: $(params.image_pull_policy)
         - name: uds_action
           value: $(params.uds_action)
+        - name: dro_namespace
+          value: $(params.dro_namespace)
         - name: devops_suite_name
           value: dependencies-uds-uninstall
       taskRef:
