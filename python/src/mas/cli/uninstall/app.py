@@ -39,25 +39,35 @@ class UninstallApp(BaseApp):
         self.noConfirm = args.no_confirm
 
         if args.uninstall_all_deps:
-            uninstallGrafana = True
-            uninstallIBMCatalog = True
-            uninstallCommonServices = True
-            uninstallCertManager = True
-            uninstallUDS = True
-            uninstallMongoDb = True
-            uninstallSLS = True
+            if not self.preview:
+                  uninstallGrafana = True
+                  uninstallIBMCatalog = True
+                  uninstallCommonServices = True
+                  uninstallCertManager = True
+                  uninstallUDS = True
+                  uninstallMongoDb = True
+                  uninstallSLS = True
+            else:
+                  uninstallGrafana = False
+                  uninstallIBMCatalog = True
+                  uninstallCommonServices = True
+                  uninstallCertManager = True
+                  uninstallUDS = True
+                  uninstallMongoDb = False
+                  uninstallSLS = True
         else:
-            uninstallGrafana = args.uninstall_grafana
-            uninstallIBMCatalog = args.uninstall_ibm_catalog
-            uninstallCommonServices = args.uninstall_common_services
-            uninstallCertManager = args.uninstall_cert_manager
-            uninstallUDS = args.uninstall_uds
-            uninstallMongoDb = args.uninstall_mongodb
-            uninstallSLS = args.uninstall_sls
+               uninstallGrafana = args.uninstall_grafana
+               uninstallIBMCatalog = args.uninstall_ibm_catalog
+               uninstallCommonServices = args.uninstall_common_services
+               uninstallCertManager = args.uninstall_cert_manager
+               uninstallUDS = args.uninstall_uds
+               uninstallMongoDb = args.uninstall_mongodb
+               uninstallSLS = args.uninstall_sls
 
-        if  self.preview: #For s390x grafana/mongodb is not installed
-             uninstallGrafana = False
-             uninstallMongoDb = False
+
+        #if  self.preview: #For s390x grafana/mongodb is not installed
+             #uninstallGrafana = False
+             #uninstallMongoDb = False
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -98,15 +108,20 @@ class UninstallApp(BaseApp):
             uninstallCertManager = self.yesOrNo("Uninstall Certificate Manager")
             if uninstallCertManager:
                 # If you choose to uninstall Cert-Manager, everything will be uninstalled
-                uninstallGrafana = True
-                uninstallIBMCatalog = True
-                uninstallCommonServices = True
-                uninstallUDS = True
-                uninstallMongoDb = True
-                uninstallSLS = True
-                if self.preview:
-                   uninstallGrafana = False
-                   uninstallMongoDb = False
+                if not self.preview:
+                    uninstallGrafana = True
+                    uninstallIBMCatalog = True
+                    uninstallCommonServices = True
+                    uninstallUDS = True
+                    uninstallMongoDb = True
+                    uninstallSLS = True
+                else:
+                    uninstallGrafana = False
+                    uninstallIBMCatalog = True
+                    uninstallCommonServices = True
+                    uninstallUDS = True
+                    uninstallMongoDb = False
+                    uninstallSLS = True
             else:
                 if not self.preview:
                     self.printDescription(["If you choose to uninstall MongoDb, IBM Suite License Service will be automatically set to uninstall as well"])
@@ -194,7 +209,7 @@ class UninstallApp(BaseApp):
                     certManagerProvider = "redhat",
                     uninstallCertManager = uninstallCertManager,
                     uninstallGrafana = uninstallGrafana,
-                    uninstallCatalog = uninstallCommonServices,
+                    uninstallCatalog = uninstallCatalog,
                     uninstallCommonServices = uninstallCommonServices,
                     uninstallUDS = uninstallUDS,
                     uninstallMongoDb = uninstallMongoDb,
