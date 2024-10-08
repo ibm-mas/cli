@@ -131,21 +131,24 @@ class installArgBuilderMixin():
 
         # MAS Applications
         # -----------------------------------------------------------------------------
-        if self.installAssist:
-            command += f"  --assist-channel \"{self.getParam('mas_app_channel_assist')}\"{newline}"
-        if self.installIoT:
-            command += f"  --iot-channel \"{self.getParam('mas_app_channel_iot')}\"{newline}"
-        if self.installMonitor:
-            command += f"  --monitor-channel \"{self.getParam('mas_app_channel_monitor')}\"{newline}"
-        if self.installManage:
-            command += f"  --manage-channel \"{self.getParam('mas_app_channel_manage')}\"{newline}"
-        if self.installOptimizer:
-            command += f"  --optimizer-channel \"{self.getParam('mas_app_channel_optimizer')}\""
-            command += f" --optimizer-plan \"{self.getParam('mas_app_plan_optimizer')}\"{newline}"
-        if self.installPredict:
-            command += f"  --predict-channel \"{self.getParam('mas_app_channel_predict')}\"{newline}"
-        if self.installInspection:
-            command += f"  --visualinspection-channel \"{self.getParam('mas_app_channel_visualinspection')}\"{newline}"
+        if not self.preview:
+            if self.installAssist:
+                command += f"  --assist-channel \"{self.getParam('mas_app_channel_assist')}\"{newline}"
+            if self.installIoT:
+                command += f"  --iot-channel \"{self.getParam('mas_app_channel_iot')}\"{newline}"
+            if self.installMonitor:
+                command += f"  --monitor-channel \"{self.getParam('mas_app_channel_monitor')}\"{newline}"
+            if self.installManage:
+                command += f"  --manage-channel \"{self.getParam('mas_app_channel_manage')}\"{newline}"
+            if self.installOptimizer:
+                command += f"  --optimizer-channel \"{self.getParam('mas_app_channel_optimizer')}\""
+                command += f" --optimizer-plan \"{self.getParam('mas_app_plan_optimizer')}\"{newline}"
+            if self.installPredict:
+                command += f"  --predict-channel \"{self.getParam('mas_app_channel_predict')}\"{newline}"
+            if self.installInspection:
+                command += f"  --visualinspection-channel \"{self.getParam('mas_app_channel_visualinspection')}\"{newline}"
+        else:
+            pass
 
         # Arcgis
         # -----------------------------------------------------------------------------
