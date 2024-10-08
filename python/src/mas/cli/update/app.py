@@ -37,6 +37,7 @@ class UpdateApp(BaseApp):
         """
         self.args = updateArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
+        self.devMode = self.args.dev_mode
 
         if self.args.mas_catalog_version:
             # Non-interactive mode
@@ -53,7 +54,13 @@ class UpdateApp(BaseApp):
                 "dro_migration",
                 "dro_storage_class",
                 "dro_namespace",
-                "skip_pre_check"
+                "skip_pre_check",
+                "dev_mode",
+                "cpd_product_version",
+                # Dev Mode
+                "artifactory_username",
+                "artifactory_token"
+
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -92,7 +99,8 @@ class UpdateApp(BaseApp):
             self.chooseCatalog()
 
         # Validations
-        self.validateCatalog()
+        if not self.devMode:
+            self.validateCatalog()
 
         self.printH1("Dependency Update Checks")
         with Halo(text='Checking for IBM Watson Discovery', spinner=self.spinner) as h:
@@ -167,7 +175,6 @@ class UpdateApp(BaseApp):
                 "Please carefully review your choices above, correcting mistakes now is much easier than after the update has begun"
             ])
             continueWithUpdate = self.yesOrNo("Proceed with these settings")
-
         # Prepare the namespace and launch the installation pipeline
         if self.noConfirm or continueWithUpdate:
             self.createTektonFileWithDigest()
@@ -236,8 +243,8 @@ class UpdateApp(BaseApp):
 
     def chooseCatalog(self) -> None:
         self.printH1("Select IBM Maximo Operator Catalog Version")
-        arch = self.architecture
-        if arch == "s390x":
+
+        if self.architecture == "s390x":
             self.printDescription([
                 "Select MAS Catalog",
                 "  1) Oct 07 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
@@ -260,7 +267,6 @@ class UpdateApp(BaseApp):
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
     def validateCatalog(self) -> None:
-        arch = self.architecture
         if self.installedCatalogId is not None and self.installedCatalogId > self.getParam("mas_catalog_version"):
             self.fatalError(f"Selected catalog is older than the currently installed catalog.  Unable to update catalog from {self.installedCatalogId} to {self.getParam('mas_catalog_version')}")
 
@@ -347,13 +353,19 @@ class UpdateApp(BaseApp):
                     # the case bundles in there anymore
                     # Longer term we will centralise this information inside the mas-devops python collection,
                     # where it can be made available to both the ansible collection and this python package.
+                    defaultMongoVersion = "6.0.12"
                     mongoVersions = {
                         "v9-240625-amd64": "6.0.12",
                         "v9-240730-amd64": "6.0.12",
-                        "v9-240827-amd64": "6.0.12"
+                        "v9-240827-amd64": "6.0.12",
+                        "v9-241003-amd64": "6.0.12"
                     }
+                    catalogVersion = self.getParam('mas_catalog_version')
+                    if catalogVersion in mongoVersions:
+                        targetMongoVersion = mongoVersions[self.getParam('mas_catalog_version')]
+                    else:
+                        targetMongoVersion = defaultMongoVersion
 
-                    targetMongoVersion = mongoVersions[self.getParam('mas_catalog_version')]
                     self.setParam("mongodb_version", targetMongoVersion)
 
                     targetMongoVersionMajor = targetMongoVersion.split(".")[0]
@@ -451,6 +463,9 @@ class UpdateApp(BaseApp):
                                 print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
                             self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
 
+                if self.getParam("dro_migration") == "true":
+                    self.setParam("uds_action", "install-dro")
+
             except (ResourceNotFoundError, NotFoundError) as e:
                 # UDS has never been installed on this cluster
                 logger.debug("UDS has not been installed on this cluster before")
@@ -465,7 +480,8 @@ class UpdateApp(BaseApp):
         cp4dVersions = {
             "v9-240625-amd64": "4.8.0",
             "v9-240730-amd64": "4.8.0",
-            "v9-240827-amd64": "4.8.0"
+            "v9-240827-amd64": "4.8.0",
+            "v9-241003-amd64": "4.8.0"
             
         }
 
@@ -487,7 +503,10 @@ class UpdateApp(BaseApp):
                 if len(cpds) > 0:
                     cpdInstanceNamespace = cpds[0]["metadata"]["namespace"]
                     cpdInstanceVersion = cpds[0]["spec"]["version"]
-                    cpdTargetVersion = cp4dVersions[self.getParam("mas_catalog_version")]
+                    if self.args.cpd_product_version:
+                        cpdTargetVersion = self.getParam("cpd_product_version")
+                    else:
+                        cpdTargetVersion = cp4dVersions[self.getParam("mas_catalog_version")]
 
                     currentCpdVersionMajorMinor = f"{cpdInstanceVersion.split('.')[0]}.{cpdInstanceVersion.split('.')[1]}"
                     targetCpdVersionMajorMinor = f"{cpdTargetVersion.split('.')[0]}.{cpdTargetVersion.split('.')[1]}"
@@ -503,7 +522,7 @@ class UpdateApp(BaseApp):
                                 "<u>Dependency Update Notice</u>",
                                 f"Cloud Pak For Data is currently running version {cpdInstanceVersion} and will be updated to version {cpdTargetVersion}",
                                 "It is recommended that you backup your Cloud Pak for Data instance before proceeding:",
-                                "  <u>https://www.ibm.com/docs/en/cloud-paks/cp-data/4.8.x?topic=administering-backing-up-restoring-cloud-pak-data</u>"
+                                "  <u>https://www.ibm.com/docs/en/cloud-paks/cp-data/5.0.x?topic=administering-backing-up-restoring-cloud-pak-data</u>"
                             ])
 
                         # Lookup the storage classes already used by CP4D

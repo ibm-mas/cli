@@ -36,6 +36,12 @@ spec:
       type: string
     - name: gpu_driver_repository_path
       type: string
+    - name: nfd_install_plan
+      type: string
+      default: "Automatic"
+    - name: gpu_install_plan
+      type: string
+      default: "Automatic"
 
   stepTemplate:
     name: gitops-nvidia-gpu
@@ -64,10 +70,14 @@ spec:
         value: $(params.nfd_namespace)
       - name: NFD_CHANNEL
         value: $(params.nfd_channel)
+      - name: NFD_INSTALL_PLAN
+        value: $(params.nfd_install_plan)
       - name: GPU_NAMESPACE
         value: $(params.gpu_namespace)
       - name: GPU_CHANNEL
         value: $(params.gpu_channel)
+      - name: GPU_INSTALL_PLAN
+        value: $(params.gpu_install_plan)
       - name: GPU_DRIVER_VERSION
         value: $(params.gpu_driver_version)
       - name: GPU_DRIVER_REPOSITORY_PATH

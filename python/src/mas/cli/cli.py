@@ -131,8 +131,6 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self._isSNO = None
 
-        # For multi-architecture purpose
-        self.architecture = "amd64"
 
         self.compatibilityMatrix = {
             "9.0.x": {

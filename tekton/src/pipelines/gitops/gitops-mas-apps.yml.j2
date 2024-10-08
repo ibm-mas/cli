@@ -234,6 +234,18 @@ spec:
     - name: cpd_scale_config
       type: string
       default: "medium"
+    - name: cpd_platform_install_plan
+      type: string
+      default: "Automatic"
+    - name: cpd_namespace_scope_install_plan
+      type: string
+      default: "Automatic"
+    - name: cpd_licensing_install_plan
+      type: string
+      default: "Automatic"
+    - name: cpd_cpfs_install_plan
+      type: string
+      default: "Automatic"
 
       #CP4D Services
     - name: cpd_service_block_storage_class
@@ -243,6 +255,27 @@ spec:
     - name: cpd_service_scale_config
       type: string
       default: "small"
+    - name: cpd_service_installplan_approval
+      type: string
+      default: "Automatic"
+    - name: cpd_ccs_install_plan
+      type: string
+      default: "Automatic"
+    - name: cpd_datarefinery_install_plan
+      type: string
+      default: "Automatic"
+    - name: cpd_ws_install_plan
+      type: string
+      default: "Automatic"
+    - name: rabbitmq_install_plan
+      type: string
+      default: "Automatic"
+    - name: elasticsearch_install_plan
+      type: string
+      default: "Automatic"
+    - name: canvasbase_install_plan
+      type: string
+      default: "Automatic"
 
       #CP4D wml, analytics, openscale, spss modeler
     - name: cp4d_wsl_action
@@ -259,6 +292,9 @@ spec:
     - name: mas_app_channel_iot
       type: string
       default: ""
+    - name: mas_app_install_plan_iot
+      type: string
+      default: "Automatic"
     - name: mas_app_catalog_source_iot
       type: string
       default: ibm-operator-catalog
@@ -285,6 +321,9 @@ spec:
     - name: mas_app_channel_manage
       type: string
       default: ""
+    - name: mas_app_install_plan_manage
+      type: string
+      default: "Automatic"
     - name: mas_app_catalog_source_manage
       type: string
       default: ibm-operator-catalog
@@ -317,6 +356,9 @@ spec:
     - name: mas_app_channel_monitor
       type: string
       default: ""
+    - name: mas_app_install_plan_monitor
+      type: string
+      default: "Automatic"
     - name: mas_app_catalog_source_monitor
       type: string
       default: ibm-operator-catalog
@@ -343,6 +385,9 @@ spec:
     - name: mas_app_channel_visualinspection
       type: string
       default: ""
+    - name: mas_app_install_plan_visualinspection
+      type: string
+      default: "Automatic"
     - name: mas_app_catalog_source_visualinspection
       type: string
       default: ibm-operator-catalog
@@ -372,6 +417,9 @@ spec:
     - name: mas_app_channel_assist
       type: string
       default: ""
+    - name: mas_app_install_plan_assist
+      type: string
+      default: "Automatic"
     - name: mas_app_catalog_source_assist
       type: string
       default: ibm-operator-catalog
@@ -398,6 +446,9 @@ spec:
     - name: mas_app_channel_optimizer
       type: string
       default: ""
+    - name: mas_app_install_plan_optimizer
+      type: string
+      default: "Automatic"
     - name: mas_app_catalog_source_optimizer
       type: string
       default: ibm-operator-catalog
@@ -427,6 +478,9 @@ spec:
     - name: mas_app_channel_predict
       type: string
       default: ""
+    - name: mas_app_install_plan_predict
+      type: string
+      default: "Automatic"
     - name: mas_app_catalog_source_predict
       type: string
       default: ibm-operator-catalog
@@ -889,6 +943,14 @@ spec:
           value: $(params.cpfs_size)
         - name: cpd_scale_config
           value: $(params.cpd_scale_config)
+        - name: cpd_platform_install_plan
+          value: $(params.cpd_platform_install_plan)
+        - name: cpd_namespace_scope_install_plan
+          value: $(params.cpd_namespace_scope_install_plan)
+        - name: cpd_licensing_install_plan
+          value: $(params.cpd_licensing_install_plan)
+        - name: cpd_cpfs_install_plan
+          value: $(params.cpd_cpfs_install_plan)
 
       workspaces:
         - name: configs
@@ -1007,6 +1069,21 @@ spec:
           value: $(params.cpd_service_storage_class)
         - name: cpd_service_scale_config
           value: $(params.cpd_service_scale_config)
+        - name: cpd_service_installplan_approval
+          value: $(params.cpd_service_installplan_approval)
+        - name: cpd_ccs_install_plan
+          value: $(params.cpd_ccs_install_plan)
+        - name: cpd_datarefinery_install_plan
+          value: $(params.cpd_datarefinery_install_plan)
+        - name: cpd_ws_install_plan
+          value: $(params.cpd_ws_install_plan)
+        - name: rabbitmq_install_plan
+          value: $(params.rabbitmq_install_plan)
+        - name: elasticsearch_install_plan
+          value: $(params.elasticsearch_install_plan)
+        - name: canvasbase_install_plan
+          value: $(params.canvasbase_install_plan)
+
 
       workspaces:
         - name: configs
@@ -1086,6 +1163,20 @@ spec:
           value: $(params.cpd_service_storage_class)
         - name: cpd_service_scale_config
           value: $(params.cpd_service_scale_config)
+        - name: cpd_service_installplan_approval
+          value: $(params.cpd_service_installplan_approval)
+        - name: cpd_ccs_install_plan
+          value: $(params.cpd_ccs_install_plan)
+        - name: cpd_datarefinery_install_plan
+          value: $(params.cpd_datarefinery_install_plan)
+        - name: cpd_ws_install_plan
+          value: $(params.cpd_ws_install_plan)
+        - name: rabbitmq_install_plan
+          value: $(params.rabbitmq_install_plan)
+        - name: elasticsearch_install_plan
+          value: $(params.elasticsearch_install_plan)
+        - name: canvasbase_install_plan
+          value: $(params.canvasbase_install_plan)
 
       workspaces:
         - name: configs
@@ -1126,6 +1217,20 @@ spec:
           value: $(params.cpd_service_storage_class)
         - name: cpd_service_scale_config
           value: $(params.cpd_service_scale_config)
+        - name: cpd_service_installplan_approval
+          value: $(params.cpd_service_installplan_approval)
+        - name: cpd_ccs_install_plan
+          value: $(params.cpd_ccs_install_plan)
+        - name: cpd_datarefinery_install_plan
+          value: $(params.cpd_datarefinery_install_plan)
+        - name: cpd_ws_install_plan
+          value: $(params.cpd_ws_install_plan)
+        - name: rabbitmq_install_plan
+          value: $(params.rabbitmq_install_plan)
+        - name: elasticsearch_install_plan
+          value: $(params.elasticsearch_install_plan)
+        - name: canvasbase_install_plan
+          value: $(params.canvasbase_install_plan)
 
       workspaces:
         - name: configs
@@ -1167,6 +1272,20 @@ spec:
           value: $(params.cpd_service_storage_class)
         - name: cpd_service_scale_config
           value: $(params.cpd_service_scale_config)
+        - name: cpd_service_installplan_approval
+          value: $(params.cpd_service_installplan_approval)
+        - name: cpd_ccs_install_plan
+          value: $(params.cpd_ccs_install_plan)
+        - name: cpd_datarefinery_install_plan
+          value: $(params.cpd_datarefinery_install_plan)
+        - name: cpd_ws_install_plan
+          value: $(params.cpd_ws_install_plan)
+        - name: rabbitmq_install_plan
+          value: $(params.rabbitmq_install_plan)
+        - name: elasticsearch_install_plan
+          value: $(params.elasticsearch_install_plan)
+        - name: canvasbase_install_plan
+          value: $(params.canvasbase_install_plan)
 
       workspaces:
         - name: configs
@@ -1208,6 +1327,20 @@ spec:
           value: $(params.cpd_service_storage_class)
         - name: cpd_service_scale_config
           value: $(params.cpd_service_scale_config)
+        - name: cpd_service_installplan_approval
+          value: $(params.cpd_service_installplan_approval)
+        - name: cpd_ccs_install_plan
+          value: $(params.cpd_ccs_install_plan)
+        - name: cpd_datarefinery_install_plan
+          value: $(params.cpd_datarefinery_install_plan)
+        - name: cpd_ws_install_plan
+          value: $(params.cpd_ws_install_plan)
+        - name: rabbitmq_install_plan
+          value: $(params.rabbitmq_install_plan)
+        - name: elasticsearch_install_plan
+          value: $(params.elasticsearch_install_plan)
+        - name: canvasbase_install_plan
+          value: $(params.canvasbase_install_plan)
 
       workspaces:
         - name: configs
