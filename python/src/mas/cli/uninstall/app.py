@@ -39,22 +39,13 @@ class UninstallApp(BaseApp):
         self.noConfirm = args.no_confirm
 
         if args.uninstall_all_deps:
-            if not self.preview:
-                  uninstallGrafana = True
-                  uninstallIBMCatalog = True
-                  uninstallCommonServices = True
-                  uninstallCertManager = True
-                  uninstallUDS = True
-                  uninstallMongoDb = True
-                  uninstallSLS = True
-            else:
-                  uninstallGrafana = False
-                  uninstallIBMCatalog = True
-                  uninstallCommonServices = True
-                  uninstallCertManager = True
-                  uninstallUDS = True
-                  uninstallMongoDb = False
-                  uninstallSLS = True
+              uninstallGrafana = True
+              uninstallIBMCatalog = True
+              uninstallCommonServices = True
+              uninstallCertManager = True
+              uninstallUDS = True
+              uninstallMongoDb = True
+              uninstallSLS = True
         else:
                uninstallGrafana = args.uninstall_grafana
                uninstallIBMCatalog = args.uninstall_ibm_catalog
@@ -64,10 +55,9 @@ class UninstallApp(BaseApp):
                uninstallMongoDb = args.uninstall_mongodb
                uninstallSLS = args.uninstall_sls
 
-
-        #if  self.preview: #For s390x grafana/mongodb is not installed
-             #uninstallGrafana = False
-             #uninstallMongoDb = False
+        if self.preview: #For s390x grafana/mongodb is not installed
+             uninstallGrafana = False
+             uninstallMongoDb = False
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
