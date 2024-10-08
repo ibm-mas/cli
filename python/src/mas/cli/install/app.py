@@ -58,15 +58,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         try:
             catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
             catalogDisplayName = catalog.spec.displayName
-            arch=self.architecture
+            #For s390x support adding self.architecture
 
-            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-{arch})", catalogDisplayName)
+            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-{self.architecture})", catalogDisplayName)
             if m:
                 # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
                 catalogId = m.group("catalogId")
-            elif re.match(r".+v8-{arch}", catalogDisplayName):
-                catalogId = "v8-{arch}"
+            elif re.match(r".+v8-{self.architecture}", catalogDisplayName):
+                catalogId = "v8-{self.architecture}"
             else:
                 self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
 
@@ -139,9 +139,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configCatalog(self,installoption):
         self.printH1("IBM Maximo Operator Catalog Selection")
-        arch=self.architecture
         if self.devMode:
-            self.promptForString("Select catalog source", "mas_catalog_version", default=f"v9-master-{arch}")
+            self.promptForString("Select catalog source", "mas_catalog_version", default=f"v9-master-{self.architecture}")
             self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
         else:
             print(tabulate(installoption, headers="keys", tablefmt="simple_grid"))
@@ -183,10 +182,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             else:
                 self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
                 self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
-
-    #def configMongoDb(self) -> None:
-        #self.printH1("Configure MongoDb")
-        #self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
 
     def configSpecialCharacters(self):
         self.printH1("Configure special characters for userID and username")
@@ -433,6 +428,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.configAppChannel("manage")
 
         # Predict for MAS 8.10 is effectively unsupported now, because it has not shipped support for Cloud Pak for Data 4.8 as of June 2023 catalog update
+
         if self.installIoT and self.installManage and self.getParam("mas_channel") != "8.10.x":
             self.installPredict = self.yesOrNo("Install Predict")
         else:
@@ -443,9 +439,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Assist is only installable on MAS 9.0.x due to withdrawal of support for Watson Discovery in our managed dependency stack and the inability of Assist 8.x to support this
         if not self.getParam("mas_channel").startswith("8."):
-            self.installAssist = self.yesOrNo("Install Assist")
-            if self.installAssist:
-                self.configAppChannel("assist")
+            if not self.preview:
+                self.installAssist = self.yesOrNo("Install Assist")
+                if self.installAssist:
+                    self.configAppChannel("assist")
         else:
             self.installAssist = False
         if not self.preview:
@@ -604,10 +601,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configApps()
         self.validateInternalRegistryAvailable()
         # Note: manageSettings(), predictSettings(), or assistSettings() functions can trigger configCP4D()
+        #Installs only manage, no manage components for s390x
         self.manageSettings()
-        self.optimizerSettings()
-        self.predictSettings()
-        self.assistSettings()
+
+        if not self.preview:
+            self.optimizerSettings()
+            self.predictSettings()
+            self.assistSettings()
 
         # Dependencies
         self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
@@ -651,8 +651,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
             "approval_visualinspection": {"id": "app-cfg-visualinspection"}  # After Visual Inspection workspace has been configured
         }
-
-        self.configGrafana()
+        if not self.preview:
+            self.configGrafana()
 
         requiredParams = [
             # MAS
@@ -940,7 +940,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
 
-        #Setting for Install option for s390x
+        #Setting for Install option for s390x - using dev catalogs
         self.installOptions_s390x = [
             {
                 "#": 1,

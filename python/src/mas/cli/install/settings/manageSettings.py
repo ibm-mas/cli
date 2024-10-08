@@ -42,8 +42,9 @@ class ManageSettingsMixin():
         if self.installManage:
             self.printH1("Configure Maximo Manage")
             self.printDescription(["Customize your Manage installation, refer to the product documentation for more information"])
-
-            self.manageSettingsComponents()
+            #Installs only manage, no manage components for s390x
+            if not self.preview:
+                self.manageSettingsComponents()
             self.arcgisSettings()
 
             self.manageSettingsServerBundleConfig()
