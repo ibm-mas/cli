@@ -109,7 +109,10 @@ class UninstallApp(BaseApp):
                 else:
                     uninstallSLS = self.yesOrNo("Uninstall IBM Suite Licensing Service")
 
-                uninstallGrafana = self.yesOrNo("Uninstall Grafana")
+                if not self.preview:
+                   uninstallGrafana = self.yesOrNo("Uninstall Grafana")
+                else:
+                   pass
                 self.printDescription(["If you choose to uninstall the IBM Operator Catalog, IBM Common Services, IBM User Data Services, &amp; IBM Suite License Service will be automatically set to uninstall as well"])
                 uninstallIBMCatalog = self.yesOrNo("Uninstall IBM operator Catalog")
                 if uninstallIBMCatalog:
