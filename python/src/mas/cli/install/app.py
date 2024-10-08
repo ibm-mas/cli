@@ -409,6 +409,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
 
     def configApps(self):
+        self.installIoT = False
         if not self.preview:
             self.printH1("Application Selection")
             self.installIoT = self.yesOrNo("Install IoT")
