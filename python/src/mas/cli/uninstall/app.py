@@ -55,6 +55,10 @@ class UninstallApp(BaseApp):
             uninstallMongoDb = args.uninstall_mongodb
             uninstallSLS = args.uninstall_sls
 
+        if  self.preview: #For s390x grafana/mongodb is not installed
+             uninstallGrafana = False
+             uninstallMongoDb = False
+
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
