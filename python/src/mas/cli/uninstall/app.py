@@ -104,15 +104,21 @@ class UninstallApp(BaseApp):
                 uninstallUDS = True
                 uninstallMongoDb = True
                 uninstallSLS = True
+                if self.preview:
+                   uninstallGrafana = False
+                   uninstallMongoDb = False
             else:
-                self.printDescription(["If you choose to uninstall MongoDb, IBM Suite License Service will be automatically set to uninstall as well"])
-                uninstallMongoDb = self.yesOrNo("Uninstall MongoDb")
-                if uninstallMongoDb:
-                    # If you are removing MongoDb then SLS needs to be uninstalled too
-                    uninstallSLS = True
+                if not self.preview:
+                    self.printDescription(["If you choose to uninstall MongoDb, IBM Suite License Service will be automatically set to uninstall as well"])
+                    uninstallMongoDb = self.yesOrNo("Uninstall MongoDb")
+                    if uninstallMongoDb:
+                        # If you are removing MongoDb then SLS needs to be uninstalled too
+                        uninstallSLS = True
+                    else:
+                        uninstallSLS = self.yesOrNo("Uninstall IBM Suite Licensing Service")
                 else:
+                    #Mongodb is not installed in s390x
                     uninstallSLS = self.yesOrNo("Uninstall IBM Suite Licensing Service")
-
                 if not self.preview:
                    uninstallGrafana = self.yesOrNo("Uninstall Grafana")
                 else:
