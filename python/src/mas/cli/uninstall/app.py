@@ -209,7 +209,7 @@ class UninstallApp(BaseApp):
                     certManagerProvider = "redhat",
                     uninstallCertManager = uninstallCertManager,
                     uninstallGrafana = uninstallGrafana,
-                    uninstallCatalog = uninstallCatalog,
+                    uninstallCatalog = uninstallCommonServices,
                     uninstallCommonServices = uninstallCommonServices,
                     uninstallUDS = uninstallUDS,
                     uninstallMongoDb = uninstallMongoDb,
