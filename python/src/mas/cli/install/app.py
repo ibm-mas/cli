@@ -826,7 +826,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
 
             elif key == "assist_channel":
-                if value is not None and and self.architecture != 's390x':
+                if value is not None and self.architecture != 's390x':
                     self.setParam("mas_app_channel_assist", value)
                     self.installAssist = True
             elif key == "iot_channel":
