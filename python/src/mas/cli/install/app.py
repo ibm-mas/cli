@@ -446,12 +446,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             self.installAssist = False
 
-            self.installOptimizer = self.yesOrNo("Install Optimizer")
-            if self.installOptimizer:
-                self.configAppChannel("optimizer")
+        self.installOptimizer = self.yesOrNo("Install Optimizer")
+        if self.installOptimizer:
+            self.configAppChannel("optimizer")
 
-            self.installInspection = self.yesOrNo("Install Visual Inspection")
-            if self.installInspection:
+        self.installInspection = self.yesOrNo("Install Visual Inspection")
+        if self.installInspection:
                 self.configAppChannel("visualinspection")
 
 
