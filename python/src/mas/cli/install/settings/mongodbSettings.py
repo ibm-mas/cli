@@ -22,7 +22,7 @@ class MongodbSettingsMixin():
             self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
             self.setParam("mongodb_action", "install")
          else:
-            mongodb_namespace = 'mongodb'
+            mongodb_namespace = 'mongoce'
             self.setParam("mongodb_action", "byo")
             self.selectLocalConfigDir()
 
