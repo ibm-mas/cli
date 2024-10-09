@@ -655,6 +655,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         }
         if not self.preview:
             self.configGrafana()
+            self.installAssist()
+            self.installIoT()
+            self.installMonitor()
+            self.installPredict()
+            self.installInspection()
+            self.installOptimizer()
 
         requiredParams = [
             # MAS
