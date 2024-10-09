@@ -655,12 +655,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         }
         if not self.preview:
             self.configGrafana()
-            self.installAssist()
-            self.installIoT()
-            self.installMonitor()
-            self.installPredict()
-            self.installInspection()
-            self.installOptimizer()
 
         requiredParams = [
             # MAS
@@ -830,16 +824,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     self.setParam("mas_pod_templates_dir", value)
 
+
             elif key == "assist_channel":
-                if value is not None:
+                if value is not None and and self.architecture != 's390x':
                     self.setParam("mas_app_channel_assist", value)
                     self.installAssist = True
             elif key == "iot_channel":
-                if value is not None:
+                if value is not None and self.architecture != 's390x':
                     self.setParam("mas_app_channel_iot", value)
                     self.installIoT = True
             elif key == "monitor_channel":
-                if value is not None:
+                if value is not None and self.architecture != 's390x':
                     self.setParam("mas_app_channel_monitor", value)
                     self.installMonitor = True
             elif key == "manage_channel":
@@ -847,20 +842,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("mas_app_channel_manage", value)
                     self.installManage = True
             elif key == "predict_channel":
-                if value is not None:
+                if value is not None and self.architecture != 's390x':
                     self.setParam("mas_app_channel_predict", value)
                     self.installPredict = True
                     self.deployCP4D = True
             elif key == "visualinspection_channel":
-                if value is not None:
+                if value is not None and self.architecture != 's390x':
                     self.setParam("mas_app_channel_visualinspection", value)
                     self.installInspection = True
             elif key == "optimizer_channel":
-                if value is not None:
+                if value is not None and self.architecture != 's390x':
                     self.setParam("mas_app_channel_optimizer", value)
                     self.installOptimizer = True
             elif key == "optimizer_plan":
-                if value is not None:
+                if value is not None and self.architecture != 's390x':
                     self.setParam("mas_app_plan_optimizer", value)
 
             # Manage advanced settings that need extra processing
