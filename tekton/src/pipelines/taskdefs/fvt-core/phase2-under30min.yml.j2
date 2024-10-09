@@ -48,13 +48,4 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter: {{ runAfter }}
 
-# coreapi-selfreg  ~20m
-# ------------------------------------------------------------------------------
-- name: coreapi-selfreg
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    - name: fvt_test_suite
-      value: coreapi-selfreg
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-  runAfter:
-    - useractivation-inactivity
+
