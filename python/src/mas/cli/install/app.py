@@ -409,9 +409,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
 
     def configApps(self):
-        #self.installIoT = False
+
+
+        self.printH1("Application Selection")
+        self.installManage = self.yesOrNo("Install Manage")
         if not self.preview:
-            self.printH1("Application Selection")
+             if self.installManage:
+                        self.configAppChannel("manage")
             if not self.preview:
                self.installIoT = self.yesOrNo("Install IoT")
             else:
@@ -426,10 +430,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if self.installMonitor:
                 self.configAppChannel("monitor")
 
-        self.installManage = self.yesOrNo("Install Manage")
 
-        if self.installManage:
-            self.configAppChannel("manage")
+
+
 
         # Predict for MAS 8.10 is effectively unsupported now, because it has not shipped support for Cloud Pak for Data 4.8 as of June 2023 catalog update
         if not self.preview:
@@ -441,7 +444,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if self.installPredict:
                self.configAppChannel("predict")
 
-        # Assist is only installable on MAS 9.0.x due to withdrawal of support for Watson Discovery in our managed dependency stack and the inability of Assist 8.x to support this
+            # Assist is only installable on MAS 9.0.x due to withdrawal of support for Watson Discovery in our managed dependency stack and the inability of Assist 8.x to support this
             if not self.getParam("mas_channel").startswith("8."):
                 self.installAssist = self.yesOrNo("Install Assist")
                 if self.installAssist:
@@ -456,6 +459,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.installInspection = self.yesOrNo("Install Visual Inspection")
             if self.installInspection:
                     self.configAppChannel("visualinspection")
+        else:
+            self.installPredict = False
+            self.installAssist = False
+            self.installOptimizer = False
+            self.installInspection = False
+            self.installMonitor = False
+            self.installIoT = False
 
 
 
