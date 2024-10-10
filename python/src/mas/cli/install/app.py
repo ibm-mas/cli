@@ -1110,10 +1110,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.nonInteractiveMode()
 
         # After we've configured the basic inputs, we can calculate these ones
-        if self.installIoT:
-            self.setIoTStorageClasses()
-        if self.deployCP4D:
-            self.configCP4D()
+        if not self.preview:
+            if self.installIoT:
+                self.setIoTStorageClasses()
+            if self.deployCP4D:
+                self.configCP4D()
 
         # The entitlement file for SLS is mounted as a secret in /workspace/entitlement
         entitlementFileBaseName = path.basename(self.slsLicenseFileLocal)
