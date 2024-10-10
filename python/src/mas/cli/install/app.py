@@ -410,17 +410,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configApps(self):
 
-
         self.printH1("Application Selection")
         self.installManage = self.yesOrNo("Install Manage")
         if not self.preview:
-             if self.installManage:
-                        self.configAppChannel("manage")
-            if not self.preview:
-               self.installIoT = self.yesOrNo("Install IoT")
-            else:
-               self.installIoT = False
-
+            self.installIoT = self.yesOrNo("Install IoT")
             if self.installIoT:
                 self.configAppChannel("iot")
                 self.installMonitor = self.yesOrNo("Install Monitor")
@@ -430,12 +423,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if self.installMonitor:
                 self.configAppChannel("monitor")
 
+            if self.installManage:
+                self.configAppChannel("manage")
 
+            # Predict for MAS 8.10 is effectively unsupported now, because it has not shipped support for Cloud Pak for Data 4.8 as of June 2023 catalog update
 
-
-
-        # Predict for MAS 8.10 is effectively unsupported now, because it has not shipped support for Cloud Pak for Data 4.8 as of June 2023 catalog update
-        if not self.preview:
             if self.installIoT and self.installManage and self.getParam("mas_channel") != "8.10.x":
                 self.installPredict = self.yesOrNo("Install Predict")
             else:
