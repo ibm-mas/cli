@@ -82,6 +82,16 @@
       value: coreapi-addons
   runAfter: {{ runAfter }}
 
+# coreapi-selfreg  ~5m
+# ------------------------------------------------------------------------------
+- name: coreapi-selfreg
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreapi-selfreg
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter: {{ runAfter }}
+
 # coreapi-mobileapi ~5m
 # -----------------------------------------------------------------------------
 - name: coreapi-mobileapi
