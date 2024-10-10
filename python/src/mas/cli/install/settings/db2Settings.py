@@ -11,19 +11,19 @@
 from os import path
 from prompt_toolkit import print_formatted_text
 from ...cli import BaseApp
-from ..app import InstallApp
+
 
 class Db2SettingsMixin():
     def configDb2(self) -> None:
         self.printH1("Configure Databases")
         # The channel used for Db2 used has not changed since the January 2024 catalog update
         self.params["db2_channel"] = "v110509.0"
-
-        if not self.installIoT and not self.installManage:
-            print_formatted_text("No applications have been selected that require a Db2 installation")
-            self.setParam("db2_action_system", "none")
-            self.setParam("db2_action_manage", "none")
-            return
+        if not self.preview:
+            if not self.installIoT and not self.installManage:
+                print_formatted_text("No applications have been selected that require a Db2 installation")
+                self.setParam("db2_action_system", "none")
+                self.setParam("db2_action_manage", "none")
+                return
 
         self.printDescription([
             "The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, Manage, Monitor, &amp; Predict) or you may choose to configure MAS to use an existing database"
@@ -58,32 +58,32 @@ class Db2SettingsMixin():
             self.setParam("db2_data_storage_size", "100Gi")
 
         instanceId = self.getParam('mas_instance_id')
-
+        if not self.preview:
         # Do we need to set up an IoT database?
-        if self.installIoT:
-            self.printH2("Database Configuration for Maximo IoT")
-            self.printDescription([
-                "Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source",
-                " - Only IBM Db2 is supported for this database"
-            ])
-            if self.yesOrNo("Create system Db2 instance using the IBM Db2 Universal Operator"):
-                self.setParam("db2_action_system", "install")
-            else:
-                self.setParam("db2_action_system", "byo")
-
-                self.selectLocalConfigDir()
-
-                # Check if a configuration already exists before creating a new one
-                jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-system.yaml")
-                print_formatted_text(f"Searching for system database configuration file in {jdbcCfgFile} ...")
-                if path.exists(jdbcCfgFile):
-                    if self.yesOrNo(f"System database configuration file 'jdbc-{instanceId}-system.yaml' already exists.  Do you want to generate a new one"):
-                        self.generateJDBCCfg(instanceId=instanceId, scope="system", destination=jdbcCfgFile)
+            if self.installIoT:
+                self.printH2("Database Configuration for Maximo IoT")
+                self.printDescription([
+                    "Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source",
+                    " - Only IBM Db2 is supported for this database"
+                ])
+                if self.yesOrNo("Create system Db2 instance using the IBM Db2 Universal Operator"):
+                    self.setParam("db2_action_system", "install")
                 else:
-                    print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid system database configuration file now ...")
-                    self.generateJDBCCfg(instanceId=instanceId, scope="system", destination=jdbcCfgFile)
-        else:
-            self.setParam("db2_action_system", "none")
+                    self.setParam("db2_action_system", "byo")
+
+                    self.selectLocalConfigDir()
+
+                    # Check if a configuration already exists before creating a new one
+                    jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-system.yaml")
+                    print_formatted_text(f"Searching for system database configuration file in {jdbcCfgFile} ...")
+                    if path.exists(jdbcCfgFile):
+                        if self.yesOrNo(f"System database configuration file 'jdbc-{instanceId}-system.yaml' already exists.  Do you want to generate a new one"):
+                            self.generateJDBCCfg(instanceId=instanceId, scope="system", destination=jdbcCfgFile)
+                    else:
+                        print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid system database configuration file now ...")
+                        self.generateJDBCCfg(instanceId=instanceId, scope="system", destination=jdbcCfgFile)
+            else:
+                self.setParam("db2_action_system", "none")
 
         if self.installManage:
             self.printH2("Database Configuration for Maximo Manage")
