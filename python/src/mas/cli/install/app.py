@@ -410,18 +410,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configApps(self):
         #self.installIoT = False
-        #if not self.preview:
-        self.printH1("Application Selection")
-        self.installIoT = self.yesOrNo("Install IoT")
+        if not self.preview:
+            self.printH1("Application Selection")
+            self.installIoT = self.yesOrNo("Install IoT")
 
-        if self.installIoT:
-            self.configAppChannel("iot")
-            self.installMonitor = self.yesOrNo("Install Monitor")
-        else:
-            self.installMonitor = False
+            if self.installIoT:
+                self.configAppChannel("iot")
+                self.installMonitor = self.yesOrNo("Install Monitor")
+            else:
+                self.installMonitor = False
 
-        if self.installMonitor:
-            self.configAppChannel("monitor")
+            if self.installMonitor:
+                self.configAppChannel("monitor")
 
         self.installManage = self.yesOrNo("Install Manage")
 
@@ -434,9 +434,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.installPredict = self.yesOrNo("Install Predict")
         else:
             self.installPredict = False
-
-        if self.installPredict:
-            self.configAppChannel("predict")
+        if not self.preview:
+            if self.installPredict:
+                self.configAppChannel("predict")
 
         # Assist is only installable on MAS 9.0.x due to withdrawal of support for Watson Discovery in our managed dependency stack and the inability of Assist 8.x to support this
         if not self.getParam("mas_channel").startswith("8."):
@@ -445,14 +445,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.configAppChannel("assist")
         else:
             self.installAssist = False
+        if not self.preview:
+            self.installOptimizer = self.yesOrNo("Install Optimizer")
+            if self.installOptimizer:
+                self.configAppChannel("optimizer")
 
-        self.installOptimizer = self.yesOrNo("Install Optimizer")
-        if self.installOptimizer:
-            self.configAppChannel("optimizer")
-
-        self.installInspection = self.yesOrNo("Install Visual Inspection")
-        if self.installInspection:
-                self.configAppChannel("visualinspection")
+            self.installInspection = self.yesOrNo("Install Visual Inspection")
+            if self.installInspection:
+                    self.configAppChannel("visualinspection")
 
 
 
