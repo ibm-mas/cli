@@ -954,7 +954,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             },
             {
                 "#": 2,
-                "catalog": "v9-multiarch-s390x",
+                "catalog": "v9-multiarch-new-s390x",
                 "release": "9.0.x",
                 "core": "9.0.2",
                 "manage": "9.0.2"

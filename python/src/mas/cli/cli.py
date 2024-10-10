@@ -313,6 +313,7 @@ class BaseApp(PrintMixin, PromptMixin):
         if self._dynClient is None:
             print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
             exit(1)
+
     def setPreview(self):
         command = "oc get nodes -o jsonpath='{.items[0].status.nodeInfo.architecture}'"
         self.architecture = os.popen(command).read().strip()
