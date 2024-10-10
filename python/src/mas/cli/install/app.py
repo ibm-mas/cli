@@ -412,7 +412,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         #self.installIoT = False
         if not self.preview:
             self.printH1("Application Selection")
-            self.installIoT = self.yesOrNo("Install IoT")
+            if not self.preview:
+               self.installIoT = self.yesOrNo("Install IoT")
+            else:
+               self.installIoT = False
 
             if self.installIoT:
                 self.configAppChannel("iot")

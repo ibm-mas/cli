@@ -10,6 +10,8 @@
 
 from os import path
 from prompt_toolkit import print_formatted_text
+from ...cli import BaseApp
+from ..app import InstallApp
 
 class Db2SettingsMixin():
     def configDb2(self) -> None:
@@ -56,6 +58,7 @@ class Db2SettingsMixin():
             self.setParam("db2_data_storage_size", "100Gi")
 
         instanceId = self.getParam('mas_instance_id')
+
         # Do we need to set up an IoT database?
         if self.installIoT:
             self.printH2("Database Configuration for Maximo IoT")
