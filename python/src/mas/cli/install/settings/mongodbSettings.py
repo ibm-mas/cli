@@ -10,7 +10,7 @@
 
 from os import path
 from prompt_toolkit import print_formatted_text
-from ..cli import BaseApp
+from ...cli import BaseApp
 class MongodbSettingsMixin():
     def configMongoDb(self) -> None:
          self.printH1("Configure MongoDb")
