@@ -429,23 +429,23 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.configAppChannel("manage")
 
         # Predict for MAS 8.10 is effectively unsupported now, because it has not shipped support for Cloud Pak for Data 4.8 as of June 2023 catalog update
-        #if not self.preview:
-        if self.installIoT and self.installManage and self.getParam("mas_channel") != "8.10.x":
-            self.installPredict = self.yesOrNo("Install Predict")
-        else:
-            self.installPredict = False
         if not self.preview:
+            if self.installIoT and self.installManage and self.getParam("mas_channel") != "8.10.x":
+                self.installPredict = self.yesOrNo("Install Predict")
+            else:
+                self.installPredict = False
+
             if self.installPredict:
-                self.configAppChannel("predict")
+               self.configAppChannel("predict")
 
         # Assist is only installable on MAS 9.0.x due to withdrawal of support for Watson Discovery in our managed dependency stack and the inability of Assist 8.x to support this
-        if not self.getParam("mas_channel").startswith("8."):
-            self.installAssist = self.yesOrNo("Install Assist")
-            if self.installAssist:
-                self.configAppChannel("assist")
-        else:
-            self.installAssist = False
-        if not self.preview:
+            if not self.getParam("mas_channel").startswith("8."):
+                self.installAssist = self.yesOrNo("Install Assist")
+                if self.installAssist:
+                    self.configAppChannel("assist")
+            else:
+                self.installAssist = False
+
             self.installOptimizer = self.yesOrNo("Install Optimizer")
             if self.installOptimizer:
                 self.configAppChannel("optimizer")
