@@ -14,6 +14,8 @@ from prompt_toolkit import print_formatted_text, HTML
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import getConsoleURL
 
+from ..cli import setPreview
+
 logger = logging.getLogger(__name__)
 
 class InstallSummarizerMixin():
@@ -158,25 +160,26 @@ class InstallSummarizerMixin():
     def manageSummary(self) -> None:
         if self.installManage:
             self.printSummary("Manage", self.params["mas_app_channel_manage"])
-            print_formatted_text(HTML(f"  <SkyBlue>+ Components</SkyBlue>"))
-            self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Civil Infrastructure", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Envizi", "Enabled" if "envizi=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Health", "Enabled" if "health=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + HSE", "Enabled" if "hse=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Maximo IT", "Enabled" if "icd=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Nuclear", "Enabled" if "nuclear=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Oil & Gas", "Enabled" if "oilandgas=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Connector for Oracle", "Enabled" if "oracleadapter=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Connector for SAP", "Enabled" if "sapadapter=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Service Provider", "Enabled" if "serviceprovider=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Spatial", "Enabled" if "spatial=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Strategize", "Enabled" if "strategize=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Transportation", "Enabled" if "transportation=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Tririga", "Enabled" if "tririga=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Utilities", "Enabled" if "utilities=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Workday Applications", "Enabled" if "workday=" in self.getParam("mas_appws_components") else "Disabled")
+            if self.preview:
+                print_formatted_text(HTML(f"  <SkyBlue>+ Components</SkyBlue>"))
+                self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Civil Infrastructure", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Envizi", "Enabled" if "envizi=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Health", "Enabled" if "health=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + HSE", "Enabled" if "hse=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Maximo IT", "Enabled" if "icd=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Nuclear", "Enabled" if "nuclear=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Oil & Gas", "Enabled" if "oilandgas=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Connector for Oracle", "Enabled" if "oracleadapter=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Connector for SAP", "Enabled" if "sapadapter=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Service Provider", "Enabled" if "serviceprovider=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Spatial", "Enabled" if "spatial=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Strategize", "Enabled" if "strategize=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Transportation", "Enabled" if "transportation=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Tririga", "Enabled" if "tririga=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Utilities", "Enabled" if "utilities=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Workday Applications", "Enabled" if "workday=" in self.getParam("mas_appws_components") else "Disabled")
 
             self.printParamSummary("+ Server bundle size", "mas_app_settings_server_bundles_size")
             self.printParamSummary("+ Enable JMS queues", "mas_app_settings_default_jms")
