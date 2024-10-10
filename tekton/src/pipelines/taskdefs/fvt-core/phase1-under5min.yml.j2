@@ -82,15 +82,6 @@
       value: coreapi-addons
   runAfter: {{ runAfter }}
 
-# coreapi-selfreg  ~5m
-# ------------------------------------------------------------------------------
-- name: coreapi-selfreg
-  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
-  params:
-    - name: fvt_test_suite
-      value: coreapi-selfreg
-    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-  runAfter: {{ runAfter }}
 
 # coreapi-mobileapi ~5m
 # -----------------------------------------------------------------------------
@@ -155,6 +146,16 @@
   runAfter:
     - coreapi-utilities
 
+# coreapi-selfreg  ~5m
+# ------------------------------------------------------------------------------
+- name: coreapi-selfreg
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreapi-selfreg
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter: {{ runAfter }}
+
 # coreapi-scimv2 ~1m
 # -----------------------------------------------------------------------------
 - name: coreapi-scimv2
@@ -163,4 +164,6 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: coreapi-scimv2
-  runAfter: {{ runAfter }}
+  runAfter: 
+    - coreapi-selfreg
+
