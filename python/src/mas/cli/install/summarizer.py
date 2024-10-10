@@ -14,7 +14,7 @@ from prompt_toolkit import print_formatted_text, HTML
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import getConsoleURL
 
-from ..cli import setPreview
+from ..cli import BaseApp
 
 logger = logging.getLogger(__name__)
 
