@@ -493,6 +493,14 @@ cpdAppsArgGroup.add_argument(
     action="store_const",
     const="install"
 )
+cpdAppsArgGroup.add_argument(
+    "--cp4d-install-all",
+    dest="cpd_install_all",
+    required=False,
+    help="Add all of Cloud Pak for Data",
+    action="store_const",
+    const="install"
+)
 
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------

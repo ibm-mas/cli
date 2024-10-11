@@ -719,6 +719,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "cpd_install_cognos",
             "cpd_install_openscale",
             "cpd_install_spss",
+            "cpd_install_all",
             # Kafka
             "kafka_namespace",
             "kafka_version",
