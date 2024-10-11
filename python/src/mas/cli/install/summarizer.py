@@ -159,8 +159,7 @@ class InstallSummarizerMixin():
 
     def manageSummary(self) -> None:
         if self.installManage:
-                self.printSummary("Manage", self.getParam("mas_app_channel_manage"))
-            if self.preview:
+            if not self.preview:
                 self.printSummary("Manage", self.params["mas_app_channel_manage"])
                 print_formatted_text(HTML(f"  <SkyBlue>+ Components</SkyBlue>"))
                 self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")

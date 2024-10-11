@@ -955,14 +955,26 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "catalog": "v9-240827-s390x",
                 "release": "9.0.x",
                 "core": "9.0.2",
-                "manage": "9.0.2"
+                "assist": "9.0.2",
+                "iot": "9.0.2",
+                "manage": "9.0.2",
+                "monitor": "9.0.2",
+                "optimizer": "9.0.2",
+                "predict": "9.0.1",
+                "inspection": "9.0.2"
             },
             {
                 "#": 2,
                 "catalog": "v9-multiarch-new-s390x",
                 "release": "9.0.x",
                 "core": "9.0.2",
-                "manage": "9.0.2"
+                "assist": "9.0.2",
+                "iot": "9.0.2",
+                "manage": "9.0.2",
+                "monitor": "9.0.2",
+                "optimizer": "9.0.2",
+                "predict": "9.0.1",
+                "inspection": "9.0.2"
             }
         ]
 
