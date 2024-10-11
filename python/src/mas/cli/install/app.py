@@ -148,6 +148,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             self.setParam("mas_catalog_version", installoption[catalogSelection-1]["catalog"])
             self.setParam("mas_channel", installoption[catalogSelection-1]["release"])
+            self.setParam("mas_app_channel_manage", installoption[catalogSelection-1]["manage"])
 
     def configSLS(self) -> None:
         self.printH1("Configure Product License")
