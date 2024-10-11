@@ -190,7 +190,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "mas_special_characters")
 
     def configCP4D(self):
-        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64", "v9-241003-amd64"]:
+        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64", "v9-241003-amd64", "v9-241107-amd64"]:
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
             self.setParam("cpd_product_version", "4.8.0")
         elif self.getParam("cpd_product_version") == "":
