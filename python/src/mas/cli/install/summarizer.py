@@ -14,6 +14,8 @@ from prompt_toolkit import print_formatted_text, HTML
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import getConsoleURL
 
+from ..cli import BaseApp
+
 logger = logging.getLogger(__name__)
 
 class InstallSummarizerMixin():
@@ -282,7 +284,9 @@ class InstallSummarizerMixin():
 
     def mongoSummary(self) -> None:
         self.printH2("MongoDb")
-        self.printParamSummary("Install Namespace", "mongodb_namespace")
+        if self.getParam("mongodb_action") == "install":
+            self.printParamSummary("Install Namespace", "mongodb_namespace")
+
 
     def kafkaSummary(self) -> None:
         if self.getParam("kafka_action_system") != "":
@@ -318,7 +322,7 @@ class InstallSummarizerMixin():
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
-            "Connected to:",
+            f"Connected to: Architecture: {self.architecture}",
             f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
         ])
 

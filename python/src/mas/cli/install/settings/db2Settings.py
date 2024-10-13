@@ -10,6 +10,8 @@
 
 from os import path
 from prompt_toolkit import print_formatted_text
+from ...cli import BaseApp
+
 
 class Db2SettingsMixin():
     def configDb2(self) -> None:
@@ -68,19 +70,18 @@ class Db2SettingsMixin():
             else:
                 self.setParam("db2_action_system", "byo")
 
-                self.selectLocalConfigDir()
-
-                # Check if a configuration already exists before creating a new one
-                jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-system.yaml")
-                print_formatted_text(f"Searching for system database configuration file in {jdbcCfgFile} ...")
-                if path.exists(jdbcCfgFile):
-                    if self.yesOrNo(f"System database configuration file 'jdbc-{instanceId}-system.yaml' already exists.  Do you want to generate a new one"):
+                    self.selectLocalConfigDir()
+                    # Check if a configuration already exists before creating a new one
+                    jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-system.yaml")
+                    print_formatted_text(f"Searching for system database configuration file in {jdbcCfgFile} ...")
+                    if path.exists(jdbcCfgFile):
+                        if self.yesOrNo(f"System database configuration file 'jdbc-{instanceId}-system.yaml' already exists.  Do you want to generate a new one"):
+                            self.generateJDBCCfg(instanceId=instanceId, scope="system", destination=jdbcCfgFile)
+                    else:
+                        print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid system database configuration file now ...")
                         self.generateJDBCCfg(instanceId=instanceId, scope="system", destination=jdbcCfgFile)
-                else:
-                    print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid system database configuration file now ...")
-                    self.generateJDBCCfg(instanceId=instanceId, scope="system", destination=jdbcCfgFile)
-        else:
-            self.setParam("db2_action_system", "none")
+            else:
+                self.setParam("db2_action_system", "none")
 
         if self.installManage:
             self.printH2("Database Configuration for Maximo Manage")
