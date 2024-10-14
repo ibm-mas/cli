@@ -116,7 +116,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/ivt-core@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 15h0m0s # SPS Dynamic-Scan can take over 10-12 hours to run for larger applications
+      timeout: 12h20m0s # SPS Dynamic-Scan can take over 10-12 hours to run for larger applications
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
