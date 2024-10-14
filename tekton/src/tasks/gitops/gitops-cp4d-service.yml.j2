@@ -36,6 +36,27 @@ spec:
       type: string
     - name: cpd_service_scale_config
       type: string
+    - name: cpd_service_installplan_approval
+      type: string
+      default: "Automatic"
+    - name: cpd_ccs_install_plan
+      type: string
+      default: "Automatic"
+    - name: cpd_datarefinery_install_plan
+      type: string
+      default: "Automatic"
+    - name: cpd_ws_install_plan
+      type: string
+      default: "Automatic"
+    - name: rabbitmq_install_plan
+      type: string
+      default: "Automatic"
+    - name: elasticsearch_install_plan
+      type: string
+      default: "Automatic"
+    - name: canvasbase_install_plan
+      type: string
+      default: "Automatic"
   stepTemplate:
     name: gitops-cp4d-service
     env:
@@ -73,6 +94,20 @@ spec:
         value: $(params.cpd_service_storage_class)
       - name: CPD_SERVICE_SCALE_CONFIG
         value: $(params.cpd_service_scale_config)
+      - name: CPD_SERVICE_INSTALLPLAN_APPROVAL
+        value: $(params.cpd_service_installplan_approval)
+      - name: CPD_CCS_INSTALL_PLAN
+        value: $(params.cpd_ccs_install_plan)
+      - name: CPD_DATAREFINERY_INSTALL_PLAN
+        value: $(params.cpd_datarefinery_install_plan)
+      - name: CPD_WS_INSTALL_PLAN
+        value: $(params.cpd_ws_install_plan)
+      - name: RABBITMQ_INSTALL_PLAN
+        value: $(params.rabbitmq_install_plan)
+      - name: ELASTICSEARCH_INSTALL_PLAN
+        value: $(params.elasticsearch_install_plan)
+      - name: CANVASBASE_INSTALL_PLAN
+        value: $(params.canvasbase_install_plan)
     envFrom:
       - configMapRef:
           name: environment-properties
