@@ -35,6 +35,7 @@ class UninstallApp(BaseApp):
         """
         args = uninstallArgParser.parse_args(args=argv)
         instanceId = args.mas_instance_id
+        droNamespace = args.dro_namespace
         self.noConfirm = args.no_confirm
 
         if args.uninstall_all_deps:
@@ -184,7 +185,8 @@ class UninstallApp(BaseApp):
                     uninstallCommonServices = uninstallCommonServices,
                     uninstallUDS = uninstallUDS,
                     uninstallMongoDb = uninstallMongoDb,
-                    uninstallSLS = uninstallSLS
+                    uninstallSLS = uninstallSLS,
+                    droNamespace = droNamespace
                 )
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} uninstall submitted")

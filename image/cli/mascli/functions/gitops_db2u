@@ -22,6 +22,7 @@ Secrets Manager:
 
 IBM DB2U:
       --db2-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}        DB2 Channel, defaults to default channel in catalog
+      --db2-subscription-install-plan ${COLOR_YELLOW}DB2_INSTALL_PLAN${TEXT_RESET} DB2 subscription install plan approval('Automatic' or 'Manual'. Default is 'Automatic')
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -46,6 +47,8 @@ function gitops_db2u_noninteractive() {
   # defaults for fvtsaas
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
+
+  export DB2_INSTALL_PLAN=${DB2_INSTALL_PLAN:-"Automatic"}
 
   while [[ $# -gt 0 ]]
   do
@@ -84,6 +87,9 @@ function gitops_db2u_noninteractive() {
       # DB2
       --db2-channel)
       export DB2_CHANNEL=$1 && shift
+        ;;
+      --db2-subscription-install-plan)
+      export DB2_INSTALL_PLAN=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -127,7 +133,7 @@ function gitops_db2u_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_db2u_help "ACCOUNT_ID is not set"
   [[ -z "$REGION" ]] && gitops_db2u_help "REGION is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_db2u_help "CLUSTER_ID is not set"
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cluster_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_help "MAS_INSTANCE_ID is not set"
 
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then

@@ -63,6 +63,10 @@ spec:
       type: string
       default: ''
 
+    - name: devops_build_number
+      type: string
+      default: ''
+
     - name: dns_provider
       type: string
       default: cis
@@ -73,6 +77,9 @@ spec:
       type: string
       default: "false"
 
+    - name: redhat_cert_manager_install_plan
+      type: string
+      default: "Automatic"
   stepTemplate:
     name: gitops-cluster
     env:
@@ -122,6 +129,9 @@ spec:
         value: $(params.cluster_promotion_target_pr_title)
       - name: CLUSTER_PROMOTION_CLUSTER_VALUES
         value: $(params.cluster_promotion_cluster_values)
+      
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
 
       - name: DNS_PROVIDER
         value: $(params.dns_provider)
@@ -129,6 +139,9 @@ spec:
         value: $(params.ocp_cluster_domain)
       - name: INGRESS
         value: $(params.ingress)
+
+      - name: REDHAT_CERT_MANAGER_INSTALL_PLAN
+        value: $(params.redhat_cert_manager_install_plan)
 
     envFrom:
       - configMapRef:

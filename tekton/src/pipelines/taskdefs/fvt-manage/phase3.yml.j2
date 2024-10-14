@@ -4,6 +4,8 @@
 # - fvt-manage-base-ui-helplinks (selenium)
 # - fvt-manage-base-ui-wo-basic (selenium)
 # - fvt-manage-base-ui-mas-navigation (selenium)
+# - fvt-manage-base-ui-requestreport-pages (selenium)
+# - fvt-manage-base-api-scheduler-qualification (pytest)
 # -------------------------------------------------------------
 
 # Manage FVT Classification
@@ -19,6 +21,7 @@
   runAfter:
     - fvt-manage-base-api-system
     - fvt-manage-base-api-mif
+    - fvt-manage-base-api-scheduler-setup-os
 
 # Manage FVT Help Links
 - name: fvt-manage-base-ui-helplinks
@@ -33,6 +36,7 @@
   runAfter:
     - fvt-manage-base-api-system
     - fvt-manage-base-api-mif
+    - fvt-manage-base-api-scheduler-setup-os
 
 # Manage FVT Work Order Basic Scenario
 - name: fvt-manage-base-ui-wo-basic
@@ -47,6 +51,7 @@
   runAfter:
     - fvt-manage-base-api-system
     - fvt-manage-base-api-mif
+    - fvt-manage-base-api-scheduler-setup-os
 
 # Manage FVT Mas Navigation Scenario
 - name: fvt-manage-base-ui-mas-navigation
@@ -61,3 +66,31 @@
   runAfter:
     - fvt-manage-base-api-system
     - fvt-manage-base-api-mif
+    - fvt-manage-base-api-scheduler-setup-os
+
+# Manage FVT Generate Request Pages for Reports
+- name: fvt-manage-base-ui-requestreport-pages
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite_prefix
+      value: base-ui
+    - name: fvt_test_suite
+      value: requestreport-pages
+  runAfter:
+    - fvt-manage-base-api-system
+    - fvt-manage-base-api-mif
+    - fvt-manage-base-api-scheduler-setup-os
+
+# Manage Scheduler FVT - Qualification
+- name: fvt-manage-base-api-scheduler-qualification
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-api-scheduler-qualification
+  runAfter:
+    - fvt-manage-base-api-system
+    - fvt-manage-base-api-mif
+    - fvt-manage-base-api-scheduler-setup-os

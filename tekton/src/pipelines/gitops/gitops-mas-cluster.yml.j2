@@ -32,6 +32,9 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: redhat_cert_manager_install_plan
+      type: string
+      default: "Automatic"
     
     - name: slack_channel_id
       type: string
@@ -53,6 +56,12 @@ spec:
     - name: dro_cmm_cmm_url
       type: string
       default: ""
+    - name: dro_install_plan
+      type: string
+      default: "Automatic"
+    - name: imo_install_plan
+      type: string
+      default: "Automatic"
 
     - name: db2_channel
       type: string
@@ -60,6 +69,9 @@ spec:
     - name: db2_action
       type: string
       default: ""
+    - name: db2_subscription_install_plan
+      type: string
+      default: "Automatic"
 
     - name: nvidia_gpu_action
       type: string
@@ -70,18 +82,28 @@ spec:
     - name: nfd_channel
       type: string
       default: stable
+    - name: nfd_install_plan
+      type: string
+      default: "Automatic"
     - name: gpu_namespace
       type: string
       default: nvidia-gpu-operator
     - name: gpu_channel
       type: string
       default: v24.3
+    - name: gpu_install_plan
+      type: string
+      default: "Automatic"
     - name: gpu_driver_version
       type: string
       default: 550.90.07
     - name: gpu_driver_repository_path
       type: string
       default: nvcr.io/nvidia
+    
+    - name: cis_compliance_install_plan
+      type: string
+      default: "Automatic"
 
     - name: cluster_promotion_target_github_host
       type: string
@@ -105,6 +127,9 @@ spec:
       type: string
       default: ''
     - name: cluster_promotion_cluster_values
+      type: string
+      default: ''
+    - name: devops_build_number
       type: string
       default: ''
     - name: dns_provider
@@ -143,6 +168,8 @@ spec:
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: redhat_cert_manager_install_plan
+          value: $(params.redhat_cert_manager_install_plan)
 
         - name: slack_channel_id
           value: $(params.slack_channel_id)
@@ -168,6 +195,9 @@ spec:
           value: $(params.cluster_promotion_target_pr_title)
         - name: cluster_promotion_cluster_values
           value: $(params.cluster_promotion_cluster_values)
+
+        - name: devops_build_number
+          value: $(params.devops_build_number)
 
         - name: ocp_cluster_domain
           value: $(params.ocp_cluster_domain)
@@ -214,6 +244,10 @@ spec:
           value: $(params.dro_cmm_auth_url)
         - name: dro_cmm_cmm_url
           value: $(params.dro_cmm_cmm_url)
+        - name: dro_install_plan
+          value: $(params.dro_install_plan)
+        - name: imo_install_plan
+          value: $(params.imo_install_plan)
       taskRef:
         kind: Task
         name: gitops-dro
@@ -245,6 +279,8 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
+        - name: cis_compliance_install_plan
+          value: $(params.cis_compliance_install_plan)
       taskRef:
         kind: Task
         name: gitops-cis-compliance
@@ -280,10 +316,14 @@ spec:
           value: $(params.nfd_namespace)
         - name: nfd_channel
           value: $(params.nfd_channel)
+        - name: nfd_install_plan
+          value: $(params.nfd_install_plan)
         - name: gpu_namespace
           value: $(params.gpu_namespace)
         - name: gpu_channel
           value: $(params.gpu_channel)
+        - name: gpu_install_plan
+          value: $(params.gpu_install_plan)
         - name: gpu_driver_version
           value: $(params.gpu_driver_version)
         - name: gpu_driver_repository_path

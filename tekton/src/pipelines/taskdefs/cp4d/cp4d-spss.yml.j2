@@ -25,7 +25,7 @@
     name: mas-devops-cp4d-service
   # Only needed if Predict is being installed
   when:
-    - input: "$(params.mas_app_channel_predict)"
+    - input: "$(params.mas_app_channel_predict)$(params.cpd_install_all)"
       operator: notin
       values: [""]
     - input: "$(params.cpd_install_spss)"

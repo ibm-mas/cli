@@ -7,8 +7,10 @@ from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
 from slackclient import SlackClient
 from subprocess import PIPE, Popen, TimeoutExpired
+from mobilever import MobVer
 import threading
 from jira import JIRA
+
 
 class RunCmdResult(object):
     def __init__(self, returnCode, output, error):
@@ -371,6 +373,25 @@ if __name__ == "__main__":
             print(f"Unable to determine Manage installed components: status.components unavailable")
     except Exception as e:
         print(f"Unable to determine Manage installed components: {e}")
+    
+    # Get Mobile Components
+    # -------------------------------------------------------------------------
+    # Note: Only works for workspace "masdev"
+    try:
+        #getting versions from mobile
+        mobileVer = MobVer(instanceId=instanceId, dynClient=dynClient)
+        mobileComponents = mobileVer.get_graphite_versions()
+        treatedComponents={}
+        for key,value in mobileComponents.items():
+            if "mobileVersion" in value:
+                treatedComponents[key]={"enabled":True,"version":(value["mobileVersion"]+" || "+value["buildToolsVersion"])}
+
+        setObject[f"products.ibm-mas-mobile.buildId"] = "NA"
+        setObject[f"products.ibm-mas-mobile.buildNumber"] = "NA"
+        setObject[f"products.ibm-mas-mobile.version"] = mobileComponents["navigator"]["mobileVersion"]
+        setObject[f"products.ibm-mas-mobile.components"] = treatedComponents
+    except Exception as e:
+        print(f"Unable to determine Mobile installed components: {e}")
 
     # Get Maximo Process Automation Engine (MPAE) version
     # -------------------------------------------------------------------------

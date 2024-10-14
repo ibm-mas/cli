@@ -6,7 +6,7 @@ Image Mirroring Overview
 -------------------------------------------------------------------------------
 We recommend the use of two-phase mirroring, it is slower than direct mirroring and requires more storage capacity, but can allow you to more easily recover from network glitches and creates a clean seperation of the tasks of getting the content from the source registry and putting it into the target registry which can make debugging failures easier.
 
-This guide assumes that you are looking to mirror content for the latest release (**@@MAS_LATEST_CHANNEL@@**) from the most recent catalog update (**@@MAS_LATEST_CATALOG@@**), and that you are installing all MAS applications.  If you are not installing certain applications or dependencies take care to remove the appropriate `--mirror-x` flags to avoid mirroring unnecessary images.
+This guide assumes that you are looking to mirror content for the latest release (**@@MAS_LATEST_CHANNEL@@**) from the most recent catalog update (**@@MAS_LATEST_CATALOG@@**), and that you are installing all MAS applications & dependencies.  If you are not installing certain applications or dependencies take care to remove the appropriate `--mirror-x` flags to avoid mirroring unnecessary images.
 
 
 Preparation
@@ -20,8 +20,6 @@ export REGISTRY_HOST=xxx
 export REGISTRY_PORT=xxx
 export REGISTRY_USERNAME=xxx
 export REGISTRY_PASSWORD=xxx
-export REDHAT_USERNAME=xxx
-export REDHAT_PASSWORD=xxx
 ```
 
 
@@ -53,7 +51,7 @@ Stage 2 - Apps
 mas mirror-images -m to-filesystem -d $LOCAL_DIR/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-assist --mirror-hputilities --mirror-iot --mirror-manage --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 ```
 
@@ -61,7 +59,7 @@ mas mirror-images -m to-filesystem -d $LOCAL_DIR/apps \
 mas mirror-images -m from-filesystem -d $LOCAL_DIR/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-assist --mirror-hputilities --mirror-iot --mirror-manage --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
 ```
 
 
@@ -71,7 +69,7 @@ Stage 3 - CP4D
 mas mirror-images -m to-filesystem -d $LOCAL_DIR/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl \
+  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 ```
 
@@ -79,7 +77,7 @@ mas mirror-images -m to-filesystem -d $LOCAL_DIR/cp4d \
 mas mirror-images -m from-filesystem -d $LOCAL_DIR/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl
+  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos
 ```
 
 
@@ -89,13 +87,13 @@ Stage 4 - Other Dependencies
 mas mirror-images -m to-filesystem -d $LOCAL_DIR/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs --mirror-appconnect --mirror-db2 \
-  --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY
 ```
 
 ```bash
 mas mirror-images -m from-filesystem -d $LOCAL_DIR/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-mongo --mirror-tsm --mirror-uds --mirror-sls --mirror-cfs --mirror-appconnect --mirror-db2
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
 ```

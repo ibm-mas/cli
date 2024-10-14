@@ -48,14 +48,21 @@ spec:
     # 0. Wait for the deprovsion mas pipeline to complete
     # -------------------------------------------------------------------------
     - name: wait-for-deprovision
-      params:
-        - name: pipelinerun_name
-          value: $(params.pipelinerun_name)
-        - name: ignore_failure
-          value: $(params.ignore_failure)
+      timeout: "0"
       taskRef:
         kind: Task
-        name: mas-fvt-wait-for-pipelinerun
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: $(params.pipelinerun_name)
+        - name: delay
+          value: 120  # seconds between checking the status of the pipelinerun
+        - name: max_retries
+          value: 120  # attempts before giving up
+        - name: ignore_failure
+          value: $(params.ignore_failure)  # fails and exit once the first failure is detected
 {% endif %}
 
     - name: gitops-deprovision-rosa

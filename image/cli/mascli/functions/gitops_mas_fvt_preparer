@@ -82,8 +82,11 @@ function gitops_mas_fvt_preparer() {
   export SYNC_WITH_INSTALL=false
   #If this is the FVT Core run then don't call finalize at the end of this run
   if [[ "$LAUNCHER_ID" == "core" ]]; then
-    export RUN_FINALIZE=false
+    export FINALIZE=false
+    export SET_FINISHED=false
   fi
+  export DEPROVISION=false
+  
   #FVT pipeline to run
   export PIPELINE_NAME=$FVT_PIPELINE_NAME
   ansible-playbook ibm.mas_fvt.setup_pipeline

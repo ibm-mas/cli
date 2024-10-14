@@ -16,10 +16,8 @@ Usage
 - `-u|--username REGISTRY_USERNAME` Username to authenticate to the target registry
 - `-p|--password REGISTRY_PASSWORD` Password to authenticate to the target registry
 
-### Source Registry Entitlements
+### Source Registry Entitlement
 - `--ibm-entitlement IBM_ENTITLEMENT_KEY` IBM Entitlement Key
-- `--redhat-username REDHAT_CONNECT_USERNAME` Red Hat Connect Username (only required when mirroring UDS images)
-- `--redhat-password REDHAT_CONNECT_PASSWORD` Red Hat Connect Password (only required when mirroring UDS images)
 
 ### Maximo Operator Catalog Selection
 - `-c|--catalog MAS_CATALOG_VERSION` Maximo Operator Catalog Version to mirror (e.g. @@MAS_LATEST_CATALOG@@)

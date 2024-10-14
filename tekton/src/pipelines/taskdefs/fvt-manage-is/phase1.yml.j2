@@ -3,8 +3,6 @@
 # - fvt-health-testng-preparedata  # Health
 #   - fvt-health-testng-desktop    # Health
 #   - fvt-health-python            # Health
-# - fvt-manage-scheduler-api       # Scheduler
-# - fvt-manage-scheduler-setup     # Scheduler
 # -----------------------------------------------------------------------------
 
 # Health
@@ -131,30 +129,12 @@
   runAfter:
     - fvt-health-testng-preparedata
 
-
-# Scheduler
-# -----------------------------------------------------------------------------
-# Scheduler - API Tests
-- name: fvt-manage-scheduler-api
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+# Minimum Verification Test for Operational Map Test Suites
+- name: fvt-manage-operationalmap-api
+  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: scheduler-api
-  runAfter:
-    - fvt-manage-setup-is
-
-# Scheduler - UI Tests
-- name: fvt-manage-scheduler-setup
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: scheduler-setup-data
-    - name: fvt_mas_appws_component
-      value: scheduler
-    - name: fvt_test_driver
-      value: tpae
+      value: operationalmap-api
   runAfter:
     - fvt-manage-setup-is
