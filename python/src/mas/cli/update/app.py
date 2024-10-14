@@ -248,7 +248,8 @@ class UpdateApp(BaseApp):
         if self.preview:
             self.printDescription([
                 "Select MAS Catalog",
-                    "  1) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)","
+                    "  1) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)",
+                    "  2) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)"
             ])
             catalogOptions = [
                    "v9-multiarch-new-s390x", "v9-240827-s390x"
