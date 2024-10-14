@@ -143,6 +143,32 @@ spec:
         kind: Task
         name: mas-devops-suite-app-rollback
 
+    # 3. Rollback App
+    # -------------------------------------------------------------------------
+    # Manage App Rollback
+    - name: iot-rollback
+      timeout: "0"
+      runAfter:
+        - core-rollback
+      params:
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
+        - name: mas_app_id
+          value: iot
+        - name: mas_app_version
+          value: $(params.mas_app_iot_version)
+        - name: devops_suite_name
+          value: iot-rollback
+      when:
+        - input: "$(params.mas_app_iot_version)"
+          operator: notin
+          values: [""]
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-rollback
+
     # 4. Verify health of the cluster after the rollback complete
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
@@ -155,7 +181,7 @@ spec:
         'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
-        - manage-rollback
+        - iot-rollback
 
     # 5. Verify MAS core version after the rollback complete
     # -------------------------------------------------------------------------
@@ -210,6 +236,33 @@ spec:
           value: post-rollback-verify-app-version (MAS Manage)
       when:
         - input: "$(params.mas_app_manage_version)"
+          operator: notin
+          values: [""]
+
+    - name: post-rollback-verify-app-version
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-rollback
+      runAfter:
+        - post-rollback-verify-cluster
+      params:
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
+        - name: mas_app_id
+          value: iot
+        - name: mas_app_version
+          value: $(params.mas_app_iot_version)
+        - name: rollback_mas_app
+          value: 'False'
+        - name: verify_app_version
+          value: 'True'
+        - name: devops_suite_name
+          value: post-rollback-verify-app-version (MAS IoT)
+      when:
+        - input: "$(params.mas_app_iot_version)"
           operator: notin
           values: [""]
 
