@@ -125,11 +125,12 @@ class UpdateApp(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"IBM Certificate-Manager is not installed")
 
         self.detectUDS()
-        self.detectGrafana4()
-        self.detectMongoDb()
-        self.detectDb2uOrKafka("db2")
-        self.detectDb2uOrKafka("kafka")
-        self.detectCP4D()
+        if not self.preview:
+            self.detectGrafana4()
+            self.detectMongoDb()
+            self.detectDb2uOrKafka("db2")
+            self.detectDb2uOrKafka("kafka")
+            self.detectCP4D()
 
         print()
 
@@ -144,22 +145,22 @@ class UpdateApp(BaseApp):
         self.printSummary("Updated Catalog", self.getParam("mas_catalog_version"))
 
         self.printH2("Supported Dependency Updates")
-        if self.getParam("db2_namespace") != "":
+        if self.getParam("db2_namespace") != "" and not self.preview:
             self.printSummary("IBM Db2", f"All Db2uCluster instances in {self.getParam('db2_namespace')}")
         else:
             self.printSummary("IBM Db2", "No action required")
 
-        if self.getParam("mongodb_namespace") != "":
+        if self.getParam("mongodb_namespace") != "" and not self.preview:
             self.printSummary("MongoDb CE", f"All MongoDbCommunity instances in {self.getParam('mongodb_namespace')}")
         else:
             self.printSummary("MongoDb CE", "No action required")
 
-        if self.getParam("kafka_namespace") != "":
+        if self.getParam("kafka_namespace") != "" and not self.preview:
             self.printSummary("Apache Kafka", f"All Kafka instances in {self.getParam('kafka_namespace')}")
         else:
             self.printSummary("Apache Kafka", "No action required")
 
-        if self.getParam("cp4d_update") != "":
+        if self.getParam("cp4d_update") != "" and not self.preview:
             self.printSummary("IBM Cloud Pak for Data", f"Platform and services in ibm-cpd")
         else:
             self.printSummary("IBM Cloud Pak for Data", "No action required")
@@ -210,14 +211,15 @@ class UpdateApp(BaseApp):
             catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
             catalogDisplayName = catalog.spec.displayName
             catalogImage = catalog.spec.image
+            arch=self.architecture
 
-            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
+            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-{arch})", catalogDisplayName)
             if m:
-                # catalogId = v8-yymmdd-amd64
+                # catalogId = v8-yymmdd-{arch}
                 # catalogVersion = yymmdd
                 self.installedCatalogId = m.group("catalogId")
-            elif re.match(r".+v8-amd64", catalogDisplayName):
-                self.installedCatalogId = "v8-amd64"
+            elif re.match(r".+v8-{arch}", catalogDisplayName):
+                self.installedCatalogId = "v8-{arch}"
             else:
                 self.installedCatalogId = None
                 self.printWarning(f"Unable to determine identity & version of currently installed ibm-maximo-operator-catalog")
@@ -242,16 +244,26 @@ class UpdateApp(BaseApp):
 
     def chooseCatalog(self) -> None:
         self.printH1("Select IBM Maximo Operator Catalog Version")
-        self.printDescription([
-            "Select MAS Catalog",
+
+        if self.preview:
+            self.printDescription([
+                "Select MAS Catalog",
+                    "  1) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)","
+            ])
+            catalogOptions = [
+                   "v9-multiarch-new-s390x", "v9-240827-s390x"
+            ]
+        else:
+            self.printDescription([
+                "Select MAS Catalog",
             "  1) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)",
             "  2) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
             "  3) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)"
-        ])
+            ])
 
-        catalogOptions = [
+            catalogOptions = [
            "v9-241003-amd64", "v9-240827-amd64", "v9-240730-amd64"
-        ]
+            ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
     def validateCatalog(self) -> None:
