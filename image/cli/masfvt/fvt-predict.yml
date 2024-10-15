@@ -13,6 +13,7 @@
     fvt_artifactory_username: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
     fvt_artifactory_token: "{{ lookup('env', 'FVT_ARTIFACTORY_TOKEN') }}"
     fvt_digest_ctf: "{{ lookup('env', 'FVT_DIGEST_CTF') }}"
+    fvt_digest_predict: "{{ lookup('env', 'FVT_DIGEST_PREDICT') }}"
     ivt_digest_core: "{{ lookup('env', 'IVT_DIGEST_CORE') }}"
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
@@ -33,6 +34,7 @@
           - "fvt_artifactory_username .......... {{ fvt_artifactory_username }}"
           - "fvt_artifactory_token ............. {{ fvt_artifactory_token }}"
           - "fvt_digest_ctf .................... {{ fvt_digest_ctf }}"
+          - "fvt_digest_predict .................... {{ fvt_digest_predict }}"
           - "ivt_digest_core ................... {{ ivt_digest_core }}"
 
     - name: "Start fvt-predict pipeline"
