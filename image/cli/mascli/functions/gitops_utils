@@ -867,3 +867,60 @@ function validate_app_name(){
     exit 1
   fi
 }
+
+function parse_storage_class_name() {
+  INPUT_STORAGE_CLASS_NAME="$1"
+  if [[ "$INPUT_STORAGE_CLASS_NAME" =~ generated\((.*)\) ]]; then
+    echo "${BASH_REMATCH[1]}"
+  fi
+  echo ""
+}
+
+function generate_storage_class_name() {
+  INPUT_STORAGE_CLASS_NAME="$1"
+  CLUSTER_ID="${2}"
+  MAS_INSTANCE_ID="${3}"
+  MAS_APP_ID="${4}"
+  DEPENDENCY="${5}"
+
+  STORAGE_CLASS_TYPE=$(parse_storage_class_name "${INPUT_STORAGE_CLASS_NAME}")
+  if [[ -z "${STORAGE_CLASS_TYPE}" ]]; then
+    echo "${INPUT_STORAGE_CLASS_NAME}"
+    exit 0
+  fi
+
+  echo "${STORAGE_CLASS_TYPE}-${CLUSTER_ID}-${MAS_INSTANCE_ID}-${MAS_APP_ID}-${DEPENDENCY}"
+}
+
+
+function generate_storage_class_def() {
+  INPUT_STORAGE_CLASS_NAME="$1"
+  STORAGE_CLASS_NAME="$2"
+  STORAGE_CLASS_DEFINITIONS_SO_FAR="$3"
+
+  STORAGE_CLASS_TYPE=$(parse_storage_class_name "${INPUT_STORAGE_CLASS_NAME}")
+  if [[ -z "${STORAGE_CLASS_TYPE}" ]]; then
+    # not a special generated(x) directive, must be a name storage class
+    # do not add any new storage class definitions
+    echo "${STORAGE_CLASS_DEFINITIONS}"
+    return 0
+  elif [[ "${STORAGE_CLASS_TYPE}" == "efs" ]]; then
+
+    CREATION_TOKEN="${STORAGE_CLASS_NAME}"
+    CREATION_TOKEN="mas_devops.fvtsaas"
+    EFS_FILESYSTEM_ID=$(aws efs describe-file-systems --creation-token "${CREATION_TOKEN}"  --query 'FileSystems[0].FileSystemId' --output text)
+    if [[ -z "${EFS_FILESYSTEM_ID}" || "${EFS_FILESYSTEM_ID}" == "None" ]]; then
+      echo "Unable to find EFS Instance with CreationToken ${CREATION_TOKEN}. Aborting." >&2
+      exit 1
+    fi
+
+    STORAGE_CLASS_DEF='{"provisioner": "efs.csi.aws.com", "parameters": { "fileSystemId": "'${EFS_FILESYSTEM_ID}'", "directoryPerms": "777", "basePath": "/", "gid": "0", "uid": "0", "provisioningMode": "efs-ap" }}'
+  else
+    echo "Unsupported StorageClass type: ${STORAGE_CLASS_TYPE}" >&2
+    exit 1
+  fi
+
+ 
+
+  echo "${STORAGE_CLASS_DEFINITIONS_SO_FAR}" | yq e '(.'${STORAGE_CLASS_NAME}' // '"${STORAGE_CLASS_DEF}"') as $x | .'${STORAGE_CLASS_NAME}' = $x' -
+}
