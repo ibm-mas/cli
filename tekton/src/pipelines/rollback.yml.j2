@@ -51,6 +51,10 @@ spec:
     - name: mas_app_manage_version
       type: string
 
+    # IoT Rollback Version
+    - name: mas_app_iot_version
+      type: string
+
     # Development Build Support
     - name: artifactory_username
       default: ""
@@ -239,7 +243,7 @@ spec:
           operator: notin
           values: [""]
 
-    - name: post-rollback-verify-app-version
+    - name: post-rollback-verify-iot-app-version
       timeout: "0"
       taskRef:
         kind: Task
@@ -260,7 +264,7 @@ spec:
         - name: verify_app_version
           value: 'True'
         - name: devops_suite_name
-          value: post-rollback-verify-app-version (MAS IoT)
+          value: post-rollback-verify-iot-app-version (MAS IoT)
       when:
         - input: "$(params.mas_app_iot_version)"
           operator: notin
