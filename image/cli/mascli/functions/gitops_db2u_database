@@ -596,6 +596,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   validate_app_name "${DB2_DATABASE_APP}"
 
 
+  # Look for generated(<type>) directives on storage class names
+  # ---------------------------------------------------------------------------
+
   export STORAGE_CLASS_DEFINITIONS
 
   DB2_META_STORAGE_CLASS_UPDATED=$(generate_storage_class_name "${DB2_META_STORAGE_CLASS}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "db2"   )
