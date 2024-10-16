@@ -378,9 +378,8 @@ function gitops_suite_app_install() {
   if [[ "${MAS_APP_ID}" == "visualinspection" ]]; then
     MVI_STORAGE_CLASS=$(echo "${MAS_APP_SPEC}" | yq '.mas_app_spec.settings.storage.storageClassName // ""')
     if [[ -n "${MVI_STORAGE_CLASS}" ]]; then
-      MVI_STORAGE_CLASS_UPDATED=$(generate_storage_class_name "${MVI_STORAGE_CLASS}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main"   )
-      STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def ${MVI_STORAGE_CLASS} ${MVI_STORAGE_CLASS_UPDATED} "${STORAGE_CLASS_DEFINITIONS}") || exit 1
-      MVI_STORAGE_CLASS="${MVI_STORAGE_CLASS_UPDATED}"
+      STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${MVI_STORAGE_CLASS}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
+      MVI_STORAGE_CLASS=$(generate_storage_class_name "${MVI_STORAGE_CLASS}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main" )
       MAS_APP_SPEC=$(echo "${MAS_APP_SPEC}" | yq '.mas_app_spec.settings.storage.storageClassName = "'${MVI_STORAGE_CLASS}'"')
     fi
   fi
