@@ -900,14 +900,13 @@ function generate_storage_class_def() {
 
   STORAGE_CLASS_TYPE=$(parse_storage_class_name "${INPUT_STORAGE_CLASS_NAME}")
   if [[ -z "${STORAGE_CLASS_TYPE}" ]]; then
-    # not a special generated(x) directive, must be a name storage class
+    # not a special generated(x) directive, so must be a named storage class
     # do not add any new storage class definitions
     echo "${STORAGE_CLASS_DEFINITIONS}"
     return 0
   elif [[ "${STORAGE_CLASS_TYPE}" == "efs" ]]; then
 
     CREATION_TOKEN="${STORAGE_CLASS_NAME}"
-    CREATION_TOKEN="mas_devops.fvtsaas"
     EFS_FILESYSTEM_ID=$(aws efs describe-file-systems --creation-token "${CREATION_TOKEN}"  --query 'FileSystems[0].FileSystemId' --output text)
     if [[ -z "${EFS_FILESYSTEM_ID}" || "${EFS_FILESYSTEM_ID}" == "None" ]]; then
       echo "Unable to find EFS Instance with CreationToken ${CREATION_TOKEN}. Aborting." >&2
