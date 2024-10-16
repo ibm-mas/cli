@@ -53,3 +53,10 @@ spec:
               name: mas-fvt
               key: FYRE_APIKEY
               optional: true
+
+        - name: FYRE_SITE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FYRE_SITE
+              optional: true
