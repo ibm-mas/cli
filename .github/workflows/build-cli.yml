@@ -180,7 +180,6 @@ jobs:
             wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
           fi
 
-
       # 3. Download Built Artifacts
       # -------------------------------------------------------------------------------------------
       - name: Download the tekton file built in the other job
@@ -213,14 +212,6 @@ jobs:
           docker images
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-amd64
-
-      - name: Push the container image (master)
-        id: docker-push-master
-        if: github.ref == 'refs/heads/master'
-        run: |
-          docker tag ibmmas/cli quay.io/ibmmas/cli:master
-          docker images
-          docker push quay.io/ibmmas/cli:master
 
       - name: Push the container image (latest)
         id: docker-push-latest
@@ -264,6 +255,9 @@ jobs:
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
+        # Without this option, we don't get the tag information
+        with:
+          fetch-depth: 0
 
       - name: Initialise the build system
         id: init
@@ -295,14 +289,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ibm-mas-tekton.yaml
-          path: ${{ github.workspace }}/python/src/mas/cli/templates/
+          path: ${{ github.workspace }}/image/cli/mascli/templates/
 
       - name: Download the python package
         id: download-python
         uses: actions/download-artifact@v4
         with:
           name: mas_cli.tar.gz
-          path: ${{ github.workspace }}/
+          path: ${{ github.workspace }}/image/cli/install/
 
       # 4. CLI container image
       # -------------------------------------------------------------------------------------------
