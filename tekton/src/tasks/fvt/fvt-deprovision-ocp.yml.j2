@@ -38,3 +38,18 @@ spec:
               name: mas-fvt
               key: IBMCLOUD_APIKEY
               optional: true
+
+        # FYRE Support
+        - name: FYRE_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FYRE_USERNAME
+              optional: true
+        
+        - name: FYRE_APIKEY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FYRE_APIKEY
+              optional: true
