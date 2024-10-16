@@ -277,6 +277,13 @@ function mustgather() {
       echo_highlight "Unable to find cert-manager namespace"
     fi
 
+    NAMESPACE_LOOKUP=$(oc get namespace openshift-storage --ignore-not-found)
+    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+      genericMustGather openshift-storage StorageCluster
+    else
+      echo_highlight "Unable to find openshift-storage namespace"
+    fi
+
     echo_h3 "Kafka"
     KAFKA_NAMESPACES=$(oc get Kafka -A --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
     for KAFKA_NAMESPACE in $KAFKA_NAMESPACES
