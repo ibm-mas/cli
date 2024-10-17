@@ -131,15 +131,6 @@ class BaseApp(PrintMixin, PromptMixin):
         self._isSNO = None
 
         self.compatibilityMatrix = {
-            "9.1.x-feature": {
-                "assist": ["9.0.x"],
-                "iot": ["9.0.x"],
-                "manage": ["9.1.x-feature", "9.0.x"],
-                "monitor": ["9.0.x"],
-                "optimizer": ["9.0.x"],
-                "predict": ["9.0.x"],
-                "visualinspection": ["9.0.x"]
-            },
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
                 "iot": ["9.0.x", "8.8.x"],
