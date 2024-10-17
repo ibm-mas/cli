@@ -2,7 +2,6 @@
 # PHASE 2
 # - fvt-manage-base-api-system (pytest)
 # - fvt-manage-base-api-mif (pytest)
-# - fvt-manage-base-api-scheduler-setup-os (pytest)
 # -------------------------------------------------------------
 
 # Manage FVT System
@@ -22,15 +21,5 @@
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: base-api-mif
-  runAfter:
-    - fvt-manage-base-api-ivt
-
-# Manage Scheduler FVT - Setup Objects Structure
-- name: fvt-manage-base-api-scheduler-setup-os
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: base-api-scheduler-setup-os
   runAfter:
     - fvt-manage-base-api-ivt
