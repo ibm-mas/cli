@@ -80,11 +80,11 @@ spec:
               key: MAS_WORKSPACE_ID
               optional: false
         # Digests
-        - name: FVT_DIGEST_CTF
+        - name: FVT_DIGEST_PREDICT
           valueFrom:
             secretKeyRef:
               name: mas-fvt-predict
-              key: FVT_DIGEST_CTF
+              key: FVT_DIGEST_PREDICT
               optional: false
         - name: IVT_DIGEST_CORE
           valueFrom:
