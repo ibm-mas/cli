@@ -10,6 +10,7 @@
 
 import logging
 logger = logging.getLogger(__name__)
+from ...cli import BaseApp
 
 class ManageSettingsMixin():
 
@@ -214,6 +215,7 @@ class ManageSettingsMixin():
 
     def manageSettingsOther(self) -> None:
         self.printH2("Maximo Manage Settings - Other")
+        if not self.preview:
         self.printDescription([
             "Configure additional settings:",
             "  - Demo data",
@@ -222,9 +224,19 @@ class ManageSettingsMixin():
             "  - Cognos integration (install Cloud Pak for Data)",
             "  - Watson Studio Local integration (install Cloud Pak for Data)"
         ])
+        else:
+             self.printDescription([
+                  "Configure additional settings:",
+                   "  - Demo data",
+                   "  - Base and additional languages",
+                   "  - Server timezone"
+             ])
 
         if self.yesOrNo("Configure Additional Settings"):
+
             self.manageSettingsDemodata()
             self.manageSettingsTimezone()
             self.manageSettingsLanguages()
+                if not self.preview:
             self.manageSettingsCP4D()
+
