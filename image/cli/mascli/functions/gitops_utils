@@ -981,7 +981,7 @@ function generate_storage_class_def() {
       exit 1
     fi
 
-    STORAGE_CLASS_DEF='{"provisioner": "efs.csi.aws.com", "parameters": { "fileSystemId": "'${EFS_FILESYSTEM_ID}'", "directoryPerms": "777", "basePath": "/", "gid": "0", "uid": "0", "provisioningMode": "efs-ap" }}'
+    STORAGE_CLASS_DEF='{"provisioner": "efs.csi.aws.com", "parameters": { "fileSystemId": "'${EFS_FILESYSTEM_ID}'", "directoryPerms": "777", "basePath": "/rosa-'${STORAGE_CLASS_NAME}'", "gid": "0", "uid": "0", "provisioningMode": "efs-ap" }}'
   else
     echo "Unsupported StorageClass type: ${STORAGE_CLASS_TYPE}" >&2
     exit 1
