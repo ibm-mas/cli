@@ -38,3 +38,10 @@ ibm_suite_app_{{ MAS_APP_ID }}_install:
   {% if GPU_REQUEST_QUOTA is defined and GPU_REQUEST_QUOTA != '' %}
   gpu_request_quota: {{ GPU_REQUEST_QUOTA }}
   {% endif %}
+
+  {% if STORAGE_CLASS_DEFINITIONS %}
+  storage_class_definitions:
+    {% filter indent(width=4) -%}
+    {{STORAGE_CLASS_DEFINITIONS}}
+    {%- endfilter %}
+  {% endif %}
