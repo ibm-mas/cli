@@ -18,9 +18,9 @@ class MongodbSettingsMixin():
             "The installer can setup mongoce in your OpenShift cluster (available only for amd64 )or you may choose to configure MAS to use an existing mongodb"
           ])
 
-            if self.yesOrNo("Configure MongoDb in your OpenShift cluster"):
-                self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
-                self.setParam("mongodb_action", "install")
+         self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
+         if self.yesOrNo("Configure MongoDb in your OpenShift cluster"):
+            self.setParam("mongodb_action", "install")
          else:
             mongodb_namespace = 'mongodb'
             self.setParam("mongodb_action", "byo")
