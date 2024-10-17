@@ -216,7 +216,7 @@ class ManageSettingsMixin():
     def manageSettingsOther(self) -> None:
         self.printH2("Maximo Manage Settings - Other")
         if not self.preview:
-        self.printDescription([
+         self.printDescription([
             "Configure additional settings:",
             "  - Demo data",
             "  - Base and additional languages",
@@ -237,6 +237,6 @@ class ManageSettingsMixin():
             self.manageSettingsDemodata()
             self.manageSettingsTimezone()
             self.manageSettingsLanguages()
-                if not self.preview:
-            self.manageSettingsCP4D()
+            if not self.preview:
+                   self.manageSettingsCP4D()
 
