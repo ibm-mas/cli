@@ -78,9 +78,9 @@ class UpgradeApp(BaseApp):
 
         if not self.noConfirm:
             print()
-            continueWithUpgrade = prompt(HTML(f'<Yellow>Proceed with these settings?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
+            continueWithUpgrade = self.yesOrNo("Proceed with these settings?")
 
-        if self.noConfirm or continueWithUpgrade in ["y", "yes"]:
+        if self.noConfirm or continueWithUpgrade:
             self.createTektonFileWithDigest()
 
             self.printH1("Launch Upgrade")
