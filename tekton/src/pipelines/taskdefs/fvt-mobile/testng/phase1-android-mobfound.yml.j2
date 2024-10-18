@@ -1,0 +1,11 @@
+## All Mobile Foundation MAS test suites
+- name: fvt-mobile-testng-mobfound-android
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: disconnected-framework-automation
+    - name: mobile_device_type
+      value: android
+    - name: fvt_test_suite
+      value: mobfoundation-mvt-android
