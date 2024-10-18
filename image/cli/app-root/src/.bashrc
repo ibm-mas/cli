@@ -41,4 +41,3 @@ if  [[ $arch != s390x ]]; then
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-aws${TEXT_RESET} to provision an OCP cluster on AWS"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-rosa${TEXT_RESET} to provision an OCP cluster on AWS Red Hat OpenShift Service (ROSA)"
     echo
-fi
