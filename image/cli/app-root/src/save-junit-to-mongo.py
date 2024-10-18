@@ -9,7 +9,6 @@ import sys
 from datetime import datetime
 from pymongo import MongoClient
 from xmljson import Yahoo
-from pprint import pprint
 import glob
 
 if __name__ == "__main__":
@@ -33,7 +32,7 @@ if __name__ == "__main__":
     ansibleDevopsVersion = os.getenv("ANSIBLE_DEVOPS_VERSION", "unknown")
 
     if suite == "":
-        print ("Results not recorded because DEVOPS_SUITE_NAME is not defined")
+        print("Results not recorded because DEVOPS_SUITE_NAME is not defined")
         sys.exit(0)
     if instanceId is None:
         print("Results not recorded because DEVOPS_ENVIRONMENT env var is not set")
@@ -62,7 +61,7 @@ if __name__ == "__main__":
         try:
             tree = ET.parse(resultfile)
         except (IOError, ET.ParseError) as e:
-            print(f"Functional Test result file was not generated for {suite} in build {build}")
+            print(f"Functional Test result file was not generated for {suite} in build {build}: {e}")
             sys.exit(0)
 
         root = tree.getroot()
@@ -71,7 +70,7 @@ if __name__ == "__main__":
         bf = Yahoo(dict_type=dict)
         resultDoc = bf.data(root)
 
-        if isinstance(resultDoc["testsuites"]["testsuite"]["testcase"], list) :
+        if isinstance(resultDoc["testsuites"]["testsuite"]["testcase"], list):
             for testcase in resultDoc["testsuites"]["testsuite"]["testcase"]:
                 testcase["name"] = testcase["name"].replace("[localhost] localhost: ", "")
                 # Playbooks don't have ibm/mas_devops in the classname but do have /opt/app-root.
@@ -107,12 +106,12 @@ if __name__ == "__main__":
 
         # Look for existing summary document
         suiteSummary = {
-            "tests" : int(resultDoc["testsuites"]["testsuite"]["tests"]),
-            "errors" : int(resultDoc["testsuites"]["testsuite"]["errors"]),
-            "name" : suite,
-            "skipped" : int(resultDoc["testsuites"]["testsuite"]["skipped"]),
-            "time" : float(resultDoc["testsuites"]["testsuite"]["time"]),
-            "failures" : int(resultDoc["testsuites"]["testsuite"]["failures"])
+            "tests": int(resultDoc["testsuites"]["testsuite"]["tests"]),
+            "errors": int(resultDoc["testsuites"]["testsuite"]["errors"]),
+            "name": suite,
+            "skipped": int(resultDoc["testsuites"]["testsuite"]["skipped"]),
+            "time": float(resultDoc["testsuites"]["testsuite"]["time"]),
+            "failures": int(resultDoc["testsuites"]["testsuite"]["failures"])
         }
 
         # Connect to mongoDb
