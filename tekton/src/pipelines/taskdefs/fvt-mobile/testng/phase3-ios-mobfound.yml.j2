@@ -1,0 +1,21 @@
+## Minimum Verification Test for Mobile Foundation MAS test suites
+- name: fvt-mobile-testng-mobfound-ios
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: disconnected-framework-automation
+    - name: mobile_device_type
+      value: ios
+    - name: fvt_test_suite
+      value: mobfoundation-mvt-ios
+  runAfter:
+    - fvt-mobile-testng-assetmng-android
+    - fvt-mobile-testng-calibration-android
+    - fvt-mobile-testng-inspections-android
+    - fvt-mobile-testng-ic-android
+    - fvt-mobile-testng-ir-android
+    - fvt-mobile-testng-it-android
+    - fvt-mobile-testng-sr-android
+    - fvt-mobile-testng-supervisor-android    
+    - fvt-mobile-testng-technician-android

@@ -247,8 +247,9 @@ class UpdateApp(BaseApp):
         if self.architecture == "s390x":
             self.printDescription([
                 "Select MAS Catalog",
-                "  1) Oct 07 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
-                "  2) Sept 15 2024 Update (MAS 9.0.2, 8.11.13, &amp; 8.10.16)"
+            "  1) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)",
+            "  2) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
+            "  3) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)"
             ])
             catalogOptions = [
                "v9-multiarch-s390x", "v9-240827-s390x"
@@ -261,9 +262,8 @@ class UpdateApp(BaseApp):
                 "  3) June 25 2024 Update (MAS 9.0.0, 8.11.12, &amp; 8.10.15)"
             ])
             catalogOptions = [
-               "v9-240827-amd64", "v9-240730-amd64", "v9-240625-amd64"
+           "v9-241003-amd64", "v9-240827-amd64", "v9-240730-amd64"
             ]
-
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
     def validateCatalog(self) -> None:

@@ -12,7 +12,7 @@
 import logging
 import logging.handlers
 from sys import exit
-from os import path
+from os import path, getenv
 import re
 
 from openshift.dynamic.exceptions import NotFoundError
@@ -117,19 +117,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configICR(self):
         if self.devMode:
-            self.setParam("mas_icr_cp", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local")
-            self.setParam("mas_icr_cpopen", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen")
-            self.setParam("sls_icr_cpopen", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen")
+            self.setParam("mas_icr_cp", getenv("MAS_ICR_CP", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"))
+            self.setParam("mas_icr_cpopen", getenv("MAS_ICR_CPOPEN", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"))
+            self.setParam("sls_icr_cpopen", getenv("SLS_ICR_CPOPEN", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"))
         else:
-            self.setParam("mas_icr_cp", "cp.icr.io/cp")
-            self.setParam("mas_icr_cpopen", "icr.io/cpopen")
-            self.setParam("sls_icr_cpopen", "icr.io/cpopen")
+            self.setParam("mas_icr_cp", getenv("MAS_ICR_CP", "cp.icr.io/cp"))
+            self.setParam("mas_icr_cpopen", getenv("MAS_ICR_CPOPEN", "icr.io/cpopen"))
+            self.setParam("sls_icr_cpopen", getenv("SLS_ICR_CPOPEN", "icr.io/cpopen"))
 
     def configICRCredentials(self):
         self.printH1("Configure IBM Container Registry")
         self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
         if self.devMode:
-            self.promptForString("Artifactory username", "artifactory_username", isPassword=True)
+            self.promptForString("Artifactory username", "artifactory_username")
             self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
 
     def configCertManager(self):
@@ -189,7 +189,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "mas_special_characters")
 
     def configCP4D(self):
-        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64"]:
+        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64", "v9-241003-amd64"]:
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
             self.setParam("cpd_product_version", "4.8.0")
         elif self.getParam("cpd_product_version") == "":
@@ -982,20 +982,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installOptions_amd64 = [
             {
                  "#": 1,
-                 "catalog": "v9-240827-amd64",
+                 "catalog": "v9-241003-amd64",
                  "release": "9.0.x",
-                 "core": "9.0.2",
+                 "core": "9.0.3",
                  "assist": "9.0.2",
-                 "iot": "9.0.2",
-                 "manage": "9.0.2",
-                 "monitor": "9.0.2",
-                 "optimizer": "9.0.2",
-                 "predict": "9.0.1",
-                 "inspection": "9.0.2"
+                 "iot": "9.0.3",
+                 "manage": "9.0.3",
+                 "monitor": "9.0.3",
+                 "optimizer": "9.0.3",
+                 "predict": "9.0.2",
+                 "inspection": "9.0.3"
             },
             {
                 "#": 2,
-                "catalog": "v9-240827-amd64",
+                "catalog": "v9-241003-amd64",
                 "release": "8.11.x",
                 "core": "8.11.14",
                 "assist": "8.8.6",

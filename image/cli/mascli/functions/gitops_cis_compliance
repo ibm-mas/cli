@@ -27,6 +27,9 @@ Automatic GitHub Push:
   -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
   -S , --github-ssh  ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}           Git ssh key path
 
+CIS Compliance Install Plan (optional)
+      --cis-compliance-install-plan ${COLOR_YELLOW}CIS_INSTALL_PLAN${TEXT_RESET}  Set CIS Compliance subscription install plan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+
 Other Commands:
   -h, --help                                      Show this help message
 EOM
@@ -40,6 +43,7 @@ function gitops_cis_compliance_noninteractive() {
   # defaults for fvtsaas
   # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
   export REGION=${REGION:-${SM_AWS_REGION}}
+  export CIS_INSTALL_PLAN=${CIS_INSTALL_PLAN:-"Automatic"}
 
   while [[ $# -gt 0 ]]
   do
@@ -85,6 +89,9 @@ function gitops_cis_compliance_noninteractive() {
         ;;
        -S|--github-ssh)
         export GIT_SSH=$1 && shift
+        ;;
+      --cis-compliance-install-plan)
+        export CIS_INSTALL_PLAN=$1 && shift
         ;;
 
       # Other Commands
@@ -142,6 +149,10 @@ function gitops_cis_compliance() {
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster Config Directory .............. ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   
+  reset_colors
+
+  echo_h2 "CIS Compliance Install Plan" "    "
+  echo_reset_dim "Install Plan ..................... ${COLOR_MAGENTA}${CIS_INSTALL_PLAN}"
   reset_colors
 
   echo "${TEXT_DIM}"

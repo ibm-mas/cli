@@ -131,7 +131,6 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self._isSNO = None
 
-
         self.compatibilityMatrix = {
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],

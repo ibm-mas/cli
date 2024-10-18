@@ -346,13 +346,3 @@ function ocp_version_check() {
     exit 1
   fi
 }
-
-function ocp_architecture_check() {
-  export OCP_ARCHITECTURE=$(oc get nodes -o jsonpath='{.items[0].status.nodeInfo.architecture}')
-  if [[ "OCP_ARCHITECTURE" == "amd64" ]]; then
-      export preview=false
-  else
-      unset preview=true
-  fi
-   echo "OpenShift Cluster is of  $OCP_ARCHITECTURE architecture!"
-}

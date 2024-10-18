@@ -1,5 +1,8 @@
 Catalog Options
 -------------------------------------------------------------------------------
+!!! important
+    Cloud Pak for Data 4.8, used in catalogs between 240625 and 240827 contains a license key for the zenmetastore-edb postgres database that expired on October 1, 2024.  We have delivered a workaround for this in our install which is available from CLI version 11.2.1.  If you are installing CP4D as a MAS dependency you must use version 11.2.1 of the CLI at a minimum.  If you need to install MAS with CP4D using an older catalog than supported by this version of the CLI please contact IBM support.
+
 As the MAS CLI is updated we maintain a rolling window of approximately four months worth of catalogs in the interactive mode choices for install, mirror-images, and update functions; after this period the catalogs will be removed from the options, generally speaking customers are recommended to use the latest catalog with the latest CLI for new installs, even if installing an older release of MAS.
 
 Older catalogs can still be used once they are not shown in the interactive prompt, but this is not recommended, refer to the table below for the recommended version of the CLI to use with each catalog update.
@@ -46,6 +49,7 @@ To receive security updates and bug fixes you must periodically update the versi
 #### 2024
 | Catalog                               | OCP Support | Recommended CLI | End of Support                  |
 | ------------------------------------- | ----------- | --------------- | ------------------------------- |
+| [v9-241003-amd64](v9-241003-amd64.md) | 4.12 - 4.15 | latest          | OCP 4.14 EOS October 31, 2025   |
 | [v9-240827-amd64](v9-240827-amd64.md) | 4.12 - 4.15 | latest          | OCP 4.14 EOS October 31, 2025   |
 | [v9-240730-amd64](v9-240730-amd64.md) | 4.12 - 4.15 | latest          | OCP 4.14 EOS October 31, 2025   |
 | [v9-240625-amd64](v9-240625-amd64.md) | 4.12 - 4.14 | latest          | OCP 4.14 EOS October 31, 2025   |
