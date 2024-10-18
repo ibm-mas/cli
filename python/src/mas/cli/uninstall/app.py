@@ -209,7 +209,6 @@ class UninstallApp(BaseApp):
                     uninstallMongoDb = uninstallMongoDb,
                     uninstallSLS = uninstallSLS,
                     droNamespace = droNamespace
-
                 )
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} uninstall submitted")
