@@ -1,0 +1,198 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-odh
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    # Pre-Release Support
+    - name: artifactory_username
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+    - name: artifactory_token
+      default: ''
+      type: string
+      description: Required to use development MAS builds
+
+    # Entitlement
+    - name: ibm_entitlement_key
+      type: string
+
+    # MAS Details
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+
+    # Application - Operator
+    # - name: mas_aibroker_channel
+    - name: mas_app_channel
+      type: string
+      description: Catalog channel for the application operator subscription
+
+    # Application - Operand
+    - name: mas_app_bindings_jdbc
+      default: ""
+      type: string
+    - name: mas_app_plan
+      type: string
+      description: Application installation plan
+      default: ""
+
+    # Custom Label Support
+    - name: custom_labels
+      type: string
+      description: Optional MAS custom labels, comma separated list of key=value pairs
+      default: ""
+
+    # Opendatahub details
+    - name: mas_aibroker_storage_provider
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_accesskey
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_secretkey
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_host
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_port
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_ssl
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_region
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_pipelines_bucket
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_tenants_bucket
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_storage_templates_bucket
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_tenant_name
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_db_host
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_db_port
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_db_user
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_db_database
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_db_secret_name
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_db_secret_key
+      type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: mas_aibroker_db_secret_value
+      type: string
+      default: "This option is mandatory"
+      default: ""
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # Pre-Release Support
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
+
+      # Entitlement
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+
+      # MAS Details
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      # Application - Operator
+      # - name: MAS_AIBROKER_CHANNEL
+      #   value: $(params.mas_aibroker_channel)
+      - name: MAS_APP_CHANNEL
+        value: $(params.mas_app_channel)
+
+      # Custom Label Support
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
+
+      # Opendatahub storage details
+      - name: MAS_AIBROKER_STORAGE_PROVIDER
+        value: $(params.mas_aibroker_storage_provider)
+      - name: MAS_AIBROKER_STORAGE_ACCESSKEY
+        value: $(params.mas_aibroker_storage_accesskey)
+      - name: MAS_AIBROKER_STORAGE_SECRETKEY
+        value: $(params.mas_aibroker_storage_secretkey)
+      - name: MAS_AIBROKER_STORAGE_HOST
+        value: $(params.mas_aibroker_storage_host)
+      - name: MAS_AIBROKER_STORAGE_PORT
+        value: $(params.mas_aibroker_storage_port)
+      - name: MAS_AIBROKER_STORAGE_SSL
+        value: $(params.mas_aibroker_storage_ssl)
+      - name: MAS_AIBROKER_STORAGE_REGION
+        value: $(params.mas_aibroker_storage_region)
+      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
+        value: $(params.mas_aibroker_storage_pipelines_bucket)
+      - name: MAS_AIBROKER_STORAGE_TENANTS_BUCKET
+        value: $(params.mas_aibroker_storage_tenants_bucket)
+      - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
+        value: $(params.mas_aibroker_storage_templates_bucket)
+      - name: MAS_AIBROKER_TENANT_NAME
+        value: $(params.mas_aibroker_tenant_name)
+
+      # MariaDB details
+      - name: MAS_AIBROKER_DB_HOST
+        value: $(params.mas_aibroker_db_host)
+      - name: MAS_AIBROKER_DB_PORT
+        value: $(params.mas_aibroker_db_port)
+      - name: MAS_AIBROKER_DB_USER
+        value: $(params.mas_aibroker_db_user)
+      - name: MAS_AIBROKER_DB_DATABASE
+        value: $(params.mas_aibroker_db_database)
+      - name: MAS_AIBROKER_DB_SECRET_NAME
+        value: $(params.mas_aibroker_db_secret_name)
+      - name: MAS_AIBROKER_DB_SECRET_KEY
+        value: $(params.mas_aibroker_db_secret_key)
+      - name: MAS_AIBROKER_DB_SECRET_VALUE
+        value: $(params.mas_aibroker_db_secret_value)
+
+  steps:
+    - name: odh
+      command:
+        - /opt/app-root/src/run-role.sh
+        - odh
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
