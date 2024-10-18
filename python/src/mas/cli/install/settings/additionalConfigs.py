@@ -16,6 +16,7 @@ from prompt_toolkit import print_formatted_text
 import logging
 logger = logging.getLogger(__name__)
 
+
 class AdditionalConfigsMixin():
     def additionalConfigs(self) -> None:
         if self.interactiveMode:
@@ -136,40 +137,40 @@ class AdditionalConfigsMixin():
 
             apps = {
                 "mas_app_channel_assist": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/assist/",
-                        "keyPrefix": "assist."
-                    },
+                    "dir": self.getParam("mas_manual_cert_dir") + "/assist/",
+                    "keyPrefix": "assist."
+                },
                 "mas_app_channel_manage": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/manage/",
-                        "keyPrefix": "manage."
-                    },
+                    "dir": self.getParam("mas_manual_cert_dir") + "/manage/",
+                    "keyPrefix": "manage."
+                },
                 "mas_app_channel_iot": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/iot/",
-                        "keyPrefix": "iot."
-                    },
+                    "dir": self.getParam("mas_manual_cert_dir") + "/iot/",
+                    "keyPrefix": "iot."
+                },
                 "mas_app_channel_monitor": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/monitor/",
-                        "keyPrefix": "monitor."
-                    },
+                    "dir": self.getParam("mas_manual_cert_dir") + "/monitor/",
+                    "keyPrefix": "monitor."
+                },
                 "mas_app_channel_predict": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/predict/",
-                        "keyPrefix": "predict."
-                    },
+                    "dir": self.getParam("mas_manual_cert_dir") + "/predict/",
+                    "keyPrefix": "predict."
+                },
                 "mas_app_channel_visualinspection": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/visualinspection/",
-                        "keyPrefix": "visualinspection."
-                    },
+                    "dir": self.getParam("mas_manual_cert_dir") + "/visualinspection/",
+                    "keyPrefix": "visualinspection."
+                },
                 "mas_app_channel_optimizer": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/optimizer/",
-                        "keyPrefix": "optimizer."
-                    }
+                    "dir": self.getParam("mas_manual_cert_dir") + "/optimizer/",
+                    "keyPrefix": "optimizer."
                 }
+            }
 
             for file in ["ca.crt", "tls.crt", "tls.key"]:
                 if file not in map(path.basename, glob(f'{self.getParam("mas_manual_cert_dir")}/core/*')):
                     self.fatalError(f'{file} is not present in {self.getParam("mas_manual_cert_dir")}/core/')
             for ext in extensions:
-                certsSecret = self.addFilesToSecret(certsSecret, self.getParam("mas_manual_cert_dir")+'/core/', ext, "core.")
+                certsSecret = self.addFilesToSecret(certsSecret, self.getParam("mas_manual_cert_dir") + '/core/', ext, "core.")
 
             for app in apps:
                 if self.getParam(app) != "":
@@ -181,7 +182,7 @@ class AdditionalConfigsMixin():
 
             self.certsSecret = certsSecret
 
-    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str='') -> dict:
+    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '') -> dict:
         """
         Add file (or files) to pipeline-additional-configs
         """
