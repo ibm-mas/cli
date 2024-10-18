@@ -11,6 +11,7 @@
 from os import path
 from prompt_toolkit import print_formatted_text
 
+
 class Db2SettingsMixin():
     def configDb2(self) -> None:
         self.printH1("Configure Databases")
@@ -123,9 +124,8 @@ class Db2SettingsMixin():
         else:
             self.setParam("db2_action_manage", "none")
 
-
         # Do we need to configure Db2u?
-        if self.getParam("db2_action_system")  == "install" or self.getParam("db2_action_manage") == "install":
+        if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
             self.printH2("Installation Namespace")
             self.promptForString("Install namespace", "db2_namespace", default="db2u")
 

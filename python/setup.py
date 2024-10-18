@@ -7,12 +7,12 @@
 # http://www.eclipse.org/legal/epl-v10.html
 # *****************************************************************************
 
+from setuptools import setup, find_namespace_packages
 import codecs
 import sys
 import os
 sys.path.insert(0, 'src')
 
-from setuptools import setup, find_namespace_packages
 
 if not os.path.exists('README.rst'):
     import pypandoc
@@ -25,10 +25,13 @@ with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 # Maintain a single source of versioning
 # https://packaging.python.org/en/latest/guides/single-sourcing-package-version/
+
+
 def read(rel_path):
     here = os.path.abspath(os.path.dirname(__file__))
     with codecs.open(os.path.join(here, rel_path), 'r') as fp:
         return fp.read()
+
 
 def get_version(rel_path):
     for line in read(rel_path).splitlines():
@@ -37,6 +40,7 @@ def get_version(rel_path):
             return line.split(delim)[1]
     else:
         raise RuntimeError("Unable to find version string.")
+
 
 setup(
     name='mas-cli',
@@ -56,7 +60,7 @@ setup(
     install_requires=[
         'mas-devops',     # EPL
         'halo',           # MIT License
-        'prompt_toolkit', # BSD License
+        'prompt_toolkit',  # BSD License
         'openshift',      # Apache Software License
         'kubernetes',     # Apache Software License
         'tabulate'        # MIT License
