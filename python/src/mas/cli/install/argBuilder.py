@@ -12,6 +12,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class installArgBuilderMixin():
     def buildCommand(self) -> str:
         # MAS Catalog Selection & Entitlement
@@ -94,7 +95,7 @@ class installArgBuilderMixin():
         if self.getParam('mas_trust_default_cas') == "false":
             command += f"  --disable-ca-trust{newline}"
 
-        if self.getParam('mas_manual_cert_mgmt') == True:
+        if self.getParam('mas_manual_cert_mgmt') is True:
             command += f"  --manual-certificates \"{self.getParam('mas_manual_cert_dir')}\"{newline}"
 
         if self.getParam('mas_enable_walkme') == "false":
@@ -206,11 +207,11 @@ class installArgBuilderMixin():
         if self.getParam('cpd_product_version') != "":
             command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
             if self.getParam('cpd_install_spss') == "install":
-                command += f" --cp4d-install-spss"
+                command += " --cp4d-install-spss"
             if self.getParam('cpd_install_openscale') == "install":
-                command += f" --cp4d-install-openscal"
+                command += " --cp4d-install-openscal"
             if self.getParam('cpd_install_cognos') == "install":
-                command += f" --cp4d-install-cognos"
+                command += " --cp4d-install-cognos"
             command += newline
 
         # IBM Db2 Universal Operator
@@ -361,9 +362,9 @@ class installArgBuilderMixin():
             command += f"  --dev-mode{newline}"
         if not self.waitForPVC:
             command += f"  --no-wait-for-pvc{newline}"
-        if self.getParam('skip_pre_check') == True:
+        if self.getParam('skip_pre_check') is True:
             command += f"  --skip-pre-check{newline}"
-        if self.getParam('skip_grafana_install') == True:
+        if self.getParam('skip_grafana_install') is True:
             command += f"  --skip-grafana-install{newline}"
 
         command += "  --accept-license --no-confirm"
