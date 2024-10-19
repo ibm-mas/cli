@@ -130,6 +130,15 @@ class BaseApp(PrintMixin, PromptMixin):
         self._isSNO = None
 
         self.compatibilityMatrix = {
+            "9.1.x-feature": {
+                "assist": ["9.0.x"],
+                "iot": ["9.0.x"],
+                "manage": ["9.1.x-feature", "9.0.x"],
+                "monitor": ["9.0.x"],
+                "optimizer": ["9.1.x-feature", "9.0.x"],
+                "predict": ["9.0.x"],
+                "visualinspection": ["9.0.x"],
+            },
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
                 "iot": ["9.0.x", "8.8.x"],
@@ -137,7 +146,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 "monitor": ["9.0.x", "8.11.x"],
                 "optimizer": ["9.0.x", "8.5.x"],
                 "predict": ["9.0.x", "8.9.x"],
-                "visualinspection": ["9.0.x", "8.9.x"]
+                "visualinspection": ["9.0.x", "8.9.x"],
             },
             "8.11.x": {
                 "assist": ["8.8.x", "8.7.x"],
@@ -146,7 +155,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 "monitor": ["8.11.x", "8.10.x"],
                 "optimizer": ["8.5.x", "8.4.x"],
                 "predict": ["8.9.x", "8.8.x"],
-                "visualinspection": ["8.9.x", "8.8.x"]
+                "visualinspection": ["8.9.x", "8.8.x"],
             },
             "8.10.x": {
                 "assist": ["8.7.x", "8.6.x"],
@@ -156,8 +165,8 @@ class BaseApp(PrintMixin, PromptMixin):
                 "monitor": ["8.10.x", "8.9.x"],
                 "optimizer": ["8.4.x", "8.3.x"],
                 "predict": ["8.8.x", "8.7.x"],
-                "visualinspection": ["8.8.x", "8.7.x"]
-            }
+                "visualinspection": ["8.8.x", "8.7.x"],
+            },
         }
 
         self.spinner = {
