@@ -31,12 +31,12 @@ from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
 
 from mas.cli.validators import (
-  InstanceIDFormatValidator,
-  WorkspaceIDFormatValidator,
-  WorkspaceNameFormatValidator,
-  TimeoutFormatValidator,
-  StorageClassValidator,
-  OptimizerInstallPlanValidator
+    InstanceIDFormatValidator,
+    WorkspaceIDFormatValidator,
+    WorkspaceNameFormatValidator,
+    TimeoutFormatValidator,
+    StorageClassValidator,
+    OptimizerInstallPlanValidator
 )
 
 from mas.devops.ocp import createNamespace, getStorageClass, getStorageClasses
@@ -145,8 +145,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             print(tabulate(self.installOptions, headers="keys", tablefmt="simple_grid"))
             catalogSelection = self.promptForInt("Select catalog and release", default=1)
 
-            self.setParam("mas_catalog_version", self.installOptions[catalogSelection-1]["catalog"])
-            self.setParam("mas_channel", self.installOptions[catalogSelection-1]["release"])
+            self.setParam("mas_catalog_version", self.installOptions[catalogSelection - 1]["catalog"])
+            self.setParam("mas_channel", self.installOptions[catalogSelection - 1]["release"])
 
     def configSLS(self) -> None:
         self.printH1("Configure Product License")
@@ -234,7 +234,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "By default, Maximo Application Suite is configured with guided tour, you can disable this if it not required"
         ])
         if not self.yesOrNo("Enable Guided Tour"):
-            self.setParam("mas_enable_walkme","false")
+            self.setParam("mas_enable_walkme", "false")
 
     def configMAS(self):
         self.printH1("Configure MAS Instance")
@@ -363,7 +363,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
             ""
         ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer-1])
+        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
 
     def configDNSAndCertsCIS(self):
         self.setParam("dns_provider", "cis")
@@ -384,7 +384,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             f"{self.getParam('mas_instance_id')}-cis-le-stg",
             ""
         ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer-1])
+        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
 
     def configDNSAndCertsRoute53(self):
         self.setParam("dns_provider", "route53")
@@ -537,8 +537,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def setIoTStorageClasses(self) -> None:
         if self.installIoT:
-            self.setParam("mas_app_settings_iot_fpl_pvc_storage_class",  self.getParam("storage_class_rwo"))
-            self.setParam("mas_app_settings_iot_mqttbroker_pvc_storage_class",  self.getParam("storage_class_rwo"))
+            self.setParam("mas_app_settings_iot_fpl_pvc_storage_class", self.getParam("storage_class_rwo"))
+            self.setParam("mas_app_settings_iot_mqttbroker_pvc_storage_class", self.getParam("storage_class_rwo"))
 
     def optimizerSettings(self) -> None:
         if self.installOptimizer:
@@ -617,7 +617,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.interactiveMode = False
 
         # Set defaults
-        self.storageClassProvider="custom"
+        self.storageClassProvider = "custom"
         self.installAssist = False
         self.installIoT = False
         self.installMonitor = False
@@ -858,9 +858,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.fatalError(f"{key} must be set")
                 self.pipelineStorageClass = value
             elif key == "license_file":
-                    if value is None:
-                        self.fatalError(f"{key} must be set")
-                    self.slsLicenseFileLocal = value
+                if value is None:
+                    self.fatalError(f"{key} must be set")
+                self.slsLicenseFileLocal = value
 
             elif key.startswith("approval_"):
                 if key not in self.approvals:
@@ -876,7 +876,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             self.approvals[key]["maxRetries"] = int(valueParts[1])
                             self.approvals[key]["retryDelay"] = int(valueParts[2])
                             self.approvals[key]["ignoreFailure"] = bool(valueParts[3])
-                        except:
+                        except ValueError:
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
 
             # Arguments that we don't need to do anything with
@@ -1004,7 +1004,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "optimizer": "8.4.10",
                 "predict": "8.8.3",
                 "inspection": "8.8.4"
-            },            
+            },
             {
                 "#": 7,
                 "catalog": "v9-240827-amd64",
@@ -1120,7 +1120,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
                 installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text=f"OpenShift Pipelines Operator is installed and ready to use")
+                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
@@ -1144,9 +1144,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            with Halo(text=f'Testing availability of MAS CLI image in cluster', spinner=self.spinner) as h:
+            with Halo(text='Testing availability of MAS CLI image in cluster', spinner=self.spinner) as h:
                 testCLI()
-                h.stop_and_persist(symbol=self.successIcon, text=f"MAS CLI image deployment test completed")
+                h.stop_and_persist(symbol=self.successIcon, text="MAS CLI image deployment test completed")
 
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
