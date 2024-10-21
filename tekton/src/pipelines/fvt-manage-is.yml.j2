@@ -44,6 +44,9 @@ spec:
     - name: fvt_digest_manage_pytest
       type: string
       default: ""
+    - name: fvt_digest_manage_cypress
+      type: string
+      default: ""
     - name: fvt_digest_health_preparedata
       type: string
       default: ""
@@ -77,3 +80,4 @@ spec:
     {{ lookup('template', 'taskdefs/fvt-manage-is/phase2.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage-is/phase3.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-manage-is/phase4.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-manage-is/phase5.yml.j2') | indent(4) }}
