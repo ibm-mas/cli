@@ -128,7 +128,9 @@ spec:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
           values: [""]
-        - fvt_test_suite == monitor_fvt
+        - input: "$(params.fvt_test_suite)"
+          operator: in
+          values: ["monitor_fvt"]
       runAfter:
         - ivtcore-monitor
       workspaces:
