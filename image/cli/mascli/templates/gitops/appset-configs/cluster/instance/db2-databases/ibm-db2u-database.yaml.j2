@@ -63,3 +63,10 @@ mas_application_id: {{MAS_APP_ID}}
 jdbc_route: {{JDBC_ROUTE}}
 
 db2_timezone: {{DB2_TIMEZONE}}
+
+{% if STORAGE_CLASS_DEFINITIONS %}
+storage_class_definitions:
+  {% filter indent(width=2) -%}
+  {{STORAGE_CLASS_DEFINITIONS}}
+  {%- endfilter %}
+{% endif %}
