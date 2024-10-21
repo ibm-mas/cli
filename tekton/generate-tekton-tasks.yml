@@ -91,6 +91,7 @@
         - launchfvt-visualinspection
         - launchfvt-upgrade-post
         - launchfvt-upgrade-pre
+        - launchfvt-dynamicscan
         - launchivt-manage
 
     # 4. Generate Tasks (IVT)
@@ -102,6 +103,7 @@
       with_items:
         - ivt-core
         - ivt-manage
+        - ivt-dynamicscan
 
     # 5. Generate Tasks (Suite)
     # -------------------------------------------------------------------------

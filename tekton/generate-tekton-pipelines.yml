@@ -53,6 +53,7 @@
         - fvt-visualinspection
         - fvt-launcher
         - fvt-launcher-uninstall
+        - fvt-dynamicscan
         - ivt-manage
 
     # 2. Generate Pipelines

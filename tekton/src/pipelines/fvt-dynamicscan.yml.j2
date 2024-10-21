@@ -1,0 +1,241 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-dynamicscan
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+    # PodTemplates configurations
+    - name: shared-pod-templates
+
+  params:
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
+
+    # MAS Configuration
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+
+    # FVT Configuration
+    # -------------------------------------------------------------------------
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: fvt_artifactory_username
+      type: string
+      default: ""
+    - name: fvt_artifactory_token
+      type: string
+      default: ""
+    - name: ivt_digest_core
+      type: string
+      description: IVT Digest - Core
+      default: ""
+    
+    # MAS App Channel Configuration
+    # -------------------------------------------------------------------------
+    - name: mas_channel
+      type: string
+      default: ""
+    - name: mas_app_channel_iot
+      type: string
+      default: ""
+    - name: mas_app_channel_monitor
+      type: string
+      default: ""
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: mas_app_channel_assist
+      type: string
+      default: ""
+    - name: mas_app_channel_optimizer
+      type: string
+      default: ""
+    - name: mas_app_channel_predict
+      type: string
+      default: ""
+    - name: mas_app_channel_visualinspection
+      type: string
+      default: ""
+    
+    # Dynamic Application Scanning
+    # -------------------------------------------------------------------------
+    - name: launchdyncscan_core
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Core after waitfor-installation completes"
+    - name: launchdyncscan_iot
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for IoT after waitfor-installation completes"
+    - name: launchdyncscan_monitor
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Monitor after waitfor-installation completes"
+    - name: launchdyncscan_manage
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Manage after waitfor-installation completes"
+    - name: launchdyncscan_assist
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Assist after waitfor-installation completes"
+    - name: launchdyncscan_optimizer
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Optimizer after waitfor-installation completes"
+    - name: launchdyncscan_predict
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Predict after waitfor-installation completes"
+    - name: launchdyncscan_visualinspection
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for VisualInspection after waitfor-installation completes"
+  
+  tasks:
+    # Run Dynamic Scan for Core
+    - name: dynamicscan-core
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas
+        - name: product_channel
+          value: $(params.mas_channel)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_core)"
+          operator: in
+          values: ["true", "True"]
+
+    # Run Dynamic Scan for IoT
+    - name: dynamicscan-iot
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-iot
+        - name: product_channel
+          value: $(params.mas_app_channel_iot)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_iot)"
+          operator: in
+          values: ["true", "True"]
+    
+    # Run Dynamic Scan for Monitor
+    - name: dynamicscan-monitor
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-monitor
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_monitor)"
+          operator: in
+          values: ["true", "True"]
+    
+    # Run Dynamic Scan for Manage
+    - name: dynamicscan-manage
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-manage
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_manage)"
+          operator: in
+          values: ["true", "True"]
+    
+    # Run Dynamic Scan for Assist
+    - name: dynamicscan-assist
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-assist
+        - name: product_channel
+          value: $(params.mas_app_channel_assist)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_assist)"
+          operator: in
+          values: ["true", "True"]
+    
+    # Run Dynamic Scan for Optimizer
+    - name: dynamicscan-optimizer
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_optimizer)"
+          operator: in
+          values: ["true", "True"]
+    
+    # Run Dynamic Scan for Predict
+    - name: dynamicscan-predict
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-predict
+        - name: product_channel
+          value: $(params.mas_app_channel_predict)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_predict)"
+          operator: in
+          values: ["true", "True"]
+    
+    # Run Dynamic Scan for Visual Inspection
+    - name: dynamicscan-visualinspection
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-visualinspection
+        - name: product_channel
+          value: $(params.mas_app_channel_visualinspection)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_visualinspection)"
+          operator: in
+          values: ["true", "True"]

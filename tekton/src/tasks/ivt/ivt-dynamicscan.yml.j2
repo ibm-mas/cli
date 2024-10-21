@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-ivt-core
+  name: mas-ivt-dynamicscan
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -24,10 +24,14 @@ spec:
     - name: fvt_test_suite
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
-      default: ""
+      default: "dynamicscan"
     - name: fvt_enable_debug
       type: string
       description: Turn on debug logging (verbose mode)
+      default: "true"
+    - name: fvt_enable_dynamic_scan
+      type: string
+      description: Enable Dynamic Scanning for Target applications
       default: "true"
 
     # IVT Target Information
@@ -49,7 +53,7 @@ spec:
       description: Workspace ID in MAS to use for running the tests
 
   stepTemplate:
-    name: 'ivt-core'
+    name: 'ivt-dynamicscan'
     env:
       # What are we testing?
       - name: PRODUCT_ID
@@ -77,13 +81,7 @@ spec:
             key: DEVOPS_BUILD_NUMBER
             optional: true
 
-      # IBM Cloud API Key & Github Token are required to run the image vulnerability scan testsuite
-      - name : FVT_ENABLE_IMAGE_SCAN
-        valueFrom:
-          secretKeyRef:
-            name: mas-fvt-core
-            key: FVT_ENABLE_IMAGE_SCAN
-            optional: true
+      # IBM Cloud API Key & Github Token are required to run the Dynamic Scan testsuite
       - name: IBMCLOUD_APIKEY
         valueFrom:
           secretKeyRef:
@@ -100,7 +98,8 @@ spec:
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE
         value: $(params.fvt_test_suite)
-
+      - name: FVT_ENABLE_DYNAMIC_SCAN
+        value: $(params.fvt_enable_dynamic_scan)
       # Set the logging level to debug if this is set to true
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
@@ -108,7 +107,7 @@ spec:
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/ivt-core@$(params.fvt_image_digest)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 6h40m0s # SPS Multi-Scan can take over three hours to run for IoT
+      timeout: 12h20m0s # SPS Dynamic-Scan can take over 10-12 hours to run for larger applications
       onError: continue # Ensure bad FVTs don't break the pipeline
       resources: {}
       workingDir: /opt/ibm/test/src
