@@ -256,7 +256,7 @@ function provision_fyre() {
   export FYRE_WORKER_COUNT
   export FYRE_WORKER_CPU
   export FYRE_WORKER_MEMORY
-  export FYRE_WORKER_ADDITIONAL_DISK
+  export FYRE_WORKER_ADDITIONAL_DISKS
 
   export FYRE_CLUSTER_SIZE
 
