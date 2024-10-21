@@ -83,14 +83,6 @@ mas install
     When prompted you will be able to set license file to `/mnt/home/entitlement.lic`
 
 
-!!! tip
-    Wherever you see a `[Y/n]` or `[y/N]` prompt, the option in upper case is the default, and can be accepted just by hitting return.
-
-    Selections are saved to file (`$HOME/.ibm-mas/cli.env`), if you make a mistake use `Ctrl+C` to quit the installer and when you run the install command again it will remember all your choices made to that point.
-
-    In the unlikely event that you are running the install on a shared computer you should delete the `$HOME/.ibm-mas` directory after launching the installation.
-
-
 ### Step 1: Set Target OpenShift Cluster
 If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL & token, and whether to verify the server certificate or not,  If you are already connected to a cluster you will be given the option to change to another cluster.
 
@@ -100,9 +92,7 @@ No input is required during this step.  The Red Hat Pipelines Operator will be i
 
 
 ### Step 3: IBM Maximo Operator Catalog Selection
-You must decide whether to use the online dynamic catalog or an offline static catalog.  The default is to use the static catalog, for more information about catalog choice refer to [Choosing the right catalog](../guides/choosing-the-right-catalog.md).
-
-If you selected to use a static catalog then you will be presented with a table of available catalogs and the versions of MAS available in the catalog.  Make the selection using the numbers in the left-most column.
+You will be presented with a table of available catalogs and the versions of MAS available in the catalog.  Make the selection using the numbers in the left-most column.
 
 
 ### Step 4: License Terms
@@ -205,47 +195,49 @@ You can choose between three pre-defined workload scaling classes - `Burstable`,
 When choosing a custom profile you will be prompted for the directory of your config files. For each supported application you will need to create separate config file. The naming convention for custom config files is `ibm-<appname>-<customresourcename>.yml`.
 
 Currently supported config files:
+
 - ibm-mas
-  - ibm-mas-bascfg.yml
-  - ibm-mas-pushnotificationcfg.yml
-  - ibm-mas-scimcfg.yml
-  - ibm-mas-slscfg.yml
-  - ibm-mas-smtpcfg.yml
-  - ibm-mas-coreidp.yml
-  - ibm-mas-suite.yml
+    - ibm-mas-bascfg.yml
+    - ibm-mas-pushnotificationcfg.yml
+    - ibm-mas-scimcfg.yml
+    - ibm-mas-slscfg.yml
+    - ibm-mas-smtpcfg.yml
+    - ibm-mas-coreidp.yml
+    - ibm-mas-suite.yml
 - ibm-sls
-  - ibm-sls-licenseservice.yml
+    - ibm-sls-licenseservice.yml
 - ibm-data-dictionary
-  - ibm-data-dictionary-assetdatadictionary.yml
+    - ibm-data-dictionary-assetdatadictionary.yml
 - ibm-mas-iot
-  - ibm-mas-iot-actions.yml
-  - ibm-mas-iot-auth.yml
-  - ibm-mas-iot-datapower.yml
-  - ibm-mas-iot-devops.yml
-  - ibm-mas-iot-dm.yml
-  - ibm-mas-iot-dsc.yml
-  - ibm-mas-iot-edgeconfig.yml
-  - ibm-mas-iot-fpl.yml
-  - ibm-mas-iot-guardian.yml
-  - ibm-mas-iot-iot.yml
-  - ibm-mas-iot-mbgx.yml
-  - ibm-mas-iot-mfgx.yml
-  - ibm-mas-iot-monitor.yml
-  - ibm-mas-iot-orgmgmt.yml
-  - ibm-mas-iot-provision.yml
-  - ibm-mas-iot-registry.yml
-  - ibm-mas-iot-state.yml
-  - ibm-mas-iot-webui.yml
+    - ibm-mas-iot-actions.yml
+    - ibm-mas-iot-auth.yml
+    - ibm-mas-iot-datapower.yml
+    - ibm-mas-iot-devops.yml
+    - ibm-mas-iot-dm.yml
+    - ibm-mas-iot-dsc.yml
+    - ibm-mas-iot-edgeconfig.yml
+    - ibm-mas-iot-fpl.yml
+    - ibm-mas-iot-guardian.yml
+    - ibm-mas-iot-iot.yml
+    - ibm-mas-iot-mbgx.yml
+    - ibm-mas-iot-mfgx.yml
+    - ibm-mas-iot-monitor.yml
+    - ibm-mas-iot-orgmgmt.yml
+    - ibm-mas-iot-provision.yml
+    - ibm-mas-iot-registry.yml
+    - ibm-mas-iot-state.yml
+    - ibm-mas-iot-webui.yml
 - ibm-mas-manage
-  - ibm-mas-manage-manageapp.yml
-  - ibm-mas-manage-manageworkspace.yml
-  - ibm-mas-manage-imagestitching.yml
-  - ibm-mas-manage-slackproxy.yml
-  - ibm-mas-manage-healthextworkspace.yml
+    - ibm-mas-manage-manageapp.yml
+    - ibm-mas-manage-manageworkspace.yml
+    - ibm-mas-manage-imagestitching.yml
+    - ibm-mas-manage-slackproxy.yml
+    - ibm-mas-manage-healthextworkspace.yml
 
 For examples on these config files take a look into the pre-defined configs: [BestEffort](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort) and [Guaranteed](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed). More information on podTemplates can be found in our official IBM documentation [here](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads).
 
-!!! Note: This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0
+!!! Note
+    This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0
 
 #### Change default install namespaces?
 Answering "y" will allow you to customize the namespace where Db2, Grafana, and MongoDb are installed in the cluster.
