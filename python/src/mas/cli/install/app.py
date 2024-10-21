@@ -413,6 +413,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         self.printH1("Application Selection")
         self.installManage = self.yesOrNo("Install Manage")
+        if self.architecture == 's390x':
+            if self.installManage:
+                self.configAppChannel("manage")
+
         if not self.preview:
             self.installIoT = self.yesOrNo("Install IoT")
             if self.installIoT:

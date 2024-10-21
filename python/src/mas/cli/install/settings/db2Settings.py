@@ -34,28 +34,29 @@ class Db2SettingsMixin():
         self.setParam("db2_memory_requests", "8Gi")
         self.setParam("db2_memory_limits", "12Gi")
 
-        if self.isSNO():
-            # Set smaller defaults for SNO deployments
-            self.setParam("db2_meta_storage_size", "10Gi")
-            self.setParam("db2_backup_storage_size", "10Gi")
-            self.setParam("db2_logs_storage_size", "10Gi")
-            self.setParam("db2_temp_storage_size", "10Gi")
-            self.setParam("db2_data_storage_size", "20Gi")
+        if not self.preview:
+            if self.isSNO():
+                # Set smaller defaults for SNO deployments
+                self.setParam("db2_meta_storage_size", "10Gi")
+                self.setParam("db2_backup_storage_size", "10Gi")
+                self.setParam("db2_logs_storage_size", "10Gi")
+                self.setParam("db2_temp_storage_size", "10Gi")
+                self.setParam("db2_data_storage_size", "20Gi")
 
-            # Configure the access mode to RWO
-            self.params["db2_meta_storage_accessmode"] = "ReadWriteOnce"
-            self.params["db2_backup_storage_accessmode"] = "ReadWriteOnce"
-            self.params["db2_logs_storage_accessmode"] = "ReadWriteOnce"
-            self.params["db2_data_storage_accessmode"] = "ReadWriteOnce"
+                # Configure the access mode to RWO
+                self.params["db2_meta_storage_accessmode"] = "ReadWriteOnce"
+                self.params["db2_backup_storage_accessmode"] = "ReadWriteOnce"
+                self.params["db2_logs_storage_accessmode"] = "ReadWriteOnce"
+                self.params["db2_data_storage_accessmode"] = "ReadWriteOnce"
 
-            # Also reduce the CPU requests
-            self.params["db2_cpu_requests"] = "300m"
-        else:
-            self.setParam("db2_meta_storage_size", "20Gi")
-            self.setParam("db2_backup_storage_size", "100Gi")
-            self.setParam("db2_logs_storage_size", "100Gi")
-            self.setParam("db2_temp_storage_size", "100Gi")
-            self.setParam("db2_data_storage_size", "100Gi")
+                # Also reduce the CPU requests
+                self.params["db2_cpu_requests"] = "300m"
+            else:
+                self.setParam("db2_meta_storage_size", "20Gi")
+                self.setParam("db2_backup_storage_size", "100Gi")
+                self.setParam("db2_logs_storage_size", "100Gi")
+                self.setParam("db2_temp_storage_size", "100Gi")
+                self.setParam("db2_data_storage_size", "100Gi")
 
         instanceId = self.getParam('mas_instance_id')
         if not self.preview:
@@ -74,7 +75,7 @@ class Db2SettingsMixin():
                     self.selectLocalConfigDir()
                     # Check if a configuration already exists before creating a new one
                     jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-system.yaml")
-                    print_formatted_text(f"Searching for system database configuration file in {jdbcCfgFile} ...")
+                    print_formatted_text(f"Searching f3 or system database configuration file in {jdbcCfgFile} ...")
                     if path.exists(jdbcCfgFile):
                         if self.yesOrNo(f"System database configuration file 'jdbc-{instanceId}-system.yaml' already exists.  Do you want to generate a new one"):
                             self.generateJDBCCfg(instanceId=instanceId, scope="system", destination=jdbcCfgFile)
@@ -143,9 +144,8 @@ class Db2SettingsMixin():
                    else:
                        print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid Manage database configuration file now ...")
                        self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
-
             else:
-               self.setParam("db2_action_manage", "none")
+                self.setParam("db2_action_manage", "none")
 
 
 
