@@ -8,4 +8,4 @@
 #
 # *****************************************************************************
 
-from ..cli import BaseApp
+from ..cli import BaseApp  # noqa: F401
