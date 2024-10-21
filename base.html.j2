@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% if page.title %}{{ page.title }} - {% endif %}{{ config.site_name }}</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    <link rel="stylesheet" href="{{ 'css/theme.css' | url }}">
+    {% for path in config.extra_css %}
+      <link href="{{ path | url }}" rel="stylesheet">
+    {% endfor %}
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+
+    <script src="{{ 'js/theme.js' | url }}"></script>
+
+    {% block extrahead %}
+    {% endblock %}
+
+    {% for script in config.extra_javascript %}
+      {{ script | script_tag }}
+    {% endfor %}
+
+    <!-- Carbon Design System -->
+    <!--
+    https://github.com/carbon-design-system/carbon-for-ibm-dotcom/blob/main/packages/web-components/docs/carbon-cdn-style-helpers.md#carbon-theme-zoning-classes
+    -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/plex/mono.css" />
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/plex/sans.css" />
+
+    <!-- The following includes Carbon grid (using flex grid) and all corresponding grid classes -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/grid.css" />
+    <!-- The following includes Carbon grid (using CSS grid) and all corresponding grid classes -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/cssgrid.css" />
+
+    <!-- The following includes classes for creating Carbon theme zones (white, g10, g90, g100).
+         Note that these classes take advantage of using CSS Custom Properties enabled in Carbon -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css" />
+
+    <!--
+    This stylesheet is horrible!
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css"/>
+    -->
+
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/code-snippet.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/dropdown.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/overflow-menu.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+
+    <!-- Code formatting support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+  </head>
+
+  <body>
+    <cds-header aria-label="{{ config.site_name }}" class="cds-theme-zone-{{ config.theme.theme_header }}">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="{{ base_url }}" prefix="{{ config.theme.prefix }}">{{ config.site_name }}</cds-header-name>
+    </cds-header>
+    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-{{ config.theme.theme_sidenav }}" expanded>
+      <cds-side-nav-items>
+        {% for nav_item in nav %}
+          {% include "nav.html.j2" %}
+        {% endfor %}
+      </cds-side-nav-items>
+    </cds-side-nav>
+
+    <div id="breadcrumbs" class="rst-content">
+      {%- include "breadcrumbs.html.j2" %}
+    </div>
+
+    <div id="main-content" class="rst-content">
+      {% block content %}
+      {{ page.content }}
+      {% endblock %}
+    </div>
+    <!-- <div id="footer" class="rst-content">
+      Built with mkdocs v{{ mkdocs_version}} ({{ build_date_utc }})
+    </div> -->
+  </body>
+</html>

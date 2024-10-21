@@ -1,165 +1,323 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/examples/eam-migration/" />
-      <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>EAM Migration - MAS CLI</title>
-    <link rel="stylesheet" href="../../css/theme.css" />
-    <link rel="stylesheet" href="../../css/theme_extra.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
-        <link href="../../extra.css" rel="stylesheet" />
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>EAM Migration - Maximo Application Suite CLI Documentation</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    <link rel="stylesheet" href="../../css/theme.css">
     
-      <script>
-        // Current page data
-        var mkdocs_page_name = "EAM Migration";
-        var mkdocs_page_input_path = "examples/eam-migration.md";
-        var mkdocs_page_url = "/cli/examples/eam-migration/";
-      </script>
+      <link href="../../extra.css" rel="stylesheet">
     
-    <!--[if lt IE 9]>
-      <script src="../../js/html5shiv.min.js"></script>
-    <![endif]-->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
-      <script>hljs.highlightAll();</script> 
-</head>
 
-<body class="wy-body-for-nav" role="document">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
-    <div class="wy-side-scroll">
-      <div class="wy-side-nav-search">
-          <a href="../.." class="icon icon-home"> MAS CLI
-        </a>
-      </div>
+    <script src="../../js/theme.js"></script>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
-                </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Guides</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/choosing-the-right-catalog/">Choosing the Right Catalog</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/image-mirroring/">Image Mirroring</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/install/">Install</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/update/">Update</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/upgrade/">Upgrade</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/uninstall/">Uninstall</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Examples</span></p>
-              <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">EAM Migration</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#step-1-provision-openshift">Step 1 - Provision OpenShift</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#step-2-shutdown-eam">Step 2 - Shutdown EAM</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#step-3-prepare-the-jdbccfg">Step 3 - Prepare the JDBCCfg</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#step-4-install-mas">Step 4 - Install MAS</a>
-    </li>
-    </ul>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-db2/">Mirror Db2 Images</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Command Reference</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/install/">install</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/update/">update</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/upgrade/">upgrade</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/uninstall/">uninstall</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/must-gather/">must-gather</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configure-airgap/">configure-airgap</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-images/">mirror-images</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/mirror-redhat-images/">mirror-redhat-images</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/setup-registry/">setup-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/teardown-registry/">teardown-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-fyre/">provision-fyre</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-roks/">provision-roks</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/provision-rosa/">provision-rosa</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../commands/configtool-oidc/">configtool-oidc</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Operator Catalogs</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-241003-amd64/">Oct 03 2024</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240827-amd64/">Aug 27 2024</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240730-amd64/">Jul 30 2024</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240625-amd64/">Jun 25 2024</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Reference</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../reference/dependencies/">Dependencies</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
-                  </li>
-              </ul>
-      </div>
-    </div>
-    </nav>
+    
+    
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../..">MAS CLI</a>
+    
+
+    <!-- Carbon Design System -->
+    <!--
+    https://github.com/carbon-design-system/carbon-for-ibm-dotcom/blob/main/packages/web-components/docs/carbon-cdn-style-helpers.md#carbon-theme-zoning-classes
+    -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/plex/mono.css" />
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/plex/sans.css" />
+
+    <!-- The following includes Carbon grid (using flex grid) and all corresponding grid classes -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/grid.css" />
+    <!-- The following includes Carbon grid (using CSS grid) and all corresponding grid classes -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/cssgrid.css" />
+
+    <!-- The following includes classes for creating Carbon theme zones (white, g10, g90, g100).
+         Note that these classes take advantage of using CSS Custom Properties enabled in Carbon -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css" />
+
+    <!--
+    This stylesheet is horrible!
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css"/>
+    -->
+
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/code-snippet.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/dropdown.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/overflow-menu.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+
+    <!-- Code formatting support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: black; }</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+
+  <body>
+    <cds-header aria-label="Maximo Application Suite CLI Documentation" class="cds-theme-zone-g100">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI Documentation</cds-header-name>
+    </cds-header>
+    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g10" expanded>
+      <cds-side-nav-items>
         
-      </nav>
-      <div class="wy-nav-content">
-        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">Examples</li>
-      <li class="breadcrumb-item active">EAM Migration</li>
-    <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/examples/eam-migration.md" class="icon icon-github"> Edit on GitHub</a>
-    </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-            <div class="section" itemprop="articleBody">
-              
-                <h1 id="migration-from-eam-7-to-mas-9">Migration from EAM 7 to MAS 9<a class="headerlink" href="#migration-from-eam-7-to-mas-9" title="Permanent link"></a></h1>
+          
+  <cds-side-nav-menu title="Guides" >
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-mirroring/" >
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/install/" >
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/update/" >
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/upgrade/" >
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/uninstall/" >
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Examples" expanded>
+    
+      
+  <cds-side-nav-menu-item href="./" expanded>
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../mirror-db2/" >
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Command Reference" >
+    
+      
+  <cds-side-nav-menu-item href="../../commands/install/" >
+    install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/update/" >
+    update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/upgrade/" >
+    upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/uninstall/" >
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/must-gather/" >
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configure-airgap/" >
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/mirror-images/" >
+    mirror-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/mirror-redhat-images/" >
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/setup-registry/" >
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/teardown-registry/" >
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-fyre/" >
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-roks/" >
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-rosa/" >
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configtool-oidc/" >
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Operator Catalog" >
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/" >
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-241003-amd64/" >
+    Oct 03 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-240827-amd64/" >
+    Aug 27 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-240730-amd64/" >
+    Jul 30 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-240625-amd64/" >
+    Jun 25 2024
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Reference" >
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/" >
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/" >
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/" >
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+      </cds-side-nav-items>
+    </cds-side-nav>
+
+    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+      <cds-breadcrumb-item>Examples</cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-breadcrumb-link href="#migration-from-eam-7-to-mas-9">Migration from EAM 7 to MAS 9</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+<cds-breadcrumb-item>
+  <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  
+  
+    <cds-select-item value="#prerequisites">Prerequisites</cds-select-item>
+  
+    <cds-select-item value="#step-1-provision-openshift">Step 1 - Provision OpenShift</cds-select-item>
+  
+    <cds-select-item value="#step-2-shutdown-eam">Step 2 - Shutdown EAM</cds-select-item>
+  
+    <cds-select-item value="#step-3-prepare-the-jdbccfg">Step 3 - Prepare the JDBCCfg</cds-select-item>
+  
+    <cds-select-item value="#step-4-install-mas">Step 4 - Install MAS</cds-select-item>
+  
+</cds-select>
+</cds-breadcrumb-item>
+
+</cds-breadcrumb>
+    </div>
+
+    <div id="main-content" class="rst-content">
+      
+      <h1 id="migration-from-eam-7-to-mas-9">Migration from EAM 7 to MAS 9<a class="headerlink" href="#migration-from-eam-7-to-mas-9" title="Permanent link">¤</a></h1>
 <p>This example demonstrates how to migrate from EAM 7 to Maximo Manage v9 running on <a href="https://www.ibm.com/products/openshift">Red Hat OpenShift on IBM Cloud</a> (ROKS).</p>
 <ul>
 <li>For this demo we are using an existing database instance that is configured without TLS enabled (so we do not need to worry about providing the certificates in the configuration)</li>
 <li>Normally you would take a backup of the database and use that, but for the purpose of this example we are going to take over the database currently in use, if you wish to follow this example using a restored backup of your database simply skip step 2.</li>
 </ul>
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link"></a></h2>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¤</a></h2>
 <p><strong>1 An IBMCloud API Key</strong></p>
 <ul>
 <li>Login in your IBM Cloud account</li>
@@ -202,7 +360,7 @@
 <p>Create a new folder <code>mas9demo</code> in your home directory and save this file there as <code>~/mas9demo/entitlement.lic</code></p>
 <p><strong>3 An IBM Entitlement Key</strong></p>
 <p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
-<h2 id="step-1-provision-openshift">Step 1 - Provision OpenShift<a class="headerlink" href="#step-1-provision-openshift" title="Permanent link"></a></h2>
+<h2 id="step-1-provision-openshift">Step 1 - Provision OpenShift<a class="headerlink" href="#step-1-provision-openshift" title="Permanent link">¤</a></h2>
 <p>We are going to provision the cluster using <strong>Red Hat OpenShift on IBM Cloud</strong> via the MAS CLI container image.  Ensure that you set the <code>IBMCLOUD_APIKEY</code> environment variable to the key you obtained from the <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a>.</p>
 <pre><code class="language-bash">export IBMCLOUD_APIKEY=x
 
@@ -214,16 +372,16 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 <p>This will provision an OpenShift cluster with three 8x32 worker nodes. It will take approximately <strong>1 hour</strong> to provision the cluster.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours.</p>
+<p>At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours; the entire demo can be complete on IBMCloud for as little as $10.</p>
 </div>
-<h2 id="step-2-shutdown-eam">Step 2 - Shutdown EAM<a class="headerlink" href="#step-2-shutdown-eam" title="Permanent link"></a></h2>
+<h2 id="step-2-shutdown-eam">Step 2 - Shutdown EAM<a class="headerlink" href="#step-2-shutdown-eam" title="Permanent link">¤</a></h2>
 <p>We must stop EAM because we are going to take over the same database that is currently using; log into the WebSphere administrative console and stop the servers.</p>
-<p><img alt="alt text" src="../images/shutdown_eam.png" /></p>
+<p><a class="glightbox" href="../images/shutdown_eam.png" data-type="image" data-width="auto" data-height="auto" data-title="Shutdown EAM in the WebSphere Application Server administrative console" data-desc-position="bottom"><img alt="Shutdown EAM in the WebSphere Application Server administrative console" src="../images/shutdown_eam.png" /></a></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You can skip this step if you took a backup of your database and instead are using that.</p>
 </div>
-<h2 id="step-3-prepare-the-jdbccfg">Step 3 - Prepare the JDBCCfg<a class="headerlink" href="#step-3-prepare-the-jdbccfg" title="Permanent link"></a></h2>
+<h2 id="step-3-prepare-the-jdbccfg">Step 3 - Prepare the JDBCCfg<a class="headerlink" href="#step-3-prepare-the-jdbccfg" title="Permanent link">¤</a></h2>
 <p>IBM Maximo Application Suite (MAS) configuration is held in Kubernetes resources, when we install MAS we will tell the installer to apply this configuration as part of the installation.</p>
 <pre><code class="language-yaml">---
 apiVersion: v1
@@ -262,8 +420,8 @@ spec:
 </ul>
 <p>Save this file into the same directory where we saved the MAS entitlement file, as <code>~/mas9demo/mas9demo-jdbc.yaml</code></p>
 <p>Validate that the JDBC URL and username/password are correct by running the command <code>SELECT VARNAME, VARVALUE FROM MAXIMO.MAXVARS WHERE VARNAME='MAXUPG';</code>, which will confirm the database is currently running at version 7.</p>
-<p><img alt="alt text" src="../images/dbeaver.png" /></p>
-<h2 id="step-4-install-mas">Step 4 - Install MAS<a class="headerlink" href="#step-4-install-mas" title="Permanent link"></a></h2>
+<p><a class="glightbox" href="../images/dbeaver.png" data-type="image" data-width="auto" data-height="auto" data-title="Using DBeaver to view the MAXUPG value in the Maximo database" data-desc-position="bottom"><img alt="Using DBeaver to view the MAXUPG value in the Maximo database" src="../images/dbeaver.png" /></a></p>
+<h2 id="step-4-install-mas">Step 4 - Install MAS<a class="headerlink" href="#step-4-install-mas" title="Permanent link">¤</a></h2>
 <p>Ensure the following environment variables are all set:</p>
 <ul>
 <li><code>IBMCLOUD_APIKEY</code> (see <a href="#prerequisites">prerequisites</a>)</li>
@@ -312,58 +470,19 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 <p class="admonition-title">Tip</p>
 <p>You can either monitor the install in the OpenShift Console or go get lunch, the install will take approximately 2-3 hours depending on network conditions.</p>
 </div>
-<p><img alt="alt text" src="../images/install-pipeline.png" /></p>
+<p><a class="glightbox" href="../images/install-pipeline.png" data-type="image" data-width="auto" data-height="auto" data-title="Tekon Pipeline for Maximo Application Suite installation" data-desc-position="bottom"><img alt="Tekon Pipeline for Maximo Application Suite installation" src="../images/install-pipeline.png" /></a></p>
 <p>Once the installation has completed you will be able to log into Maximo Application Suite &amp; Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's <strong>Application Menu</strong>, and we can log into MAS using the superuser username and password supplied during install:</p>
-<p><img alt="alt text" src="../images/dashboard-link.png" /></p>
+<p><a class="glightbox" href="../images/dashboard-link.png" data-type="image" data-width="auto" data-height="auto" data-title="Application Menu extension in the OpenShift Console for Maximo Application Suite" data-desc-position="bottom"><img alt="Application Menu extension in the OpenShift Console for Maximo Application Suite" src="../images/dashboard-link.png" /></a></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In this demo we have not configured integration to an SMTP server, as a result we must manually set a new password for the migrated users (including <strong>maxadmin</strong>) before they can be used.</p>
 <p>If e-mail services are enabled during the MAS install then a new password would be generated automatically for each migrated user and a welcome e-mail containing their new Maximo Application Suite password would be sent.</p>
 </div>
-              
-            </div>
-          </div><footer>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <!-- Copyright etc -->
-  </div>
-
-  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-</footer>
-          
-        </div>
-      </div>
-
-    </section>
-
-  </div>
-
-  <div class="rst-versions" role="note" aria-label="Versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    
-        <span>
-          <a href="https://github.com/ibm-mas/cli" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
-        </span>
-    
-    
-      <span><a href="../../guides/uninstall/" style="color: #fcfcfc">&laquo; Previous</a></span>
-    
-    
-      <span><a href="../mirror-db2/" style="color: #fcfcfc">Next &raquo;</a></span>
-    
-  </span>
-</div>
-    <script src="../../js/jquery-3.6.0.min.js"></script>
-    <script>var base_url = "../..";</script>
-    <script src="../../js/theme_extra.js"></script>
-    <script src="../../js/theme.js"></script>
-    <script>
-        jQuery(function () {
-            SphinxRtdTheme.Navigation.enable(true);
-        });
-    </script>
-
-</body>
+      
+    </div>
+    <!-- <div id="footer" class="rst-content">
+      Built with mkdocs v1.6.1 (2024-10-21 17:38:34.056813+00:00)
+    </div> -->
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body>
 </html>

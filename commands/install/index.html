@@ -1,212 +1,318 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/install/" />
-      <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>install - MAS CLI</title>
-    <link rel="stylesheet" href="../../css/theme.css" />
-    <link rel="stylesheet" href="../../css/theme_extra.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
-        <link href="../../extra.css" rel="stylesheet" />
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>install - Maximo Application Suite CLI Documentation</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    <link rel="stylesheet" href="../../css/theme.css">
     
-      <script>
-        // Current page data
-        var mkdocs_page_name = "install";
-        var mkdocs_page_input_path = "commands/install.md";
-        var mkdocs_page_url = "/cli/commands/install/";
-      </script>
+      <link href="../../extra.css" rel="stylesheet">
     
-    <!--[if lt IE 9]>
-      <script src="../../js/html5shiv.min.js"></script>
-    <![endif]-->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
-      <script>hljs.highlightAll();</script> 
-</head>
 
-<body class="wy-body-for-nav" role="document">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
-    <div class="wy-side-scroll">
-      <div class="wy-side-nav-search">
-          <a href="../.." class="icon icon-home"> MAS CLI
-        </a>
-      </div>
+    <script src="../../js/theme.js"></script>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
-                </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Guides</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/choosing-the-right-catalog/">Choosing the Right Catalog</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/image-mirroring/">Image Mirroring</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/install/">Install</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/update/">Update</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/upgrade/">Upgrade</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/uninstall/">Uninstall</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Examples</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/eam-migration/">EAM Migration</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/mirror-db2/">Mirror Db2 Images</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Command Reference</span></p>
-              <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">install</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#non-interactive-install">Non-Interactive Install</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#interactive-install">Interactive Install</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#step-1-set-target-openshift-cluster">Step 1: Set Target OpenShift Cluster</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-2-install-openshift-pipelines-operator">Step 2: Install OpenShift Pipelines Operator</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-3-ibm-maximo-operator-catalog-selection">Step 3: IBM Maximo Operator Catalog Selection</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-4-license-terms">Step 4: License Terms</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-5-configure-mas-instance">Step 5: Configure MAS Instance</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-6-configure-operation-mode">Step 6: Configure Operation Mode</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-7-configure-domain-certificate-management">Step 7. Configure Domain &amp; Certificate Management</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-8-application-selection">Step 8. Application Selection</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-9-configure-databases">Step 9. Configure Databases</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-10-configure-turbonomic">Step 10. Configure Turbonomic</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-11-additional-configurations">Step 11. Additional Configurations</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-12-configure-storage-class-usage">Step 12. Configure Storage Class Usage</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-13-advanced-settings">Step 13. Advanced Settings</a>
-        <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#configure-scaling-profile">Configure Scaling Profile</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#change-default-install-namespaces">Change default install namespaces?</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-15-configure-ibm-container-registry">Step 15. Configure IBM Container Registry</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-16-configure-product-license">Step 16. Configure Product License</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-19-configure-uds">Step 19. Configure UDS</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-20-prepare-installation">Step 20. Prepare Installation</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#step-21-review-settings">Step 21. Review Settings</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#air-gap-support">Air Gap Support</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#more-information">More Information</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#the-automation-engine">The Automation Engine</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#the-automation-driver">The Automation Driver</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#support">Support</a>
-    </li>
-        </ul>
-    </li>
-    </ul>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../update/">update</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../upgrade/">upgrade</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../uninstall/">uninstall</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../must-gather/">must-gather</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-redhat-images/">mirror-redhat-images</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../teardown-registry/">teardown-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../provision-fyre/">provision-fyre</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../provision-roks/">provision-roks</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../provision-rosa/">provision-rosa</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../configtool-oidc/">configtool-oidc</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Operator Catalogs</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-241003-amd64/">Oct 03 2024</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240827-amd64/">Aug 27 2024</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240730-amd64/">Jul 30 2024</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240625-amd64/">Jun 25 2024</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Reference</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../reference/dependencies/">Dependencies</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
-                  </li>
-              </ul>
-      </div>
-    </div>
-    </nav>
+    
+    
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../..">MAS CLI</a>
+    
+
+    <!-- Carbon Design System -->
+    <!--
+    https://github.com/carbon-design-system/carbon-for-ibm-dotcom/blob/main/packages/web-components/docs/carbon-cdn-style-helpers.md#carbon-theme-zoning-classes
+    -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/plex/mono.css" />
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/plex/sans.css" />
+
+    <!-- The following includes Carbon grid (using flex grid) and all corresponding grid classes -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/grid.css" />
+    <!-- The following includes Carbon grid (using CSS grid) and all corresponding grid classes -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/cssgrid.css" />
+
+    <!-- The following includes classes for creating Carbon theme zones (white, g10, g90, g100).
+         Note that these classes take advantage of using CSS Custom Properties enabled in Carbon -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css" />
+
+    <!--
+    This stylesheet is horrible!
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css"/>
+    -->
+
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/code-snippet.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/dropdown.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/overflow-menu.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+
+    <!-- Code formatting support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: black; }</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+
+  <body>
+    <cds-header aria-label="Maximo Application Suite CLI Documentation" class="cds-theme-zone-g100">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI Documentation</cds-header-name>
+    </cds-header>
+    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g10" expanded>
+      <cds-side-nav-items>
         
-      </nav>
-      <div class="wy-nav-content">
-        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">Command Reference</li>
-      <li class="breadcrumb-item active">install</li>
-    <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/install.md" class="icon icon-github"> Edit on GitHub</a>
-    </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-            <div class="section" itemprop="articleBody">
-              
-                <h1 id="install">Install<a class="headerlink" href="#install" title="Permanent link"></a></h1>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
+          
+  <cds-side-nav-menu title="Guides" >
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-mirroring/" >
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/install/" >
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/update/" >
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/upgrade/" >
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/uninstall/" >
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Examples" >
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/" >
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/" >
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Command Reference" expanded>
+    
+      
+  <cds-side-nav-menu-item href="./" expanded>
+    install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../update/" >
+    update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../upgrade/" >
+    upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/" >
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../must-gather/" >
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configure-airgap/" >
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../mirror-images/" >
+    mirror-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../mirror-redhat-images/" >
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../setup-registry/" >
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../teardown-registry/" >
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-fyre/" >
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-roks/" >
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-rosa/" >
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configtool-oidc/" >
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Operator Catalog" >
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/" >
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-241003-amd64/" >
+    Oct 03 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-240827-amd64/" >
+    Aug 27 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-240730-amd64/" >
+    Jul 30 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-240625-amd64/" >
+    Jun 25 2024
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Reference" >
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/" >
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/" >
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/" >
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+      </cds-side-nav-items>
+    </cds-side-nav>
+
+    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+      <cds-breadcrumb-item>Command Reference</cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-breadcrumb-link href="#install">Install</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+<cds-breadcrumb-item>
+  <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  
+  
+    <cds-select-item value="#usage">Usage</cds-select-item>
+  
+    <cds-select-item value="#non-interactive-install">Non-Interactive Install</cds-select-item>
+  
+    <cds-select-item value="#interactive-install">Interactive Install</cds-select-item>
+  
+    <cds-select-item value="#air-gap-support">Air Gap Support</cds-select-item>
+  
+    <cds-select-item value="#more-information">More Information</cds-select-item>
+  
+</cds-select>
+</cds-breadcrumb-item>
+
+</cds-breadcrumb>
+    </div>
+
+    <div id="main-content" class="rst-content">
+      
+      <h1 id="install">Install<a class="headerlink" href="#install" title="Permanent link">¤</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
 <p>For full usage information run <code>mas install --help</code></p>
 <pre><code>mas install [-c MAS_CATALOG_VERSION] [--mas-catalog-digest MAS_CATALOG_DIGEST] [--ibm-entitlement-key IBM_ENTITLEMENT_KEY] [-i MAS_INSTANCE_ID]
             [-w MAS_WORKSPACE_ID] [-W MAS_WORKSPACE_NAME] [--mas-channel MAS_CHANNEL] [--eck] [--eck-enable-logstash]
@@ -253,7 +359,7 @@
             [--approval-visualinspection APPROVAL_VISUALINSPECTION] [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check]
             [--skip-grafana-install] [--no-confirm] [-h]
 </code></pre>
-<h2 id="non-interactive-install">Non-Interactive Install<a class="headerlink" href="#non-interactive-install" title="Permanent link"></a></h2>
+<h2 id="non-interactive-install">Non-Interactive Install<a class="headerlink" href="#non-interactive-install" title="Permanent link">¤</a></h2>
 <pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
 export ENTITLEMENT_KEY=xxx
 mas install -i mas1 -w ws1 -W &quot;My Workspace&quot; -c v9-241003-amd64 --mas-channel 9.0.x \
@@ -265,7 +371,7 @@ mas install -i mas1 -w ws1 -W &quot;My Workspace&quot; -c v9-241003-amd64 --mas-
   --no-confirm \
   --accept-license
 </code></pre>
-<h2 id="interactive-install">Interactive Install<a class="headerlink" href="#interactive-install" title="Permanent link"></a></h2>
+<h2 id="interactive-install">Interactive Install<a class="headerlink" href="#interactive-install" title="Permanent link">¤</a></h2>
 <pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli
 mas install
 </code></pre>
@@ -274,22 +380,15 @@ mas install
 <p>We will need the <code>entitlement.lic</code> file to perform the installation which is why we mount your home directory into the container.  If you saved the entitlement file elsewhere, mount that directory instead.</p>
 <p>When prompted you will be able to set license file to <code>/mnt/home/entitlement.lic</code></p>
 </div>
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Wherever you see a <code>[Y/n]</code> or <code>[y/N]</code> prompt, the option in upper case is the default, and can be accepted just by hitting return.</p>
-<p>Selections are saved to file (<code>$HOME/.ibm-mas/cli.env</code>), if you make a mistake use <code>Ctrl+C</code> to quit the installer and when you run the install command again it will remember all your choices made to that point.</p>
-<p>In the unlikely event that you are running the install on a shared computer you should delete the <code>$HOME/.ibm-mas</code> directory after launching the installation.</p>
-</div>
-<h3 id="step-1-set-target-openshift-cluster">Step 1: Set Target OpenShift Cluster<a class="headerlink" href="#step-1-set-target-openshift-cluster" title="Permanent link"></a></h3>
+<h3 id="step-1-set-target-openshift-cluster">Step 1: Set Target OpenShift Cluster<a class="headerlink" href="#step-1-set-target-openshift-cluster" title="Permanent link">¤</a></h3>
 <p>If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL &amp; token, and whether to verify the server certificate or not,  If you are already connected to a cluster you will be given the option to change to another cluster.</p>
-<h3 id="step-2-install-openshift-pipelines-operator">Step 2: Install OpenShift Pipelines Operator<a class="headerlink" href="#step-2-install-openshift-pipelines-operator" title="Permanent link"></a></h3>
+<h3 id="step-2-install-openshift-pipelines-operator">Step 2: Install OpenShift Pipelines Operator<a class="headerlink" href="#step-2-install-openshift-pipelines-operator" title="Permanent link">¤</a></h3>
 <p>No input is required during this step.  The Red Hat Pipelines Operator will be installed on the cluster (if it is not already).</p>
-<h3 id="step-3-ibm-maximo-operator-catalog-selection">Step 3: IBM Maximo Operator Catalog Selection<a class="headerlink" href="#step-3-ibm-maximo-operator-catalog-selection" title="Permanent link"></a></h3>
-<p>You must decide whether to use the online dynamic catalog or an offline static catalog.  The default is to use the static catalog, for more information about catalog choice refer to <a href="../../guides/choosing-the-right-catalog/">Choosing the right catalog</a>.</p>
-<p>If you selected to use a static catalog then you will be presented with a table of available catalogs and the versions of MAS available in the catalog.  Make the selection using the numbers in the left-most column.</p>
-<h3 id="step-4-license-terms">Step 4: License Terms<a class="headerlink" href="#step-4-license-terms" title="Permanent link"></a></h3>
+<h3 id="step-3-ibm-maximo-operator-catalog-selection">Step 3: IBM Maximo Operator Catalog Selection<a class="headerlink" href="#step-3-ibm-maximo-operator-catalog-selection" title="Permanent link">¤</a></h3>
+<p>You will be presented with a table of available catalogs and the versions of MAS available in the catalog.  Make the selection using the numbers in the left-most column.</p>
+<h3 id="step-4-license-terms">Step 4: License Terms<a class="headerlink" href="#step-4-license-terms" title="Permanent link">¤</a></h3>
 <p>Confirm that you accept the IBM Maximo Application Suite license terms</p>
-<h3 id="step-5-configure-mas-instance">Step 5: Configure MAS Instance<a class="headerlink" href="#step-5-configure-mas-instance" title="Permanent link"></a></h3>
+<h3 id="step-5-configure-mas-instance">Step 5: Configure MAS Instance<a class="headerlink" href="#step-5-configure-mas-instance" title="Permanent link">¤</a></h3>
 <p>Provide the basic information about your MAS instance:</p>
 <ul>
 <li>Instance ID</li>
@@ -316,18 +415,18 @@ mas install
 <li>Must be 3-300 characters long</li>
 </ul>
 </div>
-<h3 id="step-6-configure-operation-mode">Step 6: Configure Operation Mode<a class="headerlink" href="#step-6-configure-operation-mode" title="Permanent link"></a></h3>
+<h3 id="step-6-configure-operation-mode">Step 6: Configure Operation Mode<a class="headerlink" href="#step-6-configure-operation-mode" title="Permanent link">¤</a></h3>
 <p>The install will default to a production mode installation, but by choosing "y" at the prompt you will be able to install MAS in non-production mode.</p>
-<h3 id="step-7-configure-domain-certificate-management">Step 7. Configure Domain &amp; Certificate Management<a class="headerlink" href="#step-7-configure-domain-certificate-management" title="Permanent link"></a></h3>
+<h3 id="step-7-configure-domain-certificate-management">Step 7. Configure Domain &amp; Certificate Management<a class="headerlink" href="#step-7-configure-domain-certificate-management" title="Permanent link">¤</a></h3>
 <p>By default MAS will be installed in a subdomain of your OpenShift clusters domain matching the MAS instance ID that you chose.  For example if your OpenShift cluster is <code>myocp.net</code> and you are installing MAS with an instance ID of <code>prod1</code> then MAS will be installed with a default domain something like <code>prod1.apps.myocp.net</code>, depending on the exact network configuration of your cluster.</p>
 <p>If you wish to use a custom domain for the MAS install you can choose to configure this by selecting "n" at the prompt.  The install supports DNS integrations for Cloudflare, IBM Cloud Internet Services, AWS Route 53 out of the box and is able to configure a certificate issuer using LetsEncrypt (production or staging) or a self-signed certificate authority per your choices.</p>
-<h3 id="step-8-application-selection">Step 8. Application Selection<a class="headerlink" href="#step-8-application-selection" title="Permanent link"></a></h3>
+<h3 id="step-8-application-selection">Step 8. Application Selection<a class="headerlink" href="#step-8-application-selection" title="Permanent link">¤</a></h3>
 <p>Select the applications that you would like to install. Note that some applications cannot be installed unless an application they depend on is also installed:</p>
 <ul>
 <li>Monitor is only available for install if IoT is selected</li>
 <li>Assist and Predict are only available for install if Monitor is selected</li>
 </ul>
-<h3 id="step-9-configure-databases">Step 9. Configure Databases<a class="headerlink" href="#step-9-configure-databases" title="Permanent link"></a></h3>
+<h3 id="step-9-configure-databases">Step 9. Configure Databases<a class="headerlink" href="#step-9-configure-databases" title="Permanent link">¤</a></h3>
 <p>If you have selected one or more applications that require a JDBC datasource (IoT, Manage, Monitor, &amp; Predict) you must choose how to provide that dependency:</p>
 <ul>
 <li>Use the IBM Db2 Universal Operator</li>
@@ -338,7 +437,7 @@ mas install
 <p class="admonition-title">Tip</p>
 <p>If you have already generated the configuration file (manually, or using the install previously) the CLI will detect this and prompt whether you wish to re-use the existing configuration, or generate a new one.</p>
 </div>
-<h3 id="step-10-configure-turbonomic">Step 10. Configure Turbonomic<a class="headerlink" href="#step-10-configure-turbonomic" title="Permanent link"></a></h3>
+<h3 id="step-10-configure-turbonomic">Step 10. Configure Turbonomic<a class="headerlink" href="#step-10-configure-turbonomic" title="Permanent link">¤</a></h3>
 <p>The <a href="https://www.ibm.com/products/turbonomic">IBM Turbonomic</a> hybrid cloud cost optimization platform allows you to eliminate this guesswork with solutions that save time and optimize costs.  To enable Turbonomic integration you must provide the following information:</p>
 <ul>
 <li>Target name</li>
@@ -346,13 +445,13 @@ mas install
 <li>Server version</li>
 <li>Authentication credentials (username &amp; password)</li>
 </ul>
-<h3 id="step-11-additional-configurations">Step 11. Additional Configurations<a class="headerlink" href="#step-11-additional-configurations" title="Permanent link"></a></h3>
+<h3 id="step-11-additional-configurations">Step 11. Additional Configurations<a class="headerlink" href="#step-11-additional-configurations" title="Permanent link">¤</a></h3>
 <p>Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you provided one or more JDBC configurations in step 9 then additional configurations will already be enabled and be pointing at the directory you chose for the JDBC configurations.</p>
 </div>
-<h3 id="step-12-configure-storage-class-usage">Step 12. Configure Storage Class Usage<a class="headerlink" href="#step-12-configure-storage-class-usage" title="Permanent link"></a></h3>
+<h3 id="step-12-configure-storage-class-usage">Step 12. Configure Storage Class Usage<a class="headerlink" href="#step-12-configure-storage-class-usage" title="Permanent link">¤</a></h3>
 <p>MAS requires both a <code>ReadWriteMany</code> and a <code>ReadWriteOnce</code> capable storage class to be available in the cluster.  The installer has the ability to recognize certain storage class providers and will default to the most appropriate storage class in these cases:</p>
 <ul>
 <li>IBMCloud Storage (<code>ibmc-block-gold</code> &amp; <code>ibmc-file-gold</code>)</li>
@@ -366,68 +465,83 @@ mas install
 <p class="admonition-title">Warning</p>
 <p>Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documentation from the storage class provider to determine whether your storage class supports <code>ReadWriteOnce</code> and/or <code>ReadWriteMany</code>.</p>
 </div>
-<h3 id="step-13-advanced-settings">Step 13. Advanced Settings<a class="headerlink" href="#step-13-advanced-settings" title="Permanent link"></a></h3>
+<h3 id="step-13-advanced-settings">Step 13. Advanced Settings<a class="headerlink" href="#step-13-advanced-settings" title="Permanent link">¤</a></h3>
 <p>These settings can generally be ignored for most installations.</p>
-<h4 id="configure-scaling-profile">Configure Scaling Profile<a class="headerlink" href="#configure-scaling-profile" title="Permanent link"></a></h4>
+<h4 id="configure-scaling-profile">Configure Scaling Profile<a class="headerlink" href="#configure-scaling-profile" title="Permanent link">¤</a></h4>
 <p>You can choose between three pre-defined workload scaling classes - <code>Burstable</code>, <code>BestEffort</code> and <code>Guaranteed</code>; or choose a custom profile of your own. By default MAS applications use <code>Burstable</code>.</p>
 <p>When choosing a custom profile you will be prompted for the directory of your config files. For each supported application you will need to create separate config file. The naming convention for custom config files is <code>ibm-&lt;appname&gt;-&lt;customresourcename&gt;.yml</code>.</p>
-<p>Currently supported config files:
-- ibm-mas
-  - ibm-mas-bascfg.yml
-  - ibm-mas-pushnotificationcfg.yml
-  - ibm-mas-scimcfg.yml
-  - ibm-mas-slscfg.yml
-  - ibm-mas-smtpcfg.yml
-  - ibm-mas-coreidp.yml
-  - ibm-mas-suite.yml
-- ibm-sls
-  - ibm-sls-licenseservice.yml
-- ibm-data-dictionary
-  - ibm-data-dictionary-assetdatadictionary.yml
-- ibm-mas-iot
-  - ibm-mas-iot-actions.yml
-  - ibm-mas-iot-auth.yml
-  - ibm-mas-iot-datapower.yml
-  - ibm-mas-iot-devops.yml
-  - ibm-mas-iot-dm.yml
-  - ibm-mas-iot-dsc.yml
-  - ibm-mas-iot-edgeconfig.yml
-  - ibm-mas-iot-fpl.yml
-  - ibm-mas-iot-guardian.yml
-  - ibm-mas-iot-iot.yml
-  - ibm-mas-iot-mbgx.yml
-  - ibm-mas-iot-mfgx.yml
-  - ibm-mas-iot-monitor.yml
-  - ibm-mas-iot-orgmgmt.yml
-  - ibm-mas-iot-provision.yml
-  - ibm-mas-iot-registry.yml
-  - ibm-mas-iot-state.yml
-  - ibm-mas-iot-webui.yml
-- ibm-mas-manage
-  - ibm-mas-manage-manageapp.yml
-  - ibm-mas-manage-manageworkspace.yml
-  - ibm-mas-manage-imagestitching.yml
-  - ibm-mas-manage-slackproxy.yml
-  - ibm-mas-manage-healthextworkspace.yml</p>
+<p>Currently supported config files:</p>
+<ul>
+<li>ibm-mas<ul>
+<li>ibm-mas-bascfg.yml</li>
+<li>ibm-mas-pushnotificationcfg.yml</li>
+<li>ibm-mas-scimcfg.yml</li>
+<li>ibm-mas-slscfg.yml</li>
+<li>ibm-mas-smtpcfg.yml</li>
+<li>ibm-mas-coreidp.yml</li>
+<li>ibm-mas-suite.yml</li>
+</ul>
+</li>
+<li>ibm-sls<ul>
+<li>ibm-sls-licenseservice.yml</li>
+</ul>
+</li>
+<li>ibm-data-dictionary<ul>
+<li>ibm-data-dictionary-assetdatadictionary.yml</li>
+</ul>
+</li>
+<li>ibm-mas-iot<ul>
+<li>ibm-mas-iot-actions.yml</li>
+<li>ibm-mas-iot-auth.yml</li>
+<li>ibm-mas-iot-datapower.yml</li>
+<li>ibm-mas-iot-devops.yml</li>
+<li>ibm-mas-iot-dm.yml</li>
+<li>ibm-mas-iot-dsc.yml</li>
+<li>ibm-mas-iot-edgeconfig.yml</li>
+<li>ibm-mas-iot-fpl.yml</li>
+<li>ibm-mas-iot-guardian.yml</li>
+<li>ibm-mas-iot-iot.yml</li>
+<li>ibm-mas-iot-mbgx.yml</li>
+<li>ibm-mas-iot-mfgx.yml</li>
+<li>ibm-mas-iot-monitor.yml</li>
+<li>ibm-mas-iot-orgmgmt.yml</li>
+<li>ibm-mas-iot-provision.yml</li>
+<li>ibm-mas-iot-registry.yml</li>
+<li>ibm-mas-iot-state.yml</li>
+<li>ibm-mas-iot-webui.yml</li>
+</ul>
+</li>
+<li>ibm-mas-manage<ul>
+<li>ibm-mas-manage-manageapp.yml</li>
+<li>ibm-mas-manage-manageworkspace.yml</li>
+<li>ibm-mas-manage-imagestitching.yml</li>
+<li>ibm-mas-manage-slackproxy.yml</li>
+<li>ibm-mas-manage-healthextworkspace.yml</li>
+</ul>
+</li>
+</ul>
 <p>For examples on these config files take a look into the pre-defined configs: <a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort">BestEffort</a> and <a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed">Guaranteed</a>. More information on podTemplates can be found in our official IBM documentation <a href="https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads">here</a>.</p>
-<p>!!! Note: This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0</p>
-<h4 id="change-default-install-namespaces">Change default install namespaces?<a class="headerlink" href="#change-default-install-namespaces" title="Permanent link"></a></h4>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0</p>
+</div>
+<h4 id="change-default-install-namespaces">Change default install namespaces?<a class="headerlink" href="#change-default-install-namespaces" title="Permanent link">¤</a></h4>
 <p>Answering "y" will allow you to customize the namespace where Db2, Grafana, and MongoDb are installed in the cluster.</p>
-<h3 id="step-15-configure-ibm-container-registry">Step 15. Configure IBM Container Registry<a class="headerlink" href="#step-15-configure-ibm-container-registry" title="Permanent link"></a></h3>
+<h3 id="step-15-configure-ibm-container-registry">Step 15. Configure IBM Container Registry<a class="headerlink" href="#step-15-configure-ibm-container-registry" title="Permanent link">¤</a></h3>
 <p>Provide your IBM entitlement key.  If you have set the <code>IBM_ENTITLEMENT_KEY</code> environment variable then you will first be prompted whether you just want to re-use the saved entitlement key.</p>
-<h3 id="step-16-configure-product-license">Step 16. Configure Product License<a class="headerlink" href="#step-16-configure-product-license" title="Permanent link"></a></h3>
+<h3 id="step-16-configure-product-license">Step 16. Configure Product License<a class="headerlink" href="#step-16-configure-product-license" title="Permanent link">¤</a></h3>
 <p>Provide your license ID and the location of your license file.</p>
-<h3 id="step-19-configure-uds">Step 19. Configure UDS<a class="headerlink" href="#step-19-configure-uds" title="Permanent link"></a></h3>
+<h3 id="step-19-configure-uds">Step 19. Configure UDS<a class="headerlink" href="#step-19-configure-uds" title="Permanent link">¤</a></h3>
 <p>Maximo Application Suite's required integration with either IBM User Data Services OR IBM Data Reporter Operator requires your e-mail address and first/last name be provided.</p>
-<h3 id="step-20-prepare-installation">Step 20. Prepare Installation<a class="headerlink" href="#step-20-prepare-installation" title="Permanent link"></a></h3>
+<h3 id="step-20-prepare-installation">Step 20. Prepare Installation<a class="headerlink" href="#step-20-prepare-installation" title="Permanent link">¤</a></h3>
 <p>No input is required here, the install will prepare the namespace where install will be executed on the cluster and validate that the CLI container image (which will perform the installation) is accessible from your cluster.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For disconnected installations you may need to provide the digest of the ibmmas/cli container image.</p>
 </div>
-<h3 id="step-21-review-settings">Step 21. Review Settings<a class="headerlink" href="#step-21-review-settings" title="Permanent link"></a></h3>
+<h3 id="step-21-review-settings">Step 21. Review Settings<a class="headerlink" href="#step-21-review-settings" title="Permanent link">¤</a></h3>
 <p>A summary of all your choices will be presented and you will be prompted to provide a final confirmation as to whether to proceed with the install, or abort.</p>
-<h2 id="air-gap-support">Air Gap Support<a class="headerlink" href="#air-gap-support" title="Permanent link"></a></h2>
+<h2 id="air-gap-support">Air Gap Support<a class="headerlink" href="#air-gap-support" title="Permanent link">¤</a></h2>
 <p>If you have already ran <code>mas configure-airgap</code> to install the ImageContentSourcePolicy for IBM Maximo Application Suite then the installer will automatically detect the presence of this and tailor the installation configuration for a disconnected installation.</p>
 <p>A number of applications are not currently available when using a private mirror registry in this fashion, as a result you will not be asked whether you wish to install these applications:</p>
 <ul>
@@ -435,7 +549,7 @@ mas install
 <li>Maximo Health &amp; Predict Utilities</li>
 <li>Maximo Visual Inspection</li>
 </ul>
-<h2 id="more-information">More Information<a class="headerlink" href="#more-information" title="Permanent link"></a></h2>
+<h2 id="more-information">More Information<a class="headerlink" href="#more-information" title="Permanent link">¤</a></h2>
 <p>The install is designed to work on any OCP cluster, but has been specifically tested in these environments:</p>
 <ul>
 <li>IBMCloud ROKS</li>
@@ -443,18 +557,18 @@ mas install
 <li>AWS ROSA</li>
 <li>IBM DevIT FYRE (internal)</li>
 </ul>
-<h3 id="the-automation-engine">The Automation Engine<a class="headerlink" href="#the-automation-engine" title="Permanent link"></a></h3>
+<h3 id="the-automation-engine">The Automation Engine<a class="headerlink" href="#the-automation-engine" title="Permanent link">¤</a></h3>
 <p>The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in <a href="https://github.com/ibm-mas/ansible-devops">ibm-mas/ansible-devops</a>, the collection is also available to install directly from Ansible Galaxy:</p>
 <ul>
 <li><a href="https://galaxy.ansible.com/ibm/mas_devops">Ansible Galaxy: ibm.mas_devops</a></li>
 </ul>
-<h3 id="the-automation-driver">The Automation Driver<a class="headerlink" href="#the-automation-driver" title="Permanent link"></a></h3>
+<h3 id="the-automation-driver">The Automation Driver<a class="headerlink" href="#the-automation-driver" title="Permanent link">¤</a></h3>
 <p>The install is performed inside your RedHat OpenShift cluster utilizing <a href="https://cloud.redhat.com/learn/topics/ci-cd">Openshift Pipelines</a></p>
 <blockquote>
 <p>OpenShift Pipelines is a Kubernetes-native CI/CD solution based on Tekton. It builds on Tekton to provide a CI/CD experience through tight integration with OpenShift and Red Hat developer tools. OpenShift Pipelines is designed to run each step of the CI/CD pipeline in its own container, allowing each step to scale independently to meet the demands of the pipeline.</p>
 </blockquote>
-<p><img alt="" src="../../img/pipeline.png" /></p>
-<h3 id="support">Support<a class="headerlink" href="#support" title="Permanent link"></a></h3>
+<p><a class="glightbox" href="../../img/pipeline.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="" src="../../img/pipeline.png" /></a></p>
+<h3 id="support">Support<a class="headerlink" href="#support" title="Permanent link">¤</a></h3>
 <p>The installer supports:</p>
 <ul>
 <li>IBM Maximo Operator Catalog installation</li>
@@ -482,51 +596,12 @@ mas install
 </ul>
 <p>The installer will automatically provision and set up the required dependencies based on the applications that you select to install.</p>
 <p>The install can be launched with the command <code>mas install</code>.  The end result will be a pipeline run started in your target cluster where you can track the progress of the installation.</p>
-<p><img alt="" src="../../img/pipelineruns.png" /></p>
-              
-            </div>
-          </div><footer>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <!-- Copyright etc -->
-  </div>
-
-  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-</footer>
-          
-        </div>
-      </div>
-
-    </section>
-
-  </div>
-
-  <div class="rst-versions" role="note" aria-label="Versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    
-        <span>
-          <a href="https://github.com/ibm-mas/cli" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
-        </span>
-    
-    
-      <span><a href="../../examples/mirror-db2/" style="color: #fcfcfc">&laquo; Previous</a></span>
-    
-    
-      <span><a href="../update/" style="color: #fcfcfc">Next &raquo;</a></span>
-    
-  </span>
-</div>
-    <script src="../../js/jquery-3.6.0.min.js"></script>
-    <script>var base_url = "../..";</script>
-    <script src="../../js/theme_extra.js"></script>
-    <script src="../../js/theme.js"></script>
-    <script>
-        jQuery(function () {
-            SphinxRtdTheme.Navigation.enable(true);
-        });
-    </script>
-
-</body>
+<p><a class="glightbox" href="../../img/pipelineruns.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="" src="../../img/pipelineruns.png" /></a></p>
+      
+    </div>
+    <!-- <div id="footer" class="rst-content">
+      Built with mkdocs v1.6.1 (2024-10-21 17:38:34.041298+00:00)
+    </div> -->
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body>
 </html>

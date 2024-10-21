@@ -1,195 +1,325 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://ibm-mas.github.io/cli/commands/mirror-redhat-images/" />
-      <link rel="shortcut icon" href="../../img/favicon.ico" />
-    <title>mirror-redhat-images - MAS CLI</title>
-    <link rel="stylesheet" href="../../css/theme.css" />
-    <link rel="stylesheet" href="../../css/theme_extra.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
-        <link href="../../extra.css" rel="stylesheet" />
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>mirror-redhat-images - Maximo Application Suite CLI Documentation</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css">
+    <link rel="stylesheet" href="../../css/theme.css">
     
-      <script>
-        // Current page data
-        var mkdocs_page_name = "mirror-redhat-images";
-        var mkdocs_page_input_path = "commands/mirror-redhat-images.md";
-        var mkdocs_page_url = "/cli/commands/mirror-redhat-images/";
-      </script>
+      <link href="../../extra.css" rel="stylesheet">
     
-    <!--[if lt IE 9]>
-      <script src="../../js/html5shiv.min.js"></script>
-    <![endif]-->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
-      <script>hljs.highlightAll();</script> 
-</head>
 
-<body class="wy-body-for-nav" role="document">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
-    <div class="wy-side-scroll">
-      <div class="wy-side-nav-search">
-          <a href="../.." class="icon icon-home"> MAS CLI
-        </a>
-      </div>
+    <script src="../../js/theme.js"></script>
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
-                </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Guides</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/choosing-the-right-catalog/">Choosing the Right Catalog</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/image-mirroring/">Image Mirroring</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/install/">Install</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/update/">Update</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/upgrade/">Upgrade</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../guides/uninstall/">Uninstall</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Examples</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/eam-migration/">EAM Migration</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../examples/mirror-db2/">Mirror Db2 Images</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Command Reference</span></p>
-              <ul class="current">
-                  <li class="toctree-l1"><a class="reference internal" href="../install/">install</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../update/">update</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../upgrade/">upgrade</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../uninstall/">uninstall</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../must-gather/">must-gather</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../configure-airgap/">configure-airgap</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../mirror-images/">mirror-images</a>
-                  </li>
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">mirror-redhat-images</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#mirror-mode">Mirror Mode</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#registry-details">Registry Details</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#red-hat-image-pull-secret-required">Red Hat Image Pull Secret (Required):</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#content-selection-optional">Content Selection (Optional):</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#platform-version-range-optional">Platform Version Range (Optional):</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#other-options">Other Options</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#storage-requirements">Storage Requirements</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#video-walkthrough">Video Walkthrough</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a>
-        <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#interactive-image-mirroring">Interactive Image Mirroring</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#two-phase-image-mirroring">Two-Phase Image Mirroring</a>
-        <ul>
-    <li class="toctree-l4"><a class="reference internal" href="#phase-1-mirror-to-filesystem">Phase 1: Mirror to Filesystem</a>
-    </li>
-    <li class="toctree-l4"><a class="reference internal" href="#phase-2-mirror-from-filesystem">Phase 2: Mirror from Filesystem</a>
-    </li>
-        </ul>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#direct-image-mirroring">Direct Image Mirroring</a>
-    </li>
-        </ul>
-    </li>
-    </ul>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../setup-registry/">setup-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../teardown-registry/">teardown-registry</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../provision-fyre/">provision-fyre</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../provision-roks/">provision-roks</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../provision-rosa/">provision-rosa</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../configtool-oidc/">configtool-oidc</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Operator Catalogs</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/">All Catalogs</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-241003-amd64/">Oct 03 2024</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240827-amd64/">Aug 27 2024</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240730-amd64/">Jul 30 2024</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../catalogs/v9-240625-amd64/">Jun 25 2024</a>
-                  </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Reference</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../reference/dependencies/">Dependencies</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../reference/topology/">Topology</a>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../reference/cluster-extensions/">Cluster Extensions</a>
-                  </li>
-              </ul>
-      </div>
-    </div>
-    </nav>
+    
+    
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../..">MAS CLI</a>
+    
+
+    <!-- Carbon Design System -->
+    <!--
+    https://github.com/carbon-design-system/carbon-for-ibm-dotcom/blob/main/packages/web-components/docs/carbon-cdn-style-helpers.md#carbon-theme-zoning-classes
+    -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/plex/mono.css" />
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/plex/sans.css" />
+
+    <!-- The following includes Carbon grid (using flex grid) and all corresponding grid classes -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/grid.css" />
+    <!-- The following includes Carbon grid (using CSS grid) and all corresponding grid classes -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/cssgrid.css" />
+
+    <!-- The following includes classes for creating Carbon theme zones (white, g10, g90, g100).
+         Note that these classes take advantage of using CSS Custom Properties enabled in Carbon -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css" />
+
+    <!--
+    This stylesheet is horrible!
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon-for-ibm-dotcom/tag/v1/latest/plex.css"/>
+    -->
+
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/code-snippet.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/dropdown.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/overflow-menu.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+
+    <!-- Code formatting support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: black; }</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+
+  <body>
+    <cds-header aria-label="Maximo Application Suite CLI Documentation" class="cds-theme-zone-g100">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI Documentation</cds-header-name>
+    </cds-header>
+    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g10" expanded>
+      <cds-side-nav-items>
         
-      </nav>
-      <div class="wy-nav-content">
-        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">Command Reference</li>
-      <li class="breadcrumb-item active">mirror-redhat-images</li>
-    <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/ibm-mas/cli/blob/master/docs/commands/mirror-redhat-images.md" class="icon icon-github"> Edit on GitHub</a>
-    </li>
-  </ul>
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-            <div class="section" itemprop="articleBody">
-              
-                <h1 id="mirror-red-hat-images">Mirror Red Hat Images<a class="headerlink" href="#mirror-red-hat-images" title="Permanent link"></a></h1>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link"></a></h2>
+          
+  <cds-side-nav-menu title="Guides" >
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-mirroring/" >
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/install/" >
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/update/" >
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/upgrade/" >
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/uninstall/" >
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Examples" >
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/" >
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/" >
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Command Reference" expanded>
+    
+      
+  <cds-side-nav-menu-item href="../install/" >
+    install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../update/" >
+    update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../upgrade/" >
+    upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/" >
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../must-gather/" >
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configure-airgap/" >
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../mirror-images/" >
+    mirror-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="./" expanded>
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../setup-registry/" >
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../teardown-registry/" >
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-fyre/" >
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-roks/" >
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-rosa/" >
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configtool-oidc/" >
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Operator Catalog" >
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/" >
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-241003-amd64/" >
+    Oct 03 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-240827-amd64/" >
+    Aug 27 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-240730-amd64/" >
+    Jul 30 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-240625-amd64/" >
+    Jun 25 2024
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Reference" >
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/" >
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/" >
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/" >
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+      </cds-side-nav-items>
+    </cds-side-nav>
+
+    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+      <cds-breadcrumb-item>Command Reference</cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-breadcrumb-link href="#mirror-red-hat-images">Mirror Red Hat Images</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+<cds-breadcrumb-item>
+  <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  
+  
+    <cds-select-item value="#usage">Usage</cds-select-item>
+  
+    <cds-select-item value="#storage-requirements">Storage Requirements</cds-select-item>
+  
+    <cds-select-item value="#video-walkthrough">Video Walkthrough</cds-select-item>
+  
+    <cds-select-item value="#examples">Examples</cds-select-item>
+  
+</cds-select>
+</cds-breadcrumb-item>
+
+</cds-breadcrumb>
+    </div>
+
+    <div id="main-content" class="rst-content">
+      
+      <h1 id="mirror-red-hat-images">Mirror Red Hat Images<a class="headerlink" href="#mirror-red-hat-images" title="Permanent link">¤</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
 <p><code>mas mirror-redhat-images [options]</code></p>
-<h3 id="mirror-mode">Mirror Mode<a class="headerlink" href="#mirror-mode" title="Permanent link"></a></h3>
+<h3 id="mirror-mode">Mirror Mode<a class="headerlink" href="#mirror-mode" title="Permanent link">¤</a></h3>
 <ul>
 <li><code>-m|--mode MIRROR_MODE</code> Operation mode (direct, to-filesystem, from-filesystem)</li>
 <li><code>-d|--dir MIRROR_WORKING_DIR</code> Working directory for the mirror process</li>
 <li><code>--mirror-platform</code> Mirror Red Hat Platform images</li>
 <li><code>--mirror-operators</code> Mirror selected content from Red Hat Operator catalogs</li>
 </ul>
-<h3 id="registry-details">Registry Details<a class="headerlink" href="#registry-details" title="Permanent link"></a></h3>
+<h3 id="registry-details">Registry Details<a class="headerlink" href="#registry-details" title="Permanent link">¤</a></h3>
 <ul>
 <li><code>-H|--host REGISTRY_PUBLIC_HOST</code> Hostname of the target registry</li>
 <li><code>-P|--port REGISTRY_PUBLIC_PORT</code> Port number for the target registry</li>
@@ -197,40 +327,40 @@
 <li><code>-u|--username REGISTRY_USERNAME</code> Username to authenticate to the target registry</li>
 <li><code>-p|--password REGISTRY_PASSWORD</code> Password to authenticate to the target registry</li>
 </ul>
-<h3 id="red-hat-image-pull-secret-required">Red Hat Image Pull Secret (Required):<a class="headerlink" href="#red-hat-image-pull-secret-required" title="Permanent link"></a></h3>
+<h3 id="red-hat-image-pull-secret-required">Red Hat Image Pull Secret (Required):<a class="headerlink" href="#red-hat-image-pull-secret-required" title="Permanent link">¤</a></h3>
 <ul>
 <li><code>--pullsecret REDHAT_PULLSECRET</code> <a href="https://console.redhat.com/openshift/install/pull-secret">Red Hat OpenShift Pull Secret</a></li>
 </ul>
-<h3 id="content-selection-optional">Content Selection (Optional):<a class="headerlink" href="#content-selection-optional" title="Permanent link"></a></h3>
+<h3 id="content-selection-optional">Content Selection (Optional):<a class="headerlink" href="#content-selection-optional" title="Permanent link">¤</a></h3>
 <ul>
 <li><code>--release OCP_RELEASE</code> OCP Release to mirror content for (e.g. 4.13, 4.14)</li>
 </ul>
-<h3 id="platform-version-range-optional">Platform Version Range (Optional):<a class="headerlink" href="#platform-version-range-optional" title="Permanent link"></a></h3>
+<h3 id="platform-version-range-optional">Platform Version Range (Optional):<a class="headerlink" href="#platform-version-range-optional" title="Permanent link">¤</a></h3>
 <ul>
 <li><code>--min-version OCP_MIN_VERSION</code> Minimum version of the OCP release to mirror</li>
 <li><code>--max-version OCP_MAX_VERSION</code> Maximum version of the OCP release to mirror</li>
 </ul>
-<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link"></a></h3>
+<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link">¤</a></h3>
 <ul>
 <li><code>--no-confirm</code> Mirror images without prompting for confirmation</li>
 <li><code>-h|--help</code> Show help message</li>
 </ul>
-<h2 id="storage-requirements">Storage Requirements<a class="headerlink" href="#storage-requirements" title="Permanent link"></a></h2>
+<h2 id="storage-requirements">Storage Requirements<a class="headerlink" href="#storage-requirements" title="Permanent link">¤</a></h2>
 <p>The selected content from the three required OpenShift operator catalogs requires approximately 80Gb.  The storage requirements for the OpenShift platform itself will vary depending on how many versions of the release you intent to mirror.</p>
-<h2 id="video-walkthrough">Video Walkthrough<a class="headerlink" href="#video-walkthrough" title="Permanent link"></a></h2>
+<h2 id="video-walkthrough">Video Walkthrough<a class="headerlink" href="#video-walkthrough" title="Permanent link">¤</a></h2>
 <iframe width="720" height="405" src="https://www.youtube.com/embed/d0qCF8qGumc?si=mWV0vmnnLnWvuicA" title="Video Walkthough: Mirror Red Hat Images" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 <p><br /></p>
-<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
-<h3 id="interactive-image-mirroring">Interactive Image Mirroring<a class="headerlink" href="#interactive-image-mirroring" title="Permanent link"></a></h3>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¤</a></h2>
+<h3 id="interactive-image-mirroring">Interactive Image Mirroring<a class="headerlink" href="#interactive-image-mirroring" title="Permanent link">¤</a></h3>
 <pre><code class="language-bash">docker run -ti --rm -v /mnt/storage:/mnt/local --pull always quay.io/ibmmas/cli mas mirror-redhat-images
 </code></pre>
-<h3 id="two-phase-image-mirroring">Two-Phase Image Mirroring<a class="headerlink" href="#two-phase-image-mirroring" title="Permanent link"></a></h3>
+<h3 id="two-phase-image-mirroring">Two-Phase Image Mirroring<a class="headerlink" href="#two-phase-image-mirroring" title="Permanent link">¤</a></h3>
 <p>Two-Phase image mirroring is required when you do not have a single system with both access to the public registries containing the source container images <strong>and</strong> your internal private registry.  In this case you will require a system with internet connectivity and another with access to your private network, along with a means to transfer data from one to the other (for example, a portable drive).</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>The examples here use a specific version of the container image (6.0.0).  You should always use the latest available container image, but because we are working in a disconnected environment we need to be specific about the version we are using.  Replace <code>6.0.0</code> with the appropriate version.</p>
 </div>
-<h4 id="phase-1-mirror-to-filesystem">Phase 1: Mirror to Filesystem<a class="headerlink" href="#phase-1-mirror-to-filesystem" title="Permanent link"></a></h4>
+<h4 id="phase-1-mirror-to-filesystem">Phase 1: Mirror to Filesystem<a class="headerlink" href="#phase-1-mirror-to-filesystem" title="Permanent link">¤</a></h4>
 <p>First, download the latest version of the container image and start up a terminal session inside the container image, we are going to mount a local directory into the running container to persist the mirror filesystem.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
@@ -249,7 +379,7 @@ docker run -ti --rm -v /mnt/storage:/mnt/workspace quay.io/ibmmas/cli:6.0.0 mas 
 <p>You must now transfer the content of <code>/mnt/storage</code> on your local filesystem to a system inside your disconnected network on which we will perform phase 2 of this operator.  However, before we can do that we also need to mirror the CLI image to your registry so that it's available on the disconnected host system.</p>
 <pre><code class="language-bash">oc image mirror --dir /mnt/workspace quay.io/ibmmas/cli:6.0.0 file://ibmmas/cli:6.0.0
 </code></pre>
-<h4 id="phase-2-mirror-from-filesystem">Phase 2: Mirror from Filesystem<a class="headerlink" href="#phase-2-mirror-from-filesystem" title="Permanent link"></a></h4>
+<h4 id="phase-2-mirror-from-filesystem">Phase 2: Mirror from Filesystem<a class="headerlink" href="#phase-2-mirror-from-filesystem" title="Permanent link">¤</a></h4>
 <p>Transfer the content of <code>/mnt/storage</code> to your system in the disconnected network.  Now we are going to put the CLI image in your registry:</p>
 <pre><code class="language-bash">docker login mirror.mydomain.com:32500 -u admin -p password
 oc image mirror --dir /mnt/storage file://ibmmas/cli:6.0.0 mirror.mydomain.com:32500/ibmmas/cli:6.0.0
@@ -263,7 +393,7 @@ docker run -ti --rm -v /mnt/storage:/mnt/workspace mirror.mydomain.com:32500/ibm
   -u admin -p password \
   --no-confirm
 </code></pre>
-<h3 id="direct-image-mirroring">Direct Image Mirroring<a class="headerlink" href="#direct-image-mirroring" title="Permanent link"></a></h3>
+<h3 id="direct-image-mirroring">Direct Image Mirroring<a class="headerlink" href="#direct-image-mirroring" title="Permanent link">¤</a></h3>
 <p>The following example will mirror all images required for Maximo Application Suite Core and the Maximo Manage and IoT applications directly to your target registry, without prompting for confirmation.</p>
 <pre><code class="language-bash">docker run -ti --rm -v /mnt/storage:/mnt/workspace --pull always quay.io/ibmmas/cli mas mirror-redhat-images \
   --mode direct \
@@ -275,50 +405,11 @@ docker run -ti --rm -v /mnt/storage:/mnt/workspace mirror.mydomain.com:32500/ibm
   --ocp-release 4.15 \
   --no-confirm
 </code></pre>
-              
-            </div>
-          </div><footer>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <!-- Copyright etc -->
-  </div>
-
-  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-</footer>
-          
-        </div>
-      </div>
-
-    </section>
-
-  </div>
-
-  <div class="rst-versions" role="note" aria-label="Versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    
-        <span>
-          <a href="https://github.com/ibm-mas/cli" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
-        </span>
-    
-    
-      <span><a href="../mirror-images/" style="color: #fcfcfc">&laquo; Previous</a></span>
-    
-    
-      <span><a href="../setup-registry/" style="color: #fcfcfc">Next &raquo;</a></span>
-    
-  </span>
-</div>
-    <script src="../../js/jquery-3.6.0.min.js"></script>
-    <script>var base_url = "../..";</script>
-    <script src="../../js/theme_extra.js"></script>
-    <script src="../../js/theme.js"></script>
-    <script>
-        jQuery(function () {
-            SphinxRtdTheme.Navigation.enable(true);
-        });
-    </script>
-
-</body>
+      
+    </div>
+    <!-- <div id="footer" class="rst-content">
+      Built with mkdocs v1.6.1 (2024-10-21 17:38:34.044074+00:00)
+    </div> -->
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body>
 </html>
