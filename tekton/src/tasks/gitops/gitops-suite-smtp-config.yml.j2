@@ -118,15 +118,7 @@ spec:
         --config-action upsert \
         --mas-config-scope system \
         --mas-config-type smtp \
-        --dir /tmp/init-suite-smtp-config \
-        --smtp-host "$SMTP_HOST" \
-        --smtp-port "$SMTP_PORT" \
-        --smtp-security "$SMTP_SECURITY" \
-        --smtp-authentication "$SMTP_AUTHENTICATION" \
-        --smtp-default-sender-email "$SMTP_DEFAULT_SENDER_EMAIL" \
-        --smtp-default-sender-name "$SMTP_DEFAULT_SENDER_NAME" \
-        --smtp-default-recipient-email "$SMTP_DEFAULT_RECIPIENT_EMAIL" \
-        --smtp-default-should-email-passwords "$SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS"
+        --dir /tmp/init-suite-smtp-config
 
         exit $?
         

@@ -62,11 +62,11 @@ SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"):
   --smtp-host ${COLOR_YELLOW}SMTP_HOST${TEXT_RESET}                                                        Host of the SMTP server
   --smtp-port ${COLOR_YELLOW}SMTP_PORT${TEXT_RESET}                                                       Port of the SMTP server
   --smtp-security ${COLOR_YELLOW}SMTP_SECURITY${TEXT_RESET}                                               Security protocol. None, STARTTLS or SSL
-  --smtp-authentication ${COLOR_YELLOW}SMTP_AUTHENTICATION${TEXT_RESET}                                   true or false on whether to authenticate
+  --smtp-authentication ${COLOR_YELLOW}SMTP_AUTHENTICATION${TEXT_RESET}                                   true or false on whether to authenticate, default false
   --smtp-default-sender-email ${COLOR_YELLOW}SMTP_DEFAULT_SENDER_EMAIL${TEXT_RESET}                       The default sender email
   --smtp-default-sender-name ${COLOR_YELLOW}SMTP_DEFAULT_SENDER_NAME${TEXT_RESET}                         The default sender name
   --smtp-default-recipient-email ${COLOR_YELLOW}SMTP_DEFAULT_RECIPIENT_EMAIL${TEXT_RESET}                 The default recipient email
-  --smtp-default-should-email-passwords ${COLOR_YELLOW}SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS${TEXT_RESET}   true or false on sending email passwords
+  --smtp-default-should-email-passwords ${COLOR_YELLOW}SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS${TEXT_RESET}   true or false on sending email passwords, default false
   --smtp-username ${COLOR_YELLOW}SMTP_USERNAME${TEXT_RESET}                                               Username for SMTP server authentication (Optional, if secret is already set in SM)
   --smtp-password ${COLOR_YELLOW}SMTP_PASSWORD${TEXT_RESET}                                               Password for SMTP server authentication (Optional, if secret is already set in SM)
 
@@ -373,11 +373,9 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$SMTP_HOST" ]] && gitops_mas_config_help "SMTP_HOST is not set"
       [[ -z "$SMTP_PORT" ]] && gitops_mas_config_help "SMTP_PORT is not set"
       [[ -z "$SMTP_SECURITY" ]] && gitops_mas_config_help "SMTP_SECURITY is not set"
-      [[ -z "$SMTP_AUTHENTICATION" ]] && gitops_mas_config_help "SMTP_AUTHENTICATION is not set"
       [[ -z "$SMTP_DEFAULT_SENDER_EMAIL" ]] && gitops_mas_config_help "SMTP_DEFAULT_SENDER_EMAIL is not set"
       [[ -z "$SMTP_DEFAULT_SENDER_NAME" ]] && gitops_mas_config_help "SMTP_DEFAULT_SENDER_NAME is not set"
       [[ -z "$SMTP_DEFAULT_RECIPIENT_EMAIL" ]] && gitops_mas_config_help "SMTP_DEFAULT_RECIPIENT_EMAIL is not set"
-      [[ -z "$SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS" ]] && gitops_mas_config_help "SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS is not set"
     fi
   fi # [ "${CONFIG_ACTION}" == "upsert" ]
 
@@ -438,6 +436,9 @@ function gitops_mas_config() {
   GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-mas-config" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
 
   export USE_POSTDELETE_HOOKS=${USE_POSTDELETE_HOOKS:-true}
+
+  export SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS=${SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS:-false}
+  export SMTP_AUTHENTICATION=${SMTP_AUTHENTICATION:-false}
 
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-mas-config
   mkdir -p $TEMP_DIR
