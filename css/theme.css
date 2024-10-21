@@ -1,18 +1,24 @@
-/* Useful guides ...
- * https://github.com/carbon-design-system/carbon-for-ibm-dotcom/blob/main/packages/web-components/docs/carbon-cdn-style-helpers.md#carbon-theme-zoning-classes
- * https://github.com/carbon-design-system/carbon-for-ibm-dotcom/blob/main/packages/web-components/docs/carbon-cdn-style-helpers.md#plex-fonts-and-carbon-reset
- */
-
 :root {
     --link-color: #78a9ff;
 }
 
-body {
-    font-family: IBM Plex Sans Light,Tahoma,sans-serif;
+@font-face {
+    font-family: "IBM Plex Sans Light";
+    src: url(../fonts/ibmplexsans-light.ttf)
+}
+@font-face {
+    font-family: "IBM Plex Mono Light";
+    src: url(../fonts/ibmplexmono-light.ttf)
 }
 
-.rst-content pre code, p code {
-    font-family: IBM Plex Mono Light,Tahoma,sans-serif;
+body {
+    font-family: "IBM Plex Sans Light", sans-serif;
+    font-style: normal;
+}
+
+.rst-content pre code, .rst-content p code {
+    font-family: "IBM Plex Mono Light", monospace;
+    font-style: normal;
     font-size:90%;
 }
 
@@ -22,7 +28,6 @@ body {
     max-width: min(900px, 80%);
     height: auto;
 }
-
 
 a.headerlink {
     margin-left: 0.25em;
@@ -43,7 +48,6 @@ a:active {
     color: var(--link-color);
 }
 
-
 blockquote {
     position: relative;
     margin-left: 1em;
@@ -53,68 +57,8 @@ blockquote {
     padding-bottom: 5px;
     border-left: 0.2em solid #039be5;
     background-color: #c9edff;
-    font-weight: 100;
     line-height: 1.5em;
 }
-
-/* blockquote {
-    position: relative;
-    text-align: center;
-    padding: 1rem 1.2rem;
-    width: fit-content;
-    color: #484748;
-    margin: 1rem auto 2rem;
-
-    background:
-        linear-gradient(to right, #039be5 4px, transparent 4px) 0 100%,
-        linear-gradient(to left, #039be5 4px, transparent 4px) 100% 0,
-        linear-gradient(to bottom, #039be5 4px, transparent 4px) 100% 0,
-        linear-gradient(to top, #039be5 4px, transparent 4px) 0 100%;
-    background-repeat: no-repeat;
-    background-size: 20px 20px;
-}
-
-blockquote:before, blockquote:after{
-    font-family: FontAwesome;
-    position: absolute;
-    color: #039be5;
-    font-size: 34px;
-}
-
-blockquote:before{
-    content: "\f10d";
-    top: -12px;
-    margin-right: -20px;
-    right: 100%;
-}
-
-blockquote:after{
-    content: "\f10e";
-    margin-left: -20px;
-    left: 100%;
-    top: auto;
-    bottom: -20px;
-} */
-
-/* blockquote.style1 {
-    font: 14px/20px italic Times, serif;
-    padding: 8px;
-    background-color: #faebbc;
-    border-top: 1px solid #e1cc89;
-    border-bottom: 1px solid #e1cc89;
-    margin: 5px;
-    background-image: url(images/openquote1.gif);
-    background-position: top left;
-    background-repeat: no-repeat;
-    text-indent: 23px;
-}
-
-blockquote.style1 span {
-    display: block;
-    background-image: url(images/closequote1.gif);
-    background-repeat: no-repeat;
-    background-position: bottom right;
-} */
 
 cds-header {
     z-index: 10000;
@@ -146,6 +90,7 @@ div#main-content {
     margin-left: 18em;
     padding-top: 5em;
     padding-right: 1em;
+    padding-bottom: 1em;
     z-index: 7000;
 }
 div.tab-panel {
