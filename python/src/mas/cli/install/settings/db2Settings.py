@@ -126,6 +126,7 @@ class Db2SettingsMixin():
                             print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid Manage database configuration file now ...")
                             self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
             else:
+               self.setParam("mas_appws_bindings_jdbc_manage", "workspace-application")
                self.printDescription([
                "Maximo Manage on s390x architecture use it's own dedicated database:",
                " - In most production systems you will want to use a dedicated database",
