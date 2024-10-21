@@ -97,14 +97,6 @@ spec:
             key: FVT_GITHUB_TOKEN
             optional: true
       
-      # Enable Dynamic Application Testing
-      - name: FVT_ENABLE_DYNAMIC_SCAN
-        valueFrom:
-          secretKeyRef:
-            name: mas-fvt-core
-            key: FVT_ENABLE_DYNAMIC_SCAN
-            optional: True
-
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE
         value: $(params.fvt_test_suite)
