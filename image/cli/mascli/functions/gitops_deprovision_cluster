@@ -253,6 +253,14 @@ function gitops_deprovision_cluster() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
   fi
 
+  echo "- Delete IBM CIS Cert Manager"
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-cis-cert-manager.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
   echo "- Delete Nvidia GPU Operator"
   rm -rf ${GITOPS_CLUSTER_DIR}/nvidia-gpu-operator.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
