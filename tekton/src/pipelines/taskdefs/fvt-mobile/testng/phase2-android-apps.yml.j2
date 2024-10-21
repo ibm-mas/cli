@@ -1,15 +1,3 @@
-## All Mobile Foundation MAS test suites
-- name: fvt-mobile-testng-mobfound-android
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
-    - name: fvt_mobile_app
-      value: disconnected-framework-automation
-    - name: mobile_device_type
-      value: android
-    - name: fvt_test_suite
-      value: mobfoundation-mvt-android
-
 ## Minimum Verification Test for Mobile Inspection MAS test suites
 - name: fvt-mobile-testng-inspections-android
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
@@ -21,6 +9,8 @@
       value: android
     - name: fvt_test_suite
       value: inspections-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
 
 ## Minimum Verification Test for Mobile Asset Manager MAS test suites
 - name: fvt-mobile-testng-assetmng-android
@@ -33,6 +23,8 @@
       value: android
     - name: fvt_test_suite
       value: asset-manager-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
 
 ## Mobile FVT - Inventory Counting Android
 - name: fvt-mobile-testng-ic-android
@@ -45,6 +37,8 @@
       value: android
     - name: fvt_test_suite
       value: inventory-counting-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
 
 ## Minimum Verification Test for Mobile Service Request MAS test suites
 - name: fvt-mobile-testng-sr-android
@@ -57,7 +51,8 @@
       value: android
     - name: fvt_test_suite
       value: service-request-mvt-android
-
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
 
 ## Mobile FVT - Inventory Receiving Android
 - name: fvt-mobile-testng-ir-android
@@ -70,6 +65,8 @@
       value: android
     - name: fvt_test_suite
       value: inventory-receiving-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
 
 ## Minimum Verification Test for Mobile Technician MAS test suites
 - name: fvt-mobile-testng-technician-android
@@ -82,6 +79,8 @@
       value: android
     - name: fvt_test_suite
       value: technician-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
 
 ## Minimum Verification Test for Mobile Supervisor MAS test suites
 - name: fvt-mobile-testng-supervisor-android
@@ -94,6 +93,8 @@
       value: android
     - name: fvt_test_suite
       value: supervisor-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
 
 ## Minimum Verification Test for Mobile calibration MAS test suites
 - name: fvt-mobile-testng-calibration-android
@@ -106,6 +107,8 @@
       value: android
     - name: fvt_test_suite
       value: calibration-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
 
 ## Mobile FVT - Issues and Transfers Android
 - name: fvt-mobile-testng-it-android
@@ -118,3 +121,5 @@
       value: android
     - name: fvt_test_suite
       value: issues-transfer-mvt-android
+  runAfter:
+    - fvt-mobile-testng-mobfound-android
