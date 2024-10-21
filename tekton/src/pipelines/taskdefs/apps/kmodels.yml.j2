@@ -1,0 +1,59 @@
+- name: kmodels
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: kmodels
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_app_id
+      value: aibroker
+    - name: artifactory_username
+      value: $(params.artifactory_username)
+    - name: artifactory_token
+      value: $(params.artifactory_token)
+    - name: mas_app_channel
+      value: "$(params.mas_app_channel_aibroker)"
+    - name: ibm_entitlement_key
+      value: $(params.ibm_entitlement_key)
+    - name: custom_labels
+      value: $(params.custom_labels)
+    - name: mas_aibroker_storage_provider
+      value: $(params.mas_aibroker_storage_provider)
+    - name: mas_aibroker_storage_accesskey
+      value: $(params.mas_aibroker_storage_accesskey)
+    - name: mas_aibroker_storage_secretkey
+      value: $(params.mas_aibroker_storage_secretkey)
+    - name: mas_aibroker_storage_host
+      value: $(params.mas_aibroker_storage_host)
+    - name: mas_aibroker_storage_port
+      value: $(params.mas_aibroker_storage_port)
+    - name: mas_aibroker_storage_ssl
+      value: $(params.mas_aibroker_storage_ssl)
+    - name: mas_aibroker_storage_region
+      value: $(params.mas_aibroker_storage_region)
+    - name: mas_aibroker_storage_pipelines_bucket
+      value: $(params.mas_aibroker_storage_pipelines_bucket)
+    - name: mas_aibroker_storage_tenants_bucket
+      value: $(params.mas_aibroker_storage_tenants_bucket)
+    - name: mas_aibroker_storage_templates_bucket
+      value: $(params.mas_aibroker_storage_templates_bucket)
+    - name: mas_aibroker_controller_tag
+      value: $(params.mas_aibroker_controller_tag)
+    - name: mas_aibroker_store_tag
+      value: $(params.mas_aibroker_store_tag)
+    - name: mas_aibroker_watcher_tag
+      value: $(params.mas_aibroker_watcher_tag)
+    - name: mas_aibroker_connector_tag
+      value: $(params.mas_aibroker_connector_tag)
+    - name: mas_aibroker_pipeline_steps_tag
+      value: $(params.mas_aibroker_pipeline_steps_tag)
+    - name: mas_aibroker_tenant_name
+      value: $(params.mas_aibroker_tenant_name)
+    
+  taskRef:
+    name: mas-devops-kmodels
+    kind: Task
+  when:
+    - input: "$(params.mas_app_channel_aibroker)"
+      operator: notin
+      values: [""]
