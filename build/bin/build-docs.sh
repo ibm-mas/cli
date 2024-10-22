@@ -11,5 +11,5 @@ find docs -type f -name '*.md' -exec sed -i \
   -e 's/@@MAS_LATEST_CATALOG@@/v9-241107-amd64/g' \
   {} \;
 
-python -m pip install -q mkdocs mkdocs-redirects
+python -m pip install -q mkdocs mkdocs-carbon mkdocs-glightbox mkdocs-redirects
 mkdocs build --verbose --clean --strict
