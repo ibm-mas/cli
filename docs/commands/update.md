@@ -41,7 +41,7 @@ More:
 
 Overview
 -------------------------------------------------------------------------------
-The `mas update` function is the primary tool for applying security updates and bug fixes to Maximo Application Suite running on OpenShift.  During an update the [IBM Maximo Operator Catalog](/catalogs/) will be updated to the chosen version, this will trigger an automatic update to all IBM operators installed from this catalog.
+The `mas update` function is the primary tool for applying security updates and bug fixes to Maximo Application Suite running on OpenShift.  During an update the [IBM Maximo Operator Catalog](../catalogs/index.md) will be updated to the chosen version, this will trigger an automatic update to all IBM operators installed from this catalog.
 
 !!! note
     Note that `mas update` will not update any other operator catalogs installed on the OpenShift cluster, including the Red Hat Operator Catalogs.

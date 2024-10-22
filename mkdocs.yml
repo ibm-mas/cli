@@ -1,6 +1,6 @@
 # mkdocs serve
 
-site_name: MAS CLI
+site_name: Maximo Application Suite CLI Documentation
 site_url: https://ibm-mas.github.io/cli
 
 repo_name: GitHub
@@ -8,9 +8,7 @@ repo_url: https://github.com/ibm-mas/cli
 edit_uri: blob/master/docs/
 
 nav:
-  - "Home": index.md
   - "Guides":
-      - "Choosing the Right Catalog": guides/choosing-the-right-catalog.md
       - "Image Mirroring": guides/image-mirroring.md
       - "Install": guides/install.md
       - "Update": guides/update.md
@@ -38,8 +36,8 @@ nav:
       - "provision-rosa": commands/provision-rosa.md
 
       - "configtool-oidc": commands/configtool-oidc.md
-  - "Operator Catalogs":
-      - "All Catalogs": catalogs/index.md
+  - "Operator Catalog":
+      - "Overview": catalogs/index.md
       - "Oct 03 2024": catalogs/v9-241003-amd64.md
       - "Aug 27 2024": catalogs/v9-240827-amd64.md
       - "Jul 30 2024": catalogs/v9-240730-amd64.md
@@ -48,36 +46,41 @@ nav:
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
       - "Cluster Extensions": reference/cluster-extensions.md
+
 theme:
-  name: readthedocs
-  highlightjs: true
-  hljs_languages:
-    - yaml
-  prev_next_buttons_location: none
+  name: carbon
+  prefix: IBM
+
 extra_css:
   - extra.css
+
 markdown_extensions:
   - toc:
-      permalink: 
+      permalink: "¤"
   - admonition
-  # Add this to support expandable sections
-  #- pymdownx.details
+    # https://squidfunk.github.io/mkdocs-material/extensions/admonition/
+    # Note
+    # Abstract
+    # Info
+    # Tip
+    # Success
+    # Question
+    # Warning
+    # Failure
+    # Danger
+    # Bug
+    # Example
+    # Quote
+
 plugins:
   - redirects:
       redirect_maps:
         "guides/architecture/core.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-core-services"
         "guides/mas-pods-explained.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-pod-details"
-
-# https://squidfunk.github.io/mkdocs-material/extensions/admonition/
-# Note
-# Abstract
-# Info
-# Tip
-# Success
-# Question
-# Warning
-# Failure
-# Danger
-# Bug
-# Example
-# Quote
+        "guides/choosing-the-right-catalog.md": "catalogs/index.md"
+  - glightbox:
+      shadow: true
+      caption_position: bottom
+      auto_caption: true
+      touchNavigation: false
+      background: black
