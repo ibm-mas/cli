@@ -46,6 +46,7 @@
         - fvt-mobile-testng
         - fvt-monitor
         - fvt-optimizer
+        - fvt-optimizer-cypress
         - fvt-predict
         - fvt-sls
         - fvt-upgrade-post
