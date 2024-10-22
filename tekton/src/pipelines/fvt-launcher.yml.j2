@@ -918,6 +918,40 @@ spec:
         - approval-monitor
         - launchfvt-mobile
 
+    # 12. Dynamic Application Security Testing
+    # -------------------------------------------------------------------------
+    # Need to be started without blocking install for other apps
+    - name: launchfvt-dynamicscan
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-dynamicscan
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-dynamicscan"
+        - name: sync_with_install
+          value: "$(params.sync_with_install)"
+        - name: launchdyncscan_core
+          value: $(params.launchdyncscan_core)
+        - name: launchdyncscan_iot
+          value: $(params.launchdyncscan_iot)
+        - name: launchdyncscan_monitor
+          value: $(params.launchdyncscan_monitor)
+        - name: launchdyncscan_manage
+          value: $(params.launchdyncscan_manage)
+        - name: launchdyncscan_assist
+          value: $(params.launchdyncscan_assist)
+        - name: launchdyncscan_optimizer
+          value: $(params.launchdyncscan_optimizer)
+        - name: launchdyncscan_predict
+          value: $(params.launchdyncscan_predict)
+        - name: launchdyncscan_visualinspection
+          value: $(params.launchdyncscan_visualinspection)
+      runAfter:
+        - waitfor-suite-verify
+
     # Last Sync Point
     # -------------------------------------------------------------------------
     # Guarantee installation pipeline ran till the end;
@@ -963,39 +997,7 @@ spec:
         - approval-predict # Infers Manage, Monitor and IoT completed
         - approval-visualinspection
         - launchivt-manage
-
-    # Dynamic Application Security Testing
-    # -------------------------------------------------------------------------
-    # Need to be started without blocking install for other apps
-    # Basically runs the dynamic scans for each app parallely with other app-specific FVTs
-    - name: launchfvt-dynamicscan
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-dynamicscan
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-dynamicscan"
-        - name: launchdyncscan_core
-          value: $(params.launchdyncscan_core)
-        - name: launchdyncscan_iot
-          value: $(params.launchdyncscan_iot)
-        - name: launchdyncscan_monitor
-          value: $(params.launchdyncscan_monitor)
-        - name: launchdyncscan_manage
-          value: $(params.launchdyncscan_manage)
-        - name: launchdyncscan_assist
-          value: $(params.launchdyncscan_assist)
-        - name: launchdyncscan_optimizer
-          value: $(params.launchdyncscan_optimizer)
-        - name: launchdyncscan_predict
-          value: $(params.launchdyncscan_predict)
-        - name: launchdyncscan_visualinspection
-          value: $(params.launchdyncscan_visualinspection)
-      runAfter:
-        - waitfor-installation
+        - launchfvt-dynamicscan
 
   finally:
     - name: launchfvt-finally

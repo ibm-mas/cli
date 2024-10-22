@@ -13,6 +13,10 @@ spec:
     - name: pipelinerun_name
       type: string
 
+    # Synchronize waitfor-app tasks
+    - name: sync_with_install
+      type: string
+    
     # Control which applications require dynamic scanning
     - name: launchdyncscan_core
       type: string
@@ -45,6 +49,8 @@ spec:
           value: $(params.pipelinerun_name)
         - name: PIPELINERUN_NAMESPACE
           value: $(context.taskRun.namespace)
+        - name: SYNC_WITH_INSTALL
+          value: $(params.sync_with_install)
 
         # Lookups from mas-devops
         # -----------------------------------------------------------------------

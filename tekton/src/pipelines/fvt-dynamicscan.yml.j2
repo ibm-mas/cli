@@ -25,6 +25,12 @@ spec:
       type: string
       default: ""
 
+    # Sync scans with Install
+    - name: sync_with_install
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running MAS install pipeline"
+    
     # FVT Configuration
     # -------------------------------------------------------------------------
     - name: fvt_image_registry
@@ -105,6 +111,40 @@ spec:
   
   tasks:
     # Run Dynamic Scan for Core
+    # -----------------------------------------------------------------------
+    - name: waitfor-suite-verify
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-suite-verify
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+    
     - name: dynamicscan-core
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -120,8 +160,48 @@ spec:
         - input: "$(params.launchdyncscan_core)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-suite-verify
 
     # Run Dynamic Scan for IoT
+    # -----------------------------------------------------------------------
+    - name: waitfor-iot
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-iot
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 40 retries at 5 minute intervals = 3 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "40"
+        - name: ignore_failure
+          value: "False"
+      when:
+        # Wait for IoT to be installed if we are running the IoT and/or the Monitor FVT suite
+        - input: "$(params.launchdyncscan_iot)"
+          operator: in
+          values: ["true", "True" ]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+    
     - name: dynamicscan-iot
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -137,8 +217,47 @@ spec:
         - input: "$(params.launchdyncscan_iot)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-iot
     
     # Run Dynamic Scan for Monitor
+    # -----------------------------------------------------------------------
+    - name: waitfor-monitor
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-monitor
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 25 retries at 5 minute intervals = 4 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: "$(params.launchdyncscan_monitor)"
+          operator: in
+          values: ["true", "True"]
+        - input: "$(params.sync_with_install)"
+          operator: in
+          values: ["true", "True"]
+    
     - name: dynamicscan-monitor
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -154,8 +273,47 @@ spec:
         - input: "$(params.launchdyncscan_monitor)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-monitor
     
     # Run Dynamic Scan for Manage
+    # -----------------------------------------------------------------------
+    - name: waitfor-manage
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-manage
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 100 retries at 5 minute intervals = 8 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "100"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: "$(params.launchdyncscan_manage)"
+          operator: in
+          values: ["true", "True"]
+        - input: "$(params.sync_with_install)"
+          operator: in
+          values: ["true", "True"]
+    
     - name: dynamicscan-manage
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -171,8 +329,47 @@ spec:
         - input: "$(params.launchdyncscan_manage)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-manage
     
     # Run Dynamic Scan for Assist
+    # -----------------------------------------------------------------------
+    - name: waitfor-assist
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-assist
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 40 retries at 5 minute intervals = 3 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "40"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: "$(params.launchdyncscan_assist)"
+          operator: in
+          values: ["true", "True"]
+        - input: "$(params.sync_with_install)"
+          operator: in
+          values: ["true", "True"]
+    
     - name: dynamicscan-assist
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -188,8 +385,47 @@ spec:
         - input: "$(params.launchdyncscan_assist)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-assist
     
     # Run Dynamic Scan for Optimizer
+    # -----------------------------------------------------------------------
+    - name: waitfor-optimizer
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-optimizer
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: "$(params.launchdyncscan_optimizer)"
+          operator: in
+          values: ["true", "True"]
+        - input: "$(params.sync_with_install)"
+          operator: in
+          values: ["true", "True"]
+    
     - name: dynamicscan-optimizer
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -205,8 +441,47 @@ spec:
         - input: "$(params.launchdyncscan_optimizer)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-optimizer
     
     # Run Dynamic Scan for Predict
+    # -----------------------------------------------------------------------
+    - name: waitfor-predict
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-predict
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: "$(params.launchdyncscan_predict)"
+          operator: in
+          values: ["true", "True"]
+        - input: "$(params.sync_with_install)"
+          operator: in
+          values: ["true", "True"]
+    
     - name: dynamicscan-predict
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -222,8 +497,47 @@ spec:
         - input: "$(params.launchdyncscan_predict)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-predict
     
     # Run Dynamic Scan for Visual Inspection
+    # -----------------------------------------------------------------------
+    - name: waitfor-visualinspection
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-visualinspection
+        - name: configmap_key
+          value: FVT_STATUS
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        - name: escape_configmap_key
+          value: INSTALL_STATUS
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: "$(params.launchdyncscan_visualinspection)"
+          operator: in
+          values: ["true", "True"]
+        - input: "$(params.sync_with_install)"
+          operator: in
+          values: ["true", "True"]
+    
     - name: dynamicscan-visualinspection
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -239,3 +553,5 @@ spec:
         - input: "$(params.launchdyncscan_visualinspection)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-visualinspection
