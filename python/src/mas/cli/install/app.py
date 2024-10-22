@@ -214,9 +214,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configCP4D(self):
-        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64", "v9-241003-amd64", "v9-241107-amd64"]:
+        if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64", "v9-241003-amd64"]:
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
             self.setParam("cpd_product_version", "4.8.0")
+        if self.getParam("mas_catalog_version") in ["v9-241107-amd64"]:
+            logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
+            self.setParam("cpd_product_version", "5.0.0")  
         elif self.getParam("cpd_product_version") == "":
             if self.noConfirm:
                 self.fatalError("Cloud Pak for Data version must be set manually, but --no-confirm flag has been set")
