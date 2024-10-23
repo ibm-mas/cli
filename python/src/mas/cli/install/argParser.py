@@ -14,11 +14,13 @@ from os import path
 from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
 
+
 def isValidFile(parser, arg) -> str:
     if not path.exists(arg):
         parser.error(f"Error: The file {arg} does not exist")
     else:
         return arg
+
 
 installArgParser = argparse.ArgumentParser(
     prog="mas install",
@@ -75,7 +77,7 @@ masArgGroup.add_argument(
     required=False,
     help="Subscription channel for the Core Platform"
 )
-# MAS Special characters 
+# MAS Special characters
 # -----------------------------------------------------------------------------
 masSpecialCharacters = installArgParser.add_argument_group("Mas Special Characters")
 masSpecialCharacters.add_argument(
