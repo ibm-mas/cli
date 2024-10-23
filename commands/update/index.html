@@ -309,7 +309,7 @@
       <h1 id="update">Update<a class="headerlink" href="#update" title="Permanent link">¤</a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
 <p>Usage information can be obtained using <code>mas update --help</code></p>
-<pre><code>usage: mas update [-c MAS_CATALOG_VERSION] [--db2-namespace DB2_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade] [--mongodb-v6-upgrade]
+<pre><code>usage: mas update [-c MAS_CATALOG_VERSION] [--db2-namespace DB2_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade] [--mongodb-v6-upgrade] [--mongodb-v7-upgrade]
                   [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {redhat,strimzi}] [--dro-migration DRO_MIGRATION]
                   [--dro-storage-class DRO_STORAGE_CLASS] [--dro-namespace DRO_NAMESPACE] [--no-confirm] [--skip-pre-check] [-h]
 
@@ -328,6 +328,7 @@ Update Dependencies:
   --mongodb-namespace MONGODB_NAMESPACE           Namespace where MongoCE operator and instances will be updated
   --mongodb-v5-upgrade                            Required to confirm a major version update for MongoDb to version 5
   --mongodb-v6-upgrade                            Required to confirm a major version update for MongoDb to version 6
+  --mongodb-v7-upgrade                            Required to confirm a major version update for MongoDb to version 7
   --kafka-namespace KAFKA_NAMESPACE               Namespace where Kafka operator and instances will be updated
   --kafka-provider {redhat,strimzi}               The type of Kakfa operator installed in the target namespace for updte
 
@@ -374,7 +375,7 @@ More:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-10-23 12:17:08.837398+00:00)
+      Built with mkdocs v1.6.1 (2024-10-23 12:22:37.432224+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
