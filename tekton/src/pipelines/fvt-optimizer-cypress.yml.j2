@@ -53,7 +53,7 @@ spec:
       default: ""
 
   tasks:
-    # 2. Run "cypress/optimizer/e2e/ui/bvt/MOAdmin.cy.js"
+    # 1. Run "cypress/optimizer/e2e/ui/bvt/MOAdmin.cy.js"
     # -----------------------------------------------------------------------------
     - name: moadmin
       params:
@@ -90,4 +90,47 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
+  
+  # 2. Run "cypress/optimizer/e2e/ui/bvt/MOJobs.cy.js"
+  # -----------------------------------------------------------------------------
+  - name: mojobs
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-manage
+        - name: fvt_image_name
+          value: fvt-ibm-mas-optimizer-cypress
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: cypress/optimizer/e2e/ui/bvt/MOJobs.cy.js
+        - name: fvt_config_file
+          value: onfigs/fvt-optimizer-cypress.config.js
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - moadmin
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+
+      
 
