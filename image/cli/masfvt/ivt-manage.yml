@@ -31,6 +31,8 @@
     ldap_user_map: "{{ lookup('env', 'LDAP_USER_MAP') }}"
     ldap_cert_alias: "{{ lookup('env', 'LDAP_CERT_ALIAS') }}"
     ldap_crt: "{{ lookup('env', 'LDAP_CRT') }}"
+    # Control the Monitor suite based on the presence/absence of Manage
+    fvt_test_suite: "{{ (mas_app_channel_manage == '') | ternary('monitor_fvt', 'monitor_fvt_with_manage') }}"
   tasks:
     - name: "Debug"
       debug:
@@ -52,6 +54,7 @@
           - ""
           - "fvt_blacklist ................... {{ fvt_blacklist }}"
           - "fvt_whitelist ................... {{ fvt_whitelist }}"
+          - "fvt_test_suite .................. {{ fvt_test_suite }}"
 
     - name: "Start fvt-manage pipeline"
       kubernetes.core.k8s:
