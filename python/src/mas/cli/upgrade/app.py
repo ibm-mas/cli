@@ -17,8 +17,8 @@ from prompt_toolkit.completion import WordCompleter
 
 from halo import Halo
 
-from ..cli import BaseApp, getHelpFormatter
-from ..validators import InstanceIDValidator, YesNoValidator
+from ..cli import BaseApp
+from ..validators import InstanceIDValidator
 from .argParser import upgradeArgParser
 
 from mas.devops.ocp import createNamespace
@@ -26,6 +26,7 @@ from mas.devops.mas import listMasInstances, verifyMasInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 
 logger = logging.getLogger(__name__)
+
 
 class UpgradeApp(BaseApp):
     def upgrade(self, argv):
@@ -56,7 +57,7 @@ class UpgradeApp(BaseApp):
             suiteOptions = []
 
             if len(suites) == 0:
-                print_formatted_text(HTML(f"<Red>Error: No MAS instances detected on this cluster</Red>"))
+                print_formatted_text(HTML("<Red>Error: No MAS instances detected on this cluster</Red>"))
                 sys.exit(1)
 
             for suite in suites:
@@ -65,7 +66,7 @@ class UpgradeApp(BaseApp):
 
             suiteCompleter = WordCompleter(suiteOptions)
             print()
-            instanceId = prompt(HTML(f'<Yellow>Enter MAS instance ID: </Yellow>'), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False)
+            instanceId = prompt(HTML('<Yellow>Enter MAS instance ID: </Yellow>'), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False)
         else:
             # Non-interactive mode
             if not verifyMasInstance(self.dynamicClient, instanceId):
@@ -78,9 +79,9 @@ class UpgradeApp(BaseApp):
 
         if not self.noConfirm:
             print()
-            continueWithUpgrade = prompt(HTML(f'<Yellow>Proceed with these settings?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
+            continueWithUpgrade = self.yesOrNo("Proceed with these settings?")
 
-        if self.noConfirm or continueWithUpgrade in ["y", "yes"]:
+        if self.noConfirm or continueWithUpgrade:
             self.createTektonFileWithDigest()
 
             self.printH1("Launch Upgrade")
@@ -88,7 +89,7 @@ class UpgradeApp(BaseApp):
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
                 installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text=f"OpenShift Pipelines Operator is installed and ready to use")
+                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)

@@ -16,6 +16,7 @@ from mas.devops.ocp import getConsoleURL
 
 logger = logging.getLogger(__name__)
 
+
 class InstallSummarizerMixin():
     def ocpSummary(self) -> None:
         self.printH2("OpenShift Container Platform")
@@ -42,7 +43,7 @@ class InstallSummarizerMixin():
             self.printSummary("Artifactory Token", f"{self.params['artifactory_token'][0:8]}&lt;snip&gt;")
 
     def masSummary(self) -> None:
-        operationalModeNames=["", "Production", "Non-Production"]
+        operationalModeNames = ["", "Production", "Non-Production"]
 
         self.printH2("IBM Maximo Application Suite")
         self.printParamSummary("Instance ID", "mas_instance_id")
@@ -50,7 +51,7 @@ class InstallSummarizerMixin():
         self.printParamSummary("Workspace Name", "mas_workspace_name")
 
         print()
-        self.printSummary(f"Operational Mode", operationalModeNames[self.operationalMode])
+        self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
         if isAirgapInstall(self.dynamicClient):
             self.printSummary("Install Mode", "Disconnected Install")
         else:
@@ -128,7 +129,6 @@ class InstallSummarizerMixin():
         else:
             self.printSummary("Loc Srv Esri (arcgis)", "Do Not Install")
 
-
     def predictSummary(self) -> None:
         if self.installPredict:
             self.printSummary("Predict", self.params["mas_app_channel_predict"])
@@ -158,7 +158,7 @@ class InstallSummarizerMixin():
     def manageSummary(self) -> None:
         if self.installManage:
             self.printSummary("Manage", self.params["mas_app_channel_manage"])
-            print_formatted_text(HTML(f"  <SkyBlue>+ Components</SkyBlue>"))
+            print_formatted_text(HTML("  <SkyBlue>+ Components</SkyBlue>"))
             self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
             self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
             self.printSummary("  + Civil Infrastructure", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
@@ -184,7 +184,7 @@ class InstallSummarizerMixin():
             self.printParamSummary("+ Base Language", "mas_app_settings_base_lang")
             self.printParamSummary("+ Additional Languages", "mas_app_settings_secondary_langs")
 
-            print_formatted_text(HTML(f"  <SkyBlue>+ Database Settings</SkyBlue>"))
+            print_formatted_text(HTML("  <SkyBlue>+ Database Settings</SkyBlue>"))
             self.printParamSummary("  + Schema", "mas_app_settings_indexspace")
             self.printParamSummary("  + Username", "mas_app_settings_db2_schema")
             self.printParamSummary("  + Tablespace", "mas_app_settings_tablespace")
@@ -323,7 +323,7 @@ class InstallSummarizerMixin():
         ])
 
         logger.debug("PipelineRun parameters:")
-        logger.debug(yaml.dump(self.params, default_flow_style = False))
+        logger.debug(yaml.dump(self.params, default_flow_style=False))
 
         # Cluster Config & Dependencies
         self.ocpSummary()
