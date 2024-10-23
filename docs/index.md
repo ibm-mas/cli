@@ -2,24 +2,7 @@ IBM Maximo Application Suite CLI Utility
 ===============================================================================
 The CLI comes in two flavours; **container image** and **standalone binary**.
 
-The standalone CLI is available for three platforms, and available from the downloads page on each [GitHub release](https://github.com/ibm-mas/cli/releases/tag/@@CLI_LATEST_VERSION@@), however it does not currently support everything supported by the container image:
-
-| CLI Function                                             | Image    | Binary   |
-| -------------------------------------------------------- | :------: | :------: |
-| [install](commands/install.md)                           | &#10003; | &#10003; |
-| [update](commands/update.md)                             | &#10003; | &#10003; |
-| [upgrade](commands/upgrade.md)                           | &#10003; | &#10003; |
-| [uninstall](commands/uninstall.md)                       | &#10003; | &#10003; |
-| [must-gather](commands/must-gather.md)                   | &#10003; | &#10005; |
-| [configure-airgap](commands/configure-airgap.md)         | &#10003; | &#10005; |
-| [mirror-images](commands/mirror-images.md)               | &#10003; | &#10005; |
-| [mirror-redhat-images](commands/mirror-redhat-images.md) | &#10003; | &#10005; |
-| [setup-registry](commands/setup-registry.md)             | &#10003; | &#10005; |
-| [teardown-registry](commands/teardown-registry.md)       | &#10003; | &#10005; |
-| [provision-fyre](commands/provision-fyre.md)             | &#10003; | &#10005; |
-| [provision-roks](commands/provision-roks.md)             | &#10003; | &#10005; |
-| [provision-rosa](commands/provision-rosa.md)             | &#10003; | &#10005; |
-| [configtool-oidc](commands/configtool-oidc.md)           | &#10003; | &#10005; |
+The standalone CLI is available for three platforms, and available from the downloads page on each [GitHub release](https://github.com/ibm-mas/cli/releases/tag/@@CLI_LATEST_VERSION@@).
 
 
 Container Image
@@ -55,3 +38,25 @@ wget https://github.com/ibm-mas/cli/releases/download/@@CLI_LATEST_VERSION@@/mas
 cp mas-cli-linux-amd64 /usr/local/bin/mas-cli
 mas-cli install --help
 ```
+
+
+Function support
+-------------------------------------------------------------------------------
+Not all functions supported in the container image are available in the standalone CLI binary:
+
+| CLI Function                                             | Image    | Binary   |
+| -------------------------------------------------------- | :------: | :------: |
+| [install](commands/install.md)                           | &#10003; | &#10003; |
+| [update](commands/update.md)                             | &#10003; | &#10003; |
+| [upgrade](commands/upgrade.md)                           | &#10003; | &#10003; |
+| [uninstall](commands/uninstall.md)                       | &#10003; | &#10003; |
+| [must-gather](commands/must-gather.md)                   | &#10003; | &#10005; |
+| [configure-airgap](commands/configure-airgap.md)         | &#10003; | &#10005; |
+| [mirror-images](commands/mirror-images.md)               | &#10003; | &#10005; |
+| [mirror-redhat-images](commands/mirror-redhat-images.md) | &#10003; | &#10005; |
+| [setup-registry](commands/setup-registry.md)             | &#10003; | &#10005; |
+| [teardown-registry](commands/teardown-registry.md)       | &#10003; | &#10005; |
+| [provision-fyre](commands/provision-fyre.md)             | &#10003; | &#10005; |
+| [provision-roks](commands/provision-roks.md)             | &#10003; | &#10005; |
+| [provision-rosa](commands/provision-rosa.md)             | &#10003; | &#10005; |
+| [configtool-oidc](commands/configtool-oidc.md)           | &#10003; | &#10005; |
