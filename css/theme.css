@@ -184,3 +184,35 @@ div#footer {
 .rst-content .admonition-todo p:last-child,.rst-content .admonition p:last-child,.rst-content .attention p:last-child,.rst-content .caution p:last-child,.rst-content .danger p:last-child,.rst-content .error p:last-child,.rst-content .hint p:last-child,.rst-content .important p:last-child,.rst-content .note p:last-child,.rst-content .seealso p:last-child,.rst-content .tip p:last-child,.rst-content .warning p:last-child,.wy-alert p:last-child {
     margin-bottom: 0
 }
+
+
+.rst-content table {
+    margin-bottom: 2em
+}
+
+.rst-content table tr th {
+    padding: 10px 10px;
+    background-color: #2980B9;
+    border:0px solid #aaa !important;
+    color: #fff;
+    font-weight: normal;
+    text-align: left;
+}
+
+.rst-content table tr th a, .rst-content table tr th a:hover, .rst-content table tr th a:active, .rst-content table tr th a:visited {
+    color: #fff !important;
+    text-decoration: underline;
+}
+
+.rst-content table tr td {
+    padding: 10px 10px;
+    border:0px solid #aaa !important;
+    vertical-align: middle;
+}
+
+.rst-content table tr:nth-child(even) {
+    background-color: #f3f6f6;
+}
+.rst-content table tr:nth-child(odd) {
+    background-color: #eee;
+}
