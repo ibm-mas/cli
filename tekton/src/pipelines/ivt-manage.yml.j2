@@ -57,7 +57,7 @@ spec:
     - name: fvt_test_suite
       type: string
       description: Whether to run the Monitor (Base) [monitor_fvt] or Monitor (with Manage) FVT suite [monitor_fvt_with_manage]
-      default: ""
+      default: "monitor_fvt_with_manage"
 
   tasks:
     # Manage x Monitor - Data Dictionary
@@ -82,6 +82,8 @@ spec:
           value: $(params.mas_app_channel_manage)
         - name: product_channel_monitor
           value: $(params.mas_app_channel_monitor)
+        - name: fvt_test_suite
+          value: $(params.fvt_test_suite)
       taskRef:
         kind: Task
         name: mas-ivt-manage
