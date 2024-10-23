@@ -40,6 +40,10 @@ spec:
       type: string
       description: Default cypress config file
       default: "configs/fvt-cypress.config.js"
+    - name: fvt_base_url
+      type: string
+      description: Base URL where the testing will be performed against
+      default: ""
     - name: product_id
       type: string
       description: Product ID under test
@@ -153,6 +157,9 @@ spec:
 
       - name: FVT_CONFIG_FILE
         value: $(params.fvt_config_file)
+
+      - name: CYPRESS_BASE_URL
+        value: $(params.fvt_base_url)
 
       # Test Data
       - name: DDP_APIKEY
