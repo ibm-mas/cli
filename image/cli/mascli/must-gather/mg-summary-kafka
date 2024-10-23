@@ -1,0 +1,15 @@
+#!/bin/bash
+
+NAMESPACE=$1
+
+echo "$NAMESPACE: Kafka"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get kafka -o wide
+echo ""
+
+echo "$NAMESPACE: KafkaUser"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get kafkauser -o wide
+echo ""
+
+exit 0
