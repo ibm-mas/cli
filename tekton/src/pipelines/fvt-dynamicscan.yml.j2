@@ -127,7 +127,7 @@ spec:
         - name: configmap_key
           value: FVT_STATUS
         - name: configmap_target_value
-          value: pending
+          value: approved
         # Escape route
         - name: escape_configmap_name
           value: sync-install
@@ -180,7 +180,7 @@ spec:
         - name: configmap_key
           value: FVT_STATUS
         - name: configmap_target_value
-          value: pending
+          value: approved
         # Escape route
         - name: escape_configmap_name
           value: sync-install
@@ -201,6 +201,8 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-suite-verify
     
     - name: dynamicscan-iot
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
@@ -237,7 +239,7 @@ spec:
         - name: configmap_key
           value: FVT_STATUS
         - name: configmap_target_value
-          value: pending
+          value: approved
         # Escape route
         - name: escape_configmap_name
           value: sync-install
@@ -257,6 +259,8 @@ spec:
         - input: "$(params.sync_with_install)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-suite-verify
     
     - name: dynamicscan-monitor
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
@@ -293,7 +297,7 @@ spec:
         - name: configmap_key
           value: FVT_STATUS
         - name: configmap_target_value
-          value: pending
+          value: approved
         # Escape route
         - name: escape_configmap_name
           value: sync-install
@@ -313,6 +317,8 @@ spec:
         - input: "$(params.sync_with_install)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-suite-verify
     
     - name: dynamicscan-manage
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
@@ -349,7 +355,7 @@ spec:
         - name: configmap_key
           value: FVT_STATUS
         - name: configmap_target_value
-          value: pending
+          value: approved
         # Escape route
         - name: escape_configmap_name
           value: sync-install
@@ -369,6 +375,8 @@ spec:
         - input: "$(params.sync_with_install)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-suite-verify
     
     - name: dynamicscan-assist
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
@@ -405,7 +413,7 @@ spec:
         - name: configmap_key
           value: FVT_STATUS
         - name: configmap_target_value
-          value: pending
+          value: approved
         # Escape route
         - name: escape_configmap_name
           value: sync-install
@@ -425,6 +433,8 @@ spec:
         - input: "$(params.sync_with_install)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-suite-verify
     
     - name: dynamicscan-optimizer
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
@@ -461,7 +471,7 @@ spec:
         - name: configmap_key
           value: FVT_STATUS
         - name: configmap_target_value
-          value: pending
+          value: approved
         # Escape route
         - name: escape_configmap_name
           value: sync-install
@@ -481,6 +491,8 @@ spec:
         - input: "$(params.sync_with_install)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-suite-verify
     
     - name: dynamicscan-predict
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
@@ -517,7 +529,7 @@ spec:
         - name: configmap_key
           value: FVT_STATUS
         - name: configmap_target_value
-          value: pending
+          value: approved
         # Escape route
         - name: escape_configmap_name
           value: sync-install
@@ -537,6 +549,8 @@ spec:
         - input: "$(params.sync_with_install)"
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - waitfor-suite-verify
     
     - name: dynamicscan-visualinspection
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
