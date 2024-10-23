@@ -28,6 +28,7 @@ from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions
 
 logger = logging.getLogger(__name__)
 
+
 class UninstallApp(BaseApp):
     def uninstall(self, argv):
         """
@@ -35,6 +36,7 @@ class UninstallApp(BaseApp):
         """
         args = uninstallArgParser.parse_args(args=argv)
         instanceId = args.mas_instance_id
+        droNamespace = args.dro_namespace
         self.noConfirm = args.no_confirm
 
         if args.uninstall_all_deps:
@@ -75,7 +77,7 @@ class UninstallApp(BaseApp):
                 for suite in suites:
                     self.printDescription([f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"])
                     suiteOptions.append(suite['metadata']['name'])
-            except ResourceNotFoundError as e:
+            except ResourceNotFoundError:
                 self.fatalError("No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available).  See log file for details")
 
             if len(suiteOptions) == 0:
@@ -126,7 +128,7 @@ class UninstallApp(BaseApp):
                 self.fatalError(f"MAS Instance {instanceId} not found on this cluster</Red>")
 
         # Default to Red Hat Cert-Manager, and check if IBM cert-manager is installed
-        certManagerProvider="redhat"
+        certManagerProvider = "redhat"
         try:
             # Check if 'ibm-common-services' namespace exist, this will throw NotFoundError exception when not found.
             namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
@@ -163,7 +165,7 @@ class UninstallApp(BaseApp):
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
                 installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text=f"OpenShift Pipelines Operator is installed and ready to use")
+                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
@@ -175,16 +177,17 @@ class UninstallApp(BaseApp):
 
             with Halo(text=f'Submitting PipelineRun for {instanceId} uninstall', spinner=self.spinner) as h:
                 pipelineURL = launchUninstallPipeline(
-                    dynClient = self.dynamicClient,
-                    instanceId = instanceId,
-                    certManagerProvider = "redhat",
-                    uninstallCertManager = uninstallCertManager,
-                    uninstallGrafana = uninstallGrafana,
-                    uninstallCatalog = uninstallCommonServices,
-                    uninstallCommonServices = uninstallCommonServices,
-                    uninstallUDS = uninstallUDS,
-                    uninstallMongoDb = uninstallMongoDb,
-                    uninstallSLS = uninstallSLS
+                    dynClient=self.dynamicClient,
+                    instanceId=instanceId,
+                    certManagerProvider="redhat",
+                    uninstallCertManager=uninstallCertManager,
+                    uninstallGrafana=uninstallGrafana,
+                    uninstallCatalog=uninstallCommonServices,
+                    uninstallCommonServices=uninstallCommonServices,
+                    uninstallUDS=uninstallUDS,
+                    uninstallMongoDb=uninstallMongoDb,
+                    uninstallSLS=uninstallSLS,
+                    droNamespace=droNamespace
                 )
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} uninstall submitted")
