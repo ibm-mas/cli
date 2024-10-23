@@ -156,7 +156,7 @@ class InstallSummarizerMixin():
             self.printSummary("Visual Inspection", "Do Not Install")
 
     def aibrokerSummary(self) -> None:
-        if self.installAiroker:
+        if self.installAiBroker:
             self.printSummary("AI Broker", self.params["mas_app_channel_aibroker"])
             print_formatted_text(HTML("  <SkyBlue>+ Maximo AI Broker Settings</SkyBlue>"))
             self.printParamSummary("  + Storage provider", "mas_aibroker_storage_provider")

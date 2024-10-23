@@ -453,8 +453,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installInspection:
             self.configAppChannel("visualinspection")
 
-        self.installAiroker = self.yesOrNo("Install AI Broker")
-        if self.installAiroker:
+        self.installAiBroker = self.yesOrNo("Install AI Broker")
+        if self.installAiBroker:
             self.configAppChannel("aibroker")
 
     def configAppChannel(self, appId):
@@ -630,7 +630,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installPredict = False
         self.installInspection = False
         self.installOptimizer = False
-        self.installAiroker = False
+        self.installAiBroker = False
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
@@ -865,7 +865,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "aibroker_channel":
                 if value is not None:
                     self.setParam("mas_app_channel_aibroker", value)
-                    self.installAiroker = True
+                    self.installAiBroker = True
             elif key == "optimizer_channel":
                 if value is not None:
                     self.setParam("mas_app_channel_optimizer", value)
