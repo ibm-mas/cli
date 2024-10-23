@@ -154,11 +154,11 @@ class InstallSummarizerMixin():
             self.printSummary(" + Storage Class", self.params["storage_class_rwx"])
         else:
             self.printSummary("Visual Inspection", "Do Not Install")
-    
+
     def aibrokerSummary(self) -> None:
         if self.installAiroker:
             self.printSummary("AI Broker", self.params["mas_app_channel_aibroker"])
-            print_formatted_text(HTML(f"  <SkyBlue>+ Maximo AI Broker Settings</SkyBlue>"))
+            print_formatted_text(HTML("  <SkyBlue>+ Maximo AI Broker Settings</SkyBlue>"))
             self.printParamSummary("  + Storage provider", "mas_aibroker_storage_provider")
             self.printParamSummary("  + Storage access key", "mas_aibroker_storage_accesskey")
             self.printParamSummary("  + Storage secret key", "mas_aibroker_storage_secretkey")
