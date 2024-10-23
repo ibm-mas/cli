@@ -193,6 +193,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64", "v9-241003-amd64"]:
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
             self.setParam("cpd_product_version", "4.8.0")
+        if self.getParam("mas_catalog_version") in ["v9-241107-amd64"]:
+            logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
+            self.setParam("cpd_product_version", "5.0.0")  
         elif self.getParam("cpd_product_version") == "":
             if self.noConfirm:
                 self.fatalError("Cloud Pak for Data version must be set manually, but --no-confirm flag has been set")
@@ -929,7 +932,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installOptions = [
             {
                 "#": 1,
-                "catalog": "v9-241003-amd64",
+                "catalog": "v9-241107-amd64",
                 "release": "9.0.x",
                 "core": "9.0.3",
                 "assist": "9.0.2",
@@ -942,7 +945,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             },
             {
                 "#": 2,
-                "catalog": "v9-241003-amd64",
+                "catalog": "v9-241107-amd64",
                 "release": "8.11.x",
                 "core": "8.11.15",
                 "assist": "8.8.6",
@@ -955,7 +958,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             },
             {
                 "#": 3,
-                "catalog": "v9-241003-amd64",
+                "catalog": "v9-241107-amd64",
                 "release": "8.10.x",
                 "core": "8.10.18",
                 "assist": "8.7.7",
@@ -968,6 +971,45 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             },
             {
                 "#": 4,
+                "catalog": "v9-241003-amd64",
+                "release": "9.0.x",
+                "core": "9.0.3",
+                "assist": "9.0.2",
+                "iot": "9.0.3",
+                "manage": "9.0.3",
+                "monitor": "9.0.3",
+                "optimizer": "9.0.3",
+                "predict": "9.0.2",
+                "inspection": "9.0.3"
+            },
+            {
+                "#": 5,
+                "catalog": "v9-241003-amd64",
+                "release": "8.11.x",
+                "core": "8.11.15",
+                "assist": "8.8.6",
+                "iot": "8.8.13",
+                "manage": "8.7.12",
+                "monitor": "8.11.11",
+                "optimizer": "8.5.9",
+                "predict": "8.9.5",
+                "inspection": "8.9.6"
+            },
+            {
+                "#": 6,
+                "catalog": "v9-241003-amd64",
+                "release": "8.10.x",
+                "core": "8.10.18",
+                "assist": "8.7.7",
+                "iot": "8.7.17",
+                "manage": "8.6.18",
+                "monitor": "8.10.14",
+                "optimizer": "8.4.10",
+                "predict": "8.8.3",
+                "inspection": "8.8.4"
+            },
+            {
+                "#": 7,
                 "catalog": "v9-240827-amd64",
                 "release": "9.0.x",
                 "core": "9.0.2",
@@ -980,7 +1022,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "9.0.2"
             },
             {
-                "#": 5,
+                "#": 8,
                 "catalog": "v9-240827-amd64",
                 "release": "8.11.x",
                 "core": "8.11.14",
@@ -993,7 +1035,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "inspection": "8.9.5"
             },
             {
-                "#": 6,
+                "#": 9,
                 "catalog": "v9-240827-amd64",
                 "release": "8.10.x",
                 "core": "8.10.17",
@@ -1002,45 +1044,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "manage": "8.6.17",
                 "monitor": "8.10.13",
                 "optimizer": "8.4.9",
-                "predict": "8.8.3",
-                "inspection": "8.8.4"
-            },
-            {
-                "#": 7,
-                "catalog": "v9-240730-amd64",
-                "release": "9.0.x",
-                "core": "9.0.1",
-                "assist": "9.0.1",
-                "iot": "9.0.1",
-                "manage": "9.0.1",
-                "monitor": "9.0.1",
-                "optimizer": "9.0.1",
-                "predict": "9.0.0",
-                "inspection": "9.0.0"
-            },
-            {
-                "#": 8,
-                "catalog": "v9-240730-amd64",
-                "release": "8.11.x",
-                "core": "8.11.13",
-                "assist": "8.8.5",
-                "iot": "8.8.11",
-                "manage": "8.7.10",
-                "monitor": "8.11.9",
-                "optimizer": "8.5.7",
-                "predict": "8.9.3",
-                "inspection": "8.9.4"
-            },
-            {
-                "#": 9,
-                "catalog": "v9-240730-amd64",
-                "release": "8.10.x",
-                "core": "8.10.16",
-                "assist": "8.7.6",
-                "iot": "8.7.15",
-                "manage": "8.6.16",
-                "monitor": "8.10.12",
-                "optimizer": "8.4.8",
                 "predict": "8.8.3",
                 "inspection": "8.8.4"
             }
