@@ -1,15 +1,52 @@
-# Contributing to MAS CLI
+Contributing to MAS CLI
+===============================================================================
 
-## Contents
-1. Building the Tekton definitions
-2. Building the container image locally
-3. Using the docker image
-4. Generate a Github SSH key
-5. Building your local development environment
-6. Pull Requests
-7. Pulling MAS Ansible Devops into MAS Command Line Interface
+Contents
+-------------------------------------------------------------------------------
+1. [Detect Secret](#detect-secrets)
+2. [Pre-Commit Hooks](#pre-commit-hooks)
+3. [Building the Tekton definitions](#building-the-tekton-definitions)
+4. [Building the container image locally](#building-the-container-image-locally)
+5. [Using the docker image](#using-the-docker-image)
+6. [Generate a Github SSH key](#generate-a-github-ssh-key)
+7. [Building your local development environment](#building-your-local-development-environment)
+8. [Pull Requests](#pull-requests)
+9. [Pulling MAS Ansible Devops into MAS Command Line Interface](#pulling-mas-ansible-devops-into-mas-command-line-interface)
 
-## 1. Building the Tekton definitions
+
+Detect Secrets
+-------------------------------------------------------------------------------
+- Update the `.secrets.baseline` file using: `detect-secrets scan --update .secrets.baseline`
+- Audit secrets using: `detect-secrets audit .secrets.baseline`
+
+
+Pre-Commit Hooks
+-------------------------------------------------------------------------------
+The follow pre-commit hooks are enabled:
+
+- **autopep8**
+- **flake8**
+- **detect-secrets**
+
+These hooks are also executed in a GitHub action in the [pre-commit workflow](.github/workflows/pre-commit.yml).
+
+```bash
+python -m pip install pre-commit --upgrade
+pre-commit install
+```
+
+Manually run the pre-commit hooks against changed files
+```bash
+pre-commit run
+```
+
+Manually run the pre-commit hooks against all files
+```bash
+pre-commit run -a
+```
+
+Building the Tekton definitions
+-------------------------------------------------------------------------------
 The tekton defintions can be built locally using `build/bin/build-tekton.sh`:
 
 ```bash
@@ -29,7 +66,8 @@ tekton/test-install.sh
 ```
 
 
-## 2. Building the container image locally
+Building the container image locally
+-------------------------------------------------------------------------------
 Build & install ansible collections and the mas.devops & mas.cli Python packages, save each into image/cli/install, build the docker container, then run the container.
 ```bash
 make all
@@ -37,7 +75,8 @@ make run
 ```
 
 
-## 3. Using the docker image
+Using the docker image
+-------------------------------------------------------------------------------
 This is a great way to test in a clean environment (e.g. to ensure the myriad of environment variables that you no doubt have set up are not impacting your test scenarios).  After you commit your changes to the repository a pre-release container image will be built, which contains your in-development version of the collection:
 
 ```bash
@@ -50,13 +89,15 @@ mas install
 ```
 
 
-## 4. Generate a Github SSH key
+Generate a Github SSH key
+-------------------------------------------------------------------------------
 Follow this instructions to [generate a new SSH key and add it to your Github account to link with this repository](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
 
 This will allow you authenticate to this repository and raise pull requests with your own changes and request review and merge approval for the code owners.
 
 
-## 5. Building your local development environment
+Building your local development environment
+-------------------------------------------------------------------------------
 Here's how you could get started developing within a new working branch:
 
 1. Clone MAS CLI repository locally.
@@ -69,7 +110,9 @@ git checkout -b name-your-branch
 git checkout name-your-branch
 ```
 
-## 6. Pull Requests
+
+Pull Requests
+-------------------------------------------------------------------------------
 This repository uses a common build system to enable proper versioning. This build system is triggered when including specific tags at the beginning of your [commits](https://github.com/ibm-mas/cli/commits/master) and [pull requests](https://github.com/ibm-mas/cli/pulls) titles.
 
 ### Breaking Changes
@@ -99,7 +142,6 @@ For `major` and `minor` pull requests mainly, make sure you follow the standard 
   - Execute `ansible-playbook generate-tekton-pipelines.yml`
   - Execute `./test.sh`  This will try to create or recreate all the tekton resources in the default pipeline, make sure there are no errors.
 
-
 Here's how you could get started with a new pull request from your branch:
 
 1. Create your local commit.
@@ -117,8 +159,8 @@ When pushing a change with the proper tag in the commit, it will trigger the bui
 As part of a successful MAS CLI build, a new pre-release docker image version will be pushed to [`Red Hat quay.io` image registry](https://quay.io/repository/ibmmas/cli?tab=tags)
 
 
-## 7. Pulling MAS Ansible Devops into MAS Command Line Interface
-
+Pulling MAS Ansible Devops into MAS Command Line Interface
+-------------------------------------------------------------------------------
 MAS Command line Interface is powered by [Red Hat Openshift Tekton Pipelines](https://docs.openshift.com/container-platform/4.10/cicd/pipelines/understanding-openshift-pipelines.html#understanding-openshift-pipelines) and [MAS Ansible Devops collection](https://github.com/ibm-mas/ansible-devops).
 
 The MAS Ansible Devops collection contains the ansible roles that are used to automate a particular task in the MAS CLI. For example, when you run `mas install` command via MAS CLI, when the installation begins, a tekton pipeline will be triggered in your cluster, and that will orchestrate the execution of a sequence of tasks, each of then invoking a particular MAS Ansible Devops role i.e `suite_install` role will perform the actual MAS installation.

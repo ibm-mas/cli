@@ -53,14 +53,14 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 This will provision an OpenShift cluster with three 8x32 worker nodes. It will take approximately **1 hour** to provision the cluster.
 
 !!! note
-    At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours.
+    At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours; the entire demo can be complete on IBMCloud for as little as $10.
 
 
 Step 2 - Shutdown EAM
 -------------------------------------------------------------------------------
 We must stop EAM because we are going to take over the same database that is currently using; log into the WebSphere administrative console and stop the servers.
 
-![alt text](images/shutdown_eam.png)
+![Shutdown EAM in the WebSphere Application Server administrative console](images/shutdown_eam.png)
 
 !!! note
     You can skip this step if you took a backup of your database and instead are using that.
@@ -111,7 +111,7 @@ Save this file into the same directory where we saved the MAS entitlement file, 
 
 Validate that the JDBC URL and username/password are correct by running the command `SELECT VARNAME, VARVALUE FROM MAXIMO.MAXVARS WHERE VARNAME='MAXUPG';`, which will confirm the database is currently running at version 7.
 
-![alt text](images/dbeaver.png)
+![Using DBeaver to view the MAXUPG value in the Maximo database](images/dbeaver.png)
 
 
 Step 4 - Install MAS
@@ -166,11 +166,11 @@ The install itself is performed on the cluster, the CLI merely prepares the inst
 !!! tip
     You can either monitor the install in the OpenShift Console or go get lunch, the install will take approximately 2-3 hours depending on network conditions.
 
-![alt text](images/install-pipeline.png)
+![Tekon Pipeline for Maximo Application Suite installation](images/install-pipeline.png)
 
 Once the installation has completed you will be able to log into Maximo Application Suite & Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's **Application Menu**, and we can log into MAS using the superuser username and password supplied during install:
 
-![alt text](images/dashboard-link.png)
+![Application Menu extension in the OpenShift Console for Maximo Application Suite](images/dashboard-link.png)
 
 !!! note
     In this demo we have not configured integration to an SMTP server, as a result we must manually set a new password for the migrated users (including **maxadmin**) before they can be used.
