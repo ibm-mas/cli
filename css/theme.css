@@ -1,5 +1,5 @@
 :root {
-    --link-color: #78a9ff;
+    --link-color: #4586f6;
 }
 
 @font-face {
@@ -16,10 +16,14 @@ body {
     font-style: normal;
 }
 
+.rst-content p, .rst-content li, .rst-content pre {
+    line-height: 1.2em;
+}
+
 .rst-content pre code, .rst-content p code {
     font-family: "IBM Plex Mono Light", monospace;
     font-style: normal;
-    font-size:90%;
+    font-size:80%;
 }
 
 .rst-content img {
@@ -122,9 +126,6 @@ div#footer {
     line-height: 24px;
     margin-bottom: 24px;
     background: #e7f2fa;
-
-    margin: 0 auto;
-    max-width: 90%;
 }
 
 .rst-content .admonition-title,.wy-alert-title {
