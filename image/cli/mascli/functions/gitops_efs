@@ -44,6 +44,14 @@ function gitops_efs_noninteractive() {
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
+      --efs-unique-id)
+        export EFS_UNIQUE_ID=$1 && shift
+        ;;
+
+      --creation-token-prefix)
+        export CREATION_TOKEN_PREFIX=$1 && shift
+        ;;
+      
       # AWS specific   
       --aws-region)
         export AWS_DEFAULT_REGION=$1 && shift
@@ -111,7 +119,9 @@ function gitops_efs() {
     sm_login
 
     export CLUSTER_NAME=$CLUSTER_ID
-    export EFS_UNIQUE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
+    if [[ -z "${EFS_UNIQUE_ID}" ]]; then
+      export EFS_UNIQUE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
+    fi
     export ROLE_NAME=ocp_efs && ansible-playbook ibm.mas_devops.run_role
     rc=$?
     [ $rc -ne 0 ] && exit $rc

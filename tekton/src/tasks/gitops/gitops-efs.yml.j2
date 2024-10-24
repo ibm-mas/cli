@@ -62,11 +62,43 @@ spec:
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
+        # Original shared EFS instance
         mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --cloud-provider $CLOUD_PROVIDER \
-        --aws-region $SM_AWS_REGION \
-        --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
-        --aws-access-key $SM_AWS_ACCESS_KEY_ID
+          --cloud-provider $CLOUD_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID
+
+
+        # Additional PER MAS instance/dependency EFS instances
+
+        # TODO: if we knew MAS_EDITION here, we could only create the additional EFS Instances that we know we are going to need
+
+        mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+          --cloud-provider $CLOUD_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          --creation-token-prefix "" \
+          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-iot-db2"
+
+        mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+          --cloud-provider $CLOUD_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          --creation-token-prefix "" \
+          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-manage-db2"
+
+        mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+          --cloud-provider $CLOUD_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          --creation-token-prefix "" \
+          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-visualinspection-main"
+
+        # TODO: How does fvtsaas teardown these EFS instances?
 
         exit $?
       command:
