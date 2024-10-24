@@ -138,6 +138,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 "optimizer": ["9.1.x-feature", "9.0.x"],
                 "predict": ["9.0.x"],
                 "visualinspection": ["9.0.x"],
+                "aibroker": ["9.0.x"],
             },
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
@@ -147,6 +148,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 "optimizer": ["9.0.x", "8.5.x"],
                 "predict": ["9.0.x", "8.9.x"],
                 "visualinspection": ["9.0.x", "8.9.x"],
+                "aibroker": ["9.0.x"],
             },
             "8.11.x": {
                 "assist": ["8.8.x", "8.7.x"],
