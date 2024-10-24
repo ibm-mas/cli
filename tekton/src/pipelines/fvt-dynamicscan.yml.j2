@@ -156,7 +156,7 @@ spec:
 
     # Run Dynamic Scan for IoT
     # -----------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/apps/iot-verify.yml.j2') }}
+    {{ lookup('template', 'taskdefs/apps/iot-verify.yml.j2') | indent(4) }}
         # Verification frequency
         - name: mas_app_cfg_retries
           value: $(params.mas_app_cfg_retries)
@@ -189,7 +189,7 @@ spec:
     
     # Run Dynamic Scan for Monitor
     # -----------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/apps/monitor-verify.yml.j2') }}
+    {{ lookup('template', 'taskdefs/apps/monitor-verify.yml.j2') | indent(4) }}
         # Verification Frequency
         - name: mas_app_cfg_retries
           value: $(params.mas_app_cfg_retries)
@@ -222,7 +222,7 @@ spec:
     
     # Run Dynamic Scan for Manage
     # -----------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/apps/manage-verify.yml.j2') }}
+    {{ lookup('template', 'taskdefs/apps/manage-verify.yml.j2') | indent(4) }}
         # Verification Frequency
         - name: mas_app_cfg_retries
           value: "60"
@@ -255,7 +255,7 @@ spec:
     
     # Run Dynamic Scan for Assist
     # -----------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/apps/assist-verify.yml.j2') }}
+    {{ lookup('template', 'taskdefs/apps/assist-verify.yml.j2') | indent(4) }}
         # Verification Frequency
         - name: mas_app_cfg_retries
           value: $(params.mas_app_cfg_retries)
@@ -288,7 +288,7 @@ spec:
     
     # Run Dynamic Scan for Optimizer
     # -----------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/apps/optimizer-verify.yml.j2') }}
+    {{ lookup('template', 'taskdefs/apps/optimizer-verify.yml.j2') | indent(4) }}
         # Verification Frequency
         - name: mas_app_cfg_retries
           value: $(params.mas_app_cfg_retries)
@@ -321,7 +321,7 @@ spec:
     
     # Run Dynamic Scan for Predict
     # -----------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/apps/predict-verify.yml.j2') }}
+    {{ lookup('template', 'taskdefs/apps/predict-verify.yml.j2') | indent(4) }}
         # Verification Frequency
         - name: mas_app_cfg_retries
           value: $(params.mas_app_cfg_retries)
@@ -354,7 +354,7 @@ spec:
     
     # Run Dynamic Scan for Visual Inspection
     # -----------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/apps/visualinspection-verify.yml.j2') }}
+    {{ lookup('template', 'taskdefs/apps/visualinspection-verify.yml.j2') | indent(4) }}
         # Verification Frequency
         - name: mas_app_cfg_retries
           value: $(params.mas_app_cfg_retries)
