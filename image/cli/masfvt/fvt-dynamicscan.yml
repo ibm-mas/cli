@@ -8,9 +8,6 @@
     mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
     mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
     
-    # Synchronize Scans with App Installs
-    sync_with_install: "{{ lookup('env', 'SYNC_WITH_INSTALL') | default('true', true) | bool }}"
-
     # MAS App Channels
     # Also used for UST Dashboard Issue Monitoring - Value for task.mas-ivt-dynamicscan.PRODUCT_CHANNEL
     mas_channel: "{{ lookup('env', 'MAS_CHANNEL') }}"
@@ -52,7 +49,6 @@
         msg:
           - "pipelinerun_name ............ {{ pipelinerun_name }}"
           - "pipelinerun_namespace ....... {{ pipelinerun_namespace }}"
-          - "sync_with_install ........... {{ sync_with_install }}"
           - ""
           - "mas_instance_id ............. {{ mas_instance_id }}"
           - "mas_workspace_id ............ {{ mas_workspace_id }}"
