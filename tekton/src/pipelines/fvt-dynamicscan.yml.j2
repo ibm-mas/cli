@@ -162,6 +162,9 @@ spec:
           value: $(params.mas_app_cfg_retries)
         - name: mas_app_cfg_delay
           value: $(params.mas_app_cfg_delay)
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       when:
         - input: "$(params.launchdyncscan_iot)"
           operator: in
@@ -195,6 +198,9 @@ spec:
           value: $(params.mas_app_cfg_retries)
         - name: mas_app_cfg_delay
           value: $(params.mas_app_cfg_delay)
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       when:
         - input: "$(params.launchdyncscan_monitor)"
           operator: in
@@ -228,6 +234,9 @@ spec:
           value: "60"
         - name: mas_app_cfg_delay
           value: "360"
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       when:
         - input: "$(params.launchdyncscan_manage)"
           operator: in
@@ -261,6 +270,9 @@ spec:
           value: $(params.mas_app_cfg_retries)
         - name: mas_app_cfg_delay
           value: $(params.mas_app_cfg_delay)
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       when:
         - input: "$(params.launchdyncscan_assist)"
           operator: in
@@ -294,6 +306,9 @@ spec:
           value: $(params.mas_app_cfg_retries)
         - name: mas_app_cfg_delay
           value: $(params.mas_app_cfg_delay)
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       when:
         - input: "$(params.launchdyncscan_optimizer)"
           operator: in
@@ -327,6 +342,9 @@ spec:
           value: $(params.mas_app_cfg_retries)
         - name: mas_app_cfg_delay
           value: $(params.mas_app_cfg_delay)
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       when:
         - input: "$(params.launchdyncscan_predict)"
           operator: in
@@ -360,6 +378,9 @@ spec:
           value: $(params.mas_app_cfg_retries)
         - name: mas_app_cfg_delay
           value: $(params.mas_app_cfg_delay)
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       when:
         - input: "$(params.launchdyncscan_visualinspection)"
           operator: in
