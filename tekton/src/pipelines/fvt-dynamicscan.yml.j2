@@ -90,35 +90,35 @@ spec:
     - name: launchdyncscan_core
       type: string
       default: "false"
-      description: "Set this to 'true' to enable dynamic scanning pipeline for Core after waitfor-installation completes"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Core after suite-verify completes"
     - name: launchdyncscan_iot
       type: string
       default: "false"
-      description: "Set this to 'true' to enable dynamic scanning pipeline for IoT after waitfor-installation completes"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for IoT after suite-app-verify completes"
     - name: launchdyncscan_monitor
       type: string
       default: "false"
-      description: "Set this to 'true' to enable dynamic scanning pipeline for Monitor after waitfor-installation completes"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Monitor after suite-app-verify completes"
     - name: launchdyncscan_manage
       type: string
       default: "false"
-      description: "Set this to 'true' to enable dynamic scanning pipeline for Manage after waitfor-installation completes"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Manage after suite-app-verify completes"
     - name: launchdyncscan_assist
       type: string
       default: "false"
-      description: "Set this to 'true' to enable dynamic scanning pipeline for Assist after waitfor-installation completes"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Assist after suite-app-verify completes"
     - name: launchdyncscan_optimizer
       type: string
       default: "false"
-      description: "Set this to 'true' to enable dynamic scanning pipeline for Optimizer after waitfor-installation completes"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Optimizer after suite-app-verify completes"
     - name: launchdyncscan_predict
       type: string
       default: "false"
-      description: "Set this to 'true' to enable dynamic scanning pipeline for Predict after waitfor-installation completes"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Predict after suite-app-verify completes"
     - name: launchdyncscan_visualinspection
       type: string
       default: "false"
-      description: "Set this to 'true' to enable dynamic scanning pipeline for VisualInspection after waitfor-installation completes"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for VisualInspection after suite-app-verify completes"
   
   tasks:
     # Run Dynamic Scan for Core
@@ -296,7 +296,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-assist
+        - app-verify-assist
     
     # Run Dynamic Scan for Optimizer
     # -----------------------------------------------------------------------
