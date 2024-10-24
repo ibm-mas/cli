@@ -37,12 +37,11 @@ spec:
     - name: suite-post-verify
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      when:
-        - input: "$(params.skip_post_verify)"
-          operator: in
-          values: ["false", "False"]
-      command:
-        - /opt/app-root/src/wait-for-configmap.sh
+      script: |
+        #!/usr/bin/env bash
+        if [[ "$SKIP_POST_VERIFY" == [tT]rue ]]; then exit 0 ; fi
+        /opt/app-root/src/wait-for-configmap.sh
+        exit $?
       env:
         - name: NAMESPACE
           value: $(context.taskRun.namespace)
@@ -76,3 +75,5 @@ spec:
               name: approval-suite-verify
               key: IGNORE_FAILURE
               optional: true
+        - name: SKIP_POST_VERIFY
+          value: $(params.skip_post_verify)
