@@ -92,6 +92,12 @@ spec:
               name: mas-fvt-manage
               key: FVT_DIGEST_MANAGE_PYTEST
               optional: false
+        - name: FVT_DIGEST_MANAGE_CYPRESS
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_DIGEST_MANAGE_CYPRESS
+              optional: false
         - name: IVT_DIGEST_CORE
           valueFrom:
             secretKeyRef:
