@@ -39,6 +39,19 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter: {{ runAfter }}
 
+# authservice ~3m
+# -----------------------------------------------------------------------------
+- name: authservice
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: authservice
+  runAfter:
+    - smtp
+    - core-trustcas
+    - adoptionusagemetering
+
 # 4. coreidp-ldap
 # -------------------------------------------------------------------------
 - name: coreidp-ldap
@@ -48,9 +61,7 @@
       value: coreidp-ldap
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - smtp
-    - core-trustcas
-    - adoptionusagemetering
+    - authservice
 
 # 5. coreidp-saml
 # -------------------------------------------------------------------------

@@ -456,6 +456,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installInspection:
             self.configAppChannel("visualinspection")
 
+        self.installAiBroker = self.yesOrNo("Install AI Broker")
+        if self.installAiBroker:
+            self.configAppChannel("aibroker")
+
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
         if len(versions) == 0:
@@ -603,6 +607,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.optimizerSettings()
         self.predictSettings()
         self.assistSettings()
+        self.aibrokerSettings()
 
         # Dependencies
         self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
@@ -628,6 +633,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installPredict = False
         self.installInspection = False
         self.installOptimizer = False
+        self.installAiBroker = False
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
@@ -763,6 +769,29 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "mas_arcgis_channel",
             # Guided Tour
             "mas_enable_walkme",
+            # Aibroker
+            "mas_aibroker_storage_provider",
+            "mas_aibroker_storage_accesskey",
+            "mas_aibroker_storage_secretkey",
+            "mas_aibroker_storage_host",
+            "mas_aibroker_storage_port",
+            "mas_aibroker_storage_ssl",
+            "mas_aibroker_storage_region",
+            "mas_aibroker_storage_pipelines_bucket",
+            "mas_aibroker_storage_tenants_bucket",
+            "mas_aibroker_storage_templates_bucket",
+            "mas_aibroker_tenant_name",
+            "mas_aibroker_watsonxai_apikey",
+            "mas_aibroker_watsonxai_url",
+            "mas_aibroker_watsonxai_project_id",
+            "mas_aibroker_watsonx_action",
+            "mas_aibroker_db_host",
+            "mas_aibroker_db_port",
+            "mas_aibroker_db_user",
+            "mas_aibroker_db_database",
+            "mas_aibroker_db_secret_name",
+            "mas_aibroker_db_secret_key",
+            "mas_aibroker_db_secret_value"
             # Special chars
             "mas_special_characters"
         ]
@@ -836,6 +865,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None:
                     self.setParam("mas_app_channel_visualinspection", value)
                     self.installInspection = True
+            elif key == "aibroker_channel":
+                if value is not None:
+                    self.setParam("mas_app_channel_aibroker", value)
+                    self.installAiBroker = True
             elif key == "optimizer_channel":
                 if value is not None:
                     self.setParam("mas_app_channel_optimizer", value)
@@ -941,7 +974,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "monitor": "9.0.3",
                 "optimizer": "9.0.3",
                 "predict": "9.0.2",
-                "inspection": "9.0.3"
+                "inspection": "9.0.3",
+                "aibroker": "9.0.2"
             },
             {
                 "#": 2,

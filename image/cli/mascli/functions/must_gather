@@ -296,7 +296,7 @@ function mustgather() {
     GRAFANA_NAMESPACES=$(oc get Grafana -A --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
     for GRAFANA_NAMESPACE in $GRAFANA_NAMESPACES
     do
-      $MG_SCRIPT_DIR/mg-summary-kafka &> ${OUTPUT_DIR}/kafka.txt
+      $MG_SCRIPT_DIR/mg-summary-grafana &> ${OUTPUT_DIR}/kafka.txt
       genericMustGather $GRAFANA_NAMESPACE Grafana,GrafanaDatasource
     done
 
