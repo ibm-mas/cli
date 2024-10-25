@@ -791,7 +791,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "mas_aibroker_db_database",
             "mas_aibroker_db_secret_name",
             "mas_aibroker_db_secret_key",
-            "mas_aibroker_db_secret_value"
+            "mas_aibroker_db_secret_value",
             # Special chars
             "mas_special_characters"
         ]
