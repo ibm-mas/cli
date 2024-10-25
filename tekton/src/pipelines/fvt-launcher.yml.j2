@@ -947,6 +947,10 @@ spec:
           value: $(params.launchdyncscan_predict)
         - name: launchdyncscan_visualinspection
           value: $(params.launchdyncscan_visualinspection)
+      when:
+        - input: "$(params.launchdyncscan_core)$(params.launchdyncscan_iot)$(params.launchdyncscan_monitor)$(params.launchdyncscan_manage)($params.launchdyncscan_assist)($params.launchdyncscan_optimizer)($params.launchdyncscan_predict)($params.launchdyncscan_visualinspection)"
+          operator: notin
+          values: [ "", "falsefalsefalsefalsefalsefalsefalsefalse", "FalseFalseFalseFalseFalseFalseFalseFalse" ]
       runAfter:
         - waitfor-suite-verify
 
