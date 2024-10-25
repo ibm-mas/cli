@@ -43,7 +43,7 @@ function echo_highlight() {
   echo "${COLOR_MAGENTA}$1"
 }
 
-#Install buildx
+#Install buildx for multi-arch
 # -----------------------------------------------------------------------------
 # Useful links:
 # - https://docs.docker.com/engine/reference/commandline/buildx_build/#output

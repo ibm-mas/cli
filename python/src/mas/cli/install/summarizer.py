@@ -44,7 +44,7 @@ class InstallSummarizerMixin():
             self.printSummary("Artifactory Token", f"{self.params['artifactory_token'][0:8]}&lt;snip&gt;")
 
     def masSummary(self) -> None:
-        operationalModeNames=["", "Production", "Non-Production"]
+        operationalModeNames = ["", "Production", "Non-Production"]
 
         self.printH2("IBM Maximo Application Suite")
         self.printParamSummary("Instance ID", "mas_instance_id")
@@ -52,7 +52,7 @@ class InstallSummarizerMixin():
         self.printParamSummary("Workspace Name", "mas_workspace_name")
 
         print()
-        self.printSummary(f"Operational Mode", operationalModeNames[self.operationalMode])
+        self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
         if isAirgapInstall(self.dynamicClient):
             self.printSummary("Install Mode", "Disconnected Install")
         else:
@@ -157,11 +157,37 @@ class InstallSummarizerMixin():
         else:
             self.printSummary("Visual Inspection", "Do Not Install")
 
+    def aibrokerSummary(self) -> None:
+        if self.installAiBroker:
+            self.printSummary("AI Broker", self.params["mas_app_channel_aibroker"])
+            print_formatted_text(HTML("  <SkyBlue>+ Maximo AI Broker Settings</SkyBlue>"))
+            self.printParamSummary("  + Storage provider", "mas_aibroker_storage_provider")
+            self.printParamSummary("  + Storage access key", "mas_aibroker_storage_accesskey")
+            self.printParamSummary("  + Storage secret key", "mas_aibroker_storage_secretkey")
+            self.printParamSummary("  + Storage host", "mas_aibroker_storage_host")
+            self.printParamSummary("  + Storage port", "mas_aibroker_storage_port")
+            self.printParamSummary("  + Storage ssl", "mas_aibroker_storage_ssl")
+            self.printParamSummary("  + Storage region", "mas_aibroker_storage_region")
+            self.printParamSummary("  + Storage pipelines bucket", "mas_aibroker_storage_pipelines_bucket")
+            self.printParamSummary("  + Storage tenants bucket", "mas_aibroker_storage_tenants_bucket")
+            self.printParamSummary("  + Storage templates bucket", "mas_aibroker_storage_templates_bucket")
+            self.printParamSummary("  + Watsonxai api key", "mas_aibroker_watsonxai_apikey")
+            self.printParamSummary("  + Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
+            self.printParamSummary("  + Watsonxai project id", "mas_aibroker_watsonxai_project_id")
+            self.printParamSummary("  + Database host", "mas_aibroker_db_host")
+            self.printParamSummary("  + Database port", "mas_aibroker_db_port")
+            self.printParamSummary("  + Database user", "mas_aibroker_db_user")
+            self.printParamSummary("  + Database name", "mas_aibroker_db_database")
+            self.printParamSummary("  + Database Secretname", "mas_aibroker_db_secret_name")
+            self.printParamSummary("  + Database password", "mas_aibroker_db_secret_value")
+        else:
+            self.printSummary("AI Broker", "Do Not Install")
+
     def manageSummary(self) -> None:
         if self.installManage:
             if not self.preview:
                 self.printSummary("Manage", self.params["mas_app_channel_manage"])
-                print_formatted_text(HTML(f"  <SkyBlue>+ Components</SkyBlue>"))
+                print_formatted_text(HTML("  <SkyBlue>+ Components</SkyBlue>"))
                 self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Civil Infrastructure", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
@@ -187,7 +213,7 @@ class InstallSummarizerMixin():
             self.printParamSummary("+ Base Language", "mas_app_settings_base_lang")
             self.printParamSummary("+ Additional Languages", "mas_app_settings_secondary_langs")
 
-            print_formatted_text(HTML(f"  <SkyBlue>+ Database Settings</SkyBlue>"))
+            print_formatted_text(HTML("  <SkyBlue>+ Database Settings</SkyBlue>"))
             self.printParamSummary("  + Schema", "mas_app_settings_indexspace")
             self.printParamSummary("  + Username", "mas_app_settings_db2_schema")
             self.printParamSummary("  + Tablespace", "mas_app_settings_tablespace")
@@ -327,7 +353,7 @@ class InstallSummarizerMixin():
         ])
 
         logger.debug("PipelineRun parameters:")
-        logger.debug(yaml.dump(self.params, default_flow_style = False))
+        logger.debug(yaml.dump(self.params, default_flow_style=False))
 
         # Cluster Config & Dependencies
         self.ocpSummary()
@@ -345,6 +371,7 @@ class InstallSummarizerMixin():
         self.optimizerSummary()
         self.assistSummary()
         self.inspectionSummary()
+        self.aibrokerSummary()
 
         # Application Dependencies
         self.mongoSummary()

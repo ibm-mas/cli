@@ -19,8 +19,8 @@ class ConfigGeneratorMixin():
             instanceId: str,
             scope: str,
             destination: str,
-            appId: str="",
-            workspaceId: str="") -> None:
+            appId: str = "",
+            workspaceId: str = "") -> None:
 
         templateFile = path.join(self.templatesDir, "jdbccfg.yml.j2")
         with open(templateFile) as tFile:

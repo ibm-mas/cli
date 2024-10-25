@@ -14,7 +14,7 @@ TEXT_BOLD=$(tput bold)
 TEXT_DIM=$(tput dim)
 TEXT_UNDERLINE=$(tput smul)
 TEXT_RESET=$(tput sgr0)
-arch=$(uname -i)
+arch=$(uname -i)  # for s390x arch
 echo "${TEXT_UNDERLINE}IBM Maximo Application Suite CLI Container ${TEXT_BOLD}v${VERSION}${TEXT_RESET}"
 echo
 echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops${TEXT_RESET}"

@@ -5,53 +5,6 @@ Usage
 -------------------------------------------------------------------------------
 For full usage information run `mas install --help`
 
-```
-mas install [-c MAS_CATALOG_VERSION] [--mas-catalog-digest MAS_CATALOG_DIGEST] [--ibm-entitlement-key IBM_ENTITLEMENT_KEY] [-i MAS_INSTANCE_ID]
-            [-w MAS_WORKSPACE_ID] [-W MAS_WORKSPACE_NAME] [--mas-channel MAS_CHANNEL] [--eck] [--eck-enable-logstash]
-            [--eck-remote-es-hosts ECK_REMOTE_ES_HOSTS] [--eck-remote-es-username ECK_REMOTE_ES_USERNAME]
-            [--eck-remote-es-password ECK_REMOTE_ES_PASSWORD] [--superuser-username MAS_SUPERUSER_USERNAME] [--superuser-password MAS_SUPERUSER_PASSWORD]
-            [--additional-configs ADDITIONAL_CONFIGS] [--pod-templates POD_TEMPLATES] [--non-prod] [--disable-ca-trust]
-            [--manual-certificates MANUAL_CERTIFICATES] [--disable-walkme] [--storage-class-rwo STORAGE_CLASS_RWO]
-            [--storage-class-rwx STORAGE_CLASS_RWX] [--storage-pipeline STORAGE_PIPELINE] [--storage-accessmode {ReadWriteMany,ReadWriteOnce}]
-            [--license-file LICENSE_FILE] [--uds-email UDS_CONTACT_EMAIL] [--uds-firstname UDS_CONTACT_FIRSTNAME] [--uds-lastname UDS_CONTACT_LASTNAME]
-            [--dro-namespace DRO_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--ocp-ingress-tls-secret-name OCP_INGRESS_TLS_SECRET_NAME]
-            [--assist-channel ASSIST_CHANNEL] [--iot-channel IOT_CHANNEL] [--monitor-channel MONITOR_CHANNEL] [--manage-channel MANAGE_CHANNEL]
-            [--predict-channel PREDICT_CHANNEL] [--visualinspection-channel VISUALINSPECTION_CHANNEL] [--optimizer-channel OPTIMIZER_CHANNEL]
-            [--optimizer-plan {full,limited}] [--install-arcgis] [--arcgis-channel MAS_ARCGIS_CHANNEL]
-            [--manage-server-bundle-size {dev,snojms,small,jms}] [--manage-jms] [--manage-persistent-volumes]
-            [--manage-jdbc {system,workspace-application}] [--manage-demodata] [--manage-components MAS_APPWS_COMPONENTS]
-            [--manage-customization-archive-name MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME]
-            [--manage-customization-archive-url MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL]
-            [--manage-customization-archive-username MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME]
-            [--manage-customization-archive-password MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD]
-            [--manage-db-tablespace MAS_APP_SETTINGS_TABLESPACE] [--manage-db-indexspace MAS_APP_SETTINGS_INDEXSPACE]
-            [--manage-db-schema MAS_APP_SETTINGS_DB2_SCHEMA] [--manage-crypto-key MAS_APP_SETTINGS_CRYPTO_KEY]
-            [--manage-cryptox-key MAS_APP_SETTINGS_CRYPTOX_KEY] [--manage-old-crypto-key MAS_APP_SETTINGS_OLD_CRYPTO_KEY]
-            [--manage-old-cryptox-key MAS_APP_SETTINGS_OLD_CRYPTOX_KEY] [--manage-override-encryption-secrets]
-            [--manage-base-language MAS_APP_SETTINGS_BASE_LANG] [--manage-secondary-languages MAS_APP_SETTINGS_SECONDARY_LANGS]
-            [--manage-server-timezone MAS_APP_SETTINGS_SERVER_TIMEZONE] [--cp4d-version CPD_PRODUCT_VERSION] [--cp4d-install-spss]
-            [--cp4d-install-openscale] [--cp4d-install-cognos] [--db2-namespace DB2_NAMESPACE] [--db2-channel DB2_CHANNEL] [--db2-system] [--db2-manage]
-            [--db2-type DB2_TYPE] [--db2-timezone DB2_TIMEZONE] [--db2-affinity-key DB2_AFFINITY_KEY] [--db2-affinity-value DB2_AFFINITY_VALUE]
-            [--db2-tolerate-key DB2_TOLERATE_KEY] [--db2-tolerate-value DB2_TOLERATE_VALUE] [--db2-tolerate-effect DB2_TOLERATE_EFFECT]
-            [--db2-cpu-requests DB2_CPU_REQUESTS] [--db2-cpu-limits DB2_CPU_LIMITS] [--db2-memory-requests DB2_MEMORY_REQUESTS]
-            [--db2-memory-limits DB2_MEMORY_LIMITS] [--db2-backup-storage DB2_BACKUP_STORAGE_SIZE] [--db2-data-storage DB2_DATA_STORAGE_SIZE]
-            [--db2-logs-storage DB2_LOGS_STORAGE_SIZE] [--db2-meta-storage DB2_META_STORAGE_SIZE] [--db2-temp-storage DB2_TEMP_STORAGE_SIZE]
-            [--kafka-provider {strimzi,redhat,ibm,aws}] [--kafka-username KAFKA_USERNAME] [--kafka-password KAFKA_PASSWORD]
-            [--kafka-namespace KAFKA_NAMESPACE] [--kafka-version KAFKA_VERSION] [--msk-instance-type AWS_MSK_INSTANCE_TYPE]
-            [--msk-instance-nodes AWS_MSK_INSTANCE_NUMBER] [--msk-instance-volume-size AWS_MSK_VOLUME_SIZE] [--msk-cidr-az1 AWS_MSK_CIDR_AZ1]
-            [--msk-cidr-az2 AWS_MSK_CIDR_AZ2] [--msk-cidr-az3 AWS_MSK_CIDR_AZ3] [--msk-cidr-egress AWS_MSK_EGRESS_CIDR]
-            [--msk-cidr-ingress AWS_MSK_INGRESS_CIDR] [--eventstreams-resource-group EVENTSTREAMS_RESOURCE_GROUP]
-            [--eventstreams-instance-name EVENTSTREAMS_INSTANCE_NAME] [--eventstreams-instance-location EVENTSTREAMS_INSTANCE_LOCATION] [--cos {ibm,ocs}]
-            [--cos-resourcegroup COS_RESOURCEGROUP] [--turbonomic-name TURBONOMIC_TARGET_NAME] [--turbonomic-url TURBONOMIC_SERVER_URL]
-            [--turbonomic-version TURBONOMIC_SERVER_VERSION] [--turbonomic-username TURBONOMIC_USERNAME] [--turbonomic-password TURBONOMIC_PASSWORD]
-            [--ibmcloud-apikey IBMCLOUD_APIKEY] [--aws-region AWS_REGION] [--aws-access-key-id AWS_ACCESS_KEY_ID] [--secret-access-key SECRET_ACCESS_KEY]
-            [--aws-vpc-id AWS_VPC_ID] [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--allow-special-chars MAS_SPECIAL_CHARACTERS]
-            [--approval-core APPROVAL_CORE] [--approval-assist APPROVAL_ASSIST] [--approval-iot APPROVAL_IOT] [--approval-manage APPROVAL_MANAGE]
-            [--approval-monitor APPROVAL_MONITOR] [--approval-optimizer APPROVAL_OPTIMIZER] [--approval-predict APPROVAL_PREDICT]
-            [--approval-visualinspection APPROVAL_VISUALINSPECTION] [--accept-license] [--dev-mode] [--no-wait-for-pvc] [--skip-pre-check]
-            [--skip-grafana-install] [--no-confirm] [-h]
-```
-
 
 Non-Interactive Install
 -------------------------------------------------------------------------------
@@ -83,14 +36,6 @@ mas install
     When prompted you will be able to set license file to `/mnt/home/entitlement.lic`
 
 
-!!! tip
-    Wherever you see a `[Y/n]` or `[y/N]` prompt, the option in upper case is the default, and can be accepted just by hitting return.
-
-    Selections are saved to file (`$HOME/.ibm-mas/cli.env`), if you make a mistake use `Ctrl+C` to quit the installer and when you run the install command again it will remember all your choices made to that point.
-
-    In the unlikely event that you are running the install on a shared computer you should delete the `$HOME/.ibm-mas` directory after launching the installation.
-
-
 ### Step 1: Set Target OpenShift Cluster
 If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL & token, and whether to verify the server certificate or not,  If you are already connected to a cluster you will be given the option to change to another cluster.
 
@@ -100,9 +45,7 @@ No input is required during this step.  The Red Hat Pipelines Operator will be i
 
 
 ### Step 3: IBM Maximo Operator Catalog Selection
-You must decide whether to use the online dynamic catalog or an offline static catalog.  The default is to use the static catalog, for more information about catalog choice refer to [Choosing the right catalog](../guides/choosing-the-right-catalog.md).
-
-If you selected to use a static catalog then you will be presented with a table of available catalogs and the versions of MAS available in the catalog.  Make the selection using the numbers in the left-most column.
+You will be presented with a table of available catalogs and the versions of MAS available in the catalog.  Make the selection using the numbers in the left-most column.
 
 
 ### Step 4: License Terms
@@ -205,6 +148,7 @@ You can choose between three pre-defined workload scaling classes - `Burstable`,
 When choosing a custom profile you will be prompted for the directory of your config files. For each supported application you will need to create separate config file. The naming convention for custom config files is `ibm-<appname>-<customresourcename>.yml`.
 
 Currently supported config files:
+
 - ibm-mas
   - ibm-mas-bascfg.yml
   - ibm-mas-pushnotificationcfg.yml
@@ -245,44 +189,38 @@ Currently supported config files:
 
 For examples on these config files take a look into the pre-defined configs: [BestEffort](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort) and [Guaranteed](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed). More information on podTemplates can be found in our official IBM documentation [here](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads).
 
-!!! Note: This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0
+!!! Note
+    This feature is only supported starting in MAS 8.11.0 and SLS 3.8.0
 
 #### Change default install namespaces?
 Answering "y" will allow you to customize the namespace where Db2, Grafana, and MongoDb are installed in the cluster.
 
 
-### Step 15. Configure IBM Container Registry
+### Step 14. Configure IBM Container Registry
 Provide your IBM entitlement key.  If you have set the `IBM_ENTITLEMENT_KEY` environment variable then you will first be prompted whether you just want to re-use the saved entitlement key.
 
 
-### Step 16. Configure Product License
+### Step 15. Configure Product License
 Provide your license ID and the location of your license file.
 
 
-### Step 19. Configure UDS
+### Step 16. Configure UDS
 Maximo Application Suite's required integration with either IBM User Data Services OR IBM Data Reporter Operator requires your e-mail address and first/last name be provided.
 
 
-### Step 20. Prepare Installation
+### Step 17. Prepare Installation
 No input is required here, the install will prepare the namespace where install will be executed on the cluster and validate that the CLI container image (which will perform the installation) is accessible from your cluster.
 
 !!! note
     For disconnected installations you may need to provide the digest of the ibmmas/cli container image.
 
-### Step 21. Review Settings
+### Step 18. Review Settings
 A summary of all your choices will be presented and you will be prompted to provide a final confirmation as to whether to proceed with the install, or abort.
-
 
 
 Air Gap Support
 -------------------------------------------------------------------------------
 If you have already ran `mas configure-airgap` to install the ImageContentSourcePolicy for IBM Maximo Application Suite then the installer will automatically detect the presence of this and tailor the installation configuration for a disconnected installation.
-
-A number of applications are not currently available when using a private mirror registry in this fashion, as a result you will not be asked whether you wish to install these applications:
-
-- Maximo Assist
-- Maximo Health & Predict Utilities
-- Maximo Visual Inspection
 
 
 More Information
@@ -307,14 +245,14 @@ The install is performed inside your RedHat OpenShift cluster utilizing [Openshi
 ![](../img/pipeline.png)
 
 ### Support
-The installer supports:
+The install pipeline supports:
 
 - IBM Maximo Operator Catalog installation
 - Required dependency installation:
-    - MongoDb
+    - MongoDb (Community Edition)
     - IBM Suite License Service
-    - IBM User Data Services
-    - IBM Certificate Manager
+    - IBM Data Reporter Operator
+    - Red Hat Certificate Manager
 - Optional dependency installation:
     - Apache Kafka
     - IBM Db2
@@ -323,6 +261,8 @@ The installer supports:
         - [Watson Machine Learning](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-machine-learning)
         - [Watson OpenScale](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-openscale)
         - [Analytics Engine (Apache Spark)](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-analytics-engine-powered-by-apache-spark)
+    - Grafana
+    - Turbonomic Kubernetes Agent
 - Suite core services installation
 - Suite application installation
 

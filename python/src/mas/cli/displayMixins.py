@@ -8,7 +8,7 @@
 #
 # *****************************************************************************
 
-from os import path, getenv
+from os import getenv
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator
@@ -18,12 +18,13 @@ from .validators import YesNoValidator, FileExistsValidator, DirectoryExistsVali
 import logging
 logger = logging.getLogger(__name__)
 
-H1COLOR="SkyBlue"
-H2COLOR="SkyBlue"
-DESCRIPTIONCOLOR="LightSlateGrey"
-SUMMARYCOLOR="SkyBlue"
-UNDEFINEDPARAMCOLOR="LightSlateGrey"
-PROMPTCOLOR="Yellow"
+H1COLOR = "SkyBlue"
+H2COLOR = "SkyBlue"
+DESCRIPTIONCOLOR = "LightSlateGrey"
+SUMMARYCOLOR = "SkyBlue"
+UNDEFINEDPARAMCOLOR = "LightSlateGrey"
+PROMPTCOLOR = "Yellow"
+
 
 class PrintMixin():
     def printTitle(self, message):
@@ -67,14 +68,17 @@ class PrintMixin():
         else:
             self.printSummary(message, self.getParam(param))
 
+
 def masPromptYesOrNo(message):
     return HTML(f"<{PROMPTCOLOR}>{message.replace(' & ', ' &amp; ')}? [y/n]</{PROMPTCOLOR}> ")
+
 
 def masPromptValue(message):
     return HTML(f"<{PROMPTCOLOR}>{message.replace(' & ', ' &amp; ')}</{PROMPTCOLOR}> ")
 
+
 class PromptMixin():
-    def yesOrNo(self, message: str, param: str=None) -> bool:
+    def yesOrNo(self, message: str, param: str = None) -> bool:
         response = prompt(masPromptYesOrNo(message), validator=YesNoValidator(), validate_while_typing=False)
         responseAsBool = response.lower() in ["y", "yes"]
 
@@ -82,7 +86,7 @@ class PromptMixin():
             self.params[param] = "true" if responseAsBool else "false"
         return responseAsBool
 
-    def promptForString(self, message: str, param: str=None, default: str="", isPassword: bool=False, validator: Validator=None, completer: WordCompleter=None) -> str:
+    def promptForString(self, message: str, param: str = None, default: str = "", isPassword: bool = False, validator: Validator = None, completer: WordCompleter = None) -> str:
         if param is not None and default == "":
             default = getenv(param.upper(), default="")
 
@@ -91,7 +95,7 @@ class PromptMixin():
             self.params[param] = response
         return response
 
-    def promptForInt(self, message: str, param: str=None, default: int=None) -> int:
+    def promptForInt(self, message: str, param: str = None, default: int = None) -> int:
         if param is not None and default is None:
             default = getenv(param.upper(), default=None)
 
@@ -103,12 +107,12 @@ class PromptMixin():
             self.params[param] = str(response)
         return response
 
-    def promptForListSelect(self, message: str, options: list, param: str=None, default: int=None) -> str:
+    def promptForListSelect(self, message: str, options: list, param: str = None, default: int = None) -> str:
         selection = self.promptForInt(message=message, default=default)
         # List indices are 0 origin, so we need to subtract 1 from the selection made to arrive at the correct value
-        self.setParam(param, options[selection-1])
+        self.setParam(param, options[selection - 1])
 
-    def promptForFile(self, message: str, mustExist: bool=True, default: str="", envVar: str="") -> None:
+    def promptForFile(self, message: str, mustExist: bool = True, default: str = "", envVar: str = "") -> None:
         if default == "" and envVar != "":
             default = getenv(envVar, "")
         if mustExist:
@@ -116,7 +120,7 @@ class PromptMixin():
         else:
             return prompt(masPromptValue(message), default=default)
 
-    def promptForDir(self, message: str, mustExist: bool=True, default: str="") -> None:
+    def promptForDir(self, message: str, mustExist: bool = True, default: str = "") -> None:
         if mustExist:
             return prompt(masPromptValue(message), validator=DirectoryExistsValidator(), validate_while_typing=False, default=default)
         else:

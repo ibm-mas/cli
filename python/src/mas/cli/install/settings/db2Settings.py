@@ -74,9 +74,10 @@ class Db2SettingsMixin():
                     self.setParam("db2_action_system", "byo")
 
                     self.selectLocalConfigDir()
+
                     # Check if a configuration already exists before creating a new one
                     jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-system.yaml")
-                    print_formatted_text(f"Searching f3 or system database configuration file in {jdbcCfgFile} ...")
+                print_formatted_text(f"Searching for system database configuration file in {jdbcCfgFile} ...")
                     if path.exists(jdbcCfgFile):
                         if self.yesOrNo(f"System database configuration file 'jdbc-{instanceId}-system.yaml' already exists.  Do you want to generate a new one"):
                             self.generateJDBCCfg(instanceId=instanceId, scope="system", destination=jdbcCfgFile)
@@ -149,10 +150,8 @@ class Db2SettingsMixin():
         else:
             self.setParam("db2_action_manage", "none")
 
-
-
         # Do we need to configure Db2u?
-        if self.getParam("db2_action_system")  == "install" or self.getParam("db2_action_manage") == "install":
+        if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
             self.printH2("Installation Namespace")
             self.promptForString("Install namespace", "db2_namespace", default="db2u")
 

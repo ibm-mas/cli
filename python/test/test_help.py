@@ -7,6 +7,7 @@ from mas.cli.uninstall.app import UninstallApp
 from prompt_toolkit.application import create_app_session
 from prompt_toolkit.output import DummyOutput
 
+
 def testInstallHelp():
     """
     Should exit with RC = 0 after printing help message
@@ -29,6 +30,7 @@ def testUninstallHelp():
             app.uninstall(argv=["--help"])
         assert e.type == SystemExit
         assert e.value.code == 0
+
 
 def testUpgradeHelp():
     """

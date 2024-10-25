@@ -14,7 +14,6 @@ import logging
 import logging.handlers
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
-from prompt_toolkit.completion import WordCompleter
 
 from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
@@ -28,6 +27,7 @@ from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelin
 
 
 logger = logging.getLogger(__name__)
+
 
 class UpdateApp(BaseApp):
 
@@ -75,7 +75,7 @@ class UpdateApp(BaseApp):
                         self.setParam(key, value)
 
                 # Arguments that we don't need to do anything with
-                elif key in [ "no_confirm", "help"]:
+                elif key in ["no_confirm", "help"]:
                     pass
 
                 # Fail if there's any arguments we don't know how to handle
@@ -105,14 +105,14 @@ class UpdateApp(BaseApp):
         self.printH1("Dependency Update Checks")
         with Halo(text='Checking for IBM Watson Discovery', spinner=self.spinner) as h:
             if self.isWatsonDiscoveryInstalled():
-                h.stop_and_persist(symbol=self.failureIcon, text=f"IBM Watson Discovery is installed")
+                h.stop_and_persist(symbol=self.failureIcon, text="IBM Watson Discovery is installed")
                 self.fatalError("Watson Discovery is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI (in the ibm-cpd namespace), this is no longer supported and the update can not proceed as a result. Please contact IBM support for assistance")
             else:
-                h.stop_and_persist(symbol=self.successIcon, text=f"IBM Watson Discovery is not installed")
+                h.stop_and_persist(symbol=self.successIcon, text="IBM Watson Discovery is not installed")
 
         with Halo(text='Checking for IBM Certificate-Manager', spinner=self.spinner) as h:
             if self.isIBMCertManagerInstalled():
-                h.stop_and_persist(symbol=self.successIcon, text=f"IBM Certificate-Manager will be replaced by Red Hat Certificate-Manager")
+                h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager will be replaced by Red Hat Certificate-Manager")
                 self.setParam("cert_manager_action", "install")
                 self.setParam("cert_manager_provider", "redhat")
                 self.printHighlight([
@@ -122,7 +122,7 @@ class UpdateApp(BaseApp):
                     ""
                 ])
             else:
-                h.stop_and_persist(symbol=self.successIcon, text=f"IBM Certificate-Manager is not installed")
+                h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is not installed")
 
         self.detectUDS()
         self.detectGrafana4()
@@ -160,7 +160,7 @@ class UpdateApp(BaseApp):
             self.printSummary("Apache Kafka", "No action required")
 
         if self.getParam("cp4d_update") != "":
-            self.printSummary("IBM Cloud Pak for Data", f"Platform and services in ibm-cpd")
+            self.printSummary("IBM Cloud Pak for Data", "Platform and services in ibm-cpd")
         else:
             self.printSummary("IBM Cloud Pak for Data", "No action required")
 
@@ -180,11 +180,11 @@ class UpdateApp(BaseApp):
             self.createTektonFileWithDigest()
 
             self.printH1("Launch Update")
-            pipelinesNamespace = f"mas-pipelines"
+            pipelinesNamespace = "mas-pipelines"
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
                 installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text=f"OpenShift Pipelines Operator is installed and ready to use")
+                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
@@ -195,13 +195,13 @@ class UpdateApp(BaseApp):
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text=f"Submitting PipelineRun for MAS update", spinner=self.spinner) as h:
+            with Halo(text="Submitting PipelineRun for MAS update", spinner=self.spinner) as h:
                 pipelineURL = launchUpdatePipeline(dynClient=self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for MAS update submitted")
+                    h.stop_and_persist(symbol=self.successIcon, text="PipelineRun for MAS update submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
                 else:
-                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for MAS update, see log file for details")
+                    h.stop_and_persist(symbol=self.failureIcon, text="Failed to submit PipelineRun for MAS update, see log file for details")
                     print()
 
     def reviewCurrentCatalog(self) -> None:
@@ -221,7 +221,7 @@ class UpdateApp(BaseApp):
                 self.installedCatalogId = "v8-amd64"
             else:
                 self.installedCatalogId = None
-                self.printWarning(f"Unable to determine identity & version of currently installed ibm-maximo-operator-catalog")
+                self.printWarning("Unable to determine identity & version of currently installed ibm-maximo-operator-catalog")
 
             self.printH1("Review Installed Catalog")
             self.printDescription([
@@ -238,7 +238,7 @@ class UpdateApp(BaseApp):
             suites = listMasInstances(self.dynamicClient)
             for suite in suites:
                 self.printDescription([f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"])
-        except ResourceNotFoundError as e:
+        except ResourceNotFoundError:
             self.fatalError("No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available).  See log file for details")
 
     def chooseCatalog(self) -> None:
@@ -277,7 +277,7 @@ class UpdateApp(BaseApp):
             if len(wds) > 0:
                 return True
             return False
-        except (ResourceNotFoundError, NotFoundError) as e:
+        except (ResourceNotFoundError, NotFoundError):
             # Watson Discovery has never been installed on this cluster
             return False
 
@@ -313,7 +313,7 @@ class UpdateApp(BaseApp):
                 # For testing, comment out the lines above and set grafanaVersion4s to a simple list
                 # grafanaVersion4s = ["hello"]
                 if len(grafanaVersion4s) > 0:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Grafana Operator v4 instance will be updated to v5")
+                    h.stop_and_persist(symbol=self.successIcon, text="Grafana Operator v4 instance will be updated to v5")
                     self.printDescription([
                         "<u>Dependency Upgrade Notice</u>",
                         "Grafana Operator v4 is currently installed and will be updated to v5",
@@ -322,10 +322,10 @@ class UpdateApp(BaseApp):
                     ])
                     self.setParam("grafana_v5_upgrade", "true")
                 else:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Grafana Operator v4 is not installed")
+                    h.stop_and_persist(symbol=self.successIcon, text="Grafana Operator v4 is not installed")
                 return
-            except (ResourceNotFoundError, NotFoundError) as e:
-                h.stop_and_persist(symbol=self.successIcon, text=f"Grafana Operator v4 is not installed")
+            except (ResourceNotFoundError, NotFoundError):
+                h.stop_and_persist(symbol=self.successIcon, text="Grafana Operator v4 is not installed")
 
     def detectMongoDb(self) -> None:
         with Halo(text='Checking for MongoDb CE', spinner=self.spinner) as h:
@@ -399,10 +399,10 @@ class UpdateApp(BaseApp):
                         h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE is aleady installed at version {targetMongoVersion}")
                 else:
                     # There's no MongoDb instance installed in the cluster, so nothing to do
-                    h.stop_and_persist(symbol=self.successIcon, text=f"No MongoDb CE instances found")
-            except (ResourceNotFoundError, NotFoundError) as e:
+                    h.stop_and_persist(symbol=self.successIcon, text="No MongoDb CE instances found")
+            except (ResourceNotFoundError, NotFoundError):
                 # There's no MongoDb instance installed in the cluster, so nothing to do
-                h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE is not installed")
+                h.stop_and_persist(symbol=self.successIcon, text="MongoDb CE is not installed")
 
     def showMongoDependencyUpdateNotice(self, currentMongoVersion, targetMongoVersion) -> None:
         self.printHighlight([
@@ -434,18 +434,18 @@ class UpdateApp(BaseApp):
                 # analyticsProxies = ["foo"]
                 if len(analyticsProxies) == 0:
                     logger.debug("UDS is not currently installed on this cluster")
-                    h.stop_and_persist(symbol=self.successIcon, text=f"IBM User Data Services is not installed")
+                    h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services is not installed")
                 else:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"IBM User Data Services must be migrated to IBM Data Reporter Operator")
+                    h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services must be migrated to IBM Data Reporter Operator")
 
                     if self.noConfirm and self.getParam("dro_migration") != "true":
                         # The user has chosen not to provide confirmation but has not provided the flag to pre-approve the migration
-                        h.stop_and_persist(symbol=self.failureIcon, text=f"IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
+                        h.stop_and_persist(symbol=self.failureIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
                         self.showUDSUpdateNotice()
                         self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm the migration to DRO using '--dro-migration' when using '--no-confirm'")
                     elif self.noConfirm and self.getParam("dro_storage_class") is None:
                         # The user has not provided the storage class to use for DRO, but has disabled confirmations/interactive prompts
-                        h.stop_and_persist(symbol=self.failureIcon, text=f"IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
+                        h.stop_and_persist(symbol=self.failureIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
                         self.showUDSUpdateNotice()
                         self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must provide the storage class to use for the migration to DRO using '--dro-storage-class' when using '--no-confirm'")
                     else:
@@ -466,10 +466,10 @@ class UpdateApp(BaseApp):
                 if self.getParam("dro_migration") == "true":
                     self.setParam("uds_action", "install-dro")
 
-            except (ResourceNotFoundError, NotFoundError) as e:
+            except (ResourceNotFoundError, NotFoundError):
                 # UDS has never been installed on this cluster
                 logger.debug("UDS has not been installed on this cluster before")
-                h.stop_and_persist(symbol=self.successIcon, text=f"IBM User Data Services is not installed")
+                h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services is not installed")
 
     def detectCP4D(self) -> bool:
         # Important:
@@ -513,14 +513,14 @@ class UpdateApp(BaseApp):
 
                     if cpdInstanceVersion < cpdTargetVersion:
                         # We have to update CP4D
-                        h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data {cpdInstanceVersion} needs to be updated to {cpdTargetVersion}")
+                        h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) {cpdInstanceVersion} needs to be updated to {cpdTargetVersion}")
 
                         if currentCpdVersionMajorMinor < targetCpdVersionMajorMinor:
                             # We only show the "backup first" notice for minor CP4D updates
                             self.printHighlight([
                                 ""
                                 "<u>Dependency Update Notice</u>",
-                                f"Cloud Pak For Data is currently running version {cpdInstanceVersion} and will be updated to version {cpdTargetVersion}",
+                                f"Cloud Pak For Data ({cpdInstanceNamespace}) is currently running version {cpdInstanceVersion} and will be updated to version {cpdTargetVersion}",
                                 "It is recommended that you backup your Cloud Pak for Data instance before proceeding:",
                                 "  <u>https://www.ibm.com/docs/en/cloud-paks/cp-data/5.0.x?topic=administering-backing-up-restoring-cloud-pak-data</u>"
                             ])
@@ -557,11 +557,11 @@ class UpdateApp(BaseApp):
                         self.detectCpdService('Spss', 'spssmodeler.cpd.ibm.com/v1', 'SPSS Modeler', "cp4d_update_spss")
                         self.detectCpdService('CAService', 'ca.cpd.ibm.com/v1', 'Cognos Analytics', "cp4d_update_cognos")
                     else:
-                        h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data is already installed at version {cpdTargetVersion}")
+                        h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) is already installed at version {cpdTargetVersion}")
                 else:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"No IBM Cloud Pak for Data instance found")
-            except (ResourceNotFoundError, NotFoundError) as e:
-                h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data is not installed")
+                    h.stop_and_persist(symbol=self.successIcon, text="No IBM Cloud Pak for Data instance found")
+            except (ResourceNotFoundError, NotFoundError):
+                h.stop_and_persist(symbol=self.successIcon, text="IBM Cloud Pak for Data is not installed")
 
     def detectCpdService(self, kind: str, api: str, name: str, param: str) -> None:
         try:
@@ -630,7 +630,7 @@ class UpdateApp(BaseApp):
                 else:
                     logger.debug(f"Found no instances of {kind} to update")
                     h.stop_and_persist(symbol=self.successIcon, text=f"Found no {kind} ({apiVersion}) instances to update")
-            except (ResourceNotFoundError, NotFoundError) as e:
+            except (ResourceNotFoundError, NotFoundError):
                 logger.debug(f"{kind}.{apiVersion} is not available in the cluster")
                 h.stop_and_persist(symbol=self.successIcon, text=f"{kind}.{apiVersion} is not available in the cluster")
 
@@ -645,7 +645,7 @@ class UpdateApp(BaseApp):
                             self.setParam("kafka_provider", "redhat")
                         elif sub["spec"]["name"] == "strimzi-kafka-operator":
                             self.setParam("kafka_provider", "strimzi")
-                except (ResourceNotFoundError, NotFoundError) as e:
+                except (ResourceNotFoundError, NotFoundError):
                     pass
 
                 # If the param is still undefined then there is a big problem

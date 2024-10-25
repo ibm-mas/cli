@@ -667,3 +667,7 @@
   type: string
   description: controls the workload size of predict containers
   default: "small"
+
+# Dependencies - IBM Maximo AI Broker
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-aibroker.yml.j2') }}
