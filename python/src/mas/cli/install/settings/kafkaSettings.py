@@ -11,6 +11,7 @@
 from os import path
 from prompt_toolkit import print_formatted_text
 
+
 class KafkaSettingsMixin():
     def configKafka(self) -> None:
         if self.installIoT:

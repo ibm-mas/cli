@@ -30,7 +30,6 @@ from prompt_toolkit import prompt, print_formatted_text, HTML
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import connect, isSNO
 
-from .validators import YesNoValidator
 from .displayMixins import PrintMixin, PromptMixin
 
 # Configure the logger
@@ -97,7 +96,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
         # Set up a log handler (5mb rotating log file)
         ch = logging.handlers.RotatingFileHandler(
-            "mas.log", maxBytes=(1048576*5), backupCount=2
+            "mas.log", maxBytes=(1048576 * 5), backupCount=2
         )
         ch.setLevel(logging.DEBUG)
         ch.setFormatter(chFormatter)
@@ -138,7 +137,8 @@ class BaseApp(PrintMixin, PromptMixin):
                 "monitor": ["9.0.x", "8.11.x"],
                 "optimizer": ["9.0.x", "8.5.x"],
                 "predict": ["9.0.x", "8.9.x"],
-                "visualinspection": ["9.0.x", "8.9.x"]
+                "visualinspection": ["9.0.x", "8.9.x"],
+                "aibroker": ["9.0.x"]
             },
             "8.11.x": {
                 "assist": ["8.8.x", "8.7.x"],
@@ -223,7 +223,7 @@ class BaseApp(PrintMixin, PromptMixin):
         else:
             return []
 
-    def fatalError(self, message: str, exception: Exception=None) -> None:
+    def fatalError(self, message: str, exception: Exception = None) -> None:
         if exception is not None:
             logger.error(message)
             logger.exception(exception, stack_info=True)
@@ -289,8 +289,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 print()
                 if not self.noConfirm:
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
-                    continueWithExistingCluster = prompt(HTML('<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
-                    promptForNewServer = continueWithExistingCluster in ["n", "no"]
+                    promptForNewServer = not self.yesOrNo("Proceed with this cluster?")
             except Exception as e:
                 # We are already connected to a cluster, but the connection is not valid so prompt for connection details
                 logger.debug("Failed looking up OpenShift Console route to verify connection")
@@ -311,7 +310,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
                 exit(1)
 
-    def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:
+    def initializeApprovalConfigMap(self, namespace: str, id: str, key: str = None, maxRetries: int = 100, delay: int = 300, ignoreFailure: bool = True) -> None:
         """
         Set key = None if you don't want approval workflow enabled
         """
