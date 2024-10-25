@@ -157,9 +157,9 @@ spec:
     # Run Dynamic Scan for IoT
     # -----------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/apps/iot-verify.yml.j2') | indent(4) }}
-        # Verification frequency
+        # Verification frequency - IoT takes almost 100mins to install and configure
         - name: mas_app_cfg_retries
-          value: $(params.mas_app_cfg_retries)
+          value: "50"
         - name: mas_app_cfg_delay
           value: $(params.mas_app_cfg_delay)
       when:
@@ -190,9 +190,9 @@ spec:
     # Run Dynamic Scan for Monitor
     # -----------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/apps/monitor-verify.yml.j2') | indent(4) }}
-        # Verification Frequency
+        # Verification Frequency - Monitor takes almost 70mins to install and configure
         - name: mas_app_cfg_retries
-          value: $(params.mas_app_cfg_retries)
+          value: "35"
         - name: mas_app_cfg_delay
           value: $(params.mas_app_cfg_delay)
       when:
