@@ -14,8 +14,9 @@ from .manageSettings import ManageSettingsMixin
 from .turbonomicSettings import TurbonomicSettingsMixin
 from .additionalConfigs import AdditionalConfigsMixin
 
+
 class InstallSettingsMixin(Db2SettingsMixin, KafkaSettingsMixin, ManageSettingsMixin, TurbonomicSettingsMixin, AdditionalConfigsMixin):
-  """
-  This class collects all the Mixins providing interactive prompts for mas-install
-  """
-  pass
+    """
+    This class collects all the Mixins providing interactive prompts for mas-install
+    """
+    pass
