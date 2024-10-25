@@ -200,7 +200,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - suite-verify
+        - app-verify-iot
     
     - name: dynamicscan-monitor
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
@@ -332,7 +332,8 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - suite-verify
+        - app-verify-manage
+        - app-verify-monitor
     
     - name: dynamicscan-predict
       {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
