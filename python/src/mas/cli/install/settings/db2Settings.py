@@ -77,7 +77,7 @@ class Db2SettingsMixin():
 
                     # Check if a configuration already exists before creating a new one
                     jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-system.yaml")
-                print_formatted_text(f"Searching for system database configuration file in {jdbcCfgFile} ...")
+                    print_formatted_text(f"Searching for system database configuration file in {jdbcCfgFile} ...")
                     if path.exists(jdbcCfgFile):
                         if self.yesOrNo(f"System database configuration file 'jdbc-{instanceId}-system.yaml' already exists.  Do you want to generate a new one"):
                             self.generateJDBCCfg(instanceId=instanceId, scope="system", destination=jdbcCfgFile)
