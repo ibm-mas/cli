@@ -1,0 +1,38 @@
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: "{{ stitching_testpod_name }}"
+  namespace: "mas-{{ mas_instance_id }}-manage"
+  labels:
+    app: imagestitching
+spec:
+  serviceAccountName: pipeline
+  securityContext:
+    privileged: true
+    runAsUser: 0
+  imagePullSecrets:
+  - name: ibm-entitlement
+  containers:
+    - resources: {}
+      image: "{{ fvt_digest_manage_pytest }}"
+      name: "{{ stitching_testpod_name }}"
+      volumeMounts:
+        - name: input-directory
+          mountPath: /{{ stitching_storage_mountpath }}
+      command:
+        - /bin/bash
+        - '-c'
+        - |-
+          end=$((SECONDS+60))
+          
+          while [ $SECONDS -lt $end ]; do
+              :
+          done
+          # Copy test files from local mount to PV        
+          \cp -rf /opt/ibm/test/resources/imagestitching/test_grid_small/* /{{ stitching_storage_mountpath }}
+          while true; do sleep 30; done;
+  volumes:
+    - name: input-directory
+      persistentVolumeClaim:
+        claimName: "{{ mas_instance_id }}-{{ mas_workspace_id }}-{{ stitching_pvcname }}"

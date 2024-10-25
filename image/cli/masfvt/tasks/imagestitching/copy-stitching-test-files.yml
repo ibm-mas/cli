@@ -1,0 +1,19 @@
+---
+- name: Deploy temporary pod to copy stitching test files to shared PV
+  kubernetes.core.k8s:
+    state: present
+    template: templates/stitching-test-pod.yml.j2
+
+- name: Pause for 3 minutes before deleting the pod
+  ansible.builtin.pause:
+    minutes: 3
+
+- name: Delete temporary pod
+  kubernetes.core.k8s:
+    state: absent
+    api_version: v1
+    kind: Pod
+    name: "{{ stitching_testpod_name }}"
+    namespace: "mas-{{ mas_instance_id }}-manage"
+    wait: yes
+    wait_timeout: 300 

@@ -24,6 +24,11 @@
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-manage-is', True) }}-{{ devops_build_number }}"
     pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
+    # Stitching parameters
+    deployimagestitching: "{{ lookup('env', 'DEPLOY_IMAGESTITCHING') | default('false', True) | bool }}"
+    stitching_pvcname: "{{ lookup('env', 'STITCHING_PVCNAME') | default('manage-imagestitching', true) }}"
+    stitching_storage_mountpath: "imagestitching"
+    stitching_testpod_name: "image-stitching-test-deploy"
   tasks:
     - name: "Debug"
       debug:
@@ -40,12 +45,21 @@
           - "fvt_artifactory_token ........... {{ fvt_artifactory_token }}"
           - "fvt_digest_manage ............... {{ fvt_digest_manage }}"
           - "fvt_digest_manage_pytest ........ {{ fvt_digest_manage_pytest }}"
-          - "fvt_digest_health_preparedata ........ {{ fvt_digest_health_preparedata }}"
+          - "fvt_digest_health_preparedata ... {{ fvt_digest_health_preparedata }}"
           - "fvt_digest_health_testng ........ {{ fvt_digest_health_testng }}"
           - "fvt_digest_health_python ........ {{ fvt_digest_health_python }}"
           - ""
           - "fvt_blacklist ................... {{ fvt_blacklist }}"
           - "fvt_whitelist ................... {{ fvt_whitelist }}"
+          - ""
+          - "deployimagestitching ............ {{ deployimagestitching }}"
+          - "stitching_pvcname ............... {{ stitching_pvcname }}"
+          - "stitching_storage_mountpath ..... {{ stitching_storage_mountpath }}"
+          - "stitching_testpod_name .......... {{ stitching_testpod_name }}"
+
+    - name: Stitching (Civil), copy test files to PV used by masdev-all container
+      when: deployimagestitching
+      include_tasks: tasks/imagestitching/copy-stitching-test-files.yml
 
     - name: "Start fvt-manage-is pipeline"
       kubernetes.core.k8s:
