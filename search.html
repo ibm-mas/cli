@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>setup-registry - Maximo Application Suite CLI Documentation</title>
+    <title>Maximo Application Suite CLI Documentation</title>
 
     <!-- Pure CSS (https://pure-css.github.io/) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
-    <link rel="stylesheet" href="../../css/theme.css">
+    <link rel="stylesheet" href="./css/theme.css">
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
-    <script src="../../js/theme.js"></script>
+    <script src="./js/theme.js"></script>
 
     <!-- Carbon theme zones (white, g10, g90, g100) -->
     <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css" />
@@ -30,29 +30,26 @@
     <script>hljs.highlightAll();</script>
 
     <!-- Required by MkDocs search -->
-    <script>var base_url = "../..";</script>
+    <script>var base_url = ".";</script>
 
     <!-- User defined extras -->
     
+  <script>var base_url = '.';</script>
+
+
+    
+    <link href="./extra.css" rel="stylesheet">
     
 
     
-    <link href="../../extra.css" rel="stylesheet">
+    <script src="./search/main.js"></script>
     
-
-    
-    <script src="../../search/main.js"></script>
-    
-   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
-    html.glightbox-open { overflow: initial; height: 100%; }
-    .gslide-title { margin-top: 0px; user-select: text; }
-    .gslide-desc { color: #666; user-select: text; }
-    .gslide-image img { background: black; }</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+  </head>
 
   <body>
     <cds-header aria-label="Maximo Application Suite CLI Documentation" class="cds-theme-zone-g100">
       <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
-      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI Documentation</cds-header-name>
+      <cds-header-name href="." prefix="IBM">Maximo Application Suite CLI Documentation</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI Documentation">
           <cds-header-nav-item  target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
           <cds-header-nav-item is-active target="" href="">CLI</cds-header-nav-item>
@@ -69,7 +66,7 @@
         });
         el.addEventListener('keydown', function (ev) {
           if (ev.key === 'Enter') {
-            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+            location.href="./search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
           }
         });
       </script>
@@ -82,31 +79,31 @@
   <cds-side-nav-menu title="Guides" >
     
       
-  <cds-side-nav-menu-item href="../../guides/image-mirroring/" >
+  <cds-side-nav-menu-item href="./guides/image-mirroring/" >
     Image Mirroring
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../guides/install/" >
+  <cds-side-nav-menu-item href="./guides/install/" >
     Install
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../guides/update/" >
+  <cds-side-nav-menu-item href="./guides/update/" >
     Update
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../guides/upgrade/" >
+  <cds-side-nav-menu-item href="./guides/upgrade/" >
     Upgrade
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../guides/uninstall/" >
+  <cds-side-nav-menu-item href="./guides/uninstall/" >
     Uninstall
   </cds-side-nav-menu-item>
 
@@ -118,13 +115,13 @@
   <cds-side-nav-menu title="Examples" >
     
       
-  <cds-side-nav-menu-item href="../../examples/eam-migration/" >
+  <cds-side-nav-menu-item href="./examples/eam-migration/" >
     EAM Migration
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../examples/mirror-db2/" >
+  <cds-side-nav-menu-item href="./examples/mirror-db2/" >
     Mirror Db2 Images
   </cds-side-nav-menu-item>
 
@@ -133,88 +130,88 @@
 
         
           
-  <cds-side-nav-menu title="Command Reference" expanded>
+  <cds-side-nav-menu title="Command Reference" >
     
       
-  <cds-side-nav-menu-item href="../install/" >
+  <cds-side-nav-menu-item href="./commands/install/" >
     install
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../update/" >
+  <cds-side-nav-menu-item href="./commands/update/" >
     update
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../upgrade/" >
+  <cds-side-nav-menu-item href="./commands/upgrade/" >
     upgrade
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../uninstall/" >
+  <cds-side-nav-menu-item href="./commands/uninstall/" >
     uninstall
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../must-gather/" >
+  <cds-side-nav-menu-item href="./commands/must-gather/" >
     must-gather
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../configure-airgap/" >
+  <cds-side-nav-menu-item href="./commands/configure-airgap/" >
     configure-airgap
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../mirror-images/" >
+  <cds-side-nav-menu-item href="./commands/mirror-images/" >
     mirror-images
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../mirror-redhat-images/" >
+  <cds-side-nav-menu-item href="./commands/mirror-redhat-images/" >
     mirror-redhat-images
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="./" expanded>
+  <cds-side-nav-menu-item href="./commands/setup-registry/" >
     setup-registry
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../teardown-registry/" >
+  <cds-side-nav-menu-item href="./commands/teardown-registry/" >
     teardown-registry
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../provision-fyre/" >
+  <cds-side-nav-menu-item href="./commands/provision-fyre/" >
     provision-fyre
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../provision-roks/" >
+  <cds-side-nav-menu-item href="./commands/provision-roks/" >
     provision-roks
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../provision-rosa/" >
+  <cds-side-nav-menu-item href="./commands/provision-rosa/" >
     provision-rosa
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../configtool-oidc/" >
+  <cds-side-nav-menu-item href="./commands/configtool-oidc/" >
     configtool-oidc
   </cds-side-nav-menu-item>
 
@@ -226,31 +223,31 @@
   <cds-side-nav-menu title="Operator Catalog" >
     
       
-  <cds-side-nav-menu-item href="../../catalogs/" >
+  <cds-side-nav-menu-item href="./catalogs/" >
     Overview
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../catalogs/v9-241003-amd64/" >
+  <cds-side-nav-menu-item href="./catalogs/v9-241003-amd64/" >
     Oct 03 2024
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../catalogs/v9-240827-amd64/" >
+  <cds-side-nav-menu-item href="./catalogs/v9-240827-amd64/" >
     Aug 27 2024
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../catalogs/v9-240730-amd64/" >
+  <cds-side-nav-menu-item href="./catalogs/v9-240730-amd64/" >
     Jul 30 2024
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../catalogs/v9-240625-amd64/" >
+  <cds-side-nav-menu-item href="./catalogs/v9-240625-amd64/" >
     Jun 25 2024
   </cds-side-nav-menu-item>
 
@@ -262,19 +259,19 @@
   <cds-side-nav-menu title="Reference" >
     
       
-  <cds-side-nav-menu-item href="../../reference/dependencies/" >
+  <cds-side-nav-menu-item href="./reference/dependencies/" >
     Dependencies
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../reference/topology/" >
+  <cds-side-nav-menu-item href="./reference/topology/" >
     Topology
   </cds-side-nav-menu-item>
 
     
       
-  <cds-side-nav-menu-item href="../../reference/cluster-extensions/" >
+  <cds-side-nav-menu-item href="./reference/cluster-extensions/" >
     Cluster Extensions
   </cds-side-nav-menu-item>
 
@@ -287,36 +284,27 @@
 
     <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
   <cds-breadcrumb-item>
-    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
-  </cds-breadcrumb-item>
-      <cds-breadcrumb-item>Command Reference</cds-breadcrumb-item>
-
-  <cds-breadcrumb-item aria-current="page">
-    <cds-breadcrumb-link href="#setup-private-registry">Setup Private Registry</cds-breadcrumb-link>
-  </cds-breadcrumb-item>
-
-  <cds-breadcrumb-item>
-    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
-    
-    
-      <cds-select-item value="#usage">Usage</cds-select-item>
-    
-  </cds-select>
+    <cds-breadcrumb-link href="./.">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
     </div>
 
     <div id="main-content" class="rst-content">
       
-      <h1 id="setup-private-registry">Setup Private Registry<a class="headerlink" href="#setup-private-registry" title="Permanent link">¤</a></h1>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
-<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
-</code></pre>
-      
+  <h1 id="search">Search Results</h1>
+
+  <form id="content_search" action="search.html">
+    <span role="status" aria-live="polite" class="ui-helper-hidden-accessible"></span>
+    <input name="q" id="mkdocs-search-query" type="text" class="search_input search-query ui-autocomplete-input" placeholder="Search the Docs" autocomplete="off">
+  </form>
+
+  <div id="mkdocs-search-results">
+    Sorry, page not found.
+  </div>
+
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-10-26 18:17:07.026682+00:00)
+      Built with mkdocs v1.6.1 (2024-10-26 18:17:06.517593+00:00)
     </div> -->
-  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
-</script></body>
+  </body>
 </html>
