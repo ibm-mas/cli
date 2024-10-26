@@ -51,6 +51,7 @@ theme:
       url: https://ibm-mas.github.io/ansible-devops/
     - title: CLI
       active: true
+
 extra_css:
   - extra.css
 
@@ -73,6 +74,7 @@ markdown_extensions:
     # Quote
 
 plugins:
+  - search: {}
   - redirects:
       redirect_maps:
         "guides/architecture/core.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-core-services"
