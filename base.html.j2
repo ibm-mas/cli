@@ -69,7 +69,7 @@
         });
         el.addEventListener('keydown', function (ev) {
           if (ev.key === 'Enter') {
-            location.href="{{ 'search.html' | url }}?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+            location.href="{{ base_url }}/search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
           }
         });
       </script>
