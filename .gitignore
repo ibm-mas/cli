@@ -55,3 +55,4 @@ python/mas-*.spec
 python/README.rst
 .env
 /.venv
+/site
