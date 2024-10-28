@@ -195,7 +195,7 @@ cisArgGroup.add_argument(
     "--cis-email",
     dest="cis_email",
     required=False,
-    help="Required when DNS provider is CIS"
+    help="Required when DNS provider is CIS and you want to use a Let's Encrypt ClusterIssuer"
 )
 cisArgGroup.add_argument(
     "--cis-apikey",
