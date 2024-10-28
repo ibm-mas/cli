@@ -96,7 +96,7 @@ class installArgBuilderMixin():
             command += f"  --disable-ca-trust{newline}"
 
         if self.getParam('mas_manual_cert_mgmt') is True:
-            command += f"  --manual-certificates \"{self.getParam('mas_manual_cert_dir')}\"{newline}"
+            command += f"  --manual-certificates \"{self.manualCertsDir}\"{newline}"
 
         if self.getParam('mas_enable_walkme') == "false":
             command += f"  --disable-walkme{newline}"

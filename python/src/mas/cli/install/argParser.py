@@ -165,12 +165,55 @@ masAdvancedArgGroup.add_argument(
     help="Path to directory containing the certificates to be applied"
 )
 masAdvancedArgGroup.add_argument(
+    "--domain",
+    dest="mas_domain",
+    required=False,
+    help="Configure MAS with a custom domain"
+)
+
+masAdvancedArgGroup.add_argument(
     "--disable-walkme",
     dest="mas_enable_walkme",
     required=False,
     help="Disable MAS guided tour",
     action="store_const",
     const="false"
+)
+
+masAdvancedArgGroup.add_argument(
+    "--dns-provider",
+    dest="dns_provider",
+    required=False,
+    help="Enable Automatic DNS management (see DNS Configuration options)",
+    choices=["cloudflare", "cis", "route53"]
+)
+
+# DNS Configuration - IBM CIS
+# -----------------------------------------------------------------------------
+cisArgGroup = installArgParser.add_argument_group("DNS Configuration - CIS")
+cisArgGroup.add_argument(
+    "--cis-email",
+    dest="cis_email",
+    required=False,
+    help="Required when DNS provider is CIS"
+)
+cisArgGroup.add_argument(
+    "--cis-apikey",
+    dest="cis_apikey",
+    required=False,
+    help="Required when DNS provider is CIS"
+)
+cisArgGroup.add_argument(
+    "--cis-crn",
+    dest="cis_crn",
+    required=False,
+    help="Required when DNS provider is CIS"
+)
+cisArgGroup.add_argument(
+    "--cis-subdomain",
+    dest="cis_subdomain",
+    required=False,
+    help="Optionally setup MAS instance as a subdomain under a multi-tenant CIS DNS record"
 )
 
 # Storage
@@ -243,7 +286,6 @@ mongoArgGroup.add_argument(
     required=False,
     help=""
 )
-
 
 # OCP Configuration
 # -----------------------------------------------------------------------------

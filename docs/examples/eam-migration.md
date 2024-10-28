@@ -6,6 +6,16 @@ This example demonstrates how to migrate from EAM 7 to Maximo Manage v9 running 
 - For this demo we are using an existing database instance that is configured without TLS enabled (so we do not need to worry about providing the certificates in the configuration)
 - Normally you would take a backup of the database and use that, but for the purpose of this example we are going to take over the database currently in use, if you wish to follow this example using a restored backup of your database simply skip step 2.
 
+<!--
+Prepare an EAM 7 System
+
+1. Provision Virtual Server in IBMCloud:
+- Windows Server 2022 Standard Edition (64 bit)
+- 8 vCPU | 16 GB
+
+2. Log onto the server using https://mremoteng.org/
+
+-->
 
 Prerequisites
 -------------------------------------------------------------------------------

@@ -77,7 +77,7 @@ class InstallSummarizerMixin():
 
         if self.getParam("mas_manual_cert_mgmt") != "":
             print()
-            self.printParamSummary("Manual Certificates", "mas_manual_cert_dir")
+            self.printSummary("Manual Certificates", self.manualCertsDir)
         else:
             print()
             self.printSummary("Manual Certificates", "Not Configured")

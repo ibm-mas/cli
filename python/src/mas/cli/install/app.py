@@ -341,7 +341,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("mas_manual_cert_mgmt", self.manualCerts)
             if self.getParam("mas_manual_cert_mgmt"):
                 self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
-                self.setParam("mas_manual_cert_dir", self.manualCertsDir)
+            else:
+                self.manualCertsDir = None
 
     def configDNSAndCertsCloudflare(self):
         # User has chosen to set up DNS integration with Cloudflare
@@ -692,7 +693,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "mas_app_settings_base_lang",
             "mas_app_settings_secondary_langs",
             "mas_app_settings_server_timezone",
+            "mas_domain",
             "ocp_ingress_tls_secret_name",
+            # DNS Providers
+            # TODO: Add CloudFlare and Route53 support
+            "dns_provider",
+            "cis_email",
+            "cis_apikey",
+            "cis_crn",
+            "cis_subdomain",
             # DRO
             "dro_namespace",
             # MongoDb
@@ -919,9 +928,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "manual_certificates":
                 if value is not None:
                     self.setParam("mas_manual_cert_mgmt", True)
-                    self.setParam("mas_manual_cert_dir", value)
+                    self.manualCertsDir = value
                 else:
                     self.setParam("mas_manual_cert_mgmt", False)
+                    self.manualCertsDir = None
 
             # Fail if there's any arguments we don't know how to handle
             else:
