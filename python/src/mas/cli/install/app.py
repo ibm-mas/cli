@@ -573,7 +573,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("COS Provider [ibm/ocs]", "cos_type")
             if self.getParam("cos_type") == "ibm":
                 self.promptForString("IBM Cloud API Key", "ibmcloud_apikey", isPassword=True)
-                self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
+                self.promptForString("IBM Cloud Resource Group", "ibmcos_resourcegroup")
 
     def interactiveMode(self) -> None:
         # Interactive mode
@@ -667,6 +667,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "uds_contact_lastname"
         ]
         optionalParams = [
+            # Pipeline
+            "image_pull_policy",
+            # OpenShift
+            "ocp_ingress_tls_secret_name",
             # MAS
             "mas_catalog_digest",
             "mas_superuser_username",
@@ -675,9 +679,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "mas_app_settings_server_bundles_size",
             "mas_app_settings_default_jms",
             "mas_app_settings_persistent_volumes_flag",
-            "mas_appws_bindings_jdbc_manage",
             "mas_app_settings_demodata",
-            "mas_appws_components",
             "mas_app_settings_customization_archive_name",
             "mas_app_settings_customization_archive_url",
             "mas_app_settings_customization_archive_username",
@@ -693,8 +695,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "mas_app_settings_base_lang",
             "mas_app_settings_secondary_langs",
             "mas_app_settings_server_timezone",
+            "mas_appws_bindings_jdbc_manage",
+            "mas_appws_components",
             "mas_domain",
-            "ocp_ingress_tls_secret_name",
             # DNS Providers
             # TODO: Add CloudFlare and Route53 support
             "dns_provider",
@@ -748,7 +751,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "eventstreams_instance_location",
             # COS
             "cos_type",
-            "cos_resourcegroup",
+            "ibmcos_resourcegroup",
             # ECK
             "eck_action",
             "eck_enable_logstash",

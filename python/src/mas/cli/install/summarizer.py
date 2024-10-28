@@ -279,8 +279,8 @@ class InstallSummarizerMixin():
         self.printH2("Cloud Object Storage")
         if self.getParam("cos_type") != "":
             self.printParamSummary("Type", "cos_type")
-            if self.getParam("cos_resourcegroup") != "":
-                self.printParamSummary("Resource Group", "cos_resourcegroup")
+            if self.getParam("ibmcos_resourcegroup") != "":
+                self.printParamSummary("Resource Group", "ibmcos_resourcegroup")
         else:
             self.printSummary("Type", "None")
 

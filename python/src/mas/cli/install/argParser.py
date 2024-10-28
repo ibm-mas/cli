@@ -911,6 +911,7 @@ cosArgGroup.add_argument(
 )
 cosArgGroup.add_argument(
     "--cos-resourcegroup",
+    dest="ibmcos_resourcegroup",
     required=False,
     help="When using IBM COS, set the resource group where the instance will run"
 )
@@ -1077,6 +1078,12 @@ otherArgGroup.add_argument(
     action="store_true",
     default=False,
     help="Launch the upgrade without prompting for confirmation",
+)
+otherArgGroup.add_argument(
+    "--image-pull-policy",
+    dest="image_pull_policy",
+    required=False,
+    help="Manually set the image pull policy used in the Tekton Pipeline",
 )
 
 otherArgGroup.add_argument(
