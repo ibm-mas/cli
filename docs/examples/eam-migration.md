@@ -56,17 +56,19 @@ This will provision an OpenShift cluster with three 8x32 worker nodes. It will t
     At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours; the entire demo can be complete on IBMCloud for as little as $10.
 
 
-Step 2 - Shutdown EAM
+Step 2 - Backup Database
 -------------------------------------------------------------------------------
-We must stop EAM because we are going to take over the same database that is currently using; log into the WebSphere administrative console and stop the servers.
+We must stop EAM because we are going to create a backup of it's database; log into the WebSphere administrative console and stop the servers.
 
 ![Shutdown EAM in the WebSphere Application Server administrative console](images/shutdown_eam.png)
 
-!!! note
-    You can skip this step if you took a backup of your database and instead are using that.
+
+Step 3 - Create new Database
+-------------------------------------------------------------------------------
+TODO: Write me
 
 
-Step 3 - Prepare the JDBCCfg
+Step 4 - Prepare the JDBCCfg
 -------------------------------------------------------------------------------
 IBM Maximo Application Suite (MAS) configuration is held in Kubernetes resources, when we install MAS we will tell the installer to apply this configuration as part of the installation.
 
@@ -93,7 +95,7 @@ metadata:
     "mas.ibm.com/workspaceId": "demo"
     "mas.ibm.com/applicationId": "manage"
 spec:
-  displayName: "dev-jdbc-manage"
+  displayName: "JDBC (IBM Db2)"
   config:
     url: "{JDBC_URL}"
     sslEnabled: false
@@ -114,7 +116,49 @@ Validate that the JDBC URL and username/password are correct by running the comm
 ![Using DBeaver to view the MAXUPG value in the Maximo database](images/dbeaver.png)
 
 
-Step 4 - Install MAS
+Step 5 - Prepare the SMTPCfg
+-------------------------------------------------------------------------------
+When existing users are migrated into MAS a new password will be generated for each, to recieve this password we must configure SMTP for MAS.  If you don't have your own SMTP server, and do have a [Gmail](https://mail.google.com/mail/) account then can configure MAS as below:
+
+```yaml
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: "smtp-demo-credentials"
+  namespace: "mas-dev-core"
+stringData:
+  username: "{GMAIL_ADDRESS}"
+  password: "{GMAIL_PASSWORD}"
+---
+apiVersion: config.mas.ibm.com/v1
+kind: SmtpCfg
+metadata:
+  name: "dev-smtp-system"
+  namespace: "mas-dev-core"
+  labels:
+    "mas.ibm.com/configScope": "system"
+    "mas.ibm.com/instanceId": "dev"
+spec:
+  displayName: "SMTP (Gmail)"
+  config:
+    hostname: smtp.gmail.com
+    port: 587
+    security: SSL
+    authentication: true
+    defaultSenderEmail: "{GMAIL_ADDRESS}"
+    defaultSenderName: "IBM Maximo Application Suite (Do Not Respond)"
+    defaultRecipientEmail: "{GMAIL_ADDRESS}"
+    defaultShouldEmailPasswords: true
+    credentials:
+      secretName: "smtp-demo-credentials"
+```
+
+Save this file into the same directory where we saved the MAS entitlement file, as `~/mas9demo/mas9demo-smtp.yaml`
+
+
+Step 6 - Install MAS
 -------------------------------------------------------------------------------
 Ensure the following environment variables are all set:
 
