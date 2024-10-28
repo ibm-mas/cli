@@ -67,20 +67,12 @@ spec:
           --cloud-provider $CLOUD_PROVIDER \
           --aws-region $SM_AWS_REGION \
           --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
-          --aws-access-key $SM_AWS_ACCESS_KEY_ID
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          || exit 1
 
 
         # Additional PER MAS instance/dependency EFS instances
-
-        # TODO: if we knew MAS_EDITION here, we could only create the additional EFS Instances that we know we are going to need
-
-        mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-          --cloud-provider $CLOUD_PROVIDER \
-          --aws-region $SM_AWS_REGION \
-          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
-          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
-          --creation-token-prefix "" \
-          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-iot-db2"
+        # --skip-create-storage-class is specified for these as the StorageClasses for these EFS instances are managed by ArgoCD
 
         mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
           --cloud-provider $CLOUD_PROVIDER \
@@ -88,7 +80,9 @@ spec:
           --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
           --aws-access-key $SM_AWS_ACCESS_KEY_ID \
           --creation-token-prefix "" \
-          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-manage-db2"
+          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-iot-db2" \
+          --skip-create-storage-class \
+          || exit 1
 
         mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
           --cloud-provider $CLOUD_PROVIDER \
@@ -96,11 +90,20 @@ spec:
           --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
           --aws-access-key $SM_AWS_ACCESS_KEY_ID \
           --creation-token-prefix "" \
-          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-visualinspection-main"
+          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-manage-db2" \
+          --skip-create-storage-class \
+          || exit 1
 
-        # TODO: How does fvtsaas teardown these EFS instances?
+        mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+          --cloud-provider $CLOUD_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          --creation-token-prefix "" \
+          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-visualinspection-main" \
+          --skip-create-storage-class \
+          || exit 1
 
-        exit $?
       command:
         - /bin/sh
         - -c
