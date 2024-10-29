@@ -410,7 +410,7 @@ function clone_and_lock_target_git_repo() {
   SSH_PATH=$6
   GIT_LOCK_BRANCH=$7
 
-  RETRIES=${8:-20}
+  RETRIES=${8:-100}
   RETRY_DELAY_SECONDS=${8:-20}
 
   GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
