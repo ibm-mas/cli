@@ -303,11 +303,15 @@
     
       <cds-select-item value="#step-1-provision-openshift">Step 1 - Provision OpenShift</cds-select-item>
     
-      <cds-select-item value="#step-2-shutdown-eam">Step 2 - Shutdown EAM</cds-select-item>
+      <cds-select-item value="#step-2-backup-database">Step 2 - Backup Database</cds-select-item>
     
-      <cds-select-item value="#step-3-prepare-the-jdbccfg">Step 3 - Prepare the JDBCCfg</cds-select-item>
+      <cds-select-item value="#step-3-create-new-database">Step 3 - Create new Database</cds-select-item>
     
-      <cds-select-item value="#step-4-install-mas">Step 4 - Install MAS</cds-select-item>
+      <cds-select-item value="#step-4-prepare-the-jdbccfg">Step 4 - Prepare the JDBCCfg</cds-select-item>
+    
+      <cds-select-item value="#step-5-prepare-the-smtpcfg">Step 5 - Prepare the SMTPCfg</cds-select-item>
+    
+      <cds-select-item value="#step-6-install-mas">Step 6 - Install MAS</cds-select-item>
     
   </cds-select>
   </cds-breadcrumb-item>
@@ -322,6 +326,17 @@
 <li>For this demo we are using an existing database instance that is configured without TLS enabled (so we do not need to worry about providing the certificates in the configuration)</li>
 <li>Normally you would take a backup of the database and use that, but for the purpose of this example we are going to take over the database currently in use, if you wish to follow this example using a restored backup of your database simply skip step 2.</li>
 </ul>
+<!--
+Prepare an EAM 7 System
+
+1. Provision Virtual Server in IBMCloud:
+- Windows Server 2022 Standard Edition (64 bit)
+- 8 vCPU | 16 GB
+
+2. Log onto the server using https://mremoteng.org/
+
+-->
+
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¤</a></h2>
 <p><strong>1 An IBMCloud API Key</strong></p>
 <ul>
@@ -379,14 +394,12 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 <p class="admonition-title">Note</p>
 <p>At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours; the entire demo can be complete on IBMCloud for as little as $10.</p>
 </div>
-<h2 id="step-2-shutdown-eam">Step 2 - Shutdown EAM<a class="headerlink" href="#step-2-shutdown-eam" title="Permanent link">¤</a></h2>
-<p>We must stop EAM because we are going to take over the same database that is currently using; log into the WebSphere administrative console and stop the servers.</p>
+<h2 id="step-2-backup-database">Step 2 - Backup Database<a class="headerlink" href="#step-2-backup-database" title="Permanent link">¤</a></h2>
+<p>We must stop EAM because we are going to create a backup of it's database; log into the WebSphere administrative console and stop the servers.</p>
 <p><a class="glightbox" href="../images/shutdown_eam.png" data-type="image" data-width="auto" data-height="auto" data-title="Shutdown EAM in the WebSphere Application Server administrative console" data-desc-position="bottom"><img alt="Shutdown EAM in the WebSphere Application Server administrative console" src="../images/shutdown_eam.png" /></a></p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You can skip this step if you took a backup of your database and instead are using that.</p>
-</div>
-<h2 id="step-3-prepare-the-jdbccfg">Step 3 - Prepare the JDBCCfg<a class="headerlink" href="#step-3-prepare-the-jdbccfg" title="Permanent link">¤</a></h2>
+<h2 id="step-3-create-new-database">Step 3 - Create new Database<a class="headerlink" href="#step-3-create-new-database" title="Permanent link">¤</a></h2>
+<p>TODO: Write me</p>
+<h2 id="step-4-prepare-the-jdbccfg">Step 4 - Prepare the JDBCCfg<a class="headerlink" href="#step-4-prepare-the-jdbccfg" title="Permanent link">¤</a></h2>
 <p>IBM Maximo Application Suite (MAS) configuration is held in Kubernetes resources, when we install MAS we will tell the installer to apply this configuration as part of the installation.</p>
 <pre><code class="language-yaml">---
 apiVersion: v1
@@ -410,7 +423,7 @@ metadata:
     &quot;mas.ibm.com/workspaceId&quot;: &quot;demo&quot;
     &quot;mas.ibm.com/applicationId&quot;: &quot;manage&quot;
 spec:
-  displayName: &quot;dev-jdbc-manage&quot;
+  displayName: &quot;JDBC (IBM Db2)&quot;
   config:
     url: &quot;{JDBC_URL}&quot;
     sslEnabled: false
@@ -426,7 +439,43 @@ spec:
 <p>Save this file into the same directory where we saved the MAS entitlement file, as <code>~/mas9demo/mas9demo-jdbc.yaml</code></p>
 <p>Validate that the JDBC URL and username/password are correct by running the command <code>SELECT VARNAME, VARVALUE FROM MAXIMO.MAXVARS WHERE VARNAME='MAXUPG';</code>, which will confirm the database is currently running at version 7.</p>
 <p><a class="glightbox" href="../images/dbeaver.png" data-type="image" data-width="auto" data-height="auto" data-title="Using DBeaver to view the MAXUPG value in the Maximo database" data-desc-position="bottom"><img alt="Using DBeaver to view the MAXUPG value in the Maximo database" src="../images/dbeaver.png" /></a></p>
-<h2 id="step-4-install-mas">Step 4 - Install MAS<a class="headerlink" href="#step-4-install-mas" title="Permanent link">¤</a></h2>
+<h2 id="step-5-prepare-the-smtpcfg">Step 5 - Prepare the SMTPCfg<a class="headerlink" href="#step-5-prepare-the-smtpcfg" title="Permanent link">¤</a></h2>
+<p>When existing users are migrated into MAS a new password will be generated for each, to recieve this password we must configure SMTP for MAS.  If you don't have your own SMTP server, and do have a <a href="https://mail.google.com/mail/">Gmail</a> account then can configure MAS as below:</p>
+<pre><code class="language-yaml">---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: &quot;smtp-demo-credentials&quot;
+  namespace: &quot;mas-dev-core&quot;
+stringData:
+  username: &quot;{GMAIL_ADDRESS}&quot;
+  password: &quot;{GMAIL_PASSWORD}&quot;
+---
+apiVersion: config.mas.ibm.com/v1
+kind: SmtpCfg
+metadata:
+  name: &quot;dev-smtp-system&quot;
+  namespace: &quot;mas-dev-core&quot;
+  labels:
+    &quot;mas.ibm.com/configScope&quot;: &quot;system&quot;
+    &quot;mas.ibm.com/instanceId&quot;: &quot;dev&quot;
+spec:
+  displayName: &quot;SMTP (Gmail)&quot;
+  config:
+    hostname: smtp.gmail.com
+    port: 587
+    security: SSL
+    authentication: true
+    defaultSenderEmail: &quot;{GMAIL_ADDRESS}&quot;
+    defaultSenderName: &quot;IBM Maximo Application Suite (Do Not Respond)&quot;
+    defaultRecipientEmail: &quot;{GMAIL_ADDRESS}&quot;
+    defaultShouldEmailPasswords: true
+    credentials:
+      secretName: &quot;smtp-demo-credentials&quot;
+</code></pre>
+<p>Save this file into the same directory where we saved the MAS entitlement file, as <code>~/mas9demo/mas9demo-smtp.yaml</code></p>
+<h2 id="step-6-install-mas">Step 6 - Install MAS<a class="headerlink" href="#step-6-install-mas" title="Permanent link">¤</a></h2>
 <p>Ensure the following environment variables are all set:</p>
 <ul>
 <li><code>IBMCLOUD_APIKEY</code> (see <a href="#prerequisites">prerequisites</a>)</li>
@@ -486,7 +535,7 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-10-26 18:17:07.034527+00:00)
+      Built with mkdocs v1.6.1 (2024-10-29 12:42:40.855375+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
