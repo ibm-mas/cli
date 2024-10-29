@@ -11,14 +11,15 @@
 from os import path
 from jinja2 import Template
 
+
 class ConfigGeneratorMixin():
     def generateJDBCCfg(
             self,
             instanceId: str,
             scope: str,
             destination: str,
-            appId: str="",
-            workspaceId: str="") -> None:
+            appId: str = "",
+            workspaceId: str = "") -> None:
 
         templateFile = path.join(self.templatesDir, "jdbccfg.yml.j2")
         with open(templateFile) as tFile:

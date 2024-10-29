@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 # Useful materials:
 # - https://realpython.com/python-gui-tkinter
 
+
 class MasGui():
     def __init__(self):
 
@@ -44,8 +45,8 @@ class MasGui():
         self.defaultFont = font.nametofont("TkDefaultFont")
         self.defaultFont.configure(family="Tahoma", size=10, weight=font.NORMAL)
 
-        self.titleFont=font.Font(family="tahoma",size=14)
-        self.entryFont=font.Font(family="tahoma",size=10)
+        self.titleFont = font.Font(family="tahoma", size=14)
+        self.entryFont = font.Font(family="tahoma", size=10)
 
         # Top-Level Frames
         self.frame1 = tk.Frame(master=self.window, width=600, height=100)
@@ -121,7 +122,7 @@ class MasGui():
 
         self.updateStatus(f"Successfully connected to {server}")
 
-        self.upgradeButtons={}
+        self.upgradeButtons = {}
         row = 0
         for suite in suites:
             name = tk.Label(master=self.tableFrame, text=suite['metadata']['name'], width=20)
@@ -163,7 +164,7 @@ if __name__ == '__main__':
 
     # Set up a log handler (5mb rotating log file)
     ch = logging.handlers.RotatingFileHandler(
-        "mas.log", maxBytes=(1048576*5), backupCount=2
+        "mas.log", maxBytes=(1048576 * 5), backupCount=2
     )
 
     ch.setLevel(logging.DEBUG)

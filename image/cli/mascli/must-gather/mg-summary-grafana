@@ -1,0 +1,15 @@
+#!/bin/bash
+
+NAMESPACE=$1
+
+echo "$NAMESPACE: Grafana"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get grafana -o wide
+echo ""
+
+echo "$NAMESPACE: GrafanaDatasource"
+echo "--------------------------------------------------------------------------------"
+oc -n $NAMESPACE get grafanadatasource -o wide
+echo ""
+
+exit 0

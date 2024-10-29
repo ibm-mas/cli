@@ -6,6 +6,16 @@ This example demonstrates how to migrate from EAM 7 to Maximo Manage v9 running 
 - For this demo we are using an existing database instance that is configured without TLS enabled (so we do not need to worry about providing the certificates in the configuration)
 - Normally you would take a backup of the database and use that, but for the purpose of this example we are going to take over the database currently in use, if you wish to follow this example using a restored backup of your database simply skip step 2.
 
+<!--
+Prepare an EAM 7 System
+
+1. Provision Virtual Server in IBMCloud:
+- Windows Server 2022 Standard Edition (64 bit)
+- 8 vCPU | 16 GB
+
+2. Log onto the server using https://mremoteng.org/
+
+-->
 
 Prerequisites
 -------------------------------------------------------------------------------
@@ -53,20 +63,22 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 This will provision an OpenShift cluster with three 8x32 worker nodes. It will take approximately **1 hour** to provision the cluster.
 
 !!! note
-    At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours.
+    At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours; the entire demo can be complete on IBMCloud for as little as $10.
 
 
-Step 2 - Shutdown EAM
+Step 2 - Backup Database
 -------------------------------------------------------------------------------
-We must stop EAM because we are going to take over the same database that is currently using; log into the WebSphere administrative console and stop the servers.
+We must stop EAM because we are going to create a backup of it's database; log into the WebSphere administrative console and stop the servers.
 
-![alt text](images/shutdown_eam.png)
-
-!!! note
-    You can skip this step if you took a backup of your database and instead are using that.
+![Shutdown EAM in the WebSphere Application Server administrative console](images/shutdown_eam.png)
 
 
-Step 3 - Prepare the JDBCCfg
+Step 3 - Create new Database
+-------------------------------------------------------------------------------
+TODO: Write me
+
+
+Step 4 - Prepare the JDBCCfg
 -------------------------------------------------------------------------------
 IBM Maximo Application Suite (MAS) configuration is held in Kubernetes resources, when we install MAS we will tell the installer to apply this configuration as part of the installation.
 
@@ -93,7 +105,7 @@ metadata:
     "mas.ibm.com/workspaceId": "demo"
     "mas.ibm.com/applicationId": "manage"
 spec:
-  displayName: "dev-jdbc-manage"
+  displayName: "JDBC (IBM Db2)"
   config:
     url: "{JDBC_URL}"
     sslEnabled: false
@@ -111,10 +123,52 @@ Save this file into the same directory where we saved the MAS entitlement file, 
 
 Validate that the JDBC URL and username/password are correct by running the command `SELECT VARNAME, VARVALUE FROM MAXIMO.MAXVARS WHERE VARNAME='MAXUPG';`, which will confirm the database is currently running at version 7.
 
-![alt text](images/dbeaver.png)
+![Using DBeaver to view the MAXUPG value in the Maximo database](images/dbeaver.png)
 
 
-Step 4 - Install MAS
+Step 5 - Prepare the SMTPCfg
+-------------------------------------------------------------------------------
+When existing users are migrated into MAS a new password will be generated for each, to recieve this password we must configure SMTP for MAS.  If you don't have your own SMTP server, and do have a [Gmail](https://mail.google.com/mail/) account then can configure MAS as below:
+
+```yaml
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: "smtp-demo-credentials"
+  namespace: "mas-dev-core"
+stringData:
+  username: "{GMAIL_ADDRESS}"
+  password: "{GMAIL_PASSWORD}"
+---
+apiVersion: config.mas.ibm.com/v1
+kind: SmtpCfg
+metadata:
+  name: "dev-smtp-system"
+  namespace: "mas-dev-core"
+  labels:
+    "mas.ibm.com/configScope": "system"
+    "mas.ibm.com/instanceId": "dev"
+spec:
+  displayName: "SMTP (Gmail)"
+  config:
+    hostname: smtp.gmail.com
+    port: 587
+    security: SSL
+    authentication: true
+    defaultSenderEmail: "{GMAIL_ADDRESS}"
+    defaultSenderName: "IBM Maximo Application Suite (Do Not Respond)"
+    defaultRecipientEmail: "{GMAIL_ADDRESS}"
+    defaultShouldEmailPasswords: true
+    credentials:
+      secretName: "smtp-demo-credentials"
+```
+
+Save this file into the same directory where we saved the MAS entitlement file, as `~/mas9demo/mas9demo-smtp.yaml`
+
+
+Step 6 - Install MAS
 -------------------------------------------------------------------------------
 Ensure the following environment variables are all set:
 
@@ -166,11 +220,11 @@ The install itself is performed on the cluster, the CLI merely prepares the inst
 !!! tip
     You can either monitor the install in the OpenShift Console or go get lunch, the install will take approximately 2-3 hours depending on network conditions.
 
-![alt text](images/install-pipeline.png)
+![Tekon Pipeline for Maximo Application Suite installation](images/install-pipeline.png)
 
 Once the installation has completed you will be able to log into Maximo Application Suite & Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's **Application Menu**, and we can log into MAS using the superuser username and password supplied during install:
 
-![alt text](images/dashboard-link.png)
+![Application Menu extension in the OpenShift Console for Maximo Application Suite](images/dashboard-link.png)
 
 !!! note
     In this demo we have not configured integration to an SMTP server, as a result we must manually set a new password for the migrated users (including **maxadmin**) before they can be used.

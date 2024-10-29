@@ -27,6 +27,7 @@ from kubernetes.client.exceptions import ApiException
 
 logger = logging.getLogger(__name__)
 
+
 def usage():
     print_formatted_text(HTML(""))
 
@@ -36,14 +37,15 @@ def usage():
     print_formatted_text(HTML("Important Notice:\nThis standalone CLI (<ForestGreen>mas-cli</ForestGreen>) is still in beta state, not all functions supported by the <ForestGreen>mas</ForestGreen> function in quay.io/ibmmas/cli are supported yet"))
     print("")
     print_formatted_text(HTML(
-        "<b>MAS Management Actions:</b>\n"+
-        " - <ForestGreen>mas-cli install</ForestGreen>   Install IBM Maximo Application Suite\n"+
-        " - <ForestGreen>mas-cli update</ForestGreen>    Apply updates and security fixes\n"+
-        " - <ForestGreen>mas-cli upgrade</ForestGreen>   Upgrade to a new MAS release\n"+
-        " - <ForestGreen>mas-cli uninstall</ForestGreen> Remove MAS from the cluster\n"
+        "<b>MAS Management Actions:</b>\n"
+        + " - <ForestGreen>mas-cli install</ForestGreen>   Install IBM Maximo Application Suite\n"  # noqa: W503
+        + " - <ForestGreen>mas-cli update</ForestGreen>    Apply updates and security fixes\n"  # noqa: W503
+        + " - <ForestGreen>mas-cli upgrade</ForestGreen>   Upgrade to a new MAS release\n"  # noqa: W503
+        + " - <ForestGreen>mas-cli uninstall</ForestGreen> Remove MAS from the cluster\n"  # noqa: W503
 
     ))
     print_formatted_text(HTML("For usage information run <ForestGreen>mas-cli [action] --help</ForestGreen>\n"))
+
 
 if __name__ == '__main__':
     try:
@@ -69,7 +71,7 @@ if __name__ == '__main__':
             print_formatted_text(HTML(f"<Red>Unknown action: {function}</Red>\n"))
             exit(1)
 
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         pass
     except ApiException as e:
         app.fatalError(message=f"An error occured communicating with the target server: {e.reason} ({e.status})", exception=e)

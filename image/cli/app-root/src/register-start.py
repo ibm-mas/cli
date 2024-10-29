@@ -4,13 +4,9 @@
 # - DEVOPS_MONGO_URI="mongodb://user:password@host1:port1,host2:port2/admin?tls=true&tlsAllowInvalidCertificates=true"
 #
 import os
-import xml.etree.ElementTree as ET
 import sys
 from datetime import datetime
 from pymongo import MongoClient
-from xmljson import Yahoo
-from pprint import pprint
-import glob
 
 if __name__ == "__main__":
     if "DEVOPS_MONGO_URI" not in os.environ or os.environ['DEVOPS_MONGO_URI'] == "":
@@ -33,7 +29,7 @@ if __name__ == "__main__":
     gitopsVersion = os.getenv("GITOPS_VERSION", "unknown")
 
     if suite == "":
-        print ("Results not recorded because DEVOPS_SUITE_NAME is not defined")
+        print("Results not recorded because DEVOPS_SUITE_NAME is not defined")
         sys.exit(0)
     if instanceId is None:
         print("Results not recorded because DEVOPS_ENVIRONMENT env var is not set")
@@ -60,12 +56,12 @@ if __name__ == "__main__":
 
     # Generate placeholder that tells us "the test has started"
     suiteSummary = {
-        "tests" : 0,
-        "errors" : 0,
-        "name" : suite,
-        "skipped" : 0,
-        "time" : -1,
-        "failures" : 0,
+        "tests": 0,
+        "errors": 0,
+        "name": suite,
+        "skipped": 0,
+        "time": -1,
+        "failures": 0,
         "startTime": datetime.utcnow()
     }
 
