@@ -9,16 +9,16 @@ from mg.utils import printHeader
 
 
 def process_catalogsource(output_dir, catalogsource, catalogsource_table):
-  catalogsourcename = catalogsource.rsplit()[0]
-  catalogsource_yaml_file = output_dir + "/resources/openshift-marketplace/catalogsources/" + catalogsourcename + ".yaml"
+    catalogsourcename = catalogsource.rsplit()[0]
+    catalogsource_yaml_file = output_dir + "/resources/openshift-marketplace/catalogsources/" + catalogsourcename + ".yaml"
 
-  with open(catalogsource_yaml_file, 'r') as file:
+    with open(catalogsource_yaml_file, 'r') as file:
         catalogsource_yaml = yaml.safe_load(file)
 
-  catalogsource_table.add_row([catalogsourcename,
-                               catalogsource_yaml['spec']['displayName'],
-                               catalogsource_yaml['spec']['publisher'],
-                               catalogsource_yaml['status']['connectionState']['lastObservedState']])
+    catalogsource_table.add_row([catalogsourcename,
+                                 catalogsource_yaml['spec']['displayName'],
+                                 catalogsource_yaml['spec']['publisher'],
+                                 catalogsource_yaml['status']['connectionState']['lastObservedState']])
 
 
 # Create a report summarizing the catalog source status
@@ -28,12 +28,12 @@ def summarize(output_dir):
     catalogsource_table.field_names = ["Name", "Display Name", "Publisher", "Status"]
     header = True
     with open(catalogsource_file) as file:
-    for catalogsource in file:
+        for catalogsource in file:
             if header is True:
                 header = False
-      else:
+            else:
                 process_catalogsource(output_dir, catalogsource, catalogsource_table)
 
-  printHeader("Catalog Sources")
-  catalogsource_table.align = "l"
-  print(catalogsource_table)
+    printHeader("Catalog Sources")
+    catalogsource_table.align = "l"
+    print(catalogsource_table)

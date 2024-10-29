@@ -94,13 +94,13 @@ spec:
         - name: fvt_image_registry
           value: $(params.fvt_image_registry)
         - name: fvt_image_namespace
-          value: ai-solutions
+          value: fvt-predict
         - name: fvt_image_name
-          value: common-test-framework
+          value: fvt-ibm-mas-predict
         - name: fvt_image_digest
-          value: $(params.fvt_digest_ctf)
+          value: $(params.fvt_digest_predict)
         - name: fvt_test_suite
-          value: predict_fvt # pytest_marker in Common Test Framework
+          value: predict_fvt # pytest_marker
         - name: product_channel
           value: $(params.mas_app_channel_predict)
         - name: product_id
@@ -111,7 +111,7 @@ spec:
         name: mas-fvt-run-suite
       # Only if we've set a digest of the Predict FVT to run
       when:
-        - input: "$(params.fvt_digest_ctf)"
+        - input: "$(params.fvt_digest_predict)"
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_predict)"

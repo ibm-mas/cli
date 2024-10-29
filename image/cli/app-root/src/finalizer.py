@@ -59,8 +59,8 @@ def postMessage(channelName, messageBlocks, threadId=None):
         response = sc.api_call("chat.postMessage", channel=channelName, thread_ts=threadId, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True)
 
     if not response['ok']:
-      print(response)
-      print("Failed to call Slack API")
+        print(response)
+        print("Failed to call Slack API")
     return response
 
 
@@ -71,8 +71,8 @@ def buildHeader(title):
         "type": "header",
         "text": {
             "type": "plain_text",
-                "text": title,
-                "emoji": True
+            "text": title,
+            "emoji": True
         }
     }
 
@@ -80,13 +80,13 @@ def buildHeader(title):
 # Build section block for Slack message
 # -----------------------------------------------------------------------------
 def buildSection(text):
-  return {
-    "type": "section",
-    "text": {
-      "type": "mrkdwn",
-      "text": text
+    return {
+        "type": "section",
+        "text": {
+            "type": "mrkdwn",
+            "text": text
+        }
     }
-  }
 
 
 # Build context block for Slack message
@@ -170,7 +170,7 @@ def getcp4dCompsVersions():
         print(f"Unable to determine SPSS Modeler version: {e}")
 
     # Get  Cognos Analytics Version
-   # -------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     try:
         crs = dynClient.resources.get(api_version="ca.cpd.ibm.com/v1", kind="CAService")
         cr = crs.get(name="ca-addon-cr", namespace="ibm-cpd")
@@ -375,7 +375,7 @@ if __name__ == "__main__":
             print("Unable to determine Manage installed components: status.components unavailable")
     except Exception as e:
         print(f"Unable to determine Manage installed components: {e}")
-    
+
     # Get Mobile Components
     # -------------------------------------------------------------------------
     # Note: Only works for workspace "masdev"
@@ -418,7 +418,7 @@ if __name__ == "__main__":
         crs = dynClient.resources.get(api_version="db2u.databases.ibm.com/v1", kind="Db2uCluster")
         cr = crs.get(name=f"mas-{instanceId}-system", namespace="db2u")
         if cr.status and cr.status.version:
-                db2ClusterVersion = cr.status.version
+            db2ClusterVersion = cr.status.version
 
             setObject["target.db2ClusterVersion"] = db2ClusterVersion
         else:
@@ -448,23 +448,23 @@ if __name__ == "__main__":
         crs = dynClient.resources.get(api_version="config.mas.ibm.com/v1", kind="KafkaCfg")
         cr = crs.get(name=f"{instanceId}-kafka-system", namespace=f"mas-{instanceId}-core")
         if cr.status and cr.status.config.hosts:
-                firstBroker = cr.status.config.hosts[0].host
-                if firstBroker.find('eventstreams') != -1:
+            firstBroker = cr.status.config.hosts[0].host
+            if firstBroker.find('eventstreams') != -1:
                 setObject["target.kafkaProvider"] = 'IBM'
-                elif firstBroker.find('amazonaws') != -1:
+            elif firstBroker.find('amazonaws') != -1:
                 setObject["target.kafkaProvider"] = 'AWS'
-                elif firstBroker.find('amq-streams') != -1:
+            elif firstBroker.find('amq-streams') != -1:
                 setObject["target.kafkaProvider"] = 'AMQ'
                 namespace = "amq-streams"
-                elif firstBroker.find('strimzi') != -1:
+            elif firstBroker.find('strimzi') != -1:
                 setObject["target.kafkaProvider"] = 'STRIMZI'
                 namespace = "strimzi"
-                else:
+            else:
                 print("Unable to determine kafka provider using broker host")
-                # check if we need to get the kafka version, this will happen with AMQ and STRIMZI
-                if namespace != '':
+            # check if we need to get the kafka version, this will happen with AMQ and STRIMZI
+            if namespace != '':
                 setObject["target.kafkaVersion"] = getKafkaVersion(namespace)
-                else:
+            else:
                 setObject["target.kafkaVersion"] = 'unknown'
         else:
             print("Unable to determine kafka provider: status.config.hosts unavailable")
@@ -477,22 +477,22 @@ if __name__ == "__main__":
         crs = dynClient.resources.get(api_version="sls.ibm.com/v1", kind="LicenseService")
         cr = crs.get(name="sls", namespace="ibm-sls")
         if cr.status and cr.status.versions:
-                slsVersion = cr.status.versions.reconciled
+            slsVersion = cr.status.versions.reconciled
             setObject["target.slsVersion"] = slsVersion
         else:
             print("Unable to determine SLS version: status.versions unavailable")
     except Exception as e:
         print(f"Unable to determine SLS version: {e}")
 
-     # Lookup CP4D version
+    # Lookup CP4D version
     # -------------------------------------------------------------------------
     try:
         crs = dynClient.resources.get(api_version="wml.cpd.ibm.com/v1beta1", kind="WmlBase")
         cr = crs.get(name="wml-cr", namespace="ibm-cpd")
         if cr.status and cr.status.versions:
-                cp4dVersion = cr.status.versions.reconciled
+            cp4dVersion = cr.status.versions.reconciled
             setObject["target.cp4dVersion"] = cp4dVersion
-                getcp4dCompsVersions()
+            getcp4dCompsVersions()
         else:
             print("Unable to determine CP4D version: status.versions unavailable")
     except Exception as e:

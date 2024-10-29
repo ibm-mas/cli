@@ -455,6 +455,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.installInspection = self.yesOrNo("Install Visual Inspection")
             if self.installInspection:
                     self.configAppChannel("visualinspection")
+
+            self.installAiBroker = self.yesOrNo("Install AI Broker")
+            if self.installAiBroker:
+                self.configAppChannel("aibroker")
+
         else:
             self.installPredict = False
             self.installAssist = False
@@ -462,10 +467,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.installInspection = False
             self.installMonitor = False
             self.installIoT = False
-
-        self.installAiBroker = self.yesOrNo("Install AI Broker")
-        if self.installAiBroker:
-            self.configAppChannel("aibroker")
+            self.installAiBroker = False
 
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
@@ -811,7 +813,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "mas_aibroker_db_database",
             "mas_aibroker_db_secret_name",
             "mas_aibroker_db_secret_key",
-            "mas_aibroker_db_secret_value"
+            "mas_aibroker_db_secret_value",
             # Special chars
             "mas_special_characters"
         ]
