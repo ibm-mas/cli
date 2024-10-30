@@ -28,6 +28,7 @@ from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions
 
 logger = logging.getLogger(__name__)
 
+
 class UninstallApp(BaseApp):
     def uninstall(self, argv):
         """
@@ -40,24 +41,24 @@ class UninstallApp(BaseApp):
 
         if args.uninstall_all_deps:
             if not self.preview:
-                  uninstallGrafana = True
-                  uninstallIBMCatalog = True
-                  uninstallCommonServices = True
-                  uninstallCertManager = True
-                  uninstallUDS = True
-                  uninstallMongoDb = True
-                  uninstallSLS = True
+                uninstallGrafana = True
+                uninstallIBMCatalog = True
+                uninstallCommonServices = True
+                uninstallCertManager = True
+                uninstallUDS = True
+                uninstallMongoDb = True
+                uninstallSLS = True
             else:
-                  uninstallGrafana = False
-                  uninstallMongoDb = False
+                uninstallGrafana = False
+                uninstallMongoDb = False
         else:
-               uninstallGrafana = args.uninstall_grafana
-               uninstallIBMCatalog = args.uninstall_ibm_catalog
-               uninstallCommonServices = args.uninstall_common_services
-               uninstallCertManager = args.uninstall_cert_manager
-               uninstallUDS = args.uninstall_uds
-               uninstallMongoDb = args.uninstall_mongodb
-               uninstallSLS = args.uninstall_sls
+            uninstallGrafana = args.uninstall_grafana
+            uninstallIBMCatalog = args.uninstall_ibm_catalog
+            uninstallCommonServices = args.uninstall_common_services
+            uninstallCertManager = args.uninstall_cert_manager
+            uninstallUDS = args.uninstall_uds
+            uninstallMongoDb = args.uninstall_mongodb
+            uninstallSLS = args.uninstall_sls
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -122,12 +123,12 @@ class UninstallApp(BaseApp):
                     else:
                         uninstallSLS = self.yesOrNo("Uninstall IBM Suite Licensing Service")
                 else:
-                    #Mongodb is not installed in s390x
+                    # Mongodb is not installed in s390x
                     uninstallSLS = self.yesOrNo("Uninstall IBM Suite Licensing Service")
                 if not self.preview:
-                   uninstallGrafana = self.yesOrNo("Uninstall Grafana")
+                    uninstallGrafana = self.yesOrNo("Uninstall Grafana")
                 else:
-                   pass
+                    pass
                 self.printDescription(["If you choose to uninstall the IBM Operator Catalog, IBM Common Services, IBM User Data Services, &amp; IBM Suite License Service will be automatically set to uninstall as well"])
                 uninstallIBMCatalog = self.yesOrNo("Uninstall IBM operator Catalog")
                 if uninstallIBMCatalog:

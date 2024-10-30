@@ -71,8 +71,8 @@ def buildHeader(title):
         "type": "header",
         "text": {
             "type": "plain_text",
-            "text": title,
-            "emoji": True
+                "text": title,
+                "emoji": True
         }
     }
 

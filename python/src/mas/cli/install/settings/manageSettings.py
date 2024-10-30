@@ -10,7 +10,7 @@
 
 import logging
 logger = logging.getLogger(__name__)
-from ...cli import BaseApp
+
 
 class ManageSettingsMixin():
 
@@ -43,9 +43,8 @@ class ManageSettingsMixin():
         if self.installManage:
             self.printH1("Configure Maximo Manage")
             self.printDescription(["Customize your Manage installation, refer to the product documentation for more information"])
-            #Installs only manage, no manage components for s390x
-            if not self.preview:
-                self.manageSettingsComponents()
+
+            self.manageSettingsComponents()
             self.arcgisSettings()
 
             self.manageSettingsServerBundleConfig()
@@ -233,8 +232,7 @@ class ManageSettingsMixin():
 
     def manageSettingsOther(self) -> None:
         self.printH2("Maximo Manage Settings - Other")
-        if not self.preview:
-         self.printDescription([
+        self.printDescription([
             "Configure additional settings:",
             "  - Demo data",
             "  - Base and additional languages",
@@ -242,21 +240,12 @@ class ManageSettingsMixin():
             "  - Cognos integration (install Cloud Pak for Data)",
             "  - Watson Studio Local integration (install Cloud Pak for Data)"
         ])
-        else:
-             self.printDescription([
-                  "Configure additional settings:",
-                   "  - Demo data",
-                   "  - Base and additional languages",
-                   "  - Server timezone"
-             ])
 
         if self.yesOrNo("Configure Additional Settings"):
-
             self.manageSettingsDemodata()
             self.manageSettingsTimezone()
             self.manageSettingsLanguages()
-            if not self.preview:
-                   self.manageSettingsCP4D()
+            self.manageSettingsCP4D()
 
     def aibrokerSettings(self) -> None:
         if self.installAiBroker:

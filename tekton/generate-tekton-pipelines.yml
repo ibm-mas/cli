@@ -91,7 +91,7 @@
         - gitops-mas-cluster
         - gitops-mas-deps
         - gitops-mas-initiator
-
+        
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
     - name: Generate GitOps Pipelines with wait-after-deprovision

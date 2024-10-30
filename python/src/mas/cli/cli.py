@@ -130,7 +130,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self._isSNO = None
 
-        #for s390x
+        # for s390x
         self.architecture = None
 
         self.compatibilityMatrix = {
@@ -323,10 +323,10 @@ class BaseApp(PrintMixin, PromptMixin):
             self.preview = True
             self.printTitle(f"\n Architecture : {self.architecture}")
         else:
-           self.preview = False
-           self.printTitle(f"\n Architecture : {self.architecture}")
+            self.preview = False
+            self.printTitle(f"\n Architecture : {self.architecture}")
 
-    def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:
+    def initializeApprovalConfigMap(self, namespace: str, id: str, key: str = None, maxRetries: int = 100, delay: int = 300, ignoreFailure: bool = True) -> None:
         """
         Set key = None if you don't want approval workflow enabled
         """

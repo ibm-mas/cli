@@ -150,42 +150,42 @@ When choosing a custom profile you will be prompted for the directory of your co
 Currently supported config files:
 
 - ibm-mas
-  - ibm-mas-bascfg.yml
-  - ibm-mas-pushnotificationcfg.yml
-  - ibm-mas-scimcfg.yml
-  - ibm-mas-slscfg.yml
-  - ibm-mas-smtpcfg.yml
-  - ibm-mas-coreidp.yml
-  - ibm-mas-suite.yml
+    - ibm-mas-bascfg.yml
+    - ibm-mas-pushnotificationcfg.yml
+    - ibm-mas-scimcfg.yml
+    - ibm-mas-slscfg.yml
+    - ibm-mas-smtpcfg.yml
+    - ibm-mas-coreidp.yml
+    - ibm-mas-suite.yml
 - ibm-sls
-  - ibm-sls-licenseservice.yml
+    - ibm-sls-licenseservice.yml
 - ibm-data-dictionary
-  - ibm-data-dictionary-assetdatadictionary.yml
+    - ibm-data-dictionary-assetdatadictionary.yml
 - ibm-mas-iot
-  - ibm-mas-iot-actions.yml
-  - ibm-mas-iot-auth.yml
-  - ibm-mas-iot-datapower.yml
-  - ibm-mas-iot-devops.yml
-  - ibm-mas-iot-dm.yml
-  - ibm-mas-iot-dsc.yml
-  - ibm-mas-iot-edgeconfig.yml
-  - ibm-mas-iot-fpl.yml
-  - ibm-mas-iot-guardian.yml
-  - ibm-mas-iot-iot.yml
-  - ibm-mas-iot-mbgx.yml
-  - ibm-mas-iot-mfgx.yml
-  - ibm-mas-iot-monitor.yml
-  - ibm-mas-iot-orgmgmt.yml
-  - ibm-mas-iot-provision.yml
-  - ibm-mas-iot-registry.yml
-  - ibm-mas-iot-state.yml
-  - ibm-mas-iot-webui.yml
+    - ibm-mas-iot-actions.yml
+    - ibm-mas-iot-auth.yml
+    - ibm-mas-iot-datapower.yml
+    - ibm-mas-iot-devops.yml
+    - ibm-mas-iot-dm.yml
+    - ibm-mas-iot-dsc.yml
+    - ibm-mas-iot-edgeconfig.yml
+    - ibm-mas-iot-fpl.yml
+    - ibm-mas-iot-guardian.yml
+    - ibm-mas-iot-iot.yml
+    - ibm-mas-iot-mbgx.yml
+    - ibm-mas-iot-mfgx.yml
+    - ibm-mas-iot-monitor.yml
+    - ibm-mas-iot-orgmgmt.yml
+    - ibm-mas-iot-provision.yml
+    - ibm-mas-iot-registry.yml
+    - ibm-mas-iot-state.yml
+    - ibm-mas-iot-webui.yml
 - ibm-mas-manage
-  - ibm-mas-manage-manageapp.yml
-  - ibm-mas-manage-manageworkspace.yml
-  - ibm-mas-manage-imagestitching.yml
-  - ibm-mas-manage-slackproxy.yml
-  - ibm-mas-manage-healthextworkspace.yml
+    - ibm-mas-manage-manageapp.yml
+    - ibm-mas-manage-manageworkspace.yml
+    - ibm-mas-manage-imagestitching.yml
+    - ibm-mas-manage-slackproxy.yml
+    - ibm-mas-manage-healthextworkspace.yml
 
 For examples on these config files take a look into the pre-defined configs: [BestEffort](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort) and [Guaranteed](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed). More information on podTemplates can be found in our official IBM documentation [here](https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads).
 

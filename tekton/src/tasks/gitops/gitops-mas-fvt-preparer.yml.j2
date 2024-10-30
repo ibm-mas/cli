@@ -457,7 +457,7 @@ spec:
         echo "Sleeping for 60 seconds to give postsync job a chance to run before creating sync window"
         sleep 60
 
-        echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"
+        echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"  
         argocd proj windows add mas --kind deny --schedule "* * * * *" --duration 4h --applications "*.$MAS_INSTANCE_ID"
 
         UNESCAPED_LDAP_CRT=$(</workspace/shared-additional-configs/ldap_masdeps1_cert.pem)

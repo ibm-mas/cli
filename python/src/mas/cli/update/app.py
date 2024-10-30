@@ -210,9 +210,8 @@ class UpdateApp(BaseApp):
             catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
             catalogDisplayName = catalog.spec.displayName
             catalogImage = catalog.spec.image
-            arch=self.architecture
 
-            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-{arch})", catalogDisplayName)
+            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
             if m:
                 # catalogId = v8-yymmdd-amd64
                 # catalogVersion = yymmdd
@@ -243,27 +242,16 @@ class UpdateApp(BaseApp):
 
     def chooseCatalog(self) -> None:
         self.printH1("Select IBM Maximo Operator Catalog Version")
+        self.printDescription([
+            "Select MAS Catalog",
+            "  1) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)",
+            "  2) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
+            "  3) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)"
+        ])
 
-        if self.architecture == "s390x":
-            self.printDescription([
-                "Select MAS Catalog",
-                "  1) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)",
-                "  2) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
-                "  3) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)"
-            ])
-            catalogOptions = [
-               "v9-multiarch-new-s390x"
-            ]
-        else:
-            self.printDescription([
-                "Select MAS Catalog",
-                "  1) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
-                "  2) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)",
-                "  3) June 25 2024 Update (MAS 9.0.0, 8.11.12, &amp; 8.10.15)"
-            ])
-            catalogOptions = [
-           "v9-241003-amd64", "v9-240827-amd64", "v9-240730-amd64"
-            ]
+        catalogOptions = [
+            "v9-241003-amd64", "v9-240827-amd64", "v9-240730-amd64"
+        ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
     def validateCatalog(self) -> None:
@@ -451,7 +439,7 @@ class UpdateApp(BaseApp):
                     else:
                         h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
                         self.showUDSUpdateNotice()
-                        if self.getParam("dro_migration") == "true" and self.getParam("dro_storage_class") is None:  
+                        if self.getParam("dro_migration") == "true" and self.getParam("dro_storage_class") is None:
                             if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
                                 # If the user did not approve the update, abort
                                 exit(1)

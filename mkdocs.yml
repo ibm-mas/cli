@@ -23,18 +23,14 @@ nav:
       - "upgrade": commands/upgrade.md
       - "uninstall": commands/uninstall.md
       - "must-gather": commands/must-gather.md
-
       - "configure-airgap": commands/configure-airgap.md
       - "mirror-images": commands/mirror-images.md
       - "mirror-redhat-images": commands/mirror-redhat-images.md
-
       - "setup-registry": commands/setup-registry.md
       - "teardown-registry": commands/teardown-registry.md
-
       - "provision-fyre": commands/provision-fyre.md
       - "provision-roks": commands/provision-roks.md
       - "provision-rosa": commands/provision-rosa.md
-
       - "configtool-oidc": commands/configtool-oidc.md
   - "Operator Catalog":
       - "Overview": catalogs/index.md
@@ -50,6 +46,11 @@ nav:
 theme:
   name: carbon
   prefix: IBM
+  header_nav_items:
+    - title: Ansible
+      url: https://ibm-mas.github.io/ansible-devops/
+    - title: CLI
+      active: true
 
 extra_css:
   - extra.css
@@ -58,21 +59,22 @@ markdown_extensions:
   - toc:
       permalink: "¤"
   - admonition
-# https://squidfunk.github.io/mkdocs-material/extensions/admonition/
-# Note
-# Abstract
-# Info
-# Tip
-# Success
-# Question
-# Warning
-# Failure
-# Danger
-# Bug
-# Example
-# Quote
+    # https://squidfunk.github.io/mkdocs-material/extensions/admonition/
+    # Note
+    # Abstract
+    # Info
+    # Tip
+    # Success
+    # Question
+    # Warning
+    # Failure
+    # Danger
+    # Bug
+    # Example
+    # Quote
 
 plugins:
+  - search: {}
   - redirects:
       redirect_maps:
         "guides/architecture/core.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-core-services"

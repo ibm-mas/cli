@@ -253,7 +253,7 @@ spec:
 
           mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
 
-          # Copy manual certs of mas_instance
+          # Copy manual certs of mas_instance 
           cp -r $TARGET_LOCAL_DIR/manual-certs/devops-configs/certs/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/manual-certs
 
           # Invoke create-aggregate-manual-certs.sh to generate combined_manual_certs.yaml
@@ -286,7 +286,7 @@ spec:
         yq -i '.cluster.url = env(OCP_SERVER)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
         yq -i '.cluster.domain = env(APPSDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
 
-        # Update the channel in the mas-instance-params.yaml.
+        # Update the channel in the mas-instance-params.yaml. 
         yq -i '.mas_instance.channel = env(MAS_CHANNEL)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
 
         # Update the operationalmode in the mas-instance-params.yaml.

@@ -137,40 +137,40 @@ class AdditionalConfigsMixin():
 
             apps = {
                 "mas_app_channel_assist": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/assist/",
-                        "keyPrefix": "assist."
-                    },
+                    "dir": self.manualCertsDir + "/assist/",
+                    "keyPrefix": "assist."
+                },
                 "mas_app_channel_manage": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/manage/",
-                        "keyPrefix": "manage."
-                    },
+                    "dir": self.manualCertsDir + "/manage/",
+                    "keyPrefix": "manage."
+                },
                 "mas_app_channel_iot": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/iot/",
-                        "keyPrefix": "iot."
-                    },
+                    "dir": self.manualCertsDir + "/iot/",
+                    "keyPrefix": "iot."
+                },
                 "mas_app_channel_monitor": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/monitor/",
-                        "keyPrefix": "monitor."
-                    },
+                    "dir": self.manualCertsDir + "/monitor/",
+                    "keyPrefix": "monitor."
+                },
                 "mas_app_channel_predict": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/predict/",
-                        "keyPrefix": "predict."
-                    },
+                    "dir": self.manualCertsDir + "/predict/",
+                    "keyPrefix": "predict."
+                },
                 "mas_app_channel_visualinspection": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/visualinspection/",
-                        "keyPrefix": "visualinspection."
-                    },
+                    "dir": self.manualCertsDir + "/visualinspection/",
+                    "keyPrefix": "visualinspection."
+                },
                 "mas_app_channel_optimizer": {
-                        "dir": self.getParam("mas_manual_cert_dir") + "/optimizer/",
-                        "keyPrefix": "optimizer."
-                    }
+                    "dir": self.manualCertsDir + "/optimizer/",
+                    "keyPrefix": "optimizer."
                 }
+            }
 
             for file in ["ca.crt", "tls.crt", "tls.key"]:
-                if file not in map(path.basename, glob(f'{self.getParam("mas_manual_cert_dir")}/core/*')):
-                    self.fatalError(f'{file} is not present in {self.getParam("mas_manual_cert_dir")}/core/')
+                if file not in map(path.basename, glob(f'{self.manualCertsDir}/core/*')):
+                    self.fatalError(f'{file} is not present in {self.manualCertsDir}/core/')
             for ext in extensions:
-                certsSecret = self.addFilesToSecret(certsSecret, self.getParam("mas_manual_cert_dir") + '/core/', ext, "core.")
+                certsSecret = self.addFilesToSecret(certsSecret, self.manualCertsDir + '/core/', ext, "core.")
 
             for app in apps:
                 if self.getParam(app) != "":

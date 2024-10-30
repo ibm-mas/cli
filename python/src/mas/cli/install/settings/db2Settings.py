@@ -10,7 +10,6 @@
 
 from os import path
 from prompt_toolkit import print_formatted_text
-from ...cli import BaseApp
 
 
 class Db2SettingsMixin():
@@ -27,7 +26,7 @@ class Db2SettingsMixin():
         else:
             if self.installManage:
                 self.printDescription([
-                "The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, Manage, Monitor, &amp; Predict) or you may choose to configure MAS to use an existing database"
+                    "The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, Manage, Monitor, &amp; Predict) or you may choose to configure MAS to use an existing database"
                 ])
 
         self.setParam("db2_cpu_requests", "4000m")
@@ -61,7 +60,7 @@ class Db2SettingsMixin():
 
         instanceId = self.getParam('mas_instance_id')
         if not self.preview:
-        # Do we need to set up an IoT database?
+            # Do we need to set up an IoT database?
             if self.installIoT:
                 self.printH2("Database Configuration for Maximo IoT")
                 self.printDescription([
@@ -127,26 +126,26 @@ class Db2SettingsMixin():
                             print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid Manage database configuration file now ...")
                             self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
             else:
-               self.setParam("mas_appws_bindings_jdbc_manage", "workspace-application")
-               self.printDescription([
-               "Maximo Manage on s390x architecture use it's own dedicated database:",
-               " - In most production systems you will want to use a dedicated database",
-               " - IBM Db2, Oracle Database, &amp; Microsoft SQL Server are all supported database options"
-               ])
-               workspaceId = self.getParam("mas_workspace_id")
-               self.setParam("db2_action_manage", "byo")
+                self.setParam("mas_appws_bindings_jdbc_manage", "workspace-application")
+                self.printDescription([
+                    "Maximo Manage on s390x architecture use it's own dedicated database:",
+                    " - In most production systems you will want to use a dedicated database",
+                    " - IBM Db2, Oracle Database, &amp; Microsoft SQL Server are all supported database options"
+                ])
+                workspaceId = self.getParam("mas_workspace_id")
+                self.setParam("db2_action_manage", "byo")
 
-               self.selectLocalConfigDir()
+                self.selectLocalConfigDir()
 
-               # Check if a configuration already exists before creating a new one
-               jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-manage.yaml")
-               print_formatted_text(f"Searching for Manage database configuration file in {jdbcCfgFile} ...")
-               if path.exists(jdbcCfgFile):
-                   if self.yesOrNo(f"Manage database configuration file 'jdbc-{instanceId}-manage.yaml' already exists.  Do you want to generate a new one"):
-                       self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
-               else:
-                   print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid Manage database configuration file now ...")
-                   self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
+                # Check if a configuration already exists before creating a new one
+                jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-manage.yaml")
+                print_formatted_text(f"Searching for Manage database configuration file in {jdbcCfgFile} ...")
+                if path.exists(jdbcCfgFile):
+                    if self.yesOrNo(f"Manage database configuration file 'jdbc-{instanceId}-manage.yaml' already exists.  Do you want to generate a new one"):
+                        self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
+                else:
+                    print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid Manage database configuration file now ...")
+                    self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
         else:
             self.setParam("db2_action_manage", "none")
 
