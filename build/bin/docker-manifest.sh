@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-# Note: When using this script be sure to specify "--target-platform=amd64" when
-# building the amd64 image, otherwise the amd64 image will not have an
-# architecture prefix and won't be found.
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source $DIR/.functions.sh
 
@@ -13,28 +9,8 @@ do
   shift
 
   case $key in
-    -p|--prefix)
-    ICR_PRODUCTION_PREFIX="$1"
-    shift
-    ;;
-
-    -n|--namespace)
-    NAMESPACE="$1"
-    shift
-    ;;
-
-    -i|--image)
-    IMAGE="$1"
-    shift
-    ;;
-
-    -r|--repository)
-    ARTIFACTORY_REPO="$1"
-    shift
-    ;;
-
-    --manifest-prefix)
-    MANIFEST_PREFIX="$1"
+    -r|--repo)
+    REPOSITORY="$1"
     shift
     ;;
 
@@ -49,37 +25,35 @@ do
   esac
 done
 
-# =====================================================================================================================
-# Generate manifest
-# =====================================================================================================================
-ARTIFACTORY_REPO=quay.io
-FQ_IMAGE_WITH_TAG=$NAMESPACE/$IMAGE:${MANIFEST_PREFIX}${DOCKER_TAG}
-ARTIFACTORY_SRC=$ARTIFACTORY_REPO/$NAMESPACE/$IMAGE:${DOCKER_TAG}
-ARTIFACTORY_DEST=$ARTIFACTORY_REPO/$FQ_IMAGE_WITH_TAG
-echo "SRC "$ARTIFACTORY_SRC
-echo "DESC" $ARTIFACTORY_DEST
-# Publish manifest to Artifactory
+# Generate Manifest
 # -----------------------------------------------------------------------------
+FQ_IMAGE_WITH_TAG=$REPOSITORY:${DOCKER_TAG}
+
+echo_h1 "Publish Docker Manifest"
+echo "REPOSITORY ........ $REPOSITORY"
+echo "DOCKER_TAG ........ $DOCKER_TAG"
+echo "TARGET_PLATFORMS .. $TARGET_PLATFORMS"
+
 echo_h2 "Publishing manifest to Artifactory ($TARGET_PLATFORMS)"
-MANIFEST_CMD="docker manifest create $ARTIFACTORY_DEST"
-#docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
+MANIFEST_CMD="docker manifest create $FQ_IMAGE_WITH_TAG"
 
 for TARGET_PLATFORM in $TARGET_PLATFORMS; do
-  echo "Adding $TARGET_PLATFORM"
-  MANIFEST_CMD="${MANIFEST_CMD} ${ARTIFACTORY_SRC}-${TARGET_PLATFORM}"
-  echo $MANIFEST_CMD
+  echo "- Adding $TARGET_PLATFORM to Manifest"
+  MANIFEST_CMD="${MANIFEST_CMD} ${FQ_IMAGE_WITH_TAG}-${TARGET_PLATFORM}"
 done
 $MANIFEST_CMD
 
 if [[ "$?" != "0" ]]; then
-  echo_warning "An error occured generating manifest image ($ARTIFACTORY_DEST)"
+  echo_warning "An error occured generating manifest image ($FQ_IMAGE_WITH_TAG)"
   echo_warning "Command: $MANIFEST_CMD"
   exit 1
 fi
 
-docker manifest inspect $ARTIFACTORY_DEST
-docker manifest push --purge $ARTIFACTORY_DEST
+# Inspect and Push the Manifest
+# -----------------------------------------------------------------------------
+docker manifest inspect $FQ_IMAGE_WITH_TAG
+docker manifest push --purge $FQ_IMAGE_WITH_TAG
 if [[ "$?" != "0" ]]; then
-  echo_warning "An error occured pushing manifest image ($ARTIFACTORY_DEST)"
+  echo_warning "An error occured pushing manifest image ($FQ_IMAGE_WITH_TAG)"
   exit 1
 fi
