@@ -8,6 +8,8 @@ All versions of the catalog are available **indefinitely**, but they have a usef
 ### CLI Support
 The MAS CLI maintains a rolling window of approximately four months worth of supported catalogs for the install, mirror-images, and update functions.  When using an older catalog it is recommended to use a version of the CLI that was released around the same time as the catalog, refer to the table below for the recommended version of the CLI to use with older versions of the operator catalog.
 
+The MAS CLI now also supports zlinux architecture along with AMD64 architecture.
+
 ### Known Issues
 - **October 2024** IBM Cloud Pak for Data 4.8, used in catalogs released between June and October 2024 uses a Postgres license key that expired on October 1, 2024.  A fix is available from CLI version 11.2.1 onwards; if you are installing CP4D as a MAS dependency you must use at least version 11.2.1 of the CLI.  If you need to install MAS with CP4D using an older catalog than supported by this version of the CLI please contact IBM support for assistance.
 
