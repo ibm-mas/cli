@@ -62,13 +62,48 @@ spec:
         echo "Set k8s context"
         export K8S_AUTH_CONTEXT=$(oc whoami -c)
 
+        # Original shared EFS instance
         mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-        --cloud-provider $CLOUD_PROVIDER \
-        --aws-region $SM_AWS_REGION \
-        --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
-        --aws-access-key $SM_AWS_ACCESS_KEY_ID
+          --cloud-provider $CLOUD_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          || exit 1
 
-        exit $?
+
+        # Additional PER MAS instance/dependency EFS instances
+        # --skip-create-storage-class is specified for these as the StorageClasses for these EFS instances are managed by ArgoCD
+
+        mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+          --cloud-provider $CLOUD_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          --creation-token-prefix "" \
+          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-iot-db2" \
+          --skip-create-storage-class \
+          || exit 1
+
+        mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+          --cloud-provider $CLOUD_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          --creation-token-prefix "" \
+          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-manage-db2" \
+          --skip-create-storage-class \
+          || exit 1
+
+        mas gitops-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+          --cloud-provider $CLOUD_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          --creation-token-prefix "" \
+          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-visualinspection-main" \
+          --skip-create-storage-class \
+          || exit 1
+
       command:
         - /bin/sh
         - -c
