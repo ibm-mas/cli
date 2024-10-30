@@ -22,8 +22,10 @@ class MongoDbSettingsMixin():
         if self.yesOrNo("Configure MongoDb in your OpenShift cluster"):
             self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
             self.setParam("mongodb_action", "install")
+            self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{self.getParam('mongodb_namespace')}.yml")
         else:
             self.setParam("mongodb_action", "byo")
+            self.setParam("sls_mongodb_cfg_file", "/workspace/additional-configs/mongodb-system.yaml")
             self.selectLocalConfigDir()
 
             instanceId = self.getParam('mas_instance_id')

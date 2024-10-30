@@ -35,7 +35,7 @@ do
     shift
 done
 
-BUILDPATH="${BUILDPATH:-image/$IMAGE}"
+BUILDPATH="${BUILDPATH:-image}"
 DOCKERFILE="${DOCKERFILE:-$BUILDPATH/Dockerfile.$TARGET_PLATFORM}"
 
 # Fallback to $BUILDPATH/Dockerfile if $DOCKERFILE does not exist

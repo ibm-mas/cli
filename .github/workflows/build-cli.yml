@@ -205,8 +205,8 @@ jobs:
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
 
           # Build the images
-          $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform amd64
-          $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform s390x
+          $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform amd64 -b image/cli
+          $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform s390x -b image/cli
 
           # List available images
           docker images
