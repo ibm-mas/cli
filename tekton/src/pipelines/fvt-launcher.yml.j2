@@ -510,32 +510,6 @@ spec:
         - launchfvt-manage
         - launchfvt-manage-is
 
-    - name: manage-cypress
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-fvt-manage-cypress
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: configmap_name
-          value: approval-app-cfg-manage
-        - name: configmap_key
-          value: FVT_STATUS
-        - name: configmap_value
-          value: approved
-        - name: fvt_image_name
-          value: fvt-ibm-mas-manage-cypress
-        - name: fvt_image_digest
-          value: $(params.fvt_digest_manage_cypress)
-      when:
-        - input: $(params.sync_with_install)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-manage-is
-
-
     # 6. Application FVT - Mobile
     # -------------------------------------------------------------------------
     # Mobile FVT pipeline is launched after Manage is installed, but we do not sync it's progress back to the install pipeline
