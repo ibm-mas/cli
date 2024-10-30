@@ -28,3 +28,4 @@ We welcome every Maximo Application Suite users, developers and enthusiasts to c
 
 You can contribute to this collection by raising [a new issue](https://github.com/ibm-mas/cli/issues) with suggestions on how to make our MAS automation engine even better, or if you want to become a new code contributor, please refer to the [Contributing section](CONTRIBUTING.md) and learn more about how to get started.
 
+Support for s390x
