@@ -35,13 +35,6 @@ class InstallSummarizerMixin():
         self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
         self.printSummary("Skip Grafana-Install", "Yes" if self.getParam('grafana_action') == "none" else "No")
 
-    def icrSummary(self) -> None:
-        self.printH2("IBM Container Registry Credentials")
-        self.printSummary("IBM Entitlement Key", f"{self.params['ibm_entitlement_key'][0:8]}&lt;snip&gt;")
-        if self.devMode:
-            self.printSummary("Artifactory Username", self.params['artifactory_username'])
-            self.printSummary("Artifactory Token", f"{self.params['artifactory_token'][0:8]}&lt;snip&gt;")
-
     def masSummary(self) -> None:
         operationalModeNames = ["", "Production", "Non-Production"]
 
@@ -308,7 +301,13 @@ class InstallSummarizerMixin():
 
     def mongoSummary(self) -> None:
         self.printH2("MongoDb")
-        self.printParamSummary("Install Namespace", "mongodb_namespace")
+        if self.getParam("mongodb_action") == "install":
+            self.printParamSummary("Type", "MongoCE Operator")
+            self.printParamSummary("Install Namespace", "mongodb_namespace")
+        elif self.getParam("mongodb_action") == "byo":
+            self.printParamSummary("Type", "BYO (mongodb-system.yaml)")
+        else:
+            self.fatalError(f"Unexpected value for mongodb_action parameter: {self.getParam('mongodb_action')}")
 
     def kafkaSummary(self) -> None:
         if self.getParam("kafka_action_system") != "":
@@ -353,7 +352,6 @@ class InstallSummarizerMixin():
 
         # Cluster Config & Dependencies
         self.ocpSummary()
-        self.icrSummary()
         self.droSummary()
         self.slsSummary()
         self.masSummary()

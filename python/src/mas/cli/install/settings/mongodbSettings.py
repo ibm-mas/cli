@@ -23,17 +23,16 @@ class MongoDbSettingsMixin():
             self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
             self.setParam("mongodb_action", "install")
         else:
-            mongodb_namespace = 'mongodb'
             self.setParam("mongodb_action", "byo")
             self.selectLocalConfigDir()
 
             instanceId = self.getParam('mas_instance_id')
             # Check if a configuration already exists before creating a new one
-            mongoCfgFile = path.join(self.localConfigDir, f"mongo-{mongodb_namespace}.yaml")
+            mongoCfgFile = path.join(self.localConfigDir, "mongodb-system.yaml")
 
             print_formatted_text(f"Searching for system mongodb configuration file in {mongoCfgFile} ...")
             if path.exists(mongoCfgFile):
-                if self.yesOrNo(f"System mongodb configuration file 'mongo-{mongodb_namespace}.yaml' already exists.  Do you want to generate a new one"):
+                if self.yesOrNo("System mongodb configuration file 'mongodb-system.yaml' already exists.  Do you want to generate a new one"):
                     self.generateMongoCfg(instanceId=instanceId, destination=mongoCfgFile)
             else:
                 print_formatted_text(f"Expected file ({mongoCfgFile}) was not found, generating a valid system mongodb configuration file now ...")

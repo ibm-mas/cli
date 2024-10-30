@@ -11,18 +11,10 @@
 from os import path
 from jinja2 import Template
 from base64 import b64encode
-from prompt_toolkit import print_formatted_text
 
 
 class ConfigGeneratorMixin():
-    def generateJDBCCfg(
-            self,
-            instanceId: str,
-            scope: str,
-            destination: str,
-            appId: str = "",
-            workspaceId: str = "") -> None:
-
+    def generateJDBCCfg(self, instanceId: str, scope: str, destination: str, appId: str = "", workspaceId: str = "") -> None:
         templateFile = path.join(self.templatesDir, "jdbccfg.yml.j2")
         with open(templateFile) as tFile:
             template = Template(tFile.read())
@@ -67,23 +59,17 @@ class ConfigGeneratorMixin():
             f.write(cfg)
             f.write('\n')
 
-    def generateMongoCfg(
-            self,
-            instanceId: str,
-            destination: str) -> None:
-
+    def generateMongoCfg(self, instanceId: str, destination: str) -> None:
         templateFile = path.join(self.templatesDir, "suite_mongocfg.yml.j2")
-        print_formatted_text(f"Searching  in generateMongocfg for configuration file in {templateFile} ...")
 
         with open(templateFile) as tFile:
             template = Template(tFile.read())
-        print_formatted_text(f"template n {template} ...")
 
         name = self.promptForString("Configuration Display Name")
-        hosts = self.promptForString("mongodb hosts")
+        hosts = self.promptForString("MongoDb Hosts (comma-separated list)")
 
-        username = self.promptForString("mongodb admin username")
-        password = self.promptForString("mongodb admin password", isPassword=True)
+        username = self.promptForString("MongoDb Username")
+        password = self.promptForString("MongoDb Password", isPassword=True)
         encoded_username = b64encode(username.encode('ascii')).decode("ascii")
         encoded_password = b64encode(password.encode('ascii')).decode("ascii")
         sslCertFile = self.promptForFile("Path to certificate file")
