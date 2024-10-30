@@ -14,7 +14,8 @@ TEXT_BOLD=$(tput bold)
 TEXT_DIM=$(tput dim)
 TEXT_UNDERLINE=$(tput smul)
 TEXT_RESET=$(tput sgr0)
-arch=$(uname -i)  # for s390x arch
+arch=$(uname -i)
+
 echo "${TEXT_UNDERLINE}IBM Maximo Application Suite CLI Container ${TEXT_BOLD}v${VERSION}${TEXT_RESET}"
 echo
 echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops${TEXT_RESET}"
@@ -23,12 +24,17 @@ echo
 echo "MAS Management:"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas install${TEXT_RESET} to install a new MAS instance"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas update${TEXT_RESET} to apply a new catalog update"
-if  [[ $arch != s390x ]]; then
+
+# Upgrade is not tested/supported on s390x yet
+if  [[ $arch != "390x" ]]; then
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas upgrade${TEXT_RESET} to upgrade an existing MAS install to a new release"
 fi
+
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas must-gather${TEXT_RESET} to perform must-gather against the target cluster"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas uninstall${TEXT_RESET} to uninstall a MAS instance"
-if  [[ $arch != s390x ]]; then
+
+# None of these functions are tested/supported on s390x yet
+if  [[ $arch != "s390x" ]]; then
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas configtool-oidc${TEXT_RESET} to configure OIDC integration"
     echo "Disconnected Install Support:"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas setup-registry${TEXT_RESET} to setup a private container registry on an OCP cluster"
