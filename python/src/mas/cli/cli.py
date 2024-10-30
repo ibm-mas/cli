@@ -130,6 +130,9 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self._isSNO = None
 
+        #for s390x
+        self.architecture = None
+
         self.compatibilityMatrix = {
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
