@@ -849,41 +849,44 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     self.setParam("mas_pod_templates_dir", value)
 
+            # We check for both None and "" values for the application channel parameters
+            # value = None means the parameter wasn't set at all
+            # value = "" means the paramerter was explicitly set to "don't install this application"
             elif key == "assist_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_assist", value)
                     self.installAssist = True
             elif key == "iot_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_iot", value)
                     self.installIoT = True
             elif key == "monitor_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_monitor", value)
                     self.installMonitor = True
             elif key == "manage_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_manage", value)
                     self.installManage = True
             elif key == "predict_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_predict", value)
                     self.installPredict = True
                     self.deployCP4D = True
             elif key == "visualinspection_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_visualinspection", value)
                     self.installInspection = True
             elif key == "aibroker_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_aibroker", value)
                     self.installAiBroker = True
             elif key == "optimizer_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_optimizer", value)
                     self.installOptimizer = True
             elif key == "optimizer_plan":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_plan_optimizer", value)
 
             # Manage advanced settings that need extra processing
