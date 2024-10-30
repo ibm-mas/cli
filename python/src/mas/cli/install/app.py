@@ -658,6 +658,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.db2SetAffinity = False
         self.db2SetTolerations = False
 
+        self.setPreview()
+
         self.approvals = {
             "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed
             "approval_assist": {"id": "app-cfg-assist"},  # After Assist workspace has been configured
