@@ -84,8 +84,8 @@ class Db2SettingsMixin():
                     else:
                         print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid system database configuration file now ...")
                         self.generateJDBCCfg(instanceId=instanceId, scope="system", destination=jdbcCfgFile)
-        else:
-            self.setParam("db2_action_system", "none")
+            else:
+                self.setParam("db2_action_system", "none")
 
         if self.installManage:
             self.printH2("Database Configuration for Maximo Manage")
