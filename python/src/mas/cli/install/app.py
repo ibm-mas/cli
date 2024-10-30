@@ -668,7 +668,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
             "approval_visualinspection": {"id": "app-cfg-visualinspection"}  # After Visual Inspection workspace has been configured
         }
-        if not self.preview:
+        if not self.architecture:
             self.configGrafana()
 
         requiredParams = [
@@ -1148,7 +1148,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.nonInteractiveMode()
 
         # After we've configured the basic inputs, we can calculate these ones
-        if not self.preview:
+        if not self.architecture:
             if self.installIoT:
                 self.setIoTStorageClasses()
             if self.deployCP4D:
