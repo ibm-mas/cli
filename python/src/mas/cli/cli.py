@@ -130,7 +130,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self._isSNO = None
 
-        # for s390x
+        # Until we connect to the cluster we don't know what architecture it's worker nodes are
         self.architecture = None
 
         self.compatibilityMatrix = {
@@ -309,22 +309,22 @@ class BaseApp(PrintMixin, PromptMixin):
             token = prompt(HTML('<Yellow>Login Token:</Yellow> '), is_password=True, placeholder="sha256~...")
             skipVerify = self.yesOrNo('Disable TLS Verify')
             connect(server, token, skipVerify)
-        self.setPreview()
-        self.reloadDynamicClient()
-        if self._dynClient is None:
-            print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
-            exit(1)
+            self.reloadDynamicClient()
+            if self._dynClient is None:
+                print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
+                exit(1)
 
-# for s390x architecture
-    def setPreview(self):
-        command = "oc get nodes -o jsonpath='{.items[0].status.nodeInfo.architecture}'"
-        self.architecture = os.popen(command).read().strip()
-        if self.architecture == 's390x':
-            self.preview = True
-            self.printTitle(f"\n Architecture : {self.architecture}")
+        # Now that we are connected, inspect the architecture of the OpenShift cluster
+        self.lookupTargetArchitecture()
+
+    def lookupTargetArchitecture(self, architecture: str = None) -> None:
+        if architecture is not None:
+            self.architecture = architecture
+            logger.debug(f"Target architecture (overridden): {self.architecture}")
         else:
-            self.preview = False
-            self.printTitle(f"\n Architecture : {self.architecture}")
+            command = "oc get nodes -o jsonpath='{.items[0].status.nodeInfo.architecture}'"
+            self.architecture = os.popen(command).read().strip()
+            logger.debug(f"Target architecture: {self.architecture}")
 
     def initializeApprovalConfigMap(self, namespace: str, id: str, key: str = None, maxRetries: int = 100, delay: int = 300, ignoreFailure: bool = True) -> None:
         """
