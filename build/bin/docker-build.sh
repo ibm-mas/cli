@@ -67,6 +67,8 @@ if [[ ! "$DOCKER_TAG" == *"-pre."* ]]; then
   sed -i "/quay.expires-after/d" $DOCKERFILE
 fi
 
+docker buildx create --name builder-$TARGET_PLATFORM
+docker buildx use builder-$TARGET_PLATFORM
 docker buildx build --progress plain \
   --load \
   --platform linux/$TARGET_PLATFORM \
