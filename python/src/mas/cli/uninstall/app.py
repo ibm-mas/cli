@@ -40,17 +40,13 @@ class UninstallApp(BaseApp):
         self.noConfirm = args.no_confirm
 
         if args.uninstall_all_deps:
-            if not self.preview:
-                uninstallGrafana = True
-                uninstallIBMCatalog = True
-                uninstallCommonServices = True
-                uninstallCertManager = True
-                uninstallUDS = True
-                uninstallMongoDb = True
-                uninstallSLS = True
-            else:
-                uninstallGrafana = False
-                uninstallMongoDb = False
+            uninstallGrafana = True
+            uninstallIBMCatalog = True
+            uninstallCommonServices = True
+            uninstallCertManager = True
+            uninstallUDS = True
+            uninstallMongoDb = True
+            uninstallSLS = True
         else:
             uninstallGrafana = args.uninstall_grafana
             uninstallIBMCatalog = args.uninstall_ibm_catalog
@@ -99,36 +95,22 @@ class UninstallApp(BaseApp):
             uninstallCertManager = self.yesOrNo("Uninstall Certificate Manager")
             if uninstallCertManager:
                 # If you choose to uninstall Cert-Manager, everything will be uninstalled
-                if not self.preview:
-                    uninstallGrafana = True
-                    uninstallIBMCatalog = True
-                    uninstallCommonServices = True
-                    uninstallUDS = True
-                    uninstallMongoDb = True
-                    uninstallSLS = True
-                else:
-                    uninstallGrafana = False
-                    uninstallIBMCatalog = True
-                    uninstallCommonServices = True
-                    uninstallUDS = True
-                    uninstallMongoDb = False
-                    uninstallSLS = True
+                uninstallGrafana = True
+                uninstallIBMCatalog = True
+                uninstallCommonServices = True
+                uninstallUDS = True
+                uninstallMongoDb = True
+                uninstallSLS = True
             else:
-                if not self.preview:
-                    self.printDescription(["If you choose to uninstall MongoDb, IBM Suite License Service will be automatically set to uninstall as well"])
-                    uninstallMongoDb = self.yesOrNo("Uninstall MongoDb")
-                    if uninstallMongoDb:
-                        # If you are removing MongoDb then SLS needs to be uninstalled too
-                        uninstallSLS = True
-                    else:
-                        uninstallSLS = self.yesOrNo("Uninstall IBM Suite Licensing Service")
+                self.printDescription(["If you choose to uninstall MongoDb, IBM Suite License Service will be automatically set to uninstall as well"])
+                uninstallMongoDb = self.yesOrNo("Uninstall MongoDb")
+                if uninstallMongoDb:
+                    # If you are removing MongoDb then SLS needs to be uninstalled too
+                    uninstallSLS = True
                 else:
-                    # Mongodb is not installed in s390x
                     uninstallSLS = self.yesOrNo("Uninstall IBM Suite Licensing Service")
-                if not self.preview:
-                    uninstallGrafana = self.yesOrNo("Uninstall Grafana")
-                else:
-                    pass
+
+                uninstallGrafana = self.yesOrNo("Uninstall Grafana")
                 self.printDescription(["If you choose to uninstall the IBM Operator Catalog, IBM Common Services, IBM User Data Services, &amp; IBM Suite License Service will be automatically set to uninstall as well"])
                 uninstallIBMCatalog = self.yesOrNo("Uninstall IBM operator Catalog")
                 if uninstallIBMCatalog:
