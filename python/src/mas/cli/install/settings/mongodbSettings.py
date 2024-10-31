@@ -19,7 +19,7 @@ class MongoDbSettingsMixin():
             "The installer can setup mongoce in your OpenShift cluster (available only for amd64) or you may choose to configure MAS to use an existing mongodb"
         ])
 
-        if self.yesOrNo("Configure MongoDb in your OpenShift cluster"):
+        if self.architecture != "s390x" and self.yesOrNo("Create MongoDb cluster using MongoDb Community Edition Operator"):
             self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
             self.setParam("mongodb_action", "install")
             self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{self.getParam('mongodb_namespace')}.yml")

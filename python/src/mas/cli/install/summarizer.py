@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 class InstallSummarizerMixin():
     def ocpSummary(self) -> None:
         self.printH2("OpenShift Container Platform")
+        self.printSummary("Worker Node Architecture", self.architecture)
         self.printSummary("Storage Class Provider", self.storageClassProvider)
         self.printParamSummary("ReadWriteOnce Storage Class", "storage_class_rwo")
         self.printParamSummary("ReadWriteMany Storage Class", "storage_class_rwx")
