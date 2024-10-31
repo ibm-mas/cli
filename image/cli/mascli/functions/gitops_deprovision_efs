@@ -11,11 +11,14 @@ When no options are specified on the command line, interactive-mode will be enab
 
 Options:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}               Cluster ID
-  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}     IBM Suite Maximo Application Suite Instance ID  
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}     IBM Suite Maximo Application Suite Instance ID
+  --efs-unique-id ${COLOR_YELLOW}EFS_UNIQUE_ID${TEXT_RESET}             Unique identifier for the EFS instance to delete. EFS instance with name <EFS_UNIQUE_ID>-efs will be deleted. Optional, defaults to <MAS_INSTANCE_ID> (if specified) or <CLUSTER_ID> otherwise.
   --aws-region ${COLOR_YELLOW}AWS_DEFAULT_REGION${TEXT_RESET}           AWS Region
   --aws-access-key ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}        AWS Access Key ID
   --aws-secret-key ${COLOR_YELLOW}AWS_SECRET_ACCESS_KEY${TEXT_RESET}    AWS Secret Access Key
   --cloud-provider ${COLOR_YELLOW}CLOUD_PROVIDER${TEXT_RESET}           Cloud Provider
+  --skip-delete-storage-class                                           If set, script will skip deletion of the corresponding EFS StorageClass named "efs<efs_unique_id>" in the OCP cluster
+
 
 Other Commands:
   -h, --help                                      Show this help message
@@ -24,6 +27,8 @@ EOM
 }
 
 function gitops_deprovision_efs_noninteractive() {
+
+  export DELETE_STORAGE_CLASS="true"
 
   while [[ $# -gt 0 ]]
   do
@@ -42,6 +47,13 @@ function gitops_deprovision_efs_noninteractive() {
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
+      --efs-unique-id)
+        export EFS_UNIQUE_ID=$1 && shift
+        ;;
+      --skip-delete-storage-class)
+        export DELETE_STORAGE_CLASS="false"
+        ;;
+
       # AWS specific   
       --aws-region)
         export AWS_DEFAULT_REGION=$1 && shift
@@ -108,8 +120,9 @@ function gitops_deprovision_efs() {
     AVP_TYPE=aws  # Support for IBM will be added later
     sm_login
 
-    # If EFS storage id created with MAS_INSTANCE_ID, set the same here.
-    export EFS_UNIQUE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
+    if [[ -z "${EFS_UNIQUE_ID}" ]]; then
+      export EFS_UNIQUE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
+    fi
     FILE_SYSTEM_ID=`aws efs describe-file-systems --query FileSystems[?Name==\'$EFS_UNIQUE_ID-efs\'].FileSystemId --output text`
     echo_reset_dim "File System ID ........................ ${COLOR_MAGENTA}${FILE_SYSTEM_ID}"
 
@@ -126,10 +139,12 @@ function gitops_deprovision_efs() {
         aws efs delete-file-system --file-system-id $FILE_SYSTEM_ID
         sleep 30
 
-        # delete storageclass associated with the mas instance
-        echo_reset_dim "Deleting storageclass ............. ${COLOR_MAGENTA}efs${EFS_UNIQUE_ID}"
-        oc delete storageclass  efs${EFS_UNIQUE_ID} --wait=true --timeout=5m
-        echo_reset_dim "Deleted storageclass .............. ${COLOR_MAGENTA}efs${EFS_UNIQUE_ID}"
+        if [[ "$DELETE_STORAGE_CLASS" == "true" ]]; then
+          # delete storageclass associated with the mas instance
+          echo_reset_dim "Deleting storageclass ............. ${COLOR_MAGENTA}efs${EFS_UNIQUE_ID}"
+          oc delete storageclass  efs${EFS_UNIQUE_ID} --wait=true --timeout=5m
+          echo_reset_dim "Deleted storageclass .............. ${COLOR_MAGENTA}efs${EFS_UNIQUE_ID}"
+        fi
       fi
 
     fi
