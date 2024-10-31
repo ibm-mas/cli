@@ -201,6 +201,9 @@ jobs:
       - name: Build the container image
         id: docker-build
         run: |
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
+
           # Login to quay.io
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
 
@@ -218,20 +221,13 @@ jobs:
           # Publish the manifest
           $GITHUB_WORKSPACE/build/bin/docker-manifest.sh -r quay.io/ibmmas/cli --target-platforms amd64,s390x
 
-      - name: Push the container image (master)
-        id: docker-push-master
-        if: github.ref == 'refs/heads/multiarch-review'  # Remember to change this back to master
-        run: |
-          # Re-issue the manifest under an alias: https://github.com/docker/buildx/issues/1744#issuecomment-1896645786
-          # Remember to change this back to master
-          docker buildx imagetools create -t quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} quay.io/ibmmas/cli:multiarch-review
-
-      - name: Push the container image (latest)
-        id: docker-push-latest
-        if: github.event_name == 'release'
-        run: |
-          # Re-issue the manifest under an alias: https://github.com/docker/buildx/issues/1744#issuecomment-1896645786
-          docker buildx imagetools create -t quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} quay.io/ibmmas/cli:latest
+          # Re-issue the manifest under an alias where needed
+          # https://github.com/docker/buildx/issues/1744#issuecomment-1896645786
+          if [[ "$GITHUB_REF" == "refs/heads/multiarch-review" ]]; then
+            docker buildx imagetools create -t quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} quay.io/ibmmas/cli:stable
+          elif [[ "$GITHUB_EVENT_NAME" == "release" ]]; then
+            docker buildx imagetools create -t quay.io/ibmmas/cli:${{ env.DOCKER_TAG }} quay.io/ibmmas/cli:latest
+          fi
 
   pyinstaller-windows:
     name: Build Windows CLI
