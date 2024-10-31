@@ -18,6 +18,7 @@ from sys import exit
 from subprocess import PIPE, Popen, TimeoutExpired
 import threading
 import json
+import os
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from kubernetes import config
@@ -105,6 +106,7 @@ class BaseApp(PrintMixin, PromptMixin):
         rootLogger = logging.getLogger()
         rootLogger.addHandler(ch)
         rootLogger.setLevel(logging.DEBUG)
+        logging.getLogger('asyncio').setLevel(logging.INFO)
 
         # Supports extended semver, unlike mas.cli.__version__
         self.version = "100.0.0-pre.local"
@@ -128,6 +130,9 @@ class BaseApp(PrintMixin, PromptMixin):
         self.certsSecret = None
 
         self._isSNO = None
+
+        # Until we connect to the cluster we don't know what architecture it's worker nodes are
+        self.architecture = None
 
         self.compatibilityMatrix = {
             "9.0.x": {
@@ -289,7 +294,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 print()
                 if not self.noConfirm:
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
-                    promptForNewServer = not self.yesOrNo("Proceed with this cluster?")
+                    promptForNewServer = not self.yesOrNo("Proceed with this cluster")
             except Exception as e:
                 # We are already connected to a cluster, but the connection is not valid so prompt for connection details
                 logger.debug("Failed looking up OpenShift Console route to verify connection")
@@ -309,6 +314,18 @@ class BaseApp(PrintMixin, PromptMixin):
             if self._dynClient is None:
                 print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
                 exit(1)
+
+        # Now that we are connected, inspect the architecture of the OpenShift cluster
+        self.lookupTargetArchitecture()
+
+    def lookupTargetArchitecture(self, architecture: str = None) -> None:
+        if architecture is not None:
+            self.architecture = architecture
+            logger.debug(f"Target architecture (overridden): {self.architecture}")
+        else:
+            command = "oc get nodes -o jsonpath='{.items[0].status.nodeInfo.architecture}'"
+            self.architecture = os.popen(command).read().strip()
+            logger.debug(f"Target architecture: {self.architecture}")
 
     def initializeApprovalConfigMap(self, namespace: str, id: str, key: str = None, maxRetries: int = 100, delay: int = 300, ignoreFailure: bool = True) -> None:
         """

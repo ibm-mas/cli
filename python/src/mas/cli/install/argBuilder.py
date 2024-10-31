@@ -119,6 +119,8 @@ class installArgBuilderMixin():
         # IBM Suite License Service
         # -----------------------------------------------------------------------------
         command += f"  --license-file \"{self.slsLicenseFileLocal}\"{newline}"
+        if self.getParam("sls_namespace") != "ibm-sls":
+            command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\"{newline}"
 
         # IBM Data Reporting Operator (DRO)
         # -----------------------------------------------------------------------------

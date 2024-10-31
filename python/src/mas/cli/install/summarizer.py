@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 class InstallSummarizerMixin():
     def ocpSummary(self) -> None:
         self.printH2("OpenShift Container Platform")
+        self.printSummary("Worker Node Architecture", self.architecture)
         self.printSummary("Storage Class Provider", self.storageClassProvider)
         self.printParamSummary("ReadWriteOnce Storage Class", "storage_class_rwo")
         self.printParamSummary("ReadWriteMany Storage Class", "storage_class_rwx")
@@ -34,13 +35,6 @@ class InstallSummarizerMixin():
 
         self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
         self.printSummary("Skip Grafana-Install", "Yes" if self.getParam('grafana_action') == "none" else "No")
-
-    def icrSummary(self) -> None:
-        self.printH2("IBM Container Registry Credentials")
-        self.printSummary("IBM Entitlement Key", f"{self.params['ibm_entitlement_key'][0:8]}&lt;snip&gt;")
-        if self.devMode:
-            self.printSummary("Artifactory Username", self.params['artifactory_username'])
-            self.printSummary("Artifactory Token", f"{self.params['artifactory_token'][0:8]}&lt;snip&gt;")
 
     def masSummary(self) -> None:
         operationalModeNames = ["", "Production", "Non-Production"]
@@ -274,6 +268,7 @@ class InstallSummarizerMixin():
         self.printH2("IBM Suite License Service")
         self.printSummary("License File", self.slsLicenseFileLocal)
         self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
+        self.printParamSummary("Namespace", "sls_namespace")
 
     def cosSummary(self) -> None:
         self.printH2("Cloud Object Storage")
@@ -308,7 +303,13 @@ class InstallSummarizerMixin():
 
     def mongoSummary(self) -> None:
         self.printH2("MongoDb")
-        self.printParamSummary("Install Namespace", "mongodb_namespace")
+        if self.getParam("mongodb_action") == "install":
+            self.printSummary("Type", "MongoCE Operator")
+            self.printParamSummary("Install Namespace", "mongodb_namespace")
+        elif self.getParam("mongodb_action") == "byo":
+            self.printSummary("Type", "BYO (mongodb-system.yaml)")
+        else:
+            self.fatalError(f"Unexpected value for mongodb_action parameter: {self.getParam('mongodb_action')}")
 
     def kafkaSummary(self) -> None:
         if self.getParam("kafka_action_system") != "":
@@ -353,7 +354,6 @@ class InstallSummarizerMixin():
 
         # Cluster Config & Dependencies
         self.ocpSummary()
-        self.icrSummary()
         self.droSummary()
         self.slsSummary()
         self.masSummary()
