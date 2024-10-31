@@ -194,7 +194,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - fvt-optimizer-python-model
+        - fvt-optimizer-java-model
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -232,7 +232,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - fvt-optimizer-python-model
+        - fvt-optimizer-model-endpoints
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -270,7 +270,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - fvt-optimizer-python-model
+        - fvt-optimizer-job-endpoints
       workspaces:
         - name: configs
           workspace: shared-configs
