@@ -824,8 +824,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
 
-        self.installOptions = catalogChoices[self.architecture]
-
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
@@ -837,9 +835,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
             exit(1)
 
+        # Configure the installOptions for the appropriate architecture
+        self.installOptions = catalogChoices[self.architecture]
+
         # Basic settings before the user provides any input
         self.configICR()
-        self.configCertManager()
+        self.configCertManager()  # TODO: I think this is redundant, we should look to remove this and the appropriate params in the install pipeline
         self.deployCP4D = False
 
         # UDS install has not been supported since the January 2024 catalog update
