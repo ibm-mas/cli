@@ -223,8 +223,8 @@ jobs:
 
           # Re-issue the manifest under an alias where needed
           # https://github.com/docker/buildx/issues/1744#issuecomment-1896645786
-          if [[ "$GITHUB_REF" == "refs/heads/multiarch-review" ]]; then
-            docker buildx imagetools create -t quay.io/ibmmas/cli:stable quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+          if [[ "$GITHUB_REF" == "refs/heads/master" ]]; then
+            docker buildx imagetools create -t quay.io/ibmmas/cli:master quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
           elif [[ "$GITHUB_EVENT_NAME" == "release" ]]; then
             docker buildx imagetools create -t quay.io/ibmmas/cli:latest quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
           fi
