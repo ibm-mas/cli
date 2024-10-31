@@ -58,6 +58,8 @@ optionalParams = [
     "mas_appws_bindings_jdbc_manage",
     "mas_appws_components",
     "mas_domain",
+    # SLS
+    "sls_namespace",
     # DNS Providers
     # TODO: Add CloudFlare and Route53 support
     "dns_provider",

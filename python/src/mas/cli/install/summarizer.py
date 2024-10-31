@@ -267,6 +267,7 @@ class InstallSummarizerMixin():
         self.printH2("IBM Suite License Service")
         self.printSummary("License File", self.slsLicenseFileLocal)
         self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
+        self.printParamSummary("Namespace", "sls_namespace")
 
     def cosSummary(self) -> None:
         self.printH2("Cloud Object Storage")
