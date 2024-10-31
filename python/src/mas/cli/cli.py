@@ -106,6 +106,7 @@ class BaseApp(PrintMixin, PromptMixin):
         rootLogger = logging.getLogger()
         rootLogger.addHandler(ch)
         rootLogger.setLevel(logging.DEBUG)
+        logging.getLogger('asyncio').setLevel(logging.INFO)
 
         # Supports extended semver, unlike mas.cli.__version__
         self.version = "100.0.0-pre.local"

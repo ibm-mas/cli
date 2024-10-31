@@ -302,10 +302,10 @@ class InstallSummarizerMixin():
     def mongoSummary(self) -> None:
         self.printH2("MongoDb")
         if self.getParam("mongodb_action") == "install":
-            self.printParamSummary("Type", "MongoCE Operator")
+            self.printSummary("Type", "MongoCE Operator")
             self.printParamSummary("Install Namespace", "mongodb_namespace")
         elif self.getParam("mongodb_action") == "byo":
-            self.printParamSummary("Type", "BYO (mongodb-system.yaml)")
+            self.printSummary("Type", "BYO (mongodb-system.yaml)")
         else:
             self.fatalError(f"Unexpected value for mongodb_action parameter: {self.getParam('mongodb_action')}")
 

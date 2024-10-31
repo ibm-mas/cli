@@ -185,7 +185,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     def configSpecialCharacters(self):
         self.printH1("Configure special characters for userID and username")
-        self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "mas_special_characters")
+        self.printDescription([
+            "By default Maximo Application Suite will not allow special characters in usernames and userIDs, and this is the recommended setting.  However, legacy Maximo products allowed this, so for maximum compatibilty when migrating from EAM 7 you can choose to enable this support."
+        ])
+        self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
 
     def configCP4D(self):
         if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64", "v9-241003-amd64"]:
