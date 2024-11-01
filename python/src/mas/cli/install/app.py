@@ -877,6 +877,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.connect()
         else:
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
+            self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:
             print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
