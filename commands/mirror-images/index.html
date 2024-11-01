@@ -369,7 +369,6 @@
 <h3 id="content-selection-other-dependencies">Content Selection (Other Dependencies)<a class="headerlink" href="#content-selection-other-dependencies" title="Permanent link">¤</a></h3>
 <ul>
 <li><code>--mirror-cfs</code> Mirror images for IBM Cloud Pak Foundation Services</li>
-<li><code>--mirror-uds</code> Mirror images for IBM User Data Services</li>
 <li><code>--mirror-sls</code> Mirror images for IBM Suite License Service</li>
 <li><code>--mirror-tsm</code> Mirror images for IBM Truststore Manager</li>
 <li><code>--mirror-mongo</code> Mirror images for MongoDb Community Edition</li>
@@ -509,11 +508,6 @@
 <td>1G</td>
 </tr>
 <tr>
-<td>IBM User Data Services</td>
-<td><code>--mirror-uds</code></td>
-<td>7G</td>
-</tr>
-<tr>
 <td>IBM Suite License Service</td>
 <td><code>--mirror-sls</code></td>
 <td>1G</td>
@@ -556,7 +550,7 @@
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
   -c v9-241003-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
-  --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
+  --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
 </code></pre>
 <h2 id="two-phase-image-mirroring">Two-Phase Image Mirroring<a class="headerlink" href="#two-phase-image-mirroring" title="Permanent link">¤</a></h2>
@@ -570,7 +564,7 @@ docker run -ti --rm -v /registry:/mnt/registry quay.io/ibmmas/cli:11.5.0 mas mir
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
   -c v9-241003-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
-  --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
+  --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
 </code></pre>
 <p>Once this process completes you will find the mirrored images in <code>/registry</code> on your local filesystem ready to transfer to the system inside your disconnected network on which we will perform phase 2 of this operation.  However, before we can do that we also need to mirror the CLI image to your mirror registry so that it's available on the disconnected host system.</p>
@@ -589,13 +583,13 @@ docker run -ti --rm -v /registry:/mnt/registry mirror.mydomain.com:5000/ibmmas/c
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
   -c v9-241003-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
-  --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
+  --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
 </code></pre>
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-11-01 11:33:59.964388+00:00)
+      Built with mkdocs v1.6.1 (2024-11-01 18:45:59.801107+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
