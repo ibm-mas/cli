@@ -29,6 +29,8 @@ from .argBuilder import installArgBuilderMixin
 from .argParser import installArgParser
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
+from .params import requiredParams, optionalParams
+from .catalogs import catalogChoices
 
 from mas.cli.validators import (
     InstanceIDFormatValidator,
@@ -155,6 +157,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("Contact first name", "uds_contact_firstname")
         self.promptForString("Contact last name", "uds_contact_lastname")
 
+        self.promptForString("Namespace", "sls_namespace")
+
         self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
 
     def selectLocalConfigDir(self) -> None:
@@ -181,13 +185,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
                 self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
 
-    def configMongoDb(self) -> None:
-        self.printH1("Configure MongoDb")
-        self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
-
     def configSpecialCharacters(self):
         self.printH1("Configure special characters for userID and username")
-        self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "mas_special_characters")
+        self.printDescription([
+            "By default Maximo Application Suite will not allow special characters in usernames and userIDs, and this is the recommended setting.  However, legacy Maximo products allowed this, so for maximum compatibilty when migrating from EAM 7 you can choose to enable this support."
+        ])
+        self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
 
     def configCP4D(self):
         if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64", "v9-241003-amd64", "v9-241107-amd64"]:
@@ -608,7 +611,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.aibrokerSettings()
 
         # Dependencies
-        self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
+        self.configMongoDb()
         self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
 
@@ -619,10 +622,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # TODO: Support MAS superuser username/password via the interactive install mode
 
     def nonInteractiveMode(self) -> None:
-        # Non-interactive mode
         self.interactiveMode = False
 
         # Set defaults
+        # ---------------------------------------------------------------------
+        # Unless a config file named "mongodb-system.yaml" is provided via the additional configs mechanism we will be installing a new MongoDb instance
+        self.setParam("mongodb_action", "install")
+
         self.storageClassProvider = "custom"
         self.installAssist = False
         self.installIoT = False
@@ -648,162 +654,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         }
 
         self.configGrafana()
-
-        requiredParams = [
-            # MAS
-            "mas_catalog_version",
-            "mas_channel",
-            "mas_instance_id",
-            "mas_workspace_id",
-            "mas_workspace_name",
-            # Storage classes
-            "storage_class_rwo",
-            "storage_class_rwx",
-            # Entitlement
-            "ibm_entitlement_key",
-            # DRO
-            "uds_contact_email",
-            "uds_contact_firstname",
-            "uds_contact_lastname"
-        ]
-        optionalParams = [
-            # Pipeline
-            "image_pull_policy",
-            # OpenShift
-            "ocp_ingress_tls_secret_name",
-            # MAS
-            "mas_catalog_digest",
-            "mas_superuser_username",
-            "mas_superuser_password",
-            "mas_trust_default_cas",
-            "mas_app_settings_server_bundles_size",
-            "mas_app_settings_default_jms",
-            "mas_app_settings_persistent_volumes_flag",
-            "mas_app_settings_demodata",
-            "mas_app_settings_customization_archive_name",
-            "mas_app_settings_customization_archive_url",
-            "mas_app_settings_customization_archive_username",
-            "mas_app_settings_customization_archive_password",
-            "mas_app_settings_tablespace",
-            "mas_app_settings_indexspace",
-            "mas_app_settings_db2_schema",
-            "mas_app_settings_crypto_key",
-            "mas_app_settings_cryptox_key",
-            "mas_app_settings_old_crypto_key",
-            "mas_app_settings_old_cryptox_key",
-            "mas_app_settings_override_encryption_secrets_flag",
-            "mas_app_settings_base_lang",
-            "mas_app_settings_secondary_langs",
-            "mas_app_settings_server_timezone",
-            "mas_appws_bindings_jdbc_manage",
-            "mas_appws_components",
-            "mas_domain",
-            # DNS Providers
-            # TODO: Add CloudFlare and Route53 support
-            "dns_provider",
-            "cis_email",
-            "cis_apikey",
-            "cis_crn",
-            "cis_subdomain",
-            # DRO
-            "dro_namespace",
-            # MongoDb
-            "mongodb_namespace",
-            # Db2
-            "db2_action_system",
-            "db2_action_manage",
-            "db2_type",
-            "db2_timezone",
-            "db2_namespace",
-            "db2_channel",
-            "db2_affinity_key",
-            "db2_affinity_value",
-            "db2_tolerate_key",
-            "db2_tolerate_value",
-            "db2_tolerate_effect",
-            "db2_cpu_requests",
-            "db2_cpu_limits",
-            "db2_memory_requests",
-            "db2_memory_limits",
-            "db2_backup_storage_size",
-            "db2_data_storage_size",
-            "db2_logs_storage_size",
-            "db2_meta_storage_size",
-            "db2_temp_storage_size",
-            # CP4D
-            "cpd_product_version",
-            "cpd_install_cognos",
-            "cpd_install_openscale",
-            "cpd_install_spss",
-            # Kafka
-            "kafka_namespace",
-            "kafka_version",
-            "aws_msk_instance_type",
-            "aws_msk_instance_number",
-            "aws_msk_volume_size",
-            "aws_msk_cidr_az1",
-            "aws_msk_cidr_az2",
-            "aws_msk_cidr_az3",
-            "aws_msk_egress_cidr",
-            "aws_msk_ingress_cidr",
-            "eventstreams_resource_group",
-            "eventstreams_instance_name",
-            "eventstreams_instance_location",
-            # COS
-            "cos_type",
-            "ibmcos_resourcegroup",
-            # ECK
-            "eck_action",
-            "eck_enable_logstash",
-            "eck_remote_es_hosts",
-            "eck_remote_es_username",
-            "eck_remote_es_password",
-            # Turbonomic
-            "turbonomic_target_name",
-            "turbonomic_server_url",
-            "turbonomic_server_version",
-            "turbonomic_username",
-            "turbonomic_password",
-            # Cloud Providers
-            "ibmcloud_apikey",
-            "aws_region",
-            "aws_access_key_id",
-            "secret_access_key",
-            "aws_vpc_id",
-            # Dev Mode
-            "artifactory_username",
-            "artifactory_token",
-            # TODO: The way arcgis has been implemented needs to be fixed
-            "install_arcgis",
-            "mas_arcgis_channel",
-            # Guided Tour
-            "mas_enable_walkme",
-            # Aibroker
-            "mas_aibroker_storage_provider",
-            "mas_aibroker_storage_accesskey",
-            "mas_aibroker_storage_secretkey",
-            "mas_aibroker_storage_host",
-            "mas_aibroker_storage_port",
-            "mas_aibroker_storage_ssl",
-            "mas_aibroker_storage_region",
-            "mas_aibroker_storage_pipelines_bucket",
-            "mas_aibroker_storage_tenants_bucket",
-            "mas_aibroker_storage_templates_bucket",
-            "mas_aibroker_tenant_name",
-            "mas_aibroker_watsonxai_apikey",
-            "mas_aibroker_watsonxai_url",
-            "mas_aibroker_watsonxai_project_id",
-            "mas_aibroker_watsonx_action",
-            "mas_aibroker_db_host",
-            "mas_aibroker_db_port",
-            "mas_aibroker_db_user",
-            "mas_aibroker_db_database",
-            "mas_aibroker_db_secret_name",
-            "mas_aibroker_db_secret_key",
-            "mas_aibroker_db_secret_value",
-            # Special chars
-            "mas_special_characters"
-        ]
 
         for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
@@ -841,6 +691,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             elif key == "additional_configs":
                 self.localConfigDir = value
+                # If there is a file named mongodb-system.yaml we will use this as a BYO MongoDB datasource
+                if path.exists(path.join(self.localConfigDir, "mongodb-system.yaml")):
+                    self.setParam("mongodb_action", "byo")
+                    self.setParam("sls_mongodb_cfg_file", "/workspace/additional-configs/mongodb-system.yaml")
 
             elif key == "pod_templates":
                 # For the named configurations we will convert into the path
@@ -975,127 +829,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
 
-        self.installOptions = [
-            {
-                "#": 1,
-                "catalog": "v9-241107-amd64",
-                "release": "9.0.x",
-                "core": "9.0.3",
-                "assist": "9.0.2",
-                "iot": "9.0.3",
-                "manage": "9.0.3",
-                "monitor": "9.0.3",
-                "optimizer": "9.0.3",
-                "predict": "9.0.2",
-                "inspection": "9.0.4",
-                "aibroker": "9.0.2"
-            },
-            {
-                "#": 2,
-                "catalog": "v9-241107-amd64",
-                "release": "8.11.x",
-                "core": "8.11.15",
-                "assist": "8.8.6",
-                "iot": "8.8.13",
-                "manage": "8.7.12",
-                "monitor": "8.11.11",
-                "optimizer": "8.5.9",
-                "predict": "8.9.5",
-                "inspection": "8.9.7"
-            },
-            {
-                "#": 3,
-                "catalog": "v9-241107-amd64",
-                "release": "8.10.x",
-                "core": "8.10.18",
-                "assist": "8.7.7",
-                "iot": "8.7.17",
-                "manage": "8.6.18",
-                "monitor": "8.10.14",
-                "optimizer": "8.4.10",
-                "predict": "8.8.4",
-                "inspection": "8.8.4"
-            },
-            {
-                "#": 4,
-                "catalog": "v9-241003-amd64",
-                "release": "9.0.x",
-                "core": "9.0.3",
-                "assist": "9.0.2",
-                "iot": "9.0.3",
-                "manage": "9.0.3",
-                "monitor": "9.0.3",
-                "optimizer": "9.0.3",
-                "predict": "9.0.2",
-                "inspection": "9.0.3"
-            },
-            {
-                "#": 5,
-                "catalog": "v9-241003-amd64",
-                "release": "8.11.x",
-                "core": "8.11.15",
-                "assist": "8.8.6",
-                "iot": "8.8.13",
-                "manage": "8.7.12",
-                "monitor": "8.11.11",
-                "optimizer": "8.5.9",
-                "predict": "8.9.5",
-                "inspection": "8.9.6"
-            },
-            {
-                "#": 6,
-                "catalog": "v9-241003-amd64",
-                "release": "8.10.x",
-                "core": "8.10.18",
-                "assist": "8.7.7",
-                "iot": "8.7.17",
-                "manage": "8.6.18",
-                "monitor": "8.10.14",
-                "optimizer": "8.4.10",
-                "predict": "8.8.3",
-                "inspection": "8.8.4"
-            },
-            {
-                "#": 7,
-                "catalog": "v9-240827-amd64",
-                "release": "9.0.x",
-                "core": "9.0.2",
-                "assist": "9.0.2",
-                "iot": "9.0.2",
-                "manage": "9.0.2",
-                "monitor": "9.0.2",
-                "optimizer": "9.0.2",
-                "predict": "9.0.1",
-                "inspection": "9.0.2"
-            },
-            {
-                "#": 8,
-                "catalog": "v9-240827-amd64",
-                "release": "8.11.x",
-                "core": "8.11.14",
-                "assist": "8.8.6",
-                "iot": "8.8.12",
-                "manage": "8.7.11",
-                "monitor": "8.11.10",
-                "optimizer": "8.5.8",
-                "predict": "8.9.3",
-                "inspection": "8.9.5"
-            },
-            {
-                "#": 9,
-                "catalog": "v9-240827-amd64",
-                "release": "8.10.x",
-                "core": "8.10.17",
-                "assist": "8.7.7",
-                "iot": "8.7.16",
-                "manage": "8.6.17",
-                "monitor": "8.10.13",
-                "optimizer": "8.4.9",
-                "predict": "8.8.3",
-                "inspection": "8.8.4"
-            }
-        ]
-
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
@@ -1107,9 +840,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
             exit(1)
 
+        # Configure the installOptions for the appropriate architecture
+        self.installOptions = catalogChoices[self.architecture]
+
         # Basic settings before the user provides any input
         self.configICR()
-        self.configCertManager()
+        self.configCertManager()  # TODO: I think this is redundant, we should look to remove this and the appropriate params in the install pipeline
         self.deployCP4D = False
 
         # UDS install has not been supported since the January 2024 catalog update

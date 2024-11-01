@@ -250,6 +250,12 @@ slsArgGroup.add_argument(
     help="Path to MAS license file",
     type=lambda x: isValidFile(installArgParser, x)
 )
+slsArgGroup.add_argument(
+    "--sls-namespace",
+    required=False,
+    help="Customize the SLS install namespace",
+    default="ibm-sls"
+)
 
 # IBM Data Reporting Operator (DRO)
 # -----------------------------------------------------------------------------
