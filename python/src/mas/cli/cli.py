@@ -18,7 +18,6 @@ from sys import exit
 from subprocess import PIPE, Popen, TimeoutExpired
 import threading
 import json
-import os
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from kubernetes import config
@@ -29,7 +28,7 @@ from openshift.dynamic.exceptions import NotFoundError
 from prompt_toolkit import prompt, print_formatted_text, HTML
 
 from mas.devops.mas import isAirgapInstall
-from mas.devops.ocp import connect, isSNO
+from mas.devops.ocp import connect, isSNO, getNodes
 
 from .displayMixins import PrintMixin, PromptMixin
 
@@ -51,7 +50,7 @@ def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
         formatter(None, **kwargs)
         return lambda prog: formatter(prog, **kwargs)
     except TypeError:
-        logger.warn("argparse help formatter failed, falling back.")
+        logger.warning("argparse help formatter failed, falling back.")
         return formatter
 
 
@@ -88,6 +87,15 @@ def runCmd(cmdArray, timeout=630):
             return RunCmdResult(p.returncode, output, error)
         except TimeoutExpired as e:
             return RunCmdResult(127, 'TimeoutExpired', str(e))
+
+
+def logMethodCall(func):
+    def wrapper(self, *args, **kwargs):
+        logger.debug(f">>> BaseApp.{func.__name__}")
+        result = func(self, *args, **kwargs)
+        logger.debug(f"<<< BaseApp.{func.__name__}")
+        return result
+    return wrapper
 
 
 class BaseApp(PrintMixin, PromptMixin):
@@ -180,6 +188,7 @@ class BaseApp(PrintMixin, PromptMixin):
         if which("kubectl") is None:
             self.fatalError("Could not find kubectl on the path, see <DarkGoldenRod><u>https://kubernetes.io/docs/tasks/tools/#kubectl</u></DarkGoldenRod> for installation instructions")
 
+    @logMethodCall
     def createTektonFileWithDigest(self) -> None:
         if path.exists(self.tektonDefsWithDigestPath):
             logger.debug(f"We have already generated {self.tektonDefsWithDigestPath}")
@@ -222,12 +231,14 @@ class BaseApp(PrintMixin, PromptMixin):
 
             self.tektonDefsPath = self.tektonDefsWithDigestPath
 
+    @logMethodCall
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
         if coreChannel in self.compatibilityMatrix:
             return self.compatibilityMatrix[coreChannel][appId]
         else:
             return []
 
+    @logMethodCall
     def fatalError(self, message: str, exception: Exception = None) -> None:
         if exception is not None:
             logger.error(message)
@@ -238,6 +249,7 @@ class BaseApp(PrintMixin, PromptMixin):
             print_formatted_text(HTML(f"<Red>Fatal Error: {message.replace(' & ', ' &amp; ')}</Red>\n"))
         exit(1)
 
+    @logMethodCall
     def isSNO(self):
         if self._isSNO is None:
             self._isSNO = isSNO(self.dynamicClient)
@@ -262,6 +274,7 @@ class BaseApp(PrintMixin, PromptMixin):
         else:
             return self.reloadDynamicClient()
 
+    @logMethodCall
     def reloadDynamicClient(self):
         """
         Configure the Kubernetes API Client using the active context in kubeconfig
@@ -283,6 +296,7 @@ class BaseApp(PrintMixin, PromptMixin):
             logger.exception(e, stack_info=True)
             return None
 
+    @logMethodCall
     def connect(self):
         promptForNewServer = False
         self.reloadDynamicClient()
@@ -318,15 +332,21 @@ class BaseApp(PrintMixin, PromptMixin):
         # Now that we are connected, inspect the architecture of the OpenShift cluster
         self.lookupTargetArchitecture()
 
+    @logMethodCall
     def lookupTargetArchitecture(self, architecture: str = None) -> None:
+        logger.debug("Looking up worker node architecture")
         if architecture is not None:
             self.architecture = architecture
             logger.debug(f"Target architecture (overridden): {self.architecture}")
         else:
-            command = "oc get nodes -o jsonpath='{.items[0].status.nodeInfo.architecture}'"
-            self.architecture = os.popen(command).read().strip()
+            nodes = getNodes(self.dynamicClient)
+            self.architecture = nodes[0]["status"]["nodeInfo"]["architecture"]
             logger.debug(f"Target architecture: {self.architecture}")
 
+        if self.architecture not in ["amd64", "s390x"]:
+            self.fatalError(f"Unsupported worker node architecture: {self.architecture}")
+
+    @logMethodCall
     def initializeApprovalConfigMap(self, namespace: str, id: str, key: str = None, maxRetries: int = 100, delay: int = 300, ignoreFailure: bool = True) -> None:
         """
         Set key = None if you don't want approval workflow enabled
