@@ -642,6 +642,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Enable optional Maximo Predict integration with SPSS and Watson OpenScale",
             " - Enable optional IBM Turbonomic integration",
             " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
+            " - Choose alternative Apache Kafka providers (default to Strimzi)",
             " - Customize Grafana storage settings"
         ])
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
