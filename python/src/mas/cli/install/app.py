@@ -174,9 +174,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("Contact first name", "uds_contact_firstname")
         self.promptForString("Contact last name", "uds_contact_lastname")
 
-        self.promptForString("Namespace", "sls_namespace")
-
-        self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
+        if self.showAdvancedOptions:
+            self.promptForString("IBM Suite License Services (SLS) Namespace", "sls_namespace", default="ibm-sls")
+            self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
 
     @logMethodCall
     def selectLocalConfigDir(self) -> None:
@@ -196,7 +196,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         except NotFoundError:
             self.setParam("grafana_action", "none")
 
-        if self.interactiveMode:
+        if self.interactiveMode and self.showAdvancedOptions:
             self.printH1("Configure Grafana")
             if self.getParam("grafana_action") == "none":
                 print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
@@ -206,11 +206,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configSpecialCharacters(self):
-        self.printH1("Configure special characters for userID and username")
-        self.printDescription([
-            "By default Maximo Application Suite will not allow special characters in usernames and userIDs, and this is the recommended setting.  However, legacy Maximo products allowed this, so for maximum compatibilty when migrating from EAM 7 you can choose to enable this support."
-        ])
-        self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
+        if self.showAdvancedOptions:
+            self.printH1("Configure special characters for userID and username")
+            self.printDescription([
+                "By default Maximo Application Suite will not allow special characters in usernames and userIDs, and this is the recommended setting.  However, legacy Maximo products allowed this, so for maximum compatibilty when migrating from EAM 7 you can choose to enable this support."
+            ])
+            self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
 
     @logMethodCall
     def configCP4D(self):
@@ -231,36 +232,38 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configSSOProperties(self):
-        self.printH1("Single Sign-On (SSO)")
-        self.printDescription([
-            "Many aspects of Maximo Application Suite's Single Sign-On (SSO) can be customized:",
-            " - Idle session automatic logout timer",
-            " - Session, access token, and refresh token timeouts",
-            " - Default identity provider (IDP), and seamless login",
-            " - Brower cookie properties"
-        ])
-        if self.yesOrNo("Configure SSO properties"):
-            self.promptForInt("Idle session logout timer (seconds)", "idle_timeout")
-            self.promptForString("Session timeout (e.g. '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator())
-            self.promptForString("Access token timeout (e.g. '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator())
-            self.promptForString("Refresh token timeout (e.g. '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator())
-            self.promptForString("Default Identity Provider", "default_idp")
+        if self.showAdvancedOptions:
+            self.printH1("Single Sign-On (SSO)")
+            self.printDescription([
+                "Many aspects of Maximo Application Suite's Single Sign-On (SSO) can be customized:",
+                " - Idle session automatic logout timer",
+                " - Session, access token, and refresh token timeouts",
+                " - Default identity provider (IDP), and seamless login",
+                " - Brower cookie properties"
+            ])
+            if self.yesOrNo("Configure SSO properties"):
+                self.promptForInt("Idle session logout timer (seconds)", "idle_timeout")
+                self.promptForString("Session timeout (e.g. '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator())
+                self.promptForString("Access token timeout (e.g. '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator())
+                self.promptForString("Refresh token timeout (e.g. '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator())
+                self.promptForString("Default Identity Provider", "default_idp")
 
-            self.promptForString("SSO cookie name", "sso_cookie_name")
-            self.yesOrNo("Enable seamless login", "seamless_login")
-            self.yesOrNo("Allow default SSO cookie name", "allow_default_sso_cookie_name")
-            self.yesOrNo("Use only custom cookie name", "use_only_custom_cookie_name")
-            self.yesOrNo("Disable LDAP cookie", "disable_ldap_cookie")
-            self.yesOrNo("Allow custom cache key", "allow_custom_cache_key")
+                self.promptForString("SSO cookie name", "sso_cookie_name")
+                self.yesOrNo("Enable seamless login", "seamless_login")
+                self.yesOrNo("Allow default SSO cookie name", "allow_default_sso_cookie_name")
+                self.yesOrNo("Use only custom cookie name", "use_only_custom_cookie_name")
+                self.yesOrNo("Disable LDAP cookie", "disable_ldap_cookie")
+                self.yesOrNo("Allow custom cache key", "allow_custom_cache_key")
 
     @logMethodCall
     def configGuidedTour(self):
-        self.printH1("Enable Guided Tour")
-        self.printDescription([
-            "By default, Maximo Application Suite is configured with guided tour, you can disable this if it not required"
-        ])
-        if not self.yesOrNo("Enable Guided Tour"):
-            self.setParam("mas_enable_walkme", "false")
+        if self.showAdvancedOptions:
+            self.printH1("Enable Guided Tour")
+            self.printDescription([
+                "By default, Maximo Application Suite is configured with guided tour, you can disable this if it not required"
+            ])
+            if not self.yesOrNo("Enable Guided Tour"):
+                self.setParam("mas_enable_walkme", "false")
 
     @logMethodCall
     def configMAS(self):
@@ -297,11 +300,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configCATrust(self) -> None:
-        self.printH1("Certificate Authority Trust")
-        self.printDescription([
-            "By default, Maximo Application Suite is configured to trust well-known certificate authoritories, you can disable this so that it will only trust the CAs that you explicitly define"
-        ])
-        self.yesOrNo("Trust default CAs", "mas_trust_default_cas")
+        if self.showAdvancedOptions:
+            self.printH1("Certificate Authority Trust")
+            self.printDescription([
+                "By default, Maximo Application Suite is configured to trust well-known certificate authoritories, you can disable this so that it will only trust the CAs that you explicitly define"
+            ])
+            self.yesOrNo("Trust default CAs", "mas_trust_default_cas")
+        else:
+            self.setParam("mas_trust_default_cas", True)
 
     @logMethodCall
     def configOperationMode(self):
@@ -330,51 +336,52 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configDNSAndCerts(self):
-        self.printH1("Cluster Ingress Secret Override")
-        self.printDescription([
-            "In most OpenShift clusters the installation is able to automatically locate the default ingress certificate, however in some configurations it is necessary to manually configure the name of the secret",
-            "Unless you see an error during the ocp-verify stage indicating that the secret can not be determined you do not need to set this and can leave the response empty"
-        ])
-        self.promptForString("Cluster ingress certificate secret name", "ocp_ingress_tls_secret_name", default="")
+        if self.showAdvancedOptions:
+            self.printH1("Cluster Ingress Secret Override")
+            self.printDescription([
+                "In most OpenShift clusters the installation is able to automatically locate the default ingress certificate, however in some configurations it is necessary to manually configure the name of the secret",
+                "Unless you see an error during the ocp-verify stage indicating that the secret can not be determined you do not need to set this and can leave the response empty"
+            ])
+            self.promptForString("Cluster ingress certificate secret name", "ocp_ingress_tls_secret_name", default="")
 
-        self.printH1("Configure Domain & Certificate Management")
-        configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
-        if configureDomainAndCertMgmt:
-            configureDomain = self.yesOrNo('Configure custom domain')
-            if configureDomain:
-                self.promptForString("MAS top-level domain", "mas_domain")
-                self.printDescription([
-                    "",
-                    "DNS Integrations:",
-                    "  1. Cloudflare",
-                    "  2. IBM Cloud Internet Services",
-                    "  3. AWS Route 53",
-                    "  4. None (I will set up DNS myself)"
-                ])
+            self.printH1("Configure Domain & Certificate Management")
+            configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
+            if configureDomainAndCertMgmt:
+                configureDomain = self.yesOrNo('Configure custom domain')
+                if configureDomain:
+                    self.promptForString("MAS top-level domain", "mas_domain")
+                    self.printDescription([
+                        "",
+                        "DNS Integrations:",
+                        "  1. Cloudflare",
+                        "  2. IBM Cloud Internet Services",
+                        "  3. AWS Route 53",
+                        "  4. None (I will set up DNS myself)"
+                    ])
 
-                dnsProvider = self.promptForInt("DNS Provider")
+                    dnsProvider = self.promptForInt("DNS Provider")
 
-                if dnsProvider == 1:
-                    self.configDNSAndCertsCloudflare()
-                elif dnsProvider == 2:
-                    self.configDNSAndCertsCIS()
-                elif dnsProvider == 3:
-                    self.configDNSAndCertsRoute53()
-                elif dnsProvider == 4:
-                    # Use MAS default self-signed cluster issuer with a custom domain
+                    if dnsProvider == 1:
+                        self.configDNSAndCertsCloudflare()
+                    elif dnsProvider == 2:
+                        self.configDNSAndCertsCIS()
+                    elif dnsProvider == 3:
+                        self.configDNSAndCertsRoute53()
+                    elif dnsProvider == 4:
+                        # Use MAS default self-signed cluster issuer with a custom domain
+                        self.setParam("dns_provider", "")
+                        self.setParam("mas_cluster_issuer", "")
+                else:
+                    # Use MAS default self-signed cluster issuer with the default domain
                     self.setParam("dns_provider", "")
+                    self.setParam("mas_domain", "")
                     self.setParam("mas_cluster_issuer", "")
-            else:
-                # Use MAS default self-signed cluster issuer with the default domain
-                self.setParam("dns_provider", "")
-                self.setParam("mas_domain", "")
-                self.setParam("mas_cluster_issuer", "")
-            self.manualCerts = self.yesOrNo("Configure manual certificates")
-            self.setParam("mas_manual_cert_mgmt", self.manualCerts)
-            if self.getParam("mas_manual_cert_mgmt"):
-                self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
-            else:
-                self.manualCertsDir = None
+                self.manualCerts = self.yesOrNo("Configure manual certificates")
+                self.setParam("mas_manual_cert_mgmt", self.manualCerts)
+                if self.getParam("mas_manual_cert_mgmt"):
+                    self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
+                else:
+                    self.manualCertsDir = None
 
     @logMethodCall
     def configDNSAndCertsCloudflare(self):
@@ -594,7 +601,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def predictSettings(self) -> None:
-        if self.installPredict:
+        if self.showAdvancedOptions and self.installPredict:
             self.printH1("Configure Maximo Predict")
             self.printDescription([
                 "Predict application supports integration with IBM SPSS and Watson Openscale which are optional services installed on top of IBM Cloud Pak for Data",
@@ -618,9 +625,39 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("IBM Cloud Resource Group", "ibmcos_resourcegroup")
 
     @logMethodCall
-    def interactiveMode(self) -> None:
+    def chooseInstallFlavour(self) -> None:
+        self.printH1("Choose Install Mode")
+        self.printDescription([
+            "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
+            " - Configure installation namespaces",
+            " - Provide pod templates",
+            " - Configure Single Sign-On (SSO) settings"
+            " - Configure whether to trust well-known certificate authorities by default (defaults to enabled)",
+            " - Configure whether the Guided Tour feature is enabled (defaults to enabled)",
+            " - Configure whether special characters are allowed in usernames and userids (defaults to disabled)",
+            " - Configure a custom domain, DNS integrations, and manual certificates",
+            " - Customize Maximo Manage database settings (schema, tablespace, indexspace)",
+            " - Customize Maximo Manage server bundle configuration (defaults to \"all\" configuration)",
+            " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
+            " - Enable optional Maximo Predict integration with SPSS and Watson OpenScale",
+            " - Enable optional IBM Turbonomic integration",
+            " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
+            " - Choose alternative Apache Kafka providers (default to Strimzi)",
+            " - Customize Grafana storage settings"
+        ])
+        self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
+
+    @logMethodCall
+    def interactiveMode(self, simplified: bool, advanced: bool) -> None:
         # Interactive mode
         self.interactiveMode = True
+
+        if simplified:
+            self.showAdvancedOptions = False
+        elif advanced:
+            self.showAdvancedOptions = True
+        else:
+            self.chooseInstallFlavour()
 
         # Catalog
         self.configCatalog()
@@ -823,7 +860,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help", "advanced", "simplified"]:
                 pass
 
             elif key == "manual_certificates":
@@ -896,7 +933,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # User must either provide the configuration via numerous command line arguments, or the interactive prompts
         if instanceId is None:
-            self.interactiveMode()
+            self.interactiveMode(simplified=args.simplified, advanced=args.advanced)
         else:
             self.nonInteractiveMode()
 
