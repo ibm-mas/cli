@@ -1048,6 +1048,19 @@ approvalsGroup.add_argument(
 # -----------------------------------------------------------------------------
 otherArgGroup = installArgParser.add_argument_group("More")
 otherArgGroup.add_argument(
+    "--advanced",
+    action="store_true",
+    default=False,
+    help="Show advanced install options (in interactve mode)"
+)
+otherArgGroup.add_argument(
+    "--simplified",
+    action="store_true",
+    default=False,
+    help="Don't show advanced install options (in interactve mode)"
+)
+
+otherArgGroup.add_argument(
     "--accept-license",
     action="store_true",
     default=False,

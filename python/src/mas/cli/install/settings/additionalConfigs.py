@@ -63,7 +63,7 @@ class AdditionalConfigsMixin():
             self.additionalConfigsSecret = additionalConfigsSecret
 
     def podTemplates(self) -> None:
-        if self.interactiveMode:
+        if self.interactiveMode and self.showAdvancedOptions:
             self.printH1("Configure Pod Templates")
             self.printDescription([
                 "The CLI supports two pod template profiles out of the box that allow you to reconfigure MAS for either a guaranteed or best effort QoS level",

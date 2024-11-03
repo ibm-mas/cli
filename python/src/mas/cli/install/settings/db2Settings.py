@@ -153,48 +153,51 @@ class Db2SettingsMixin():
 
         # Do we need to configure Db2u?
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
-            self.printH2("Installation Namespace")
-            self.promptForString("Install namespace", "db2_namespace", default="db2u")
+            if self.showAdvancedOptions:
+                self.printH2("Installation Namespace")
+                self.promptForString("Install namespace", "db2_namespace", default="db2u")
 
-            # Node Affinity & Tolerations
-            # -------------------------------------------------------------------------
-            self.printH2("Node Affinity and Tolerations")
-            self.printDescription([
-                "Note that the same settings are applied to both the IoT and Manage Db2 instances",
-                "Use existing node labels and taints to control scheduling of the Db2 workload in your cluster",
-                "For more information refer to the Red Hat documentation:",
-                " - <u>https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-node-affinity.html</u>",
-                " - <u>https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-taints-tolerations.html</u>"
-            ])
+                # Node Affinity & Tolerations
+                # -------------------------------------------------------------------------
+                self.printH2("Node Affinity and Tolerations")
+                self.printDescription([
+                    "Note that the same settings are applied to both the IoT and Manage Db2 instances",
+                    "Use existing node labels and taints to control scheduling of the Db2 workload in your cluster",
+                    "For more information refer to the Red Hat documentation:",
+                    " - <u>https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-node-affinity.html</u>",
+                    " - <u>https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-taints-tolerations.html</u>"
+                ])
 
-            if self.yesOrNo("Configure node affinity"):
-                self.promptForString(" + Key", "db2_affinity_key")
-                self.promptForString(" + Value", "db2_affinity_value")
+                if self.yesOrNo("Configure node affinity"):
+                    self.promptForString(" + Key", "db2_affinity_key")
+                    self.promptForString(" + Value", "db2_affinity_value")
 
-            if self.yesOrNo("Configure node tolerations"):
-                self.promptForString(" + Key", "db2_tolerate_key")
-                self.promptForString(" + Value", "db2_tolerate_value")
-                self.promptForString(" + Effect", "db2_tolerate_effect")
+                if self.yesOrNo("Configure node tolerations"):
+                    self.promptForString(" + Key", "db2_tolerate_key")
+                    self.promptForString(" + Value", "db2_tolerate_value")
+                    self.promptForString(" + Effect", "db2_tolerate_effect")
 
-            self.printH2("Database CPU & Memory")
-            self.printDescription([
-                "Note that the same settings are applied to both the IoT and Manage Db2 instances"
-            ])
+                self.printH2("Database CPU & Memory")
+                self.printDescription([
+                    "Note that the same settings are applied to both the IoT and Manage Db2 instances"
+                ])
 
-            if self.yesOrNo("Customize CPU and memory request/limit"):
-                self.promptForString(" + CPU Request", "db2_cpu_requests", default=self.getParam("db2_cpu_requests"))
-                self.promptForString(" + CPU Limit", "db2_cpu_limits", default=self.getParam("db2_cpu_limits"))
-                self.promptForString(" + Memory Request", "db2_memory_requests", default=self.getParam("db2_memory_requests"))
-                self.promptForString(" + Memory Limit", "db2_memory_limits", default=self.getParam("db2_memory_limits"))
+                if self.yesOrNo("Customize CPU and memory request/limit"):
+                    self.promptForString(" + CPU Request", "db2_cpu_requests", default=self.getParam("db2_cpu_requests"))
+                    self.promptForString(" + CPU Limit", "db2_cpu_limits", default=self.getParam("db2_cpu_limits"))
+                    self.promptForString(" + Memory Request", "db2_memory_requests", default=self.getParam("db2_memory_requests"))
+                    self.promptForString(" + Memory Limit", "db2_memory_limits", default=self.getParam("db2_memory_limits"))
 
-            self.printH2("Database Storage Capacity")
-            self.printDescription([
-                "Note that the same settings are applied to both the IoT and Manage Db2 instances"
-            ])
+                self.printH2("Database Storage Capacity")
+                self.printDescription([
+                    "Note that the same settings are applied to both the IoT and Manage Db2 instances"
+                ])
 
-            if self.yesOrNo("Customize storage capacity"):
-                self.promptForString(" + Data Volume", "db2_data_storage_size", default=self.getParam("db2_data_storage_size"))
-                self.promptForString(" + Temporary Volume", "db2_temp_storage_size", default=self.getParam("db2_temp_storage_size"))
-                self.promptForString(" + Metadata Volume", "db2_meta_storage_size", default=self.getParam("db2_meta_storage_size"))
-                self.promptForString(" + Transaction Logs Volume", "db2_logs_storage_size", default=self.getParam("db2_logs_storage_size"))
-                self.promptForString(" + Backup Volume", "db2_backup_storage_size", default=self.getParam("db2_backup_storage_size"))
+                if self.yesOrNo("Customize storage capacity"):
+                    self.promptForString(" + Data Volume", "db2_data_storage_size", default=self.getParam("db2_data_storage_size"))
+                    self.promptForString(" + Temporary Volume", "db2_temp_storage_size", default=self.getParam("db2_temp_storage_size"))
+                    self.promptForString(" + Metadata Volume", "db2_meta_storage_size", default=self.getParam("db2_meta_storage_size"))
+                    self.promptForString(" + Transaction Logs Volume", "db2_logs_storage_size", default=self.getParam("db2_logs_storage_size"))
+                    self.promptForString(" + Backup Volume", "db2_backup_storage_size", default=self.getParam("db2_backup_storage_size"))
+            else:
+                self.setParam("db2_namespace", "db2u")
