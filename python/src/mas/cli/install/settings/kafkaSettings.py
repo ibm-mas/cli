@@ -24,15 +24,18 @@ class KafkaSettingsMixin():
             if self.yesOrNo("Create system Kafka instance using one of the supported providers"):
                 self.setParam("kafka_action_system", "install")
 
-                self.printDescription([
-                    "",
-                    "Kafka Provider:",
-                    "  1. Strimzi (opensource)",
-                    "  2. Red Hat AMQ Streams (requires a separate license)",
-                    "  3. IBM Cloud Event Streams (paid IBM Cloud service)",
-                    "  4. AWS MSK (paid AWS service)"
-                ])
-                self.promptForListSelect("Select Kafka provider", ["strimzi", "redhat", "ibm", "aws"], "kafka_provider")
+                if self.showAdvancedOptions:
+                    self.printDescription([
+                        "",
+                        "Kafka Provider:",
+                        "  1. Strimzi (opensource)",
+                        "  2. Red Hat AMQ Streams (requires a separate license)",
+                        "  3. IBM Cloud Event Streams (paid IBM Cloud service)",
+                        "  4. AWS MSK (paid AWS service)"
+                    ])
+                    self.promptForListSelect("Select Kafka provider", ["strimzi", "redhat", "ibm", "aws"], "kafka_provider")
+                else:
+                    self.setParam("kafka_provider", "strimzi")
 
                 if self.getParam("kafka_provider") == "strimzi":
                     self.printDescription([
@@ -42,7 +45,8 @@ class KafkaSettingsMixin():
                         " - If you are using the latest available operator catalog then the default version below can be accepted",
                         " - If you are using older operator catalogs (e.g. in a disconnected install) you should confirm the supported versions in your OperatorHub"
                     ])
-                    self.promptForString("Install namespace", "kafka_namespace", default="strimzi")
+                    if self.showAdvancedOptions:
+                        self.promptForString("Strimzi namespace", "kafka_namespace", default="strimzi")
                     self.promptForString("Kafka version", "kafka_version", default="3.7.0")
 
                 elif self.getParam("kafka_provider") == "redhat":

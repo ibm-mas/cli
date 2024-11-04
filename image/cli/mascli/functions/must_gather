@@ -55,7 +55,7 @@ function genericMustGather() {
   echo
   echo_h4 "Collect Standard Kubernetes Resources"
   ADDITIONAL_RESOURCES=$(echo "$2" | tr "," " ")
-  for RESOURCE in $ADDITIONAL_RESOURCES configmaps services routes deployments jobs pvc operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings certificates
+  for RESOURCE in $ADDITIONAL_RESOURCES configmaps services routes deployments jobs pvc operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings certificates statefulsets
   do
     $MG_SCRIPT_DIR/mg-collect-resources -n $1 -r $RESOURCE -d $OUTPUT_DIR/resources $NO_DETAIL_FLAG
   done
@@ -296,7 +296,7 @@ function mustgather() {
     GRAFANA_NAMESPACES=$(oc get Grafana -A --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
     for GRAFANA_NAMESPACE in $GRAFANA_NAMESPACES
     do
-      $MG_SCRIPT_DIR/mg-summary-kafka &> ${OUTPUT_DIR}/kafka.txt
+      $MG_SCRIPT_DIR/mg-summary-grafana &> ${OUTPUT_DIR}/kafka.txt
       genericMustGather $GRAFANA_NAMESPACE Grafana,GrafanaDatasource
     done
 

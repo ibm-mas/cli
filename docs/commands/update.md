@@ -6,7 +6,7 @@ Usage
 Usage information can be obtained using `mas update --help`
 
 ```
-usage: mas update [-c MAS_CATALOG_VERSION] [--db2-namespace DB2_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade] [--mongodb-v6-upgrade]
+usage: mas update [-c MAS_CATALOG_VERSION] [--db2-namespace DB2_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade] [--mongodb-v6-upgrade] [--mongodb-v7-upgrade]
                   [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {redhat,strimzi}] [--dro-migration DRO_MIGRATION]
                   [--dro-storage-class DRO_STORAGE_CLASS] [--dro-namespace DRO_NAMESPACE] [--no-confirm] [--skip-pre-check] [-h]
 
@@ -25,6 +25,7 @@ Update Dependencies:
   --mongodb-namespace MONGODB_NAMESPACE           Namespace where MongoCE operator and instances will be updated
   --mongodb-v5-upgrade                            Required to confirm a major version update for MongoDb to version 5
   --mongodb-v6-upgrade                            Required to confirm a major version update for MongoDb to version 6
+  --mongodb-v7-upgrade                            Required to confirm a major version update for MongoDb to version 7
   --kafka-namespace KAFKA_NAMESPACE               Namespace where Kafka operator and instances will be updated
   --kafka-provider {redhat,strimzi}               The type of Kakfa operator installed in the target namespace for updte
 

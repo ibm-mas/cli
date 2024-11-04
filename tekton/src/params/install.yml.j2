@@ -30,6 +30,8 @@
   default: "/workspace/entitlement/entitlement.lic"
 - name: sls_mongodb_cfg_file
   type: string
+  # The default value works for the default in-cluster install, it will need
+  # to be modified if the mongodb namespace is changed, or if using BYO MongoDb
   default: "/workspace/configs/mongo-mongoce.yml"
 - name: sls_catalog_source
   type: string
@@ -236,7 +238,7 @@
 - name: cpd_install_all
   type: string
   default: ""
-  
+
 # Dependencies - UDS
 # -----------------------------------------------------------------------------
 - name: uds_contact_email
@@ -667,3 +669,7 @@
   type: string
   description: controls the workload size of predict containers
   default: "small"
+
+# Dependencies - IBM Maximo AI Broker
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-aibroker.yml.j2') }}
