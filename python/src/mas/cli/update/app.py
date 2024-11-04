@@ -38,6 +38,7 @@ class UpdateApp(BaseApp):
         self.args = updateArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
         self.devMode = self.args.dev_mode
+        self.interactive = False
 
         if self.args.mas_catalog_version:
             # Non-interactive mode
@@ -87,6 +88,7 @@ class UpdateApp(BaseApp):
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
             self.connect()
+            self.interactive = True
 
         if self.dynamicClient is None:
             self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
@@ -411,6 +413,15 @@ class UpdateApp(BaseApp):
             ""
         ])
 
+    def selectDROStorageclass(self):
+        self.printDescription([
+            "",
+            "Select the storage class for DRO to use from the list below:"
+        ])
+        for storageClass in getStorageClasses(self.dynamicClient):
+            print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+        self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
+
     def detectUDS(self) -> None:
         with Halo(text='Checking for IBM User Data Services', spinner=self.spinner) as h:
             try:
@@ -439,17 +450,15 @@ class UpdateApp(BaseApp):
                     else:
                         h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
                         self.showUDSUpdateNotice()
+                        if self.interactive:
+                            self.setParam("dro_migration", "true")
+                            self.selectDROStorageclass()
+
                         if self.getParam("dro_migration") == "true" and self.getParam("dro_storage_class") is None:
                             if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
                                 # If the user did not approve the update, abort
                                 exit(1)
-                            self.printDescription([
-                                "",
-                                "Select the storage class for DRO to use from the list below:"
-                            ])
-                            for storageClass in getStorageClasses(self.dynamicClient):
-                                print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-                            self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
+                            self.selectDROStorageclass()
 
                 if self.getParam("dro_migration") == "true":
                     self.setParam("uds_action", "install-dro")
