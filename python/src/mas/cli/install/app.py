@@ -192,11 +192,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if self.skipGrafanaInstall:
                 self.setParam("grafana_action", "none")
             else:
-                self.setParam("grafana_action", "install")
+                if self.architecture == "amd64":
+                    self.setParam("grafana_action", "install")
+                else:
+                    self.setParam("grafana_action", "none")
         except NotFoundError:
             self.setParam("grafana_action", "none")
 
-        if self.interactiveMode and self.showAdvancedOptions and self.architecture == "amd64":
+        if self.interactiveMode and self.showAdvancedOptions:
             self.printH1("Configure Grafana")
             if self.getParam("grafana_action") == "none":
                 print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
@@ -692,9 +695,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configDb2()
         self.configKafka() # Will only do anything if IoT has been selected for install
 
-        # grafana doesn't support s390x
-        if self.architecture == "amd64":
-            self.configGrafana()
+        self.configGrafana()
         self.configTurbonomic()
 
         # TODO: Support ECK integration via the interactive install mode
