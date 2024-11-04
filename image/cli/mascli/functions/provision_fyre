@@ -21,6 +21,7 @@ Cluster Configuration (Required):
   -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}           OCP version to use (e.g 4.13, 4.14)
   -d, --description ${COLOR_YELLOW}FYRE_DESCRIPTION${TEXT_RESET}      Description of the OCP cluster
   -l, --location ${COLOR_YELLOW}FYRE_SITE${TEXT_RESET}                FYRE site where cluster will be provisioned (default is svl)
+  -t, --cluster_platform ${COLOR_YELLOW}CLUSTER_PLATFORM${TEXT_RESET}        Cluster platform Available platforms are... "x", "p", "pvm", "z"
 
 Fyre Quick Burn Worker Node Configuration (Optional, only takes effect when quota-type is set to "quickburn"):
       --cluster-size ${COLOR_YELLOW}FYRE_CLUSTER_SIZE${TEXT_RESET}    When Fyre Quick Burn, defines the size category ("medium" or "large")
@@ -83,6 +84,9 @@ function provision_fyre_noninteractive() {
       -l|--location)
         FYRE_SITE=$1 && shift
         ;;
+       -t|--cluster-platform)
+        CLUSTER_PLATFORM=$1 && shift
+        ;;
 
       # Worker configuration
       --worker-count)
@@ -131,6 +135,7 @@ function provision_fyre_noninteractive() {
   [[ -z "$FYRE_USERNAME" ]] && provision_fyre_help "FYRE_USERNAME is not set"
   [[ -z "$FYRE_APIKEY" ]] && provision_fyre_help "FYRE_APIKEY is not set"
   [[ -z "$CLUSTER_NAME" ]] && provision_fyre_help "CLUSTER_NAME is not set"
+  [[ -z "$CLUSTER_PLATFORM" ]] && provision_fyre_help "CLUSTER_PLATFORM is not set"
   [[ -z "$OCP_VERSION" ]] && provision_fyre_help "OCP_VERSION is not set"
   [[ -z "$FYRE_CLUSTER_DESCRIPTION" ]] && provision_fyre_help "FYRE_CLUSTER_DESCRIPTION is not set"
   [[ -z "$FYRE_PRODUCT_ID" ]] && provision_fyre_help "FYRE_PRODUCT_ID is not set"
@@ -177,6 +182,31 @@ function provision_fyre_interactive() {
       # Print out a warning as there could be a typo
       echo_warning "    Using custom OCP version ($OCP_VERSION_SELECTION)"
       export OCP_VERSION=$OCP_VERSION_SELECTION
+      ;;
+  esac
+
+  echo
+  echo "OCP Cluster Platform:"
+  echo "  1. x"
+  echo "  2. z"
+  echo "  3. p"
+  prompt_for_input "Select Cluster Plaform" CLUSTER_PLATFORM_SELECTION "x"
+
+  case $CLUSTER_PLATFORM_SELECTION in
+    1|x
+      export CLUSTER_PLATFORM=x
+      ;;
+    2|z
+      export CLUSTER_PLATFORM=z
+      ;;
+    3|p
+      export CLUSTER_PLATFORM=p
+      ;;
+    *)
+      # Print out a warning as there could be a typo
+      echo_warning "    Using custom OCP CLUSTER PLATFORM ($CLUSTER_PLATFORM_SELECTION)"
+      export CLUSTER_PLATFORM=$CLUSTER_PLATFORM_SELECTION
+      echo "platform ${CLUSTER_PLATFORM}"
       ;;
   esac
 
@@ -246,10 +276,11 @@ function provision_fyre() {
   export FYRE_APIKEY
   export FYRE_PRODUCT_ID
   export FYRE_QUOTA_TYPE
-
+   
   export CLUSTER_TYPE=fyre
   export CLUSTER_NAME
   export OCP_VERSION
+  export CLUSTER_PLATFORM
   export FYRE_CLUSTER_DESCRIPTION
   export FYRE_SITE
 
