@@ -199,7 +199,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("grafana_action", "install")
             except NotFoundError:
                 self.setParam("grafana_action", "none")
-    
+
             if self.interactiveMode and self.showAdvancedOptions:
                 self.printH1("Configure Grafana")
                 if self.getParam("grafana_action") == "none":
