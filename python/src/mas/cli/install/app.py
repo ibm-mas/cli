@@ -693,7 +693,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Dependencies
         self.configMongoDb()
         self.configDb2()
-        self.configKafka() # Will only do anything if IoT has been selected for install
+        self.configKafka()  # Will only do anything if IoT has been selected for install
 
         self.configGrafana()
         self.configTurbonomic()
