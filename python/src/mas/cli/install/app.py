@@ -195,7 +195,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if self.architecture == "amd64":
                     self.setParam("grafana_action", "install")
                 else:
-                    self.setParam("grafana_action", "none")
+                    self.setParam("grafana_action", "none") #Grafana is not supported in s390x arch
         except NotFoundError:
             self.setParam("grafana_action", "none")
 
