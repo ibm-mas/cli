@@ -196,7 +196,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         except NotFoundError:
             self.setParam("grafana_action", "none")
 
-        if self.interactiveMode and self.showAdvancedOptions:
+        if self.interactiveMode and self.showAdvancedOptions and self.architecture == "amd64":
             self.printH1("Configure Grafana")
             if self.getParam("grafana_action") == "none":
                 print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
