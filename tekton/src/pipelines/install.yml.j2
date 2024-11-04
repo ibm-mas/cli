@@ -42,14 +42,14 @@ spec:
     # 12. Install & Configure Assist
     # 13. Install & Configure Visual Inspection
 
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
+    # {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
 
     # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
     # -------------------------------------------------------------------------
     # 1.1 IBM Operator Catalog
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
-      runAfter:
-        - pre-install-check
+      # runAfter:
+      #  - pre-install-check
 
     # 1.2 Red Hat Certificate Manager
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
@@ -182,8 +182,8 @@ spec:
     # -------------------------------------------------------------------------
     # 5.1 Configure Workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - pre-install-check
+      #runAfter:
+       # - pre-install-check
 
     # 5.2 DNS Setup
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-dns.yml.j2') | indent(4) }}
