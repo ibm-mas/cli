@@ -38,8 +38,7 @@ class UpdateApp(BaseApp):
         self.args = updateArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
         self.devMode = self.args.dev_mode
-        self.interactive = False
-
+        
         if self.args.mas_catalog_version:
             # Non-interactive mode
             logger.debug("Maximo Operator Catalog version is set, so we assume already connected to the desired OCP")
@@ -88,8 +87,7 @@ class UpdateApp(BaseApp):
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
             self.connect()
-            self.interactive = True
-
+            
         if self.dynamicClient is None:
             self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
 
@@ -440,27 +438,29 @@ class UpdateApp(BaseApp):
                     if self.noConfirm and self.getParam("dro_migration") != "true":
                         # The user has chosen not to provide confirmation but has not provided the flag to pre-approve the migration
                         h.stop_and_persist(symbol=self.failureIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
-                        self.showUDSUpdateNotice()
+                        #self.showUDSUpdateNotice()
                         self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm the migration to DRO using '--dro-migration' when using '--no-confirm'")
                     elif self.noConfirm and self.getParam("dro_storage_class") is None:
                         # The user has not provided the storage class to use for DRO, but has disabled confirmations/interactive prompts
                         h.stop_and_persist(symbol=self.failureIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
-                        self.showUDSUpdateNotice()
+                        #self.showUDSUpdateNotice()
                         self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must provide the storage class to use for the migration to DRO using '--dro-storage-class' when using '--no-confirm'")
                     else:
-                        h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
-                        self.showUDSUpdateNotice()
-                        if self.interactive:
-                            self.setParam("dro_migration", "true")
-                            self.selectDROStorageclass()
+                        #h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
+                        
+                        if self.getParam("dro_migration") != "true":
+                            if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
+                                # If the user did not approve the update, abort
+                                exit(1)
 
                         if self.getParam("dro_migration") == "true" and self.getParam("dro_storage_class") is None:
                             if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
                                 # If the user did not approve the update, abort
                                 exit(1)
-                            self.selectDROStorageclass()
+                            self.selectDROStorageclass()                        
 
                 if self.getParam("dro_migration") == "true":
+                    self.showUDSUpdateNotice()
                     self.setParam("uds_action", "install-dro")
 
             except (ResourceNotFoundError, NotFoundError):
