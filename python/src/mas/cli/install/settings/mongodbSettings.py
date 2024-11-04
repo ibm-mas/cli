@@ -20,7 +20,8 @@ class MongoDbSettingsMixin():
         ])
 
         if self.architecture != "s390x" and self.yesOrNo("Create MongoDb cluster using MongoDb Community Edition Operator"):
-            self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
+            if self.showAdvancedOptions:
+                self.promptForString("MongoDb namespace", "mongodb_namespace", default="mongoce")
             self.setParam("mongodb_action", "install")
             self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{self.getParam('mongodb_namespace')}.yml")
         else:
