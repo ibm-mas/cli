@@ -186,26 +186,27 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configGrafana(self) -> None:
-        try:
-            packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
-            packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
-            if self.skipGrafanaInstall:
-                self.setParam("grafana_action", "none")
-            else:
-                if self.architecture == "amd64":
-                    self.setParam("grafana_action", "install")
-                else:
-                    self.setParam("grafana_action", "none") #Grafana is not supported in s390x arch
-        except NotFoundError:
+        if self.architecture == "s390x":
+            # We are not supporting Grafana on s390x at the moment
             self.setParam("grafana_action", "none")
-
-        if self.interactiveMode and self.showAdvancedOptions:
-            self.printH1("Configure Grafana")
-            if self.getParam("grafana_action") == "none":
-                print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
-            else:
-                self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
-                self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
+        else:
+            try:
+                packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
+                packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
+                if self.skipGrafanaInstall:
+                    self.setParam("grafana_action", "none")
+                else:
+                    self.setParam("grafana_action", "install")
+            except NotFoundError:
+                self.setParam("grafana_action", "none")
+    
+            if self.interactiveMode and self.showAdvancedOptions:
+                self.printH1("Configure Grafana")
+                if self.getParam("grafana_action") == "none":
+                    print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
+                else:
+                    self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
+                    self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
 
     @logMethodCall
     def configSpecialCharacters(self):
