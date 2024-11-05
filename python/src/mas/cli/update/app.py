@@ -438,25 +438,20 @@ class UpdateApp(BaseApp):
                     if self.noConfirm and self.getParam("dro_migration") != "true":
                         # The user has chosen not to provide confirmation but has not provided the flag to pre-approve the migration
                         h.stop_and_persist(symbol=self.failureIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
-                        # self.showUDSUpdateNotice()
+                        self.showUDSUpdateNotice()
                         self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm the migration to DRO using '--dro-migration' when using '--no-confirm'")
                     elif self.noConfirm and self.getParam("dro_storage_class") is None:
                         # The user has not provided the storage class to use for DRO, but has disabled confirmations/interactive prompts
                         h.stop_and_persist(symbol=self.failureIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
-                        # self.showUDSUpdateNotice()
+                        self.showUDSUpdateNotice()
                         self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must provide the storage class to use for the migration to DRO using '--dro-storage-class' when using '--no-confirm'")
                     else:
-                        # h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
-
                         if self.getParam("dro_migration") != "true":
                             if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
                                 # If the user did not approve the update, abort
                                 exit(1)
 
-                        if self.getParam("dro_migration") == "true" and self.getParam("dro_storage_class") is None:
-                            if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
-                                # If the user did not approve the update, abort
-                                exit(1)
+                        if self.getParam("dro_storage_class") is None or self.getParam("dro_storage_class") == "":
                             self.selectDROStorageclass()
 
                 if self.getParam("dro_migration") == "true":
