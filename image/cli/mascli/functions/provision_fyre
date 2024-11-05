@@ -276,7 +276,7 @@ function provision_fyre() {
   export FYRE_APIKEY
   export FYRE_PRODUCT_ID
   export FYRE_QUOTA_TYPE
-   
+
   export CLUSTER_TYPE=fyre
   export CLUSTER_NAME
   export OCP_VERSION
