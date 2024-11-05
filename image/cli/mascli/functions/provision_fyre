@@ -187,9 +187,9 @@ function provision_fyre_interactive() {
 
   echo
   echo "OCP Cluster Platform:"
-  echo "  1. x"
-  echo "  2. z"
-  echo "  3. p"
+  echo "  1. x - X86 platform"
+  echo "  2. z - Zlinux(s390x)"
+  echo "  3. p - Power(ppcd6le"
   prompt_for_input "Select Cluster Plaform" CLUSTER_PLATFORM_SELECTION "x"
 
   case $CLUSTER_PLATFORM_SELECTION in
