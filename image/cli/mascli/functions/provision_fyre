@@ -193,13 +193,13 @@ function provision_fyre_interactive() {
   prompt_for_input "Select Cluster Plaform" CLUSTER_PLATFORM_SELECTION "x"
 
   case $CLUSTER_PLATFORM_SELECTION in
-    1|x
+    1|x)
       export CLUSTER_PLATFORM=x
       ;;
-    2|z
+    2|z)
       export CLUSTER_PLATFORM=z
       ;;
-    3|p
+    3|p)
       export CLUSTER_PLATFORM=p
       ;;
     *)
