@@ -21,7 +21,7 @@ Cluster Configuration (Required):
   -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}           OCP version to use (e.g 4.13, 4.14)
   -d, --description ${COLOR_YELLOW}FYRE_DESCRIPTION${TEXT_RESET}      Description of the OCP cluster
   -l, --location ${COLOR_YELLOW}FYRE_SITE${TEXT_RESET}                FYRE site where cluster will be provisioned (default is svl)
-  -t, --cluster_platform ${COLOR_YELLOW}CLUSTER_PLATFORM${TEXT_RESET}        Cluster platform Available platforms are... "x", "p", "pvm", "z"
+  -t, --cluster_platform ${COLOR_YELLOW}CLUSTER_PLATFORM${TEXT_RESET} Cluster platform Available platforms are... "x", "p", "pvm", "z"
 
 Fyre Quick Burn Worker Node Configuration (Optional, only takes effect when quota-type is set to "quickburn"):
       --cluster-size ${COLOR_YELLOW}FYRE_CLUSTER_SIZE${TEXT_RESET}    When Fyre Quick Burn, defines the size category ("medium" or "large")
