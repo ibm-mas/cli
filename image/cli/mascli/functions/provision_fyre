@@ -84,7 +84,7 @@ function provision_fyre_noninteractive() {
       -l|--location)
         FYRE_SITE=$1 && shift
         ;;
-       -t|--cluster-platform)
+      -t|--cluster-platform)
         CLUSTER_PLATFORM=$1 && shift
         ;;
 
