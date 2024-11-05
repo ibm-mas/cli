@@ -18,9 +18,10 @@ Cluster Configuration (Required):
   -p, --product-id ${COLOR_YELLOW}FYRE_PRODUCT_ID${TEXT_RESET}        FYRE product group ID that will own the cluster
   -q, --quota-type ${COLOR_YELLOW}FYRE_QUOTA_TYPE${TEXT_RESET}        Declare the quota to use when provisioning the cluster ("quick_burn" or "product_group")
   -c, --cluster-name ${COLOR_YELLOW}CLUSTER_NAME${TEXT_RESET}         Name of the cluster to be provisioned (lowercase only)
+  -t, --cluster-platform ${COLOR_YELLOW}CLUSTER_PLATFORM${TEXT_RESET} Cluster platform ("x", "p", "pvm", "z", default is "x")
   -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}           OCP version to use (e.g 4.13, 4.14)
   -d, --description ${COLOR_YELLOW}FYRE_DESCRIPTION${TEXT_RESET}      Description of the OCP cluster
-  -l, --location ${COLOR_YELLOW}FYRE_SITE${TEXT_RESET}                FYRE site where cluster will be provisioned (default is svl)
+  -l, --location ${COLOR_YELLOW}FYRE_SITE${TEXT_RESET}                FYRE site where cluster will be provisioned (default is "svl")
 
 Fyre Quick Burn Worker Node Configuration (Optional, only takes effect when quota-type is set to "quickburn"):
       --cluster-size ${COLOR_YELLOW}FYRE_CLUSTER_SIZE${TEXT_RESET}    When Fyre Quick Burn, defines the size category ("medium" or "large")
@@ -44,7 +45,10 @@ EOM
 }
 
 function provision_fyre_noninteractive() {
-  # Default to provisioning with NFS storage enabled
+  # Default to provisioning with NFS storage enabled on amd64
+  if [[ -z "$CLUSTER_PLATFORM" ]]; then
+    CLUSTER_PLATFORM=x
+  fi
   if [[ -z "$FYRE_NFS_SETUP" ]]; then
     FYRE_NFS_SETUP=true
   fi
@@ -73,6 +77,9 @@ function provision_fyre_noninteractive() {
       # CLuster Definition
       -c|--cluster-name)
         CLUSTER_NAME=$1 && shift
+        ;;
+      -t|--cluster-platform)
+        CLUSTER_PLATFORM=$1 && shift
         ;;
       -v|--ocp-version)
         OCP_VERSION=$1 && shift
@@ -180,6 +187,29 @@ function provision_fyre_interactive() {
       ;;
   esac
 
+  echo
+  echo "OCP Cluster Platform:"
+  echo "  1. x - X86 (amd64)"
+  echo "  2. z - Zlinux (s390x)"
+  echo "  3. p - Power (ppc64e)"
+  prompt_for_input "Select Cluster Plaform" CLUSTER_PLATFORM_SELECTION "x"
+
+  case $CLUSTER_PLATFORM_SELECTION in
+    1|x)
+      export CLUSTER_PLATFORM=x
+      ;;
+    2|z)
+      export CLUSTER_PLATFORM=z
+      ;;
+    3|p)
+      export CLUSTER_PLATFORM=p
+      ;;
+    *)
+      echo -e "${COLOR_RED}Usage Error: Invalid cluster platform selection: ${CLUSTER_PLATFORM_SELECTION}${TEXT_RESET}\n"
+      exit 1
+      ;;
+  esac
+
   prompt_for_input "Cluster Description" FYRE_CLUSTER_DESCRIPTION
   prompt_for_input "FYRE Product ID" FYRE_PRODUCT_ID
   prompt_for_input "FYRE Site" FYRE_SITE
@@ -250,6 +280,7 @@ function provision_fyre() {
   export CLUSTER_TYPE=fyre
   export CLUSTER_NAME
   export OCP_VERSION
+  export CLUSTER_PLATFORM
   export FYRE_CLUSTER_DESCRIPTION
   export FYRE_SITE
 

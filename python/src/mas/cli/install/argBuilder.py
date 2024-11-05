@@ -96,7 +96,15 @@ class installArgBuilderMixin():
             command += f"  --disable-ca-trust{newline}"
 
         if self.getParam('mas_manual_cert_mgmt') is True:
-            command += f"  --manual-certificates \"{self.getParam('mas_manual_cert_dir')}\"{newline}"
+            command += f"  --manual-certificates \"{self.manualCertsDir}\"{newline}"
+
+        if self.getParam('mas_domain') is True:
+            command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
+
+        if self.getParam('--dns-provider') == "cis":
+            command += f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}"
+            command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}"
+            command += f" --cis-crn \"{self.getParam('cis_crn')}\"{newline}"
 
         if self.getParam('mas_enable_walkme') == "false":
             command += f"  --disable-walkme{newline}"
@@ -111,6 +119,8 @@ class installArgBuilderMixin():
         # IBM Suite License Service
         # -----------------------------------------------------------------------------
         command += f"  --license-file \"{self.slsLicenseFileLocal}\"{newline}"
+        if self.getParam("sls_namespace") != "ibm-sls":
+            command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\"{newline}"
 
         # IBM Data Reporting Operator (DRO)
         # -----------------------------------------------------------------------------
@@ -307,7 +317,7 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('cos_type') != "":
             command += f"  --cos \"{self.getParam('cos_type')}\""
-            if self.getParam('cos_resourcegroup') != "":
+            if self.getParam('ibmcos_resourcegroup') != "":
                 command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
             command += newline
 
@@ -366,6 +376,8 @@ class installArgBuilderMixin():
             command += f"  --skip-pre-check{newline}"
         if self.getParam('skip_grafana_install') is True:
             command += f"  --skip-grafana-install{newline}"
+        if self.getParam('image_pull_policy') != "":
+            command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
 
         command += "  --accept-license --no-confirm"
         return command
