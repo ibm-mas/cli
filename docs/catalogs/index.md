@@ -260,6 +260,33 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
   </div>
 </div>
 
+
+
+
+
+
+<div>
+<div id="panel-2022" role="tabpanel" aria-labelledby="tab-2022" hidden>
+    <table>
+    <thead>
+    <tr>
+    <th>Catalog for s390x </th>
+    <th>OCP Support</th>
+    <th>Recommended CLI</th>
+    <th>Support Notes</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td><a href="v9-241107-s390x/">v9-241107-s390x</a></td>
+    <td>4.12 - 4.15</td>
+    <td>latest</td>
+    <td>OCP 4.14 EOS October 31,2025</td>
+    </tr>
+    </tbody>
+    </table>
+  </div>
+</div>
 ### FAQ
 #### User-Controlled Updates
 > I want to control when updates are introduced into my cluster
