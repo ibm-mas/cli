@@ -250,6 +250,12 @@ slsArgGroup.add_argument(
     help="Path to MAS license file",
     type=lambda x: isValidFile(installArgParser, x)
 )
+slsArgGroup.add_argument(
+    "--sls-namespace",
+    required=False,
+    help="Customize the SLS install namespace",
+    default="ibm-sls"
+)
 
 # IBM Data Reporting Operator (DRO)
 # -----------------------------------------------------------------------------
@@ -1041,6 +1047,19 @@ approvalsGroup.add_argument(
 # More Options
 # -----------------------------------------------------------------------------
 otherArgGroup = installArgParser.add_argument_group("More")
+otherArgGroup.add_argument(
+    "--advanced",
+    action="store_true",
+    default=False,
+    help="Show advanced install options (in interactve mode)"
+)
+otherArgGroup.add_argument(
+    "--simplified",
+    action="store_true",
+    default=False,
+    help="Don't show advanced install options (in interactve mode)"
+)
+
 otherArgGroup.add_argument(
     "--accept-license",
     action="store_true",

@@ -1,0 +1,55 @@
+---
+# Mongo credentials for MAS
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: mongodb-{{mas_instance_id|lower}}-admin
+  namespace: mas-{{mas_instance_id}}-core
+  {% if custom_labels is defined and custom_labels.items() %}
+labels:
+  {% for key, value in custom_labels.items() %}
+"{{ key }}": "{{ value }}"
+  {% endfor %}
+  {% endif %}
+data:
+  username: "{{ mongodb_admin_username }}"
+  password: "{{ mongodb_admin_password }}"
+---
+# Mongo configuration for MAS
+apiVersion: config.mas.ibm.com/v1
+kind: MongoCfg
+metadata:
+  name: {{mas_instance_id|lower}}-mongo-system
+  namespace: mas-{{mas_instance_id}}-core
+  labels:
+    mas.ibm.com/configScope: system
+    mas.ibm.com/instanceId: {{mas_instance_id}}
+  {% if custom_labels is defined and custom_labels.items() %}
+  {% for key, value in custom_labels.items() %}
+"{{ key }}": "{{ value }}"
+  {% endfor %}
+  {% endif %}
+spec:
+  displayName: "External MongoDB in 'mas-{{mas_instance_id}}-core' namespace"
+  type: external
+  config:
+    configDb: admin
+    retryWrites: true
+    authMechanism: DEFAULT
+    credentials:
+      secretName: mongodb-{{mas_instance_id|lower}}-admin
+    hosts:
+     {%- if mongodb_hosts is defined %}
+     {%- for host in mongodb_hosts.split(',') %}
+     {%- set host_port = host.split(':') %}
+     - host: {{ host_port[0] }}
+       port: {{ host_port[1] }}
+    {%- endfor %}
+    {%- endif %}
+  {%- if mongodb_ca_pem_local_file is defined and mongodb_ca_pem_local_file | length > 0 %}
+  certificates:
+    - alias: "part1"
+      crt: |
+        {{ mongodb_ca_pem_local_file | indent(width=8, first=False) }}
+  {%- endif %}
