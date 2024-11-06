@@ -1,0 +1,2698 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Watson Studio v3.0.0 - Maximo Application Suite CLI Documentation</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css" />
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../../../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../../../search/main.js"></script>
+    
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: black; }</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
+
+  <body>
+    <cds-header aria-label="Maximo Application Suite CLI Documentation" class="cds-theme-zone-g100">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../../../.." prefix="IBM">Maximo Application Suite CLI Documentation</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI Documentation">
+          <cds-header-nav-item  target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+    </cds-header>
+
+    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g10" expanded>
+      <cds-side-nav-items>
+        
+          
+  <cds-side-nav-menu title="Guides" >
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/image-mirroring/" >
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/install/" >
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/update/" >
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/upgrade/" >
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/uninstall/" >
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Examples" >
+    
+      
+  <cds-side-nav-menu-item href="../../../../examples/eam-migration/" >
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../examples/mirror-db2/" >
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Command Reference" >
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/install/" >
+    install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/update/" >
+    update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/upgrade/" >
+    upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/uninstall/" >
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/must-gather/" >
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/configure-airgap/" >
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/mirror-images/" >
+    mirror-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/mirror-redhat-images/" >
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/setup-registry/" >
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/teardown-registry/" >
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/provision-fyre/" >
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/provision-roks/" >
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/provision-rosa/" >
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/configtool-oidc/" >
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Operator Catalog" expanded>
+    
+      
+  <cds-side-nav-menu-item href="../../../" >
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-241003-amd64/" >
+    Oct 03 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-240827-amd64/" >
+    Aug 27 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-240730-amd64/" >
+    Jul 30 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-240625-amd64/" >
+    Jun 25 2024
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Reference" >
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/dependencies/" >
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/topology/" >
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/cluster-extensions/" >
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+      </cds-side-nav-items>
+    </cds-side-nav>
+
+    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../../../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+      Operator Catalog
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+      <cds-breadcrumb-link href="../../">IBM Maximo Operator Catalog</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-breadcrumb-link href="#watson-studio-v300">Watson Studio v3.0.0</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item>
+    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#install-modes">Install Modes</cds-select-item>
+    
+      <cds-select-item value="#service-accounts">Service Accounts</cds-select-item>
+    
+      <cds-select-item value="#cluster-permissions">Cluster Permissions</cds-select-item>
+    
+      <cds-select-item value="#namespace-permissions">Namespace Permissions</cds-select-item>
+    
+  </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+    </div>
+
+    <div id="main-content" class="rst-content">
+      
+      <h1 id="watson-studio-v300">Watson Studio v3.0.0<a class="headerlink" href="#watson-studio-v300" title="Permanent link">¤</a></h1>
+<h2 id="install-modes">Install Modes<a class="headerlink" href="#install-modes" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Supported</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">SingleNamespace</td>
+<td style="text-align: left;">False</td>
+</tr>
+<tr>
+<td style="text-align: left;">MultiNamespace</td>
+<td style="text-align: left;">False</td>
+</tr>
+<tr>
+<td style="text-align: left;">OwnNamespace</td>
+<td style="text-align: left;">True</td>
+</tr>
+<tr>
+<td style="text-align: left;">AllNamespaces</td>
+<td style="text-align: left;">True</td>
+</tr>
+</tbody>
+</table>
+<h2 id="service-accounts">Service Accounts<a class="headerlink" href="#service-accounts" title="Permanent link">¤</a></h2>
+<p>No service accounts</p>
+<h2 id="cluster-permissions">Cluster Permissions<a class="headerlink" href="#cluster-permissions" title="Permanent link">¤</a></h2>
+<p>No cluster permissions</p>
+<h2 id="namespace-permissions">Namespace Permissions<a class="headerlink" href="#namespace-permissions" title="Permanent link">¤</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Group</th>
+<th style="text-align: left;">Resource</th>
+<th style="text-align: left;">Verbs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">batch</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">extensions</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">policy</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">autoscaling</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">authorization.openshift.io</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">metrics.k8s.io</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">poddisruptionbudgets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">jobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">deployments/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">projects</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">statefulsets/scale</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">services/finalizers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">persistentvolumeclaims</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">cronjobs</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">pods/portforward</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">namespaces</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">horizontalpodautoscalers</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">ingresses</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">endpoints</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">cronjob</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">jobs/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">pods/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">resourcequotas</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">project.openshift.io</td>
+<td style="text-align: left;">resourcequotas/status</td>
+<td style="text-align: left;">apply, create, delete, deletecollection, edit, exec, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cpd.ibm.com</td>
+<td style="text-align: left;">cpdinstalls</td>
+<td style="text-align: left;">apply, create, delete, edit, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cpd.ibm.com</td>
+<td style="text-align: left;">cpdinstalls/spec</td>
+<td style="text-align: left;">apply, create, delete, edit, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cpd.ibm.com</td>
+<td style="text-align: left;">cpdinstalls/status</td>
+<td style="text-align: left;">apply, create, delete, edit, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">buildconfigs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">buildconfigs/instantiate</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">buildconfigs/instantiatebinary</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">buildconfigs/webhooks</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">buildlogs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">builds</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">builds/clone</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">builds/details</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">build.openshift.io</td>
+<td style="text-align: left;">builds/log</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">imagestreams</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">imagestreams/layers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">imagestreams/secrets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">imagestreams/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">imagestreamimages</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">imagestreamimports</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">imagestreammappings</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">image.openshift.io</td>
+<td style="text-align: left;">imagestreamtags</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">ws.cpd.ibm.com</td>
+<td style="text-align: left;">ws</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">ws.cpd.ibm.com</td>
+<td style="text-align: left;">ws/spec</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">ws.cpd.ibm.com</td>
+<td style="text-align: left;">ws/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">ws.cpd.ibm.com</td>
+<td style="text-align: left;">notebookruntimes</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">ws.cpd.ibm.com</td>
+<td style="text-align: left;">notebookruntimes/spec</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">ws.cpd.ibm.com</td>
+<td style="text-align: left;">notebookruntimes/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">ccs.cpd.ibm.com</td>
+<td style="text-align: left;">ccs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">ccs.cpd.ibm.com</td>
+<td style="text-align: left;">ccs/spec</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">ccs.cpd.ibm.com</td>
+<td style="text-align: left;">ccs/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">datarefinery.cpd.ibm.com</td>
+<td style="text-align: left;">datarefinery</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">datarefinery.cpd.ibm.com</td>
+<td style="text-align: left;">datarefinery/spec</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">datarefinery.cpd.ibm.com</td>
+<td style="text-align: left;">datarefinery/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">zen.cpd.ibm.com</td>
+<td style="text-align: left;">zenservices</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">zen.cpd.ibm.com</td>
+<td style="text-align: left;">zenservices/spec</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">zen.cpd.ibm.com</td>
+<td style="text-align: left;">zenservices/status</td>
+<td style="text-align: left;">get, list, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">operator.ibm.com</td>
+<td style="text-align: left;">operandrequests</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, use, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">operator.ibm.com</td>
+<td style="text-align: left;">operandregistries</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, use, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">operator.ibm.com</td>
+<td style="text-align: left;">operandconfigs</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, use, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">operator.ibm.com</td>
+<td style="text-align: left;">operandbindinfos</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, use, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">certmanager.k8s.io</td>
+<td style="text-align: left;">issuers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">certmanager.k8s.io</td>
+<td style="text-align: left;">issuers/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">certmanager.k8s.io</td>
+<td style="text-align: left;">issuers/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">certmanager.k8s.io</td>
+<td style="text-align: left;">certificates</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">certmanager.k8s.io</td>
+<td style="text-align: left;">certificates/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">certmanager.k8s.io</td>
+<td style="text-align: left;">certificates/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+</tbody>
+</table>
+      
+    </div>
+    <!-- <div id="footer" class="rst-content">
+      Built with mkdocs v1.6.1 (2024-11-06 02:56:00.806417+00:00)
+    </div> -->
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body>
+</html>
