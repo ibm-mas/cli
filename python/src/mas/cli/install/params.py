@@ -113,7 +113,8 @@ optionalParams = [
     "eventstreams_instance_location",
     # COS
     "cos_type",
-    "ibmcos_resourcegroup",
+    "cos_resourcegroup",
+    "cos_apikey",
     # ECK
     "eck_action",
     "eck_enable_logstash",

@@ -625,8 +625,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.configCP4D()
             self.promptForString("COS Provider [ibm/ocs]", "cos_type")
             if self.getParam("cos_type") == "ibm":
-                self.promptForString("IBM Cloud API Key", "ibmcloud_apikey", isPassword=True)
-                self.promptForString("IBM Cloud Resource Group", "ibmcos_resourcegroup")
+                self.promptForString("IBM Cloud API Key", "cos_apikey", isPassword=True)
+                self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
 
     @logMethodCall
     def chooseInstallFlavour(self) -> None:

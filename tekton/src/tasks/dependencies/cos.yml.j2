@@ -23,9 +23,9 @@ spec:
       type: string
       description: COS Provider (ibm and ocs are supported)
       default: ""
-    - name: ibmcloud_apikey
+    - name: cos_apikey
       type: string
-      description: IBM Cloud API Key
+      description: IBM Cloud COS API Key
       default: ""
     - name: ibmcloud_resourcegroup
       type: string
@@ -70,8 +70,8 @@ spec:
         value: $(params.cos_action)
       - name: COS_INSTANCE_NAME
         value: $(params.cos_instance_name)
-      - name: IBMCLOUD_APIKEY
-        value: $(params.ibmcloud_apikey)
+      - name: COS_APIKEY
+        value: $(params.cos_apikey)
       - name: COS_RESOURCEGROUP
         value: $(params.cos_resourcegroup)
       - name: IBMCLOUD_RESOURCEGROUP

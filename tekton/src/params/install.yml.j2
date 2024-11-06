@@ -5,9 +5,6 @@
 
 # IBM Cloud
 # -----------------------------------------------------------------------------
-- name: ibmcloud_apikey
-  type: string
-  default: ""
 - name: ibmcloud_resourcegroup
   type: string
   default: ""
@@ -276,6 +273,9 @@
 - name: cos_resourcegroup
   type: string
   description: Name of an existing COS Resource Group in IBM Cloud account
+  default: ""
+- name: cos_apikey
+  type: string
   default: ""
 - name: cos_instance_name
   type: string

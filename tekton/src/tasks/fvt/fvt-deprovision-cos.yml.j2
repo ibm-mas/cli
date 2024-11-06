@@ -35,12 +35,6 @@ spec:
           value: "deprovision"
 
         # COS Details
-        - name: IBMCLOUD_APIKEY
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt
-              key: IBMCLOUD_APIKEY
-              optional: true
         - name: IBMCLOUD_RESOURCEGROUP
           valueFrom:
             secretKeyRef:
@@ -58,4 +52,10 @@ spec:
             secretKeyRef:
               name: mas-fvt
               key: COS_RESOURCEGROUP
+              optional: true
+        - name: COS_APIKEY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: COS_APIKEY
               optional: true
