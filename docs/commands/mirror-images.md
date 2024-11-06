@@ -47,7 +47,6 @@ Usage
 
 ### Content Selection (Other Dependencies)
 - `--mirror-cfs` Mirror images for IBM Cloud Pak Foundation Services
-- `--mirror-uds` Mirror images for IBM User Data Services
 - `--mirror-sls` Mirror images for IBM Suite License Service
 - `--mirror-tsm` Mirror images for IBM Truststore Manager
 - `--mirror-mongo` Mirror images for MongoDb Community Edition
@@ -92,7 +91,6 @@ As of MAS 8.10 (June 2023) the total capacity requirement to mirror content from
 | --------------------------------- | --------------------------- | -------- |
 | Mongo Community Edition           | `--mirror-mongo`            | 500M     |
 | IBM Truststore Manager            | `--mirror-tsm`              | 1G       |
-| IBM User Data Services            | `--mirror-uds`              | 7G       |
 | IBM Suite License Service         | `--mirror-sls`              | 1G       |
 | IBM Cloud Pak Foundation Services | `--mirror-cfs`              | 21G      |
 | IBM AppConnect                    | `--mirror-appconnect`       | 13G      |
@@ -123,7 +121,7 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas mirror-images \
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
-  --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
+  --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
 ```
 
@@ -143,7 +141,7 @@ docker run -ti --rm -v /registry:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_V
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
-  --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
+  --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
 ```
 
@@ -172,7 +170,7 @@ docker run -ti --rm -v /registry:/mnt/registry mirror.mydomain.com:5000/ibmmas/c
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
-  --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
+  --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
 ```
 

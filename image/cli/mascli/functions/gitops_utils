@@ -410,7 +410,7 @@ function clone_and_lock_target_git_repo() {
   SSH_PATH=$6
   GIT_LOCK_BRANCH=$7
 
-  RETRIES=${8:-20}
+  RETRIES=${8:-100}
   RETRY_DELAY_SECONDS=${8:-20}
 
   GITOPS_REPO_DIR="${LOCAL_DIR}/${GITHUB_REPO}"
@@ -866,4 +866,128 @@ function validate_app_name(){
     echo "Application name cannot be longer than 63 characters: $APPLICATION"
     exit 1
   fi
+}
+
+# Look for storage class names matching "generated(<type>)" where <type> is a string
+# If it matches, return "<type>" or "" otherwise (used to indicate that no match was found).
+# E.g. "generated(efs)" returns "efs". "gp3" returns ""
+function parse_storage_class_name() {
+  INPUT_STORAGE_CLASS_NAME="$1"
+  if [[ "$INPUT_STORAGE_CLASS_NAME" =~ generated\((.*)\) ]]; then
+    echo "${BASH_REMATCH[1]}"
+  fi
+  echo ""
+}
+
+# If the first parameter matches a "generated(<type>)" directive (see parse_storage_class_name() above),
+# This will return a suitable name containing all necessary delimiters for a K8S storage class resource:
+# ${STORAGE_CLASS_TYPE}-${CLUSTER_ID}-${MAS_INSTANCE_ID}-${MAS_APP_ID}-${DEPENDENCY}
+# e.g. "efs-noble5-inst1-manage-db2"
+#
+# For efs (i.e. "generated(efs)"), the output of this function is also used in generate_storage_class_def() (below) to lookup
+# an EFS instance in AWS by its CreationToken.
+#
+# Resulting name must not be longer than 64 characters (due to CreationToken field length restrictions):
+#   STORAGE_CLASS_TYPE: 6 chars max
+#   CLUSTER_ID: 12 chars max
+#   MAS_INSTANCE_ID: 12 chars max
+#   MAS_APP_ID: 16 chars max
+#   DEPENDENCY: 8 chars max
+#   
+#   After the 4 chars reserved for delimiters this results in names of max 58 in length, leaving
+#   us with 6 chars of headroom in case of future requirements.
+# 
+# If the first parameter does not match the "generated(<type>)" directive, this indicates that a named
+# storage class was specified, so this function will just return the first parameter unchanged.
+function generate_storage_class_name() {
+  INPUT_STORAGE_CLASS_NAME="$1"
+  CLUSTER_ID="${2}"
+  MAS_INSTANCE_ID="${3}"
+  MAS_APP_ID="${4}"
+  DEPENDENCY="${5}"
+
+  STORAGE_CLASS_TYPE=$(parse_storage_class_name "${INPUT_STORAGE_CLASS_NAME}")
+  if [[ -z "${STORAGE_CLASS_TYPE}" ]]; then
+    echo "${INPUT_STORAGE_CLASS_NAME}"
+    exit 0
+  fi
+
+  echo "${STORAGE_CLASS_TYPE}-${CLUSTER_ID}-${MAS_INSTANCE_ID}-${MAS_APP_ID}-${DEPENDENCY}"
+}
+
+# Adds the storage class definition yaml to STORAGE_CLASS_DEFINITIONS_SO_FAR based on INPUT_STORAGE_CLASS_NAME, then echoes (i.e. "returns") STORAGE_CLASS_DEFINITIONS_SO_FAR
+# All other parameters are used to generates the name for the storage class (see generate_storage_class_name() above).
+# 
+# If INPUT_STORAGE_CLASS_NAME is a named storage class (indicating that no storage class definition is required), STORAGE_CLASS_DEFINITIONS_SO_FAR will be echoed unchanged
+# If it is a "generated(<type>)" directive, YAML describing the storage class type will be added to STORAGE_CLASS_DEFINITIONS_SO_FAR
+#
+# Currently supports <type>:
+#   efs - EFS file system ID will be fetched from AWS account looking up EFS by CreationToken matching the generated storage class name.
+#         NOTE: Assumes aws CLI already logged into an AWS account with creds authorised to run "aws efs describe-file-systems"
+#
+# If <type> is not supported, an error will be echoed to stderr and function will exit 1
+#
+# Example usage:
+#   export STORAGE_CLASS_DEFINITIONS
+#
+#   STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "generated(efs)" "cluster1" "inst1" "app1" "dep1" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
+#   STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "generated(efs)" "cluster1" "inst1" "app1" "dep2" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
+#   STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "gp3"            "cluster1" "inst1" "app1" "dep3" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
+# 
+#   echo "${STORAGE_CLASS_DEFINITIONS}"
+#
+#   # Output:
+#   #
+#   # efs-cluster1-inst1-app1-dep1:
+#   #   provisioner: efs.csi.aws.com
+#   #   parameters:
+#   #     fileSystemId: fs-000000000000001
+#   #     directoryPerms: "777"
+#   #     basePath: /
+#   #     gid: "0"
+#   #     uid: "0"
+#   #     provisioningMode: efs-ap
+#   # efs-cluster1-inst1-app1-dep2:
+#   #   provisioner: efs.csi.aws.com
+#   #   parameters:
+#   #     fileSystemId: fs-000000000000002
+#   #     directoryPerms: "777"
+#   #     basePath: /
+#   #     gid: "0"
+#   #     uid: "0"
+#   #     provisioningMode: efs-ap
+function generate_storage_class_def() {
+  INPUT_STORAGE_CLASS_NAME="$1"
+  CLUSTER_ID="${2}"
+  MAS_INSTANCE_ID="${3}"
+  MAS_APP_ID="${4}"
+  DEPENDENCY="${5}"
+  STORAGE_CLASS_DEFINITIONS_SO_FAR="$6"
+
+  STORAGE_CLASS_NAME=$(generate_storage_class_name "${INPUT_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" "${MAS_APP_ID}" "${DEPENDENCY}" )
+
+  STORAGE_CLASS_TYPE=$(parse_storage_class_name "${INPUT_STORAGE_CLASS_NAME}")
+  if [[ -z "${STORAGE_CLASS_TYPE}" ]]; then
+    # not a special generated(x) directive, so must be a named storage class
+    # do not add any new storage class definitions
+    echo "${STORAGE_CLASS_DEFINITIONS}"
+    return 0
+  elif [[ "${STORAGE_CLASS_TYPE}" == "efs" ]]; then
+
+    CREATION_TOKEN="${STORAGE_CLASS_NAME}"
+    EFS_FILESYSTEM_ID=$(aws efs describe-file-systems --creation-token "${CREATION_TOKEN}"  --query 'FileSystems[0].FileSystemId' --output text)
+    if [[ -z "${EFS_FILESYSTEM_ID}" || "${EFS_FILESYSTEM_ID}" == "None" ]]; then
+      echo "Unable to find EFS Instance with CreationToken ${CREATION_TOKEN}. Aborting." >&2
+      exit 1
+    fi
+
+    STORAGE_CLASS_DEF='{"provisioner": "efs.csi.aws.com", "parameters": { "fileSystemId": "'${EFS_FILESYSTEM_ID}'", "directoryPerms": "777", "basePath": "/rosa-'${STORAGE_CLASS_NAME}'", "gid": "0", "uid": "0", "provisioningMode": "efs-ap" }}'
+  else
+    echo "Unsupported StorageClass type: ${STORAGE_CLASS_TYPE}" >&2
+    exit 1
+  fi
+
+  # Add storage class to dict STORAGE_CLASS_DEFINITIONS_SO_FAR using STORAGE_CLASS_NAME as the key
+  # No-op if key already exists
+  echo "${STORAGE_CLASS_DEFINITIONS_SO_FAR}" | yq e '(.'${STORAGE_CLASS_NAME}' // '"${STORAGE_CLASS_DEF}"') as $x | .'${STORAGE_CLASS_NAME}' = $x' -
 }

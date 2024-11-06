@@ -1,5 +1,8 @@
 - name: app-verify-manage
   timeout: "0"
+  taskRef:
+    name: mas-devops-suite-app-verify
+    kind: Task
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
@@ -22,7 +25,3 @@
     # Custom Label Support
     - name: custom_labels
       value: $(params.custom_labels)
-
-  taskRef:
-    name: mas-devops-suite-app-verify
-    kind: Task
