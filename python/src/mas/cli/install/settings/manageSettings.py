@@ -125,53 +125,57 @@ class ManageSettingsMixin():
                     exit(1)
 
     def manageSettingsDatabase(self) -> None:
-        self.printH2("Maximo Manage Settings - Database")
-        self.printDescription(["Customise the schema, tablespace, indexspace, and encryption settings used by Manage"])
+        if self.showAdvancedOptions:
+            self.printH2("Maximo Manage Settings - Database")
+            self.printDescription(["Customise the schema, tablespace, indexspace, and encryption settings used by Manage"])
 
-        if self.yesOrNo("Customize database settings"):
-            self.promptForString("Schema", "mas_app_settings_db2_schema", default="maximo")
-            self.promptForString("Tablespace", "mas_app_settings_tablespace", default="MAXDATA")
-            self.promptForString("Indexspace", "mas_app_settings_indexspace", default="MAXINDEX")
+            if self.yesOrNo("Customize database settings"):
+                self.promptForString("Schema", "mas_app_settings_db2_schema", default="maximo")
+                self.promptForString("Tablespace", "mas_app_settings_tablespace", default="MAXDATA")
+                self.promptForString("Indexspace", "mas_app_settings_indexspace", default="MAXINDEX")
 
-            if self.yesOrNo("Customize database encryption settings"):
-                self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mas_app_settings_crypto_key")
-                self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mas_app_settings_cryptox_key")
-                self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mas_app_settings_old_crypto_key")
-                self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mas_app_settings_old_cryptox_key")
-                self.yesOrNo("Override database encryption secrets with provided keys", "mas_app_settings_override_encryption_secrets_flag")
+                if self.yesOrNo("Customize database encryption settings"):
+                    self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mas_app_settings_crypto_key")
+                    self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mas_app_settings_cryptox_key")
+                    self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mas_app_settings_old_crypto_key")
+                    self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mas_app_settings_old_cryptox_key")
+                    self.yesOrNo("Override database encryption secrets with provided keys", "mas_app_settings_override_encryption_secrets_flag")
 
     def manageSettingsServerBundleConfig(self) -> None:
-        self.printH2("Maximo Manage Settings - Server Bundles")
-        self.printDescription([
-            "Define how you want to configure Manage servers:",
-            " - You can have one or multiple Manage servers distributing workload",
-            " - Additionally, you can choose to include JMS server for messaging queues",
-            "",
-            "Configurations:",
-            "  1. Deploy the 'all' server pod only (workload is concentrated in just one server pod but consumes less resource)",
-            "  2. Deploy the 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and includes jms server)"
-        ])
-
-        if not self.isSNO():
+        if self.showAdvancedOptions:
+            self.printH2("Maximo Manage Settings - Server Bundles")
             self.printDescription([
-                "  3. Deploy the 'mea', 'report', 'ui' and 'cron' bundle pods (workload is distributed across multiple server pods)",
-                "  4. Deploy the 'mea', 'report', 'ui', 'cron' and 'jms' bundle pods (workload is distributed across multiple server pods and includes jms server)"
+                "Define how you want to configure Manage servers:",
+                " - You can have one or multiple Manage servers distributing workload",
+                " - Additionally, you can choose to include JMS server for messaging queues",
+                "",
+                "Configurations:",
+                "  1. Deploy the 'all' server pod only (workload is concentrated in just one server pod but consumes less resource)",
+                "  2. Deploy the 'all' and 'jms' bundle pods (workload is concentrated in just one server pod and includes jms server)"
             ])
 
-        manageServerBundleSelection = self.promptForString("Select a server bundle configuration")
+            if not self.isSNO():
+                self.printDescription([
+                    "  3. Deploy the 'mea', 'report', 'ui' and 'cron' bundle pods (workload is distributed across multiple server pods)",
+                    "  4. Deploy the 'mea', 'report', 'ui', 'cron' and 'jms' bundle pods (workload is distributed across multiple server pods and includes jms server)"
+                ])
 
-        if manageServerBundleSelection == "1":
-            self.setParam("mas_app_settings_server_bundles_size", "dev")
-        elif manageServerBundleSelection == "2":
-            self.setParam("mas_app_settings_server_bundles_size", "snojms")
-            self.setParam("mas_app_settings_persistent_volumes_flag", "true")
-        elif manageServerBundleSelection == "3":
-            self.setParam("mas_app_settings_server_bundles_size", "small")
-        elif manageServerBundleSelection == "4":
-            self.setParam("mas_app_settings_server_bundles_size", "jms")
-            self.setParam("mas_app_settings_persistent_volumes_flag", "true")
+            manageServerBundleSelection = self.promptForString("Select a server bundle configuration")
+
+            if manageServerBundleSelection == "1":
+                self.setParam("mas_app_settings_server_bundles_size", "dev")
+            elif manageServerBundleSelection == "2":
+                self.setParam("mas_app_settings_server_bundles_size", "snojms")
+                self.setParam("mas_app_settings_persistent_volumes_flag", "true")
+            elif manageServerBundleSelection == "3":
+                self.setParam("mas_app_settings_server_bundles_size", "small")
+            elif manageServerBundleSelection == "4":
+                self.setParam("mas_app_settings_server_bundles_size", "jms")
+                self.setParam("mas_app_settings_persistent_volumes_flag", "true")
+            else:
+                self.fatalError("Invalid selection")
         else:
-            self.fatalError("Invalid selection")
+            self.setParam("mas_app_settings_server_bundles_size", "dev")
 
     def manageSettingsJMS(self) -> None:
         if self.getParam("mas_app_settings_server_bundles_size") in ["jms", "snojms"]:
@@ -219,7 +223,7 @@ class ManageSettingsMixin():
         self.promptForString("Secondary languages", "mas_app_settings_secondary_langs")
 
     def manageSettingsCP4D(self) -> None:
-        if self.getParam("mas_app_channel_manage") in ["8.7.x", "9.0.x"]:
+        if self.getParam("mas_app_channel_manage") in ["8.7.x", "9.0.x"] and self.showAdvancedOptionsshowAdvancedOptions:
             self.printDescription([
                 "Integration with Cognos Analytics provides additional support for reporting features in Maximo Manage, for more information refer to the documentation online: ",
                 "    <u>https://ibm.biz/BdMuxs</u>"
@@ -261,9 +265,11 @@ class ManageSettingsMixin():
             self.promptForString("Storage pipelines bucket", "mas_aibroker_storage_pipelines_bucket")
             self.promptForString("Storage tenants bucket", "mas_aibroker_storage_tenants_bucket")
             self.promptForString("Storage templates bucket", "mas_aibroker_storage_templates_bucket")
+
             self.promptForString("Watsonxai api key", "mas_aibroker_watsonxai_apikey")
             self.promptForString("Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
             self.promptForString("Watsonxai project id", "mas_aibroker_watsonxai_project_id")
+
             self.promptForString("Database host", "mas_aibroker_db_host")
             self.promptForString("Database port", "mas_aibroker_db_port")
             self.promptForString("Database user", "mas_aibroker_db_user")

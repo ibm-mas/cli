@@ -180,7 +180,6 @@ jobs:
             wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
           fi
 
-
       # 3. Download Built Artifacts
       # -------------------------------------------------------------------------------------------
       - name: Download the tekton file built in the other job
@@ -197,57 +196,38 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
-      # 4. CLI container image
+      # 4. CLI Container Images
       # -------------------------------------------------------------------------------------------
       - name: Build the container image
         id: docker-build
         run: |
-          $GITHUB_WORKSPACE/build/bin/docker-build.sh -n ibmmas -i cli
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
 
-      - name: Push the container image
-        id: docker-push
-        run: |
-          docker tag ibmmas/cli quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
-          docker images
+          # Login to quay.io
           docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
-          docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
 
-      - name: Push the container image (master)
-        id: docker-push-master
-        if: github.ref == 'refs/heads/master'
-        run: |
-          docker tag ibmmas/cli quay.io/ibmmas/cli:master
+          # Build the images
+          $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform amd64 -b image/cli
+          $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform s390x -b image/cli
+
+          # List available images
           docker images
-          docker push quay.io/ibmmas/cli:master
 
-      - name: Push the container image (latest)
-        id: docker-push-latest
-        if: github.event_name == 'release'
-        run: |
-          docker tag ibmmas/cli quay.io/ibmmas/cli:latest
-          docker images
-          docker push quay.io/ibmmas/cli:latest
+          # Push the images
+          docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-amd64
+          docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-s390x
 
-      # 5. OWASP Dependency Check
-      # -------------------------------------------------------------------------------------------
-      - name: Perform dependency check
-        id: owasp
-        uses: dependency-check/Dependency-Check_Action@main
-        with:
-          project: 'cli'
-          path: '.'
-          format: 'HTML'
-          args: >
-            --failOnCVSS 7
-            --enableRetired
+          # Publish the manifest
+          $GITHUB_WORKSPACE/build/bin/docker-manifest.sh -r quay.io/ibmmas/cli --target-platforms amd64,s390x
 
-      - name: Upload dependency check results
-        id: upload-owasp
-        uses: actions/upload-artifact@v4
-        with:
-           name: OWASP dependency check report
-           path: ${{github.workspace}}/reports
-           retention-days: 30
+          # Re-issue the manifest under an alias where needed
+          # https://github.com/docker/buildx/issues/1744#issuecomment-1896645786
+          if [[ "$GITHUB_REF" == "refs/heads/master" ]]; then
+            docker buildx imagetools create -t quay.io/ibmmas/cli:master quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+          elif [[ "$GITHUB_EVENT_NAME" == "release" ]]; then
+            docker buildx imagetools create -t quay.io/ibmmas/cli:latest quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+          fi
 
   pyinstaller-windows:
     name: Build Windows CLI
@@ -312,7 +292,9 @@ jobs:
 
   pyinstaller-linux:
     name: Build Linux CLI
-    runs-on: ubuntu-latest
+    # We intentionally run on the oldest available Ubuntu runner, as this will result in a binary
+    # usable on older and newer versions of linux.
+    runs-on: ubuntu-20.04
     if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
