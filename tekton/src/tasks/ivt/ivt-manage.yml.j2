@@ -58,6 +58,21 @@ spec:
       type: string
       description: Boolean value to check if tests are runninng locally or on fvt
       default: "false"
+    
+    # Parameter To Specify If Monitor Run With Or Without Manage
+    - name: fvt_test_suite
+      type: string
+      description: Whether to run the Monitor (Base) [monitor_fvt] or Monitor (with Manage) FVT suite [monitor_fvt_with_manage]
+      default: "monitor_fvt_with_manage"
+    
+    - name: mas_app_channel_monitor
+      type: string
+      default: ""
+    
+    - name: fvt_digest_ctf
+      type: string
+      description: FVT Digest - Shared Test Container
+      default: ""
 
   stepTemplate:
     name: 'ivt-manage'
@@ -126,18 +141,51 @@ spec:
           value: $(params.product_channel_manage)
         - name: PRODUCT_ID
           value: ibm-mas-manage
-    - name: manage-monitor
+
+    - name: fvt-monitor
       image: '$(params.fvt_image_registry)/ai-solutions/common-test-framework@$(params.fvt_image_digest_monitor)'
       imagePullPolicy: $(params.image_pull_policy)
-      timeout: 90m # Ensure bad FVTs don't run forever
+      timeout: 6h # Ensure bad FVTs don't run forever .. want this to be smaller, but urgh, teams have already created huge suites that run for hours instead of multiple smaller suites
       onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      env:
+        # What are we testing?
+        - name: PRODUCT_ID
+          value: ibm-mas-monitor
+        - name: PRODUCT_CHANNEL
+          value: $(params.product_channel_monitor)
+        - name: NAMESPACE
+          value: "mas-$(params.mas_instance_id)-core"
+        - name: INSTANCE_ID
+          value: "$(params.mas_instance_id)"
+        - name: WORKSPACE_ID
+          value: "$(params.mas_workspace_id)"
+
+       # Enable results to be saved
+        - name: DEVOPS_MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_MONGO_URI
+              optional: true
+        - name: BUILD_NUM
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
+
+        # Test Data
+        - name: FVT_TEST_SUITE
+          value: $(params.fvt_test_suite)
+        - name: FVT_ENABLE_DEBUG
+          value: "$(params.fvt_enable_debug)"
+        - name: CTF_IS_LOCAL
+          value: $(params.ctf_is_local)
       volumeMounts:
         - mountPath: /dev/shm
           name: dshm
-      env:
-        - name: FVT_TEST_SUITE
-          value: manage_monitor_ivt
-        - name: PRODUCT_CHANNEL
-          value: $(params.product_channel_monitor)
-        - name: PRODUCT_ID
-          value: ibm-mas-monitor
+      securityContext:
+        privileged: true
+        runAsUser: 0

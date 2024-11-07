@@ -14,10 +14,13 @@ When no options are specified on the command line, interactive-mode will be enab
 Options:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}               Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}     IBM Suite Maximo Application Suite Instance ID  
+  --efs-unique-id ${COLOR_YELLOW}EFS_UNIQUE_ID${TEXT_RESET}             Unique identifier for the EFS instance to create. EFS name will be <EFS_UNIQUE_ID>-efs, EFS CreationToken will be <CREATION_TOKEN_PREFIX>-<EFS_UNIQUE_ID>. Optional, defaults to <MAS_INSTANCE_ID> (if specified) or <CLUSTER_ID> otherwise.
+  --creation-token-prefix ${COLOR_YELLOW}EFS_UNIQUE_ID${TEXT_RESET}     Prefix to apply to CreationToken set on EFS instance. Optional, defaults to "mas_devops.".
   --aws-region ${COLOR_YELLOW}AWS_DEFAULT_REGION${TEXT_RESET}           AWS Region
   --aws-access-key ${COLOR_YELLOW}AWS_ACCESS_KEY_ID${TEXT_RESET}        AWS Access Key ID
   --aws-secret-key ${COLOR_YELLOW}AWS_SECRET_ACCESS_KEY${TEXT_RESET}    AWS Secret Access Key
   --cloud-provider ${COLOR_YELLOW}CLOUD_PROVIDER${TEXT_RESET}           Cloud Provider
+  --skip-create-storage-class                                           If set, script will skip creation of a corresponding EFS StorageClass named "efs<efs_unique_id>" in the OCP cluster
 
 Other Commands:
   -h, --help                                      Show this help message
@@ -26,6 +29,8 @@ EOM
 }
 
 function gitops_efs_noninteractive() {
+
+  export CREATE_STORAGE_CLASS="true"
 
   while [[ $# -gt 0 ]]
   do
@@ -44,6 +49,18 @@ function gitops_efs_noninteractive() {
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
+      --efs-unique-id)
+        export EFS_UNIQUE_ID=$1 && shift
+        ;;
+
+      --creation-token-prefix)
+        export CREATION_TOKEN_PREFIX=$1 && shift
+        ;;
+
+      --skip-create-storage-class)
+        export CREATE_STORAGE_CLASS="false"
+        ;;
+      
       # AWS specific   
       --aws-region)
         export AWS_DEFAULT_REGION=$1 && shift
@@ -111,7 +128,9 @@ function gitops_efs() {
     sm_login
 
     export CLUSTER_NAME=$CLUSTER_ID
-    export EFS_UNIQUE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
+    if [[ -z "${EFS_UNIQUE_ID}" ]]; then
+      export EFS_UNIQUE_ID=${MAS_INSTANCE_ID:-CLUSTER_ID}
+    fi
     export ROLE_NAME=ocp_efs && ansible-playbook ibm.mas_devops.run_role
     rc=$?
     [ $rc -ne 0 ] && exit $rc

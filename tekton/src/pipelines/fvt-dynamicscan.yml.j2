@@ -1,0 +1,387 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-dynamicscan
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+    # PodTemplates configurations
+    - name: shared-pod-templates
+
+  params:
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
+
+    # MAS Configuration
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+
+    # Custom Label Support
+    - name: custom_labels
+      type: string
+      default: ""
+      description: Optional custom labels, comma separated list of key=value pairs
+    
+    # Application Verification Frequency
+    - name: mas_app_cfg_delay
+      type: string
+      default: "120"
+      description: Number of seconds to wait before next retry to verify CR
+      
+    - name: mas_app_cfg_retries
+      type: string
+      default: "30"
+      description: Number of times workspace CR state will be verified before automation gives up
+
+    # FVT Configuration
+    # -------------------------------------------------------------------------
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: fvt_artifactory_username
+      type: string
+      default: ""
+    - name: fvt_artifactory_token
+      type: string
+      default: ""
+    - name: ivt_digest_core
+      type: string
+      description: IVT Digest - Core
+      default: ""
+    
+    # MAS App Channel Configuration
+    # -------------------------------------------------------------------------
+    - name: mas_channel
+      type: string
+      default: ""
+    - name: mas_app_channel_iot
+      type: string
+      default: ""
+    - name: mas_app_channel_monitor
+      type: string
+      default: ""
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: mas_app_channel_assist
+      type: string
+      default: ""
+    - name: mas_app_channel_optimizer
+      type: string
+      default: ""
+    - name: mas_app_channel_predict
+      type: string
+      default: ""
+    - name: mas_app_channel_visualinspection
+      type: string
+      default: ""
+    
+    # Dynamic Application Scanning
+    # -------------------------------------------------------------------------
+    - name: launchdyncscan_core
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Core after suite-verify completes"
+    - name: launchdyncscan_iot
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for IoT after suite-app-verify completes"
+    - name: launchdyncscan_monitor
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Monitor after suite-app-verify completes"
+    - name: launchdyncscan_manage
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Manage after suite-app-verify completes"
+    - name: launchdyncscan_assist
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Assist after suite-app-verify completes"
+    - name: launchdyncscan_optimizer
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Optimizer after suite-app-verify completes"
+    - name: launchdyncscan_predict
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Predict after suite-app-verify completes"
+    - name: launchdyncscan_visualinspection
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for VisualInspection after suite-app-verify completes"
+  
+  tasks:
+    # Run Dynamic Scan for Core
+    # -----------------------------------------------------------------------
+    # Run the suite verification role
+    - name: suite-verify
+      taskref:
+        kind: Task
+        name: mas-devops-suite-verify
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: skip_post_verify
+          value: true
+
+    - name: dynamicscan-core
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas
+        - name: product_channel
+          value: $(params.mas_channel)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_core)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - suite-verify
+
+    # Run Dynamic Scan for IoT
+    # -----------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/apps/iot-verify.yml.j2') | indent(4) }}
+        # Verification frequency - IoT takes almost 100mins to install and configure
+        - name: mas_app_cfg_retries
+          value: "50"
+        - name: mas_app_cfg_delay
+          value: $(params.mas_app_cfg_delay)
+      when:
+        - input: "$(params.launchdyncscan_iot)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - suite-verify
+    
+    - name: dynamicscan-iot
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-iot
+        - name: product_channel
+          value: $(params.mas_app_channel_iot)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_iot)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-verify-iot
+    
+    # Run Dynamic Scan for Monitor
+    # -----------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/apps/monitor-verify.yml.j2') | indent(4) }}
+        # Verification Frequency - Monitor takes almost 70mins to install and configure
+        - name: mas_app_cfg_retries
+          value: "35"
+        - name: mas_app_cfg_delay
+          value: $(params.mas_app_cfg_delay)
+      when:
+        - input: "$(params.launchdyncscan_monitor)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-verify-iot
+    
+    - name: dynamicscan-monitor
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-monitor
+        - name: product_channel
+          value: $(params.mas_app_channel_monitor)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_monitor)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-verify-monitor
+    
+    # Run Dynamic Scan for Manage
+    # -----------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/apps/manage-verify.yml.j2') | indent(4) }}
+        # Verification Frequency
+        - name: mas_app_cfg_retries
+          value: "60"
+        - name: mas_app_cfg_delay
+          value: "360"
+      when:
+        - input: "$(params.launchdyncscan_manage)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - suite-verify
+
+    - name: dynamicscan-manage
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-manage
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_manage)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-verify-manage
+    
+    # Run Dynamic Scan for Assist
+    # -----------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/apps/assist-verify.yml.j2') | indent(4) }}
+        # Verification Frequency
+        - name: mas_app_cfg_retries
+          value: $(params.mas_app_cfg_retries)
+        - name: mas_app_cfg_delay
+          value: $(params.mas_app_cfg_delay)
+      when:
+        - input: "$(params.launchdyncscan_assist)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - suite-verify
+    
+    - name: dynamicscan-assist
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-assist
+        - name: product_channel
+          value: $(params.mas_app_channel_assist)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_assist)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-verify-assist
+    
+    # Run Dynamic Scan for Optimizer
+    # -----------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/apps/optimizer-verify.yml.j2') | indent(4) }}
+        # Verification Frequency
+        - name: mas_app_cfg_retries
+          value: $(params.mas_app_cfg_retries)
+        - name: mas_app_cfg_delay
+          value: $(params.mas_app_cfg_delay)
+      when:
+        - input: "$(params.launchdyncscan_optimizer)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - suite-verify
+    
+    - name: dynamicscan-optimizer
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_optimizer)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-verify-optimizer
+    
+    # Run Dynamic Scan for Predict
+    # -----------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/apps/predict-verify.yml.j2') | indent(4) }}
+        # Verification Frequency
+        - name: mas_app_cfg_retries
+          value: $(params.mas_app_cfg_retries)
+        - name: mas_app_cfg_delay
+          value: $(params.mas_app_cfg_delay)
+      when:
+        - input: "$(params.launchdyncscan_predict)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-verify-manage
+        - app-verify-monitor
+    
+    - name: dynamicscan-predict
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-predict
+        - name: product_channel
+          value: $(params.mas_app_channel_predict)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_predict)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-verify-predict
+    
+    # Run Dynamic Scan for Visual Inspection
+    # -----------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/apps/visualinspection-verify.yml.j2') | indent(4) }}
+        # Verification Frequency
+        - name: mas_app_cfg_retries
+          value: $(params.mas_app_cfg_retries)
+        - name: mas_app_cfg_delay
+          value: $(params.mas_app_cfg_delay)
+      when:
+        - input: "$(params.launchdyncscan_visualinspection)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - suite-verify
+    
+    - name: dynamicscan-visualinspection
+      {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-dynamicscan/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-visualinspection
+        - name: product_channel
+          value: $(params.mas_app_channel_visualinspection)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.launchdyncscan_visualinspection)"
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - app-verify-visualinspection
