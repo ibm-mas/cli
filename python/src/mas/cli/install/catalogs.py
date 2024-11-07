@@ -14,7 +14,7 @@ catalogChoices = {
             "#": 1,
             "catalog": "v9-241107-amd64",
             "release": "9.0.x",
-            "core": "9.0.4",
+            "core": "9.0.3",
             "assist": "9.0.2",
             "iot": "9.0.4",
             "manage": "9.0.3",
