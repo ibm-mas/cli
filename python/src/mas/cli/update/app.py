@@ -446,6 +446,7 @@ class UpdateApp(BaseApp):
                         self.showUDSUpdateNotice()
                         self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must provide the storage class to use for the migration to DRO using '--dro-storage-class' when using '--no-confirm'")
                     else:
+                        self.showUDSUpdateNotice()
                         if self.getParam("dro_migration") != "true":
                             if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
                                 # If the user did not approve the update, abort
@@ -455,7 +456,6 @@ class UpdateApp(BaseApp):
                             self.selectDROStorageclass()
 
                 if self.getParam("dro_migration") == "true":
-                    self.showUDSUpdateNotice()
                     self.setParam("uds_action", "install-dro")
 
             except (ResourceNotFoundError, NotFoundError):
