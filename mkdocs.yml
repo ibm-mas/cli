@@ -33,7 +33,7 @@ nav:
       - "provision-rosa": commands/provision-rosa.md
       - "configtool-oidc": commands/configtool-oidc.md
   - "Operator Catalogs":
-      - "All Catalogs": catalogs/index.md
+      - "Overview": catalogs/index.md
       - "Nov 07 2024": catalogs/v9-241107-amd64.md
       - "Oct 03 2024": catalogs/v9-241003-amd64.md
       - "Aug 27 2024": catalogs/v9-240827-amd64.md

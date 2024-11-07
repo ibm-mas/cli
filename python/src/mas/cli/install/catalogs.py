@@ -132,10 +132,10 @@ catalogChoices = {
     "s390x": [
         {
             "#": 1,
-            "catalog": "v9-TBC-s390x",
+            "catalog": "v9-241107-s390x",
             "release": "9.0.x",
-            "core": "9.0.TBC",
-            "manage": "9.0.TBC"
+            "core": "9.0.4",
+            "manage": "9.0.5"
         }
     ]
 }
