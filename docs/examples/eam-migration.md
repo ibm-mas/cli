@@ -151,7 +151,7 @@ spec:
   displayName: "SMTP (Gmail)"
   config:
     hostname: smtp.gmail.com
-    port: 587
+    port: 465
     security: SSL
     authentication: true
     defaultSenderEmail: "{GMAIL_ADDRESS}"
@@ -162,7 +162,7 @@ spec:
       secretName: "smtp-demo-credentials"
 ```
 
-Save this file into the same directory as `~/mas9demo/mas9demo-smtp.yaml`; make sure to replacie the `{GMAIL_ADDRESS}` and `{GMAIL_PASSWORD}` placeholders with real values for your account.
+Save this file into the same directory as `~/mas9demo/mas9demo-smtp.yaml`; make sure to replacie the `{GMAIL_ADDRESS}` and `{GMAIL_PASSWORD}` placeholders with real values.  You can not (and should not) use your normal Google Account password here, you must instead generate and use an [App Password](https://support.google.com/accounts/answer/185833).
 
 !!! note
     If you skip this step, MAS will be unable to send e-mail so there is no way to automatically notify users of their new account and it's password; in this scenario an administrator must manually set a new password for each migrated account.
@@ -228,7 +228,7 @@ Once the installation has completed you will be able to log into Maximo Applicat
 
 
 ### Alternate Install
-To perform the same installation without data migration, ignore step 2 (don't create the `~/mas9demo/mas9demo-jdbc.yaml`) and instead run the install with one additional parameter ``--db2-manage`:
+To perform the same installation **without data migration**, ignore step 2 (don't create the `~/mas9demo/mas9demo-jdbc.yaml`) and instead run the install with one additional parameter `--db2-manage`:
 
 ```bash
 export IBMCLOUD_APIKEY=x
