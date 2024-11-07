@@ -17,7 +17,7 @@ catalogChoices = {
             "core": "9.0.4",
             "assist": "9.0.2",
             "iot": "9.0.4",
-            "manage": "9.0.5",
+            "manage": "9.0.3",
             "monitor": "9.0.4",
             "optimizer": "9.0.4",
             "predict": "9.0.2",
