@@ -303,15 +303,11 @@
     
       <cds-select-item value="#step-1-provision-openshift">Step 1 - Provision OpenShift</cds-select-item>
     
-      <cds-select-item value="#step-2-backup-database">Step 2 - Backup Database</cds-select-item>
+      <cds-select-item value="#step-2-prepare-the-database">Step 2 - Prepare the Database</cds-select-item>
     
-      <cds-select-item value="#step-3-create-new-database">Step 3 - Create new Database</cds-select-item>
+      <cds-select-item value="#step-3-configure-smtp">Step 3 - Configure SMTP</cds-select-item>
     
-      <cds-select-item value="#step-4-prepare-the-jdbccfg">Step 4 - Prepare the JDBCCfg</cds-select-item>
-    
-      <cds-select-item value="#step-5-prepare-the-smtpcfg">Step 5 - Prepare the SMTPCfg</cds-select-item>
-    
-      <cds-select-item value="#step-6-install-mas">Step 6 - Install MAS</cds-select-item>
+      <cds-select-item value="#step-4-install-mas">Step 4 - Install MAS</cds-select-item>
     
   </cds-select>
   </cds-breadcrumb-item>
@@ -338,14 +334,15 @@ Prepare an EAM 7 System
 -->
 
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¤</a></h2>
-<p><strong>1 An IBMCloud API Key</strong></p>
+<h3 id="1-an-ibmcloud-api-key">1. An IBMCloud API Key<a class="headerlink" href="#1-an-ibmcloud-api-key" title="Permanent link">¤</a></h3>
+<p>For the purpose of this demo we are going to provision an OpenShift Cluster in IBMCloud using the <a href="https://www.ibm.com/products/openshift">Red Hat OpenShift on IBMCloud</a> service (aka "ROKS"), however the demo can easily be repeated targeting any OpenShift cluster:</p>
 <ul>
 <li>Login in your IBM Cloud account</li>
 <li>Go to <strong>Manage</strong> menu and select <strong>Access (IAM)</strong></li>
 <li>Go to <strong>API keys</strong> menu, click <strong>Create an IBM Cloud API key</strong></li>
 <li>Enter a name and description for your API Key and click <strong>Create</strong></li>
 </ul>
-<p><strong>2 A MAS License File</strong></p>
+<h3 id="2-a-mas-license-file">2. A MAS License File<a class="headerlink" href="#2-a-mas-license-file" title="Permanent link">¤</a></h3>
 <p>Access <a href="https://licensing.flexnetoperations.com/">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>. Select <strong>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</strong> and on the next page fill in the information as below:</p>
 <table>
 <thead>
@@ -378,8 +375,10 @@ Prepare an EAM 7 System
 </tbody>
 </table>
 <p>Create a new folder <code>mas9demo</code> in your home directory and save this file there as <code>~/mas9demo/entitlement.lic</code></p>
-<p><strong>3 An IBM Entitlement Key</strong></p>
+<h3 id="3-an-ibm-entitlement-key">3. An IBM Entitlement Key<a class="headerlink" href="#3-an-ibm-entitlement-key" title="Permanent link">¤</a></h3>
 <p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
+<h3 id="4-a-database-backup-optional">4. A Database Backup (Optional)<a class="headerlink" href="#4-a-database-backup-optional" title="Permanent link">¤</a></h3>
+<p>If you want to migrate without upgrading the existing EAM database you should take a backup of the database and use it to populate a new database insance.</p>
 <h2 id="step-1-provision-openshift">Step 1 - Provision OpenShift<a class="headerlink" href="#step-1-provision-openshift" title="Permanent link">¤</a></h2>
 <p>We are going to provision the cluster using <strong>Red Hat OpenShift on IBM Cloud</strong> via the MAS CLI container image.  Ensure that you set the <code>IBMCLOUD_APIKEY</code> environment variable to the key you obtained from the <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a>.</p>
 <pre><code class="language-bash">export IBMCLOUD_APIKEY=x
@@ -394,12 +393,9 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 <p class="admonition-title">Note</p>
 <p>At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours; the entire demo can be complete on IBMCloud for as little as $10.</p>
 </div>
-<h2 id="step-2-backup-database">Step 2 - Backup Database<a class="headerlink" href="#step-2-backup-database" title="Permanent link">¤</a></h2>
-<p>We must stop EAM because we are going to create a backup of it's database; log into the WebSphere administrative console and stop the servers.</p>
+<h2 id="step-2-prepare-the-database">Step 2 - Prepare the Database<a class="headerlink" href="#step-2-prepare-the-database" title="Permanent link">¤</a></h2>
+<p>If you are not using a database backup we must first stop EAM, because when the migration starts it will upgrade the database to a version that EAM does not support; log into the WebSphere administrative console and stop the servers.</p>
 <p><a class="glightbox" href="../images/shutdown_eam.png" data-type="image" data-width="auto" data-height="auto" data-title="Shutdown EAM in the WebSphere Application Server administrative console" data-desc-position="bottom"><img alt="Shutdown EAM in the WebSphere Application Server administrative console" src="../images/shutdown_eam.png" /></a></p>
-<h2 id="step-3-create-new-database">Step 3 - Create new Database<a class="headerlink" href="#step-3-create-new-database" title="Permanent link">¤</a></h2>
-<p>TODO: Write me</p>
-<h2 id="step-4-prepare-the-jdbccfg">Step 4 - Prepare the JDBCCfg<a class="headerlink" href="#step-4-prepare-the-jdbccfg" title="Permanent link">¤</a></h2>
 <p>IBM Maximo Application Suite (MAS) configuration is held in Kubernetes resources, when we install MAS we will tell the installer to apply this configuration as part of the installation.</p>
 <pre><code class="language-yaml">---
 apiVersion: v1
@@ -437,9 +433,9 @@ spec:
 <li><strong>DB_PASSWORD</strong> = <code>maximo</code></li>
 </ul>
 <p>Save this file into the same directory where we saved the MAS entitlement file, as <code>~/mas9demo/mas9demo-jdbc.yaml</code></p>
-<p>Validate that the JDBC URL and username/password are correct by running the command <code>SELECT VARNAME, VARVALUE FROM MAXIMO.MAXVARS WHERE VARNAME='MAXUPG';</code>, which will confirm the database is currently running at version 7.</p>
+<p>Validate that the JDBC URL and username/password are correct by running the command <code>SELECT VARNAME, VARVALUE FROM MAXIMO.MAXVARS WHERE VARNAME='MAXUPG';</code>, which will confirm the database is currently running at version 7.  We would normally use <a href="https://dbeaver.io/">DBeaver</a> for this purpose.</p>
 <p><a class="glightbox" href="../images/dbeaver.png" data-type="image" data-width="auto" data-height="auto" data-title="Using DBeaver to view the MAXUPG value in the Maximo database" data-desc-position="bottom"><img alt="Using DBeaver to view the MAXUPG value in the Maximo database" src="../images/dbeaver.png" /></a></p>
-<h2 id="step-5-prepare-the-smtpcfg">Step 5 - Prepare the SMTPCfg<a class="headerlink" href="#step-5-prepare-the-smtpcfg" title="Permanent link">¤</a></h2>
+<h2 id="step-3-configure-smtp">Step 3 - Configure SMTP<a class="headerlink" href="#step-3-configure-smtp" title="Permanent link">¤</a></h2>
 <p>When existing users are migrated into MAS a new password will be generated for each, to recieve this password we must configure SMTP for MAS.  If you don't have your own SMTP server, and do have a <a href="https://mail.google.com/mail/">Gmail</a> account then can configure MAS as below:</p>
 <pre><code class="language-yaml">---
 apiVersion: v1
@@ -474,8 +470,12 @@ spec:
     credentials:
       secretName: &quot;smtp-demo-credentials&quot;
 </code></pre>
-<p>Save this file into the same directory where we saved the MAS entitlement file, as <code>~/mas9demo/mas9demo-smtp.yaml</code></p>
-<h2 id="step-6-install-mas">Step 6 - Install MAS<a class="headerlink" href="#step-6-install-mas" title="Permanent link">¤</a></h2>
+<p>Save this file into the same directory as <code>~/mas9demo/mas9demo-smtp.yaml</code>; make sure to replacie the <code>{GMAIL_ADDRESS}</code> and <code>{GMAIL_PASSWORD}</code> placeholders with real values for your account.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you skip this step, MAS will be unable to send e-mail so there is no way to automatically notify users of their new account and it's password; in this scenario an administrator must manually set a new password for each migrated account.</p>
+</div>
+<h2 id="step-4-install-mas">Step 4 - Install MAS<a class="headerlink" href="#step-4-install-mas" title="Permanent link">¤</a></h2>
 <p>Ensure the following environment variables are all set:</p>
 <ul>
 <li><code>IBMCLOUD_APIKEY</code> (see <a href="#prerequisites">prerequisites</a>)</li>
@@ -527,15 +527,46 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 <p><a class="glightbox" href="../images/install-pipeline.png" data-type="image" data-width="auto" data-height="auto" data-title="Tekon Pipeline for Maximo Application Suite installation" data-desc-position="bottom"><img alt="Tekon Pipeline for Maximo Application Suite installation" src="../images/install-pipeline.png" /></a></p>
 <p>Once the installation has completed you will be able to log into Maximo Application Suite &amp; Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's <strong>Application Menu</strong>, and we can log into MAS using the superuser username and password supplied during install:</p>
 <p><a class="glightbox" href="../images/dashboard-link.png" data-type="image" data-width="auto" data-height="auto" data-title="Application Menu extension in the OpenShift Console for Maximo Application Suite" data-desc-position="bottom"><img alt="Application Menu extension in the OpenShift Console for Maximo Application Suite" src="../images/dashboard-link.png" /></a></p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In this demo we have not configured integration to an SMTP server, as a result we must manually set a new password for the migrated users (including <strong>maxadmin</strong>) before they can be used.</p>
-<p>If e-mail services are enabled during the MAS install then a new password would be generated automatically for each migrated user and a welcome e-mail containing their new Maximo Application Suite password would be sent.</p>
-</div>
+<h3 id="alternate-install">Alternate Install<a class="headerlink" href="#alternate-install" title="Permanent link">¤</a></h3>
+<p>To perform the same installation without data migration, ignore step 2 (don't create the <code>~/mas9demo/mas9demo-jdbc.yaml</code>) and instead run the install with one additional parameter <code>`--db2-manage</code>:</p>
+<pre><code class="language-bash">export IBMCLOUD_APIKEY=x
+export SUPERUSER_PASSWORD=x
+export IBM_ENTITLEMENT_KEY=x
+
+docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:11.5.0 bash -c &quot;
+  CLUSTER_TYPE=roks CLUSTER_NAME=mas9demo ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role &amp;&amp;
+  mas install \
+  --non-prod \
+  --mas-instance-id dev \
+  --mas-workspace-id demo \
+  --mas-workspace-name 'EAM Migration Demo' \
+  --mas-catalog-version v9-241003-amd64 \
+  --mas-channel 9.0.x \
+  --manage-channel 9.0.x \
+  --manage-jdbc workspace-application \
+  --db2-manage \
+  --manage-components base=latest \
+  --additional-configs /mnt/home/mas9demo \
+  --license-file /mnt/home/mas9demo/entitlement.lic \
+  --uds-email parkerda@uk.ibm.com \
+  --uds-firstname David \
+  --uds-lastname Parker \
+  --storage-class-rwo ibmc-block-gold \
+  --storage-class-rwx ibmc-file-gold-gid \
+  --storage-pipeline ibmc-file-gold-gid \
+  --storage-accessmode ReadWriteMany \
+  --superuser-username superuser \
+  --superuser-password '$SUPERUSER_PASSWORD' \
+  --ibm-entitlement-key '$IBM_ENTITLEMENT_KEY' \
+  --accept-license \
+  --no-confirm
+&quot;
+</code></pre>
+<p>The addition of the <code>--db2-manage</code> parameter is all that we require to instruct the installer to provision a new Db2 instance in the cluster and automatically configure Maximo Manage to use it.</p>
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-11-06 15:35:20.591163+00:00)
+      Built with mkdocs v1.6.1 (2024-11-07 15:23:20.060244+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
