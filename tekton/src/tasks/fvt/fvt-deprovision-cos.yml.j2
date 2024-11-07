@@ -35,12 +35,6 @@ spec:
           value: "deprovision"
 
         # COS Details
-        - name: IBMCLOUD_RESOURCEGROUP
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt
-              key: IBMCLOUD_RESOURCEGROUP
-              optional: true
         - name: COS_TYPE
           valueFrom:
             secretKeyRef:

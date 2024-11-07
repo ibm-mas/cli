@@ -157,11 +157,11 @@ spec:
       type: string
       description: Namespace to create Db2uCluster instances
       default: ""
-    - name: ibmcloud_resourcegroup
+    - name: cos_resourcegroup
       type: string
       description: IBM Cloud Resource Group where COS is installed (for when attachments is configured via ibm provider)
       default: ""
-    - name: ibmcloud_apikey
+    - name: cos_apikey
       type: string
       description: API Key used to configure COS and buckets in IBM Cloud (used by Manage attachments settings)
       default: ""
@@ -295,10 +295,10 @@ spec:
         value: $(params.mas_manage_attachments_provider)
       - name: DB2_NAMESPACE
         value: $(params.db2_namespace)
-      - name: IBMCLOUD_RESOURCEGROUP
-        value: $(params.ibmcloud_resourcegroup)
-      - name: IBMCLOUD_APIKEY
-        value: $(params.ibmcloud_apikey)
+      - name: COS_RESOURCEGROUP
+        value: $(params.cos_resourcegroup)
+      - name: COS_APIKEY
+        value: $(params.cos_apikey)
       - name: COS_INSTANCE_NAME
         value: $(params.cos_instance_name)
       - name: COS_BUCKET_NAME

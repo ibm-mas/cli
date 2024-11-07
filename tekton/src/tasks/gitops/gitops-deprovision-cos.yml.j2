@@ -33,9 +33,9 @@ spec:
       type: string
     - name: cos_type
       type: string
-    - name: ibmcloud_resourcegroup
+    - name: cos_resourcegroup
       type: string
-    - name: ibmcloud_apikey
+    - name: cos_apikey
       type: string
     - name: cos_use_hmac
       type: string
@@ -73,10 +73,10 @@ spec:
         value: $(params.cos_action)
       - name: COS_TYPE
         value: $(params.cos_type)
-      - name: IBMCLOUD_RESOURCEGROUP
-        value: $(params.ibmcloud_resourcegroup)
-      - name: IBMCLOUD_APIKEY
-        value: $(params.ibmcloud_apikey)
+      - name: COS_RESOURCEGROUP
+        value: $(params.cos_resourcegroup)
+      - name: COS_APIKEY
+        value: $(params.cos_apikey)
       - name: COS_USE_HMAC
         value: $(params.cos_use_hmac)
   steps:
