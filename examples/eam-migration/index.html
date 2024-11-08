@@ -303,7 +303,7 @@
     
       <cds-select-item value="#step-1-provision-openshift">Step 1 - Provision OpenShift</cds-select-item>
     
-      <cds-select-item value="#step-2-prepare-the-database">Step 2 - Prepare the Database</cds-select-item>
+      <cds-select-item value="#step-2-configure-database-connection">Step 2 - Configure Database Connection</cds-select-item>
     
       <cds-select-item value="#step-3-configure-smtp">Step 3 - Configure SMTP</cds-select-item>
     
@@ -378,7 +378,7 @@ Prepare an EAM 7 System
 <h3 id="3-an-ibm-entitlement-key">3. An IBM Entitlement Key<a class="headerlink" href="#3-an-ibm-entitlement-key" title="Permanent link">¤</a></h3>
 <p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
 <h3 id="4-a-database-backup-optional">4. A Database Backup (Optional)<a class="headerlink" href="#4-a-database-backup-optional" title="Permanent link">¤</a></h3>
-<p>If you want to migrate without upgrading the existing EAM database you should take a backup of the database and use it to populate a new database insance.</p>
+<p>If you want to migrate without shutting down your EAM 7 instance you should take a backup of the database and use it to populate a new database instance, this is necessary because Maximo Manage and EAM can not both be using the same database at the same time.</p>
 <h2 id="step-1-provision-openshift">Step 1 - Provision OpenShift<a class="headerlink" href="#step-1-provision-openshift" title="Permanent link">¤</a></h2>
 <p>We are going to provision the cluster using <strong>Red Hat OpenShift on IBM Cloud</strong> via the MAS CLI container image.  Ensure that you set the <code>IBMCLOUD_APIKEY</code> environment variable to the key you obtained from the <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a>.</p>
 <pre><code class="language-bash">export IBMCLOUD_APIKEY=x
@@ -393,10 +393,10 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 <p class="admonition-title">Note</p>
 <p>At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours; the entire demo can be complete on IBMCloud for as little as $10.</p>
 </div>
-<h2 id="step-2-prepare-the-database">Step 2 - Prepare the Database<a class="headerlink" href="#step-2-prepare-the-database" title="Permanent link">¤</a></h2>
-<p>If you are not using a database backup we must first stop EAM, because when the migration starts it will upgrade the database to a version that EAM does not support; log into the WebSphere administrative console and stop the servers.</p>
+<h2 id="step-2-configure-database-connection">Step 2 - Configure Database Connection<a class="headerlink" href="#step-2-configure-database-connection" title="Permanent link">¤</a></h2>
+<p>If you are connecting Maximo Manage to the same database used by EAM we must first shut down the EAM application servers, because when the migration starts it will upgrade the database to a version that EAM can not support.  Log into the WebSphere administrative console and stop the servers.</p>
 <p><a class="glightbox" href="../images/shutdown_eam.png" data-type="image" data-width="auto" data-height="auto" data-title="Shutdown EAM in the WebSphere Application Server administrative console" data-desc-position="bottom"><img alt="Shutdown EAM in the WebSphere Application Server administrative console" src="../images/shutdown_eam.png" /></a></p>
-<p>IBM Maximo Application Suite (MAS) configuration is held in Kubernetes resources, when we install MAS we will tell the installer to apply this configuration as part of the installation.</p>
+<p>IBM Maximo Application Suite (MAS) configuration is held in Kubernetes resources on the OpenShift cluster, when we install MAS we will tell the installer to apply this configuration as part of the installation.</p>
 <pre><code class="language-yaml">---
 apiVersion: v1
 kind: Secret
@@ -445,8 +445,8 @@ metadata:
   name: &quot;smtp-demo-credentials&quot;
   namespace: &quot;mas-dev-core&quot;
 stringData:
-  username: &quot;{GMAIL_ADDRESS}&quot;
-  password: &quot;{GMAIL_PASSWORD}&quot;
+  username: &quot;{GOOGLE_EMAIL}&quot;
+  password: &quot;{GOOGLE_PASSWORD}&quot;
 ---
 apiVersion: config.mas.ibm.com/v1
 kind: SmtpCfg
@@ -457,23 +457,23 @@ metadata:
     &quot;mas.ibm.com/configScope&quot;: &quot;system&quot;
     &quot;mas.ibm.com/instanceId&quot;: &quot;dev&quot;
 spec:
-  displayName: &quot;SMTP (Gmail)&quot;
+  displayName: &quot;SMTP (Google)&quot;
   config:
     hostname: smtp.gmail.com
     port: 465
     security: SSL
     authentication: true
-    defaultSenderEmail: &quot;{GMAIL_ADDRESS}&quot;
+    defaultSenderEmail: &quot;{GOOGLE_EMAIL}&quot;
     defaultSenderName: &quot;IBM Maximo Application Suite (Do Not Respond)&quot;
-    defaultRecipientEmail: &quot;{GMAIL_ADDRESS}&quot;
+    defaultRecipientEmail: &quot;{GOOGLE_EMAIL}&quot;
     defaultShouldEmailPasswords: true
     credentials:
       secretName: &quot;smtp-demo-credentials&quot;
 </code></pre>
-<p>Save this file into the same directory as <code>~/mas9demo/mas9demo-smtp.yaml</code>; make sure to replacie the <code>{GMAIL_ADDRESS}</code> and <code>{GMAIL_PASSWORD}</code> placeholders with real values.  You can not (and should not) use your normal Google Account password here, you must instead generate and use an <a href="https://support.google.com/accounts/answer/185833">App Password</a>.</p>
+<p>Save this file into the same directory as <code>~/mas9demo/mas9demo-smtp.yaml</code>; make sure to replace the <code>{GOOGLE_EMAIL}</code> and <code>{GOOGLE_PASSWORD}</code> placeholders with real values.  You can not (and should not) use your normal Google Account password here, you must instead generate and use an <a href="https://support.google.com/accounts/answer/185833">App Password</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you skip this step, MAS will be unable to send e-mail so there is no way to automatically notify users of their new account and it's password; in this scenario an administrator must manually set a new password for each migrated account.</p>
+<p>If you skip this step, MAS will be unable to send e-mail so there is no way to automatically notify users of their new account and it's password; in this scenario an administrator must manually set a new password for each user migrated from EAM to MAS.</p>
 </div>
 <h2 id="step-4-install-mas">Step 4 - Install MAS<a class="headerlink" href="#step-4-install-mas" title="Permanent link">¤</a></h2>
 <p>Ensure the following environment variables are all set:</p>
@@ -482,7 +482,7 @@ spec:
 <li><code>SUPERUSER_PASSWORD</code> (choose the password for the MAS superuser account)</li>
 <li><code>IBM_ENTITLEMENT_KEY</code> (see <a href="#prerequisites">prerequisites</a>)</li>
 </ul>
-<p>We will install MAS in <strong>non-production mode</strong>, with an instance ID of <code>dev</code> and a workspace ID of <code>demo</code> using the latest (at time of writing) catalog update.</p>
+<p>We will install MAS in <strong>non-production mode</strong>, with an instance ID of <strong>dev</strong> and a workspace ID of <strong>demo</strong> using the latest (at time of writing) catalog update.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>When we launch the CLI container we are mounting your home directory into the container image, this is how the installer will access the <code>entitlement.lic</code> and <code>mas9demo-jdbc.yaml</code> files that you created earlier.</p>
@@ -519,16 +519,16 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
   --no-confirm
 &quot;
 </code></pre>
-<p>The install itself is performed on the cluster, the CLI merely prepares the installation pipeline, you will be presented with a URL to view the install pipeline in the OpenShift Console.</p>
+<p>The install itself is performed inside the cluster, the CLI merely prepares the installation pipeline, you will be presented with a URL to view the install pipeline in the OpenShift Console.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
 <p>You can either monitor the install in the OpenShift Console or go get lunch, the install will take approximately 2-3 hours depending on network conditions.</p>
 </div>
 <p><a class="glightbox" href="../images/install-pipeline.png" data-type="image" data-width="auto" data-height="auto" data-title="Tekon Pipeline for Maximo Application Suite installation" data-desc-position="bottom"><img alt="Tekon Pipeline for Maximo Application Suite installation" src="../images/install-pipeline.png" /></a></p>
-<p>Once the installation has completed you will be able to log into Maximo Application Suite &amp; Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's <strong>Application Menu</strong>, and we can log into MAS using the superuser username and password supplied during install:</p>
+<p>Once the installation has completed you will be able to log into Maximo Application Suite &amp; Maximo Manage using any user from the original EAM.  For convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's <strong>Application Menu</strong>, and we can log into MAS using the superuser username and password supplied during install:</p>
 <p><a class="glightbox" href="../images/dashboard-link.png" data-type="image" data-width="auto" data-height="auto" data-title="Application Menu extension in the OpenShift Console for Maximo Application Suite" data-desc-position="bottom"><img alt="Application Menu extension in the OpenShift Console for Maximo Application Suite" src="../images/dashboard-link.png" /></a></p>
 <h3 id="alternate-install">Alternate Install<a class="headerlink" href="#alternate-install" title="Permanent link">¤</a></h3>
-<p>To perform the same installation <strong>without data migration</strong>, ignore step 2 (don't create the <code>~/mas9demo/mas9demo-jdbc.yaml</code>) and instead run the install with one additional parameter <code>--db2-manage</code>:</p>
+<p>To perform the same installation <strong>without data migration</strong>, ignore step 2 (don't create <code>~/mas9demo/mas9demo-jdbc.yaml</code>) and instead run the install with one additional parameter <code>--db2-manage</code>:</p>
 <pre><code class="language-bash">export IBMCLOUD_APIKEY=x
 export SUPERUSER_PASSWORD=x
 export IBM_ENTITLEMENT_KEY=x
@@ -566,7 +566,7 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-11-08 10:50:18.364647+00:00)
+      Built with mkdocs v1.6.1 (2024-11-08 17:00:11.036145+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
