@@ -460,7 +460,7 @@ spec:
   displayName: &quot;SMTP (Gmail)&quot;
   config:
     hostname: smtp.gmail.com
-    port: 587
+    port: 465
     security: SSL
     authentication: true
     defaultSenderEmail: &quot;{GMAIL_ADDRESS}&quot;
@@ -470,7 +470,7 @@ spec:
     credentials:
       secretName: &quot;smtp-demo-credentials&quot;
 </code></pre>
-<p>Save this file into the same directory as <code>~/mas9demo/mas9demo-smtp.yaml</code>; make sure to replacie the <code>{GMAIL_ADDRESS}</code> and <code>{GMAIL_PASSWORD}</code> placeholders with real values for your account.</p>
+<p>Save this file into the same directory as <code>~/mas9demo/mas9demo-smtp.yaml</code>; make sure to replacie the <code>{GMAIL_ADDRESS}</code> and <code>{GMAIL_PASSWORD}</code> placeholders with real values.  You can not (and should not) use your normal Google Account password here, you must instead generate and use an <a href="https://support.google.com/accounts/answer/185833">App Password</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you skip this step, MAS will be unable to send e-mail so there is no way to automatically notify users of their new account and it's password; in this scenario an administrator must manually set a new password for each migrated account.</p>
@@ -528,7 +528,7 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 <p>Once the installation has completed you will be able to log into Maximo Application Suite &amp; Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's <strong>Application Menu</strong>, and we can log into MAS using the superuser username and password supplied during install:</p>
 <p><a class="glightbox" href="../images/dashboard-link.png" data-type="image" data-width="auto" data-height="auto" data-title="Application Menu extension in the OpenShift Console for Maximo Application Suite" data-desc-position="bottom"><img alt="Application Menu extension in the OpenShift Console for Maximo Application Suite" src="../images/dashboard-link.png" /></a></p>
 <h3 id="alternate-install">Alternate Install<a class="headerlink" href="#alternate-install" title="Permanent link">¤</a></h3>
-<p>To perform the same installation without data migration, ignore step 2 (don't create the <code>~/mas9demo/mas9demo-jdbc.yaml</code>) and instead run the install with one additional parameter <code>`--db2-manage</code>:</p>
+<p>To perform the same installation <strong>without data migration</strong>, ignore step 2 (don't create the <code>~/mas9demo/mas9demo-jdbc.yaml</code>) and instead run the install with one additional parameter <code>--db2-manage</code>:</p>
 <pre><code class="language-bash">export IBMCLOUD_APIKEY=x
 export SUPERUSER_PASSWORD=x
 export IBM_ENTITLEMENT_KEY=x
@@ -566,7 +566,7 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-11-07 15:23:20.060244+00:00)
+      Built with mkdocs v1.6.1 (2024-11-08 10:50:18.364647+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
