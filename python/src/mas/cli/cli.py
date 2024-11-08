@@ -150,7 +150,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 "monitor": ["9.0.x"],
                 "optimizer": ["9.1.x-feature", "9.0.x"],
                 "predict": ["9.0.x"],
-                "visualinspection": ["9.0.x"],
+                "visualinspection": ["9.1.x-feature","9.0.x"],
                 "aibroker": ["9.0.x"],
             },
             "9.0.x": {
