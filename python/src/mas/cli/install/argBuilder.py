@@ -137,7 +137,7 @@ class installArgBuilderMixin():
                 command += f"  --mongodb-namespace \"{self.getParam('mongodb_namespace')}\"{newline}"
                 command += f"  --mongodb-action{newline}"
         elif self.getParam('mongodb_action') == "byo":
-                command += f"  --mongodb-action{newline}"
+            command += f"  --mongodb-action{newline}"
 
 
         # OCP Configuration
