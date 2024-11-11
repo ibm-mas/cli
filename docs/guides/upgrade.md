@@ -32,7 +32,7 @@ Before you start the upgrade, you must mirror the images for the new catalog tha
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas mirror-images
 ```
 
-You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](choosing-the-right-catalog.md) and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
+You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](../catalogs/index.md) and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
 
 This command can also be ran non-interactive, for full details refer to the [mirror-images](../commands/mirror-images.md) command documentation.
 
@@ -41,7 +41,7 @@ mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
-  --mirror-cfs --mirror-uds --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
+  --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   --no-confirm
 ```

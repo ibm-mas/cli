@@ -10,12 +10,8 @@ do
     key="$1"
 
     case $key in
-        -n|--namespace)
-        NAMESPACE="$2"
-        ;;
-
-        -i|--image)
-        IMAGE="$2"
+        -r|--repo)
+        REPOSITORY="$2"
         ;;
 
         -b|--buildpath)
@@ -24,6 +20,10 @@ do
 
         -f|--file)
         DOCKERFILE="$2"
+        ;;
+
+        --target-platform)
+        TARGET_PLATFORM="$2"
         ;;
 
         *)
@@ -35,19 +35,31 @@ do
     shift
 done
 
-BUILDPATH="${BUILDPATH:-image/$IMAGE}"
-DOCKERFILE="${DOCKERFILE:-$BUILDPATH/Dockerfile}"
+BUILDPATH="${BUILDPATH:-image}"
+DOCKERFILE="${DOCKERFILE:-$BUILDPATH/Dockerfile.$TARGET_PLATFORM}"
 
-# Note: Travis will ******* out the sensitive information here, but it will prove that
-# the value matches the value in the config if it does, which is the goal!
-echo_h1 "Docker Build: $NAMESPACE/$IMAGE"
-echo "BUILDPATH ...... $BUILDPATH"
-echo "DOCKERFILE ..... $DOCKERFILE"
-echo "EXTRA_PARAMS ... $EXTRA_PARAMS"
-echo "VERSION_LABEL .. $DOCKER_TAG"
-echo "RELEASE_LABEL .. $GITHUB_RUN_ID"
-echo "VCS_REF ........ $GITHUB_SHA"
-echo "VCS_URL ........ https://github.com/$GITHUB_REPOSITORY"
+# Fallback to $BUILDPATH/Dockerfile if $DOCKERFILE does not exist
+if [ ! -e $DOCKERFILE ]; then
+  DOCKERFILE="$BUILDPATH/Dockerfile"
+fi
+
+LOCAL_TAG=$REPOSITORY:$DOCKER_TAG-$TARGET_PLATFORM
+
+echo_h1 "Build Docker Image"
+echo "REPOSITORY ....... $REPOSITORY"
+echo "DOCKER_TAG ....... $DOCKER_TAG"
+echo "TARGET_PLATFORM .. $TARGET_PLATFORM"
+echo "LOCAL_TAG ........ $LOCAL_TAG"
+echo
+echo "BUILDPATH ........ $BUILDPATH"
+echo "DOCKERFILE ....... $DOCKERFILE"
+echo "EXTRA_PARAMS ..... $EXTRA_PARAMS"
+echo "VERSION_LABEL .... $DOCKER_TAG"
+echo "RELEASE_LABEL .... $GITHUB_RUN_ID"
+echo "VCS_REF .......... $GITHUB_SHA"
+echo "VCS_URL .......... https://github.com/$GITHUB_REPOSITORY"
+
+install_buildx
 
 # Remove expires-after for release builds (only pre-release builds should auto-expire)
 if [[ ! "$DOCKER_TAG" == *"-pre."* ]]; then
@@ -55,9 +67,14 @@ if [[ ! "$DOCKER_TAG" == *"-pre."* ]]; then
   sed -i "/quay.expires-after/d" $DOCKERFILE
 fi
 
-docker build \
+docker buildx create --name builder-$TARGET_PLATFORM
+docker buildx use builder-$TARGET_PLATFORM
+docker buildx build --progress plain \
+  --load \
+  --platform linux/$TARGET_PLATFORM \
+  --build-arg ARCHITECTURE=$TARGET_PLATFORM \
   --build-arg VERSION_LABEL=$DOCKER_TAG \
   --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
   --build-arg VCS_REF=$GITHUB_SHA \
   --build-arg VCS_URL=https://github.com/$GITHUB_REPOSITORY \
-  -t $NAMESPACE/$IMAGE $EXTRA_PARAMS -f $DOCKERFILE $BUILDPATH
+  -t $LOCAL_TAG $EXTRA_PARAMS -f $DOCKERFILE $BUILDPATH || exit 1

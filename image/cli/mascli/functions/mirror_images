@@ -54,7 +54,6 @@ Content Selection (Cloud Pak for Data):
 
 Content Selection (Other Dependencies):
       --mirror-cfs                                Mirror images for IBM Cloud Pak Foundation Services
-      --mirror-uds                                Mirror images for IBM User Data Services
       --mirror-sls                                Mirror images for IBM Suite License Service
       --mirror-tsm                                Mirror images for IBM Truststore Manager
       --mirror-mongo                              Mirror images for MongoDb Community Edition

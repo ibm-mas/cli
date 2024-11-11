@@ -53,6 +53,7 @@
         - fvt-visualinspection
         - fvt-launcher
         - fvt-launcher-uninstall
+        - fvt-dynamicscan
         - ivt-manage
 
     # 2. Generate Pipelines
@@ -89,7 +90,9 @@
         - gitops-mas-fvt-preparer-pipeline
         - gitops-mas-apps
         - gitops-mas-cluster
-
+        - gitops-mas-deps
+        - gitops-mas-initiator
+        
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
     - name: Generate GitOps Pipelines with wait-after-deprovision

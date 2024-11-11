@@ -12,7 +12,7 @@
 import logging
 import logging.handlers
 from sys import exit
-from os import path
+from os import path, getenv
 import re
 
 from openshift.dynamic.exceptions import NotFoundError
@@ -29,14 +29,16 @@ from .argBuilder import installArgBuilderMixin
 from .argParser import installArgParser
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
+from .params import requiredParams, optionalParams
+from .catalogs import catalogChoices
 
 from mas.cli.validators import (
-  InstanceIDFormatValidator,
-  WorkspaceIDFormatValidator,
-  WorkspaceNameFormatValidator,
-  TimeoutFormatValidator,
-  StorageClassValidator,
-  OptimizerInstallPlanValidator
+    InstanceIDFormatValidator,
+    WorkspaceIDFormatValidator,
+    WorkspaceNameFormatValidator,
+    TimeoutFormatValidator,
+    StorageClassValidator,
+    OptimizerInstallPlanValidator
 )
 
 from mas.devops.ocp import createNamespace, getStorageClass, getStorageClasses
@@ -52,7 +54,17 @@ from mas.devops.tekton import (
 logger = logging.getLogger(__name__)
 
 
+def logMethodCall(func):
+    def wrapper(self, *args, **kwargs):
+        logger.debug(f">>> InstallApp.{func.__name__}")
+        result = func(self, *args, **kwargs)
+        logger.debug(f"<<< InstallApp.{func.__name__}")
+        return result
+    return wrapper
+
+
 class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
+    @logMethodCall
     def validateCatalogSource(self):
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         try:
@@ -75,6 +87,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             # There's no existing catalog installed
             pass
 
+    @logMethodCall
     def validateInternalRegistryAvailable(self):
         """
         We can save customers wasted time by detecting if the image-registry service
@@ -93,6 +106,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 ])
             )
 
+    @logMethodCall
     def licensePrompt(self):
         licenses = {
             "8.9.x": " - <u>https://ibm.biz/MAS89-License</u>",
@@ -114,28 +128,32 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if not self.yesOrNo("Do you accept the license terms"):
                     exit(1)
 
+    @logMethodCall
     def configICR(self):
         if self.devMode:
-            self.setParam("mas_icr_cp", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local")
-            self.setParam("mas_icr_cpopen", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen")
-            self.setParam("sls_icr_cpopen", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen")
+            self.setParam("mas_icr_cp", getenv("MAS_ICR_CP", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"))
+            self.setParam("mas_icr_cpopen", getenv("MAS_ICR_CPOPEN", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"))
+            self.setParam("sls_icr_cpopen", getenv("SLS_ICR_CPOPEN", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"))
         else:
-            self.setParam("mas_icr_cp", "cp.icr.io/cp")
-            self.setParam("mas_icr_cpopen", "icr.io/cpopen")
-            self.setParam("sls_icr_cpopen", "icr.io/cpopen")
+            self.setParam("mas_icr_cp", getenv("MAS_ICR_CP", "cp.icr.io/cp"))
+            self.setParam("mas_icr_cpopen", getenv("MAS_ICR_CPOPEN", "icr.io/cpopen"))
+            self.setParam("sls_icr_cpopen", getenv("SLS_ICR_CPOPEN", "icr.io/cpopen"))
 
+    @logMethodCall
     def configICRCredentials(self):
         self.printH1("Configure IBM Container Registry")
         self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
         if self.devMode:
-            self.promptForString("Artifactory username", "artifactory_username", isPassword=True)
+            self.promptForString("Artifactory username", "artifactory_username")
             self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
 
+    @logMethodCall
     def configCertManager(self):
         # Only install of Red Hat Cert-Manager has been supported since the January 2025 catalog update
         self.setParam("cert_manager_provider", "redhat")
         self.setParam("cert_manager_action", "install")
 
+    @logMethodCall
     def configCatalog(self):
         self.printH1("IBM Maximo Operator Catalog Selection")
         if self.devMode:
@@ -145,9 +163,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             print(tabulate(self.installOptions, headers="keys", tablefmt="simple_grid"))
             catalogSelection = self.promptForInt("Select catalog and release", default=1)
 
-            self.setParam("mas_catalog_version", self.installOptions[catalogSelection-1]["catalog"])
-            self.setParam("mas_channel", self.installOptions[catalogSelection-1]["release"])
+            self.setParam("mas_catalog_version", self.installOptions[catalogSelection - 1]["catalog"])
+            self.setParam("mas_channel", self.installOptions[catalogSelection - 1]["release"])
 
+    @logMethodCall
     def configSLS(self) -> None:
         self.printH1("Configure Product License")
         self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
@@ -155,40 +174,50 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("Contact first name", "uds_contact_firstname")
         self.promptForString("Contact last name", "uds_contact_lastname")
 
-        self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
+        if self.showAdvancedOptions:
+            self.promptForString("IBM Suite License Services (SLS) Namespace", "sls_namespace", default="ibm-sls")
+            self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
 
+    @logMethodCall
     def selectLocalConfigDir(self) -> None:
         if self.localConfigDir is None:
             # You need to tell us where the configuration file can be found
             self.localConfigDir = self.promptForDir("Select Local configuration directory")
 
+    @logMethodCall
     def configGrafana(self) -> None:
-        try:
-            packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
-            packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
-            if self.skipGrafanaInstall:
-                self.setParam("grafana_action", "none")
-            else:
-                self.setParam("grafana_action", "install")
-        except NotFoundError:
+        if self.architecture == "s390x":
+            # We are not supporting Grafana on s390x at the moment
             self.setParam("grafana_action", "none")
+        else:
+            try:
+                packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
+                packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
+                if self.skipGrafanaInstall:
+                    self.setParam("grafana_action", "none")
+                else:
+                    self.setParam("grafana_action", "install")
+            except NotFoundError:
+                self.setParam("grafana_action", "none")
 
-        if self.interactiveMode:
-            self.printH1("Configure Grafana")
-            if self.getParam("grafana_action") == "none":
-                print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
-            else:
-                self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
-                self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
+            if self.interactiveMode and self.showAdvancedOptions:
+                self.printH1("Configure Grafana")
+                if self.getParam("grafana_action") == "none":
+                    print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
+                else:
+                    self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
+                    self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
 
-    def configMongoDb(self) -> None:
-        self.printH1("Configure MongoDb")
-        self.promptForString("Install namespace", "mongodb_namespace", default="mongoce")
-
+    @logMethodCall
     def configSpecialCharacters(self):
-        self.printH1("Configure special characters for userID and username")
-        self.yesOrNo("Do you want to allow special characters for user IDs and usernames?", "mas_special_characters")
+        if self.showAdvancedOptions:
+            self.printH1("Configure special characters for userID and username")
+            self.printDescription([
+                "By default Maximo Application Suite will not allow special characters in usernames and userIDs, and this is the recommended setting.  However, legacy Maximo products allowed this, so for maximum compatibilty when migrating from EAM 7 you can choose to enable this support."
+            ])
+            self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
 
+    @logMethodCall
     def configCP4D(self):
         if self.getParam("mas_catalog_version") in ["v9-240625-amd64", "v9-240730-amd64", "v9-240827-amd64", "v9-241003-amd64"]:
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
@@ -205,37 +234,42 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             logger.debug(f"Using user-provided (flags) CP4D product version: {self.getParam('cpd_product_version')}")
         self.deployCP4D = True
 
+    @logMethodCall
     def configSSOProperties(self):
-        self.printH1("Single Sign-On (SSO)")
-        self.printDescription([
-            "Many aspects of Maximo Application Suite's Single Sign-On (SSO) can be customized:",
-            " - Idle session automatic logout timer",
-            " - Session, access token, and refresh token timeouts",
-            " - Default identity provider (IDP), and seamless login",
-            " - Brower cookie properties"
-        ])
-        if self.yesOrNo("Configure SSO properties"):
-            self.promptForInt("Idle session logout timer (seconds)", "idle_timeout")
-            self.promptForString("Session timeout (e.g. '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator())
-            self.promptForString("Access token timeout (e.g. '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator())
-            self.promptForString("Refresh token timeout (e.g. '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator())
-            self.promptForString("Default Identity Provider", "default_idp")
+        if self.showAdvancedOptions:
+            self.printH1("Single Sign-On (SSO)")
+            self.printDescription([
+                "Many aspects of Maximo Application Suite's Single Sign-On (SSO) can be customized:",
+                " - Idle session automatic logout timer",
+                " - Session, access token, and refresh token timeouts",
+                " - Default identity provider (IDP), and seamless login",
+                " - Brower cookie properties"
+            ])
+            if self.yesOrNo("Configure SSO properties"):
+                self.promptForInt("Idle session logout timer (seconds)", "idle_timeout")
+                self.promptForString("Session timeout (e.g. '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator())
+                self.promptForString("Access token timeout (e.g. '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator())
+                self.promptForString("Refresh token timeout (e.g. '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator())
+                self.promptForString("Default Identity Provider", "default_idp")
 
-            self.promptForString("SSO cookie name", "sso_cookie_name")
-            self.yesOrNo("Enable seamless login", "seamless_login")
-            self.yesOrNo("Allow default SSO cookie name", "allow_default_sso_cookie_name")
-            self.yesOrNo("Use only custom cookie name", "use_only_custom_cookie_name")
-            self.yesOrNo("Disable LDAP cookie", "disable_ldap_cookie")
-            self.yesOrNo("Allow custom cache key", "allow_custom_cache_key")
+                self.promptForString("SSO cookie name", "sso_cookie_name")
+                self.yesOrNo("Enable seamless login", "seamless_login")
+                self.yesOrNo("Allow default SSO cookie name", "allow_default_sso_cookie_name")
+                self.yesOrNo("Use only custom cookie name", "use_only_custom_cookie_name")
+                self.yesOrNo("Disable LDAP cookie", "disable_ldap_cookie")
+                self.yesOrNo("Allow custom cache key", "allow_custom_cache_key")
 
+    @logMethodCall
     def configGuidedTour(self):
-        self.printH1("Enable Guided Tour")
-        self.printDescription([
-            "By default, Maximo Application Suite is configured with guided tour, you can disable this if it not required"
-        ])
-        if not self.yesOrNo("Enable Guided Tour"):
-            self.setParam("mas_enable_walkme","false")
+        if self.showAdvancedOptions:
+            self.printH1("Enable Guided Tour")
+            self.printDescription([
+                "By default, Maximo Application Suite is configured with guided tour, you can disable this if it not required"
+            ])
+            if not self.yesOrNo("Enable Guided Tour"):
+                self.setParam("mas_enable_walkme", "false")
 
+    @logMethodCall
     def configMAS(self):
         self.printH1("Configure MAS Instance")
         self.printDescription([
@@ -268,13 +302,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configSpecialCharacters()
         self.configGuidedTour()
 
+    @logMethodCall
     def configCATrust(self) -> None:
-        self.printH1("Certificate Authority Trust")
-        self.printDescription([
-            "By default, Maximo Application Suite is configured to trust well-known certificate authoritories, you can disable this so that it will only trust the CAs that you explicitly define"
-        ])
-        self.yesOrNo("Trust default CAs", "mas_trust_default_cas")
+        if self.showAdvancedOptions:
+            self.printH1("Certificate Authority Trust")
+            self.printDescription([
+                "By default, Maximo Application Suite is configured to trust well-known certificate authoritories, you can disable this so that it will only trust the CAs that you explicitly define"
+            ])
+            self.yesOrNo("Trust default CAs", "mas_trust_default_cas")
+        else:
+            self.setParam("mas_trust_default_cas", True)
 
+    @logMethodCall
     def configOperationMode(self):
         self.printH1("Configure Operational Mode")
         self.printDescription([
@@ -287,62 +326,68 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         ])
         self.operationalMode = self.promptForInt("Operational Mode", default=1)
 
+    @logMethodCall
     def configAnnotations(self):
         if self.operationalMode == 2:
             self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
 
+    @logMethodCall
     def configSNO(self):
         if self.isSNO():
             self.setParam("mongodb_replicas", "1")
             self.setParam("mongodb_cpu_requests", "500m")
             self.setParam("mas_app_settings_aio_flag", "false")
 
+    @logMethodCall
     def configDNSAndCerts(self):
-        self.printH1("Cluster Ingress Secret Override")
-        self.printDescription([
-            "In most OpenShift clusters the installation is able to automatically locate the default ingress certificate, however in some configurations it is necessary to manually configure the name of the secret",
-            "Unless you see an error during the ocp-verify stage indicating that the secret can not be determined you do not need to set this and can leave the response empty"
-        ])
-        self.promptForString("Cluster ingress certificate secret name", "ocp_ingress_tls_secret_name", default="")
+        if self.showAdvancedOptions:
+            self.printH1("Cluster Ingress Secret Override")
+            self.printDescription([
+                "In most OpenShift clusters the installation is able to automatically locate the default ingress certificate, however in some configurations it is necessary to manually configure the name of the secret",
+                "Unless you see an error during the ocp-verify stage indicating that the secret can not be determined you do not need to set this and can leave the response empty"
+            ])
+            self.promptForString("Cluster ingress certificate secret name", "ocp_ingress_tls_secret_name", default="")
 
-        self.printH1("Configure Domain & Certificate Management")
-        configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
-        if configureDomainAndCertMgmt:
-            configureDomain = self.yesOrNo('Configure custom domain')
-            if configureDomain:
-                self.promptForString("MAS top-level domain", "mas_domain")
-                self.printDescription([
-                    "",
-                    "DNS Integrations:",
-                    "  1. Cloudflare",
-                    "  2. IBM Cloud Internet Services",
-                    "  3. AWS Route 53",
-                    "  4. None (I will set up DNS myself)"
-                ])
+            self.printH1("Configure Domain & Certificate Management")
+            configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
+            if configureDomainAndCertMgmt:
+                configureDomain = self.yesOrNo('Configure custom domain')
+                if configureDomain:
+                    self.promptForString("MAS top-level domain", "mas_domain")
+                    self.printDescription([
+                        "",
+                        "DNS Integrations:",
+                        "  1. Cloudflare",
+                        "  2. IBM Cloud Internet Services",
+                        "  3. AWS Route 53",
+                        "  4. None (I will set up DNS myself)"
+                    ])
 
-                dnsProvider = self.promptForInt("DNS Provider")
+                    dnsProvider = self.promptForInt("DNS Provider")
 
-                if dnsProvider == 1:
-                    self.configDNSAndCertsCloudflare()
-                elif dnsProvider == 2:
-                    self.configDNSAndCertsCIS()
-                elif dnsProvider == 3:
-                    self.configDNSAndCertsRoute53()
-                elif dnsProvider == 4:
-                    # Use MAS default self-signed cluster issuer with a custom domain
+                    if dnsProvider == 1:
+                        self.configDNSAndCertsCloudflare()
+                    elif dnsProvider == 2:
+                        self.configDNSAndCertsCIS()
+                    elif dnsProvider == 3:
+                        self.configDNSAndCertsRoute53()
+                    elif dnsProvider == 4:
+                        # Use MAS default self-signed cluster issuer with a custom domain
+                        self.setParam("dns_provider", "")
+                        self.setParam("mas_cluster_issuer", "")
+                else:
+                    # Use MAS default self-signed cluster issuer with the default domain
                     self.setParam("dns_provider", "")
+                    self.setParam("mas_domain", "")
                     self.setParam("mas_cluster_issuer", "")
-            else:
-                # Use MAS default self-signed cluster issuer with the default domain
-                self.setParam("dns_provider", "")
-                self.setParam("mas_domain", "")
-                self.setParam("mas_cluster_issuer", "")
-            self.manualCerts = self.yesOrNo("Configure manual certificates")
-            self.setParam("mas_manual_cert_mgmt", self.manualCerts)
-            if self.getParam("mas_manual_cert_mgmt"):
-                self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
-                self.setParam("mas_manual_cert_dir", self.manualCertsDir)
+                self.manualCerts = self.yesOrNo("Configure manual certificates")
+                self.setParam("mas_manual_cert_mgmt", self.manualCerts)
+                if self.getParam("mas_manual_cert_mgmt"):
+                    self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
+                else:
+                    self.manualCertsDir = None
 
+    @logMethodCall
     def configDNSAndCertsCloudflare(self):
         # User has chosen to set up DNS integration with Cloudflare
         self.setParam("dns_provider", "cloudflare")
@@ -363,8 +408,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
             ""
         ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer-1])
+        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
 
+    @logMethodCall
     def configDNSAndCertsCIS(self):
         self.setParam("dns_provider", "cis")
         self.promptForString("CIS e-mail", "cis_email")
@@ -384,8 +430,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             f"{self.getParam('mas_instance_id')}-cis-le-stg",
             ""
         ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer-1])
+        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
 
+    @logMethodCall
     def configDNSAndCertsRoute53(self):
         self.setParam("dns_provider", "route53")
         self.printDescription([
@@ -410,6 +457,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
 
+    @logMethodCall
     def configApps(self):
         self.printH1("Application Selection")
         self.installIoT = self.yesOrNo("Install IoT")
@@ -453,6 +501,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installInspection:
             self.configAppChannel("visualinspection")
 
+        self.installAiBroker = self.yesOrNo("Install AI Broker")
+        if self.installAiBroker:
+            self.configAppChannel("aibroker")
+
+    @logMethodCall
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
         if len(versions) == 0:
@@ -460,6 +513,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             self.params[f"mas_app_channel_{appId}"] = versions[0]
 
+    @logMethodCall
     def configStorageClasses(self):
         self.printH1("Configure Storage Class Usage")
         self.printDescription([
@@ -535,11 +589,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.pipelineStorageClass = self.getParam("storage_class_rwx")
             self.pipelineStorageAccessMode = "ReadWriteMany"
 
+    @logMethodCall
     def setIoTStorageClasses(self) -> None:
         if self.installIoT:
-            self.setParam("mas_app_settings_iot_fpl_pvc_storage_class",  self.getParam("storage_class_rwo"))
-            self.setParam("mas_app_settings_iot_mqttbroker_pvc_storage_class",  self.getParam("storage_class_rwo"))
+            self.setParam("mas_app_settings_iot_fpl_pvc_storage_class", self.getParam("storage_class_rwo"))
+            self.setParam("mas_app_settings_iot_mqttbroker_pvc_storage_class", self.getParam("storage_class_rwo"))
 
+    @logMethodCall
     def optimizerSettings(self) -> None:
         if self.installOptimizer:
             self.printH1("Configure Maximo Optimizer")
@@ -547,8 +603,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             self.promptForString("Plan [full/limited]", "mas_app_plan_optimizer", default="full", validator=OptimizerInstallPlanValidator())
 
+    @logMethodCall
     def predictSettings(self) -> None:
-        if self.installPredict:
+        if self.showAdvancedOptions and self.installPredict:
             self.printH1("Configure Maximo Predict")
             self.printDescription([
                 "Predict application supports integration with IBM SPSS and Watson Openscale which are optional services installed on top of IBM Cloud Pak for Data",
@@ -558,6 +615,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.yesOrNo("Install IBM SPSS Statistics", "cpd_install_spss")
             self.yesOrNo("Install Watson OpenScale", "cpd_install_openscale")
 
+    @logMethodCall
     def assistSettings(self) -> None:
         if self.installAssist:
             self.printH1("Configure Maximo Assist")
@@ -568,11 +626,42 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("COS Provider [ibm/ocs]", "cos_type")
             if self.getParam("cos_type") == "ibm":
                 self.promptForString("IBM Cloud API Key", "ibmcloud_apikey", isPassword=True)
-                self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
+                self.promptForString("IBM Cloud Resource Group", "ibmcos_resourcegroup")
 
-    def interactiveMode(self) -> None:
+    @logMethodCall
+    def chooseInstallFlavour(self) -> None:
+        self.printH1("Choose Install Mode")
+        self.printDescription([
+            "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
+            " - Configure installation namespaces",
+            " - Provide pod templates",
+            " - Configure Single Sign-On (SSO) settings"
+            " - Configure whether to trust well-known certificate authorities by default (defaults to enabled)",
+            " - Configure whether the Guided Tour feature is enabled (defaults to enabled)",
+            " - Configure whether special characters are allowed in usernames and userids (defaults to disabled)",
+            " - Configure a custom domain, DNS integrations, and manual certificates",
+            " - Customize Maximo Manage database settings (schema, tablespace, indexspace)",
+            " - Customize Maximo Manage server bundle configuration (defaults to \"all\" configuration)",
+            " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
+            " - Enable optional Maximo Predict integration with SPSS and Watson OpenScale",
+            " - Enable optional IBM Turbonomic integration",
+            " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
+            " - Choose alternative Apache Kafka providers (default to Strimzi)",
+            " - Customize Grafana storage settings"
+        ])
+        self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
+
+    @logMethodCall
+    def interactiveMode(self, simplified: bool, advanced: bool) -> None:
         # Interactive mode
         self.interactiveMode = True
+
+        if simplified:
+            self.showAdvancedOptions = False
+        elif advanced:
+            self.showAdvancedOptions = True
+        else:
+            self.chooseInstallFlavour()
 
         # Catalog
         self.configCatalog()
@@ -600,9 +689,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.optimizerSettings()
         self.predictSettings()
         self.assistSettings()
+        self.aibrokerSettings()
 
         # Dependencies
-        self.configMongoDb()  # Will only do anything if IoT or Manage have been selected for install
+        self.configMongoDb()
         self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
 
@@ -612,12 +702,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # TODO: Support ECK integration via the interactive install mode
         # TODO: Support MAS superuser username/password via the interactive install mode
 
+    @logMethodCall
     def nonInteractiveMode(self) -> None:
-        # Non-interactive mode
         self.interactiveMode = False
 
         # Set defaults
-        self.storageClassProvider="custom"
+        # ---------------------------------------------------------------------
+        # Unless a config file named "mongodb-system.yaml" is provided via the additional configs mechanism we will be installing a new MongoDb instance
+        self.setParam("mongodb_action", "install")
+
+        self.storageClassProvider = "custom"
         self.installAssist = False
         self.installIoT = False
         self.installMonitor = False
@@ -625,6 +719,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installPredict = False
         self.installInspection = False
         self.installOptimizer = False
+        self.installAiBroker = False
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
@@ -641,128 +736,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         }
 
         self.configGrafana()
-
-        requiredParams = [
-            # MAS
-            "mas_catalog_version",
-            "mas_channel",
-            "mas_instance_id",
-            "mas_workspace_id",
-            "mas_workspace_name",
-            # Storage classes
-            "storage_class_rwo",
-            "storage_class_rwx",
-            # Entitlement
-            "ibm_entitlement_key",
-            # DRO
-            "uds_contact_email",
-            "uds_contact_firstname",
-            "uds_contact_lastname"
-        ]
-        optionalParams = [
-            # MAS
-            "mas_catalog_digest",
-            "mas_superuser_username",
-            "mas_superuser_password",
-            "mas_trust_default_cas",
-            "mas_app_settings_server_bundles_size",
-            "mas_app_settings_default_jms",
-            "mas_app_settings_persistent_volumes_flag",
-            "mas_appws_bindings_jdbc_manage",
-            "mas_app_settings_demodata",
-            "mas_appws_components",
-            "mas_app_settings_customization_archive_name",
-            "mas_app_settings_customization_archive_url",
-            "mas_app_settings_customization_archive_username",
-            "mas_app_settings_customization_archive_password",
-            "mas_app_settings_tablespace",
-            "mas_app_settings_indexspace",
-            "mas_app_settings_db2_schema",
-            "mas_app_settings_crypto_key",
-            "mas_app_settings_cryptox_key",
-            "mas_app_settings_old_crypto_key",
-            "mas_app_settings_old_cryptox_key",
-            "mas_app_settings_override_encryption_secrets_flag",
-            "mas_app_settings_base_lang",
-            "mas_app_settings_secondary_langs",
-            "mas_app_settings_server_timezone",
-            "ocp_ingress_tls_secret_name",
-            # DRO
-            "dro_namespace",
-            # MongoDb
-            "mongodb_namespace",
-            # Db2
-            "db2_action_system",
-            "db2_action_manage",
-            "db2_type",
-            "db2_timezone",
-            "db2_namespace",
-            "db2_channel",
-            "db2_affinity_key",
-            "db2_affinity_value",
-            "db2_tolerate_key",
-            "db2_tolerate_value",
-            "db2_tolerate_effect",
-            "db2_cpu_requests",
-            "db2_cpu_limits",
-            "db2_memory_requests",
-            "db2_memory_limits",
-            "db2_backup_storage_size",
-            "db2_data_storage_size",
-            "db2_logs_storage_size",
-            "db2_meta_storage_size",
-            "db2_temp_storage_size",
-            # CP4D
-            "cpd_product_version",
-            "cpd_install_cognos",
-            "cpd_install_openscale",
-            "cpd_install_spss",
-            # Kafka
-            "kafka_namespace",
-            "kafka_version",
-            "aws_msk_instance_type",
-            "aws_msk_instance_number",
-            "aws_msk_volume_size",
-            "aws_msk_cidr_az1",
-            "aws_msk_cidr_az2",
-            "aws_msk_cidr_az3",
-            "aws_msk_egress_cidr",
-            "aws_msk_ingress_cidr",
-            "eventstreams_resource_group",
-            "eventstreams_instance_name",
-            "eventstreams_instance_location",
-            # COS
-            "cos_type",
-            "cos_resourcegroup",
-            # ECK
-            "eck_action",
-            "eck_enable_logstash",
-            "eck_remote_es_hosts",
-            "eck_remote_es_username",
-            "eck_remote_es_password",
-            # Turbonomic
-            "turbonomic_target_name",
-            "turbonomic_server_url",
-            "turbonomic_server_version",
-            "turbonomic_username",
-            "turbonomic_password",
-            # Cloud Providers
-            "ibmcloud_apikey",
-            "aws_region",
-            "aws_access_key_id",
-            "secret_access_key",
-            "aws_vpc_id",
-            # Dev Mode
-            "artifactory_username",
-            "artifactory_token",
-            # TODO: The way arcgis has been implemented needs to be fixed
-            "install_arcgis",
-            "mas_arcgis_channel",
-            # Guided Tour
-            "mas_enable_walkme",
-            # Special chars
-            "mas_special_characters"
-        ]
 
         for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
@@ -800,6 +773,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             elif key == "additional_configs":
                 self.localConfigDir = value
+                # If there is a file named mongodb-system.yaml we will use this as a BYO MongoDB datasource
+                if path.exists(path.join(self.localConfigDir, "mongodb-system.yaml")):
+                    self.setParam("mongodb_action", "byo")
+                    self.setParam("sls_mongodb_cfg_file", "/workspace/additional-configs/mongodb-system.yaml")
 
             elif key == "pod_templates":
                 # For the named configurations we will convert into the path
@@ -808,37 +785,44 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     self.setParam("mas_pod_templates_dir", value)
 
+            # We check for both None and "" values for the application channel parameters
+            # value = None means the parameter wasn't set at all
+            # value = "" means the paramerter was explicitly set to "don't install this application"
             elif key == "assist_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_assist", value)
                     self.installAssist = True
             elif key == "iot_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_iot", value)
                     self.installIoT = True
             elif key == "monitor_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_monitor", value)
                     self.installMonitor = True
             elif key == "manage_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_manage", value)
                     self.installManage = True
             elif key == "predict_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_predict", value)
                     self.installPredict = True
                     self.deployCP4D = True
             elif key == "visualinspection_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_visualinspection", value)
                     self.installInspection = True
+            elif key == "aibroker_channel":
+                if value is not None and value != "":
+                    self.setParam("mas_app_channel_aibroker", value)
+                    self.installAiBroker = True
             elif key == "optimizer_channel":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_channel_optimizer", value)
                     self.installOptimizer = True
             elif key == "optimizer_plan":
-                if value is not None:
+                if value is not None and value != "":
                     self.setParam("mas_app_plan_optimizer", value)
 
             # Manage advanced settings that need extra processing
@@ -858,9 +842,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.fatalError(f"{key} must be set")
                 self.pipelineStorageClass = value
             elif key == "license_file":
-                    if value is None:
-                        self.fatalError(f"{key} must be set")
-                    self.slsLicenseFileLocal = value
+                if value is None:
+                    self.fatalError(f"{key} must be set")
+                self.slsLicenseFileLocal = value
 
             elif key.startswith("approval_"):
                 if key not in self.approvals:
@@ -876,19 +860,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             self.approvals[key]["maxRetries"] = int(valueParts[1])
                             self.approvals[key]["retryDelay"] = int(valueParts[2])
                             self.approvals[key]["ignoreFailure"] = bool(valueParts[3])
-                        except:
+                        except ValueError:
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help", "advanced", "simplified"]:
                 pass
 
             elif key == "manual_certificates":
                 if value is not None:
                     self.setParam("mas_manual_cert_mgmt", True)
-                    self.setParam("mas_manual_cert_dir", value)
+                    self.manualCertsDir = value
                 else:
                     self.setParam("mas_manual_cert_mgmt", False)
+                    self.manualCertsDir = None
 
             # Fail if there's any arguments we don't know how to handle
             else:
@@ -900,6 +885,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.validateCatalogSource()
             self.licensePrompt()
 
+    @logMethodCall
     def install(self, argv):
         """
         Install MAS instance
@@ -926,140 +912,24 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
 
-        self.installOptions = [
-            {
-                "#": 1,
-                "catalog": "v9-241003-amd64",
-                "release": "9.0.x",
-                "core": "9.0.3",
-                "assist": "9.0.2",
-                "iot": "9.0.3",
-                "manage": "9.0.3",
-                "monitor": "9.0.3",
-                "optimizer": "9.0.3",
-                "predict": "9.0.2",
-                "inspection": "9.0.3"
-            },
-            {
-                "#": 2,
-                "catalog": "v9-241003-amd64",
-                "release": "8.11.x",
-                "core": "8.11.15",
-                "assist": "8.8.6",
-                "iot": "8.8.13",
-                "manage": "8.7.12",
-                "monitor": "8.11.11",
-                "optimizer": "8.5.9",
-                "predict": "8.9.5",
-                "inspection": "8.9.6"
-            },
-            {
-                "#": 3,
-                "catalog": "v9-241003-amd64",
-                "release": "8.10.x",
-                "core": "8.10.18",
-                "assist": "8.7.7",
-                "iot": "8.7.17",
-                "manage": "8.6.18",
-                "monitor": "8.10.14",
-                "optimizer": "8.4.10",
-                "predict": "8.8.3",
-                "inspection": "8.8.4"
-            },            
-            {
-                "#": 4,
-                "catalog": "v9-240827-amd64",
-                "release": "9.0.x",
-                "core": "9.0.2",
-                "assist": "9.0.2",
-                "iot": "9.0.2",
-                "manage": "9.0.2",
-                "monitor": "9.0.2",
-                "optimizer": "9.0.2",
-                "predict": "9.0.1",
-                "inspection": "9.0.2"
-            },
-            {
-                "#": 5,
-                "catalog": "v9-240827-amd64",
-                "release": "8.11.x",
-                "core": "8.11.14",
-                "assist": "8.8.6",
-                "iot": "8.8.12",
-                "manage": "8.7.11",
-                "monitor": "8.11.10",
-                "optimizer": "8.5.8",
-                "predict": "8.9.3",
-                "inspection": "8.9.5"
-            },
-            {
-                "#": 6,
-                "catalog": "v9-240827-amd64",
-                "release": "8.10.x",
-                "core": "8.10.17",
-                "assist": "8.7.7",
-                "iot": "8.7.16",
-                "manage": "8.6.17",
-                "monitor": "8.10.13",
-                "optimizer": "8.4.9",
-                "predict": "8.8.3",
-                "inspection": "8.8.4"
-            },
-            {
-                "#": 7,
-                "catalog": "v9-240730-amd64",
-                "release": "9.0.x",
-                "core": "9.0.1",
-                "assist": "9.0.1",
-                "iot": "9.0.1",
-                "manage": "9.0.1",
-                "monitor": "9.0.1",
-                "optimizer": "9.0.1",
-                "predict": "9.0.0",
-                "inspection": "9.0.0"
-            },
-            {
-                "#": 8,
-                "catalog": "v9-240730-amd64",
-                "release": "8.11.x",
-                "core": "8.11.13",
-                "assist": "8.8.5",
-                "iot": "8.8.11",
-                "manage": "8.7.10",
-                "monitor": "8.11.9",
-                "optimizer": "8.5.7",
-                "predict": "8.9.3",
-                "inspection": "8.9.4"
-            },
-            {
-                "#": 9,
-                "catalog": "v9-240730-amd64",
-                "release": "8.10.x",
-                "core": "8.10.16",
-                "assist": "8.7.6",
-                "iot": "8.7.15",
-                "manage": "8.6.16",
-                "monitor": "8.10.12",
-                "optimizer": "8.4.8",
-                "predict": "8.8.3",
-                "inspection": "8.8.4"
-            }
-        ]
-
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
             self.connect()
         else:
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
+            self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:
             print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
             exit(1)
 
+        # Configure the installOptions for the appropriate architecture
+        self.installOptions = catalogChoices[self.architecture]
+
         # Basic settings before the user provides any input
         self.configICR()
-        self.configCertManager()
+        self.configCertManager()  # TODO: I think this is redundant, we should look to remove this and the appropriate params in the install pipeline
         self.deployCP4D = False
 
         # UDS install has not been supported since the January 2024 catalog update
@@ -1067,7 +937,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # User must either provide the configuration via numerous command line arguments, or the interactive prompts
         if instanceId is None:
-            self.interactiveMode()
+            self.interactiveMode(simplified=args.simplified, advanced=args.advanced)
         else:
             self.nonInteractiveMode()
 
@@ -1120,7 +990,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
                 installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text=f"OpenShift Pipelines Operator is installed and ready to use")
+                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
@@ -1144,9 +1014,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
-            with Halo(text=f'Testing availability of MAS CLI image in cluster', spinner=self.spinner) as h:
+            with Halo(text='Testing availability of MAS CLI image in cluster', spinner=self.spinner) as h:
                 testCLI()
-                h.stop_and_persist(symbol=self.successIcon, text=f"MAS CLI image deployment test completed")
+                h.stop_and_persist(symbol=self.successIcon, text="MAS CLI image deployment test completed")
 
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
@@ -1161,6 +1031,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details")
                     print()
 
+    @logMethodCall
     def setupApprovals(self, namespace: str) -> None:
         """
         Ensure the supported approval configmaps are in the expected state for the start of the run:

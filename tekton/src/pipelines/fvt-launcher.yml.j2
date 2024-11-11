@@ -78,6 +78,41 @@ spec:
       default: "false"
       description: "Set this to 'true' to enable launch of the IVT pipeline at the end of applications FVT"
 
+    # Dynamic Application Scanning
+    # -------------------------------------------------------------------------
+    - name: launchdyncscan_core
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Core after waitfor-installation completes"
+    - name: launchdyncscan_assist
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Assist after waitfor-installation completes"
+    - name: launchdyncscan_iot
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for IoT after waitfor-installation completes"
+    - name: launchdyncscan_manage
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Manage after waitfor-installation completes"
+    - name: launchdyncscan_monitor
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Monitor after waitfor-installation completes"
+    - name: launchdyncscan_optimizer
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Optimizer after waitfor-installation completes"
+    - name: launchdyncscan_predict
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for Predict after waitfor-installation completes"
+    - name: launchdyncscan_visualinspection
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for VisualInspection after waitfor-installation completes"
+    
     # Customize Final Wait
     # -------------------------------------------------------------------------
     # When skipping FVT for applications that are installed it will be necessary
@@ -259,6 +294,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - approval-suite-verify
+        - approval-manage
 
     - name: launchfvt-assist
       timeout: "0"
@@ -883,6 +919,42 @@ spec:
         - approval-monitor
         - launchfvt-mobile
 
+    # 12. Dynamic Application Security Testing
+    # -------------------------------------------------------------------------
+    # Need to be started without blocking install for other apps
+    - name: launchfvt-dynamicscan
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-dynamicscan
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-dynamicscan"
+        - name: launchdyncscan_core
+          value: $(params.launchdyncscan_core)
+        - name: launchdyncscan_iot
+          value: $(params.launchdyncscan_iot)
+        - name: launchdyncscan_monitor
+          value: $(params.launchdyncscan_monitor)
+        - name: launchdyncscan_manage
+          value: $(params.launchdyncscan_manage)
+        - name: launchdyncscan_assist
+          value: $(params.launchdyncscan_assist)
+        - name: launchdyncscan_optimizer
+          value: $(params.launchdyncscan_optimizer)
+        - name: launchdyncscan_predict
+          value: $(params.launchdyncscan_predict)
+        - name: launchdyncscan_visualinspection
+          value: $(params.launchdyncscan_visualinspection)
+      when:
+        - input: "$(params.launchdyncscan_core)$(params.launchdyncscan_iot)$(params.launchdyncscan_monitor)$(params.launchdyncscan_manage)($params.launchdyncscan_assist)($params.launchdyncscan_optimizer)($params.launchdyncscan_predict)($params.launchdyncscan_visualinspection)"
+          operator: notin
+          values: [ "", "falsefalsefalsefalsefalsefalsefalsefalse", "FalseFalseFalseFalseFalseFalseFalseFalse" ]
+      runAfter:
+        - waitfor-suite-verify
+
     # Last Sync Point
     # -------------------------------------------------------------------------
     # Guarantee installation pipeline ran till the end;
@@ -928,6 +1000,7 @@ spec:
         - approval-predict # Infers Manage, Monitor and IoT completed
         - approval-visualinspection
         - launchivt-manage
+        - launchfvt-dynamicscan
 
   finally:
     - name: launchfvt-finally

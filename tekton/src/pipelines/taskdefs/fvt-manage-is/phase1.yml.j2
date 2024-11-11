@@ -1,8 +1,9 @@
 # -----------------------------------------------------------------------------
 # PHASE 1
-# - fvt-health-testng-preparedata  # Health
-#   - fvt-health-testng-desktop    # Health
-#   - fvt-health-python            # Health
+# - fvt-health-testng-preparedata      # Health
+#   - fvt-health-testng-desktop        # Health
+#   - fvt-health-python                # Health
+#   - fvt-civil-api-defectdetection    # Civil
 # -----------------------------------------------------------------------------
 
 # Health
@@ -129,12 +130,12 @@
   runAfter:
     - fvt-health-testng-preparedata
 
-# Minimum Verification Test for Operational Map Test Suites
-- name: fvt-manage-operationalmap-api
+# Civil suites for the Defect Detection app
+- name: fvt-civil-api-defectdetection
   {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: operationalmap-api
+      value: civil-api-defectdetection
   runAfter:
     - fvt-manage-setup-is

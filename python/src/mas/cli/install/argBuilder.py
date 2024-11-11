@@ -12,6 +12,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class installArgBuilderMixin():
     def buildCommand(self) -> str:
         # MAS Catalog Selection & Entitlement
@@ -94,8 +95,16 @@ class installArgBuilderMixin():
         if self.getParam('mas_trust_default_cas') == "false":
             command += f"  --disable-ca-trust{newline}"
 
-        if self.getParam('mas_manual_cert_mgmt') == True:
-            command += f"  --manual-certificates \"{self.getParam('mas_manual_cert_dir')}\"{newline}"
+        if self.getParam('mas_manual_cert_mgmt') is True:
+            command += f"  --manual-certificates \"{self.manualCertsDir}\"{newline}"
+
+        if self.getParam('mas_domain') is True:
+            command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
+
+        if self.getParam('--dns-provider') == "cis":
+            command += f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}"
+            command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}"
+            command += f" --cis-crn \"{self.getParam('cis_crn')}\"{newline}"
 
         if self.getParam('mas_enable_walkme') == "false":
             command += f"  --disable-walkme{newline}"
@@ -110,6 +119,8 @@ class installArgBuilderMixin():
         # IBM Suite License Service
         # -----------------------------------------------------------------------------
         command += f"  --license-file \"{self.slsLicenseFileLocal}\"{newline}"
+        if self.getParam("sls_namespace") != "ibm-sls":
+            command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\"{newline}"
 
         # IBM Data Reporting Operator (DRO)
         # -----------------------------------------------------------------------------
@@ -201,170 +212,172 @@ class installArgBuilderMixin():
             if self.getParam('mas_app_settings_server_timezone') != "":
                 command += f"  --manage-server-timezone \"{self.getParam('mas_app_settings_server_timezone')}\"{newline}"
 
-            # IBM Cloud Pak for Data
+        # IBM Cloud Pak for Data
+        # -----------------------------------------------------------------------------
+        if self.getParam('cpd_product_version') != "":
+            command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
+            if self.getParam('cpd_install_spss') == "install":
+                command += " --cp4d-install-spss"
+            if self.getParam('cpd_install_openscale') == "install":
+                command += " --cp4d-install-openscal"
+            if self.getParam('cpd_install_cognos') == "install":
+                command += " --cp4d-install-cognos"
+            command += newline
+
+        # IBM Db2 Universal Operator
+        # -----------------------------------------------------------------------------
+        if self.getParam('db2_system') == "install" or self.getParam('db2_manage') == "install":
+            if self.getParam('db2_system') == "install":
+                command += f"  --db2-system{newline}"
+            if self.getParam('db2_manage') == "install":
+                command += f"  --db2-manage{newline}"
+
+            if self.getParam('db2_channel') != "":
+                command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
+            if self.getParam('db2_namespace') != "":
+                command += f"  --db2-namespace \"{self.getParam('db2_namespace')}\"{newline}"
+
+            if self.getParam('db2_type') != "":
+                command += f"  --db2-type \"{self.getParam('db2_type')}\"{newline}"
+            if self.getParam('db2_timezone') != "":
+                command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
+
+            if self.getParam('db2_affinity_key') != "":
+                command += f"  --db2-affinity-key \"{self.getParam('db2_affinity_key')}\"{newline}"
+            if self.getParam('db2_affinity_value') != "":
+                command += f"  --db2-affinity_value \"{self.getParam('db2_affinity_value')}\"{newline}"
+
+            if self.getParam('db2_tolerate_key') != "":
+                command += f"  --db2-tolerate-key \"{self.getParam('db2_tolerate_key')}\"{newline}"
+            if self.getParam('db2_tolerate_value') != "":
+                command += f"  --db2-tolerate-value \"{self.getParam('db2_tolerate_value')}\"{newline}"
+            if self.getParam('db2_tolerate_effect') != "":
+                command += f"  --db2-tolerate-effect \"{self.getParam('db2_tolerate_effect')}\"{newline}"
+
+            if self.getParam('db2_cpu_requests') != "":
+                command += f"  --db2-cpu-requests \"{self.getParam('db2_cpu_requests')}\"{newline}"
+            if self.getParam('db2_cpu_limits') != "":
+                command += f"  --db2-cpu-limits \"{self.getParam('db2_cpu_limits')}\"{newline}"
+
+            if self.getParam('db2_memory_requests') != "":
+                command += f"  --db2-memory-requests \"{self.getParam('db2_memory_requests')}\"{newline}"
+            if self.getParam('db2_memory_limits') != "":
+                command += f"  --db2-memory-limits \"{self.getParam('db2_memory_limits')}\"{newline}"
+
+            if self.getParam('db2_backup_storage_size') != "":
+                command += f"  --db2-backup-storage \"{self.getParam('db2_backup_storage_size')}\"{newline}"
+            if self.getParam('db2_data_storage_size') != "":
+                command += f"  --db2-data-storage \"{self.getParam('db2_data_storage_size')}\"{newline}"
+            if self.getParam('db2_logs_storage_size') != "":
+                command += f"  --db2-logs-storage \"{self.getParam('db2_logs_storage_size')}\"{newline}"
+            if self.getParam('db2_meta_storage_size') != "":
+                command += f"  --db2-meta-storage \"{self.getParam('db2_meta_storage_size')}\"{newline}"
+            if self.getParam('db2_temp_storage_size') != "":
+                command += f"  --db2-temp-storage \"{self.getParam('db2_temp_storage_size')}\"{newline}"
+
+        # Kafka - Common
+        # -----------------------------------------------------------------------------
+        if self.getParam('kafka_provider') != "":
+            command += f"  --kafka-provider \"{self.getParam('kafka_provider')}\"{newline}"
+
+            if self.getParam('kafka_username') != "":
+                command += f"  --kafka-username \"{self.getParam('kafka_username')}\"{newline}"
+            if self.getParam('kafka_password') != "":
+                command += f"  --kafka-password $KAFKA_PASSWORD{newline}"
+
+            # Kafka - Strimzi & AMQ Streams
             # -----------------------------------------------------------------------------
-            if self.getParam('cpd_product_version') != "":
-                command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
-                if self.getParam('cpd_install_spss') == "install":
-                    command += f" --cp4d-install-spss"
-                if self.getParam('cpd_install_openscale') == "install":
-                    command += f" --cp4d-install-openscal"
-                if self.getParam('cpd_install_cognos') == "install":
-                    command += f" --cp4d-install-cognos"
-                command += newline
+            if self.getParam('kafka_namespace') != "":
+                command += f"  --kafka-namespace \"{self.getParam('kafka_namespace')}\"{newline}"
+            if self.getParam('kafka_version') != "":
+                command += f"  --kafka-version \"{self.getParam('kafka_version')}\"{newline}"
 
-            # IBM Db2 Universal Operator
+            # Kafka - MSK
             # -----------------------------------------------------------------------------
-            if self.getParam('db2_system') == "install" or self.getParam('db2_manage') == "install":
-                if self.getParam('db2_system') == "install":
-                    command += f"  --db2-system{newline}"
-                if self.getParam('db2_manage') == "install":
-                    command += f"  --db2-manage{newline}"
+            if self.getParam('aws_msk_instance_type') != "":
+                command += f"  --msk-instance-type \"{self.getParam('aws_msk_instance_type')}\""
+                command += f" --msk-instance-nodes \"{self.getParam('aws_msk_instance_nodes')}\""
+                command += f" --msk-instance-volume-size \"{self.getParam('aws_msk_instance_volume_size')}\"{newline}"
 
-                if self.getParam('db2_channel') != "":
-                    command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
-                if self.getParam('db2_namespace') != "":
-                    command += f"  --db2-namespace \"{self.getParam('db2_namespace')}\"{newline}"
+                command += f"  --msk-cidr-az1 \"{self.getParam('aws_msk_cidr_az1')}\""
+                command += f" --msk-cidr-az2 \"{self.getParam('aws_msk_cidr_az1')}\""
+                command += f" --msk-cidr-az3 \"{self.getParam('aws_msk_cidr_az1')}\"{newline}"
 
-                if self.getParam('db2_type') != "":
-                    command += f"  --db2-type \"{self.getParam('db2_type')}\"{newline}"
-                if self.getParam('db2_timezone') != "":
-                    command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
+                command += f"  --msk-cidr-egress \"{self.getParam('aws_msk_egress_cidr')}\""
+                command += f" --msk-cidr-ingress \"{self.getParam('aws_msk_ingress_cidr')}\"{newline}"
 
-                if self.getParam('db2_affinity_key') != "":
-                    command += f"  --db2-affinity-key \"{self.getParam('db2_affinity_key')}\"{newline}"
-                if self.getParam('db2_affinity_value') != "":
-                    command += f"  --db2-affinity_value \"{self.getParam('db2_affinity_value')}\"{newline}"
-
-                if self.getParam('db2_tolerate_key') != "":
-                    command += f"  --db2-tolerate-key \"{self.getParam('db2_tolerate_key')}\"{newline}"
-                if self.getParam('db2_tolerate_value') != "":
-                    command += f"  --db2-tolerate-value \"{self.getParam('db2_tolerate_value')}\"{newline}"
-                if self.getParam('db2_tolerate_effect') != "":
-                    command += f"  --db2-tolerate-effect \"{self.getParam('db2_tolerate_effect')}\"{newline}"
-
-                if self.getParam('db2_cpu_requests') != "":
-                    command += f"  --db2-cpu-requests \"{self.getParam('db2_cpu_requests')}\"{newline}"
-                if self.getParam('db2_cpu_limits') != "":
-                    command += f"  --db2-cpu-limits \"{self.getParam('db2_cpu_limits')}\"{newline}"
-
-                if self.getParam('db2_memory_requests') != "":
-                    command += f"  --db2-memory-requests \"{self.getParam('db2_memory_requests')}\"{newline}"
-                if self.getParam('db2_memory_limits') != "":
-                    command += f"  --db2-memory-limits \"{self.getParam('db2_memory_limits')}\"{newline}"
-
-                if self.getParam('db2_backup_storage_size') != "":
-                    command += f"  --db2-backup-storage \"{self.getParam('db2_backup_storage_size')}\"{newline}"
-                if self.getParam('db2_data_storage_size') != "":
-                    command += f"  --db2-data-storage \"{self.getParam('db2_data_storage_size')}\"{newline}"
-                if self.getParam('db2_logs_storage_size') != "":
-                    command += f"  --db2-logs-storage \"{self.getParam('db2_logs_storage_size')}\"{newline}"
-                if self.getParam('db2_meta_storage_size') != "":
-                    command += f"  --db2-meta-storage \"{self.getParam('db2_meta_storage_size')}\"{newline}"
-                if self.getParam('db2_temp_storage_size') != "":
-                    command += f"  --db2-temp-storage \"{self.getParam('db2_temp_storage_size')}\"{newline}"
-
-            # Kafka - Common
+            # Kafka - Event Streams
             # -----------------------------------------------------------------------------
-            if self.getParam('kafka_provider') != "":
-                command += f"  --kafka-provider \"{self.getParam('kafka_provider')}\"{newline}"
+            if self.getParam('eventstreams_instance_name') != "":
+                command += f"  --eventstreams-resource-group \"{self.getParam('eventstreams_resource_group')}\""
+                command += f" --eventstreams-instance-name \"{self.getParam('eventstreams_instance_name')}\""
+                command += f" --eventstreams-instance-location \"{self.getParam('eventstreams_instance_location')}\"{newline}"
 
-                if self.getParam('kafka_username') != "":
-                    command += f"  --kafka-username \"{self.getParam('kafka_username')}\"{newline}"
-                if self.getParam('kafka_password') != "":
-                    command += f"  --kafka-password $KAFKA_PASSWORD{newline}"
+        # COS
+        # -----------------------------------------------------------------------------
+        if self.getParam('cos_type') != "":
+            command += f"  --cos \"{self.getParam('cos_type')}\""
+            if self.getParam('ibmcos_resourcegroup') != "":
+                command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
+            command += newline
 
-                # Kafka - Strimzi & AMQ Streams
-                # -----------------------------------------------------------------------------
-                if self.getParam('kafka_namespace') != "":
-                    command += f"  --kafka-namespace \"{self.getParam('kafka_namespace')}\"{newline}"
-                if self.getParam('kafka_version') != "":
-                    command += f"  --kafka-version \"{self.getParam('kafka_version')}\"{newline}"
+        # Turbonomic Integration
+        # -----------------------------------------------------------------------------
+        if self.getParam('turbonomic_target_name') != "":
+            command += f"  --turbonomic-name \"{self.getParam('turbonomic_target_name')}\""
+            command += f"  --turbonomic-url \"{self.getParam('turbonomic_server_url')}\""
+            command += f"  --turbonomic-version \"{self.getParam('turbonomic_server_version')}\""
+            command += f"  --turbonomic-username \"{self.getParam('turbonomic_username')}\""
+            command += f"  --turbonomic-password \"{self.getParam('turbonomic_password')}\"{newline}"
 
-                # Kafka - MSK
-                # -----------------------------------------------------------------------------
-                if self.getParam('aws_msk_instance_type') != "":
-                    command += f"  --msk-instance-type \"{self.getParam('aws_msk_instance_type')}\""
-                    command += f" --msk-instance-nodes \"{self.getParam('aws_msk_instance_nodes')}\""
-                    command += f" --msk-instance-volume-size \"{self.getParam('aws_msk_instance_volume_size')}\"{newline}"
+        # Cloud Providers
+        # -----------------------------------------------------------------------------
+        if self.getParam('ibmcloud_apikey') != "":
+            command += f"  --ibmcloud-apikey $IBMCLOUD_APIKEY{newline}"
 
-                    command += f"  --msk-cidr-az1 \"{self.getParam('aws_msk_cidr_az1')}\""
-                    command += f" --msk-cidr-az2 \"{self.getParam('aws_msk_cidr_az1')}\""
-                    command += f" --msk-cidr-az3 \"{self.getParam('aws_msk_cidr_az1')}\"{newline}"
+        if self.getParam('aws_access_key_id') != "":
+            command += f"  --aws-access-key-id $AWS_ACCESS_KEY_ID{newline}"
+        if self.getParam('secret_access_key') != "":
+            command += f"  --secret-access-key $SECRET_ACCESS_KEY{newline}"
+            command += f"  --aws-region \"{self.getParam('aws_region')}\""
+            command += f"  --aws-vpc-id \"{self.getParam('aws_vpc_id')}\""
 
-                    command += f"  --msk-cidr-egress \"{self.getParam('aws_msk_egress_cidr')}\""
-                    command += f" --msk-cidr-ingress \"{self.getParam('aws_msk_ingress_cidr')}\"{newline}"
+        # Development Mode
+        # -----------------------------------------------------------------------------
+        if self.getParam('artifactory_username') != "":
+            command += f"  --artifactory-username $ARTIFACTORY_USERNAME --artifactory-token $ARTIFACTORY_TOKEN{newline}"
 
-                # Kafka - Event Streams
-                # -----------------------------------------------------------------------------
-                if self.getParam('eventstreams_instance_name') != "":
-                    command += f"  --eventstreams-resource-group \"{self.getParam('eventstreams_resource_group')}\""
-                    command += f" --eventstreams-instance-name \"{self.getParam('eventstreams_instance_name')}\""
-                    command += f" --eventstreams-instance-location \"{self.getParam('eventstreams_instance_location')}\"{newline}"
+        # Approvals
+        # -----------------------------------------------------------------------------
+        if self.getParam('approval_core') != "":
+            command += f"  --approval-core \"{self.getParam('approval_core')}\"{newline}"
+        if self.getParam('approval_assist') != "":
+            command += f"  --approval-assist \"{self.getParam('approval_assist')}\"{newline}"
+        if self.getParam('approval_iot') != "":
+            command += f"  --approval-iot \"{self.getParam('approval_iot')}\"{newline}"
+        if self.getParam('approval_manage') != "":
+            command += f"  --approval-manage \"{self.getParam('approval_manage')}\"{newline}"
+        if self.getParam('approval_monitor') != "":
+            command += f"  --approval-monitor \"{self.getParam('approval_monitor')}\"{newline}"
+        if self.getParam('approval_optimizer') != "":
+            command += f"  --approval-optimizer \"{self.getParam('approval_optimizer')}\"{newline}"
+        if self.getParam('approval_predict') != "":
+            command += f"  --approval-predict \"{self.getParam('approval_predict')}\"{newline}"
+        if self.getParam('approval_visualinspection') != "":
+            command += f"  --approval-visualinspection \"{self.getParam('approval_visualinspection')}\"{newline}"
 
-            # COS
-            # -----------------------------------------------------------------------------
-            if self.getParam('cos_type') != "":
-                command += f"  --cos \"{self.getParam('cos_type')}\""
-                if self.getParam('cos_resourcegroup') != "":
-                    command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
-                command += newline
-
-            # Turbonomic Integration
-            # -----------------------------------------------------------------------------
-            if self.getParam('turbonomic_target_name') != "":
-                command += f"  --turbonomic-name \"{self.getParam('turbonomic_target_name')}\""
-                command += f"  --turbonomic-url \"{self.getParam('turbonomic_server_url')}\""
-                command += f"  --turbonomic-version \"{self.getParam('turbonomic_server_version')}\""
-                command += f"  --turbonomic-username \"{self.getParam('turbonomic_username')}\""
-                command += f"  --turbonomic-password \"{self.getParam('turbonomic_password')}\"{newline}"
-
-            # Cloud Providers
-            # -----------------------------------------------------------------------------
-            if self.getParam('ibmcloud_apikey') != "":
-                command += f"  --ibmcloud-apikey $IBMCLOUD_APIKEY{newline}"
-
-            if self.getParam('aws_access_key_id') != "":
-                command += f"  --aws-access-key-id $AWS_ACCESS_KEY_ID{newline}"
-            if self.getParam('secret_access_key') != "":
-                command += f"  --secret-access-key $SECRET_ACCESS_KEY{newline}"
-                command += f"  --aws-region \"{self.getParam('aws_region')}\""
-                command += f"  --aws-vpc-id \"{self.getParam('aws_vpc_id')}\""
-
-            # Development Mode
-            # -----------------------------------------------------------------------------
-            if self.getParam('artifactory_username') != "":
-                command += f"  --artifactory-username $ARTIFACTORY_USERNAME --artifactory-token $ARTIFACTORY_TOKEN{newline}"
-
-            # Approvals
-            # -----------------------------------------------------------------------------
-            if self.getParam('approval_core') != "":
-                command += f"  --approval-core \"{self.getParam('approval_core')}\"{newline}"
-            if self.getParam('approval_assist') != "":
-                command += f"  --approval-assist \"{self.getParam('approval_assist')}\"{newline}"
-            if self.getParam('approval_iot') != "":
-                command += f"  --approval-iot \"{self.getParam('approval_iot')}\"{newline}"
-            if self.getParam('approval_manage') != "":
-                command += f"  --approval-manage \"{self.getParam('approval_manage')}\"{newline}"
-            if self.getParam('approval_monitor') != "":
-                command += f"  --approval-monitor \"{self.getParam('approval_monitor')}\"{newline}"
-            if self.getParam('approval_optimizer') != "":
-                command += f"  --approval-optimizer \"{self.getParam('approval_optimizer')}\"{newline}"
-            if self.getParam('approval_predict') != "":
-                command += f"  --approval-predict \"{self.getParam('approval_predict')}\"{newline}"
-            if self.getParam('approval_visualinspection') != "":
-                command += f"  --approval-visualinspection \"{self.getParam('approval_visualinspection')}\"{newline}"
-
-            # More Options
-            # -----------------------------------------------------------------------------
-            if self.devMode:
-                command += f"  --dev-mode{newline}"
-            if not self.waitForPVC:
-                command += f"  --no-wait-for-pvc{newline}"
-            if self.getParam('skip_pre_check') == True:
-                command += f"  --skip-pre-check{newline}"
-            if self.getParam('skip_grafana_install') == True:
-                command += f"  --skip-grafana-install{newline}"
+        # More Options
+        # -----------------------------------------------------------------------------
+        if self.devMode:
+            command += f"  --dev-mode{newline}"
+        if not self.waitForPVC:
+            command += f"  --no-wait-for-pvc{newline}"
+        if self.getParam('skip_pre_check') is True:
+            command += f"  --skip-pre-check{newline}"
+        if self.getParam('skip_grafana_install') is True:
+            command += f"  --skip-grafana-install{newline}"
+        if self.getParam('image_pull_policy') != "":
+            command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
 
         command += "  --accept-license --no-confirm"
         return command

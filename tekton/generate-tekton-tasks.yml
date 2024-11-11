@@ -43,7 +43,18 @@
         - turbonomic
         - uds
 
-    # 3. Generate Tasks (FVT)
+    # 3. Generate Tasks (AI Broker)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (AI Broker)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/aibroker/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - aibroker
+        - kmodels
+        - odh
+
+    # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (FVT)
       ansible.builtin.template:
@@ -91,9 +102,10 @@
         - launchfvt-visualinspection
         - launchfvt-upgrade-post
         - launchfvt-upgrade-pre
+        - launchfvt-dynamicscan
         - launchivt-manage
 
-    # 4. Generate Tasks (IVT)
+    # 5. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (IVT)
       ansible.builtin.template:
@@ -102,8 +114,9 @@
       with_items:
         - ivt-core
         - ivt-manage
+        - ivt-dynamicscan
 
-    # 5. Generate Tasks (Suite)
+    # 6. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (Suite)
       ansible.builtin.template:
@@ -128,7 +141,7 @@
         - suite-upgrade
         - suite-verify
 
-    # 6. Generate Tasks (OCP)
+    # 7. Generate Tasks (OCP)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (Suite)
       ansible.builtin.template:
@@ -138,7 +151,7 @@
         - ocp-verify
         - ocp-verify-all
 
-    # 7. Generate Tasks (Framework)
+    # 8. Generate Tasks (Framework)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (Framework)
       ansible.builtin.template:
@@ -149,7 +162,7 @@
         - wait-for-configmap
         - wait-for-tekton
 
-    # 8. Generate Tasks (GitOps)
+    # 9. Generate Tasks (GitOps)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (GitOps)
       ansible.builtin.template:

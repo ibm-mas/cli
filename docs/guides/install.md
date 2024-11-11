@@ -48,7 +48,7 @@ The CLI also supports OpenShift provisioning in many hyperscaler providers:
 
 
 ### 1.4 Operator Catalog Selection
-If you have not already determined the best catalog source for your installation, refer to the information in the [choosing the right IBM Maximo Operator Catalog to meet your requirements](choosing-the-right-catalog.md) guide, or contact IBM Support for guidance.
+If you have not already determined the catalog version for your installation, refer to the information in the [Operator Catalog](../catalogs/index.md) topic, or contact IBM Support for guidance.
 
 
 2 Disconnected Install Preparation
@@ -84,7 +84,7 @@ Mirroring the images is a simple but time consuming process, this step must be p
 docker run -ti --pull always quay.io/ibmmas/cli mas mirror-images
 ```
 
-You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](choosing-the-right-catalog.md) and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
+You will be prompted to set the target registry for the image mirroring, to select the version of IBM Maximo Operator Catalog to mirror, and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
 
 The following command will mirror all required and optional content that makes up the IBM Maximo Operator Catalog directly to your mirror registry, for full usgae information refer to the [mirror-images](../commands/mirror-images.md) command documentation, if you are looking for more detailed guidance on how to approach this activity refer to the [image mirroring guide](image-mirroring.md).
 

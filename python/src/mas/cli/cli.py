@@ -28,9 +28,8 @@ from openshift.dynamic.exceptions import NotFoundError
 from prompt_toolkit import prompt, print_formatted_text, HTML
 
 from mas.devops.mas import isAirgapInstall
-from mas.devops.ocp import connect, isSNO
+from mas.devops.ocp import connect, isSNO, getNodes
 
-from .validators import YesNoValidator
 from .displayMixins import PrintMixin, PromptMixin
 
 # Configure the logger
@@ -51,7 +50,7 @@ def getHelpFormatter(formatter=RawTextHelpFormatter, w=160, h=50):
         formatter(None, **kwargs)
         return lambda prog: formatter(prog, **kwargs)
     except TypeError:
-        logger.warn("argparse help formatter failed, falling back.")
+        logger.warning("argparse help formatter failed, falling back.")
         return formatter
 
 
@@ -90,6 +89,15 @@ def runCmd(cmdArray, timeout=630):
             return RunCmdResult(127, 'TimeoutExpired', str(e))
 
 
+def logMethodCall(func):
+    def wrapper(self, *args, **kwargs):
+        logger.debug(f">>> BaseApp.{func.__name__}")
+        result = func(self, *args, **kwargs)
+        logger.debug(f"<<< BaseApp.{func.__name__}")
+        return result
+    return wrapper
+
+
 class BaseApp(PrintMixin, PromptMixin):
     def __init__(self):
         # Set up a log formatter
@@ -97,7 +105,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
         # Set up a log handler (5mb rotating log file)
         ch = logging.handlers.RotatingFileHandler(
-            "mas.log", maxBytes=(1048576*5), backupCount=2
+            "mas.log", maxBytes=(1048576 * 5), backupCount=2
         )
         ch.setLevel(logging.DEBUG)
         ch.setFormatter(chFormatter)
@@ -106,6 +114,7 @@ class BaseApp(PrintMixin, PromptMixin):
         rootLogger = logging.getLogger()
         rootLogger.addHandler(ch)
         rootLogger.setLevel(logging.DEBUG)
+        logging.getLogger('asyncio').setLevel(logging.INFO)
 
         # Supports extended semver, unlike mas.cli.__version__
         self.version = "100.0.0-pre.local"
@@ -130,6 +139,9 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self._isSNO = None
 
+        # Until we connect to the cluster we don't know what architecture it's worker nodes are
+        self.architecture = None
+
         self.compatibilityMatrix = {
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
@@ -138,7 +150,8 @@ class BaseApp(PrintMixin, PromptMixin):
                 "monitor": ["9.0.x", "8.11.x"],
                 "optimizer": ["9.0.x", "8.5.x"],
                 "predict": ["9.0.x", "8.9.x"],
-                "visualinspection": ["9.0.x", "8.9.x"]
+                "visualinspection": ["9.0.x", "8.9.x"],
+                "aibroker": ["9.0.x"]
             },
             "8.11.x": {
                 "assist": ["8.8.x", "8.7.x"],
@@ -175,6 +188,7 @@ class BaseApp(PrintMixin, PromptMixin):
         if which("kubectl") is None:
             self.fatalError("Could not find kubectl on the path, see <DarkGoldenRod><u>https://kubernetes.io/docs/tasks/tools/#kubectl</u></DarkGoldenRod> for installation instructions")
 
+    @logMethodCall
     def createTektonFileWithDigest(self) -> None:
         if path.exists(self.tektonDefsWithDigestPath):
             logger.debug(f"We have already generated {self.tektonDefsWithDigestPath}")
@@ -217,13 +231,15 @@ class BaseApp(PrintMixin, PromptMixin):
 
             self.tektonDefsPath = self.tektonDefsWithDigestPath
 
+    @logMethodCall
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
         if coreChannel in self.compatibilityMatrix:
             return self.compatibilityMatrix[coreChannel][appId]
         else:
             return []
 
-    def fatalError(self, message: str, exception: Exception=None) -> None:
+    @logMethodCall
+    def fatalError(self, message: str, exception: Exception = None) -> None:
         if exception is not None:
             logger.error(message)
             logger.exception(exception, stack_info=True)
@@ -233,6 +249,7 @@ class BaseApp(PrintMixin, PromptMixin):
             print_formatted_text(HTML(f"<Red>Fatal Error: {message.replace(' & ', ' &amp; ')}</Red>\n"))
         exit(1)
 
+    @logMethodCall
     def isSNO(self):
         if self._isSNO is None:
             self._isSNO = isSNO(self.dynamicClient)
@@ -257,6 +274,7 @@ class BaseApp(PrintMixin, PromptMixin):
         else:
             return self.reloadDynamicClient()
 
+    @logMethodCall
     def reloadDynamicClient(self):
         """
         Configure the Kubernetes API Client using the active context in kubeconfig
@@ -278,6 +296,7 @@ class BaseApp(PrintMixin, PromptMixin):
             logger.exception(e, stack_info=True)
             return None
 
+    @logMethodCall
     def connect(self):
         promptForNewServer = False
         self.reloadDynamicClient()
@@ -289,8 +308,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 print()
                 if not self.noConfirm:
                     # We are already connected to a cluster, but prompt the user if they want to use this connection
-                    continueWithExistingCluster = prompt(HTML('<Yellow>Proceed with this cluster?</Yellow> '), validator=YesNoValidator(), validate_while_typing=False)
-                    promptForNewServer = continueWithExistingCluster in ["n", "no"]
+                    promptForNewServer = not self.yesOrNo("Proceed with this cluster")
             except Exception as e:
                 # We are already connected to a cluster, but the connection is not valid so prompt for connection details
                 logger.debug("Failed looking up OpenShift Console route to verify connection")
@@ -311,7 +329,25 @@ class BaseApp(PrintMixin, PromptMixin):
                 print_formatted_text(HTML("<Red>Unable to connect to cluster.  See log file for details</Red>"))
                 exit(1)
 
-    def initializeApprovalConfigMap(self, namespace: str, id: str, key: str=None, maxRetries: int=100, delay: int=300, ignoreFailure: bool=True) -> None:
+        # Now that we are connected, inspect the architecture of the OpenShift cluster
+        self.lookupTargetArchitecture()
+
+    @logMethodCall
+    def lookupTargetArchitecture(self, architecture: str = None) -> None:
+        logger.debug("Looking up worker node architecture")
+        if architecture is not None:
+            self.architecture = architecture
+            logger.debug(f"Target architecture (overridden): {self.architecture}")
+        else:
+            nodes = getNodes(self.dynamicClient)
+            self.architecture = nodes[0]["status"]["nodeInfo"]["architecture"]
+            logger.debug(f"Target architecture: {self.architecture}")
+
+        if self.architecture not in ["amd64", "s390x"]:
+            self.fatalError(f"Unsupported worker node architecture: {self.architecture}")
+
+    @logMethodCall
+    def initializeApprovalConfigMap(self, namespace: str, id: str, key: str = None, maxRetries: int = 100, delay: int = 300, ignoreFailure: bool = True) -> None:
         """
         Set key = None if you don't want approval workflow enabled
         """

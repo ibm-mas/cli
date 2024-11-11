@@ -14,9 +14,9 @@ from junit_xml import TestSuite, TestCase
 
 #
 # The test-cases is a command seperated list of testcasename:timetaken
-# Execute: 
+# Execute:
 #  `python junit-xml-generator.py --test-suite-name testsuite1 --test-cases operator-catalog:54,secret-update:9 --output-dir .`
-# 
+#
 #
 if __name__ == "__main__":
     # Initialize the properties we need

@@ -9,13 +9,15 @@
 # *****************************************************************************
 
 from .db2Settings import Db2SettingsMixin
+from .mongodbSettings import MongoDbSettingsMixin
 from .kafkaSettings import KafkaSettingsMixin
 from .manageSettings import ManageSettingsMixin
 from .turbonomicSettings import TurbonomicSettingsMixin
 from .additionalConfigs import AdditionalConfigsMixin
 
-class InstallSettingsMixin(Db2SettingsMixin, KafkaSettingsMixin, ManageSettingsMixin, TurbonomicSettingsMixin, AdditionalConfigsMixin):
-  """
-  This class collects all the Mixins providing interactive prompts for mas-install
-  """
-  pass
+
+class InstallSettingsMixin(Db2SettingsMixin, MongoDbSettingsMixin, KafkaSettingsMixin, ManageSettingsMixin, TurbonomicSettingsMixin, AdditionalConfigsMixin):
+    """
+    This class collects all the Mixins providing interactive prompts for mas-install
+    """
+    pass
