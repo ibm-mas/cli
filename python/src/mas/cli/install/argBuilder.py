@@ -132,8 +132,13 @@ class installArgBuilderMixin():
 
         # MongoDb Community Operator
         # -----------------------------------------------------------------------------
-        if self.getParam('mongodb_namespace') != "":
-            command += f"  --mongodb-namespace \"{self.getParam('mongodb_namespace')}\"{newline}"
+        if self.getParam('mongodb_action') == "install" and self.getParam('architecture') != "s390x":
+            if self.getParam('mongodb_namespace') != "":
+                command += f"  --mongodb-namespace \"{self.getParam('mongodb_namespace')}\"{newline}"
+                command += f"  --mongodb-action{newline}"
+        elif self.getParam('mongodb_action') == "byo":
+                command += f"  --mongodb-action{newline}"
+
 
         # OCP Configuration
         # -----------------------------------------------------------------------------

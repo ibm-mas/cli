@@ -292,6 +292,14 @@ mongoArgGroup.add_argument(
     required=False,
     help=""
 )
+mongoArgGroup.add_argument(
+    "--mongodb-action",
+    dest="mongodb_action",
+    required=False,
+    help="BYO MongoDB datasource ",
+    action="store_const",
+    const="byo"
+)
 
 # OCP Configuration
 # -----------------------------------------------------------------------------
