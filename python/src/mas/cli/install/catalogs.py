@@ -134,7 +134,7 @@ catalogChoices = {
             "#": 1,
             "catalog": "v9-241107-s390x",
             "release": "9.0.x",
-            "core": "9.0.4",
+            "core": "9.0.5",
             "manage": "9.0.5"
         }
     ]
