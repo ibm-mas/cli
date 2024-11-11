@@ -223,11 +223,17 @@
 
         
           
-  <cds-side-nav-menu title="Operator Catalog" >
+  <cds-side-nav-menu title="Operator Catalogs" >
     
       
   <cds-side-nav-menu-item href="../../catalogs/" >
     Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-241107-amd64/" >
+    Nov 07 2024
   </cds-side-nav-menu-item>
 
     
@@ -246,12 +252,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-240730-amd64/" >
     Jul 30 2024
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-240625-amd64/" >
-    Jun 25 2024
   </cds-side-nav-menu-item>
 
     
@@ -338,7 +338,7 @@
 </ul>
 <h3 id="maximo-operator-catalog-selection">Maximo Operator Catalog Selection<a class="headerlink" href="#maximo-operator-catalog-selection" title="Permanent link">¤</a></h3>
 <ul>
-<li><code>-c|--catalog MAS_CATALOG_VERSION</code> Maximo Operator Catalog Version to mirror (e.g. v9-241003-amd64)</li>
+<li><code>-c|--catalog MAS_CATALOG_VERSION</code> Maximo Operator Catalog Version to mirror (e.g. v9-241107-amd64)</li>
 <li><code>-C|--channel MAS_CHANNEL</code> Maximo Application Suite Channel to mirror (e.g. 9.0.x)</li>
 </ul>
 <h3 id="content-selection-core-platform">Content Selection (Core Platform)<a class="headerlink" href="#content-selection-core-platform" title="Permanent link">¤</a></h3>
@@ -548,7 +548,7 @@
   --mode direct --dir /tmp/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v9-241003-amd64 -C 9.0.x \
+  -c v9-241107-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
@@ -562,7 +562,7 @@ docker run -ti --rm -v /registry:/mnt/registry quay.io/ibmmas/cli:11.5.0 mas mir
   --mode to-filesystem --dir /mnt/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v9-241003-amd64 -C 9.0.x \
+  -c v9-241107-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
@@ -581,7 +581,7 @@ docker run -ti --rm -v /registry:/mnt/registry mirror.mydomain.com:5000/ibmmas/c
   --mode from-filesystem --dir /mnt/registry \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
   -H mirror.mydomain.com -P 5000 -u $MIRROR_USERNAME -p $MIRROR_PASSWORD \
-  -c v9-241003-amd64 -C 9.0.x \
+  -c v9-241107-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --no-confirm
@@ -589,7 +589,7 @@ docker run -ti --rm -v /registry:/mnt/registry mirror.mydomain.com:5000/ibmmas/c
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-11-08 17:21:16.589489+00:00)
+      Built with mkdocs v1.6.1 (2024-11-11 23:31:42.291167+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>

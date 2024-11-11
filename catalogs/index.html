@@ -223,11 +223,17 @@
 
         
           
-  <cds-side-nav-menu title="Operator Catalog" expanded>
+  <cds-side-nav-menu title="Operator Catalogs" expanded>
     
       
   <cds-side-nav-menu-item href="./" expanded>
     Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="v9-241107-amd64/" >
+    Nov 07 2024
   </cds-side-nav-menu-item>
 
     
@@ -246,12 +252,6 @@
       
   <cds-side-nav-menu-item href="v9-240730-amd64/" >
     Jul 30 2024
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="v9-240625-amd64/" >
-    Jun 25 2024
   </cds-side-nav-menu-item>
 
     
@@ -289,7 +289,7 @@
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
-      <cds-breadcrumb-item>Operator Catalog</cds-breadcrumb-item>
+      <cds-breadcrumb-item>Operator Catalogs</cds-breadcrumb-item>
 
   <cds-breadcrumb-item aria-current="page">
     <cds-breadcrumb-link href="#ibm-maximo-operator-catalog">IBM Maximo Operator Catalog</cds-breadcrumb-link>
@@ -304,6 +304,8 @@
       <cds-select-item value="#cli-support">CLI Support</cds-select-item>
     
       <cds-select-item value="#known-issues">Known Issues</cds-select-item>
+    
+      <cds-select-item value="#architecture">Architecture</cds-select-item>
     
       <cds-select-item value="#catalog-directory">Catalog Directory</cds-select-item>
     
@@ -327,6 +329,11 @@
 <h3 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">¤</a></h3>
 <ul>
 <li><strong>October 2024</strong> IBM Cloud Pak for Data 4.8, used in catalogs released between June and October 2024 uses a Postgres license key that expired on October 1, 2024.  A fix is available from CLI version 11.2.1 onwards; if you are installing CP4D as a MAS dependency you must use at least version 11.2.1 of the CLI.  If you need to install MAS with CP4D using an older catalog than supported by this version of the CLI please contact IBM support for assistance.</li>
+</ul>
+<h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¤</a></h3>
+<ul>
+<li>amd64</li>
+<li>s390x</li>
 </ul>
 <h3 id="catalog-directory">Catalog Directory<a class="headerlink" href="#catalog-directory" title="Permanent link">¤</a></h3>
 <p><cds-tabs trigger-content="Select an item" value="2024">
@@ -571,12 +578,34 @@
   </div>
 </div>
 
+<div>
+<div id="panel-2022" role="tabpanel" aria-labelledby="tab-2022" hidden>
+    <table>
+    <thead>
+    <tr>
+    <th>Catalog for s390x </th>
+    <th>OCP Support</th>
+    <th>Recommended CLI</th>
+    <th>Support Notes</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+    <td><a href="v9-241107-s390x/">v9-241107-s390x</a></td>
+    <td>4.12 - 4.15</td>
+    <td>latest</td>
+    <td>OCP 4.14 EOS October 31,2025</td>
+    </tr>
+    </tbody>
+    </table>
+  </div>
+</div>
 <h3 id="faq">FAQ<a class="headerlink" href="#faq" title="Permanent link">¤</a></h3>
 <h4 id="user-controlled-updates">User-Controlled Updates<a class="headerlink" href="#user-controlled-updates" title="Permanent link">¤</a></h4>
 <blockquote>
 <p>I want to control when updates are introduced into my cluster</p>
 </blockquote>
-<p>The packages available in the Maximo Operator Catalog are fixed. Multiple installations at different times will always result in exactly the same version of all IBM-provided operators being installed.  To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.  When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. <code>v8-240827-amd64</code> to <code>v9-241003-amd64</code>.</p>
+<p>The packages available in the Maximo Operator Catalog are fixed. Multiple installations at different times will always result in exactly the same version of all IBM-provided operators being installed.  To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.  When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. <code>v8-241003-amd64</code> to <code>v9-241107-amd64</code>.</p>
 <p>We <strong>strongly discourage the use of manual update approval strategy for operator subscriptions</strong> and all IBM-provided automation is designed to work with the automatic update approval strategy only.  In our experience the use of manual subscription approvals leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. We promote a model of <strong>controling when updates are introduced to a cluster at the catalog level</strong>.</p>
 <p>Updating the operators is only one aspect of keeping a system up to date, when using the MAS CLI <a href="../commands/update/">update</a> function many other additional actions will be performed autoamtically, if you are not using the MAS CLI to drive updates then you should implement your own processes for the non-operator update actions that are part of the MAS update pipeline.</p>
 <h4 id="repeatable-install">Repeatable Install<a class="headerlink" href="#repeatable-install" title="Permanent link">¤</a></h4>
@@ -610,7 +639,7 @@ spec:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-11-08 17:21:11.804705+00:00)
+      Built with mkdocs v1.6.1 (2024-11-11 23:31:37.308038+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>

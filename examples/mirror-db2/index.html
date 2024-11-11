@@ -223,11 +223,17 @@
 
         
           
-  <cds-side-nav-menu title="Operator Catalog" >
+  <cds-side-nav-menu title="Operator Catalogs" >
     
       
   <cds-side-nav-menu-item href="../../catalogs/" >
     Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-241107-amd64/" >
+    Nov 07 2024
   </cds-side-nav-menu-item>
 
     
@@ -246,12 +252,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-240730-amd64/" >
     Jul 30 2024
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-240625-amd64/" >
-    Jun 25 2024
   </cds-side-nav-menu-item>
 
     
@@ -328,7 +328,7 @@ export IBM_ENTITLEMENT_KEY=x
 docker run -e IBM_ENTITLEMENT_KEY -ti --rm --pull always quay.io/ibmmas/cli:11.5.0 \
   mas mirror-images -m direct -d /tmp/mirror --no-confirm \
     -H $REGISTRY_PRIVATE_HOST -P $REGISTRY_PRIVATE_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-    -c v9-241003-amd64 -C 9.0.x \
+    -c v9-241107-amd64 -C 9.0.x \
     --mirror-db2
 </code></pre>
 <h2 id="two-phase-mirroring">Two-Phase Mirroring<a class="headerlink" href="#two-phase-mirroring" title="Permanent link">¤</a></h2>
@@ -345,7 +345,7 @@ export REGISTRY_PASSWORD=x
 export IBM_ENTITLEMENT_KEY=x
 
 # Catalog
-export CATALOG=v9-241003-amd64
+export CATALOG=v9-241107-amd64
 
 docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v /tmp/mirror/$CATALOG:/mnt/mirror --pull always quay.io/ibmmas/cli:11.5.0 \
   mas mirror-images -m to-filesystem -d /mnt/mirror --no-confirm \
@@ -363,7 +363,7 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v /tmp/mirror/$CATALOG:/mnt/mirror -
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-11-08 17:21:16.618975+00:00)
+      Built with mkdocs v1.6.1 (2024-11-11 23:31:42.319794+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>

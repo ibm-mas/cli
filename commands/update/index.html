@@ -223,11 +223,17 @@
 
         
           
-  <cds-side-nav-menu title="Operator Catalog" >
+  <cds-side-nav-menu title="Operator Catalogs" >
     
       
   <cds-side-nav-menu-item href="../../catalogs/" >
     Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-241107-amd64/" >
+    Nov 07 2024
   </cds-side-nav-menu-item>
 
     
@@ -246,12 +252,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-240730-amd64/" >
     Jul 30 2024
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-240625-amd64/" >
-    Jun 25 2024
   </cds-side-nav-menu-item>
 
     
@@ -327,7 +327,7 @@ Omitting the --catalog option will trigger an interactive prompt
 
 Catalog Selection:
   -c MAS_CATALOG_VERSION, --catalog MAS_CATALOG_VERSION
-                                                  Maximo Operator Catalog Version (e.g. v9-241003-amd64)
+                                                  Maximo Operator Catalog Version (e.g. v9-241107-amd64)
 
 Update Dependencies:
   --db2-namespace DB2_NAMESPACE                   Namespace where Db2u operator and instances will be updated
@@ -376,12 +376,12 @@ More:
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas update
 </code></pre>
 <h3 id="non-interactive-update">Non-Interactive Update<a class="headerlink" href="#non-interactive-update" title="Permanent link">¤</a></h3>
-<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas update -c v9-241003-amd64 --no-confirm
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas update -c v9-241107-amd64 --no-confirm
 </code></pre>
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-11-08 17:21:16.611196+00:00)
+      Built with mkdocs v1.6.1 (2024-11-11 23:31:42.312261+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
