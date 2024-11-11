@@ -139,7 +139,6 @@ class installArgBuilderMixin():
         elif self.getParam('mongodb_action') == "byo":
             command += f"  --mongodb-action{newline}"
 
-
         # OCP Configuration
         # -----------------------------------------------------------------------------
         if self.getParam('ocp_ingress_tls_secret_name') != "":
