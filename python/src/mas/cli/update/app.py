@@ -411,6 +411,15 @@ class UpdateApp(BaseApp):
             ""
         ])
 
+    def selectDROStorageclass(self):
+        self.printDescription([
+            "",
+            "Select the storage class for DRO to use from the list below:"
+        ])
+        for storageClass in getStorageClasses(self.dynamicClient):
+            print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+        self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
+
     def detectUDS(self) -> None:
         with Halo(text='Checking for IBM User Data Services', spinner=self.spinner) as h:
             try:
@@ -437,19 +446,14 @@ class UpdateApp(BaseApp):
                         self.showUDSUpdateNotice()
                         self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must provide the storage class to use for the migration to DRO using '--dro-storage-class' when using '--no-confirm'")
                     else:
-                        h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
                         self.showUDSUpdateNotice()
-                        if self.getParam("dro_migration") == "true" and self.getParam("dro_storage_class") is None:
+                        if self.getParam("dro_migration") != "true":
                             if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
                                 # If the user did not approve the update, abort
                                 exit(1)
-                            self.printDescription([
-                                "",
-                                "Select the storage class for DRO to use from the list below:"
-                            ])
-                            for storageClass in getStorageClasses(self.dynamicClient):
-                                print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-                            self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
+
+                        if self.getParam("dro_storage_class") is None or self.getParam("dro_storage_class") == "":
+                            self.selectDROStorageclass()
 
                 if self.getParam("dro_migration") == "true":
                     self.setParam("uds_action", "install-dro")
