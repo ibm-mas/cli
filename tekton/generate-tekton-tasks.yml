@@ -78,7 +78,6 @@
         - fvt-manage-birt-report
         - fvt-manage-last-phase
         - fvt-manage-pytest
-        - fvt-manage-cypress
         - fvt-monitor
         - fvt-run-suite
         - fvt-sls
