@@ -71,7 +71,7 @@ optionalParams = [
     "dro_namespace",
     # MongoDb
     "mongodb_namespace",
-    "mongodb_action"
+    "mongodb_action",
     # Db2
     "db2_action_system",
     "db2_action_manage",

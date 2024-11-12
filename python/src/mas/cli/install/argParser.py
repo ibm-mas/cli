@@ -298,7 +298,7 @@ mongoArgGroup.add_argument(
     required=False,
     help="BYO MongoDB datasource ",
     action="store_const",
-    const="byo"
+    const="install"
 )
 
 # OCP Configuration
