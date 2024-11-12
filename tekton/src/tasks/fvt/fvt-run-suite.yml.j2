@@ -36,6 +36,14 @@ spec:
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
       default: ""
+    - name: fvt_config_file
+      type: string
+      description: Default cypress config file
+      default: "configs/fvt-cypress.config.js"
+    - name: fvt_base_url
+      type: string
+      description: Base URL where the testing will be performed against
+      default: ""
     - name: product_id
       type: string
       description: Product ID under test
@@ -146,6 +154,12 @@ spec:
         value: $(params.fvt_test_suite)
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
+
+      - name: FVT_CONFIG_FILE
+        value: $(params.fvt_config_file)
+
+      - name: CYPRESS_BASE_URL
+        value: $(params.fvt_base_url)
 
       # Test Data
       - name: DDP_APIKEY

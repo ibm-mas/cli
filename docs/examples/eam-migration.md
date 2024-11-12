@@ -20,15 +20,15 @@ Prepare an EAM 7 System
 Prerequisites
 -------------------------------------------------------------------------------
 
-**1 An IBMCloud API Key**
+### 1. An IBMCloud API Key
+For the purpose of this demo we are going to provision an OpenShift Cluster in IBMCloud using the [Red Hat OpenShift on IBMCloud](https://www.ibm.com/products/openshift) service (aka "ROKS"), however the demo can easily be repeated targeting any OpenShift cluster:
 
 - Login in your IBM Cloud account
 - Go to **Manage** menu and select **Access (IAM)**
 - Go to **API keys** menu, click **Create an IBM Cloud API key**
 - Enter a name and description for your API Key and click **Create**
 
-**2 A MAS License File**
-
+### 2. A MAS License File
 Access [IBM License Key Center](https://licensing.flexnetoperations.com/), on the **Get Keys** menu select **IBM AppPoint Suites**. Select **IBM MAXIMO APPLICATION SUITE AppPOINT LIC** and on the next page fill in the information as below:
 
 | Field          | Content |
@@ -41,9 +41,11 @@ Access [IBM License Key Center](https://licensing.flexnetoperations.com/), on th
 
 Create a new folder `mas9demo` in your home directory and save this file there as `~/mas9demo/entitlement.lic`
 
-**3 An IBM Entitlement Key**
-
+### 3. An IBM Entitlement Key
 Access [IBM Container Software Library](https://myibm.ibm.com/products-services/containerlibrary) using your IBMId to obtain your entitlement key.
+
+### 4. A Database Backup (Optional)
+If you want to migrate without shutting down your EAM 7 instance you should take a backup of the database and use it to populate a new database instance, this is necessary because Maximo Manage and EAM can not both be using the same database at the same time.
 
 
 Step 1 - Provision OpenShift
@@ -66,21 +68,13 @@ This will provision an OpenShift cluster with three 8x32 worker nodes. It will t
     At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours; the entire demo can be complete on IBMCloud for as little as $10.
 
 
-Step 2 - Backup Database
+Step 2 - Configure Database Connection
 -------------------------------------------------------------------------------
-We must stop EAM because we are going to create a backup of it's database; log into the WebSphere administrative console and stop the servers.
+If you are connecting Maximo Manage to the same database used by EAM we must first shut down the EAM application servers, because when the migration starts it will upgrade the database to a version that EAM can not support.  Log into the WebSphere administrative console and stop the servers.
 
 ![Shutdown EAM in the WebSphere Application Server administrative console](images/shutdown_eam.png)
 
-
-Step 3 - Create new Database
--------------------------------------------------------------------------------
-TODO: Write me
-
-
-Step 4 - Prepare the JDBCCfg
--------------------------------------------------------------------------------
-IBM Maximo Application Suite (MAS) configuration is held in Kubernetes resources, when we install MAS we will tell the installer to apply this configuration as part of the installation.
+IBM Maximo Application Suite (MAS) configuration is held in Kubernetes resources on the OpenShift cluster, when we install MAS we will tell the installer to apply this configuration as part of the installation.
 
 ```yaml
 ---
@@ -121,12 +115,12 @@ Replace `{JDBC_URL}`, `{DB_USERNAME}`, and `{DB_PASSWORD}` with the actual value
 
 Save this file into the same directory where we saved the MAS entitlement file, as `~/mas9demo/mas9demo-jdbc.yaml`
 
-Validate that the JDBC URL and username/password are correct by running the command `SELECT VARNAME, VARVALUE FROM MAXIMO.MAXVARS WHERE VARNAME='MAXUPG';`, which will confirm the database is currently running at version 7.
+Validate that the JDBC URL and username/password are correct by running the command `SELECT VARNAME, VARVALUE FROM MAXIMO.MAXVARS WHERE VARNAME='MAXUPG';`, which will confirm the database is currently running at version 7.  We would normally use [DBeaver](https://dbeaver.io/) for this purpose.
 
 ![Using DBeaver to view the MAXUPG value in the Maximo database](images/dbeaver.png)
 
 
-Step 5 - Prepare the SMTPCfg
+Step 3 - Configure SMTP
 -------------------------------------------------------------------------------
 When existing users are migrated into MAS a new password will be generated for each, to recieve this password we must configure SMTP for MAS.  If you don't have your own SMTP server, and do have a [Gmail](https://mail.google.com/mail/) account then can configure MAS as below:
 
@@ -139,8 +133,8 @@ metadata:
   name: "smtp-demo-credentials"
   namespace: "mas-dev-core"
 stringData:
-  username: "{GMAIL_ADDRESS}"
-  password: "{GMAIL_PASSWORD}"
+  username: "{GOOGLE_EMAIL}"
+  password: "{GOOGLE_PASSWORD}"
 ---
 apiVersion: config.mas.ibm.com/v1
 kind: SmtpCfg
@@ -151,24 +145,27 @@ metadata:
     "mas.ibm.com/configScope": "system"
     "mas.ibm.com/instanceId": "dev"
 spec:
-  displayName: "SMTP (Gmail)"
+  displayName: "SMTP (Google)"
   config:
     hostname: smtp.gmail.com
-    port: 587
+    port: 465
     security: SSL
     authentication: true
-    defaultSenderEmail: "{GMAIL_ADDRESS}"
+    defaultSenderEmail: "{GOOGLE_EMAIL}"
     defaultSenderName: "IBM Maximo Application Suite (Do Not Respond)"
-    defaultRecipientEmail: "{GMAIL_ADDRESS}"
+    defaultRecipientEmail: "{GOOGLE_EMAIL}"
     defaultShouldEmailPasswords: true
     credentials:
       secretName: "smtp-demo-credentials"
 ```
 
-Save this file into the same directory where we saved the MAS entitlement file, as `~/mas9demo/mas9demo-smtp.yaml`
+Save this file into the same directory as `~/mas9demo/mas9demo-smtp.yaml`; make sure to replace the `{GOOGLE_EMAIL}` and `{GOOGLE_PASSWORD}` placeholders with real values.  You can not (and should not) use your normal Google Account password here, you must instead generate and use an [App Password](https://support.google.com/accounts/answer/185833).
+
+!!! note
+    If you skip this step, MAS will be unable to send e-mail so there is no way to automatically notify users of their new account and it's password; in this scenario an administrator must manually set a new password for each user migrated from EAM to MAS.
 
 
-Step 6 - Install MAS
+Step 4 - Install MAS
 -------------------------------------------------------------------------------
 Ensure the following environment variables are all set:
 
@@ -176,7 +173,7 @@ Ensure the following environment variables are all set:
 - `SUPERUSER_PASSWORD` (choose the password for the MAS superuser account)
 - `IBM_ENTITLEMENT_KEY` (see [prerequisites](#prerequisites))
 
-We will install MAS in **non-production mode**, with an instance ID of `dev` and a workspace ID of `demo` using the latest (at time of writing) catalog update.
+We will install MAS in **non-production mode**, with an instance ID of **dev** and a workspace ID of **demo** using the latest (at time of writing) catalog update.
 
 !!! note
     When we launch the CLI container we are mounting your home directory into the container image, this is how the installer will access the `entitlement.lic` and `mas9demo-jdbc.yaml` files that you created earlier.
@@ -215,18 +212,54 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 "
 ```
 
-The install itself is performed on the cluster, the CLI merely prepares the installation pipeline, you will be presented with a URL to view the install pipeline in the OpenShift Console.
+The install itself is performed inside the cluster, the CLI merely prepares the installation pipeline, you will be presented with a URL to view the install pipeline in the OpenShift Console.
 
 !!! tip
     You can either monitor the install in the OpenShift Console or go get lunch, the install will take approximately 2-3 hours depending on network conditions.
 
 ![Tekon Pipeline for Maximo Application Suite installation](images/install-pipeline.png)
 
-Once the installation has completed you will be able to log into Maximo Application Suite & Maximo Manage using any user from the original EAM, for convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's **Application Menu**, and we can log into MAS using the superuser username and password supplied during install:
+Once the installation has completed you will be able to log into Maximo Application Suite & Maximo Manage using any user from the original EAM.  For convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's **Application Menu**, and we can log into MAS using the superuser username and password supplied during install:
 
 ![Application Menu extension in the OpenShift Console for Maximo Application Suite](images/dashboard-link.png)
 
-!!! note
-    In this demo we have not configured integration to an SMTP server, as a result we must manually set a new password for the migrated users (including **maxadmin**) before they can be used.
 
-    If e-mail services are enabled during the MAS install then a new password would be generated automatically for each migrated user and a welcome e-mail containing their new Maximo Application Suite password would be sent.
+### Alternate Install
+To perform the same installation **without data migration**, ignore step 2 (don't create `~/mas9demo/mas9demo-jdbc.yaml`) and instead run the install with one additional parameter `--db2-manage`:
+
+```bash
+export IBMCLOUD_APIKEY=x
+export SUPERUSER_PASSWORD=x
+export IBM_ENTITLEMENT_KEY=x
+
+docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ bash -c "
+  CLUSTER_TYPE=roks CLUSTER_NAME=mas9demo ROLE_NAME=ocp_login ansible-playbook ibm.mas_devops.run_role &&
+  mas install \
+  --non-prod \
+  --mas-instance-id dev \
+  --mas-workspace-id demo \
+  --mas-workspace-name 'EAM Migration Demo' \
+  --mas-catalog-version @@MAS_LATEST_CATALOG@@ \
+  --mas-channel @@MAS_LATEST_CHANNEL@@ \
+  --manage-channel @@MAS_LATEST_CHANNEL_MANAGE@@ \
+  --manage-jdbc workspace-application \
+  --db2-manage \
+  --manage-components base=latest \
+  --additional-configs /mnt/home/mas9demo \
+  --license-file /mnt/home/mas9demo/entitlement.lic \
+  --uds-email parkerda@uk.ibm.com \
+  --uds-firstname David \
+  --uds-lastname Parker \
+  --storage-class-rwo ibmc-block-gold \
+  --storage-class-rwx ibmc-file-gold-gid \
+  --storage-pipeline ibmc-file-gold-gid \
+  --storage-accessmode ReadWriteMany \
+  --superuser-username superuser \
+  --superuser-password '$SUPERUSER_PASSWORD' \
+  --ibm-entitlement-key '$IBM_ENTITLEMENT_KEY' \
+  --accept-license \
+  --no-confirm
+"
+```
+
+The addition of the `--db2-manage` parameter is all that we require to instruct the installer to provision a new Db2 instance in the cluster and automatically configure Maximo Manage to use it.

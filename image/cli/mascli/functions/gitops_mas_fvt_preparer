@@ -78,9 +78,11 @@ function gitops_mas_fvt_preparer() {
 
   # Set SLS Namespace
   export SLS_NAMESPACE="mas-${MAS_INSTANCE_ID}-sls"
-  #Don't wait for install process
+  # Don't wait for install process
   export SYNC_WITH_INSTALL=false
-  #If this is the FVT Core run then don't call finalize at the end of this run
+  # Don't install selenium as it is installed via gitops
+  export SKIP_SELENIUM_GRID_INSTALL=true
+  # If this is the FVT Core run then don't call finalize at the end of this run
   if [[ "$LAUNCHER_ID" == "core" ]]; then
     export FINALIZE=false
     export SET_FINISHED=false
