@@ -74,7 +74,7 @@ spec:
       default: "default_output.data"
 
   stepTemplate:
-    name: 'fvt-mobile'
+    name: 'fvt-mobile-$(params.fvt_test_suite)'
     env:
       - name: PRODUCT_ID
         value: $(params.product_id)

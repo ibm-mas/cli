@@ -56,7 +56,7 @@ spec:
       default: ""
     
   stepTemplate:
-    name: 'fvt-mobile-testng'
+    name: 'fvt-mobile-$(params.fvt_test_suite)'
     securityContext:
       privileged: true
       runAsUser: 0
