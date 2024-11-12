@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 class InstallSummarizerMixin():
     def ocpSummary(self) -> None:
         self.printH2("OpenShift Container Platform")
+        self.printSummary("Worker Node Architecture", self.architecture)
         self.printSummary("Storage Class Provider", self.storageClassProvider)
         self.printParamSummary("ReadWriteOnce Storage Class", "storage_class_rwo")
         self.printParamSummary("ReadWriteMany Storage Class", "storage_class_rwx")
@@ -34,13 +35,6 @@ class InstallSummarizerMixin():
 
         self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
         self.printSummary("Skip Grafana-Install", "Yes" if self.getParam('grafana_action') == "none" else "No")
-
-    def icrSummary(self) -> None:
-        self.printH2("IBM Container Registry Credentials")
-        self.printSummary("IBM Entitlement Key", f"{self.params['ibm_entitlement_key'][0:8]}&lt;snip&gt;")
-        if self.devMode:
-            self.printSummary("Artifactory Username", self.params['artifactory_username'])
-            self.printSummary("Artifactory Token", f"{self.params['artifactory_token'][0:8]}&lt;snip&gt;")
 
     def masSummary(self) -> None:
         operationalModeNames = ["", "Production", "Non-Production"]
@@ -77,7 +71,7 @@ class InstallSummarizerMixin():
 
         if self.getParam("mas_manual_cert_mgmt") != "":
             print()
-            self.printParamSummary("Manual Certificates", "mas_manual_cert_dir")
+            self.printSummary("Manual Certificates", self.manualCertsDir)
         else:
             print()
             self.printSummary("Manual Certificates", "Not Configured")
@@ -154,6 +148,32 @@ class InstallSummarizerMixin():
             self.printSummary(" + Storage Class", self.params["storage_class_rwx"])
         else:
             self.printSummary("Visual Inspection", "Do Not Install")
+
+    def aibrokerSummary(self) -> None:
+        if self.installAiBroker:
+            self.printSummary("AI Broker", self.params["mas_app_channel_aibroker"])
+            print_formatted_text(HTML("  <SkyBlue>+ Maximo AI Broker Settings</SkyBlue>"))
+            self.printParamSummary("  + Storage provider", "mas_aibroker_storage_provider")
+            self.printParamSummary("  + Storage access key", "mas_aibroker_storage_accesskey")
+            self.printParamSummary("  + Storage secret key", "mas_aibroker_storage_secretkey")
+            self.printParamSummary("  + Storage host", "mas_aibroker_storage_host")
+            self.printParamSummary("  + Storage port", "mas_aibroker_storage_port")
+            self.printParamSummary("  + Storage ssl", "mas_aibroker_storage_ssl")
+            self.printParamSummary("  + Storage region", "mas_aibroker_storage_region")
+            self.printParamSummary("  + Storage pipelines bucket", "mas_aibroker_storage_pipelines_bucket")
+            self.printParamSummary("  + Storage tenants bucket", "mas_aibroker_storage_tenants_bucket")
+            self.printParamSummary("  + Storage templates bucket", "mas_aibroker_storage_templates_bucket")
+            self.printParamSummary("  + Watsonxai api key", "mas_aibroker_watsonxai_apikey")
+            self.printParamSummary("  + Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
+            self.printParamSummary("  + Watsonxai project id", "mas_aibroker_watsonxai_project_id")
+            self.printParamSummary("  + Database host", "mas_aibroker_db_host")
+            self.printParamSummary("  + Database port", "mas_aibroker_db_port")
+            self.printParamSummary("  + Database user", "mas_aibroker_db_user")
+            self.printParamSummary("  + Database name", "mas_aibroker_db_database")
+            self.printParamSummary("  + Database Secretname", "mas_aibroker_db_secret_name")
+            self.printParamSummary("  + Database password", "mas_aibroker_db_secret_value")
+        else:
+            self.printSummary("AI Broker", "Do Not Install")
 
     def manageSummary(self) -> None:
         if self.installManage:
@@ -248,13 +268,14 @@ class InstallSummarizerMixin():
         self.printH2("IBM Suite License Service")
         self.printSummary("License File", self.slsLicenseFileLocal)
         self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
+        self.printParamSummary("Namespace", "sls_namespace")
 
     def cosSummary(self) -> None:
         self.printH2("Cloud Object Storage")
         if self.getParam("cos_type") != "":
             self.printParamSummary("Type", "cos_type")
-            if self.getParam("cos_resourcegroup") != "":
-                self.printParamSummary("Resource Group", "cos_resourcegroup")
+            if self.getParam("ibmcos_resourcegroup") != "":
+                self.printParamSummary("Resource Group", "ibmcos_resourcegroup")
         else:
             self.printSummary("Type", "None")
 
@@ -282,7 +303,13 @@ class InstallSummarizerMixin():
 
     def mongoSummary(self) -> None:
         self.printH2("MongoDb")
-        self.printParamSummary("Install Namespace", "mongodb_namespace")
+        if self.getParam("mongodb_action") == "install":
+            self.printSummary("Type", "MongoCE Operator")
+            self.printParamSummary("Install Namespace", "mongodb_namespace")
+        elif self.getParam("mongodb_action") == "byo":
+            self.printSummary("Type", "BYO (mongodb-system.yaml)")
+        else:
+            self.fatalError(f"Unexpected value for mongodb_action parameter: {self.getParam('mongodb_action')}")
 
     def kafkaSummary(self) -> None:
         if self.getParam("kafka_action_system") != "":
@@ -327,7 +354,6 @@ class InstallSummarizerMixin():
 
         # Cluster Config & Dependencies
         self.ocpSummary()
-        self.icrSummary()
         self.droSummary()
         self.slsSummary()
         self.masSummary()
@@ -341,6 +367,7 @@ class InstallSummarizerMixin():
         self.optimizerSummary()
         self.assistSummary()
         self.inspectionSummary()
+        self.aibrokerSummary()
 
         # Application Dependencies
         self.mongoSummary()

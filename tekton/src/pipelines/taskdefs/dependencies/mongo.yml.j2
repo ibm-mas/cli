@@ -38,6 +38,10 @@
     - name: ibmcloud_resourcegroup
       value: $(params.ibmcloud_resourcegroup)
 
+  when:
+    - input: "$(params.mongodb_action)"
+      operator: in
+      values: ["install"]
   taskRef:
     kind: Task
     name: mas-devops-mongodb

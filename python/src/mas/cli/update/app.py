@@ -244,13 +244,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
+            "  1) Nov 07 2024 Update (MAS 9.0.4, 8.11.16, &amp; 8.10.19)",
             "  1) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)",
             "  2) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
-            "  3) July 30 2024 Update (MAS 9.0.1, 8.11.13, &amp; 8.10.16)"
         ])
 
         catalogOptions = [
-            "v9-241003-amd64", "v9-240827-amd64", "v9-240730-amd64"
+            "v9-241107-amd64", "v9-241003-amd64", "v9-240827-amd64"
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -341,12 +341,13 @@ class UpdateApp(BaseApp):
                     # the case bundles in there anymore
                     # Longer term we will centralise this information inside the mas-devops python collection,
                     # where it can be made available to both the ansible collection and this python package.
-                    defaultMongoVersion = "6.0.12"
+                    defaultMongoVersion = "7.0.12"
                     mongoVersions = {
                         "v9-240625-amd64": "6.0.12",
                         "v9-240730-amd64": "6.0.12",
                         "v9-240827-amd64": "6.0.12",
-                        "v9-241003-amd64": "6.0.12"
+                        "v9-241003-amd64": "6.0.12",
+                        "v9-241107-amd64": "7.0.12"
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -411,6 +412,15 @@ class UpdateApp(BaseApp):
             ""
         ])
 
+    def selectDROStorageclass(self):
+        self.printDescription([
+            "",
+            "Select the storage class for DRO to use from the list below:"
+        ])
+        for storageClass in getStorageClasses(self.dynamicClient):
+            print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+        self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
+
     def detectUDS(self) -> None:
         with Halo(text='Checking for IBM User Data Services', spinner=self.spinner) as h:
             try:
@@ -437,19 +447,14 @@ class UpdateApp(BaseApp):
                         self.showUDSUpdateNotice()
                         self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must provide the storage class to use for the migration to DRO using '--dro-storage-class' when using '--no-confirm'")
                     else:
-                        h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
                         self.showUDSUpdateNotice()
-                        if self.getParam("dro_migration") == "true" and self.getParam("dro_storage_class") is None:
+                        if self.getParam("dro_migration") != "true":
                             if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
                                 # If the user did not approve the update, abort
                                 exit(1)
-                            self.printDescription([
-                                "",
-                                "Select the storage class for DRO to use from the list below:"
-                            ])
-                            for storageClass in getStorageClasses(self.dynamicClient):
-                                print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-                            self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
+
+                        if self.getParam("dro_storage_class") is None or self.getParam("dro_storage_class") == "":
+                            self.selectDROStorageclass()
 
                 if self.getParam("dro_migration") == "true":
                     self.setParam("uds_action", "install-dro")
@@ -469,8 +474,8 @@ class UpdateApp(BaseApp):
             "v9-240625-amd64": "4.8.0",
             "v9-240730-amd64": "4.8.0",
             "v9-240827-amd64": "4.8.0",
-            "v9-241003-amd64": "4.8.0"
-
+            "v9-241003-amd64": "4.8.0",
+            "v9-241107-amd64": "4.8.0"
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
