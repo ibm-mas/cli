@@ -68,6 +68,9 @@ DevOps Details (Optional):
 Notifications (Optional):
       --slack-channel-id ${COLOR_YELLOW}SLACK_CHANNEL_ID${TEXT_RESET}                                           Slack channel for ArgoCD to notify when an app sync has completed or failed
 
+Selenium Grid (Optional):
+      --install-selenium-grid ${COLOR_YELLOW}INSTALL_SELENIUM_GRID${TEXT_RESET}                                 Install Selenium Grid
+
 Other Commands:
   -h, --help                              Show this help message
 EOM
@@ -233,6 +236,9 @@ function gitops_cluster_noninteractive() {
         export INGRESS=$1 && shift
         ;;
 
+      --install-selenium-grid)
+        export INSTALL_SELENIUM_GRID=true
+        ;;
 
       # Other Commands
       -h|--help)
@@ -391,6 +397,11 @@ function gitops_cluster() {
   echo_reset_dim "Devops Mongo Uri ................ ${COLOR_MAGENTA}${DEVOPS_MONGO_URI:0:8}<snip>"
   reset_colors
 
+  echo "${TEXT_DIM}"
+  echo_h2 "Selenium Grid" "    "
+  echo_reset_dim "Install Selenium Grid ........... ${COLOR_MAGENTA}${INSTALL_SELENIUM_GRID}"
+  reset_colors
+
   # Set up secrets
   # ---------------------------------------------------------------------------
   echo
@@ -485,7 +496,12 @@ function gitops_cluster() {
 
   echo "- Redhat Cert Manager"
   jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
-  
+
+  if [[ "$INSTALL_SELENIUM_GRID" == "true" ]]; then
+    echo "- Selenium Grid"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/selenium-grid.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/selenium-grid.yaml
+  fi
+
   if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
     ESCAPED_CLUSTER_VALUES=${CLUSTER_PROMOTION_CLUSTER_VALUES//\"/\\\"}
     export ESCAPED_CLUSTER_VALUES=${ESCAPED_CLUSTER_VALUES//$'\n'/\\n}
