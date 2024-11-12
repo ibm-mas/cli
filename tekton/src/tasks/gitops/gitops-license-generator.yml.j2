@@ -1,0 +1,72 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-license-generator
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+
+    - name: expiry_date
+      type: string
+    - name: app_points
+      type: string
+    - name: customer_name
+      type: string
+    - name: country
+      type: string
+    - name: icn
+      type: string
+  stepTemplate:
+    name: gitops-license-generator
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+
+      - name: EXPIRY_DATE
+        value: $(params.expiry_date)
+      - name: APP_POINTS
+        value: $(params.app_points)
+      - name: CUSTOMER_NAME
+        value: $(params.customer_name)
+      - name: COUNTRY
+        value: $(params.country)
+      - name: ICN
+        value: $(params.icn)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        ansible-playbook ibm.mas_saas.generate_saas_license_file || exit 1
+
+        mas gitops-license \
+          -a $ACCOUNT \
+          -c $CLUSTER_NAME \
+          -m $MAS_INSTANCE_ID \
+          --license-file /tmp/authorized_entitlement_saas.lic
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-license-generator
+      imagePullPolicy: Always
+      image: docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/mas/saas-task:latest
