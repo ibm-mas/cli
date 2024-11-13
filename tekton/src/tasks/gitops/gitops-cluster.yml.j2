@@ -63,6 +63,10 @@ spec:
       type: string
       default: ''
 
+    - name: install_selenium_grid
+      type: string
+      default: ''
+
     - name: devops_build_number
       type: string
       default: ''
@@ -130,6 +134,9 @@ spec:
       - name: CLUSTER_PROMOTION_CLUSTER_VALUES
         value: $(params.cluster_promotion_cluster_values)
       
+      - name: INSTALL_SELENIUM_GRID
+        value: $(params.install_selenium_grid)
+
       - name: DEVOPS_BUILD_NUMBER
         value: $(params.devops_build_number)
 
