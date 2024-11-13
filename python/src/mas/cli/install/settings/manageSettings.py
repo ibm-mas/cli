@@ -79,7 +79,7 @@ class ManageSettingsMixin():
             if self.yesOrNo(" - Asset Configuration Manager"):
                 self.params["mas_appws_components"] += ",acm=latest"
             if self.yesOrNo(" - Aviation"):
-                self.params["mas_appws_components"] += ",acm=latest"
+                self.params["mas_appws_components"] += ",aviation=latest"
             if self.yesOrNo(" - Civil Infrastructure"):
                 self.params["mas_appws_components"] += ",civil=latest"
             if self.yesOrNo(" - Envizi"):
@@ -223,7 +223,7 @@ class ManageSettingsMixin():
         self.promptForString("Secondary languages", "mas_app_settings_secondary_langs")
 
     def manageSettingsCP4D(self) -> None:
-        if self.getParam("mas_app_channel_manage") in ["8.7.x", "9.0.x"] and self.showAdvancedOptionsshowAdvancedOptions:
+        if self.getParam("mas_app_channel_manage") in ["8.7.x", "9.0.x"] and self.showAdvancedOptions:
             self.printDescription([
                 "Integration with Cognos Analytics provides additional support for reporting features in Maximo Manage, for more information refer to the documentation online: ",
                 "    <u>https://ibm.biz/BdMuxs</u>"

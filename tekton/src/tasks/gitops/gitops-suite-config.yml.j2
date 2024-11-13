@@ -38,6 +38,12 @@ spec:
     - name: cluster_url
       type: string
       default: ""
+    - name: mas_slscfg_pod_template_yaml
+      type: string
+      default: ""
+    - name: mas_bascfg_pod_template_yaml
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-config
     env:
@@ -73,6 +79,10 @@ spec:
         value: $(params.dro_contact_lastname)
       - name: DRO_CA_CERTIFICATE_FILE
         value: $(params.dro_ca_certificate_file)
+      - name: MAS_SLSCFG_POD_TEMPLATE_YAML
+        value: $(params.mas_slscfg_pod_template_yaml)
+      - name: MAS_BASCFG_POD_TEMPLATE_YAML
+        value: $(params.mas_bascfg_pod_template_yaml)
     envFrom:
       - configMapRef:
           name: environment-properties
