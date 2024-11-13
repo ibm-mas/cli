@@ -36,6 +36,12 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     </thead>
     <tbody>
     <tr>
+    <td><a href="v9-241107-amd64/">v9-241107-amd64</a></td>
+    <td>4.12 - 4.15</td>
+    <td>latest</td>
+    <td>OCP 4.14 EOS October 31, 2025</td>
+    </tr>
+    <tr>
     <td><a href="v9-241003-amd64/">v9-241003-amd64</a></td>
     <td>4.12 - 4.15</td>
     <td>latest</td>
@@ -50,13 +56,13 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     <tr>
     <td><a href="v9-240730-amd64/">v9-240730-amd64</a></td>
     <td>4.12 - 4.15</td>
-    <td>latest</td>
+    <td>10.8.1</td>
     <td>OCP 4.14 EOS October 31, 2025</td>
     </tr>
     <tr>
     <td><a href="v9-240625-amd64/">v9-240625-amd64</a></td>
     <td>4.12 - 4.14</td>
-    <td>latest</td>
+    <td>10.8.1</td>
     <td>OCP 4.14 EOS October 31, 2025</td>
     </tr>
     <tr>
