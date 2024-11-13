@@ -79,7 +79,7 @@ class ManageSettingsMixin():
             if self.yesOrNo(" - Asset Configuration Manager"):
                 self.params["mas_appws_components"] += ",acm=latest"
             if self.yesOrNo(" - Aviation"):
-                self.params["mas_appws_components"] += ",acm=latest"
+                self.params["mas_appws_components"] += ",aviation=latest"
             if self.yesOrNo(" - Civil Infrastructure"):
                 self.params["mas_appws_components"] += ",civil=latest"
             if self.yesOrNo(" - Envizi"):
