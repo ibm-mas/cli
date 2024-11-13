@@ -50,6 +50,9 @@ spec:
     - name: cluster_url
       type: string
       default: ""
+    - name: mas_smtpcfg_pod_template_yaml
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-smtp-config
     env:
@@ -89,6 +92,8 @@ spec:
         value: $(params.smtp_default_recipient_email)
       - name: SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS
         value: $(params.smtp_default_should_email_passwords)
+      - name: MAS_SMTPCFG_POD_TEMPLATE_YAML
+        value: $(params.mas_smtpcfg_pod_template_yaml)
     envFrom:
       - configMapRef:
           name: environment-properties
