@@ -347,7 +347,7 @@ class UpdateApp(BaseApp):
                         "v9-240730-amd64": "6.0.12",
                         "v9-240827-amd64": "6.0.12",
                         "v9-241003-amd64": "6.0.12",
-                        "v9-241107-amd64": "7.0.12"
+                        "v9-241107-amd64": "7.0.12",
                         "v9-241205-amd64": "7.0.12"
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
