@@ -12,6 +12,20 @@ catalogChoices = {
     "amd64": [
         {
             "#": 1,
+            "catalog": "v9-240920-amd64",
+            "release": "9.1.x-feature",
+            "core": "9.1.x-feature",
+            "assist": "9.0.2",
+            "iot": "9.0.4",
+            "manage": "9.1.x-feature",
+            "monitor": "9.0.4",
+            "optimizer": "9.1.x-feature",
+            "predict": "9.0.2",
+            "inspection": "9.0.4",
+            "aibroker": "9.0.3"
+        },
+        {
+            "#": 2,
             "catalog": "v9-241107-amd64",
             "release": "9.0.x",
             "core": "9.0.5",
@@ -25,7 +39,7 @@ catalogChoices = {
             "aibroker": "9.0.3"
         },
         {
-            "#": 2,
+            "#": 3,
             "catalog": "v9-241107-amd64",
             "release": "8.11.x",
             "core": "8.11.16",
@@ -38,7 +52,7 @@ catalogChoices = {
             "inspection": "8.9.7"
         },
         {
-            "#": 3,
+            "#": 4,
             "catalog": "v9-241107-amd64",
             "release": "8.10.x",
             "core": "8.10.19",
@@ -51,7 +65,7 @@ catalogChoices = {
             "inspection": "8.8.4"
         },
         {
-            "#": 4,
+            "#": 5,
             "catalog": "v9-241003-amd64",
             "release": "9.0.x",
             "core": "9.0.3",
@@ -64,7 +78,7 @@ catalogChoices = {
             "inspection": "9.0.3"
         },
         {
-            "#": 5,
+            "#": 6,
             "catalog": "v9-241003-amd64",
             "release": "8.11.x",
             "core": "8.11.15",
@@ -77,7 +91,7 @@ catalogChoices = {
             "inspection": "8.9.6"
         },
         {
-            "#": 6,
+            "#": 7,
             "catalog": "v9-241003-amd64",
             "release": "8.10.x",
             "core": "8.10.18",
@@ -90,7 +104,7 @@ catalogChoices = {
             "inspection": "8.8.4"
         },
         {
-            "#": 7,
+            "#": 8,
             "catalog": "v9-240827-amd64",
             "release": "9.0.x",
             "core": "9.0.2",
@@ -103,7 +117,7 @@ catalogChoices = {
             "inspection": "9.0.2"
         },
         {
-            "#": 8,
+            "#": 9,
             "catalog": "v9-240827-amd64",
             "release": "8.11.x",
             "core": "8.11.14",
@@ -116,7 +130,7 @@ catalogChoices = {
             "inspection": "8.9.5"
         },
         {
-            "#": 9,
+            "#": 10,
             "catalog": "v9-240827-amd64",
             "release": "8.10.x",
             "core": "8.10.17",
