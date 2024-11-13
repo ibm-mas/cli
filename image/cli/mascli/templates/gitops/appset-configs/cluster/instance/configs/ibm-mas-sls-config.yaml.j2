@@ -7,6 +7,11 @@ mas_config_kind: "slscfgs"
 mas_config_api_version: "config.mas.ibm.com"
 use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
 
+{% if MAS_SLSCFG_POD_TEMPLATE is defined and MAS_SLSCFG_POD_TEMPLATE !='' %}
+mas_slscfg_pod_templates:
+  {{ MAS_SLSCFG_POD_TEMPLATE | indent(2) }}
+{% endif %}
+
 registration_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_REGISTRATION_KEY }}>
 url: "https://sls.mas-{{ MAS_INSTANCE_ID }}-sls.svc"
 ca:
