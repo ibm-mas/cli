@@ -43,6 +43,14 @@ spec:
       type: string
       description: Optional boolean variable weather hmac is enabled or not
       default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: Name of an existing Resource Group in IBM Cloud account
+      default: "Default"
+    - name: ibmcloud_apikey
+      type: string
+      description: IBM Cloud API Key
+      default: ""
 
 
   stepTemplate:
@@ -72,6 +80,10 @@ spec:
         value: $(params.cos_resourcegroup)
       - name: COS_USE_HMAC
         value: $(params.cos_use_hmac)
+      - name: IBMCLOUD_RESOURCEGROUP
+        value: $(params.ibmcloud_resourcegroup)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
   steps:
     - name: cos
       command:

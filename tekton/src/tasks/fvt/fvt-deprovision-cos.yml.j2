@@ -53,3 +53,15 @@ spec:
               name: mas-fvt
               key: COS_APIKEY
               optional: true
+        - name: IBMCLOUD_APIKEY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: IBMCLOUD_APIKEY
+              optional: true
+        - name: IBMCLOUD_RESOURCEGROUP
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: IBMCLOUD_RESOURCEGROUP
+              optional: true

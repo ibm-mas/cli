@@ -72,6 +72,14 @@ spec:
     - name: cloud_provider
       type: string
       default: aws
+
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: Name of an existing Resource Group in IBM Cloud account
+      default: ""
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
       
     - name: cos_type
       type: string
@@ -227,6 +235,11 @@ spec:
           value: $(params.cos_apikey)
         - name: cos_use_hmac
           value: $(params.cos_use_hmac)
+
+        - name: ibmcloud_resourcegroup
+          value: $(params.ibmcloud_resourcegroup)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
 
       workspaces:
         - name: configs

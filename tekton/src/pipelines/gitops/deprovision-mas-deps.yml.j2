@@ -88,6 +88,14 @@ spec:
       type: string
       default: ""
 
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: Name of an existing Resource Group in IBM Cloud account
+      default: "Default"
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
+
   tasks:
 {% if wait_for_deprovision == true %}
     # 0. Wait for the deprovsion mas pipeline to complete
@@ -234,6 +242,10 @@ spec:
           value: $(params.cos_apikey)
         - name: cos_use_hmac
           value: $(params.cos_use_hmac)
+        - name: ibmcloud_resourcegroup
+          value: $(params.ibmcloud_resourcegroup)
+        - name: ibmcloud_apikey
+          value: $(params.ibmcloud_apikey)
       workspaces:
         - name: configs
           workspace: configs
