@@ -317,8 +317,10 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('cos_type') != "":
             command += f"  --cos \"{self.getParam('cos_type')}\""
-            if self.getParam('ibmcos_resourcegroup') != "":
+            if self.getParam('cos_resourcegroup') != "":
                 command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
+            if self.getParam('cos_apikey') != "":
+                command += f" --cos-apikey \"{self.getParam('cos_apikey')}\""
             command += newline
 
         # Turbonomic Integration
