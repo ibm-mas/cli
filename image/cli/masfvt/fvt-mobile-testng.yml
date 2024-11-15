@@ -20,6 +20,7 @@
     fvt_whitelist: "{{ lookup('env', 'FVT_WHITELIST') }}"
 
     # FVT Configuration
+    fvt_digest_mobile_pytest: "{{ lookup('env', 'FVT_DIGEST_MOBILE_PYTEST') }}"
     fvt_digest_mobile_testng: "{{ lookup('env', 'FVT_DIGEST_MOBILE_TESTNG') }}"
     fvt_digest_manage: "{{ lookup('env', 'FVT_DIGEST_MANAGE') }}"
 
@@ -41,6 +42,7 @@
           - ""
           - "fvt_image_registry ....................... {{ fvt_image_registry }}"
           - "fvt_artifactory_token .................... {{ fvt_artifactory_token }}"
+          - "fvt_digest_mobile_pytest ................. {{ fvt_digest_mobile_pytest }}"
           - "fvt_digest_mobile_testng ................. {{ fvt_digest_mobile_testng }}"
           - "fvt_digest_manage ........................ {{ fvt_digest_manage }}"
           - ""
