@@ -14,10 +14,12 @@ import logging.handlers
 from sys import exit
 from os import path, getenv
 import re
+import calendar
 
 from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
+from prompt_toolkit.completion import WordCompleter
 
 from tabulate import tabulate
 
@@ -30,7 +32,7 @@ from .argParser import installArgParser
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
 from .params import requiredParams, optionalParams
-from .catalogs import catalogChoices
+from .catalogs import supportedCatalogs
 
 from mas.cli.validators import (
     InstanceIDFormatValidator,
@@ -42,6 +44,8 @@ from mas.cli.validators import (
 )
 
 from mas.devops.ocp import createNamespace, getStorageClass, getStorageClasses
+from mas.devops.mas import getCurrentCatalog
+from mas.devops.data import getCatalog
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
@@ -102,17 +106,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.fatalError(
                 "\n".join([
                     "Unable to proceed with installation of Maximo Manage.  Could not detect the required \"image-registry\" service in the openshift-image-registry namespace",
-                    "For more information refer to <u>https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=installing-enabling-openshift-internal-image-registry</u>"
+                    "For more information refer to <Orange><u>https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=installing-enabling-openshift-internal-image-registry</u></Orange>"
                 ])
             )
 
     @logMethodCall
     def licensePrompt(self):
         licenses = {
-            "8.9.x": " - <u>https://ibm.biz/MAS89-License</u>",
-            "8.10.x": " - <u>https://ibm.biz/MAS810-License</u>",
-            "8.11.x": " - <u>https://ibm.biz/MAS811-License</u>\n - <u>https://ibm.biz/MAXIT81-License</u>",
-            "9.0.x": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>"
+            "8.9.x": " - <Orange><u>https://ibm.biz/MAS89-License</u></Orange>",
+            "8.10.x": " - <Orange><u>https://ibm.biz/MAS810-License</u></Orange>",
+            "8.11.x": " - <Orange><u>https://ibm.biz/MAS811-License</u></Orange>\n - <Orange><u>https://ibm.biz/MAXIT81-License</u></Orange>",
+            "9.0.x": " - <Orange><u>https://ibm.biz/MAS90-License</u></Orange>\n - <Orange><u>https://ibm.biz/MaximoIT90-License</u></Orange>\n - <Orange><u>https://ibm.biz/MAXArcGIS90-License</u></Orange>"
         }
 
         if not self.licenseAccepted:
@@ -153,6 +157,87 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.setParam("cert_manager_provider", "redhat")
         self.setParam("cert_manager_action", "install")
 
+    def formatCatalog(self, name: str) -> str:
+        # Convert "v9-241107-amd64" into "November 2024 Update (v9-241107-amd64)"
+        date = name.split("-")[1]
+        month = int(date[2:4])
+        monthName = calendar.month_name[month]
+        year = date[:2]
+        return f" - {monthName} 20{year} Update\n   <Orange><u>https://ibm-mas.github.io/cli/catalogs/{name}</u></Orange>"
+
+    def formatRelease(self, release: str) -> str:
+        return f"{release} ... {self.catalogReleases[release]['core']}"
+
+    @logMethodCall
+    def processCatalogChoice(self) -> list:
+        self.catalogDigest = self.chosenCatalog["catalog_digest"]
+        self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
+        self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
+
+        self.catalogReleases = ["9.0.x", "8.11.x", "8.10.x"]
+
+        self.catalogTable = [
+            {
+                "": "Core",
+                "9.0.x": self.chosenCatalog["mas_core_version"]["9.0.x"],
+                "8.11.x": self.chosenCatalog["mas_core_version"]["8.11.x"],
+                "8.10.x": self.chosenCatalog["mas_core_version"]["8.10.x"]
+            },
+            {
+                "": "Manage",
+                "9.0.x": self.chosenCatalog["mas_manage_version"]["9.0.x"],
+                "8.11.x": self.chosenCatalog["mas_manage_version"]["8.11.x"],
+                "8.10.x": self.chosenCatalog["mas_manage_version"]["8.10.x"]
+            },
+            {
+                "": "IoT",
+                "9.0.x": self.chosenCatalog["mas_iot_version"]["9.0.x"],
+                "8.11.x": self.chosenCatalog["mas_iot_version"]["8.11.x"],
+                "8.10.x": self.chosenCatalog["mas_iot_version"]["8.10.x"]
+            },
+            {
+                "": "Monitor",
+                "9.0.x": self.chosenCatalog["mas_monitor_version"]["9.0.x"],
+                "8.11.x": self.chosenCatalog["mas_monitor_version"]["8.11.x"],
+                "8.10.x": self.chosenCatalog["mas_monitor_version"]["8.10.x"]
+            },
+            {
+                "": "Assist",
+                "9.0.x": self.chosenCatalog["mas_assist_version"]["9.0.x"],
+                "8.11.x": self.chosenCatalog["mas_assist_version"]["8.11.x"],
+                "8.10.x": self.chosenCatalog["mas_assist_version"]["8.10.x"]
+            },
+            {
+                "": "Optimizer",
+                "9.0.x": self.chosenCatalog["mas_optimizer_version"]["9.0.x"],
+                "8.11.x": self.chosenCatalog["mas_optimizer_version"]["8.11.x"],
+                "8.10.x": self.chosenCatalog["mas_optimizer_version"]["8.10.x"]
+            },
+            {
+                "": "Predict",
+                "9.0.x": self.chosenCatalog["mas_predict_version"]["9.0.x"],
+                "8.11.x": self.chosenCatalog["mas_predict_version"]["8.11.x"],
+                "8.10.x": self.chosenCatalog["mas_predict_version"]["8.10.x"]
+            },
+            {
+                "": "Inspection",
+                "9.0.x": self.chosenCatalog["mas_visualinspection_version"]["9.0.x"],
+                "8.11.x": self.chosenCatalog["mas_visualinspection_version"]["8.11.x"],
+                "8.10.x": self.chosenCatalog["mas_visualinspection_version"]["8.10.x"]
+            }
+        ]
+
+        summary = [
+            "",
+            "<u>Catalog Details</u>",
+            f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
+            f"Catalog Digest:        {self.catalogDigest}",
+            f"MAS Releases:          {', '.join(self.catalogReleases)}",
+            f"Cloud Pak for Data:    {self.catalogCp4dVersion}",
+            f"MongoDb:               {self.catalogMongoDbVersion}",
+        ]
+        return summary
+
     @logMethodCall
     def configCatalog(self):
         self.printH1("IBM Maximo Operator Catalog Selection")
@@ -160,11 +245,48 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
             self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
         else:
-            print(tabulate(self.installOptions, headers="keys", tablefmt="simple_grid"))
-            catalogSelection = self.promptForInt("Select catalog and release", default=1)
+            catalogInfo = getCurrentCatalog(self.dynamicClient)
 
-            self.setParam("mas_catalog_version", self.installOptions[catalogSelection - 1]["catalog"])
-            self.setParam("mas_channel", self.installOptions[catalogSelection - 1]["release"])
+            if catalogInfo is None:
+                self.printDescription([
+                    "The catalog you choose dictates the version of everything that is installed, with Maximo Application Suite this is the only version you need to remember; all other versions are determined by this choice.",
+                    "Older catalogs can still be used, but we recommend using an older version of the CLI that aligns with the release date of the catalog.",
+                    " - Learn more: <Orange><u>https://ibm-mas.github.io/cli/catalogs/</u></Orange>",
+                    ""
+                ])
+                print("Supported Catalogs:")
+                for catalog in self.catalogOptions:
+                    catalogString = self.formatCatalog(catalog)
+                    print_formatted_text(HTML(f"{catalogString}"))
+                print()
+
+                catalogCompleter = WordCompleter(self.catalogOptions)
+                catalogSelection = self.promptForString("Select catalog", completer=catalogCompleter)
+                self.setParam("mas_catalog_version", catalogSelection)
+
+                self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+            else:
+                self.printDescription([
+                    f"The IBM Maximo Operator Catalog is already installed in this cluster ({catalogInfo['catalogId']}).  If you wish to install MAS using a newer version of the catalog please first update the catalog using mas update."
+                ])
+                self.setParam("mas_catalog_version", catalogInfo["catalogId"])
+
+            self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+            catalogSummary = self.processCatalogChoice()
+            self.printDescription(catalogSummary)
+            self.printDescription([
+                "",
+                "Multiple releases of Maximo Application Suite are available, each is supported under IBM's standard 3+1+3 support model.",
+                "Choose the release of IBM Maximo Application Suite that you want to use for this installation from the table below:",
+                ""
+            ])
+
+            print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
+
+            releaseCompleter = WordCompleter(self.catalogReleases)
+            releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
+
+            self.setParam("mas_channel", releaseSelection)
 
     @logMethodCall
     def configSLS(self) -> None:
@@ -925,7 +1047,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             exit(1)
 
         # Configure the installOptions for the appropriate architecture
-        self.installOptions = catalogChoices[self.architecture]
+        self.catalogOptions = supportedCatalogs[self.architecture]
 
         # Basic settings before the user provides any input
         self.configICR()
