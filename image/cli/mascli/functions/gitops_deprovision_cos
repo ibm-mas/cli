@@ -126,7 +126,9 @@ function gitops_deprovision_cos_noninteractive() {
 
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_cos_help "CLUSTER_ID is not set"
   [[ -z "$COS_TYPE" ]] && gitops_deprovision_cos_help "COS_TYPE is not set"
-  [[ -z "$COS_APIKEY" ]] && gitops_deprovision_cos_help "COS_APIKEY is not set"
+  if [[ "${COS_TYPE}" == "ibm" ]]; then
+    [[ -z "$COS_APIKEY" ]] && gitops_deprovision_cos_help "COS_APIKEY is not set"
+  fi
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_cos_help "ACCOUNT_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_cos_help "MAS_INSTANCE_ID is not set"
 }
