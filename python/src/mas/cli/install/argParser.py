@@ -651,6 +651,23 @@ manageArgGroup.add_argument(
     help="Manage server timezone. Default is `GMT`"
 )
 
+# Manage Attachments
+# -----------------------------------------------------------------------------
+manageArgGroup.add_argument(
+    "--mas-manage-attachments-provider",
+    dest="mas_manage_attachments_provider",
+    required=False,
+    default="ibm",
+    help="Defines the storage provider type to be used to store Manage application's attachments."
+)
+manageArgGroup.add_argument(
+    "--mas-manage-attachment-configuration-mode",
+    dest="mas_manage_attachment_configuration_mode",
+    required=False,
+    default="db",
+    help="Defines how attachment properties will be configured in Manage. Possible values are: cr and db"
+)
+
 # IBM Cloud Pak for Data
 # -----------------------------------------------------------------------------
 cpdAppsArgGroup = installArgParser.add_argument_group("IBM Cloud Pak for Data")
