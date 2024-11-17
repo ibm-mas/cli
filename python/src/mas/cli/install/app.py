@@ -625,8 +625,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.configCP4D()
             self.promptForString("COS Provider [ibm/ocs]", "cos_type")
             if self.getParam("cos_type") == "ibm":
-                self.promptForString("IBM Cloud API Key", "ibmcloud_apikey", isPassword=True)
-                self.promptForString("IBM Cloud Resource Group", "ibmcos_resourcegroup")
+                self.promptForString("IBM Cloud API Key", "cos_apikey", isPassword=True)
+                self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
 
     @logMethodCall
     def chooseInstallFlavour(self) -> None:
@@ -774,7 +774,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "additional_configs":
                 self.localConfigDir = value
                 # If there is a file named mongodb-system.yaml we will use this as a BYO MongoDB datasource
-                if path.exists(path.join(self.localConfigDir, "mongodb-system.yaml")):
+                if self.localConfigDir is not None and path.exists(path.join(self.localConfigDir, "mongodb-system.yaml")):
                     self.setParam("mongodb_action", "byo")
                     self.setParam("sls_mongodb_cfg_file", "/workspace/additional-configs/mongodb-system.yaml")
 

@@ -24,8 +24,8 @@ IBM Maximo Application Suite:
 COS Provider:
       --cos-action ${COLOR_YELLOW}COS_ACTION${TEXT_RESET}                                                  provision or deprovision
       --cos-type ${COLOR_YELLOW}COS_TYPE${TEXT_RESET}                                                      COS type, only ibm supported
-      --ibmcloud-resourcegroup ${COLOR_YELLOW}IBMCLOUD_RESOURCEGROUP${TEXT_RESET}                          IBM Cloud resource group to set
-      --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                                        IBM Cloud APIkey
+      --cos-resourcegroup ${COLOR_YELLOW}COS_RESOURCEGROUP${TEXT_RESET}                                    IBM Cloud resource group to set
+      --cos-apikey ${COLOR_YELLOW}COS_APIKEY${TEXT_RESET}                                                  IBM Cloud APIkey
 
 Other Commands:
       -h, --help                                                                                           Show this help message
@@ -77,11 +77,11 @@ function gitops_cos_noninteractive() {
       --cos-type)
         export COS_TYPE=$1 && shift
         ;;
-      --ibmcloud-resourcegroup)
-        export IBMCLOUD_RESOURCEGROUP=$1 && shift
+      --cos-resourcegroup)
+        export COS_RESOURCEGROUP=$1 && shift
         ;;
-      --ibmcloud-apikey)
-        export IBMCLOUD_APIKEY=$1 && shift
+      --cos-apikey)
+        export COS_APIKEY=$1 && shift
         ;;
 
       # Other Commands
@@ -101,7 +101,7 @@ function gitops_cos_noninteractive() {
   [[ -z "$CLUSTER_ID" ]] && gitops_cos_help "CLUSTER_ID is not set"
   [[ -z "$COS_TYPE" ]] && gitops_cos_help "COS_TYPE is not set"
   if [[ "${COS_TYPE}" == "ibm" ]]; then
-    [[ -z "$IBMCLOUD_APIKEY" ]] && gitops_cos_help "IBMCLOUD_APIKEY is not set"
+    [[ -z "$COS_APIKEY" ]] && gitops_cos_help "COS_APIKEY is not set"
   fi
   [[ -z "$ACCOUNT_ID" ]] && gitops_cos_help "ACCOUNT_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cos_help "MAS_INSTANCE_ID is not set"
@@ -150,8 +150,8 @@ function gitops_cos() {
   echo_reset_dim "COS action  ........................... ${COLOR_MAGENTA}${COS_ACTION}"
   echo_reset_dim "COS type  ............................. ${COLOR_MAGENTA}${COS_TYPE}"
   if [[ "${COS_TYPE}" == "ibm" ]]; then
-    echo_reset_dim "IBMCLOUD Resource Group  .............. ${COLOR_MAGENTA}${IBMCLOUD_RESOURCEGROUP}"
-    echo_reset_dim "IBMCLOUD ApiKey ....................... ${COLOR_MAGENTA}${IBMCLOUD_APIKEY:0:8}<snip>"
+    echo_reset_dim "COS Resource Group  ................... ${COLOR_MAGENTA}${COS_RESOURCEGROUP}"
+    echo_reset_dim "COS ApiKey ............................ ${COLOR_MAGENTA}${COS_APIKEY:0:8}<snip>"
   fi
   
   echo "${TEXT_DIM}"

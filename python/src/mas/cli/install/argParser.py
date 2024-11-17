@@ -917,9 +917,15 @@ cosArgGroup.add_argument(
 )
 cosArgGroup.add_argument(
     "--cos-resourcegroup",
-    dest="ibmcos_resourcegroup",
+    dest="cos_resourcegroup",
     required=False,
     help="When using IBM COS, set the resource group where the instance will run"
+)
+cosArgGroup.add_argument(
+    "--cos-apikey",
+    dest="cos_apikey",
+    required=False,
+    help="When using IBM COS, set COS priviledged apikey for IBM Cloud"
 )
 
 # Turbonomic Integration
