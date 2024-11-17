@@ -43,8 +43,8 @@ from mas.cli.validators import (
     OptimizerInstallPlanValidator
 )
 
-from mas.devops.ocp import createNamespace, getStorageClass, getStorageClasses
-from mas.devops.mas import getCurrentCatalog
+from mas.devops.ocp import createNamespace, getStorageClasses
+from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
 from mas.devops.data import getCatalog
 from mas.devops.tekton import (
     installOpenShiftPipelines,
@@ -644,46 +644,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
             ""
         ])
-        # 1. ROKS
-        if getStorageClass(self.dynamicClient, "ibmc-file-gold-gid") is not None:
-            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: IBMCloud ROKS</MediumSeaGreen>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): ibmc-block-gold</LightSlateGrey>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): ibmc-file-gold-gid</LightSlateGrey>"))
-            self.storageClassProvider = "ibmc"
-            self.params["storage_class_rwo"] = "ibmc-block-gold"
-            self.params["storage_class_rwx"] = "ibmc-file-gold-gid"
-        # 2. OCS
-        elif getStorageClass(self.dynamicClient, "ocs-storagecluster-cephfs") is not None:
-            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: OpenShift Container Storage</MediumSeaGreen>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): ocs-storagecluster-ceph-rbd</LightSlateGrey>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): ocs-storagecluster-cephfs</LightSlateGrey>"))
-            self.storageClassProvider = "ocs"
-            self.params["storage_class_rwo"] = "ocs-storagecluster-ceph-rbd"
-            self.params["storage_class_rwx"] = "ocs-storagecluster-cephfs"
-        # 3. NFS Client
-        elif getStorageClass(self.dynamicClient, "nfs-client") is not None:
-            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: NFS Client</MediumSeaGreen>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): nfs-client</LightSlateGrey>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): nfs-client</LightSlateGrey>"))
-            self.storageClassProvider = "nfs"
-            self.params["storage_class_rwo"] = "nfs-client"
-            self.params["storage_class_rwx"] = "nfs-client"
-        # 4. Azure
-        elif getStorageClass(self.dynamicClient, "managed-premium") is not None:
-            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: Azure Managed</MediumSeaGreen>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): managed-premium</LightSlateGrey>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): azurefiles-premium</LightSlateGrey>"))
-            self.storageClassProvider = "azure"
-            self.params["storage_class_rwo"] = "managed-premium"
-            self.params["storage_class_rwx"] = "azurefiles-premium"
-        # 5. AWS
-        elif getStorageClass(self.dynamicClient, "gp2") is not None:
-            print_formatted_text(HTML("<MediumSeaGreen>Storage provider auto-detected: AWS gp2</MediumSeaGreen>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteOnce): gp2</LightSlateGrey>"))
-            print_formatted_text(HTML("<LightSlateGrey>  - Storage class (ReadWriteMany): efs</LightSlateGrey>"))
-            self.storageClassProvider = "aws"
-            self.params["storage_class_rwo"] = "gp2"
-            self.params["storage_class_rwx"] = "efs"
+        defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+        if defaultStorageClasses.provider is not None:
+            print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
+            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
+            self.storageClassProvider = defaultStorageClasses.provider
+            self.params["storage_class_rwo"] = defaultStorageClasses.rwo
+            self.params["storage_class_rwx"] = defaultStorageClasses.rwx
 
         overrideStorageClasses = False
         if "storage_class_rwx" in self.params and self.params["storage_class_rwx"] != "":
