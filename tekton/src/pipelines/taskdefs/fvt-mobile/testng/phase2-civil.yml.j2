@@ -5,6 +5,8 @@
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-manage.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: civil-bvt
+  runAfter:
+    - fvt-mobile-setup-testng
 
 ## Minimum Verification Test for Mobile Defects MAS test suites
 - name: fvt-mobile-testng-defects-android
