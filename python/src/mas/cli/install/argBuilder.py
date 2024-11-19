@@ -226,10 +226,10 @@ class installArgBuilderMixin():
 
         # IBM Db2 Universal Operator
         # -----------------------------------------------------------------------------
-        if self.getParam('db2_system') == "install" or self.getParam('db2_manage') == "install":
-            if self.getParam('db2_system') == "install":
+        if self.getParam('db2_action_system') == "install" or self.getParam('db2_action_manage') == "install":
+            if self.getParam('db2_action_system') == "install":
                 command += f"  --db2-system{newline}"
-            if self.getParam('db2_manage') == "install":
+            if self.getParam('db2_action_manage') == "install":
                 command += f"  --db2-manage{newline}"
 
             if self.getParam('db2_channel') != "":
