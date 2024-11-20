@@ -1,5 +1,5 @@
 ## Mobile Foundation Manage Setup
-- name: fvt-mobile-setup-pytest
+- name: fvt-mobile-setup-testng
   taskRef:
     kind: Task
     name: mas-fvt-mobile-pytest
@@ -12,7 +12,7 @@
     - name: fvt_image_digest
       value: $(params.fvt_digest_mobile_pytest)
     - name: fvt_test_suite
-      value: mobile-api-setup-pytest
+      value: mobile-api-setup-testng
     - name: mas_instance_id
       value: $(params.mas_instance_id)
     - name: mas_workspace_id
@@ -20,7 +20,7 @@
     - name: product_channel
       value: $(params.mas_app_channel_manage)
     - name: output_data_file
-      value: "MobilePytestSetup.data"
+      value: "MobileSetup4MAS.data"
     - name: upload_file
       value: "True"
   when:
@@ -30,5 +30,3 @@
     - input: "$(params.fvt_digest_mobile_pytest)"
       operator: notin
       values: [""]
-  runAfter:
-    - wait-for-manage-ivtcore

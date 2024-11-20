@@ -226,10 +226,10 @@ class installArgBuilderMixin():
 
         # IBM Db2 Universal Operator
         # -----------------------------------------------------------------------------
-        if self.getParam('db2_system') == "install" or self.getParam('db2_manage') == "install":
-            if self.getParam('db2_system') == "install":
+        if self.getParam('db2_action_system') == "install" or self.getParam('db2_action_manage') == "install":
+            if self.getParam('db2_action_system') == "install":
                 command += f"  --db2-system{newline}"
-            if self.getParam('db2_manage') == "install":
+            if self.getParam('db2_action_manage') == "install":
                 command += f"  --db2-manage{newline}"
 
             if self.getParam('db2_channel') != "":
@@ -317,8 +317,10 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('cos_type') != "":
             command += f"  --cos \"{self.getParam('cos_type')}\""
-            if self.getParam('ibmcos_resourcegroup') != "":
+            if self.getParam('cos_resourcegroup') != "":
                 command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
+            if self.getParam('cos_apikey') != "":
+                command += f" --cos-apikey \"{self.getParam('cos_apikey')}\""
             command += newline
 
         # Turbonomic Integration
