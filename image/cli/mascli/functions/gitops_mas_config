@@ -34,12 +34,16 @@ AWS Secrets Manager Configuration (Required):
 Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
   --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. One of aws|yaml (defaults to yaml)
 
+SLS Configuration (if MAS_CONFIG_TYPE is "sls"):
+  --mas-slscfg-pod-template-yaml ${COLOR_YELLOW}MAS_SLSCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
+
 DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
   --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}             The email address to register with DRO
   --dro-contact-firstname ${COLOR_YELLOW}DRO_CONTACT_FIRSTNAME${TEXT_RESET}     The first name to register with DRO
   --dro-contact-lastname ${COLOR_YELLOW}DRO_CONTACT_LASTNAME${TEXT_RESET}       The last name to register with DRO
   --dro-ca-certificate-file ${COLOR_YELLOW}DRO_CA_CERTIFICATE_FILE${TEXT_RESET} The location of a file containing the DRO CA certificate
   --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                 The segment key for authentication for Segment
+  --mas-bascfg-pod-template-yaml ${COLOR_YELLOW}MAS_BASCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
 
 IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
   --idpcfg-display-name ${COLOR_YELLOW}IDPCFG_DISPLAY_NAME${TEXT_RESET}       Display name for IDPCfg resource
@@ -69,6 +73,7 @@ SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"):
   --smtp-default-should-email-passwords ${COLOR_YELLOW}SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS${TEXT_RESET}   true or false on sending email passwords, default false
   --smtp-username ${COLOR_YELLOW}SMTP_USERNAME${TEXT_RESET}                                               Username for SMTP server authentication (Optional, if secret is already set in SM)
   --smtp-password ${COLOR_YELLOW}SMTP_PASSWORD${TEXT_RESET}                                               Password for SMTP server authentication (Optional, if secret is already set in SM)
+  --mas-smtpcfg-pod-template-yaml ${COLOR_YELLOW}MAS_SMTPCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -143,6 +148,11 @@ function gitops_mas_config_noninteractive() {
         export MONGODB_PROVIDER=$1 && shift
         ;;
 
+      # SLS
+      --mas-slscfg-pod-template-yaml)
+        export MAS_SLSCFG_POD_TEMPLATE_YAML=$1 && shift
+        ;;
+
       # DRO
       --dro-contact-email)
         export DRO_CONTACT_EMAIL=$1 && shift
@@ -158,6 +168,9 @@ function gitops_mas_config_noninteractive() {
         ;;
       --mas-segment-key)
         export MAS_SEGMENT_KEY=$1 && shift
+        ;;
+      --mas-bascfg-pod-template-yaml)
+        export MAS_BASCFG_POD_TEMPLATE_YAML=$1 && shift
         ;;
 
       # LDAP
@@ -233,6 +246,9 @@ function gitops_mas_config_noninteractive() {
         ;;
       --smtp-password)
         export SMTP_PASSWORD=$1 && shift
+        ;;
+      --mas-smtpcfg-pod-template-yaml)
+        export MAS_SMTPCFG_POD_TEMPLATE_YAML=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration
@@ -521,12 +537,14 @@ function gitops_mas_config() {
       echo_reset_dim "DRO Contact First Name  ........ ${COLOR_MAGENTA}${DRO_CONTACT_FIRSTNAME}"
       echo_reset_dim "DRO Contact Last Name  ......... ${COLOR_MAGENTA}${DRO_CONTACT_LASTNAME}"
       echo_reset_dim "DRO Certificate File  .......... ${COLOR_MAGENTA}${DRO_CA_CERTIFICATE_FILE}"
+      echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_BASCFG_POD_TEMPLATE_YAML}"
       reset_colors
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
       echo "${TEXT_DIM}"
       echo_reset_dim "SLS URL  ....................... ${COLOR_MAGENTA}https://sls.mas-${MAS_INSTANCE_ID}-sls.svc"
+      echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_SLSCFG_POD_TEMPLATE_YAML}"
       reset_colors
     fi
 
@@ -582,7 +600,8 @@ function gitops_mas_config() {
       echo_reset_dim "Smtp Default Recipient Email ................... ${COLOR_MAGENTA}${SMTP_DEFAULT_RECIPIENT_EMAIL}"
       echo_reset_dim "Smtp Should Email Passwords .................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS}"
       echo_reset_dim "Smtp Server Username ........................... ${COLOR_MAGENTA}${SMTP_USERNAME}"
-      echo_reset_dim "Smtp Server Password ........................... ${COLOR_MAGENTA}${SMTP_PASSWORD:0:4}<snip>"
+      echo_reset_dim "Smtp Server Password ........................... ${COLOR_MAGENTA}${SMTP_PASSWORD:0:4}<snip>"  
+      echo_reset_dim "Pod Template YAML File  ........................ ${COLOR_MAGENTA}${MAS_SMTPCFG_POD_TEMPLATE_YAML}"
       reset_colors
     fi
   fi
@@ -651,6 +670,13 @@ function gitops_mas_config() {
       export SECRET_KEY_MAS_SEGMENT_KEY=${SECRET_NAME_MAS_SEGMENT_KEY}#mas_segment_key
       export DRO_CA_CERTIFICATE=$(cat ${DRO_CA_CERTIFICATE_FILE})
       
+      # Set pod template yaml
+      # ---------------------------------------------------------------------------
+      if [[ -n "$MAS_BASCFG_POD_TEMPLATE_YAML" && -s "$MAS_BASCFG_POD_TEMPLATE_YAML" ]]; then
+        export MAS_BASCFG_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_BASCFG_POD_TEMPLATE_YAML})
+        echo -e "\n - MAS_BASCFG_POD_TEMPLATE CONTENT .................. ${MAS_BASCFG_POD_TEMPLATE}"
+      fi
+
       if [[ -n "${MAS_SEGMENT_KEY}" ]]; then
         sm_login
         TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
@@ -662,6 +688,13 @@ function gitops_mas_config() {
       export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
       export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
       export SECRET_KEY_SLS_CA_B64=${SECRET_NAME_SLS}#ca_b64
+      
+      # Set pod template yaml
+      # ---------------------------------------------------------------------------
+      if [[ -n "$MAS_SLSCFG_POD_TEMPLATE_YAML" && -s "$MAS_SLSCFG_POD_TEMPLATE_YAML" ]]; then
+        export MAS_SLSCFG_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_SLSCFG_POD_TEMPLATE_YAML})
+        echo -e "\n - MAS_SLSCFG_POD_TEMPLATE CONTENT .................. ${MAS_SLSCFG_POD_TEMPLATE}"
+      fi
     fi
 
     # Source: gitops_kafka_config
@@ -774,6 +807,13 @@ function gitops_mas_config() {
       else
         TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $SECRET_NAME_SMTP "{\"username\": \"$SMTP_USERNAME\", \"password\": \"$SMTP_PASSWORD\"}" "${TAGS}"
+      fi
+
+      # Set pod template yaml
+      # ---------------------------------------------------------------------------
+      if [[ -n "$MAS_SMTPCFG_POD_TEMPLATE_YAML" && -s "$MAS_SMTPCFG_POD_TEMPLATE_YAML" ]]; then
+        export MAS_SMTPCFG_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_SMTPCFG_POD_TEMPLATE_YAML})
+        echo -e "\n - MAS_SMTPCFG_POD_TEMPLATE CONTENT .................. ${MAS_SMTPCFG_POD_TEMPLATE}"
       fi
 
       export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username

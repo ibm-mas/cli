@@ -23,14 +23,10 @@ spec:
       type: string
       description: COS Provider (ibm and ocs are supported)
       default: ""
-    - name: ibmcloud_apikey
+    - name: cos_apikey
       type: string
-      description: IBM Cloud API Key
+      description: IBM Cloud COS API Key
       default: ""
-    - name: ibmcloud_resourcegroup
-      type: string
-      description: Name of an existing Resource Group in IBM Cloud account
-      default: "Default"
     - name: cos_resourcegroup
       type: string
       description: Name of an existing COS Resource Group in IBM Cloud account
@@ -46,6 +42,14 @@ spec:
     - name: cos_use_hmac
       type: string
       description: Optional boolean variable weather hmac is enabled or not
+      default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: Name of an existing Resource Group in IBM Cloud account
+      default: "Default"
+    - name: ibmcloud_apikey
+      type: string
+      description: IBM Cloud API Key
       default: ""
 
 
@@ -70,14 +74,16 @@ spec:
         value: $(params.cos_action)
       - name: COS_INSTANCE_NAME
         value: $(params.cos_instance_name)
-      - name: IBMCLOUD_APIKEY
-        value: $(params.ibmcloud_apikey)
+      - name: COS_APIKEY
+        value: $(params.cos_apikey)
       - name: COS_RESOURCEGROUP
         value: $(params.cos_resourcegroup)
-      - name: IBMCLOUD_RESOURCEGROUP
-        value: $(params.ibmcloud_resourcegroup)
       - name: COS_USE_HMAC
         value: $(params.cos_use_hmac)
+      - name: IBMCLOUD_RESOURCEGROUP
+        value: $(params.ibmcloud_resourcegroup)
+      - name: IBMCLOUD_APIKEY
+        value: $(params.ibmcloud_apikey)
   steps:
     - name: cos
       command:
