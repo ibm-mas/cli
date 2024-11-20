@@ -1,0 +1,93 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-optimizer-cypress
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+
+  params:
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
+
+    # MAS Configuration
+    - name: mas_app_channel_optimizer
+      type: string
+      default: ""
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+
+    # FVT Configuration
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: fvt_artifactory_username
+      type: string
+      default: ""
+    - name: fvt_artifactory_token
+      type: string
+      default: ""
+    - name: fvt_digest_ctf
+      type: string
+      description: FVT Digest - CTF
+      default: ""
+    - name: fvt_digest_optimizer
+      type: string
+      description: FVT Digest - Optimizer
+      default: ""
+    - name: ivt_digest_core
+      type: string
+      description: IVT Digest - Core
+      default: ""
+
+  tasks:
+    # 2. Run "cypress/optimizer/e2e/ui/bvt/MOAdmin.cy.js"
+    # -----------------------------------------------------------------------------
+    - name: moadmin
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-manage
+        - name: fvt_image_name
+          value: fvt-ibm-mas-optimizer-cypress
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: cypress/optimizer/e2e/ui/bvt/MOAdmin.cy.js
+        - name: fvt_config_file
+          value: onfigs/fvt-optimizer-cypress.config.js
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
