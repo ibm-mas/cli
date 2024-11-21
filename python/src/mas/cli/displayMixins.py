@@ -90,7 +90,11 @@ class PromptMixin():
         if param is not None and default == "":
             default = getenv(param.upper(), default="")
 
-        response = prompt(masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False)
+        if completer is not None:
+            response = self.promptSession.prompt(masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False, pre_run=self.promptSession.default_buffer.start_completion)
+        else:
+            response = self.promptSession.prompt(masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False)
+
         if param is not None:
             self.params[param] = response
         return response
