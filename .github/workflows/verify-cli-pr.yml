@@ -7,13 +7,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: '! github.event.pull_request.draft'
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      - name: Fail if local Ansible collection is present in PR to master
+      - name: Fail if local build of Ansible collection or Python package are present in a PR to master branch
         run: |
+          RC=0
           if [[ -e $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz ]]; then
-            echo "Found a local Ansible collection($GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz) in this PR, Local ansible collection is not allowed in master branch. Failing build."
-            exit 1
+            echo "Found local Ansible collection($GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz) in this PR, Local collection is not allowed in the master branch."
+            RC=1
           fi
+          if [[ -e $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz ]]; then
+            echo "Found local Python package ($GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz) in this PR, Local package is not allowed in the master branch."
+            RC=1
+          fi
+          exit $RC
