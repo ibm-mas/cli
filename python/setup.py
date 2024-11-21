@@ -58,12 +58,12 @@ setup(
     description='Python Admin CLI for Maximo Application Suite',
     long_description=long_description,
     install_requires=[
-        'mas-devops >= 1.7.1',  # EPL
-        'halo',                 # MIT License
-        'prompt_toolkit',       # BSD License
-        'openshift',            # Apache Software License
-        'kubernetes',           # Apache Software License
-        'tabulate'              # MIT License
+        'mas-devops >= 1.10.0',  # EPL
+        'halo',                  # MIT License
+        'prompt_toolkit',        # BSD License
+        'openshift',             # Apache Software License
+        'kubernetes',            # Apache Software License
+        'tabulate'               # MIT License
     ],
     extras_require={
         'dev': [
