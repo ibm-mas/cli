@@ -61,6 +61,12 @@ IBM DB2U:
       --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster addons audit config section.
       --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
       --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
+      --db2-backup-bucket-name ${COLOR_YELLOW}DB2_BACKUP_BUCKET_NAME${TEXT_RESET}                             COS Bucket name where DB2 backup is stored
+      --db2-backup-bucket-endpoint ${COLOR_YELLOW}DB2_BACKUP_BUCKET_ENDPOINT${TEXT_RESET}                     COS Bucket endpoint of the bucket where DB2 backup is stored
+      --db2-backup-bucket-access-key-secret ${COLOR_YELLOW}SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY${TEXT_RESET} Secret name of DB2 COS bucket's access key
+      --db2-backup-bucket-secret-key-secret ${COLOR_YELLOW}SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY${TEXT_RESET} Secret name of DB2 COS bucket's secret key
+      --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                   Slack URL to notify DB2 backup failures
+      --db2-backup-icd-auth-key ${COLOR_YELLOW}SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY${TEXT_RESET}                ICD auth key used to create ICD incidents when DB2 backup fails
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -272,6 +278,24 @@ function gitops_db2u_database_noninteractive() {
       --db2-timezone)
         export DB2_TIMEZONE=$1 && shift
         ;;
+      --db2-backup-bucket-name)
+        export DB2_BACKUP_BUCKET_NAME$1 && shift
+        ;;
+      --db2-backup-bucket-endpoint)
+        export DB2_BACKUP_BUCKET_ENDPOINT=$1 && shift
+        ;;
+      --db2-backup-bucket-access-key-secret)
+        export SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY=$1 && shift
+        ;;
+      --db2-backup-bucket-secret-key-secret)
+        export SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY=$1 && shift
+        ;;
+      --db2-backup-notify-slack-url)
+        export DB2_BACKUP_NOTIFY_SLACK_URL=$1 && shift
+        ;;
+      --db2-backup-icd-auth-key)
+        export SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY=$1 && shift
+        ;;
 
 
       # Automatic GitHub Push
@@ -329,6 +353,12 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_LOGS_STORAGE_CLASS is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_database_help "MAS_APP_ID is not set"
+  [[ -z "$DB2_BACKUP_BUCKET_NAME" ]] && gitops_db2u_database_help "DB2_BACKUP_BUCKET_NAME is not set"
+  [[ -z "$DB2_BACKUP_BUCKET_ENDPOINT" ]] && gitops_db2u_database_help "DB2_BACKUP_BUCKET_ENDPOINT is not set"
+  [[ -z "$DB2_BACKUP_NOTIFY_SLACK_URL" ]] && gitops_db2u_database_help "DB2_BACKUP_NOTIFY_SLACK_URL is not set"
+  # [[ -z "$SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY" ]] && gitops_db2u_database_help "SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY is not set"
+  # [[ -z "$SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY" ]] && gitops_db2u_database_help "SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY is not set"
+  # [[ -z "$SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY" ]] && gitops_db2u_database_help "SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY is not set"
   
   #MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
@@ -366,6 +396,8 @@ function gitops_db2u_database() {
   # NOTE: must align with lock branch name used by gitops_deprovision_db2u_database script
   # as both of these scrtipts modify the same file
   GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-db2u-database" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
+
+  export SECRET_NAME_DB2_BACKUP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2_backup
 
   #Defaults
   if [[ -z $DB2_TLS_VERSION ]]; then
@@ -454,6 +486,15 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
   if [[ -z $DB2_INSTANCE_NAME ]]; then
     export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+  fi
+  if [[ -z $SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY ]]; then
+    export SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY=${SECRET_NAME_DB2_BACKUP}#cos_access_key
+  fi
+  if [[ -z $SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY ]]; then
+    export SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY=${SECRET_NAME_DB2_BACKUP}#cos_secret_key
+  fi
+  if [[ -z $SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY ]]; then
+    export SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY=${SECRET_NAME_DB2_BACKUP}#icd_auth_key
   fi
   export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
@@ -548,6 +589,12 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-tolerate-effect ........................... ${COLOR_MAGENTA}${DB2_TOLERATE_EFFECT}"
   echo_reset_dim "JDBC_ROUTE .................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
   echo_reset_dim "db2-timezone .................................. ${COLOR_MAGENTA}${DB2_TIMEZONE}"
+  echo_reset_dim "db2-backup-bucket-name ........................ ${COLOR_MAGENTA}${DB2_BACKUP_BUCKET_NAME}"
+  echo_reset_dim "db2-backup-bucket-endpoint .................... ${COLOR_MAGENTA}${DB2_BACKUP_BUCKET_ENDPOINT}"
+  echo_reset_dim "db2-backup-bucket-access-key-secret............ ${COLOR_MAGENTA}${SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY}"
+  echo_reset_dim "db2-backup-bucket-secret-key-secret............ ${COLOR_MAGENTA}${SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY}"
+  echo_reset_dim "db2-backup-notify-slack-url.................... ${COLOR_MAGENTA}${DB2_BACKUP_NOTIFY_SLACK_URL}"
+  echo_reset_dim "db2-backup-icd-auth-key........................ ${COLOR_MAGENTA}${SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY}"
   reset_colors
 
 
