@@ -1,9 +1,10 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 
-{#- Parses the ISV groups from an array of strings as Tekton params only support string arrays. #}
-{#- Example: isv_groups: ["name: 'a', id: 'b', "name: 'c', id: 'd'"] #}
+{#- Parses the ISV groups from a string representation of a list of maps #}
+{#- Example: isv_groups: "name:'a1',id:'a2'; name:'a3',id:'a4'" #}
 {%- set group_namespace = namespace(isv_groups = []) %}
-{%- for group_str in GROUP_SYNC_OPERATOR_ISV_GROUPS %}
+{%- set group_strs = GROUP_SYNC_OPERATOR_ISV_GROUPS.split(';') %}
+{%- for group_str in group_strs %}
   {%- set group_loop = loop %}
   {%- set _ = group_namespace.isv_groups.append(dict()) %}
   {%- set pairs = group_str.split(',') %}
