@@ -73,7 +73,7 @@ class KafkaSettingsMixin():
                         "While provisioning the AWS MSK instance, you will be required to provide the AWS Virtual Private Cloud ID and subnet details",
                         "where your instance will be deployed to properly configure inbound and outbound connectivity.",
                         "You should be able to find these information inside your VPC and subnet configurations in the target AWS account.",
-                        "For more details about AWS subnet/CIDR configuration, refer: https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html"
+                        "For more details about AWS subnet/CIDR configuration, refer: <Orange><u>https://docs.aws.amazon.com/vpc/latest/userguide/subnet-sizing.html</u></Orange>"
                     ])
                     self.promptForString("AWS Access Key ID", "aws_access_key_id", isPassword=True)
                     self.promptForString("AWS Secret Access Key" "aws_secret_access_key", isPassword=True)
