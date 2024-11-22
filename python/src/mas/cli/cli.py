@@ -25,7 +25,7 @@ from kubernetes.client import api_client, Configuration
 from openshift.dynamic import DynamicClient
 from openshift.dynamic.exceptions import NotFoundError
 
-from prompt_toolkit import prompt, print_formatted_text, HTML
+from prompt_toolkit import prompt, print_formatted_text, HTML, PromptSession
 
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import connect, isSNO, getNodes
@@ -173,6 +173,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 "visualinspection": ["8.8.x", "8.7.x"]
             }
         }
+        self.promptSession = PromptSession()
 
         self.spinner = {
             "interval": 80,
@@ -184,9 +185,9 @@ class BaseApp(PrintMixin, PromptMixin):
         self._dynClient = None
 
         self.printTitle(f"\nIBM Maximo Application Suite Admin CLI v{self.version}")
-        print_formatted_text(HTML("Powered by <DarkGoldenRod><u>https://github.com/ibm-mas/ansible-devops/</u></DarkGoldenRod> and <DarkGoldenRod><u>https://tekton.dev/</u></DarkGoldenRod>\n"))
+        print_formatted_text(HTML("Powered by <Orange><u>https://github.com/ibm-mas/ansible-devops/</u></Orange> and <Orange><u>https://tekton.dev/</u></Orange>\n"))
         if which("kubectl") is None:
-            self.fatalError("Could not find kubectl on the path, see <DarkGoldenRod><u>https://kubernetes.io/docs/tasks/tools/#kubectl</u></DarkGoldenRod> for installation instructions")
+            self.fatalError("Could not find kubectl on the path, see <Orange><u>https://kubernetes.io/docs/tasks/tools/#kubectl</u></Orange> for installation instructions")
 
     @logMethodCall
     def createTektonFileWithDigest(self) -> None:
