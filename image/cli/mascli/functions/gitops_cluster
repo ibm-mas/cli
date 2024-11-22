@@ -430,10 +430,20 @@ function gitops_cluster() {
   export SECRET_NAME_DEVOPS_MONGO=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}devops
   export SECRET_KEY_DEVOPS_MONGO=${SECRET_NAME_DEVOPS_MONGO}#devops_mongo_uri
 
+  export SECRET_NAME_ISV_CLIENT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}isv_client
+  export SECRET_KEY_ISV_CLIENT_ID=${SECRET_NAME_ISV_CLIENT}#client_id
+  export SECRET_KEY_ISV_CLIENT_SECRET=${SECRET_NAME_ISV_CLIENT}#client_secret
+
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_DEVOPS_MONGO "{\"devops_mongo_uri\": \"${DEVOPS_MONGO_URI}\"}" "${TAGS}"
+  fi
+
+  if [ -n "$ISV_CLIENT_ID" ] && [ -n "$ISV_CLIENT_SECRET" ]; then
+    echo "- Update ISV_CLIENT_ID and ISV_CLIENT_SECRET secrets"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_ISV_CLIENT "{\"client_id\": \"${ISV_CLIENT_ID}\", \"client_secret\": \"${ISV_CLIENT_SECRET}\"}" "${TAGS}"
   fi
 
   if [ -z $GIT_SSH ]; then
