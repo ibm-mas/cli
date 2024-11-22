@@ -15,8 +15,8 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 {%- endfor %}
    
 group_sync_operator:
-  cron_schedule: {{ GROUP_SYNC_OPERATOR_CRON_SCHEDULE }}
-  isv_tenant_url: {{ GROUP_SYNC_OPERATOR_ISV_TENANT_URL }}
+  cron_schedule: "{{ GROUP_SYNC_OPERATOR_CRON_SCHEDULE }}"
+  isv_tenant_url: "{{ GROUP_SYNC_OPERATOR_ISV_TENANT_URL }}"
   isv_client_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_ISV_CLIENT_ID }}>"
   isv_client_secret: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_ISV_CLIENT_SECRET }}>"
   isv_groups:
