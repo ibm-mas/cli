@@ -48,6 +48,11 @@ spec:
     - name: fvt_artifactory_token
       type: string
       default: ""
+    
+    # Launcher for mobile pre upgrade pipeline
+    - name: launchfvt_mobile_upgrade_pre
+      type: string
+      default: ""
 
     # Image Digests
     - name: fvt_digest_manage
@@ -56,6 +61,9 @@ spec:
     - name: fvt_digest_manage_pytest
       type: string
       default: ""
+    - name: fvt_digest_mobile_pytest
+      type: string
+      default: ""    
     - name: fvt_digest_ctf
       type: string
       description: FVT Digest - CTF
@@ -155,5 +163,22 @@ spec:
           value: base-ui
         - name: fvt_test_suite
           value: upgrade-pre
+      runAfter:
+        - fvt-manage-base-api-setup
+
+    - name: launchfvt-mobile-upgrade-pre
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name_pytest
+          value: "$(params.mas_instance_id)-fvt-mobile-upgrade-pre"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-mobile-upgrade-pre
+      when:
+        - input: $(params.launchfvt_mobile_upgrade_pre)
+          operator: in
+          values: ["true", "True"]
       runAfter:
         - fvt-manage-base-api-setup
