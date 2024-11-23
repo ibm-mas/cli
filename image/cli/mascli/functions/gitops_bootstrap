@@ -240,6 +240,14 @@ function gitops_bootstrap() {
   argocd login ${ARGOCD_URL} --username ${ARGOCD_USERNAME} --password ${ARGOCD_PASSWORD} --insecure
   export K8S_AUTH_CONTEXT=$(oc whoami -c)
   argocd cluster add $K8S_AUTH_CONTEXT -y
+  rc=$?
+  if [[ $rc != "0" ]]; then
+    echo 
+    echo "argocd cluster add failed with $rc, try again"
+    echo
+    sleep 10
+    argocd cluster add $K8S_AUTH_CONTEXT -y
+  fi
 
   echo "${COLOR_GREEN}ArgoCD is now available at https://${ARGOCD_URL} username is: admin and password: ${ARGOCD_PASSWORD} ${COLOR_RESET}"
   echo
