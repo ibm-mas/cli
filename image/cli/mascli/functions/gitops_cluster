@@ -71,6 +71,9 @@ Notifications (Optional):
 Selenium Grid (Optional):
       --install-selenium-grid ${COLOR_YELLOW}INSTALL_SELENIUM_GRID${TEXT_RESET}                                 Install Selenium Grid
 
+Group Sync Operator (Optional):
+      --install-group-sync-operator ${COLOR_YELLOW}INSTALL_GROUP_SYNC_OPERATOR${TEXT_RESET}                     Install the Group Sync Operator
+
 Other Commands:
   -h, --help                              Show this help message
 EOM
@@ -240,6 +243,10 @@ function gitops_cluster_noninteractive() {
         export INSTALL_SELENIUM_GRID=true
         ;;
 
+      --install-group-sync-operator)
+        export INSTALL_GROUP_SYNC_OPERATOR=true
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_cluster_help
@@ -402,6 +409,11 @@ function gitops_cluster() {
   echo_reset_dim "Install Selenium Grid ........... ${COLOR_MAGENTA}${INSTALL_SELENIUM_GRID}"
   reset_colors
 
+  echo "${TEXT_DIM}"
+  echo_h2 "Group Sync Operator" "    "
+  echo_reset_dim "Install the Group Sync Operator ........... ${COLOR_MAGENTA}${INSTALL_GROUP_SYNC_OPERATOR}"
+  reset_colors
+
   # Set up secrets
   # ---------------------------------------------------------------------------
   echo
@@ -418,10 +430,20 @@ function gitops_cluster() {
   export SECRET_NAME_DEVOPS_MONGO=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}devops
   export SECRET_KEY_DEVOPS_MONGO=${SECRET_NAME_DEVOPS_MONGO}#devops_mongo_uri
 
+  export SECRET_NAME_ISV_CLIENT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}isv_client
+  export SECRET_KEY_ISV_CLIENT_ID=${SECRET_NAME_ISV_CLIENT}#client_id
+  export SECRET_KEY_ISV_CLIENT_SECRET=${SECRET_NAME_ISV_CLIENT}#client_secret
+
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_DEVOPS_MONGO "{\"devops_mongo_uri\": \"${DEVOPS_MONGO_URI}\"}" "${TAGS}"
+  fi
+
+  if [ -n "$ISV_CLIENT_ID" ] && [ -n "$ISV_CLIENT_SECRET" ]; then
+    echo "- Update ISV_CLIENT_ID and ISV_CLIENT_SECRET secrets"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_ISV_CLIENT "{\"client_id\": \"${ISV_CLIENT_ID}\", \"client_secret\": \"${ISV_CLIENT_SECRET}\"}" "${TAGS}"
   fi
 
   if [ -z $GIT_SSH ]; then
@@ -512,6 +534,11 @@ function gitops_cluster() {
   if [[ -n "$DNS_PROVIDER" ]]; then
     echo "- IBM CIS Cert Manager"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-cis-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cis-cert-manager.yaml
+  fi
+
+  if [[ "$INSTALL_GROUP_SYNC_OPERATOR" == "true" ]]; then
+    echo "- Group Sync Operator"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/group-sync-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/group-sync-operator.yaml
   fi
 
   # Commit and push to github target repo
