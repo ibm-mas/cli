@@ -177,7 +177,7 @@ spec:
         kind: Task
         name: mas-launchfvt-mobile-upgrade-pre
       when:
-        - input: $(params.launchfvt_mobile_upgrade_pre)
+        - input: "$(params.launchfvt_mobile_upgrade_pre)"
           operator: in
           values: ["true", "True"]
       runAfter:
