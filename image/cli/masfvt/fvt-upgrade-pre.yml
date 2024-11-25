@@ -17,7 +17,7 @@
     fvt_artifactory_token: "{{ lookup('env', 'FVT_ARTIFACTORY_TOKEN') }}"
     fvt_digest_manage: "{{ lookup('env', 'FVT_DIGEST_MANAGE') }}"
     fvt_digest_manage_pytest: "{{ lookup('env', 'FVT_DIGEST_MANAGE_PYTEST') }}"
-    fvt_digest_mobile_pytest: "{{ lookup('env', 'FVT_DIGEST_MANAGE_PYTEST') }}"
+    fvt_digest_mobile_pytest: "{{ lookup('env', 'FVT_DIGEST_MOBILE_PYTEST') }}"
     fvt_digest_ctf: "{{ lookup('env', 'FVT_DIGEST_CTF') }}"
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
@@ -36,7 +36,7 @@
           - "mas_instance_id ................. {{ mas_instance_id }}"
           - "mas_workspace_id ................ {{ mas_workspace_id }}"
           - ""
-          - "launchfvt_mobile_upgrade_pre........ {{ launchfvt_mobile_upgrade_pre }}"
+          - "launchfvt_mobile_upgrade_pre..... {{ launchfvt_mobile_upgrade_pre }}"
           - "fvt_image_registry .............. {{ fvt_image_registry }}"
           - "fvt_artifactory_username ........ {{ fvt_artifactory_username }}"
           - "fvt_artifactory_token ........... {{ fvt_artifactory_token }}"
