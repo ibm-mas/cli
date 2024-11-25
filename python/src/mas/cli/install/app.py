@@ -263,8 +263,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 catalogCompleter = WordCompleter(self.catalogOptions)
                 catalogSelection = self.promptForString("Select catalog", completer=catalogCompleter)
                 self.setParam("mas_catalog_version", catalogSelection)
-
-                self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
             else:
                 self.printDescription([
                     f"The IBM Maximo Operator Catalog is already installed in this cluster ({catalogInfo['catalogId']}).  If you wish to install MAS using a newer version of the catalog please first update the catalog using mas update."
@@ -342,8 +340,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def configCP4D(self):
         if self.getParam("mas_catalog_version") in self.catalogOptions:
+            # Note: this will override any version provided by the user (which is intentional!)
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
-            self.setParam("cpd_product_version", self.catalogInfo["cpd_product_version_default"])
+            self.setParam("cpd_product_version", self.chosenCatalog["cpd_product_version_default"])
         elif self.getParam("cpd_product_version") == "":
             if self.noConfirm:
                 self.fatalError("Cloud Pak for Data version must be set manually, but --no-confirm has been set without setting --cp4d-version")
@@ -969,6 +968,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             else:
                 print(f"Unknown option: {key} {value}")
                 self.fatalError(f"Unknown option: {key} {value}")
+
+        # Load the catalog information
+        self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
         if not self.devMode:
