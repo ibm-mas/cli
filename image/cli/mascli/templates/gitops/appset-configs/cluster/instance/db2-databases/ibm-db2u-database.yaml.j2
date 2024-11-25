@@ -72,7 +72,7 @@ storage_class_definitions:
 {% endif %}
 
 db2_backup_bucket_name: {{DB2_BACKUP_BUCKET_NAME}}
-db2_backup_bucket_endpoint: {{DB2_BUCKET_ENDPOINT}}
+db2_backup_bucket_endpoint: {{DB2_BACKUP_BUCKET_ENDPOINT}}
 db2_backup_bucket_access_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY }}>
 db2_backup_bucket_secret_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY }}>
 db2_backup_notify_slack_url: {{DB2_BACKUP_NOTIFY_SLACK_URL}}
