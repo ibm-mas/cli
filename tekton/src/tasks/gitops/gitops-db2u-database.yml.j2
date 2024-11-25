@@ -232,17 +232,17 @@ spec:
         value: $(params.mas_app_id)
       - name: JDBC_ROUTE
         value: $(params.jdbc_route)
-      - name: db2_backup_bucket_name
+      - name: DB2_BACKUP_BUCKET_NAME
         value: $(params.db2_backup_bucket_name)
-      - name: db2_backup_bucket_endpoint
+      - name: DB2_BACKUP_BUCKET_ENDPOINT
         value: $(params.db2_backup_bucket_endpoint)
-      - name: db2_backup_bucket_access_key
+      - name: SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY
         value: $(params.db2_backup_bucket_access_key)
-      - name: db2_backup_bucket_secret_key
+      - name: SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY
         value: $(params.db2_backup_bucket_secret_key)
-      - name: db2_backup_notify_slack_url
+      - name: DB2_BACKUP_NOTIFY_SLACK_URL
         value: $(params.db2_backup_notify_slack_url)
-      - name: db2_backup_icd_auth_key
+      - name: SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY
         value: $(params.db2_backup_icd_auth_key)
     envFrom:
       - configMapRef:
