@@ -204,18 +204,18 @@ class UpdateApp(BaseApp):
                     print()
 
     def reviewCurrentCatalog(self) -> None:
-        catalogInfo = getCurrentCatalog(self.dynamicClient)
+        self.catalogInfo = getCurrentCatalog(self.dynamicClient)
         self.installedCatalogId = None
-        if catalogInfo is None:
+        if self.catalogInfo is None:
             self.fatalError("Unable to locate existing install of the IBM Maximo Operator Catalog")
-        elif catalogInfo["catalogId"] is None:
+        elif self.catalogInfo["catalogId"] is None:
             self.printWarning("Unable to determine identity & version of currently installed ibm-maximo-operator-catalog")
         else:
-            self.installedCatalogId = catalogInfo["catalogId"]
+            self.installedCatalogId = self.catalogInfo["catalogId"]
             self.printH1("Review Installed Catalog")
             self.printDescription([
-                f"The currently installed Maximo Operator Catalog is <u>{catalogInfo['displayName']}</u>",
-                f" <u>{catalogInfo['image']}</u>"
+                f"The currently installed Maximo Operator Catalog is <u>{self.catalogInfo['displayName']}</u>",
+                f" <u>{self.catalogInfo['image']}</u>"
             ])
 
     def reviewMASInstance(self) -> None:
