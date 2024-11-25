@@ -18,7 +18,7 @@ class TurbonomicSettingsMixin():
             self.printH1("Configure Turbonomic")
             self.printDescription([
                 "The IBM Turbonomic hybrid cloud cost optimization platform allows you to eliminate this guesswork with solutions that save time and optimize costs",
-                " - Learn more: <u>https://www.ibm.com/products/turbonomic</u>"
+                " - Learn more: <Orange><u>https://www.ibm.com/products/turbonomic</u></Orange>"
             ])
 
             if isAirgapInstall(self.dynamicClient):
