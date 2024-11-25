@@ -38,6 +38,10 @@ spec:
     - name: custom_labels
       type: string
       default: ''
+    - name: custom_sa_namespace
+      type: string
+    - name: custom_sa_details
+      type: string
     - name: cluster_promotion_target_github_host
       type: string
       default: ''
@@ -117,6 +121,10 @@ spec:
         value: $(params.slack_channel_id)
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+      - name: CUSTOM_SA_NAMESPACE
+        value: $(params.custom_sa_namespace)
+      - name: CUSTOM_SA_DETAILS
+        value: $(params.custom_sa_details)
       - name: CLUSTER_PROMOTION_TARGET_GITHUB_HOST
         value: $(params.cluster_promotion_target_github_host)
       - name: CLUSTER_PROMOTION_TARGET_GITHUB_REPO
