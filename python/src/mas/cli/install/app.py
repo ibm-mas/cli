@@ -245,9 +245,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
             self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
         else:
-            self.catalogInfo = getCurrentCatalog(self.dynamicClient)
+            catalogInfo = getCurrentCatalog(self.dynamicClient)
 
-            if self.catalogInfo is None:
+            if catalogInfo is None:
                 self.printDescription([
                     "The catalog you choose dictates the version of everything that is installed, with Maximo Application Suite this is the only version you need to remember; all other versions are determined by this choice.",
                     "Older catalogs can still be used, but we recommend using an older version of the CLI that aligns with the release date of the catalog.",
@@ -263,13 +263,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 catalogCompleter = WordCompleter(self.catalogOptions)
                 catalogSelection = self.promptForString("Select catalog", completer=catalogCompleter)
                 self.setParam("mas_catalog_version", catalogSelection)
-
-                self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
             else:
                 self.printDescription([
-                    f"The IBM Maximo Operator Catalog is already installed in this cluster ({self.catalogInfo['catalogId']}).  If you wish to install MAS using a newer version of the catalog please first update the catalog using mas update."
+                    f"The IBM Maximo Operator Catalog is already installed in this cluster ({catalogInfo['catalogId']}).  If you wish to install MAS using a newer version of the catalog please first update the catalog using mas update."
                 ])
-                self.setParam("mas_catalog_version", self.catalogInfo["catalogId"])
+                self.setParam("mas_catalog_version", catalogInfo["catalogId"])
 
             self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
             catalogSummary = self.processCatalogChoice()
@@ -344,7 +342,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.getParam("mas_catalog_version") in self.catalogOptions:
             # Note: this will override any version provided by the user (which is intentional!)
             logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
-            self.setParam("cpd_product_version", self.catalogInfo["cpd_product_version_default"])
+            self.setParam("cpd_product_version", self.chosenCatalog["cpd_product_version_default"])
         elif self.getParam("cpd_product_version") == "":
             if self.noConfirm:
                 self.fatalError("Cloud Pak for Data version must be set manually, but --no-confirm has been set without setting --cp4d-version")
@@ -970,6 +968,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             else:
                 print(f"Unknown option: {key} {value}")
                 self.fatalError(f"Unknown option: {key} {value}")
+
+        # Load the catalog information
+        self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
         if not self.devMode:
