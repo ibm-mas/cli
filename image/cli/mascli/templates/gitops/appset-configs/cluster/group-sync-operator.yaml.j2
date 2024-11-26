@@ -1,0 +1,23 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+{#- Parses the ISV groups from a string representation of a list of maps #}
+{#- Example: isv_groups: "name:'a1',id:'a2'; name:'a3',id:'a4'" #}
+{%- set group_namespace = namespace(isv_groups = []) %}
+{%- set group_strs = GROUP_SYNC_OPERATOR_ISV_GROUPS.split(';') %}
+{%- for group_str in group_strs %}
+  {%- set group_loop = loop %}
+  {%- set _ = group_namespace.isv_groups.append(dict()) %}
+  {%- set pairs = group_str.split(',') %}
+  {%- for pair in pairs %}
+    {%- set items = pair.split(':') %}
+    {%- set _ = group_namespace.isv_groups[group_loop.index - 1].__setitem__(items[0].strip().strip("'"), items[1].strip().strip("'")) %}
+  {%- endfor %}
+{%- endfor %}
+   
+group_sync_operator:
+  cron_schedule: "{{ GROUP_SYNC_OPERATOR_CRON_SCHEDULE }}"
+  isv_tenant_url: "{{ GROUP_SYNC_OPERATOR_ISV_TENANT_URL }}"
+  isv_client_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_ISV_CLIENT_ID }}>"
+  isv_client_secret: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_ISV_CLIENT_SECRET }}>"
+  isv_groups:
+    {{ group_namespace.isv_groups }}
