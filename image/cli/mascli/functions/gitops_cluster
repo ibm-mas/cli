@@ -40,6 +40,10 @@ IBM CIS Cert Manager:
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
       --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                   true/false, If true, ingress-controller for cis-proxy will be configured
 
+Custom Cluster Service Accounts (Optional):
+      --custom_sa_namespace ${COLOR_YELLOW}CUSTOM_SA_NAMESPACE${TEXT_RESET}   Namespace to create the Service Account(s) in
+      --custom_sa_details ${COLOR_YELLOW}CUSTOM_SA_DETAILS${TEXT_RESET}       Comma delimited list of key:value pairs where the key is the Service Account name and the value is the Cluster Role ('serviceaccount1:cluster-admin,serviceaccount2:cluster-reader')
+
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}         Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}         GitHub Hostname for your GitOps repository
@@ -243,6 +247,14 @@ function gitops_cluster_noninteractive() {
         export INSTALL_SELENIUM_GRID=true
         ;;
 
+      # Custom Cluster Service Accounts
+      --custom_sa_namespace)
+        export CUSTOM_SA_NAMESPACE=$1 && shift
+        ;;
+      --custom_sa_details)
+        export CUSTOM_SA_DETAILS=$1 && shift
+        ;;
+
       --install-group-sync-operator)
         export INSTALL_GROUP_SYNC_OPERATOR=true
         ;;
@@ -293,7 +305,13 @@ function gitops_cluster_noninteractive() {
       [[ -z "$CLUSTER_PROMOTION_TARGET_PR_TITLE" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_PR_TITLE is not set"
     fi
   fi
-  
+
+  if [[ -n "${CUSTOM_SA_NAMESPACE}" ]] || [[ -n "${CUSTOM_SA_DETAILS}" ]]; then
+    [[ -z "$CUSTOM_SA_NAMESPACE" ]] && gitops_cluster_help "CUSTOM_SA_NAMESPACE is not set"
+    [[ -z "$CUSTOM_SA_DETAILS" ]] && gitops_cluster_help "CUSTOM_SA_DETAILS is not set"
+    [[ ! "$CUSTOM_SA_DETAILS" =~ ^[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+(,[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+)*$ ]] && gitops_cluster_help "CUSTOM_SA_DETAILS has incorrect syntax"
+  fi
+
   if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
     echo 'Missing required environment variables, make sure to set ICR_USERNAME, ICR_PASSWORD'
     exit 1
@@ -395,6 +413,14 @@ function gitops_cluster() {
     echo_reset_dim "Open Shift Cluster Domain ....... ${COLOR_MAGENTA}${OCP_CLUSTER_DOMAIN}"
     echo_reset_dim "OCP Public Domain ............... ${COLOR_MAGENTA}${OCP_PUBLIC_CLUSTER_DOMAIN}"
     echo_reset_dim "Public Ingress Controller ....... ${COLOR_MAGENTA}${INGRESS}"
+    reset_colors
+  fi
+
+  if [[ -n "$CUSTOM_SA_NAMESPACE" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "Custom Cluster Service Accounts" "    "
+    echo_reset_dim "Service Account Namespace .................... ${COLOR_MAGENTA}${CUSTOM_SA_NAMESPACE}"
+    echo_reset_dim "Service Account Details ....... ${COLOR_MAGENTA}${CUSTOM_SA_DETAILS}"
     reset_colors
   fi
 
@@ -531,6 +557,11 @@ function gitops_cluster() {
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-promotion.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
   fi
   
+  if [[ -n "$CUSTOM_SA_NAMESPACE" ]]; then
+    echo "- Custom Cluster Service Accounts"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/custom-sa.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/custom-sa.yaml
+  fi
+
   if [[ -n "$DNS_PROVIDER" ]]; then
     echo "- IBM CIS Cert Manager"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-cis-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cis-cert-manager.yaml
