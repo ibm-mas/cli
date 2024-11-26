@@ -392,12 +392,14 @@ Do you accept the license terms? [y/n] y
 <h3 id="select-storage-classes">Select Storage Classes<a class="headerlink" href="#select-storage-classes" title="Permanent link">¤</a></h3>
 <p>MAS requires both a <code>ReadWriteMany</code> and a <code>ReadWriteOnce</code> capable storage class to be available in the cluster.  The installer has the ability to recognize certain storage class providers and will default to the most appropriate storage class in these cases:</p>
 <ul>
-<li>IBMCloud Storage (<code>ibmc-block-gold</code> &amp; <code>ibmc-file-gold</code>)</li>
+<li>IBMCloud Storage (<code>ibmc-block-gold</code> &amp; <code>ibmc-file-gold-gid</code>)</li>
 <li>OpenShift Container Storage (<code>ocs-storagecluster-ceph-rbd</code> &amp; <code>ocs-storagecluster-cephfs</code>)</li>
-<li>Azure Managed Storage (<code>azurefiles-premium</code> &amp; <code>managed-premium</code>)</li>
-<li>AWS Storage (<code>gp2</code> &amp; <code>efs</code>)</li>
+<li>External OpenShift Container Storage (<code>ocs-external-storagecluster-ceph-rbd</code> &amp; <code>ocs-external-storagecluster-cephfs</code>)</li>
+<li>NFS Client (<code>nfs-client</code>)</li>
+<li>Azure Managed Storage (<code>managed-premium</code> &amp; <code>azurefiles-premium</code>)</li>
+<li>AWS Storage (<code>gp3-cs</code> &amp; <code>efs</code>)</li>
 </ul>
-<p>Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes anyway.</p>
+<p>The names in brackets represent the <code>ReadWriteOnce</code> and <code>ReadWriteMany</code> class that will be used, in the case of NFS the same storage class will be used for both <code>ReadWriteOnce</code> and <code>ReadWriteMany</code> volumes.  Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes anyway.</p>
 <p>When selecting storage classes you will be presented with a list of available storage classes and must select both a <code>ReadWriteMany</code> and a <code>ReadWriteOnce</code> storage class.</p>
 <pre><code>4) Configure Storage Class Usage
 Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:
@@ -910,7 +912,7 @@ Proceed with these settings? [y/n] y
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-11-26 11:18:11.581968+00:00)
+      Built with mkdocs v1.6.1 (2024-11-26 11:29:44.836198+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
