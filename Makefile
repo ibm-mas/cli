@@ -1,6 +1,6 @@
 #!/bin/bash
 
-.PHONY: ansible-build ansible-install ansible python python-devops python-cli tekton docker run clean create delete exec
+.PHONY: ansible-build ansible-install ansible python-build python-build-devops python-build-cli tekton docker run clean create delete exec
 
 .DEFAULT_GOAL := all
 
@@ -11,15 +11,15 @@ ansible-install:
 	ansible-galaxy collection install image/cli/install/ibm-mas_devops.tar.gz --force --no-deps
 ansible: ansible-build ansible-install
 
-python-cli:
+python-build-cli:
 	cd python && python3 -m build
 	cp python/dist/mas_cli-100.0.0.tar.gz image/cli/install/mas_cli.tar.gz
 
-python-devops:
+python-build-devops:
 	cd ../python-devops && python3 -m build
 	cp ../python-devops/dist/mas_devops-100.0.0.tar.gz image/cli/install/mas_devops.tar.gz
 
-python: python-devops python-cli
+python-build: python-build-devops python-build-cli
 
 tekton:
 	DEV_MODE=true build/bin/build-tekton.sh
@@ -27,7 +27,7 @@ tekton:
 docker:
 	docker build -t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
 
-all: ansible python tekton docker
+all: ansible python-build tekton docker
 
 run:
 	docker run -ti quay.io/ibmmas/cli:100.0.0-pre.local
