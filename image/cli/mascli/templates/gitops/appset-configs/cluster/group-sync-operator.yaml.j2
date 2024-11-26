@@ -1,7 +1,7 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 
 {#- Parses the ISV groups from a string representation of a list of maps #}
-{#- Example: "- name: 'admin'\n  id: 645001Z1WP\n- name: developer'\n  id: 645001Z1WR\n" #}
+{#- Example: "- name: 'admin'\n  id: 645001Z1WP\n- name: 'developer'\n  id: 645001Z1WR\n" #}
 {%- set group_namespace = namespace(isv_groups = []) %}
 {%- set group_strs = GROUP_SYNC_OPERATOR_ISV_GROUPS.split('-') %}
 {%- set _ = group_strs.remove('') %}
