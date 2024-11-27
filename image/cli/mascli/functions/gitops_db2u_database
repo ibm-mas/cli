@@ -399,6 +399,7 @@ function gitops_db2u_database() {
   GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-db2u-database" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
 
   export SECRET_NAME_DB2_BACKUP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2_backup
+  export SECRET_NAME_ICD_AUTH_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}icd_auth_key
 
   #Defaults
   if [[ -z $DB2_TLS_VERSION ]]; then
@@ -501,7 +502,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     export DB2_BACKUP_BUCKET_ENDPOINT=${SECRET_NAME_DB2_BACKUP}#endpointURL
   fi
   if [[ -z $SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY ]]; then
-    export SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}icd_auth_key#icd_auth_key
+    export SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY=${SECRET_NAME_ICD_AUTH_KEY}#icd_auth_key
   fi
   export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
@@ -611,7 +612,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
 
-  sm_update_secret ${SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
+  sm_update_secret ${SECRET_NAME_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
 
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-db2u-database
   mkdir -p $TEMP_DIR
