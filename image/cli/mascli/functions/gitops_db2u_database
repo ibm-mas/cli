@@ -353,12 +353,13 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_LOGS_STORAGE_CLASS is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_database_help "MAS_APP_ID is not set"
-  [[ -z "$DB2_BACKUP_BUCKET_NAME" ]] && gitops_db2u_database_help "DB2_BACKUP_BUCKET_NAME is not set"
-  [[ -z "$DB2_BACKUP_BUCKET_ENDPOINT" ]] && gitops_db2u_database_help "DB2_BACKUP_BUCKET_ENDPOINT is not set"
+  # [[ -z "$DB2_BACKUP_BUCKET_NAME" ]] && gitops_db2u_database_help "DB2_BACKUP_BUCKET_NAME is not set"
+  # [[ -z "$DB2_BACKUP_BUCKET_ENDPOINT" ]] && gitops_db2u_database_help "DB2_BACKUP_BUCKET_ENDPOINT is not set"
   [[ -z "$DB2_BACKUP_NOTIFY_SLACK_URL" ]] && gitops_db2u_database_help "DB2_BACKUP_NOTIFY_SLACK_URL is not set"
   # [[ -z "$SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY" ]] && gitops_db2u_database_help "SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY is not set"
   # [[ -z "$SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY" ]] && gitops_db2u_database_help "SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY is not set"
   # [[ -z "$SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY" ]] && gitops_db2u_database_help "SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY is not set"
+  [[ -z "$DB2_BACKUP_ICD_AUTH_KEY" ]] && gitops_db2u_database_help "DB2_BACKUP_ICD_AUTH_KEY is not set"
   
   #MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
@@ -487,14 +488,20 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [[ -z $DB2_INSTANCE_NAME ]]; then
     export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
   fi
+  if [[ -z $DB2_BACKUP_BUCKET_NAME ]]; then
+    export DB2_BACKUP_BUCKET_NAME=${SECRET_NAME_DB2_BACKUP}#bucketName
+  fi
   if [[ -z $SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY ]]; then
-    export SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY=${SECRET_NAME_DB2_BACKUP}#cos_access_key
+    export SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY=${SECRET_NAME_DB2_BACKUP}#accessKey
   fi
   if [[ -z $SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY ]]; then
-    export SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY=${SECRET_NAME_DB2_BACKUP}#cos_secret_key
+    export SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY=${SECRET_NAME_DB2_BACKUP}#access_secret_key
+  fi
+  if [[ -z $DB2_BACKUP_BUCKET_ENDPOINT ]]; then
+    export DB2_BACKUP_BUCKET_ENDPOINT=${SECRET_NAME_DB2_BACKUP}#endpointURL
   fi
   if [[ -z $SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY ]]; then
-    export SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY=${SECRET_NAME_DB2_BACKUP}#icd_auth_key
+    export SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}icd_auth_key
   fi
   export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
@@ -602,6 +609,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   sm_login
 
   export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
+  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+
+  sm_update_secret ${SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${DB2_BACKUP_ICD_AUTH_KEY}\"}" "${TAGS}"
 
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-db2u-database
   mkdir -p $TEMP_DIR
