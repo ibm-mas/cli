@@ -100,12 +100,14 @@ Do you accept the license terms? [y/n] y
 ### Select Storage Classes
 MAS requires both a `ReadWriteMany` and a `ReadWriteOnce` capable storage class to be available in the cluster.  The installer has the ability to recognize certain storage class providers and will default to the most appropriate storage class in these cases:
 
-- IBMCloud Storage (`ibmc-block-gold` & `ibmc-file-gold`)
+- IBMCloud Storage (`ibmc-block-gold` & `ibmc-file-gold-gid`)
 - OpenShift Container Storage (`ocs-storagecluster-ceph-rbd` & `ocs-storagecluster-cephfs`)
-- Azure Managed Storage (`azurefiles-premium` & `managed-premium`)
-- AWS Storage (`gp2` & `efs`)
+- External OpenShift Container Storage (`ocs-external-storagecluster-ceph-rbd` & `ocs-external-storagecluster-cephfs`)
+- NFS Client (`nfs-client`)
+- Azure Managed Storage (`managed-premium` & `azurefiles-premium`)
+- AWS Storage (`gp3-cs` & `efs`)
 
-Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes anyway.
+The names in brackets represent the `ReadWriteOnce` and `ReadWriteMany` class that will be used, in the case of NFS the same storage class will be used for both `ReadWriteOnce` and `ReadWriteMany` volumes.  Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes anyway.
 
 When selecting storage classes you will be presented with a list of available storage classes and must select both a `ReadWriteMany` and a `ReadWriteOnce` storage class.
 

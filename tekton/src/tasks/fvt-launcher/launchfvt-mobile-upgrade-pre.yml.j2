@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-launchfvt-upgrade-pre
+  name: mas-launchfvt-mobile-upgrade-pre
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -10,29 +10,30 @@ spec:
       type: string
       default: IfNotPresent
 
-    - name: pipelinerun_name
+    - name: pipelinerun_name_pytest
       type: string
 
-    - name: launchfvt_mobile_upgrade_pre
+    - name: launchfvt_manage
       type: string
       default: ""
 
   steps:
-    - name: start-pipelinerun
+    - name: start-pytest-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
-        - /masfvt/fvt-upgrade-pre.yml
+        - /masfvt/fvt-mobile-pytest.yml
       env:
         - name: IMAGE_PULL_POLICY
           value: $(params.image_pull_policy)
         - name: PIPELINERUN_NAME
-          value: $(params.pipelinerun_name)
+          value: $(params.pipelinerun_name_pytest)
+        - name: LAUNCHFVT_MANAGE
+          value: $(params.launchfvt_manage)
         - name: PIPELINERUN_NAMESPACE
           value: $(context.taskRun.namespace)
-        - name: LAUNCHFVT_MOBILE_UPGRADE_PRE
-          value: $(params.launchfvt_mobile_upgrade_pre)
+
 
         # Lookups from mas-devops
         # -----------------------------------------------------------------------
@@ -70,69 +71,47 @@ spec:
               key: FVT_ARTIFACTORY_TOKEN
               optional: false
 
+        # Lookups from mas-fvt-mobile
+        # -----------------------------------------------------------------------
         # Framework Information
+        - name: MAS_CHANNEL
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-mobile
+              key: MAS_CHANNEL
+              optional: false
         - name: MAS_APP_CHANNEL_MANAGE
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-manage
+              name: mas-fvt-mobile
               key: MAS_APP_CHANNEL_MANAGE
-              optional: false
-        - name: MAS_APP_CHANNEL_MONITOR
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-monitor
-              key: MAS_APP_CHANNEL_MONITOR
-              optional: false
-        - name: MAS_APP_CHANNEL_OPTIMIZER
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-optimizer
-              key: MAS_APP_CHANNEL_OPTIMIZER
               optional: false
         - name: MAS_WORKSPACE_ID
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-manage
+              name: mas-fvt-mobile
               key: MAS_WORKSPACE_ID
               optional: false
 
         # Digests
-        - name: FVT_DIGEST_MANAGE
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-manage
-              key: FVT_DIGEST_MANAGE
-              optional: false
-        - name: FVT_DIGEST_MANAGE_PYTEST
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-manage
-              key: FVT_DIGEST_MANAGE_PYTEST
-              optional: false
-        - name: FVT_DIGEST_CTF
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-monitor
-              key: FVT_DIGEST_CTF
-              optional: false
         - name: FVT_DIGEST_MOBILE_PYTEST
           valueFrom:
             secretKeyRef:
               name: mas-fvt-mobile
               key: FVT_DIGEST_MOBILE_PYTEST
               optional: false
-        
-    - name: wait-for-pipelinerun
+
+    - name: wait-for-pytest-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      # 10 retries at 5 minute intervals = 50 min
+      # 50 retries at 10 minute intervals = just over 8 hours
       command:
         - /opt/app-root/src/wait-for-tekton.sh
       env:
         - name: TYPE
           value: pipelinerun
         - name: NAME
-          value: $(params.pipelinerun_name)
+          value: $(params.pipelinerun_name_pytest)
         - name: SUFFIX
           valueFrom:
             secretKeyRef:
@@ -142,8 +121,9 @@ spec:
         - name: NAMESPACE
           value: $(context.taskRun.namespace)
         - name: DELAY
-          value: "300"
+          value: "600"
         - name: MAX_RETRIES
-          value: "10"
+          value: "50"
         - name: IGNORE_FAILURE
           value: "True"
+

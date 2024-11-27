@@ -25,7 +25,7 @@ from kubernetes.client import api_client, Configuration
 from openshift.dynamic import DynamicClient
 from openshift.dynamic.exceptions import NotFoundError
 
-from prompt_toolkit import prompt, print_formatted_text, HTML, PromptSession
+from prompt_toolkit import prompt, print_formatted_text, HTML
 
 from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import connect, isSNO, getNodes
@@ -173,7 +173,6 @@ class BaseApp(PrintMixin, PromptMixin):
                 "visualinspection": ["8.8.x", "8.7.x"]
             }
         }
-        self.promptSession = PromptSession()
 
         self.spinner = {
             "interval": 80,
