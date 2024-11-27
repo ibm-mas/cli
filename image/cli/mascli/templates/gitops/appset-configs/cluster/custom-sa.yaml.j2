@@ -1,0 +1,10 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+custom_sa:
+  custom_sa_namespace: {{ CUSTOM_SA_NAMESPACE }}
+{%- set custom_sa_details = CUSTOM_SA_DETAILS.split(',') %}
+  custom_sa_details:
+{%- for custom_sa_detail in custom_sa_details %}
+  {%- set key, value = custom_sa_detail.split(':') %}
+    {{ key }}: {{ value }}
+{%- endfor %}

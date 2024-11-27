@@ -277,6 +277,14 @@ function gitops_deprovision_cluster() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
   fi
 
+  echo "- Delete Custom Cluster Service Accounts"
+  rm -rf ${GITOPS_CLUSTER_DIR}/custom-sa.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
   echo "- Delete IBM Operator Catalog"
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
