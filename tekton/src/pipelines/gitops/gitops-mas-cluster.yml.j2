@@ -105,6 +105,11 @@ spec:
       type: string
       default: "Automatic"
 
+    - name: custom_sa_namespace
+      type: string
+    - name: custom_sa_details
+      type: string
+
     - name: cluster_promotion_target_github_host
       type: string
       default: ''
@@ -181,6 +186,11 @@ spec:
           value: $(params.mas_catalog_version)
         - name: mas_catalog_image
           value: $(params.mas_catalog_image)
+
+        - name: custom_sa_namespace
+          value: $(params.custom_sa_namespace)
+        - name: custom_sa_details
+          value: $(params.custom_sa_details)
 
         - name: cluster_promotion_target_github_host
           value: $(params.cluster_promotion_target_github_host)
