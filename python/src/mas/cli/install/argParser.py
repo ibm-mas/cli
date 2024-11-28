@@ -657,7 +657,7 @@ manageArgGroup.add_argument(
     "--mas-manage-attachments-provider",
     dest="mas_manage_attachments_provider",
     required=False,
-    default="ibm",
+    default="filestorage",
     help="Defines the storage provider type to be used to store Manage application's attachments."
 )
 manageArgGroup.add_argument(
