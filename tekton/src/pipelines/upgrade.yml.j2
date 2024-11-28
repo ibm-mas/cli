@@ -39,6 +39,10 @@ spec:
     - name: pipelinerun_name
       type: string
       description: name of the installation pipelinerun that must be tracked til completion
+    - name: launchfvt_mobile_upgrade_pre
+      type: string
+      default: "False"
+      description: Launch mobile pipeline with pre upgrade tests
 {% endif %}
 
     {{ lookup('template', params_src_dir ~ '/install-appchannels.yml.j2') | indent(4) }}
@@ -86,6 +90,8 @@ spec:
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
           value: "$(params.mas_instance_id)-fvt-uprade-pre"
+        - name: launchfvt_mobile_upgrade_pre
+          value: "$(params.launchfvt_mobile_upgrade_pre)"
       taskRef:
         kind: Task
         name: mas-launchfvt-upgrade-pre

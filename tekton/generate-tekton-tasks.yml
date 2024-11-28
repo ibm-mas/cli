@@ -96,6 +96,8 @@
         - launchfvt-manage
         - launchfvt-manage-is
         - launchfvt-mobile
+        - launchfvt-mobile-upgrade-pre
+        - launchfvt-mobile-upgrade-post
         - launchfvt-monitor
         - launchfvt-optimizer
         - launchfvt-predict
