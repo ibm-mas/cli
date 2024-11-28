@@ -352,12 +352,7 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_LOGS_STORAGE_CLASS is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_database_help "MAS_APP_ID is not set"
-  # [[ -z "$DB2_BACKUP_BUCKET_NAME" ]] && gitops_db2u_database_help "DB2_BACKUP_BUCKET_NAME is not set"
-  # [[ -z "$DB2_BACKUP_BUCKET_ENDPOINT" ]] && gitops_db2u_database_help "DB2_BACKUP_BUCKET_ENDPOINT is not set"
   [[ -z "$DB2_BACKUP_NOTIFY_SLACK_URL" ]] && gitops_db2u_database_help "DB2_BACKUP_NOTIFY_SLACK_URL is not set"
-  # [[ -z "$SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY" ]] && gitops_db2u_database_help "SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY is not set"
-  # [[ -z "$SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY" ]] && gitops_db2u_database_help "SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY is not set"
-  # [[ -z "$SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY" ]] && gitops_db2u_database_help "SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY is not set"
   [[ -z "$ICD_AUTH_KEY" ]] && gitops_db2u_database_help "ICD_AUTH_KEY is not set"
   
   #MAS
