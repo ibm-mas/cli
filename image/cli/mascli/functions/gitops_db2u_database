@@ -278,6 +278,7 @@ function gitops_db2u_database_noninteractive() {
       --db2-timezone)
         export DB2_TIMEZONE=$1 && shift
         ;;
+      # Optional DB2 Backup details
       --db2-backup-bucket-name)
         export DB2_BACKUP_BUCKET_NAME$1 && shift
         ;;
@@ -352,8 +353,6 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_LOGS_STORAGE_CLASS is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_database_help "MAS_APP_ID is not set"
-  [[ -z "$DB2_BACKUP_NOTIFY_SLACK_URL" ]] && gitops_db2u_database_help "DB2_BACKUP_NOTIFY_SLACK_URL is not set"
-  [[ -z "$ICD_AUTH_KEY" ]] && gitops_db2u_database_help "ICD_AUTH_KEY is not set"
   
   #MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
@@ -393,7 +392,7 @@ function gitops_db2u_database() {
   GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-db2u-database" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
 
   export SECRET_NAME_DB2_BACKUP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2_backup
-  export SECRET_NAME_ICD_AUTH_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}icd_auth_key
+  export SECRET_NAME_ICD_AUTH_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}icd
 
   #Defaults
   if [[ -z $DB2_TLS_VERSION ]]; then
@@ -591,12 +590,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-tolerate-effect ........................... ${COLOR_MAGENTA}${DB2_TOLERATE_EFFECT}"
   echo_reset_dim "JDBC_ROUTE .................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
   echo_reset_dim "db2-timezone .................................. ${COLOR_MAGENTA}${DB2_TIMEZONE}"
-  echo_reset_dim "db2-backup-bucket-name ........................ ${COLOR_MAGENTA}${DB2_BACKUP_BUCKET_NAME}"
-  echo_reset_dim "db2-backup-bucket-endpoint .................... ${COLOR_MAGENTA}${DB2_BACKUP_BUCKET_ENDPOINT}"
-  echo_reset_dim "db2-backup-bucket-access-key-secret............ ${COLOR_MAGENTA}${SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY}"
-  echo_reset_dim "db2-backup-bucket-secret-key-secret............ ${COLOR_MAGENTA}${SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY}"
-  echo_reset_dim "db2-backup-notify-slack-url.................... ${COLOR_MAGENTA}${DB2_BACKUP_NOTIFY_SLACK_URL}"
-  echo_reset_dim "db2-backup-icd-auth-key........................ ${COLOR_MAGENTA}${SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY}"
   reset_colors
 
 
@@ -604,9 +597,11 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   sm_login
 
   export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
-  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
 
-  sm_update_secret ${SECRET_NAME_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
+  if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret ${SECRET_NAME_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
+  fi
 
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-db2u-database
   mkdir -p $TEMP_DIR
@@ -632,6 +627,14 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo
     echo_h2 "Using db2 instance registry config provided for $MAS_APP_ID at $DB2_INSTANCE_REGISTRY_YAML"
     export DB2_INSTANCE_REGISTRY=$(cat ${DB2_INSTANCE_REGISTRY_YAML})
+  fi
+
+  # Optional DB backup configs
+  # ---------------------------------------------------------------------------
+  if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
+    echo
+    echo_h2 "Optional DB backup configurations are provided"
+    export BACKUP=true
   fi
 
   if [ -z $GIT_SSH ]; then
