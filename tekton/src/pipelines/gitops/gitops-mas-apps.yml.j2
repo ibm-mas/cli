@@ -209,22 +209,7 @@ spec:
     - name: db2_timezone
       type: string
       default: ""
-    - name: db2_backup_bucket_name
-      type: string
-      default: ""
-    - name: db2_backup_bucket_endpoint
-      type: string
-      default: ""
-    - name: db2_backup_bucket_access_key
-      type: string
-      default: ""
-    - name: db2_backup_bucket_secret_key
-      type: string
-      default: ""
     - name: db2_backup_notify_slack_url
-      type: string
-      default: ""
-    - name: db2_backup_icd_auth_key
       type: string
       default: ""
 
@@ -669,18 +654,8 @@ spec:
           value: $(params.jdbc_route_iot)
         - name: db2_timezone
           value: $(params.db2_timezone)
-        - name: db2_backup_bucket_name
-          value: $(params.db2_backup_bucket_name)
-        - name: db2_backup_bucket_endpoint
-          value: $(params.db2_backup_bucket_endpoint)
-        - name: db2_backup_bucket_access_key
-          value: $(params.db2_backup_bucket_access_key)
-        - name: db2_backup_bucket_secret_key
-          value: $(params.db2_backup_bucket_secret_key)
         - name: db2_backup_notify_slack_url
           value: $(params.db2_backup_notify_slack_url)
-        - name: db2_backup_icd_auth_key
-          value: $(params.db2_backup_icd_auth_key)
 
       workspaces:
         - name: configs
@@ -839,18 +814,8 @@ spec:
           value: $(params.jdbc_route_manage)
         - name: db2_timezone
           value: $(params.db2_timezone)
-        - name: db2_backup_bucket_name
-          value: $(params.db2_backup_bucket_name)
-        - name: db2_backup_bucket_endpoint
-          value: $(params.db2_backup_bucket_endpoint)
-        - name: db2_backup_bucket_access_key
-          value: $(params.db2_backup_bucket_access_key)
-        - name: db2_backup_bucket_secret_key
-          value: $(params.db2_backup_bucket_secret_key)
         - name: db2_backup_notify_slack_url
           value: $(params.db2_backup_notify_slack_url)
-        - name: db2_backup_icd_auth_key
-          value: $(params.db2_backup_icd_auth_key)
         
       workspaces:
         - name: configs

@@ -61,12 +61,7 @@ IBM DB2U:
       --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster addons audit config section.
       --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
       --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
-      --db2-backup-bucket-name ${COLOR_YELLOW}DB2_BACKUP_BUCKET_NAME${TEXT_RESET}                             COS Bucket name where DB2 backup is stored
-      --db2-backup-bucket-endpoint ${COLOR_YELLOW}DB2_BACKUP_BUCKET_ENDPOINT${TEXT_RESET}                     COS Bucket endpoint of the bucket where DB2 backup is stored
-      --db2-backup-bucket-access-key-secret ${COLOR_YELLOW}SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY${TEXT_RESET} Secret name of DB2 COS bucket's access key
-      --db2-backup-bucket-secret-key-secret ${COLOR_YELLOW}SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY${TEXT_RESET} Secret name of DB2 COS bucket's secret key
       --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                   Slack URL to notify DB2 backup failures
-      --db2-backup-icd-auth-key ${COLOR_YELLOW}SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY${TEXT_RESET}                ICD auth key used to create ICD incidents when DB2 backup fails
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -279,23 +274,8 @@ function gitops_db2u_database_noninteractive() {
         export DB2_TIMEZONE=$1 && shift
         ;;
       # Optional DB2 Backup details
-      --db2-backup-bucket-name)
-        export DB2_BACKUP_BUCKET_NAME$1 && shift
-        ;;
-      --db2-backup-bucket-endpoint)
-        export DB2_BACKUP_BUCKET_ENDPOINT=$1 && shift
-        ;;
-      --db2-backup-bucket-access-key-secret)
-        export SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY=$1 && shift
-        ;;
-      --db2-backup-bucket-secret-key-secret)
-        export SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY=$1 && shift
-        ;;
       --db2-backup-notify-slack-url)
         export DB2_BACKUP_NOTIFY_SLACK_URL=$1 && shift
-        ;;
-      --db2-backup-icd-auth-key)
-        export SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY=$1 && shift
         ;;
 
 
