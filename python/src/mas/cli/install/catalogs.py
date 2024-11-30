@@ -16,6 +16,6 @@ supportedCatalogs = {
     ],
     "s390x": [
         "v9-241107-s390x",
-        "v9-dec-ft-amd64"
+        "v9-dec-ft-s390x"
     ]
 }
