@@ -1,9 +1,9 @@
+timeout: "0"
 taskRef:
   kind: Task
-  name: mas-fvt-mobile-testng
-timeout: "0"
+  name: mas-fvt-run-suite
 when:
-  - input: "$(params.fvt_digest_mobile_testng)"
+  - input: "$(params.fvt_digest_manage_cypress)"
     operator: notin
     values: [""]
   - input: "$(params.mas_app_channel_manage)"

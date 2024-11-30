@@ -9,7 +9,6 @@
 #
 # *****************************************************************************
 
-import re
 import logging
 import logging.handlers
 from halo import Halo
@@ -22,7 +21,7 @@ from ..validators import StorageClassValidator
 from .argParser import updateArgParser
 
 from mas.devops.ocp import createNamespace, getStorageClasses, getConsoleURL
-from mas.devops.mas import listMasInstances
+from mas.devops.mas import listMasInstances, getCurrentCatalog
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
 
 
@@ -205,30 +204,19 @@ class UpdateApp(BaseApp):
                     print()
 
     def reviewCurrentCatalog(self) -> None:
-        catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
-        try:
-            catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
-            catalogDisplayName = catalog.spec.displayName
-            catalogImage = catalog.spec.image
-
-            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
-            if m:
-                # catalogId = v8-yymmdd-amd64
-                # catalogVersion = yymmdd
-                self.installedCatalogId = m.group("catalogId")
-            elif re.match(r".+v8-amd64", catalogDisplayName):
-                self.installedCatalogId = "v8-amd64"
-            else:
-                self.installedCatalogId = None
-                self.printWarning("Unable to determine identity & version of currently installed ibm-maximo-operator-catalog")
-
+        catalogInfo = getCurrentCatalog(self.dynamicClient)
+        self.installedCatalogId = None
+        if catalogInfo is None:
+            self.fatalError("Unable to locate existing install of the IBM Maximo Operator Catalog")
+        elif catalogInfo["catalogId"] is None:
+            self.printWarning("Unable to determine identity & version of currently installed ibm-maximo-operator-catalog")
+        else:
+            self.installedCatalogId = catalogInfo["catalogId"]
             self.printH1("Review Installed Catalog")
             self.printDescription([
-                f"The currently installed Maximo Operator Catalog is <u>{catalogDisplayName}</u>",
-                f" <u>{catalogImage}</u>"
+                f"The currently installed Maximo Operator Catalog is <u>{catalogInfo['displayName']}</u>",
+                f" <u>{catalogInfo['image']}</u>"
             ])
-        except NotFoundError as e:
-            self.fatalError("Unable to locate existing install of the IBM Maximo Operator Catalog", e)
 
     def reviewMASInstance(self) -> None:
         self.printH1("Review MAS Instances")
