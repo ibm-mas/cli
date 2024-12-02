@@ -43,7 +43,47 @@
     - fvt-manage-lbs-api
     - fvt-manage-lbs-linear-ui
 
-
+# Maintenance Manager - UI (Setup)
+- name: fvt-manage-maintmanager-setup
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: maintmanager-setup-data1
+    - name: fvt_mas_appws_component
+      value: maintmanager
+    - name: fvt_test_driver
+      value: graphite
+  runAfter:
+    - fvt-manage-nuclear-api
+    - fvt-manage-nuclear-ui
+    - fvt-manage-transportation-api
+    - fvt-manage-transportation-ui
+    - fvt-manage-lbs-api
+    - fvt-manage-lbs-linear-ui
+	
+# Maintenance Manager - UI (Setup)
+- name: fvt-manage-maintmanager-bvt-p1
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: maintmanager-bvt-p1
+    - name: fvt_mas_appws_component
+      value: maintmanager
+    - name: fvt_test_driver
+      value: graphite
+  runAfter:
+    - fvt-manage-nuclear-api
+    - fvt-manage-nuclear-ui
+    - fvt-manage-transportation-api
+    - fvt-manage-transportation-ui
+    - fvt-manage-lbs-api
+    - fvt-manage-lbs-linear-ui
+    - fvt-manage-maintmanager-setup	
+	
 # Aviation
 # -----------------------------------------------------------------------------
 # Aviation - API Tests
