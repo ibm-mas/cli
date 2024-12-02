@@ -12,10 +12,10 @@ supportedCatalogs = {
         "v9-241107-amd64",
         "v9-241003-amd64",
         "v9-240827-amd64",
-        "v9-dec-ft-amd64"
+        "v9-241205-amd64"
     ],
     "s390x": [
         "v9-241107-s390x",
-        "v9-dec-ft-s390x"
+        "v9-241205-s390x"
     ]
 }

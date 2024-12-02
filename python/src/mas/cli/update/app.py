@@ -235,14 +235,12 @@ class UpdateApp(BaseApp):
             "  1) Dec 05 2024 Update (MAS 9.1.0-pre.stable_7051, 9.0.5, 8.11.16, &amp; 8.10.19)",
             "  2) Nov 07 2024 Update (MAS 9.0.5, 8.11.16, &amp; 8.10.19)",
             "  3) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)",
-            "  4) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
         ])
 
         catalogOptions = [
-            "v9-dec-ft-amd64",
+            "v9-241205-amd64",
             "v9-241107-amd64",
             "v9-241003-amd64",
-            "v9-240827-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -333,15 +331,14 @@ class UpdateApp(BaseApp):
                     # the case bundles in there anymore
                     # Longer term we will centralise this information inside the mas-devops python collection,
                     # where it can be made available to both the ansible collection and this python package.
-                    defaultMongoVersion = "7.0.12"
+                    defaultMongoVersion = "6.0.12"
                     mongoVersions = {
                         "v9-240625-amd64": "6.0.12",
                         "v9-240730-amd64": "6.0.12",
                         "v9-240827-amd64": "6.0.12",
                         "v9-241003-amd64": "6.0.12",
                         "v9-241107-amd64": "7.0.12",
-                        "v9-240920-amd64": "7.0.12",
-                        "v9-dec-ft-amd64": "7.0.12"
+                        "v9-241205-amd64": "7.0.12"
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -470,8 +467,7 @@ class UpdateApp(BaseApp):
             "v9-240827-amd64": "4.8.0",
             "v9-241003-amd64": "4.8.0",
             "v9-241107-amd64": "4.8.0",
-            "v9-240920-amd64": "4.8.0",
-            "v9-dec-ft-amd64": "4.8.0"
+            "v9-241205-amd64": "5.0.0"
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
