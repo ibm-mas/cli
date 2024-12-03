@@ -210,6 +210,7 @@ jobs:
           # Build the images
           $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform amd64 -b image/cli
           $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform s390x -b image/cli
+          $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform arm64 -b image/cli
 
           # List available images
           docker images
@@ -217,9 +218,10 @@ jobs:
           # Push the images
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-amd64
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-s390x
+          docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-arm64
 
           # Publish the manifest
-          $GITHUB_WORKSPACE/build/bin/docker-manifest.sh -r quay.io/ibmmas/cli --target-platforms amd64,s390x
+          $GITHUB_WORKSPACE/build/bin/docker-manifest.sh -r quay.io/ibmmas/cli --target-platforms amd64,s390x,arm64
 
           # Re-issue the manifest under an alias where needed
           # https://github.com/docker/buildx/issues/1744#issuecomment-1896645786
