@@ -209,6 +209,9 @@ spec:
     - name: db2_timezone
       type: string
       default: ""
+    - name: db2_backup_notify_slack_url
+      type: string
+      default: ""
 
     - name: custom_labels
       type: string
@@ -651,6 +654,8 @@ spec:
           value: $(params.jdbc_route_iot)
         - name: db2_timezone
           value: $(params.db2_timezone)
+        - name: db2_backup_notify_slack_url
+          value: $(params.db2_backup_notify_slack_url)
 
       workspaces:
         - name: configs
@@ -809,6 +814,8 @@ spec:
           value: $(params.jdbc_route_manage)
         - name: db2_timezone
           value: $(params.db2_timezone)
+        - name: db2_backup_notify_slack_url
+          value: $(params.db2_backup_notify_slack_url)
         
       workspaces:
         - name: configs
