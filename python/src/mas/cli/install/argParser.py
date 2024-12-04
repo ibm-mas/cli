@@ -519,7 +519,7 @@ manageArgGroup.add_argument(
     "--manage-jms",
     dest="mas_app_settings_default_jms",
     required=False,
-    help="",
+    help="Set JMS configuration",
     action="store_const",
     const="true"
 )
@@ -657,14 +657,12 @@ manageArgGroup.add_argument(
     "--mas-manage-attachments-provider",
     dest="mas_manage_attachments_provider",
     required=False,
-    default="filestorage",
     help="Defines the storage provider type to be used to store Manage application's attachments."
 )
 manageArgGroup.add_argument(
     "--mas-manage-attachment-configuration-mode",
     dest="mas_manage_attachment_configuration_mode",
     required=False,
-    default="db",
     help="Defines how attachment properties will be configured in Manage. Possible values are: cr and db"
 )
 
