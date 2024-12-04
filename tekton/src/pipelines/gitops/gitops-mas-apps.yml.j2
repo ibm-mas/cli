@@ -1627,6 +1627,9 @@ spec:
         - input: "$(params.assist_workspace_action)"
           operator: in
           values: ["deactivate", ""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
 
     # 5.2 Assist App
     - name: gitops-deprovision-mas-app-install-assist
