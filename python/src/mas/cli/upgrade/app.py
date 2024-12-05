@@ -97,7 +97,6 @@ class UpgradeApp(BaseApp):
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>License Terms ................... {self.licenses[new_license]}</LightSlateGrey>"))
 
         if not self.noConfirm:
             print()

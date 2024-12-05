@@ -85,7 +85,6 @@ class InstallSummarizerMixin():
         if self.getParam("mas_catalog_digest" != ""):
             self.printParamSummary("Catalog Digest", "mas_catalog_digest")
         self.printParamSummary("Subscription Channel", "mas_channel")
-        self.printSummary("License Terms", self.licenses[self.getParam('mas_channel')])
 
         print()
         self.printParamSummary("IBM Entitled Registry", "mas_icr_cp")
