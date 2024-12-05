@@ -85,6 +85,7 @@ class InstallSummarizerMixin():
         if self.getParam("mas_catalog_digest" != ""):
             self.printParamSummary("Catalog Digest", "mas_catalog_digest")
         self.printParamSummary("Subscription Channel", "mas_channel")
+        self.printSummary("License Terms", self.licenses[self.getParam('mas_channel')])
 
         print()
         self.printParamSummary("IBM Entitled Registry", "mas_icr_cp")
@@ -342,10 +343,6 @@ class InstallSummarizerMixin():
         self.printH2("Grafana")
         self.printSummary("Install Grafana", "Install" if self.getParam("grafana_action") == "install" else "Do Not Install")
 
-    def licenseTermsSummary(self) -> None:
-        self.printH2("License Terms")
-        self.printSummary(self.licenses[self.getParam('mas_channel')])
-
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
@@ -381,6 +378,3 @@ class InstallSummarizerMixin():
         self.cp4dSummary()
         self.grafanaSummary()
         self.turbonomicSummary()
-
-        # License Terms
-        self.licenseTermsSummary()
