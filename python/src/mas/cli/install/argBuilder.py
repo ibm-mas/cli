@@ -105,6 +105,10 @@ class installArgBuilderMixin():
             command += f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}"
             command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}"
             command += f" --cis-crn \"{self.getParam('cis_crn')}\"{newline}"
+            
+        if self.getParam('--mas-cluster-issuer') != "":
+            command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}"
+            command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
 
         if self.getParam('mas_enable_walkme') == "false":
             command += f"  --disable-walkme{newline}"

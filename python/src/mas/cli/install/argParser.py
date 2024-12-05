@@ -188,6 +188,13 @@ masAdvancedArgGroup.add_argument(
     choices=["cloudflare", "cis", "route53"]
 )
 
+masAdvancedArgGroup.add_argument(
+    "--mas-cluster-issuer",
+    dest="mas_cluster_issuer",
+    required=False,
+    help="Only required if you want to use Let's Encrypt certificates in your MAS installation",
+)
+
 # DNS Configuration - IBM CIS
 # -----------------------------------------------------------------------------
 cisArgGroup = installArgParser.add_argument_group("DNS Configuration - CIS")

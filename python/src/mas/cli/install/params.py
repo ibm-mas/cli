@@ -67,6 +67,7 @@ optionalParams = [
     "cis_apikey",
     "cis_crn",
     "cis_subdomain",
+    "mas_cluster_issuer",
     # DRO
     "dro_namespace",
     # MongoDb
