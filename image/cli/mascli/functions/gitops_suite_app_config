@@ -57,7 +57,7 @@ Maximo Manage:
       masdev-manage-d-sbNascsn: <<base64 encoded content of masdev-manage-dsbNasc-sn.xml>>
 
   --mas-app-global-secrets-yaml ${COLOR_YELLOW}MAS_APP_GLOBAL_SECRETS_YAML${TEXT_RESET} yaml file location containing secret key/values that will be added to the Manage encryption secret
-
+  --manage-update-schedule ${COLOR_YELLOW}MANAGE_UPDATE_SCHEDULE${TEXT_RESET} cron based schedule to indicate when manage will do the offline update when the onlineUpgrade is set in the ManageWorkspace CR. Optional as default is  "0 0 * * *"
 
 Secrets Manager:
   --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                                 Secrets Manager path
@@ -182,6 +182,9 @@ function gitops_suite_app_config_noninteractive() {
         ;;
       --mas-app-global-secrets-yaml)
         export MAS_APP_GLOBAL_SECRETS_YAML=$1 && shift
+        ;;
+      --manage-update-schedule)
+        export MANAGE_UPDATE_SCHEDULE=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -331,6 +334,7 @@ function gitops_suite_app_config() {
   echo_reset_dim "Application WS Spec Yaml file ........... ${COLOR_MAGENTA}${MAS_APPWS_SPEC_YAML}"
   echo_reset_dim "Combined additional server configs ...... ${COLOR_MAGENTA}${MAS_APP_SERVER_BUNDLES_COMBINED_ADD_SERVER_CONFIG_YAML}"
   echo_reset_dim "Global Secrets (Manage) ................. ${COLOR_MAGENTA}${MAS_APP_GLOBAL_SECRETS_YAML}"
+  echo_reset_dim "Manage Update Schedule  ................. ${COLOR_MAGENTA}${MANAGE_UPDATE_SCHEDULE}"
 
   if [[ -n "$MAS_APPWS_SPEC_YAML" ]] && [[ -s "$MAS_APPWS_SPEC_YAML" ]]; then
     echo_reset_dim "Using Default Application Spec ........ ${COLOR_MAGENTA}False"
