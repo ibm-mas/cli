@@ -22,7 +22,7 @@ from ..validators import InstanceIDValidator
 from .argParser import upgradeArgParser
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, verifyMasInstance
+from mas.devops.mas import listMasInstances, verifyMasInstance, getMasChannel
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 
 logger = logging.getLogger(__name__)
@@ -37,6 +37,7 @@ class UpgradeApp(BaseApp):
         instanceId = args.mas_instance_id
         self.noConfirm = args.no_confirm
         self.skipPreCheck = args.skip_pre_check
+        new_license = None
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -73,9 +74,30 @@ class UpgradeApp(BaseApp):
                 print_formatted_text(HTML(f"<Red>Error: MAS instance {instanceId} not found on this cluster</Red>"))
                 sys.exit(1)
 
+        if not self.licenseAccepted:
+            current_mas_channel = getMasChannel(self.dynamicClient, instanceId)
+
+            if current_mas_channel not in self.upgrade_path:
+                self.fatalError("There is no upgrade path defined for the current mas subscription channel")
+
+            new_license = self.upgrade_path[current_mas_channel]
+
+            self.printH1("License Terms")
+            self.printDescription([
+                "To continue with the upgrade, you must accept the license terms:",
+                self.licenses[new_license]
+            ])
+
+            if self.noConfirm:
+                self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")
+            else:
+                if not self.yesOrNo("Do you accept the license terms"):
+                    exit(1)
+
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>License Terms ................... {self.licenses[new_license]}</LightSlateGrey>"))
 
         if not self.noConfirm:
             print()

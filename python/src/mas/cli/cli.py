@@ -184,6 +184,21 @@ class BaseApp(PrintMixin, PromptMixin):
             },
         }
 
+        self.licenses = {
+            "8.9.x": " - <u>https://ibm.biz/MAS89-License</u>",
+            "8.10.x": " - <u>https://ibm.biz/MAS810-License</u>",
+            "8.11.x": " - <u>https://ibm.biz/MAS811-License</u>\n - <u>https://ibm.biz/MAXIT81-License</u>",
+            "9.0.x": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>",
+            "9.1.x-feature": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>\n\n - Be aware, this channel subscription is supported for non-production use only.  It allows early access to new features for evaluation is non-production environments. This subscription is offered alongside and in parallel with our normal maintained streams.  When using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment. Severity must be either 3 or 4 and cases cannot be escalated.  Please refer to IBM documentation for more details.\n",
+        }
+
+        self.upgrade_path = {
+            "9.0.x": "9.1.x-feature",
+            "8.11.x": "9.0.x",
+            "8.10.x": "8.11.x",
+            "8.9.x": "8.10.x",
+        }
+
         self.spinner = {
             "interval": 80,
             "frames": [" ⠋", " ⠙", " ⠹", " ⠸", " ⠼", " ⠴", " ⠦", " ⠧", " ⠇", " ⠏"]

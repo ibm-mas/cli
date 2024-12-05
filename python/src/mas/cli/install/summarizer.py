@@ -342,6 +342,10 @@ class InstallSummarizerMixin():
         self.printH2("Grafana")
         self.printSummary("Install Grafana", "Install" if self.getParam("grafana_action") == "install" else "Do Not Install")
 
+    def licenseTermsSummary(self) -> None:
+        self.printH2("License Terms")
+        self.printSummary(self.licenses[self.getParam('mas_channel')])
+
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
@@ -377,3 +381,6 @@ class InstallSummarizerMixin():
         self.cp4dSummary()
         self.grafanaSummary()
         self.turbonomicSummary()
+
+        # License Terms
+        self.licenseTermsSummary()
