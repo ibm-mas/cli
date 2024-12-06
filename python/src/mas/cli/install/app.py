@@ -167,7 +167,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
 
-        self.catalogReleases = ["9.1.x-feature, 9.0.x", "8.11.x", "8.10.x"]
+        self.catalogReleases = ["9.1.x-feature", "9.0.x", "8.11.x", "8.10.x"]
 
         self.catalogTable = [
             {
