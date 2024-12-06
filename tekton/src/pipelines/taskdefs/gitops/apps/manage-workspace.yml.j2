@@ -42,6 +42,8 @@
       value: $(params.ingress)
     - name: run_sanity_test
       value: $(params.run_sanity_test)
+    - name: manage_update_schedule
+      value: $(params.manage_update_schedule)
   taskRef:
     name: gitops-suite-app-config
     kind: Task
