@@ -76,6 +76,9 @@ spec:
     - name: run_sanity_test
       type: string
       default: "false"
+    - name: manage_update_schedule
+      type: string
+      default: ""
 
   stepTemplate:
     name: gitops-suite-app-config
@@ -136,6 +139,8 @@ spec:
         value: $(params.ingress)
       - name: RUN_SANITY_TEST
         value: $(params.run_sanity_test)
+      - name: MANAGE_UPDATE_SCHEDULE
+        value: $(params.manage_update_schedule)
     envFrom:
       - configMapRef:
           name: environment-properties
