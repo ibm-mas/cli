@@ -37,6 +37,7 @@ class UpgradeApp(BaseApp):
         instanceId = args.mas_instance_id
         self.noConfirm = args.no_confirm
         self.skipPreCheck = args.skip_pre_check
+        self.licenseAccepted = args.accept_license
         new_license = None
 
         if instanceId is None:
