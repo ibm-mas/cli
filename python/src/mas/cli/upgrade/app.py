@@ -38,7 +38,7 @@ class UpgradeApp(BaseApp):
         self.noConfirm = args.no_confirm
         self.skipPreCheck = args.skip_pre_check
         self.licenseAccepted = args.accept_license
-        new_license = None
+        next_mas_channel = None
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -75,18 +75,18 @@ class UpgradeApp(BaseApp):
                 print_formatted_text(HTML(f"<Red>Error: MAS instance {instanceId} not found on this cluster</Red>"))
                 sys.exit(1)
 
+        current_mas_channel = getMasChannel(self.dynamicClient, instanceId)
+
+        if current_mas_channel not in self.upgrade_path:
+            self.fatalError(f"There is no upgrade path defined for the mas subscription channel {current_mas_channel}")
+
+        next_mas_channel = self.upgrade_path[current_mas_channel]
+
         if not self.licenseAccepted:
-            current_mas_channel = getMasChannel(self.dynamicClient, instanceId)
-
-            if current_mas_channel not in self.upgrade_path:
-                self.fatalError("There is no upgrade path defined for the current mas subscription channel")
-
-            new_license = self.upgrade_path[current_mas_channel]
-
             self.printH1("License Terms")
             self.printDescription([
                 "To continue with the upgrade, you must accept the license terms:",
-                self.licenses[new_license]
+                self.licenses[next_mas_channel]
             ])
 
             if self.noConfirm:
@@ -97,6 +97,8 @@ class UpgradeApp(BaseApp):
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {current_mas_channel}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {next_mas_channel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
 
         if not self.noConfirm:
