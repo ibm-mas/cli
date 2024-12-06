@@ -209,6 +209,9 @@ spec:
     - name: db2_timezone
       type: string
       default: ""
+    - name: db2_backup_notify_slack_url
+      type: string
+      default: ""
 
     - name: custom_labels
       type: string
@@ -350,6 +353,9 @@ spec:
       type: string
       default: "deactivate"
     - name: mas_app_global_secrets_yaml_manage
+      type: string
+      default: ""
+    - name: manage_update_schedule
       type: string
       default: ""
 
@@ -651,6 +657,8 @@ spec:
           value: $(params.jdbc_route_iot)
         - name: db2_timezone
           value: $(params.db2_timezone)
+        - name: db2_backup_notify_slack_url
+          value: $(params.db2_backup_notify_slack_url)
 
       workspaces:
         - name: configs
@@ -699,7 +707,7 @@ spec:
         - name: configs
           workspace: configs
         - name: shared-gitops-configs
-          workspace: shared-gitops-configs          
+          workspace: shared-gitops-configs
       taskRef:
         kind: Task
         name: gitops-jdbc-config
@@ -809,6 +817,8 @@ spec:
           value: $(params.jdbc_route_manage)
         - name: db2_timezone
           value: $(params.db2_timezone)
+        - name: db2_backup_notify_slack_url
+          value: $(params.db2_backup_notify_slack_url)
         
       workspaces:
         - name: configs
@@ -1388,6 +1398,9 @@ spec:
         - input: "$(params.monitor_workspace_action)"
           operator: in
           values: ["deactivate", ""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
 
     # 1.2 Monitor App Deprovision
     - name: gitops-deprovision-mas-app-install-monitor
@@ -1413,6 +1426,9 @@ spec:
         - input: "$(params.mas_app_channel_monitor)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
 
     # 2. Predict Deprovision
     # -------------------------------------------------------------------------
@@ -1440,6 +1456,9 @@ spec:
         - input: "$(params.predict_workspace_action)"
           operator: in
           values: ["deactivate", ""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
 
     # 2.2 Predict App
     - name: gitops-deprovision-mas-app-install-predict
@@ -1465,6 +1484,9 @@ spec:
         - input: "$(params.mas_app_channel_predict)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
 
     # 3. Visualinspection Deprovision
     # -------------------------------------------------------------------------
@@ -1492,6 +1514,9 @@ spec:
         - input: "$(params.visualinspection_workspace_action)"
           operator: in
           values: ["deactivate", ""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-inspection", "standard", "premium"]
 
     # 3.2 Visualinspection App
     - name: gitops-deprovision-mas-app-install-visualinspection
@@ -1517,6 +1542,9 @@ spec:
         - input: "$(params.mas_app_channel_visualinspection)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-inspection", "standard", "premium"]
 
     # 4. Optimizer Deprovision
     # -------------------------------------------------------------------------
@@ -1544,6 +1572,9 @@ spec:
         - input: "$(params.optimizer_workspace_action)"
           operator: in
           values: ["deactivate", ""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-maintenance", "standard", "premium"]
 
     # 4.2 Optimizer App
     - name: gitops-deprovision-mas-app-install-optimizer
@@ -1569,6 +1600,9 @@ spec:
         - input: "$(params.mas_app_channel_optimizer)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-maintenance", "standard", "premium"]
 
     # 5. Assist Deprovision
     # -------------------------------------------------------------------------
@@ -1596,6 +1630,9 @@ spec:
         - input: "$(params.assist_workspace_action)"
           operator: in
           values: ["deactivate", ""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
 
     # 5.2 Assist App
     - name: gitops-deprovision-mas-app-install-assist
@@ -1621,6 +1658,9 @@ spec:
         - input: "$(params.mas_app_channel_assist)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
 
     # 6. Manage Deprovision
     # -------------------------------------------------------------------------
@@ -1652,6 +1692,9 @@ spec:
         - input: "$(params.manage_workspace_action)"
           operator: in
           values: ["deactivate", ""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-maintenance", "standard", "premium"]
 
     # 6.2 Manage App
     - name: gitops-deprovision-mas-app-install-manage
@@ -1677,7 +1720,9 @@ spec:
         - input: "$(params.mas_app_channel_manage)"
           operator: in
           values: [""]
-
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-maintenance", "standard", "premium"]
 
     # 6.3 Manage Database
     - name: gitops-deprovision-db2u-database-manage
@@ -1703,6 +1748,9 @@ spec:
         - input: "$(params.mas_app_channel_manage)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-maintenance", "standard", "premium"]
 
     # 6.4 Manage JDBC Config
     - name: gitops-delete-jdbc-config-manage
@@ -1741,6 +1789,9 @@ spec:
         - input: "$(params.mas_app_channel_manage)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-maintenance", "standard", "premium"]
   
     # 7. IoT Deprovision
     # -------------------------------------------------------------------------
@@ -1770,6 +1821,9 @@ spec:
         - input: "$(params.iot_workspace_action)"
           operator: in
           values: ["deactivate", ""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
 
     # 7.2 IoT App
     - name: gitops-deprovision-mas-app-install-iot
@@ -1795,6 +1849,9 @@ spec:
         - input: "$(params.mas_app_channel_iot)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
 
     # 7.3 IoT Database
     - name: gitops-deprovision-db2u-database-iot
@@ -1820,6 +1877,9 @@ spec:
         - input: "$(params.mas_app_channel_iot)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
 
     # 8. Deprovision Kafka config
     # -------------------------------------------------------------------------
@@ -1844,6 +1904,9 @@ spec:
         - input: "$(params.mas_app_channel_iot)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
 
     # 9. Deprovision Objectstorage config
     # -------------------------------------------------------------------------
@@ -1869,6 +1932,9 @@ spec:
         - input: "$(params.mas_app_channel_assist)$(params.mas_app_channel_visualinspection)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-inspection", "standard", "premium"]
 
     # 10. Deprovision Watson Studio config
     # -------------------------------------------------------------------------
@@ -1893,3 +1959,6 @@ spec:
         - input: "$(params.mas_app_channel_predict)"
           operator: in
           values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
