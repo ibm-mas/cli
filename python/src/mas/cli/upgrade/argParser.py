@@ -60,6 +60,13 @@ otherArgGroup.add_argument(
 )
 
 otherArgGroup.add_argument(
+    "--image-pull-policy",
+    dest="image_pull_policy",
+    required=False,
+    help="Manually set the image pull policy used in the Tekton Pipeline",
+)
+
+otherArgGroup.add_argument(
     '-h', "--help",
     action='help',
     default=False,
