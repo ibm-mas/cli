@@ -115,16 +115,15 @@ spec:
     
     # Customize Final Wait
     # -------------------------------------------------------------------------
-    # When skipping FVT for applications that are installed it will be necessary
-    # to customize the delay & retries, which default to values that assume
-    # every application installed will have it's FVT executed.
+    # There's no real downside to waiting "too long" so we provide a generous default that will wait for a little over 8 hours
+    # before deciding that the installation has failed and we progress to perform FVT finalization
     - name: waitforinstall_delay
       type: string
-      default: "300"
+      default: "600"  # 10 minutes
       description: "Set this to customize the time that the FVT Launcher pipeline will wait for the install to complete"
     - name: waitforinstall_retries
       type: string
-      default: "25"
+      default: "50"
       description: "Set this to customize the time that the FVT Launcher pipeline will wait for the install to complete"
 
     # Finalize
