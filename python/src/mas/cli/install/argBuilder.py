@@ -108,7 +108,8 @@ class installArgBuilderMixin():
 
         if self.getParam('--mas-cluster-issuer') != "":
             command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}"
-            command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
+            command += f" --cis-email \"{self.getParam('cis_email')}"
+            command += f" --cis-enhanced-security \"{self.getParam('cis_enhanced_security')}\"{newline}"
 
         if self.getParam('mas_enable_walkme') == "false":
             command += f"  --disable-walkme{newline}"
