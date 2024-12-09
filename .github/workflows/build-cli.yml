@@ -8,6 +8,11 @@ on:
   release:
     types: [ published ]
 
+# Ensure only one build at a time for any branch, cancelling any in-progress builds
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 # References:
 # - https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 # - https://docs.github.com/en/actions/learn-github-actions/expressions#functions

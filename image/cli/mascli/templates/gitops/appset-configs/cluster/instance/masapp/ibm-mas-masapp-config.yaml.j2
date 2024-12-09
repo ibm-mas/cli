@@ -27,6 +27,10 @@ manage_logging_access_secret_key: <path:{{ SECRETS_PATH }}:{{ MANAGE_LOGGING_SEC
 {{ MAS_APP_GLOBAL_SECRETS | indent(2) }}
 {%- endif %}
 
+{%- if MANAGE_UPDATE_SCHEDULE is defined and MANAGE_UPDATE_SCHEDULE !='' %}
+manage_update_schedule: {{ MANAGE_UPDATE_SCHEDULE }}
+{%- endif %}
+
 {{ MAS_APPWS_SPEC | indent(2) }}
 
 {% if MAS_MANUAL_CERT_MGMT == 'true' %}

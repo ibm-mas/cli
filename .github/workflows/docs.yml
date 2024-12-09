@@ -5,6 +5,12 @@ on:
       - '**'
     tags-ignore:
       - '**'
+
+# Ensure only one build at a time for any branch, cancelling any in-progress builds
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   deploy-docs:
     runs-on: ubuntu-latest
@@ -18,7 +24,7 @@ jobs:
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.7
-        if: github.ref == 'refs/heads/master'
+        if: github.event_name == 'release'
         with:
           branch: gh-pages
           folder: site

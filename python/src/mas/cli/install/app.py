@@ -113,10 +113,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def licensePrompt(self):
         licenses = {
-            "8.9.x": " - <Orange><u>https://ibm.biz/MAS89-License</u></Orange>",
-            "8.10.x": " - <Orange><u>https://ibm.biz/MAS810-License</u></Orange>",
-            "8.11.x": " - <Orange><u>https://ibm.biz/MAS811-License</u></Orange>\n - <Orange><u>https://ibm.biz/MAXIT81-License</u></Orange>",
-            "9.0.x": " - <Orange><u>https://ibm.biz/MAS90-License</u></Orange>\n - <Orange><u>https://ibm.biz/MaximoIT90-License</u></Orange>\n - <Orange><u>https://ibm.biz/MAXArcGIS90-License</u></Orange>"
+            "8.9.x": " - <u>https://ibm.biz/MAS89-License</u>",
+            "8.10.x": " - <u>https://ibm.biz/MAS810-License</u>",
+            "8.11.x": " - <u>https://ibm.biz/MAS811-License</u>\n - <u>https://ibm.biz/MAXIT81-License</u>",
+            "9.0.x": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>",
+            "9.1.x-feature": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>\n\n - Be aware, this channel subscription is supported for non-production use only.  It allows early access to new features for evaluation is non-production environments. This subscription is offered alongside and in parallel with our normal maintained streams.  When using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment. Severity must be either 3 or 4 and cases cannot be escalated.  Please refer to IBM documentation for more details.\n",
         }
 
         if not self.licenseAccepted:
@@ -179,12 +180,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.catalogTable = [
             {
                 "": "Core",
+                "9.1.x-feature": self.chosenCatalog["mas_core_version"]["9.1.x-feature"],
                 "9.0.x": self.chosenCatalog["mas_core_version"]["9.0.x"],
                 "8.11.x": self.chosenCatalog["mas_core_version"]["8.11.x"],
                 "8.10.x": self.chosenCatalog["mas_core_version"]["8.10.x"]
             },
             {
                 "": "Manage",
+                "9.1.x-feature": self.chosenCatalog["mas_manage_version"]["9.1.x-feature"],
                 "9.0.x": self.chosenCatalog["mas_manage_version"]["9.0.x"],
                 "8.11.x": self.chosenCatalog["mas_manage_version"]["8.11.x"],
                 "8.10.x": self.chosenCatalog["mas_manage_version"]["8.10.x"]
@@ -209,6 +212,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             },
             {
                 "": "Optimizer",
+                "9.1.x-feature": self.chosenCatalog["mas_optimizer_version"]["9.1.x-feature"],
                 "9.0.x": self.chosenCatalog["mas_optimizer_version"]["9.0.x"],
                 "8.11.x": self.chosenCatalog["mas_optimizer_version"]["8.11.x"],
                 "8.10.x": self.chosenCatalog["mas_optimizer_version"]["8.10.x"]
@@ -221,6 +225,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             },
             {
                 "": "Inspection",
+                "9.1.x-feature": self.chosenCatalog["mas_visualinspection_version"]["9.1.x-feature"],
                 "9.0.x": self.chosenCatalog["mas_visualinspection_version"]["9.0.x"],
                 "8.11.x": self.chosenCatalog["mas_visualinspection_version"]["8.11.x"],
                 "8.10.x": self.chosenCatalog["mas_visualinspection_version"]["8.10.x"]

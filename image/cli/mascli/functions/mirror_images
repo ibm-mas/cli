@@ -361,8 +361,9 @@ function mirror_to_registry_interactive() {
   fi
 
   echo
-  echo_h2 "Configure Static Catalog Version"
-  choose_mas_version
+  echo_h2 "Configure Static Catalog Version (see https://ibm-mas.github.io/cli/catalogs/ for details on catalogs)"
+  prompt_for_input "MAS Catalog Version" MAS_CATALOG_VERSION
+  prompt_for_input "MAS Channel" MAS_CHANNEL
 
   echo
   echo_h2 "Configure Images to Mirror"

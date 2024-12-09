@@ -43,12 +43,16 @@ db2_logs_storage_accessmode: {{DB2_LOGS_STORAGE_ACCESSMODE}}
 db2_audit_logs_storage_class: {{DB2_AUDIT_LOGS_STORAGE_CLASS}}
 db2_audit_logs_storage_size: {{DB2_AUDIT_LOGS_STORAGE_SIZE}}
 db2_audit_logs_storage_accessmode: {{DB2_AUDIT_LOGS_STORAGE_ACCESSMODE}}
+{% if DB2_TEMP_STORAGE_CLASS %}
 db2_temp_storage_class: {{DB2_TEMP_STORAGE_CLASS}}
 db2_temp_storage_size: {{DB2_TEMP_STORAGE_SIZE}}
 db2_temp_storage_accessmode: {{DB2_TEMP_STORAGE_ACCESSMODE}}
+{% endif %}
+{% if DB2_ARCHIVELOGS_STORAGE_CLASS %}
 db2_archivelogs_storage_class: {{DB2_ARCHIVELOGS_STORAGE_CLASS}}
 db2_archivelogs_storage_size: {{DB2_ARCHIVELOGS_STORAGE_SIZE}}
 db2_archivelogs_storage_accessmode: {{DB2_ARCHIVELOGS_STORAGE_ACCESSMODE}}
+{% endif %}
 db2_cpu_requests: {{DB2_CPU_REQUESTS}}
 db2_cpu_limits: {{DB2_CPU_LIMITS}}
 db2_memory_requests: {{DB2_MEMORY_REQUESTS}}
@@ -69,4 +73,13 @@ storage_class_definitions:
   {% filter indent(width=2) -%}
   {{STORAGE_CLASS_DEFINITIONS}}
   {%- endfilter %}
+{% endif %}
+
+{% if BACKUP %}
+db2_backup_bucket_name: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_NAME }}>
+db2_backup_bucket_endpoint: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_ENDPOINT }}>
+db2_backup_bucket_access_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY }}>
+db2_backup_bucket_secret_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY }}>
+db2_backup_notify_slack_url: {{DB2_BACKUP_NOTIFY_SLACK_URL}}
+db2_backup_icd_auth_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY }}>
 {% endif %}
