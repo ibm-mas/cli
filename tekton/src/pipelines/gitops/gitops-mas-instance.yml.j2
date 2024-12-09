@@ -668,6 +668,9 @@ spec:
         - input: "$(params.smtp_host)"
           operator: in
           values: [""]
+        - input: "$(params.smtp_use_sendgrid)"
+          operator: notin
+          values: ["true"]
       workspaces:
         - name: configs
           workspace: configs
