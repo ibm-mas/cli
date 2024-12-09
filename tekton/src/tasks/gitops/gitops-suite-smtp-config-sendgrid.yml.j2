@@ -119,7 +119,8 @@ spec:
           SENDGRID_APIKEY_USERNAME="apikey"
           SENDGRID_APIKEY_PASSWORD="$(cat ${API_KEY_OUTPUT_FILE})"
           TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-          sm_update_secret "${SECRET_NAME_SMTP}" "{\"username\": \"$SENDGRID_APIKEY_USERNAME\", \"password\": \"$SENDGRID_APIKEY_PASSWORD\"}" "${TAGS}"
+          # NOTE: running function in a subshell so we don't exit this script if something goes wrong (necessary due to the use of "set +o pipefail" in sm_update_secret)
+          (sm_update_secret "${SECRET_NAME_SMTP}" "{\"username\": \"$SENDGRID_APIKEY_USERNAME\", \"password\": \"$SENDGRID_APIKEY_PASSWORD\"}" "${TAGS}")
           update_rc="$?"
           if [[ "${update_rc}" != "0" ]]; then
             # We could add additional automation to deal with the (rare) edge case of the SM update failing intermittently.
