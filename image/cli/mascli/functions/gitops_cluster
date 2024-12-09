@@ -75,6 +75,9 @@ Notifications (Optional):
 Selenium Grid (Optional):
       --install-selenium-grid ${COLOR_YELLOW}INSTALL_SELENIUM_GRID${TEXT_RESET}                                 Install Selenium Grid
 
+Group Sync Operator (Optional):
+      --install-group-sync-operator ${COLOR_YELLOW}INSTALL_GROUP_SYNC_OPERATOR${TEXT_RESET}                     Install the Group Sync Operator
+
 IBM RBAC (Optional):
       --install-ibm-rbac ${COLOR_YELLOW}INSTALL_IBM_RBAC${TEXT_RESET}                                           Install the IBM RBAC roles and role bindings
 
