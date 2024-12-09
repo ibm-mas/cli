@@ -219,6 +219,7 @@
         - gitops-suite-idp-config
         - gitops-suite-objectstorage-config
         - gitops-suite-smtp-config
+        - gitops-suite-smtp-config-sendgrid
         - gitops-suite-watson-studio-config
         - gitops-suite-workspace
         - gitops-suite
