@@ -32,7 +32,6 @@ masArgGroup.add_argument(
     required=False,
     help="The MAS instance ID to be upgraded"
 )
-
 otherArgGroup = upgradeArgParser.add_argument_group('More')
 otherArgGroup.add_argument(
     '--skip-pre-check',
@@ -47,6 +46,12 @@ otherArgGroup.add_argument(
     action='store_true',
     default=False,
     help="Launch the upgrade without prompting for confirmation",
+)
+otherArgGroup.add_argument(
+    "--accept-license",
+    action="store_true",
+    default=False,
+    help="Accept all license terms without prompting"
 )
 otherArgGroup.add_argument(
     '-h', "--help",
