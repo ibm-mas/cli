@@ -519,7 +519,7 @@ manageArgGroup.add_argument(
     "--manage-jms",
     dest="mas_app_settings_default_jms",
     required=False,
-    help="",
+    help="Set JMS configuration",
     action="store_const",
     const="true"
 )
@@ -649,6 +649,21 @@ manageArgGroup.add_argument(
     dest="mas_app_settings_server_timezone",
     required=False,
     help="Manage server timezone. Default is `GMT`"
+)
+
+# Manage Attachments
+# -----------------------------------------------------------------------------
+manageArgGroup.add_argument(
+    "--mas-manage-attachments-provider",
+    dest="mas_manage_attachments_provider",
+    required=False,
+    help="Defines the storage provider type to be used to store Manage application's attachments."
+)
+manageArgGroup.add_argument(
+    "--mas-manage-attachment-configuration-mode",
+    dest="mas_manage_attachment_configuration_mode",
+    required=False,
+    help="Defines how attachment properties will be configured in Manage. Possible values are: cr and db"
 )
 
 # IBM Cloud Pak for Data
@@ -906,7 +921,7 @@ eventstreamsArgGroup.add_argument(
 )
 
 # COS
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 cosArgGroup = installArgParser.add_argument_group("Cloud Object Storage")
 cosArgGroup.add_argument(
     "--cos",
