@@ -35,7 +35,6 @@ class UpgradeApp(BaseApp):
         """
         args = upgradeArgParser.parse_args(args=argv)
         instanceId = args.mas_instance_id
-        imagePullPolicy = args.image_pull_policy
         self.noConfirm = args.no_confirm
         self.skipPreCheck = args.skip_pre_check
         self.licenseAccepted = args.accept_license
@@ -125,7 +124,7 @@ class UpgradeApp(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:
-                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, imagePullPolicy)
+                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))

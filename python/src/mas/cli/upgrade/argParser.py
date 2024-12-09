@@ -27,15 +27,12 @@ upgradeArgParser = argparse.ArgumentParser(
 )
 
 masArgGroup = upgradeArgParser.add_argument_group('MAS Instance Selection')
-
 masArgGroup.add_argument(
     '--mas-instance-id',
     required=False,
     help="The MAS instance ID to be upgraded"
 )
-
 otherArgGroup = upgradeArgParser.add_argument_group('More')
-
 otherArgGroup.add_argument(
     '--skip-pre-check',
     required=False,
@@ -43,7 +40,6 @@ otherArgGroup.add_argument(
     default=False,
     help="Disable the 'pre-upgrade-check' and 'post-upgrade-verify' tasks in the upgrade pipeline"
 )
-
 otherArgGroup.add_argument(
     '--no-confirm',
     required=False,
@@ -51,21 +47,12 @@ otherArgGroup.add_argument(
     default=False,
     help="Launch the upgrade without prompting for confirmation",
 )
-
 otherArgGroup.add_argument(
     "--accept-license",
     action="store_true",
     default=False,
     help="Accept all license terms without prompting"
 )
-
-otherArgGroup.add_argument(
-    "--image-pull-policy",
-    dest="image_pull_policy",
-    required=False,
-    help="Manually set the image pull policy used in the Tekton Pipeline",
-)
-
 otherArgGroup.add_argument(
     '-h', "--help",
     action='help',
