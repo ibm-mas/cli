@@ -1,0 +1,13 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+{#- Parses the IBM RBAC binding-to-group mapping from a string representation to a map #}
+{#- Example: "a: b\nc: d\n" #}
+{%- set rbac_namespace = namespace(binding_mappings = dict()) %}
+{%- set item_strs = IBM_RBAC_BINDING_TO_GROUP.split('\n') %}
+{%- for item_str in item_strs %}
+  {%- set pair = item_str.strip('\n').split(':') %}
+  {%- set _ = rbac_namespace.binding_mappings.__setitem__(pair[0].strip().strip("'"), pair[1].strip().strip("'")) %}
+{%- endfor %}
+
+ibm_rbac:
+  binding_to_group: {{ rbac_namespace.binding_mappings }}

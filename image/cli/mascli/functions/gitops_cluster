@@ -78,6 +78,9 @@ Selenium Grid (Optional):
 Group Sync Operator (Optional):
       --install-group-sync-operator ${COLOR_YELLOW}INSTALL_GROUP_SYNC_OPERATOR${TEXT_RESET}                     Install the Group Sync Operator
 
+IBM RBAC (Optional):
+      --install-ibm-rbac ${COLOR_YELLOW}INSTALL_IBM_RBAC${TEXT_RESET}                                           Install the IBM RBAC roles and role bindings
+
 Other Commands:
   -h, --help                              Show this help message
 EOM
@@ -255,8 +258,14 @@ function gitops_cluster_noninteractive() {
         export CUSTOM_SA_DETAILS=$1 && shift
         ;;
 
+      # Group Sync Operator
       --install-group-sync-operator)
         export INSTALL_GROUP_SYNC_OPERATOR=true
+        ;;
+      
+      # IBM RBAC
+      --install-ibm-rbac)
+        export INSTALL_IBM_RBAC=true
         ;;
 
       # Other Commands
@@ -440,6 +449,11 @@ function gitops_cluster() {
   echo_reset_dim "Install the Group Sync Operator ........... ${COLOR_MAGENTA}${INSTALL_GROUP_SYNC_OPERATOR}"
   reset_colors
 
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM RBAC" "    "
+  echo_reset_dim "Install IBM RBAC ........... ${COLOR_MAGENTA}${INSTALL_IBM_RBAC}"
+  reset_colors
+
   # Set up secrets
   # ---------------------------------------------------------------------------
   echo
@@ -570,6 +584,11 @@ function gitops_cluster() {
   if [[ "$INSTALL_GROUP_SYNC_OPERATOR" == "true" ]]; then
     echo "- Group Sync Operator"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/group-sync-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/group-sync-operator.yaml
+  fi
+
+  if [[ "$INSTALL_IBM_RBAC" == "true" ]]; then
+    echo "- IBM RBAC"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-rbac.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-rbac.yaml
   fi
 
   # Commit and push to github target repo
