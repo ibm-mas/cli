@@ -232,6 +232,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../v9-241205-amd64/" >
+    Dec 05 2024
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../v9-241107-amd64/" >
     Nov 07 2024
   </cds-side-nav-menu-item>
@@ -246,12 +252,6 @@
       
   <cds-side-nav-menu-item href="../v9-240827-amd64/" >
     Aug 27 2024
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../v9-240730-amd64/" >
-    Jul 30 2024
   </cds-side-nav-menu-item>
 
     
@@ -406,29 +406,27 @@ spec:
 </table>
 
 <h3 id="certified-operators">Certified Operators<a class="headerlink" href="#certified-operators" title="Permanent link">¤</a></h3>
-<ul>
-<li><code>registry.redhat.io/redhat/certified-operator-index:v4.15</code></li>
-<li><code>registry.redhat.io/redhat/certified-operator-index:v4.14</code></li>
-<li><code>registry.redhat.io/redhat/certified-operator-index:v4.13</code></li>
-<li><code>registry.redhat.io/redhat/certified-operator-index:v4.12</code></li>
-</ul>
-<p>The following packages from this catalog are used in the Maximo Application Suite install:</p>
+<p>The following packages from the <code>registry.redhat.io/redhat/certified-operator-index</code> catalog are used in the Maximo Application Suite install:</p>
 <ul>
 <li><strong>gpu-operator-certified</strong> required by <code>ibm.mas_devops.nvidia_gpu</code> role</li>
 <li><strong>kubeturbo-certified</strong> required by <code>ibm.mas_devops.kubeturbo</code> role</li>
 </ul>
 <h3 id="community-operators">Community Operators<a class="headerlink" href="#community-operators" title="Permanent link">¤</a></h3>
+<p>The following packages from the <code>registry.redhat.io/redhat/community-operator-index</code> catalog are used in the Maximo Application Suite install:</p>
 <ul>
-<li><code>registry.redhat.io/redhat/community-operator-index:v4.15</code></li>
-<li><code>registry.redhat.io/redhat/community-operator-index:v4.14</code></li>
-<li><code>registry.redhat.io/redhat/community-operator-index:v4.13</code></li>
-<li><code>registry.redhat.io/redhat/community-operator-index:v4.12</code></li>
+<li><strong>grafana-operator</strong> required by <code>ibm.mas_devops.grafana</code> role</li>
+<li><strong>opentelemetry-operator</strong> required by <code>ibm.mas_devops.opentelemetry</code> role</li>
+<li><strong>strimzi-kafka-operator</strong> required by <code>ibm.mas_devops.kafka</code> role (if using Strimzi as Kakfa provider)</li>
 </ul>
 <h3 id="red-hat-operators">Red Hat Operators<a class="headerlink" href="#red-hat-operators" title="Permanent link">¤</a></h3>
+<p>The following packages from the <code>registry.redhat.io/redhat/redhat-operator-index</code> catalog are used in the Maximo Application Suite install:</p>
 <ul>
-<li><code>registry.redhat.io/redhat/redhat-operator-index:v4.15</code></li>
-<li><code>registry.redhat.io/redhat/redhat-operator-index:v4.14</code></li>
-<li><code>registry.redhat.io/redhat/redhat-operator-index:v4.13</code></li>
+<li><strong>amq-streams</strong> required by <code>ibm.mas_devops.kafka</code> role (if using AMQ Streams as Kakfa provider)</li>
+<li><strong>openshift-pipelines-operator-rh</strong> required by the MAS CLI</li>
+<li><strong>nfd</strong> required by <code>ibm.mas_devops.nvidia_gpu</code> role</li>
+<li><strong>aws-efs-csi-driver-operator</strong>  required by <code>ibm.mas_devops.ocp_efs</code> role</li>
+<li><strong>local-storage-operator</strong>  required by <code>ibm.mas_devops.ocs</code> role</li>
+<li><strong>odf-operator</strong>  required by <code>ibm.mas_devops.ocs</code> role</li>
 </ul>
 <h2 id="package-manifest">Package Manifest<a class="headerlink" href="#package-manifest" title="Permanent link">¤</a></h2>
 <h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link">¤</a></h3>
@@ -481,105 +479,10 @@ spec:
 </tr>
 </tbody>
 </table>
-<h3 id="ibm-cloud-pak-foundational-services">IBM Cloud Pak Foundational Services<a class="headerlink" href="#ibm-cloud-pak-foundational-services" title="Permanent link">¤</a></h3>
-<table>
-<thead>
-<tr>
-<th>Package</th>
-<th>Default Channel</th>
-<th>Channel</th>
-<th>Latest Version</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3 id="ibm-cloud-pak-for-data">IBM Cloud Pak for Data<a class="headerlink" href="#ibm-cloud-pak-for-data" title="Permanent link">¤</a></h3>
-<table>
-<thead>
-<tr>
-<th>Package</th>
-<th>Default Channel</th>
-<th>Channel</th>
-<th>Latest Version</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3 id="ibm-db2-universal-operator">IBM Db2 Universal Operator<a class="headerlink" href="#ibm-db2-universal-operator" title="Permanent link">¤</a></h3>
-<table>
-<thead>
-<tr>
-<th>Package</th>
-<th>Default Channel</th>
-<th>Channel</th>
-<th>Latest Version</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3 id="ibm-appconnect">IBM AppConnect<a class="headerlink" href="#ibm-appconnect" title="Permanent link">¤</a></h3>
-<table>
-<thead>
-<tr>
-<th>Package</th>
-<th>Default Channel</th>
-<th>Channel</th>
-<th>Latest Version</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h3 id="eclipse-amlen">Eclipse Amlen<a class="headerlink" href="#eclipse-amlen" title="Permanent link">¤</a></h3>
-<table>
-<thead>
-<tr>
-<th>Package</th>
-<th>Default Channel</th>
-<th>Channel</th>
-<th>Latest Version</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-12-05 16:39:14.155190+00:00)
+      Built with mkdocs v1.6.1 (2024-12-10 00:13:39.029405+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
