@@ -24,7 +24,7 @@ jobs:
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.7
-        if: github.ref == 'refs/heads/master'
+        if: github.event_name == 'release'
         with:
           branch: gh-pages
           folder: site
