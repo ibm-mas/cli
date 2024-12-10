@@ -67,7 +67,6 @@ optionalParams = [
     "cis_apikey",
     "cis_crn",
     "cis_subdomain",
-    "cis_enhanced_security",
     "mas_cluster_issuer",
     # DRO
     "dro_namespace",

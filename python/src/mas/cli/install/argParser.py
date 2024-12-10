@@ -195,13 +195,6 @@ masAdvancedArgGroup.add_argument(
     help="Only required if you want to use Let's Encrypt certificates in your MAS installation",
 )
 
-masAdvancedArgGroup.add_argument(
-    "--cis-enhanced-security",
-    dest="cis_enhanced_security",
-    required=False,
-    help="Only required if you want to enable the enhanced IBM CIS DNS integration security",
-)
-
 
 # DNS Configuration - IBM CIS
 # -----------------------------------------------------------------------------
