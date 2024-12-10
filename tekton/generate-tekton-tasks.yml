@@ -195,6 +195,7 @@
         - gitops-deprovision-suite-idp-config
         - gitops-deprovision-suite-objectstorage-config
         - gitops-deprovision-suite-smtp-config
+        - gitops-deprovision-suite-sendgrid-subuser
         - gitops-deprovision-suite-watson-studio-config
         - gitops-deprovision-suite-workspace
         - gitops-deprovision-suite
