@@ -95,6 +95,14 @@ spec:
       taskRef:
         kind: Task
         name: gitops-deprovision-suite-sendgrid-subuser
+      when:
+        # Task uses an IBM internal image and cannot be used outside of the internal IBM Toolchains
+        # To make sure this task is only run when this is the case, reference a field that 
+        # but corresponds to another IBM-internal only feature that will also still be present after smtp config is removed
+        # sls.license.icn is a good choice for this, it also happens to be a required input to the sendgrid scripts
+        - input: "$(params.sls_license_icn)"
+          operator: notin
+          values: [""]
       workspaces:
         - name: configs
           workspace: configs
