@@ -15,7 +15,7 @@ AWS Credentials (Required):
 
 Cluster Configuration (Required):
   -c, --cluster-name ${COLOR_YELLOW}CLUSTER_NAME${TEXT_RESET}               Name of the cluster to be provisioned
-  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}                 OCP version to use (e.g 4.13_openshift, 4.14_openshift)
+  -v, --ocp-version ${COLOR_YELLOW}OCP_VERSION${TEXT_RESET}                 OCP version to use (e.g 4.15_openshift, 4.16_openshift)
 
 IPI Configuration (Required):
   -r, --region-name ${COLOR_YELLOW}IPI_REGION${TEXT_RESET}                  Region of the cluster to be provisioned (e.g. us-east-1, us-east-2)
@@ -99,10 +99,10 @@ function set_sno_vars() {
 function provision_aws_interactive() {
 
   # prompt_aws_access_key_id            # AWS_ACCESS_KEY_ID
-  prompt_for_secret "AWS Access Key ID" AWS_ACCESS_KEY_ID "Re-use saved AWS Access Key ID?" && export AWS_ACCESS_KEY_ID 
+  prompt_for_secret "AWS Access Key ID" AWS_ACCESS_KEY_ID "Re-use saved AWS Access Key ID?" && export AWS_ACCESS_KEY_ID
 
   # prompt_aws_secret_access_key        # AWS_SECRET_ACCESS_KEY
-  prompt_for_secret "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY "Re-use saved AWS Secret Access Key?" && export AWS_SECRET_ACCESS_KEY 
+  prompt_for_secret "AWS Secret Access Key" AWS_SECRET_ACCESS_KEY "Re-use saved AWS Secret Access Key?" && export AWS_SECRET_ACCESS_KEY
 
   # prompt_ipi_secret_file        # IPI_PULL_SECRET_FILE
   if [[ -z "$IPI_PULL_SECRET_FILE" ]]; then
