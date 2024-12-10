@@ -975,28 +975,18 @@ spec:
     # - Escape Route: INSTALL_STATUS != "" (i.e. FAILED)
     # - Ignore Failures: True
     # -------------------------------------------------------------------------
-    - name: waitfor-installation
+    - name: waitfor-install
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-devops-wait-for-configmap
+        name: mas-devops-wait-for-configmap-v2
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: namespace
-          value: $(context.taskRun.namespace)
         - name: configmap_name
           value: sync-install
-        - name: configmap_key
-          value: INSTALL_STATUS
         - name: configmap_target_value
           value: Completed,Succeeded,Failed
-        - name: delay
-          value: $(params.waitforinstall_delay)
-        - name: max_retries
-          value: $(params.waitforinstall_retries)
-        - name: ignore_failure
-          value: "False"
       when:
         - input: $(params.sync_with_install)
           operator: in
@@ -1025,9 +1015,11 @@ spec:
     # update, then upgrade, then uninstall is more efficient use of resources than 3 seperate
     # environments for each day 2 action.
 
+
     # Update Sync Point
     # -------------------------------------------------------------------------
     # TODO: Change how update FVT works, so that it works the same as the upgrade FVT below
+
 
     # Upgrade Sync Point
     # -------------------------------------------------------------------------
@@ -1041,8 +1033,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-upgrade
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_value
           value: approved
       when:
@@ -1050,9 +1040,9 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-installation
+        - waitfor-install
 
-    # Note: We could potentially add tests that run after install but before upgrade here with runAfter: waitfor-installation
+    # Note: We could potentially add tests that run after install but before upgrade here with runAfter: waitfor-install
     # If we do, make sure to update the waitfor-upgrade runAfter clause
 
     - name: waitfor-upgrade
@@ -1072,9 +1062,10 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-installation
+        - approval-upgrade
 
     # Note: We could potentially add tests that run after upgrade here with runAfter: waitfor-upgrade
+
 
     # Uninstall Sync Point
     # -------------------------------------------------------------------------
