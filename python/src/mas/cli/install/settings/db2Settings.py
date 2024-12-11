@@ -164,8 +164,8 @@ class Db2SettingsMixin():
                     "Note that the same settings are applied to both the IoT and Manage Db2 instances",
                     "Use existing node labels and taints to control scheduling of the Db2 workload in your cluster",
                     "For more information refer to the Red Hat documentation:",
-                    " - <Orange><u>https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-node-affinity.html</u></Orange>",
-                    " - <Orange><u>https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-taints-tolerations.html</u></Orange>"
+                    " - <Orange><u>https://docs.openshift.com/container-platform/4.16/nodes/scheduling/nodes-scheduler-node-affinity.html</u></Orange>",
+                    " - <Orange><u>https://docs.openshift.com/container-platform/4.16/nodes/scheduling/nodes-scheduler-taints-tolerations.html</u></Orange>"
                 ])
 
                 if self.yesOrNo("Configure node affinity"):
