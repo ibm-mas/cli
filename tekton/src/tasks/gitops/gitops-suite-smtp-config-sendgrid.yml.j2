@@ -154,6 +154,11 @@ spec:
         export SMTP_DEFAULT_RECIPIENT_EMAIL="mas.ms.smtp@ibm.com"
         export SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS="true"
 
+        # Ensure any SMTP_USERNAME/SMTP_PASSWORD values set in pipeline context properties
+        # are not used by the gitops-mas-config script to override the values in the AWS SM Secret
+        unset SMTP_USERNAME
+        unset SMTP_PASSWORD
+
         mas gitops-mas-config \
         --account-id "$ACCOUNT_ID" \
         --cluster-id "$CLUSTER_ID" \
