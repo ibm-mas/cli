@@ -162,6 +162,7 @@
       with_items:
         - update-configmap
         - wait-for-configmap
+        - wait-for-configmap-v2
         - wait-for-tekton
 
     # 9. Generate Tasks (GitOps)

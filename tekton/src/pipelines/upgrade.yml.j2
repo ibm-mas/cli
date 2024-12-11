@@ -2,18 +2,8 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-{% if wait_for_install == true %}
-  name: mas-upgrade-after-install
-{% else %}
   name: mas-upgrade
-{% endif %}
 spec:
-{% if wait_for_install == true %}
-  workspaces:
-    # Shared storage to hold mustgather output for tasks
-    - name: shared-mustgather
-{% endif %}
-
   params:
     # 1. Common Parameters
     # -------------------------------------------------------------------------
@@ -31,79 +21,28 @@ spec:
       type: string
       default: ""
 
-{% if wait_for_install == true %}
-    - name: launchfvt_upgrade
-      type: string
-      default: "" # Considered False when not informed
-      description: "Set this to any value other than 'true' to disable launch of the pre and post upgrade tests pipeline (running before and after upgrade process happens)"
-    - name: pipelinerun_name
-      type: string
-      description: name of the installation pipelinerun that must be tracked til completion
-    - name: launchfvt_mobile_upgrade_pre
-      type: string
-      default: "False"
-      description: Launch mobile pipeline with pre upgrade tests
-{% endif %}
-
     {{ lookup('template', params_src_dir ~ '/install-appchannels.yml.j2') | indent(4) }}
 
   tasks:
-{% if wait_for_install == true %}
-    # 0. Wait for the install pipeline to complete
+    # 1. Wait for approval & verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    - name: wait-for-install
+    - name: approval
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: $(params.pipelinerun_name)
-        - name: delay
-          value: 600  # seconds between checking the status of the pipelinerun
-        - name: max_retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "False"  # fails and exit once the first failure is detected
-{% endif %}
-
-    # 1. Verify health of the cluster before we change anything
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
-        'name': 'pre-upgrade-check',
-        'devops_suite_name': 'pre-upgrade-check'
-      }) | indent(4) }}
-{% if wait_for_install == true %}
-      runAfter:
-        - wait-for-install
-{% endif %}
-
-{% if wait_for_install == true %}
-    # 2. Pre-Upgrade pipeline call - test scripts to run before upgrade
-    # -------------------------------------------------------------------------
-    - name: launchfvt-upgrade-pre
-      timeout: "0"
+        name: mas-devops-wait-for-configmap-v2
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-uprade-pre"
-        - name: launchfvt_mobile_upgrade_pre
-          value: "$(params.launchfvt_mobile_upgrade_pre)"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-upgrade-pre
-      when:
-        - input: $(params.launchfvt_upgrade)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - pre-upgrade-check
-{% endif %}
+        - name: configmap_name
+          value: approval-upgrade
 
-    # 3. Suite Upgrade (Phase 1)
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-upgrade-check', 'devops_suite_name': 'pre-upgrade-check'}) | indent(4) }}
+      runAfter:
+        - approval
+
+
+    # 2. Suite Upgrade (Phase 1)
     # -------------------------------------------------------------------------
     - name: core-upgrade
       timeout: "0"
@@ -111,11 +50,7 @@ spec:
         kind: Task
         name: mas-devops-suite-upgrade
       runAfter:
-{% if wait_for_install == true %}
-        - launchfvt-upgrade-pre
-{% else %}
         - pre-upgrade-check
-{% endif %}
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -144,7 +79,7 @@ spec:
         - core-upgrade
 
 
-    # 4. IoT Upgrade (Phase 2)
+    # 3. IoT Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: iot-upgrade
       timeout: "0"
@@ -166,7 +101,7 @@ spec:
         - core-verify
 
 
-    # 5. Manage Upgrade (Phase 2)
+    # 4. Manage Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: manage-upgrade
       timeout: "0"
@@ -188,7 +123,7 @@ spec:
         - core-verify
 
 
-    # 6. Visual Inspection Upgrade (Phase 2)
+    # 5. Visual Inspection Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: visualinspection-upgrade
       timeout: "0"
@@ -210,7 +145,7 @@ spec:
         - core-verify
 
 
-    # 7. Assist Upgrade (Phase 2)
+    # 6. Assist Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: assist-upgrade
       timeout: "0"
@@ -232,7 +167,7 @@ spec:
         - core-verify
 
 
-    # 8. Optimizer Upgrade (Phase 2)
+    # 7. Optimizer Upgrade (Phase 2)
     # -------------------------------------------------------------------------
     - name: optimizer-upgrade
       timeout: "0"
@@ -254,7 +189,7 @@ spec:
         - core-verify
 
 
-    # 9. Monitor Upgrade (Phase 3 - after IoT)
+    # 8. Monitor Upgrade (Phase 3 - after IoT)
     # -------------------------------------------------------------------------
     - name: monitor-upgrade
       timeout: "0"
@@ -276,7 +211,7 @@ spec:
         - iot-upgrade
 
 
-    # 10. Predict Upgrade (Phase 3 - after Manage)
+    # 9. Predict Upgrade (Phase 3 - after Manage)
     # -------------------------------------------------------------------------
     - name: predict-upgrade
       timeout: "0"
@@ -297,7 +232,8 @@ spec:
       runAfter:
         - manage-upgrade
 
-    # 11. Verify health of the cluster after upgrade
+
+    # 10. Verify health of the cluster after upgrade
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-upgrade-verify',
@@ -312,40 +248,22 @@ spec:
         - predict-upgrade
         - monitor-upgrade
 
-{% if wait_for_install == true %}
-    # 12. Post-Upgrade pipeline call - test scripts to run before upgrade
+  finally:
+    # Update synchronization configmap
     # -------------------------------------------------------------------------
-    - name: launchfvt-upgrade-post
+    - name: sync-upgrade
       timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-upgrade-post"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-upgrade-post
-      when:
-        - input: $(params.launchfvt_upgrade)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - post-upgrade-verify
-{% endif %}
-
-{% if wait_for_install == true %}
-  # In FVT only this is the time to take a must-gather and finalize the result
-  # ---------------------------------------------------------------------------
-  finally:
-    # Collect must-gather
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/common/must-gather.yml.j2') | indent(4) }}
-
-    # Finalize the record in the FVT database
-    # -------------------------------------------------------------------------
-    - name: finalize
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-fvt-finalize
-{% endif %}
+        - name: configmap_name
+          value: sync-upgrade
+        - name: configmap_key
+          value: UPGRADE_STATUS
+        - name: configmap_value
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)

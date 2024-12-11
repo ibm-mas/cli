@@ -25,6 +25,10 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable synchronization with a running MAS install pipeline"
+    - name: sync_with_upgrade
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running MAS upgrade pipeline"
 
     # What to launch
     # -------------------------------------------------------------------------
@@ -112,7 +116,7 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable dynamic scanning pipeline for VisualInspection after waitfor-installation completes"
-    
+
     # Customize Final Wait
     # -------------------------------------------------------------------------
     # There's no real downside to waiting "too long" so we provide a generous default that will wait for a little over 8 hours
@@ -125,6 +129,14 @@ spec:
       type: string
       default: "50"
       description: "Set this to customize the time that the FVT Launcher pipeline will wait for the install to complete"
+    - name: waitforupgrade_delay
+      type: string
+      default: "600"  # 10 minutes
+      description: "Set this to customize the time that the FVT Launcher pipeline will wait for the upgrade to complete"
+    - name: waitforupgrade_retries
+      type: string
+      default: "50"
+      description: "Set this to customize the time that the FVT Launcher pipeline will wait for the upgrade to complete"
 
     # Finalize
     # -------------------------------------------------------------------------
@@ -952,7 +964,7 @@ spec:
       runAfter:
         - waitfor-suite-verify
 
-    # Last Sync Point
+    # Install Sync Point
     # -------------------------------------------------------------------------
     # Guarantee installation pipeline ran till the end;
     # In other words, guarantee sync-install pipeline has install_status key filled
@@ -963,29 +975,18 @@ spec:
     # - Escape Route: INSTALL_STATUS != "" (i.e. FAILED)
     # - Ignore Failures: True
     # -------------------------------------------------------------------------
-    - name: waitfor-installation
+    - name: waitfor-install
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-devops-wait-for-configmap
+        name: mas-devops-wait-for-configmap-v2
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: namespace
-          value: $(context.taskRun.namespace)
         - name: configmap_name
           value: sync-install
-        - name: configmap_key
-          value: INSTALL_STATUS
         - name: configmap_target_value
           value: Completed,Succeeded,Failed
-        # Default to 25 retries at 5 minute intervals = 2 hours
-        - name: delay
-          value: $(params.waitforinstall_delay)
-        - name: max_retries
-          value: $(params.waitforinstall_retries)
-        - name: ignore_failure
-          value: "False"
       when:
         - input: $(params.sync_with_install)
           operator: in
@@ -998,6 +999,77 @@ spec:
         - approval-visualinspection
         - launchivt-manage
         - launchfvt-dynamicscan
+
+
+    # Day 2 activity FVT
+    # -------------------------------------------------------------------------
+    # The order should be:
+    # - install
+    # - update
+    # - upgrade
+    # - uninstall
+    # It should be possible to run ANY combination of these FVT scenarios in a single FVT launcher,
+    # with the FVT launcher controlling the config map that the update, upgrade, and uninstall
+    # pipelines wait for approval on before starting.
+    # Once we have this ability we can optimize our FVT, by chaining scenarios ... install, then
+    # update, then upgrade, then uninstall is more efficient use of resources than 3 seperate
+    # environments for each day 2 action.
+
+
+    # Update Sync Point
+    # -------------------------------------------------------------------------
+    # TODO: Change how update FVT works, so that it works the same as the upgrade FVT below
+
+
+    # Upgrade Sync Point
+    # -------------------------------------------------------------------------
+    - name: approval-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-upgrade
+        - name: configmap_value
+          value: approved
+      when:
+        - input: $(params.sync_with_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-install
+
+    # Note: We could potentially add tests that run after install but before upgrade here with runAfter: waitfor-install
+    # If we do, make sure to update the waitfor-upgrade runAfter clause
+
+    - name: waitfor-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap-v2
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-upgrade
+        - name: configmap_target_value
+          value: Completed,Succeeded,Failed
+      when:
+        - input: $(params.sync_with_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-upgrade
+
+    # Note: We could potentially add tests that run after upgrade here with runAfter: waitfor-upgrade
+
+
+    # Uninstall Sync Point
+    # -------------------------------------------------------------------------
+    # TODO: Change how uninstall FVT works, so that it works the same as the upgrade FVT above
 
   finally:
     - name: launchfvt-finally
