@@ -158,6 +158,9 @@ spec:
     - name: group_sync_operator_isv_groups
       type: string
       default: ''
+    - name: ibm_rbac_binding_to_group
+      type: string
+      default: ''
   tasks:
     - name: gitops-cluster
       params:
@@ -236,6 +239,8 @@ spec:
           value: $(params.group_sync_operator_isv_tenant_url)
         - name: group_sync_operator_isv_groups
           value: $(params.group_sync_operator_isv_groups)
+        - name: ibm_rbac_binding_to_group
+          value: $(params.ibm_rbac_binding_to_group)
       taskRef:
         kind: Task
         name: gitops-cluster

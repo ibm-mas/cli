@@ -98,6 +98,9 @@ spec:
     - name: group_sync_operator_isv_groups
       type: string
       default: ''
+    - name: ibm_rbac_binding_to_group
+      type: string
+      default: ''
 
   stepTemplate:
     name: gitops-cluster
@@ -175,6 +178,8 @@ spec:
         value: $(params.group_sync_operator_isv_tenant_url)
       - name: GROUP_SYNC_OPERATOR_ISV_GROUPS
         value: $(params.group_sync_operator_isv_groups)
+      - name: IBM_RBAC_BINDING_TO_GROUP
+        value: $(params.ibm_rbac_binding_to_group)
 
     envFrom:
       - configMapRef:
@@ -209,6 +214,11 @@ spec:
         if [[ -n "${GROUP_SYNC_OPERATOR_ISV_GROUPS}" ]];then
           echo "Setting var INSTALL_GROUP_SYNC_OPERATOR to true as var GROUP_SYNC_OPERATOR_ISV_GROUPS is set"
           export INSTALL_GROUP_SYNC_OPERATOR=true
+        fi
+
+        if [[ -n "${IBM_RBAC_BINDING_TO_GROUP}" ]];then
+          echo "Setting var INSTALL_IBM_RBAC to true as var IBM_RBAC_BINDING_TO_GROUP is set"
+          export INSTALL_IBM_RBAC=true
         fi
 
         mkdir -p /tmp/init-cluster
