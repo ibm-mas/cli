@@ -950,6 +950,18 @@ cosArgGroup.add_argument(
     required=False,
     help="When using IBM COS, set COS priviledged apikey for IBM Cloud"
 )
+cosArgGroup.add_argument(
+    "--cos-instance-name",
+    dest="cos_instance_name",
+    required=False,
+    help="When using IBM COS, set COS instance name to be used/created"
+)
+cosArgGroup.add_argument(
+    "--cos-bucket-name",
+    dest="cos_bucket_name",
+    required=False,
+    help="When using IBM COS, set COS bucket name to be used/created"
+)
 
 # Turbonomic Integration
 # -----------------------------------------------------------------------------

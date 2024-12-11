@@ -116,6 +116,8 @@ optionalParams = [
     "cos_type",
     "cos_resourcegroup",
     "cos_apikey",
+    "cos_instance_name",
+    "cos_bucket_name",
     # Attachments
     "mas_manage_attachments_provider",
     "mas_manage_attachment_configuration_mode",
