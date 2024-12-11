@@ -35,7 +35,7 @@ function mirror_redhat_noninteractive() {
         REGISTRY_PUBLIC_PORT=$1 && shift
         ;;
       -x| --prefix)
-        REGISTRY_PREFIX=$1 && shift        
+        REGISTRY_PREFIX=$1 && shift
         ;;
       -u|--username)
         REGISTRY_USERNAME=$1 && shift
@@ -145,14 +145,12 @@ function mirror_redhat_interactive() {
   echo
   echo_h2 "Configure Images to Mirror"
   echo_h3 "Select OCP Release"
-  echo "${TEXT_DIM}IBM Maximo Application Suite currently supports Red Hat OpenShift Container Platform v4.11 and v4.12, select the release to mirror content for:"
+  echo "${TEXT_DIM}Select the release to mirror content for:"
 
   echo "Supported OCP Releases:"
   echo "  1) 4.16"
   echo "  2) 4.15"
   echo "  3) 4.14"
-  echo "  4) 4.13"
-  echo "  5) 4.12"
   reset_colors
 
   echo
@@ -167,12 +165,6 @@ function mirror_redhat_interactive() {
       ;;
     3)
       OCP_RELEASE=4.14
-      ;;
-    4)
-      OCP_RELEASE=4.13
-      ;;
-    5)
-      OCP_RELEASE=4.12
       ;;
     *)
       echo_warning "Invalid selection"

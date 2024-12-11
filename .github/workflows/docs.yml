@@ -5,6 +5,8 @@ on:
       - '**'
     tags-ignore:
       - '**'
+  release:
+    types: [ published ]
 
 # Ensure only one build at a time for any branch, cancelling any in-progress builds
 concurrency:
@@ -24,7 +26,7 @@ jobs:
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.7
-        if: github.event_name == 'release'
+        if: ${{ github.event_name == 'release' || contains(github.event.head_commit.message, '[doc]') }}
         with:
           branch: gh-pages
           folder: site
