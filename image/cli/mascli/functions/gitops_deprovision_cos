@@ -322,7 +322,7 @@ function gitops_deprovision_cos() {
       mas_cluster_id                 = "$CLUSTER_ID"
       mas_instance_id                = "$MAS_INSTANCE_ID"
       secret_recovery_days           = 0
-      secret_suffix                  = "manage_attachments/cosawssecret"
+      secret_suffix                  = "manage_attachments/cos-attachments"
       manage_secret_format           = true
     }
 
@@ -338,7 +338,7 @@ function gitops_deprovision_cos() {
       mas_cluster_id                 = "$CLUSTER_ID"
       mas_instance_id                = "$MAS_INSTANCE_ID"
       secret_recovery_days           = 0
-      secret_suffix                  = "manage_logging/s3secretkey"
+      secret_suffix                  = "manage_logging/cos-logging"
       manage_secret_format           = true
     }
 
