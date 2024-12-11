@@ -348,8 +348,8 @@ Install namespace db2u
 Note that the same settings are applied to both the IoT and Manage Db2 instances
 Use existing node labels and taints to control scheduling of the Db2 workload in your cluster
 For more information refer to the Red Hat documentation:
- - https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-node-affinity.html
- - https://docs.openshift.com/container-platform/4.12/nodes/scheduling/nodes-scheduler-taints-tolerations.html
+ - https://docs.openshift.com/container-platform/4.16/nodes/scheduling/nodes-scheduler-node-affinity.html
+ - https://docs.openshift.com/container-platform/4.16/nodes/scheduling/nodes-scheduler-taints-tolerations.html
 Configure node affinity? [y/n] n
 Configure node tolerations? [y/n] n
 

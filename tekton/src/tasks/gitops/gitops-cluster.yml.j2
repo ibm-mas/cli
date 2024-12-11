@@ -88,6 +88,20 @@ spec:
     - name: redhat_cert_manager_install_plan
       type: string
       default: "Automatic"
+
+    - name: group_sync_operator_cron_schedule
+      type: string
+      default: ''
+    - name: group_sync_operator_isv_tenant_url
+      type: string
+      default: ''
+    - name: group_sync_operator_isv_groups
+      type: string
+      default: ''
+    - name: ibm_rbac_binding_to_group
+      type: string
+      default: ''
+
   stepTemplate:
     name: gitops-cluster
     env:
@@ -158,6 +172,15 @@ spec:
       - name: REDHAT_CERT_MANAGER_INSTALL_PLAN
         value: $(params.redhat_cert_manager_install_plan)
 
+      - name: GROUP_SYNC_OPERATOR_CRON_SCHEDULE
+        value: $(params.group_sync_operator_cron_schedule)
+      - name: GROUP_SYNC_OPERATOR_ISV_TENANT_URL
+        value: $(params.group_sync_operator_isv_tenant_url)
+      - name: GROUP_SYNC_OPERATOR_ISV_GROUPS
+        value: $(params.group_sync_operator_isv_groups)
+      - name: IBM_RBAC_BINDING_TO_GROUP
+        value: $(params.ibm_rbac_binding_to_group)
+
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -186,6 +209,16 @@ spec:
         if [[ -n "${CLUSTER_PROMOTION_CLUSTER_VALUES}" ]];then
           echo "Setting var CLUSTER_PROMOTION to true as var CLUSTER_PROMOTION_CLUSTER_VALUES is set"
           export CLUSTER_PROMOTION=true
+        fi
+
+        if [[ -n "${GROUP_SYNC_OPERATOR_ISV_GROUPS}" ]];then
+          echo "Setting var INSTALL_GROUP_SYNC_OPERATOR to true as var GROUP_SYNC_OPERATOR_ISV_GROUPS is set"
+          export INSTALL_GROUP_SYNC_OPERATOR=true
+        fi
+
+        if [[ -n "${IBM_RBAC_BINDING_TO_GROUP}" ]];then
+          echo "Setting var INSTALL_IBM_RBAC to true as var IBM_RBAC_BINDING_TO_GROUP is set"
+          export INSTALL_IBM_RBAC=true
         fi
 
         mkdir -p /tmp/init-cluster
