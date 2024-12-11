@@ -145,8 +145,85 @@ jobs:
           password: ${{ secrets.PYPI_API_TOKEN }}
           packages-dir: python/dist
 
-  build-container:
-    name: Build Container Image
+  build-arm64-container:
+    name: Build Container Image (arm64)
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
+    needs:
+      - build-tekton
+      - build-python
+    steps:
+      # 1. Initialize the build
+      # -------------------------------------------------------------------------------------------
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+        # Without this option, we don't get the tag information
+        with:
+          fetch-depth: 0
+
+      - name: Initialise the build system
+        id: init
+        run: |
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          $GITHUB_WORKSPACE/build/bin/initbuild.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+
+      # 2. Download Ansible collection from Artifactory
+      # -------------------------------------------------------------------------------------------
+      - name: Download Ansible collection from Artifactory
+        id: download-ansible
+        if: contains(fromJson('["push", "workflow_dispatch", "repository_dispatch"]'), github.event_name)
+        env:
+          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
+          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
+        run: |
+          if [[ -e $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz ]]; then
+            echo "Found a local Ansible collection to be used in $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz! Skip download from Artifactory..."
+          else
+            echo "Downloading from ***/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz"
+            wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
+          fi
+
+      # 3. Download Built Artifacts
+      # -------------------------------------------------------------------------------------------
+      - name: Download the tekton file built in the other job
+        id: download-tekton
+        uses: actions/download-artifact@v4
+        with:
+          name: ibm-mas-tekton.yaml
+          path: ${{ github.workspace }}/image/cli/mascli/templates/
+
+      - name: Download the python package
+        id: download-python
+        uses: actions/download-artifact@v4
+        with:
+          name: mas_cli.tar.gz
+          path: ${{ github.workspace }}/image/cli/install/
+
+      # 4. CLI Container Images
+      # -------------------------------------------------------------------------------------------
+      - name: Build the container image
+        id: docker-build
+        run: |
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
+
+          # Login to quay.io
+          docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
+
+          # Build the images
+          $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform arm64 -b image/cli
+
+          # List available images
+          docker images
+
+          # Push the images
+          docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-arm64
+
+
+  build-amd64-container:
+    name: Build Container Image (amd64)
     runs-on: ubuntu-latest
     if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
@@ -214,17 +291,120 @@ jobs:
 
           # Build the images
           $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform amd64 -b image/cli
-          $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform s390x -b image/cli
 
           # List available images
           docker images
 
           # Push the images
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-amd64
+
+  build-s390x-container:
+    name: Build Container Image (s390x)
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
+    needs:
+      - build-tekton
+      - build-python
+    steps:
+      # 1. Initialize the build
+      # -------------------------------------------------------------------------------------------
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+        # Without this option, we don't get the tag information
+        with:
+          fetch-depth: 0
+
+      - name: Initialise the build system
+        id: init
+        run: |
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          $GITHUB_WORKSPACE/build/bin/initbuild.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+
+      # 2. Download Ansible collection from Artifactory
+      # -------------------------------------------------------------------------------------------
+      - name: Download Ansible collection from Artifactory
+        id: download-ansible
+        if: contains(fromJson('["push", "workflow_dispatch", "repository_dispatch"]'), github.event_name)
+        env:
+          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
+          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
+        run: |
+          if [[ -e $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz ]]; then
+            echo "Found a local Ansible collection to be used in $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz! Skip download from Artifactory..."
+          else
+            echo "Downloading from ***/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz"
+            wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
+          fi
+
+      # 3. Download Built Artifacts
+      # -------------------------------------------------------------------------------------------
+      - name: Download the tekton file built in the other job
+        id: download-tekton
+        uses: actions/download-artifact@v4
+        with:
+          name: ibm-mas-tekton.yaml
+          path: ${{ github.workspace }}/image/cli/mascli/templates/
+
+      - name: Download the python package
+        id: download-python
+        uses: actions/download-artifact@v4
+        with:
+          name: mas_cli.tar.gz
+          path: ${{ github.workspace }}/image/cli/install/
+
+      # 4. CLI Container Images
+      # -------------------------------------------------------------------------------------------
+      - name: Build the container image
+        id: docker-build
+        run: |
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
+
+          # Login to quay.io
+          docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
+
+          # Build the images
+          $GITHUB_WORKSPACE/build/bin/docker-build.sh -r quay.io/ibmmas/cli --target-platform s390x -b image/cli
+
+          # List available images
+          docker images
+
+          # Push the images
           docker push quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}-s390x
+  
+  build-manifest:
+    name: Build Manifest
+    runs-on: ubuntu-latest
+    needs:
+      - build-amd64-container
+      - build-s390x-container
+      - build-arm64-container
+    if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        # Without this option, we don't get the tag information
+        with:
+          fetch-depth: 0
+
+      - name: Initialise the build system
+        run: |
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          $GITHUB_WORKSPACE/build/bin/initbuild.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+
+      - name: Publish the manifest
+        run: |
+          echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
+
+          # Login to quay.io
+          docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
 
           # Publish the manifest
-          $GITHUB_WORKSPACE/build/bin/docker-manifest.sh -r quay.io/ibmmas/cli --target-platforms amd64,s390x
+          $GITHUB_WORKSPACE/build/bin/docker-manifest.sh -r quay.io/ibmmas/cli --target-platforms amd64,s390x,arm64
 
           # Re-issue the manifest under an alias where needed
           # https://github.com/docker/buildx/issues/1744#issuecomment-1896645786
@@ -233,6 +413,7 @@ jobs:
           elif [[ "$GITHUB_EVENT_NAME" == "release" ]]; then
             docker buildx imagetools create -t quay.io/ibmmas/cli:latest quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
           fi
+
 
   pyinstaller-windows:
     name: Build Windows CLI
