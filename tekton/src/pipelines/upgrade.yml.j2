@@ -37,7 +37,7 @@ spec:
         - name: configmap_name
           value: approval-upgrade
 
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-upgrade-check', 'devops_suite_name': 'pre-upgrade-check'}) | indent(4) }}
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={'name': 'pre-upgrade-check', 'devops_suite_name': 'pre-upgrade-check'}) | indent(4) }}
       runAfter:
         - approval
 
