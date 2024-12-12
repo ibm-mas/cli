@@ -116,6 +116,12 @@ spec:
               name: mas-fvt-manage
               key: FVT_DIGEST_HEALTH_PYTHON
               optional: false
+        - name: FVT_DIGEST_HEALTH_CP4D_WSL
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_DIGEST_HEALTH_CP4D_WSL
+              optional: false
         # Black and white listing
         - name: FVT_BLACKLIST
           valueFrom:
