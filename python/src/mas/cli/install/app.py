@@ -182,15 +182,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         }
 
         # Dynamically fetch the channels from the chosen catalog
+        # based on mas core
         for channel in self.chosenCatalog["mas_core_version"]:
             self.catalogReleases.append(channel)
 
         # Generate catalogTable
         for application, key in applications.items():
-            new_application_dict = {"": application}
-            for release in self.catalogReleases:
-                new_application_dict.append({release: self.chosenCatalog[key][release]})
-            self.catalogTable.append(new_application_dict)
+            self.catalogTable.append({"": application} | self.chosenCatalog[key])
 
         summary = [
             "",
