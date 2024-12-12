@@ -2,7 +2,7 @@
 # PHASE 1
 #   - fvt-health-testng-preparedata    # Health
 #   - fvt-health-python                # Health
-#   - fvt-health-cp4d                  # Health
+#   - fvt-health-cp4d_wsl                  # Health
 #   - fvt-health-testng-desktop        # Health
 #   - fvt-civil-api-defectdetection    # Civil
 # -----------------------------------------------------------------------------
@@ -90,7 +90,7 @@
     - fvt-health-testng-preparedata
 
 # All Health CP4D test suites
-- name: fvt-health-cp4d
+- name: fvt-health-cp4d_wsl
   timeout: "0"
   params:
     - name: mas_instance_id
@@ -103,7 +103,7 @@
     - name: fvt_image_namespace
       value: fvt-health
     - name: fvt_image_name
-      value: fvt-health-cp4d
+      value: fvt-health-cp4d_wsl
     - name: fvt_image_digest
       value: $(params.fvt_digest_health_cp4d_wsl)
     - name: fvt_test_suite
