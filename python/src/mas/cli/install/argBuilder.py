@@ -335,6 +335,8 @@ class installArgBuilderMixin():
                 command += f" --cos-instance-name \"{self.getParam('cos_instance_name')}\""
             if self.getParam('cos_bucket_name') != "":
                 command += f" --cos-bucket-name \"{self.getParam('cos_bucket_name')}\""
+            if self.getParam('cos_use_hmac') == "true":
+                command += "--cos-use-hmac"
             command += newline
 
         # Turbonomic Integration
@@ -350,6 +352,8 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('ibmcloud_apikey') != "":
             command += f"  --ibmcloud-apikey $IBMCLOUD_APIKEY{newline}"
+        if self.getParam('ibmcloud_resourcegroup') != "":
+            command += f"  --ibmcloud-resourcegroup $IBMCLOUD_RESOURCEGROUP{newline}"
 
         if self.getParam('aws_access_key_id') != "":
             command += f"  --aws-access-key-id $AWS_ACCESS_KEY_ID{newline}"

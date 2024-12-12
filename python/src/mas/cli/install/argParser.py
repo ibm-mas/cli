@@ -962,6 +962,15 @@ cosArgGroup.add_argument(
     required=False,
     help="When using IBM COS, set COS bucket name to be used/created"
 )
+cosArgGroup.add_argument(
+    "--cos-use-hmac",
+    dest="cos_use_hmac",
+    required=False,
+    help="When using IBM COS, setup hmac keys to be used",
+    action="store_const",
+    const="true"
+)
+
 
 # Turbonomic Integration
 # -----------------------------------------------------------------------------
@@ -1004,6 +1013,11 @@ cloudArgGroup.add_argument(
     "--ibmcloud-apikey",
     required=False,
     help="Set IBM Cloud API Key"
+)
+cloudArgGroup.add_argument(
+    "--ibmcloud-resourcegroup",
+    required=False,
+    help="Set IBM Cloud Resource Group"
 )
 cloudArgGroup.add_argument(
     "--aws-region",

@@ -118,6 +118,7 @@ optionalParams = [
     "cos_apikey",
     "cos_instance_name",
     "cos_bucket_name",
+    "cos_use_hmac"
     # Attachments
     "mas_manage_attachments_provider",
     "mas_manage_attachment_configuration_mode",
@@ -135,6 +136,7 @@ optionalParams = [
     "turbonomic_password",
     # Cloud Providers
     "ibmcloud_apikey",
+    "ibmcloud_resourcegroup"
     "aws_region",
     "aws_access_key_id",
     "secret_access_key",
