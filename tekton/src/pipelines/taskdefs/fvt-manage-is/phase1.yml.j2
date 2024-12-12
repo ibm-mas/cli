@@ -105,7 +105,7 @@
     - name: fvt_image_name
       value: fvt-health-cp4d
     - name: fvt_image_digest
-      value: $(params.fvt_digest_health_cp4d)
+      value: $(params.fvt_digest_health_cp4d_wsl)
     - name: fvt_test_suite
       value: testng-health-minimal
     - name: product_channel
@@ -119,7 +119,7 @@
     name: mas-fvt-run-suite
   # Only if we've set a digest of the Health FVT to run
   when:
-    - input: "$(params.fvt_digest_health_cp4d)"
+    - input: "$(params.fvt_digest_health_cp4d_wsl)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
