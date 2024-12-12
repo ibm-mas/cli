@@ -18,6 +18,7 @@
     fvt_digest_health_preparedata: "{{ lookup('env', 'FVT_DIGEST_HEALTH_PREPAREDATA') }}"
     fvt_digest_health_testng: "{{ lookup('env', 'FVT_DIGEST_HEALTH_TESTNG') }}"
     fvt_digest_health_python: "{{ lookup('env', 'FVT_DIGEST_HEALTH_PYTHON') }}"
+    fvt_digest_health_cp4d_wsl: "{{ lookup('env', 'FVT_DIGEST_HEALTH_CP4D_WSL') }}"
     # Black and white listing
     fvt_blacklist: "{{ lookup('env', 'FVT_BLACKLIST') }}"
     fvt_whitelist: "{{ lookup('env', 'FVT_WHITELIST') }}"
@@ -45,6 +46,7 @@
           - "fvt_digest_health_preparedata ........ {{ fvt_digest_health_preparedata }}"
           - "fvt_digest_health_testng ........ {{ fvt_digest_health_testng }}"
           - "fvt_digest_health_python ........ {{ fvt_digest_health_python }}"
+          - "fvt_digest_health_cp4d_wsl ........   {{ fvt_digest_health_cp4d_wsl }}"
           - ""
           - "fvt_blacklist ................... {{ fvt_blacklist }}"
           - "fvt_whitelist ................... {{ fvt_whitelist }}"
