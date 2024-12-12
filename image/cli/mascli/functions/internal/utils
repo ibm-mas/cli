@@ -332,6 +332,7 @@ function detect_sno() {
 
 
 function ocp_version_check() {
+  # TODO: Migrate this into python-devops
   # Check for OCP 4.9, 4.10, & 4.11
   export OCP_VERSION=$(oc get clusterversion version -o jsonpath="{.status.desired.version}")
   if [[ "$OCP_VERSION" =~ ^4\.9\.* ]] || [[ "$OCP_VERSION" =~ ^4\.10\.* ]] || [[ "$OCP_VERSION" =~ ^4\.11\.* ]]; then
