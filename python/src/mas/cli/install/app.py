@@ -167,62 +167,30 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
 
-        self.catalogReleases = ["9.1.x-feature", "9.0.x", "8.11.x", "8.10.x"]
+        self.catalogReleases = []
+        self.catalogTable = []
 
-        self.catalogTable = [
-            {
-                "": "Core",
-                "9.1.x-feature": self.chosenCatalog["mas_core_version"]["9.1.x-feature"],
-                "9.0.x": self.chosenCatalog["mas_core_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_core_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_core_version"]["8.10.x"]
-            },
-            {
-                "": "Manage",
-                "9.1.x-feature": self.chosenCatalog["mas_manage_version"]["9.1.x-feature"],
-                "9.0.x": self.chosenCatalog["mas_manage_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_manage_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_manage_version"]["8.10.x"]
-            },
-            {
-                "": "IoT",
-                "9.0.x": self.chosenCatalog["mas_iot_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_iot_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_iot_version"]["8.10.x"]
-            },
-            {
-                "": "Monitor",
-                "9.0.x": self.chosenCatalog["mas_monitor_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_monitor_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_monitor_version"]["8.10.x"]
-            },
-            {
-                "": "Assist",
-                "9.0.x": self.chosenCatalog["mas_assist_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_assist_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_assist_version"]["8.10.x"]
-            },
-            {
-                "": "Optimizer",
-                "9.1.x-feature": self.chosenCatalog["mas_optimizer_version"]["9.1.x-feature"],
-                "9.0.x": self.chosenCatalog["mas_optimizer_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_optimizer_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_optimizer_version"]["8.10.x"]
-            },
-            {
-                "": "Predict",
-                "9.0.x": self.chosenCatalog["mas_predict_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_predict_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_predict_version"]["8.10.x"]
-            },
-            {
-                "": "Inspection",
-                "9.1.x-feature": self.chosenCatalog["mas_visualinspection_version"]["9.1.x-feature"],
-                "9.0.x": self.chosenCatalog["mas_visualinspection_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_visualinspection_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_visualinspection_version"]["8.10.x"]
-            }
-        ]
+        applications = {
+            "Core": "mas_core_version",
+            "Manage": "mas_manage_version",
+            "IoT": "mas_iot_version",
+            "Monitor": "mas_monitor_version",
+            "Assist": "mas_assist_version",
+            "Optimizer": "mas_optimizer_version",
+            "Predict": "mas_predict_version",
+            "Inspection": "mas_visualinspection_version",
+        }
+
+        # Dynamically fetch the channels from the chosen catalog
+        for channel in self.chosenCatalog["mas_core_version"]:
+            self.catalogReleases.append(channel)
+
+        # Generate catalogTable
+        for application, key in applications.items():
+            new_application_dict = {"": application}
+            for release in self.catalogReleases:
+                new_application_dict.append({release: self.chosenCatalog[key][release]})
+            self.catalogTable.append(new_application_dict)
 
         summary = [
             "",
