@@ -78,7 +78,7 @@ class UpgradeApp(BaseApp):
         current_mas_channel = getMasChannel(self.dynamicClient, instanceId)
 
         if current_mas_channel not in self.upgrade_path:
-            self.fatalError(f"There is no upgrade path defined for the mas subscription channel {current_mas_channel}")
+            self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {current_mas_channel}")
 
         next_mas_channel = self.upgrade_path[current_mas_channel]
 
