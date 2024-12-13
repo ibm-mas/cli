@@ -31,6 +31,8 @@ spec:
       type: string
     - name: mas_domain
       type: string
+    - name: cis_mas_domain
+      type: string
     - name: cis_crn
       type: string
   stepTemplate:
@@ -61,6 +63,8 @@ spec:
         value: $(params.icn)
       - name: MAS_DOMAIN
         value: $(params.mas_domain)
+      - name: CIS_MAS_DOMAIN
+        value: $(params.cis_mas_domain)
       - name: CIS_CRN
         value: $(params.cis_crn)
     envFrom:
@@ -98,7 +102,7 @@ spec:
 
         mas-saas-sendgrid-subuser \
           --customer-id "${ICN}" \
-          --mas-domain "${MAS_DOMAIN}" \
+          --cis-mas-domain "${CIS_MAS_DOMAIN}" \
           --mas-account-id "${ACCOUNT_ID}" \
           --mas-cluster-id "${CLUSTER_ID}" \
           --mas-instance-id "${MAS_INSTANCE_ID}" \
@@ -149,7 +153,7 @@ spec:
         export SMTP_PORT="465"
         export SMTP_SECURITY="SSL"
         export SMTP_AUTHENTICATION="true"
-        export SMTP_DEFAULT_SENDER_EMAIL="mas.admin@${MAS_DOMAIN}"
+        export SMTP_DEFAULT_SENDER_EMAIL="mas.admin@${CIS_MAS_DOMAIN:-${MAS_DOMAIN}}" # use dns.cis.mas_domain if set, otherwise fallback to mas_instance.mas_domain
         export SMTP_DEFAULT_SENDER_NAME="MASAdmin"
         export SMTP_DEFAULT_RECIPIENT_EMAIL="mas.ms.smtp@ibm.com"
         export SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS="true"

@@ -13,7 +13,7 @@ spec:
       type: string
     - name: icn
       type: string
-    - name: mas_domain
+    - name: cis_mas_domain
       type: string
     - name: cis_crn
       type: string
@@ -29,8 +29,8 @@ spec:
 
       - name: ICN
         value: $(params.icn)
-      - name: MAS_DOMAIN
-        value: $(params.mas_domain)
+      - name: CIS_MAS_DOMAIN
+        value: $(params.cis_mas_domain)
       - name: CIS_CRN
         value: $(params.cis_crn)
     envFrom:
@@ -48,11 +48,11 @@ spec:
 
         mas-saas-sendgrid-subuser \
           --customer-id "${ICN}" \
-          --mas-domain "${MAS_DOMAIN}" \
           --mas-account-id "${ACCOUNT_ID}" \
           --mas-cluster-id "${CLUSTER_ID}" \
           --mas-instance-id "${MAS_INSTANCE_ID}" \
           --cis-crn "${CIS_CRN}" \
+          --cis-mas-domain "${CIS_MAS_DOMAIN}" \
           --action delete
 
         exit $?
