@@ -336,7 +336,7 @@ class installArgBuilderMixin():
             if self.getParam('cos_bucket_name') != "":
                 command += f" --cos-bucket-name \"{self.getParam('cos_bucket_name')}\""
             if self.getParam('cos_use_hmac') == "true":
-                command += "--cos-use-hmac"
+                command += f"--cos-use-hmac{newline}"
             command += newline
 
         # Turbonomic Integration
