@@ -350,9 +350,11 @@ if __name__ == "__main__":
                         if "mas.ibm.com/buildId" in deploymentDict["metadata"]["labels"]:
                             productBuildId = deploymentDict["metadata"]["labels"]["mas.ibm.com/buildId"]
                             productBuildNumber = deploymentDict["metadata"]["labels"]["mas.ibm.com/buildNumber"]
-
                             setObject[f"products.{productId}.buildId"] = productBuildId
                             setObject[f"products.{productId}.buildNumber"] = productBuildNumber
+                        if "mas.ibm.com/commitId" in deploymentDict["metadata"]["labels"]:
+                            productCommitId = deploymentDict["metadata"]["labels"]["mas.ibm.com/commitId"]
+                            setObject[f"products.{productId}.commitId"] = productCommitId
                     else:
                         print(f"Unable to determine {deploymentName} build information: deployment is none")
                 except Exception as e:

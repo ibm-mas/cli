@@ -112,19 +112,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def licensePrompt(self):
-        licenses = {
-            "8.9.x": " - <u>https://ibm.biz/MAS89-License</u>",
-            "8.10.x": " - <u>https://ibm.biz/MAS810-License</u>",
-            "8.11.x": " - <u>https://ibm.biz/MAS811-License</u>\n - <u>https://ibm.biz/MAXIT81-License</u>",
-            "9.0.x": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>",
-            "9.1.x-feature": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>\n\n - Be aware, this channel subscription is supported for non-production use only.  It allows early access to new features for evaluation is non-production environments. This subscription is offered alongside and in parallel with our normal maintained streams.  When using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment. Severity must be either 3 or 4 and cases cannot be escalated.  Please refer to IBM documentation for more details.\n",
-        }
-
         if not self.licenseAccepted:
             self.printH1("License Terms")
             self.printDescription([
                 "To continue with the installation, you must accept the license terms:",
-                licenses[self.getParam('mas_channel')]
+                self.licenses[self.getParam('mas_channel')]
             ])
 
             if self.noConfirm:
@@ -175,62 +167,28 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
 
-        self.catalogReleases = ["9.0.x", "8.11.x", "8.10.x"]
+        self.catalogReleases = []
+        self.catalogTable = []
 
-        self.catalogTable = [
-            {
-                "": "Core",
-                "9.1.x-feature": self.chosenCatalog["mas_core_version"]["9.1.x-feature"],
-                "9.0.x": self.chosenCatalog["mas_core_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_core_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_core_version"]["8.10.x"]
-            },
-            {
-                "": "Manage",
-                "9.1.x-feature": self.chosenCatalog["mas_manage_version"]["9.1.x-feature"],
-                "9.0.x": self.chosenCatalog["mas_manage_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_manage_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_manage_version"]["8.10.x"]
-            },
-            {
-                "": "IoT",
-                "9.0.x": self.chosenCatalog["mas_iot_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_iot_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_iot_version"]["8.10.x"]
-            },
-            {
-                "": "Monitor",
-                "9.0.x": self.chosenCatalog["mas_monitor_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_monitor_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_monitor_version"]["8.10.x"]
-            },
-            {
-                "": "Assist",
-                "9.0.x": self.chosenCatalog["mas_assist_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_assist_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_assist_version"]["8.10.x"]
-            },
-            {
-                "": "Optimizer",
-                "9.1.x-feature": self.chosenCatalog["mas_optimizer_version"]["9.1.x-feature"],
-                "9.0.x": self.chosenCatalog["mas_optimizer_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_optimizer_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_optimizer_version"]["8.10.x"]
-            },
-            {
-                "": "Predict",
-                "9.0.x": self.chosenCatalog["mas_predict_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_predict_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_predict_version"]["8.10.x"]
-            },
-            {
-                "": "Inspection",
-                "9.1.x-feature": self.chosenCatalog["mas_visualinspection_version"]["9.1.x-feature"],
-                "9.0.x": self.chosenCatalog["mas_visualinspection_version"]["9.0.x"],
-                "8.11.x": self.chosenCatalog["mas_visualinspection_version"]["8.11.x"],
-                "8.10.x": self.chosenCatalog["mas_visualinspection_version"]["8.10.x"]
-            }
-        ]
+        applications = {
+            "Core": "mas_core_version",
+            "Manage": "mas_manage_version",
+            "IoT": "mas_iot_version",
+            "Monitor": "mas_monitor_version",
+            "Assist": "mas_assist_version",
+            "Optimizer": "mas_optimizer_version",
+            "Predict": "mas_predict_version",
+            "Inspection": "mas_visualinspection_version",
+        }
+
+        # Dynamically fetch the channels from the chosen catalog
+        # based on mas core
+        for channel in self.chosenCatalog["mas_core_version"]:
+            self.catalogReleases.append(channel)
+
+        # Generate catalogTable
+        for application, key in applications.items():
+            self.catalogTable.append({"": application} | self.chosenCatalog[key])
 
         summary = [
             "",
