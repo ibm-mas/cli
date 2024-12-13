@@ -61,11 +61,6 @@ class installArgBuilderMixin():
         command += f" --mas-workspace-id {self.getParam('mas_workspace_id')}"
         command += f" --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"
 
-        if self.getParam('mas_icr_cp') != "":
-            command += f" --mas-icr-cp \"{self.getParam('mas_icr_cp')}"
-        if self.getParam('mas_icr_cpopen') != "":
-            command += f" --mas-icr-cpopen \"{self.getParam('mas_icr_cpopen')}\"{newline}"
-
         if self.getParam('mas_special_characters') == "true":
             command += f" --allow-special-chars \"{self.getParam('mas_special_characters')}\"{newline}"
 
