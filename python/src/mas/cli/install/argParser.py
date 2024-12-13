@@ -77,6 +77,16 @@ masArgGroup.add_argument(
     required=False,
     help="Subscription channel for the Core Platform"
 )
+masArgGroup.add_argument(
+    "--mas-icr-cp",
+    required=False,
+    help="Defines the entitled registry from the images should be pulled from"
+)
+masArgGroup.add_argument(
+    "--mas-icr-cpopen",
+    required=False,
+    help="Defines the registry for non-entitled images, such as operators"
+)
 # MAS Special characters
 # -----------------------------------------------------------------------------
 masSpecialCharacters = installArgParser.add_argument_group("Mas Special Characters")

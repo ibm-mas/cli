@@ -32,6 +32,8 @@ optionalParams = [
     # OpenShift
     "ocp_ingress_tls_secret_name",
     # MAS
+    "mas_icr_cp",
+    "mas_icr_cpopen",
     "mas_catalog_digest",
     "mas_superuser_username",
     "mas_superuser_password",
