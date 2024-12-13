@@ -1,8 +1,9 @@
 # -----------------------------------------------------------------------------
 # PHASE 1
-# - fvt-health-testng-preparedata      # Health
-#   - fvt-health-testng-desktop        # Health
+#   - fvt-health-testng-preparedata    # Health
 #   - fvt-health-python                # Health
+#   - fvt-health-cp4d-wsl                  # Health
+#   - fvt-health-testng-desktop        # Health
 #   - fvt-civil-api-defectdetection    # Civil
 # -----------------------------------------------------------------------------
 
@@ -50,6 +51,86 @@
   runAfter:
     - fvt-manage-setup-is
 
+# All Health test suites in Python
+- name: fvt-health-python
+  timeout: "0"
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-health
+    - name: fvt_image_name
+      value: fvt-health-python
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_health_python)
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a digest of the Health FVT to run
+  when:
+    - input: "$(params.fvt_digest_health_python)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  runAfter:
+    - fvt-health-testng-preparedata
+
+# All Health CP4D test suites
+- name: fvt-health-cp4d-wsl
+  timeout: "0"
+  params:
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_namespace
+      value: fvt-health
+    - name: fvt_image_name
+      value: fvt-health-cp4d-wsl
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_health_cp4d_wsl)
+    - name: fvt_test_suite
+      value: testng-health-minimal
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: product_id
+      value: ibm-mas-manage
+    - name: browserstack_remoteserver
+      value: http:<username>:<access_key>@<server>/wd/hub # we need to set it somewhere or discover it from inside the container
+  taskRef:
+    kind: Task
+    name: mas-fvt-run-suite
+  # Only if we've set a digest of the Health FVT to run
+  when:
+    - input: "$(params.fvt_digest_health_cp4d_wsl)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  runAfter:
+    - fvt-health-python
+
 # All Health test suites on desktop
 - name: fvt-health-testng-desktop
   timeout: "0"
@@ -81,44 +162,6 @@
   # Only if we've set a digest of the Health FVT to run
   when:
     - input: "$(params.fvt_digest_health_testng)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_app_channel_manage)"
-      operator: notin
-      values: [""]
-  workspaces:
-    - name: configs
-      workspace: shared-configs
-  runAfter:
-    - fvt-health-testng-preparedata
-
-## All Health test suites in Python
-- name: fvt-health-python
-  timeout: "0"
-  params:
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
-    - name: mas_workspace_id
-      value: $(params.mas_workspace_id)
-
-    - name: fvt_image_registry
-      value: $(params.fvt_image_registry)
-    - name: fvt_image_namespace
-      value: fvt-health
-    - name: fvt_image_name
-      value: fvt-health-python
-    - name: fvt_image_digest
-      value: $(params.fvt_digest_health_python)
-    - name: product_channel
-      value: $(params.mas_app_channel_manage)
-    - name: product_id
-      value: ibm-mas-manage
-  taskRef:
-    kind: Task
-    name: mas-fvt-run-suite
-  # Only if we've set a digest of the Health FVT to run
-  when:
-    - input: "$(params.fvt_digest_health_python)"
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_manage)"
