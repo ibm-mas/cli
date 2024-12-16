@@ -73,7 +73,7 @@ spec:
         # Pull values out of the outfile and set them as environment vars
         if [[ -f "${OUTPUT_FILE}" ]]; then
           echo "Reading outputs from ${OUTPUT_FILE}"
-          export DELETED_SUBUSER(yq '.deleted_subuser // ""' "${OUTPUT_FILE}")"
+          export DELETED_SUBUSER="$(yq '.deleted_subuser // ""' "${OUTPUT_FILE}")"
         fi
 
         if [[ "${DELETED_SUBUSER}" == "true" ]]; then
