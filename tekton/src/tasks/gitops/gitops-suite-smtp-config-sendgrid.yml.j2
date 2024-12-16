@@ -112,11 +112,14 @@ spec:
         
         rc="$?"
 
+        echo "mas-saas-sendgrid-subuser rc: ${rc}"
+
         # Pull values out of the outfile and set them as environment vars
         if [[ -f "${OUTPUT_FILE}" ]]; then
           echo "Reading outputs from ${OUTPUT_FILE}"
           export SUBUSER_USERNAME="$(yq '.subuser.username // ""' "${OUTPUT_FILE}")"
           export SUBUSER_PASSWORD="$(yq '.subuser.password // ""' "${OUTPUT_FILE}")"
+          export SENDGRID_APIKEY_USERNAME="apikey"
           export SENDGRID_APIKEY_PASSWORD="$(yq '.apikey // ""' "${OUTPUT_FILE}")"
         fi
 
@@ -129,8 +132,6 @@ spec:
           echo "Putting generated API Key in ${SECRET_NAME_SMTP}"
 
           # NOTE: deliberately not using $SMTP_USERNAME or $SMTP_PASSWORD here, since we don't need/want the gitops-mas-config to repeat this step
-          SENDGRID_APIKEY_USERNAME="apikey"
-          SENDGRID_APIKEY_PASSWORD="$(cat ${API_KEY_OUTPUT_FILE})"
           TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite_smtp_config_sendgrid\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
           # NOTE: running function in a subshell so we don't exit this script if something goes wrong (necessary due to the use of "set +o pipefail" in sm_update_secret)
           (sm_update_secret "${SECRET_NAME_SMTP}" "{\"username\": \"$SENDGRID_APIKEY_USERNAME\", \"password\": \"$SENDGRID_APIKEY_PASSWORD\"}" "${TAGS}")
@@ -141,16 +142,19 @@ spec:
 
         # If a new subuser was created by the script (even if something went wrong in a later step)
         # this is our only opportunity to store the password we generated for the subuser
-        update_subuser_secret_rc=""
+        update_subuser_secret_rc="0"
         if [[ -n "${SUBUSER_PASSWORD}" ]]; then
           SECRET_NAME_SENDGRID="${ICN}/sendgrid_subuser"
-          TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite_smtp_config_sendgrid\"}"
+          TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite_smtp_config_sendgrid\"}]"
           echo "Putting generated subuser credentials in ${SECRET_NAME_SENDGRID}"
-          (sm_update_secret "${SECRET_NAME_SMTP}" "{\"username\": \"$SUBUSER_USERNAME\", \"password\": \"$SUBUSER_PASSWORD\"}" "${TAGS}")
+          (sm_update_secret "${SECRET_NAME_SENDGRID}" "{\"username\": \"$SUBUSER_USERNAME\", \"password\": \"$SUBUSER_PASSWORD\"}" "${TAGS}")
 
           # defer exiting the script if the sm_update_secret call above failed, so we have an opportunity to register other generated secrets
           update_subuser_secret_rc="$?"
         fi
+
+        echo "update_apikey_secret_rc: ${update_apikey_secret_rc}"
+        echo "update_subuser_secret_rc: ${update_subuser_secret_rc}"
 
         if [[ "${update_apikey_secret_rc}" != "0" ]]; then
           # We could add additional automation to deal with the (rare) edge case of the SM update failing.
@@ -168,7 +172,7 @@ spec:
 
 
 
-        if [[ "${update_subuser_secret_rc} != "0" ]]; then
+        if [[ "${update_subuser_secret_rc}" != "0" ]]; then
           # We could add additional automation to deal with the (rare) edge case of the SM update failing.
           # but I think - given the rarity - just documenting the manual resolution steps below will suffice.
           echo "Failed to write generated subuser username and password to AWS Secrets Manager!"

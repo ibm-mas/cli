@@ -17,6 +17,8 @@ spec:
       type: string
     - name: cis_crn
       type: string
+    - name: avp_aws_secret_region
+      type: string
   stepTemplate:
     name: gitops-deprovision-suite-sendgrid-subuser
     env:
@@ -33,6 +35,9 @@ spec:
         value: $(params.cis_mas_domain)
       - name: CIS_CRN
         value: $(params.cis_crn)
+
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -42,6 +47,14 @@ spec:
   steps:
     - args:
       - |-
+
+        # Expected secure-properties (sourced from IBM Cloud SM):
+        # -------------------
+        # SM_AWS_ACCESS_KEY_ID
+        # SM_AWS_SECRET_ACCESS_KEY
+        # CIS_APIKEY
+        # SENDGRID_API_KEY
+
 
         # Teardown of smtp config in gitops-envs is handled by gitops-deprovision-suite-smtp-config task
         # All we need to do here is make sure we clean up SendGrid, CIS and the sendgrid_subuser secret in AWS SM (if the subuser was deleted)

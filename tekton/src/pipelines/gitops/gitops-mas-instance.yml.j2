@@ -671,6 +671,8 @@ spec:
           value: $(params.cis_mas_domain)
         - name: cis_crn
           value: $(params.cis_crn)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
       taskRef:
         kind: Task
         name: gitops-deprovision-suite-sendgrid-subuser
