@@ -583,6 +583,7 @@ function gitops_cluster() {
 
   if [[ "$INSTALL_GROUP_SYNC_OPERATOR" == "true" ]]; then
     echo "- Group Sync Operator"
+    sm_verify_secret_exists $SECRET_NAME_ISV_CLIENT "client_secret,client_id"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/group-sync-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/group-sync-operator.yaml
   fi
 

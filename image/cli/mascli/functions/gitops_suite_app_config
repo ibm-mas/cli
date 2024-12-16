@@ -491,9 +491,24 @@ function gitops_suite_app_config() {
     echo
     echo_h2 "Using application spec provided for $MAS_APP_ID at $MAS_APPWS_SPEC_YAML"
     export MAS_APPWS_SPEC=$(cat ${MAS_APPWS_SPEC_YAML} | yq '.' --output-format yaml)
-    yq eval '.mas_appws_spec.settings.customizationList  | to_entries | .[].value.customizationArchiveCredentials.secretName | [] + .' ${MAS_APPWS_SPEC_YAML} | yq '{"CUSTOMIZATION_ARCHIVE_SECRET_NAMES": [] + .}'  > $ADDITIONAL_JINJA_PARAMS_FILE
-    export MANAGE_LOGGING_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.deployment.loggingS3Destination.secretKey.secretName // ""' ${MAS_APPWS_SPEC_YAML})
-    export MANAGE_LOGGING_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_logging${SECRETS_KEY_SEPERATOR}
+    if [[ "${MAS_APP_ID}" == "manage" ]]; then
+      yq eval '.mas_appws_spec.settings.customizationList  | to_entries | .[].value.customizationArchiveCredentials.secretName | [] + .' ${MAS_APPWS_SPEC_YAML} | yq '{"CUSTOMIZATION_ARCHIVE_SECRET_NAMES": [] + .}'  > $ADDITIONAL_JINJA_PARAMS_FILE
+      export MANAGE_LOGGING_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.deployment.loggingS3Destination.secretKey.secretName // ""' ${MAS_APPWS_SPEC_YAML})
+      export MANAGE_LOGGING_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}manage_logging${SECRETS_KEY_SEPERATOR}
+      sm_verify_secret_exists ${MANAGE_LOGGING_SECRET}${MANAGE_LOGGING_SECRET_NAME} "access_secret_key,bucketName,endpointURL,accessKey" 
+     
+      yq '.mas_appws_spec.settings.deployment.serverBundles[].bundleLevelProperties // ""' ${MAS_APPWS_SPEC_YAML} > all_bundle_props.props
+      cat all_bundle_props.props | grep "<path:arn:" | awk -F= '{print $2}' >> bundlesecretrefs.txt
+      while read BUNDLE_SECRET_REF; do
+        if [[ $BUNDLE_SECRET_REF == "<path:arn"* ]]; then
+          BUNDLE_SECRET_NAME=$(echo $BUNDLE_SECRET_REF | awk -F: '{print $8}' | awk -F# '{print $1}')
+          BUNDLE_SECRET_KEY=$(echo $BUNDLE_SECRET_REF | awk -F: '{print $8}' | awk -F# '{print substr($2, 1, length($2)-1)}')
+          sm_verify_secret_exists $BUNDLE_SECRET_NAME $BUNDLE_SECRET_KEY 
+        fi
+      done < bundlesecretrefs.txt
+      rm -f bundlesecretrefs.txt
+      rm -f all_bundle_props.props
+    fi
   else
     echo
     echo_h2 "Using default application spec for $MAS_APP_ID"
