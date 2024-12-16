@@ -22,7 +22,7 @@ from ..validators import InstanceIDValidator
 from .argParser import upgradeArgParser
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, verifyMasInstance, getMasChannel
+from mas.devops.mas import listMasInstances, getMasChannel
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 
 logger = logging.getLogger(__name__)
@@ -69,11 +69,6 @@ class UpgradeApp(BaseApp):
             suiteCompleter = WordCompleter(suiteOptions)
             print()
             instanceId = prompt(HTML('<Yellow>Enter MAS instance ID: </Yellow>'), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False)
-        else:
-            # Non-interactive mode
-            if not verifyMasInstance(self.dynamicClient, instanceId):
-                print_formatted_text(HTML(f"<Red>Error: MAS instance {instanceId} not found on this cluster</Red>"))
-                sys.exit(1)
 
         current_mas_channel = getMasChannel(self.dynamicClient, instanceId)
 

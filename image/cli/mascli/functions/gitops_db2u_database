@@ -614,6 +614,8 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
     echo
     echo_h2 "Optional DB backup configurations are provided"
+    sm_verify_secret_exists $SECRET_NAME_ICD_AUTH_KEY "icd_auth_key"
+    sm_verify_secret_exists $SECRET_NAME_DB2_BACKUP "bucketName,accessKey,access_secret_key,endpointURL"
     export BACKUP=true
   fi
 
