@@ -52,7 +52,6 @@ spec:
         # -------------------
         # SM_AWS_ACCESS_KEY_ID
         # SM_AWS_SECRET_ACCESS_KEY
-        # CIS_APIKEY
         # SENDGRID_API_KEY
 
 
@@ -61,6 +60,16 @@ spec:
         source /mascli/functions/gitops_utils
         export AVP_TYPE="aws"
         sm_login || exit 1
+
+        # Fetch CIS API Key from AWS SM.
+        # This is suitable for use with CIS instances used by MAS instances in the cluster we are targetting
+        SECRET_NAME_CIS="${ACCOUNT_ID}/${CLUSTER_ID}/cis"
+        echo "Getting ${SECRET_NAME_CIS} from AWS SM"
+        export CIS_APIKEY="$(sm_get_secret_value "${SECRET_NAME_CIS}" "ibm_apikey")"
+        if [[ -z "${CIS_APIKEY}" || "${CIS_APIKEY}" == "null" ]]; then
+          echo "Required AWS SM secret "${SECRET_NAME_CIS}" not found or invalid"
+          exit 1
+        fi
 
         mkdir -p /tmp/gitops-deprovision-suite-sendgrid-subuser
         OUTPUT_FILE="/tmp/gitops-deprovision-suite-sendgrid-subuser/mas-saas-sendgrid-subuser-output.yaml"
