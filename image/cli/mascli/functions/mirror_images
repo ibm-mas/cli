@@ -571,12 +571,12 @@ function mirror_to_registry() {
   reset_colors
   echo_h2 "Review Settings"
 
-  REGISTRY_URL=$REGISTRY_PUBLIC_PORT
+  REGISTRY_URL=$REGISTRY_PUBLIC_HOST
   if [[ "$REGISTRY_PUBLIC_PORT" != "" ]]; then
     REGISTRY_URL+=":$REGISTRY_PUBLIC_PORT"
   fi
-  if [[ "$REGISTRY_PREFIX_REDHAT" != "" ]]; then
-    REGISTRY_URL+="/$REGISTRY_PREFIX_REDHAT"
+  if [[ "$REGISTRY_PREFIX" != "" ]]; then
+    REGISTRY_URL+="/$REGISTRY_PREFIX"
   fi
 
   echo
