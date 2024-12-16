@@ -32,7 +32,7 @@ class UpdateApp(BaseApp):
 
     def update(self, argv):
         """
-        Uninstall MAS instance
+        Update MAS instance
         """
         self.args = updateArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
