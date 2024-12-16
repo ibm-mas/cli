@@ -43,8 +43,15 @@ spec:
     - args:
       - |-
 
-        # Teardown of smtp config in gitops-envs + AWS SM secrets is handled by gitops-deprovision-suite-smtp-config task
-        # All we need to do here is make sure we clean up SendGrid and CIS
+        # Teardown of smtp config in gitops-envs is handled by gitops-deprovision-suite-smtp-config task
+        # All we need to do here is make sure we clean up SendGrid, CIS and the sendgrid_subuser secret in AWS SM (if the subuser was deleted)
+        source /mascli/functions/gitops_utils
+        export AVP_TYPE="aws"
+        sm_login || exit 1
+
+        mkdir -p /tmp/gitops-deprovision-suite-sendgrid-subuser
+        OUTPUT_FILE="/tmp/gitops-deprovision-suite-sendgrid-subuser/mas-saas-sendgrid-subuser-output.yaml"
+        rm "${OUTPUT_FILE}"
 
         mas-saas-sendgrid-subuser \
           --customer-id "${ICN}" \
@@ -53,9 +60,30 @@ spec:
           --mas-instance-id "${MAS_INSTANCE_ID}" \
           --cis-crn "${CIS_CRN}" \
           --cis-mas-domain "${CIS_MAS_DOMAIN}" \
+          --output-file "${OUTPUT_FILE}" \
           --action delete
+        
+        rc="$?"
 
-        exit $?
+        if [[ "${rc}" != "0" ]]; then
+          echo "mas-saas-sendgrid-subuser failed with rc ${rc}"
+          exit ${rc}
+        fi
+
+        # Pull values out of the outfile and set them as environment vars
+        if [[ -f "${OUTPUT_FILE}" ]]; then
+          echo "Reading outputs from ${OUTPUT_FILE}"
+          export DELETED_SUBUSER(yq '.deleted_subuser // ""' "${OUTPUT_FILE}")"
+        fi
+
+        if [[ "${DELETED_SUBUSER}" == "true" ]]; then
+          SECRET_NAME_SENDGRID="${ICN}/sendgrid_subuser"
+          echo "Subuser was deleted, cleaning up ${SECRET_NAME_SENDGRID} secret"
+
+          # will fail task if this fails (due to use of "set +o pipefail" in the function)
+          sm_delete_secret "${SECRET_NAME_SENDGRID}"
+        fi
+
       command:
         - /bin/sh
         - -c
