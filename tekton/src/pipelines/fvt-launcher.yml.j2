@@ -1005,20 +1005,15 @@ spec:
 
     # Update Sync Point
     # -------------------------------------------------------------------------
-    - name: approval-update
+    # The CLI update command analyzes the state of the cluster to determine the
+    # appropriate actions, so we cannot queue the update ahead of time, we
+    # must invoke the "mas update" command at the appropriate time so that
+    # the logic built into the CLI is able to run through
+    - name: start-update
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-devops-update-configmap
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: configmap_namespace
-          value: mas-pipelines
-        - name: configmap_name
-          value: approval-update
-        - name: configmap_value
-          value: approved
+        name: mas-fvt-start-update
       when:
         - input: $(params.sync_with_update)
           operator: in
@@ -1043,7 +1038,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - approval-update
+        - start-update
 
 
     # Upgrade Sync Point
@@ -1088,18 +1083,14 @@ spec:
 
     # Uninstall Sync Point
     # -------------------------------------------------------------------------
-    - name: approval-uninstall
+    - name: start-uninstall
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-devops-update-configmap
+        name: mas-devops-start-uninstall
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: configmap_name
-          value: approval-uninstall
-        - name: configmap_value
-          value: approved
       when:
         - input: $(params.sync_with_uninstall)
           operator: in
@@ -1124,7 +1115,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - approval-uninstall
+        - start-uninstall
 
   # Finally
   # ---------------------------------------------------------------------------
