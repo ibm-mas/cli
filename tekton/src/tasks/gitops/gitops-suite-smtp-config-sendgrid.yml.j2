@@ -94,7 +94,7 @@ spec:
         # This is suitable for use with CIS instances used by MAS instances in the cluster we are targetting
         SECRET_NAME_CIS="${ACCOUNT_ID}/${CLUSTER_ID}/cis"
         echo "Getting ${SECRET_NAME_CIS} from AWS SM"
-        export CIS_APIKEY="$(sm_get_secret_value "${SECRET_NAME_CIS}" "ibm_apikey")"
+        export CIS_APIKEY="$(sm_get_secret_value "${SECRET_NAME_CIS}" "ibm_apikey")" # pragma: allowlist secret
         if [[ -z "${CIS_APIKEY}" || "${CIS_APIKEY}" == "null" ]]; then
           echo "Required AWS SM secret "${SECRET_NAME_CIS}" not found or invalid"
           exit 1
@@ -128,7 +128,7 @@ spec:
           echo "Reading outputs from ${OUTPUT_FILE}"
           export SUBUSER_USERNAME="$(yq '.subuser.username // ""' "${OUTPUT_FILE}")"
           export SUBUSER_PASSWORD="$(yq '.subuser.password // ""' "${OUTPUT_FILE}")"
-          export SENDGRID_APIKEY_USERNAME="apikey"
+          export SENDGRID_APIKEY_USERNAME="apikey" # pragma: allowlist secret
           export SENDGRID_APIKEY_PASSWORD="$(yq '.apikey // ""' "${OUTPUT_FILE}")"
         fi
 
