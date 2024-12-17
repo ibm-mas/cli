@@ -970,7 +970,6 @@ cosArgGroup.add_argument(
     const="true"
 )
 
-
 # Turbonomic Integration
 # -----------------------------------------------------------------------------
 turboArgGroup = installArgParser.add_argument_group("Turbonomic Integration")
