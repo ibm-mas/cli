@@ -18,6 +18,7 @@ spec:
         cat mas.log
         echo '--------------------------------------------------------------------------------'
         exit $RESULT
+      timeout: "0"
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       env:

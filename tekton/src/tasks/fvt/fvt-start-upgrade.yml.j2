@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-fvt-start-uninstall
+  name: mas-fvt-start-upgrade
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
@@ -11,10 +11,10 @@ spec:
       description: Instance ID
 
   steps:
-    - name: start-uninstall
+    - name: start-upgrade
       script: |
         #!/usr/bin/env bash
-        mas uninstall --uninstall-all-deps --mas-instance-id $MAS_INSTANCE_ID --no-confirm
+        mas upgrade --mas-instance-id $MAS_INSTANCE_ID --no-confirm --accept-license
         RESULT=$1
         echo 'MAS LOG'
         echo '--------------------------------------------------------------------------------'

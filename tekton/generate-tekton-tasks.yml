@@ -82,6 +82,7 @@
         - fvt-run-suite
         - fvt-sls
         - fvt-start-update
+        - fvt-start-upgrade
         - fvt-start-uninstall
 
     - name: Generate Tasks (FVT Launchers)
