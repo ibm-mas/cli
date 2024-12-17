@@ -8,5 +8,5 @@ falcon_operator:
 {%- endif %}
 {%- if FALCON_OPERATOR_NODE_SENSOR_CONFIG is defined %}
   node_sensor:
-    {{ FALCON_OPERATOR_NODE_SENSOR_CONFIG | indent( width=2 ) }}
+    {{ FALCON_OPERATOR_NODE_SENSOR_CONFIG | indent }}
 {%- endif %}
