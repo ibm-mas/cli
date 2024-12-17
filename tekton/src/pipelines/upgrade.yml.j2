@@ -26,7 +26,7 @@ spec:
   tasks:
     # 1. Wait for approval & verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    - name: approval
+    - name: waitfor-approval
       timeout: "0"
       taskRef:
         kind: Task
@@ -39,7 +39,7 @@ spec:
 
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={'name': 'pre-upgrade-check', 'devops_suite_name': 'pre-upgrade-check'}) | indent(4) }}
       runAfter:
-        - approval
+        - waitfor-approval
 
 
     # 2. Suite Upgrade (Phase 1)
