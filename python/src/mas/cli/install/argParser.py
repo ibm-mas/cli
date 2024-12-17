@@ -77,7 +77,6 @@ masArgGroup.add_argument(
     required=False,
     help="Subscription channel for the Core Platform"
 )
-
 # MAS Special characters
 # -----------------------------------------------------------------------------
 masSpecialCharacters = installArgParser.add_argument_group("Mas Special Characters")
