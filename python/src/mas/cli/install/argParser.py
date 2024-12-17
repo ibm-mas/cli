@@ -192,7 +192,7 @@ masAdvancedArgGroup.add_argument(
     "--mas-cluster-issuer",
     dest="mas_cluster_issuer",
     required=False,
-    help="Only required if you want to use Let's Encrypt certificates in your MAS installation",
+    help="Provide the name of the ClusterIssuer to configure MAS to issue certificates",
 )
 
 # DNS Configuration - IBM CIS
@@ -960,14 +960,6 @@ cosArgGroup.add_argument(
     dest="cos_bucket_name",
     required=False,
     help="When using IBM COS, set COS bucket name to be used/created"
-)
-cosArgGroup.add_argument(
-    "--cos-use-hmac",
-    dest="cos_use_hmac",
-    required=False,
-    help="When using IBM COS, setup hmac keys to be used",
-    action="store_const",
-    const="true"
 )
 
 # Turbonomic Integration
