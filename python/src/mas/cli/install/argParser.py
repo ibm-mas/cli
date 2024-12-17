@@ -930,7 +930,7 @@ eventstreamsArgGroup.add_argument(
 )
 
 # COS
-# ------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 cosArgGroup = installArgParser.add_argument_group("Cloud Object Storage")
 cosArgGroup.add_argument(
     "--cos",
