@@ -52,7 +52,6 @@
         - fvt-upgrade-pre
         - fvt-visualinspection
         - fvt-launcher
-        - fvt-launcher-uninstall
         - fvt-dynamicscan
         - ivt-manage
 

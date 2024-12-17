@@ -183,7 +183,7 @@ spec:
         - name: escape_configmap_name
           value: sync-install
         - name: escape_configmap_key
-          value: INSTALL_STATUS
+          value: STATUS
         # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
@@ -275,7 +275,7 @@ spec:
         - name: escape_configmap_name
           value: sync-install
         - name: escape_configmap_key
-          value: INSTALL_STATUS
+          value: STATUS
         # 40 retries at 5 minute intervals = 3 hours
         - name: delay
           value: "300"
@@ -354,7 +354,7 @@ spec:
         - name: escape_configmap_name
           value: sync-install
         - name: escape_configmap_key
-          value: INSTALL_STATUS
+          value: STATUS
         # 40 retries at 5 minute intervals = 3 hours
         - name: delay
           value: "300"
@@ -434,7 +434,7 @@ spec:
         - name: escape_configmap_name
           value: sync-install
         - name: escape_configmap_key
-          value: INSTALL_STATUS
+          value: STATUS
         # 100 retries at 5 minute intervals = 8 hours
         - name: delay
           value: "300"
@@ -591,7 +591,7 @@ spec:
         - name: escape_configmap_name
           value: sync-install
         - name: escape_configmap_key
-          value: INSTALL_STATUS
+          value: STATUS
         # 25 retries at 5 minute intervals = 4 hours
         - name: delay
           value: "300"
@@ -674,7 +674,7 @@ spec:
         - name: escape_configmap_name
           value: sync-install
         - name: escape_configmap_key
-          value: INSTALL_STATUS
+          value: STATUS
         # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
@@ -754,7 +754,7 @@ spec:
         - name: escape_configmap_name
           value: sync-install
         - name: escape_configmap_key
-          value: INSTALL_STATUS
+          value: STATUS
         # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
@@ -838,7 +838,7 @@ spec:
         - name: escape_configmap_name
           value: sync-install
         - name: escape_configmap_key
-          value: INSTALL_STATUS
+          value: STATUS
         # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
@@ -960,7 +960,7 @@ spec:
     # Note: this task will start once all the FVTs are approved and will start at the
     # same time install's post-verify starts. It means its timeout must be higher than
     # post-verify + sync-install, which will set the flag needed to finalize this fvt-launcher
-    # - Escape Route: INSTALL_STATUS != "" (i.e. FAILED)
+    # - Escape Route: STATUS != "" (i.e. FAILED)
     # - Ignore Failures: True
     # -------------------------------------------------------------------------
     - name: waitfor-install
