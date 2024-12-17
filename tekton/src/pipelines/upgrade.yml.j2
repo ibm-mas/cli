@@ -26,7 +26,7 @@ spec:
   tasks:
     # 1. Wait for approval & verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    - name: approval
+    - name: waitfor-approval
       timeout: "0"
       taskRef:
         kind: Task
@@ -39,7 +39,7 @@ spec:
 
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={'name': 'pre-upgrade-check', 'devops_suite_name': 'pre-upgrade-check'}) | indent(4) }}
       runAfter:
-        - approval
+        - waitfor-approval
 
 
     # 2. Suite Upgrade (Phase 1)
@@ -262,7 +262,7 @@ spec:
         - name: configmap_name
           value: sync-upgrade
         - name: configmap_key
-          value: UPGRADE_STATUS
+          value: STATUS
         - name: configmap_value
           # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
           # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
