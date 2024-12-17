@@ -195,7 +195,6 @@ masAdvancedArgGroup.add_argument(
     help="Only required if you want to use Let's Encrypt certificates in your MAS installation",
 )
 
-
 # DNS Configuration - IBM CIS
 # -----------------------------------------------------------------------------
 cisArgGroup = installArgParser.add_argument_group("DNS Configuration - CIS")
