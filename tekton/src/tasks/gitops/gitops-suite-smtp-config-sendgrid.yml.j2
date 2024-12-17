@@ -126,8 +126,8 @@ spec:
         # Pull values out of the outfile and set them as environment vars
         if [[ -f "${OUTPUT_FILE}" ]]; then
           echo "Reading outputs from ${OUTPUT_FILE}"
-          export SUBUSER_USERNAME="$(yq '.subuser.username // ""' "${OUTPUT_FILE}")"
-          export SUBUSER_PASSWORD="$(yq '.subuser.password // ""' "${OUTPUT_FILE}")"
+          export SUBUSER_USERNAME="$(yq '.subuser.username // ""' "${OUTPUT_FILE}")" # pragma: allowlist secret
+          export SUBUSER_PASSWORD="$(yq '.subuser.password // ""' "${OUTPUT_FILE}")" # pragma: allowlist secret
           export SENDGRID_APIKEY_USERNAME="apikey" # pragma: allowlist secret
           export SENDGRID_APIKEY_PASSWORD="$(yq '.apikey // ""' "${OUTPUT_FILE}")" # pragma: allowlist secret
         fi
