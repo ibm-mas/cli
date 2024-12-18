@@ -904,16 +904,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
                 if value != "":
                     valueParts = value.split(":")
-                    if len(valueParts) != 4:
-                        self.fatalError(f"Unsupported format for {key} ({value}).  Expected APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE")
+                    if len(valueParts) != 3:
+                        self.fatalError(f"Unsupported format for {key} ({value}).  Expected MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE")
                     else:
                         try:
-                            self.approvals[key]["approvalKey"] = valueParts[0]
-                            self.approvals[key]["maxRetries"] = int(valueParts[1])
-                            self.approvals[key]["retryDelay"] = int(valueParts[2])
-                            self.approvals[key]["ignoreFailure"] = bool(valueParts[3])
+                            self.approvals[key]["maxRetries"] = int(valueParts[0])
+                            self.approvals[key]["retryDelay"] = int(valueParts[1])
+                            self.approvals[key]["ignoreFailure"] = bool(valueParts[2])
                         except ValueError:
-                            self.fatalError(f"Unsupported format for {key} ({value}).  Expected string:int:int:boolean")
+                            self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
             elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help", "advanced", "simplified"]:
@@ -1094,11 +1093,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
          - present with the chosen state field initialized to ""
         """
         for approval in self.approvals.values():
-            if "approvalKey" in approval:
+            if "maxRetries" in approval:
                 # Enable this approval workload
-                logger.debug(f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['approvalKey']} / {approval['ignoreFailure']})")
-                self.initializeApprovalConfigMap(namespace, approval['id'], approval['approvalKey'], approval['maxRetries'], approval['retryDelay'], approval['ignoreFailure'])
+                logger.debug(f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['ignoreFailure']})")
+                self.initializeApprovalConfigMap(namespace, approval['id'], True, approval['maxRetries'], approval['retryDelay'], approval['ignoreFailure'])
             else:
                 # Disable this approval workload
                 logger.debug(f"Approval workflow for {approval['id']} will be disabled during install")
-                self.initializeApprovalConfigMap(namespace, approval['id'])
+                self.initializeApprovalConfigMap(namespace, approval['id'], False)

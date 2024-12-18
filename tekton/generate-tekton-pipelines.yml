@@ -48,8 +48,6 @@
         - fvt-optimizer
         - fvt-predict
         - fvt-sls
-        - fvt-upgrade-post
-        - fvt-upgrade-pre
         - fvt-visualinspection
         - fvt-launcher
         - fvt-dynamicscan
