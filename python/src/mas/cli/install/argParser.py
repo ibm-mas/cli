@@ -1005,11 +1005,6 @@ cloudArgGroup.add_argument(
     help="Set IBM Cloud API Key"
 )
 cloudArgGroup.add_argument(
-    "--ibmcloud-resourcegroup",
-    required=False,
-    help="Set IBM Cloud Resource Group"
-)
-cloudArgGroup.add_argument(
     "--aws-region",
     required=False,
     help="Set target AWS region for the MSK instance"

@@ -135,7 +135,6 @@ optionalParams = [
     "turbonomic_password",
     # Cloud Providers
     "ibmcloud_apikey",
-    "ibmcloud_resourcegroup",
     "aws_region",
     "aws_access_key_id",
     "secret_access_key",
