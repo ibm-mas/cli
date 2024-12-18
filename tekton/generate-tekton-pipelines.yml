@@ -48,11 +48,8 @@
         - fvt-optimizer
         - fvt-predict
         - fvt-sls
-        - fvt-upgrade-post
-        - fvt-upgrade-pre
         - fvt-visualinspection
         - fvt-launcher
-        - fvt-launcher-uninstall
         - fvt-dynamicscan
         - ivt-manage
 
@@ -65,10 +62,8 @@
         src: "{{ pipeline_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ pipeline_target_dir }}/{{ item }}-after-install.yaml"
       with_items:
-        # TODO: Get rid of this, run sister pipelines using "integrated approval workflows" like
-        # we do for install testing
-        - update
-        - upgrade
+        # TODO: Get rid of this, integrate this into main FVT launcher like
+        # we do for update, upgrade, & uninstall testing
         - rollback
 
     # 3. Generate Gitops Pipelines
@@ -92,7 +87,7 @@
         - gitops-mas-cluster
         - gitops-mas-deps
         - gitops-mas-initiator
-        
+
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
     - name: Generate GitOps Pipelines with wait-after-deprovision
