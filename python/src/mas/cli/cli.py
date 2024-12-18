@@ -280,6 +280,16 @@ class BaseApp(PrintMixin, PromptMixin):
             self._isSNO = isSNO(self.dynamicClient)
         return self._isSNO
 
+    @logMethodCall
+    def isAirgap(self):
+        if self._isAirgap is None:
+            # First check if the legacy ICSP is installed.  If it is raise an error and instruct the user to re-run configure-airgap to
+            # migrate the cluster from ICSP to IDMS
+            if isAirgapInstall(self.dynamicClient, checkICSP=True):
+                self.fatalError("Deprecated Maximo Application Suite ImageContentSourcePolicy detected on the target cluster.  Run 'mas configure-airgap' to migrate to the replacement ImageDigestMirrorSet beofre proceeding.")
+            self._isAirgap = isAirgapInstall(self.dynamicClient)
+        return self._isAirgap
+
     def setParam(self, param: str, value: str):
         self.params[param] = value
 
