@@ -106,7 +106,7 @@ spec:
     - name: falcon_operator_cloud_region
       type: string
       default: ''
-    - name: falcon_operator_node_sensor_config
+    - name: falcon_operator_node_sensor
       type: string
       default: ''
 
@@ -192,8 +192,8 @@ spec:
       
       - name: FALCON_OPERATOR_CLOUD_REGION
         value: $(params.falcon_operator_cloud_region)
-      - name: FALCON_OPERATOR_NODE_SENSOR_CONFIG
-        value: $(params.falcon_operator_node_sensor_config)
+      - name: FALCON_OPERATOR_NODE_SENSOR
+        value: $(params.falcon_operator_node_sensor)
 
     envFrom:
       - configMapRef:

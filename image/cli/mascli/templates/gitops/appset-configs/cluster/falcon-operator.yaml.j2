@@ -6,7 +6,7 @@ falcon_operator:
 {%- if FALCON_OPERATOR_CLOUD_REGION is defined %}
   cloud_region: "{{ FALCON_OPERATOR_CLOUD_REGION }}"
 {%- endif %}
-{%- if FALCON_OPERATOR_NODE_SENSOR_CONFIG is defined %}
+{%- if FALCON_OPERATOR_NODE_SENSOR is defined %}
   node_sensor:
-    {{ FALCON_OPERATOR_NODE_SENSOR_CONFIG | indent }}
+    {{ FALCON_OPERATOR_NODE_SENSOR | indent }}
 {%- endif %}
