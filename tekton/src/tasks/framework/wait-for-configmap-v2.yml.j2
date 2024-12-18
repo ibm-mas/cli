@@ -5,6 +5,10 @@ metadata:
   name: mas-devops-wait-for-configmap-v2
 spec:
   params:
+    - name: configmap_namespace
+      type: string
+      description: "The namespace of the configmap to wait for"
+      default: $(context.taskRun.namespace)
     - name: configmap_name
       type: string
       description: "The name of the configmap to wait for"
@@ -22,8 +26,6 @@ spec:
       type: string
       description: "The name of the configmap wait for"
       default: ""
-    - name: escape_configmap_key
-      type: string
       description: "The key in the configmap to watch for"
       default: ""
 
@@ -35,15 +37,9 @@ spec:
       env:
         # What to wait for
         - name: NAMESPACE
-          value: $(context.taskRun.namespace)
+          value: $(params.configmap_namespace)
         - name: CONFIGMAP_NAME
           value: $(params.configmap_name)
-        - name: CONFIGMAP_KEY
-          valueFrom:
-            configMapKeyRef:
-              name: $(params.configmap_name)
-              key: CONFIGMAP_KEY
-              optional: true
         - name: CONFIGMAP_INITIAL_VALUE
           value: $(params.configmap_initial_value)
         - name: CONFIGMAP_TARGET_VALUE
@@ -66,8 +62,6 @@ spec:
         # Optional escape route
         - name: ESCAPE_CONFIGMAP_NAME
           value: $(params.escape_configmap_name)
-        - name: ESCAPE_CONFIGMAP_KEY
-          value: $(params.escape_configmap_key)
 
         # How to handle errors
         - name: IGNORE_FAILURE

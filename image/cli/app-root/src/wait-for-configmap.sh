@@ -11,6 +11,9 @@
 MAX_RETRIES=${MAX_RETRIES:-50}  # Just over 4 hours hours
 DELAY=${DELAY:-300}  # 5 minute interval
 IGNORE_FAILURE=${IGNORE_FAILURE:-False}  # Return success RC even if pipelinerun failed
+CONFIGMAP_KEY=STATUS
+ESCAPE_CONFIGMAP_KEY=STATUS
+
 while [[ $# -gt 0 ]]
 do
   key="$1"
@@ -26,10 +29,6 @@ do
       CONFIGMAP_NAME=$1
       shift
       ;;
-    --key)
-      CONFIGMAP_KEY=$1
-      shift
-      ;;
     --initial-value)
       CONFIGMAP_INITIAL_VALUE=$1
       shift
@@ -42,10 +41,6 @@ do
     # Escape clause configmap
     --escape-name)
       ESCAPE_CONFIGMAP_NAME=$1
-      shift
-      ;;
-    --escape-key)
-      ESCAPE_CONFIGMAP_KEY=$1
       shift
       ;;
 
@@ -95,6 +90,11 @@ oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o yaml 2> /dev/null
 CM_EXISTS=$?
 echo
 
+if [[ "$CM_EXISTS" != "0" ]]; then
+  echo "Approval workflow not enabled: configmap/${CONFIGMAP_NAME} does not exist"
+  exit 0
+fi
+
 # Check if the configmap already has the desired state, for example if we pre-approve a checkpoint
 # in the pipeline before that checkpoint has been reached
 # This is used to prevent the install pipeline from changing a configmap that is
@@ -105,14 +105,9 @@ if [[ "$KEY_VALUE" == "$CONFIGMAP_TARGET_VALUE" ]]; then
   exit 0
 fi
 
-if [[ -n "$CONFIGMAP_INITIAL_VALUE" ]]; then
-  if [[ "$CM_EXISTS" == "0" ]]; then
-    echo "Updating existing configmap to set initial value of ${CONFIGMAP_INITIAL_VALUE}"
-    oc -n ${NAMESPACE} patch configmap/${CONFIGMAP_NAME} -p "{\"data\": { \"${CONFIGMAP_KEY}\": \"${CONFIGMAP_INITIAL_VALUE}\" }}"
-  else
-    echo "Creating new configmap with initial value of ${CONFIGMAP_INITIAL_VALUE}"
-    oc -n ${NAMESPACE} create configmap ${CONFIGMAP_NAME} --from-literal=${CONFIGMAP_KEY}=c${CONFIGMAP_INITIAL_VALUE}
-  fi
+if [[ "$KEY_VALUE" == "" && -n "$CONFIGMAP_INITIAL_VALUE" ]]; then
+  echo "Updating configmap to set initial value of ${CONFIGMAP_INITIAL_VALUE}"
+  oc -n ${NAMESPACE} patch configmap/${CONFIGMAP_NAME} -p "{\"data\": { \"${CONFIGMAP_KEY}\": \"${CONFIGMAP_INITIAL_VALUE}\" }}"
 fi
 
 echo

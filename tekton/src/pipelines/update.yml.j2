@@ -2,36 +2,9 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-{% if wait_for_install == true %}
-  name: mas-update-after-install
-{% else %}
   name: mas-update
-{% endif %}
 spec:
-{% if wait_for_install == true %}
-  workspaces:
-    # Shared storage to hold mustgather output for tasks
-    - name: shared-mustgather
-{% endif %}
-
   params:
-{% if wait_for_install == true %}
-    # MAS Instance ID (the instance who's install to wait for)
-    - name: mas_instance_id
-      type: string
-    - name: fvt_image_registry
-      type: string
-    - name: fvt_image_digest
-      type: string
-    - name: pipelinerun_name
-      type: string
-      description: name of the installation pipelinerun that must be tracked til completion
-    - name: launchfvt_upgrade
-      type: string
-      default: "" # Considered False when not informed
-      description: "Set this to any value other than 'true' to disable launch of the pre and post upgrade tests pipeline (running before and after upgrade process happens)"
-{% endif %}
-
     # Tekton Pipeline Configuration
     # -------------------------------------------------------------------------
     - name: image_pull_policy
@@ -213,60 +186,25 @@ spec:
       description: ReadWriteMany storage class
 
   tasks:
-{% if wait_for_install == true %}
-    # 0. Wait for the install pipeline to complete
+    # 1. Wait for approval & verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    - name: wait-for-install
+    - name: waitfor-approval
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: $(params.pipelinerun_name)
-        - name: delay
-          value: 600  # seconds between checking the status of the pipelinerun
-        - name: max_retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "False"  # fails and exit once the first failure is detected
-{% endif %}
-
-    # 1. Verify health of the cluster before we change anything
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
-        'name': 'pre-update-check',
-        'devops_suite_name': 'pre-update-check'
-      }) | indent(4) }}
-{% if wait_for_install == true %}
-      runAfter:
-        - wait-for-install
-{% endif %}
-
-{% if wait_for_install == true %}
-    # 2. Pre-Upgrade pipeline call - test scripts to run before update
-    # -------------------------------------------------------------------------
-    - name: launchfvt-upgrade-pre
-      timeout: "0"
+        name: mas-devops-wait-for-configmap-v2
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-uprade-pre"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-upgrade-pre
-      when:
-        - input: $(params.launchfvt_upgrade)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - pre-update-check
-{% endif %}
+        - name: configmap_name
+          value: approval-update
 
-    # 3. Run the catalog update
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={'name': 'pre-update-check', 'devops_suite_name': 'pre-update-check'}) | indent(4) }}
+      runAfter:
+        - waitfor-approval
+
+
+    # 2. Run the catalog update
     # -------------------------------------------------------------------------
     - name: update-catalog
       timeout: "0"
@@ -274,15 +212,10 @@ spec:
         kind: Task
         name: mas-devops-ibm-catalogs
       runAfter:
-{% if wait_for_install == true %}
-        - launchfvt-upgrade-pre
-{% else %}
         - pre-update-check
-{% endif %}
       params:
         - name: devops_suite_name
           value: update-catalog
-
         - name: mas_catalog_version
           value: $(params.mas_catalog_version)
 
@@ -292,7 +225,8 @@ spec:
         - name: artifactory_token
           value: $(params.artifactory_token)
 
-    # 4. Verify health of the cluster before we consider the update complete
+
+    # 3. Verify health of the cluster before we consider the update complete
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-update-verify',
@@ -301,7 +235,8 @@ spec:
       runAfter:
         - update-catalog
 
-    # 5. Update Dependencies
+
+    # 4. Update Dependencies
     # ---------------------------------------------------------------------------
     - name: update-ocs
       timeout: "0"
@@ -453,50 +388,48 @@ spec:
           value: $(params.dro_namespace)
         - name: devops_suite_name
           value: update-uds
-{% if wait_for_install == true %}
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-{% endif %}
 
-    # 6 Update Cloud Pak for Data
+
+    # 5 Update Cloud Pak for Data
     # -------------------------------------------------------------------------
-    # 6.1 Cloud Pak for Data Platform
+    # 5.1 Cloud Pak for Data Platform
     {{ lookup('template', 'taskdefs/cp4d/cp4d-platform-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cert-manager # CP4D requires cert-manager
         {# - update-uds # UDS must be upgraded prior CPD, because CPD v4.8 will disable CPFS v3 which is required for UDS #}
 
-    # 6.2 Watson Studio
+    # 5.2 Watson Studio
     {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cp4d
 
-    # 6.3 Watson Machine Learning
+    # 5.3 Watson Machine Learning
     {{ lookup('template', 'taskdefs/cp4d/cp4d-wml-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cp4d
 
-    # 6.4 Analytics Service (Spark)
+    # 5.4 Analytics Service (Spark)
     {{ lookup('template', 'taskdefs/cp4d/cp4d-spark-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cp4d
 
-    # 6.5 Watson OpenScale
+    # 5.5 Watson OpenScale
     {{ lookup('template', 'taskdefs/cp4d/cp4d-aiopenscale-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cp4d
 
-    # 6.6 SPSS Statistics
+    # 5.6 SPSS Statistics
     {{ lookup('template', 'taskdefs/cp4d/cp4d-spss-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cp4d
 
-    # 6.7 Cognos Analytics
+    # 5.7 Cognos Analytics
     {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cp4d
 
-    # 7. Verify health of the cluster after dependencies updates
+
+    # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-deps-update-verify',
@@ -515,40 +448,20 @@ spec:
         - update-spss
         - update-cognos
 
-{% if wait_for_install == true %}
-    # 7. Post-Upgrade pipeline call - test scripts to run before upgrade
+  finally:
+    # Update synchronization configmap
     # -------------------------------------------------------------------------
-    - name: launchfvt-upgrade-post
+    - name: sync-update
       timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-upgrade-post"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-upgrade-post
-      when:
-        - input: $(params.launchfvt_upgrade)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - post-deps-update-verify
-{% endif %}
-
-{% if wait_for_install == true %}
-  # In FVT only this is the time to take a must-gather and finalize the result
-  # ---------------------------------------------------------------------------
-  finally:
-    # Collect must-gather
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/common/must-gather.yml.j2') | indent(4) }}
-
-    # Finalize the record in the FVT database
-    # -------------------------------------------------------------------------
-    - name: finalize
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-fvt-finalize
-{% endif %}
+        - name: configmap_name
+          value: sync-update
+        - name: configmap_value
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
