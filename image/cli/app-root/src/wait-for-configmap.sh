@@ -90,6 +90,11 @@ oc -n ${NAMESPACE} get configmap/${CONFIGMAP_NAME} -o yaml 2> /dev/null
 CM_EXISTS=$?
 echo
 
+if [[ "$CM_EXISTS" != "0" ]]; then
+  echo "Approval workflow not enabled: configmap/${CONFIGMAP_NAME} does not exist"
+  exit 0
+fi
+
 # Check if the configmap already has the desired state, for example if we pre-approve a checkpoint
 # in the pipeline before that checkpoint has been reached
 # This is used to prevent the install pipeline from changing a configmap that is
@@ -100,14 +105,9 @@ if [[ "$KEY_VALUE" == "$CONFIGMAP_TARGET_VALUE" ]]; then
   exit 0
 fi
 
-if [[ -n "$CONFIGMAP_INITIAL_VALUE" ]]; then
-  if [[ "$CM_EXISTS" == "0" ]]; then
-    echo "Updating existing configmap to set initial value of ${CONFIGMAP_INITIAL_VALUE}"
-    oc -n ${NAMESPACE} patch configmap/${CONFIGMAP_NAME} -p "{\"data\": { \"${CONFIGMAP_KEY}\": \"${CONFIGMAP_INITIAL_VALUE}\" }}"
-  else
-    echo "Creating new configmap with initial value of ${CONFIGMAP_INITIAL_VALUE}"
-    oc -n ${NAMESPACE} create configmap ${CONFIGMAP_NAME} --from-literal=${CONFIGMAP_KEY}=c${CONFIGMAP_INITIAL_VALUE}
-  fi
+if [[ "$KEY_VALUE" == "" && -n "$CONFIGMAP_INITIAL_VALUE" ]]; then
+  echo "Updating configmap to set initial value of ${CONFIGMAP_INITIAL_VALUE}"
+  oc -n ${NAMESPACE} patch configmap/${CONFIGMAP_NAME} -p "{\"data\": { \"${CONFIGMAP_KEY}\": \"${CONFIGMAP_INITIAL_VALUE}\" }}"
 fi
 
 echo
