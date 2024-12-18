@@ -83,6 +83,9 @@ spec:
       type: string
     - name: smtp_default_should_email_passwords
       type: string
+    - name: smtp_use_sendgrid
+      type: string
+
     - name: ldap_url
       type: string
     - name: ldap_basedn
@@ -251,7 +254,7 @@ spec:
         kind: Task
         name: gitops-license
       when:
-        - input: "$(params.sls_license_app_points)"
+        - input: "$(params.sls_license_icn)"
           operator: in
           values: [""]
 
@@ -280,7 +283,7 @@ spec:
         kind: Task
         name: gitops-license-generator
       when:
-        - input: "$(params.sls_license_app_points)"
+        - input: "$(params.sls_license_icn)"
           operator: notin
           values: [""]
 
@@ -542,6 +545,56 @@ spec:
         - input: "$(params.smtp_host)"
           operator: notin
           values: [""]
+        - input: "$(params.smtp_use_sendgrid)"
+          operator: notin
+          values: ["true"]
+      workspaces:
+        - name: configs
+          workspace: configs
+
+    - name: gitops-suite-smtp-config-sendgrid
+      runAfter:
+        - gitops-suite-config
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: mas_smtpcfg_pod_template_yaml
+          value: $(params.mas_smtpcfg_pod_template_yaml)
+        
+        - name: icn
+          value: $(params.sls_license_icn)
+        - name: mas_domain
+          value: $(params.mas_domain)
+        - name: cis_mas_domain
+          value: $(params.cis_mas_domain)
+        - name: cis_crn
+          value: $(params.cis_crn)
+      taskRef:
+        kind: Task
+        name: gitops-suite-smtp-config-sendgrid
+      when:
+        - input: "$(params.smtp_host)"
+          operator: in
+          values: [""]
+        - input: "$(params.smtp_use_sendgrid)"
+          operator: in
+          values: ["true"]
       workspaces:
         - name: configs
           workspace: configs
@@ -602,6 +655,45 @@ spec:
     # Deprovision task section
     # -------------------------------------------------------------------------
 
+    # 1. Deprovision SendGrid subuser
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-suite-sendgrid-subuser
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: icn
+          value: $(params.sls_license_icn)
+        - name: cis_mas_domain
+          value: $(params.cis_mas_domain)
+        - name: cis_crn
+          value: $(params.cis_crn)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-suite-sendgrid-subuser
+      when:
+        # Always run this task when smtp.use_sendgrid is unset (and we're running in an internal IBM toolchain - see below)
+        # Task will still complete successfully even if it is a no-op
+        - input: "$(params.smtp_use_sendgrid)"
+          operator: notin
+          values: ["true"]
+
+        # Task uses an IBM internal image and cannot be used outside of the internal IBM Toolchains
+        # To make sure this task is only run when this is the case, reference a field that 
+        # but corresponds to another IBM-internal only feature that will also still be present after smtp config is removed
+        # sls.license.icn is a good choice for this, it also happens to be a required input to the sendgrid scripts
+        - input: "$(params.sls_license_icn)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: configs
+
     # 2. Deprovision SMTP config
     # -------------------------------------------------------------------------
     - name: gitops-deprovision-suite-smtp-config
@@ -620,6 +712,9 @@ spec:
         - input: "$(params.smtp_host)"
           operator: in
           values: [""]
+        - input: "$(params.smtp_use_sendgrid)"
+          operator: notin
+          values: ["true"]
       workspaces:
         - name: configs
           workspace: configs
@@ -645,3 +740,4 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+
