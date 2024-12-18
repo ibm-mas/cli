@@ -11,6 +11,8 @@
 MAX_RETRIES=${MAX_RETRIES:-50}  # Just over 4 hours hours
 DELAY=${DELAY:-300}  # 5 minute interval
 IGNORE_FAILURE=${IGNORE_FAILURE:-False}  # Return success RC even if pipelinerun failed
+CONFIGMAP_KEY=STATUS
+
 while [[ $# -gt 0 ]]
 do
   key="$1"
@@ -22,10 +24,6 @@ do
       ;;
     --name)
       CONFIGMAP_NAME=$1
-      shift
-      ;;
-    --key)
-      CONFIGMAP_KEY=$1
       shift
       ;;
     --value)

@@ -1007,7 +1007,7 @@ devArgGroup.add_argument(
 
 # Approvals
 # -----------------------------------------------------------------------------
-approvalsGroup = installArgParser.add_argument_group("Integrated Approval Workflow (APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
+approvalsGroup = installArgParser.add_argument_group("Integrated Approval Workflow (MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
 approvalsGroup.add_argument(
     "--approval-core",
     default="",
