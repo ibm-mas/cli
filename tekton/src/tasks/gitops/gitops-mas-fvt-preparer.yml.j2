@@ -413,7 +413,7 @@ spec:
           sm_login || exit 1
 
           # lookup <ICN>/sendgrid_subuser#username from AWS SM
-          SECRET_NAME_SENDGRID="${ICN}/sendgrid_subuserx"
+          SECRET_NAME_SENDGRID="${ICN}/sendgrid_subuser"
           echo "Getting ${SECRET_NAME_SENDGRID} from AWS SM"
           export SENDGRID_SUBUSER_USERNAME="$(sm_get_secret_value "${SECRET_NAME_SENDGRID}" "username")" # pragma: allowlist secret
           echo "Subuser username: ${SENDGRID_SUBUSER_USERNAME}"
