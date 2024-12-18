@@ -96,9 +96,10 @@ function mirror_redhat_noninteractive() {
     fi
   fi
 
-  if [[ "$REGISTRY_PREFIX_REDHAT" == "" ]]; then
-    REGISTRY_PREFIX_REDHAT="ocp-${OCP_RELEASE/./}"
-  fi
+  # Provide a default prefix - For future consideration
+  # if [[ "$REGISTRY_PREFIX_REDHAT" == "" ]]; then
+  #   REGISTRY_PREFIX_REDHAT="ocp-${OCP_RELEASE/./}"
+  # fi
 }
 
 function mirror_redhat_interactive() {
@@ -158,14 +159,15 @@ function mirror_redhat_interactive() {
       ;;
   esac
 
-  DEFAULT_REGISTRY_PREFIX_REDHAT="ocp-${OCP_RELEASE/./}"
+  # Provide a default prefix - For future consideration
+  # DEFAULT_REGISTRY_PREFIX_REDHAT="ocp-${OCP_RELEASE/./}"
 
   if [[ "$MIRROR_MODE" == "direct" ]] || [[ "$MIRROR_MODE" == "from-filesystem" ]]; then
     echo
     echo_h2 "Configure Target Mirror"
     prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
     prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
-    prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX_REDHAT $DEFAULT_REGISTRY_PREFIX_REDHAT
+    prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX_REDHAT
     prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
     prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?"
   fi

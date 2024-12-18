@@ -313,11 +313,11 @@ function mirror_to_registry_noninteractive() {
     [[ -z "$REGISTRY_PASSWORD" ]] && mirror_to_registry_help "REGISTRY_PASSWORD is not set"
   fi
 
-  # Provide a default prefix
-  if [[ "$REGISTRY_PREFIX" == "" ]]; then
-    REGISTRY_PREFIX=${MAS_CATALOG_VERSION#*-}  # removes the "v9-" prefix
-    REGISTRY_PREFIX="mas-${REGISTRY_PREFIX%%-*}"  # removes the -arch suffix
-  fi
+  # Provide a default prefix - For future consideration
+  # if [[ "$REGISTRY_PREFIX" == "" ]]; then
+  #   REGISTRY_PREFIX=${MAS_CATALOG_VERSION#*-}  # removes the "v9-" prefix
+  #   REGISTRY_PREFIX="mas-${REGISTRY_PREFIX%%-*}"  # removes the -arch suffix
+  # fi
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
     mirror_everything
@@ -331,8 +331,9 @@ function mirror_to_registry_interactive() {
   prompt_for_input "MAS Catalog Version" MAS_CATALOG_VERSION
   prompt_for_input "MAS Channel" MAS_CHANNEL
 
-  DEFAULT_REGISTRY_PREFIX=${MAS_CATALOG_VERSION#*-}  # removes the "v9-" prefix
-  DEFAULT_REGISTRY_PREFIX="mas-${DEFAULT_REGISTRY_PREFIX%%-*}"  # removes the -arch suffix
+  # Provide a default prefix - For future consideration
+  # DEFAULT_REGISTRY_PREFIX=${MAS_CATALOG_VERSION#*-}  # removes the "v9-" prefix
+  # DEFAULT_REGISTRY_PREFIX="mas-${DEFAULT_REGISTRY_PREFIX%%-*}"  # removes the -arch suffix
 
   echo
   echo_h2 "Configure Mirror Mode"
@@ -364,7 +365,7 @@ function mirror_to_registry_interactive() {
   echo_h2 "Configure Target Mirror"
   prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
   prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
-  prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX $DEFAULT_REGISTRY_PREFIX
+  prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX
 
   if [[ $MIRROR_MODE != "to-filesystem" ]]; then
     echo
