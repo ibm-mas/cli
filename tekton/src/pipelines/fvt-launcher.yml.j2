@@ -1031,6 +1031,18 @@ spec:
 
     # Uninstall Sync Point
     # -------------------------------------------------------------------------
+    # Before we uninstall we want to capture the state of the environment
+    - name: finalizer
+      timeout: "0"
+      params:
+        - name: set_finished
+          value: "False"
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize
+      runAfter:
+        - waitfor-upgrade
+
     - name: start-uninstall
       timeout: "0"
       taskRef:
@@ -1046,7 +1058,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-upgrade
+        - finalizer
 
     - name: waitfor-uninstall
       timeout: "0"
