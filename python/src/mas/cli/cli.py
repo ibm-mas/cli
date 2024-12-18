@@ -372,7 +372,7 @@ class BaseApp(PrintMixin, PromptMixin):
             self.fatalError(f"Unsupported worker node architecture: {self.architecture}")
 
     @logMethodCall
-    def initializeApprovalConfigMap(self, namespace: str, id: str, key: str = None, maxRetries: int = 100, delay: int = 300, ignoreFailure: bool = True) -> None:
+    def initializeApprovalConfigMap(self, namespace: str, id: str, enabled: bool, maxRetries: int = 100, delay: int = 300, ignoreFailure: bool = True) -> None:
         """
         Set key = None if you don't want approval workflow enabled
         """
@@ -388,8 +388,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 "MAX_RETRIES": str(maxRetries),
                 "DELAY": str(delay),
                 "IGNORE_FAILURE": str(ignoreFailure),
-                "CONFIGMAP_KEY": key,
-                key: ""
+                "STATUS": ""
             }
         }
 
@@ -400,6 +399,6 @@ class BaseApp(PrintMixin, PromptMixin):
         except NotFoundError:
             pass
 
-        if key is not None:
-            logger.debug(f"Enabling approval workflow for {id} using {key} with {maxRetries} max retries on a {delay}s delay ({'ignoring failures' if ignoreFailure else 'abort on failure'})")
+        if enabled:
+            logger.debug(f"Enabling approval workflow for {id} with {maxRetries} max retries on a {delay}s delay ({'ignoring failures' if ignoreFailure else 'abort on failure'})")
             cmAPI.create(body=configMap, namespace=namespace)
