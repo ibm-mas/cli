@@ -217,10 +217,10 @@ class installArgBuilderMixin():
                 command += f"  --manage-server-timezone \"{self.getParam('mas_app_settings_server_timezone')}\"{newline}"
 
             if self.getParam('mas_manage_attachments_provider') != "":
-                command += f"  --mas-manage-attachments-provider \"{self.getParam('mas_manage_attachments_provider')}\"{newline}"
+                command += f"  --manage-attachments-provider \"{self.getParam('mas_manage_attachments_provider')}\"{newline}"
 
             if self.getParam('mas_manage_attachment_configuration_mode') != "":
-                command += f"  --mas-manage-attachment-configuration-mode \"{self.getParam('mas_manage_attachment_configuration_mode')}\"{newline}"
+                command += f"  --manage-attachments-mode \"{self.getParam('mas_manage_attachment_configuration_mode')}\"{newline}"
 
         # IBM Cloud Pak for Data
         # -----------------------------------------------------------------------------

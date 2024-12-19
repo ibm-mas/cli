@@ -661,16 +661,17 @@ manageArgGroup.add_argument(
 # Manage Attachments
 # -----------------------------------------------------------------------------
 manageArgGroup.add_argument(
-    "--mas-manage-attachments-provider",
+    "--manage-attachments-provider",
     dest="mas_manage_attachments_provider",
     required=False,
-    help="Defines the storage provider type to be used to store Manage application's attachments."
+    help="Defines the storage provider type to be used to store attachments in Maximo Manage"
 )
 manageArgGroup.add_argument(
-    "--mas-manage-attachment-configuration-mode",
+    "--manage-attachments-mode",
     dest="mas_manage_attachment_configuration_mode",
     required=False,
-    help="Defines how attachment properties will be configured in Manage. Possible values are: cr and db"
+    help="Defines how attachment properties will be configured in Manage. Possible values are: cr and db",
+    choices=["cr", "db"]
 )
 
 # IBM Cloud Pak for Data
