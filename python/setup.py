@@ -58,7 +58,7 @@ setup(
     description='Python Admin CLI for Maximo Application Suite',
     long_description=long_description,
     install_requires=[
-        'mas-devops >= 1.10.0',  # EPL
+        'mas-devops >= 2.0.0',   # EPL
         'halo',                  # MIT License
         'prompt_toolkit',        # BSD License
         'openshift',             # Apache Software License

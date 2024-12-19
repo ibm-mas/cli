@@ -138,6 +138,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.certsSecret = None
 
         self._isSNO = None
+        self._isAirgap = None
 
         # Until we connect to the cluster we don't know what architecture it's worker nodes are
         self.architecture = None
@@ -279,6 +280,16 @@ class BaseApp(PrintMixin, PromptMixin):
         if self._isSNO is None:
             self._isSNO = isSNO(self.dynamicClient)
         return self._isSNO
+
+    @logMethodCall
+    def isAirgap(self):
+        if self._isAirgap is None:
+            # First check if the legacy ICSP is installed.  If it is raise an error and instruct the user to re-run configure-airgap to
+            # migrate the cluster from ICSP to IDMS
+            if isAirgapInstall(self.dynamicClient, checkICSP=True):
+                self.fatalError("Deprecated Maximo Application Suite ImageContentSourcePolicy detected on the target cluster.  Run 'mas configure-airgap' to migrate to the replacement ImageDigestMirrorSet beofre proceeding.")
+            self._isAirgap = isAirgapInstall(self.dynamicClient)
+        return self._isAirgap
 
     def setParam(self, param: str, value: str):
         self.params[param] = value

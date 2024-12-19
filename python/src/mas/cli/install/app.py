@@ -978,6 +978,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
             exit(1)
 
+        # Perform a check whether the cluster is set up for airgap install, this will trigger an early failure if the cluster is using the now
+        # deprecated MaximoApplicationSuite ImageContentSourcePolicy instead of the new ImageDigestMirrorSet
+        self.isAirgap()
+
         # Configure the installOptions for the appropriate architecture
         self.catalogOptions = supportedCatalogs[self.architecture]
 

@@ -46,13 +46,13 @@ Not all functions supported in the container image are available in the standalo
 
 | CLI Function                                             | Image    | Binary   |
 | -------------------------------------------------------- | :------: | :------: |
-| [install](commands/install.md)                           | &#10003; | &#10003; |
+| [install](guides/install.md)                             | &#10003; | &#10003; |
 | [update](commands/update.md)                             | &#10003; | &#10003; |
 | [upgrade](commands/upgrade.md)                           | &#10003; | &#10003; |
 | [uninstall](commands/uninstall.md)                       | &#10003; | &#10003; |
 | [must-gather](commands/must-gather.md)                   | &#10003; | &#10005; |
 | [configure-airgap](commands/configure-airgap.md)         | &#10003; | &#10005; |
-| [mirror-images](commands/mirror-images.md)               | &#10003; | &#10005; |
+| [mirror-images](guides/image-mirroring.md)               | &#10003; | &#10005; |
 | [mirror-redhat-images](commands/mirror-redhat-images.md) | &#10003; | &#10005; |
 | [setup-registry](commands/setup-registry.md)             | &#10003; | &#10005; |
 | [teardown-registry](commands/teardown-registry.md)       | &#10003; | &#10005; |

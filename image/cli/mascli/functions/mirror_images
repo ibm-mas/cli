@@ -307,20 +307,34 @@ function mirror_to_registry_noninteractive() {
   [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
 
   [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
-  [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_to_registry_help "REGISTRY_PUBLIC_PORT is not set"
 
   if [[ $MIRROR_MODE != "to-filesystem" ]]; then
     [[ -z "$REGISTRY_USERNAME" ]] && mirror_to_registry_help "REGISTRY_USERNAME is not set"
     [[ -z "$REGISTRY_PASSWORD" ]] && mirror_to_registry_help "REGISTRY_PASSWORD is not set"
   fi
 
+  # Provide a default prefix - For future consideration
+  # if [[ "$REGISTRY_PREFIX" == "" ]]; then
+  #   REGISTRY_PREFIX=${MAS_CATALOG_VERSION#*-}  # removes the "v9-" prefix
+  #   REGISTRY_PREFIX="mas-${REGISTRY_PREFIX%%-*}"  # removes the -arch suffix
+  # fi
+
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
-   mirror_everything
+    mirror_everything
   fi
 }
 
 function mirror_to_registry_interactive() {
   load_config
+  echo
+  echo_h2 "Configure Catalog Version (see https://ibm-mas.github.io/cli/catalogs/ for details on catalogs)"
+  prompt_for_input "MAS Catalog Version" MAS_CATALOG_VERSION
+  prompt_for_input "MAS Channel" MAS_CHANNEL
+
+  # Provide a default prefix - For future consideration
+  # DEFAULT_REGISTRY_PREFIX=${MAS_CATALOG_VERSION#*-}  # removes the "v9-" prefix
+  # DEFAULT_REGISTRY_PREFIX="mas-${DEFAULT_REGISTRY_PREFIX%%-*}"  # removes the -arch suffix
+
   echo
   echo_h2 "Configure Mirror Mode"
   prompt_for_input "Working Directory" MIRROR_WORKING_DIR
@@ -361,17 +375,12 @@ function mirror_to_registry_interactive() {
   fi
 
   echo
-  echo_h2 "Configure Static Catalog Version (see https://ibm-mas.github.io/cli/catalogs/ for details on catalogs)"
-  prompt_for_input "MAS Catalog Version" MAS_CATALOG_VERSION
-  prompt_for_input "MAS Channel" MAS_CHANNEL
-
-  echo
   echo_h2 "Configure Images to Mirror"
 
   prompt_for_confirm "Mirror all MAS images (with dependencies)" MIRROR_EVERYTHING
 
   if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
-   mirror_everything
+    mirror_everything
   else
     prompt_for_confirm_default_yes "IBM Maximo Operator Catalog" MIRROR_CATALOG
 
@@ -436,7 +445,7 @@ function mirror_to_registry_interactive() {
     prompt_for_confirm "IBM Cognos Analytics" MIRROR_COGNOS
 
     prompt_for_confirm "IBM AppConnect" MIRROR_APPCONNECT
-    prompt_for_confirm "RedHat ODF" MIRROR_ODF
+    prompt_for_confirm "Red Hat ODF" MIRROR_ODF
   fi
 
   if [[ "$MIRROR_MAS_ICD" == "true" ]]; then
@@ -563,18 +572,19 @@ function mirror_to_registry() {
   reset_colors
   echo_h2 "Review Settings"
 
+  REGISTRY_URL=$REGISTRY_PUBLIC_HOST
+  if [[ "$REGISTRY_PUBLIC_PORT" != "" ]]; then
+    REGISTRY_URL+=":$REGISTRY_PUBLIC_PORT"
+  fi
+  if [[ "$REGISTRY_PREFIX" != "" ]]; then
+    REGISTRY_URL+="/$REGISTRY_PREFIX"
+  fi
+
   echo
   echo_h4 "Settings" "    "
   echo_reset_dim "Mirror Mode ......................... ${COLOR_MAGENTA}${MIRROR_MODE}"
   echo_reset_dim "Working Directory ................... ${COLOR_MAGENTA}${MIRROR_WORKING_DIR}"
-
-  echo
-  reset_colors
-  echo_h4 "Target Registry" "    "
-  echo_reset_dim "Registry Host ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
-  echo_reset_dim "Registry Port ....................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
-  echo_reset_dim "Registry Prefix ..................... ${COLOR_MAGENTA}${REGISTRY_PREFIX}"
-
+  echo_reset_dim "Target Registry ..................... ${COLOR_MAGENTA}${REGISTRY_URL}"
 
   echo
   reset_colors

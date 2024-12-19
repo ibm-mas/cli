@@ -12,4 +12,4 @@ find docs -type f -name '*.md' -exec sed -i \
   {} \;
 
 python -m pip install -q mkdocs mkdocs-carbon mkdocs-glightbox mkdocs-redirects
-mkdocs build --verbose --clean --strict
+mkdocs build --clean --strict
