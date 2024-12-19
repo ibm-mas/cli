@@ -138,6 +138,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.certsSecret = None
 
         self._isSNO = None
+        self._isAirgap = None
 
         # Until we connect to the cluster we don't know what architecture it's worker nodes are
         self.architecture = None
