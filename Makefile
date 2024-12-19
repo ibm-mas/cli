@@ -16,7 +16,7 @@ python-cli:
 	cp python/dist/mas_cli-100.0.0.tar.gz image/cli/install/mas_cli.tar.gz
 
 python-devops:
-	cd ../python-devops && python -m build
+	cd ../python-devops && make build
 	cp ../python-devops/dist/mas_devops-100.0.0.tar.gz image/cli/install/mas_devops.tar.gz
 
 python: python-devops python-cli
