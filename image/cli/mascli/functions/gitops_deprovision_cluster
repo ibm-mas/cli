@@ -204,8 +204,9 @@ function gitops_deprovision_cluster() {
   
   # Created for custom service accounts
   CLUSTER_SECRETS=($(sm_list_cluster_secrets ${ACCOUNT_ID} ${CLUSTER_ID}))
+  PATTERN='^[^\/]+\/[^\/]+\/custom-sa\/[^\/]+$'
   for SECRET_NAME in "${CLUSTER_SECRETS[@]}"; do
-    if [[ "$SECRET_NAME" == *"/custom-sa/"* ]]; then
+    if [[ "$SECRET_NAME" =~ $PATTERN ]]; then
       export SECRET_NAME_CUSTOM_SA=${SECRET_NAME}
       echo "Delete $SECRET_NAME_CUSTOM_SA from Secrets Manager"
       sm_delete_secret $SECRET_NAME_CUSTOM_SA
