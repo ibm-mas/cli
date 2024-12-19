@@ -272,6 +272,7 @@ spec:
         - suite-db2-setup-system
         - suite-db2-setup-manage
         - suite-config-watson-studio
+        - suite-config-cos
 
     # 8.3 Configure Manage workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}

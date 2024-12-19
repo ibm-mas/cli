@@ -67,6 +67,7 @@ optionalParams = [
     "cis_apikey",
     "cis_crn",
     "cis_subdomain",
+    "mas_cluster_issuer",
     # DRO
     "dro_namespace",
     # MongoDb
@@ -115,6 +116,11 @@ optionalParams = [
     "cos_type",
     "cos_resourcegroup",
     "cos_apikey",
+    "cos_instance_name",
+    "cos_bucket_name",
+    # Attachments
+    "mas_manage_attachments_provider",
+    "mas_manage_attachment_configuration_mode",
     # ECK
     "eck_action",
     "eck_enable_logstash",
