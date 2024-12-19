@@ -138,6 +138,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.certsSecret = None
 
         self._isSNO = None
+        self._isAirgap = None
 
         # Until we connect to the cluster we don't know what architecture it's worker nodes are
         self.architecture = None
@@ -280,6 +281,16 @@ class BaseApp(PrintMixin, PromptMixin):
             self._isSNO = isSNO(self.dynamicClient)
         return self._isSNO
 
+    @logMethodCall
+    def isAirgap(self):
+        if self._isAirgap is None:
+            # First check if the legacy ICSP is installed.  If it is raise an error and instruct the user to re-run configure-airgap to
+            # migrate the cluster from ICSP to IDMS
+            if isAirgapInstall(self.dynamicClient, checkICSP=True):
+                self.fatalError("Deprecated Maximo Application Suite ImageContentSourcePolicy detected on the target cluster.  Run 'mas configure-airgap' to migrate to the replacement ImageDigestMirrorSet beofre proceeding.")
+            self._isAirgap = isAirgapInstall(self.dynamicClient)
+        return self._isAirgap
+
     def setParam(self, param: str, value: str):
         self.params[param] = value
 
@@ -372,7 +383,7 @@ class BaseApp(PrintMixin, PromptMixin):
             self.fatalError(f"Unsupported worker node architecture: {self.architecture}")
 
     @logMethodCall
-    def initializeApprovalConfigMap(self, namespace: str, id: str, key: str = None, maxRetries: int = 100, delay: int = 300, ignoreFailure: bool = True) -> None:
+    def initializeApprovalConfigMap(self, namespace: str, id: str, enabled: bool, maxRetries: int = 100, delay: int = 300, ignoreFailure: bool = True) -> None:
         """
         Set key = None if you don't want approval workflow enabled
         """
@@ -388,8 +399,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 "MAX_RETRIES": str(maxRetries),
                 "DELAY": str(delay),
                 "IGNORE_FAILURE": str(ignoreFailure),
-                "CONFIGMAP_KEY": key,
-                key: ""
+                "STATUS": ""
             }
         }
 
@@ -400,6 +410,6 @@ class BaseApp(PrintMixin, PromptMixin):
         except NotFoundError:
             pass
 
-        if key is not None:
-            logger.debug(f"Enabling approval workflow for {id} using {key} with {maxRetries} max retries on a {delay}s delay ({'ignoring failures' if ignoreFailure else 'abort on failure'})")
+        if enabled:
+            logger.debug(f"Enabling approval workflow for {id} with {maxRetries} max retries on a {delay}s delay ({'ignoring failures' if ignoreFailure else 'abort on failure'})")
             cmAPI.create(body=configMap, namespace=namespace)

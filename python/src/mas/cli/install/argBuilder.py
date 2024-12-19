@@ -102,9 +102,13 @@ class installArgBuilderMixin():
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
         if self.getParam('--dns-provider') == "cis":
-            command += f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}"
-            command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}"
-            command += f" --cis-crn \"{self.getParam('cis_crn')}\"{newline}"
+            command += f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}\""
+            command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
+            command += f" --cis-crn \"{self.getParam('cis_crn')}\""
+            command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
+
+        if self.getParam('--mas-cluster-issuer') != "":
+            command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
 
         if self.getParam('mas_enable_walkme') == "false":
             command += f"  --disable-walkme{newline}"
@@ -211,6 +215,12 @@ class installArgBuilderMixin():
 
             if self.getParam('mas_app_settings_server_timezone') != "":
                 command += f"  --manage-server-timezone \"{self.getParam('mas_app_settings_server_timezone')}\"{newline}"
+
+            if self.getParam('mas_manage_attachments_provider') != "":
+                command += f"  --manage-attachments-provider \"{self.getParam('mas_manage_attachments_provider')}\"{newline}"
+
+            if self.getParam('mas_manage_attachment_configuration_mode') != "":
+                command += f"  --manage-attachments-mode \"{self.getParam('mas_manage_attachment_configuration_mode')}\"{newline}"
 
         # IBM Cloud Pak for Data
         # -----------------------------------------------------------------------------
@@ -321,6 +331,10 @@ class installArgBuilderMixin():
                 command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
             if self.getParam('cos_apikey') != "":
                 command += f" --cos-apikey \"{self.getParam('cos_apikey')}\""
+            if self.getParam('cos_instance_name') != "":
+                command += f" --cos-instance-name \"{self.getParam('cos_instance_name')}\""
+            if self.getParam('cos_bucket_name') != "":
+                command += f" --cos-bucket-name \"{self.getParam('cos_bucket_name')}\"{newline}"
             command += newline
 
         # Turbonomic Integration
