@@ -110,7 +110,7 @@ spec:
         - /bin/sh
         - -c
       name: gitops-deprovision-suite-sendgrid-subuser
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       image: docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/mas/saas-task:latest
   workspaces:
     - name: configs

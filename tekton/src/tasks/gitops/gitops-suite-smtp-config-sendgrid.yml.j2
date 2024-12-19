@@ -245,8 +245,8 @@ spec:
         - /bin/sh
         - -c
       name: gitops-suite-smtp-config-sendgrid
-      imagePullPolicy: Always
-      image: docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/mas/saas-task:1.0.2-pre.mascore3422-amd64
+      imagePullPolicy: IfNotPresent
+      image: docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/mas/saas-task:latest
   workspaces:
     - name: configs
 
