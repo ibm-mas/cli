@@ -392,6 +392,7 @@ if __name__ == "__main__":
 
         setObject["products.ibm-mas-mobile.buildId"] = "NA"
         setObject["products.ibm-mas-mobile.buildNumber"] = "NA"
+        setObject["products.ibm-mas-mobile.commitId"] = "NA"
         setObject["products.ibm-mas-mobile.version"] = mobileComponents["navigator"]["mobileVersion"]
         setObject["products.ibm-mas-mobile.components"] = treatedComponents
     except Exception as e:
