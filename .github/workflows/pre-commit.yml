@@ -4,6 +4,11 @@ on:
   push:
     branches: ["**"]
 
+# Ensure only one build at a time for any branch, cancelling any in-progress builds
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pre-commit:
     runs-on: ubuntu-latest

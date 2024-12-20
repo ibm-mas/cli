@@ -6,16 +6,16 @@ metadata:
 spec:
   params:
     # What configmap to update
+    - name: configmap_namespace
+      type: string
+      description: "The namespace of the configmap to update"
+      default: $(context.taskRun.namespace)
     - name: configmap_name
       type: string
       description: "The name of the configmap to update"
-    - name: configmap_key
-      type: string
-      description: "The key in the configmap to update"
     - name: configmap_value
       type: string
       description: "The value to set"
-
   steps:
     - name: update-configmap
       image: quay.io/ibmmas/cli:latest
@@ -24,10 +24,8 @@ spec:
       env:
         # What to wait for
         - name: NAMESPACE
-          value: $(context.taskRun.namespace)
+          value: $(params.configmap_namespace)
         - name: CONFIGMAP_NAME
           value: $(params.configmap_name)
-        - name: CONFIGMAP_KEY
-          value: $(params.configmap_key)
         - name: CONFIGMAP_VALUE
           value: $(params.configmap_value)

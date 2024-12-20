@@ -13,6 +13,10 @@ spec:
     - name: pipelinerun_name
       type: string
 
+    - name: launchfvt_mobile_upgrade_pre
+      type: string
+      default: ""
+
   steps:
     - name: start-pipelinerun
       image: quay.io/ibmmas/cli:latest
@@ -27,6 +31,8 @@ spec:
           value: $(params.pipelinerun_name)
         - name: PIPELINERUN_NAMESPACE
           value: $(context.taskRun.namespace)
+        - name: LAUNCHFVT_MOBILE_UPGRADE_PRE
+          value: $(params.launchfvt_mobile_upgrade_pre)
 
         # Lookups from mas-devops
         # -----------------------------------------------------------------------
@@ -109,7 +115,13 @@ spec:
               name: mas-fvt-monitor
               key: FVT_DIGEST_CTF
               optional: false
-
+        - name: FVT_DIGEST_MOBILE_PYTEST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-mobile
+              key: FVT_DIGEST_MOBILE_PYTEST
+              optional: false
+        
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)

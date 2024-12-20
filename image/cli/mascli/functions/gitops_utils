@@ -46,6 +46,7 @@ function sm_update_secret(){
   SECRET_NAME=$1
   SECRET_VALUE=$2
   SECRET_TAGS=$3
+  RETRY="${4:-0}"
 
   echo "Secret Manager: Updating $SECRET_NAME with tags $SECRET_TAGS"
   if [[ "$AVP_TYPE" == "aws" ]]; then
@@ -61,8 +62,17 @@ function sm_update_secret(){
     if [[ "$CURRENT_SECRET_VALUE" == "" ]]; then
       # Create the secret
       echo "- Secret $SECRET_NAME creating"
-      aws secretsmanager create-secret --name ${SECRET_NAME} --secret-string "${SECRET_VALUE}" --tags "${SECRET_TAGS}" || exit 1
-      echo "- Secret $SECRET_NAME created"
+      aws secretsmanager create-secret --name ${SECRET_NAME} --secret-string "${SECRET_VALUE}" --tags "${SECRET_TAGS}"
+      rc=$?
+      if [[ $rc -eq 0 ]]; then
+        echo "- Secret $SECRET_NAME created"
+      elif [[ $RETRY -eq '0' ]]; then
+        echo "Retrying secret update"
+        sleep 120
+        sm_update_secret ${SECRET_NAME} "${SECRET_VALUE}" "${SECRET_TAGS}" "1"
+      else
+        exit 1
+      fi
     elif [[ "$SECRET_VALUE" != "$CURRENT_SECRET_VALUE" ]]; then
       # Update the secret
       echo "- Secret $SECRET_NAME updating"

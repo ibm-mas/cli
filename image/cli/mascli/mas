@@ -32,8 +32,6 @@ mkdir -p $LOG_DIR
 mkdir -p $CONFIG_DIR
 
 # General purpose internals
-. $CLI_DIR/functions/internal/pipelines_install_operator
-. $CLI_DIR/functions/internal/pipelines_install_tasks
 . $CLI_DIR/functions/internal/connect
 . $CLI_DIR/functions/internal/utils
 . $CLI_DIR/functions/internal/save_config
@@ -357,7 +355,7 @@ case $1 in
     reset_colors
     gitops_mas_config "$@"
     ;;
- 
+
   gitops-suite-dns)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -477,7 +475,7 @@ case $1 in
     reset_colors
     gitops_dro "$@"
     ;;
-  
+
   gitops-db2u)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -532,7 +530,7 @@ case $1 in
     reset_colors
     gitops_deprovision_db2u_database "$@"
     ;;
-  
+
   gitops-nvidia-gpu)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -540,7 +538,7 @@ case $1 in
     reset_colors
     gitops_nvidia_gpu "$@"
     ;;
-    
+
   gitops-deprovision-db2u)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"

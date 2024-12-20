@@ -9,9 +9,6 @@ spec:
     - name: configmap_name
       type: string
       description: "The name of the configmap wait for"
-    - name: configmap_key
-      type: string
-      description: "The key in the configmap to watch for"
     - name: configmap_target_value
       type: string
       description: "The value to wait for the configmap to change to"
@@ -20,10 +17,6 @@ spec:
     - name: escape_configmap_name
       type: string
       description: "The name of the configmap wait for"
-      default: ""
-    - name: escape_configmap_key
-      type: string
-      description: "The key in the configmap to watch for"
       default: ""
 
     # How long to wait
@@ -53,16 +46,12 @@ spec:
           value: $(context.taskRun.namespace)
         - name: CONFIGMAP_NAME
           value: $(params.configmap_name)
-        - name: CONFIGMAP_KEY
-          value: $(params.configmap_key)
         - name: CONFIGMAP_TARGET_VALUE
           value: $(params.configmap_target_value)
 
         # Optional escape route
         - name: ESCAPE_CONFIGMAP_NAME
           value: $(params.escape_configmap_name)
-        - name: ESCAPE_CONFIGMAP_KEY
-          value: $(params.escape_configmap_key)
 
         # How long to wait
         - name: DELAY

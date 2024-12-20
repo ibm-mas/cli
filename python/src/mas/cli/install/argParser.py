@@ -188,6 +188,13 @@ masAdvancedArgGroup.add_argument(
     choices=["cloudflare", "cis", "route53"]
 )
 
+masAdvancedArgGroup.add_argument(
+    "--mas-cluster-issuer",
+    dest="mas_cluster_issuer",
+    required=False,
+    help="Provide the name of the ClusterIssuer to configure MAS to issue certificates",
+)
+
 # DNS Configuration - IBM CIS
 # -----------------------------------------------------------------------------
 cisArgGroup = installArgParser.add_argument_group("DNS Configuration - CIS")
@@ -519,7 +526,7 @@ manageArgGroup.add_argument(
     "--manage-jms",
     dest="mas_app_settings_default_jms",
     required=False,
-    help="",
+    help="Set JMS configuration",
     action="store_const",
     const="true"
 )
@@ -649,6 +656,22 @@ manageArgGroup.add_argument(
     dest="mas_app_settings_server_timezone",
     required=False,
     help="Manage server timezone. Default is `GMT`"
+)
+
+# Manage Attachments
+# -----------------------------------------------------------------------------
+manageArgGroup.add_argument(
+    "--manage-attachments-provider",
+    dest="mas_manage_attachments_provider",
+    required=False,
+    help="Defines the storage provider type to be used to store attachments in Maximo Manage"
+)
+manageArgGroup.add_argument(
+    "--manage-attachments-mode",
+    dest="mas_manage_attachment_configuration_mode",
+    required=False,
+    help="Defines how attachment properties will be configured in Manage. Possible values are: cr and db",
+    choices=["cr", "db"]
 )
 
 # IBM Cloud Pak for Data
@@ -927,6 +950,18 @@ cosArgGroup.add_argument(
     required=False,
     help="When using IBM COS, set COS priviledged apikey for IBM Cloud"
 )
+cosArgGroup.add_argument(
+    "--cos-instance-name",
+    dest="cos_instance_name",
+    required=False,
+    help="When using IBM COS, set COS instance name to be used/created"
+)
+cosArgGroup.add_argument(
+    "--cos-bucket-name",
+    dest="cos_bucket_name",
+    required=False,
+    help="When using IBM COS, set COS bucket name to be used/created"
+)
 
 # Turbonomic Integration
 # -----------------------------------------------------------------------------
@@ -1007,7 +1042,7 @@ devArgGroup.add_argument(
 
 # Approvals
 # -----------------------------------------------------------------------------
-approvalsGroup = installArgParser.add_argument_group("Integrated Approval Workflow (APPROVAL_KEY:MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
+approvalsGroup = installArgParser.add_argument_group("Integrated Approval Workflow (MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
 approvalsGroup.add_argument(
     "--approval-core",
     default="",

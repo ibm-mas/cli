@@ -40,6 +40,10 @@ IBM CIS Cert Manager:
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
       --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                   true/false, If true, ingress-controller for cis-proxy will be configured
 
+Custom Cluster Service Accounts (Optional):
+      --custom_sa_namespace ${COLOR_YELLOW}CUSTOM_SA_NAMESPACE${TEXT_RESET}   Namespace to create the Service Account(s) in
+      --custom_sa_details ${COLOR_YELLOW}CUSTOM_SA_DETAILS${TEXT_RESET}       Comma delimited list of key:value pairs where the key is the Service Account name and the value is the Cluster Role ('serviceaccount1:cluster-admin,serviceaccount2:cluster-reader')
+
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}         Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}         GitHub Hostname for your GitOps repository
@@ -70,6 +74,12 @@ Notifications (Optional):
 
 Selenium Grid (Optional):
       --install-selenium-grid ${COLOR_YELLOW}INSTALL_SELENIUM_GRID${TEXT_RESET}                                 Install Selenium Grid
+
+Group Sync Operator (Optional):
+      --install-group-sync-operator ${COLOR_YELLOW}INSTALL_GROUP_SYNC_OPERATOR${TEXT_RESET}                     Install the Group Sync Operator
+
+IBM RBAC (Optional):
+      --install-ibm-rbac ${COLOR_YELLOW}INSTALL_IBM_RBAC${TEXT_RESET}                                           Install the IBM RBAC roles and role bindings
 
 Other Commands:
   -h, --help                              Show this help message
@@ -240,6 +250,24 @@ function gitops_cluster_noninteractive() {
         export INSTALL_SELENIUM_GRID=true
         ;;
 
+      # Custom Cluster Service Accounts
+      --custom_sa_namespace)
+        export CUSTOM_SA_NAMESPACE=$1 && shift
+        ;;
+      --custom_sa_details)
+        export CUSTOM_SA_DETAILS=$1 && shift
+        ;;
+
+      # Group Sync Operator
+      --install-group-sync-operator)
+        export INSTALL_GROUP_SYNC_OPERATOR=true
+        ;;
+      
+      # IBM RBAC
+      --install-ibm-rbac)
+        export INSTALL_IBM_RBAC=true
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_cluster_help
@@ -286,7 +314,13 @@ function gitops_cluster_noninteractive() {
       [[ -z "$CLUSTER_PROMOTION_TARGET_PR_TITLE" ]] && gitops_cluster_help "CLUSTER_PROMOTION_TARGET_PR_TITLE is not set"
     fi
   fi
-  
+
+  if [[ -n "${CUSTOM_SA_NAMESPACE}" ]] || [[ -n "${CUSTOM_SA_DETAILS}" ]]; then
+    [[ -z "$CUSTOM_SA_NAMESPACE" ]] && gitops_cluster_help "CUSTOM_SA_NAMESPACE is not set"
+    [[ -z "$CUSTOM_SA_DETAILS" ]] && gitops_cluster_help "CUSTOM_SA_DETAILS is not set"
+    [[ ! "$CUSTOM_SA_DETAILS" =~ ^[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+(,[a-zA-Z0-9_-]+:[a-zA-Z0-9_-]+)*$ ]] && gitops_cluster_help "CUSTOM_SA_DETAILS has incorrect syntax"
+  fi
+
   if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
     echo 'Missing required environment variables, make sure to set ICR_USERNAME, ICR_PASSWORD'
     exit 1
@@ -391,6 +425,14 @@ function gitops_cluster() {
     reset_colors
   fi
 
+  if [[ -n "$CUSTOM_SA_NAMESPACE" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "Custom Cluster Service Accounts" "    "
+    echo_reset_dim "Service Account Namespace .................... ${COLOR_MAGENTA}${CUSTOM_SA_NAMESPACE}"
+    echo_reset_dim "Service Account Details ....... ${COLOR_MAGENTA}${CUSTOM_SA_DETAILS}"
+    reset_colors
+  fi
+
   echo "${TEXT_DIM}"
   echo_h2 "DevOps Details" "    "
   echo_reset_dim "Devops Build Number ............. ${COLOR_MAGENTA}${DEVOPS_BUILD_NUMBER}"
@@ -400,6 +442,16 @@ function gitops_cluster() {
   echo "${TEXT_DIM}"
   echo_h2 "Selenium Grid" "    "
   echo_reset_dim "Install Selenium Grid ........... ${COLOR_MAGENTA}${INSTALL_SELENIUM_GRID}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Group Sync Operator" "    "
+  echo_reset_dim "Install the Group Sync Operator ........... ${COLOR_MAGENTA}${INSTALL_GROUP_SYNC_OPERATOR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "IBM RBAC" "    "
+  echo_reset_dim "Install IBM RBAC ........... ${COLOR_MAGENTA}${INSTALL_IBM_RBAC}"
   reset_colors
 
   # Set up secrets
@@ -418,10 +470,20 @@ function gitops_cluster() {
   export SECRET_NAME_DEVOPS_MONGO=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}devops
   export SECRET_KEY_DEVOPS_MONGO=${SECRET_NAME_DEVOPS_MONGO}#devops_mongo_uri
 
+  export SECRET_NAME_ISV_CLIENT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}isv_client
+  export SECRET_KEY_ISV_CLIENT_ID=${SECRET_NAME_ISV_CLIENT}#client_id
+  export SECRET_KEY_ISV_CLIENT_SECRET=${SECRET_NAME_ISV_CLIENT}#client_secret
+
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_DEVOPS_MONGO "{\"devops_mongo_uri\": \"${DEVOPS_MONGO_URI}\"}" "${TAGS}"
+  fi
+
+  if [ -n "$ISV_CLIENT_ID" ] && [ -n "$ISV_CLIENT_SECRET" ]; then
+    echo "- Update ISV_CLIENT_ID and ISV_CLIENT_SECRET secrets"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_ISV_CLIENT "{\"client_id\": \"${ISV_CLIENT_ID}\", \"client_secret\": \"${ISV_CLIENT_SECRET}\"}" "${TAGS}"
   fi
 
   if [ -z $GIT_SSH ]; then
@@ -509,9 +571,25 @@ function gitops_cluster() {
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-promotion.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
   fi
   
+  if [[ -n "$CUSTOM_SA_NAMESPACE" ]]; then
+    echo "- Custom Cluster Service Accounts"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/custom-sa.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/custom-sa.yaml
+  fi
+
   if [[ -n "$DNS_PROVIDER" ]]; then
     echo "- IBM CIS Cert Manager"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-cis-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cis-cert-manager.yaml
+  fi
+
+  if [[ "$INSTALL_GROUP_SYNC_OPERATOR" == "true" ]]; then
+    echo "- Group Sync Operator"
+    sm_verify_secret_exists $SECRET_NAME_ISV_CLIENT "client_secret,client_id"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/group-sync-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/group-sync-operator.yaml
+  fi
+
+  if [[ "$INSTALL_IBM_RBAC" == "true" ]]; then
+    echo "- IBM RBAC"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-rbac.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-rbac.yaml
   fi
 
   # Commit and push to github target repo

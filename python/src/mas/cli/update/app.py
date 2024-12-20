@@ -9,7 +9,6 @@
 #
 # *****************************************************************************
 
-import re
 import logging
 import logging.handlers
 from halo import Halo
@@ -22,7 +21,7 @@ from ..validators import StorageClassValidator
 from .argParser import updateArgParser
 
 from mas.devops.ocp import createNamespace, getStorageClasses, getConsoleURL
-from mas.devops.mas import listMasInstances
+from mas.devops.mas import listMasInstances, getCurrentCatalog
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
 
 
@@ -33,7 +32,7 @@ class UpdateApp(BaseApp):
 
     def update(self, argv):
         """
-        Uninstall MAS instance
+        Update MAS instance
         """
         self.args = updateArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
@@ -91,6 +90,9 @@ class UpdateApp(BaseApp):
         if self.dynamicClient is None:
             self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
 
+        # Perform a check whether the cluster is set up for airgap install, this will trigger an early failure if the cluster is using the now
+        # deprecated MaximoApplicationSuite ImageContentSourcePolicy instead of the new ImageDigestMirrorSet
+        self.isAirgap()
         self.reviewCurrentCatalog()
         self.reviewMASInstance()
 
@@ -205,30 +207,19 @@ class UpdateApp(BaseApp):
                     print()
 
     def reviewCurrentCatalog(self) -> None:
-        catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
-        try:
-            catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
-            catalogDisplayName = catalog.spec.displayName
-            catalogImage = catalog.spec.image
-
-            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
-            if m:
-                # catalogId = v8-yymmdd-amd64
-                # catalogVersion = yymmdd
-                self.installedCatalogId = m.group("catalogId")
-            elif re.match(r".+v8-amd64", catalogDisplayName):
-                self.installedCatalogId = "v8-amd64"
-            else:
-                self.installedCatalogId = None
-                self.printWarning("Unable to determine identity & version of currently installed ibm-maximo-operator-catalog")
-
+        catalogInfo = getCurrentCatalog(self.dynamicClient)
+        self.installedCatalogId = None
+        if catalogInfo is None:
+            self.fatalError("Unable to locate existing install of the IBM Maximo Operator Catalog")
+        elif catalogInfo["catalogId"] is None:
+            self.printWarning("Unable to determine identity & version of currently installed ibm-maximo-operator-catalog")
+        else:
+            self.installedCatalogId = catalogInfo["catalogId"]
             self.printH1("Review Installed Catalog")
             self.printDescription([
-                f"The currently installed Maximo Operator Catalog is <u>{catalogDisplayName}</u>",
-                f" <u>{catalogImage}</u>"
+                f"The currently installed Maximo Operator Catalog is <u>{catalogInfo['displayName']}</u>",
+                f" <u>{catalogInfo['image']}</u>"
             ])
-        except NotFoundError as e:
-            self.fatalError("Unable to locate existing install of the IBM Maximo Operator Catalog", e)
 
     def reviewMASInstance(self) -> None:
         self.printH1("Review MAS Instances")
@@ -244,13 +235,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Nov 07 2024 Update (MAS 9.0.5, 8.11.16, &amp; 8.10.19)",
-            "  2) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)",
-            "  3) Aug 27 2024 Update (MAS 9.0.2, 8.11.14, &amp; 8.10.17)",
+            "  1) Dec 05 2024 Update (MAS 9.0.6, 8.11.17, &amp; 8.10.20)",
+            "  2) Nov 07 2024 Update (MAS 9.0.4, 8.11.16, &amp; 8.10.19)",
+            "  3) Oct 03 2024 Update (MAS 9.0.3, 8.11.15, &amp; 8.10.18)",
         ])
 
         catalogOptions = [
-            "v9-241107-amd64", "v9-241003-amd64", "v9-240827-amd64"
+            "v9-241205-amd64", "v9-241107-amd64", "v9-241003-amd64"
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -341,13 +332,14 @@ class UpdateApp(BaseApp):
                     # the case bundles in there anymore
                     # Longer term we will centralise this information inside the mas-devops python collection,
                     # where it can be made available to both the ansible collection and this python package.
-                    defaultMongoVersion = "7.0.12"
+                    defaultMongoVersion = "6.0.12"
                     mongoVersions = {
                         "v9-240625-amd64": "6.0.12",
                         "v9-240730-amd64": "6.0.12",
                         "v9-240827-amd64": "6.0.12",
                         "v9-241003-amd64": "6.0.12",
-                        "v9-241107-amd64": "7.0.12"
+                        "v9-241107-amd64": "7.0.12",
+                        "v9-241205-amd64": "7.0.12"
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -475,7 +467,8 @@ class UpdateApp(BaseApp):
             "v9-240730-amd64": "4.8.0",
             "v9-240827-amd64": "4.8.0",
             "v9-241003-amd64": "4.8.0",
-            "v9-241107-amd64": "4.8.0"
+            "v9-241107-amd64": "4.8.0",
+            "v9-241205-amd64": "5.0.0"
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:

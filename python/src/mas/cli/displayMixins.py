@@ -9,7 +9,7 @@
 # *****************************************************************************
 
 from os import getenv
-from prompt_toolkit import prompt, print_formatted_text, HTML
+from prompt_toolkit import prompt, print_formatted_text, HTML, PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator
 
@@ -90,7 +90,12 @@ class PromptMixin():
         if param is not None and default == "":
             default = getenv(param.upper(), default="")
 
-        response = prompt(masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False)
+        if completer is not None:
+            promptSession = PromptSession()
+            response = promptSession.prompt(masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False, pre_run=promptSession.default_buffer.start_completion)
+        else:
+            response = prompt(masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False)
+
         if param is not None:
             self.params[param] = response
         return response

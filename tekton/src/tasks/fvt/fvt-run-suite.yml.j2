@@ -180,10 +180,19 @@ spec:
             name: mas-fvt-core
             key: PARTIUM_PASSWORD
             optional: true
-
+# To enable collection of logs and screenshots
       - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
-
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_TOKEN
+            optional: true
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
       # Assist Specific information
       - name: BROWSERSTACK_TESTSERVER
         value: $(params.browserstack_remoteserver)

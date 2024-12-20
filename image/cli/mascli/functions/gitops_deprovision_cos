@@ -233,6 +233,11 @@ function gitops_deprovision_cos() {
       sensitive = false
     }
 
+    output "s3db2" {
+      value     = module.s3db2
+      sensitive = false
+    }
+
     module "s3c" {
       name_prefix = local.name_prefix
       source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.1"
@@ -260,6 +265,15 @@ function gitops_deprovision_cos() {
       force_bucket_destroy    = true
     }
 
+    module "s3db2" {
+      name_prefix = local.name_prefix
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.1"
+      s3_bucket               = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3db2"
+      s3_encryption           = true
+      s3_encryption_algorithm = "AES256"
+      force_bucket_destroy    = true
+    }
+
     output "s3c_access_point" {
       value     = module.s3c_access_point
       sensitive = false
@@ -275,8 +289,13 @@ function gitops_deprovision_cos() {
       sensitive = false
     }
 
+    output "s3db2_access_point" {
+      value     = module.s3db2_access_point
+      sensitive = false
+    }
+
     module "s3c_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3c.s3_bucket_id
       s3_bucket_arn                  = module.s3c.s3_bucket_arn
@@ -292,7 +311,7 @@ function gitops_deprovision_cos() {
     }
 
     module "s3a_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3a.s3_bucket_id
       s3_bucket_arn                  = module.s3a.s3_bucket_arn
@@ -303,12 +322,12 @@ function gitops_deprovision_cos() {
       mas_cluster_id                 = "$CLUSTER_ID"
       mas_instance_id                = "$MAS_INSTANCE_ID"
       secret_recovery_days           = 0
-      secret_suffix                  = "manage_attachments/cosawssecret"
+      secret_suffix                  = "manage_attachments/cos-attachments"
       manage_secret_format           = true
     }
 
     module "s3l_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.8"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3l.s3_bucket_id
       s3_bucket_arn                  = module.s3l.s3_bucket_arn
@@ -319,7 +338,23 @@ function gitops_deprovision_cos() {
       mas_cluster_id                 = "$CLUSTER_ID"
       mas_instance_id                = "$MAS_INSTANCE_ID"
       secret_recovery_days           = 0
-      secret_suffix                  = "manage_logging/s3secretkey"
+      secret_suffix                  = "manage_logging/cos-logging"
+      manage_secret_format           = true
+    }
+
+    module "s3db2_access_point" {
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
+      name_prefix = local.name_prefix
+      s3_access_point_bucket_id      = module.s3db2.s3_bucket_id
+      s3_bucket_arn                  = module.s3db2.s3_bucket_arn
+      s3_bucket_region               = module.s3db2.s3_bucket_region
+      s3_access_point_name           = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3db2-access"
+      s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:GetObjectAcl", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
+      s3_access_point_user           = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3db2-user"
+      mas_cluster_id                 = "$CLUSTER_ID"
+      mas_instance_id                = "$MAS_INSTANCE_ID"
+      secret_recovery_days           = 0
+      secret_suffix                  = "db2_backup"
       manage_secret_format           = true
     }
 EOF

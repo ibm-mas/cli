@@ -81,7 +81,9 @@
         - fvt-monitor
         - fvt-run-suite
         - fvt-sls
-        - fvt-uninstall
+        - fvt-start-update
+        - fvt-start-upgrade
+        - fvt-start-uninstall
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:
@@ -96,6 +98,8 @@
         - launchfvt-manage
         - launchfvt-manage-is
         - launchfvt-mobile
+        - launchfvt-mobile-upgrade-pre
+        - launchfvt-mobile-upgrade-post
         - launchfvt-monitor
         - launchfvt-optimizer
         - launchfvt-predict
@@ -160,6 +164,7 @@
       with_items:
         - update-configmap
         - wait-for-configmap
+        - wait-for-configmap-v2
         - wait-for-tekton
 
     # 9. Generate Tasks (GitOps)
@@ -193,6 +198,7 @@
         - gitops-deprovision-suite-idp-config
         - gitops-deprovision-suite-objectstorage-config
         - gitops-deprovision-suite-smtp-config
+        - gitops-deprovision-suite-sendgrid-subuser
         - gitops-deprovision-suite-watson-studio-config
         - gitops-deprovision-suite-workspace
         - gitops-deprovision-suite
@@ -217,6 +223,7 @@
         - gitops-suite-idp-config
         - gitops-suite-objectstorage-config
         - gitops-suite-smtp-config
+        - gitops-suite-smtp-config-sendgrid
         - gitops-suite-watson-studio-config
         - gitops-suite-workspace
         - gitops-suite

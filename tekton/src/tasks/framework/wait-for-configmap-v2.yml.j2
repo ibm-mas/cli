@@ -1,0 +1,72 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-wait-for-configmap-v2
+spec:
+  params:
+    - name: configmap_namespace
+      type: string
+      description: "The namespace of the configmap to wait for"
+      default: $(context.taskRun.namespace)
+    - name: configmap_name
+      type: string
+      description: "The name of the configmap to wait for"
+    - name: configmap_initial_value
+      type: string
+      description: "Optional value to initialise the configmap with if it does not already exist"
+      default: ""
+    - name: configmap_target_value
+      type: string
+      description: "The value to wait for the configmap to change to (defaults to 'approved')"
+      default: "approved"
+
+    # Optional escape route
+    - name: escape_configmap_name
+      type: string
+      description: "The name of the configmap wait for"
+      default: ""
+      description: "The key in the configmap to watch for"
+      default: ""
+
+  steps:
+    - name: wait-for-configmap
+      image: quay.io/ibmmas/cli:latest
+      command:
+        - /opt/app-root/src/wait-for-configmap.sh
+      env:
+        # What to wait for
+        - name: NAMESPACE
+          value: $(params.configmap_namespace)
+        - name: CONFIGMAP_NAME
+          value: $(params.configmap_name)
+        - name: CONFIGMAP_INITIAL_VALUE
+          value: $(params.configmap_initial_value)
+        - name: CONFIGMAP_TARGET_VALUE
+          value: $(params.configmap_target_value)
+
+        # How long to wait
+        - name: DELAY
+          valueFrom:
+            configMapKeyRef:
+              name: $(params.configmap_name)
+              key: DELAY
+              optional: true
+        - name: MAX_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: $(params.configmap_name)
+              key: MAX_RETRIES
+              optional: true
+
+        # Optional escape route
+        - name: ESCAPE_CONFIGMAP_NAME
+          value: $(params.escape_configmap_name)
+
+        # How to handle errors
+        - name: IGNORE_FAILURE
+          valueFrom:
+            configMapKeyRef:
+              name: $(params.configmap_name)
+              key: IGNORE_FAILURE
+              optional: true

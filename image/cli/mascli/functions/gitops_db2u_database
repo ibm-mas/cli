@@ -61,6 +61,7 @@ IBM DB2U:
       --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster addons audit config section.
       --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
       --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
+      --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                   Slack URL to notify DB2 backup failures
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -272,6 +273,10 @@ function gitops_db2u_database_noninteractive() {
       --db2-timezone)
         export DB2_TIMEZONE=$1 && shift
         ;;
+      # Optional DB2 Backup details
+      --db2-backup-notify-slack-url)
+        export DB2_BACKUP_NOTIFY_SLACK_URL=$1 && shift
+        ;;
 
 
       # Automatic GitHub Push
@@ -325,7 +330,6 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$DB2_META_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_META_STORAGE_CLASS is not set"
   [[ -z "$DB2_DATA_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_DATA_STORAGE_CLASS is not set"
   [[ -z "$DB2_BACKUP_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_BACKUP_STORAGE_CLASS is not set"
-  [[ -z "$DB2_ARCHIVELOGS_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_ARCHIVELOGS_STORAGE_CLASS is not set"
   [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_LOGS_STORAGE_CLASS is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_database_help "MAS_APP_ID is not set"
@@ -366,6 +370,9 @@ function gitops_db2u_database() {
   # NOTE: must align with lock branch name used by gitops_deprovision_db2u_database script
   # as both of these scrtipts modify the same file
   GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-db2u-database" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
+
+  export SECRET_NAME_DB2_BACKUP=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}db2_backup
+  export SECRET_NAME_ICD_AUTH_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}icd
 
   #Defaults
   if [[ -z $DB2_TLS_VERSION ]]; then
@@ -454,6 +461,21 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
   if [[ -z $DB2_INSTANCE_NAME ]]; then
     export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+  fi
+  if [[ -z $DB2_BACKUP_BUCKET_NAME ]]; then
+    export DB2_BACKUP_BUCKET_NAME=${SECRET_NAME_DB2_BACKUP}#bucketName
+  fi
+  if [[ -z $SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY ]]; then
+    export SECRET_KEY_DB2_BACKUP_BUCKET_ACCESS_KEY=${SECRET_NAME_DB2_BACKUP}#accessKey
+  fi
+  if [[ -z $SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY ]]; then
+    export SECRET_KEY_DB2_BACKUP_BUCKET_SECRET_KEY=${SECRET_NAME_DB2_BACKUP}#access_secret_key
+  fi
+  if [[ -z $DB2_BACKUP_BUCKET_ENDPOINT ]]; then
+    export DB2_BACKUP_BUCKET_ENDPOINT=${SECRET_NAME_DB2_BACKUP}#endpointURL
+  fi
+  if [[ -z $SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY ]]; then
+    export SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY=${SECRET_NAME_ICD_AUTH_KEY}#icd_auth_key
   fi
   export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
@@ -556,6 +578,11 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
 
+  if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret ${SECRET_NAME_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
+  fi
+
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-db2u-database
   mkdir -p $TEMP_DIR
 
@@ -580,6 +607,16 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo
     echo_h2 "Using db2 instance registry config provided for $MAS_APP_ID at $DB2_INSTANCE_REGISTRY_YAML"
     export DB2_INSTANCE_REGISTRY=$(cat ${DB2_INSTANCE_REGISTRY_YAML})
+  fi
+
+  # Optional DB backup configs
+  # ---------------------------------------------------------------------------
+  if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
+    echo
+    echo_h2 "Optional DB backup configurations are provided"
+    sm_verify_secret_exists $SECRET_NAME_ICD_AUTH_KEY "icd_auth_key"
+    sm_verify_secret_exists $SECRET_NAME_DB2_BACKUP "bucketName,accessKey,access_secret_key,endpointURL"
+    export BACKUP=true
   fi
 
   if [ -z $GIT_SSH ]; then
