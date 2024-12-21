@@ -260,7 +260,7 @@ if __name__ == "__main__":
     # Get MAS Catalog Version
     # -------------------------------------------------------------------------
     try:
-        crs = dynClient.resources.get(api_version="apps.mas.ibm.com/v1", kind="CatalogSource")
+        crs = dynClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         cr = crs.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
         if cr.status and cr.spec.displayName:
             catalogVersion = cr.to_dict()['spec']['displayName']
