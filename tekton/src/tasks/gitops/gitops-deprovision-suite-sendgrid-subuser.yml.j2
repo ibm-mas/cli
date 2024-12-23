@@ -63,12 +63,15 @@ spec:
 
         # Fetch CIS API Key from AWS SM.
         # This is suitable for use with CIS instances used by MAS instances in the cluster we are targetting
-        SECRET_NAME_CIS="${ACCOUNT_ID}/${CLUSTER_ID}/cis"
-        echo "Getting ${SECRET_NAME_CIS} from AWS SM"
-        export CIS_APIKEY="$(sm_get_secret_value "${SECRET_NAME_CIS}" "ibm_apikey")" # pragma: allowlist secret
-        if [[ -z "${CIS_APIKEY}" || "${CIS_APIKEY}" == "null" ]]; then
-          echo "Required AWS SM secret "${SECRET_NAME_CIS}" not found or invalid"
-          exit 1
+        # This secret is only required if the instance is configured with CIS
+        if [[ -n "${CIS_CRN}" ]]; then
+          SECRET_NAME_CIS="${ACCOUNT_ID}/${CLUSTER_ID}/cis"
+          echo "Getting ${SECRET_NAME_CIS} from AWS SM"
+          export CIS_APIKEY="$(sm_get_secret_value "${SECRET_NAME_CIS}" "ibm_apikey")" # pragma: allowlist secret
+          if [[ -z "${CIS_APIKEY}" || "${CIS_APIKEY}" == "null" ]]; then
+            echo "Required AWS SM secret "${SECRET_NAME_CIS}" not found or invalid"
+            exit 1
+          fi
         fi
 
         mkdir -p /tmp/gitops-deprovision-suite-sendgrid-subuser
@@ -101,8 +104,6 @@ spec:
         if [[ "${DELETED_SUBUSER}" == "true" ]]; then
           SECRET_NAME_SENDGRID="${ICN}/sendgrid_subuser"
           echo "Subuser was deleted, cleaning up ${SECRET_NAME_SENDGRID} secret"
-
-          # will fail task if this fails (due to use of "set +o pipefail" in the function)
           sm_delete_secret "${SECRET_NAME_SENDGRID}"
         fi
 
