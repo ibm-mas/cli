@@ -35,7 +35,7 @@ function mirror_redhat_noninteractive() {
         REGISTRY_PUBLIC_PORT=$1 && shift
         ;;
       -x| --prefix)
-        REGISTRY_PREFIX=$1 && shift
+        REGISTRY_PREFIX_REDHAT=$1 && shift
         ;;
       -u|--username)
         REGISTRY_USERNAME=$1 && shift
@@ -84,7 +84,6 @@ function mirror_redhat_noninteractive() {
 
   if [[ "$MIRROR_MODE" == "direct" ]] || [[ "$MIRROR_MODE" == "from-filesystem" ]]; then
     [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_redhat_help "REGISTRY_PUBLIC_HOST is not set"
-    [[ -z "$REGISTRY_PUBLIC_PORT" ]] && mirror_redhat_help "REGISTRY_PUBLIC_PORT is not set"
   fi
 
   [[ -z "$REDHAT_PULLSECRET" ]] && mirror_redhat_help "REDHAT_PULLSECRET is not set"
@@ -96,6 +95,11 @@ function mirror_redhat_noninteractive() {
       exit 0
     fi
   fi
+
+  # Provide a default prefix - For future consideration
+  # if [[ "$REGISTRY_PREFIX_REDHAT" == "" ]]; then
+  #   REGISTRY_PREFIX_REDHAT="ocp-${OCP_RELEASE/./}"
+  # fi
 }
 
 function mirror_redhat_interactive() {
@@ -124,23 +128,6 @@ function mirror_redhat_interactive() {
       exit 1
       ;;
   esac
-
-  if [[ "$MIRROR_MODE" == "direct" ]] || [[ "$MIRROR_MODE" == "from-filesystem" ]]; then
-    echo
-    echo_h2 "Configure Target Mirror"
-    prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
-    prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
-    prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX
-    prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
-    prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?"
-  fi
-
-  echo
-  echo_h2 "Configure Red Hat Authentication"
-  echo "Path to your Red Hat pull secret, available from:"
-  echo "  - ${COLOR_CYAN}${TEXT_UNDERLINE}https://console.redhat.com/openshift/install/pull-secret${TEXT_RESET}"
-  echo
-  prompt_for_input "Red Hat Pull Secret" REDHAT_PULLSECRET
 
   echo
   echo_h2 "Configure Images to Mirror"
@@ -172,16 +159,45 @@ function mirror_redhat_interactive() {
       ;;
   esac
 
+  # Provide a default prefix - For future consideration
+  # DEFAULT_REGISTRY_PREFIX_REDHAT="ocp-${OCP_RELEASE/./}"
+
+  if [[ "$MIRROR_MODE" == "direct" ]] || [[ "$MIRROR_MODE" == "from-filesystem" ]]; then
+    echo
+    echo_h2 "Configure Target Mirror"
+    prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
+    prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
+    prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX_REDHAT
+    prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
+    prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?"
+  fi
+
+  REGISTRY_URL=$REGISTRY_PUBLIC_HOST
+  if [[ "$REGISTRY_PUBLIC_PORT" != "" ]]; then
+    REGISTRY_URL+=":$REGISTRY_PUBLIC_PORT"
+  fi
+  if [[ "$REGISTRY_PREFIX_REDHAT" != "" ]]; then
+    REGISTRY_URL+="/$REGISTRY_PREFIX_REDHAT"
+  fi
+
+  echo
+  echo_h2 "Configure Red Hat Authentication"
+  echo "Path to your Red Hat pull secret, available from:"
+  echo "  - ${COLOR_CYAN}${TEXT_UNDERLINE}https://console.redhat.com/openshift/install/pull-secret${TEXT_RESET}"
+  echo
+  prompt_for_input "Red Hat Pull Secret" REDHAT_PULLSECRET
+
+
   echo_h3 "Red Hat OCP Release"
   echo "${TEXT_DIM}Mirror the Red Hat OCP release to your registry, you must select the mininum and maximum version of the release that you want mirrored."
   echo
   if [[ "$MIRROR_MODE" == "direct" ]] || [[ "$MIRROR_MODE" == "from-filesystem" ]]; then
     echo "Images will be mirrored to:"
-    echo "  - $REGISTRY_PUBLIC_HOST:$REGISTRY_PUBLIC_PORT/openshift/release"
-    echo "  - $REGISTRY_PUBLIC_HOST:$REGISTRY_PUBLIC_PORT/openshift/release-images"
+    echo "  - $REGISTRY_URL/openshift/release"
+    echo "  - $REGISTRY_URL/openshift/release-images"
     echo
   fi
-  echo "An ImageContentSourcePolicy must be configured in the cluster to make use of the mirrored release (see ${COLOR_CYAN}mas configure-airgap${TEXT_RESET})"
+  echo "An ImageDigestMirrorSet must be configured in the cluster to make use of the mirrored release (see ${COLOR_CYAN}mas configure-airgap${TEXT_RESET})"
   echo
 
   prompt_for_confirm "Mirror Red Hat OCP release" MIRROR_REDHAT_PLATFORM
@@ -211,7 +227,7 @@ function mirror_redhat_interactive() {
   echo " - local-storage-operator (stable)"
   echo " - odf-operator (stable-${OCP_RELEASE})"
   echo
-  echo "An ImageContentSourcePolicy must be configured in the cluster to make use of the mirrored release (see ${COLOR_CYAN}mas configure-airgap${TEXT_RESET})"
+  echo "An ImageDigestMirrorSet must be configured in the cluster to make use of the mirrored release (see ${COLOR_CYAN}mas configure-airgap${TEXT_RESET})"
   echo
 
   prompt_for_confirm "Mirror selected content from Red Hat OCP operator catalogs" MIRROR_REDHAT_OPERATORS
@@ -241,7 +257,7 @@ function mirror_redhat() {
   # Target Registry
   export REGISTRY_PUBLIC_HOST
   export REGISTRY_PUBLIC_PORT
-  export REGISTRY_PREFIX
+  export REGISTRY_PREFIX_REDHAT
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
 
@@ -255,13 +271,7 @@ function mirror_redhat() {
   echo_reset_dim "Authentication ........................ ${COLOR_MAGENTA}${REDHAT_PULLSECRET}"
 
   if [[ "$MIRROR_MODE" == "direct" ]] || [[ "$MIRROR_MODE" == "from-filesystem" ]]; then
-    echo
-    reset_colors
-    echo_h4 "Target Registry" "    "
-    echo_reset_dim "Registry Host ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_HOST}"
-    echo_reset_dim "Registry Port ......................... ${COLOR_MAGENTA}${REGISTRY_PUBLIC_PORT}"
-    echo_reset_dim "Registry Prefix ....................... ${COLOR_MAGENTA}${REGISTRY_PREFIX}"
-    reset_colors
+    echo_reset_dim "Target Registry ....................... ${COLOR_MAGENTA}${REGISTRY_URL}"
   fi
 
   echo

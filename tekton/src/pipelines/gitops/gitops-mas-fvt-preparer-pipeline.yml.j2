@@ -160,6 +160,12 @@ spec:
       type: string
       default: ""
 
+    - name: sls_license_icn
+      type: string
+    - name: smtp_use_sendgrid
+      type: string
+      default: ""
+
   tasks:
     - name: mas-launchfvt
       params:
@@ -284,6 +290,13 @@ spec:
           value: $(params.ldap_basedn)
         - name: ldap_userid_map
           value: $(params.ldap_userid_map)
+
+        - name: icn
+          value: $(params.sls_license_icn)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: use_sendgrid
+          value: $(params.smtp_use_sendgrid)
 
       workspaces:
         - name: configs

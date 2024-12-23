@@ -18,13 +18,11 @@ nav:
       - "EAM Migration": examples/eam-migration.md
       - "Mirror Db2 Images": examples/mirror-db2.md
   - "Command Reference":
-      - "install": commands/install.md
       - "update": commands/update.md
       - "upgrade": commands/upgrade.md
       - "uninstall": commands/uninstall.md
       - "must-gather": commands/must-gather.md
       - "configure-airgap": commands/configure-airgap.md
-      - "mirror-images": commands/mirror-images.md
       - "mirror-redhat-images": commands/mirror-redhat-images.md
       - "setup-registry": commands/setup-registry.md
       - "teardown-registry": commands/teardown-registry.md
@@ -80,6 +78,8 @@ plugins:
         "guides/architecture/core.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-core-services"
         "guides/mas-pods-explained.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-pod-details"
         "guides/choosing-the-right-catalog.md": "catalogs/index.md"
+        "commands/mirror-images.md": "guides/image-mirroring.md"
+        "commands/install.md": "guides/install.md"
   - glightbox:
       shadow: true
       caption_position: bottom
