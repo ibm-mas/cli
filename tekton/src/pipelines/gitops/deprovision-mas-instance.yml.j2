@@ -60,6 +60,9 @@ spec:
       type: string
     - name: cis_mas_domain
       type: string
+    - name: smtp_use_sendgrid
+      type: string
+      default: ""
   tasks:
     # Deprovision workspace
     # -------------------------------------------------------------------------
@@ -112,6 +115,11 @@ spec:
         - input: "$(params.sls_license_icn)"
           operator: notin
           values: [""]
+
+        # only attempt Subuser teardown if the instance was configured to use automated sendgrid subuser management at the time of deprovisioning
+        - input: "$(params.smtp_use_sendgrid)"
+          operator: in
+          values: ["true"]
       workspaces:
         - name: configs
           workspace: configs
