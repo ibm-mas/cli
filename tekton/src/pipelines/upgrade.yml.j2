@@ -169,7 +169,7 @@ spec:
 
     # 7. Optimizer Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    - name: optimizer-upgrade
+    - name: app-optimizer-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -181,7 +181,7 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: optimizer-upgrade
+          value: app-optimizer-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -242,7 +242,7 @@ spec:
       runAfter:
         # Phase 2 apps that don't have a phase 3 app following it
         - assist-upgrade
-        - optimizer-upgrade
+        - app-optimizer-upgrade
         - visualinspection-upgrade
         # Phase 3 apps
         - predict-upgrade
