@@ -81,7 +81,7 @@ spec:
 
     # 3. IoT Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    - name: iot-upgrade
+    - name: app-iot-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -93,7 +93,7 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: iot-upgrade
+          value: app-iot-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -103,7 +103,7 @@ spec:
 
     # 4. Manage Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    - name: manage-upgrade
+    - name: app-manage-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -115,7 +115,7 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: manage-upgrade
+          value: app-manage-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -125,7 +125,7 @@ spec:
 
     # 5. Visual Inspection Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    - name: visualinspection-upgrade
+    - name: app-visualinspection-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -137,7 +137,7 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: visualinspection-upgrade
+          value: app-visualinspection-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -147,7 +147,7 @@ spec:
 
     # 6. Assist Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    - name: assist-upgrade
+    - name: app-assist-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -159,7 +159,7 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: assist-upgrade
+          value: app-assist-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -191,7 +191,7 @@ spec:
 
     # 8. Monitor Upgrade (Phase 3 - after IoT)
     # -------------------------------------------------------------------------
-    - name: monitor-upgrade
+    - name: app-monitor-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -203,17 +203,17 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: monitor-upgrade
+          value: app-monitor-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - iot-upgrade
+        - app-iot-upgrade
 
 
     # 9. Predict Upgrade (Phase 3 - after Manage)
     # -------------------------------------------------------------------------
-    - name: predict-upgrade
+    - name: app-predict-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -225,12 +225,12 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: predict-upgrade
+          value: app-predict-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - manage-upgrade
+        - app-manage-upgrade
 
 
     # 10. Verify health of the cluster after upgrade
@@ -241,12 +241,12 @@ spec:
       }) | indent(4) }}
       runAfter:
         # Phase 2 apps that don't have a phase 3 app following it
-        - assist-upgrade
+        - app-assist-upgrade
         - app-optimizer-upgrade
-        - visualinspection-upgrade
+        - app-visualinspection-upgrade
         # Phase 3 apps
-        - predict-upgrade
-        - monitor-upgrade
+        - app-predict-upgrade
+        - app-monitor-upgrade
 
   finally:
     # Update synchronization configmap
