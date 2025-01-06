@@ -38,7 +38,6 @@ class UpgradeApp(BaseApp):
         self.noConfirm = args.no_confirm
         self.skipPreCheck = args.skip_pre_check
         self.licenseAccepted = args.accept_license
-        next_mas_channel = None
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -70,18 +69,22 @@ class UpgradeApp(BaseApp):
             print()
             instanceId = prompt(HTML('<Yellow>Enter MAS instance ID: </Yellow>'), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False)
 
-        current_mas_channel = getMasChannel(self.dynamicClient, instanceId)
-
-        if current_mas_channel not in self.upgrade_path:
-            self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {current_mas_channel}")
-
-        next_mas_channel = self.upgrade_path[current_mas_channel]
+        currentChannel = getMasChannel(self.dynamicClient, instanceId)
+        if currentChannel is not None:
+            if currentChannel not in self.upgrade_path:
+                self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")
+            nextChannel = self.upgrade_path[currentChannel]
+        else:
+            # We still allow the upgrade to proceed even though we can't detect the MAS instance.  The upgrade may be being
+            # queued up to run after install for instance
+            currentChannel = "Unknown"
+            nextChannel = "Unknown"
 
         if not self.licenseAccepted:
             self.printH1("License Terms")
             self.printDescription([
                 "To continue with the upgrade, you must accept the license terms:",
-                self.licenses[next_mas_channel]
+                self.licenses[nextChannel]
             ])
 
             if self.noConfirm:
@@ -92,8 +95,8 @@ class UpgradeApp(BaseApp):
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {current_mas_channel}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {next_mas_channel}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {nextChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
 
         if not self.noConfirm:

@@ -8,8 +8,6 @@
 #
 # *****************************************************************************
 
-from mas.devops.mas import isAirgapInstall
-
 
 class TurbonomicSettingsMixin():
 
@@ -21,7 +19,7 @@ class TurbonomicSettingsMixin():
                 " - Learn more: <Orange><u>https://www.ibm.com/products/turbonomic</u></Orange>"
             ])
 
-            if isAirgapInstall(self.dynamicClient):
+            if self.isAirgap():
                 self.printHighlight("The Turbonomic Kubernetes Operator does not support disconnected installation at this time")
             elif self.yesOrNo("Configure IBM Turbonomic integration"):
                 self.promptForString("Turbonomic Target Name", "turbonomic_target_name")

@@ -26,7 +26,7 @@ spec:
   tasks:
     # 1. Wait for approval & verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    - name: approval
+    - name: waitfor-approval
       timeout: "0"
       taskRef:
         kind: Task
@@ -39,7 +39,7 @@ spec:
 
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={'name': 'pre-upgrade-check', 'devops_suite_name': 'pre-upgrade-check'}) | indent(4) }}
       runAfter:
-        - approval
+        - waitfor-approval
 
 
     # 2. Suite Upgrade (Phase 1)
@@ -169,7 +169,7 @@ spec:
 
     # 7. Optimizer Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    - name: optimizer-upgrade
+    - name: app-optimizer-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -181,7 +181,7 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: optimizer-upgrade
+          value: app-optimizer-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -242,7 +242,7 @@ spec:
       runAfter:
         # Phase 2 apps that don't have a phase 3 app following it
         - assist-upgrade
-        - optimizer-upgrade
+        - app-optimizer-upgrade
         - visualinspection-upgrade
         # Phase 3 apps
         - predict-upgrade
@@ -261,8 +261,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: sync-upgrade
-        - name: configmap_key
-          value: UPGRADE_STATUS
         - name: configmap_value
           # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
           # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)

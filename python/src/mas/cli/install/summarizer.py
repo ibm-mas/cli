@@ -11,7 +11,6 @@
 import logging
 import yaml
 from prompt_toolkit import print_formatted_text, HTML
-from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import getConsoleURL
 
 logger = logging.getLogger(__name__)
@@ -46,7 +45,7 @@ class InstallSummarizerMixin():
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
-        if isAirgapInstall(self.dynamicClient):
+        if self.isAirgap():
             self.printSummary("Install Mode", "Disconnected Install")
         else:
             self.printSummary("Install Mode", "Connected Install")

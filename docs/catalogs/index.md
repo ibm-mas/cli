@@ -30,92 +30,93 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     <tr>
     <th>Catalog</th>
     <th>OCP Support</th>
+    <th>CPD Support</th>
     <th>Recommended CLI</th>
     <th>Support Notes</th>
     </tr>
     </thead>
     <tbody>
     <tr>
-    <td><a href="v9-241205-amd64/">v9-241205-amd64</a></td>
+    <td><a href="v9-241205-amd64/">v9-241205-amd64</a>, <a href="v9-241205-s390x/">v9-241205-s390x</a></td>
     <td>4.14 - 4.16</td>
+    <td>5.0.0</td>
     <td>latest</td>
     <td>OCP 4.16 EOS June 27, 2026</td>
     </tr>
     <tr>
-    <td><a href="v9-241205-s390x/">v9-241205-s390x</a></td>
-    <td>4.14 - 4.16</td>
-    <td>latest</td>
-    <td>OCP 4.16 EOS June 27, 2026</td>
-    </tr>
-    <tr>
-    <td><a href="v9-241107-amd64/">v9-241107-amd64</a></td>
+    <td><a href="v9-241107-amd64/">v9-241107-amd64</a>, <a href="v9-241107-s390x/">v9-241107-s390x</a></td>
     <td>4.12 - 4.15</td>
-    <td>latest</td>
-    <td>OCP 4.14 EOS October 31, 2025</td>
-    </tr>
-    <tr>
-    <td><a href="v9-241107-s390x/">v9-241107-s390x</a></td>
-    <td>4.12 - 4.15</td>
+    <td>4.8.0</td>
     <td>latest</td>
     <td>OCP 4.14 EOS October 31, 2025</td>
     </tr>
     <tr>
     <td><a href="v9-241003-amd64/">v9-241003-amd64</a></td>
     <td>4.12 - 4.15</td>
+    <td>4.8.0</td>
     <td>latest</td>
     <td>OCP 4.14 EOS October 31, 2025</td>
     </tr>
     <tr>
     <td><a href="v9-240827-amd64/">v9-240827-amd64</a></td>
     <td>4.12 - 4.15</td>
+    <td>4.8.0</td>
     <td>11.11.3</td>
     <td>OCP 4.14 EOS October 31, 2025</td>
     </tr>
     <tr>
     <td><a href="v9-240730-amd64/">v9-240730-amd64</a></td>
     <td>4.12 - 4.15</td>
+    <td>4.8.0</td>
     <td>11.5.0</td>
     <td>OCP 4.14 EOS October 31, 2025</td>
     </tr>
     <tr>
     <td><a href="v9-240625-amd64/">v9-240625-amd64</a></td>
     <td>4.12 - 4.14</td>
+    <td>4.8.0</td>
     <td>10.9.2</td>
     <td>OCP 4.14 EOS October 31, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-240528-amd64/">v8-240528-amd64</a></td>
     <td>4.12 - 4.14</td>
+    <td>4.6.6</td>
     <td>10.8.1</td>
     <td>OCP 4.14 EOS October 31, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-240430-amd64/">v8-240430-amd64</a></td>
     <td>4.12 - 4.14</td>
+    <td>4.6.6</td>
     <td>9.4.0</td>
     <td>OCP 4.14 EOS October 31, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-240405-amd64/">v8-240405-amd64</a></td>
     <td>4.12 - 4.14</td>
+    <td>4.6.6</td>
     <td>9.4.0</td>
     <td>OCP 4.14 EOS October 31, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-240326-amd64/">v8-240326-amd64</a></td>
     <td>4.12 - 4.14</td>
+    <td>4.6.6</td>
     <td>9.4.0</td>
     <td>OCP 4.14 EOS October 31, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-240227-amd64/">v8-240227-amd64</a></td>
     <td>4.12</td>
+    <td>4.6.6</td>
     <td>8.2.2</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
     <tr>
     <td><a href="v8-240130-amd64/">v8-240130-amd64</a></td>
     <td>4.12</td>
+    <td>4.6.6</td>
     <td>8.2.2</td>
     <td>OCP 4.12 EOS January 17, 2025</td>
     </tr>
@@ -303,7 +304,7 @@ The packages available in these catalogs are fixed. Multiple installations at di
 #### Disconnected Install
 > I want to run a disconnected environment using a private mirror registry
 
-The MAS CLI [mirror-images](../commands/mirror-images.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../commands/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageContentSourcePolicy** to your cluster before starting the installation.
+The MAS CLI [mirror-images](../guides/image-mirroring.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../commands/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageContentSourcePolicy** to your cluster before starting the installation.
 
 
 ### Dynamic Catalog

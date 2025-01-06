@@ -83,7 +83,6 @@ function configure_ocp_for_mirror_noninteractive() {
 
   # Check all args have been set
   [[ -z "$REGISTRY_PRIVATE_HOST" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_HOST is not set"
-  [[ -z "$REGISTRY_PRIVATE_PORT" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_PORT is not set"
   [[ -z "$REGISTRY_PRIVATE_CA_FILE" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_CA_FILE is not set"
   [[ -z "$REGISTRY_USERNAME" ]] && configure_ocp_for_mirror_help "REGISTRY_USERNAME is not set"
   [[ -z "$REGISTRY_PASSWORD" ]] && configure_ocp_for_mirror_help "REGISTRY_PASSWORD is not set"
@@ -111,6 +110,14 @@ function configure_ocp_for_mirror_interactive() {
     exit 1
   fi
 
+  if [[ "$REGISTRY_PRIVATE_PORT" != "" ]]; then
+    REGISTRY_PRIVATE_URL = "${REGISTRY_PRIVATE_HOST}:${REGISTRY_PRIVATE_PORT}"
+  fi
+
+  if [[ "$REGISTRY_PREFIX" != "" ]]; then
+    REGISTRY_PRIVATE_URL_WITH_PATH = "${REGISTRY_PRIVATE_URL}/${REGISTRY_PREFIX}"
+  fi
+
   echo
   echo_h2 "Configure Authentication"
   prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME && export REGISTRY_USERNAME
@@ -123,9 +130,9 @@ function configure_ocp_for_mirror_interactive() {
   echo
   echo "1. OperatorHub will be re-configured to disable the default online catalog sources"
   echo "2. Three offline catalog sources will be created/updated in the openshift-marketplace namespace:"
-  echo "  - certified-operator-index -> $REGISTRY_PRIVATE_HOST:$REGISTRY_PRIVATE_PORT/redhat/certified-operator-index:v$OCP_RELEASE"
-  echo "  - community-operator-index -> $REGISTRY_PRIVATE_HOST:$REGISTRY_PRIVATE_PORT/redhat/community-operator-index:v$OCP_RELEASE"
-  echo "  - redhat-operator-index -> $REGISTRY_PRIVATE_HOST:$REGISTRY_PRIVATE_PORT/redhat/redhat-operator-index:v$OCP_RELEASE"
+  echo "  - certified-operator-index -> $REGISTRY_PRIVATE_URL_WITH_PATH/redhat/certified-operator-index:v$OCP_RELEASE"
+  echo "  - community-operator-index -> $REGISTRY_PRIVATE_URL_WITH_PATH/redhat/community-operator-index:v$OCP_RELEASE"
+  echo "  - redhat-operator-index -> $REGISTRY_PRIVATE_URL_WITH_PATH/redhat/redhat-operator-index:v$OCP_RELEASE"
   echo
   reset_colors
 
@@ -185,12 +192,11 @@ function configure_ocp_for_mirror() {
     echo_h2 "Disable Online Red Hat Catalog Sources"
     ROLE_NAME=ocp_config ansible-playbook ibm.mas_devops.run_role || exit 1
 
-    echo_h2 "Configure Image Content Source Policy (with Red Hat catalogs)"
-    ROLE_NAME=ocp_contentsourcepolicy ansible-playbook ibm.mas_devops.run_role || exit 1
+    echo_h2 "Configure ImageDigestMirrorSet (with Red Hat catalogs)"
+    ROLE_NAME=ocp_idms ansible-playbook ibm.mas_devops.run_role || exit 1
   else
-    echo_h2 "Configure Image Content Source Policy"
-    ROLE_NAME=ocp_contentsourcepolicy ansible-playbook ibm.mas_devops.run_role || exit 1
+    echo_h2 "Configure ImageDigestMirrorSet"
+    ROLE_NAME=ocp_idms ansible-playbook ibm.mas_devops.run_role || exit 1
   fi
-
 
 }

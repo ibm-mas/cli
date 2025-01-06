@@ -16,7 +16,8 @@ ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible
     ANSIBLE_CONFIG=/opt/app-root/src/ansible.cfg \
     PATH="/mascli:${PATH}" \
     VERSION=${VERSION_LABEL:-x.y.z} \
-    VIRTUAL_ENV_DISABLE_PROMPT=1
+    VIRTUAL_ENV_DISABLE_PROMPT=1 \
+    PYTHONWARNINGS="ignore:Unverified HTTPS request"
 
 # 3. Install Python packages
 # 4. Install Ansible collections

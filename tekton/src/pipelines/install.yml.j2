@@ -272,6 +272,7 @@ spec:
         - suite-db2-setup-system
         - suite-db2-setup-manage
         - suite-config-watson-studio
+        - suite-config-cos
 
     # 8.3 Configure Manage workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
@@ -390,8 +391,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: sync-install
-        - name: configmap_key
-          value: INSTALL_STATUS
         - name: configmap_value
           # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
           # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
