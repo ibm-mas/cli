@@ -235,14 +235,9 @@ spec:
           export INSTALL_IBM_RBAC=true
         fi
 
-        if [[ -n "${GROUP_SYNC_OPERATOR_ISV_GROUPS}" ]];then
-          echo "Setting var INSTALL_GROUP_SYNC_OPERATOR to true as var GROUP_SYNC_OPERATOR_ISV_GROUPS is set"
-          export INSTALL_GROUP_SYNC_OPERATOR=true
-        fi
-
         if [[ -n "${FALCON_OPERATOR_CLOUD_REGION}" ]];then
           echo "Setting var INSTALL_FALCON_OPERATOR to true as var FALCON_OPERATOR_CLOUD_REGION is set"
-          export INSTALL_GROUP_SYNC_OPERATOR=true
+          export FALCON_OPERATOR_CLOUD_REGION=true
         else
           echo "Not setting var INSTALL_FALCON_OPERATOR to true as var FALCON_OPERATOR_CLOUD_REGION is not set"
         fi
