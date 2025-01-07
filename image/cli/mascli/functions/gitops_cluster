@@ -81,6 +81,9 @@ Group Sync Operator (Optional):
 IBM RBAC (Optional):
       --install-ibm-rbac ${COLOR_YELLOW}INSTALL_IBM_RBAC${TEXT_RESET}                                           Install the IBM RBAC roles and role bindings
 
+CrowdStrike Falcon Operator (Optional):
+      --install-falcon-operator ${COLOR_YELLOW}INSTALL_FALCON_OPERATOR${TEXT_RESET}                             Install the CrowdStrike Falcon Operator
+
 Other Commands:
   -h, --help                              Show this help message
 EOM
@@ -266,6 +269,11 @@ function gitops_cluster_noninteractive() {
       # IBM RBAC
       --install-ibm-rbac)
         export INSTALL_IBM_RBAC=true
+        ;;
+
+      # CrowdStrike Falcon Operator
+      --install-falcon-operator)
+        export INSTALL_FALCON_OPERATOR=true
         ;;
 
       # Other Commands
@@ -454,6 +462,11 @@ function gitops_cluster() {
   echo_reset_dim "Install IBM RBAC ........... ${COLOR_MAGENTA}${INSTALL_IBM_RBAC}"
   reset_colors
 
+  echo "${TEXT_DIM}"
+  echo_h2 "CrowdStrike Falcon Operator" "    "
+  echo_reset_dim "Install the CrowdStrike Falcon Operator ........... ${COLOR_MAGENTA}${INSTALL_FALCON_OPERATOR}"
+  reset_colors
+
   # Set up secrets
   # ---------------------------------------------------------------------------
   echo
@@ -474,6 +487,10 @@ function gitops_cluster() {
   export SECRET_KEY_ISV_CLIENT_ID=${SECRET_NAME_ISV_CLIENT}#client_id
   export SECRET_KEY_ISV_CLIENT_SECRET=${SECRET_NAME_ISV_CLIENT}#client_secret
 
+  export SECRET_NAME_FALCON_CLIENT=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}falcon_client
+  export SECRET_KEY_FALCON_CLIENT_ID=${SECRET_NAME_FALCON_CLIENT}#client_id
+  export SECRET_KEY_FALCON_CLIENT_SECRET=${SECRET_NAME_FALCON_CLIENT}#client_secret
+
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
@@ -484,6 +501,12 @@ function gitops_cluster() {
     echo "- Update ISV_CLIENT_ID and ISV_CLIENT_SECRET secrets"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_ISV_CLIENT "{\"client_id\": \"${ISV_CLIENT_ID}\", \"client_secret\": \"${ISV_CLIENT_SECRET}\"}" "${TAGS}"
+  fi
+
+  if [ -n "$FALCON_CLIENT_ID" ] && [ -n "$FALCON_CLIENT_SECRET" ]; then
+    echo "- Update FALCON_CLIENT_ID and FALCON_CLIENT_SECRET secrets"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_FALCON_CLIENT "{\"client_id\": \"${FALCON_CLIENT_ID}\", \"client_secret\": \"${FALCON_CLIENT_SECRET}\"}" "${TAGS}"
   fi
 
   if [ -z $GIT_SSH ]; then
@@ -590,6 +613,12 @@ function gitops_cluster() {
   if [[ "$INSTALL_IBM_RBAC" == "true" ]]; then
     echo "- IBM RBAC"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-rbac.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-rbac.yaml
+  fi
+
+  if [[ "$INSTALL_FALCON_OPERATOR" == "true" ]]; then
+    echo "- CrowdStrike Falcon Operator"
+    sm_verify_secret_exists $SECRET_NAME_FALCON_CLIENT "client_secret,client_id"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/falcon-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/falcon-operator.yaml
   fi
 
   # Commit and push to github target repo
