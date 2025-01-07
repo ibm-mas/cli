@@ -170,6 +170,10 @@ spec:
     - name: falcon_operator_node_sensor
       type: string
       default: ''
+
+    - name: cluster_logging_operator_use_syslog_forwarder
+      type: string
+      default: 'true'
   tasks:
     - name: gitops-cluster
       params:
@@ -257,6 +261,9 @@ spec:
           value: $(params.falcon_operator_cloud_region)
         - name: falcon_operator_node_sensor
           value: $(params.falcon_operator_node_sensor)
+
+        - name: cluster_logging_operator_use_syslog_forwarder
+          value: $(params.cluster_logging_operator_use_syslog_forwarder)
       taskRef:
         kind: Task
         name: gitops-cluster
