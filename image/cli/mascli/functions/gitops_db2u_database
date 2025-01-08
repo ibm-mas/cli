@@ -713,7 +713,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
   # Remove any existing config for replicadb
-  if [[ $REPLICA_DB == 'true' ]]; then
+  if [[ $REPLICA_DB == 'false' ]]; then
     yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}-sdb'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
   fi
 
