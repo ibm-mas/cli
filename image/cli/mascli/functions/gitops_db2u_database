@@ -280,6 +280,7 @@ function gitops_db2u_database_noninteractive() {
         ;;
       --replica-db)
         export REPLICA_DB=$1 && shift
+        ;;
 
 
       # Automatic GitHub Push
