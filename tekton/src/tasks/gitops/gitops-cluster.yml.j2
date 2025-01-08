@@ -109,13 +109,13 @@ spec:
     - name: falcon_operator_node_sensor
       type: string
       default: ''
-<<<<<<< HEAD
 
+    - name: cluster_logging_operator_install
+      type: string
+      default: 'false'
     - name: cluster_logging_operator_use_syslog_forwarder
       type: string
       default: 'true'
-=======
->>>>>>> 4ac830c27fcf3393f50df85c384590f11a5fadaf
 
   stepTemplate:
     name: gitops-cluster
@@ -201,12 +201,11 @@ spec:
         value: $(params.falcon_operator_cloud_region)
       - name: FALCON_OPERATOR_NODE_SENSOR
         value: $(params.falcon_operator_node_sensor)
-<<<<<<< HEAD
 
+      - name: CLUSTER_LOGGING_OPERATOR_INSTALL
+        value: $(params.cluster_logging_operator_install)
       - name: CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER
         value: $(params.cluster_logging_operator_use_syslog_forwarder)
-=======
->>>>>>> 4ac830c27fcf3393f50df85c384590f11a5fadaf
 
     envFrom:
       - configMapRef:
@@ -255,16 +254,6 @@ spec:
           echo "Not setting var INSTALL_FALCON_OPERATOR to true as var FALCON_OPERATOR_CLOUD_REGION is not set"
         fi
 
-<<<<<<< HEAD
-        if [[ -n "${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER}" ]];then
-          echo "Setting var INSTALL_CLUSTER_LOGGING_OPERATOR to true as var CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER is set"
-          export INSTALL_CLUSTER_LOGGING_OPERATOR=true
-        else
-          echo "Not setting var INSTALL_FALCON_OPERATOR to true as var FALCON_OPERATOR_CLOUD_REGION is not set"
-        fi
-
-=======
->>>>>>> 4ac830c27fcf3393f50df85c384590f11a5fadaf
         mkdir -p /tmp/init-cluster
         mas gitops-cluster -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/init-cluster \
