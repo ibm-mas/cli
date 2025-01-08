@@ -85,7 +85,7 @@ CrowdStrike Falcon Operator (Optional):
       --install-falcon-operator ${COLOR_YELLOW}INSTALL_FALCON_OPERATOR${TEXT_RESET}                             Install the CrowdStrike Falcon Operator
 
 Cluster Logging Operator (Optional):
-      --install-cluster-logging-operator ${COLOR_YELLOW}INSTALL_CLUSTER_LOGGING_OPERATOR${TEXT_RESET}            Install the Cluster Logging Operator
+      --install-cluster-logging-operator ${COLOR_YELLOW}INSTALL_CLUSTER_LOGGING_OPERATOR${TEXT_RESET}           Install the Cluster Logging Operator
 
 Other Commands:
   -h, --help                              Show this help message
