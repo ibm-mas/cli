@@ -11,6 +11,8 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
 ### Known Issues
 - **October 2024** IBM Cloud Pak for Data 4.8, used in catalogs released between June and October 2024 uses a Postgres license key that expired on October 1, 2024.  A fix is available from CLI version 11.2.1 onwards; if you are installing CP4D as a MAS dependency you must use at least version 11.2.1 of the CLI.  If you need to install MAS with CP4D using an older catalog than supported by this version of the CLI please contact IBM support for assistance.
 
+- **November, December 2024 & January 2025** Disconnected environment with Manage Civil, Aviation and ICD cannot be updated by these patch. These patch does not support new installation of Civil, Aviation and ICD for disconnected environment. 
+
 ### Architecture
 - amd64
 - s390x
