@@ -726,11 +726,15 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   # Merge the two files
   yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
+  echo_h2 "After merging the two files"
+  cat $CONFIGS_FILE
 
   # sort the configs by db2_instance_name.
   # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
   # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed
   yq -i '.ibm_db2u_databases |= sort_by(.db2_instance_name)' $CONFIGS_FILE
+  echo_h2 "After sorting"
+  cat $CONFIGS_FILE
 
   echo_h2 "Updated configuration file (${CONFIGS_FILE})"
   if [ -f ${CONFIGS_FILE} ]; then
