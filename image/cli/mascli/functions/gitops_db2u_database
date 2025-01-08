@@ -62,6 +62,7 @@ IBM DB2U:
       --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
       --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
       --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                   Slack URL to notify DB2 backup failures
+      --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                    Flag to know that this is ReplicaDB instance
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -277,6 +278,8 @@ function gitops_db2u_database_noninteractive() {
       --db2-backup-notify-slack-url)
         export DB2_BACKUP_NOTIFY_SLACK_URL=$1 && shift
         ;;
+      --replica-db)
+        export REPLICA_DB=$1 && shift
 
 
       # Automatic GitHub Push
@@ -459,8 +462,15 @@ DB2_4K_DEVICE_SUPPORT: '${DB2_4K_DEVICE_SUPPORT}'
 DB2_FMP_RUN_AS_CONNECTED_USER: 'NO'
 DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
+  if [[ -z $REPLICA_DB ]]; then
+    export REPLICA_DB="false"
+  fi
   if [[ -z $DB2_INSTANCE_NAME ]]; then
-    export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+    if [[ $REPLICA_DB == 'true' ]]; then
+      export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}-sdb
+    else
+      export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+    fi
   fi
   if [[ -z $DB2_BACKUP_BUCKET_NAME ]]; then
     export DB2_BACKUP_BUCKET_NAME=${SECRET_NAME_DB2_BACKUP}#bucketName

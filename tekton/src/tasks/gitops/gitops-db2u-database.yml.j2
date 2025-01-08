@@ -114,6 +114,9 @@ spec:
     - name: db2_backup_notify_slack_url
       type: string
       default: ""
+    - name: replica_db
+      type: string
+      default: "false"
   stepTemplate:
     name: gitops-db2u-database
     env:
@@ -223,6 +226,8 @@ spec:
         value: $(params.jdbc_route)
       - name: DB2_BACKUP_NOTIFY_SLACK_URL
         value: $(params.db2_backup_notify_slack_url)
+      - REPLICA_DB
+        value: $(params.replica_db)
     envFrom:
       - configMapRef:
           name: environment-properties
