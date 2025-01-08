@@ -901,6 +901,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.fatalError(f"{key} must be set")
                 self.slsLicenseFileLocal = value
 
+            # Set SLS MongoDB Configuration File if a `mongodb_namespace` is provided other than default
+            elif key == "mongodb_namespace":
+                if value is None:
+                    self.fatalError(f"{key} must be set")
+                self .setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
+            
             elif key.startswith("approval_"):
                 if key not in self.approvals:
                     raise KeyError(f"{key} is not a supported approval workflow ID: {self.approvals.keys()}")
