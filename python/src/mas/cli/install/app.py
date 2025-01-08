@@ -906,7 +906,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is None:
                     self.fatalError(f"{key} must be set")
                 self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
-            
+
             elif key.startswith("approval_"):
                 if key not in self.approvals:
                     raise KeyError(f"{key} is not a supported approval workflow ID: {self.approvals.keys()}")
