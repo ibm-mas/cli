@@ -226,7 +226,7 @@ spec:
         value: $(params.jdbc_route)
       - name: DB2_BACKUP_NOTIFY_SLACK_URL
         value: $(params.db2_backup_notify_slack_url)
-      - REPLICA_DB
+      - name: REPLICA_DB
         value: $(params.replica_db)
     envFrom:
       - configMapRef:
