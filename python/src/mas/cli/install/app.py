@@ -651,9 +651,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def optimizerSettings(self) -> None:
         if self.installOptimizer:
             self.printH1("Configure Maximo Optimizer")
-            self.printDescription(["Customize your Optimizer installation, 'full' and 'limited' install plans are available, refer to the product documentation for more information"])
-
-            self.promptForString("Plan [full/limited]", "mas_app_plan_optimizer", default="full", validator=OptimizerInstallPlanValidator())
+            if self.isSNO():
+                self.printDescription(["Using Optimizer 'limited' plan as it is being installed in a single node cluster"])
+                self.setParam("mas_app_plan_optimizer", "limited")
+            else:
+                self.printDescription(["Customize your Optimizer installation, 'full' and 'limited' install plans are available, refer to the product documentation for more information"])
+                self.promptForString("Plan [full/limited]", "mas_app_plan_optimizer", default="full", validator=OptimizerInstallPlanValidator())
 
     @logMethodCall
     def predictSettings(self) -> None:
