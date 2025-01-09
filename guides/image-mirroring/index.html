@@ -136,12 +136,6 @@
   <cds-side-nav-menu title="Command Reference" >
     
       
-  <cds-side-nav-menu-item href="../../commands/install/" >
-    install
-  </cds-side-nav-menu-item>
-
-    
-      
   <cds-side-nav-menu-item href="../../commands/update/" >
     update
   </cds-side-nav-menu-item>
@@ -168,12 +162,6 @@
       
   <cds-side-nav-menu-item href="../../commands/configure-airgap/" >
     configure-airgap
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../commands/mirror-images/" >
-    mirror-images
   </cds-side-nav-menu-item>
 
     
@@ -232,6 +220,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-250109-amd64/" >
+    Jan 09 2025
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-241205-amd64/" >
     Dec 05 2024
   </cds-side-nav-menu-item>
@@ -246,12 +240,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-241003-amd64/" >
     Oct 03 2024
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-240827-amd64/" >
-    Aug 27 2024
   </cds-side-nav-menu-item>
 
     
@@ -299,17 +287,13 @@
     <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
-      <cds-select-item value="#image-mirroring-overview">Image Mirroring Overview</cds-select-item>
+      <cds-select-item value="#usage">Usage</cds-select-item>
     
-      <cds-select-item value="#preparation">Preparation</cds-select-item>
+      <cds-select-item value="#interactive-image-mirroring">Interactive Image Mirroring</cds-select-item>
     
-      <cds-select-item value="#stage-1-core">Stage 1 - Core</cds-select-item>
+      <cds-select-item value="#non-interactive-image-mirroring">Non-Interactive Image Mirroring</cds-select-item>
     
-      <cds-select-item value="#stage-2-apps">Stage 2 - Apps</cds-select-item>
-    
-      <cds-select-item value="#stage-3-cp4d">Stage 3 - CP4D</cds-select-item>
-    
-      <cds-select-item value="#stage-4-other-dependencies">Stage 4 - Other Dependencies</cds-select-item>
+      <cds-select-item value="#storage-requirements">Storage Requirements</cds-select-item>
     
   </cds-select>
   </cds-breadcrumb-item>
@@ -319,10 +303,27 @@
     <div id="main-content" class="rst-content">
       
       <h1 id="image-mirroring">Image Mirroring<a class="headerlink" href="#image-mirroring" title="Permanent link">¤</a></h1>
-<h2 id="image-mirroring-overview">Image Mirroring Overview<a class="headerlink" href="#image-mirroring-overview" title="Permanent link">¤</a></h2>
-<p>We recommend the use of two-phase mirroring, it is slower than direct mirroring and requires more storage capacity, but can allow you to more easily recover from network glitches and creates a clean seperation of the tasks of getting the content from the source registry and putting it into the target registry which can make debugging failures easier.</p>
+<p>We recommend the use of two-phase mirroring in most cases, it is slower than direct mirroring and requires more storage capacity, but can allow you to more easily recover from network glitches and creates a clean seperation of the tasks of getting the content from the source registry and putting it into the target registry which can make debugging failures easier.</p>
 <p>This guide assumes that you are looking to mirror content for the latest release (<strong>9.0.x</strong>) from the most recent catalog update (<strong>v9-241205-amd64</strong>), and that you are installing all MAS applications &amp; dependencies.  If you are not installing certain applications or dependencies take care to remove the appropriate <code>--mirror-x</code> flags to avoid mirroring unnecessary images.</p>
-<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¤</a></h2>
+<p>By default image repositories will be prefixed using the datestamp of the Maximo Operator Catalog that you are mirroring from, this allows for simpler registry management, you can prune all images under <code>mas-241105/*</code> in your mirror registry once you know that you have updated all clusters to a newer version of the catalog.</p>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
+<p>For full usage information run <code>mas mirror-images --help</code></p>
+<h2 id="interactive-image-mirroring">Interactive Image Mirroring<a class="headerlink" href="#interactive-image-mirroring" title="Permanent link">¤</a></h2>
+<p>You can start image mirroring by running the <code>mas mirror-images</code> command with no parameters, you will be prompted to select the mirror mode and working directory, configure the target registry, and select which content you wish to mirror.</p>
+<p>The easiest way to do this is using the MAS CLI container image as below:</p>
+<pre><code class="language-bash">LOCAL_DIR=/home/david/mirrorfiles
+docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images
+</code></pre>
+<h2 id="non-interactive-image-mirroring">Non-Interactive Image Mirroring<a class="headerlink" href="#non-interactive-image-mirroring" title="Permanent link">¤</a></h2>
+<p>This guide will take you through we mirror images in our own development environment, breaking up the task into 4 distinct stages to further break down the work and make it easier to address any problems by providing clear milestones:</p>
+<ul>
+<li><a href="#preparation">Preparation</a></li>
+<li><a href="#stage-1-core">IBM Maximo Application Suite Core</a></li>
+<li><a href="#stage-2-apps">IBM Maximo Applications</a></li>
+<li><a href="#stage-3-cp4d">IBM Cloud Pak for Data</a></li>
+<li><a href="#stage-4-other-dependencies">Other Dependencies</a></li>
+</ul>
+<h3 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¤</a></h3>
 <p>Set the following environment variables that will be used in each stage:</p>
 <pre><code class="language-bash">export IBM_ENTITLEMENT_KEY=xxx
 export LOCAL_DIR=xxx
@@ -331,60 +332,412 @@ export REGISTRY_PORT=xxx
 export REGISTRY_USERNAME=xxx
 export REGISTRY_PASSWORD=xxx
 </code></pre>
-<h2 id="stage-1-core">Stage 1 - Core<a class="headerlink" href="#stage-1-core" title="Permanent link">¤</a></h2>
+<p>If you do not have a single system with both access to the public source registries <strong>and</strong> your internal private registry then you will require a system with internet connectivity and another with access to your private network, along with a means to transfer data from one to the other (for example, a portable drive).</p>
+<p>In this scenario, we must also transfer the CLI image to your local registry:</p>
+<pre><code class="language-bash">oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:11.12.0 file://ibmmas/cli:11.12.0
+</code></pre>
+<p>Transfer the content of <code>$LOCAL_DIR/cli</code> to your system within the private network and transfer the image to your mirror registry.</p>
+<pre><code class="language-bash">docker login $REGISTRY_HOST:$REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD
+oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:11.12.0 $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:11.12.0
+</code></pre>
+<h3 id="stage-1-core">Stage 1 - Core<a class="headerlink" href="#stage-1-core" title="Permanent link">¤</a></h3>
 <p>Let's start simple and just get the MAS Core and IBM Maximo Operator Catalog mirrored to the registry, this shouldn't take long and provides an early measure of the download and upload performance to help estimate the time to complete the larger stages.</p>
-<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/core \
+<p><cds-tabs trigger-content="Select an item" value="direct">
+  <cds-tab id="tab-direct-core" target="panel-direct-core" value="direct">Direct</cds-tab>
+  <cds-tab id="tab-to-core" target="panel-to-core" value="to">To Filesystem</cds-tab>
+  <cds-tab id="tab-from-core" target="panel-from-core" value="from">From Filesystem</cds-tab>
+  <cds-tab id="tab-from-restricted-core" target="panel-from-restricted-core" value="from-restricted">From Filesystem (Restricted)</cds-tab>
+</cds-tabs></p>
+<div class="tab-panel">
+  <div id="panel-direct-core" role="tabpanel" aria-labelledby="tab-direct-core" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m direct -d /mnt/registry/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-241205-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
-<p>Once the images are mirrored to local disk, we will mirror them from local disk to your registry, this should complete in very little time, depends on the speed of your internal network:</p>
-<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/core \
+
+
+  </div>
+  <div id="panel-to-core" role="tabpanel" aria-labelledby="tab-to-core" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m to-filesystem -d /mnt/registry/core \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v9-241205-amd64 -C 9.0.x \
+  --mirror-catalog --mirror-core \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY
+</code></pre>
+
+
+  </div>
+  <div id="panel-from-core" role="tabpanel" aria-labelledby="tab-from-core" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m from-filesystem -d /mnt/registry/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-241205-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core
 </code></pre>
-<h2 id="stage-2-apps">Stage 2 - Apps<a class="headerlink" href="#stage-2-apps" title="Permanent link">¤</a></h2>
-<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/apps \
+
+
+  </div>
+  <div id="panel-from-restricted-core" role="tabpanel" aria-labelledby="tab-from-restricted-core" hidden>
+    <p>Transfer the contents of <code>$LOCAL_DIR/core</code> to your system in the private network and run the second phase using the CLI image that was mirrored to your private registry during preparation.</p>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:11.12.0 mas mirror-images \
+  -m from-filesystem -d /mnt/registry/core \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v9-241205-amd64 -C 9.0.x \
+  --mirror-catalog --mirror-core
+</code></pre>
+
+
+  </div>
+</div>
+
+<h3 id="stage-2-apps">Stage 2 - Apps<a class="headerlink" href="#stage-2-apps" title="Permanent link">¤</a></h3>
+<p><cds-tabs trigger-content="Select an item" value="direct">
+  <cds-tab id="tab-direct-apps" target="panel-direct-apps" value="direct">Direct</cds-tab>
+  <cds-tab id="tab-to-apps" target="panel-to-apps" value="to">To Filesystem</cds-tab>
+  <cds-tab id="tab-from-apps" target="panel-from-apps" value="from">From Filesystem</cds-tab>
+  <cds-tab id="tab-from-restricted-apps" target="panel-from-restricted-apps" value="from-restricted">From Filesystem (Restricted)</cds-tab>
+</cds-tabs></p>
+<div class="tab-panel">
+  <div id="panel-direct-apps" role="tabpanel" aria-labelledby="tab-direct-apps" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m direct -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-241205-amd64 -C 9.0.x \
   --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
-<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/apps \
+
+
+  </div>
+  <div id="panel-to-apps" role="tabpanel" aria-labelledby="tab-to-apps" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m to-filesystem -d /mnt/registry/apps \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v9-241205-amd64 -C 9.0.x \
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY
+</code></pre>
+
+
+  </div>
+  <div id="panel-from-apps" role="tabpanel" aria-labelledby="tab-from-apps" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m from-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-241205-amd64 -C 9.0.x \
   --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
 </code></pre>
-<h2 id="stage-3-cp4d">Stage 3 - CP4D<a class="headerlink" href="#stage-3-cp4d" title="Permanent link">¤</a></h2>
-<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/cp4d \
+
+
+  </div>
+  <div id="panel-from-restricted-apps" role="tabpanel" aria-labelledby="tab-from-restricted-apps" hidden>
+    <p>Transfer the contents of <code>$LOCAL_DIR/apps</code> to your system in the private network and run the second phase using the CLI image that was mirrored to your private registry during preparation.</p>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:11.12.0 mas mirror-images \
+  -m from-filesystem -d /mnt/registry/apps \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v9-241205-amd64 -C 9.0.x \
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
+</code></pre>
+
+
+  </div>
+</div>
+
+<h3 id="stage-3-cp4d">Stage 3 - CP4D<a class="headerlink" href="#stage-3-cp4d" title="Permanent link">¤</a></h3>
+<p><cds-tabs trigger-content="Select an item" value="direct">
+  <cds-tab id="tab-direct-cp4d" target="panel-direct-cp4d" value="direct">Direct</cds-tab>
+  <cds-tab id="tab-to-cp4d" target="panel-to-cp4d" value="to">To Filesystem</cds-tab>
+  <cds-tab id="tab-from-cp4d" target="panel-from-cp4d" value="from">From Filesystem</cds-tab>
+  <cds-tab id="tab-from-restricted-cp4d" target="panel-from-restricted-cp4d" value="from-restricted">From Filesystem (Restricted)</cds-tab>
+</cds-tabs></p>
+<div class="tab-panel">
+  <div id="panel-direct-cp4d" role="tabpanel" aria-labelledby="tab-direct-cp4d" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m direct -d /mnt/registry/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-241205-amd64 -C 9.0.x \
   --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
-<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/cp4d \
+
+
+  </div>
+  <div id="panel-to-cp4d" role="tabpanel" aria-labelledby="tab-to-cp4d" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m to-filesystem -d /mnt/registry/cp4d \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v9-241205-amd64 -C 9.0.x \
+  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY
+</code></pre>
+
+
+  </div>
+  <div id="panel-from-cp4d" role="tabpanel" aria-labelledby="tab-from-cp4d" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m from-filesystem -d /mnt/registry/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-241205-amd64 -C 9.0.x \
   --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos
 </code></pre>
-<h2 id="stage-4-other-dependencies">Stage 4 - Other Dependencies<a class="headerlink" href="#stage-4-other-dependencies" title="Permanent link">¤</a></h2>
-<pre><code class="language-bash">mas mirror-images -m to-filesystem -d $LOCAL_DIR/other \
+
+
+  </div>
+  <div id="panel-from-restricted-cp4d" role="tabpanel" aria-labelledby="tab-from-restricted-cp4d" hidden>
+    <p>Transfer the contents of <code>$LOCAL_DIR/cp4d</code> to your system in the private network and run the second phase using the CLI image that was mirrored to your private registry during preparation.</p>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:11.12.0 mas mirror-images \
+  -m from-filesystem -d /mnt/registry/cp4d \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v9-241205-amd64 -C 9.0.x \
+  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos
+</code></pre>
+
+
+  </div>
+</div>
+
+<h3 id="stage-4-other-dependencies">Stage 4 - Other Dependencies<a class="headerlink" href="#stage-4-other-dependencies" title="Permanent link">¤</a></h3>
+<p><cds-tabs trigger-content="Select an item" value="direct">
+  <cds-tab id="tab-direct-other" target="panel-direct-other" value="direct">Direct</cds-tab>
+  <cds-tab id="tab-to-other" target="panel-to-other" value="to">To Filesystem</cds-tab>
+  <cds-tab id="tab-from-other" target="panel-from-other" value="from">From Filesystem</cds-tab>
+  <cds-tab id="tab-from-restricted-other" target="panel-from-restricted-other" value="from-restricted">From Filesystem (Restricted)</cds-tab>
+</cds-tabs></p>
+<div class="tab-panel">
+  <div id="panel-direct-other" role="tabpanel" aria-labelledby="tab-direct-other" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m direct -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-241205-amd64 -C 9.0.x \
   --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
-<pre><code class="language-bash">mas mirror-images -m from-filesystem -d $LOCAL_DIR/other \
+
+
+  </div>
+  <div id="panel-to-other" role="tabpanel" aria-labelledby="tab-to-other" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m to-filesystem -d /mnt/registry/other \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v9-241205-amd64 -C 9.0.x \
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
+  --ibm-entitlement $IBM_ENTITLEMENT_KEY
+</code></pre>
+
+
+  </div>
+  <div id="panel-from-other" role="tabpanel" aria-labelledby="tab-from-other" hidden>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:11.12.0 mas mirror-images \
+  -m from-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-241205-amd64 -C 9.0.x \
   --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
 </code></pre>
+
+
+  </div>
+  <div id="panel-from-restricted-other" role="tabpanel" aria-labelledby="tab-from-restricted-other" hidden>
+    <p>Transfer the contents of <code>$LOCAL_DIR/other</code> to your system in the private network and run the second phase using the CLI image that was mirrored to your private registry during preparation.</p>
+
+
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:11.12.0 mas mirror-images \
+  -m from-filesystem -d /mnt/registry/other \
+  -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
+  -c v9-241205-amd64 -C 9.0.x \
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
+</code></pre>
+
+
+  </div>
+</div>
+
+<h2 id="storage-requirements">Storage Requirements<a class="headerlink" href="#storage-requirements" title="Permanent link">¤</a></h2>
+<p>As of MAS 8.10 (June 2023) the total capacity requirement to mirror content from the IBM Maximo Operator Catalog is approximately <strong>484G</strong>, the following table can be used to determine the approximate storage requirement for your mirrored content based on what content you need to mirror:</p>
+<table>
+<thead>
+<tr>
+<th>Maximo Application Suite</th>
+<th>Command Flag</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Maximo Operator Catalog</td>
+<td><code>--mirror-catalog</code></td>
+<td>50M</td>
+</tr>
+<tr>
+<td>Maximo Application Suite Core</td>
+<td><code>--mirror-core</code></td>
+<td>4G</td>
+</tr>
+<tr>
+<td>Maximo Assist</td>
+<td><code>--mirror-assist</code></td>
+<td>5G</td>
+</tr>
+<tr>
+<td>Maximo IoT</td>
+<td><code>--mirror-iot</code></td>
+<td>9G</td>
+</tr>
+<tr>
+<td>Maximo Manage</td>
+<td><code>--mirror-manage</code></td>
+<td>8G</td>
+</tr>
+<tr>
+<td>Maximo Monitor</td>
+<td><code>--mirror-monitor</code></td>
+<td>17G</td>
+</tr>
+<tr>
+<td>Maximo Optimizer</td>
+<td><code>--mirror-optimizer</code></td>
+<td>3G</td>
+</tr>
+<tr>
+<td>Maximo Predict</td>
+<td><code>--mirror-predict</code></td>
+<td>6G</td>
+</tr>
+<tr>
+<td>Maximo Visual Inspection</td>
+<td><code>--mirror-visualinspection</code></td>
+<td>40G</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>92G</strong></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>IBM Cloud Pak for Data</th>
+<th>Command Flag</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IBM CP4D Platform</td>
+<td><code>--mirror-cp4d</code></td>
+<td>2G</td>
+</tr>
+<tr>
+<td>IBM Analytics Engine (Spark)</td>
+<td><code>--mirror-spark</code></td>
+<td>54G</td>
+</tr>
+<tr>
+<td>IBM Watson Machine Learning</td>
+<td><code>--mirror-wml</code></td>
+<td>91G</td>
+</tr>
+<tr>
+<td>IBM Watson Studio Local</td>
+<td><code>--mirror-wsl</code></td>
+<td>85G</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>273G</strong></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Other Dependencies</th>
+<th>Command Flag</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mongo Community Edition</td>
+<td><code>--mirror-mongo</code></td>
+<td>500M</td>
+</tr>
+<tr>
+<td>IBM Truststore Manager</td>
+<td><code>--mirror-tsm</code></td>
+<td>1G</td>
+</tr>
+<tr>
+<td>IBM Suite License Service</td>
+<td><code>--mirror-sls</code></td>
+<td>1G</td>
+</tr>
+<tr>
+<td>IBM Cloud Pak Foundation Services</td>
+<td><code>--mirror-cfs</code></td>
+<td>21G</td>
+</tr>
+<tr>
+<td>IBM AppConnect</td>
+<td><code>--mirror-appconnect</code></td>
+<td>13G</td>
+</tr>
+<tr>
+<td>IBM Db2</td>
+<td><code>--mirror-db2</code></td>
+<td>73G</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>117G</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The total capacity used on the filesystem in the target mirror registry itself may be lower than this due to the use of shared image layers, particularly across applications in IBM Maximo Application Suite itself.</p>
+</div>
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-12-18 11:54:37.645446+00:00)
+      Built with mkdocs v1.6.1 (2025-01-09 09:47:53.423955+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>

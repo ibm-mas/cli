@@ -136,12 +136,6 @@
   <cds-side-nav-menu title="Command Reference" >
     
       
-  <cds-side-nav-menu-item href="../commands/install/" >
-    install
-  </cds-side-nav-menu-item>
-
-    
-      
   <cds-side-nav-menu-item href="../commands/update/" >
     update
   </cds-side-nav-menu-item>
@@ -168,12 +162,6 @@
       
   <cds-side-nav-menu-item href="../commands/configure-airgap/" >
     configure-airgap
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../commands/mirror-images/" >
-    mirror-images
   </cds-side-nav-menu-item>
 
     
@@ -232,6 +220,12 @@
 
     
       
+  <cds-side-nav-menu-item href="v9-250109-amd64/" >
+    Jan 09 2025
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="v9-241205-amd64/" >
     Dec 05 2024
   </cds-side-nav-menu-item>
@@ -246,12 +240,6 @@
       
   <cds-side-nav-menu-item href="v9-241003-amd64/" >
     Oct 03 2024
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="v9-240827-amd64/" >
-    Aug 27 2024
   </cds-side-nav-menu-item>
 
     
@@ -328,7 +316,12 @@
 <p>The MAS CLI maintains a rolling window of approximately four months worth of supported catalogs for the install, mirror-images, and update functions.  When using an older catalog it is recommended to use a version of the CLI that was released around the same time as the catalog, refer to the table below for the recommended version of the CLI to use with older versions of the operator catalog.</p>
 <h3 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">¤</a></h3>
 <ul>
-<li><strong>October 2024</strong> IBM Cloud Pak for Data 4.8, used in catalogs released between June and October 2024 uses a Postgres license key that expired on October 1, 2024.  A fix is available from CLI version 11.2.1 onwards; if you are installing CP4D as a MAS dependency you must use at least version 11.2.1 of the CLI.  If you need to install MAS with CP4D using an older catalog than supported by this version of the CLI please contact IBM support for assistance.</li>
+<li>
+<p><strong>October 2024</strong> IBM Cloud Pak for Data 4.8, used in catalogs released between June and October 2024 uses a Postgres license key that expired on October 1, 2024.  A fix is available from CLI version 11.2.1 onwards; if you are installing CP4D as a MAS dependency you must use at least version 11.2.1 of the CLI.  If you need to install MAS with CP4D using an older catalog than supported by this version of the CLI please contact IBM support for assistance.</p>
+</li>
+<li>
+<p><strong>November, December 2024 &amp; January 2025</strong> Disconnected environment with Manage Civil, Aviation and ICD cannot be updated by these patch. These patch does not support new installation of Civil, Aviation and ICD for disconnected environment. </p>
+</li>
 </ul>
 <h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¤</a></h3>
 <ul>
@@ -354,6 +347,13 @@
     </tr>
     </thead>
     <tbody>
+    <tr>
+    <td><a href="v9-250109-amd64/">v9-250109-amd64</a>, <a href="v9-250109-s390x/">v9-250109-s390x</a></td>
+    <td>4.14 - 4.16</td>
+    <td>5.0.0</td>
+    <td>latest</td>
+    <td>OCP 4.16 EOS June 27, 2026</td>
+    </tr>
     <tr>
     <td><a href="v9-241205-amd64/">v9-241205-amd64</a>, <a href="v9-241205-s390x/">v9-241205-s390x</a></td>
     <td>4.14 - 4.16</td>
@@ -620,7 +620,7 @@
 <blockquote>
 <p>I want to run a disconnected environment using a private mirror registry</p>
 </blockquote>
-<p>The MAS CLI <a href="../commands/mirror-images/">mirror-images</a> function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the <a href="../commands/configure-airgap/">configure-airgap</a> function to add the IBM Maximo Application Suite <strong>ImageContentSourcePolicy</strong> to your cluster before starting the installation.</p>
+<p>The MAS CLI <a href="../guides/image-mirroring/">mirror-images</a> function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the <a href="../commands/configure-airgap/">configure-airgap</a> function to add the IBM Maximo Application Suite <strong>ImageContentSourcePolicy</strong> to your cluster before starting the installation.</p>
 <h3 id="dynamic-catalog">Dynamic Catalog<a class="headerlink" href="#dynamic-catalog" title="Permanent link">¤</a></h3>
 <p>The legacy dynamic operator catalog is only supported for Maximo Application Suite v8 releases, if you use the dynamic catalog you will always have access to the latest operator updates without updating the <strong>CatalogSource</strong> on your OpenShift cluster.</p>
 <h4 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link">¤</a></h4>
@@ -642,7 +642,7 @@ spec:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-12-18 11:54:33.146885+00:00)
+      Built with mkdocs v1.6.1 (2025-01-09 09:47:48.931718+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>

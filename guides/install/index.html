@@ -136,12 +136,6 @@
   <cds-side-nav-menu title="Command Reference" >
     
       
-  <cds-side-nav-menu-item href="../../commands/install/" >
-    install
-  </cds-side-nav-menu-item>
-
-    
-      
   <cds-side-nav-menu-item href="../../commands/update/" >
     update
   </cds-side-nav-menu-item>
@@ -168,12 +162,6 @@
       
   <cds-side-nav-menu-item href="../../commands/configure-airgap/" >
     configure-airgap
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../commands/mirror-images/" >
-    mirror-images
   </cds-side-nav-menu-item>
 
     
@@ -232,6 +220,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-250109-amd64/" >
+    Jan 09 2025
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-241205-amd64/" >
     Dec 05 2024
   </cds-side-nav-menu-item>
@@ -246,12 +240,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-241003-amd64/" >
     Oct 03 2024
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-240827-amd64/" >
-    Aug 27 2024
   </cds-side-nav-menu-item>
 
     
@@ -299,13 +287,15 @@
     <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
-      <cds-select-item value="#installation-overview">Installation Overview</cds-select-item>
+      <cds-select-item value="#usage">Usage</cds-select-item>
     
-      <cds-select-item value="#1-pre-requisites">1 Pre-requisites</cds-select-item>
+      <cds-select-item value="#preparation">Preparation</cds-select-item>
     
-      <cds-select-item value="#2-disconnected-install-preparation">2 Disconnected Install Preparation</cds-select-item>
+      <cds-select-item value="#disconnected-install-preparation">Disconnected Install Preparation</cds-select-item>
     
-      <cds-select-item value="#3-install-maximo-application-suite">3 Install Maximo Application Suite</cds-select-item>
+      <cds-select-item value="#interactive-install">Interactive Install</cds-select-item>
+    
+      <cds-select-item value="#non-interactive-install">Non-Interactive Install</cds-select-item>
     
   </cds-select>
   </cds-breadcrumb-item>
@@ -315,27 +305,52 @@
     <div id="main-content" class="rst-content">
       
       <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¤</a></h1>
-<h2 id="installation-overview">Installation Overview<a class="headerlink" href="#installation-overview" title="Permanent link">¤</a></h2>
-<ol>
-<li><a href="#1-pre-requisites">Pre-requistes</a><ul>
-<li>1.1 <a href="#11-ibm-entitlement-key">IBM Entitlement Key</a></li>
-<li>1.2 <a href="#12-mas-license-file">MAS License File</a></li>
-<li>1.3 <a href="#13-openshift-cluster">OpenShift Cluster</a></li>
-<li>1.4 <a href="#14-operator-catalog-selection">Operator Catalog Selection</a></li>
+<p>The install is designed to work on any OCP cluster, but has been specifically tested in these environments:</p>
+<ul>
+<li>IBMCloud ROKS</li>
+<li>Microsoft Azure</li>
+<li>AWS ROSA</li>
+<li>IBM DevIT FYRE (internal)</li>
+</ul>
+<p>The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in <a href="https://github.com/ibm-mas/ansible-devops">ibm-mas/ansible-devops</a>, the collection is also available to install directly from <a href="https://galaxy.ansible.com/ibm/mas_devops">Ansible Galaxy</a>, the install supports the following actions:</p>
+<ul>
+<li>IBM Maximo Operator Catalog installation</li>
+<li>Required dependency installation:<ul>
+<li>MongoDb (Community Edition)</li>
+<li>IBM Suite License Service</li>
+<li>IBM Data Reporter Operator</li>
+<li>Red Hat Certificate Manager</li>
 </ul>
 </li>
-<li><a href="#2-disconnected-install-preparation">Disconnected Install Preparation</a><ul>
-<li>2.1 <a href="#21-prepare-the-private-registry">Prepare your Private Registry</a></li>
-<li>2.2 <a href="#22-mirror-container-images">Mirror Container Images</a></li>
-<li>2.3 <a href="#23-configure-openshift-to-use-your-private-registry-for-mas">Configure OpenShift to use your Private Registry for MAS</a></li>
+<li>Optional dependency installation:<ul>
+<li>Apache Kafka</li>
+<li>IBM Db2</li>
+<li>IBM Cloud Pak for Data Platform and Services<ul>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-studio">Watson Studio Local</a></li>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-machine-learning">Watson Machine Learning</a></li>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-openscale">Watson OpenScale</a></li>
+<li><a href="https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-analytics-engine-powered-by-apache-spark">Analytics Engine (Apache Spark)</a></li>
+<li>Cognos Analytics</li>
 </ul>
 </li>
-<li><a href="#3-install-maximo-application-suite">Install MAS</a></li>
-</ol>
-<h2 id="1-pre-requisites">1 Pre-requisites<a class="headerlink" href="#1-pre-requisites" title="Permanent link">¤</a></h2>
-<h3 id="11-ibm-entitlement-key">1.1 IBM Entitlement Key<a class="headerlink" href="#11-ibm-entitlement-key" title="Permanent link">¤</a></h3>
+<li>Grafana</li>
+<li>Turbonomic Kubernetes Agent</li>
+</ul>
+</li>
+<li>Suite core services installation</li>
+<li>Suite application installation</li>
+</ul>
+<p>The installation is performed inside your RedHat OpenShift cluster utilizing <a href="https://cloud.redhat.com/learn/topics/ci-cd">Openshift Pipelines</a></p>
+<blockquote>
+<p>OpenShift Pipelines is a Kubernetes-native CI/CD solution based on Tekton. It builds on Tekton to provide a CI/CD experience through tight integration with OpenShift and Red Hat developer tools. OpenShift Pipelines is designed to run each step of the CI/CD pipeline in its own container, allowing each step to scale independently to meet the demands of the pipeline.</p>
+</blockquote>
+<p><a class="glightbox" href="../../img/pipeline.png" data-type="image" data-width="auto" data-height="auto" data-desc-position="bottom"><img alt="" src="../../img/pipeline.png" /></a></p>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
+<p>For full usage information run <code>mas install --help</code></p>
+<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¤</a></h2>
+<h3 id="ibm-entitlement-key">IBM Entitlement Key<a class="headerlink" href="#ibm-entitlement-key" title="Permanent link">¤</a></h3>
 <p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
-<h3 id="12-mas-license-file">1.2 MAS License File<a class="headerlink" href="#12-mas-license-file" title="Permanent link">¤</a></h3>
+<h3 id="mas-license-file">MAS License File<a class="headerlink" href="#mas-license-file" title="Permanent link">¤</a></h3>
 <p>Access <a href="https://licensing.flexnetoperations.com/">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>.  Select <code>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</code> and on the next page fill in the information as below:</p>
 <table>
 <thead>
@@ -372,7 +387,7 @@
 <p class="admonition-title">Note</p>
 <p>For more information about how to access the IBM License Key Center review the <a href="https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf">getting started documentation</a> available from the IBM support website.</p>
 </div>
-<h3 id="13-openshift-cluster">1.3 OpenShift Cluster<a class="headerlink" href="#13-openshift-cluster" title="Permanent link">¤</a></h3>
+<h3 id="openshift-cluster">OpenShift Cluster<a class="headerlink" href="#openshift-cluster" title="Permanent link">¤</a></h3>
 <p>You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the <a href="https://docs.openshift.com/container-platform/4.15/installing/index.html">OpenShift Container Platform installation overview</a>.</p>
 <p>The CLI also supports OpenShift provisioning in many hyperscaler providers:</p>
 <ul>
@@ -380,10 +395,10 @@
 <li><a href="../../commands/provision-roks/">IBM Cloud</a></li>
 <li><a href="../../commands/provision-fyre/">IBM DevIT FYRE (Internal)</a></li>
 </ul>
-<h3 id="14-operator-catalog-selection">1.4 Operator Catalog Selection<a class="headerlink" href="#14-operator-catalog-selection" title="Permanent link">¤</a></h3>
+<h3 id="operator-catalog-selection">Operator Catalog Selection<a class="headerlink" href="#operator-catalog-selection" title="Permanent link">¤</a></h3>
 <p>If you have not already determined the catalog version for your installation, refer to the information in the <a href="../../catalogs/">Operator Catalog</a> topic, or contact IBM Support for guidance.</p>
-<h2 id="2-disconnected-install-preparation">2 Disconnected Install Preparation<a class="headerlink" href="#2-disconnected-install-preparation" title="Permanent link">¤</a></h2>
-<h3 id="21-prepare-the-private-registry">2.1 Prepare the Private Registry<a class="headerlink" href="#21-prepare-the-private-registry" title="Permanent link">¤</a></h3>
+<h2 id="disconnected-install-preparation">Disconnected Install Preparation<a class="headerlink" href="#disconnected-install-preparation" title="Permanent link">¤</a></h2>
+<h3 id="prepare-the-private-registry">Prepare the Private Registry<a class="headerlink" href="#prepare-the-private-registry" title="Permanent link">¤</a></h3>
 <p>You must have a production grade Docker v2 compatible registry such as <a href="https://www.redhat.com/en/technologies/cloud-computing/quay">Quay Enterprise</a>, <a href="https://jfrog.com/integration/docker-registry/">JFrog Artifactory</a>, or <a href="https://docs.docker.com/registry/">Docker Registry</a>.  If you do not already have a private registry available to use as your mirror then you can use the <code>setup-mirror</code> function to deploy a private registry using the <a href="https://hub.docker.com/_/registry">Docker registry container image</a> inside a target OpenShift cluster.</p>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
 </code></pre>
@@ -426,28 +441,15 @@
 </tr>
 </tbody>
 </table>
-<h3 id="22-mirror-container-images">2.2 Mirror Container Images<a class="headerlink" href="#22-mirror-container-images" title="Permanent link">¤</a></h3>
+<h3 id="mirror-container-images">Mirror Container Images<a class="headerlink" href="#mirror-container-images" title="Permanent link">¤</a></h3>
 <p>Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.  Three modes are available for the mirror process:</p>
 <ul>
 <li><strong>direct</strong> mirrors images directly from the source registry to your private registry</li>
 <li><strong>to-filesystem</strong> mirrors images from the source to a local directory</li>
 <li><strong>from-filesystem</strong> mirrors images from a local directory to your private registry</li>
 </ul>
-<pre><code class="language-bash">docker run -ti --pull always quay.io/ibmmas/cli mas mirror-images
-</code></pre>
-<p>You will be prompted to set the target registry for the image mirroring, to select the version of IBM Maximo Operator Catalog to mirror, and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.</p>
-<p>The following command will mirror all required and optional content that makes up the IBM Maximo Operator Catalog directly to your mirror registry, for full usgae information refer to the <a href="../../commands/mirror-images/">mirror-images</a> command documentation, if you are looking for more detailed guidance on how to approach this activity refer to the <a href="../image-mirroring/">image mirroring guide</a>.</p>
-<pre><code class="language-bash">mas mirror-images -m direct -d /mnt/local-mirror \
-  -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-241205-amd64 -C 9.0.x \
-  --mirror-catalog --mirror-core \
-  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
-  --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
-  --ibm-entitlement $IBM_ENTITLEMENT_KEY \
-  --no-confirm
-</code></pre>
-<h3 id="23-configure-openshift-to-use-your-private-registry-for-mas">2.3 Configure OpenShift to use your Private Registry for MAS<a class="headerlink" href="#23-configure-openshift-to-use-your-private-registry-for-mas" title="Permanent link">¤</a></h3>
+<p>For full details on this process review the <a href="../image-mirroring/">image mirroring</a> guide.</p>
+<h3 id="configure-openshift-to-use-your-private-registry">Configure OpenShift to use your Private Registry<a class="headerlink" href="#configure-openshift-to-use-your-private-registry" title="Permanent link">¤</a></h3>
 <p>Your cluster must be configured to use the private registry as a mirror for the MAS container images.  An <code>ImageContentSourcePolicy</code> named <code>mas-and-dependencies</code> will be created in the cluster, this is also the resource that the MAS install will use to detect whether the installation is a disconnected install and tailor the options presented when you run the <code>mas install</code> command.</p>
 <pre><code class="language-bash">docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap
 </code></pre>
@@ -458,15 +460,117 @@
   --ca-file /mnt/local-mirror/registry-ca.crt \
   --no-confirm
 </code></pre>
-<h2 id="3-install-maximo-application-suite">3 Install Maximo Application Suite<a class="headerlink" href="#3-install-maximo-application-suite" title="Permanent link">¤</a></h2>
-<p>Regardless of whether you are running a connected or disconnect installation, simply run the <code>mas install</code> command and follow the prompts.</p>
-<pre><code class="language-bash">docker run -ti --pull always quay.io/ibmmas/cli mas install
+<h2 id="interactive-install">Interactive Install<a class="headerlink" href="#interactive-install" title="Permanent link">¤</a></h2>
+<p>Regardless of whether you are running a connected or disconnected installation, simply run the <code>mas install</code> command and follow the prompts, the basic structure of the interactive flow is described below.</p>
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:11.12.0 mas install
 </code></pre>
-<p>Refer to the <a href="../../commands/install/#interactive-install">Interactive Install</a> section in the install command reference for more information.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>We will need the <code>entitlement.lic</code> file to perform the installation which is why we mount your home directory into the container.  If you saved the entitlement file elsewhere, mount that directory instead.</p>
+<p>When prompted you will be able to set license file to <code>/mnt/home/entitlement.lic</code></p>
+</div>
+<h3 id="connect-to-openshift-and-choose-a-catalog">Connect to OpenShift and Choose a Catalog<a class="headerlink" href="#connect-to-openshift-and-choose-a-catalog" title="Permanent link">¤</a></h3>
+<ul>
+<li>If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL &amp; token to make a new connection.  If you are already connected to a cluster you will be given the option to change to another cluster</li>
+<li>You will be presented with a table of available catalogs with information about the different releases of MAS available in each</li>
+<li>Confirm that you accept the IBM Maximo Application Suite license terms</li>
+</ul>
+<h3 id="select-storage-classes">Select Storage Classes<a class="headerlink" href="#select-storage-classes" title="Permanent link">¤</a></h3>
+<p>MAS requires both a <code>ReadWriteMany</code> and a <code>ReadWriteOnce</code> capable storage class to be available in the cluster.  The installer has the ability to recognize certain storage class providers and will default to the most appropriate storage class in these cases:</p>
+<ul>
+<li>IBMCloud Storage (<code>ibmc-block-gold</code> &amp; <code>ibmc-file-gold-gid</code>)</li>
+<li>OpenShift Container Storage (<code>ocs-storagecluster-ceph-rbd</code> &amp; <code>ocs-storagecluster-cephfs</code>)</li>
+<li>External OpenShift Container Storage (<code>ocs-external-storagecluster-ceph-rbd</code> &amp; <code>ocs-external-storagecluster-cephfs</code>)</li>
+<li>NFS Client (<code>nfs-client</code>)</li>
+<li>Azure Managed Storage (<code>managed-premium</code> &amp; <code>azurefiles-premium</code>)</li>
+<li>AWS Storage (<code>gp3-cs</code> &amp; <code>efs</code>)</li>
+</ul>
+<p>The names in brackets represent the <code>ReadWriteOnce</code> and <code>ReadWriteMany</code> class that will be used, in the case of NFS the same storage class will be used for both <code>ReadWriteOnce</code> and <code>ReadWriteMany</code> volumes.  Even when a recognized storage provider is detected you will be provided with the option to select your own storages classes if you wish.</p>
+<p>When selecting your own storage classes you will be presented with a list of those available and must select both a <code>ReadWriteMany</code> and a <code>ReadWriteOnce</code> storage class.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Unfortunately there is no way for the install to verify that the storage class selected actually supports the appropriate access mode, refer to the documentation from the storage class provider to determine whether your storage class supports <code>ReadWriteOnce</code> and/or <code>ReadWriteMany</code>.</p>
+</div>
+<h3 id="provide-a-license-file-and-entitlement-key">Provide a License File and Entitlement Key<a class="headerlink" href="#provide-a-license-file-and-entitlement-key" title="Permanent link">¤</a></h3>
+<p>Provide the location of your license file, contact information, and IBM entitlement key (if you have set the <code>IBM_ENTITLEMENT_KEY</code> environment variable then this field will be pre-filled with that value already).</p>
+<h3 id="configure-your-mas-instance">Configure your MAS Instance<a class="headerlink" href="#configure-your-mas-instance" title="Permanent link">¤</a></h3>
+<p>Provide the basic information about your MAS instance:</p>
+<ul>
+<li>Instance ID</li>
+<li>Workspace ID</li>
+<li>Workspace Display Name</li>
+<li>Operational Mode (production or non-production)</li>
+</ul>
+<h3 id="configure-domain-certificate-management">Configure Domain &amp; Certificate Management<a class="headerlink" href="#configure-domain-certificate-management" title="Permanent link">¤</a></h3>
+<p>By default MAS will be installed in a subdomain of your OpenShift clusters domain matching the MAS instance ID that you chose.  For example if your OpenShift cluster is <code>myocp.net</code> and you are installing MAS with an instance ID of <code>prod1</code> then MAS will be installed with a default domain something like <code>prod1.apps.myocp.net</code>, depending on the exact network configuration of your cluster.</p>
+<p>If you wish to use a custom domain for the MAS install you can choose to configure this by selecting "n" at the prompt.  The install supports DNS integrations for Cloudflare, IBM Cloud Internet Services, AWS Route 53 out of the box and is able to configure a certificate issuer using LetsEncrypt (production or staging) or a self-signed certificate authority per your choices.</p>
+<h3 id="advanced-settings">Advanced Settings<a class="headerlink" href="#advanced-settings" title="Permanent link">¤</a></h3>
+<p>You will also be able to configure the following advanced settings:</p>
+<ul>
+<li>Single Sign-On (SSO)</li>
+<li>Whether to allow special character in User IDs and Usernames</li>
+<li>Whether Guided Tours are enabled</li>
+</ul>
+<h3 id="application-selection">Application Selection<a class="headerlink" href="#application-selection" title="Permanent link">¤</a></h3>
+<p>Select the applications that you would like to install. Note that some applications cannot be installed unless an application they depend on is also installed:</p>
+<ul>
+<li>Monitor is only available for install if IoT is selected</li>
+<li>Assist and Predict are only available for install if Monitor is selected</li>
+</ul>
+<h3 id="application-configuration">Application Configuration<a class="headerlink" href="#application-configuration" title="Permanent link">¤</a></h3>
+<p>Some Maximo applications support additional configuration, you will be taken through the configuration options for each application that you chose to install</p>
+<h3 id="configure-databases">Configure Databases<a class="headerlink" href="#configure-databases" title="Permanent link">¤</a></h3>
+<p>The install supports the automatic provision of in-cluster MongoDb and Db2 databases for use with Maximo Application Suite, you may also choose to bring your own (BYO) by providing the necessary configuration files (which the installer will also help you create).</p>
+<h3 id="configure-integrations-additional-configuration">Configure Integrations &amp; Additional Configuration<a class="headerlink" href="#configure-integrations-additional-configuration" title="Permanent link">¤</a></h3>
+<p>The install supports the abilty to install and configure Turbonomic's Kubeturbo operator and the Grafana Community Operator.  Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you provided one or more configurations for BYO databases then additional configurations will already be enabled and pointing at the directory you chose earlier.</p>
+</div>
+<h3 id="pod-templates">Pod Templates<a class="headerlink" href="#pod-templates" title="Permanent link">¤</a></h3>
+<p>You can choose between three pre-defined pod templates allowing you to configure MAS in each of the standard Kubernetes quality of service (QoS) levels: <strong>Burstable</strong>, <a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort"><strong>BestEffort</strong></a> and <a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed"><strong>Guaranteed</strong></a>. By default MAS applications are deployed with a <code>Burstable</code> QoS.</p>
+<p>Additionally, you may provide your own custom pod templates definition by providing the directory containing your configuration files. More information on podTemplates can be found in the <a href="https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads">product documentation</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pod templating support is only available in IBM Maximo Application Suite v8.11+</p>
+</div>
+<h3 id="review-choices">Review Choices<a class="headerlink" href="#review-choices" title="Permanent link">¤</a></h3>
+<p>Before the install actually starts you will be presented with a summary of all your choices and a non-interactive command that will allow you to repeat the same installation without going through all the prompts again.</p>
+<h2 id="non-interactive-install">Non-Interactive Install<a class="headerlink" href="#non-interactive-install" title="Permanent link">¤</a></h2>
+<p>The following command will launch the MAS CLI container image, login to your OpenShift Cluster and start the install of MAS without triggering any prompts.  This is how we install MAS in development hundreds of times every single week.</p>
+<pre><code class="language-bash">IBM_ENTITLEMENT_KEY=xxx
+SUPERUSER_PASSWORD=xxx
+
+docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:11.12.0  bash -c &quot;
+  oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
+  mas install \
+    --mas-catalog-version v9-241205-amd64 \
+    --mas-instance-id mas1 \
+    --mas-workspace-id ws1 \
+    --mas-workspace-name &quot;My Workspace&quot;
+    \
+    --superuser-username superuser \
+    --superuser-password '${SUPERUSER_PASSWORD}' \
+    \
+    --mas-channel 9.0.x \
+    \
+    --ibm-entitlement-key '${IBM_ENTITLEMENT_KEY}' \
+    --license-file /mnt/home/entitlement.lic \
+    --uds-email myemail@email.com \
+    --uds-firstname John \
+    --uds-lastname Barnes \
+    \
+    --storage-rwo ibmc-block-gold \
+    --storage-rwx ibmc-file-gold-gid \
+    --storage-pipeline ibmc-file-gold-gid \
+    --storage-accessmode ReadWriteMany \
+    \
+    --accept-license --no-confirm
+</code></pre>
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2024-12-18 11:54:37.647262+00:00)
+      Built with mkdocs v1.6.1 (2025-01-09 09:47:53.427714+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
