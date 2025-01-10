@@ -102,7 +102,7 @@ spec:
         fi
 
         if [[ "${DELETED_SUBUSER}" == "true" ]]; then
-          SECRET_NAME_SENDGRID="${ICN}/sendgrid_subuser"
+          SECRET_NAME_SENDGRID="ibm-customer/${ICN}/sendgrid_subuser"
           echo "Subuser was deleted, cleaning up ${SECRET_NAME_SENDGRID} secret"
           sm_delete_secret "${SECRET_NAME_SENDGRID}"
         fi
