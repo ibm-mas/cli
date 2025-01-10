@@ -117,6 +117,9 @@ spec:
     - name: replica_db
       type: string
       default: "false"
+    - name: mas_operationalmode
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-db2u-database
     env:
@@ -228,6 +231,8 @@ spec:
         value: $(params.db2_backup_notify_slack_url)
       - name: REPLICA_DB
         value: $(params.replica_db)
+      - name: MAS_OPERATIONALMODE
+        value: $(params.mas_operationalmode)
     envFrom:
       - configMapRef:
           name: environment-properties

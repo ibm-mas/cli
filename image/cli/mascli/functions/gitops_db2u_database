@@ -63,6 +63,7 @@ IBM DB2U:
       --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
       --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                   Slack URL to notify DB2 backup failures
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                    Flag to know that this is ReplicaDB instance
+      --mas-operationalmode ${COLOR_YELLOW}MAS_OPERATIONALMODE${TEXT_RESET}                                   The operational mode setting for the MAS instance
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -125,6 +126,9 @@ function gitops_db2u_database_noninteractive() {
         ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
+        ;;
+      --mas-operationalmode)
+        export MAS_OPERATIONALMODE=$1 && shift
         ;;
 
       # Secrets Manager
