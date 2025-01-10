@@ -155,7 +155,7 @@ function configtool_oidc() {
   echo preparing for $MAS_HOME...
   if [[ -z $MAS_HOME ]]; then
     echo "${COLOR_RED}MAS_HOME must be provided and not empty. sample: export MAS_HOME=\"masdev.home.mobfound1.masdev.suite.maximo.com\"${TEXT_RESET}"
-    exit 0
+    exit 1
   fi
   MAS_PARTS=(`echo $MAS_HOME | tr "." " "`)
   DOT="."
@@ -175,7 +175,7 @@ function configtool_oidc() {
   done
   if [[ $i -lt 4 ]]; then
     echo "${COLOR_RED}MAS_HOME is incorrect. sample: \"masdev.home.mobfound1.masdev.suite.maximo.com\"${TEXT_RESET}"
-    exit 0
+    exit 1
   fi
 
   # OAUTH information
@@ -212,7 +212,9 @@ function configtool_oidc() {
   echo "status_code: $status_code"
   echo running $OIDC_OP
   if [[ "$status_code" -eq 200 ]] ; then
-    curl -k -w %{http_code} -s -o /dev/null -I --user $OAUTH_ADMIN_USERNAME:$OAUTH_ADMIN_PWD -H 'Content-Type: application/json' -X DELETE $OAUTH_URL_CONFIGTOOL
+    curl --fail -k --user $OAUTH_ADMIN_USERNAME:$OAUTH_ADMIN_PWDx \
+      -H 'Content-Type: application/json' \
+      -X DELETE $OAUTH_URL_CONFIGTOOL || exit $?
     echo ""
     if [[ "$OIDC_OP" == "unregister" ]]; then
       echo "$OIDC_OP" Client $CLIENT_CONFIGTOOL.
@@ -225,19 +227,19 @@ function configtool_oidc() {
     fi
   else
     echo Some issue occurred in MAS OIDC server. Please try again later.
-    exit 0
+    exit 1
   fi
 
   # trust ui prefix
   echo TRUST_UI_PREFIX: $TRUST_UI_PREFIX
   if [[ -z $TRUST_UI_PREFIX ]]; then
     echo "${COLOR_RED}TRUST_UI_PREFIX must be provided and not empty. sample: export TRUST_UI_PREFIX=\"http://localhost:3000,http://localhost:3001\"${TEXT_RESET}"
-    exit 0
+    exit 1
   fi
   TRUST_UI_PARTS=(`echo $TRUST_UI_PREFIX | tr "," " "`)
   if [[ ${#TRUST_UI_PARTS[@]} -eq 0 ]]; then
     echo "${COLOR_RED}TRUST_UI_PREFIX is empty, at least define one URL. \"http://localhost:3000\"${TEXT_RESET}"
-    exit 0
+    exit 1
   fi
   CALLBACK="/auth/callback"
   TRUST_UIS="["
@@ -260,7 +262,7 @@ function configtool_oidc() {
   # register or update (the same as register)
   if [[ "$OIDC_OP" == "register" || "$OIDC_OP" == "update" ]]; then
     echo "$OIDC_OP" Client $CLIENT_CONFIGTOOL.
-    curl -k --user $OAUTH_ADMIN_USERNAME:$OAUTH_ADMIN_PWD \
+    curl --fail -k --user $OAUTH_ADMIN_USERNAME:$OAUTH_ADMIN_PWD \
     -H 'Accept: application/json' \
     -H 'Content-type: application/json' \
     -X POST $OAUTH_URL \
@@ -292,6 +294,6 @@ function configtool_oidc() {
 "redirect_uris": $REDIRECT_UIS
 }
 EOF
-)
+) || exit $?
   fi
 }
