@@ -270,17 +270,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             ]
 
             self.slsConfigOptions.append("New")
-
-            if numSLSInstances > 0:
-                self.slsConfigOptions.append("Existing")
-                description.insert(2, "  - Select an existing instance on the cluster. This is useful for sharing SLS with multiple MAS instances.")
-
             self.slsConfigOptions.append("External")
 
-            slsCompleter = WordCompleter(self.slsConfigOptions)
+            if numSLSInstances > 0:
+                self.slsConfigOptions.insert(1, "Existing")
+                description.insert(2, "  - Select an existing instance on the cluster. This is useful for sharing SLS with multiple MAS instances.")
+
+            slsConfigCompleter = WordCompleter(self.slsConfigOptions)
 
             self.printDescription(description)
-            sls_config_selection = self.promptForString("Select SLS config option", completer=slsCompleter, validator=SLSConfigValidator)
+            sls_config_selection = self.promptForString("Select SLS config option", default="New", completer=slsConfigCompleter, validator=SLSConfigValidator())
             # self.setParam("sls_config_option", sls_config_selection)
 
             if sls_config_selection == "New":
