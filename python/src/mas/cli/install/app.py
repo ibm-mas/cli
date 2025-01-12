@@ -267,8 +267,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             description = [
                 "IBM Suite License Service (SLS) is the licensing enforcement for Maximo Application Suite. Choose how to configure SLS:",
-                "  - Deploy a new instance on the cluster.",
-                "  - Point to an external instance outside of the cluster",
+                "  - New: Deploy a new instance on the cluster.",
+                "  - External: Point to an external instance outside of the cluster",
                 ""
             ]
 
@@ -277,12 +277,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             if numSLSInstances > 0:
                 self.slsConfigOptions.insert(1, "Existing")
-                description.insert(2, "  - Select an existing instance on the cluster. This is useful for sharing SLS with multiple MAS instances.")
+                description.insert(2, "  - Existing: Select an existing instance on the cluster. This is useful for sharing SLS with multiple MAS instances.")
 
             slsConfigCompleter = WordCompleter(self.slsConfigOptions)
 
             self.printDescription(description)
-            slsConfigSelection = self.promptForString("Select SLS config option", default="New", completer=slsConfigCompleter, validator=SLSConfigValidator())
+            slsConfigSelection = self.promptForString("Select SLS config option", completer=slsConfigCompleter, validator=SLSConfigValidator())
 
             if slsConfigSelection == "New":
                 if numSLSInstances > 0:

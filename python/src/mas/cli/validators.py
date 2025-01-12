@@ -20,6 +20,7 @@ from prompt_toolkit.validation import Validator, ValidationError
 
 from mas.devops.ocp import getStorageClass, getNamespace
 from mas.devops.mas import verifyMasInstance
+from mas.devops.sls import listSLSInstances
 
 import logging
 
@@ -137,14 +138,29 @@ class OptimizerInstallPlanValidator(Validator):
         if response not in ["full", "limited"]:
             raise ValidationError(message='Enter a valid response: full, limited', cursor_position=len(response))
 
+
 class SLSConfigValidator(Validator):
     def validate(self, document):
         """
         Validate that a response is a valid config plan for SLS
         """
         response = document.text
-        if response not in self.slsConfigOptions:
-            raise ValidationError(message=f"Enter a valid response: {', '.join(self.slsConfigOptions)}", cursor_position=len(response))
+        validOptions = ["New", "External"]
+
+        dynClient = dynamic.DynamicClient(
+            api_client.ApiClient(configuration=config.load_kube_config())
+        )
+        existingSLSInstances = listSLSInstances(dynClient)
+        numSLSInstances = len(existingSLSInstances)
+        if numSLSInstances > 0:
+            validOptions.insert(1, "Existing")
+
+        if response not in validOptions:
+            raise ValidationError(
+                message=f"Enter a valid response: {', '.join(validOptions)}",
+                cursor_position=len(response),
+            )
+
 
 class NewNamespaceValidator(Validator):
     def validate(self, document):
