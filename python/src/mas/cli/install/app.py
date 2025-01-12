@@ -257,6 +257,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("Configure Product License")
 
         if self.showAdvancedOptions:
+            self.slsLicenseFileLocal = None
             self.existingSLSInstances = listSLSInstances(self.dynamicClient)
             self.slsConfigOptions = []
             self.slsInstanceOptions = []
@@ -303,8 +304,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if slsConfigSelection == "External":
                 self.promptForString("SLS url", "sls_url")
                 self.promptForString("SLS registrationKey", "sls_registration_key")
-                self.slsCertsDir = self.promptForDir("Enter the path containing the SLS certificates", mustExist=True)
+                self.slsCertsDir = self.promptForDir("Enter the path containing the SLS ca certificate (.crt)", mustExist=True)
                 self.setParam("sls_tls_crt_local_file_path", self.slsCertsDir)
+
+                self.certsSecret = self.addFilesToSecret(self.certsSecret, self.slsCertsDir, 'crt', 'sls.')
+
                 self.setParam("sls_action", "gencfg")
                 # Improvement Idea: Use SLS client to verify if endpoint exists based on data provided
         else:
@@ -1068,8 +1072,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.configCP4D()
 
         # The entitlement file for SLS is mounted as a secret in /workspace/entitlement
-        entitlementFileBaseName = path.basename(self.slsLicenseFileLocal)
-        self.setParam("sls_entitlement_file", f"/workspace/entitlement/{entitlementFileBaseName}")
+        if self.slsLicenseFileLocal:
+            entitlementFileBaseName = path.basename(self.slsLicenseFileLocal)
+            self.setParam("sls_entitlement_file", f"/workspace/entitlement/{entitlementFileBaseName}")
 
         # Set up the secrets for additional configs, podtemplates and manual certificates
         self.additionalConfigs()
