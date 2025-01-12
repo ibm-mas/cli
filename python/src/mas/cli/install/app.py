@@ -261,7 +261,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.slsConfigOptions = []
             self.slsInstanceOptions = []
 
-            numSLSInstances = len(existingSLSInstances)
+            numSLSInstances = len(self.existingSLSInstances)
 
             description = [
                 "IBM Suite License Service (SLS) is the licensing enforcement for Maximo Application Suite. Choose how to configure SLS:",
@@ -290,7 +290,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if slsConfigSelection == "Existing":
                 print_formatted_text(HTML("<LightSlateGrey>Select an existing SLS instance from the list below:</LightSlateGrey>"))
             
-                for slsInstance in existingSLSInstances:
+                for slsInstance in self.existingSLSInstances:
                     print_formatted_text(HTML(f"- <u>{slsInstance['metadata']['namespace']}</u> | {slsInstance['metadata']['name']}) | v{slsInstance['status']['versions']['reconciled']}"))
                     self.slsInstanceOptions.append(slsInstance['metadata']['namespace'])
                 
