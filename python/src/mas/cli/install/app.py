@@ -286,6 +286,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if numSLSInstances > 0:
                     self.promptForString("SLS namespace", "sls_namespace", validator=NewNamespaceValidator())
                 self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
+                self.setParam("sls_action", "install")
 
             if slsConfigSelection == "Existing":
                 print_formatted_text(HTML("<LightSlateGrey>Select an existing SLS instance from the list below:</LightSlateGrey>"))
@@ -297,16 +298,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 slsInstanceCompleter = WordCompleter(self.slsInstanceOptions)
                 print()
                 self.promptForString("Select SLS namespace", "sls_namespace", completer=slsInstanceCompleter)
-                # Fetch SLS variables from existing instance
-                # self.setParam("sls_namespace", sls_namespace_selection)
+                self.setParam("sls_action", "gencfg")
 
             if slsConfigSelection == "External":
-                self.promptForString("SLS url", "external_sls_url")
-                self.promptForString("SLS registrationKey", "external_sls_registration_key")
-                self.promptForString("SLS ca", "external_sls_ca")
-                # self.manualCertsDir = self.promptForDir("Enter the path containing the SLS ca certificate", mustExist=True)
+                self.promptForString("SLS url", "sls_url")
+                self.promptForString("SLS registrationKey", "sls_registration_key")
+                self.slsCertsDir = self.promptForDir("Enter the path containing the SLS certificates", mustExist=True)
+                self.setParam("sls_tls_crt_local_file_path", self.slsCertsDir)
+                self.setParam("sls_action", "gencfg")
+                # Improvement Idea: Use SLS client to verify if endpoint exists based on data provided
         else:
             self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
+            self.setParam("sls_action", "install")
 
     @logMethodCall
     def configDRO(self) -> None:
