@@ -18,7 +18,7 @@ from kubernetes.client import api_client
 
 from prompt_toolkit.validation import Validator, ValidationError
 
-from mas.devops.ocp import getStorageClass
+from mas.devops.ocp import getStorageClass, getNamespace
 from mas.devops.mas import verifyMasInstance
 
 import logging
@@ -145,3 +145,19 @@ class SLSConfigValidator(Validator):
         response = document.text
         if response not in self.slsConfigOptions:
             raise ValidationError(message=f"Enter a valid response: {', '.join(self.slsConfigOptions)}", cursor_position=len(response))
+
+class NewNamespaceValidator(Validator):
+    def validate(self, document):
+        """
+        Validate that a namespace does not exist
+        """
+        namespace = document.text
+
+        dynClient = dynamic.DynamicClient(
+            api_client.ApiClient(configuration=config.load_kube_config())
+        )
+
+        # ToDo: Add namespace regex validation
+
+        if getNamespace(dynClient, namespace):
+            raise ValidationError(message='Namespace already exists on the cluster, please chose a unique name', cursor_position=len(namespace))

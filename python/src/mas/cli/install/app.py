@@ -41,7 +41,8 @@ from mas.cli.validators import (
     TimeoutFormatValidator,
     StorageClassValidator,
     OptimizerInstallPlanValidator,
-    SLSConfigValidator
+    SLSConfigValidator,
+    NewNamespaceValidator
 )
 
 from mas.devops.ocp import createNamespace, getStorageClasses
@@ -256,11 +257,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("Configure Product License")
 
         if self.showAdvancedOptions:
-            slsInstances = listSLSInstances(self.dynamicClient)
+            self.existingSLSInstances = listSLSInstances(self.dynamicClient)
             self.slsConfigOptions = []
             self.slsInstanceOptions = []
 
-            numSLSInstances = len(slsInstances)
+            numSLSInstances = len(existingSLSInstances)
 
             description = [
                 "IBM Suite License Service (SLS) is the licensing enforcement for Maximo Application Suite. Choose how to configure SLS:",
@@ -279,28 +280,27 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             slsConfigCompleter = WordCompleter(self.slsConfigOptions)
 
             self.printDescription(description)
-            sls_config_selection = self.promptForString("Select SLS config option", default="New", completer=slsConfigCompleter, validator=SLSConfigValidator())
-            # self.setParam("sls_config_option", sls_config_selection)
+            slsConfigSelection = self.promptForString("Select SLS config option", default="New", completer=slsConfigCompleter, validator=SLSConfigValidator())
 
-            if sls_config_selection == "New":
+            if slsConfigSelection == "New":
                 if numSLSInstances > 0:
-                    self.promptForString("SLS namespace", "sls_namespace")
+                    self.promptForString("SLS namespace", "sls_namespace", validator=NewNamespaceValidator())
                 self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
 
-            if sls_config_selection == "Existing":
-                print_formatted_text(HTML("<LightSlateGrey>Select a SLS instance from the list below:</LightSlateGrey>"))
+            if slsConfigSelection == "Existing":
+                print_formatted_text(HTML("<LightSlateGrey>Select an existing SLS instance from the list below:</LightSlateGrey>"))
             
-                for slsInstance in slsInstances:
-                    print_formatted_text(HTML(f"- <u>{slsInstance['metadata']['namespace']}</u> ({slsInstance['metadata']['name']}) v{slsInstance['status']['versions']['reconciled']}"))
+                for slsInstance in existingSLSInstances:
+                    print_formatted_text(HTML(f"- <u>{slsInstance['metadata']['namespace']}</u> | {slsInstance['metadata']['name']}) | v{slsInstance['status']['versions']['reconciled']}"))
                     self.slsInstanceOptions.append(slsInstance['metadata']['namespace'])
                 
                 slsInstanceCompleter = WordCompleter(self.slsInstanceOptions)
                 print()
-                sls_namespace_selection = self.promptForString("Select SLS namespace", completer=slsInstanceCompleter)
+                self.promptForString("Select SLS namespace", "sls_namespace", completer=slsInstanceCompleter)
                 # Fetch SLS variables from existing instance
                 # self.setParam("sls_namespace", sls_namespace_selection)
 
-            if sls_config_selection == "External":
+            if slsConfigSelection == "External":
                 self.promptForString("SLS url", "external_sls_url")
                 self.promptForString("SLS registrationKey", "external_sls_registration_key")
                 self.promptForString("SLS ca", "external_sls_ca")
