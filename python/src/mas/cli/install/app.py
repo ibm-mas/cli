@@ -40,7 +40,8 @@ from mas.cli.validators import (
     WorkspaceNameFormatValidator,
     TimeoutFormatValidator,
     StorageClassValidator,
-    OptimizerInstallPlanValidator
+    OptimizerInstallPlanValidator,
+    SLSConfigValidator
 )
 
 from mas.devops.ocp import createNamespace, getStorageClasses
@@ -256,27 +257,35 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         if self.showAdvancedOptions:
             slsInstances = listSLSInstances(self.dynamicClient)
-            slsConfigOptions = []
-            slsInstanceOptions = []
+            self.slsConfigOptions = []
+            self.slsInstanceOptions = []
 
             numSLSInstances = len(slsInstances)
 
-            self.printDescription([
-                "Chose whether to install a new instance of SLS, select an existing SLS on the cluster, if any, or point to an external SLS outside the cluster.",
+            description = [
+                "IBM Suite License Service (SLS) is the licensing enforcement for Maximo Application Suite. Choose how to configure SLS:",
+                "  - Deploy a new instance on the cluster.",
+                "  - Point to an external instance outside of the cluster",
                 ""
-            ])
+            ]
 
-            slsConfigOptions.append("New")
+            self.slsConfigOptions.append("New")
+
             if numSLSInstances > 0:
-                slsConfigOptions.append("Existing")
-            slsConfigOptions.append("External")
-            
-            slsCompleter = WordCompleter(slsConfigOptions)
+                self.slsConfigOptions.append("Existing")
+                description.insert(2, "  - Select an existing instance on the cluster. This is useful for sharing SLS with multiple MAS instances.")
 
-            sls_config_selection = self.promptForString("Select option", completer=slsCompleter)
+            self.slsConfigOptions.append("External")
+
+            slsCompleter = WordCompleter(self.slsConfigOptions)
+
+            self.printDescription(description)
+            sls_config_selection = self.promptForString("Select SLS config option", completer=slsCompleter, validator=SLSConfigValidator)
             # self.setParam("sls_config_option", sls_config_selection)
 
             if sls_config_selection == "New":
+                if numSLSInstances > 0:
+                    self.promptForString("SLS namespace", "sls_namespace")
                 self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
 
             if sls_config_selection == "Existing":
@@ -284,17 +293,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             
                 for slsInstance in slsInstances:
                     print_formatted_text(HTML(f"- <u>{slsInstance['metadata']['namespace']}</u> ({slsInstance['metadata']['name']}) v{slsInstance['status']['versions']['reconciled']}"))
-                    slsInstanceOptions.append(slsInstance['metadata']['namespace'])
+                    self.slsInstanceOptions.append(slsInstance['metadata']['namespace'])
                 
-                slsInstanceCompleter = WordCompleter(slsInstanceOptions)
+                slsInstanceCompleter = WordCompleter(self.slsInstanceOptions)
                 print()
                 sls_namespace_selection = self.promptForString("Select SLS namespace", completer=slsInstanceCompleter)
-                # self.setParam("existing_sls_namespace", sls_namespace_selection)
+                # Fetch SLS variables from existing instance
+                # self.setParam("sls_namespace", sls_namespace_selection)
 
             if sls_config_selection == "External":
                 self.promptForString("SLS url", "external_sls_url")
                 self.promptForString("SLS registrationKey", "external_sls_registration_key")
                 self.promptForString("SLS ca", "external_sls_ca")
+                # self.manualCertsDir = self.promptForDir("Enter the path containing the SLS ca certificate", mustExist=True)
         else:
             self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
 

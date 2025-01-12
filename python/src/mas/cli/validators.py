@@ -136,3 +136,12 @@ class OptimizerInstallPlanValidator(Validator):
         response = document.text
         if response not in ["full", "limited"]:
             raise ValidationError(message='Enter a valid response: full, limited', cursor_position=len(response))
+
+class SLSConfigValidator(Validator):
+    def validate(self, document):
+        """
+        Validate that a response is a valid config plan for SLS
+        """
+        response = document.text
+        if response not in self.slsConfigOptions:
+            raise ValidationError(message=f"Enter a valid response: {', '.join(self.slsConfigOptions)}", cursor_position=len(response))
