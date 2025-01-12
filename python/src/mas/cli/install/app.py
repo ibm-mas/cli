@@ -45,6 +45,7 @@ from mas.cli.validators import (
 
 from mas.devops.ocp import createNamespace, getStorageClasses
 from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
+from mas.devops.sls import listSLSInstances
 from mas.devops.data import getCatalog
 from mas.devops.tekton import (
     installOpenShiftPipelines,
@@ -252,13 +253,58 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def configSLS(self) -> None:
         self.printH1("Configure Product License")
-        self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
+
+        if self.showAdvancedOptions:
+            slsInstances = listSLSInstances(self.dynamicClient)
+            slsConfigOptions = []
+            slsInstanceOptions = []
+
+            numSLSInstances = len(slsInstances)
+
+            self.printDescription([
+                "Chose whether to install a new instance of SLS, select an existing SLS on the cluster, if any, or point to an external SLS outside the cluster.",
+                ""
+            ])
+
+            slsConfigOptions.append("New")
+            if numSLSInstances > 0:
+                slsConfigOptions.append("Existing")
+            slsConfigOptions.append("External")
+            
+            slsCompleter = WordCompleter(slsConfigOptions)
+
+            sls_config_selection = self.promptForString("Select option", completer=slsCompleter)
+            # self.setParam("sls_config_option", sls_config_selection)
+
+            if sls_config_selection == "New":
+                self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
+
+            if sls_config_selection == "Existing":
+                print_formatted_text(HTML("<LightSlateGrey>Select a SLS instance from the list below:</LightSlateGrey>"))
+            
+                for slsInstance in slsInstances:
+                    print_formatted_text(HTML(f"- <u>{slsInstance['metadata']['namespace']}</u> ({slsInstance['metadata']['name']}) v{slsInstance['status']['versions']['reconciled']}"))
+                    slsInstanceOptions.append(slsInstance['metadata']['namespace'])
+                
+                slsInstanceCompleter = WordCompleter(slsInstanceOptions)
+                print()
+                sls_namespace_selection = self.promptForString("Select SLS namespace", completer=slsInstanceCompleter)
+                # self.setParam("existing_sls_namespace", sls_namespace_selection)
+
+            if sls_config_selection == "External":
+                self.promptForString("SLS url", "external_sls_url")
+                self.promptForString("SLS registrationKey", "external_sls_registration_key")
+                self.promptForString("SLS ca", "external_sls_ca")
+        else:
+            self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
+
+    @logMethodCall
+    def configDRO(self) -> None:
         self.promptForString("Contact e-mail address", "uds_contact_email")
         self.promptForString("Contact first name", "uds_contact_firstname")
         self.promptForString("Contact last name", "uds_contact_lastname")
 
         if self.showAdvancedOptions:
-            self.promptForString("IBM Suite License Services (SLS) Namespace", "sls_namespace", default="ibm-sls")
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
 
     @logMethodCall
@@ -730,6 +776,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Licensing (SLS and DRO)
         self.configSLS()
+        self.configDRO()
         self.configICRCredentials()
 
         # MAS Core
