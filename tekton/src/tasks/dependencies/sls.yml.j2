@@ -38,7 +38,7 @@ spec:
     - name: sls_registration_key
       type: string
       default: ""
-    - name: sls_tls_crt_local_file_path
+    - name: sls_tls_crt_local_file_base64_path
       type: string
       default: ""
 
@@ -94,8 +94,8 @@ spec:
         value: $(params.sls_url)
       - name: SLS_REGISTRATION_KEY
         value: $(params.sls_registration_key)
-      - name: SLS_TLS_CERT_LOCAL_FILE_PATH
-        value: $(params.sls_tls_crt_local_file_path)
+      - name: SLS_TLS_CERT_LOCAL_FILE_BASE64_PATH
+        value: $(params.sls_tls_crt_local_file_base64_path)
 
       # New way of bootstrapping license file since SLS 3.7.0
       - name: SLS_ENTITLEMENT_FILE

@@ -122,19 +122,18 @@ class AdditionalConfigsMixin():
             self.podTemplatesSecret = podTemplatesSecret
 
     def manualCertificates(self) -> None:
+        certsSecret = {
+            "apiVersion": "v1",
+            "kind": "Secret",
+            "type": "Opaque",
+            "metadata": {
+                "name": "pipeline-certificates"
+            }
+        }
+
+        extensions = ["key", "crt"]
 
         if self.getParam("mas_manual_cert_mgmt"):
-            certsSecret = {
-                "apiVersion": "v1",
-                "kind": "Secret",
-                "type": "Opaque",
-                "metadata": {
-                    "name": "pipeline-certificates"
-                }
-            }
-
-            extensions = ["key", "crt"]
-
             apps = {
                 "mas_app_channel_assist": {
                     "dir": self.manualCertsDir + "/assist/",
@@ -180,6 +179,17 @@ class AdditionalConfigsMixin():
                     for ext in extensions:
                         certsSecret = self.addFilesToSecret(certsSecret, apps[app]["dir"], ext, apps[app]["keyPrefix"])
 
+            self.certsSecret = certsSecret
+
+
+        if self.slsCertsDir:
+            # Currently SLS only needs ca.crt
+            for file in ["ca.crt"]:
+                if file not in map(path.basename, glob(f'{self.slsCertsDir}/*')):
+                    self.fatalError(f'{file} is not present in {self.slsCertsDir}/')
+            for ext in extensions:
+                certsSecret = self.addFilesToSecret(certsSecret, self.slsCertsDir, ext, "sls.")
+            
             self.certsSecret = certsSecret
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '') -> dict:

@@ -258,6 +258,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         if self.showAdvancedOptions:
             self.slsLicenseFileLocal = None
+            self.slsCertsDir = None
             self.existingSLSInstances = listSLSInstances(self.dynamicClient)
             self.slsConfigOptions = []
             self.slsInstanceOptions = []
@@ -304,11 +305,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if slsConfigSelection == "External":
                 self.promptForString("SLS url", "sls_url")
                 self.promptForString("SLS registrationKey", "sls_registration_key")
-                self.slsCertsDir = self.promptForDir("Enter the path containing the SLS ca certificate (.crt)", mustExist=True)
-                self.setParam("sls_tls_crt_local_file_path", self.slsCertsDir)
-
-                self.certsSecret = self.addFilesToSecret(self.certsSecret, self.slsCertsDir, 'crt', 'sls.')
-
+                self.slsCertsDir = self.promptForDir("Enter the path containing the SLS certificate(s)", mustExist=True)
                 self.setParam("sls_action", "gencfg")
                 # Improvement Idea: Use SLS client to verify if endpoint exists based on data provided
         else:
@@ -964,6 +961,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is None:
                     self.fatalError(f"{key} must be set")
                 self.slsLicenseFileLocal = value
+                # ToDo: Review SLS options in noninteractive mode
 
             elif key.startswith("approval_"):
                 if key not in self.approvals:
@@ -1075,6 +1073,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.slsLicenseFileLocal:
             entitlementFileBaseName = path.basename(self.slsLicenseFileLocal)
             self.setParam("sls_entitlement_file", f"/workspace/entitlement/{entitlementFileBaseName}")
+
+        # The ca cert for SLS is mounted as a secret in /workspace/certificates
+        if self.slsCaCertFileLocal:
+            self.setParam("sls_tls_crt_local_file_base64_path", "/workspace/certificates/sls.ca.crt")
 
         # Set up the secrets for additional configs, podtemplates and manual certificates
         self.additionalConfigs()
