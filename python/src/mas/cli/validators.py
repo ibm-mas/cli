@@ -176,4 +176,4 @@ class NewNamespaceValidator(Validator):
         # ToDo: Add namespace regex validation
 
         if getNamespace(dynClient, namespace):
-            raise ValidationError(message='Namespace already exists on the cluster, please chose a unique name', cursor_position=len(namespace))
+            raise ValidationError(message=f"Namespace {namespace} already exists on the cluster, please chose a unique name", cursor_position=len(namespace))
