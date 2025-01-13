@@ -212,7 +212,7 @@ function configtool_oidc() {
   echo "status_code: $status_code"
   echo running $OIDC_OP
   if [[ "$status_code" -eq 200 ]] ; then
-    curl --fail -k --user $OAUTH_ADMIN_USERNAME:$OAUTH_ADMIN_PWDx \
+    curl --fail -k --user $OAUTH_ADMIN_USERNAME:$OAUTH_ADMIN_PWD \
       -H 'Content-Type: application/json' \
       -X DELETE $OAUTH_URL_CONFIGTOOL || exit $?
     echo ""
