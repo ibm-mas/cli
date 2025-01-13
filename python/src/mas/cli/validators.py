@@ -161,6 +161,26 @@ class SLSConfigValidator(Validator):
                 cursor_position=len(response),
             )
 
+class SLSInstanceSelectionValidator(Validator):
+    def validate(self, document):
+        """
+        Validate that a response is a valid SLS instance on the cluster
+        """
+        response = document.text
+
+        dynClient = dynamic.DynamicClient(
+            api_client.ApiClient(configuration=config.load_kube_config())
+        )
+        validOptions = []
+
+        for instance in listSLSInstances(dynClient):
+            validOptions.append(instance['metadata']['namespace'])
+
+        if response not in validOptions:
+            raise ValidationError(
+                message=f"Enter a valid response",
+                cursor_position=len(response),
+            )
 
 class NewNamespaceValidator(Validator):
     def validate(self, document):
@@ -176,4 +196,4 @@ class NewNamespaceValidator(Validator):
         # ToDo: Add namespace regex validation
 
         if getNamespace(dynClient, namespace):
-            raise ValidationError(message=f"Namespace {namespace} already exists on the cluster, please chose a unique name", cursor_position=len(namespace))
+            raise ValidationError(message=f"Namespace '{namespace}' already exists on the cluster, must be unique", cursor_position=len(namespace))
