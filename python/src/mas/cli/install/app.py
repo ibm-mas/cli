@@ -1043,7 +1043,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
         self.skipGrafanaInstall = args.skip_grafana_install
-        self.setParam("image_pull_policy", args.image_pull_policy)
+
+        if args.image_pull_policy and args.image_pull_policy != "":
+            self.setParam("image_pull_policy", args.image_pull_policy)
 
         self.approvals = {}
 
