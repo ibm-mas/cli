@@ -278,7 +278,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.slsConfigOptions.append("External")
 
             if numSLSInstances == 0:
-                description.insert(1, "No instances of SLS detected on the cluster...")
+                description.insert(1, "... No instances of SLS detected on the cluster.")
             if numSLSInstances > 0:
                 self.slsConfigOptions.insert(1, "Existing")
                 description.insert(3, "  - Existing: Select an existing instance on the cluster. This is useful for sharing SLS with multiple MAS instances.")
@@ -318,12 +318,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     
                 self.setParam("sls_action", "gencfg")
         else:
-            description.insert(1, "A new instance of SLS will be deployed on the cluster.")
+            sls_namespace = self.getParam("sls_namespace")
+            if numSLSInstances == 0:
+                description.insert(1, f"A new instance of SLS will be deployed on the cluster in the '{sls_namespace}' sls_namespace.")
             if numSLSInstances > 0:
                 for slsInstance in self.existingSLSInstances:
-                    if "ibm-sls" in slsInstance['metadata']['namespace']:
-                        description.insert(2, "An instance of SLS with the namespace 'ibm-sls' is already present on the cluster...")
-                        self.promptForString("Enter new SLS namespace", "sls_namespace", validator=NewNamespaceValidator())
+                    if sls_namespace in slsInstance['metadata']['namespace']:
+                        description.insert(2, f"... An instance of SLS with the namespace '{sls_namespace}' is already present on the cluster.")
+                        if not self.yesOrNo(f"Proceed with overwriting the instance in the '{sls_namespace}' namespace"):
+                            exit(1)
                         break
 
             self.printDescription(description)
