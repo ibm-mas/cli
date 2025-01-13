@@ -48,7 +48,7 @@ from mas.cli.validators import (
 
 from mas.devops.ocp import createNamespace, getStorageClasses
 from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
-from mas.devops.sls import listSLSInstances
+from mas.devops.sls import listSLSInstances#, verifySLSConnection
 from mas.devops.data import getCatalog
 from mas.devops.tekton import (
     installOpenShiftPipelines,
@@ -311,8 +311,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("SLS url", "sls_url")
                 self.promptForString("SLS registrationKey", "sls_registration_key")
                 self.slsCertsDir = self.promptForDir("Enter the path containing the SLS certificate(s)", mustExist=True)
+                # verifyConnection = verifySLSConnection(self.getParam("sls_url"), self.slsCertsDir + 'ca.crt')
+                # if not verifyConnection:
+                #     if not self.yesOrNo("Could not verify SLS connection, proceed anyway"):
+                #         exit(1)
+                    
                 self.setParam("sls_action", "gencfg")
-                # Improvement Idea: Use SLS client to verify if endpoint exists based on data provided
         else:
             self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
             self.setParam("sls_action", "install")
@@ -1078,10 +1082,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.slsLicenseFileLocal:
             entitlementFileBaseName = path.basename(self.slsLicenseFileLocal)
             self.setParam("sls_entitlement_file", f"/workspace/entitlement/{entitlementFileBaseName}")
-
-        # The ca cert for SLS is mounted as a secret in /workspace/certificates
-        if self.slsCaCertFileLocal:
-            self.setParam("sls_tls_crt_local_file_base64_path", "/workspace/certificates/sls.ca.crt")
 
         # Set up the secrets for additional configs, podtemplates and manual certificates
         self.additionalConfigs()
