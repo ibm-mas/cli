@@ -257,22 +257,22 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def configSLS(self) -> None:
         self.printH1("Configure Product License")
 
+        self.slsLicenseFileLocal = None
+        self.slsCertsDir = None
+        self.existingSLSInstances = listSLSInstances(self.dynamicClient)
+        numSLSInstances = len(self.existingSLSInstances)
+        description = [
+            "IBM Suite License Service (SLS) is the licensing enforcement for Maximo Application Suite.",
+            ""
+        ]
+
         if self.showAdvancedOptions:
-            self.slsLicenseFileLocal = None
-            self.slsCertsDir = None
-            self.existingSLSInstances = listSLSInstances(self.dynamicClient)
             self.slsConfigOptions = []
             self.slsInstanceOptions = []
 
-            numSLSInstances = len(self.existingSLSInstances)
-
-            description = [
-                "IBM Suite License Service (SLS) is the licensing enforcement for Maximo Application Suite.",
-                "Choose how to configure SLS:",
-                "  - New: Deploy a new instance on the cluster.",
-                "  - External: Point to an external instance outside of the cluster",
-                ""
-            ]
+            description.insert(1, "Choose how to configure SLS:")
+            description.insert(2, "  - New: Deploy a new instance on the cluster.")
+            description.insert(3, "  - External: Point to an external instance outside of the cluster")
 
             self.slsConfigOptions.append("New")
             self.slsConfigOptions.append("External")
@@ -318,6 +318,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     
                 self.setParam("sls_action", "gencfg")
         else:
+            description.insert(1, "A new instance of SLS will be deployed on the cluster.")
+            if numSLSInstances > 0:
+                for slsInstance in self.existingSLSInstances:
+                    if "ibm-sls" in slsInstance['metadata']['namespace']:
+                        description.insert(2, "An instance of SLS with the namespace 'ibm-sls' is already present on the cluster...")
+                        self.promptForString("Enter new SLS namespace", "sls_namespace", validator=NewNamespaceValidator())
+                        break
+
+            self.printDescription(description)
             self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
             self.setParam("sls_action", "install")
 
