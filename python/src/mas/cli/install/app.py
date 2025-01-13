@@ -1112,6 +1112,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configAnnotations()
 
         self.displayInstallSummary()
+        
+        self.printParamSummary("image_pull_policy", "image_pull_policy")
 
         if not self.noConfirm:
             print()
