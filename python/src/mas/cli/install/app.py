@@ -318,9 +318,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     
                 self.setParam("sls_action", "gencfg")
         else:
-            sls_namespace = self.getParam("sls_namespace")
+            sls_namespace = "ibm-sls" if self.getParam("sls_namespace") == "" else self.getParam("sls_namespace")
+
             if numSLSInstances == 0:
-                description.insert(1, f"A new instance of SLS will be deployed on the cluster in the '{sls_namespace}' sls_namespace.")
+                description.insert(1, f"A new instance of SLS will be deployed on the cluster in the '{sls_namespace}' namespace.")
             if numSLSInstances > 0:
                 for slsInstance in self.existingSLSInstances:
                     if sls_namespace in slsInstance['metadata']['namespace']:
@@ -1042,6 +1043,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
         self.skipGrafanaInstall = args.skip_grafana_install
+        self.setParam("image_pull_policy", args.image_pull_policy)
 
         self.approvals = {}
 
@@ -1112,8 +1114,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configAnnotations()
 
         self.displayInstallSummary()
-        
-        self.printParamSummary("image_pull_policy", "image_pull_policy")
 
         if not self.noConfirm:
             print()
