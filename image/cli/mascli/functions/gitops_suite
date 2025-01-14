@@ -81,7 +81,7 @@ IBM Maximo Application Suite:
           "configtool" client suitable to use by the Maximo Application Framework (MAF) configurator tool. Specify as follows:
             --oidc-config '{"configtool": {"trusted_uri_prefixes": ["https://example.com:443", "https://otherexample.com:8443"]}}'
             
-            "trusted_uri_prefixes" field is optional, if omitted ArgoCD will use the default ["http://localhost:3000", "http://localhost:3001", "http://localhost:3006"]
+            "trusted_uri_prefixes" field is optional, defaults to ["http://localhost:3000", "http://localhost:3001", "http://localhost:3006"]
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
@@ -403,6 +403,14 @@ function gitops_suite_noninteractive() {
        (.configtool.trusted_uri_prefixes.[] | type == "!!str") as $item ireduce (true; . and $item)' \
        1> /dev/null 2>&1 \
        || gitops_suite_help "OIDC_CONFIG is invalid; if specified, the value of 'configtool.trusted_uri_properties' must be an array containing only strings"
+
+    # if no trusted_uri_prefixes field specified under configtool, set some defaults
+    if $(echo "${OIDC_CONFIG_YAML}" | yq eval --exit-status=1 \
+      '(. | has("configtool")) == true and
+       (.configtool | has("trusted_uri_prefixes")) == false' \
+       1> /dev/null 2>&1); then
+      OIDC_CONFIG_YAML=$(echo "${OIDC_CONFIG_YAML}" | yq '.configtool.trusted_uri_prefixes = ["http://localhost:3000","http://localhost:3001","http://localhost:3006"]')
+    fi
 
   fi
 
