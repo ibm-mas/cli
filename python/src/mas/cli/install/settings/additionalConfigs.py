@@ -131,10 +131,8 @@ class AdditionalConfigsMixin():
                     "name": "pipeline-sls-entitlement"
                 }
             }
-
             self.setParam("sls_entitlement_file", f"/workspace/entitlement/{path.basename(self.slsLicenseFileLocal)}")
-
-            self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal)
+            self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal, '')
 
     def manualCertificates(self) -> None:
         certsSecret = {
@@ -145,7 +143,6 @@ class AdditionalConfigsMixin():
                 "name": "pipeline-certificates"
             }
         }
-
         extensions = ["key", "crt"]
 
         if self.getParam("mas_manual_cert_mgmt"):
@@ -206,7 +203,6 @@ class AdditionalConfigsMixin():
             
             # The ca cert for SLS is mounted as a secret in /workspace/certificates
             self.setParam("sls_tls_crt_local_file_base64_path", "/workspace/certificates/sls.ca.crt")
-
             self.certsSecret = certsSecret
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '') -> dict:

@@ -323,10 +323,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             if numSLSInstances == 0:
                 description.insert(1, f"A new instance of SLS will be deployed on the cluster in the namespace '{sls_namespace}'.")
+                self.printDescription(description)
                 self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
-            self.printDescription(description)
 
             if numSLSInstances > 0:
+                self.printDescription(description)
                 for slsInstance in self.existingSLSInstances:
                     if sls_namespace in slsInstance['metadata']['namespace']:
                         print_formatted_text(HTML(f"<MediumSeaGreen>SLS auto-detected: {sls_namespace}</MediumSeaGreen>"))
