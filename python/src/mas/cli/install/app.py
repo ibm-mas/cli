@@ -319,7 +319,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("sls_action", "gencfg")
         else:
             sls_namespace = "ibm-sls" if self.getParam("sls_namespace") == "" else self.getParam("sls_namespace")
-
+            self.setParam("sls_action", "install")
             if numSLSInstances == 0:
                 description.insert(1, f"A new instance of SLS will be deployed on the cluster in the namespace '{sls_namespace}'.")
                 self.printDescription(description)
@@ -330,10 +330,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         description.insert(2, f"Using existing instance of SLS in the namespace '{sls_namespace}'.")
                         break
                 self.printDescription(description)
+                
                 if self.yesOrNo("Re/Upload a license file"):
                     self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
-
-            self.setParam("sls_action", "install")
+                else:
+                    self.setParam("sls_action", "gencfg")
 
     @logMethodCall
     def configDRO(self) -> None:
