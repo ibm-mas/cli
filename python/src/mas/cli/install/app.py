@@ -48,7 +48,7 @@ from mas.cli.validators import (
 
 from mas.devops.ocp import createNamespace, getStorageClasses
 from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
-from mas.devops.sls import listSLSInstances#, verifySLSConnection
+from mas.devops.sls import listSLSInstances, verifySLSConnection
 from mas.devops.data import getCatalog
 from mas.devops.tekton import (
     installOpenShiftPipelines,
@@ -296,11 +296,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             if slsConfigSelection == "Existing":
                 print_formatted_text(HTML("<LightSlateGrey>Select an existing SLS instance from the list below:</LightSlateGrey>"))
-            
+
                 for slsInstance in self.existingSLSInstances:
                     print_formatted_text(HTML(f"- <u>{slsInstance['metadata']['namespace']}</u> | {slsInstance['metadata']['name']} | v{slsInstance['status']['versions']['reconciled']}"))
                     self.slsInstanceOptions.append(slsInstance['metadata']['namespace'])
-                
+
                 slsInstanceCompleter = WordCompleter(self.slsInstanceOptions)
                 print()
                 # Add validation here
@@ -311,25 +311,28 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("SLS url", "sls_url")
                 self.promptForString("SLS registrationKey", "sls_registration_key")
                 self.slsCertsDir = self.promptForDir("Enter the path containing the SLS certificate(s)", mustExist=True)
-                # verifyConnection = verifySLSConnection(self.getParam("sls_url"), self.slsCertsDir + 'ca.crt')
-                # if not verifyConnection:
-                #     if not self.yesOrNo("Could not verify SLS connection, proceed anyway"):
-                #         exit(1)
-                    
+                verifyConnection = verifySLSConnection(self.getParam("sls_url"), self.slsCertsDir + 'ca.crt')
+                if not verifyConnection:
+                    if not self.yesOrNo("Could not verify SLS connection, proceed anyway"):
+                        exit(1)
+
                 self.setParam("sls_action", "gencfg")
         else:
             sls_namespace = "ibm-sls" if self.getParam("sls_namespace") == "" else self.getParam("sls_namespace")
 
             if numSLSInstances == 0:
                 description.insert(1, f"A new instance of SLS will be deployed on the cluster in the namespace '{sls_namespace}'.")
+                self.printDescription(description)
+                self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
             if numSLSInstances > 0:
                 for slsInstance in self.existingSLSInstances:
                     if sls_namespace in slsInstance['metadata']['namespace']:
-                        description.insert(2, f"An instance of SLS in the namespace '{sls_namespace}' is already present on the cluster and will be overwritten.")
+                        description.insert(2, f"Using existing instance of SLS in the namespace '{sls_namespace}'.")
                         break
+                self.printDescription(description)
+                if self.yesOrNo("Re/Upload a license file"):
+                    self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
 
-            self.printDescription(description)
-            self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
             self.setParam("sls_action", "install")
 
     @logMethodCall
@@ -1042,6 +1045,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.devMode = args.dev_mode
         self.skipGrafanaInstall = args.skip_grafana_install
 
+        # Set image_pull_policy of the CLI in interactive mode
         if args.image_pull_policy and args.image_pull_policy != "":
             self.setParam("image_pull_policy", args.image_pull_policy)
 
