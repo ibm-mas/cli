@@ -327,11 +327,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if numSLSInstances > 0:
                 for slsInstance in self.existingSLSInstances:
                     if sls_namespace in slsInstance['metadata']['namespace']:
-                        description.insert(2, f"Using existing instance of SLS in the namespace '{sls_namespace}'.")
+                        description.insert(1, f"Using existing instance of SLS in the namespace '{sls_namespace}'.")
                         break
                 self.printDescription(description)
                 
-                if self.yesOrNo("Re/Upload a license file"):
+                if self.yesOrNo("Set/Replace the license file"):
                     self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
                 else:
                     self.setParam("sls_action", "gencfg")
