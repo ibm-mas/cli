@@ -1097,14 +1097,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.deployCP4D:
             self.configCP4D()
 
-        # The entitlement file for SLS is mounted as a secret in /workspace/entitlement
-        if self.slsLicenseFileLocal:
-            entitlementFileBaseName = path.basename(self.slsLicenseFileLocal)
-            self.setParam("sls_entitlement_file", f"/workspace/entitlement/{entitlementFileBaseName}")
-
-        # Set up the secrets for additional configs, podtemplates and manual certificates
+        # Set up the secrets for additional configs, podtemplates, sls license file and manual certificates
         self.additionalConfigs()
         self.podTemplates()
+        self.slsLicenseFile()
         self.manualCertificates()
 
         # Show a summary of the installation configuration
@@ -1156,7 +1152,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,
                     instanceId=self.getParam("mas_instance_id"),
-                    slsLicenseFile=self.slsLicenseFileLocal,
+                    slsLicenseFile=self.slsLicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
                     certs=self.certsSecret

@@ -121,6 +121,21 @@ class AdditionalConfigsMixin():
             logger.debug(podTemplatesSecret)
             self.podTemplatesSecret = podTemplatesSecret
 
+    def slsLicenseFile(self) -> None:
+        if self.slsLicenseFileLocal:
+            slsLicenseFileSecret = {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-sls-entitlement"
+                }
+            }
+
+            self.setParam("sls_entitlement_file", f"/workspace/entitlement/{path.basename(self.slsLicenseFileLocal)}")
+
+            self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal)
+
     def manualCertificates(self) -> None:
         certsSecret = {
             "apiVersion": "v1",
@@ -180,7 +195,6 @@ class AdditionalConfigsMixin():
                         certsSecret = self.addFilesToSecret(certsSecret, apps[app]["dir"], ext, apps[app]["keyPrefix"])
 
             self.certsSecret = certsSecret
-
 
         if self.slsCertsDir:
             # Currently SLS only needs ca.crt
