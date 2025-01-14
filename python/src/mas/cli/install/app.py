@@ -321,13 +321,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             sls_namespace = "ibm-sls" if self.getParam("sls_namespace") == "" else self.getParam("sls_namespace")
 
             if numSLSInstances == 0:
-                description.insert(1, f"A new instance of SLS will be deployed on the cluster in the '{sls_namespace}' namespace.")
+                description.insert(1, f"A new instance of SLS will be deployed on the cluster in the namespace '{sls_namespace}'.")
             if numSLSInstances > 0:
                 for slsInstance in self.existingSLSInstances:
                     if sls_namespace in slsInstance['metadata']['namespace']:
-                        description.insert(2, f"... An instance of SLS with the namespace '{sls_namespace}' is already present on the cluster.")
-                        if not self.yesOrNo(f"Proceed with overwriting the instance in the '{sls_namespace}' namespace"):
-                            exit(1)
+                        description.insert(2, f"An instance of SLS in the namespace '{sls_namespace}' is already present on the cluster and will be overwritten.")
                         break
 
             self.printDescription(description)
