@@ -289,8 +289,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             slsConfigSelection = self.promptForString("Select SLS config option", completer=slsConfigCompleter, validator=SLSConfigValidator())
 
             if slsConfigSelection == "New":
+                defaultVal = "ibm-sls"
                 if numSLSInstances > 0:
-                    self.promptForString("SLS namespace", "sls_namespace", validator=NewNamespaceValidator())
+                    defaultVal = ""
+                self.promptForString("SLS namespace", "sls_namespace", default=defaultVal, validator=NewNamespaceValidator())
                 self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
                 self.setParam("sls_action", "install")
 
