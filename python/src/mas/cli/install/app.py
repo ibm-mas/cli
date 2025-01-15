@@ -272,7 +272,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             description.insert(1, "Choose how to configure SLS:")
             description.insert(2, "  - New: Deploy a new instance on the cluster.")
-            description.insert(3, "  - External: Point to an external instance outside of the cluster")
+            description.insert(3, "  - External: Point to an external instance outside of the cluster.")
 
             self.slsConfigOptions.append("New")
             self.slsConfigOptions.append("External")
