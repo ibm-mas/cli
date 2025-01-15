@@ -289,14 +289,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             slsConfigSelection = self.promptForString("Select SLS config option", completer=slsConfigCompleter, validator=SLSConfigValidator())
 
             if slsConfigSelection == "New":
+                self.setParam("sls_action", "install")
                 defaultVal = "ibm-sls"
                 if numSLSInstances > 0:
                     defaultVal = ""
                 self.promptForString("SLS namespace", "sls_namespace", default=defaultVal, validator=NewNamespaceValidator())
                 self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
-                self.setParam("sls_action", "install")
 
             if slsConfigSelection == "Existing":
+                self.setParam("sls_action", "gencfg")
                 print_formatted_text(HTML("<LightSlateGrey>Select an existing SLS instance from the list below:</LightSlateGrey>"))
 
                 for slsInstance in self.existingSLSInstances:
@@ -307,9 +308,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 print()
                 # Add validation here
                 self.promptForString("Select SLS namespace", "sls_namespace", completer=slsInstanceCompleter, validator=SLSInstanceSelectionValidator())
-                self.setParam("sls_action", "gencfg")
+                if self.yesOrNo("Upload/Replace the license file"):
+                    self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
+                    self.setParam("sls_action", "install")
 
             if slsConfigSelection == "External":
+                self.setParam("sls_action", "gencfg")
                 self.promptForString("SLS url", "sls_url")
                 self.promptForString("SLS registrationKey", "sls_registration_key")
                 self.slsCertsDir = self.promptForDir("Enter the path containing the SLS certificate(s)", mustExist=True)
@@ -318,11 +322,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     if not self.yesOrNo("Could not verify SLS connection, proceed anyway"):
                         exit(1)
 
-                self.setParam("sls_action", "gencfg")
         else:
+            self.setParam("sls_action", "install")
             sls_default_namespace = "ibm-sls"
             self.setParam("sls_namespace", sls_default_namespace)
-            self.setParam("sls_action", "install")
 
             if numSLSInstances == 0:
                 description.insert(1, f"A new instance of SLS will be deployed on the cluster in the namespace '{sls_default_namespace}'.")
