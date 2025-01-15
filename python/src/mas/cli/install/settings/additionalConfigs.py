@@ -199,13 +199,13 @@ class AdditionalConfigsMixin():
                 if file not in map(path.basename, glob(f'{self.slsCertsDir}/*')):
                     self.fatalError(f'{file} is not present in {self.slsCertsDir}/')
             for ext in extensions:
-                certsSecret = self.addFilesToSecret(certsSecret, self.slsCertsDir, ext, "sls.")
+                certsSecret = self.addFilesToSecret(certsSecret, self.slsCertsDir, ext, "sls.", "utf-8")
             
             # The ca cert for SLS is mounted as a secret in /workspace/certificates
             self.setParam("sls_tls_crt_local_file_base64_path", "/workspace/certificates/sls.ca.crt")
             self.certsSecret = certsSecret
 
-    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '') -> dict:
+    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '', encoding: str = 'ascii') -> dict:
         """
         Add file (or files) to pipeline-additional-configs
         """
@@ -228,6 +228,6 @@ class AdditionalConfigsMixin():
             # Add/update an entry to the secret data
             if "data" not in secretDict:
                 secretDict["data"] = {}
-            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode('ascii')).decode("ascii")
+            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode(encoding)).decode(encoding)
 
         return secretDict
