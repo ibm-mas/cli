@@ -299,14 +299,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if slsConfigSelection == "Existing":
                 self.setParam("sls_action", "gencfg")
                 print_formatted_text(HTML("<LightSlateGrey>Select an existing SLS instance from the list below:</LightSlateGrey>"))
-
                 for slsInstance in self.existingSLSInstances:
                     print_formatted_text(HTML(f"- <u>{slsInstance['metadata']['namespace']}</u> | {slsInstance['metadata']['name']} | v{slsInstance['status']['versions']['reconciled']}"))
                     self.slsInstanceOptions.append(slsInstance['metadata']['namespace'])
-
                 slsInstanceCompleter = WordCompleter(self.slsInstanceOptions)
                 print()
-                # Add validation here
                 self.promptForString("Select SLS namespace", "sls_namespace", completer=slsInstanceCompleter, validator=SLSInstanceSelectionValidator())
                 if self.yesOrNo("Upload/Replace the license file"):
                     self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
