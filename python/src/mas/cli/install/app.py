@@ -277,8 +277,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.slsConfigOptions.append("New")
             self.slsConfigOptions.append("External")
 
-            if numSLSInstances == 0:
-                description.insert(1, "No instances of SLS detected on the cluster.")
             if numSLSInstances > 0:
                 self.slsConfigOptions.insert(1, "Existing")
                 description.insert(3, "  - Existing: Select an existing instance on the cluster. This is useful for sharing SLS with multiple MAS instances.")
