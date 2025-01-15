@@ -77,3 +77,8 @@ ibm_mas_suite:
   mas_pod_templates:
     {{ MAS_POD_TEMPLATE | indent(4) }}
 {% endif %}
+
+{% if OIDC_CONFIG_YAML is defined and OIDC_CONFIG_YAML !='' %}
+  oidc:
+    {{ OIDC_CONFIG_YAML | indent(4) }}
+{% endif %}

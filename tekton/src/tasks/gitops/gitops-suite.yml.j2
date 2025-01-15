@@ -122,6 +122,8 @@ spec:
     - name: mas_wipe_mongo_data
       type: string
       default: "false"
+    - name: oidc
+      type: string
   stepTemplate:
     name: gitops-suite
     env:
@@ -217,6 +219,9 @@ spec:
         value: $(params.mas_pod_template_yaml)
       - name: MAS_WIPE_MONGO_DATA
         value: $(params.mas_wipe_mongo_data)
+
+      - name: OIDC_CONFIG
+        value: $(params.oidc)
     envFrom:
       - configMapRef:
           name: environment-properties
