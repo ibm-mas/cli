@@ -121,19 +121,6 @@ class AdditionalConfigsMixin():
             logger.debug(podTemplatesSecret)
             self.podTemplatesSecret = podTemplatesSecret
 
-    def slsLicenseFile(self) -> None:
-        if self.slsLicenseFileLocal:
-            slsLicenseFileSecret = {
-                "apiVersion": "v1",
-                "kind": "Secret",
-                "type": "Opaque",
-                "metadata": {
-                    "name": "pipeline-sls-entitlement"
-                }
-            }
-            self.setParam("sls_entitlement_file", f"/workspace/entitlement/{path.basename(self.slsLicenseFileLocal)}")
-            self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal, '')
-
     def manualCertificates(self) -> None:
         certsSecret = {
             "apiVersion": "v1",
@@ -193,17 +180,30 @@ class AdditionalConfigsMixin():
 
             self.certsSecret = certsSecret
 
-        if self.slsCertsDir:
+        if self.slsCertsDirLocal:
             # Currently SLS only needs ca.crt
             for file in ["ca.crt"]:
-                if file not in map(path.basename, glob(f'{self.slsCertsDir}/*')):
-                    self.fatalError(f'{file} is not present in {self.slsCertsDir}/')
+                if file not in map(path.basename, glob(f'{self.slsCertsDirLocal}/*')):
+                    self.fatalError(f'{file} is not present in {self.slsCertsDirLocal}/')
             for ext in extensions:
-                certsSecret = self.addFilesToSecret(certsSecret, self.slsCertsDir, ext, "sls.")
+                certsSecret = self.addFilesToSecret(certsSecret, self.slsCertsDirLocal, ext, "sls.")
             
             # The ca cert for SLS is mounted as a secret in /workspace/certificates
             self.setParam("sls_tls_crt_local_file_path", "/workspace/certificates/sls.ca.crt")
             self.certsSecret = certsSecret
+
+    def slsLicenseFile(self) -> None:
+        if self.slsLicenseFileLocal:
+            slsLicenseFileSecret = {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-sls-entitlement"
+                }
+            }
+            self.setParam("sls_entitlement_file", f"/workspace/entitlement/{path.basename(self.slsLicenseFileLocal)}")
+            self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal, '')
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '', encoding: str = 'ascii') -> dict:
         """

@@ -29,6 +29,7 @@ from ..cli import BaseApp
 from ..gencfg import ConfigGeneratorMixin
 from .argBuilder import installArgBuilderMixin
 from .argParser import installArgParser
+from .argChecker import verifyArgs
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
 from .params import requiredParams, optionalParams
@@ -48,7 +49,7 @@ from mas.cli.validators import (
 
 from mas.devops.ocp import createNamespace, getStorageClasses
 from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
-from mas.devops.sls import listSLSInstances, verifySLSConnection
+from mas.devops.sls import listSLSInstances, verifySLSConnection, findSLSByNamespace
 from mas.devops.data import getCatalog
 from mas.devops.tekton import (
     installOpenShiftPipelines,
@@ -254,13 +255,22 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("mas_channel", releaseSelection)
 
     @logMethodCall
+    def validateExternalSLSConnection(self) -> None:
+        self.verifySLSConnection = verifySLSConnection(self.getParam("sls_url"), self.slsCertsDirLocal + 'ca.crt')
+
+        if not self.noConfirm:
+            if not self.verifySLSConnection:
+                if not self.yesOrNo("Could not verify SLS connection, proceed anyway"):
+                    exit(1)
+
+    @logMethodCall
     def configSLS(self) -> None:
         self.printH1("Configure Product License")
 
         self.slsLicenseFileLocal = None
-        self.slsCertsDir = None
-        self.existingSLSInstances = listSLSInstances(self.dynamicClient)
-        numSLSInstances = len(self.existingSLSInstances)
+        self.slsCertsDirLocal = None
+        existingSLSInstances = listSLSInstances(self.dynamicClient)
+        numSLSInstances = len(existingSLSInstances)
         description = [
             "IBM Suite License Service (SLS) is the licensing enforcement for Maximo Application Suite.",
             ""
@@ -297,7 +307,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if slsConfigSelection == "Existing":
                 self.setParam("sls_action", "gencfg")
                 print_formatted_text(HTML("<LightSlateGrey>Select an existing SLS instance from the list below:</LightSlateGrey>"))
-                for slsInstance in self.existingSLSInstances:
+                for slsInstance in existingSLSInstances:
                     print_formatted_text(HTML(f"- <u>{slsInstance['metadata']['namespace']}</u> | {slsInstance['metadata']['name']} | v{slsInstance['status']['versions']['reconciled']}"))
                     self.slsInstanceOptions.append(slsInstance['metadata']['namespace'])
                 slsInstanceCompleter = WordCompleter(self.slsInstanceOptions)
@@ -311,11 +321,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("sls_action", "gencfg")
                 self.promptForString("SLS url", "sls_url")
                 self.promptForString("SLS registrationKey", "sls_registration_key")
-                self.slsCertsDir = self.promptForDir("Enter the path containing the SLS certificate(s)", mustExist=True)
-                self.verifySLSConnection = verifySLSConnection(self.getParam("sls_url"), self.slsCertsDir + 'ca.crt')
-                if not self.verifySLSConnection:
-                    if not self.yesOrNo("Could not verify SLS connection, proceed anyway"):
-                        exit(1)
+                self.slsCertsDirLocal = self.promptForDir("Enter the path containing the SLS certificate(s)", mustExist=True)
+                self.validateExternalSLSConnection()
 
         else:
             self.setParam("sls_action", "install")
@@ -329,11 +336,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             if numSLSInstances > 0:
                 self.printDescription(description)
-                for slsInstance in self.existingSLSInstances:
-                    if sls_default_namespace in slsInstance['metadata']['namespace']:
-                        print_formatted_text(HTML(f"<MediumSeaGreen>SLS auto-detected: {sls_default_namespace}</MediumSeaGreen>"))
-                        print()
-                        break
+                if findSLSByNamespace(sls_default_namespace, instances=existingSLSInstances):
+                    print_formatted_text(HTML(f"<MediumSeaGreen>SLS auto-detected: {sls_default_namespace}</MediumSeaGreen>"))
                 if self.yesOrNo("Upload/Replace the license file"):
                     self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
                 else:
@@ -984,11 +988,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is None:
                     self.fatalError(f"{key} must be set")
                 self.pipelineStorageClass = value
-            elif key == "license_file":
-                if value is None:
-                    self.fatalError(f"{key} must be set")
-                self.slsLicenseFileLocal = value
-                # ToDo: Review SLS options in noninteractive mode
 
             elif key.startswith("approval_"):
                 if key not in self.approvals:
@@ -1018,6 +1017,25 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("mas_manual_cert_mgmt", False)
                     self.manualCertsDir = None
 
+            # SLS arguments
+            elif key == "sls_namespace":
+                if value is not None and value != "":
+                    self.setParam("sls_namespace", value)
+                    if findSLSByNamespace(value, dynClient= self.dynamicClient):
+                        self.setParam("sls_action", "gencfg")
+                    else:
+                        self.setParam("sls_action", "install")
+                else:
+                    self.setParam("sls_action", "gencfg")
+            elif key == "license_file":
+                if value is not None and value != "":
+                    self.slsLicenseFileLocal = value
+                    self.setParam("sls_action", "install")
+            elif key == "sls_certificates":
+                if value is not None and value != "":
+                    self.slsCertsDirLocal = value
+                    self.setParam("sls_action", "gencfg")
+
             # Fail if there's any arguments we don't know how to handle
             else:
                 print(f"Unknown option: {key} {value}")
@@ -1030,6 +1048,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
+        
+        self.validateExternalSLSConnection()
 
     @logMethodCall
     def install(self, argv):
@@ -1037,6 +1057,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         Install MAS instance
         """
         args = installArgParser.parse_args(args=argv)
+        verifyArgs(args)
 
         # We use the presence of --mas-instance-id to determine whether
         # the CLI is being started in interactive mode or not
