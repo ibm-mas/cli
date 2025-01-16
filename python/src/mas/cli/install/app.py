@@ -312,8 +312,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("SLS url", "sls_url")
                 self.promptForString("SLS registrationKey", "sls_registration_key")
                 self.slsCertsDir = self.promptForDir("Enter the path containing the SLS certificate(s)", mustExist=True)
-                verifyConnection = verifySLSConnection(self.getParam("sls_url"), self.slsCertsDir + 'ca.crt')
-                if not verifyConnection:
+                self.verifySLSConnection = verifySLSConnection(self.getParam("sls_url"), self.slsCertsDir + 'ca.crt')
+                if not self.verifySLSConnection:
                     if not self.yesOrNo("Could not verify SLS connection, proceed anyway"):
                         exit(1)
 

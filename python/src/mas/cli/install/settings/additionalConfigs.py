@@ -202,7 +202,7 @@ class AdditionalConfigsMixin():
                 certsSecret = self.addFilesToSecret(certsSecret, self.slsCertsDir, ext, "sls.")
             
             # The ca cert for SLS is mounted as a secret in /workspace/certificates
-            self.setParam("sls_tls_crt_local_file_base64_path", "/workspace/certificates/sls.ca.crt")
+            self.setParam("sls_tls_crt_local_file_path", "/workspace/certificates/sls.ca.crt")
             self.certsSecret = certsSecret
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '', encoding: str = 'ascii') -> dict:
