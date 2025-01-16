@@ -269,7 +269,7 @@ class InstallSummarizerMixin():
             self.printParamSummary("URL", "sls_url")
             self.printParamSummary("RegistrationKey", "sls_registration_key")
             self.printSummary("Certificates", self.slsCertsDirLocal)
-            self.printSummary("Connection verified", self.verifySLSConnection) # Needs to run in non-interactive too
+            self.printSummary("Connection verified", self.verifySLSConnection)
         else:
             self.printParamSummary("Namespace", "sls_namespace")
             if self.getParam("sls_action") == "install":
