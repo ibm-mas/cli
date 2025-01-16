@@ -199,7 +199,7 @@ class AdditionalConfigsMixin():
                 if file not in map(path.basename, glob(f'{self.slsCertsDir}/*')):
                     self.fatalError(f'{file} is not present in {self.slsCertsDir}/')
             for ext in extensions:
-                certsSecret = self.addFilesToSecret(certsSecret, self.slsCertsDir, ext, "sls.", "utf-8")
+                certsSecret = self.addFilesToSecret(certsSecret, self.slsCertsDir, ext, "sls.")
             
             # The ca cert for SLS is mounted as a secret in /workspace/certificates
             self.setParam("sls_tls_crt_local_file_base64_path", "/workspace/certificates/sls.ca.crt")
