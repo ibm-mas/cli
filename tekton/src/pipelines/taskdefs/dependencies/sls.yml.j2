@@ -23,6 +23,15 @@
       value: $(params.sls_channel)
     - name: sls_icr_cpopen
       value: $(params.sls_icr_cpopen)
+    - name: sls_action
+      value: $(params.sls_action)
+
+    - name: sls_url
+      value: $(params.sls_url)
+    - name: sls_registration_key
+      value: $(params.sls_registration_key)
+    - name: sls_tls_crt_local_file_path
+      value: $(params.sls_tls_crt_local_file_path)
 
     # New way of bootstrapping license file
     - name: sls_entitlement_file
@@ -44,3 +53,5 @@
       workspace: shared-entitlement
     - name: pod-templates
       workspace: shared-pod-templates
+    - name: certificates
+      workspace: shared-certificates

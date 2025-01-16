@@ -60,6 +60,10 @@ optionalParams = [
     "mas_domain",
     # SLS
     "sls_namespace",
+    "sls_url",
+    "sls_action",
+    "sls_registration_key",
+    "sls_tls_crt_local_file_path",
     # DNS Providers
     # TODO: Add CloudFlare and Route53 support
     "dns_provider",

@@ -121,20 +121,31 @@ class AdditionalConfigsMixin():
             logger.debug(podTemplatesSecret)
             self.podTemplatesSecret = podTemplatesSecret
 
-    def manualCertificates(self) -> None:
-
-        if self.getParam("mas_manual_cert_mgmt"):
-            certsSecret = {
+    def slsLicenseFile(self) -> None:
+        if self.slsLicenseFileLocal:
+            slsLicenseFileSecret = {
                 "apiVersion": "v1",
                 "kind": "Secret",
                 "type": "Opaque",
                 "metadata": {
-                    "name": "pipeline-certificates"
+                    "name": "pipeline-sls-entitlement"
                 }
             }
+            self.setParam("sls_entitlement_file", f"/workspace/entitlement/{path.basename(self.slsLicenseFileLocal)}")
+            self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal, '')
 
-            extensions = ["key", "crt"]
+    def manualCertificates(self) -> None:
+        certsSecret = {
+            "apiVersion": "v1",
+            "kind": "Secret",
+            "type": "Opaque",
+            "metadata": {
+                "name": "pipeline-certificates"
+            }
+        }
+        extensions = ["key", "crt"]
 
+        if self.getParam("mas_manual_cert_mgmt"):
             apps = {
                 "mas_app_channel_assist": {
                     "dir": self.manualCertsDir + "/assist/",
@@ -182,7 +193,19 @@ class AdditionalConfigsMixin():
 
             self.certsSecret = certsSecret
 
-    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '') -> dict:
+        if self.slsCertsDir:
+            # Currently SLS only needs ca.crt
+            for file in ["ca.crt"]:
+                if file not in map(path.basename, glob(f'{self.slsCertsDir}/*')):
+                    self.fatalError(f'{file} is not present in {self.slsCertsDir}/')
+            for ext in extensions:
+                certsSecret = self.addFilesToSecret(certsSecret, self.slsCertsDir, ext, "sls.")
+            
+            # The ca cert for SLS is mounted as a secret in /workspace/certificates
+            self.setParam("sls_tls_crt_local_file_path", "/workspace/certificates/sls.ca.crt")
+            self.certsSecret = certsSecret
+
+    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '', encoding: str = 'ascii') -> dict:
         """
         Add file (or files) to pipeline-additional-configs
         """
@@ -205,6 +228,6 @@ class AdditionalConfigsMixin():
             # Add/update an entry to the secret data
             if "data" not in secretDict:
                 secretDict["data"] = {}
-            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode('ascii')).decode("ascii")
+            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode(encoding)).decode(encoding)
 
         return secretDict
