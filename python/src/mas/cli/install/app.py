@@ -1057,7 +1057,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         Install MAS instance
         """
         args = installArgParser.parse_args(args=argv)
-        verifyArgs(args)
+        verifyArgs(installArgParser, args)
 
         # We use the presence of --mas-instance-id to determine whether
         # the CLI is being started in interactive mode or not

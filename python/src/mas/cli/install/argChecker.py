@@ -13,15 +13,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def verifyArgs(args):
-    verifySLSArgs(args)
+def verifyArgs(parser, args):
+    verifySLSArgs(parser, args)
 
-def verifySLSArgs(args):
+def verifySLSArgs(parser, args):
     group_1 = [args.sls_namespace, args.license_file]
     group_2 = [args.sls_url, args.sls_registration_key, args.sls_certificates]
 
     if any(v is not None for v in group_1) and any(v is not None for v in group_2):
-        args.error("Cannot combine [--sls-namespace, --license-file] with [--sls-url, --sls-registration-key, --sls-certificates].")
+        parser.error("Cannot combine [--sls-namespace, --license-file] with [--sls-url, --sls-registration-key, --sls-certificates].")
 
     if not all(v is not None for v in group_2):
-        args.error("--sls-url requires --sls-registration-key and --sls-certificates.")
+        parser.error("--sls-url, --sls-registration-key and --sls-certificates are required.")
