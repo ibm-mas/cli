@@ -412,8 +412,8 @@ spec:
           export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
           sm_login || exit 1
 
-          # lookup <ICN>/sendgrid_subuser#username from AWS SM
-          SECRET_NAME_SENDGRID="${ICN}/sendgrid_subuser"
+          # lookup ibm-customer/<ICN>/sendgrid_subuser#username from AWS SM
+          SECRET_NAME_SENDGRID="ibm-customer/${ICN}/sendgrid_subuser"
           echo "Getting ${SECRET_NAME_SENDGRID} from AWS SM"
           export SENDGRID_SUBUSER_USERNAME="$(sm_get_secret_value "${SECRET_NAME_SENDGRID}" "username")" # pragma: allowlist secret
           echo "Subuser username: ${SENDGRID_SUBUSER_USERNAME}"
