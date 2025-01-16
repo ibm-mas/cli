@@ -153,7 +153,7 @@ spec:
         # this is our only opportunity to store the password we generated for the subuser
         update_subuser_secret_rc="0"
         if [[ -n "${SUBUSER_PASSWORD}" ]]; then
-          SECRET_NAME_SENDGRID="${ICN}/sendgrid_subuser"
+          SECRET_NAME_SENDGRID="ibm-customer/${ICN}/sendgrid_subuser"
           TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite_smtp_config_sendgrid\"}]"
           echo "Putting generated subuser credentials in ${SECRET_NAME_SENDGRID}"
           (sm_update_secret "${SECRET_NAME_SENDGRID}" "{\"username\": \"$SUBUSER_USERNAME\", \"password\": \"$SUBUSER_PASSWORD\"}" "${TAGS}")
