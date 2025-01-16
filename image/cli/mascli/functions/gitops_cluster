@@ -646,7 +646,7 @@ function gitops_cluster() {
 
   if [[ "$INSTALL_CLUSTER_LOGGING_OPERATOR" == "true" ]]; then
     echo "- Cluster Logging Operator"
-    sm_verify_secret_exists $SECRET_NAME_AWS_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
+    sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi
 
