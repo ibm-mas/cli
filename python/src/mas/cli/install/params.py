@@ -57,6 +57,7 @@ optionalParams = [
     "mas_app_settings_server_timezone",
     "mas_appws_bindings_jdbc_manage",
     "mas_appws_components",
+    "mas_appws_bindings_health_wsl_flag",
     "mas_domain",
     # SLS
     "sls_namespace",
