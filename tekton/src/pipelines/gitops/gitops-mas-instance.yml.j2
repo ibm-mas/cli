@@ -194,6 +194,11 @@ spec:
     - name: sls_license_icn
       type: string
 
+    # oidc parameters
+    # ------------------------------------------------------------------------- 
+    - name: oidc
+      type: string
+
   tasks:
 
     # 0. Per-instance DB2U Operator
@@ -382,6 +387,8 @@ spec:
           value: $(params.mas_pod_template_yaml)
         - name: mas_wipe_mongo_data
           value: $(params.mas_wipe_mongo_data)
+        - name: oidc
+          value: $(params.oidc)
       taskRef:
         kind: Task
         name: gitops-suite

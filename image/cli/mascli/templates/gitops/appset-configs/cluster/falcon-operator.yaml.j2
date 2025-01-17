@@ -1,0 +1,12 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+falcon_operator:
+  client_id:  "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_FALCON_CLIENT_ID }}>"
+  client_secret: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_FALCON_CLIENT_SECRET }}>"
+{%- if FALCON_OPERATOR_CLOUD_REGION is defined %}
+  cloud_region: "{{ FALCON_OPERATOR_CLOUD_REGION }}"
+{%- endif %}
+{%- if FALCON_OPERATOR_NODE_SENSOR is defined %}
+  node_sensor:
+    {{ FALCON_OPERATOR_NODE_SENSOR | indent }}
+{%- endif %}

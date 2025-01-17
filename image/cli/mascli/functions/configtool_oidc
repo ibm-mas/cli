@@ -36,8 +36,11 @@ So far only trust ui prefix is supported to update. Same as register command.
 ${COLOR_YELLOW}### mas oidc [-h|--help]${TEXT_RESET}
 Show this help message
 
-${COLOR_YELLOW}4. Options for command${TEXT_RESET}
-Cluster Credentials (Required):
+OAuth Admin Credentials (Optional)
+  ${COLOR_YELLOW}OAUTH_ADMIN_USERNAME${TEXT_RESET}.                       If not set, the script will attempt to retrieve this from the {INSTANCE_NAME}-credentials-oauth-admin secret in the mas core namespace
+  ${COLOR_YELLOW}OAUTH_ADMIN_PWD${TEXT_RESET}.                            If not set, the script will attempt to retrieve this from the {INSTANCE_NAME}-credentials-oauth-admin secret in the mas core namespace
+
+Cluster Credentials (Required unless both OAUTH_ADMIN_USERNAME and OAUTH_ADMIN_PWD env vars are set):
   -t, --token ${COLOR_YELLOW}CLUSTER_TOKEN${TEXT_RESET}                     Cluster's token
   -s, --server ${COLOR_YELLOW}CLUSTER_SERVER${TEXT_RESET}                   Cluster server
 
@@ -81,9 +84,12 @@ function configtool_oidc_noninteractive() {
       esac
   done
 
-  # check all args have been set
-  [[ -z "$CLUSTER_TOKEN" ]] && configtool_oidc_help "CLUSTER_TOKEN is not set"
-  [[ -z "$CLUSTER_SERVER" ]] && configtool_oidc_help "CLUSTER_SERVER is not set"
+
+  if [[ -z "$OAUTH_ADMIN_USERNAME" || -z "$OAUTH_ADMIN_PWD" ]]; then
+    [[ -z "$CLUSTER_TOKEN" ]] && configtool_oidc_help "CLUSTER_TOKEN must be set if either OAUTH_ADMIN_USERNAME or OAUTH_ADMIN_PWD env vars are not provided"
+    [[ -z "$CLUSTER_SERVER" ]] && configtool_oidc_help "CLUSTER_SERVER must be set if either OAUTH_ADMIN_USERNAME or OAUTH_ADMIN_PWD env vars are not provided"
+  fi
+  
   [[ -z "$MAS_HOME" ]] && configtool_oidc_help "MAS_HOME is not set"
   [[ -z "$TRUST_UI_PREFIX" ]] && configtool_oidc_help "TRUST_UI_PREFIX is not set"
 }
@@ -145,15 +151,11 @@ function configtool_oidc() {
   export TRUST_UI_PREFIX
   export MAS_INSTANCE_ID
 
-  # login cluster
-  echo Login $CLUSTER_SERVER...
-  oc login --token=$CLUSTER_TOKEN --server=$CLUSTER_SERVER
-
   # instance name and domain
   echo preparing for $MAS_HOME...
   if [[ -z $MAS_HOME ]]; then
     echo "${COLOR_RED}MAS_HOME must be provided and not empty. sample: export MAS_HOME=\"masdev.home.mobfound1.masdev.suite.maximo.com\"${TEXT_RESET}"
-    exit 0
+    exit 1
   fi
   MAS_PARTS=(`echo $MAS_HOME | tr "." " "`)
   DOT="."
@@ -173,7 +175,7 @@ function configtool_oidc() {
   done
   if [[ $i -lt 4 ]]; then
     echo "${COLOR_RED}MAS_HOME is incorrect. sample: \"masdev.home.mobfound1.masdev.suite.maximo.com\"${TEXT_RESET}"
-    exit 0
+    exit 1
   fi
 
   # OAUTH information
@@ -186,10 +188,23 @@ function configtool_oidc() {
   if [[ ! -z $MAS_INSTANCE_ID ]]; then
     INSTANCE_NAME=$MAS_INSTANCE_ID
   fi
-  echo "entering mas-${INSTANCE_NAME}-core project"
-  oc project mas-${INSTANCE_NAME}-core
-  OAUTH_ADMIN_USERNAME=`oc get secret ${INSTANCE_NAME}-credentials-oauth-admin -o jsonpath="{.data['oauth-admin-username']}" | base64 -d`
-  OAUTH_ADMIN_PWD=`oc get secret ${INSTANCE_NAME}-credentials-oauth-admin -o jsonpath="{.data['oauth-admin-password']}" | base64 -d`
+
+
+  # lookup oauth admin credentials from k8s secret if either were not specified as environment vars
+  if [[ -z "$OAUTH_ADMIN_USERNAME" || -z "$OAUTH_ADMIN_PWD" ]]; then
+    echo Login $CLUSTER_SERVER...
+    oc login --token=$CLUSTER_TOKEN --server=$CLUSTER_SERVER
+    echo "Entering mas-${INSTANCE_NAME}-core project"
+    oc project mas-${INSTANCE_NAME}-core
+    if [[ -z "${OAUTH_ADMIN_USERNAME}" ]]; then
+      echo "Lookup ${INSTANCE_NAME}-credentials-oauth-admin / oauth-admin-username"
+      OAUTH_ADMIN_USERNAME=`oc get secret ${INSTANCE_NAME}-credentials-oauth-admin -o jsonpath="{.data['oauth-admin-username']}" | base64 -d`
+    fi
+    if [[ -z "${OAUTH_ADMIN_PWD}" ]]; then
+      echo "Lookup ${INSTANCE_NAME}-credentials-oauth-admin / oauth-admin-password"
+      OAUTH_ADMIN_PWD=`oc get secret ${INSTANCE_NAME}-credentials-oauth-admin -o jsonpath="{.data['oauth-admin-password']}" | base64 -d`
+    fi
+  fi
 
   # unregister
   echo checking if $CLIENT_CONFIGTOOL existed
@@ -197,7 +212,9 @@ function configtool_oidc() {
   echo "status_code: $status_code"
   echo running $OIDC_OP
   if [[ "$status_code" -eq 200 ]] ; then
-    curl -k -w %{http_code} -s -o /dev/null -I --user $OAUTH_ADMIN_USERNAME:$OAUTH_ADMIN_PWD -H 'Content-Type: application/json' -X DELETE $OAUTH_URL_CONFIGTOOL
+    curl --fail -k --user $OAUTH_ADMIN_USERNAME:$OAUTH_ADMIN_PWD \
+      -H 'Content-Type: application/json' \
+      -X DELETE $OAUTH_URL_CONFIGTOOL || exit $?
     echo ""
     if [[ "$OIDC_OP" == "unregister" ]]; then
       echo "$OIDC_OP" Client $CLIENT_CONFIGTOOL.
@@ -210,19 +227,19 @@ function configtool_oidc() {
     fi
   else
     echo Some issue occurred in MAS OIDC server. Please try again later.
-    exit 0
+    exit 1
   fi
 
   # trust ui prefix
   echo TRUST_UI_PREFIX: $TRUST_UI_PREFIX
   if [[ -z $TRUST_UI_PREFIX ]]; then
     echo "${COLOR_RED}TRUST_UI_PREFIX must be provided and not empty. sample: export TRUST_UI_PREFIX=\"http://localhost:3000,http://localhost:3001\"${TEXT_RESET}"
-    exit 0
+    exit 1
   fi
   TRUST_UI_PARTS=(`echo $TRUST_UI_PREFIX | tr "," " "`)
   if [[ ${#TRUST_UI_PARTS[@]} -eq 0 ]]; then
     echo "${COLOR_RED}TRUST_UI_PREFIX is empty, at least define one URL. \"http://localhost:3000\"${TEXT_RESET}"
-    exit 0
+    exit 1
   fi
   CALLBACK="/auth/callback"
   TRUST_UIS="["
@@ -245,7 +262,7 @@ function configtool_oidc() {
   # register or update (the same as register)
   if [[ "$OIDC_OP" == "register" || "$OIDC_OP" == "update" ]]; then
     echo "$OIDC_OP" Client $CLIENT_CONFIGTOOL.
-    curl -k --user $OAUTH_ADMIN_USERNAME:$OAUTH_ADMIN_PWD \
+    curl --fail -k --user $OAUTH_ADMIN_USERNAME:$OAUTH_ADMIN_PWD \
     -H 'Accept: application/json' \
     -H 'Content-type: application/json' \
     -X POST $OAUTH_URL \
@@ -277,6 +294,6 @@ function configtool_oidc() {
 "redirect_uris": $REDIRECT_UIS
 }
 EOF
-)
+) || exit $?
   fi
 }

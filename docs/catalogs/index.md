@@ -11,6 +11,8 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
 ### Known Issues
 - **October 2024** IBM Cloud Pak for Data 4.8, used in catalogs released between June and October 2024 uses a Postgres license key that expired on October 1, 2024.  A fix is available from CLI version 11.2.1 onwards; if you are installing CP4D as a MAS dependency you must use at least version 11.2.1 of the CLI.  If you need to install MAS with CP4D using an older catalog than supported by this version of the CLI please contact IBM support for assistance.
 
+- **November, December 2024 & January 2025** Disconnected environment with Manage Civil, Aviation and ICD cannot be updated by these patch. These patch does not support new installation of Civil, Aviation and ICD for disconnected environment. 
+
 ### Architecture
 - amd64
 - s390x
@@ -36,6 +38,13 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     </tr>
     </thead>
     <tbody>
+    <tr>
+    <td><a href="v9-250109-amd64/">v9-250109-amd64</a>, <a href="v9-250109-s390x/">v9-250109-s390x</a></td>
+    <td>4.14 - 4.16</td>
+    <td>5.0.0</td>
+    <td>latest</td>
+    <td>OCP 4.16 EOS June 27, 2026</td>
+    </tr>
     <tr>
     <td><a href="v9-241205-amd64/">v9-241205-amd64</a>, <a href="v9-241205-s390x/">v9-241205-s390x</a></td>
     <td>4.14 - 4.16</td>
