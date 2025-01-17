@@ -585,6 +585,8 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-tolerate-effect ........................... ${COLOR_MAGENTA}${DB2_TOLERATE_EFFECT}"
   echo_reset_dim "JDBC_ROUTE .................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
   echo_reset_dim "db2-timezone .................................. ${COLOR_MAGENTA}${DB2_TIMEZONE}"
+  echo_reset_dim "replica-db .................................... ${COLOR_MAGENTA}${REPLICA_DB}"
+  echo_reset_dim "mas-operationalmode ........................... ${COLOR_MAGENTA}${MAS_OPERATIONALMODE}"
   reset_colors
 
 
