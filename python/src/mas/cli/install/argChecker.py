@@ -23,5 +23,5 @@ def verifySLSArgs(parser, args):
     if any(v is not None for v in group_1) and any(v is not None for v in group_2):
         parser.error("Cannot combine [--sls-namespace, --license-file] with [--sls-url, --sls-registration-key, --sls-certificates].")
 
-    if not all(v is not None for v in group_2):
-        parser.error("--sls-url, --sls-registration-key and --sls-certificates are required.")
+    if not all(v is not None for v in group_2) and any(v is not None for v in group_2):
+        parser.error("When providing any of --sls-url, --sls-registration-key and --sls-certificates, all three are required.")

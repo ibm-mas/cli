@@ -1026,6 +1026,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     else:
                         self.setParam("sls_action", "install")
                 else:
+                    self.setParam("sls_namespace", "ibm-sls")
                     self.setParam("sls_action", "gencfg")
             elif key == "license_file":
                 if value is not None and value != "":

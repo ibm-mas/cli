@@ -266,7 +266,6 @@ slsArgGroup.add_argument(
     "--sls-namespace",
     required=False,
     help="Set namespace for new SLS install or point to existing instance",
-    default="ibm-sls"
 )
 slsArgGroup.add_argument(
     "--sls-url",
