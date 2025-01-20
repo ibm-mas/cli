@@ -85,7 +85,7 @@ CrowdStrike Falcon Operator (Optional):
       --install-falcon-operator ${COLOR_YELLOW}INSTALL_FALCON_OPERATOR${TEXT_RESET}                             Install the CrowdStrike Falcon Operator
 
 Cluster Logging Operator (Optional):
-      --install-cluster-logging-operator ${COLOR_YELLOW}INSTALL_CLUSTER_LOGGING_OPERATOR${TEXT_RESET}           Install the Cluster Logging Operator
+      --install-cluster-logging-operator ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL${TEXT_RESET}           Install the Cluster Logging Operator
 
 Other Commands:
   -h, --help                              Show this help message
@@ -281,7 +281,7 @@ function gitops_cluster_noninteractive() {
 
       # Cluster Logging Operator
       --install-cluster-logging-operator)
-        export INSTALL_CLUSTER_LOGGING_OPERATOR=true
+        export CLUSTER_LOGGING_OPERATOR_INSTALL=true
         ;;
 
       # Other Commands
@@ -477,7 +477,7 @@ function gitops_cluster() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Logging Operator" "    "
-  echo_reset_dim "Install the Cluster Logging Operator ........... ${COLOR_MAGENTA}${INSTALL_CLUSTER_LOGGING_OPERATOR}"
+  echo_reset_dim "Install the Cluster Logging Operator ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_INSTALL}"
   reset_colors
 
   # Set up secrets
@@ -644,7 +644,7 @@ function gitops_cluster() {
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/falcon-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/falcon-operator.yaml
   fi
 
-  if [[ "$INSTALL_CLUSTER_LOGGING_OPERATOR" == "true" ]]; then
+  if [[ -n "$CLUSTER_LOGGING_OPERATOR_INSTALL" ]]; then
     echo "- Cluster Logging Operator"
     sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
