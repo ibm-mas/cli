@@ -291,6 +291,8 @@
     
       <cds-select-item value="#whats-new">What's New</cds-select-item>
     
+      <cds-select-item value="#known-issues">Known Issues</cds-select-item>
+    
       <cds-select-item value="#manual-installation">Manual Installation</cds-select-item>
     
       <cds-select-item value="#source">Source</cds-select-item>
@@ -316,16 +318,6 @@
   <tr><td>Digest</td><td>sha256:55227c26c1ba527289d9b017ba623ed501857bf6762cf07d46423cac837d4767</tr></tr>
 </table>
 
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p><strong>Maximo Assist</strong>
-Customers using Maximo Assist v8.7 or v8.8 should not update to this catalog and must instead contact IBM Support for guidance regarding the removal of IBM Watson Discovery and upgrading to Maximo Assist v9.0</p>
-<p><strong>Maximo Predict</strong>
-Customers using Maximo Predict v8.7 should first update to v8.8 before updating to this catalog, Cloud Pak for Data v4.8 support is missing from the v8.7 maintenance stream currently</p>
-<p>Customers using Maximo Predict v8.8 will have to retrain their models due to the upgrade to Cloud Pak for Data v4.8 included in this catalog update.  For more information refer to the <a href="https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=ui-upgrade-cloud-pak-data-requires-retraining-some-models-maximo-predict">product documentation</a>.</p>
-<p><strong>Disconnected environment with Manage Civil, Aviation and ICD</strong>
-Cannot be updated by November, December 2024 &amp; January 2025 patch. These patch does not support new installation of Civil, Aviation and ICD for disconnected environment.</p>
-</div>
 <h2 id="whats-new">What's New<a class="headerlink" href="#whats-new" title="Permanent link">¤</a></h2>
 <ul>
 <li><strong>Openshift 4.16 support</strong> Openshift Container Platform 4.16 support has been added. Refer OCP 4.16 release notes <a href="https://docs.openshift.com/container-platform/4.16/release_notes/ocp-4-16-release-notes.html">here</a></li>
@@ -345,6 +337,11 @@ Cannot be updated by November, December 2024 &amp; January 2025 patch. These pat
 <li>IBM SLS v3.0</li>
 </ul>
 </li>
+</ul>
+<h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">¤</a></h2>
+<ul>
+<li>Customers using Maximo Assist v8.7 or v8.8 should not update and must instead contact IBM Support for guidance regarding the removal of IBM Watson Discovery and upgrading to Maximo Assist v9.0</li>
+<li>Disconnected environments with Manage Civil, Aviation and ICD should not be updated at this time due to a known bug.</li>
 </ul>
 <h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link">¤</a></h2>
 <p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v9-241205-amd64.yaml</code></p>
@@ -3450,7 +3447,7 @@ spec:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-01-20 12:44:54.539339+00:00)
+      Built with mkdocs v1.6.1 (2025-01-20 13:35:47.070635+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
