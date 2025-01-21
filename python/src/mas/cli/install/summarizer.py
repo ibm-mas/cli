@@ -265,18 +265,12 @@ class InstallSummarizerMixin():
 
     def slsSummary(self) -> None:
         self.printH2("IBM Suite License Service")
-        if self.getParam("sls_url"):
-            self.printParamSummary("URL", "sls_url")
-            self.printParamSummary("RegistrationKey", "sls_registration_key")
-            self.printSummary("Certificates", self.slsCertsDirLocal)
-            self.printSummary("Connection verified", self.verifySLSConnection)
-        else:
-            self.printParamSummary("Namespace", "sls_namespace")
-            if self.getParam("sls_action") == "install":
-                self.printSummary("Subscription Channel", "3.x")
-                self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
-                if self.slsLicenseFileLocal:
-                    self.printSummary("License File", self.slsLicenseFileLocal)
+        self.printParamSummary("Namespace", "sls_namespace")
+        if self.getParam("sls_action") == "install":
+            self.printSummary("Subscription Channel", "3.x")
+            self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
+            if self.slsLicenseFileLocal:
+                self.printSummary("License File", self.slsLicenseFileLocal)
 
     def cosSummary(self) -> None:
         self.printH2("Cloud Object Storage")

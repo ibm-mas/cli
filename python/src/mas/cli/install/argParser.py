@@ -21,12 +21,6 @@ def isValidFile(parser, arg) -> str:
     else:
         return arg
 
-def isValidDir(parser, arg) -> str:
-    if not path.isdir(arg):
-        parser.error(f"Error: The directory {arg} does not exist")
-    else:
-        return arg
-
 installArgParser = argparse.ArgumentParser(
     prog="mas install",
     description="\n".join([
@@ -266,22 +260,6 @@ slsArgGroup.add_argument(
     "--sls-namespace",
     required=False,
     help="Set namespace for new SLS install or point to existing instance",
-)
-slsArgGroup.add_argument(
-    "--sls-url",
-    required=False,
-    help="Point to the external SLS URL",
-)
-slsArgGroup.add_argument(
-    "--sls-registration-key",
-    required=False,
-    help="Set the SLS RegistrationKey",
-)
-slsArgGroup.add_argument(
-    "--sls-certificates",
-    required=False,
-    help="Path to SLS certificates",
-    type=lambda x: isValidDir(installArgParser, x)
 )
 
 # IBM Data Reporting Operator (DRO)

@@ -126,11 +126,6 @@ class installArgBuilderMixin():
             command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\"{newline}"
         if self.slsLicenseFileLocal:
             command += f"  --license-file \"{self.slsLicenseFileLocal}\"{newline}"
-        # External SLS configuration
-        if self.getParam("sls_url"):
-            command += f"  --sls-url \"{self.getParam('sls_url')}\"{newline}"
-            command += f"  --sls-registration-key \"{self.getParam('sls_registration_key')}\"{newline}"
-            command += f"  --sls-certificates \"{self.slsCertsDirLocal}\"{newline}"
 
         # IBM Data Reporting Operator (DRO)
         # -----------------------------------------------------------------------------
