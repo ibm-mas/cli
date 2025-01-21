@@ -171,7 +171,7 @@ spec:
       type: string
       default: ''
 
-    - name: install_cluster_logging_operator
+    - name: cluster_logging_operator_install
       type: string
       default: 'false'
     - name: cluster_logging_operator_use_syslog_forwarder
@@ -266,8 +266,8 @@ spec:
         - name: falcon_operator_node_sensor
           value: $(params.falcon_operator_node_sensor)
 
-        - name: install_cluster_logging_operator
-          value: $(params.install_cluster_logging_operator)
+        - name: cluster_logging_operator_install
+          value: $(params.cluster_logging_operator_install)
         - name: cluster_logging_operator_use_syslog_forwarder
           value: $(params.cluster_logging_operator_use_syslog_forwarder)
 
