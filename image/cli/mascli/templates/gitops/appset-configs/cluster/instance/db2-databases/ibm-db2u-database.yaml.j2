@@ -66,7 +66,9 @@ cluster_domain: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLUSTER_DOMAIN }}>
 mas_application_id: {{MAS_APP_ID}}
 {%- if MAS_ANNOTATIONS is defined and MAS_ANNOTATIONS !='' %}
   mas_annotations:
-    {{ MAS_ANNOTATIONS | indent(4) }}
+    {% filter indent(width=2) -%}
+    {{MAS_ANNOTATIONS}}
+    {%- endfilter %}
 {%- endif %}
 jdbc_route: {{JDBC_ROUTE}}
 
