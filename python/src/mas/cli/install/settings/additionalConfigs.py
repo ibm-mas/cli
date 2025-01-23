@@ -125,62 +125,63 @@ class AdditionalConfigsMixin():
 
         if self.getParam("mas_manual_cert_mgmt"):
             certsSecret = {
-            "apiVersion": "v1",
-            "kind": "Secret",
-            "type": "Opaque",
-            "metadata": {
-                "name": "pipeline-certificates"
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-certificates"
+                }
             }
-        }
 
-        extensions = ["key", "crt"]
+            extensions = ["key", "crt"]
 
-        apps = {
-            "mas_app_channel_assist": {
-                "dir": self.manualCertsDir + "/assist/",
-                "keyPrefix": "assist."
-            },
-            "mas_app_channel_manage": {
-                "dir": self.manualCertsDir + "/manage/",
-                "keyPrefix": "manage."
-            },
-            "mas_app_channel_iot": {
-                "dir": self.manualCertsDir + "/iot/",
-                "keyPrefix": "iot."
-            },
-            "mas_app_channel_monitor": {
-                "dir": self.manualCertsDir + "/monitor/",
-                "keyPrefix": "monitor."
-            },
-            "mas_app_channel_predict": {
-                "dir": self.manualCertsDir + "/predict/",
-                "keyPrefix": "predict."
-            },
-            "mas_app_channel_visualinspection": {
-                "dir": self.manualCertsDir + "/visualinspection/",
-                "keyPrefix": "visualinspection."
-            },
-            "mas_app_channel_optimizer": {
-                "dir": self.manualCertsDir + "/optimizer/",
-                "keyPrefix": "optimizer."
+            apps = {
+                "mas_app_channel_assist": {
+                    "dir": self.manualCertsDir + "/assist/",
+                    "keyPrefix": "assist."
+                },
+                "mas_app_channel_manage": {
+                    "dir": self.manualCertsDir + "/manage/",
+                    "keyPrefix": "manage."
+                },
+                "mas_app_channel_iot": {
+                    "dir": self.manualCertsDir + "/iot/",
+                    "keyPrefix": "iot."
+                },
+                "mas_app_channel_monitor": {
+                    "dir": self.manualCertsDir + "/monitor/",
+                    "keyPrefix": "monitor."
+                },
+                "mas_app_channel_predict": {
+                    "dir": self.manualCertsDir + "/predict/",
+                    "keyPrefix": "predict."
+                },
+                "mas_app_channel_visualinspection": {
+                    "dir": self.manualCertsDir + "/visualinspection/",
+                    "keyPrefix": "visualinspection."
+                },
+                "mas_app_channel_optimizer": {
+                    "dir": self.manualCertsDir + "/optimizer/",
+                    "keyPrefix": "optimizer."
+                }
             }
-        }
 
-        for file in ["ca.crt", "tls.crt", "tls.key"]:
-            if file not in map(path.basename, glob(f'{self.manualCertsDir}/core/*')):
-                self.fatalError(f'{file} is not present in {self.manualCertsDir}/core/')
-        for ext in extensions:
-            certsSecret = self.addFilesToSecret(certsSecret, self.manualCertsDir + '/core/', ext, "core.")
+            for file in ["ca.crt", "tls.crt", "tls.key"]:
+                if file not in map(path.basename, glob(f'{self.manualCertsDir}/core/*')):
+                    self.fatalError(f'{file} is not present in {self.manualCertsDir}/core/')
+            for ext in extensions:
+                certsSecret = self.addFilesToSecret(certsSecret, self.manualCertsDir + '/core/', ext, "core.")
 
-        for app in apps:
-            if self.getParam(app) != "":
-                for file in ["ca.crt", "tls.crt", "tls.key"]:
-                    if file not in map(path.basename, glob(f'{apps[app]["dir"]}/*')):
-                        self.fatalError(f'{file} is not present in {apps[app]["dir"]}')
-                for ext in extensions:
-                    certsSecret = self.addFilesToSecret(certsSecret, apps[app]["dir"], ext, apps[app]["keyPrefix"])
+            for app in apps:
+                if self.getParam(app) != "":
+                    for file in ["ca.crt", "tls.crt", "tls.key"]:
+                        if file not in map(path.basename, glob(f'{apps[app]["dir"]}/*')):
+                            self.fatalError(f'{file} is not present in {apps[app]["dir"]}')
+                    for ext in extensions:
+                        certsSecret = self.addFilesToSecret(certsSecret, apps[app]["dir"], ext, apps[app]["keyPrefix"])
 
-        self.certsSecret = certsSecret
+            self.certsSecret = certsSecret
+
 
     def slsLicenseFile(self) -> None:
         if self.slsLicenseFileLocal:
@@ -195,7 +196,7 @@ class AdditionalConfigsMixin():
             self.setParam("sls_entitlement_file", f"/workspace/entitlement/{path.basename(self.slsLicenseFileLocal)}")
             self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal, '')
 
-    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '', encoding: str = 'ascii') -> dict:
+    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '') -> dict:
         """
         Add file (or files) to pipeline-additional-configs
         """
@@ -218,6 +219,6 @@ class AdditionalConfigsMixin():
             # Add/update an entry to the secret data
             if "data" not in secretDict:
                 secretDict["data"] = {}
-            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode(encoding)).decode(encoding)
+            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode('ascii')).decode("ascii")
 
         return secretDict

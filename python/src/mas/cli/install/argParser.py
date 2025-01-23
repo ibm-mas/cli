@@ -21,6 +21,7 @@ def isValidFile(parser, arg) -> str:
     else:
         return arg
 
+
 installArgParser = argparse.ArgumentParser(
     prog="mas install",
     description="\n".join([
