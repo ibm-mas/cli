@@ -41,7 +41,7 @@ spec:
       default: ""
     - name: mas_config_dir
       type: string
-    - name: mas_operationalmode
+    - name: mas_annotations
       type: string
       default: ""
 
@@ -986,8 +986,8 @@ spec:
           value: $(params.db2_backup_notify_slack_url)
         - name: replica_db
           value: $(params.replica_db)
-        - name: mas_operationalmode
-          value: $(params.mas_operationalmode)
+        - name: mas_annotations
+          value: $(params.mas_annotations)
         - name: is_replica_task
           value: 'true'
 
