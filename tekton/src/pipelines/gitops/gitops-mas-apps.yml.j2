@@ -988,6 +988,8 @@ spec:
           value: $(params.replica_db)
         - name: mas_operationalmode
           value: $(params.mas_operationalmode)
+        - name: is_replica_task
+          value: 'true'
 
       workspaces:
         - name: configs
@@ -1007,9 +1009,6 @@ spec:
         - input: "$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
-        - input: "$(params.replica_db)"
-          operator: in
-          values: ["true"]
       
     # 4. Install & Configure IoT
     # -------------------------------------------------------------------------

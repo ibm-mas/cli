@@ -731,7 +731,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   # Create new file
   touch ${TEMP_DIR}/newconfig.yaml
   # Render the appropriate template for the config into a new file
-  if [[ (${IS_REPLICA_TASK} == 'false')) || (${IS_REPLICA_TASK} == 'true' && ${DB2_INSTANCE_NAME} =~ "sdb") ]]; then
+  if [[ (${IS_REPLICA_TASK} == 'false') || (${IS_REPLICA_TASK} == 'true' && ${DB2_INSTANCE_NAME} =~ "sdb") ]]; then
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
   fi
   echo_h2 "Rendering new file"
