@@ -63,6 +63,7 @@ IBM DB2U:
       --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
       --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                   Slack URL to notify DB2 backup failures
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                    Flag to know that this is ReplicaDB instance
+      --is-replica-task ${COLOR_YELLOW}IS_REPLICA_TASK${TEXT_RESET}
       --mas-operationalmode ${COLOR_YELLOW}MAS_OPERATIONALMODE${TEXT_RESET}                                   The operational mode setting for the MAS instance
 
 Secrets Manager:
@@ -285,6 +286,9 @@ function gitops_db2u_database_noninteractive() {
       --replica-db)
         export REPLICA_DB=$1 && shift
         ;;
+      --is-replica-task)
+        export IS_REPLICA_TASK=$1 && shift
+        ;;
 
 
       # Automatic GitHub Push
@@ -470,6 +474,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [[ -z $REPLICA_DB ]]; then
     export REPLICA_DB="false"
   fi
+  if [[ -z $IS_REPLICA_TASK ]]; then
+    export IS_REPLICA_TASK="false"
+  fi
   if [[ -z $DB2_INSTANCE_NAME ]]; then
     if [[ $REPLICA_DB == 'true' ]]; then
       export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}-sdb
@@ -586,6 +593,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "JDBC_ROUTE .................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
   echo_reset_dim "db2-timezone .................................. ${COLOR_MAGENTA}${DB2_TIMEZONE}"
   echo_reset_dim "replica-db .................................... ${COLOR_MAGENTA}${REPLICA_DB}"
+  echo_reset_dim "is-replica-task ............................... ${COLOR_MAGENTA}${IS_REPLICA_TASK}"
   echo_reset_dim "mas-operationalmode ........................... ${COLOR_MAGENTA}${MAS_OPERATIONALMODE}"
   reset_colors
 
@@ -723,7 +731,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   # Create new file
   touch ${TEMP_DIR}/newconfig.yaml
   # Render the appropriate template for the config into a new file
-  if [[ ($REPLICA_DB == 'false' && ! (${DB2_INSTANCE_NAME} =~ "sdb")) || ($REPLICA_DB == 'true' && ${DB2_INSTANCE_NAME} =~ "sdb") ]]; then
+  if [[ (${IS_REPLICA_TASK} == 'false')) || (${IS_REPLICA_TASK} == 'true' && ${DB2_INSTANCE_NAME} =~ "sdb") ]]; then
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
   fi
   echo_h2 "Rendering new file"
