@@ -123,7 +123,10 @@ class installArgBuilderMixin():
         # IBM Suite License Service
         # -----------------------------------------------------------------------------
         if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls":
-            command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\"{newline}"
+            if self.getParam("sls_namespace") == f"mas-{self.getParam("mas_instance_id")}-sls":
+                command += f"  --dedicated-sls {newline}"
+            else:
+                command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\"{newline}"
         if self.slsLicenseFileLocal:
             command += f"  --license-file \"{self.slsLicenseFileLocal}\"{newline}"
 

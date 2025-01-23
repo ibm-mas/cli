@@ -255,7 +255,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("Configure AppPoint Licensing")
         self.printDescription(
             [
-                "",
                 "By default the MAS instance will be configured to use a cluster-shared License,",
                 "this provides a shared pool of AppPoints available to all MAS instances on the cluster.",
                 "",
@@ -940,6 +939,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.slsLicenseFileLocal = value
                     self.setParam("sls_action", "install")
+            elif key == "dedicated_sls":
+                if value:
+                    self.setParam("sls_namespace", f"mas-{self.args.mas_instance_id}-sls")
 
             # These settings are used by the CLI rather than passed to the PipelineRun
             elif key == "storage_accessmode":
