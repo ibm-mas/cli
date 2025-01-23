@@ -717,14 +717,22 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   # Remove any existing config with this name
   yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+  echo_h2 "After removing any existing config with this name"
+  cat $TEMP_DIR/configs.yaml
 
+  # Create new file
+  touch ${TEMP_DIR}/newconfig.yaml
   # Render the appropriate template for the config into a new file
   if [[ ($REPLICA_DB == 'false' && ! (${DB2_INSTANCE_NAME} =~ "sdb")) || ($REPLICA_DB == 'true' && ${DB2_INSTANCE_NAME} =~ "sdb") ]]; then
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
   fi
+  echo_h2 "Rendering new file"
+  cat ${TEMP_DIR}/newconfig.yaml
 
   # Merge the two files
   yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
+  echo_h2 "After merging two files"
+  cat $CONFIGS_FILE
 
   # sort the configs by db2_instance_name.
   # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
