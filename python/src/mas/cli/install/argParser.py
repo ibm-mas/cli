@@ -259,7 +259,8 @@ slsArgGroup.add_argument(
 slsArgGroup.add_argument(
     "--sls-namespace",
     required=False,
-    help="Set namespace for new SLS install or point to existing instance",
+    help="Customize the SLS install namespace",
+    default="ibm-sls"
 )
 
 # IBM Data Reporting Operator (DRO)

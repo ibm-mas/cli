@@ -40,10 +40,7 @@ from mas.cli.validators import (
     WorkspaceNameFormatValidator,
     TimeoutFormatValidator,
     StorageClassValidator,
-    OptimizerInstallPlanValidator,
-    SLSConfigValidator,
-    SLSInstanceSelectionValidator,
-    NewNamespaceValidator
+    OptimizerInstallPlanValidator
 )
 
 from mas.devops.ocp import createNamespace, getStorageClasses
@@ -255,24 +252,47 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configSLS(self) -> None:
-        self.printH1("Configure Product License")
+        self.printH1("Configure AppPoint Licensing")
+        self.printDescription(
+            [
+                "",
+                "By default the MAS instance will be configured to use a cluster-shared License,",
+                "this provides a shared pool of AppPoints available to all MAS instances on the cluster.",
+                "",
+            ]
+        )
 
         self.slsLicenseFileLocal = None
+
+        if self.showAdvancedOptions:
+            self.printDescription(
+                [
+                    "Alternatively you may choose to install using a dedicated license only available to this MAS instance.",
+                    "  1. Install MAS with Cluster-Shared License (AppPoints)",
+                    "  2. Install MAS with Dedicated License (AppPoints)",
+                ]
+            )
+            slsMode = self.promptForInt("SLS Mode", default=1)
+
+            if slsMode == 1:
+                self.setParam("sls_namespace", "ibm-sls")
+            elif slsMode == 2:
+                if not self.getParam("sls_namespace"):
+                    self.setParam("sls_namespace", f"mas-{self.getParam('mas_instance_id')}-sls")
+            else:
+                self.fatalError(f"Invalid selection: {slsMode}")
+
+        sls_namespace = "ibm-sls" if not self.getParam("sls_namespace") else self.getParam("sls_namespace")
         existingSLSInstances = listSLSInstances(self.dynamicClient)
         numSLSInstances = len(existingSLSInstances)
 
-        sls_namespace = f"mas-{self.getParam("mas_instance_id")}-sls"
-
-        if self.showAdvancedOptions:
-            if self.yesOrNo("Do you want to set up a shared SLS instance"):
-                sls_namespace = "ibm-sls"
-        
         if numSLSInstances > 0:
             if findSLSByNamespace(sls_namespace, instances=existingSLSInstances):
                 print_formatted_text(HTML(f"<MediumSeaGreen>SLS auto-detected: {sls_namespace}</MediumSeaGreen>"))
                 print()
             if self.yesOrNo("Upload/Replace the license file"):
                 self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
+                self.setParam("sls_action", "install")
             else:
                 self.setParam("sls_action", "gencfg")
         else:
@@ -806,6 +826,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
+        self.slsLicenseFileLocal = None
 
         self.approvals = {
             "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed
@@ -914,6 +935,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam(key, value)
                     if value in ["jms", "snojms"]:
                         self.setParam("mas_app_settings_persistent_volumes_flag", "true")
+            # SLS
+            elif key == "license_file":
+                if value is not None and value != "":
+                    self.slsLicenseFileLocal = value
+                    self.setParam("sls_action", "install")
 
             # These settings are used by the CLI rather than passed to the PipelineRun
             elif key == "storage_accessmode":
@@ -953,22 +979,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("mas_manual_cert_mgmt", False)
                     self.manualCertsDir = None
 
-            # SLS arguments
-            elif key == "sls_namespace":
-                if value is not None and value != "":
-                    self.setParam("sls_namespace", value)
-                    if findSLSByNamespace(value, dynClient= self.dynamicClient):
-                        self.setParam("sls_action", "gencfg")
-                    else:
-                        self.setParam("sls_action", "install")
-                else:
-                    self.setParam("sls_namespace", "ibm-sls")
-                    self.setParam("sls_action", "gencfg")
-            elif key == "license_file":
-                if value is not None and value != "":
-                    self.slsLicenseFileLocal = value
-                    self.setParam("sls_action", "install")
-
             # Fail if there's any arguments we don't know how to handle
             else:
                 print(f"Unknown option: {key} {value}")
@@ -976,6 +986,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+
+        # License file is only optional for existing SLS instance
+        if self.slsLicenseFileLocal is None:
+            if findSLSByNamespace(self.getParam("sls_namespace"), dynClient= self.dynamicClient):
+                self.setParam("sls_action", "gencfg")
+            else:
+                self.fatalError(f"--license-file must be set for new SLS install")
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
         if not self.devMode:
