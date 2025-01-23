@@ -719,7 +719,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
   # Render the appropriate template for the config into a new file
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+  if [[ ($REPLICA_DB == 'false' && ! (${DB2_INSTANCE_NAME} =~ "sdb")) || ($REPLICA_DB == 'true' && ${DB2_INSTANCE_NAME} =~ "sdb") ]]; then
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+  fi
 
   # Merge the two files
   yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
