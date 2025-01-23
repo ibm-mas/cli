@@ -478,7 +478,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     export IS_REPLICA_TASK="false"
   fi
   if [[ -z $DB2_INSTANCE_NAME ]]; then
-    if [[ $REPLICA_DB == 'true' ]]; then
+    if [[ $IS_REPLICA_TASK == 'true' ]]; then
       export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}-sdb
     else
       export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
