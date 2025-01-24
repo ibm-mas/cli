@@ -164,22 +164,28 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
-        self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
+        if self.architecture != "s390x":
+            self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
+
+            applications = {
+                "Core": "mas_core_version",
+                "Manage": "mas_manage_version",
+                "IoT": "mas_iot_version",
+                "Monitor": "mas_monitor_version",
+                "Assist": "mas_assist_version",
+                "Optimizer": "mas_optimizer_version",
+                "Predict": "mas_predict_version",
+                "Inspection": "mas_visualinspection_version",
+            }
+        else:
+            applications = {
+                "Core": "mas_core_version",
+                "Manage": "mas_manage_version",
+            }
 
         self.catalogReleases = []
         self.catalogTable = []
-
-        applications = {
-            "Core": "mas_core_version",
-            "Manage": "mas_manage_version",
-            "IoT": "mas_iot_version",
-            "Monitor": "mas_monitor_version",
-            "Assist": "mas_assist_version",
-            "Optimizer": "mas_optimizer_version",
-            "Predict": "mas_predict_version",
-            "Inspection": "mas_visualinspection_version",
-        }
 
         # Dynamically fetch the channels from the chosen catalog
         # based on mas core
@@ -190,15 +196,26 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         for application, key in applications.items():
             self.catalogTable.append({"": application} | self.chosenCatalog[key])
 
-        summary = [
-            "",
-            "<u>Catalog Details</u>",
-            f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
-            f"Catalog Digest:        {self.catalogDigest}",
-            f"MAS Releases:          {', '.join(self.catalogReleases)}",
-            f"Cloud Pak for Data:    {self.catalogCp4dVersion}",
-            f"MongoDb:               {self.catalogMongoDbVersion}",
-        ]
+        if self.architecture == "s390x":
+            summary = [
+                "",
+                "<u>Catalog Details</u>",
+                f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
+                f"Catalog Digest:        {self.catalogDigest}",
+                f"MAS Releases:          {', '.join(self.catalogReleases)}",
+                f"MongoDb:               {self.catalogMongoDbVersion}",
+            ]
+        else:
+            summary = [
+                "",
+                "<u>Catalog Details</u>",
+                f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
+                f"Catalog Digest:        {self.catalogDigest}",
+                f"MAS Releases:          {', '.join(self.catalogReleases)}",
+                f"Cloud Pak for Data:    {self.catalogCp4dVersion}",
+                f"MongoDb:               {self.catalogMongoDbVersion}",
+            ]
+
         return summary
 
     @logMethodCall
