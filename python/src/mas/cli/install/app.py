@@ -45,7 +45,7 @@ from mas.cli.validators import (
 
 from mas.devops.ocp import createNamespace, getStorageClasses
 from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
-from mas.devops.sls import listSLSInstances, findSLSByNamespace
+from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog
 from mas.devops.tekton import (
     installOpenShiftPipelines,
@@ -261,6 +261,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             ]
         )
 
+        self.slsMode = 1
         self.slsLicenseFileLocal = None
 
         if self.showAdvancedOptions:
@@ -271,32 +272,27 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "  2. Install MAS with Dedicated License (AppPoints)",
                 ]
             )
-            slsMode = self.promptForInt("SLS Mode", default=1)
+            self.slsMode = self.promptForInt("SLS Mode", default=1)
 
-            if slsMode == 1:
+            if self.slsMode == 1:
                 self.setParam("sls_namespace", "ibm-sls")
-            elif slsMode == 2:
-                if not self.getParam("sls_namespace"):
-                    self.setParam("sls_namespace", f"mas-{self.getParam('mas_instance_id')}-sls")
+            elif self.slsMode == 2:
+                pass
+                # We may not have mas_instance_id yet and will need to set sls_namespace within configMAS()
             else:
-                self.fatalError(f"Invalid selection: {slsMode}")
+                self.fatalError(f"Invalid selection: {self.slsMode}")
 
-        sls_namespace = "ibm-sls" if not self.getParam("sls_namespace") else self.getParam("sls_namespace")
-        existingSLSInstances = listSLSInstances(self.dynamicClient)
-        numSLSInstances = len(existingSLSInstances)
-
-        if numSLSInstances > 0:
-            if findSLSByNamespace(sls_namespace, instances=existingSLSInstances):
+        if not (self.slsMode == 2 and not self.getParam("mas_instance_id")):
+            sls_namespace = "ibm-sls" if not self.getParam("sls_namespace") else self.getParam("sls_namespace")
+            if findSLSByNamespace(sls_namespace, dynClient=self.dynamicClient):
                 print_formatted_text(HTML(f"<MediumSeaGreen>SLS auto-detected: {sls_namespace}</MediumSeaGreen>"))
                 print()
-            if self.yesOrNo("Upload/Replace the license file"):
-                self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
-                self.setParam("sls_action", "install")
-            else:
-                self.setParam("sls_action", "gencfg")
-        else:
-            self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
-            self.setParam("sls_action", "install")
+                if not self.yesOrNo("Upload/Replace the license file"):
+                    self.setParam("sls_action", "gencfg")
+                    return
+
+        self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
+        self.setParam("sls_action", "install")
 
     @logMethodCall
     def configDRO(self) -> None:
@@ -424,6 +420,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Must be 3-300 characters long"
         ])
         self.promptForString("Workspace name", "mas_workspace_name", validator=WorkspaceNameFormatValidator())
+
+        if self.slsMode == 2 and not self.getParam("sls_namespace"):
+            self.setParam("sls_namespace", f"mas-{self.getParam('mas_instance_id')}-sls")
 
         self.configOperationMode()
         self.configCATrust()
@@ -991,7 +990,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
-            if findSLSByNamespace(self.getParam("sls_namespace"), dynClient= self.dynamicClient):
+            if findSLSByNamespace(self.getParam("sls_namespace"), dynClient=self.dynamicClient):
                 self.setParam("sls_action", "gencfg")
             else:
                 self.fatalError(f"--license-file must be set for new SLS install")
