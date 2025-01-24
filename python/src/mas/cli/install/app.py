@@ -282,8 +282,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             else:
                 self.fatalError(f"Invalid selection: {self.slsMode}")
 
-        if not (self.slsMode == 2 and not self.getParam("mas_instance_id")):
-            sls_namespace = "ibm-sls" if not self.getParam("sls_namespace") else self.getParam("sls_namespace")
+        if not (self.slsMode == 2 and not self.getParam("sls_namespace")):
+            sls_namespace = "ibm-sls" if self.slsMode == 1 else self.getParam("sls_namespace")
             if findSLSByNamespace(sls_namespace, dynClient=self.dynamicClient):
                 print_formatted_text(HTML(f"<MediumSeaGreen>SLS auto-detected: {sls_namespace}</MediumSeaGreen>"))
                 print()
