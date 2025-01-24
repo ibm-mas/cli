@@ -117,6 +117,9 @@ spec:
     - name: replica_db
       type: string
       default: "false"
+    - name: is_replica_task
+      type: string
+      default: "false"
     - name: mas_annotations
       type: string
       default: ""
@@ -231,6 +234,8 @@ spec:
         value: $(params.db2_backup_notify_slack_url)
       - name: REPLICA_DB
         value: $(params.replica_db)
+      - name: IS_REPLICA_TASK
+        value: $(params.is_replica_task)
       - name: MAS_ANNOTATIONS
         value: $(params.mas_annotations)
     envFrom:
