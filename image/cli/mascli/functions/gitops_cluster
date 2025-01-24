@@ -84,6 +84,9 @@ IBM RBAC (Optional):
 CrowdStrike Falcon Operator (Optional):
       --install-falcon-operator ${COLOR_YELLOW}INSTALL_FALCON_OPERATOR${TEXT_RESET}                             Install the CrowdStrike Falcon Operator
 
+Cluster Logging Operator (Optional):
+      --install-cluster-logging-operator ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL${TEXT_RESET}           Install the Cluster Logging Operator
+
 Other Commands:
   -h, --help                              Show this help message
 EOM
@@ -274,6 +277,11 @@ function gitops_cluster_noninteractive() {
       # CrowdStrike Falcon Operator
       --install-falcon-operator)
         export INSTALL_FALCON_OPERATOR=true
+        ;;
+
+      # Cluster Logging Operator
+      --install-cluster-logging-operator)
+        export CLUSTER_LOGGING_OPERATOR_INSTALL=true
         ;;
 
       # Other Commands
@@ -467,6 +475,12 @@ function gitops_cluster() {
   echo_reset_dim "Install the CrowdStrike Falcon Operator ........... ${COLOR_MAGENTA}${INSTALL_FALCON_OPERATOR}"
   reset_colors
 
+  echo "${TEXT_DIM}"
+  echo_h2 "Cluster Logging Operator" "    "
+  echo_reset_dim "Install the Cluster Logging Operator ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_INSTALL}"
+  echo_reset_dim "Use Syslog Forwarder ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER}"
+  reset_colors
+
   # Set up secrets
   # ---------------------------------------------------------------------------
   echo
@@ -491,6 +505,10 @@ function gitops_cluster() {
   export SECRET_KEY_FALCON_CLIENT_ID=${SECRET_NAME_FALCON_CLIENT}#client_id
   export SECRET_KEY_FALCON_CLIENT_SECRET=${SECRET_NAME_FALCON_CLIENT}#client_secret
 
+  export SECRET_NAME_CLOUDWATCH=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}cloudwatch
+  export SECRET_KEY_CLOUDWATCH_AWS_SECRET_ACCESS_KEY=${SECRET_NAME_CLOUDWATCH}#aws_secret_access_key
+  export SECRET_KEY_CLOUDWATCH_AWS_ACCESS_KEY_ID=${SECRET_NAME_CLOUDWATCH}#aws_access_key_id
+
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
@@ -507,6 +525,12 @@ function gitops_cluster() {
     echo "- Update FALCON_CLIENT_ID and FALCON_CLIENT_SECRET secrets"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_FALCON_CLIENT "{\"client_id\": \"${FALCON_CLIENT_ID}\", \"client_secret\": \"${FALCON_CLIENT_SECRET}\"}" "${TAGS}"
+  fi
+
+  if [ -n "$CLOUDWATCH_AWS_SECRET_ACCESS_KEY" ] && [ -n "$CLOUDWATCH_AWS_ACCESS_KEY_ID" ]; then
+    echo "- Update CLOUDWATCH_AWS_SECRET_ACCESS_KEY and CLOUDWATCH_AWS_ACCESS_KEY_ID secrets"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_CLOUDWATCH "{\"aws_secret_access_key\": \"${CLOUDWATCH_AWS_SECRET_ACCESS_KEY}\", \"aws_access_key_id\": \"${CLOUDWATCH_AWS_ACCESS_KEY_ID}\"}" "${TAGS}"
   fi
 
   if [ -z $GIT_SSH ]; then
@@ -619,6 +643,12 @@ function gitops_cluster() {
     echo "- CrowdStrike Falcon Operator"
     sm_verify_secret_exists $SECRET_NAME_FALCON_CLIENT "client_secret,client_id"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/falcon-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/falcon-operator.yaml
+  fi
+
+  if [[ -n "$CLUSTER_LOGGING_OPERATOR_INSTALL" ]]; then
+    echo "- Cluster Logging Operator"
+    sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi
 
   # Commit and push to github target repo
