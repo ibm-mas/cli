@@ -255,8 +255,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("Configure AppPoint Licensing")
         self.printDescription(
             [
-                "By default the MAS instance will be configured to use a cluster-shared License,",
-                "this provides a shared pool of AppPoints available to all MAS instances on the cluster.",
+                "By default the MAS instance will be configured to use a cluster-shared License, this provides a shared pool of AppPoints available to all MAS instances on the cluster.",
                 "",
             ]
         )
@@ -274,12 +273,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             )
             self.slsMode = self.promptForInt("SLS Mode", default=1)
 
-            if self.slsMode == 1:
-                self.setParam("sls_namespace", "ibm-sls")
-            elif self.slsMode == 2:
-                pass
-                # We may not have mas_instance_id yet and will need to set sls_namespace within configMAS()
-            else:
+            if self.slsMode not in [1, 2]:
                 self.fatalError(f"Invalid selection: {self.slsMode}")
 
         if not (self.slsMode == 2 and not self.getParam("sls_namespace")):
