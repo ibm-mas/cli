@@ -549,7 +549,7 @@ function gitops_cluster() {
     sm_update_secret $SECRET_NAME_CLOUDWATCH "{\"aws_secret_access_key\": \"${CLOUDWATCH_AWS_SECRET_ACCESS_KEY}\", \"aws_access_key_id\": \"${CLOUDWATCH_AWS_ACCESS_KEY_ID}\"}" "${TAGS}"
   fi
 
-  if [ -n "$INSTANA_KEY" ] then
+  if [ -n "$INSTANA_KEY" ]; then
     echo "- Update INSTANA_KEY secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_INSTANA "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
