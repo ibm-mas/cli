@@ -186,7 +186,7 @@ function provision_aws_cluster() {
   if [[ $# -gt 0 ]]; then
     provision_aws_noninteractive "$@"
   else
-    provision_aws_interactive "$@"
+    provision_aws_interactive
   fi
 
   ansible-playbook ibm.mas_devops.ocp_aws_provision || exit 1
