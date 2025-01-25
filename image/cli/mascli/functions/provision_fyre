@@ -23,6 +23,10 @@ Cluster Configuration (Required):
   -d, --description ${COLOR_YELLOW}FYRE_DESCRIPTION${TEXT_RESET}      Description of the OCP cluster
   -l, --location ${COLOR_YELLOW}FYRE_SITE${TEXT_RESET}                FYRE site where cluster will be provisioned (default is "svl")
 
+Cluster Configuration (Optional):
+  -f, --fips-enable ${COLOR_YELLOW}OCP_FIPS_ENABLED${TEXT_RESET}      Enable FIPS settings in this Fyre cluster
+  -i, --ipv6-enable ${COLOR_YELLOW}ENABLE_IPV6${TEXT_RESET}           Enable IPV6 settings in this Fyre cluster. When 'true', site will be automatically changed to 'rtp'.
+
 Fyre Quick Burn Worker Node Configuration (Optional, only takes effect when quota-type is set to "quickburn"):
       --cluster-size ${COLOR_YELLOW}FYRE_CLUSTER_SIZE${TEXT_RESET}    When Fyre Quick Burn, defines the size category ("medium" or "large")
 
@@ -74,7 +78,7 @@ function provision_fyre_noninteractive() {
         FYRE_QUOTA_TYPE=$1 && shift
         ;;
 
-      # CLuster Definition
+      # Cluster Definition
       -c|--cluster-name)
         CLUSTER_NAME=$1 && shift
         ;;
@@ -89,6 +93,14 @@ function provision_fyre_noninteractive() {
         ;;
       -l|--location)
         FYRE_SITE=$1 && shift
+        ;;
+      
+      # Cluster Definition - optional
+      -f|--fips-enable)
+        OCP_FIPS_ENABLED=$1 && shift
+        ;;
+      -i|--ipv6-enable)
+        ENABLE_IPV6=$1 && shift
         ;;
 
       # Worker configuration
@@ -145,6 +157,11 @@ function provision_fyre_noninteractive() {
 
   if [[ -z "$FYRE_SITE" ]]; then
     FYRE_SITE=svl
+  fi
+
+  # IPV6 supported only in rtp site
+  if [[ "$ENABLE_IPV6" == "true" ]]; then
+    FYRE_SITE=rtp
   fi
 
   [[ "$FYRE_SITE" != "svl" && "$FYRE_QUOTA_TYPE" == "quick_burn" ]] && provision_fyre_help "Quickburn is only available in svl"
@@ -225,6 +242,8 @@ function provision_fyre_interactive() {
     prompt_for_number "Worker Node CPU (max 16)" FYRE_WORKER_CPU "8"
     prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY "32"
     prompt_for_input "Worker Additional Disk Sizes (GB, comma-seperated list)" FYRE_WORKER_ADDITIONAL_DISKS
+    prompt_for_confirm "Enable FIPS? " OCP_FIPS_ENABLED
+    prompt_for_confirm "Enable IPV6? " ENABLE_IPV6
   else
     FYRE_QUOTA_TYPE="quick_burn"
     if [[ "$FYRE_SITE" != "svl" ]]; then
@@ -292,6 +311,8 @@ function provision_fyre() {
   export FYRE_WORKER_CPU
   export FYRE_WORKER_MEMORY
   export FYRE_WORKER_ADDITIONAL_DISKS
+  export OCP_FIPS_ENABLED
+  export ENABLE_IPV6
 
   export FYRE_CLUSTER_SIZE
 
@@ -326,6 +347,8 @@ function provision_fyre() {
     echo_reset_dim "Worker Node CPU ........... ${COLOR_MAGENTA}${FYRE_WORKER_CPU:-Default}"
     echo_reset_dim "Worker Node Memory ........ ${COLOR_MAGENTA}${FYRE_WORKER_MEMORY:-Default}"
     echo_reset_dim "Worker Node Disks ......... ${COLOR_MAGENTA}${FYRE_WORKER_ADDITIONAL_DISKS:-None}"
+    echo_reset_dim "Enable FIPS? .............. ${COLOR_MAGENTA}${OCP_FIPS_ENABLED:-None}"
+    echo_reset_dim "Enable IPV6? .............. ${COLOR_MAGENTA}${ENABLE_IPV6:-None}"
   fi
 
   reset_colors
