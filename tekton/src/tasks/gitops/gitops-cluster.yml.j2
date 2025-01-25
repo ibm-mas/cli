@@ -110,6 +110,13 @@ spec:
       type: string
       default: ''
 
+    - name: cluster_logging_operator_install
+      type: string
+      default: 'false'
+    - name: cluster_logging_operator_use_syslog_forwarder
+      type: string
+      default: 'true'
+
   stepTemplate:
     name: gitops-cluster
     env:
@@ -194,6 +201,11 @@ spec:
         value: $(params.falcon_operator_cloud_region)
       - name: FALCON_OPERATOR_NODE_SENSOR
         value: $(params.falcon_operator_node_sensor)
+
+      - name: CLUSTER_LOGGING_OPERATOR_INSTALL
+        value: $(params.cluster_logging_operator_install)
+      - name: CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER
+        value: $(params.cluster_logging_operator_use_syslog_forwarder)
 
     envFrom:
       - configMapRef:
