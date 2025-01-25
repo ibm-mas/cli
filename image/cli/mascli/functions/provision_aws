@@ -182,7 +182,9 @@ function provision_aws_interactive() {
 # The following function is a work in progress and is not ready for testing
 function provision_aws_cluster() {
   # Take the first parameter off (it will be provision-aws-sno)
+  echo "Before shift the value is: $#"
   shift
+  echo "$#"
   if [[ $# -gt 0 ]]; then
     provision_aws_noninteractive "$@"
   else
