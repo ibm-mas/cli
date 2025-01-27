@@ -20,6 +20,7 @@ Cluster Configuration (Required):
 IPI Configuration (Required):
   -r, --region-name ${COLOR_YELLOW}IPI_REGION${TEXT_RESET}                  Region of the cluster to be provisioned (e.g. us-east-1, us-east-2)
   -d, --domain-name ${COLOR_YELLOW}IPI_BASE_DOMAIN${TEXT_RESET}             Base Domain name (e.g. buyermas4aws.com)
+  -f, --secret-file ${COLOR_YELLOW}IPI_PULL_SECRET_FILE${TEXT_RESET}        Location of the file containing your Redhat OpenShift pull secret
 
 Single Node OpenShift (Optional)
   -s, --single-node ${COLOR_YELLOW}SNO_MODE${TEXT_RESET}                    SNO_MODE when 'true' indicates cluster must be configured with in a single node mode (e.g. 1 control plane replica, 1 mongodb replica, etc)
@@ -59,6 +60,9 @@ function provision_aws_noninteractive() {
         ;;
       -s|--single-node)
         export SNO_MODE=$1 && shift
+        ;;
+      -f|--secret-file)
+        export IPI_PULL_SECRET_FILE=$1 && shift
         ;;
       --no-confirm)
         export NO_CONFIRM=true
