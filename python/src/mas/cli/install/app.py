@@ -195,7 +195,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Generate catalogTable
         for application, key in applications.items():
-            self.catalogTable.append({"": application} | self.chosenCatalog[key])
+            # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
+            tempChosenCatalog = self.chosenCatalog[key].copy()
+            if '9.1.x-feature' not in tempChosenCatalog:
+                tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
+
+            self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
         if self.architecture == "s390x":
             summary = [
@@ -255,8 +260,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printDescription(catalogSummary)
             self.printDescription([
                 "",
-                "Multiple releases of Maximo Application Suite are available, each is supported under IBM's standard 3+1+3 support model.",
-                "Choose the release of IBM Maximo Application Suite that you want to use for this installation from the table below:",
+                "Two types of release are available:",
+                " - GA releases of Maximo Application Suite are supported under IBM's standard 3+1+3 support lifecycle policy.",
+                " - 'Feature' releases allow early access to new features for evaluation in non-production environments and are only supported through to the next GA release.",
                 ""
             ])
 
