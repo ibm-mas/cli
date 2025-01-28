@@ -191,8 +191,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             # {"9.1-feature": "9.1.x-feature"}
             self.catalogReleases.update({channel.replace('.x', ''): channel})
 
-        self.catalogReleases = sorted(self.catalogReleases, reverse=True)
-
         # Generate catalogTable
         for application, key in applications.items():
             # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
@@ -208,7 +206,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "<u>Catalog Details</u>",
                 f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
                 f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(sorted(self.catalogReleases.keys(), reverse=True))}",
+                f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
                 f"MongoDb:               {self.catalogMongoDbVersion}",
             ]
         else:
@@ -217,7 +215,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "<u>Catalog Details</u>",
                 f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
                 f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(sorted(self.catalogReleases.keys(), reverse=True))}",
+                f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
                 f"Cloud Pak for Data:    {self.catalogCp4dVersion}",
                 f"MongoDb:               {self.catalogMongoDbVersion}",
             ]
@@ -268,7 +266,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
 
-            releaseCompleter = WordCompleter(sorted(self.catalogReleases.keys(), reverse=True))
+            releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
             releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
 
             self.setParam("mas_channel", self.catalogReleases[releaseSelection])
