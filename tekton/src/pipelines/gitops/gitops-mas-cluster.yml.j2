@@ -190,6 +190,9 @@ spec:
     - name: instana_agent_operator_env
       type: string
       default: ''
+    - name: instana_agent_operator_jks_storage_class
+      type: string
+      default: ''
 
   tasks:
     - name: gitops-cluster
@@ -292,6 +295,8 @@ spec:
           value: $(params.instana_agent_operator_endpoint_port)
         - name: instana_agent_operator_env
           value: $(params.instana_agent_operator_env)
+        - name: instana_agent_operator_env
+          value: $(params.instana_agent_operator_jks_storage_class)
 
       taskRef:
         kind: Task
