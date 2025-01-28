@@ -160,7 +160,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         return f" - {monthName} 20{year} Update\n   <Orange><u>https://ibm-mas.github.io/cli/catalogs/{name}</u></Orange>"
 
     def formatRelease(self, release: str) -> str:
-        return f"{release} ... {self.catalogReleases[release]['core']}"
+        return f"{release} ... {self.catalogReleases[release]['core'].replace('.x', '')}"
 
     @logMethodCall
     def processCatalogChoice(self) -> list:
@@ -186,12 +186,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             }
 
         self.catalogReleases = []
+        self.catalogReleasesMapping = {}
         self.catalogTable = []
 
         # Dynamically fetch the channels from the chosen catalog
         # based on mas core
         for channel in self.chosenCatalog["mas_core_version"]:
-            self.catalogReleases.append(channel)
+            self.catalogReleases.append(channel.replace('.x', ''))
+            self.catalogReleasesMapping.update({channel.replace('.x', ''): channel})
 
         # Generate catalogTable
         for application, key in applications.items():
@@ -271,7 +273,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             releaseCompleter = WordCompleter(self.catalogReleases)
             releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
 
-            self.setParam("mas_channel", releaseSelection)
+            self.setParam("mas_channel", self.catalogReleasesMapping[releaseSelection])
 
     @logMethodCall
     def configSLS(self) -> None:
