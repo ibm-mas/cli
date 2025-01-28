@@ -563,6 +563,15 @@ manageArgGroup.add_argument(
 )
 
 manageArgGroup.add_argument(
+    "--manage-health-wsl",
+    dest="mas_appws_bindings_health_wsl_flag",
+    required=False,
+    help="Set boolean value indicating if Watson Studio must be bound to Manage. It is expected a system level WatsonStudioCfg applied in the cluster.",
+    action="store_const",
+    const="true"
+)
+
+manageArgGroup.add_argument(
     "--manage-customization-archive-name",
     dest="mas_app_settings_customization_archive_name",
     required=False,
