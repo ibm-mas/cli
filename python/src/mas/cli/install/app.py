@@ -159,9 +159,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         year = date[:2]
         return f" - {monthName} 20{year} Update\n   <Orange><u>https://ibm-mas.github.io/cli/catalogs/{name}</u></Orange>"
 
-    def formatRelease(self, release: str) -> str:
-        return f"{release} ... {self.catalogReleases[release]['core'].replace('.x', '')}"
-
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
@@ -185,15 +182,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Manage": "mas_manage_version",
             }
 
-        self.catalogReleases = []
-        self.catalogReleasesMapping = {}
+        self.catalogReleases = {}
         self.catalogTable = []
 
         # Dynamically fetch the channels from the chosen catalog
         # based on mas core
         for channel in self.chosenCatalog["mas_core_version"]:
-            self.catalogReleases.append(channel.replace('.x', ''))
-            self.catalogReleasesMapping.update({channel.replace('.x', ''): channel})
+            # {"9.1-feature": "9.1.x-feature"}
+            self.catalogReleases.update({channel.replace('.x', ''): channel})
 
         # Generate catalogTable
         for application, key in applications.items():
@@ -210,7 +206,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "<u>Catalog Details</u>",
                 f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
                 f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(self.catalogReleases)}",
+                f"MAS Releases:          {', '.join(self.catalogReleases.keys())}",
                 f"MongoDb:               {self.catalogMongoDbVersion}",
             ]
         else:
@@ -219,7 +215,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "<u>Catalog Details</u>",
                 f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
                 f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(self.catalogReleases)}",
+                f"MAS Releases:          {', '.join(self.catalogReleases.keys())}",
                 f"Cloud Pak for Data:    {self.catalogCp4dVersion}",
                 f"MongoDb:               {self.catalogMongoDbVersion}",
             ]
@@ -270,10 +266,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
 
-            releaseCompleter = WordCompleter(self.catalogReleases)
+            releaseCompleter = WordCompleter(self.catalogReleases.keys())
             releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
 
-            self.setParam("mas_channel", self.catalogReleasesMapping[releaseSelection])
+            self.setParam("mas_channel", self.catalogReleases[releaseSelection])
 
     @logMethodCall
     def configSLS(self) -> None:
