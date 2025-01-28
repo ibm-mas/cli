@@ -1,0 +1,33 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+selenium_grid:
+  namespace: selenium
+  version: 0.36.1
+  values:
+    hub:
+      imageTag: 4.23.0-20240727
+    chromeNode:
+      imageTag: 4.23.0-20240727
+      imageName: node-chromium
+      resources:
+        requests:
+          memory: "1Gi"
+          cpu: "1"
+        limits:
+          memory: "2Gi"
+          cpu: "1"
+    firefoxNode:
+      enabled: false
+    edgeNode:
+      enabled: false
+    autoscaling:
+      enabled: true
+      scalingType: job
+      scaledOptions:
+        maxReplicaCount: 999
+      scaledJobOptions:
+        scalingStrategy:
+          strategy: default
+    ingress:
+      hostname: selenium-grid.local
+      path: /selenium

@@ -201,6 +201,17 @@ function gitops_deprovision_cluster() {
   export SECRET_NAME_DRO=${ACCOUNT_ID}/${CLUSTER_ID}/dro
   echo "Delete $SECRET_NAME_DRO from Secrets Manager"
   sm_delete_secret $SECRET_NAME_DRO
+  
+  # Created for custom service accounts
+  CLUSTER_SECRETS=($(sm_list_cluster_secrets ${ACCOUNT_ID} ${CLUSTER_ID}))
+  PATTERN='^[^\/]+\/[^\/]+\/custom-sa\/[^\/]+$'
+  for SECRET_NAME in "${CLUSTER_SECRETS[@]}"; do
+    if [[ "$SECRET_NAME" =~ $PATTERN ]]; then
+      export SECRET_NAME_CUSTOM_SA=${SECRET_NAME}
+      echo "Delete $SECRET_NAME_CUSTOM_SA from Secrets Manager"
+      sm_delete_secret $SECRET_NAME_CUSTOM_SA
+    fi
+  done
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -220,6 +231,14 @@ function gitops_deprovision_cluster() {
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Deleting application configuration files"
+
+  echo "- Delete Selenium Grid"
+  rm -rf ${GITOPS_CLUSTER_DIR}/selenium-grid.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
 
   echo "- Delete Cluster Promotion"
   rm -rf ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
@@ -263,6 +282,14 @@ function gitops_deprovision_cluster() {
 
   echo "- Delete Nvidia GPU Operator"
   rm -rf ${GITOPS_CLUSTER_DIR}/nvidia-gpu-operator.yaml
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
+  echo "- Delete Custom Cluster Service Accounts"
+  rm -rf ${GITOPS_CLUSTER_DIR}/custom-sa.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"

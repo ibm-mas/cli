@@ -2,18 +2,8 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-{% if wait_for_install == true %}
-  name: mas-upgrade-after-install
-{% else %}
   name: mas-upgrade
-{% endif %}
 spec:
-{% if wait_for_install == true %}
-  workspaces:
-    # Shared storage to hold mustgather output for tasks
-    - name: shared-mustgather
-{% endif %}
-
   params:
     # 1. Common Parameters
     # -------------------------------------------------------------------------
@@ -31,73 +21,28 @@ spec:
       type: string
       default: ""
 
-{% if wait_for_install == true %}
-    - name: launchfvt_upgrade
-      type: string
-      default: "" # Considered False when not informed
-      description: "Set this to any value other than 'true' to disable launch of the pre and post upgrade tests pipeline (running before and after upgrade process happens)"
-    - name: pipelinerun_name
-      type: string
-      description: name of the installation pipelinerun that must be tracked til completion
-{% endif %}
-
     {{ lookup('template', params_src_dir ~ '/install-appchannels.yml.j2') | indent(4) }}
 
   tasks:
-{% if wait_for_install == true %}
-    # 0. Wait for the install pipeline to complete
+    # 1. Wait for approval & verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
-    - name: wait-for-install
+    - name: waitfor-approval
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-devops-wait-for-tekton
-      params:
-        - name: type
-          value: pipelinerun
-        - name: name
-          value: $(params.pipelinerun_name)
-        - name: delay
-          value: 600  # seconds between checking the status of the pipelinerun
-        - name: max_retries
-          value: 50  # attempts before giving up
-        - name: ignore_failure
-          value: "False"  # fails and exit once the first failure is detected
-{% endif %}
-
-    # 1. Verify health of the cluster before we change anything
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
-        'name': 'pre-upgrade-check',
-        'devops_suite_name': 'pre-upgrade-check'
-      }) | indent(4) }}
-{% if wait_for_install == true %}
-      runAfter:
-        - wait-for-install
-{% endif %}
-
-{% if wait_for_install == true %}
-    # 2. Pre-Upgrade pipeline call - test scripts to run before upgrade
-    # -------------------------------------------------------------------------
-    - name: launchfvt-upgrade-pre
-      timeout: "0"
+        name: mas-devops-wait-for-configmap-v2
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-uprade-pre"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-upgrade-pre
-      when:
-        - input: $(params.launchfvt_upgrade)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - pre-upgrade-check
-{% endif %}
+        - name: configmap_name
+          value: approval-upgrade
 
-    # 3. Suite Upgrade (Phase 1)
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={'name': 'pre-upgrade-check', 'devops_suite_name': 'pre-upgrade-check'}) | indent(4) }}
+      runAfter:
+        - waitfor-approval
+
+
+    # 2. Suite Upgrade (Phase 1)
     # -------------------------------------------------------------------------
     - name: core-upgrade
       timeout: "0"
@@ -105,11 +50,7 @@ spec:
         kind: Task
         name: mas-devops-suite-upgrade
       runAfter:
-{% if wait_for_install == true %}
-        - launchfvt-upgrade-pre
-{% else %}
         - pre-upgrade-check
-{% endif %}
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -138,9 +79,9 @@ spec:
         - core-upgrade
 
 
-    # 4. IoT Upgrade (Phase 2)
+    # 3. IoT Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    - name: iot-upgrade
+    - name: app-iot-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -152,7 +93,7 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: iot-upgrade
+          value: app-iot-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -160,9 +101,9 @@ spec:
         - core-verify
 
 
-    # 5. Manage Upgrade (Phase 2)
+    # 4. Manage Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    - name: manage-upgrade
+    - name: app-manage-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -174,7 +115,7 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: manage-upgrade
+          value: app-manage-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -182,9 +123,9 @@ spec:
         - core-verify
 
 
-    # 6. Visual Inspection Upgrade (Phase 2)
+    # 5. Visual Inspection Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    - name: visualinspection-upgrade
+    - name: app-visualinspection-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -196,7 +137,7 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: visualinspection-upgrade
+          value: app-visualinspection-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -204,9 +145,9 @@ spec:
         - core-verify
 
 
-    # 7. Assist Upgrade (Phase 2)
+    # 6. Assist Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    - name: assist-upgrade
+    - name: app-assist-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -218,7 +159,7 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: assist-upgrade
+          value: app-assist-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -226,9 +167,9 @@ spec:
         - core-verify
 
 
-    # 8. Optimizer Upgrade (Phase 2)
+    # 7. Optimizer Upgrade (Phase 2)
     # -------------------------------------------------------------------------
-    - name: optimizer-upgrade
+    - name: app-optimizer-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -240,7 +181,7 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: optimizer-upgrade
+          value: app-optimizer-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
@@ -248,9 +189,9 @@ spec:
         - core-verify
 
 
-    # 9. Monitor Upgrade (Phase 3 - after IoT)
+    # 8. Monitor Upgrade (Phase 3 - after IoT)
     # -------------------------------------------------------------------------
-    - name: monitor-upgrade
+    - name: app-monitor-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -262,17 +203,17 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: monitor-upgrade
+          value: app-monitor-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - iot-upgrade
+        - app-iot-upgrade
 
 
-    # 10. Predict Upgrade (Phase 3 - after Manage)
+    # 9. Predict Upgrade (Phase 3 - after Manage)
     # -------------------------------------------------------------------------
-    - name: predict-upgrade
+    - name: app-predict-upgrade
       timeout: "0"
       params:
         - name: mas_instance_id
@@ -284,14 +225,15 @@ spec:
         - name: skip_compatibility_check
           value: $(params.skip_compatibility_check)
         - name: devops_suite_name
-          value: predict-upgrade
+          value: app-predict-upgrade
       taskRef:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - manage-upgrade
+        - app-manage-upgrade
 
-    # 11. Verify health of the cluster after upgrade
+
+    # 10. Verify health of the cluster after upgrade
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-upgrade-verify',
@@ -299,47 +241,27 @@ spec:
       }) | indent(4) }}
       runAfter:
         # Phase 2 apps that don't have a phase 3 app following it
-        - assist-upgrade
-        - optimizer-upgrade
-        - visualinspection-upgrade
+        - app-assist-upgrade
+        - app-optimizer-upgrade
+        - app-visualinspection-upgrade
         # Phase 3 apps
-        - predict-upgrade
-        - monitor-upgrade
+        - app-predict-upgrade
+        - app-monitor-upgrade
 
-{% if wait_for_install == true %}
-    # 12. Post-Upgrade pipeline call - test scripts to run before upgrade
+  finally:
+    # Update synchronization configmap
     # -------------------------------------------------------------------------
-    - name: launchfvt-upgrade-post
+    - name: sync-upgrade
       timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-upgrade-post"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-upgrade-post
-      when:
-        - input: $(params.launchfvt_upgrade)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - post-upgrade-verify
-{% endif %}
-
-{% if wait_for_install == true %}
-  # In FVT only this is the time to take a must-gather and finalize the result
-  # ---------------------------------------------------------------------------
-  finally:
-    # Collect must-gather
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/common/must-gather.yml.j2') | indent(4) }}
-
-    # Finalize the record in the FVT database
-    # -------------------------------------------------------------------------
-    - name: finalize
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-fvt-finalize
-{% endif %}
+        - name: configmap_name
+          value: sync-upgrade
+        - name: configmap_value
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)

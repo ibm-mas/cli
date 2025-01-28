@@ -25,6 +25,18 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable synchronization with a running MAS install pipeline"
+    - name: sync_with_update
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running MAS update pipeline"
+    - name: sync_with_upgrade
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running MAS upgrade pipeline"
+    - name: sync_with_uninstall
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running MAS uninstall pipeline"
 
     # What to launch
     # -------------------------------------------------------------------------
@@ -112,20 +124,6 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable dynamic scanning pipeline for VisualInspection after waitfor-installation completes"
-    
-    # Customize Final Wait
-    # -------------------------------------------------------------------------
-    # When skipping FVT for applications that are installed it will be necessary
-    # to customize the delay & retries, which default to values that assume
-    # every application installed will have it's FVT executed.
-    - name: waitforinstall_delay
-      type: string
-      default: "300"
-      description: "Set this to customize the time that the FVT Launcher pipeline will wait for the install to complete"
-    - name: waitforinstall_retries
-      type: string
-      default: "25"
-      description: "Set this to customize the time that the FVT Launcher pipeline will wait for the install to complete"
 
     # Finalize
     # -------------------------------------------------------------------------
@@ -177,15 +175,11 @@ spec:
           value: $(context.taskRun.namespace)
         - name: configmap_name
           value: approval-suite-verify
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_target_value
           value: pending
         # Escape route
         - name: escape_configmap_name
           value: sync-install
-        - name: escape_configmap_key
-          value: INSTALL_STATUS
         # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
@@ -242,8 +236,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-suite-verify
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_value
           value: approved
       when:
@@ -269,15 +261,11 @@ spec:
           value: $(context.taskRun.namespace)
         - name: configmap_name
           value: approval-app-cfg-assist
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_target_value
           value: pending
         # Escape route
         - name: escape_configmap_name
           value: sync-install
-        - name: escape_configmap_key
-          value: INSTALL_STATUS
         # 40 retries at 5 minute intervals = 3 hours
         - name: delay
           value: "300"
@@ -294,7 +282,6 @@ spec:
           values: ["true", "True"]
       runAfter:
         - approval-suite-verify
-        - approval-manage
 
     - name: launchfvt-assist
       timeout: "0"
@@ -323,8 +310,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-app-cfg-assist
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_value
           value: approved
       when:
@@ -349,15 +334,11 @@ spec:
           value: $(context.taskRun.namespace)
         - name: configmap_name
           value: approval-app-cfg-iot
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_target_value
           value: pending
         # Escape route
         - name: escape_configmap_name
           value: sync-install
-        - name: escape_configmap_key
-          value: INSTALL_STATUS
         # 40 retries at 5 minute intervals = 3 hours
         - name: delay
           value: "300"
@@ -403,8 +384,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-app-cfg-iot
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_value
           value: approved
       when:
@@ -429,15 +408,11 @@ spec:
           value: $(context.taskRun.namespace)
         - name: configmap_name
           value: approval-app-cfg-manage
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_target_value
           value: pending
         # Escape route
         - name: escape_configmap_name
           value: sync-install
-        - name: escape_configmap_key
-          value: INSTALL_STATUS
         # 100 retries at 5 minute intervals = 8 hours
         - name: delay
           value: "300"
@@ -534,8 +509,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-app-cfg-manage
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_value
           value: approved
       when:
@@ -545,7 +518,6 @@ spec:
       runAfter:
         - launchfvt-manage
         - launchfvt-manage-is
-
 
     # 6. Application FVT - Mobile
     # -------------------------------------------------------------------------
@@ -587,15 +559,11 @@ spec:
           value: $(context.taskRun.namespace)
         - name: configmap_name
           value: approval-app-cfg-monitor
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_target_value
           value: pending
         # Escape route
         - name: escape_configmap_name
           value: sync-install
-        - name: escape_configmap_key
-          value: INSTALL_STATUS
         # 25 retries at 5 minute intervals = 4 hours
         - name: delay
           value: "300"
@@ -644,8 +612,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-app-cfg-monitor
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_value
           value: approved
       when:
@@ -670,15 +636,11 @@ spec:
           value: $(context.taskRun.namespace)
         - name: configmap_name
           value: approval-app-cfg-optimizer
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_target_value
           value: pending
         # Escape route
         - name: escape_configmap_name
           value: sync-install
-        - name: escape_configmap_key
-          value: INSTALL_STATUS
         # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
@@ -723,8 +685,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-app-cfg-optimizer
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_value
           value: approved
       when:
@@ -750,15 +710,11 @@ spec:
           value: $(context.taskRun.namespace)
         - name: configmap_name
           value: approval-app-cfg-predict
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_target_value
           value: pending
         # Escape route
         - name: escape_configmap_name
           value: sync-install
-        - name: escape_configmap_key
-          value: INSTALL_STATUS
         # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
@@ -808,8 +764,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-app-cfg-predict
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_value
           value: approved
       when:
@@ -834,15 +788,11 @@ spec:
           value: $(context.taskRun.namespace)
         - name: configmap_name
           value: approval-app-cfg-visualinspection
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_target_value
           value: pending
         # Escape route
         - name: escape_configmap_name
           value: sync-install
-        - name: escape_configmap_key
-          value: INSTALL_STATUS
         # 25 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
@@ -887,8 +837,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: approval-app-cfg-visualinspection
-        - name: configmap_key
-          value: FVT_STATUS
         - name: configmap_value
           value: approved
       when:
@@ -955,7 +903,8 @@ spec:
       runAfter:
         - waitfor-suite-verify
 
-    # Last Sync Point
+
+    # Install Sync Point
     # -------------------------------------------------------------------------
     # Guarantee installation pipeline ran till the end;
     # In other words, guarantee sync-install pipeline has install_status key filled
@@ -963,32 +912,21 @@ spec:
     # Note: this task will start once all the FVTs are approved and will start at the
     # same time install's post-verify starts. It means its timeout must be higher than
     # post-verify + sync-install, which will set the flag needed to finalize this fvt-launcher
-    # - Escape Route: INSTALL_STATUS != "" (i.e. FAILED)
+    # - Escape Route: STATUS != "" (i.e. FAILED)
     # - Ignore Failures: True
     # -------------------------------------------------------------------------
-    - name: waitfor-installation
+    - name: waitfor-install
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-devops-wait-for-configmap
+        name: mas-devops-wait-for-configmap-v2
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: namespace
-          value: $(context.taskRun.namespace)
         - name: configmap_name
           value: sync-install
-        - name: configmap_key
-          value: INSTALL_STATUS
         - name: configmap_target_value
           value: Completed,Succeeded,Failed
-        # Default to 25 retries at 5 minute intervals = 2 hours
-        - name: delay
-          value: $(params.waitforinstall_delay)
-        - name: max_retries
-          value: $(params.waitforinstall_retries)
-        - name: ignore_failure
-          value: "False"
       when:
         - input: $(params.sync_with_install)
           operator: in
@@ -1002,6 +940,147 @@ spec:
         - launchivt-manage
         - launchfvt-dynamicscan
 
+
+    # Day 2 activity FVT
+    # -------------------------------------------------------------------------
+    # The order should be:
+    # - update
+    # - upgrade
+    # - uninstall
+    # It should be possible to run ANY combination of these FVT scenarios in a single FVT launcher,
+    # with the FVT launcher controlling the config map that the update, upgrade, and uninstall
+    # pipelines wait for approval on before starting.
+    # Once we have this ability we can optimize our FVT, by chaining scenarios ... install, then
+    # update, then upgrade, then uninstall is more efficient use of resources than 3 seperate
+    # environments for each day 2 action.
+
+
+    # Update Sync Point
+    # -------------------------------------------------------------------------
+    - name: start-update
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-start-update
+      when:
+        - input: $(params.sync_with_update)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-install
+
+    - name: waitfor-update
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap-v2
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_namespace
+          value: mas-pipelines
+        - name: configmap_name
+          value: sync-update
+        - name: configmap_target_value
+          value: Completed,Succeeded,Failed
+      when:
+        - input: $(params.sync_with_update)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - start-update
+
+
+    # Upgrade Sync Point
+    # -------------------------------------------------------------------------
+    - name: start-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-start-upgrade
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      when:
+        - input: $(params.sync_with_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-update
+
+    - name: waitfor-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap-v2
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-upgrade
+        - name: configmap_target_value
+          value: Completed,Succeeded,Failed
+      when:
+        - input: $(params.sync_with_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - start-upgrade
+
+    # Uninstall Sync Point
+    # -------------------------------------------------------------------------
+    # Before we uninstall we want to capture the state of the environment
+    - name: finalizer
+      timeout: "0"
+      params:
+        - name: set_finished
+          value: "False"
+      taskRef:
+        kind: Task
+        name: mas-fvt-finalize
+      runAfter:
+        - waitfor-upgrade
+
+    - name: start-uninstall
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-start-uninstall
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      when:
+        - input: $(params.sync_with_uninstall)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - finalizer
+
+    - name: waitfor-uninstall
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap-v2
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-uninstall
+        - name: configmap_target_value
+          value: Completed,Succeeded,Failed
+      when:
+        - input: $(params.sync_with_uninstall)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - start-uninstall
+
+  # Finally
+  # ---------------------------------------------------------------------------
   finally:
     - name: launchfvt-finally
       timeout: "0"

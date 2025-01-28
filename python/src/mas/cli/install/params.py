@@ -57,6 +57,7 @@ optionalParams = [
     "mas_app_settings_server_timezone",
     "mas_appws_bindings_jdbc_manage",
     "mas_appws_components",
+    "mas_appws_bindings_health_wsl_flag",
     "mas_domain",
     # SLS
     "sls_namespace",
@@ -67,6 +68,7 @@ optionalParams = [
     "cis_apikey",
     "cis_crn",
     "cis_subdomain",
+    "mas_cluster_issuer",
     # DRO
     "dro_namespace",
     # MongoDb
@@ -113,7 +115,13 @@ optionalParams = [
     "eventstreams_instance_location",
     # COS
     "cos_type",
-    "ibmcos_resourcegroup",
+    "cos_resourcegroup",
+    "cos_apikey",
+    "cos_instance_name",
+    "cos_bucket_name",
+    # Attachments
+    "mas_manage_attachments_provider",
+    "mas_manage_attachment_configuration_mode",
     # ECK
     "eck_action",
     "eck_enable_logstash",

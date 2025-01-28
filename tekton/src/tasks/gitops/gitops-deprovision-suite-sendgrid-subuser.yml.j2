@@ -1,0 +1,117 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-deprovision-suite-sendgrid-subuser
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: icn
+      type: string
+    - name: cis_mas_domain
+      type: string
+    - name: cis_crn
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+  stepTemplate:
+    name: gitops-deprovision-suite-sendgrid-subuser
+    env:
+      - name: CLUSTER_ID
+        value: $(params.cluster_name)
+      - name: ACCOUNT_ID
+        value: $(params.account)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      - name: ICN
+        value: $(params.icn)
+      - name: CIS_MAS_DOMAIN
+        value: $(params.cis_mas_domain)
+      - name: CIS_CRN
+        value: $(params.cis_crn)
+
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+
+        # Expected secure-properties (sourced from IBM Cloud SM):
+        # -------------------
+        # SM_AWS_ACCESS_KEY_ID
+        # SM_AWS_SECRET_ACCESS_KEY
+        # SENDGRID_API_KEY
+
+
+        # Teardown of smtp config in gitops-envs is handled by gitops-deprovision-suite-smtp-config task
+        # All we need to do here is make sure we clean up SendGrid, CIS and the sendgrid_subuser secret in AWS SM (if the subuser was deleted)
+        source /mascli/functions/gitops_utils
+        export AVP_TYPE="aws"
+        sm_login || exit 1
+
+        # Fetch CIS API Key from AWS SM.
+        # This is suitable for use with CIS instances used by MAS instances in the cluster we are targetting
+        # This secret is only required if the instance is configured with CIS
+        if [[ -n "${CIS_CRN}" ]]; then
+          SECRET_NAME_CIS="${ACCOUNT_ID}/${CLUSTER_ID}/cis"
+          echo "Getting ${SECRET_NAME_CIS} from AWS SM"
+          export CIS_APIKEY="$(sm_get_secret_value "${SECRET_NAME_CIS}" "ibm_apikey")" # pragma: allowlist secret
+          if [[ -z "${CIS_APIKEY}" || "${CIS_APIKEY}" == "null" ]]; then
+            echo "Required AWS SM secret "${SECRET_NAME_CIS}" not found or invalid"
+            exit 1
+          fi
+        fi
+
+        mkdir -p /tmp/gitops-deprovision-suite-sendgrid-subuser
+        OUTPUT_FILE="/tmp/gitops-deprovision-suite-sendgrid-subuser/mas-saas-sendgrid-subuser-output.yaml"
+        rm "${OUTPUT_FILE}"
+
+        mas-saas-sendgrid-subuser \
+          --customer-id "${ICN}" \
+          --mas-account-id "${ACCOUNT_ID}" \
+          --mas-cluster-id "${CLUSTER_ID}" \
+          --mas-instance-id "${MAS_INSTANCE_ID}" \
+          --cis-crn "${CIS_CRN}" \
+          --cis-mas-domain "${CIS_MAS_DOMAIN}" \
+          --output-file "${OUTPUT_FILE}" \
+          --action delete
+        
+        rc="$?"
+
+        if [[ "${rc}" != "0" ]]; then
+          echo "mas-saas-sendgrid-subuser failed with rc ${rc}"
+          exit ${rc}
+        fi
+
+        # Pull values out of the outfile and set them as environment vars
+        if [[ -f "${OUTPUT_FILE}" ]]; then
+          echo "Reading outputs from ${OUTPUT_FILE}"
+          export DELETED_SUBUSER="$(yq '.deleted_subuser // ""' "${OUTPUT_FILE}")"
+        fi
+
+        if [[ "${DELETED_SUBUSER}" == "true" ]]; then
+          SECRET_NAME_SENDGRID="ibm-customer/${ICN}/sendgrid_subuser"
+          echo "Subuser was deleted, cleaning up ${SECRET_NAME_SENDGRID} secret"
+          sm_delete_secret "${SECRET_NAME_SENDGRID}"
+        fi
+
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-deprovision-suite-sendgrid-subuser
+      imagePullPolicy: IfNotPresent
+      image: docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/mas/saas-task:latest
+  workspaces:
+    - name: configs

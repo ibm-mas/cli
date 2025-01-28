@@ -32,7 +32,7 @@ class ManageSettingsMixin():
                     "",
                     "IBM Maximo Location Services for Esri License Terms",
                     "For information about your IBM Maximo Location Services for Esri License visit: ",
-                    " <u>https://ibm.biz/MAXArcGIS90-License</u>",
+                    " - <Orange><u>https://ibm.biz/MAXArcGIS90-License</u></Orange>",
                     "To continue with the installation, you must accept these additional license terms"
                 ])
 
@@ -79,7 +79,7 @@ class ManageSettingsMixin():
             if self.yesOrNo(" - Asset Configuration Manager"):
                 self.params["mas_appws_components"] += ",acm=latest"
             if self.yesOrNo(" - Aviation"):
-                self.params["mas_appws_components"] += ",acm=latest"
+                self.params["mas_appws_components"] += ",aviation=latest"
             if self.yesOrNo(" - Civil Infrastructure"):
                 self.params["mas_appws_components"] += ",civil=latest"
             if self.yesOrNo(" - Envizi"):
@@ -117,7 +117,7 @@ class ManageSettingsMixin():
             if ",icd=" in self.params["mas_appws_components"]:
                 self.printH2("Maximo IT License Terms")
                 self.printDescription([
-                    "For information about your Maximo IT License, see https://ibm.biz/MAXIT81-License",
+                    "For information about your Maximo IT License, see <Orange><u>https://ibm.biz/MAXIT81-License</u></Orange>",
                     "To continue with the installation, you must accept these additional license terms"
                 ])
 
@@ -217,16 +217,16 @@ class ManageSettingsMixin():
         self.printDescription([
             "Define the additional languages to be configured in Maximo Manage. provide a comma-separated list of supported languages codes, for example: 'JA,DE,AR'",
             "A complete list of available language codes is available online:",
-            "    <u>https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=deploy-language-support</u>"
+            "    <Orange><u>https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=deploy-language-support</u></Orange>"
         ])
 
         self.promptForString("Secondary languages", "mas_app_settings_secondary_langs")
 
     def manageSettingsCP4D(self) -> None:
-        if self.getParam("mas_app_channel_manage") in ["8.7.x", "9.0.x"] and self.showAdvancedOptionsshowAdvancedOptions:
+        if self.getParam("mas_app_channel_manage") in ["8.7.x", "9.0.x"] and self.showAdvancedOptions:
             self.printDescription([
                 "Integration with Cognos Analytics provides additional support for reporting features in Maximo Manage, for more information refer to the documentation online: ",
-                "    <u>https://ibm.biz/BdMuxs</u>"
+                " - <Orange><u>https://ibm.biz/BdMuxs</u></Orange>"
             ])
             self.yesOrNo("Enable integration with Cognos Analytics", "cpd_install_cognos")
             self.yesOrNo("Enable integration with Watson Studio Local", "mas_appws_bindings_health_flag")

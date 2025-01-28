@@ -1,0 +1,34 @@
+# -----------------------------------------------------------------------------
+# PHASE 5
+# Some UI tests for Civil using cypress
+# -----------------------------------------------------------------------------
+
+# Cypress
+# -----------------------------------------------------------------------------
+# 
+- name: fvt-ibm-mas-manage-opmap
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: civil-ui-operationalmap
+  runAfter:
+    - fvt-manage-setup-is
+
+- name: fvt-ibm-mas-manage-defectdetection
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: civil-ui-defectdetection
+  runAfter:
+    - fvt-civil-api-defectdetection
+
+- name: fvt-ibm-mas-manage-defects
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: civil-ui-defects
+  runAfter:
+    - fvt-civil-api-defectdetection

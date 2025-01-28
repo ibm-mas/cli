@@ -34,7 +34,7 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli mas mirror-images
 
 You will be prompted to set the target registry for the image mirroring and to [select the version of IBM Maximo Operator Catalog to mirror](../catalogs/index.md) and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.
 
-This command can also be ran non-interactive, for full details refer to the [mirror-images](../commands/mirror-images.md) command documentation.
+This command can also be ran non-interactive, for full details refer to the [image mirroring](../guides/image-mirroring.md) guide.
 
 ```bash
 mas mirror-images -m direct -d /mnt/local-mirror \

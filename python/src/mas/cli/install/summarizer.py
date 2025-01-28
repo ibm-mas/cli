@@ -11,7 +11,6 @@
 import logging
 import yaml
 from prompt_toolkit import print_formatted_text, HTML
-from mas.devops.mas import isAirgapInstall
 from mas.devops.ocp import getConsoleURL
 
 logger = logging.getLogger(__name__)
@@ -46,7 +45,7 @@ class InstallSummarizerMixin():
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
-        if isAirgapInstall(self.dynamicClient):
+        if self.isAirgap():
             self.printSummary("Install Mode", "Disconnected Install")
         else:
             self.printSummary("Install Mode", "Connected Install")
@@ -181,7 +180,7 @@ class InstallSummarizerMixin():
             print_formatted_text(HTML("  <SkyBlue>+ Components</SkyBlue>"))
             self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
             self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Civil Infrastructure", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
+            self.printSummary("  + Civil Infrastructure", "Enabled" if "civil=" in self.getParam("mas_appws_components") else "Disabled")
             self.printSummary("  + Envizi", "Enabled" if "envizi=" in self.getParam("mas_appws_components") else "Disabled")
             self.printSummary("  + Health", "Enabled" if "health=" in self.getParam("mas_appws_components") else "Disabled")
             self.printSummary("  + HSE", "Enabled" if "hse=" in self.getParam("mas_appws_components") else "Disabled")
@@ -274,8 +273,8 @@ class InstallSummarizerMixin():
         self.printH2("Cloud Object Storage")
         if self.getParam("cos_type") != "":
             self.printParamSummary("Type", "cos_type")
-            if self.getParam("ibmcos_resourcegroup") != "":
-                self.printParamSummary("Resource Group", "ibmcos_resourcegroup")
+            if self.getParam("cos_resourcegroup") != "":
+                self.printParamSummary("Resource Group", "cos_resourcegroup")
         else:
             self.printSummary("Type", "None")
 

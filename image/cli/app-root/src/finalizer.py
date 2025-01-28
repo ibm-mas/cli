@@ -10,6 +10,7 @@ from subprocess import PIPE, Popen, TimeoutExpired
 from mobilever import MobVer
 import threading
 from jira import JIRA
+import re
 
 
 class RunCmdResult(object):
@@ -256,6 +257,20 @@ if __name__ == "__main__":
     else:
         print("Unable to lookup OCP version from ClusterVersion.config.openshift.io/v1 resource status")
 
+    # Get MAS Catalog Version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
+        cr = crs.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
+        if cr.status and cr.spec.displayName:
+            catalogVersion = cr.to_dict()['spec']['displayName']
+            version = re.search(r'\((.*?)\)', catalogVersion).group(1)
+            setObject["target.catalogVersion"] = version
+        else:
+            print("Unable to determine IBM Catalog Version: spec.displayName unavailable")
+    except Exception as e:
+        print(f"Unable to determine Catalog installed version: {e}")
+
     # Lookup version and build information for MAS Operators
     # -------------------------------------------------------------------------
     knownProductIds = {
@@ -350,9 +365,11 @@ if __name__ == "__main__":
                         if "mas.ibm.com/buildId" in deploymentDict["metadata"]["labels"]:
                             productBuildId = deploymentDict["metadata"]["labels"]["mas.ibm.com/buildId"]
                             productBuildNumber = deploymentDict["metadata"]["labels"]["mas.ibm.com/buildNumber"]
-
                             setObject[f"products.{productId}.buildId"] = productBuildId
                             setObject[f"products.{productId}.buildNumber"] = productBuildNumber
+                        if "mas.ibm.com/commitId" in deploymentDict["metadata"]["labels"]:
+                            productCommitId = deploymentDict["metadata"]["labels"]["mas.ibm.com/commitId"]
+                            setObject[f"products.{productId}.commitId"] = productCommitId
                     else:
                         print(f"Unable to determine {deploymentName} build information: deployment is none")
                 except Exception as e:

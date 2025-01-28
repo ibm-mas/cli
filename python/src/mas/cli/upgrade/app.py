@@ -22,7 +22,7 @@ from ..validators import InstanceIDValidator
 from .argParser import upgradeArgParser
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, verifyMasInstance
+from mas.devops.mas import listMasInstances, getMasChannel
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 
 logger = logging.getLogger(__name__)
@@ -37,6 +37,7 @@ class UpgradeApp(BaseApp):
         instanceId = args.mas_instance_id
         self.noConfirm = args.no_confirm
         self.skipPreCheck = args.skip_pre_check
+        self.licenseAccepted = args.accept_license
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -67,14 +68,35 @@ class UpgradeApp(BaseApp):
             suiteCompleter = WordCompleter(suiteOptions)
             print()
             instanceId = prompt(HTML('<Yellow>Enter MAS instance ID: </Yellow>'), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False)
+
+        currentChannel = getMasChannel(self.dynamicClient, instanceId)
+        if currentChannel is not None:
+            if currentChannel not in self.upgrade_path:
+                self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")
+            nextChannel = self.upgrade_path[currentChannel]
         else:
-            # Non-interactive mode
-            if not verifyMasInstance(self.dynamicClient, instanceId):
-                print_formatted_text(HTML(f"<Red>Error: MAS instance {instanceId} not found on this cluster</Red>"))
-                sys.exit(1)
+            # We still allow the upgrade to proceed even though we can't detect the MAS instance.  The upgrade may be being
+            # queued up to run after install for instance
+            currentChannel = "Unknown"
+            nextChannel = "Unknown"
+
+        if not self.licenseAccepted:
+            self.printH1("License Terms")
+            self.printDescription([
+                "To continue with the upgrade, you must accept the license terms:",
+                self.licenses[nextChannel]
+            ])
+
+            if self.noConfirm:
+                self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")
+            else:
+                if not self.yesOrNo("Do you accept the license terms"):
+                    exit(1)
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {nextChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
 
         if not self.noConfirm:

@@ -24,8 +24,8 @@ IBM Maximo Application Suite:
 COS Provider:
       --cos-action ${COLOR_YELLOW}COS_ACTION${TEXT_RESET}                                                  provision or deprovision
       --cos-type ${COLOR_YELLOW}COS_TYPE${TEXT_RESET}                                                      COS type, only ibm supported
-      --ibmcloud-resourcegroup ${COLOR_YELLOW}IBMCLOUD_RESOURCEGROUP${TEXT_RESET}                          IBM Cloud resource group to set
-      --ibmcloud-apikey ${COLOR_YELLOW}IBMCLOUD_APIKEY${TEXT_RESET}                                        IBM Cloud APIkey
+      --cos-resourcegroup ${COLOR_YELLOW}COS_RESOURCEGROUP${TEXT_RESET}                                    IBM Cloud resource group to set
+      --cos-apikey ${COLOR_YELLOW}COS_APIKEY${TEXT_RESET}                                                  IBM Cloud APIkey
 
 Other Commands:
       -h, --help                                                                                           Show this help message
@@ -77,11 +77,11 @@ function gitops_cos_noninteractive() {
       --cos-type)
         export COS_TYPE=$1 && shift
         ;;
-      --ibmcloud-resourcegroup)
-        export IBMCLOUD_RESOURCEGROUP=$1 && shift
+      --cos-resourcegroup)
+        export COS_RESOURCEGROUP=$1 && shift
         ;;
-      --ibmcloud-apikey)
-        export IBMCLOUD_APIKEY=$1 && shift
+      --cos-apikey)
+        export COS_APIKEY=$1 && shift
         ;;
 
       # Other Commands
@@ -101,7 +101,7 @@ function gitops_cos_noninteractive() {
   [[ -z "$CLUSTER_ID" ]] && gitops_cos_help "CLUSTER_ID is not set"
   [[ -z "$COS_TYPE" ]] && gitops_cos_help "COS_TYPE is not set"
   if [[ "${COS_TYPE}" == "ibm" ]]; then
-    [[ -z "$IBMCLOUD_APIKEY" ]] && gitops_cos_help "IBMCLOUD_APIKEY is not set"
+    [[ -z "$COS_APIKEY" ]] && gitops_cos_help "COS_APIKEY is not set"
   fi
   [[ -z "$ACCOUNT_ID" ]] && gitops_cos_help "ACCOUNT_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cos_help "MAS_INSTANCE_ID is not set"
@@ -150,8 +150,8 @@ function gitops_cos() {
   echo_reset_dim "COS action  ........................... ${COLOR_MAGENTA}${COS_ACTION}"
   echo_reset_dim "COS type  ............................. ${COLOR_MAGENTA}${COS_TYPE}"
   if [[ "${COS_TYPE}" == "ibm" ]]; then
-    echo_reset_dim "IBMCLOUD Resource Group  .............. ${COLOR_MAGENTA}${IBMCLOUD_RESOURCEGROUP}"
-    echo_reset_dim "IBMCLOUD ApiKey ....................... ${COLOR_MAGENTA}${IBMCLOUD_APIKEY:0:8}<snip>"
+    echo_reset_dim "COS Resource Group  ................... ${COLOR_MAGENTA}${COS_RESOURCEGROUP}"
+    echo_reset_dim "COS ApiKey ............................ ${COLOR_MAGENTA}${COS_APIKEY:0:8}<snip>"
   fi
   
   echo "${TEXT_DIM}"
@@ -229,6 +229,11 @@ function gitops_cos() {
       sensitive = false
     }
 
+    output "s3db2" {
+      value     = module.s3db2
+      sensitive = false
+    }
+
     module "s3c" {
       name_prefix = local.name_prefix
       source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.1"
@@ -256,6 +261,15 @@ function gitops_cos() {
       force_bucket_destroy    = true
     }
 
+    module "s3db2" {
+      name_prefix = local.name_prefix
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3.git//module?ref=1.0.1"
+      s3_bucket               = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3db2"
+      s3_encryption           = true
+      s3_encryption_algorithm = "AES256"
+      force_bucket_destroy    = true
+    }
+
     output "s3c_access_point" {
       value     = module.s3c_access_point
       sensitive = false
@@ -268,6 +282,11 @@ function gitops_cos() {
 
     output "s3l_access_point" {
       value     = module.s3l_access_point
+      sensitive = false
+    }
+
+    output "s3db2_access_point" {
+      value     = module.s3db2_access_point
       sensitive = false
     }
 
@@ -299,7 +318,7 @@ function gitops_cos() {
       mas_cluster_id                 = "$CLUSTER_ID"
       mas_instance_id                = "$MAS_INSTANCE_ID"
       secret_recovery_days           = 0
-      secret_suffix                  = "manage_attachments/cosawssecret"
+      secret_suffix                  = "manage_attachments/cos-attachments"
       manage_secret_format           = true
     }
 
@@ -315,7 +334,23 @@ function gitops_cos() {
       mas_cluster_id                 = "$CLUSTER_ID"
       mas_instance_id                = "$MAS_INSTANCE_ID"
       secret_recovery_days           = 0
-      secret_suffix                  = "manage_logging/s3secretkey"
+      secret_suffix                  = "manage_logging/cos-logging"
+      manage_secret_format           = true
+    }
+
+    module "s3db2_access_point" {
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
+      name_prefix = local.name_prefix
+      s3_access_point_bucket_id      = module.s3db2.s3_bucket_id
+      s3_bucket_arn                  = module.s3db2.s3_bucket_arn
+      s3_bucket_region               = module.s3db2.s3_bucket_region
+      s3_access_point_name           = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3db2-access"
+      s3_access_point_policy_actions = [ "s3:DeleteObject", "s3:GetObject", "s3:GetObjectAcl", "s3:PutObject", "s3:PutObjectAcl", "s3:ListBucket" ]
+      s3_access_point_user           = "${CLUSTER_ID}-${MAS_INSTANCE_ID}-s3db2-user"
+      mas_cluster_id                 = "$CLUSTER_ID"
+      mas_instance_id                = "$MAS_INSTANCE_ID"
+      secret_recovery_days           = 0
+      secret_suffix                  = "db2_backup"
       manage_secret_format           = true
     }
 EOF

@@ -165,6 +165,14 @@ spec:
       type: string
       default: ""
 
+    - name: icn
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: use_sendgrid
+      type: string
+      default: ""
+
   stepTemplate:
     name: gitops-mas-fvt-preparer
     env:
@@ -290,6 +298,13 @@ spec:
       - name: LDAP_CERT_ALIAS
         value: ldap
 
+      - name: ICN
+        value: $(params.icn)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: USE_SENDGRID
+        value: $(params.use_sendgrid)
+
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -381,6 +396,52 @@ spec:
           check_argo_app_healthy "${SUITE_APP_NAME}" 30
           check_argo_app_healthy "${WORKSPACE_APP}" 30
         fi
+
+
+        # If use_sendgrid: true, disable the subuser so we do not accidentally send out real emails when running tests against the instance
+        # NOTE: Many of the FVT suites will fail unless the suite is configured to use Mailhog for SMTP, so we only plan to have smtp.use_sendgrid: true set for fvtsaastran
+        #       We only run the catalogapi FVT suite there at present, and that suite does not depend on Mailhog.
+        # NOTE: we deliberately perform this step *after* checking application health, since disabling the sendgrid subuser will cause the validation step in the
+        #       SMTP entity manager to fail (unfortunately, there is no way to configure a SendGrid subuser to silently drop emails without the client call reporting failure)
+        # NOTE: although we don't check the health of the SMTP app explicitly, this is not necessary since the WORKSPACE_APP (which we do check above) sync will be blocked until the SMTP
+        #       app becomes healthy (if SMTP is configured)
+        if [[ "${USE_SENDGRID}" == "true" ]]; then
+
+          echo "Disabling sendgrid subuser to prevent the suite from sending out emails during test execution"
+
+          export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
+          sm_login || exit 1
+
+          # lookup ibm-customer/<ICN>/sendgrid_subuser#username from AWS SM
+          SECRET_NAME_SENDGRID="ibm-customer/${ICN}/sendgrid_subuser"
+          echo "Getting ${SECRET_NAME_SENDGRID} from AWS SM"
+          export SENDGRID_SUBUSER_USERNAME="$(sm_get_secret_value "${SECRET_NAME_SENDGRID}" "username")" # pragma: allowlist secret
+          echo "Subuser username: ${SENDGRID_SUBUSER_USERNAME}"
+          if [[ -z "${SENDGRID_SUBUSER_USERNAME}" || "${SENDGRID_SUBUSER_USERNAME}" == "null" ]]; then
+            echo "Required AWS SM secret "${SECRET_NAME_SENDGRID}" not found or invalid"
+            exit 1
+          fi
+
+          curl -X PATCH \
+            https://api.sendgrid.com/v3/subusers/${SENDGRID_SUBUSER_USERNAME} \
+            --fail \
+            -H "Authorization: Bearer ${SENDGRID_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{"disabled": true}'
+          CURL_RC=$?
+          if [ $CURL_RC -ne 0 ]; then
+            echo "Failed to disable SendGrid subuser, aborting test"
+            echo "WARNING: until the SendGrid subuser is disabled, the suite will be capable of sending emails for real!"
+            echo "         do not attempt to run any tests against the environment until the subuser is successfully disabled!"
+            exit 1
+          fi
+          echo "SendGrid subuser ${SENDGRID_SUBUSER_USERNAME} disabled successfully!"
+          echo "It is now safe to run tests against the environment; the suite is no longer capable of sending emails for real."
+
+        fi
+
+        # NOTE: verified that subuser teardown (including deletion of its API keys, authenticated domains and DNS records) still works as expected against a disabled subuser
+        #       so there is no need to re-enable the subuser before attempting to deprovision the MAS instance.
       
         if [[ "$LAUNCHER_ID" == "apps" ]]; then
           # The following order is defined by the sync wave order in https://github.com/ibm-mas/gitops/tree/main/root-applications/ibm-mas-instance-root/templates
@@ -454,8 +515,8 @@ spec:
 
         fi
 
-        echo "Sleeping for 60 seconds to give postsync job a chance to run before creating sync window"
-        sleep 60
+        echo "Sleeping for 180 seconds to give postsync job a chance to run before creating sync window"
+        sleep 180
 
         echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration 4h --applications *"  
         argocd proj windows add mas --kind deny --schedule "* * * * *" --duration 4h --applications "*.$MAS_INSTANCE_ID"

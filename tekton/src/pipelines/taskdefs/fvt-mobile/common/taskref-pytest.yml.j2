@@ -1,6 +1,7 @@
 taskRef:
   kind: Task
   name: mas-fvt-mobile-pytest
+timeout: "0"
 workspaces:
   - name: configs
     workspace: shared-configs
@@ -11,3 +12,5 @@ when:
   - input: "$(params.fvt_digest_mobile_pytest)"
     operator: notin
     values: [""]
+runAfter:
+    - fvt-mobile-setup-pytest

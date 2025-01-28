@@ -102,9 +102,13 @@ class installArgBuilderMixin():
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
         if self.getParam('--dns-provider') == "cis":
-            command += f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}"
-            command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}"
-            command += f" --cis-crn \"{self.getParam('cis_crn')}\"{newline}"
+            command += f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}\""
+            command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
+            command += f" --cis-crn \"{self.getParam('cis_crn')}\""
+            command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
+
+        if self.getParam('--mas-cluster-issuer') != "":
+            command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
 
         if self.getParam('mas_enable_walkme') == "false":
             command += f"  --disable-walkme{newline}"
@@ -212,6 +216,15 @@ class installArgBuilderMixin():
             if self.getParam('mas_app_settings_server_timezone') != "":
                 command += f"  --manage-server-timezone \"{self.getParam('mas_app_settings_server_timezone')}\"{newline}"
 
+            if self.getParam('mas_manage_attachments_provider') != "":
+                command += f"  --manage-attachments-provider \"{self.getParam('mas_manage_attachments_provider')}\"{newline}"
+
+            if self.getParam('mas_manage_attachment_configuration_mode') != "":
+                command += f"  --manage-attachments-mode \"{self.getParam('mas_manage_attachment_configuration_mode')}\"{newline}"
+
+            if self.getParam('mas_appws_bindings_health_wsl_flag') == "true":
+                command += f"  --manage-health-wsl{newline}"
+
         # IBM Cloud Pak for Data
         # -----------------------------------------------------------------------------
         if self.getParam('cpd_product_version') != "":
@@ -226,10 +239,10 @@ class installArgBuilderMixin():
 
         # IBM Db2 Universal Operator
         # -----------------------------------------------------------------------------
-        if self.getParam('db2_system') == "install" or self.getParam('db2_manage') == "install":
-            if self.getParam('db2_system') == "install":
+        if self.getParam('db2_action_system') == "install" or self.getParam('db2_action_manage') == "install":
+            if self.getParam('db2_action_system') == "install":
                 command += f"  --db2-system{newline}"
-            if self.getParam('db2_manage') == "install":
+            if self.getParam('db2_action_manage') == "install":
                 command += f"  --db2-manage{newline}"
 
             if self.getParam('db2_channel') != "":
@@ -317,8 +330,14 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('cos_type') != "":
             command += f"  --cos \"{self.getParam('cos_type')}\""
-            if self.getParam('ibmcos_resourcegroup') != "":
+            if self.getParam('cos_resourcegroup') != "":
                 command += f" --cos-resourcegroup \"{self.getParam('cos_resourcegroup')}\""
+            if self.getParam('cos_apikey') != "":
+                command += f" --cos-apikey \"{self.getParam('cos_apikey')}\""
+            if self.getParam('cos_instance_name') != "":
+                command += f" --cos-instance-name \"{self.getParam('cos_instance_name')}\""
+            if self.getParam('cos_bucket_name') != "":
+                command += f" --cos-bucket-name \"{self.getParam('cos_bucket_name')}\"{newline}"
             command += newline
 
         # Turbonomic Integration

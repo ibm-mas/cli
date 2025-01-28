@@ -92,6 +92,12 @@ spec:
               name: mas-fvt-manage
               key: FVT_DIGEST_MANAGE_PYTEST
               optional: false
+        - name: FVT_DIGEST_MANAGE_CYPRESS
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_DIGEST_MANAGE_CYPRESS
+              optional: false
         - name: FVT_DIGEST_HEALTH_PREPAREDATA
           valueFrom:
             secretKeyRef:
@@ -109,6 +115,12 @@ spec:
             secretKeyRef:
               name: mas-fvt-manage
               key: FVT_DIGEST_HEALTH_PYTHON
+              optional: false
+        - name: FVT_DIGEST_HEALTH_CP4D_WSL
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: FVT_DIGEST_HEALTH_CP4D_WSL
               optional: false
         # Black and white listing
         - name: FVT_BLACKLIST
