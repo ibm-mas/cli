@@ -222,6 +222,9 @@ class installArgBuilderMixin():
             if self.getParam('mas_manage_attachment_configuration_mode') != "":
                 command += f"  --manage-attachments-mode \"{self.getParam('mas_manage_attachment_configuration_mode')}\"{newline}"
 
+            if self.getParam('mas_appws_bindings_health_wsl_flag') == "true":
+                command += f"  --manage-health-wsl{newline}"
+
         # IBM Cloud Pak for Data
         # -----------------------------------------------------------------------------
         if self.getParam('cpd_product_version') != "":

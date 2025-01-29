@@ -111,7 +111,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: lbs-spatial-1
+      value: lbs-spatial-ui-setup
     - name: fvt_mas_appws_component
       value: spatial
     - name: fvt_test_driver
@@ -131,7 +131,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: lbs-utilities-1
+      value: lbs-utilities-ui-setup
     - name: fvt_mas_appws_component
       value: spatial
     - name: fvt_test_driver
@@ -146,7 +146,7 @@
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: lbs-linear-1
+      value: lbs-linear-ui-setup
     - name: fvt_mas_appws_component
       value: spatial
     - name: fvt_test_driver
