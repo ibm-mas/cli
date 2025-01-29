@@ -99,6 +99,9 @@ optionalParams = [
     "cpd_install_cognos",
     "cpd_install_openscale",
     "cpd_install_spss",
+    "cpd_install_ws",
+    "cpd_install_wml",
+    "cpd_install_ae",
     # Kafka
     "kafka_namespace",
     "kafka_version",
