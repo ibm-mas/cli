@@ -241,11 +241,6 @@ function gitops_deprovision_db2u_database() {
   if [ -f ${CONFIGS_FILE} ]; then
     yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > ${TEMP_DIR}/configs.yaml
 
-    # Remove any existing config for replicadb
-    if [[ $REPLICA_DB == 'false' ]]; then
-      yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}-sdb'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
-    fi
-
     cp ${TEMP_DIR}/configs.yaml ${CONFIGS_FILE}
 
     # If the file is there, but the configs are empty, delete the file
