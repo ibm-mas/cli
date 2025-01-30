@@ -30,3 +30,13 @@
     - input: "$(params.fvt_digest_mobile_pytest)"
       operator: notin
       values: [""]
+
+## Verification for Mobile JSON Schema
+- name: fvt-mobile-jsonschema
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-jsonschema
+  runAfter:
+    - fvt-mobile-setup-testng
