@@ -1008,7 +1008,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if findSLSByNamespace(self.getParam("sls_namespace"), dynClient=self.dynamicClient):
                 self.setParam("sls_action", "gencfg")
             else:
-                self.fatalError(f"--license-file must be set for new SLS install")
+                self.fatalError("--license-file must be set for new SLS install")
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
         if not self.devMode:

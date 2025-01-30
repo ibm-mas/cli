@@ -124,7 +124,7 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls":
             if self.getParam("mas_instance_id") and self.getParam("sls_namespace") == f"mas-{self.getParam('mas_instance_id')}-sls":
-                command += f"  --dedicated-sls"
+                command += "  --dedicated-sls"
             else:
                 command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\""
         if self.slsLicenseFileLocal:

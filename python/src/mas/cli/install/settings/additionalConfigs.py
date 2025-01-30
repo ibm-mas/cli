@@ -182,7 +182,6 @@ class AdditionalConfigsMixin():
 
             self.certsSecret = certsSecret
 
-
     def slsLicenseFile(self) -> None:
         if self.slsLicenseFileLocal:
             slsLicenseFileSecret = {
