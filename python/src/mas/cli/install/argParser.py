@@ -722,6 +722,30 @@ cpdAppsArgGroup.add_argument(
     action="store_const",
     const="install"
 )
+cpdAppsArgGroup.add_argument(
+    "--cp4d-install-ws",
+    dest="cpd_install_ws",
+    required=False,
+    help="Add Watson Studio as part of Cloud Pak for Data",
+    action="store_const",
+    const="install"
+)
+cpdAppsArgGroup.add_argument(
+    "--cp4d-install-wml",
+    dest="cpd_install_wml",
+    required=False,
+    help="Add Watson Machine Learning as part of Cloud Pak for Data",
+    action="store_const",
+    const="install"
+)
+cpdAppsArgGroup.add_argument(
+    "--cp4d-install-ae",
+    dest="cpd_install_ae",
+    required=False,
+    help="Add Spark Analytics Engine as part of Cloud Pak for Data",
+    action="store_const",
+    const="install"
+)
 
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------
