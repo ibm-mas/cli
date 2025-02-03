@@ -98,9 +98,24 @@ spec:
     - name: group_sync_operator_isv_groups
       type: string
       default: ''
+
     - name: ibm_rbac_binding_to_group
       type: string
       default: ''
+    
+    - name: falcon_operator_cloud_region
+      type: string
+      default: ''
+    - name: falcon_operator_node_sensor
+      type: string
+      default: ''
+
+    - name: cluster_logging_operator_install
+      type: string
+      default: 'false'
+    - name: cluster_logging_operator_use_syslog_forwarder
+      type: string
+      default: 'true'
 
   stepTemplate:
     name: gitops-cluster
@@ -178,8 +193,19 @@ spec:
         value: $(params.group_sync_operator_isv_tenant_url)
       - name: GROUP_SYNC_OPERATOR_ISV_GROUPS
         value: $(params.group_sync_operator_isv_groups)
+
       - name: IBM_RBAC_BINDING_TO_GROUP
         value: $(params.ibm_rbac_binding_to_group)
+      
+      - name: FALCON_OPERATOR_CLOUD_REGION
+        value: $(params.falcon_operator_cloud_region)
+      - name: FALCON_OPERATOR_NODE_SENSOR
+        value: $(params.falcon_operator_node_sensor)
+
+      - name: CLUSTER_LOGGING_OPERATOR_INSTALL
+        value: $(params.cluster_logging_operator_install)
+      - name: CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER
+        value: $(params.cluster_logging_operator_use_syslog_forwarder)
 
     envFrom:
       - configMapRef:
@@ -219,6 +245,13 @@ spec:
         if [[ -n "${IBM_RBAC_BINDING_TO_GROUP}" ]];then
           echo "Setting var INSTALL_IBM_RBAC to true as var IBM_RBAC_BINDING_TO_GROUP is set"
           export INSTALL_IBM_RBAC=true
+        fi
+
+        if [[ -n "${FALCON_OPERATOR_CLOUD_REGION}" ]];then
+          echo "Setting var INSTALL_FALCON_OPERATOR to true as var FALCON_OPERATOR_CLOUD_REGION is set"
+          export INSTALL_FALCON_OPERATOR=true
+        else
+          echo "Not setting var INSTALL_FALCON_OPERATOR to true as var FALCON_OPERATOR_CLOUD_REGION is not set"
         fi
 
         mkdir -p /tmp/init-cluster

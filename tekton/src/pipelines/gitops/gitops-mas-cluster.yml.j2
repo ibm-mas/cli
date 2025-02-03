@@ -149,6 +149,7 @@ spec:
     - name: ingress
       type: string
       default: "false"
+
     - name: group_sync_operator_cron_schedule
       type: string
       default: ''
@@ -158,9 +159,25 @@ spec:
     - name: group_sync_operator_isv_groups
       type: string
       default: ''
+
     - name: ibm_rbac_binding_to_group
       type: string
       default: ''
+    
+    - name: falcon_operator_cloud_region
+      type: string
+      default: ''
+    - name: falcon_operator_node_sensor
+      type: string
+      default: ''
+
+    - name: cluster_logging_operator_install
+      type: string
+      default: 'false'
+    - name: cluster_logging_operator_use_syslog_forwarder
+      type: string
+      default: 'true'
+
   tasks:
     - name: gitops-cluster
       params:
@@ -233,14 +250,27 @@ spec:
           value: $(params.dns_provider)
         - name: ingress
           value: $(params.ingress)
+
         - name: group_sync_operator_cron_schedule
           value: $(params.group_sync_operator_cron_schedule)
         - name: group_sync_operator_isv_tenant_url
           value: $(params.group_sync_operator_isv_tenant_url)
         - name: group_sync_operator_isv_groups
           value: $(params.group_sync_operator_isv_groups)
+
         - name: ibm_rbac_binding_to_group
           value: $(params.ibm_rbac_binding_to_group)
+
+        - name: falcon_operator_cloud_region
+          value: $(params.falcon_operator_cloud_region)
+        - name: falcon_operator_node_sensor
+          value: $(params.falcon_operator_node_sensor)
+
+        - name: cluster_logging_operator_install
+          value: $(params.cluster_logging_operator_install)
+        - name: cluster_logging_operator_use_syslog_forwarder
+          value: $(params.cluster_logging_operator_use_syslog_forwarder)
+
       taskRef:
         kind: Task
         name: gitops-cluster
