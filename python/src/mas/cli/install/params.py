@@ -61,6 +61,7 @@ optionalParams = [
     "mas_domain",
     # SLS
     "sls_namespace",
+    "sls_mongodb_cfg_file",
     # DNS Providers
     # TODO: Add CloudFlare and Route53 support
     "dns_provider",
