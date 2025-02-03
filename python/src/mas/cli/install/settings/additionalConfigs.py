@@ -182,6 +182,19 @@ class AdditionalConfigsMixin():
 
             self.certsSecret = certsSecret
 
+    def slsLicenseFile(self) -> None:
+        if self.slsLicenseFileLocal:
+            slsLicenseFileSecret = {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-sls-entitlement"
+                }
+            }
+            self.setParam("sls_entitlement_file", f"/workspace/entitlement/{path.basename(self.slsLicenseFileLocal)}")
+            self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal, '')
+
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '') -> dict:
         """
         Add file (or files) to pipeline-additional-configs
