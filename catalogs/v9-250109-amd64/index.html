@@ -301,6 +301,8 @@
     
       <cds-select-item value="#ibm-cloud-pak-for-data-compatibility">IBM Cloud Pak for Data Compatibility</cds-select-item>
     
+      <cds-select-item value="#mongodb-compatibility">MongoDB Compatibility</cds-select-item>
+    
       <cds-select-item value="#package-manifest">Package Manifest</cds-select-item>
     
   </cds-select>
@@ -469,6 +471,14 @@ spec:
 <h2 id="ibm-cloud-pak-for-data-compatibility">IBM Cloud Pak for Data Compatibility<a class="headerlink" href="#ibm-cloud-pak-for-data-compatibility" title="Permanent link">¤</a></h2>
 <p>This catalog is certified compatible with <strong>IBM Cloud Pak for Data v5.0.0</strong>.</p>
 <p>For more information on Cloud Pak for Data's support policy review this <a href="https://www.ibm.com/support/pages/node/6593147">IBM Cloud Pak for Data Software Support Lifecycle Addendum</a>.</p>
+<h2 id="mongodb-compatibility">MongoDB Compatibility<a class="headerlink" href="#mongodb-compatibility" title="Permanent link">¤</a></h2>
+<p>This catalog is certified compatible with MongoDB <strong><a href="https://www.mongodb.com/docs/v6.0/">v6.0</a></strong> and <strong><a href="https://www.mongodb.com/docs/v7.0/">v7.0</a></strong>, this applies to both MongoDB Community Edition (CE) and MongoDB Enterprise Edition (EE).</p>
+<p>By default an in-cluster MongoDb (CE) instance will be created when you install MAS, using the <a href="https://github.com/mongodb/mongodb-kubernetes-operator">MongoDB Community Kubernetes Operator</a>; however MAS supports use with any type of MongoDb instance, including but not limited to the following hosted solutions:</p>
+<ul>
+<li><a href="https://www.ibm.com/products/databases-for-mongodb">IBM Cloud Databases for MongoDB</a></li>
+<li><a href="https://www.mongodb.com/products/platform/atlas-database">MongoDB Atlas</a></li>
+</ul>
+<p><a href="https://aws.amazon.com/documentdb/">Amazon DocumentDB</a> provides <a href="https://docs.aws.amazon.com/documentdb/latest/developerguide/compatibility.html">MongoDb compatability</a> and may be used as an alternative to MongoDb.  This catalog is certified compatible with <strong>DocumentDb Engine Version v5.0.0</strong>.</p>
 <h2 id="package-manifest">Package Manifest<a class="headerlink" href="#package-manifest" title="Permanent link">¤</a></h2>
 <h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link">¤</a></h3>
 <table>
@@ -3486,7 +3496,7 @@ spec:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-01-30 16:35:07.907763+00:00)
+      Built with mkdocs v1.6.1 (2025-02-03 18:09:24.301901+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>

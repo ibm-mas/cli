@@ -311,7 +311,7 @@
 <li>The instance will be named <code>mas-{instanceId}-system</code></li>
 </ul>
 </li>
-<li>A single SLS <code>LicenseService</code> instance will be created, all MAS instances in the cluster will share the same pool of AppPoints from a single license file loaded into SLS.  Each MAS instance is registered to SLS independently, uniquely identifying it to SLS.</li>
+<li>A single SLS <code>LicenseService</code> instance will be created, all MAS instances in the cluster will share the same pool of AppPoints from a single license file loaded into SLS. Each MAS instance is registered to SLS independently, uniquely identifying it to SLS. Alternatively, a dedicated SLS per MAS instance can be installed on the cluster.</li>
 <li>A single UDS <code>AnalyticsProxy</code> instance will be created, all MAS instaled in the cluster will be configured to report to this instance using a shared API key.</li>
 </ul>
 <h2 id="high-level-view">High-Level View<a class="headerlink" href="#high-level-view" title="Permanent link">¤</a></h2>
@@ -327,7 +327,7 @@
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-01-30 16:35:12.105985+00:00)
+      Built with mkdocs v1.6.1 (2025-02-03 18:09:28.498086+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
