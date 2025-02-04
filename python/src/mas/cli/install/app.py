@@ -966,6 +966,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "mongodb_namespace":
                 if value is None:
                     self.fatalError(f"{key} must be set")
+                self.setParam(key, value)
                 self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
 
             elif key.startswith("approval_"):
