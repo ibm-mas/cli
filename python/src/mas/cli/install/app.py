@@ -861,6 +861,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.fatalError(f"{key} must be set")
                 self.setParam(key, value)
 
+            # These fields we just pass straight through to the parameters
+            elif key in optionalParams:
+                if value is not None:
+                    self.setParam(key, value)
+
+                    # if mongodb_namespace is provided, set SLS MongoDB Configuration File path
+                    if key == "mongodb_namespace":
+                        self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
+
             elif key == "kafka_provider":
                 if value is not None:
                     self.setParam("kafka_provider", value)
@@ -962,13 +971,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.fatalError(f"{key} must be set")
                 self.pipelineStorageClass = value
 
-            # Set SLS MongoDB Configuration File if a `mongodb_namespace` is provided other than default
-            elif key == "mongodb_namespace":
-                if value is None:
-                    self.fatalError(f"{key} must be set")
-                self.setParam(key, value)
-                self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
-
             elif key.startswith("approval_"):
                 if key not in self.approvals:
                     raise KeyError(f"{key} is not a supported approval workflow ID: {self.approvals.keys()}")
@@ -996,11 +998,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     self.setParam("mas_manual_cert_mgmt", False)
                     self.manualCertsDir = None
-
-            # These fields we just pass straight through to the parameters
-            elif key in optionalParams:
-                if value is not None:
-                    self.setParam(key, value)
 
             # Fail if there's any arguments we don't know how to handle
             else:
