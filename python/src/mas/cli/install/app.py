@@ -861,11 +861,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.fatalError(f"{key} must be set")
                 self.setParam(key, value)
 
-            # These fields we just pass straight through to the parameters
-            elif key in optionalParams:
-                if value is not None:
-                    self.setParam(key, value)
-
             elif key == "kafka_provider":
                 if value is not None:
                     self.setParam("kafka_provider", value)
@@ -1000,6 +995,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     self.setParam("mas_manual_cert_mgmt", False)
                     self.manualCertsDir = None
+
+            # These fields we just pass straight through to the parameters
+            elif key in optionalParams:
+                if value is not None:
+                    self.setParam(key, value)
 
             # Fail if there's any arguments we don't know how to handle
             else:
