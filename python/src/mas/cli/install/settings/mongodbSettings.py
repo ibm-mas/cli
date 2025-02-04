@@ -24,7 +24,7 @@ class MongoDbSettingsMixin():
                 self.promptForString("MongoDb namespace", "mongodb_namespace", default="mongoce")
             else:
                 # Even though "" works as the default, we use this value to contruct other values so we need to explicitly set it
-                self.setParam("mongodb_namespace", self.getParam('mongodb_namespace') or "mongoce")
+                self.setParam("mongodb_namespace", "mongoce")
 
             self.setParam("mongodb_action", "install")
             self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{self.getParam('mongodb_namespace')}.yml")
