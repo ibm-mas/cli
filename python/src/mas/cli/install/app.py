@@ -866,10 +866,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None:
                     self.setParam(key, value)
 
-                    # if mongodb_namespace is provided, set SLS MongoDB Configuration File path
-                    if key == "mongodb_namespace":
-                        self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
-
             elif key == "kafka_provider":
                 if value is not None:
                     self.setParam("kafka_provider", value)
@@ -952,6 +948,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam(key, value)
                     if value in ["jms", "snojms"]:
                         self.setParam("mas_app_settings_persistent_volumes_flag", "true")
+
+            # MongoDB
+            elif key == "mongodb_namespace":
+                if value is not None and value != "":
+                    self.setParam(key, value)
+                    self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
+
             # SLS
             elif key == "license_file":
                 if value is not None and value != "":

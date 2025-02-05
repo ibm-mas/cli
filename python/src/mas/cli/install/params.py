@@ -71,8 +71,6 @@ optionalParams = [
     "mas_cluster_issuer",
     # DRO
     "dro_namespace",
-    # MongoDb
-    "mongodb_namespace",
     # Db2
     "db2_action_system",
     "db2_action_manage",
