@@ -263,6 +263,12 @@ slsArgGroup.add_argument(
     help="Customize the SLS install namespace",
     default="ibm-sls"
 )
+slsArgGroup.add_argument(
+    "--dedicated-sls",
+    action="store_true",
+    default=False,
+    help="Set the SLS namespace to mas-<instanceid>-sls"
+)
 
 # IBM Data Reporting Operator (DRO)
 # -----------------------------------------------------------------------------
@@ -563,6 +569,15 @@ manageArgGroup.add_argument(
 )
 
 manageArgGroup.add_argument(
+    "--manage-health-wsl",
+    dest="mas_appws_bindings_health_wsl_flag",
+    required=False,
+    help="Set boolean value indicating if Watson Studio must be bound to Manage. It is expected a system level WatsonStudioCfg applied in the cluster.",
+    action="store_const",
+    const="true"
+)
+
+manageArgGroup.add_argument(
     "--manage-customization-archive-name",
     dest="mas_app_settings_customization_archive_name",
     required=False,
@@ -704,6 +719,30 @@ cpdAppsArgGroup.add_argument(
     dest="cpd_install_cognos",
     required=False,
     help="Add Cognos as part of Cloud Pak for Data",
+    action="store_const",
+    const="install"
+)
+cpdAppsArgGroup.add_argument(
+    "--cp4d-install-ws",
+    dest="cpd_install_ws",
+    required=False,
+    help="Add Watson Studio as part of Cloud Pak for Data",
+    action="store_const",
+    const="install"
+)
+cpdAppsArgGroup.add_argument(
+    "--cp4d-install-wml",
+    dest="cpd_install_wml",
+    required=False,
+    help="Add Watson Machine Learning as part of Cloud Pak for Data",
+    action="store_const",
+    const="install"
+)
+cpdAppsArgGroup.add_argument(
+    "--cp4d-install-ae",
+    dest="cpd_install_ae",
+    required=False,
+    help="Add Spark Analytics Engine as part of Cloud Pak for Data",
     action="store_const",
     const="install"
 )

@@ -57,6 +57,7 @@ optionalParams = [
     "mas_app_settings_server_timezone",
     "mas_appws_bindings_jdbc_manage",
     "mas_appws_components",
+    "mas_appws_bindings_health_wsl_flag",
     "mas_domain",
     # SLS
     "sls_namespace",
@@ -98,6 +99,9 @@ optionalParams = [
     "cpd_install_cognos",
     "cpd_install_openscale",
     "cpd_install_spss",
+    "cpd_install_ws",
+    "cpd_install_wml",
+    "cpd_install_ae",
     # Kafka
     "kafka_namespace",
     "kafka_version",

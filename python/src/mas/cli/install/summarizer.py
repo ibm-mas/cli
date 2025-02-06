@@ -252,6 +252,11 @@ class InstallSummarizerMixin():
                 self.printSummary("Watson Studio Local", "Install (Required by Maximo Predict)")
                 self.printSummary("Watson Machine Learning", "Install (Required by Maximo Predict)")
                 self.printSummary("Analytics Engine", "Install (Required by Maximo Predict)")
+            else:
+                self.printSummary("Watson Studio Local", "Install" if self.getParam("cpd_install_ws") == "true" else "Do Not Install")
+                self.printSummary("Watson Machine Learning", "Install" if self.getParam("cpd_install_wml") == "true" else "Do Not Install")
+                self.printSummary("Analytics Engine", "Install" if self.getParam("cpd_install_ae") == "true" else "Do Not Install")
+
             self.printSummary("Watson Openscale", "Install" if self.getParam("cpd_install_openscale") == "true" else "Do Not Install")
             self.printSummary("SPSS Modeler", "Install" if self.getParam("cpd_install_spss") == "true" else "Do Not Install")
             self.printSummary("Cognos Analytics", "Install" if self.getParam("cpd_install_cognos") == "true" else "Do Not Install")
@@ -265,9 +270,12 @@ class InstallSummarizerMixin():
 
     def slsSummary(self) -> None:
         self.printH2("IBM Suite License Service")
-        self.printSummary("License File", self.slsLicenseFileLocal)
-        self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
         self.printParamSummary("Namespace", "sls_namespace")
+        if self.getParam("sls_action") == "install":
+            self.printSummary("Subscription Channel", "3.x")
+            self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
+            if self.slsLicenseFileLocal:
+                self.printSummary("License File", self.slsLicenseFileLocal)
 
     def cosSummary(self) -> None:
         self.printH2("Cloud Object Storage")

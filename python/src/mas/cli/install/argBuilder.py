@@ -122,9 +122,15 @@ class installArgBuilderMixin():
 
         # IBM Suite License Service
         # -----------------------------------------------------------------------------
-        command += f"  --license-file \"{self.slsLicenseFileLocal}\"{newline}"
-        if self.getParam("sls_namespace") != "ibm-sls":
-            command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\"{newline}"
+        if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls":
+            if self.getParam("mas_instance_id") and self.getParam("sls_namespace") == f"mas-{self.getParam('mas_instance_id')}-sls":
+                command += "  --dedicated-sls"
+            else:
+                command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\""
+        if self.slsLicenseFileLocal:
+            command += f"  --license-file \"{self.slsLicenseFileLocal}\""
+        if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls" or self.slsLicenseFileLocal:
+            command += newline
 
         # IBM Data Reporting Operator (DRO)
         # -----------------------------------------------------------------------------
@@ -222,6 +228,9 @@ class installArgBuilderMixin():
             if self.getParam('mas_manage_attachment_configuration_mode') != "":
                 command += f"  --manage-attachments-mode \"{self.getParam('mas_manage_attachment_configuration_mode')}\"{newline}"
 
+            if self.getParam('mas_appws_bindings_health_wsl_flag') == "true":
+                command += f"  --manage-health-wsl{newline}"
+
         # IBM Cloud Pak for Data
         # -----------------------------------------------------------------------------
         if self.getParam('cpd_product_version') != "":
@@ -232,6 +241,12 @@ class installArgBuilderMixin():
                 command += " --cp4d-install-openscal"
             if self.getParam('cpd_install_cognos') == "install":
                 command += " --cp4d-install-cognos"
+            if self.getParam('cpd_install_ws') == "install":
+                command += " --cp4d-install-ws"
+            if self.getParam('cpd_install_wml') == "install":
+                command += " --cp4d-install-wml"
+            if self.getParam('cpd_install_ae') == "install":
+                command += " --cp4d-install-ae"
             command += newline
 
         # IBM Db2 Universal Operator
