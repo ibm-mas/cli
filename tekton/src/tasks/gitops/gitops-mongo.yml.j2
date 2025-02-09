@@ -59,10 +59,10 @@ spec:
         aws configure set default.region $(params.avp_aws_secret_region)
 
         # Note the - after cluster name. this is to distinguish between different similar named clusters
-        vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.[].Value // ""' | xargs
+        vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.[].Value // ""' | xargs)
         if [ -z "$vpc_name" ]; then
           # Needed if there is only one cluster in account
-          vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.Value // ""' | xargs
+          vpc_name=$(aws ec2 describe-vpcs --output yaml | grep $CLUSTER_NAME- | yq '.Value // ""' | xargs)
         fi
         export VPC_ID=$(aws ec2 describe-vpcs --filters '[{"Name": "tag:Name", "Values": ["'$vpc_name'"]}]' --output yaml | yq '.Vpcs[].VpcId' )
         
