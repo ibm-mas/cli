@@ -1,6 +1,6 @@
 # mkdocs serve
 
-site_name: Maximo Application Suite CLI Documentation
+site_name: Maximo Application Suite CLI
 site_url: https://ibm-mas.github.io/cli
 
 repo_name: GitHub
@@ -40,6 +40,11 @@ nav:
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
       - "Cluster Extensions": reference/cluster-extensions.md
+not_in_nav: |
+  index.md
+  catalogs/packages/*
+  catalogs/v8-*
+  catalogs/v9-*
 
 theme:
   name: carbon
