@@ -65,6 +65,7 @@ IBM DB2U:
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                    Flag to know that this is ReplicaDB instance
       --is-replica-task ${COLOR_YELLOW}IS_REPLICA_TASK${TEXT_RESET}                                           To check if this is invoked by replica task
       --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}                                           MAS Annotations
+      --auto-backup ${COLOR_YELLOW}AUTO_BACKUP${TEXT_RESET}                                                   Flag whether to install the Auto DB2 backup feature or not
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -289,6 +290,9 @@ function gitops_db2u_database_noninteractive() {
       --is-replica-task)
         export IS_REPLICA_TASK=$1 && shift
         ;;
+      --auto-backup)
+        export AUTO_BACKUP=$1 && shift
+        ;;
 
 
       # Automatic GitHub Push
@@ -345,6 +349,7 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_LOGS_STORAGE_CLASS is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_database_help "MAS_APP_ID is not set"
+  [[ -z "$AUTO_BACKUP" ]] && gitops_db2u_database_help "AUTO_BACKUP is not set"
   
   #MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
@@ -595,6 +600,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "replica-db .................................... ${COLOR_MAGENTA}${REPLICA_DB}"
   echo_reset_dim "is-replica-task ............................... ${COLOR_MAGENTA}${IS_REPLICA_TASK}"
   echo_reset_dim "mas-annotations ............................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
+  echo_reset_dim "auto-backup ................................... ${COLOR_MAGENTA}${AUTO_BACKUP}"
   reset_colors
 
 
@@ -603,18 +609,20 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
 
-  if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${SECRET_NAME_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
+  if [[ $AUTO_BACKUP == 'true' ]]; then
+    if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+      sm_update_secret ${SECRET_NAME_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
+    else
+      if [[ -z "$DB2_BACKUP_NOTIFY_SLACK_URL" ]]; then
+        echo -e "Slack Url is not configured for DB2 backup"
+      fi
+      if [[ -z "$ICD_AUTH_KEY" ]]; then
+        echo -e "ICD_AUTH_KEY is not available as environment properties in the apps pipeline"
+      fi
+      exit 1
+    fi
   else
-    if [[ -z "$DB2_BACKUP_NOTIFY_SLACK_URL" ]]; then
-      echo
-      echo_h2 "Slack Url is not configured for DB2 backup"
-    fi
-    if [[ -z "$ICD_AUTH_KEY" ]]; then
-      echo
-      echo_h2 "ICD_AUTH_KEY is not available as environment properties in the apps pipeline"
-    fi
     echo
     echo_h2 "Hence optional feature - DB2 automated backup is not enabled"
   fi
