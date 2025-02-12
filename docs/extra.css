@@ -16,3 +16,9 @@ table.clusterExtensions tr:nth-child(odd) {
 table.clusterExtensions tr.alt td {
   background-color: #eee !important;
 }
+
+@media (max-width: 66rem) {
+  .hideOnSmallScreen {
+    display: none !important;
+  }
+}

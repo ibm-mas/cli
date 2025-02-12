@@ -1,0 +1,12 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+instana_agent_operator:
+  install: "{{ INSTANA_AGENT_OPERATOR_INSTALL }}"
+  jks_storage_class: "{{ INSTANA_AGENT_OPERATOR_JKS_STORAGE_CLASS }}"
+  key:  "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_KEY }}>"
+  endpoint_host: "{{ INSTANA_AGENT_OPERATOR_ENDPOINT_HOST }}"
+  endpoint_port: "{{ INSTANA_AGENT_OPERATOR_ENDPOINT_PORT }}"
+{%- if INSTANA_AGENT_OPERATOR_ENV is defined and INSTANA_AGENT_OPERATOR_ENV %}
+  env:
+    {{ INSTANA_AGENT_OPERATOR_ENV | indent }}
+{%- endif %}
