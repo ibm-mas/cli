@@ -2,12 +2,12 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: mas:{{ mas_instance_id }}:install-pipeline:redhat-marketplace
-  namespace: redhat-marketplace
+  name: mas:{{ mas_instance_id }}:install-pipeline:cert-manager-operator
+  namespace: cert-manager-operator
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: mas:{{ mas_instance_id }}:install-pipeline:redhat-marketplace
+  name: mas:{{ mas_instance_id }}:install-pipeline:cert-manager-operator
 subjects:
   - kind: ServiceAccount
     name: mas-{{ mas_instance_id }}-install-pipeline
@@ -16,10 +16,10 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: mas:{{ mas_instance_id }}:install-pipeline:redhat-marketplace
-  namespace: redhat-marketplace
+  name: mas:{{ mas_instance_id }}:install-pipeline:cert-manager-operator
+  namespace: cert-manager-operator
 rules:
-  # DRO installs in this namespace (for some reason)
+  # Red Hat Certificate Manager is installed to this namespace
   - apiGroups:
       - ""
     resources:
@@ -44,10 +44,3 @@ rules:
       - secrets
     verbs:
       - get
-  - apiGroups:
-      - ""
-    resources:
-      - persistentvolumeclaims
-    verbs:
-      - get
-      - create

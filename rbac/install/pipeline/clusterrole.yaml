@@ -26,6 +26,13 @@ rules:
       - ingresses
     verbs:
       - get
+  # ibm_catalogs will lookup available imagedigestmirrorsets to determine whether we are using a mirror
+  - apiGroups:
+      - config.openshift.io
+    resources:
+      - imagedigestmirrorsets
+    verbs:
+      - list
   # ocp_verify will query all installed catalogsources, and subscriptions
   - apiGroups:
       - operators.coreos.com

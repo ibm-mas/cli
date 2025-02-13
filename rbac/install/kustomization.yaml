@@ -1,4 +1,27 @@
 resources:
-  - namespace.yaml
-  - user
-  - pipeline
+  # Namespaces
+  - namespaces.yaml
+  # Install User
+  - user/clusterrole.yaml
+  - user/mas-x-pipelines.yaml
+  - user/openshift-console.yaml
+  - user/openshift-image-registry.yaml
+  - user/openshift-marketplace.yaml
+  - user/openshift-operators.yaml
+  - user/openshift-pipelines.yaml
+  - user/serviceaccount.yaml
+  # Install Pipeline RBAC
+  - pipeline/cert-manager-operator.yaml
+  - pipeline/clusterrole.yaml
+  - pipeline/eck.yaml
+  - pipeline/grafana5.yaml
+  - pipeline/mas-x-pipelines.yaml
+  - pipeline/openshift-config.yaml
+  - pipeline/openshift-ingress-operator.yaml
+  - pipeline/openshift-ingress.yaml
+  - pipeline/openshift-marketplace.yaml
+  - pipeline/openshift-monitoring.yaml
+  - pipeline/openshift-operators.yaml
+  - pipeline/openshift-user-workload-monitoring.yaml
+  - pipeline/redhat-marketplace.yaml
+  - pipeline/serviceaccount.yaml

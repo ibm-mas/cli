@@ -48,3 +48,11 @@ rules:
       - get
       - create
       - patch
+  # Lookup the prometheus-serviceaccount
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - get
+      - create

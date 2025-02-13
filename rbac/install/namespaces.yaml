@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager-operator
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: eck
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: grafana5
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: redhat-marketplace
