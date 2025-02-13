@@ -22,4 +22,14 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
+  name: ibm-common-services
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mongoce
+---
+apiVersion: v1
+kind: Namespace
+metadata:
   name: redhat-marketplace

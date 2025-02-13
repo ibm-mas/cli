@@ -39,6 +39,7 @@ rules:
       - list
       - create
       - patch
+
   # Create the Grafana instance
   - apiGroups:
       - grafana.integreatly.org
@@ -48,7 +49,17 @@ rules:
       - get
       - create
       - patch
-  # Lookup the prometheus-serviceaccount
+
+  # Create the Grafana datasource
+  # Note that this is additive to the verbs already provided in clusterrole-grafana5.yaml
+  - apiGroups:
+      - grafana.integreatly.org
+    resources:
+      - grafanadatasources
+    verbs:
+      - patch
+
+  # Lookup & create the prometheus-serviceaccount
   - apiGroups:
       - ""
     resources:
@@ -56,3 +67,13 @@ rules:
     verbs:
       - get
       - create
+      - patch
+
+  # Create the prometheus-serviceaccount token
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - create
+      - patch

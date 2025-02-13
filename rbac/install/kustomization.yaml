@@ -13,9 +13,14 @@ resources:
   # Install Pipeline RBAC
   - pipeline/cert-manager-operator.yaml
   - pipeline/clusterrole.yaml
+  - pipeline/clusterrole-dro.yaml
+  - pipeline/clusterrole-grafana5.yaml
+  - pipeline/clusterrole-mongoce.yaml
   - pipeline/eck.yaml
   - pipeline/grafana5.yaml
+  - pipeline/ibm-common-services.yaml
   - pipeline/mas-x-pipelines.yaml
+#   - pipeline/mongoce.yaml
   - pipeline/openshift-config.yaml
   - pipeline/openshift-ingress-operator.yaml
   - pipeline/openshift-ingress.yaml

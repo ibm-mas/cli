@@ -1,17 +1,19 @@
 MAS Install Minimal RBAC
 ===============================================================================
-The minimal permissions required to run `mas install` are captured here.  The RBAC defintions here will create two service accounts:
+By default the MAS install pipeline will run under an automatically created service account that is granted the **cluster-admin** ClusterRole.  Some customers may wish to run the install pipeline under a more restricted service account, to achieve this the install should be started with the `--service-account` optional command flag denoting the service account to use, this will instruct the installer not to create a new service account and to use the account identified by this parameter.
+
+The minimal permissions required to run `mas install` are captured here in the **user** and **pipeline** folders.  The RBAC defintions here will create two service accounts:
 
 - `mas-{{mas_instance_id}}-user`
 - `mas-{{mas_instance_id}}-pipeline`
 
-The **user account** is provided the minimum permissions to successfully run the `mas install` command.  The **pipeline account** is provided the exact permissions required to perform a **full** install of Maximo Application Suite with all applications and dependencies in place.
+The **user account** provices the minimum permissions to successfully run the `mas install` command.  The **pipeline account** provides the exact permissions required by the pipeline that will be started on the cluster to perform a **full** install of Maximo Application Suite with all applications and dependencies in place.
 
-The two **ClusterRoleBindings** are named `mas:{{mas_instance_id}}:install-pipeline` and `mas:{{mas_instance_id}}:install-user`, each **RoleBinding** will be created in the format: `mas:{{mas_instance_id}}:install-pipeline:{{namespace}}`.
+All **Roles**, **RoleBindings**, **ClusterRoles**, and **ClusterRoleBindings** are prefixed `mas:{{mas_instance_id}}:install-pipeline` or `mas:{{mas_instance_id}}:install-user`.
 
 
 ## Usage
-To directly use these definition you can follow the example below, note the flag passed to the CLI to inform it not to set up the default pipeline service account RBAC:
+To directly use these definitions we recommend using **kustomize** and **jinja** following the example below.  Note the `--service-account` flag passed to the CLI to inform it not to set up the default pipeline RBAC:
 
 ```bash
 MAS_INSTANCE_ID=parkerda
@@ -38,4 +40,12 @@ docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:13.6.0-pre.b
     --mongodb-namespace "mongoce" \
     --accept-license --no-confirm --service-account mas-${MAS_INSTANCE_ID}-install-pipeline
   "
+```
+
+## Tip
+You can view the effective permissions of the MAS service accounts in specific namespaces using `oc auth` as below:
+
+```bash
+oc auth can-i --list --as=system:serviceaccount:mas-${MAS_INSTANCE_ID}-pipelines:mas-${MAS_INSTANCE_ID}-install-pipeline -n openshift-marketplace
+oc auth can-i --list --as=system:serviceaccount:mas-${MAS_INSTANCE_ID}-pipelines:mas-${MAS_INSTANCE_ID}-install-user -n openshift-marketplace
 ```

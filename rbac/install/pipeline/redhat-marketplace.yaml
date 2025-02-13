@@ -44,6 +44,8 @@ rules:
       - secrets
     verbs:
       - get
+      - create
+      - patch
   - apiGroups:
       - ""
     resources:
@@ -51,3 +53,12 @@ rules:
     verbs:
       - get
       - create
+      - patch
+  - apiGroups:
+      - marketplace.redhat.com
+    resources:
+      - marketplaceconfigs
+    verbs:
+      - get
+      - create
+      - patch
