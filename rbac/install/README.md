@@ -1,54 +1,41 @@
 MAS Install Minimal RBAC
 ===============================================================================
-**Work in Progress**
+The minimal permissions required to run `mas install` are captured here.  The RBAC defintions here will create two service accounts:
 
-The minimal permissions required to run `mas install` are captured in these files:
+- `mas-{{mas_instance_id}}-user`
+- `mas-{{mas_instance_id}}-pipeline`
 
-```bash
-export MAS_INSTANCE_ID=dev1
+The **user account** is provided the minimum permissions to successfully run the `mas install` command.  The **pipeline account** is provided the exact permissions required to perform a **full** install of Maximo Application Suite with all applications and dependencies in place.
 
-oc apply -f user/serviceaccount.yaml
+The two **ClusterRoleBindings** are named `mas:{{mas_instance_id}}:install-pipeline` and `mas:{{mas_instance_id}}:install-user`, each **RoleBinding** will be created in the format: `mas:{{mas_instance_id}}:install-pipeline:{{namespace}}`.
 
-oc apply -f user/cluster.yaml
-oc apply -f user/mas-x-pipelines.yaml -n mas-${MAS_INSTANCE_ID}-pipelines
-oc apply -f user/openshift-console.yaml
-oc apply -f user/openshift-image-registry.yaml
-oc apply -f user/openshift-marketplace.yaml
-oc apply -f user/openshift-operators.yaml
-```
 
-If using these minimal permissions then the `pipelines` service account must have already been set up by someone with cluster-admin permissions, because the install pipeline will require access beyond that of the person who runs the install command, as below:
+## Usage
+To directly use these definition you can follow the example below, note the flag passed to the CLI to inform it not to set up the default pipeline service account RBAC:
 
 ```bash
-export MAS_INSTANCE_ID=dev1
+MAS_INSTANCE_ID=parkerda
+# Install the minimal RBAC for the MAS install
+oc login --token $INSTALL_TOKEN --server=https://c100-e.eu-gb.containers.cloud.ibm.com:31350
+kustomize build . | jinja -D mas_instance_id $MAS_INSTANCE_ID | oc apply -f -
 
-oc new-project eck
-oc new-project grafana5
-oc new-project ibm-common-services
-oc new-project redhat-marketplace
+# Get the access token for the user
+INSTALL_TOKEN=$(oc -n mas-${MAS_INSTANCE_ID}-pipelines get secret masinstall-token -o jsonpath="{.data.token}" | base64 -d)
+echo $INSTALL_TOKEN
 
-oc apply -f pipeline/serviceaccount.yaml -n mas-${MAS_INSTANCE_ID}-pipelines
+# Login to the cluster
+oc login --token $INSTALL_TOKEN --server https://c100-e.eu-gb.containers.cloud.ibm.com:31350
 
-oc apply -f pipeline/cluster.yaml
-
-oc apply -f pipeline/eck.yaml
-oc apply -f pipeline/grafana5.yaml
-oc apply -f pipeline/ibm-common-services.yaml
-oc apply -f pipeline/openshift-config.yaml
-oc apply -f pipeline/openshift-ingress-operator.yaml
-oc apply -f pipeline/openshift-ingress.yaml
-oc apply -f pipeline/openshift-marketplace.yaml
-oc apply -f pipeline/openshift-monitoring.yaml
-oc apply -f pipeline/openshift-operators.yaml
-oc apply -f pipeline/openshift-user-workload-monitoring.yaml
-oc apply -f pipeline/redhat-marketplace.yaml
-```
-
-Note that to use these you will need to modify `subjects[0].namespace` in each of the bindings.
-
-
-## Useful Commands
-To get the service account token
-```bash
-oc -n kube-system describe secret $(oc -n kube-system get secret | grep masinstall-sa | awk '{print $1}')
+# Install MAS
+docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:13.3.0 bash -c "
+  oc login --token $INSTALL_TOKEN --server=https://c100-e.eu-gb.containers.cloud.ibm.com:31350 &&
+  mas install --mas-catalog-version v9-250206-amd64 --ibm-entitlement-key $IBM_ENTITLEMENT_KEY \
+    --mas-channel 9.0.x --mas-instance-id parkerda --mas-workspace-id masdev --mas-workspace-name "My Workspace" \
+    --storage-class-rwo "ibmc-block-gold" --storage-class-rwx "ibmc-file-gold-gid" \
+    --storage-pipeline "ibmc-file-gold-gid" --storage-accessmode "ReadWriteMany" \
+    --license-file "/home/david/entitlement.lic" \
+    --uds-email "parkerda@uk.ibm.com" --uds-firstname "David" --uds-lastname "Parker" \
+    --mongodb-namespace "mongoce" \
+    --accept-license --no-confirm
+  "
 ```

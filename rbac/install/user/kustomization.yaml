@@ -1,0 +1,8 @@
+resources:
+  - clusterrole.yaml
+  - mas-x-pipelines.yaml
+  - openshift-console.yaml
+  - openshift-image-registry.yaml
+  - openshift-marketplace.yaml
+  - openshift-operators.yaml
+  - serviceaccount.yaml

@@ -1,8 +1,21 @@
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: masinstall-pipeline-clusterrole
+  name: mas:{{ mas_instance_id }}:install-pipeline
 rules:
   # ocp_verify will lookup the clusterversion to determine health of the cluster, and obtain the cluster ingres cert from the proxy/ingress
   - apiGroups:
@@ -113,17 +126,3 @@ rules:
       - delete
       - deletecollection
       - watch
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: masinstall-pipeline-crb
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: masinstall-pipeline-clusterrole
-subjects:
-  - kind: ServiceAccount
-    name: pipeline
-    namespace: mas-djptest-pipelines

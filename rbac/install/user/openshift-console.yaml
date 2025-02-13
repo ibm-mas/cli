@@ -1,8 +1,22 @@
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-user:openshift-console
+  namespace: openshift-console
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{mas_instance_id}}:install-user:openshift-console
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-user
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: masinstall-role
+  name: mas:{{mas_instance_id}}:install-user:openshift-console
   namespace: openshift-console
 rules:
   # MAS install will lookup the route to the OpenShift Console
@@ -12,17 +26,3 @@ rules:
       - routes
     verbs:
       - get
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: masinstall-rb
-  namespace: openshift-console
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: masinstall-role
-subjects:
-  - kind: ServiceAccount
-    name: masinstall-sa
-    namespace: kube-system

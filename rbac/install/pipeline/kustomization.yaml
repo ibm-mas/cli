@@ -1,0 +1,13 @@
+resources:
+  - clusterrole.yaml
+  - eck.yaml
+  - grafana5.yaml
+  - openshift-config.yaml
+  - openshift-ingress-operator.yaml
+  - openshift-ingress.yaml
+  - openshift-marketplace.yaml
+  - openshift-monitoring.yaml
+  - openshift-operators.yaml
+  - openshift-user-workload-monitoring.yaml
+  - redhat-marketplace.yaml
+  - serviceaccount.yaml
