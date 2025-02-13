@@ -1268,8 +1268,6 @@ spec:
           value: predict
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
-        - name: mas_config_scope
-          value: wsapp
 
       taskRef:
         kind: Task
@@ -1278,9 +1276,6 @@ spec:
         - input: "$(params.mas_app_channel_predict)"
           operator: notin
           values: [""]
-        - input: "$(params.cp4d_wsl_action)"
-          operator: in
-          values: ["install"]
           
       workspaces:
         - name: configs
