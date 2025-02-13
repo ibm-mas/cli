@@ -347,3 +347,16 @@ function ocp_version_check() {
     exit 1
   fi
 }
+
+function jinja() {
+  local template_path=$1
+  local output_path=$2
+  local filter_files=$(ls $CLI_DIR/templates/filters/*.py)
+  for file in $filter_files; do
+    local filter_params="${filter_params} --filters ${file}"
+  done
+  if [ -n "$output_path" ]; then
+    local output_opts="-o ${output_path}"
+  fi
+  jinjanate --quiet --undefined $filter_params $template_path $output_opts
+}

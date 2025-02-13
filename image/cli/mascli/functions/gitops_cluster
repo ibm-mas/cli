@@ -587,7 +587,7 @@ function gitops_cluster() {
   export ICR_AUTH_TOKEN=$(echo -n $ICR_USERNAME:$ICR_PASSWORD | base64 -w 0)
 
   echo "- Generate image pull secret"
-  jinja -X .+ $CLI_DIR/templates/gitops/ibm-entitlement-with-artifactory.json.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
+  jinja $CLI_DIR/templates/gitops/ibm-entitlement-with-artifactory.json.j2 ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
 
   IBM_ENTITLEMENT_WITH_ARTIFACTORY=${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
   IBM_ENTITLEMENT_WITH_ARTIFACTORY=$(cat $IBM_ENTITLEMENT_WITH_ARTIFACTORY)
@@ -620,63 +620,63 @@ function gitops_cluster() {
   echo_h2 "Generating Argo Applications"
 
   echo "- Base Config"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-mas-cluster-base.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
+  jinja $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-mas-cluster-base.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mas-cluster-base.yaml
 
   echo "- IBM Operator Catalog"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-operator-catalog.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
+  jinja $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-operator-catalog.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
 
   echo "- Redhat Cert Manager"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
+  jinja $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
 
   if [[ "$INSTALL_SELENIUM_GRID" == "true" ]]; then
     echo "- Selenium Grid"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/selenium-grid.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/selenium-grid.yaml
+    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/selenium-grid.yaml.j2 ${GITOPS_CLUSTER_DIR}/selenium-grid.yaml
   fi
 
   if [[ "$CLUSTER_PROMOTION" == "true" ]]; then
     ESCAPED_CLUSTER_VALUES=${CLUSTER_PROMOTION_CLUSTER_VALUES//\"/\\\"}
     export ESCAPED_CLUSTER_VALUES=${ESCAPED_CLUSTER_VALUES//$'\n'/\\n}
     echo "- Cluster Promotion"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-promotion.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
+    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-promotion.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-promotion.yaml
   fi
   
   if [[ -n "$CUSTOM_SA_NAMESPACE" ]]; then
     echo "- Custom Cluster Service Accounts"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/custom-sa.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/custom-sa.yaml
+    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/custom-sa.yaml.j2 ${GITOPS_CLUSTER_DIR}/custom-sa.yaml
   fi
 
   if [[ -n "$DNS_PROVIDER" ]]; then
     echo "- IBM CIS Cert Manager"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-cis-cert-manager.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-cis-cert-manager.yaml
+    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-cis-cert-manager.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-cis-cert-manager.yaml
   fi
 
   if [[ "$INSTALL_GROUP_SYNC_OPERATOR" == "true" ]]; then
     echo "- Group Sync Operator"
     sm_verify_secret_exists $SECRET_NAME_ISV_CLIENT "client_secret,client_id"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/group-sync-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/group-sync-operator.yaml
+    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/group-sync-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/group-sync-operator.yaml
   fi
 
   if [[ "$INSTALL_IBM_RBAC" == "true" ]]; then
     echo "- IBM RBAC"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-rbac.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-rbac.yaml
+    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-rbac.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-rbac.yaml
   fi
 
   if [[ "$INSTALL_FALCON_OPERATOR" == "true" ]]; then
     echo "- CrowdStrike Falcon Operator"
     sm_verify_secret_exists $SECRET_NAME_FALCON_CLIENT "client_secret,client_id"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/falcon-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/falcon-operator.yaml
+    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/falcon-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/falcon-operator.yaml
   fi
 
   if [[ -n "$CLUSTER_LOGGING_OPERATOR_INSTALL" ]]; then
     echo "- Cluster Logging Operator"
     sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
+    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi
 
   if [[ -n "$INSTANA_AGENT_OPERATOR_INSTALL" ]]; then
     echo "- Instana Agent Operator"
     sm_verify_secret_exists $SECRET_NAME_INSTANA "key"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instana-agent-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/instana-agent-operator.yaml
+    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/instana-agent-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/instana-agent-operator.yaml
   fi
 
   # Commit and push to github target repo

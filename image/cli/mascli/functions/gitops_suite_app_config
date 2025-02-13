@@ -512,7 +512,7 @@ function gitops_suite_app_config() {
   else
     echo
     echo_h2 "Using default application spec for $MAS_APP_ID"
-    jinja -X .+ $CLI_DIR/templates/gitops/app-ws-spec-defaults/${MAS_APP_ID}.yaml.j2 -o ${TEMP_DIR}/${MAS_APP_ID}-appws-spec.yaml
+    jinja $CLI_DIR/templates/gitops/app-ws-spec-defaults/${MAS_APP_ID}.yaml.j2 ${TEMP_DIR}/${MAS_APP_ID}-appws-spec.yaml
     export MAS_APPWS_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-appws-spec.yaml | yq '.' --output-format yaml)
   fi
   echo 
@@ -562,7 +562,7 @@ function gitops_suite_app_config() {
 
   # If the file doesn't exist, create a blank one
   if ! [ -f ${CONFIGS_FILE} ]; then
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config-common.yaml.j2 > $CONFIGS_FILE
+    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config-common.yaml.j2 $CONFIGS_FILE
   fi
 
 
@@ -570,7 +570,7 @@ function gitops_suite_app_config() {
   yq 'del(.ibm_mas_masapp_configs[] | select(.mas_app_id == "'${MAS_APP_ID}'" and .mas_workspace_id == "'${MAS_WORKSPACE_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
   # Render the appropriate template for the config into a new file
-  jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 | yq '{"ibm_mas_masapp_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+  jinjanate --quiet --undefined $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config.yaml.j2 $ADDITIONAL_JINJA_PARAMS_FILE | yq '{"ibm_mas_masapp_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
 
   # Merge the two files
   yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE

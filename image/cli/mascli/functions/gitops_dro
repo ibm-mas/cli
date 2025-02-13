@@ -292,7 +292,7 @@ function gitops_dro() {
   export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
 
   echo "Generating dro file ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-dro.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
+  jinja $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-dro.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------

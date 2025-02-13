@@ -262,7 +262,7 @@ function gitops_db2u() {
   export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
 
   echo "Generating DB2U file ${GITOPS_INSTANCE_DIR}/ibm-db2u.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-db2u.yaml
+  jinja $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-db2u.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-db2u.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
