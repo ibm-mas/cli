@@ -15,13 +15,11 @@
       value: $(params.mas_workspace_id)
     - name: product_channel
       value: $(params.mas_app_channel_manage)
-    - name: fvt_test_suite_prefix
-      value: post-check
+    - name: fvt_test_suite_suffix
+      value: post
     - name: fvt_test_suite
       value: mobile-api-mobile-schema
     - name: input_data_file
-      value: "MobileSetup4MAS.data"
-    - name: output_data_file
       value: "MobileSetup4MAS.data"
     - name: enable_perf_debug
       value: "True"
