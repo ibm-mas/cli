@@ -28,6 +28,7 @@ rules:
       - get
       - create
       - patch
+
   # MAS install creates and deletes secrets
   - apiGroups:
       - ""
@@ -37,6 +38,7 @@ rules:
       - get
       - create
       - delete
+
   # MAS install creates and deletes configmaps
   - apiGroups:
       - ""
@@ -44,6 +46,7 @@ rules:
       - configmaps
     verbs:
       - delete
+
   # MAS install creates Pipelines, Tasks, and PipelineRuns
   - apiGroups:
       - tekton.dev
@@ -54,3 +57,4 @@ rules:
     verbs:
       - get
       - create
+      - patch

@@ -15,10 +15,13 @@ resources:
   - pipeline/clusterrole.yaml
   - pipeline/clusterrole-dro.yaml
   - pipeline/clusterrole-grafana5.yaml
+  - pipeline/clusterrole-mas-x-core.yaml
   - pipeline/clusterrole-mongoce.yaml
   - pipeline/eck.yaml
   - pipeline/grafana5.yaml
   - pipeline/ibm-common-services.yaml
+  - pipeline/ibm-sls.yaml
+  - pipeline/mas-x-core.yaml
   - pipeline/mas-x-pipelines.yaml
   - pipeline/mongoce.yaml
   - pipeline/openshift-config.yaml
