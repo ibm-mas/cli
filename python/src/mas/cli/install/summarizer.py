@@ -18,6 +18,11 @@ logger = logging.getLogger(__name__)
 
 class InstallSummarizerMixin():
     def ocpSummary(self) -> None:
+        self.printH2("Pipeline Configuration")
+        self.printParamSummary("Service Account", "service_account_name")
+        self.printParamSummary("Image Pull Policy", "image_pull_policy")
+        self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
+
         self.printH2("OpenShift Container Platform")
         self.printSummary("Worker Node Architecture", self.architecture)
         self.printSummary("Storage Class Provider", self.storageClassProvider)
@@ -31,9 +36,6 @@ class InstallSummarizerMixin():
             self.printSummary("Single Node OpenShift", "Yes")
         else:
             self.printSummary("Single Node OpenShift", "No")
-
-        self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
-        self.printSummary("Skip Grafana-Install", "Yes" if self.getParam('grafana_action') == "none" else "No")
 
     def masSummary(self) -> None:
         operationalModeNames = ["", "Production", "Non-Production"]

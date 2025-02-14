@@ -17,6 +17,7 @@ nav:
   - "Examples":
       - "EAM Migration": examples/eam-migration.md
       - "Mirror Db2 Images": examples/mirror-db2.md
+      - "Minimal RBAC": examples/minimal-rbac.md
   - "Command Reference":
       - "update": commands/update.md
       - "upgrade": commands/upgrade.md
