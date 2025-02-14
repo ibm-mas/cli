@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Minimal RBAC - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css" />
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: black; }</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+
+  <body>
+    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item  target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/examples/minimal-rbac.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+
+    </cds-header>
+
+    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
+      <cds-side-nav-items>
+        
+          
+  <cds-side-nav-menu title="Guides" >
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-mirroring/" >
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/install/" >
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/update/" >
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/upgrade/" >
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/uninstall/" >
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Examples" active expanded>
+    
+      
+  <cds-side-nav-menu-item href="../eam-migration/" >
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../mirror-db2/" >
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="./" active expanded>
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Command Reference" >
+    
+      
+  <cds-side-nav-menu-item href="../../commands/update/" >
+    update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/upgrade/" >
+    upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/uninstall/" >
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/must-gather/" >
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configure-airgap/" >
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/mirror-redhat-images/" >
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/setup-registry/" >
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/teardown-registry/" >
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-fyre/" >
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-roks/" >
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-rosa/" >
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configtool-oidc/" >
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Operator Catalogs" >
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/" >
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-250206-amd64/" >
+    Feb 06 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-250109-amd64/" >
+    Jan 09 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-241205-amd64/" >
+    Dec 05 2024
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-241107-amd64/" >
+    Nov 07 2024
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Reference" >
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/" >
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/" >
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/" >
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+      </cds-side-nav-items>
+    </cds-side-nav>
+
+    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+      <cds-breadcrumb-item>Examples</cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-breadcrumb-link href="#minimal-rbac-for-mas">Minimal RBAC for MAS</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item>
+    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#disclaimer">Disclaimer</cds-select-item>
+    
+      <cds-select-item value="#introduction">Introduction</cds-select-item>
+    
+      <cds-select-item value="#install">Install</cds-select-item>
+    
+      <cds-select-item value="#tip">Tip</cds-select-item>
+    
+  </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+    </div>
+
+    <div id="main-content" class="rst-content">
+      
+      <h1 id="minimal-rbac-for-mas">Minimal RBAC for MAS<a class="headerlink" href="#minimal-rbac-for-mas" title="Permanent link">¤</a></h1>
+<h2 id="disclaimer">Disclaimer<a class="headerlink" href="#disclaimer" title="Permanent link">¤</a></h2>
+<p>This is a work in progress, for more information see the following issues:</p>
+<ul>
+<li><a href="https://github.com/ibm-mas/cli/issues/1471">#1471 Provide minimal RBAC for full MAS install</a></li>
+<li><a href="https://github.com/ibm-mas/cli/issues/1472">#1472 Create minimal RBAC for update</a></li>
+<li><a href="https://github.com/ibm-mas/cli/issues/1473">#1473 Create minimal RBAC for upgrade</a></li>
+</ul>
+<h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">¤</a></h2>
+<p>By default the MAS CLI is expected to be ran with the <strong>cluster-admin</strong> ClusterRole, and the pipelines it launches will run under an automatically created service account that is granted the same ClusterRole.</p>
+<p>Some customers may wish to work with MAS under a more restricted access level, to achieve this the CLI supports an optional <code>--service-account</code> parameter denoting the service account to use instead of creating one and assigning it cluster-admin permissions.</p>
+<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">¤</a></h2>
+<p>The minimal permissions required to run <code>mas install</code> are captured in the <a href="https://github.com/ibm-mas/cli/tree/master/rbac/install">/rbac/install</a> under separate <strong>user</strong> and <strong>pipeline</strong> folders.  The RBAC definitions here can be used as a starting point to build the exact permissions user, and service account you wish to run the install with or can be used as-is.</p>
+<p>When used as-is they will result in two service accounts being created:</p>
+<ul>
+<li><code>mas-{{mas_instance_id}}-user</code></li>
+<li><code>mas-{{mas_instance_id}}-pipeline</code></li>
+</ul>
+<p>The <strong>user account</strong> provices the minimum permissions to successfully run the <code>mas install</code> command.  The <strong>pipeline account</strong> provides the exact permissions required by the pipeline that will be started on the cluster to perform the install.</p>
+<p>All <strong>Roles</strong>, <strong>RoleBindings</strong>, <strong>ClusterRoles</strong>, and <strong>ClusterRoleBindings</strong> are prefixed <code>mas:{{mas_instance_id}}:install-pipeline</code> or <code>mas:{{mas_instance_id}}:install-user</code>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The RBAC definitions here are only sufficient to install MAS Core Platform &amp; it's dependencies, we are actively working on expanding this to cover the entire suite and all dependencies.</p>
+</div>
+<p>To directly use these definitions you will want to use <strong>kustomize</strong> and <strong>jinja</strong>, following the steps below.  Note the <code>--service-account</code> flag passed to the CLI to inform it not to set up the default pipeline RBAC:</p>
+<pre><code class="language-bash">MAS_INSTANCE_ID=dev1
+export SERVER=https://myocp.net
+# Install the minimal RBAC for the MAS install (as OpenShift administrator)
+oc login --token xxx --server=$SERVER
+kustomize build rbac/install | jinja -D mas_instance_id $MAS_INSTANCE_ID | oc apply -f -
+
+# Get the access token for the user
+export INSTALL_TOKEN=$(oc -n mas-${MAS_INSTANCE_ID}-pipelines get secret mas-${MAS_INSTANCE_ID}-install-token -o jsonpath=&quot;{.data.token}&quot; | base64 -d)
+echo $INSTALL_TOKEN
+
+# Login to the cluster (as MAS install user service account)
+oc login --token $INSTALL_TOKEN --server $SERVER
+
+# Install MAS (using IBMCloud storage classes)
+docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:13.3.0 bash -c &quot;
+  oc login --token $INSTALL_TOKEN --server=$SERVER &amp;&amp;
+  mas install --mas-catalog-version v9-250206-amd64 --ibm-entitlement-key $IBM_ENTITLEMENT_KEY \
+    --mas-channel 9.0.x --mas-instance-id ${MAS_INSTANCE_ID} --mas-workspace-id masdev --mas-workspace-name &quot;My Workspace&quot; \
+    --storage-class-rwo &quot;ibmc-block-gold&quot; --storage-class-rwx &quot;ibmc-file-gold-gid&quot; \
+    --storage-pipeline &quot;ibmc-file-gold-gid&quot; --storage-accessmode &quot;ReadWriteMany&quot; \
+    --license-file &quot;/mnt/home/entitlement.lic&quot; \
+    --uds-email &quot;parkerda@uk.ibm.com&quot; --uds-firstname &quot;David&quot; --uds-lastname &quot;Parker&quot; \
+    --mongodb-namespace &quot;mongoce&quot; \
+    --accept-license --no-confirm --service-account mas-${MAS_INSTANCE_ID}-install-pipeline
+  &quot;
+</code></pre>
+<h2 id="tip">Tip<a class="headerlink" href="#tip" title="Permanent link">¤</a></h2>
+<p>You can view the effective permissions of the MAS service accounts in specific namespaces using <code>oc auth</code> as below:</p>
+<pre><code class="language-bash">oc auth can-i --list --as=system:serviceaccount:mas-${MAS_INSTANCE_ID}-pipelines:mas-${MAS_INSTANCE_ID}-install-pipeline -n openshift-marketplace
+
+oc auth can-i --list --as=system:serviceaccount:mas-${MAS_INSTANCE_ID}-pipelines:mas-${MAS_INSTANCE_ID}-install-user -n openshift-marketplace
+</code></pre>
+      
+    </div>
+    <!-- <div id="footer" class="rst-content">
+      Built with mkdocs v1.6.1 (2025-02-14 18:03:15.381124+00:00)
+    </div> -->
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body>
+</html>
