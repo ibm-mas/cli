@@ -823,6 +823,7 @@ function gitops_mas_config() {
     # Source: gitops_suite_watson_studio_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "watsonstudio" ]; then
+      sm_login
       # Secrets are stored in SM in the cp4d-service function that installs wsl
       export WATSON_STUDIO_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl-cp4d
       export SECRET_KEY_WATSON_STUDIO_USERNAME=${WATSON_STUDIO_SECRET}#username
