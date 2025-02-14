@@ -20,7 +20,7 @@ resources:
   - pipeline/grafana5.yaml
   - pipeline/ibm-common-services.yaml
   - pipeline/mas-x-pipelines.yaml
-#   - pipeline/mongoce.yaml
+  - pipeline/mongoce.yaml
   - pipeline/openshift-config.yaml
   - pipeline/openshift-ingress-operator.yaml
   - pipeline/openshift-ingress.yaml

@@ -25,3 +25,18 @@ rules:
     verbs:
       - create
       - patch
+  # This allows us to configure the necessary anyuid permissions on the MongoDb namespace
+  - apiGroups:
+      - security.openshift.io
+    resources:
+      - securitycontextconstraints
+    resourceNames:
+      - anyuid
+    verbs:
+      - use
+  - apiGroups:
+      - rbac.authorization.k8s.io
+    resources:
+      - clusterrolebindings
+    verbs:
+      - update
