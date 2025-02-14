@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class InstallSummarizerMixin():
     def ocpSummary(self) -> None:
         self.printH2("Pipeline Configuration")
-        self.printParamSummary("Pipeline Service Account", "service_account_name")
+        self.printParamSummary("Service Account", "service_account_name")
         self.printParamSummary("Image Pull Policy", "image_pull_policy")
         self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
 
