@@ -349,7 +349,6 @@ function gitops_db2u_database_noninteractive() {
   [[ -z "$DB2_LOGS_STORAGE_CLASS" ]] && gitops_db2u_database_help "DB2_LOGS_STORAGE_CLASS is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
   [[ -z "$MAS_APP_ID" ]] && gitops_db2u_database_help "MAS_APP_ID is not set"
-  [[ -z "$AUTO_BACKUP" ]] && gitops_db2u_database_help "AUTO_BACKUP is not set"
   
   #MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2u_database_help "MAS_INSTANCE_ID is not set"
@@ -503,6 +502,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
   if [[ -z $SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY ]]; then
     export SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY=${SECRET_NAME_ICD_AUTH_KEY}#icd_auth_key
+  fi
+  if [[ -z $AUTO_BACKUP ]]; then
+    export AUTO_BACKUP=false
   fi
   export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
