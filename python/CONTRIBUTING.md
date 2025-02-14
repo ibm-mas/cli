@@ -8,7 +8,7 @@ Your virtualenv should look something like this:
 
 ```
 Package             Version     Editable project location
-------------------- ----------- ----------------------------------------------------------------
+------------------- ----------- -----------------------------------------------
 blinker             1.9.0
 cachetools          5.5.0
 certifi             2024.8.30
@@ -26,8 +26,8 @@ kubeconfig          1.1.1
 kubernetes          31.0.0
 log-symbols         0.0.14
 MarkupSafe          3.0.2
-mas-cli             100.0.0     /mnt/c/Users/097891866/Documents/GitHub/ibm-mas/installer/python
-mas-devops          100.0.0     /mnt/c/Users/097891866/Documents/GitHub/ibm-mas/python-devops
+mas-cli             100.0.0     /home/x/github/ibm-mas/installer/python
+mas-devops          100.0.0     /home/x/github/ibm-mas/python-devops
 oauthlib            3.2.2
 openshift           0.13.2
 pip                 22.0.2
