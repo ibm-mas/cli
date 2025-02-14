@@ -11,7 +11,7 @@ db2_instance_registry:
   {% filter indent(width=2) -%}
   {{ DB2_INSTANCE_REGISTRY }}
   {%- endfilter %}
-  {% if REPLICA_DB %}
+  {% if REPLICA_DB == 'true' %}
   {% filter indent(width=2) -%}
 DB2_STANDBY_ISO: UR
 DB2_HADR_ROS: ON
@@ -22,7 +22,7 @@ db2_database_db_config:
   {% filter indent(width=2) -%}
   {{ DB2_DATABASE_DB_CONFIG }}
   {%- endfilter %}
-  {% if REPLICA_DB %}
+  {% if REPLICA_DB == 'true' %}
   {% filter indent(width=2) -%}
 HADR_SYNCMODE: NEARSYNC
 HADR_REMOTE_INST: db2inst1
