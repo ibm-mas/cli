@@ -1141,7 +1141,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     instanceId=self.getParam("mas_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
-                    waitForBind=wait
+                    waitForBind=wait,
+                    configureRBAC=(self.getParam("service_account_name") == "")
                 )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,

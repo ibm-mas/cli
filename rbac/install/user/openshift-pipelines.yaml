@@ -2,12 +2,12 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: mas:{{ mas_instance_id }}:install-user:openshift-console
-  namespace: openshift-console
+  name: mas:{{ mas_instance_id }}:install-user:openshift-pipelines
+  namespace: openshift-pipelines
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: mas:{{mas_instance_id}}:install-user:openshift-console
+  name: mas:{{mas_instance_id}}:install-user:openshift-pipelines
 subjects:
   - kind: ServiceAccount
     name: mas-{{ mas_instance_id }}-install-user
@@ -16,13 +16,13 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: mas:{{mas_instance_id}}:install-user:openshift-console
-  namespace: openshift-console
+  name: mas:{{mas_instance_id}}:install-user:openshift-pipelines
+  namespace: openshift-pipelines
 rules:
-  # MAS install will lookup the route to the OpenShift Console
+  # MAS install will check the health of OpenShift pipelines status
   - apiGroups:
-      - route.openshift.io
+      - apps
     resources:
-      - routes
+      - deployments
     verbs:
       - get
