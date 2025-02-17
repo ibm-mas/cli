@@ -1184,6 +1184,12 @@ otherArgGroup.add_argument(
     required=False,
     help="Manually set the image pull policy used in the Tekton Pipeline",
 )
+otherArgGroup.add_argument(
+    "--service-account",
+    dest="service_account_name",
+    required=False,
+    help="Run the install pipeline under a custom service account (also disables creation of the default 'pipeline' service account)",
+)
 
 otherArgGroup.add_argument(
     "-h", "--help",
