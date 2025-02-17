@@ -27,17 +27,17 @@ db2_database_db_config:
 HADR_SYNCMODE: 'NEARSYNC'
 HADR_REMOTE_INST: 'db2inst1'
 LOGINDEXBUILD: 'ON'
-HADR_LOCAL_HOST: c-{{DB2_INSTANCE_NAME}}-db2u-0|c-{{DB2_INSTANCE_NAME}}-db2u-0.c-{{DB2_INSTANCE_NAME}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local
+HADR_LOCAL_HOST: "c-{{DB2_INSTANCE_NAME}}-db2u-0|c-{{DB2_INSTANCE_NAME}}-db2u-0.c-{{DB2_INSTANCE_NAME}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local"
   {% if 'sdb' in DB2_INSTANCE_NAME %}
-HADR_LOCAL_SVC: 60007|60007
-HADR_REMOTE_HOST: c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-0.c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local
-HADR_REMOTE_SVC: 60006
-HADR_TARGET_LIST: c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-0.c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local:60006
+HADR_LOCAL_SVC: '60007|60007'
+HADR_REMOTE_HOST: "c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-0.c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local"
+HADR_REMOTE_SVC: '60006'
+HADR_TARGET_LIST: "c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-0.c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local:60006"
   {% else %}
-HADR_LOCAL_SVC: 60006|60006
-HADR_REMOTE_HOST: c-{{DB2_INSTANCE_NAME}}-sdb-db2u-0.c-{{DB2_INSTANCE_NAME}}-sdb-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local
-HADR_REMOTE_SVC: 60007
-HADR_TARGET_LIST: c-{{DB2_INSTANCE_NAME}}-sdb-db2u-0.c-{{DB2_INSTANCE_NAME}}-sdb-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local:60007
+HADR_LOCAL_SVC: '60006|60006'
+HADR_REMOTE_HOST: "c-{{DB2_INSTANCE_NAME}}-sdb-db2u-0.c-{{DB2_INSTANCE_NAME}}-sdb-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local"
+HADR_REMOTE_SVC: '60007'
+HADR_TARGET_LIST: "c-{{DB2_INSTANCE_NAME}}-sdb-db2u-0.c-{{DB2_INSTANCE_NAME}}-sdb-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local:60007"
   {% endif %}
   {%- endfilter %}
   {% endif %}
