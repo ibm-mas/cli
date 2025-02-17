@@ -13,9 +13,9 @@ db2_instance_registry:
   {%- endfilter %}
   {% if REPLICA_DB == 'true' %}
   {% filter indent(width=2) -%}
-DB2_STANDBY_ISO: UR
-DB2_HADR_ROS: ON
-DB2_HADR_ROS_AVOID_REPLAY_ONLY_WINDOW: ON
+DB2_STANDBY_ISO: 'UR'
+DB2_HADR_ROS: 'ON'
+DB2_HADR_ROS_AVOID_REPLAY_ONLY_WINDOW: 'ON'
   {%- endfilter %}
   {% endif %}
 db2_database_db_config:
@@ -24,9 +24,9 @@ db2_database_db_config:
   {%- endfilter %}
   {% if REPLICA_DB == 'true' %}
   {% filter indent(width=2) -%}
-HADR_SYNCMODE: NEARSYNC
-HADR_REMOTE_INST: db2inst1
-LOGINDEXBUILD: ON
+HADR_SYNCMODE: 'NEARSYNC'
+HADR_REMOTE_INST: 'db2inst1'
+LOGINDEXBUILD: 'ON'
 HADR_LOCAL_HOST: c-{{DB2_INSTANCE_NAME}}-db2u-0|c-{{DB2_INSTANCE_NAME}}-db2u-0.c-{{DB2_INSTANCE_NAME}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local
   {% if 'sdb' in DB2_INSTANCE_NAME %}
 HADR_LOCAL_SVC: 60007|60007
