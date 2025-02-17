@@ -1,44 +1,47 @@
-## Minimum Verification Test for Mobile Inspection MAS test suites
-- name: fvt-mob-android-inspections
+## Minimum Verification Test for Mobile Service Request MAS test suites
+- name: fvt-mob-ios-sr
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
     - name: fvt_mobile_app
-      value: conduct-inspection-app
+      value: service-request-app
     - name: mobile_device_type
-      value: android
+      value: ios
     - name: fvt_test_suite
-      value: inspections-mvt-android
+      value: service-request-mvt-ios
   runAfter:
-    - fvt-mob-android-mobfound
-    - fvt-mob-ios-mobfound
+    - fvt-mob-ios-inspections
+    - fvt-mob-ios-assetmng
+    - fvt-mob-ios-ic
 
-## Minimum Verification Test for Mobile Asset Manager MAS test suites
-- name: fvt-mob-android-assetmng
+# Mobile FVT - Inventory Receiving IOS
+- name: fvt-mob-ios-ir
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
     - name: fvt_mobile_app
-      value: asset-manager
+      value: ir-automation-testcases
     - name: mobile_device_type
-      value: android
+      value: ios
     - name: fvt_test_suite
-      value: asset-manager-mvt-android
+      value: inventory-receiving-mvt-ios
   runAfter:
-    - fvt-mob-android-mobfound
-    - fvt-mob-ios-mobfound
+    - fvt-mob-ios-inspections
+    - fvt-mob-ios-assetmng
+    - fvt-mob-ios-ic
 
-## Mobile FVT - Inventory Counting Android
-- name: fvt-mob-android-ic
+## Minimum Verification Test for Mobile Technician MAS test suites
+- name: fvt-mob-ios-technician
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
     - name: fvt_mobile_app
-      value: ic-automation-testcases
+      value: technician-app
     - name: mobile_device_type
-      value: android
+      value: ios
     - name: fvt_test_suite
-      value: inventory-counting-mvt-android
+      value: technician-mvt-ios
   runAfter:
-    - fvt-mob-android-mobfound
-    - fvt-mob-ios-mobfound
+    - fvt-mob-ios-inspections
+    - fvt-mob-ios-assetmng
+    - fvt-mob-ios-ic
