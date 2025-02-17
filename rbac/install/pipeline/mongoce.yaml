@@ -1,0 +1,166 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mongoce
+  namespace: mongoce
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{ mas_instance_id }}:install-pipeline:mongoce
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mongodb-database
+  namespace: mongoce
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mongodb-database
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mongodb-kubernetes-operator
+  namespace: mongoce
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mongodb-kubernetes-operator
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mongoce
+  namespace: mongoce
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - patch
+  - apiGroups:
+      - mongodbcommunity.mongodb.com
+    resources:
+      - mongodbcommunity
+    verbs:
+      - get
+      - create
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - get
+      - create
+      - patch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - issuers
+      - certificates
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - servicemonitors
+    verbs:
+      - get
+      - create
+      - patch
+---
+# We need the same permissions that we will create RBAC for
+# See: ibm/mas_devops/roles/mongodb/templates/community/0.9.0/rbac.yml.j2
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: mongodb-database
+  namespace: mongoce
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - patch
+  - delete
+  - get
+---
+# We need the same permissions that we will create RBAC for
+# See: ibm/mas_devops/roles/mongodb/templates/community/0.9.0/rbac.yml.j2
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mongodb-kubernetes-operator
+  namespace: mongoce
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - services
+  - configmaps
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - mongodbcommunity.mongodb.com
+  resources:
+  - mongodbcommunity
+  - mongodbcommunity/status
+  - mongodbcommunity/spec
+  - mongodbcommunity/finalizers
+  verbs:
+  - get
+  - patch
+  - list
+  - update
+  - watch
