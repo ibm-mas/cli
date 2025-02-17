@@ -112,6 +112,13 @@ class UpdateApp(BaseApp):
             else:
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Watson Discovery is not installed")
 
+        with Halo(text='Checking for IBM Watson Openscale', spinner=self.spinner) as h:
+            if self.isWatsonOpenscaleInstalled():
+                h.stop_and_persist(symbol=self.failureIcon, text="IBM Watson Openscale is installed")
+                self.fatalError("Watson Openscale is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI (in the ibm-cpd namespace), this is no longer supported and the update can not proceed as a result. Please contact IBM support for assistance")
+            else:
+                h.stop_and_persist(symbol=self.successIcon, text="IBM Watson Openscale is not installed")
+
         with Halo(text='Checking for IBM Certificate-Manager', spinner=self.spinner) as h:
             if self.isIBMCertManagerInstalled():
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager will be replaced by Red Hat Certificate-Manager")
