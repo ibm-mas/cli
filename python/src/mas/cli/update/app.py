@@ -267,6 +267,17 @@ class UpdateApp(BaseApp):
             # Watson Discovery has never been installed on this cluster
             return False
 
+    def isWatsonOpenscaleInstalled(self) -> bool:
+        try:
+            wosAPI = self.dynamicClient.resources.get(api_version="wos.cpd.ibm.com/v1", kind="WOService")
+            wos = wosAPI.get(namespace="ibm-cpd").to_dict()['items']
+            if len(wos) > 0:
+                return True
+            return False
+        except (ResourceNotFoundError, NotFoundError):
+            # Watson Openscale has never been installed on this cluster
+            return False
+
     def isIBMCertManagerInstalled(self) -> bool:
         """
         Check whether the deprecated IBM Certificate-Manager is installed, if it is then we will
