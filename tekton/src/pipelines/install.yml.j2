@@ -308,7 +308,7 @@ spec:
     # 10.1 Optimizer Install
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
       runAfter:
-        - suite-verify
+        - app-cfg-manage
 
     # 10.2 Configure Optimizer workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
