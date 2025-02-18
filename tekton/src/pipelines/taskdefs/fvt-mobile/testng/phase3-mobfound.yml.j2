@@ -1,5 +1,5 @@
 ## All Mobile Foundation MAS test suites
-- name: fvt-mobile-testng-mobfound-android
+- name: fvt-mob-android-mobfound
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -10,11 +10,10 @@
     - name: fvt_test_suite
       value: mobfoundation-mvt-android
   runAfter:
-    - fvt-mobile-jsonschema
-    
+    - fvt-mob-schema-pre
 
 ## Minimum Verification Test for Mobile Foundation MAS test suites
-- name: fvt-mobile-testng-mobfound-ios
+- name: fvt-mob-ios-mobfound
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -25,5 +24,4 @@
     - name: fvt_test_suite
       value: mobfoundation-mvt-ios
   runAfter:
-    - fvt-mobile-jsonschema
-    
+    - fvt-mob-schema-pre
