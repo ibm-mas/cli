@@ -6,10 +6,10 @@
     - name: fvt_test_suite
       value: civil-bvt
   runAfter:
-    - fvt-mobile-jsonschema
+    - fvt-mob-schema-pre
 
 ## Minimum Verification Test for Mobile Defects MAS test suites
-- name: fvt-mobile-testng-defects-android
+- name: fvt-mob-android-defects
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -23,7 +23,7 @@
     - fvt-manage-selenium-civil
 
 # Minimum Verification Test for Mobile Defects MAS test suites
-- name: fvt-mobile-testng-defects-ios
+- name: fvt-mob-ios-defects
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -34,4 +34,4 @@
     - name: fvt_test_suite
       value: civil-defects-mvt-ios
   runAfter:
-    - fvt-mobile-testng-defects-android
+    - fvt-mob-android-defects
