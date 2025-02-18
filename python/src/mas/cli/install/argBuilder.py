@@ -409,6 +409,8 @@ class installArgBuilderMixin():
             command += f"  --skip-grafana-install{newline}"
         if self.getParam('image_pull_policy') != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
+        if self.getParam('service_account_name') != "":
+            command += f"  --service-account {self.getParam('service_account_name')}{newline}"
 
         command += "  --accept-license --no-confirm"
         return command
