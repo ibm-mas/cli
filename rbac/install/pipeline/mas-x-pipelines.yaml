@@ -2,12 +2,12 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: mas:{{ mas_instance_id }}:install-pipeline:openshift-config
-  namespace: openshift-config
+  name: mas:{{ mas_instance_id }}:install-pipeline
+  namespace: mas-{{ mas_instance_id }}-pipelines
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: mas:{{ mas_instance_id }}:install-pipeline:openshift-config
+  name: mas:{{mas_instance_id}}:install-pipeline
 subjects:
   - kind: ServiceAccount
     name: mas-{{ mas_instance_id }}-install-pipeline
@@ -16,13 +16,15 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: mas:{{ mas_instance_id }}:install-pipeline:openshift-config
-  namespace: openshift-config
+  name: mas:{{mas_instance_id}}:install-pipeline
+  namespace: mas-{{mas_instance_id}}-pipelines
 rules:
-  # MAS install will create subscription for OpenShift Pipelines Operator
+  # MAS install creates/updates configmaps to report progress (e.g. sync_install)
   - apiGroups:
       - ""
     resources:
       - configmaps
     verbs:
+      - create
       - get
+      - patch
