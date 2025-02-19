@@ -263,6 +263,12 @@ slsArgGroup.add_argument(
     help="Customize the SLS install namespace",
     default="ibm-sls"
 )
+slsArgGroup.add_argument(
+    "--dedicated-sls",
+    action="store_true",
+    default=False,
+    help="Set the SLS namespace to mas-<instanceid>-sls"
+)
 
 # IBM Data Reporting Operator (DRO)
 # -----------------------------------------------------------------------------
@@ -716,6 +722,30 @@ cpdAppsArgGroup.add_argument(
     action="store_const",
     const="install"
 )
+cpdAppsArgGroup.add_argument(
+    "--cp4d-install-ws",
+    dest="cpd_install_ws",
+    required=False,
+    help="Add Watson Studio as part of Cloud Pak for Data",
+    action="store_const",
+    const="install"
+)
+cpdAppsArgGroup.add_argument(
+    "--cp4d-install-wml",
+    dest="cpd_install_wml",
+    required=False,
+    help="Add Watson Machine Learning as part of Cloud Pak for Data",
+    action="store_const",
+    const="install"
+)
+cpdAppsArgGroup.add_argument(
+    "--cp4d-install-ae",
+    dest="cpd_install_ae",
+    required=False,
+    help="Add Spark Analytics Engine as part of Cloud Pak for Data",
+    action="store_const",
+    const="install"
+)
 
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------
@@ -1153,6 +1183,12 @@ otherArgGroup.add_argument(
     dest="image_pull_policy",
     required=False,
     help="Manually set the image pull policy used in the Tekton Pipeline",
+)
+otherArgGroup.add_argument(
+    "--service-account",
+    dest="service_account_name",
+    required=False,
+    help="Run the install pipeline under a custom service account (also disables creation of the default 'pipeline' service account)",
 )
 
 otherArgGroup.add_argument(

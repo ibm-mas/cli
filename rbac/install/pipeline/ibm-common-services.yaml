@@ -1,64 +1,28 @@
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: masinstall-pipeline-role
-  namespace: ibm-common-services
-rules:
-  - apiGroups:
-      - ""
-    resources:
-      - namespaces
-    verbs:
-      - get
-      - patch
-  - apiGroups:
-      - ""
-    resources:
-      - secrets
-      - configmaps
-    verbs:
-      - get
-  # Detect presence of existing operator group before creating a new one
-  - apiGroups:
-      - operators.coreos.com
-    resources:
-      - installplans
-      - subscriptions
-      - operatorgroups
-    verbs:
-      - get
-      - list
-      - create
-      - patch
-  # Pipeline will query available packages
-  - apiGroups:
-      - packages.operators.coreos.com
-    resources:
-      - packagemanifests
-    verbs:
-      - get
-  # IBM ODLM
-  - apiGroups:
-      - operator.ibm.com
-    resources:
-      - operandrequests
-    verbs:
-      - get
-      - list
-      - create
-      - patch
----
-apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: masinstall-pipeline-rb
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-common-services
   namespace: ibm-common-services
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: masinstall-pipeline-role
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-common-services
 subjects:
   - kind: ServiceAccount
-    name: pipeline
-    namespace: mas-djptest-pipelines
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:ibm-common-services
+  namespace: ibm-common-services
+rules:
+  # We look for a configmap as part of handling the transition away from IBM Certificate Manager
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get

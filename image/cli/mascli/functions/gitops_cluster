@@ -87,6 +87,9 @@ CrowdStrike Falcon Operator (Optional):
 Cluster Logging Operator (Optional):
       --install-cluster-logging-operator ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL${TEXT_RESET}           Install the Cluster Logging Operator
 
+Instana Agent Operator (Optional):
+      --install-instana-agent-operator ${COLOR_YELLOW}INSTANA_AGENT_OPERATOR_INSTALL${TEXT_RESET}               Install the Instana Agent Operator
+
 Other Commands:
   -h, --help                              Show this help message
 EOM
@@ -282,6 +285,11 @@ function gitops_cluster_noninteractive() {
       # Cluster Logging Operator
       --install-cluster-logging-operator)
         export CLUSTER_LOGGING_OPERATOR_INSTALL=true
+        ;;
+
+      # Instana Agent Operator
+      --install-instana-agent-operator)
+        export INSTANA_AGENT_OPERATOR_INSTALL=true
         ;;
 
       # Other Commands
@@ -481,6 +489,11 @@ function gitops_cluster() {
   echo_reset_dim "Use Syslog Forwarder ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER}"
   reset_colors
 
+  echo "${TEXT_DIM}"
+  echo_h2 "Instana Agent Operator" "    "
+  echo_reset_dim "Install the Instana Agent Operator ........... ${COLOR_MAGENTA}${INSTANA_AGENT_OPERATOR_INSTALL}"
+  reset_colors
+
   # Set up secrets
   # ---------------------------------------------------------------------------
   echo
@@ -509,6 +522,9 @@ function gitops_cluster() {
   export SECRET_KEY_CLOUDWATCH_AWS_SECRET_ACCESS_KEY=${SECRET_NAME_CLOUDWATCH}#aws_secret_access_key
   export SECRET_KEY_CLOUDWATCH_AWS_ACCESS_KEY_ID=${SECRET_NAME_CLOUDWATCH}#aws_access_key_id
 
+  export SECRET_NAME_INSTANA=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}instana
+  export SECRET_KEY_INSTANA_KEY=${SECRET_NAME_INSTANA}#key
+
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
@@ -531,6 +547,12 @@ function gitops_cluster() {
     echo "- Update CLOUDWATCH_AWS_SECRET_ACCESS_KEY and CLOUDWATCH_AWS_ACCESS_KEY_ID secrets"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_CLOUDWATCH "{\"aws_secret_access_key\": \"${CLOUDWATCH_AWS_SECRET_ACCESS_KEY}\", \"aws_access_key_id\": \"${CLOUDWATCH_AWS_ACCESS_KEY_ID}\"}" "${TAGS}"
+  fi
+
+  if [ -n "$INSTANA_KEY" ]; then
+    echo "- Update INSTANA_KEY secret"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_INSTANA "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
   fi
 
   if [ -z $GIT_SSH ]; then
@@ -649,6 +671,12 @@ function gitops_cluster() {
     echo "- Cluster Logging Operator"
     sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
     jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
+  fi
+
+  if [[ -n "$INSTANA_AGENT_OPERATOR_INSTALL" ]]; then
+    echo "- Instana Agent Operator"
+    sm_verify_secret_exists $SECRET_NAME_INSTANA "key"
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instana-agent-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/instana-agent-operator.yaml
   fi
 
   # Commit and push to github target repo

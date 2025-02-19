@@ -1,6 +1,6 @@
 # mkdocs serve
 
-site_name: Maximo Application Suite CLI Documentation
+site_name: Maximo Application Suite CLI
 site_url: https://ibm-mas.github.io/cli
 
 repo_name: GitHub
@@ -17,6 +17,7 @@ nav:
   - "Examples":
       - "EAM Migration": examples/eam-migration.md
       - "Mirror Db2 Images": examples/mirror-db2.md
+      - "Minimal RBAC": examples/minimal-rbac.md
   - "Command Reference":
       - "update": commands/update.md
       - "upgrade": commands/upgrade.md
@@ -32,14 +33,19 @@ nav:
       - "configtool-oidc": commands/configtool-oidc.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
+      - "Feb 06 2025": catalogs/v9-250206-amd64.md
       - "Jan 09 2025": catalogs/v9-250109-amd64.md
       - "Dec 05 2024": catalogs/v9-241205-amd64.md
       - "Nov 07 2024": catalogs/v9-241107-amd64.md
-      - "Oct 03 2024": catalogs/v9-241003-amd64.md
   - "Reference":
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
       - "Cluster Extensions": reference/cluster-extensions.md
+not_in_nav: |
+  index.md
+  catalogs/packages/*
+  catalogs/v8-*
+  catalogs/v9-*
 
 theme:
   name: carbon

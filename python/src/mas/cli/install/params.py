@@ -29,6 +29,7 @@ requiredParams = [
 optionalParams = [
     # Pipeline
     "image_pull_policy",
+    "service_account_name",
     # OpenShift
     "ocp_ingress_tls_secret_name",
     # MAS
@@ -71,8 +72,6 @@ optionalParams = [
     "mas_cluster_issuer",
     # DRO
     "dro_namespace",
-    # MongoDb
-    "mongodb_namespace",
     # Db2
     "db2_action_system",
     "db2_action_manage",
@@ -99,6 +98,9 @@ optionalParams = [
     "cpd_install_cognos",
     "cpd_install_openscale",
     "cpd_install_spss",
+    "cpd_install_ws",
+    "cpd_install_wml",
+    "cpd_install_ae",
     # Kafka
     "kafka_namespace",
     "kafka_version",

@@ -1,4 +1,5 @@
-- name: fvt-mobile-testng-ic-desktop
+# inventory counting desktop tasks
+- name: fvt-mob-desktop-ic
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -9,17 +10,12 @@
     - name: fvt_test_suite
       value: inventory-counting-mvt-desktop
   runAfter:
-    - fvt-mobile-testng-assetmng-ios
-    - fvt-mobile-testng-calibration-ios
-    - fvt-mobile-testng-inspections-ios
-    - fvt-mobile-testng-ic-ios
-    - fvt-mobile-testng-ir-ios
-    - fvt-mobile-testng-it-ios
-    - fvt-mobile-testng-sr-ios
-    - fvt-mobile-testng-supervisor-ios
-    - fvt-mobile-testng-technician-ios
+    - fvt-mob-ios-supervisor
+    - fvt-mob-ios-calibration
+    - fvt-mob-ios-it
 
-- name: fvt-mobile-testng-inspforms-desktop
+# inspections form desktop tasks
+- name: fvt-mob-desktop-inspforms
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
@@ -30,12 +26,6 @@
     - name: fvt_test_suite
       value: inspection-forms-mvt-desktop
   runAfter:
-    - fvt-mobile-testng-assetmng-ios
-    - fvt-mobile-testng-calibration-ios
-    - fvt-mobile-testng-inspections-ios
-    - fvt-mobile-testng-ic-ios
-    - fvt-mobile-testng-ir-ios
-    - fvt-mobile-testng-it-ios
-    - fvt-mobile-testng-sr-ios
-    - fvt-mobile-testng-supervisor-ios
-    - fvt-mobile-testng-technician-ios
+    - fvt-mob-ios-supervisor
+    - fvt-mob-ios-calibration
+    - fvt-mob-ios-it

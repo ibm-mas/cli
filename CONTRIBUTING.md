@@ -110,6 +110,24 @@ git checkout -b name-your-branch
 git checkout name-your-branch
 ```
 
+Testing with a modified python-devops code.
+-------------------------------------------------------------------------------
+Make sure that the python-devops repository is cloned locally in the same directory
+as the CLI repository. 
+From the top level CLI directory, run
+```
+make python-devops
+```
+This will build and copy the locally modified python-devops package into the CLI image
+structure so that the modified python-devops will be included when the CLI is built.
+
+Build the CLI, either locally or in GitHub.
+
+NOTE: if building on MacOS you will need to first install pandoc or the `make python-devops` command may fail:
+```
+brew install pandoc
+```
+
 
 Pull Requests
 -------------------------------------------------------------------------------

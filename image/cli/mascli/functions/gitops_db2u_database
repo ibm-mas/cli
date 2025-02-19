@@ -62,6 +62,10 @@ IBM DB2U:
       --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
       --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
       --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                   Slack URL to notify DB2 backup failures
+      --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                    Flag to know that this is ReplicaDB instance
+      --is-replica-task ${COLOR_YELLOW}IS_REPLICA_TASK${TEXT_RESET}                                           To check if this is invoked by replica task
+      --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}                                           MAS Annotations
+      --auto-backup ${COLOR_YELLOW}AUTO_BACKUP${TEXT_RESET}                                                   Flag whether to install the Auto DB2 backup feature or not
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -124,6 +128,9 @@ function gitops_db2u_database_noninteractive() {
         ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
+        ;;
+      --mas-annotations)
+        export MAS_ANNOTATIONS=$1 && shift
         ;;
 
       # Secrets Manager
@@ -276,6 +283,15 @@ function gitops_db2u_database_noninteractive() {
       # Optional DB2 Backup details
       --db2-backup-notify-slack-url)
         export DB2_BACKUP_NOTIFY_SLACK_URL=$1 && shift
+        ;;
+      --replica-db)
+        export REPLICA_DB=$1 && shift
+        ;;
+      --is-replica-task)
+        export IS_REPLICA_TASK=$1 && shift
+        ;;
+      --auto-backup)
+        export AUTO_BACKUP=$1 && shift
         ;;
 
 
@@ -459,8 +475,18 @@ DB2_4K_DEVICE_SUPPORT: '${DB2_4K_DEVICE_SUPPORT}'
 DB2_FMP_RUN_AS_CONNECTED_USER: 'NO'
 DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
+  if [[ -z $REPLICA_DB ]]; then
+    export REPLICA_DB="false"
+  fi
+  if [[ -z $IS_REPLICA_TASK ]]; then
+    export IS_REPLICA_TASK="false"
+  fi
   if [[ -z $DB2_INSTANCE_NAME ]]; then
-    export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+    if [[ $IS_REPLICA_TASK == 'true' ]]; then
+      export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}-sdb
+    else
+      export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+    fi
   fi
   if [[ -z $DB2_BACKUP_BUCKET_NAME ]]; then
     export DB2_BACKUP_BUCKET_NAME=${SECRET_NAME_DB2_BACKUP}#bucketName
@@ -476,6 +502,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   fi
   if [[ -z $SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY ]]; then
     export SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY=${SECRET_NAME_ICD_AUTH_KEY}#icd_auth_key
+  fi
+  if [[ -z $AUTO_BACKUP ]]; then
+    export AUTO_BACKUP=false
   fi
   export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
@@ -570,6 +599,10 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "db2-tolerate-effect ........................... ${COLOR_MAGENTA}${DB2_TOLERATE_EFFECT}"
   echo_reset_dim "JDBC_ROUTE .................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
   echo_reset_dim "db2-timezone .................................. ${COLOR_MAGENTA}${DB2_TIMEZONE}"
+  echo_reset_dim "replica-db .................................... ${COLOR_MAGENTA}${REPLICA_DB}"
+  echo_reset_dim "is-replica-task ............................... ${COLOR_MAGENTA}${IS_REPLICA_TASK}"
+  echo_reset_dim "mas-annotations ............................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
+  echo_reset_dim "auto-backup ................................... ${COLOR_MAGENTA}${AUTO_BACKUP}"
   reset_colors
 
 
@@ -578,20 +611,22 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
 
-  if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${SECRET_NAME_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
+  if [[ $AUTO_BACKUP == 'true' ]]; then
+    if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+      sm_update_secret ${SECRET_NAME_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
+    else
+      if [[ -z "$DB2_BACKUP_NOTIFY_SLACK_URL" ]]; then
+        echo -e "DB2 Auto Backup feature is enabled but Slack Url is not configured"
+      fi
+      if [[ -z "$ICD_AUTH_KEY" ]]; then
+        echo -e "DB2 Auto Backup feature is enabled but ICD_AUTH_KEY is not available as environment properties in the apps pipeline"
+      fi
+      exit 1
+    fi
   else
-    if [[ -z "$DB2_BACKUP_NOTIFY_SLACK_URL" ]]; then
-      echo
-      echo_h2 "Slack Url is not configured for DB2 backup"
-    fi
-    if [[ -z "$ICD_AUTH_KEY" ]]; then
-      echo
-      echo_h2 "ICD_AUTH_KEY is not available as environment properties in the apps pipeline"
-    fi
     echo
-    echo_h2 "Hence optional feature - DB2 automated backup is not enabled"
+    echo_h2 "Optional feature - DB2 automated backup is not enabled"
   fi
 
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-db2u-database
@@ -622,7 +657,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   # Optional DB backup configs
   # ---------------------------------------------------------------------------
-  if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
+  if [[ $AUTO_BACKUP == 'true' && -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
     echo
     echo_h2 "Optional DB backup configurations are provided"
     sm_verify_secret_exists $SECRET_NAME_ICD_AUTH_KEY "icd_auth_key"
@@ -701,8 +736,12 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   # Remove any existing config with this name
   yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
-  # Render the appropriate template for the config into a new file
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+  # Create new file
+  echo -n "" > ${TEMP_DIR}/newconfig.yaml
+  # Render the appropriate template for the config into a new file. For standby database, it will be generated only if it is a replica task and replica is enabled.
+  if [[ (${IS_REPLICA_TASK} == 'false') || (${IS_REPLICA_TASK} == 'true' && ${REPLICA_DB} == 'true') ]]; then
+    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+  fi
 
   # Merge the two files
   yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE

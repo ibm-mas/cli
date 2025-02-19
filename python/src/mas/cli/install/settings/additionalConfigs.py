@@ -89,7 +89,7 @@ class AdditionalConfigsMixin():
             elif podTemplateChoice == 2:
                 self.setParam("mas_pod_templates_dir", path.join(self.templatesDir, "pod-templates", "best-effort"))
             elif podTemplateChoice == 3:
-                self.promptForDir("Pod templates directory", "mas_pod_templates_dir", mustExist=True)
+                self.setParam("mas_pod_templates_dir", self.promptForDir("Pod templates directory", mustExist=True))
             else:
                 self.fatalError(f"Invalid selection: {podTemplateChoice}")
 
@@ -181,6 +181,19 @@ class AdditionalConfigsMixin():
                         certsSecret = self.addFilesToSecret(certsSecret, apps[app]["dir"], ext, apps[app]["keyPrefix"])
 
             self.certsSecret = certsSecret
+
+    def slsLicenseFile(self) -> None:
+        if self.slsLicenseFileLocal:
+            slsLicenseFileSecret = {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-sls-entitlement"
+                }
+            }
+            self.setParam("sls_entitlement_file", f"/workspace/entitlement/{path.basename(self.slsLicenseFileLocal)}")
+            self.slsLicenseFileSecret = self.addFilesToSecret(slsLicenseFileSecret, self.slsLicenseFileLocal, '')
 
     def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str, keyPrefix: str = '') -> dict:
         """

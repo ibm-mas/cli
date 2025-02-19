@@ -1,8 +1,21 @@
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: mas:{{ mas_instance_id }}:install-pipeline
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: masinstall-pipeline-clusterrole
+  name: mas:{{ mas_instance_id }}:install-pipeline
 rules:
   # ocp_verify will lookup the clusterversion to determine health of the cluster, and obtain the cluster ingres cert from the proxy/ingress
   - apiGroups:
@@ -13,6 +26,15 @@ rules:
       - ingresses
     verbs:
       - get
+
+  # ibm_catalogs will lookup available imagedigestmirrorsets to determine whether we are using a mirror
+  - apiGroups:
+      - config.openshift.io
+    resources:
+      - imagedigestmirrorsets
+    verbs:
+      - list
+
   # ocp_verify will query all installed catalogsources, and subscriptions
   - apiGroups:
       - operators.coreos.com
@@ -22,6 +44,7 @@ rules:
     verbs:
       - get
       - list
+
   # ocp_verify will query all deployments and statefulsets to check health of the cluster
   - apiGroups:
       - apps
@@ -31,6 +54,7 @@ rules:
     verbs:
       - get
       - list
+
   # Used to detect whether the install is a disconnected install in various places
   - apiGroups:
       - operator.openshift.io
@@ -38,6 +62,7 @@ rules:
       - imagecontentsourcepolicies
     verbs:
       - get
+
   # Monitor the progress of operator installations
   - apiGroups:
       - apiextensions.k8s.io
@@ -45,18 +70,7 @@ rules:
       - customresourcedefinitions
     verbs:
       - get
-  # Creation of RBAC (e.g. for Grafana)
-  - apiGroups:
-      - rbac.authorization.k8s.io
-    resources:
-      - clusterroles
-      - clusterrolebindings
-      - roles
-      - rolebindings
-    verbs:
-      - get
-      - create
-      - patch
+
   # DRO install will search all namespaces for a BASCfg
   - apiGroups:
       - config.mas.ibm.com
@@ -64,6 +78,7 @@ rules:
       - bascfgs
     verbs:
       - list
+
   # DRO install will attempt to get the IBM entitlement key from any namespace where it finds a BASCfg
   - apiGroups:
       - ""
@@ -72,58 +87,11 @@ rules:
     verbs:
       - get
 
-  # We need all the same permissions that the Grafana ClusterRole needs, to be able to create that ClusterRole
+  # The CertManager install is cluster scoped
   - apiGroups:
-      - ""
+      - operator.openshift.io
     resources:
-      - events
+      - certmanagers
     verbs:
       - get
-      - list
-      - watch
-      - create
-      - delete
-      - update
       - patch
-  - apiGroups:
-      - integreatly.org
-    resources:
-      - grafanadashboards
-      - grafanadatasources
-      - grafanadatasources/status
-    verbs:
-      - get
-      - list
-      - create
-      - update
-      - delete
-      - deletecollection
-      - watch
-  - apiGroups:
-      - grafana.integreatly.org
-    resources:
-      - grafanadashboards
-      - grafanadatasources
-      - grafanadatasources/status
-    verbs:
-      - get
-      - list
-      - create
-      - update
-      - delete
-      - deletecollection
-      - watch
-
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: masinstall-pipeline-crb
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: masinstall-pipeline-clusterrole
-subjects:
-  - kind: ServiceAccount
-    name: pipeline
-    namespace: mas-djptest-pipelines

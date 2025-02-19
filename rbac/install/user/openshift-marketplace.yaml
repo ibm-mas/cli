@@ -1,8 +1,22 @@
 ---
 apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-user:openshift-marketplace
+  namespace: openshift-marketplace
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{mas_instance_id}}:install-user:openshift-marketplace
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-user
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: masinstall-role
+  name: mas:{{mas_instance_id}}:install-user:openshift-marketplace
   namespace: openshift-marketplace
 rules:
   # MAS install will check that the catalog source exists
@@ -19,17 +33,3 @@ rules:
       - packagemanifests
     verbs:
       - get
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: masinstall-rb
-  namespace: openshift-marketplace
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: masinstall-role
-subjects:
-  - kind: ServiceAccount
-    name: masinstall-sa
-    namespace: kube-system
