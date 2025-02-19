@@ -259,7 +259,6 @@ class InstallSummarizerMixin():
                 self.printSummary("Watson Machine Learning", "Install" if self.getParam("cpd_install_wml") == "true" else "Do Not Install")
                 self.printSummary("Analytics Engine", "Install" if self.getParam("cpd_install_ae") == "true" else "Do Not Install")
 
-            self.printSummary("Watson Openscale", "Install" if self.getParam("cpd_install_openscale") == "true" else "Do Not Install")
             self.printSummary("SPSS Modeler", "Install" if self.getParam("cpd_install_spss") == "true" else "Do Not Install")
             self.printSummary("Cognos Analytics", "Install" if self.getParam("cpd_install_cognos") == "true" else "Do Not Install")
 
