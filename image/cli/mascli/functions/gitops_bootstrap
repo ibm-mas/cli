@@ -237,7 +237,7 @@ function gitops_bootstrap() {
   fi
 
   # 12. Add cluster to ARgoCD
-  argocd login ${ARGOCD_URL} --username ${ARGOCD_USERNAME} --password ${ARGOCD_PASSWORD} --insecure
+  argocd login ${ARGOCD_URL} --username ${ARGOCD_USERNAME} --password ${ARGOCD_PASSWORD} --insecure --skip-test-tls
   export K8S_AUTH_CONTEXT=$(oc whoami -c)
   argocd cluster add $K8S_AUTH_CONTEXT -y
   rc=$?
