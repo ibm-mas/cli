@@ -306,6 +306,8 @@
     <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
+      <cds-select-item value="#release-notes">Release Notes</cds-select-item>
+    
       <cds-select-item value="#install-modes">Install Modes</cds-select-item>
     
       <cds-select-item value="#service-accounts">Service Accounts</cds-select-item>
@@ -322,6 +324,19 @@
     <div id="main-content" class="rst-content">
       
       <h1 id="ibm-maximo-application-suite-v908">IBM Maximo Application Suite v9.0.8<a class="headerlink" href="#ibm-maximo-application-suite-v908" title="Permanent link">¤</a></h1>
+<h2 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">¤</a></h2>
+<h3 id="bug-fixes-and-security-updates">Bug Fixes and Security Updates<a class="headerlink" href="#bug-fixes-and-security-updates" title="Permanent link">¤</a></h3>
+<ul>
+<li>Fix a security issue where the error_description of a failed login could be tampered with in the URL query parameter (90x) (#3387)</li>
+<li>update mobileapi version (#3395)</li>
+<li>Update Suite CRD to support hostAliases under podTemplates (#3401)</li>
+<li>Update ScimCfg and PushNotificationCfg CRD to support hostAliases under podTemplates (#3404)</li>
+<li>Update SlsCfg and SmtpCfg CRD to support hostAliases under podTemplates (#3407)</li>
+<li>Update BasCfg CRD to support hostAliases under podTemplates (#3410)</li>
+<li>Temporarily disable broken ibm-mas-cfg-idp molecule scenario (#3420)</li>
+<li>add 9.0.7 and 9.11.18 mas suite img digest (#3424)</li>
+<li>Fix the execution order of ibm-mas-cfg-idp molecule tasks (#3426)</li>
+</ul>
 <h2 id="install-modes">Install Modes<a class="headerlink" href="#install-modes" title="Permanent link">¤</a></h2>
 <table>
 <thead>
@@ -1438,7 +1453,7 @@
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-02-19 22:50:20.151148+00:00)
+      Built with mkdocs v1.6.1 (2025-02-20 14:25:36.400045+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>

@@ -306,6 +306,8 @@
     <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
+      <cds-select-item value="#release-notes">Release Notes</cds-select-item>
+    
       <cds-select-item value="#install-modes">Install Modes</cds-select-item>
     
       <cds-select-item value="#service-accounts">Service Accounts</cds-select-item>
@@ -322,6 +324,24 @@
     <div id="main-content" class="rst-content">
       
       <h1 id="ibm-maximo-predict-v897">IBM Maximo Predict v8.9.7<a class="headerlink" href="#ibm-maximo-predict-v897" title="Permanent link">¤</a></h1>
+<h2 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">¤</a></h2>
+<h3 id="bug-fixes-and-security-updates">Bug Fixes and Security Updates<a class="headerlink" href="#bug-fixes-and-security-updates" title="Permanent link">¤</a></h3>
+<ul>
+<li>change to status.versions to avoid workarounds in the playbooks (#320)</li>
+<li>update preload notebook status shortly after operator starts: 8.9 release (#325)</li>
+<li>disable HPA for MAS 8.11 (#326)</li>
+<li>fix travis yaml (#361)</li>
+<li>change predictapi to 5.9.0-pre.stable (#362)</li>
+<li>add MAT-SERVICE-URL (#366)</li>
+<li>fix typo of domain (#375)</li>
+<li>fix the MAT_URL and AIX_URL (#376)</li>
+<li>SRE - Add serviceability dashboard with OpenTelemetry (#381)</li>
+<li>move opentelemetry related from main operator to  ws operator (#384)</li>
+<li>Predict - upgrade ansible operator base image to 7.5.13 #15179 (#390)</li>
+<li>update pmlib version (#392)</li>
+<li>update pmlib version (#392) (#393)</li>
+<li>upgrade PMLIB version (#396)</li>
+</ul>
 <h2 id="install-modes">Install Modes<a class="headerlink" href="#install-modes" title="Permanent link">¤</a></h2>
 <table>
 <thead>
@@ -585,7 +605,7 @@
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-02-19 22:50:20.457037+00:00)
+      Built with mkdocs v1.6.1 (2025-02-20 14:25:36.720610+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>

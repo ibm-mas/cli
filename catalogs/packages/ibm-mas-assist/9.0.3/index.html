@@ -306,6 +306,8 @@
     <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
+      <cds-select-item value="#release-notes">Release Notes</cds-select-item>
+    
       <cds-select-item value="#install-modes">Install Modes</cds-select-item>
     
       <cds-select-item value="#service-accounts">Service Accounts</cds-select-item>
@@ -322,6 +324,124 @@
     <div id="main-content" class="rst-content">
       
       <h1 id="ibm-mas-assist-v903">IBM MAS Assist v9.0.3<a class="headerlink" href="#ibm-mas-assist-v903" title="Permanent link">¤</a></h1>
+<h2 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">¤</a></h2>
+<h3 id="bug-fixes-and-security-updates">Bug Fixes and Security Updates<a class="headerlink" href="#bug-fixes-and-security-updates" title="Permanent link">¤</a></h3>
+<ul>
+<li>updated openshift version due security vulnerabilities (#63)</li>
+<li>add api customer scale code in (#76)</li>
+<li>Upgrade CronJob to batch/v1 for OCP 4.12 compatibility (#83)</li>
+<li>Fix digital issue  (#99)</li>
+<li>fix 2 bugs for OM3.1 and OM 3.2 (#100)</li>
+<li>add serviceability dashboard (#112)</li>
+<li>add healthping rate limit into settings.common (#122)</li>
+<li>Add molecule test cases for OM 3.1 and OM 3.2 (#134)</li>
+<li>fix security issue 6126 (#141)</li>
+<li>fix uninstall error (#152)</li>
+<li>dev into stable (#154)</li>
+<li>updatedevimage into  dev at 2023-12-30T12-32Z (#164)</li>
+<li>updateimgtags into  dev at 2024-01-03T23-04Z (#173)</li>
+<li>updatedevimage into  dev at 2024-01-07T14-07Z (#184)</li>
+<li>updatedevimgtags into  dev at 2024-01-07T14-03Z (#182)</li>
+<li>updatedevimage into  dev at 2024-01-08T13-53Z (#192)</li>
+<li>updatedevimgtags into  dev at 2024-01-08T13-43Z (#190)</li>
+<li>updatedevimgtags into  dev at 2024-01-10T04-19Z (#206)</li>
+<li>updatedevimgtags into  dev at 2024-01-11T13-46Z (#217)</li>
+<li>updatedevimage into  dev at 2024-01-16T17-12Z (#247)</li>
+<li>updatedevimgtags into  dev at 2024-01-18T06-30Z (#257)</li>
+<li>updatedevimgtags into  dev at 2024-01-22T17-03Z (#270)</li>
+<li>updatedevimgtags into  dev at 2024-01-24T17-02Z (#282)</li>
+<li>updatedevimage into  dev at 2024-01-24T17-08Z (#283)</li>
+<li>updatedevimage into  dev at 2024-01-30T17-12Z (#313)</li>
+<li>updatedevimgtags into  dev at 2024-02-01T02-19Z (#323)</li>
+<li>update Grafana Dashboard to v5 (#288)</li>
+<li>updatedevimage into  dev at 2024-02-01T17-11Z (#324)</li>
+<li>updatedevimgtags into  dev at 2024-02-25T17-11Z (#370)</li>
+<li>updatedevimage into  dev at 2024-02-25T17-16Z (#371)</li>
+<li>updatedevimgtags into  dev at 2024-02-29T17-18Z (#396)</li>
+<li>updatedevimage into  dev at 2024-03-03T17-21Z (#415)</li>
+<li>updatedevimgtags into  dev at 2024-03-03T17-16Z (#414)</li>
+<li>updatedevimage into  dev at 2024-03-04T17-28Z (#422)</li>
+<li>updatedevimgtags into  dev at 2024-03-04T17-17Z (#421)</li>
+<li>updatedevimgtags into  dev at 2024-03-10T17-02Z (#445)</li>
+<li>updatedevimage into  dev at 2024-03-10T17-08Z (#446)</li>
+<li>Hide voice from Assist (#451)</li>
+<li>updatedevimgtags into  dev at 2024-03-12T17-07Z (#450)</li>
+<li>updatedevimgtags into  dev at 2024-03-17T17-07Z (#465)</li>
+<li>updatedevimgtags into  dev at 2024-03-20T17-29Z (#478)</li>
+<li>workaround studio  login issue (#484)</li>
+<li>updatedevimgtags into  dev at 2024-03-24T17-11Z (#503)</li>
+<li>updatedevimgtags into  dev at 2024-03-25T17-13Z (#511)</li>
+<li>updatedevimage into  dev at 2024-03-25T17-19Z (#512)</li>
+<li>Rollback (#522)</li>
+<li>updatedevimgtags into  dev at 2024-03-29T03-35Z (#531)</li>
+<li>updatedevimgtags into  dev at 2024-03-31T17-05Z (#540)</li>
+<li>updatedevimgtags into  dev at 2024-04-01T06-10Z (#544)</li>
+<li>updatedevimgtags into  dev at 2024-04-02T17-07Z (#554)</li>
+<li>use operator name as ibm-mas-assist  (#559)</li>
+<li>updatedevimgtags into  dev at 2024-04-07T17-10Z (#574)</li>
+<li>update operator name (#577)</li>
+<li>updatedevimgtags into  dev at 2024-04-08T17-11Z (#579)</li>
+<li>updatedevimgtags into  dev at 2024-04-09T17-12Z (#582)</li>
+<li>updatedevimage into  dev at 2024-04-09T17-20Z (#583)</li>
+<li>add livenessprobe for pem (#600)</li>
+<li>updatedevimgtags into  dev at 2024-04-11T17-13Z (#594)</li>
+<li>upgrade follow-redirects version to 1.15.6 (#620)</li>
+<li>updatedevimgtags into  dev at 2024-04-21T17-20Z (#639)</li>
+<li>updatedevimage into  dev at 2024-04-21T17-24Z (#640)</li>
+<li>updatedevimgtags into  dev at 2024-04-22T17-20Z (#644)</li>
+<li>updatedevimgtags into  dev at 2024-04-23T17-22Z (#648)</li>
+<li>GRAPHITE-75683: remove query roles (#647)</li>
+<li>updatedevimgtags into  dev at 2024-04-24T17-23Z (#651)</li>
+<li>updatedevimgtags into  dev at 2024-04-28T17-24Z (#662)</li>
+<li>updatedevimgtags into  dev at 2024-04-29T17-25Z (#664)</li>
+<li>updatedevimgtags into  dev at 2024-05-05T17-29Z (#681)</li>
+<li>Remove the rollback test build (#665)</li>
+<li>updatedevimgtags into  dev at 2024-05-06T17-29Z (#684)</li>
+<li>remove query - part 2 (#685)</li>
+<li>updatedevimgtags into  dev at 2024-05-08T17-30Z (#691)</li>
+<li>updatedevimage into  dev at 2024-05-10T17-34Z (#707)</li>
+<li>updatedevimgtags into  dev at 2024-05-10T17-30Z (#706)</li>
+<li>UseSepatae db for different branch (#716)</li>
+<li>updatedevimgtags into  dev at 2024-05-13T17-32Z (#717)</li>
+<li>updatedevimage into  dev at 2024-05-13T17-36Z (#718)</li>
+<li>updatedevimgtags into  dev at 2024-05-14T17-32Z (#727)</li>
+<li>updatedevimgtags into  dev at 2024-05-15T17-32Z (#730)</li>
+<li>updatedevimage into  dev at 2024-05-15T17-35Z (#731)</li>
+<li>GRAPHITE-76959: remove query and hide diagnosis (#743)</li>
+<li>updatedevimgtags into  dev at 2024-05-16T17-13Z (#738)</li>
+<li>updatedevimgtags into  dev at 2024-05-27T17-02Z (#795)</li>
+<li>updatedevimgtags into  dev at 2024-05-29T17-02Z (#803)</li>
+<li>updatedevimage into  dev at 2024-05-29T17-05Z (#804)</li>
+<li>updatedevimgtags into  dev at 2024-05-30T17-03Z (#809)</li>
+<li>updatedevimage into  dev at 2024-05-30T17-07Z (#810)</li>
+<li>updatedevimgtags into  dev at 2024-06-03T13-23Z (#815)</li>
+<li>updatedevimgtags into  dev at 2024-06-03T15-18Z (#816)</li>
+<li>updatedevimgtags into  dev at 2024-06-05T13-07Z (#820)</li>
+<li>update900image into  maint90xdev at 2024-06-26T04-06Z (#900)</li>
+<li>update90ximgtags into  maint90xdev at 2024-06-26T04-02Z (#899)</li>
+<li>update90ximgtags into  maint90xdev at 2024-06-27T04-02Z (#906)</li>
+<li>fix valkey redis sentinel start issue (#903) (#921)</li>
+<li>update90ximgtags into  maint90xdev at 2024-07-02T04-02Z (#922)</li>
+<li>update90ximgtags into  maint90xdev at 2024-07-05T08-26Z (#936)</li>
+<li>update900image into  maint90xdev at 2024-07-09T04-11Z (#948)</li>
+<li>update90ximgtags into  maint90xdev at 2024-07-09T05-46Z (#950)</li>
+<li>update900image into  maint90xdev at 2024-07-14T04-05Z (#970)</li>
+<li>update90ximgtags into  maint90xdev at 2024-07-17T04-02Z (#980)</li>
+<li>update90ximgtags into  maint90xdev at 2024-07-29T04-02Z (#1015)</li>
+<li>update90ximgtags into  maint90xdev at 2024-07-30T07-34Z (#1019)</li>
+<li>update900image into  maint90xdev at 2024-07-31T04-03Z (#1027)</li>
+<li>update90ximgtags into  maint90xdev at 2024-08-04T04-01Z (#1038)</li>
+<li>update90ximgtags into  maint90xdev at 2024-08-07T04-02Z (#1051)</li>
+<li>update900image into  maint90xdev at 2024-08-07T04-03Z (#1052)</li>
+<li>update90ximgtags into  maint90xdev at 2024-08-08T04-02Z (#1058)</li>
+<li>update90ximgtags into  maint90xdev at 2024-08-09T04-02Z (#1061)</li>
+<li>update90ximgtags into  maint90xdev at 2024-08-11T04-01Z (#1069)</li>
+<li>update90ximgtags into  maint90xdev at 2024-08-13T09-04Z (#1073)</li>
+<li>update900image into  maint90xdev at 2024-08-14T02-17Z (#1081)</li>
+<li>update90ximgtags into  maint90xdev at 2024-08-23T04-09Z (#1096)</li>
+<li>update90ximgtags into  maint90xdev at 2024-11-22T09-42Z (#1503)</li>
+<li>update900image into  maint90xdev at 2024-11-22T09-44Z (#1506)</li>
+</ul>
 <h2 id="install-modes">Install Modes<a class="headerlink" href="#install-modes" title="Permanent link">¤</a></h2>
 <table>
 <thead>
@@ -707,7 +827,7 @@
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-02-19 22:50:20.221221+00:00)
+      Built with mkdocs v1.6.1 (2025-02-20 14:25:36.478065+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
