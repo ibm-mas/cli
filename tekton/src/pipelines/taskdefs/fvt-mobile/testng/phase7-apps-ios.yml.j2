@@ -1,0 +1,47 @@
+## Minimum Verification Test for Mobile Inspections MAS test suites
+- name: fvt-mob-ios-inspections
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: conduct-inspection-app
+    - name: mobile_device_type
+      value: ios
+    - name: fvt_test_suite
+      value: inspections-mvt-ios
+  runAfter:
+    - fvt-mob-android-supervisor
+    - fvt-mob-android-calibration
+    - fvt-mob-android-it
+
+## Minimum Verification Test for Mobile Asset Manager MAS test suites
+- name: fvt-mob-ios-assetmng
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: asset-manager
+    - name: mobile_device_type
+      value: ios
+    - name: fvt_test_suite
+      value: asset-manager-mvt-ios
+  runAfter:
+    - fvt-mob-android-supervisor
+    - fvt-mob-android-calibration
+    - fvt-mob-android-it
+
+# Mobile FVT - Inventory Counting IOS
+- name: fvt-mob-ios-ic
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
+    - name: fvt_mobile_app
+      value: ic-automation-testcases
+    - name: mobile_device_type
+      value: ios
+    - name: fvt_test_suite
+      value: inventory-counting-mvt-ios # xml for Mobile IC
+  runAfter:
+    - fvt-mob-android-supervisor
+    - fvt-mob-android-calibration
+    - fvt-mob-android-it
