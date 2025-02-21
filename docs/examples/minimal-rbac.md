@@ -40,7 +40,9 @@ MAS_INSTANCE_ID=dev1
 export SERVER=https://myocp.net
 # Install the minimal RBAC for the MAS install (as OpenShift administrator)
 oc login --token xxx --server=$SERVER
-kustomize build rbac/install | jinja -D mas_instance_id $MAS_INSTANCE_ID | oc apply -f -
+export mas_instance_id=$MAS_INSTANCE_ID
+kustomize build rbac/install > rbac-install.yaml
+jinjanate rbac-install.yaml | oc apply -f -
 
 # Get the access token for the user
 export INSTALL_TOKEN=$(oc -n mas-${MAS_INSTANCE_ID}-pipelines get secret mas-${MAS_INSTANCE_ID}-install-token -o jsonpath="{.data.token}" | base64 -d)
