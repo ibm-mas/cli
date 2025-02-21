@@ -730,7 +730,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   # If the file doesn't exist, create a blank one
   if ! [ -f ${CONFIGS_FILE} ]; then
-    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database-common.yaml.j2 $CONFIGS_FILE
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database-common.yaml.j2 $CONFIGS_FILE
   fi
 
   # Remove any existing config with this name
@@ -740,7 +740,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo -n "" > ${TEMP_DIR}/newconfig.yaml
   # Render the appropriate template for the config into a new file. For standby database, it will be generated only if it is a replica task and replica is enabled.
   if [[ (${IS_REPLICA_TASK} == 'false') || (${IS_REPLICA_TASK} == 'true' && ${REPLICA_DB} == 'true') ]]; then
-    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-db2u-database.yaml.j2 | yq '{"ibm_db2u_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
   fi
 
   # Merge the two files

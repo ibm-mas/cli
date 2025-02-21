@@ -348,7 +348,8 @@ function ocp_version_check() {
   fi
 }
 
-function jinja() {
+# Calls jinjanate with common arguments. Call jinjanate directly if this does not suit your use case. 
+function jinjanate_commmon() {
   local template_path=$1
   local output_path=$2
   local filter_files=$(ls $CLI_DIR/templates/filters/*.py)

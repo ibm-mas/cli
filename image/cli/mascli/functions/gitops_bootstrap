@@ -179,7 +179,7 @@ function gitops_bootstrap() {
 
   # 2. Create Secret Manager secret
   echo 'Create Secret Manager Backend Secret'
-  jinja ${CLI_DIR}/templates/gitops/bootstrap/secret-${AVP_TYPE}.yaml.j2 | oc apply  -f -
+  jinjanate_commmon ${CLI_DIR}/templates/gitops/bootstrap/secret-${AVP_TYPE}.yaml.j2 | oc apply  -f -
 
   # 3. Create repo server SA
   echo 'Create ArgoCD repo server service account'
@@ -204,11 +204,11 @@ function gitops_bootstrap() {
   oc wait --for=jsonpath='{.status.applicationController}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
 
   # 6. Add the GitHub PAT secret (used to authenticate to your environment repository, which is assumed to be private)
-  jinja ${CLI_DIR}/templates/gitops/bootstrap/secret-github.yaml.j2 | oc apply -f -
+  jinjanate_commmon ${CLI_DIR}/templates/gitops/bootstrap/secret-github.yaml.j2 | oc apply -f -
 
   # 7. Add the root project and application
   oc apply  -f ${CLI_DIR}/templates/gitops/bootstrap/mas-appproject.yaml
-  jinja ${CLI_DIR}/templates/gitops/bootstrap/root-application.yaml.j2 | oc apply -f -
+  jinjanate_commmon ${CLI_DIR}/templates/gitops/bootstrap/root-application.yaml.j2 | oc apply -f -
 
   # 8. Patch openshift-marketplace and kube-system to allow GitOps to manage resources in the namespace
   echo 'Patch standard namespaces to enable GitOps management'

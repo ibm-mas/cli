@@ -363,7 +363,7 @@ function gitops_suite_app_install() {
   else
     echo
     echo_h2 "Using default application spec for $MAS_APP_ID"
-    jinja $CLI_DIR/templates/gitops/app-spec-defaults/${MAS_APP_ID}.yaml.j2 ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml
+    jinjanate_commmon $CLI_DIR/templates/gitops/app-spec-defaults/${MAS_APP_ID}.yaml.j2 ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml
     export MAS_APP_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml | yq '.' --output-format yaml)
   fi
   echo_reset_dim "MAS_APP_SPEC ............................ ${COLOR_MAGENTA}${MAS_APP_SPEC}"
@@ -428,7 +428,7 @@ function gitops_suite_app_install() {
 
   echo "- IBM MAS Application Install"
   CONFIG_FILE=${GITOPS_INSTANCE_DIR}/ibm-mas-masapp-${MAS_APP_ID}-install.yaml
-  jinja $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-install.yaml.j2 ${CONFIG_FILE}
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-install.yaml.j2 ${CONFIG_FILE}
 
 
   echo_h2 "Generated configuration file (${CONFIG_FILE})"

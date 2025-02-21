@@ -839,7 +839,7 @@ function gitops_mas_config() {
 
     # If the file doesn't exist, create a blank one
     if ! [ -f ${CONFIGS_FILE} ]; then
-      jinja $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-config-common.yaml.j2 $CONFIGS_FILE
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-config-common.yaml.j2 $CONFIGS_FILE
     fi
 
     # Remove any existing config with this name

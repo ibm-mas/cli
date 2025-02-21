@@ -378,14 +378,14 @@ function gitops_cp4d_service() {
 
   if [[ "$CPD_SERVICE_NAME" == "wsl" || "$CPD_SERVICE_NAME" == "wml" || "$CPD_SERVICE_NAME" == "spss" ]]; then
     echo "Generating IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml"
-    jinja $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d-services-base.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d-services-base.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml
   fi
   
   echo
   echo "- ${CPD_SERVICE_NAME} operator"
 
   echo "Generating IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml"
-  jinja $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-${CPD_SERVICE_NAME}.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-${CPD_SERVICE_NAME}.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
