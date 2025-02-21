@@ -12,6 +12,9 @@ db2_instance_registry:
   {{ DB2_INSTANCE_REGISTRY }}
   {%- endfilter %}
   {% if REPLICA_DB == 'true' %}
+DB2_STANDBY_ISO: 'UR'
+DB2_HADR_ROS: 'ON'
+DB2_HADR_ROS_AVOID_REPLAY_ONLY_WINDOW: 'ON'
   {% endif %}
 db2_database_db_config:
   {% filter indent(width=2) -%}
@@ -21,17 +24,20 @@ db2_database_db_config:
   {% filter indent(width=2) -%}
 HADR_SYNCMODE: 'NEARSYNC'
 HADR_REMOTE_INST: 'db2inst1'
-HADR_LOCAL_HOST: "c-{{DB2_INSTANCE_NAME}}-db2u-0|c-{{DB2_INSTANCE_NAME}}-db2u-0.c-{{DB2_INSTANCE_NAME}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local"
+LOGINDEXBUILD: 'ON'
+HADR_LOCAL_HOST: 'c-{{DB2_INSTANCE_NAME}}-db2u-0|c-{{DB2_INSTANCE_NAME}}-db2u-0.c-{{DB2_INSTANCE_NAME}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local'
+  {% if ENHANCED_HADR != 'true' %}
   {% if 'sdb' in DB2_INSTANCE_NAME %}
-HADR_LOCAL_SVC: "60007|60007"
-HADR_REMOTE_HOST: "c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-0.c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local"
-HADR_REMOTE_SVC: "60006"
-HADR_TARGET_LIST: "c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-0.c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local:60006"
+HADR_LOCAL_SVC: '60007|60007'
+HADR_REMOTE_HOST: 'c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-0.c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local'
+HADR_REMOTE_SVC: '60006'
+HADR_TARGET_LIST: 'c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-0.c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local:60006'
   {% else %}
-HADR_LOCAL_SVC: "60006|60006"
-HADR_REMOTE_HOST: "c-{{DB2_INSTANCE_NAME}}-sdb-db2u-0.c-{{DB2_INSTANCE_NAME}}-sdb-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local"
+HADR_LOCAL_SVC: '60006|60006'
+HADR_REMOTE_HOST: 'c-{{DB2_INSTANCE_NAME}}-sdb-db2u-0.c-{{DB2_INSTANCE_NAME}}-sdb-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local'
 HADR_REMOTE_SVC: '60007'
-HADR_TARGET_LIST: "c-{{DB2_INSTANCE_NAME}}-sdb-db2u-0.c-{{DB2_INSTANCE_NAME}}-sdb-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local:60007"
+HADR_TARGET_LIST: 'c-{{DB2_INSTANCE_NAME}}-sdb-db2u-0.c-{{DB2_INSTANCE_NAME}}-sdb-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local:60007'
+  {% endif %}
   {% endif %}
   {%- endfilter %}
   {% endif %}
