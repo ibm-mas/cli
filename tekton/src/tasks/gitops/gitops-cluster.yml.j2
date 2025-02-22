@@ -117,6 +117,22 @@ spec:
       type: string
       default: 'true'
 
+    - name: instana_agent_operator_install
+      type: string
+      default: 'false'
+    - name: instana_agent_operator_endpoint_host
+      type: string
+      default: ''
+    - name: instana_agent_operator_endpoint_port
+      type: string
+      default: ''
+    - name: instana_agent_operator_env
+      type: string
+      default: ''
+    - name: instana_agent_operator_jks_storage_class
+      type: string
+      default: ''
+
   stepTemplate:
     name: gitops-cluster
     env:
@@ -206,6 +222,17 @@ spec:
         value: $(params.cluster_logging_operator_install)
       - name: CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER
         value: $(params.cluster_logging_operator_use_syslog_forwarder)
+
+      - name: INSTANA_AGENT_OPERATOR_INSTALL
+        value: $(params.instana_agent_operator_install)
+      - name: INSTANA_AGENT_OPERATOR_ENDPOINT_HOST
+        value: $(params.instana_agent_operator_endpoint_host)
+      - name: INSTANA_AGENT_OPERATOR_ENDPOINT_PORT
+        value: $(params.instana_agent_operator_endpoint_port)
+      - name: INSTANA_AGENT_OPERATOR_ENV
+        value: $(params.instana_agent_operator_env)
+      - name: INSTANA_AGENT_OPERATOR_JKS_STORAGE_CLASS
+        value: $(params.instana_agent_operator_jks_storage_class)
 
     envFrom:
       - configMapRef:
