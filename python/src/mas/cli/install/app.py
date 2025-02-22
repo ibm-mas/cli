@@ -481,7 +481,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("mongodb_replicas", "1")
             self.setParam("mongodb_cpu_requests", "500m")
             self.setParam("mas_app_settings_aio_flag", "false")
-    
+
     def configIPV6(self):
         if self.interactiveMode and self.showAdvancedOptions:
             enableIPV6 = self.yesOrNo("Configure to run in IPV6")

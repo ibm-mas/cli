@@ -112,7 +112,7 @@ class installArgBuilderMixin():
 
         if self.getParam('mas_enable_walkme') == "false":
             command += f"  --disable-walkme{newline}"
-        
+
         if self.getParam('enable_ipv6') is True:
             command += f"  --enable-ipv6{newline}"
 
