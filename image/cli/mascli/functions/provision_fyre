@@ -24,8 +24,8 @@ Cluster Configuration (Required):
   -l, --location ${COLOR_YELLOW}FYRE_SITE${TEXT_RESET}                FYRE site where cluster will be provisioned (default is "svl")
 
 Cluster Configuration (Optional):
-  -f, --fips-enable ${COLOR_YELLOW}OCP_FIPS_ENABLED${TEXT_RESET}      Enable FIPS settings in this Fyre cluster
-  -i, --ipv6-enable ${COLOR_YELLOW}ENABLE_IPV6${TEXT_RESET}           Enable IPV6 settings in this Fyre cluster. When 'true', site will be automatically changed to 'rtp'.
+  -f, --enable-fips ${COLOR_YELLOW}OCP_FIPS_ENABLED${TEXT_RESET}      Enable FIPS settings in this Fyre cluster
+  -i, --enable-ipv6 ${COLOR_YELLOW}ENABLE_IPV6${TEXT_RESET}           Enable IPV6 settings in this Fyre cluster. When 'true', site will be automatically changed to 'rtp'.
 
 Fyre Quick Burn Worker Node Configuration (Optional, only takes effect when quota-type is set to "quickburn"):
       --cluster-size ${COLOR_YELLOW}FYRE_CLUSTER_SIZE${TEXT_RESET}    When Fyre Quick Burn, defines the size category ("medium" or "large")
@@ -96,10 +96,10 @@ function provision_fyre_noninteractive() {
         ;;
       
       # Cluster Definition - optional
-      -f|--fips-enable)
+      -f|--enable-fips)
         OCP_FIPS_ENABLED=$1 && shift
         ;;
-      -i|--ipv6-enable)
+      -i|--enable-ipv6)
         ENABLE_IPV6=$1 && shift
         ;;
 
