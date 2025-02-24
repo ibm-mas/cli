@@ -132,9 +132,10 @@ class BaseApp(PrintMixin, PromptMixin):
         # Initialize the dictionary that will hold the parameters we pass to a PipelineRun
         self.params = dict()
 
-        # These dicts will hold the additional-configs, pod-templates and manual certificates secrets
+        # These dicts will hold the additional-configs, pod-templates, sls license file and manual certificates secrets
         self.additionalConfigsSecret = None
         self.podTemplatesSecret = None
+        self.slsLicenseFileSecret = None
         self.certsSecret = None
 
         self._isSNO = None

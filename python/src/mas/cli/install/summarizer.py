@@ -18,6 +18,11 @@ logger = logging.getLogger(__name__)
 
 class InstallSummarizerMixin():
     def ocpSummary(self) -> None:
+        self.printH2("Pipeline Configuration")
+        self.printParamSummary("Service Account", "service_account_name")
+        self.printParamSummary("Image Pull Policy", "image_pull_policy")
+        self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
+
         self.printH2("OpenShift Container Platform")
         self.printSummary("Worker Node Architecture", self.architecture)
         self.printSummary("Storage Class Provider", self.storageClassProvider)
@@ -31,9 +36,6 @@ class InstallSummarizerMixin():
             self.printSummary("Single Node OpenShift", "Yes")
         else:
             self.printSummary("Single Node OpenShift", "No")
-
-        self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
-        self.printSummary("Skip Grafana-Install", "Yes" if self.getParam('grafana_action') == "none" else "No")
 
     def masSummary(self) -> None:
         operationalModeNames = ["", "Production", "Non-Production"]
@@ -252,7 +254,11 @@ class InstallSummarizerMixin():
                 self.printSummary("Watson Studio Local", "Install (Required by Maximo Predict)")
                 self.printSummary("Watson Machine Learning", "Install (Required by Maximo Predict)")
                 self.printSummary("Analytics Engine", "Install (Required by Maximo Predict)")
-            self.printSummary("Watson Openscale", "Install" if self.getParam("cpd_install_openscale") == "true" else "Do Not Install")
+            else:
+                self.printSummary("Watson Studio Local", "Install" if self.getParam("cpd_install_ws") == "true" else "Do Not Install")
+                self.printSummary("Watson Machine Learning", "Install" if self.getParam("cpd_install_wml") == "true" else "Do Not Install")
+                self.printSummary("Analytics Engine", "Install" if self.getParam("cpd_install_ae") == "true" else "Do Not Install")
+
             self.printSummary("SPSS Modeler", "Install" if self.getParam("cpd_install_spss") == "true" else "Do Not Install")
             self.printSummary("Cognos Analytics", "Install" if self.getParam("cpd_install_cognos") == "true" else "Do Not Install")
 
@@ -265,9 +271,12 @@ class InstallSummarizerMixin():
 
     def slsSummary(self) -> None:
         self.printH2("IBM Suite License Service")
-        self.printSummary("License File", self.slsLicenseFileLocal)
-        self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
         self.printParamSummary("Namespace", "sls_namespace")
+        if self.getParam("sls_action") == "install":
+            self.printSummary("Subscription Channel", "3.x")
+            self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
+            if self.slsLicenseFileLocal:
+                self.printSummary("License File", self.slsLicenseFileLocal)
 
     def cosSummary(self) -> None:
         self.printH2("Cloud Object Storage")

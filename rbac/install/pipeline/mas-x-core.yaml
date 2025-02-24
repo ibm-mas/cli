@@ -1,0 +1,70 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mas:{{ mas_instance_id }}:install-pipeline:mas-core
+  namespace: mas-{{ mas_instance_id }}-core
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: mas:{{mas_instance_id}}:install-pipeline:mas-core
+subjects:
+  - kind: ServiceAccount
+    name: mas-{{ mas_instance_id }}-install-pipeline
+    namespace: mas-{{ mas_instance_id }}-pipelines
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mas:{{mas_instance_id}}:install-pipeline:mas-core
+  namespace: mas-{{mas_instance_id}}-core
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - patch
+  - apiGroups:
+      - operators.coreos.com
+    resources:
+      - installplans
+      - operatorgroups
+      - subscriptions
+    verbs:
+      - get
+      - list
+      - create
+      - patch
+
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+      - secrets
+    verbs:
+      - create
+      - get
+      - patch
+
+  - apiGroups:
+      - core.mas.ibm.com
+    resources:
+      - suites
+      - workspaces
+    verbs:
+      - create
+      - patch
+
+  - apiGroups:
+      - config.mas.ibm.com
+    resources:
+      - jdbccfgs
+      - mongocfgs
+      - kafkacfgs
+      - slscfgs
+      - bascfgs
+    verbs:
+      - create
+      - patch

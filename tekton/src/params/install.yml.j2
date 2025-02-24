@@ -27,7 +27,7 @@
   default: ""
 - name: sls_entitlement_file
   type: string
-  default: "/workspace/entitlement/entitlement.lic"
+  default: ""
 - name: sls_mongodb_cfg_file
   type: string
   # The default value works for the default in-cluster install, it will need
@@ -40,6 +40,9 @@
   type: string
   default: ""
 - name: sls_icr_cpopen
+  type: string
+  default: ""
+- name: sls_action
   type: string
   default: ""
 
@@ -229,13 +232,16 @@
 - name: cpd_install_spss
   type: string
   default: ""
-- name: cpd_install_openscale
-  type: string
-  default: ""
 - name: cpd_install_cognos
   type: string
   default: ""
-- name: cpd_install_all
+- name: cpd_install_ws
+  type: string
+  default: ""
+- name: cpd_install_wml
+  type: string
+  default: ""
+- name: cpd_install_ae
   type: string
   default: ""
 

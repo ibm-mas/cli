@@ -29,6 +29,7 @@ requiredParams = [
 optionalParams = [
     # Pipeline
     "image_pull_policy",
+    "service_account_name",
     # OpenShift
     "ocp_ingress_tls_secret_name",
     # MAS
@@ -57,6 +58,7 @@ optionalParams = [
     "mas_app_settings_server_timezone",
     "mas_appws_bindings_jdbc_manage",
     "mas_appws_components",
+    "mas_appws_bindings_health_wsl_flag",
     "mas_domain",
     # SLS
     "sls_namespace",
@@ -70,8 +72,6 @@ optionalParams = [
     "mas_cluster_issuer",
     # DRO
     "dro_namespace",
-    # MongoDb
-    "mongodb_namespace",
     # Db2
     "db2_action_system",
     "db2_action_manage",
@@ -96,8 +96,10 @@ optionalParams = [
     # CP4D
     "cpd_product_version",
     "cpd_install_cognos",
-    "cpd_install_openscale",
     "cpd_install_spss",
+    "cpd_install_ws",
+    "cpd_install_wml",
+    "cpd_install_ae",
     # Kafka
     "kafka_namespace",
     "kafka_version",
