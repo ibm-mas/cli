@@ -615,7 +615,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installMonitor:
             self.configAppChannel("monitor")
 
-        self.installManage = self.yesOrNo("Install Manage")
+        self.manageAppName = "Manage"
+        self.isManageFoundation = False
+        self.installManage = self.yesOrNo(f"Install {self.manageAppName}")
+
+        # If the selection was to not install manage but we are in mas_channel 9.1 or later, we need to set self.isManageFoundation to True
+        # Also, we need to force self.installManage to be True because Manage must always be installed in MAS 9.1 or later
+        if not self.installManage:
+            if not self.getParam("mas_channel").startswith("8.") and not self.getParam("mas_channel").startswith("9.0"):
+                self.installManage = True
+                self.isManageFoundation = True
+                self.manageAppName = "Manage Foundation"
+                self.printDescription([f"{self.manageAppName} will be installed with the following apps: User, Group, Graphite Tool and Mobile Configurator"])
 
         if self.installManage:
             self.configAppChannel("manage")
