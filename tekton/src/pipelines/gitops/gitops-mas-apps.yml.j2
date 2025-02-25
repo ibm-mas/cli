@@ -1882,6 +1882,36 @@ spec:
         - input: "$(params.mas_edition)"
           operator: in
           values: ["essentials-maintenance", "standard", "premium"]
+
+    # 6.5 Manage Replica Config
+    - name: gitops-deprovision-db2u-replica-database-manage
+      runAfter:
+        - gitops-deprovision-mas-app-install-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+        - name: is_replica_task
+          value: 'true'
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u-database
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_manage)"
+          operator: in
+          values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-maintenance", "standard", "premium"]
   
     # 7. IoT Deprovision
     # -------------------------------------------------------------------------
