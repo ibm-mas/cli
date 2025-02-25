@@ -5,7 +5,7 @@ function provision_aws_help() {
   reset_colors
   cat << EOM
 Usage:
-  mas provision-aws-sno [options]
+  mas provision-aws [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -20,6 +20,10 @@ Cluster Configuration (Required):
 IPI Configuration (Required):
   -r, --region-name ${COLOR_YELLOW}IPI_REGION${TEXT_RESET}                  Region of the cluster to be provisioned (e.g. us-east-1, us-east-2)
   -d, --domain-name ${COLOR_YELLOW}IPI_BASE_DOMAIN${TEXT_RESET}             Base Domain name (e.g. buyermas4aws.com)
+  -f, --secret-file ${COLOR_YELLOW}IPI_PULL_SECRET_FILE${TEXT_RESET}        Location of the file containing your Redhat OpenShift pull secret
+
+Single Node OpenShift (Optional)
+  -s, --single-node ${COLOR_YELLOW}SNO_MODE${TEXT_RESET}                    SNO_MODE when 'true' indicates cluster must be configured with in a single node mode (e.g. 1 control plane replica, 1 mongodb replica, etc)
 
 Other Commands:
       --no-confirm                              Provision the cluster without prompting for confirmation
@@ -54,6 +58,12 @@ function provision_aws_noninteractive() {
       -d|--domain-name)
         export IPI_BASE_DOMAIN=$1 && shift
         ;;
+      -s|--single-node)
+        export SNO_MODE=$1 && shift
+        ;;
+      -f|--secret-file)
+        export IPI_PULL_SECRET_FILE=$1 && shift
+        ;;
       --no-confirm)
         export NO_CONFIRM=true
         ;;
@@ -76,6 +86,11 @@ function provision_aws_noninteractive() {
   [[ -z "$OCP_VERSION" ]] && provision_aws_help "OCP_VERSION is not set"
   [[ -z "$IPI_REGION" ]] && provision_aws_help "IPI_REGION is not set"
   [[ -z "$IPI_BASE_DOMAIN" ]] && provision_aws_help "IPI_BASE_DOMAIN is not set"
+
+  # Set SNO Vars in case SNO_MODE = true
+  if [[ "$SNO_MODE" == "true" ]]; then
+    set_sno_vars
+  fi
 }
 
 # function set_default_vars sets default variables for a generic AWS provisioning.
@@ -93,6 +108,7 @@ function set_default_vars() {
 function set_sno_vars() {
   export IPI_CONTROLPLANE_REPLICAS=1  # IPI_CONTROLPLANE_REPLICAS
   export IPI_COMPUTE_REPLICAS=0       # IPI_COMPUTE_REPLICAS
+  export IPI_ROOTVOLUME_SIZE=250      # IPI_ROOTVOLUME_SIZE - 250GB following docs https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=clusters-installation-prerequisites
 }
 
 # function provision_aws_interactive contains the prompts for the different variables.
@@ -170,11 +186,14 @@ function provision_aws_interactive() {
 # The following function is a work in progress and is not ready for testing
 function provision_aws_cluster() {
   # Take the first parameter off (it will be provision-aws-sno)
+  echo "Before shift the value is: $#"
   shift
+  echo "$#"
   if [[ $# -gt 0 ]]; then
     provision_aws_noninteractive "$@"
   else
-    provision_aws_interactive "$@"
+    # provision_aws_interactive
+    provision_aws_noninteractive "$@"
   fi
 
   ansible-playbook ibm.mas_devops.ocp_aws_provision || exit 1
