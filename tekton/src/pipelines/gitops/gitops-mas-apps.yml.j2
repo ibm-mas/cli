@@ -289,14 +289,12 @@ spec:
       type: string
       default: "Automatic"
 
-      #CP4D wml, analytics, openscale, spss modeler
+      #CP4D wml, analytics, spss modeler
     - name: cp4d_wsl_action
       type: string
     - name: cp4d_watson_machine_learning_action
       type: string
     - name: cp4d_analytics_engine_action
-      type: string
-    - name: cp4d_watson_openscale_action
       type: string
     - name: cp4d_spss_modeler_action
       type: string
@@ -1183,7 +1181,6 @@ spec:
         - gitops-suite-watson-studio-config-predict
         - gitops-cp4d-wml
         - gitops-cp4d-spark
-        - gitops-cp4d-aiopenscale
         - gitops-cp4d-spss
 
 
@@ -1389,61 +1386,6 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.cp4d_analytics_engine_action)"
-          operator: in
-          values: ["install"]
-
-    # 13.4 CP4D aiopenscale
-    - name: gitops-cp4d-aiopenscale
-      runAfter:
-        - gitops-cp4d
-      params:
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
-
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
-        
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
-
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-
-        - name: cpd_service_name
-          value: aiopenscale
-        - name: cpd_product_version
-          value: $(params.cpd_product_version)
-        - name: cpd_service_block_storage_class
-          value: $(params.cpd_service_block_storage_class)
-        - name: cpd_service_storage_class
-          value: $(params.cpd_service_storage_class)
-        - name: cpd_service_scale_config
-          value: $(params.cpd_service_scale_config)
-        - name: cpd_service_installplan_approval
-          value: $(params.cpd_service_installplan_approval)
-        - name: cpd_ccs_install_plan
-          value: $(params.cpd_ccs_install_plan)
-        - name: cpd_datarefinery_install_plan
-          value: $(params.cpd_datarefinery_install_plan)
-        - name: cpd_ws_install_plan
-          value: $(params.cpd_ws_install_plan)
-        - name: rabbitmq_install_plan
-          value: $(params.rabbitmq_install_plan)
-        - name: elasticsearch_install_plan
-          value: $(params.elasticsearch_install_plan)
-        - name: canvasbase_install_plan
-          value: $(params.canvasbase_install_plan)
-
-      workspaces:
-        - name: configs
-          workspace: configs
-        - name: shared-gitops-configs
-          workspace: shared-gitops-configs
-      taskRef:
-        kind: Task
-        name: gitops-cp4d-service
-      when:
-        - input: "$(params.mas_app_channel_predict)"
-          operator: notin
-          values: [""]
-        - input: "$(params.cp4d_watson_openscale_action)"
           operator: in
           values: ["install"]
 

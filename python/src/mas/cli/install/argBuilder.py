@@ -237,8 +237,6 @@ class installArgBuilderMixin():
             command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
             if self.getParam('cpd_install_spss') == "install":
                 command += " --cp4d-install-spss"
-            if self.getParam('cpd_install_openscale') == "install":
-                command += " --cp4d-install-openscal"
             if self.getParam('cpd_install_cognos') == "install":
                 command += " --cp4d-install-cognos"
             if self.getParam('cpd_install_ws') == "install":
@@ -409,6 +407,8 @@ class installArgBuilderMixin():
             command += f"  --skip-grafana-install{newline}"
         if self.getParam('image_pull_policy') != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
+        if self.getParam('service_account_name') != "":
+            command += f"  --service-account {self.getParam('service_account_name')}{newline}"
 
         command += "  --accept-license --no-confirm"
         return command

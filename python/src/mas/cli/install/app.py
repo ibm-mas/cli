@@ -723,12 +723,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.showAdvancedOptions and self.installPredict:
             self.printH1("Configure Maximo Predict")
             self.printDescription([
-                "Predict application supports integration with IBM SPSS and Watson Openscale which are optional services installed on top of IBM Cloud Pak for Data",
+                "Predict application supports integration with IBM SPSS which is an optional service installed on top of IBM Cloud Pak for Data",
                 "Unless requested these will not be installed"
             ])
             self.configCP4D()
             self.yesOrNo("Install IBM SPSS Statistics", "cpd_install_spss")
-            self.yesOrNo("Install Watson OpenScale", "cpd_install_openscale")
 
     @logMethodCall
     def assistSettings(self) -> None:
@@ -758,7 +757,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Customize Maximo Manage database settings (schema, tablespace, indexspace)",
             " - Customize Maximo Manage server bundle configuration (defaults to \"all\" configuration)",
             " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
-            " - Enable optional Maximo Predict integration with SPSS and Watson OpenScale",
+            " - Enable optional Maximo Predict integration with SPSS",
             " - Enable optional IBM Turbonomic integration",
             " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
             " - Choose alternative Apache Kafka providers (default to Strimzi)",
@@ -1141,7 +1140,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     instanceId=self.getParam("mas_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
-                    waitForBind=wait
+                    waitForBind=wait,
+                    configureRBAC=(self.getParam("service_account_name") == "")
                 )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,

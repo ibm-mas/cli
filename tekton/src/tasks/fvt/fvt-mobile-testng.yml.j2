@@ -29,6 +29,14 @@ spec:
       type: string
       description: The app that will be the target of the tests
       default: ""
+    - name: fvt_test_suite_prefix
+      type: string
+      description: text to prefix fvt_test_suite in devops database followed by hyphen
+      default: ""
+    - name: fvt_test_suite_suffix
+      type: string
+      description: text to suffix fvt_test_suite in devops database preceded by hyphen
+      default: ""
     - name: fvt_test_suite
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
@@ -166,6 +174,10 @@ spec:
         value: "$(params.mas_workspace_id)"
       - name: FVT_MOBILE_APP
         value: $(params.fvt_mobile_app)
+      - name: FVT_TEST_SUITE_PREFIX
+        value: $(params.fvt_test_suite_prefix)
+      - name: FVT_TEST_SUITE_SUFFIX
+        value: $(params.fvt_test_suite_suffix)
       - name: FVT_TEST_SUITE
         value: $(params.fvt_test_suite)
       - name: FVT_ENABLE_DEBUG
