@@ -345,7 +345,9 @@
 export SERVER=https://myocp.net
 # Install the minimal RBAC for the MAS install (as OpenShift administrator)
 oc login --token xxx --server=$SERVER
-kustomize build rbac/install | jinja -D mas_instance_id $MAS_INSTANCE_ID | oc apply -f -
+export mas_instance_id=$MAS_INSTANCE_ID
+kustomize build rbac/install &gt; rbac-install.yaml
+jinjanate rbac-install.yaml | oc apply -f -
 
 # Get the access token for the user
 export INSTALL_TOKEN=$(oc -n mas-${MAS_INSTANCE_ID}-pipelines get secret mas-${MAS_INSTANCE_ID}-install-token -o jsonpath=&quot;{.data.token}&quot; | base64 -d)
@@ -376,7 +378,7 @@ oc auth can-i --list --as=system:serviceaccount:mas-${MAS_INSTANCE_ID}-pipelines
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-02-20 14:25:37.388660+00:00)
+      Built with mkdocs v1.6.1 (2025-02-25 12:15:09.295923+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
