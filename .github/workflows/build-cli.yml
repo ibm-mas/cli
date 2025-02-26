@@ -43,7 +43,7 @@ jobs:
         run: $GITHUB_WORKSPACE/build/bin/build-tekton.sh
 
       - name: Upload the Tekton definitions
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ibm-mas-tekton-${{ env.VERSION }}.yaml
           path: ${{ github.workspace }}/tekton/target/ibm-mas-tekton.yaml
@@ -64,7 +64,7 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/build-cli.sh
 
       - name: Upload the cli
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ibm-mas-cli-${{ env.VERSION }}.tgz
           path: ${{ github.workspace }}/ibm-mas-cli-${{ env.VERSION }}.tgz
@@ -105,7 +105,7 @@ jobs:
             --enableRetired
 
       - name: Upload dependency check results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
            name: OWASP dependency check report
            path: ${{github.workspace}}/reports
