@@ -625,8 +625,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if not self.getParam("mas_channel").startswith("8.") and not self.getParam("mas_channel").startswith("9.0"):
                 self.installManage = True
                 self.isManageFoundation = True
+                self.setParam("is_full_manage", "false")
                 self.manageAppName = "Manage Foundation"
                 self.printDescription([f"{self.manageAppName} will be installed with the following apps: User, Group, Graphite Tool and Mobile Configurator"])
+        else:
+            self.setParam("is_full_manage", "true")
 
         if self.installManage:
             self.configAppChannel("manage")

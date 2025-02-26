@@ -147,9 +147,7 @@ class ManageSettingsMixin():
                     self.yesOrNo("Override database encryption secrets with provided keys", "mas_app_settings_override_encryption_secrets_flag")
 
     def manageSettingsServerBundleConfig(self) -> None:
-        if self.isManageFoundation:
-            self.setParam("mas_app_settings_server_bundles_size", "foundation")
-        else:
+        if not self.isManageFoundation:
             if self.showAdvancedOptions:
                 self.printH2(f"Maximo {self.manageAppName} Settings - Server Bundles")
                 self.printDescription([
