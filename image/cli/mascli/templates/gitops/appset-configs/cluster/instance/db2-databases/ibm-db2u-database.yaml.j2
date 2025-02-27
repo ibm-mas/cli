@@ -27,7 +27,7 @@ db2_database_db_config:
 HADR_SYNCMODE: 'NEARSYNC'
 HADR_REMOTE_INST: 'db2inst1'
 LOGINDEXBUILD: 'ON'
-  {% if ENHANCED_HADR != 'true' %}
+  {% if MANUALLY_SET_ENHANCED_HADR != 'true' %}
 HADR_LOCAL_HOST: 'c-{{DB2_INSTANCE_NAME}}-db2u-0|c-{{DB2_INSTANCE_NAME}}-db2u-0.c-{{DB2_INSTANCE_NAME}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local'
   {% if 'sdb' in DB2_INSTANCE_NAME %}
 HADR_LOCAL_SVC: '60007|60007'

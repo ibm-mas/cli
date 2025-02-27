@@ -221,7 +221,7 @@ spec:
     - name: replica_db
       type: string
       default: "false"
-    - name: enhanced_hadr
+    - name: manually_set_enhanced_hadr
       type: string
       default: "false"
 
@@ -833,8 +833,8 @@ spec:
           value: $(params.db2_backup_notify_slack_url)
         - name: replica_db
           value: $(params.replica_db)
-        - name: enhanced_hadr
-          value: $(params.enhanced_hadr)
+        - name: manually_set_enhanced_hadr
+          value: $(params.manually_set_enhanced_hadr)
         - name: auto_backup
           value: $(params.auto_backup)
         
@@ -1000,8 +1000,8 @@ spec:
           value: "false"
         - name: replica_db
           value: $(params.replica_db)
-        - name: enhanced_hadr
-          value: $(params.enhanced_hadr)
+        - name: manually_set_enhanced_hadr
+          value: $(params.manually_set_enhanced_hadr)
         - name: mas_annotations
           value: $(params.mas_annotations)
         - name: is_replica_task

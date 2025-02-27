@@ -66,7 +66,7 @@ IBM DB2U:
       --is-replica-task ${COLOR_YELLOW}IS_REPLICA_TASK${TEXT_RESET}                                           To check if this is invoked by replica task
       --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}                                           MAS Annotations
       --auto-backup ${COLOR_YELLOW}AUTO_BACKUP${TEXT_RESET}                                                   Flag whether to install the Auto DB2 backup feature or not
-      --enhanced-hadr ${COLOR_YELLOW}ENHANCED_HADR${TEXT_RESET}                                               Flag to indicate whether enhanced HADR was configured manually
+      --manually-set-enhanced-hadr ${COLOR_YELLOW}MANUALLY_SET_ENHANCED_HADR${TEXT_RESET}                     Flag to indicate whether enhanced HADR was configured manually
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -294,8 +294,8 @@ function gitops_db2u_database_noninteractive() {
       --auto-backup)
         export AUTO_BACKUP=$1 && shift
         ;;
-      --enhanced-hadr)
-        export ENHANCED_HADR=$1 && shift
+      --manually-set-enhanced-hadr)
+        export MANUALLY_SET_ENHANCED_HADR=$1 && shift
         ;;
 
 
@@ -510,8 +510,8 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [[ -z $AUTO_BACKUP ]]; then
     export AUTO_BACKUP=false
   fi
-  if [[ -z $ENHANCED_HADR ]]; then
-    export ENHANCED_HADR=false
+  if [[ -z $MANUALLY_SET_ENHANCED_HADR ]]; then
+    export MANUALLY_SET_ENHANCED_HADR=false
   fi
   export DB2_NAMESPACE="db2u-${MAS_INSTANCE_ID}"
   export DB2_DBNAME=${DB2_DBNAME:-"BLUDB"}
@@ -610,7 +610,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "is-replica-task ............................... ${COLOR_MAGENTA}${IS_REPLICA_TASK}"
   echo_reset_dim "mas-annotations ............................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
   echo_reset_dim "auto-backup ................................... ${COLOR_MAGENTA}${AUTO_BACKUP}"
-  echo_reset_dim "enhanced-hadr ................................. ${COLOR_MAGENTA}${ENHANCED_HADR}"
+  echo_reset_dim "manually-set-enhanced-hadr .................... ${COLOR_MAGENTA}${MANUALLY_SET_ENHANCED_HADR}"
   reset_colors
 
 

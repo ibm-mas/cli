@@ -126,7 +126,7 @@ spec:
     - name: mas_annotations
       type: string
       default: ""
-    - name: enhanced_hadr
+    - name: manually_set_enhanced_hadr
       type: string
       default: ""
   stepTemplate:
@@ -246,8 +246,8 @@ spec:
         value: $(params.is_replica_task)
       - name: MAS_ANNOTATIONS
         value: $(params.mas_annotations)
-      - name: ENHANCED_HADR
-        value: $(params.enhanced_hadr)
+      - name: MANUALLY_SET_ENHANCED_HADR
+        value: $(params.manually_set_enhanced_hadr)
     envFrom:
       - configMapRef:
           name: environment-properties
