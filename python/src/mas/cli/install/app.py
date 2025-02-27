@@ -482,6 +482,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("mongodb_cpu_requests", "500m")
             self.setParam("mas_app_settings_aio_flag", "false")
 
+    def configIPV6(self):
+        if self.interactiveMode and self.showAdvancedOptions:
+            enableIPV6 = self.yesOrNo("Configure to run in IPV6")
+            self.setParam("enable_ipv6", enableIPV6)
+
     @logMethodCall
     def configDNSAndCerts(self):
         if self.showAdvancedOptions:
@@ -787,6 +792,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configSNO()
         self.configStorageClasses()
 
+        # IPV6
+        self.configIPV6()
+
         # Licensing (SLS and DRO)
         self.configSLS()
         self.configDRO()
@@ -1000,6 +1008,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     self.setParam("mas_manual_cert_mgmt", False)
                     self.manualCertsDir = None
+
+            elif key == "enable_ipv6":
+                self.setParam("enable_ipv6", True)
 
             # Fail if there's any arguments we don't know how to handle
             else:
