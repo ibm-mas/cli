@@ -849,7 +849,7 @@ function gitops_mas_config() {
       export SECRET_KEY_WATSON_STUDIO_USERNAME=${WATSON_STUDIO_SECRET}#username
       export SECRET_KEY_WATSON_STUDIO_PASSWORD=${WATSON_STUDIO_SECRET}#password
       export SECRET_KEY_WATSON_STUDIO_URL=${WATSON_STUDIO_SECRET}#url
-      sm_verify_secret_exists $WATSON_STUDIO_SECRET "username,password,url"
+      sm_verify_secret_exists $WATSON_STUDIO_SECRET "username,password,url" false
     fi
 
     echo
