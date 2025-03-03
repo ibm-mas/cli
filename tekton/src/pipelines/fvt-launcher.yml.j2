@@ -541,7 +541,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - manage-setup
+        - approval-manage
 
 
     # 7. Application FVT - Monitor
@@ -656,7 +656,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - approval-suite-verify
+        - approval-manage
 
     - name: launchfvt-optimizer
       timeout: "0"

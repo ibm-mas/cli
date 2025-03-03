@@ -823,11 +823,13 @@ function gitops_mas_config() {
     # Source: gitops_suite_watson_studio_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "watsonstudio" ]; then
+      sm_login
       # Secrets are stored in SM in the cp4d-service function that installs wsl
       export WATSON_STUDIO_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl-cp4d
       export SECRET_KEY_WATSON_STUDIO_USERNAME=${WATSON_STUDIO_SECRET}#username
       export SECRET_KEY_WATSON_STUDIO_PASSWORD=${WATSON_STUDIO_SECRET}#password
       export SECRET_KEY_WATSON_STUDIO_URL=${WATSON_STUDIO_SECRET}#url
+      sm_verify_secret_exists $WATSON_STUDIO_SECRET "username,password,url"
     fi
 
     echo
@@ -839,14 +841,14 @@ function gitops_mas_config() {
 
     # If the file doesn't exist, create a blank one
     if ! [ -f ${CONFIGS_FILE} ]; then
-      jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-config-common.yaml.j2 > $CONFIGS_FILE
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-config-common.yaml.j2 $CONFIGS_FILE
     fi
 
     # Remove any existing config with this name
     yq 'del(.ibm_mas_suite_configs[] | select(.mas_config_name == "'${MAS_CONFIG_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
     # Render the appropriate template for the config into a new file
-    jinja -X .+ -d $ADDITIONAL_JINJA_PARAMS_FILE $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-${MAS_CONFIG_TYPE}-config.yaml.j2 | yq '{"ibm_mas_suite_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+    jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/instance/configs/ibm-mas-${MAS_CONFIG_TYPE}-config.yaml.j2 $ADDITIONAL_JINJA_PARAMS_FILE | yq '{"ibm_mas_suite_configs": [] + .}' > ${TEMP_DIR}/newconfig.yaml
 
     # Merge the two files
     yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE

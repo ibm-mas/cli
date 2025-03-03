@@ -19,13 +19,47 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
 
 ### Catalog Directory
 
-<cds-tabs trigger-content="Select an item" value="2024">
+<cds-tabs trigger-content="Select an item" value="2025">
+  <cds-tab id="tab-2025" target="panel-2025" value="2025">2025 Catalogs</cds-tab>
   <cds-tab id="tab-2024" target="panel-2024" value="2024">2024 Catalogs</cds-tab>
   <cds-tab id="tab-2023" target="panel-2023" value="2023">2023 Catalogs</cds-tab>
   <cds-tab id="tab-2022" target="panel-2022" value="2022">2022 Catalogs</cds-tab>
 </cds-tabs>
 
 <div class="tab-panel">
+
+  <div id="panel-2025" role="tabpanel" aria-labelledby="tab-2025" hidden>
+    <table>
+      <thead>
+        <tr>
+          <th>Catalog</th>
+          <th>OCP Support</th>
+          <th>CPD Support</th>
+          <th>MongoDB Support (CE or EE)</th>
+          <th>Recommended CLI</th>
+          <th>Support Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="v9-250206-amd64/">v9-250206-amd64</a>, <a href="v9-250206-s390x/">v9-250206-s390x</a></td>
+          <td>4.14 - 4.16</td>
+          <td>5.0.0</td>
+          <td>6.0 - 7.0</td>
+          <td>latest</td>
+          <td>OCP 4.16 EOS June 27, 2026</td>
+        </tr>
+        <tr>
+          <td><a href="v9-250109-amd64/">v9-250109-amd64</a>, <a href="v9-250109-s390x/">v9-250109-s390x</a></td>
+          <td>4.14 - 4.16</td>
+          <td>5.0.0</td>
+          <td>6.0 - 7.0</td>
+          <td>latest</td>
+          <td>OCP 4.16 EOS June 27, 2026</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <div id="panel-2024" role="tabpanel" aria-labelledby="tab-2024" hidden>
     <table>
     <thead>
@@ -39,22 +73,6 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     </tr>
     </thead>
     <tbody>
-    <tr>
-    <td><a href="v9-250206-amd64/">v9-250206-amd64</a>, <a href="v9-250206-s390x/">v9-250206-s390x</a></td>
-    <td>4.14 - 4.16</td>
-    <td>5.0.0</td>
-    <td>6.0 - 7.0</td>
-    <td>latest</td>
-    <td>OCP 4.16 EOS June 27, 2026</td>
-    </tr>
-    <tr>
-    <td><a href="v9-250109-amd64/">v9-250109-amd64</a>, <a href="v9-250109-s390x/">v9-250109-s390x</a></td>
-    <td>4.14 - 4.16</td>
-    <td>5.0.0</td>
-    <td>6.0 - 7.0</td>
-    <td>latest</td>
-    <td>OCP 4.16 EOS June 27, 2026</td>
-    </tr>
     <tr>
     <td><a href="v9-241205-amd64/">v9-241205-amd64</a>, <a href="v9-241205-s390x/">v9-241205-s390x</a></td>
     <td>4.14 - 4.16</td>
