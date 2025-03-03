@@ -23,6 +23,9 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: smtp_disabled_templates
+      type: string
+      default: ""
     - name: mas_smtpcfg_pod_template_yaml
       type: string
       default: ""
@@ -56,6 +59,8 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: SMTP_DISABLED_TEMPLATES
+        value: $(params.smtp_disabled_templates)
       - name: MAS_SMTPCFG_POD_TEMPLATE_YAML
         value: $(params.mas_smtpcfg_pod_template_yaml)
 
@@ -208,6 +213,7 @@ spec:
         export SMTP_DEFAULT_SENDER_NAME="MASAdmin"
         export SMTP_DEFAULT_RECIPIENT_EMAIL="mas.ms.smtp@ibm.com"
         export SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS="true"
+        export SMTP_DISABLED_TEMPLATES # set in task env vars
 
         # Ensure any SMTP_USERNAME/SMTP_PASSWORD values set in pipeline context properties
         # are not used by the gitops-mas-config script to override the values in the AWS SM Secret
@@ -237,6 +243,7 @@ spec:
         --smtp-default-sender-name "${SMTP_DEFAULT_SENDER_NAME}" \
         --smtp-default-recipient-email "${SMTP_DEFAULT_RECIPIENT_EMAIL}" \
         --smtp-default-should-email-passwords "${SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS}" \
+        --smtp-disabled-templates "${SMTP_DISABLED_TEMPLATES}" \
         --mas-smtpcfg-pod-template-yaml "${MAS_SMTPCFG_POD_TEMPLATE_YAML}"
 
         exit $?
