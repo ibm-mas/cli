@@ -318,7 +318,7 @@
       
       <h1 id="image-mirroring">Image Mirroring<a class="headerlink" href="#image-mirroring" title="Permanent link">¤</a></h1>
 <p>We recommend the use of two-phase mirroring in most cases, it is slower than direct mirroring and requires more storage capacity, but can allow you to more easily recover from network glitches and creates a clean seperation of the tasks of getting the content from the source registry and putting it into the target registry which can make debugging failures easier.</p>
-<p>This guide assumes that you are looking to mirror content for the latest release (<strong>9.0.x</strong>) from the most recent catalog update (<strong>v9-250206-amd64</strong>), and that you are installing all MAS applications &amp; dependencies.  If you are not installing certain applications or dependencies take care to remove the appropriate <code>--mirror-x</code> flags to avoid mirroring unnecessary images.</p>
+<p>This guide assumes that you are looking to mirror content for the latest release (<strong>9.0.x</strong>) from the most recent catalog update (<strong>v9-250306-amd64</strong>), and that you are installing all MAS applications &amp; dependencies.  If you are not installing certain applications or dependencies take care to remove the appropriate <code>--mirror-x</code> flags to avoid mirroring unnecessary images.</p>
 <p>By default image repositories will be prefixed using the datestamp of the Maximo Operator Catalog that you are mirroring from, this allows for simpler registry management, you can prune all images under <code>mas-241105/*</code> in your mirror registry once you know that you have updated all clusters to a newer version of the catalog.</p>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
 <p>For full usage information run <code>mas mirror-images --help</code></p>
@@ -369,7 +369,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m direct -d /mnt/registry/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
@@ -382,7 +382,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m to-filesystem -d /mnt/registry/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
@@ -395,7 +395,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m from-filesystem -d /mnt/registry/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core
 </code></pre>
 
@@ -408,7 +408,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:13.3.0 mas mirror-images \
   -m from-filesystem -d /mnt/registry/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-catalog --mirror-core
 </code></pre>
 
@@ -430,7 +430,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m direct -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
@@ -443,7 +443,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m to-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
@@ -456,7 +456,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m from-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
 </code></pre>
 
@@ -469,7 +469,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:13.3.0 mas mirror-images \
   -m from-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
 </code></pre>
 
@@ -491,7 +491,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m direct -d /mnt/registry/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
@@ -504,7 +504,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m to-filesystem -d /mnt/registry/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
@@ -517,7 +517,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m from-filesystem -d /mnt/registry/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos
 </code></pre>
 
@@ -530,7 +530,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:13.3.0 mas mirror-images \
   -m from-filesystem -d /mnt/registry/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-cp4d --mirror-spark --mirror-wml --mirror-wsl --mirror-cognos
 </code></pre>
 
@@ -552,7 +552,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m direct -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
@@ -565,7 +565,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m to-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
@@ -578,7 +578,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:13.3.0 mas mirror-images \
   -m from-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
 </code></pre>
 
@@ -591,7 +591,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:13.3.0 mas mirror-images \
   -m from-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250206-amd64 -C 9.0.x \
+  -c v9-250306-amd64 -C 9.0.x \
   --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
 </code></pre>
 
@@ -751,7 +751,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.3.0 $REGISTRY_HOST:$RE
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-03-04 10:12:47.168239+00:00)
+      Built with mkdocs v1.6.1 (2025-03-04 18:17:08.763009+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
