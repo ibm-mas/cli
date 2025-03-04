@@ -23,3 +23,7 @@ suite_smtp_default_should_email_passwords: {{ SMTP_DEFAULT_SHOULD_EMAIL_PASSWORD
 mas_smtpcfg_pod_templates:
   {{ MAS_SMTPCFG_POD_TEMPLATE | indent(2) }}
 {% endif %}
+
+{% if SMTP_DISABLED_TEMPLATES is defined and SMTP_DISABLED_TEMPLATES !='' %}
+suite_smtp_disabled_templates: {{ SMTP_DISABLED_TEMPLATES }}
+{% endif %}
