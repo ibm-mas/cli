@@ -103,7 +103,7 @@ jdbc_route: {{JDBC_ROUTE}}
 
 db2_timezone: {{DB2_TIMEZONE}}
 
-{% if STORAGE_CLASS_DEFINITIONS %}
+{% if STORAGE_CLASS_DEFINITIONS and IS_REPLICA_TASK != 'true' %}
 storage_class_definitions:
   {% filter indent(width=2) -%}
   {{STORAGE_CLASS_DEFINITIONS}}
