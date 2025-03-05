@@ -79,7 +79,7 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        if [[ $CP4D_WSL_ACTION == "install" ]]; then
+        if [[ "$CP4D_WSL_ACTION" == "install" ]]; then
           CHECK_SECRET="false"
         else
           CHECK_SECRET="true"
