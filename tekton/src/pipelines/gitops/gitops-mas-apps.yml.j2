@@ -1274,6 +1274,8 @@ spec:
           value: predict
         - name: mas_workspace_id
           value: $(params.mas_workspace_id)
+        - name: cp4d_wsl_action
+          value: $(params.cp4d_wsl_action)
 
       taskRef:
         kind: Task
@@ -1881,7 +1883,7 @@ spec:
     # 6.5 Manage Replica Config
     - name: gitops-deprovision-db2u-replica-database-manage
       runAfter:
-        - gitops-deprovision-mas-app-install-manage
+        - gitops-deprovision-db2u-database-manage
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}

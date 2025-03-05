@@ -30,6 +30,7 @@ AWS Secrets Manager Configuration (Required):
   --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
   --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
   --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
+  --check-secret ${COLOR_YELLOW}CHECK_SECRET${TEXT_RESET}                   Boolean to indicate whether any secret for the config should be checked that it exists or not
 
 Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
   --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. One of aws|yaml (defaults to yaml)
@@ -94,6 +95,7 @@ function gitops_mas_config_noninteractive() {
   # Set defaults
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
+  CHECK_SECRET=true
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
@@ -265,6 +267,9 @@ function gitops_mas_config_noninteractive() {
         ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
+        ;;
+      --check-secret)
+        export CHECK_SECRET=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -478,6 +483,7 @@ function gitops_mas_config() {
   echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
   echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
   echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  echo_reset_dim "Check Secret ................... ${COLOR_MAGENTA}${CHECK_SECRET}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -823,13 +829,15 @@ function gitops_mas_config() {
     # Source: gitops_suite_watson_studio_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "watsonstudio" ]; then
-      sm_login
       # Secrets are stored in SM in the cp4d-service function that installs wsl
       export WATSON_STUDIO_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl-cp4d
       export SECRET_KEY_WATSON_STUDIO_USERNAME=${WATSON_STUDIO_SECRET}#username
       export SECRET_KEY_WATSON_STUDIO_PASSWORD=${WATSON_STUDIO_SECRET}#password
       export SECRET_KEY_WATSON_STUDIO_URL=${WATSON_STUDIO_SECRET}#url
-      sm_verify_secret_exists $WATSON_STUDIO_SECRET "username,password,url" false
+      if [ "$CHECK_SECRET" == "true" ]; then
+        sm_login
+        sm_verify_secret_exists $WATSON_STUDIO_SECRET "username,password,url"
+      fi
     fi
 
     echo
