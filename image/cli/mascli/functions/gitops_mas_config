@@ -85,6 +85,7 @@ Automatic GitHub Push:
   -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
 
 Other Commands:
+  --check-secret ${COLOR_YELLOW}CHECK_SECRET${TEXT_RESET}          Boolean to indicate whether any secret for the config should be checked that it exists or not
   -h, --help                                      Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
@@ -94,6 +95,7 @@ function gitops_mas_config_noninteractive() {
   # Set defaults
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
+  CHECK_SECRET=false
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
@@ -290,6 +292,9 @@ function gitops_mas_config_noninteractive() {
         export GIT_COMMIT_MSG=$1 && shift
         ;;
 
+      --check-secret)
+        export CHECK_SECRET=$1 && shift
+        ;;
       -h|--help)
         gitops_mas_config_help
         ;;
@@ -823,13 +828,15 @@ function gitops_mas_config() {
     # Source: gitops_suite_watson_studio_config
     # ---------------------------------------------------------------------------
     if [ "${MAS_CONFIG_TYPE}" == "watsonstudio" ]; then
-      sm_login
       # Secrets are stored in SM in the cp4d-service function that installs wsl
       export WATSON_STUDIO_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl-cp4d
       export SECRET_KEY_WATSON_STUDIO_USERNAME=${WATSON_STUDIO_SECRET}#username
       export SECRET_KEY_WATSON_STUDIO_PASSWORD=${WATSON_STUDIO_SECRET}#password
       export SECRET_KEY_WATSON_STUDIO_URL=${WATSON_STUDIO_SECRET}#url
-      sm_verify_secret_exists $WATSON_STUDIO_SECRET "username,password,url" false
+      if [ "$CHECK_SECRET" == "true" ]; then
+        sm_login
+        sm_verify_secret_exists $WATSON_STUDIO_SECRET "username,password,url"
+      fi
     fi
 
     echo
