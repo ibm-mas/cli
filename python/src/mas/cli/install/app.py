@@ -626,8 +626,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.installManage = True
                 self.isManageFoundation = True
                 self.setParam("is_full_manage", "false")
-                self.manageAppName = "Manage Foundation"
-                self.printDescription([f"{self.manageAppName} will be installed with the following apps: User, Group, Graphite Tool and Mobile Configurator"])
+                self.manageAppName = "Manage foundation"
+                self.printDescription([f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."])
         else:
             self.setParam("is_full_manage", "true")
 

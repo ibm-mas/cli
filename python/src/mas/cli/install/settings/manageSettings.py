@@ -72,7 +72,7 @@ class ManageSettingsMixin():
     def manageSettingsComponents(self) -> None:
         # Only ask to install Manage components if this is a full Manage installation
         # If this is a Manage Foundation installation, leave mas_appws_components blank
-        if self.isManageFoundation:        
+        if self.isManageFoundation:
             self.params["mas_appws_components"] = ""
         else:
             self.printH2(f"Maximo {self.manageAppName} Components")
