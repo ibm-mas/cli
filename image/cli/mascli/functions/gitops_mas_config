@@ -75,6 +75,9 @@ SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"):
   --smtp-username ${COLOR_YELLOW}SMTP_USERNAME${TEXT_RESET}                                               Username for SMTP server authentication (Optional, if secret is already set in SM)
   --smtp-password ${COLOR_YELLOW}SMTP_PASSWORD${TEXT_RESET}                                               Password for SMTP server authentication (Optional, if secret is already set in SM)
   --mas-smtpcfg-pod-template-yaml ${COLOR_YELLOW}MAS_SMTPCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
+  --smtp-disabled-templates ${COLOR_YELLOW}SMTP_DISABLED_TEMPLATES${TEXT_RESET}                           JSON string specifying a list of MAS Suite email templates to disable
+      E.g. '["UserPasswordReset", "WelcomeUsername", "WelcomePassword"]'
+      See https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=notifications-disabling-email
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -249,6 +252,9 @@ function gitops_mas_config_noninteractive() {
       --smtp-password)
         export SMTP_PASSWORD=$1 && shift
         ;;
+      --smtp-disabled-templates)
+        export SMTP_DISABLED_TEMPLATES=$1 && shift
+        ;;
       --mas-smtpcfg-pod-template-yaml)
         export MAS_SMTPCFG_POD_TEMPLATE_YAML=$1 && shift
         ;;
@@ -397,6 +403,19 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$SMTP_DEFAULT_SENDER_EMAIL" ]] && gitops_mas_config_help "SMTP_DEFAULT_SENDER_EMAIL is not set"
       [[ -z "$SMTP_DEFAULT_SENDER_NAME" ]] && gitops_mas_config_help "SMTP_DEFAULT_SENDER_NAME is not set"
       [[ -z "$SMTP_DEFAULT_RECIPIENT_EMAIL" ]] && gitops_mas_config_help "SMTP_DEFAULT_RECIPIENT_EMAIL is not set"
+
+      if [[ -n "${SMTP_DISABLED_TEMPLATES}" ]]; then
+        export SMTP_DISABLED_TEMPLATES
+        echo "${SMTP_DISABLED_TEMPLATES}" | yq --input-format=json 1>/dev/null || gitops_mas_config_help "SMTP_DISABLED_TEMPLATES is not valid JSON"
+
+        # Check it's just a list of strings
+        echo "${SMTP_DISABLED_TEMPLATES}" | yq eval --input-format=json --exit-status=1 \
+          'type == "!!seq" and
+          (.[] | type == "!!str") as $item ireduce (true; . and $item)' \
+          1>/dev/null 2>&1 \
+          || gitops_mas_config_help "SMTP_DISABLED_TEMPLATES must be a list of strings"
+
+      fi
     fi
   fi # [ "${CONFIG_ACTION}" == "upsert" ]
 
@@ -606,7 +625,8 @@ function gitops_mas_config() {
       echo_reset_dim "Smtp Default Recipient Email ................... ${COLOR_MAGENTA}${SMTP_DEFAULT_RECIPIENT_EMAIL}"
       echo_reset_dim "Smtp Should Email Passwords .................... ${COLOR_MAGENTA}${SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS}"
       echo_reset_dim "Smtp Server Username ........................... ${COLOR_MAGENTA}${SMTP_USERNAME}"
-      echo_reset_dim "Smtp Server Password ........................... ${COLOR_MAGENTA}${SMTP_PASSWORD:0:4}<snip>"  
+      echo_reset_dim "Smtp Server Password ........................... ${COLOR_MAGENTA}${SMTP_PASSWORD:0:4}<snip>"
+      echo_reset_dim "Smtp Disabled Templates ........................ ${COLOR_MAGENTA}${SMTP_DISABLED_TEMPLATES}"
       echo_reset_dim "Pod Template YAML File  ........................ ${COLOR_MAGENTA}${MAS_SMTPCFG_POD_TEMPLATE_YAML}"
       reset_colors
     fi
