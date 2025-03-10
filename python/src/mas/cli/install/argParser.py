@@ -679,7 +679,8 @@ manageArgGroup.add_argument(
     "--manage-attachments-provider",
     dest="mas_manage_attachments_provider",
     required=False,
-    help="Defines the storage provider type to be used to store attachments in Maximo Manage"
+    help="Defines the storage provider type to be used to store attachments in Maximo Manage. Supported options are `filestorage`, `ibm` and `aws`.",
+    choices=["filestorage", "ibm", "aws"]
 )
 manageArgGroup.add_argument(
     "--manage-attachments-mode",
