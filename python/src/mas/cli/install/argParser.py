@@ -339,6 +339,11 @@ masAppsArgGroup.add_argument(
     help="Subscription channel for Maximo Manage"
 )
 masAppsArgGroup.add_argument(
+    "--is-full-manage",
+    required=False,
+    help="Full Manage instead of Manage Foundation"
+)
+masAppsArgGroup.add_argument(
     "--predict-channel",
     required=False,
     help="Subscription channel for Maximo Predict"
