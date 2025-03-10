@@ -1,7 +1,6 @@
 # -------------------------------------------------------------
 # PHASE 5
 # - fvt-manage-base-ui-sec-audit-log (selenium)
-# - fvt-manage-base-ui-sec-inactive-auth (selenium)
 # - fvt-manage-base-ui-wo-doclink (selenium)
 # - fvt-manage-base-ui-directprint (selenium)
 # - fvt-manage-base-ui-adhoc-report (selenium)
@@ -17,23 +16,6 @@
       value: base-ui
     - name: fvt_test_suite
       value: sec-audit-log
-  runAfter:
-    - fvt-manage-base-ui-escalation-action
-    - fvt-manage-base-ui-birt-report
-    - fvt-manage-base-ui-user-crud
-    - fvt-manage-base-ui-user-consumption
-    - fvt-manage-base-ui-communication-temp
-
-# Manage FVT Inactive User Authentication
-- name: fvt-manage-base-ui-sec-inactive-auth
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/when.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite_prefix
-      value: base-ui
-    - name: fvt_test_suite
-      value: sec-inactive-auth
   runAfter:
     - fvt-manage-base-ui-escalation-action
     - fvt-manage-base-ui-birt-report

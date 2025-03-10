@@ -96,7 +96,6 @@ optionalParams = [
     # CP4D
     "cpd_product_version",
     "cpd_install_cognos",
-    "cpd_install_openscale",
     "cpd_install_spss",
     "cpd_install_ws",
     "cpd_install_wml",

@@ -1,47 +1,13 @@
-## Minimum Verification Test for Mobile Service Request MAS test suites
-- name: fvt-mob-android-sr
+## Minimum Verification Test for Mobile Defects MAS test suites
+- name: fvt-mob-android-defects
   {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
     - name: fvt_mobile_app
-      value: service-request-app
+      value: civil-defects-app
     - name: mobile_device_type
       value: android
     - name: fvt_test_suite
-      value: service-request-mvt-android
+      value: civil-defects-mvt-android
   runAfter:
-    - fvt-mob-android-inspections
-    - fvt-mob-android-assetmng
-    - fvt-mob-android-ic
-
-## Mobile FVT - Inventory Receiving Android
-- name: fvt-mob-android-ir
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
-    - name: fvt_mobile_app
-      value: ir-automation-testcases
-    - name: mobile_device_type
-      value: android
-    - name: fvt_test_suite
-      value: inventory-receiving-mvt-android
-  runAfter:
-    - fvt-mob-android-inspections
-    - fvt-mob-android-assetmng
-    - fvt-mob-android-ic
-
-## Minimum Verification Test for Mobile Technician MAS test suites
-- name: fvt-mob-android-technician
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-testng.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-testng.yml.j2') | indent(4) }}
-    - name: fvt_mobile_app
-      value: technician-app
-    - name: mobile_device_type
-      value: android
-    - name: fvt_test_suite
-      value: technician-mvt-android
-  runAfter:
-    - fvt-mob-android-inspections
-    - fvt-mob-android-assetmng
-    - fvt-mob-android-ic
+    - fvt-mob-android-calibration

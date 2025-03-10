@@ -47,6 +47,9 @@ spec:
     - name: smtp_default_should_email_passwords
       type: string
       default: ""
+    - name: smtp_disabled_templates
+      type: string
+      default: ""
     - name: cluster_url
       type: string
       default: ""
@@ -92,6 +95,8 @@ spec:
         value: $(params.smtp_default_recipient_email)
       - name: SMTP_DEFAULT_SHOULD_EMAIL_PASSWORDS
         value: $(params.smtp_default_should_email_passwords)
+      - name: SMTP_DISABLED_TEMPLATES
+        value: $(params.smtp_disabled_templates)
       - name: MAS_SMTPCFG_POD_TEMPLATE_YAML
         value: $(params.mas_smtpcfg_pod_template_yaml)
     envFrom:

@@ -126,6 +126,9 @@ spec:
     - name: mas_annotations
       type: string
       default: ""
+    - name: manually_set_enhanced_hadr
+      type: string
+      default: "false"
   stepTemplate:
     name: gitops-db2u-database
     env:
@@ -243,6 +246,8 @@ spec:
         value: $(params.is_replica_task)
       - name: MAS_ANNOTATIONS
         value: $(params.mas_annotations)
+      - name: MANUALLY_SET_ENHANCED_HADR
+        value: $(params.manually_set_enhanced_hadr)
     envFrom:
       - configMapRef:
           name: environment-properties

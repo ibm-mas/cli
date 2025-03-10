@@ -237,8 +237,6 @@ class installArgBuilderMixin():
             command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
             if self.getParam('cpd_install_spss') == "install":
                 command += " --cp4d-install-spss"
-            if self.getParam('cpd_install_openscale') == "install":
-                command += " --cp4d-install-openscal"
             if self.getParam('cpd_install_cognos') == "install":
                 command += " --cp4d-install-cognos"
             if self.getParam('cpd_install_ws') == "install":

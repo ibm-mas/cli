@@ -723,7 +723,7 @@ function argocd_login() {
       exit 1
     fi
     echo "argo:argocd_login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
-    argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+    argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure --skip-test-tls
     return_code=$?
     echo "argo:argocd_login : return_code=$return_code"
 

@@ -158,10 +158,6 @@ spec:
       type: string
       default: ""
       description: Flag that determines if Watson Machine Learning must be upgraded
-    - name: cp4d_update_wos
-      type: string
-      default: ""
-      description: Flag that determines if Watson Openscale must be upgraded
     - name: cp4d_update_spark
       type: string
       default: ""
@@ -413,17 +409,12 @@ spec:
       runAfter:
         - update-cp4d
 
-    # 5.5 Watson OpenScale
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-aiopenscale-update.yml.j2') | indent(4) }}
-      runAfter:
-        - update-cp4d
-
-    # 5.6 SPSS Statistics
+    # 5.5 SPSS Statistics
     {{ lookup('template', 'taskdefs/cp4d/cp4d-spss-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cp4d
 
-    # 5.7 Cognos Analytics
+    # 5.6 Cognos Analytics
     {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cp4d
@@ -443,7 +434,6 @@ spec:
         - update-grafana
         - update-watson-studio
         - update-watson-machine-learning
-        - update-aiopenscale
         - update-analytics-engine
         - update-spss
         - update-cognos

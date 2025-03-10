@@ -285,7 +285,7 @@ function gitops_nvidia_gpu() {
   echo "- Nvidia GPU Operator"
 
   echo "Generating Nvidia GPU operator file ${GITOPS_CLUSTER_DIR}/nvidia-gpu-operator.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/nvidia-gpu-operator.yaml.j2 -o ${GITOPS_CLUSTER_DIR}/nvidia-gpu-operator.yaml
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/nvidia-gpu-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/nvidia-gpu-operator.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
