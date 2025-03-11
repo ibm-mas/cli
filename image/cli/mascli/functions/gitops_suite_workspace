@@ -236,14 +236,14 @@ function gitops_suite_workspace() {
 
   # If the file doesn't exist, create a blank one
   if ! [ -f ${CONFIGS_FILE} ]; then
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-workspaces-common.yaml.j2 > $CONFIGS_FILE
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-workspaces-common.yaml.j2 $CONFIGS_FILE
   fi
 
   # Remove any existing config with this name
   yq 'del(.ibm_mas_workspaces[] | select(.mas_workspace_id == "'${MAS_WORKSPACE_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
 
   # Render the appropriate template for the config into a new file
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-workspace.yaml.j2 | yq '{"ibm_mas_workspaces": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-workspace.yaml.j2 | yq '{"ibm_mas_workspaces": [] + .}' > ${TEMP_DIR}/newconfig.yaml
 
   # Merge the two files
   yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE

@@ -138,22 +138,17 @@ spec:
       runAfter:
         - cp4d
 
-    # 3.5 Watson OpenScale
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-aiopenscale.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
-
-    # 3.6 SPSS Statistics
+    # 3.5 SPSS Statistics
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-spss.yml.j2') | indent(4) }}
       runAfter:
         - cp4d
 
-    # 3.7 Cognos Analytics
+    # 3.6 Cognos Analytics
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-cognos.yml.j2') | indent(4) }}
       runAfter:
         - cp4d
 
-    # 3.8 Configure Watson Studio in MAS
+    # 3.7 Configure Watson Studio in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
@@ -294,7 +289,6 @@ spec:
         - suite-config-watson-studio
         - watson-machine-learning
         - analytics-service
-        - aiopenscale
         - spss
 
     # 9.2 Configure Predict workspace
@@ -308,7 +302,7 @@ spec:
     # 10.1 Optimizer Install
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
       runAfter:
-        - suite-verify
+        - app-cfg-manage
 
     # 10.2 Configure Optimizer workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}

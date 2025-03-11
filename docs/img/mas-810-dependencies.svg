@@ -1,0 +1,533 @@
+<svg width="1544" height="1180" viewBox="0 0 1544 1180" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="1544" height="1180" fill="white"/>
+<rect width="16" height="72" transform="translate(760 840)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M776 912H768C763.582 912 760 908.418 760 904V840" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="0.01 4"/>
+<rect width="8" height="8" transform="matrix(1 0 0 -1 776 916)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="7.07107" height="7.07107" transform="matrix(0.707107 -0.707107 -0.707107 -0.707107 780 917)" fill="black"/>
+<rect width="16" height="40" transform="translate(760 808)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M776 848H768C763.582 848 760 844.418 760 840V808" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="0.01 4"/>
+<rect width="8" height="8" transform="matrix(1 0 0 -1 776 852)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="7.07107" height="7.07107" transform="matrix(0.707107 -0.707107 -0.707107 -0.707107 780 853)" fill="black"/>
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="28" font-weight="300" letter-spacing="0px"><tspan x="48" y="67.544">IBM Maximo Application Suite 8.10</tspan></text>
+<path d="M56 100.5H288C292.142 100.5 295.5 103.858 295.5 108V140C295.5 144.142 292.142 147.5 288 147.5H56C51.8579 147.5 48.5 144.142 48.5 140V108C48.5 103.858 51.8579 100.5 56 100.5Z" fill="white"/>
+<path d="M56 100.5H288C292.142 100.5 295.5 103.858 295.5 108V140C295.5 144.142 292.142 147.5 288 147.5H56C51.8579 147.5 48.5 144.142 48.5 140V108C48.5 103.858 51.8579 100.5 56 100.5Z" stroke="#0F62FE"/>
+<path d="M49 108C49 104.134 52.134 101 56 101H288C291.866 101 295 104.134 295 108V140C295 143.866 291.866 147 288 147H56C52.134 147 49 143.866 49 140V108Z" fill="white"/>
+<path d="M49 108C49 104.134 52.134 101 56 101H288C291.866 101 295 104.134 295 108V140C295 143.866 291.866 147 288 147H56C52.134 147 49 143.866 49 140V108Z" fill="#EDF5FF"/>
+<g clip-path="url(#clip0_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="64" y="129.25">Maximo Application Suite Core</tspan></text>
+</g>
+<path d="M56 164.5H288C292.142 164.5 295.5 167.858 295.5 172V204C295.5 208.142 292.142 211.5 288 211.5H56C51.8579 211.5 48.5 208.142 48.5 204V172C48.5 167.858 51.8579 164.5 56 164.5Z" fill="white"/>
+<path d="M56 164.5H288C292.142 164.5 295.5 167.858 295.5 172V204C295.5 208.142 292.142 211.5 288 211.5H56C51.8579 211.5 48.5 208.142 48.5 204V172C48.5 167.858 51.8579 164.5 56 164.5Z" stroke="black"/>
+<path d="M49 172C49 168.134 52.134 165 56 165H288C291.866 165 295 168.134 295 172V204C295 207.866 291.866 211 288 211H56C52.134 211 49 207.866 49 204V172Z" fill="white"/>
+<path d="M49 172C49 168.134 52.134 165 56 165H288C291.866 165 295 168.134 295 172V204C295 207.866 291.866 211 288 211H56C52.134 211 49 207.866 49 204V172Z" fill="#F4F4F4"/>
+<g clip-path="url(#clip1_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="64" y="193.25">MongoDB</tspan></text>
+</g>
+<path d="M104 228.5H288C292.142 228.5 295.5 231.858 295.5 236V268C295.5 272.142 292.142 275.5 288 275.5H104C99.8579 275.5 96.5 272.142 96.5 268V236C96.5 231.858 99.8579 228.5 104 228.5Z" stroke="black"/>
+<path d="M99 238C99 234.134 102.134 231 106 231H286C289.866 231 293 234.134 293 238V266C293 269.866 289.866 273 286 273H106C102.134 273 99 269.866 99 266V238Z" fill="white"/>
+<path d="M99 238C99 234.134 102.134 231 106 231H286C289.866 231 293 234.134 293 238V266C293 269.866 289.866 273 286 273H106C102.134 273 99 269.866 99 266V238Z" fill="#F4F4F4"/>
+<rect x="99.5" y="231.5" width="193" height="41" rx="5" stroke="black"/>
+<g clip-path="url(#clip2_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="112" y="257.25">Amazon DocumentDb</tspan></text>
+</g>
+<path d="M56 292.5H288C292.142 292.5 295.5 295.858 295.5 300V332C295.5 336.142 292.142 339.5 288 339.5H56C51.8579 339.5 48.5 336.142 48.5 332V300C48.5 295.858 51.8579 292.5 56 292.5Z" fill="white"/>
+<path d="M56 292.5H288C292.142 292.5 295.5 295.858 295.5 300V332C295.5 336.142 292.142 339.5 288 339.5H56C51.8579 339.5 48.5 336.142 48.5 332V300C48.5 295.858 51.8579 292.5 56 292.5Z" stroke="black"/>
+<path d="M49 300C49 296.134 52.134 293 56 293H288C291.866 293 295 296.134 295 300V332C295 335.866 291.866 339 288 339H56C52.134 339 49 335.866 49 332V300Z" fill="white"/>
+<path d="M49 300C49 296.134 52.134 293 56 293H288C291.866 293 295 296.134 295 300V332C295 335.866 291.866 339 288 339H56C52.134 339 49 335.866 49 332V300Z" fill="#F4F4F4"/>
+<g clip-path="url(#clip3_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="64" y="321.25">Suite License Service</tspan></text>
+</g>
+<path d="M56 356.5H288C292.142 356.5 295.5 359.858 295.5 364V396C295.5 400.142 292.142 403.5 288 403.5H56C51.8579 403.5 48.5 400.142 48.5 396V364C48.5 359.858 51.8579 356.5 56 356.5Z" fill="white"/>
+<path d="M56 356.5H288C292.142 356.5 295.5 359.858 295.5 364V396C295.5 400.142 292.142 403.5 288 403.5H56C51.8579 403.5 48.5 400.142 48.5 396V364C48.5 359.858 51.8579 356.5 56 356.5Z" stroke="#FA4D56"/>
+<path d="M49 364C49 360.134 52.134 357 56 357H288C291.866 357 295 360.134 295 364V396C295 399.866 291.866 403 288 403H56C52.134 403 49 399.866 49 396V364Z" fill="white"/>
+<path d="M49 364C49 360.134 52.134 357 56 357H288C291.866 357 295 360.134 295 364V396C295 399.866 291.866 403 288 403H56C52.134 403 49 399.866 49 396V364Z" fill="#FFF1F1"/>
+<g clip-path="url(#clip4_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="64" y="385.25">Data Reporter Operator</tspan></text>
+</g>
+<path d="M56 420.5H288C292.142 420.5 295.5 423.858 295.5 428V460C295.5 464.142 292.142 467.5 288 467.5H56C51.8579 467.5 48.5 464.142 48.5 460V428C48.5 423.858 51.8579 420.5 56 420.5Z" fill="white"/>
+<path d="M56 420.5H288C292.142 420.5 295.5 423.858 295.5 428V460C295.5 464.142 292.142 467.5 288 467.5H56C51.8579 467.5 48.5 464.142 48.5 460V428C48.5 423.858 51.8579 420.5 56 420.5Z" stroke="#FA4D56"/>
+<path d="M49 428C49 424.134 52.134 421 56 421H288C291.866 421 295 424.134 295 428V460C295 463.866 291.866 467 288 467H56C52.134 467 49 463.866 49 460V428Z" fill="white"/>
+<path d="M49 428C49 424.134 52.134 421 56 421H288C291.866 421 295 424.134 295 428V460C295 463.866 291.866 467 288 467H56C52.134 467 49 463.866 49 460V428Z" fill="#FFF1F1"/>
+<g clip-path="url(#clip5_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="64" y="449.25">Cert-Manager</tspan></text>
+</g>
+<path d="M56 484.5H288C292.142 484.5 295.5 487.858 295.5 492V524C295.5 528.142 292.142 531.5 288 531.5H56C51.8579 531.5 48.5 528.142 48.5 524V492C48.5 487.858 51.8579 484.5 56 484.5Z" fill="white"/>
+<path d="M56 484.5H288C292.142 484.5 295.5 487.858 295.5 492V524C295.5 528.142 292.142 531.5 288 531.5H56C51.8579 531.5 48.5 528.142 48.5 524V492C48.5 487.858 51.8579 484.5 56 484.5Z" stroke="#009D9A"/>
+<path d="M49 492C49 488.134 52.134 485 56 485H288C291.866 485 295 488.134 295 492V524C295 527.866 291.866 531 288 531H56C52.134 531 49 527.866 49 524V492Z" fill="white"/>
+<path d="M49 492C49 488.134 52.134 485 56 485H288C291.866 485 295 488.134 295 492V524C295 527.866 291.866 531 288 531H56C52.134 531 49 527.866 49 524V492Z" fill="#D9FBFB"/>
+<g clip-path="url(#clip6_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="64" y="513.25">IBM License Service</tspan></text>
+</g>
+<path d="M56 548.5H288C292.142 548.5 295.5 551.858 295.5 556V588C295.5 592.142 292.142 595.5 288 595.5H56C51.8579 595.5 48.5 592.142 48.5 588V556C48.5 551.858 51.8579 548.5 56 548.5Z" fill="white"/>
+<path d="M56 548.5H288C292.142 548.5 295.5 551.858 295.5 556V588C295.5 592.142 292.142 595.5 288 595.5H56C51.8579 595.5 48.5 592.142 48.5 588V556C48.5 551.858 51.8579 548.5 56 548.5Z" stroke="#009D9A"/>
+<path d="M49 556C49 552.134 52.134 549 56 549H288C291.866 549 295 552.134 295 556V588C295 591.866 291.866 595 288 595H56C52.134 595 49 591.866 49 588V556Z" fill="white"/>
+<path d="M49 556C49 552.134 52.134 549 56 549H288C291.866 549 295 552.134 295 556V588C295 591.866 291.866 595 288 595H56C52.134 595 49 591.866 49 588V556Z" fill="#D9FBFB"/>
+<g clip-path="url(#clip7_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="64" y="577.25">ODLM</tspan></text>
+</g>
+<rect width="16" height="40" transform="translate(72 212)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M88 252H80C75.5817 252 72 248.418 72 244V212" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="0.01 4"/>
+<rect width="8" height="8" transform="matrix(1 0 0 -1 88 256)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="7.07107" height="7.07107" transform="matrix(0.707107 -0.707107 -0.707107 -0.707107 92 257)" fill="black"/>
+<path d="M1136 164.5H1344C1348.14 164.5 1351.5 167.858 1351.5 172V204C1351.5 208.142 1348.14 211.5 1344 211.5H1136C1131.86 211.5 1128.5 208.142 1128.5 204V172C1128.5 167.858 1131.86 164.5 1136 164.5Z" fill="white"/>
+<path d="M1136 164.5H1344C1348.14 164.5 1351.5 167.858 1351.5 172V204C1351.5 208.142 1348.14 211.5 1344 211.5H1136C1131.86 211.5 1128.5 208.142 1128.5 204V172C1128.5 167.858 1131.86 164.5 1136 164.5Z" stroke="#0F62FE"/>
+<path d="M1129 172C1129 168.134 1132.13 165 1136 165H1344C1347.87 165 1351 168.134 1351 172V204C1351 207.866 1347.87 211 1344 211H1136C1132.13 211 1129 207.866 1129 204V172Z" fill="white"/>
+<path d="M1129 172C1129 168.134 1132.13 165 1136 165H1344C1347.87 165 1351 168.134 1351 172V204C1351 207.866 1347.87 211 1344 211H1136C1132.13 211 1129 207.866 1129 204V172Z" fill="#EDF5FF"/>
+<g clip-path="url(#clip8_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1144" y="193.25">Maximo IoT</tspan></text>
+</g>
+<path d="M1136 228.5H1344C1348.14 228.5 1351.5 231.858 1351.5 236V268C1351.5 272.142 1348.14 275.5 1344 275.5H1136C1131.86 275.5 1128.5 272.142 1128.5 268V236C1128.5 231.858 1131.86 228.5 1136 228.5Z" fill="white"/>
+<path d="M1136 228.5H1344C1348.14 228.5 1351.5 231.858 1351.5 236V268C1351.5 272.142 1348.14 275.5 1344 275.5H1136C1131.86 275.5 1128.5 272.142 1128.5 268V236C1128.5 231.858 1131.86 228.5 1136 228.5Z" stroke="#009D9A"/>
+<path d="M1129 236C1129 232.134 1132.13 229 1136 229H1344C1347.87 229 1351 232.134 1351 236V268C1351 271.866 1347.87 275 1344 275H1136C1132.13 275 1129 271.866 1129 268V236Z" fill="white"/>
+<path d="M1129 236C1129 232.134 1132.13 229 1136 229H1344C1347.87 229 1351 232.134 1351 236V268C1351 271.866 1347.87 275 1344 275H1136C1132.13 275 1129 271.866 1129 268V236Z" fill="#D9FBFB"/>
+<g clip-path="url(#clip9_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1144" y="257.25">Db2</tspan></text>
+</g>
+<path d="M1136 292.5H1344C1348.14 292.5 1351.5 295.858 1351.5 300V332C1351.5 336.142 1348.14 339.5 1344 339.5H1136C1131.86 339.5 1128.5 336.142 1128.5 332V300C1128.5 295.858 1131.86 292.5 1136 292.5Z" fill="white"/>
+<path d="M1136 292.5H1344C1348.14 292.5 1351.5 295.858 1351.5 300V332C1351.5 336.142 1348.14 339.5 1344 339.5H1136C1131.86 339.5 1128.5 336.142 1128.5 332V300C1128.5 295.858 1131.86 292.5 1136 292.5Z" stroke="black"/>
+<path d="M1129 300C1129 296.134 1132.13 293 1136 293H1344C1347.87 293 1351 296.134 1351 300V332C1351 335.866 1347.87 339 1344 339H1136C1132.13 339 1129 335.866 1129 332V300Z" fill="white"/>
+<path d="M1129 300C1129 296.134 1132.13 293 1136 293H1344C1347.87 293 1351 296.134 1351 300V332C1351 335.866 1347.87 339 1344 339H1136C1132.13 339 1129 335.866 1129 332V300Z" fill="#F4F4F4"/>
+<g clip-path="url(#clip10_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1144" y="321.25">MongoDB</tspan></text>
+</g>
+<path d="M1184 356.5H1344C1348.14 356.5 1351.5 359.858 1351.5 364V396C1351.5 400.142 1348.14 403.5 1344 403.5H1184C1179.86 403.5 1176.5 400.142 1176.5 396V364C1176.5 359.858 1179.86 356.5 1184 356.5Z" stroke="black"/>
+<path d="M1179 366C1179 362.134 1182.13 359 1186 359H1342C1345.87 359 1349 362.134 1349 366V394C1349 397.866 1345.87 401 1342 401H1186C1182.13 401 1179 397.866 1179 394V366Z" fill="white"/>
+<path d="M1179 366C1179 362.134 1182.13 359 1186 359H1342C1345.87 359 1349 362.134 1349 366V394C1349 397.866 1345.87 401 1342 401H1186C1182.13 401 1179 397.866 1179 394V366Z" fill="#F4F4F4"/>
+<rect x="1179.5" y="359.5" width="169" height="41" rx="5" stroke="black"/>
+<g clip-path="url(#clip11_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1192" y="385.25">Amazon DocumentDb</tspan></text>
+</g>
+<path d="M1136 420.5H1344C1348.14 420.5 1351.5 423.858 1351.5 428V460C1351.5 464.142 1348.14 467.5 1344 467.5H1136C1131.86 467.5 1128.5 464.142 1128.5 460V428C1128.5 423.858 1131.86 420.5 1136 420.5Z" fill="white"/>
+<path d="M1136 420.5H1344C1348.14 420.5 1351.5 423.858 1351.5 428V460C1351.5 464.142 1348.14 467.5 1344 467.5H1136C1131.86 467.5 1128.5 464.142 1128.5 460V428C1128.5 423.858 1131.86 420.5 1136 420.5Z" stroke="black"/>
+<path d="M1129 428C1129 424.134 1132.13 421 1136 421H1344C1347.87 421 1351 424.134 1351 428V460C1351 463.866 1347.87 467 1344 467H1136C1132.13 467 1129 463.866 1129 460V428Z" fill="white"/>
+<path d="M1129 428C1129 424.134 1132.13 421 1136 421H1344C1347.87 421 1351 424.134 1351 428V460C1351 463.866 1347.87 467 1344 467H1136C1132.13 467 1129 463.866 1129 460V428Z" fill="#F4F4F4"/>
+<g clip-path="url(#clip12_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1144" y="449.25">Apache Kafka</tspan></text>
+</g>
+<rect width="16" height="40" transform="translate(1152 340)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M1168 380H1160C1155.58 380 1152 376.418 1152 372V340" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="0.01 4"/>
+<rect width="8" height="8" transform="matrix(1 0 0 -1 1168 384)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="7.07107" height="7.07107" transform="matrix(0.707107 -0.707107 -0.707107 -0.707107 1172 385)" fill="black"/>
+<path d="M592 484.5H800C804.142 484.5 807.5 487.858 807.5 492V524C807.5 528.142 804.142 531.5 800 531.5H592C587.858 531.5 584.5 528.142 584.5 524V492C584.5 487.858 587.858 484.5 592 484.5Z" fill="white"/>
+<path d="M592 484.5H800C804.142 484.5 807.5 487.858 807.5 492V524C807.5 528.142 804.142 531.5 800 531.5H592C587.858 531.5 584.5 528.142 584.5 524V492C584.5 487.858 587.858 484.5 592 484.5Z" stroke="#0F62FE"/>
+<path d="M585 492C585 488.134 588.134 485 592 485H800C803.866 485 807 488.134 807 492V524C807 527.866 803.866 531 800 531H592C588.134 531 585 527.866 585 524V492Z" fill="white"/>
+<path d="M585 492C585 488.134 588.134 485 592 485H800C803.866 485 807 488.134 807 492V524C807 527.866 803.866 531 800 531H592C588.134 531 585 527.866 585 524V492Z" fill="#EDF5FF"/>
+<g clip-path="url(#clip13_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="600" y="513.25">Maximo Optimizer</tspan></text>
+</g>
+<rect width="16" height="40" transform="translate(608 596)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M624 636H616C611.582 636 608 632.418 608 628V596" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="0.01 4"/>
+<rect width="8" height="8" transform="matrix(1 0 0 -1 624 640)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="7.07107" height="7.07107" transform="matrix(0.707107 -0.707107 -0.707107 -0.707107 628 641)" fill="black"/>
+<path d="M592 548.5H800C804.142 548.5 807.5 551.858 807.5 556V588C807.5 592.142 804.142 595.5 800 595.5H592C587.858 595.5 584.5 592.142 584.5 588V556C584.5 551.858 587.858 548.5 592 548.5Z" fill="white"/>
+<path d="M592 548.5H800C804.142 548.5 807.5 551.858 807.5 556V588C807.5 592.142 804.142 595.5 800 595.5H592C587.858 595.5 584.5 592.142 584.5 588V556C584.5 551.858 587.858 548.5 592 548.5Z" stroke="black"/>
+<path d="M585 556C585 552.134 588.134 549 592 549H800C803.866 549 807 552.134 807 556V588C807 591.866 803.866 595 800 595H592C588.134 595 585 591.866 585 588V556Z" fill="white"/>
+<path d="M585 556C585 552.134 588.134 549 592 549H800C803.866 549 807 552.134 807 556V588C807 591.866 803.866 595 800 595H592C588.134 595 585 591.866 585 588V556Z" fill="#F4F4F4"/>
+<g clip-path="url(#clip14_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="600" y="577.25">MongoDB</tspan></text>
+</g>
+<path d="M640 612.5H800C804.142 612.5 807.5 615.858 807.5 620V652C807.5 656.142 804.142 659.5 800 659.5H640C635.858 659.5 632.5 656.142 632.5 652V620C632.5 615.858 635.858 612.5 640 612.5Z" stroke="black"/>
+<path d="M635 622C635 618.134 638.134 615 642 615H798C801.866 615 805 618.134 805 622V650C805 653.866 801.866 657 798 657H642C638.134 657 635 653.866 635 650V622Z" fill="white"/>
+<path d="M635 622C635 618.134 638.134 615 642 615H798C801.866 615 805 618.134 805 622V650C805 653.866 801.866 657 798 657H642C638.134 657 635 653.866 635 650V622Z" fill="#F4F4F4"/>
+<rect x="635.5" y="615.5" width="169" height="41" rx="5" stroke="black"/>
+<g clip-path="url(#clip15_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="648" y="641.25">Amazon DocumentDb</tspan></text>
+</g>
+<path d="M896 484.5H1088C1092.14 484.5 1095.5 487.858 1095.5 492V524C1095.5 528.142 1092.14 531.5 1088 531.5H896C891.858 531.5 888.5 528.142 888.5 524V492C888.5 487.858 891.858 484.5 896 484.5Z" fill="white"/>
+<path d="M896 484.5H1088C1092.14 484.5 1095.5 487.858 1095.5 492V524C1095.5 528.142 1092.14 531.5 1088 531.5H896C891.858 531.5 888.5 528.142 888.5 524V492C888.5 487.858 891.858 484.5 896 484.5Z" stroke="#0F62FE"/>
+<path d="M889 492C889 488.134 892.134 485 896 485H1088C1091.87 485 1095 488.134 1095 492V524C1095 527.866 1091.87 531 1088 531H896C892.134 531 889 527.866 889 524V492Z" fill="white"/>
+<path d="M889 492C889 488.134 892.134 485 896 485H1088C1091.87 485 1095 488.134 1095 492V524C1095 527.866 1091.87 531 1088 531H896C892.134 531 889 527.866 889 524V492Z" fill="#EDF5FF"/>
+<g clip-path="url(#clip16_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="904" y="513.25">Asset Data Dictionary</tspan></text>
+</g>
+<path d="M896 548.5H1088C1092.14 548.5 1095.5 551.858 1095.5 556V588C1095.5 592.142 1092.14 595.5 1088 595.5H896C891.858 595.5 888.5 592.142 888.5 588V556C888.5 551.858 891.858 548.5 896 548.5Z" fill="white"/>
+<path d="M896 548.5H1088C1092.14 548.5 1095.5 551.858 1095.5 556V588C1095.5 592.142 1092.14 595.5 1088 595.5H896C891.858 595.5 888.5 592.142 888.5 588V556C888.5 551.858 891.858 548.5 896 548.5Z" stroke="#009D9A"/>
+<path d="M889 556C889 552.134 892.134 549 896 549H1088C1091.87 549 1095 552.134 1095 556V588C1095 591.866 1091.87 595 1088 595H896C892.134 595 889 591.866 889 588V556Z" fill="white"/>
+<path d="M889 556C889 552.134 892.134 549 896 549H1088C1091.87 549 1095 552.134 1095 556V588C1095 591.866 1091.87 595 1088 595H896C892.134 595 889 591.866 889 588V556Z" fill="#D9FBFB"/>
+<g clip-path="url(#clip17_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="904" y="577.25">Db2</tspan></text>
+</g>
+<path d="M336 484.5H528C532.142 484.5 535.5 487.858 535.5 492V524C535.5 528.142 532.142 531.5 528 531.5H336C331.858 531.5 328.5 528.142 328.5 524V492C328.5 487.858 331.858 484.5 336 484.5Z" fill="white"/>
+<path d="M336 484.5H528C532.142 484.5 535.5 487.858 535.5 492V524C535.5 528.142 532.142 531.5 528 531.5H336C331.858 531.5 328.5 528.142 328.5 524V492C328.5 487.858 331.858 484.5 336 484.5Z" stroke="#0F62FE"/>
+<path d="M329 492C329 488.134 332.134 485 336 485H528C531.866 485 535 488.134 535 492V524C535 527.866 531.866 531 528 531H336C332.134 531 329 527.866 329 524V492Z" fill="white"/>
+<path d="M329 492C329 488.134 332.134 485 336 485H528C531.866 485 535 488.134 535 492V524C535 527.866 531.866 531 528 531H336C332.134 531 329 527.866 329 524V492Z" fill="#EDF5FF"/>
+<g clip-path="url(#clip18_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="344" y="513.25">Maximo Assist</tspan></text>
+</g>
+<path d="M336 548.5H528C532.142 548.5 535.5 551.858 535.5 556V588C535.5 592.142 532.142 595.5 528 595.5H336C331.858 595.5 328.5 592.142 328.5 588V556C328.5 551.858 331.858 548.5 336 548.5Z" fill="white"/>
+<path d="M336 548.5H528C532.142 548.5 535.5 551.858 535.5 556V588C535.5 592.142 532.142 595.5 528 595.5H336C331.858 595.5 328.5 592.142 328.5 588V556C328.5 551.858 331.858 548.5 336 548.5Z" stroke="black"/>
+<path d="M329 556C329 552.134 332.134 549 336 549H528C531.866 549 535 552.134 535 556V588C535 591.866 531.866 595 528 595H336C332.134 595 329 591.866 329 588V556Z" fill="white"/>
+<path d="M329 556C329 552.134 332.134 549 336 549H528C531.866 549 535 552.134 535 556V588C535 591.866 531.866 595 528 595H336C332.134 595 329 591.866 329 588V556Z" fill="#F4F4F4"/>
+<g clip-path="url(#clip19_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="344" y="577.25">Cloud Object Storage</tspan></text>
+</g>
+<rect width="16" height="360" transform="translate(416 124)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="16" height="360" transform="matrix(-1 0 0 1 432 124)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M416 124H424C428.418 124 432 127.582 432 132V484" stroke="black"/>
+<rect width="16" height="568" transform="translate(544 124)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="16" height="568" transform="matrix(-1 0 0 1 560 124)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M544 124H552C556.418 124 560 127.582 560 132V692" stroke="black"/>
+<rect width="16" height="568" transform="translate(832 124)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="16" height="568" transform="matrix(-1 0 0 1 848 124)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M832 124H840C844.418 124 848 127.582 848 132V692" stroke="black"/>
+<rect width="48" height="504" transform="translate(1360 188)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="8" height="8" transform="matrix(-1 0 0 -1 1360 192)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M1360 192L1352 188L1360 184V192Z" fill="black"/>
+<rect width="48" height="504" transform="matrix(-1 0 0 1 1408 188)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M1360 188H1400C1404.42 188 1408 191.582 1408 196V692" stroke="black"/>
+<rect width="936" height="40" transform="translate(304 124)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="8" height="8" transform="matrix(-1 0 0 -1 304 128)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M304 128L296 124L304 120V128Z" fill="black"/>
+<rect width="936" height="40" transform="matrix(-1 0 0 1 1240 124)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M304 124H1232C1236.42 124 1240 127.582 1240 132V164" stroke="black"/>
+<rect width="240" height="184" transform="translate(1104 508)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="8" height="8" transform="matrix(-1 0 0 -1 1104 512)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M1104 512L1096 508L1104 504V512Z" fill="black"/>
+<rect width="240" height="184" transform="matrix(-1 0 0 1 1344 508)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M1104 508H1336C1340.42 508 1344 511.582 1344 516V692" stroke="black"/>
+<rect width="16" height="184" transform="translate(816 508)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="8" height="8" transform="matrix(-1 0 0 -1 816 512)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M816 512L808 508L816 504V512Z" fill="black"/>
+<rect width="16" height="184" transform="matrix(-1 0 0 1 832 508)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M816 508H824C828.418 508 832 511.582 832 516V692" stroke="black" stroke-dasharray="8 4"/>
+<rect width="16" height="184" transform="translate(864 508)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="8" height="8" transform="translate(880 504)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M880 504L888 508L880 512V504Z" fill="black"/>
+<rect width="16" height="184" transform="translate(864 508)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M880 508H872C867.582 508 864 511.582 864 516V692" stroke="black" stroke-dasharray="8 4"/>
+<rect width="136" height="288" transform="translate(992 188)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="136" height="288" transform="translate(992 188)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M1128 188H1000C995.582 188 992 191.582 992 196V476" stroke="black" stroke-dasharray="8 4"/>
+<rect width="8" height="8" transform="matrix(0 1 1 0 988 476)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M988 476L992 484L996 476H988Z" fill="black"/>
+<rect width="16" height="360" transform="translate(688 124)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="16" height="360" transform="matrix(-1 0 0 1 704 124)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M688 124H696C700.418 124 704 127.582 704 132V484" stroke="black"/>
+<path d="M416 692.5H680C684.142 692.5 687.5 695.858 687.5 700V732C687.5 736.142 684.142 739.5 680 739.5H416C411.858 739.5 408.5 736.142 408.5 732V700C408.5 695.858 411.858 692.5 416 692.5Z" fill="white"/>
+<path d="M416 692.5H680C684.142 692.5 687.5 695.858 687.5 700V732C687.5 736.142 684.142 739.5 680 739.5H416C411.858 739.5 408.5 736.142 408.5 732V700C408.5 695.858 411.858 692.5 416 692.5Z" stroke="#0F62FE"/>
+<path d="M409 700C409 696.134 412.134 693 416 693H680C683.866 693 687 696.134 687 700V732C687 735.866 683.866 739 680 739H416C412.134 739 409 735.866 409 732V700Z" fill="white"/>
+<path d="M409 700C409 696.134 412.134 693 416 693H680C683.866 693 687 696.134 687 700V732C687 735.866 683.866 739 680 739H416C412.134 739 409 735.866 409 732V700Z" fill="#EDF5FF"/>
+<g clip-path="url(#clip20_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="424" y="721.25">Maximo Visual Inspection</tspan></text>
+</g>
+<path d="M416 756.5H680C684.142 756.5 687.5 759.858 687.5 764V796C687.5 800.142 684.142 803.5 680 803.5H416C411.858 803.5 408.5 800.142 408.5 796V764C408.5 759.858 411.858 756.5 416 756.5Z" fill="white"/>
+<path d="M416 756.5H680C684.142 756.5 687.5 759.858 687.5 764V796C687.5 800.142 684.142 803.5 680 803.5H416C411.858 803.5 408.5 800.142 408.5 796V764C408.5 759.858 411.858 756.5 416 756.5Z" stroke="black"/>
+<path d="M409 764C409 760.134 412.134 757 416 757H680C683.866 757 687 760.134 687 764V796C687 799.866 683.866 803 680 803H416C412.134 803 409 799.866 409 796V764Z" fill="white"/>
+<path d="M409 764C409 760.134 412.134 757 416 757H680C683.866 757 687 760.134 687 764V796C687 799.866 683.866 803 680 803H416C412.134 803 409 799.866 409 796V764Z" fill="#F4F4F4"/>
+<g clip-path="url(#clip21_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="424" y="785.25">MongoDB</tspan></text>
+</g>
+<path d="M464 820.5H680C684.142 820.5 687.5 823.858 687.5 828V860C687.5 864.142 684.142 867.5 680 867.5H464C459.858 867.5 456.5 864.142 456.5 860V828C456.5 823.858 459.858 820.5 464 820.5Z" stroke="black"/>
+<path d="M459 830C459 826.134 462.134 823 466 823H678C681.866 823 685 826.134 685 830V858C685 861.866 681.866 865 678 865H466C462.134 865 459 861.866 459 858V830Z" fill="white"/>
+<path d="M459 830C459 826.134 462.134 823 466 823H678C681.866 823 685 826.134 685 830V858C685 861.866 681.866 865 678 865H466C462.134 865 459 861.866 459 858V830Z" fill="#F4F4F4"/>
+<rect x="459.5" y="823.5" width="225" height="41" rx="5" stroke="black"/>
+<g clip-path="url(#clip22_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="472" y="849.25">Amazon DocumentDb</tspan></text>
+</g>
+<path d="M416 884.5H680C684.142 884.5 687.5 887.858 687.5 892V924C687.5 928.142 684.142 931.5 680 931.5H416C411.858 931.5 408.5 928.142 408.5 924V892C408.5 887.858 411.858 884.5 416 884.5Z" fill="white"/>
+<path d="M416 884.5H680C684.142 884.5 687.5 887.858 687.5 892V924C687.5 928.142 684.142 931.5 680 931.5H416C411.858 931.5 408.5 928.142 408.5 924V892C408.5 887.858 411.858 884.5 416 884.5Z" stroke="black"/>
+<path d="M409 892C409 888.134 412.134 885 416 885H680C683.866 885 687 888.134 687 892V924C687 927.866 683.866 931 680 931H416C412.134 931 409 927.866 409 924V892Z" fill="white"/>
+<path d="M409 892C409 888.134 412.134 885 416 885H680C683.866 885 687 888.134 687 892V924C687 927.866 683.866 931 680 931H416C412.134 931 409 927.866 409 924V892Z" fill="#F4F4F4"/>
+<g clip-path="url(#clip23_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="424" y="913.25">NVIDIA GPU Operator</tspan></text>
+</g>
+<path d="M416 948.5H680C684.142 948.5 687.5 951.858 687.5 956V988C687.5 992.142 684.142 995.5 680 995.5H416C411.858 995.5 408.5 992.142 408.5 988V956C408.5 951.858 411.858 948.5 416 948.5Z" fill="white"/>
+<path d="M416 948.5H680C684.142 948.5 687.5 951.858 687.5 956V988C687.5 992.142 684.142 995.5 680 995.5H416C411.858 995.5 408.5 992.142 408.5 988V956C408.5 951.858 411.858 948.5 416 948.5Z" stroke="#FA4D56"/>
+<path d="M409 956C409 952.134 412.134 949 416 949H680C683.866 949 687 952.134 687 956V988C687 991.866 683.866 995 680 995H416C412.134 995 409 991.866 409 988V956Z" fill="white"/>
+<path d="M409 956C409 952.134 412.134 949 416 949H680C683.866 949 687 952.134 687 956V988C687 991.866 683.866 995 680 995H416C412.134 995 409 991.866 409 988V956Z" fill="#FFF1F1"/>
+<g clip-path="url(#clip24_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="424" y="977.25">Node Feature Discovery Operator</tspan></text>
+</g>
+<path d="M752 692.5H944C948.142 692.5 951.5 695.858 951.5 700V732C951.5 736.142 948.142 739.5 944 739.5H752C747.858 739.5 744.5 736.142 744.5 732V700C744.5 695.858 747.858 692.5 752 692.5Z" fill="white"/>
+<path d="M752 692.5H944C948.142 692.5 951.5 695.858 951.5 700V732C951.5 736.142 948.142 739.5 944 739.5H752C747.858 739.5 744.5 736.142 744.5 732V700C744.5 695.858 747.858 692.5 752 692.5Z" stroke="#0F62FE"/>
+<path d="M745 700C745 696.134 748.134 693 752 693H944C947.866 693 951 696.134 951 700V732C951 735.866 947.866 739 944 739H752C748.134 739 745 735.866 745 732V700Z" fill="white"/>
+<path d="M745 700C745 696.134 748.134 693 752 693H944C947.866 693 951 696.134 951 700V732C951 735.866 947.866 739 944 739H752C748.134 739 745 735.866 745 732V700Z" fill="#EDF5FF"/>
+<g clip-path="url(#clip25_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="760" y="721.25">Maximo Manage</tspan></text>
+</g>
+<path d="M752 756.5H944C948.142 756.5 951.5 759.858 951.5 764V796C951.5 800.142 948.142 803.5 944 803.5H752C747.858 803.5 744.5 800.142 744.5 796V764C744.5 759.858 747.858 756.5 752 756.5Z" fill="white"/>
+<path d="M752 756.5H944C948.142 756.5 951.5 759.858 951.5 764V796C951.5 800.142 948.142 803.5 944 803.5H752C747.858 803.5 744.5 800.142 744.5 796V764C744.5 759.858 747.858 756.5 752 756.5Z" stroke="#009D9A"/>
+<path d="M745 764C745 760.134 748.134 757 752 757H944C947.866 757 951 760.134 951 764V796C951 799.866 947.866 803 944 803H752C748.134 803 745 799.866 745 796V764Z" fill="white"/>
+<path d="M745 764C745 760.134 748.134 757 752 757H944C947.866 757 951 760.134 951 764V796C951 799.866 947.866 803 944 803H752C748.134 803 745 799.866 745 796V764Z" fill="#D9FBFB"/>
+<g clip-path="url(#clip26_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="760" y="785.25">Db2</tspan></text>
+</g>
+<path d="M792 820.5H944C948.142 820.5 951.5 823.858 951.5 828V860C951.5 864.142 948.142 867.5 944 867.5H792C787.858 867.5 784.5 864.142 784.5 860V828C784.5 823.858 787.858 820.5 792 820.5Z" stroke="black"/>
+<path d="M787 830C787 826.134 790.134 823 794 823H942C945.866 823 949 826.134 949 830V858C949 861.866 945.866 865 942 865H794C790.134 865 787 861.866 787 858V830Z" fill="white"/>
+<path d="M787 830C787 826.134 790.134 823 794 823H942C945.866 823 949 826.134 949 830V858C949 861.866 945.866 865 942 865H794C790.134 865 787 861.866 787 858V830Z" fill="#F4F4F4"/>
+<rect x="787.5" y="823.5" width="161" height="41" rx="5" stroke="black"/>
+<g clip-path="url(#clip27_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="800" y="849.25">Oracle Database</tspan></text>
+</g>
+<path d="M792 884.5H944C948.142 884.5 951.5 887.858 951.5 892V924C951.5 928.142 948.142 931.5 944 931.5H792C787.858 931.5 784.5 928.142 784.5 924V892C784.5 887.858 787.858 884.5 792 884.5Z" stroke="black"/>
+<path d="M787 894C787 890.134 790.134 887 794 887H942C945.866 887 949 890.134 949 894V922C949 925.866 945.866 929 942 929H794C790.134 929 787 925.866 787 922V894Z" fill="white"/>
+<path d="M787 894C787 890.134 790.134 887 794 887H942C945.866 887 949 890.134 949 894V922C949 925.866 945.866 929 942 929H794C790.134 929 787 925.866 787 922V894Z" fill="#F4F4F4"/>
+<rect x="787.5" y="887.5" width="161" height="41" rx="5" stroke="black"/>
+<g clip-path="url(#clip28_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="800" y="913.25">SQL Server</tspan></text>
+</g>
+<path d="M1016 692.5H1208C1212.14 692.5 1215.5 695.858 1215.5 700V732C1215.5 736.142 1212.14 739.5 1208 739.5H1016C1011.86 739.5 1008.5 736.142 1008.5 732V700C1008.5 695.858 1011.86 692.5 1016 692.5Z" fill="white"/>
+<path d="M1016 692.5H1208C1212.14 692.5 1215.5 695.858 1215.5 700V732C1215.5 736.142 1212.14 739.5 1208 739.5H1016C1011.86 739.5 1008.5 736.142 1008.5 732V700C1008.5 695.858 1011.86 692.5 1016 692.5Z" stroke="#0F62FE"/>
+<path d="M1009 700C1009 696.134 1012.13 693 1016 693H1208C1211.87 693 1215 696.134 1215 700V732C1215 735.866 1211.87 739 1208 739H1016C1012.13 739 1009 735.866 1009 732V700Z" fill="white"/>
+<path d="M1009 700C1009 696.134 1012.13 693 1016 693H1208C1211.87 693 1215 696.134 1215 700V732C1215 735.866 1211.87 739 1208 739H1016C1012.13 739 1009 735.866 1009 732V700Z" fill="#EDF5FF"/>
+<g clip-path="url(#clip29_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1024" y="721.25">Maximo Predict</tspan></text>
+</g>
+<path d="M1016 756.5H1208C1212.14 756.5 1215.5 759.858 1215.5 764V796C1215.5 800.142 1212.14 803.5 1208 803.5H1016C1011.86 803.5 1008.5 800.142 1008.5 796V764C1008.5 759.858 1011.86 756.5 1016 756.5Z" fill="white"/>
+<path d="M1016 756.5H1208C1212.14 756.5 1215.5 759.858 1215.5 764V796C1215.5 800.142 1212.14 803.5 1208 803.5H1016C1011.86 803.5 1008.5 800.142 1008.5 796V764C1008.5 759.858 1011.86 756.5 1016 756.5Z" stroke="#009D9A"/>
+<path d="M1009 764C1009 760.134 1012.13 757 1016 757H1208C1211.87 757 1215 760.134 1215 764V796C1215 799.866 1211.87 803 1208 803H1016C1012.13 803 1009 799.866 1009 796V764Z" fill="white"/>
+<path d="M1009 764C1009 760.134 1012.13 757 1016 757H1208C1211.87 757 1215 760.134 1215 764V796C1215 799.866 1211.87 803 1208 803H1016C1012.13 803 1009 799.866 1009 796V764Z" fill="#D9FBFB"/>
+<g clip-path="url(#clip30_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1024" y="785.25">Db2</tspan></text>
+</g>
+<path d="M1016 820.5H1208C1212.14 820.5 1215.5 823.858 1215.5 828V860C1215.5 864.142 1212.14 867.5 1208 867.5H1016C1011.86 867.5 1008.5 864.142 1008.5 860V828C1008.5 823.858 1011.86 820.5 1016 820.5Z" fill="white"/>
+<path d="M1016 820.5H1208C1212.14 820.5 1215.5 823.858 1215.5 828V860C1215.5 864.142 1212.14 867.5 1208 867.5H1016C1011.86 867.5 1008.5 864.142 1008.5 860V828C1008.5 823.858 1011.86 820.5 1016 820.5Z" stroke="#A56EFF"/>
+<path d="M1009 828C1009 824.134 1012.13 821 1016 821H1208C1211.87 821 1215 824.134 1215 828V860C1215 863.866 1211.87 867 1208 867H1016C1012.13 867 1009 863.866 1009 860V828Z" fill="white"/>
+<path d="M1009 828C1009 824.134 1012.13 821 1016 821H1208C1211.87 821 1215 824.134 1215 828V860C1215 863.866 1211.87 867 1208 867H1016C1012.13 867 1009 863.866 1009 860V828Z" fill="#F6F2FF"/>
+<g clip-path="url(#clip31_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1024" y="849.25">Watson Studio Local</tspan></text>
+</g>
+<path d="M1016 884.5H1208C1212.14 884.5 1215.5 887.858 1215.5 892V924C1215.5 928.142 1212.14 931.5 1208 931.5H1016C1011.86 931.5 1008.5 928.142 1008.5 924V892C1008.5 887.858 1011.86 884.5 1016 884.5Z" fill="white"/>
+<path d="M1016 884.5H1208C1212.14 884.5 1215.5 887.858 1215.5 892V924C1215.5 928.142 1212.14 931.5 1208 931.5H1016C1011.86 931.5 1008.5 928.142 1008.5 924V892C1008.5 887.858 1011.86 884.5 1016 884.5Z" stroke="#A56EFF"/>
+<path d="M1009 892C1009 888.134 1012.13 885 1016 885H1208C1211.87 885 1215 888.134 1215 892V924C1215 927.866 1211.87 931 1208 931H1016C1012.13 931 1009 927.866 1009 924V892Z" fill="white"/>
+<path d="M1009 892C1009 888.134 1012.13 885 1016 885H1208C1211.87 885 1215 888.134 1215 892V924C1215 927.866 1211.87 931 1208 931H1016C1012.13 931 1009 927.866 1009 924V892Z" fill="#F6F2FF"/>
+<g clip-path="url(#clip32_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1024" y="913.25">Watson Machine Learning</tspan></text>
+</g>
+<path d="M1016 948.5H1208C1212.14 948.5 1215.5 951.858 1215.5 956V988C1215.5 992.142 1212.14 995.5 1208 995.5H1016C1011.86 995.5 1008.5 992.142 1008.5 988V956C1008.5 951.858 1011.86 948.5 1016 948.5Z" fill="white"/>
+<path d="M1016 948.5H1208C1212.14 948.5 1215.5 951.858 1215.5 956V988C1215.5 992.142 1212.14 995.5 1208 995.5H1016C1011.86 995.5 1008.5 992.142 1008.5 988V956C1008.5 951.858 1011.86 948.5 1016 948.5Z" stroke="#A56EFF"/>
+<path d="M1009 956C1009 952.134 1012.13 949 1016 949H1208C1211.87 949 1215 952.134 1215 956V988C1215 991.866 1211.87 995 1208 995H1016C1012.13 995 1009 991.866 1009 988V956Z" fill="white"/>
+<path d="M1009 956C1009 952.134 1012.13 949 1016 949H1208C1211.87 949 1215 952.134 1215 956V988C1215 991.866 1211.87 995 1208 995H1016C1012.13 995 1009 991.866 1009 988V956Z" fill="#F6F2FF"/>
+<g clip-path="url(#clip33_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1024" y="977.25">Watson Analytics Service</tspan></text>
+</g>
+<path d="M1008 1020C1008 1015.58 1011.58 1012 1016 1012H1208C1212.42 1012 1216 1015.58 1216 1020V1052C1216 1056.42 1212.42 1060 1208 1060H1016C1011.58 1060 1008 1056.42 1008 1052V1020Z" fill="white"/>
+<path d="M1008 1020C1008 1015.58 1011.58 1012 1016 1012H1208C1212.42 1012 1216 1015.58 1216 1020V1052C1216 1056.42 1212.42 1060 1208 1060H1016C1011.58 1060 1008 1056.42 1008 1052V1020Z" fill="white"/>
+<path d="M1008 1020C1008 1015.58 1011.58 1012 1016 1012H1208C1212.42 1012 1216 1015.58 1216 1020V1052C1216 1056.42 1212.42 1060 1208 1060H1016C1011.58 1060 1008 1056.42 1008 1052V1020Z" fill="#F6F2FF"/>
+<g clip-path="url(#clip34_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1024" y="1041.25">IBM SPSS Modeler</tspan></text>
+</g>
+<path d="M1014.44 1012.15C1013.39 1012.36 1012.41 1012.77 1011.56 1013.35L1011.83 1013.76C1011.02 1014.31 1010.31 1015.02 1009.76 1015.83L1009.35 1015.56C1008.77 1016.41 1008.36 1017.39 1008.15 1018.44L1008.64 1018.54C1008.55 1019.01 1008.5 1019.5 1008.5 1020V1022H1008V1026H1008.5V1030H1008V1034H1008.5V1038H1008V1042H1008.5V1046H1008V1050H1008.5V1052C1008.5 1052.5 1008.55 1052.99 1008.64 1053.46L1008.15 1053.56C1008.36 1054.61 1008.77 1055.59 1009.35 1056.44L1009.76 1056.17C1010.31 1056.98 1011.02 1057.69 1011.83 1058.24L1011.56 1058.65C1012.41 1059.23 1013.39 1059.64 1014.44 1059.85L1014.54 1059.36C1015.01 1059.45 1015.5 1059.5 1016 1059.5H1018V1060H1022V1059.5H1026V1060H1030V1059.5H1034V1060H1038V1059.5H1042V1060H1046V1059.5H1050V1060H1054V1059.5H1058V1060H1062V1059.5H1066V1060H1070V1059.5H1074V1060H1078V1059.5H1082V1060H1086V1059.5H1090V1060H1094V1059.5H1098V1060H1102V1059.5H1106V1060H1110V1059.5H1114V1060H1118V1059.5H1122V1060H1126V1059.5H1130V1060H1134V1059.5H1138V1060H1142V1059.5H1146V1060H1150V1059.5H1154V1060H1158V1059.5H1162V1060H1166V1059.5H1170V1060H1174V1059.5H1178V1060H1182V1059.5H1186V1060H1190V1059.5H1194V1060H1198V1059.5H1202V1060H1206V1059.5H1208C1208.5 1059.5 1208.99 1059.45 1209.46 1059.36L1209.56 1059.85C1210.61 1059.64 1211.59 1059.23 1212.44 1058.65L1212.17 1058.24C1212.98 1057.69 1213.69 1056.98 1214.24 1056.17L1214.65 1056.44C1215.23 1055.59 1215.64 1054.61 1215.85 1053.56L1215.36 1053.46C1215.45 1052.99 1215.5 1052.5 1215.5 1052V1050H1216V1046H1215.5V1042H1216V1038H1215.5V1034H1216V1030H1215.5V1026H1216V1022H1215.5V1020C1215.5 1019.5 1215.45 1019.01 1215.36 1018.54L1215.85 1018.44C1215.64 1017.39 1215.23 1016.41 1214.65 1015.56L1214.24 1015.83C1213.69 1015.02 1212.98 1014.31 1212.17 1013.76L1212.44 1013.35C1211.59 1012.77 1210.61 1012.36 1209.56 1012.15L1209.46 1012.64C1208.99 1012.55 1208.5 1012.5 1208 1012.5H1206V1012H1202V1012.5H1198V1012H1194V1012.5H1190V1012H1186V1012.5H1182V1012H1178V1012.5H1174V1012H1170V1012.5H1166V1012H1162V1012.5H1158V1012H1154V1012.5H1150V1012H1146V1012.5H1142V1012H1138V1012.5H1134V1012H1130V1012.5H1126V1012H1122V1012.5H1118V1012H1114V1012.5H1110V1012H1106V1012.5H1102V1012H1098V1012.5H1094V1012H1090V1012.5H1086V1012H1082V1012.5H1078V1012H1074V1012.5H1070V1012H1066V1012.5H1062V1012H1058V1012.5H1054V1012H1050V1012.5H1046V1012H1042V1012.5H1038V1012H1034V1012.5H1030V1012H1026V1012.5H1022V1012H1018V1012.5H1016C1015.5 1012.5 1015.01 1012.55 1014.54 1012.64L1014.44 1012.15Z" stroke="#A56EFF" stroke-dasharray="4 4"/>
+<path d="M1280 692.5H1488C1492.14 692.5 1495.5 695.858 1495.5 700V732C1495.5 736.142 1492.14 739.5 1488 739.5H1280C1275.86 739.5 1272.5 736.142 1272.5 732V700C1272.5 695.858 1275.86 692.5 1280 692.5Z" fill="white"/>
+<path d="M1280 692.5H1488C1492.14 692.5 1495.5 695.858 1495.5 700V732C1495.5 736.142 1492.14 739.5 1488 739.5H1280C1275.86 739.5 1272.5 736.142 1272.5 732V700C1272.5 695.858 1275.86 692.5 1280 692.5Z" stroke="#0F62FE"/>
+<path d="M1273 700C1273 696.134 1276.13 693 1280 693H1488C1491.87 693 1495 696.134 1495 700V732C1495 735.866 1491.87 739 1488 739H1280C1276.13 739 1273 735.866 1273 732V700Z" fill="white"/>
+<path d="M1273 700C1273 696.134 1276.13 693 1280 693H1488C1491.87 693 1495 696.134 1495 700V732C1495 735.866 1491.87 739 1488 739H1280C1276.13 739 1273 735.866 1273 732V700Z" fill="#EDF5FF"/>
+<g clip-path="url(#clip35_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1288" y="721.25">Maximo Monitor</tspan></text>
+</g>
+<path d="M1280 756.5H1488C1492.14 756.5 1495.5 759.858 1495.5 764V796C1495.5 800.142 1492.14 803.5 1488 803.5H1280C1275.86 803.5 1272.5 800.142 1272.5 796V764C1272.5 759.858 1275.86 756.5 1280 756.5Z" fill="white"/>
+<path d="M1280 756.5H1488C1492.14 756.5 1495.5 759.858 1495.5 764V796C1495.5 800.142 1492.14 803.5 1488 803.5H1280C1275.86 803.5 1272.5 800.142 1272.5 796V764C1272.5 759.858 1275.86 756.5 1280 756.5Z" stroke="#009D9A"/>
+<path d="M1273 764C1273 760.134 1276.13 757 1280 757H1488C1491.87 757 1495 760.134 1495 764V796C1495 799.866 1491.87 803 1488 803H1280C1276.13 803 1273 799.866 1273 796V764Z" fill="white"/>
+<path d="M1273 764C1273 760.134 1276.13 757 1280 757H1488C1491.87 757 1495 760.134 1495 764V796C1495 799.866 1491.87 803 1488 803H1280C1276.13 803 1273 799.866 1273 796V764Z" fill="#D9FBFB"/>
+<g clip-path="url(#clip36_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1288" y="785.25">Db2</tspan></text>
+</g>
+<path d="M1280 820.5H1488C1492.14 820.5 1495.5 823.858 1495.5 828V860C1495.5 864.142 1492.14 867.5 1488 867.5H1280C1275.86 867.5 1272.5 864.142 1272.5 860V828C1272.5 823.858 1275.86 820.5 1280 820.5Z" fill="white"/>
+<path d="M1280 820.5H1488C1492.14 820.5 1495.5 823.858 1495.5 828V860C1495.5 864.142 1492.14 867.5 1488 867.5H1280C1275.86 867.5 1272.5 864.142 1272.5 860V828C1272.5 823.858 1275.86 820.5 1280 820.5Z" stroke="black"/>
+<path d="M1273 828C1273 824.134 1276.13 821 1280 821H1488C1491.87 821 1495 824.134 1495 828V860C1495 863.866 1491.87 867 1488 867H1280C1276.13 867 1273 863.866 1273 860V828Z" fill="white"/>
+<path d="M1273 828C1273 824.134 1276.13 821 1280 821H1488C1491.87 821 1495 824.134 1495 828V860C1495 863.866 1491.87 867 1488 867H1280C1276.13 867 1273 863.866 1273 860V828Z" fill="#F4F4F4"/>
+<g clip-path="url(#clip37_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1288" y="849.25">MongoDB</tspan></text>
+</g>
+<path d="M1328 884.5H1488C1492.14 884.5 1495.5 887.858 1495.5 892V924C1495.5 928.142 1492.14 931.5 1488 931.5H1328C1323.86 931.5 1320.5 928.142 1320.5 924V892C1320.5 887.858 1323.86 884.5 1328 884.5Z" stroke="black"/>
+<path d="M1323 894C1323 890.134 1326.13 887 1330 887H1486C1489.87 887 1493 890.134 1493 894V922C1493 925.866 1489.87 929 1486 929H1330C1326.13 929 1323 925.866 1323 922V894Z" fill="white"/>
+<path d="M1323 894C1323 890.134 1326.13 887 1330 887H1486C1489.87 887 1493 890.134 1493 894V922C1493 925.866 1489.87 929 1486 929H1330C1326.13 929 1323 925.866 1323 922V894Z" fill="#F4F4F4"/>
+<rect x="1323.5" y="887.5" width="169" height="41" rx="5" stroke="black"/>
+<g clip-path="url(#clip38_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1336" y="913.25">Amazon DocumentDb</tspan></text>
+</g>
+<path d="M1280 948.5H1488C1492.14 948.5 1495.5 951.858 1495.5 956V988C1495.5 992.142 1492.14 995.5 1488 995.5H1280C1275.86 995.5 1272.5 992.142 1272.5 988V956C1272.5 951.858 1275.86 948.5 1280 948.5Z" fill="white"/>
+<path d="M1280 948.5H1488C1492.14 948.5 1495.5 951.858 1495.5 956V988C1495.5 992.142 1492.14 995.5 1488 995.5H1280C1275.86 995.5 1272.5 992.142 1272.5 988V956C1272.5 951.858 1275.86 948.5 1280 948.5Z" stroke="black"/>
+<path d="M1273 956C1273 952.134 1276.13 949 1280 949H1488C1491.87 949 1495 952.134 1495 956V988C1495 991.866 1491.87 995 1488 995H1280C1276.13 995 1273 991.866 1273 988V956Z" fill="white"/>
+<path d="M1273 956C1273 952.134 1276.13 949 1280 949H1488C1491.87 949 1495 952.134 1495 956V988C1495 991.866 1491.87 995 1488 995H1280C1276.13 995 1273 991.866 1273 988V956Z" fill="#F4F4F4"/>
+<g clip-path="url(#clip39_109_12026)">
+<text fill="black" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" font-weight="600" letter-spacing="0.16px"><tspan x="1288" y="977.25">Apache Kafka</tspan></text>
+</g>
+<rect width="56" height="8" transform="translate(1216 712)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="49" height="0" transform="translate(1216 716)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M1216 716H1265" stroke="black"/>
+<rect width="8" height="8" transform="translate(1264 712)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M1264 712L1272 716L1264 720V712Z" fill="black"/>
+<rect width="56" height="8" transform="translate(952 712)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="49" height="0" transform="translate(959 716)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M959 716H1008" stroke="black"/>
+<rect width="8" height="8" transform="matrix(-1 0 0 1 960 712)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M960 712L952 716L960 720V712Z" fill="black"/>
+<rect width="16" height="40" transform="translate(432 804)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M448 844H440C435.582 844 432 840.418 432 836V804" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="0.01 4"/>
+<rect width="8" height="8" transform="matrix(1 0 0 -1 448 848)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="7.07107" height="7.07107" transform="matrix(0.707107 -0.707107 -0.707107 -0.707107 452 849)" fill="black"/>
+<path d="M52 1092.5H76C77.933 1092.5 79.5 1094.07 79.5 1096V1104C79.5 1105.93 77.933 1107.5 76 1107.5H52C50.067 1107.5 48.5 1105.93 48.5 1104V1096C48.5 1094.07 50.067 1092.5 52 1092.5Z" fill="#EDF5FF" stroke="#0F62FE"/>
+<text fill="#525252" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" letter-spacing="0.0016em"><tspan x="88" y="1105.25">IBM Maximo Application Suite</tspan></text>
+<path d="M300 1092.5H324C325.933 1092.5 327.5 1094.07 327.5 1096V1104C327.5 1105.93 325.933 1107.5 324 1107.5H300C298.067 1107.5 296.5 1105.93 296.5 1104V1096C296.5 1094.07 298.067 1092.5 300 1092.5Z" fill="#F6F2FF" stroke="#A56EFF"/>
+<text fill="#525252" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" letter-spacing="0.0016em"><tspan x="336" y="1105.25">IBM Cloud Pak for Data</tspan></text>
+<path d="M508 1092.5H532C533.933 1092.5 535.5 1094.07 535.5 1096V1104C535.5 1105.93 533.933 1107.5 532 1107.5H508C506.067 1107.5 504.5 1105.93 504.5 1104V1096C504.5 1094.07 506.067 1092.5 508 1092.5Z" fill="#D9FBFB" stroke="#009D9A"/>
+<text fill="#525252" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" letter-spacing="0.0016em"><tspan x="544" y="1105.25">IBM Cloud Pak Foundation Services</tspan></text>
+<path d="M796 1092.5H820C821.933 1092.5 823.5 1094.07 823.5 1096V1104C823.5 1105.93 821.933 1107.5 820 1107.5H796C794.067 1107.5 792.5 1105.93 792.5 1104V1096C792.5 1094.07 794.067 1092.5 796 1092.5Z" fill="#FFF1F1" stroke="#FA4D56"/>
+<text fill="#525252" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" letter-spacing="0.0016em"><tspan x="832" y="1105.25">Red Hat  OpenShift  Container Platform</tspan></text>
+<path d="M1196 1092.5H1220C1221.93 1092.5 1223.5 1094.07 1223.5 1096V1104C1223.5 1105.93 1221.93 1107.5 1220 1107.5H1196C1194.07 1107.5 1192.5 1105.93 1192.5 1104V1096C1192.5 1094.07 1194.07 1092.5 1196 1092.5Z" fill="#F4F4F4" stroke="black"/>
+<text fill="#525252" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" letter-spacing="0.0016em"><tspan x="1232" y="1105.25">Other dependencies</tspan></text>
+<rect x="48.5" y="1116.5" width="31" height="15" rx="3.5" fill="white" stroke="#8D8D8D"/>
+<text fill="#525252" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" letter-spacing="0.0016em"><tspan x="88" y="1129.25">Required dependency</tspan></text>
+<path d="M298.469 1116.3C297.491 1116.71 296.709 1117.49 296.304 1118.47L296.765 1118.66C296.595 1119.07 296.5 1119.52 296.5 1120V1122H296V1126H296.5V1128C296.5 1128.48 296.595 1128.93 296.765 1129.34L296.304 1129.53C296.709 1130.51 297.491 1131.29 298.469 1131.7L298.66 1131.23C299.072 1131.41 299.525 1131.5 300 1131.5H302V1132H306V1131.5H310V1132H314V1131.5H318V1132H322V1131.5H324C324.475 1131.5 324.928 1131.41 325.34 1131.23L325.531 1131.7C326.509 1131.29 327.291 1130.51 327.696 1129.53L327.235 1129.34C327.405 1128.93 327.5 1128.48 327.5 1128V1126H328V1122H327.5V1120C327.5 1119.52 327.405 1119.07 327.235 1118.66L327.696 1118.47C327.291 1117.49 326.509 1116.71 325.531 1116.3L325.34 1116.77C324.928 1116.59 324.475 1116.5 324 1116.5H322V1116H318V1116.5H314V1116H310V1116.5H306V1116H302V1116.5H300C299.525 1116.5 299.072 1116.59 298.66 1116.77L298.469 1116.3Z" fill="white" stroke="#8D8D8D" stroke-dasharray="4 4"/>
+<text fill="#525252" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" letter-spacing="0.0016em"><tspan x="336" y="1129.25">Optional dependency  </tspan></text>
+<rect x="504.5" y="1116.5" width="31" height="15" rx="3.5" fill="white" stroke="#8D8D8D"/>
+<text fill="#525252" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" letter-spacing="0.0016em"><tspan x="544" y="1129.25">Alternative dependency</tspan></text>
+<rect x="506.5" y="1118.5" width="27" height="11" rx="2.5" fill="white" stroke="#8D8D8D"/>
+<path d="M793 1124H817" stroke="black"/>
+<path d="M817 1120L825 1124L817 1128V1120Z" fill="black"/>
+<text fill="#525252" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" letter-spacing="0.0016em"><tspan x="833" y="1129.25">Requires</tspan></text>
+<path d="M1001 1120L1009 1124L1001 1128V1120Z" fill="black"/>
+<mask id="mask0_109_12026" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="977" y="1123" width="28" height="2">
+<rect x="977" y="1123" width="28" height="2" fill="white"/>
+</mask>
+<g mask="url(#mask0_109_12026)">
+<line x1="977" y1="1124" x2="1009" y2="1124" stroke="black" stroke-dasharray="8 4"/>
+</g>
+<text fill="#525252" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" letter-spacing="0.0016em"><tspan x="1017" y="1129.25">Integrates with</tspan></text>
+<g clip-path="url(#clip40_109_12026)">
+<rect x="1220" y="1119.71" width="6.07107" height="6.07107" transform="rotate(45 1220 1119.71)" fill="white" stroke="black"/>
+</g>
+<g clip-path="url(#clip41_109_12026)">
+<rect x="1220" y="1119" width="7.07107" height="7.07107" transform="rotate(45 1220 1119)" fill="black"/>
+</g>
+<mask id="mask1_109_12026" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="1192" y="1123" width="24" height="2">
+<rect x="1192" y="1123" width="24" height="2" fill="white"/>
+</mask>
+<g mask="url(#mask1_109_12026)">
+<line x1="1193.75" y1="1124" x2="1212.25" y2="1124" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="0.1 4"/>
+</g>
+<text fill="#525252" xml:space="preserve" style="white-space: pre" font-family="IBM Plex Sans" font-size="14" letter-spacing="0.0016em"><tspan x="1233" y="1129.25">Alternatives</tspan></text>
+<rect width="16" height="40" transform="translate(1296 872)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<path d="M1312 912H1304C1299.58 912 1296 908.418 1296 904V872" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="0.01 4"/>
+<rect width="8" height="8" transform="matrix(1 0 0 -1 1312 916)" fill="white" fill-opacity="0.01" style="mix-blend-mode:multiply"/>
+<rect width="7.07107" height="7.07107" transform="matrix(0.707107 -0.707107 -0.707107 -0.707107 1316 917)" fill="black"/>
+<defs>
+<clipPath id="clip0_109_12026">
+<rect width="248" height="48" fill="white" transform="translate(48 100)"/>
+</clipPath>
+<clipPath id="clip1_109_12026">
+<rect width="248" height="48" fill="white" transform="translate(48 164)"/>
+</clipPath>
+<clipPath id="clip2_109_12026">
+<rect width="200" height="48" fill="white" transform="translate(96 228)"/>
+</clipPath>
+<clipPath id="clip3_109_12026">
+<rect width="248" height="48" fill="white" transform="translate(48 292)"/>
+</clipPath>
+<clipPath id="clip4_109_12026">
+<rect width="248" height="48" fill="white" transform="translate(48 356)"/>
+</clipPath>
+<clipPath id="clip5_109_12026">
+<rect width="248" height="48" fill="white" transform="translate(48 420)"/>
+</clipPath>
+<clipPath id="clip6_109_12026">
+<rect width="248" height="48" fill="white" transform="translate(48 484)"/>
+</clipPath>
+<clipPath id="clip7_109_12026">
+<rect width="248" height="48" fill="white" transform="translate(48 548)"/>
+</clipPath>
+<clipPath id="clip8_109_12026">
+<rect width="224" height="48" fill="white" transform="translate(1128 164)"/>
+</clipPath>
+<clipPath id="clip9_109_12026">
+<rect width="224" height="48" fill="white" transform="translate(1128 228)"/>
+</clipPath>
+<clipPath id="clip10_109_12026">
+<rect width="224" height="48" fill="white" transform="translate(1128 292)"/>
+</clipPath>
+<clipPath id="clip11_109_12026">
+<rect width="176" height="48" fill="white" transform="translate(1176 356)"/>
+</clipPath>
+<clipPath id="clip12_109_12026">
+<rect width="224" height="48" fill="white" transform="translate(1128 420)"/>
+</clipPath>
+<clipPath id="clip13_109_12026">
+<rect width="224" height="48" fill="white" transform="translate(584 484)"/>
+</clipPath>
+<clipPath id="clip14_109_12026">
+<rect width="224" height="48" fill="white" transform="translate(584 548)"/>
+</clipPath>
+<clipPath id="clip15_109_12026">
+<rect width="176" height="48" fill="white" transform="translate(632 612)"/>
+</clipPath>
+<clipPath id="clip16_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(888 484)"/>
+</clipPath>
+<clipPath id="clip17_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(888 548)"/>
+</clipPath>
+<clipPath id="clip18_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(328 484)"/>
+</clipPath>
+<clipPath id="clip19_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(328 548)"/>
+</clipPath>
+<clipPath id="clip20_109_12026">
+<rect width="280" height="48" fill="white" transform="translate(408 692)"/>
+</clipPath>
+<clipPath id="clip21_109_12026">
+<rect width="280" height="48" fill="white" transform="translate(408 756)"/>
+</clipPath>
+<clipPath id="clip22_109_12026">
+<rect width="232" height="48" fill="white" transform="translate(456 820)"/>
+</clipPath>
+<clipPath id="clip23_109_12026">
+<rect width="280" height="48" fill="white" transform="translate(408 884)"/>
+</clipPath>
+<clipPath id="clip24_109_12026">
+<rect width="280" height="48" fill="white" transform="translate(408 948)"/>
+</clipPath>
+<clipPath id="clip25_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(744 692)"/>
+</clipPath>
+<clipPath id="clip26_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(744 756)"/>
+</clipPath>
+<clipPath id="clip27_109_12026">
+<rect width="168" height="48" fill="white" transform="translate(784 820)"/>
+</clipPath>
+<clipPath id="clip28_109_12026">
+<rect width="168" height="48" fill="white" transform="translate(784 884)"/>
+</clipPath>
+<clipPath id="clip29_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(1008 692)"/>
+</clipPath>
+<clipPath id="clip30_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(1008 756)"/>
+</clipPath>
+<clipPath id="clip31_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(1008 820)"/>
+</clipPath>
+<clipPath id="clip32_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(1008 884)"/>
+</clipPath>
+<clipPath id="clip33_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(1008 948)"/>
+</clipPath>
+<clipPath id="clip34_109_12026">
+<rect width="208" height="48" fill="white" transform="translate(1008 1012)"/>
+</clipPath>
+<clipPath id="clip35_109_12026">
+<rect width="224" height="48" fill="white" transform="translate(1272 692)"/>
+</clipPath>
+<clipPath id="clip36_109_12026">
+<rect width="224" height="48" fill="white" transform="translate(1272 756)"/>
+</clipPath>
+<clipPath id="clip37_109_12026">
+<rect width="224" height="48" fill="white" transform="translate(1272 820)"/>
+</clipPath>
+<clipPath id="clip38_109_12026">
+<rect width="176" height="48" fill="white" transform="translate(1320 884)"/>
+</clipPath>
+<clipPath id="clip39_109_12026">
+<rect width="224" height="48" fill="white" transform="translate(1272 948)"/>
+</clipPath>
+<clipPath id="clip40_109_12026">
+<rect width="10" height="10" fill="white" transform="matrix(0 1 -1 0 1225 1119)"/>
+</clipPath>
+<clipPath id="clip41_109_12026">
+<rect width="10" height="10" fill="white" transform="matrix(0 1 -1 0 1225 1119)"/>
+</clipPath>
+</defs>
+</svg>

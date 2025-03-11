@@ -1,8 +1,9 @@
 ## Mobile Foundation Manage Setup
-- name: fvt-mobile-setup-testng
+- name: fvt-mob-setup-testng
   taskRef:
     kind: Task
     name: mas-fvt-mobile-pytest
+  timeout: "0"
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -32,11 +33,41 @@
       values: [""]
 
 ## Verification for Mobile JSON Schema
-- name: fvt-mobile-jsonschema
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+- name: fvt-mob-schema-pre
+  taskRef:
+    kind: Task
+    name: mas-fvt-mobile-pytest
+  timeout: "0"
   params:
-    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_image_registry
+      value: $(params.fvt_image_registry)
+    - name: fvt_image_digest
+      value: $(params.fvt_digest_mobile_pytest)
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: product_channel
+      value: $(params.mas_app_channel_manage)
+    - name: fvt_test_suite_suffix
+      value: pre
     - name: fvt_test_suite
-      value: mobile-api-jsonschema
+      value: mobile-api-mobile-schema
+    - name: input_data_file
+      value: "MobileSetup4MAS.data"
+    - name: output_data_file
+      value: "MobileSetup4MAS.data"
+    - name: enable_perf_debug
+      value: "True"
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+  when:
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    - input: "$(params.fvt_digest_mobile_pytest)"
+      operator: notin
+      values: [""]
   runAfter:
-    - fvt-mobile-setup-testng
+    - fvt-mob-setup-testng

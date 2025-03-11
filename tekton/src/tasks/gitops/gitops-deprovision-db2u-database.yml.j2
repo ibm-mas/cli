@@ -27,6 +27,9 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: is_replica_task
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-deprovision-db2u-database
     env:
@@ -52,6 +55,8 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: IS_REPLICA_TASK
+        value: $(params.is_replica_task)
     envFrom:
       - configMapRef:
           name: environment-properties

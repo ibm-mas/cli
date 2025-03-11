@@ -233,7 +233,6 @@ The engine that performs all tasks is written in Ansible, you can directly use t
     - IBM Cloud Pak for Data Platform and Services
         - [Watson Studio Local](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-studio)
         - [Watson Machine Learning](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-machine-learning)
-        - [Watson OpenScale](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-watson-openscale)
         - [Analytics Engine (Apache Spark)](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-analytics-engine-powered-by-apache-spark)
         - Cognos Analytics
     - Grafana

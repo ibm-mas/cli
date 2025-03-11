@@ -707,14 +707,6 @@ cpdAppsArgGroup.add_argument(
     const="install"
 )
 cpdAppsArgGroup.add_argument(
-    "--cp4d-install-openscale",
-    dest="cpd_install_openscale",
-    required=False,
-    help="Add Watson Openscale as part of Cloud Pak for Data",
-    action="store_const",
-    const="install"
-)
-cpdAppsArgGroup.add_argument(
     "--cp4d-install-cognos",
     dest="cpd_install_cognos",
     required=False,
@@ -1183,6 +1175,12 @@ otherArgGroup.add_argument(
     dest="image_pull_policy",
     required=False,
     help="Manually set the image pull policy used in the Tekton Pipeline",
+)
+otherArgGroup.add_argument(
+    "--service-account",
+    dest="service_account_name",
+    required=False,
+    help="Run the install pipeline under a custom service account (also disables creation of the default 'pipeline' service account)",
 )
 
 otherArgGroup.add_argument(

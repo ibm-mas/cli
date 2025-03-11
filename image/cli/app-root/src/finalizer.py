@@ -146,18 +146,6 @@ def getcp4dCompsVersions():
     except Exception as e:
         print(f"Unable to determine Watson Studio version: {e}")
 
-    # Get  Watson OpenScale Version
-    # -------------------------------------------------------------------------
-    try:
-        crs = dynClient.resources.get(api_version="wos.cpd.ibm.com/v1", kind="WOService")
-        cr = crs.get(name="openscale-defaultinstance", namespace="ibm-cpd")
-        if cr.status and cr.status.versions.reconciled:
-            setObject["target.WOServiceVersion"] = cr.status.versions.reconciled
-        else:
-            print("Unable to determine Watson OpenScale version: status.versions.reconciled unavailable")
-    except Exception as e:
-        print(f"Unable to determine Watson OpenScale version: {e}")
-
     # Get  SPSS Modeler Version
     # -------------------------------------------------------------------------
     try:

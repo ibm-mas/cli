@@ -6,14 +6,43 @@ db2_tls_version: {{DB2_TLS_VERSION}}
 db2_table_org: {{DB2_TABLE_ORG}}
 db2_node_label: {{DB2_NODE_LABEL}}
 db2_dedicated_node: {{DB2_DEDICATED_NODE}}
+replica_db: {{REPLICA_DB}}
 db2_instance_registry:
   {% filter indent(width=2) -%}
   {{ DB2_INSTANCE_REGISTRY }}
   {%- endfilter %}
+  {% if REPLICA_DB == 'true' %}
+  {% filter indent(width=2) -%}
+DB2_STANDBY_ISO: 'UR'
+DB2_HADR_ROS: 'ON'
+DB2_HADR_ROS_AVOID_REPLAY_ONLY_WINDOW: 'ON'
+  {%- endfilter %}
+  {% endif %}
 db2_database_db_config:
   {% filter indent(width=2) -%}
   {{ DB2_DATABASE_DB_CONFIG }}
   {%- endfilter %}
+  {% if REPLICA_DB == 'true' %}
+  {% filter indent(width=2) -%}
+HADR_SYNCMODE: 'NEARSYNC'
+HADR_REMOTE_INST: 'db2inst1'
+LOGINDEXBUILD: 'ON'
+  {% if MANUALLY_SET_ENHANCED_HADR != 'true' %}
+HADR_LOCAL_HOST: 'c-{{DB2_INSTANCE_NAME}}-db2u-0|c-{{DB2_INSTANCE_NAME}}-db2u-0.c-{{DB2_INSTANCE_NAME}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local'
+  {% if 'sdb' in DB2_INSTANCE_NAME %}
+HADR_LOCAL_SVC: '60007|60007'
+HADR_REMOTE_HOST: 'c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-0.c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local'
+HADR_REMOTE_SVC: '60006'
+HADR_TARGET_LIST: 'c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-0.c-{{DB2_INSTANCE_NAME[:-4]}}-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local:60006'
+  {% else %}
+HADR_LOCAL_SVC: '60006|60006'
+HADR_REMOTE_HOST: 'c-{{DB2_INSTANCE_NAME}}-sdb-db2u-0.c-{{DB2_INSTANCE_NAME}}-sdb-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local'
+HADR_REMOTE_SVC: '60007'
+HADR_TARGET_LIST: 'c-{{DB2_INSTANCE_NAME}}-sdb-db2u-0.c-{{DB2_INSTANCE_NAME}}-sdb-db2u-internal.{{DB2_NAMESPACE}}.svc.cluster.local:60007'
+  {% endif %}
+  {% endif %}
+  {%- endfilter %}
+  {% endif %}
 {% if DB2_ADDONS_AUDIT_CONFIG %}
 db2_addons_audit_config:
   {% filter indent(width=2) -%}
@@ -74,7 +103,7 @@ jdbc_route: {{JDBC_ROUTE}}
 
 db2_timezone: {{DB2_TIMEZONE}}
 
-{% if STORAGE_CLASS_DEFINITIONS %}
+{% if STORAGE_CLASS_DEFINITIONS and IS_REPLICA_TASK != 'true' %}
 storage_class_definitions:
   {% filter indent(width=2) -%}
   {{STORAGE_CLASS_DEFINITIONS}}
