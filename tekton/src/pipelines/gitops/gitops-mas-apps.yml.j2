@@ -150,6 +150,18 @@ spec:
     - name: db2_addons_audit_config_yaml_iot
       type: string
       default: ""
+    - name: db2_instance_registry_yaml_facilities
+      type: string
+      default: ""
+    - name: db2_instance_dbm_config_yaml_facilities
+      type: string
+      default: ""
+    - name: db2_database_db_config_yaml_facilities
+      type: string
+      default: ""
+    - name: db2_addons_audit_config_yaml_facilities
+      type: string
+      default: ""
     - name: db2_tls_version
       type: string
       default: TLSv1.2
@@ -531,13 +543,13 @@ spec:
       default: apps.mas.ibm.com/v1
     - name: mas_app_kind_facilities
       type: string
-      default: facilities
+      default: FacilitiesApp
     - name: mas_appws_api_version_facilities
       type: string
       default: apps.mas.ibm.com/v1
     - name: mas_appws_kind_facilities
       type: string
-      default: facilitiesWorkspace
+      default: FacilitiesWorkspace
     - name: mas_app_spec_yaml_facilities
       type: string
     - name: mas_appws_spec_yaml_facilities
