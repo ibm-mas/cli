@@ -20,6 +20,7 @@ Secrets Manager:
 IBM Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                    IBM Suite Maximo Application Suite Instance ID  
       --mas-config-dir ${COLOR_YELLOW}MAS_CONFIG_DIR${TEXT_RESET}                                      IBM Suite Maximo Application Suite config dir to hold config
+      --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                              List of IPs or CIDR range to whitelist
 
 COS Provider:
       --cos-action ${COLOR_YELLOW}COS_ACTION${TEXT_RESET}                                                  provision or deprovision
@@ -68,6 +69,9 @@ function gitops_cos_noninteractive() {
         ;;
       --mas-config-dir)
         export MAS_CONFIG_DIR=$1 && shift
+        ;;
+      --allow-list)
+        export ALLOW_LIST=$1 && shift
         ;;
 
       # COS Provider Selection
@@ -158,6 +162,9 @@ function gitops_cos() {
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Config Dir  ............................. ${COLOR_MAGENTA}${MAS_CONFIG_DIR}"
+  if [[ -z "${ALLOW_LIST}" ]]; then
+    echo_reset_dim "Allow List  ............................. ${COLOR_MAGENTA}${ALLOW_LIST}"
+  fi
 
   reset_colors
 
@@ -352,6 +359,7 @@ function gitops_cos() {
       secret_recovery_days           = 0
       secret_suffix                  = "db2_backup"
       manage_secret_format           = true
+      allow_list                     = "${ALLOW_LIST}"
     }
 EOF
 
