@@ -220,40 +220,9 @@ spec:
         - suite-verify
         - kafka
 
-
-    # 6. Install & Configure IoT
+    # 6. Install & Configure Manage
     # -------------------------------------------------------------------------
-    # 6.1 Install IoT
-    #
-    # Note: In the case of manage using the shared Db2 instance only start the
-    # IoT install *after* any Manage database preparation has completed
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/iot-app.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-db2-setup-system
-        - suite-config-kafka
-
-    # 6.2 Configure IoT workspace
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/iot-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-iot
-
-
-    # 7. Install & Configure Monitor
-    # -------------------------------------------------------------------------
-    # 7.1 Install Monitor
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/monitor-app.yml.j2') | indent(4) }}
-      runAfter:
-        - app-cfg-iot
-
-    # 7.2 Configure Monitor workspace
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/monitor-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-monitor
-
-
-    # 8. Install & Configure Manage
-    # -------------------------------------------------------------------------
-    # 8.1. Prepare database for Maxinst
+    # 6.1. Prepare database for Maxinst
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-system.yml.j2') | indent(4) }}
       runAfter:
         - suite-config-db2
@@ -261,7 +230,7 @@ spec:
       runAfter:
         - suite-config-db2
 
-    # 8.2 Manage Install
+    # 6.2 Manage Install
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-app.yml.j2') | indent(4) }}
       runAfter:
         - suite-db2-setup-system
@@ -269,19 +238,48 @@ spec:
         - suite-config-watson-studio
         - suite-config-cos
 
-    # 8.3 Configure Manage workspace
+    # 6.3 Configure Manage workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-manage
 
-    # 8.4 Configure IBM Maximo Location Services for ESRI
+    # 7. Install & Configure IoT
+    # -------------------------------------------------------------------------
+    # 7.1 Install IoT
+    #
+    # After 9.1 IoT will always be installed after Manage as it is part of Manage Foundation
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/iot-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-manage
+        - suite-db2-setup-system
+        - suite-config-kafka
+
+    # 7.2 Configure IoT workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/iot-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-iot
+
+    # 8. Install & Configure Monitor
+    # -------------------------------------------------------------------------
+    # 8.1 Install Monitor
+    # After 9.1 Monitor will always be installed after Manage as it is part of Manage Foundation    
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/monitor-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-iot
+
+    # 8.2 Configure Monitor workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/monitor-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-monitor
+
+    # 9. Configure IBM Maximo Location Services for ESRI
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/arcgis.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
 
-    # 9. Install & Configure Predict
+    # 10. Install & Configure Predict
     # -------------------------------------------------------------------------
-    # 9.1 Predict Install
+    # 10.1 Predict Install
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/predict-app.yml.j2') | indent(4) }}
       runAfter:
         - app-cfg-manage
@@ -291,52 +289,54 @@ spec:
         - analytics-service
         - spss
 
-    # 9.2 Configure Predict workspace
+    # 10.2 Configure Predict workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/predict-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-predict
 
 
-    # 10. Install & Configure Optimizer
+    # 11. Install & Configure Optimizer
     # -------------------------------------------------------------------------
-    # 10.1 Optimizer Install
+    # 11.1 Optimizer Install
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/optimizer-app.yml.j2') | indent(4) }}
       runAfter:
         - app-cfg-manage
 
-    # 10.2 Configure Optimizer workspace
+    # 11.2 Configure Optimizer workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/optimizer-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-optimizer
 
-    # 11. Install & Configure Assist
+    # 12. Install & Configure Assist
     # -------------------------------------------------------------------------
-    # 11.1 Assist Install
+    # 12.1 Assist Install
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/assist-app.yml.j2') | indent(4) }}
       runAfter:
+        - app-install-manage
         - suite-config-cos
 
-    # 11.2 Configure Assist workspace
+    # 12.2 Configure Assist workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/assist-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-assist
 
 
-    # 12. Install & Configure Visual Inspection
+    # 13. Install & Configure Visual Inspection
     # -------------------------------------------------------------------------
-    # 12.1 MVI Install
+    # 13.1 MVI Install
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
+        - app-install-manage
         - nvidia-gpu
         - suite-verify
 
-    # 12.2 Configure MVI workspace
+    # 13.2 Configure MVI workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-visualinspection
 
 
-    # 13. Verify health of the cluster before we consider the install complete
+    # 14. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'post-install-verify', 'devops_suite_name': 'post-install-verify'}) | indent(4) }}
       runAfter:
@@ -350,24 +350,24 @@ spec:
         - turbonomic
         - cognos
 
-    # 14 Install and configure AI Broker
+    # 15 Install and configure AI Broker
     # -------------------------------------------------------------------------
-    # 14.1 Install Opendatahub
+    # 15.1 Install Opendatahub
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/odh.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
 
-    # 14.2 Install Kmodels
+    # 15.2 Install Kmodels
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/kmodels.yml.j2') | indent(4) }}
       runAfter:
         - odh
 
-    # 14.3 Install Aibroker app
+    # 15.3 Install Aibroker app
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/aibroker-app.yml.j2') | indent(4) }}
       runAfter:
         - kmodels
 
-    # 14.4 Configure Aibroker
+    # 15.4 Configure Aibroker
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/aibroker.yml.j2') | indent(4) }}
       runAfter:
         - app-install-aibroker
