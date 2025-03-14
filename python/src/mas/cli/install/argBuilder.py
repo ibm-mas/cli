@@ -160,7 +160,6 @@ class installArgBuilderMixin():
             command += f"  --monitor-channel \"{self.getParam('mas_app_channel_monitor')}\"{newline}"
         if self.installManage:
             command += f"  --manage-channel \"{self.getParam('mas_app_channel_manage')}\"{newline}"
-            command += f"  --is-full-manage \"{self.getParam('is_full_manage')}\"{newline}"
         if self.installOptimizer:
             command += f"  --optimizer-channel \"{self.getParam('mas_app_channel_optimizer')}\""
             command += f" --optimizer-plan \"{self.getParam('mas_app_plan_optimizer')}\"{newline}"
