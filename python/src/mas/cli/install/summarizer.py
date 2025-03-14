@@ -178,8 +178,8 @@ class InstallSummarizerMixin():
 
     def manageSummary(self) -> None:
         if self.installManage:
-            self.printSummary(f"{self.manageAppName}", self.params["mas_app_channel_manage"])
-            if not self.isManageFoundation:
+            self.printSummary(f"{'Manage foundation' if self.getParam('is_full_manage') == 'false' else 'Manage'}", self.params["mas_app_channel_manage"])
+            if self.getParam("is_full_manage") != "false":
                 print_formatted_text(HTML("  <SkyBlue>+ Components</SkyBlue>"))
                 self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
