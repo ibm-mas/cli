@@ -244,10 +244,16 @@ spec:
     - name: auto_backup
       type: string
       default: ""
-    - name: replica_db
+    - name: replica_db_manage
       type: string
       default: "false"
-    - name: manually_set_enhanced_hadr
+    - name: manually_set_enhanced_hadr_manage
+      type: string
+      default: "false"
+    - name: replica_db_facilities
+      type: string
+      default: "false"
+    - name: manually_set_enhanced_hadr_facilities
       type: string
       default: "false"
 
@@ -887,9 +893,9 @@ spec:
         - name: db2_backup_notify_slack_url
           value: $(params.db2_backup_notify_slack_url)
         - name: replica_db
-          value: $(params.replica_db)
+          value: $(params.replica_db_manage)
         - name: manually_set_enhanced_hadr
-          value: $(params.manually_set_enhanced_hadr)
+          value: $(params.manually_set_enhanced_hadr_manage)
         - name: auto_backup
           value: $(params.auto_backup)
         
@@ -1054,9 +1060,9 @@ spec:
         - name: auto_backup
           value: "false"
         - name: replica_db
-          value: $(params.replica_db)
+          value: $(params.replica_db_manage)
         - name: manually_set_enhanced_hadr
-          value: $(params.manually_set_enhanced_hadr)
+          value: $(params.manually_set_enhanced_hadr_manage)
         - name: mas_annotations
           value: $(params.mas_annotations)
         - name: is_replica_task
@@ -1182,9 +1188,9 @@ spec:
         - name: db2_backup_notify_slack_url
           value: $(params.db2_backup_notify_slack_url)
         - name: replica_db
-          value: $(params.replica_db)
+          value: $(params.replica_db_facilities)
         - name: manually_set_enhanced_hadr
-          value: $(params.manually_set_enhanced_hadr)
+          value: $(params.manually_set_enhanced_hadr_facilities)
         - name: auto_backup
           value: $(params.auto_backup)
         
@@ -1349,9 +1355,9 @@ spec:
         - name: auto_backup
           value: "false"
         - name: replica_db
-          value: $(params.replica_db)
+          value: $(params.replica_db_facilities)
         - name: manually_set_enhanced_hadr
-          value: $(params.manually_set_enhanced_hadr)
+          value: $(params.manually_set_enhanced_hadr_facilities)
         - name: mas_annotations
           value: $(params.mas_annotations)
         - name: is_replica_task
