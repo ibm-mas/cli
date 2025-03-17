@@ -1020,6 +1020,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 print(f"Unknown option: {key} {value}")
                 self.fatalError(f"Unknown option: {key} {value}")
 
+        if self.installManage:
+            # If Manage is being installed and --is-full-manage was set to something different than "false", assume it is "true"
+            if self.getParam("is_full_manage") != "false":
+                self.setParam("is_full_manage", "true")
+
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
 
