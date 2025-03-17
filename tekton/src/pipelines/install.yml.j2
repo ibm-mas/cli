@@ -250,7 +250,7 @@ spec:
     # After 9.1 IoT will always be installed after Manage as it is part of Manage Foundation
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/iot-app.yml.j2') | indent(4) }}
       runAfter:
-        - app-install-manage
+        - app-cfg-manage
         - suite-db2-setup-system
         - suite-config-kafka
 
