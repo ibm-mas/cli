@@ -240,6 +240,7 @@ function gitops_nvidia_gpu() {
   fi
   if [[ -z "${NFD_IMAGE}" ]]; then
     export NFD_IMAGE="registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9@sha256:45192fef5a1250ee573975ced1e897662116d5a30a1f8f4baa4497f64933fba3"
+  fi
 
 
   echo "${TEXT_DIM}"
