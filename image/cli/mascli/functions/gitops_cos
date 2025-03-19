@@ -162,7 +162,7 @@ function gitops_cos() {
   echo_h2 "IBM Maximo Application Suite" "    "
   echo_reset_dim "Instance ID ............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Config Dir  ............................. ${COLOR_MAGENTA}${MAS_CONFIG_DIR}"
-  if [[ -z "${ALLOW_LIST}" ]]; then
+  if [[ ! -z "${ALLOW_LIST}" ]]; then
     echo_reset_dim "Allow List  ............................. ${COLOR_MAGENTA}${ALLOW_LIST}"
   fi
 
@@ -346,7 +346,7 @@ function gitops_cos() {
     }
 
     module "s3db2_access_point" {
-      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=1.0.10"
+      source = "git::https://git:$GITHUB_PAT@github.ibm.com/maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=whitelisting-saas"
       name_prefix = local.name_prefix
       s3_access_point_bucket_id      = module.s3db2.s3_bucket_id
       s3_bucket_arn                  = module.s3db2.s3_bucket_arn
