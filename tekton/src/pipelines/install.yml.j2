@@ -312,7 +312,7 @@ spec:
     # 12.1 Assist Install
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/assist-app.yml.j2') | indent(4) }}
       runAfter:
-        - app-install-manage
+        - app-cfg-manage
         - suite-config-cos
 
     # 12.2 Configure Assist workspace
@@ -326,9 +326,8 @@ spec:
     # 13.1 MVI Install
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
-        - app-install-manage
+        - app-cfg-manage
         - nvidia-gpu
-        - suite-verify
 
     # 13.2 Configure MVI workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/visualinspection-workspace.yml.j2') | indent(4) }}
