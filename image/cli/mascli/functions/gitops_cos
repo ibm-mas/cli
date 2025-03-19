@@ -359,6 +359,7 @@ function gitops_cos() {
       secret_recovery_days           = 0
       secret_suffix                  = "db2_backup"
       manage_secret_format           = true
+      account_id                     = "${ACCOUNT_ID}"
       allow_list                     = "${ALLOW_LIST}"
     }
 EOF
