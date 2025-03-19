@@ -19,4 +19,3 @@ Documentation
 We welcome every Maximo Application Suite users, developers and enthusiasts to contribute to the MAS Command Line Interface while fixing code issues and implementing new automated functionalities.
 
 You can contribute to this collection by raising [a new issue](https://github.com/ibm-mas/cli/issues) with suggestions on how to make our MAS automation engine even better, or if you want to become a new code contributor, please refer to the [Contributing Guidelines](CONTRIBUTING.md) and learn more about how to get started.
-
