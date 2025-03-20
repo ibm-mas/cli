@@ -61,13 +61,6 @@ class Db2SettingsMixin():
         self.setParam("db2_memory_limits", "12Gi")
 
         if self.isSNO():
-            # Testing some changes with respect to SNO
-            self.setParam("db2_meta_storage_size", "20Gi")
-            self.setParam("db2_backup_storage_size", "100Gi")
-            self.setParam("db2_logs_storage_size", "100Gi")
-            self.setParam("db2_temp_storage_size", "100Gi")
-            self.setParam("db2_data_storage_size", "100Gi")
-        else:
             # Set smaller defaults for SNO deployments
             self.setParam("db2_meta_storage_size", "10Gi")
             self.setParam("db2_backup_storage_size", "10Gi")
@@ -83,6 +76,12 @@ class Db2SettingsMixin():
 
             # Also reduce the CPU requests
             self.params["db2_cpu_requests"] = "300m"
+        else:
+            self.setParam("db2_meta_storage_size", "20Gi")
+            self.setParam("db2_backup_storage_size", "100Gi")
+            self.setParam("db2_logs_storage_size", "100Gi")
+            self.setParam("db2_temp_storage_size", "100Gi")
+            self.setParam("db2_data_storage_size", "100Gi")
 
         instanceId = self.getParam('mas_instance_id')
         # Do we need to set up an IoT database?
