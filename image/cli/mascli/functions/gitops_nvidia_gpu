@@ -23,6 +23,7 @@ NVIDIA GPU OPERATOR:
       --nfd-namespace ${COLOR_YELLOW}NFD_NAMESPACE${TEXT_RESET}                                 NFD Namespace, defaults to openshift-nfd
       --nfd-channel ${COLOR_YELLOW}NFD_CHANNEL${TEXT_RESET}                                     NFD Channel, defaults to stable
       --nfd-install-plan ${COLOR_YELLOW}NFD_INSTALL_PLAN${TEXT_RESET}                           NFD Subscription install plan, ('Automatic' or 'Manual'. Default is 'Automatic')
+      --nfd-image ${COLOR_YELLOW}NFD_IMAGE${TEXT_RESET}                                         NFD Image for worker nodes, default is for ocp version 4.17 and up. Set if ocp version is below 4.17
       --gpu-namespace ${COLOR_YELLOW}GPU_NAMESPACE${TEXT_RESET}                                 GPU Namespace, defaults to nvidia-gpu-operator
       --gpu-channel ${COLOR_YELLOW}GPU_CHANNEL${TEXT_RESET}                                     GPU Channel, defaults to v24.3
       --gpu-install-plan ${COLOR_YELLOW}GPU_INSTALL_PLAN${TEXT_RESET}                           GPU Subscription install plan, ('Automatic' or 'Manual'. Default is 'Automatic')
@@ -111,6 +112,9 @@ function gitops_nvidia_gpu_noninteractive() {
         ;;
       --gpu-driver-repository-path)
         export GPU_DRIVER_REPOSITORY_PATH=$1 && shift
+        ;;
+      --nfd_image)
+        export NFD_IMAGE=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -234,6 +238,9 @@ function gitops_nvidia_gpu() {
   if [[ -z "${GPU_DRIVER_REPOSITORY_PATH}" ]]; then
     export GPU_DRIVER_REPOSITORY_PATH=nvcr.io/nvidia
   fi
+  if [[ -z "${NFD_IMAGE}" ]]; then
+    export NFD_IMAGE="registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9@sha256:45192fef5a1250ee573975ced1e897662116d5a30a1f8f4baa4497f64933fba3"
+  fi
 
 
   echo "${TEXT_DIM}"
@@ -241,6 +248,7 @@ function gitops_nvidia_gpu() {
   echo_reset_dim "NFD_NAMESPACE ............................. ${COLOR_MAGENTA}${NFD_NAMESPACE}"
   echo_reset_dim "NFD_CHANNEL ............................... ${COLOR_MAGENTA}${NFD_CHANNEL}"
   echo_reset_dim "NFD_INSTALL_PLAN .......................... ${COLOR_MAGENTA}${NFD_INSTALL_PLAN}"
+  echo_reset_dim "NFD_IMAGE ................................. ${COLOR_MAGENTA}${NFD_IMAGE}"
   echo_reset_dim "GPU_NAMESPACE ............................. ${COLOR_MAGENTA}${GPU_NAMESPACE}"
   echo_reset_dim "GPU_CHANNEL ............................... ${COLOR_MAGENTA}${GPU_CHANNEL}"
   echo_reset_dim "GPU_INSTALL_PLAN .......................... ${COLOR_MAGENTA}${GPU_INSTALL_PLAN}"
