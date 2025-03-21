@@ -498,6 +498,26 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             # Also reduce the CPU requests
             self.params["db2_cpu_requests"] = "300m"
+        else:
+            logger.debug("****Entered configSNO*** inside isSNO else loop")
+            self.setParam("mongodb_replicas", "1")
+            self.setParam("mongodb_cpu_requests", "500m")
+            self.setParam("mas_app_settings_aio_flag", "false")
+
+            self.setParam("db2_meta_storage_size", "10Gi")
+            self.setParam("db2_backup_storage_size", "10Gi")
+            self.setParam("db2_logs_storage_size", "10Gi")
+            self.setParam("db2_temp_storage_size", "10Gi")
+            self.setParam("db2_data_storage_size", "20Gi")
+
+            # Configure the access mode to RWO
+            self.params["db2_meta_storage_accessmode"] = "ReadWriteOnce"
+            self.params["db2_backup_storage_accessmode"] = "ReadWriteOnce"
+            self.params["db2_logs_storage_accessmode"] = "ReadWriteOnce"
+            self.params["db2_data_storage_accessmode"] = "ReadWriteOnce"
+
+            # Also reduce the CPU requests
+            self.params["db2_cpu_requests"] = "300m"
 
     @logMethodCall
     def configDNSAndCerts(self):

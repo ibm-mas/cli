@@ -278,8 +278,12 @@ class BaseApp(PrintMixin, PromptMixin):
 
     @logMethodCall
     def isSNO(self):
+        logger.debug("*vsc*: Entered isSNO from BaseApp")
         if self._isSNO is None:
+            logger.debug("*vsc*: self._isSNO is None. Hence, calling devops ocp")
+            logger.debug(f"*vsc*: isSNO responded with this value: {isSNO(self.dynamicClient)}")
             self._isSNO = isSNO(self.dynamicClient)
+            logger.debug(f"*vsc*: returning value : {self._isSNO}")
         return self._isSNO
 
     @logMethodCall
