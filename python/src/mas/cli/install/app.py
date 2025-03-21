@@ -484,7 +484,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("mongodb_cpu_requests", "500m")
             self.setParam("mas_app_settings_aio_flag", "false")
 
-                        # Set smaller defaults for SNO deployments
             self.setParam("db2_meta_storage_size", "10Gi")
             self.setParam("db2_backup_storage_size", "10Gi")
             self.setParam("db2_logs_storage_size", "10Gi")
