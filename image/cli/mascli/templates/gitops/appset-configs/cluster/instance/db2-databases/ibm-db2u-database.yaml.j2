@@ -118,3 +118,7 @@ db2_backup_bucket_secret_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_
 db2_backup_notify_slack_url: {{DB2_BACKUP_NOTIFY_SLACK_URL}}
 db2_backup_icd_auth_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DB2_BACKUP_ICD_AUTH_KEY }}>
 {% endif %}
+
+{% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
+allow_list: {{ALLOW_LIST}}
+{% endif %}

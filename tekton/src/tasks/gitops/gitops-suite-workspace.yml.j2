@@ -30,6 +30,9 @@ spec:
       default: ""
     - name: avp_aws_secret_region
       type: string
+    - name: allow_list
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-workspace
     env:
@@ -55,6 +58,8 @@ spec:
         value: $(params.mas_workspace_name)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: ALLOW_LIST
+        value: $(params.allow_list)
     envFrom:
       - configMapRef:
           name: environment-properties

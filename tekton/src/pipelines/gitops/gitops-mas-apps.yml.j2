@@ -819,6 +819,10 @@ spec:
       type: string
       default: "false"
 
+    - name: allow_list
+      type: string
+      default: ""
+
   tasks:
     # 2. Kafka
     # -------------------------------------------------------------------------
@@ -949,6 +953,8 @@ spec:
           value: $(params.db2_backup_notify_slack_url_iot)
         - name: auto_backup
           value: $(params.auto_backup_iot)
+        - name: allow_list
+          value: $(params.allow_list)
 
       workspaces:
         - name: configs
@@ -1115,6 +1121,8 @@ spec:
           value: $(params.manually_set_enhanced_hadr_manage)
         - name: auto_backup
           value: $(params.auto_backup_manage)
+        - name: allow_list
+          value: $(params.allow_list)
         
       workspaces:
         - name: configs
@@ -1284,6 +1292,8 @@ spec:
           value: $(params.mas_annotations)
         - name: is_replica_task
           value: 'true'
+        - name: allow_list
+          value: $(params.allow_list)
 
       workspaces:
         - name: configs
