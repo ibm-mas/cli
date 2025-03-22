@@ -55,33 +55,7 @@ class Db2SettingsMixin():
             f"The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, {self.manageAppName}, Monitor, &amp; Predict) or you may choose to configure MAS to use an existing database"
         ])
 
-        self.setParam("db2_cpu_requests", "4000m")
-        self.setParam("db2_cpu_limits", "6000m")
-        self.setParam("db2_memory_requests", "8Gi")
-        self.setParam("db2_memory_limits", "12Gi")
-
-        if self.isSNO():
-            # Set smaller defaults for SNO deployments
-            self.setParam("db2_meta_storage_size", "10Gi")
-            self.setParam("db2_backup_storage_size", "10Gi")
-            self.setParam("db2_logs_storage_size", "10Gi")
-            self.setParam("db2_temp_storage_size", "10Gi")
-            self.setParam("db2_data_storage_size", "20Gi")
-
-            # Configure the access mode to RWO
-            self.params["db2_meta_storage_accessmode"] = "ReadWriteOnce"
-            self.params["db2_backup_storage_accessmode"] = "ReadWriteOnce"
-            self.params["db2_logs_storage_accessmode"] = "ReadWriteOnce"
-            self.params["db2_data_storage_accessmode"] = "ReadWriteOnce"
-
-            # Also reduce the CPU requests
-            self.params["db2_cpu_requests"] = "300m"
-        else:
-            self.setParam("db2_meta_storage_size", "20Gi")
-            self.setParam("db2_backup_storage_size", "100Gi")
-            self.setParam("db2_logs_storage_size", "100Gi")
-            self.setParam("db2_temp_storage_size", "100Gi")
-            self.setParam("db2_data_storage_size", "100Gi")
+        self.setDB2DefaultSettings()
 
         instanceId = self.getParam('mas_instance_id')
         # Do we need to set up an IoT database?
@@ -201,3 +175,31 @@ class Db2SettingsMixin():
                     self.promptForString(" + Backup Volume", "db2_backup_storage_size", default=self.getParam("db2_backup_storage_size"))
             else:
                 self.setParam("db2_namespace", "db2u")
+
+    def setDB2DefaultSettings(self) -> None:
+
+        self.setParam("db2_cpu_requests", "4000m")
+        self.setParam("db2_cpu_limits", "6000m")
+        self.setParam("db2_memory_requests", "8Gi")
+        self.setParam("db2_memory_limits", "12Gi")
+        self.params["db2_cpu_requests"] = "300m"
+
+        if self.isSNO():
+            # Set smaller defaults for SNO deployments
+            self.setParam("db2_meta_storage_size", "10Gi")
+            self.setParam("db2_backup_storage_size", "10Gi")
+            self.setParam("db2_logs_storage_size", "10Gi")
+            self.setParam("db2_temp_storage_size", "10Gi")
+            self.setParam("db2_data_storage_size", "20Gi")
+
+            # Configure the access mode to RWO
+            self.params["db2_meta_storage_accessmode"] = "ReadWriteOnce"
+            self.params["db2_backup_storage_accessmode"] = "ReadWriteOnce"
+            self.params["db2_logs_storage_accessmode"] = "ReadWriteOnce"
+            self.params["db2_data_storage_accessmode"] = "ReadWriteOnce"
+        else:
+            self.setParam("db2_meta_storage_size", "20Gi")
+            self.setParam("db2_backup_storage_size", "100Gi")
+            self.setParam("db2_logs_storage_size", "100Gi")
+            self.setParam("db2_temp_storage_size", "100Gi")
+            self.setParam("db2_data_storage_size", "100Gi")
