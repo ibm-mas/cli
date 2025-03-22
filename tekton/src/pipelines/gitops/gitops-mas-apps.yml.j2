@@ -83,49 +83,360 @@ spec:
     - name: jdbc_route_manage
       type: string
       default: ""
+    - name: replica_db_manage
+      type: string
+      default: "false"
+    - name: manually_set_enhanced_hadr_manage
+      type: string
+      default: "false"
 
-    - name: db2_meta_storage_class
+    - name: jdbc_type_facilities
       type: string
-    - name: db2_temp_storage_class
+    - name: jdbc_instance_name_facilities
       type: string
-    - name: db2_logs_storage_class
-      type: string
-    - name: db2_audit_logs_storage_class
-      type: string
-    - name: db2_data_storage_class
+    - name: jdbc_connection_url_facilities
       type: string
       default: ""
-    - name: db2_backup_storage_class
+    - name: jdbc_certificate_file_facilities
       type: string
-    - name: db2_archivelogs_storage_class
+      default: ""
+    - name: jdbc_route_facilities
       type: string
+      default: ""
+    - name: replica_db_facilities
+      type: string
+      default: "false"
+    - name: manually_set_enhanced_hadr_facilities
+      type: string
+      default: "false"
 
-    - name: db2_meta_storage_size
+    - name: db2_meta_storage_class_manage
+      type: string
+    - name: db2_temp_storage_class_manage
+      type: string
+    - name: db2_logs_storage_class_manage
+      type: string
+    - name: db2_audit_logs_storage_class_manage
+      type: string
+    - name: db2_data_storage_class_manage
       type: string
       default: ""
-    - name: db2_temp_storage_size
+    - name: db2_backup_storage_class_manage
+      type: string
+    - name: db2_archivelogs_storage_class_manage
+      type: string
+    - name: db2_meta_storage_size_manage
       type: string
       default: ""
-    - name: db2_logs_storage_size
+    - name: db2_temp_storage_size_manage
       type: string
       default: ""
-    - name: db2_audit_logs_storage_size
+    - name: db2_logs_storage_size_manage
       type: string
       default: ""
-    - name: db2_data_storage_size
+    - name: db2_audit_logs_storage_size_manage
       type: string
       default: ""
-    - name: db2_backup_storage_size
+    - name: db2_data_storage_size_manage
       type: string
       default: ""
-    - name: db2_archivelogs_storage_size
+    - name: db2_backup_storage_size_manage
+      type: string
+      default: ""
+    - name: db2_archivelogs_storage_size_manage
+      type: string
+      default: ""
+    - name: db2_version_manage
+      type: string
+    - name: db2_action_manage
+      type: string
+    - name: db2_tls_version_manage
+      type: string
+      default: TLSv1.2
+    - name: db2_table_org_manage
+      type: string
+      default: ""
+    - name: db2_mln_count_manage
+      type: string
+      default: ""
+    - name: db2_num_pods_manage
+      type: string
+      default: ""
+    - name: db2_meta_storage_accessmode_manage
+      type: string
+      default: ""
+    - name: db2_data_storage_accessmode_manage
+      type: string
+      default: ""
+    - name: db2_backup_storage_accessmode_manage
+      type: string
+      default: ""
+    - name: db2_logs_storage_accessmode_manage
+      type: string
+      default: ""
+    - name: db2_audit_logs_storage_accessmode_manage
+      type: string
+      default: ""
+    - name: db2_temp_storage_accessmode_manage
+      type: string
+    - name: db2_archivelogs_storage_accessmode_manage
+      type: string
+      default: ""
+    - name: db2_cpu_requests_manage
+      type: string
+      default: ""
+    - name: db2_cpu_limits_manage
+      type: string
+      default: ""
+    - name: db2_memory_requests_manage
+      type: string
+      default: ""
+    - name: db2_memory_limits_manage
+      type: string
+      default: ""
+    - name: db2_affinity_key_manage
+      type: string
+      default: ""
+    - name: db2_affinity_value_manage
+      type: string
+      default: ""
+    - name: db2_tolerate_key_manage
+      type: string
+      default: ""
+    - name: db2_tolerate_value_manage
+      type: string
+      default: ""
+    - name: db2_tolerate_effect_manage
+      type: string
+      default: ""
+    - name: db2_timezone_manage
+      type: string
+      default: ""
+    - name: db2_backup_notify_slack_url_manage
+      type: string
+      default: ""
+    - name: auto_backup_manage
       type: string
       default: ""
 
-    - name: db2_version
+    - name: db2_meta_storage_class_iot
       type: string
-    - name: db2_action
+    - name: db2_temp_storage_class_iot
       type: string
+    - name: db2_logs_storage_class_iot
+      type: string
+    - name: db2_audit_logs_storage_class_iot
+      type: string
+    - name: db2_data_storage_class_iot
+      type: string
+      default: ""
+    - name: db2_backup_storage_class_iot
+      type: string
+    - name: db2_archivelogs_storage_class_iot
+      type: string
+    - name: db2_meta_storage_size_iot
+      type: string
+      default: ""
+    - name: db2_temp_storage_size_iot
+      type: string
+      default: ""
+    - name: db2_logs_storage_size_iot
+      type: string
+      default: ""
+    - name: db2_audit_logs_storage_size_iot
+      type: string
+      default: ""
+    - name: db2_data_storage_size_iot
+      type: string
+      default: ""
+    - name: db2_backup_storage_size_iot
+      type: string
+      default: ""
+    - name: db2_archivelogs_storage_size_iot
+      type: string
+      default: ""
+    - name: db2_version_iot
+      type: string
+    - name: db2_action_iot
+      type: string
+    - name: db2_tls_version_iot
+      type: string
+      default: TLSv1.2
+    - name: db2_table_org_iot
+      type: string
+      default: ""
+    - name: db2_mln_count_iot
+      type: string
+      default: ""
+    - name: db2_num_pods_iot
+      type: string
+      default: ""
+    - name: db2_meta_storage_accessmode_iot
+      type: string
+      default: ""
+    - name: db2_data_storage_accessmode_iot
+      type: string
+      default: ""
+    - name: db2_backup_storage_accessmode_iot
+      type: string
+      default: ""
+    - name: db2_logs_storage_accessmode_iot
+      type: string
+      default: ""
+    - name: db2_audit_logs_storage_accessmode_iot
+      type: string
+      default: ""
+    - name: db2_temp_storage_accessmode_iot
+      type: string
+    - name: db2_archivelogs_storage_accessmode_iot
+      type: string
+      default: ""
+    - name: db2_cpu_requests_iot
+      type: string
+      default: ""
+    - name: db2_cpu_limits_iot
+      type: string
+      default: ""
+    - name: db2_memory_requests_iot
+      type: string
+      default: ""
+    - name: db2_memory_limits_iot
+      type: string
+      default: ""
+    - name: db2_affinity_key_iot
+      type: string
+      default: ""
+    - name: db2_affinity_value_iot
+      type: string
+      default: ""
+    - name: db2_tolerate_key_iot
+      type: string
+      default: ""
+    - name: db2_tolerate_value_iot
+      type: string
+      default: ""
+    - name: db2_tolerate_effect_iot
+      type: string
+      default: ""
+    - name: db2_timezone_iot
+      type: string
+      default: ""
+    - name: db2_backup_notify_slack_url_iot
+      type: string
+      default: ""
+    - name: auto_backup_iot
+      type: string
+      default: ""
+
+    - name: db2_meta_storage_class_facilities
+      type: string
+    - name: db2_temp_storage_class_facilities
+      type: string
+    - name: db2_logs_storage_class_facilities
+      type: string
+    - name: db2_audit_logs_storage_class_facilities
+      type: string
+    - name: db2_data_storage_class_facilities
+      type: string
+      default: ""
+    - name: db2_backup_storage_class_facilities
+      type: string
+    - name: db2_archivelogs_storage_class_facilities
+      type: string
+    - name: db2_meta_storage_size_facilities
+      type: string
+      default: ""
+    - name: db2_temp_storage_size_facilities
+      type: string
+      default: ""
+    - name: db2_logs_storage_size_facilities
+      type: string
+      default: ""
+    - name: db2_audit_logs_storage_size_facilities
+      type: string
+      default: ""
+    - name: db2_data_storage_size_facilities
+      type: string
+      default: ""
+    - name: db2_backup_storage_size_facilities
+      type: string
+      default: ""
+    - name: db2_archivelogs_storage_size_facilities
+      type: string
+      default: ""
+    - name: db2_version_facilities
+      type: string
+    - name: db2_action_facilities
+      type: string
+    - name: db2_tls_version_facilities
+      type: string
+      default: TLSv1.2
+    - name: db2_table_org_facilities
+      type: string
+      default: ""
+    - name: db2_mln_count_facilities
+      type: string
+      default: ""
+    - name: db2_num_pods_facilities
+      type: string
+      default: ""
+    - name: db2_meta_storage_accessmode_facilities
+      type: string
+      default: ""
+    - name: db2_data_storage_accessmode_facilities
+      type: string
+      default: ""
+    - name: db2_backup_storage_accessmode_facilities
+      type: string
+      default: ""
+    - name: db2_logs_storage_accessmode_facilities
+      type: string
+      default: ""
+    - name: db2_audit_logs_storage_accessmode_facilities
+      type: string
+      default: ""
+    - name: db2_temp_storage_accessmode_facilities
+      type: string
+    - name: db2_archivelogs_storage_accessmode_facilities
+      type: string
+      default: ""
+    - name: db2_cpu_requests_facilities
+      type: string
+      default: ""
+    - name: db2_cpu_limits_facilities
+      type: string
+      default: ""
+    - name: db2_memory_requests_facilities
+      type: string
+      default: ""
+    - name: db2_memory_limits_facilities
+      type: string
+      default: ""
+    - name: db2_affinity_key_facilities
+      type: string
+      default: ""
+    - name: db2_affinity_value_facilities
+      type: string
+      default: ""
+    - name: db2_tolerate_key_facilities
+      type: string
+      default: ""
+    - name: db2_tolerate_value_facilities
+      type: string
+      default: ""
+    - name: db2_tolerate_effect_facilities
+      type: string
+      default: ""
+    - name: db2_timezone_facilities
+      type: string
+      default: ""
+    - name: db2_backup_notify_slack_url_facilities
+      type: string
+      default: ""
+    - name: auto_backup_facilities
+      type: string
+      default: ""
+
     - name: db2_instance_registry_yaml_manage
       type: string
       default: ""
@@ -150,80 +461,18 @@ spec:
     - name: db2_addons_audit_config_yaml_iot
       type: string
       default: ""
-    - name: db2_tls_version
-      type: string
-      default: TLSv1.2
-    - name: db2_table_org
+    - name: db2_instance_registry_yaml_facilities
       type: string
       default: ""
-    - name: db2_mln_count
+    - name: db2_instance_dbm_config_yaml_facilities
       type: string
       default: ""
-    - name: db2_num_pods
+    - name: db2_database_db_config_yaml_facilities
       type: string
       default: ""
-    - name: db2_meta_storage_accessmode
+    - name: db2_addons_audit_config_yaml_facilities
       type: string
       default: ""
-    - name: db2_data_storage_accessmode
-      type: string
-      default: ""
-    - name: db2_backup_storage_accessmode
-      type: string
-      default: ""
-    - name: db2_logs_storage_accessmode
-      type: string
-      default: ""
-    - name: db2_audit_logs_storage_accessmode
-      type: string
-      default: ""
-    - name: db2_temp_storage_accessmode
-      type: string
-    - name: db2_archivelogs_storage_accessmode
-      type: string
-      default: ""
-    - name: db2_cpu_requests
-      type: string
-      default: ""
-    - name: db2_cpu_limits
-      type: string
-      default: ""
-    - name: db2_memory_requests
-      type: string
-      default: ""
-    - name: db2_memory_limits
-      type: string
-      default: ""
-    - name: db2_affinity_key
-      type: string
-      default: ""
-    - name: db2_affinity_value
-      type: string
-      default: ""
-    - name: db2_tolerate_key
-      type: string
-      default: ""
-    - name: db2_tolerate_value
-      type: string
-      default: ""
-    - name: db2_tolerate_effect
-      type: string
-      default: ""
-    - name: db2_timezone
-      type: string
-      default: ""
-    - name: db2_backup_notify_slack_url
-      type: string
-      default: ""
-    - name: auto_backup
-      type: string
-      default: ""
-    - name: replica_db
-      type: string
-      default: "false"
-    - name: manually_set_enhanced_hadr
-      type: string
-      default: "false"
 
     - name: custom_labels
       type: string
@@ -520,6 +769,35 @@ spec:
       type: string
       default: "deactivate"
 
+    - name: mas_app_channel_facilities
+      type: string
+      default: ""
+    - name: mas_app_install_plan_facilities
+      type: string
+      default: "Automatic"
+    - name: mas_app_catalog_source_facilities
+      type: string
+      default: ibm-operator-catalog
+    - name: mas_app_api_version_facilities
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_app_kind_facilities
+      type: string
+      default: FacilitiesApp
+    - name: mas_appws_api_version_facilities
+      type: string
+      default: apps.mas.ibm.com/v1
+    - name: mas_appws_kind_facilities
+      type: string
+      default: FacilitiesWorkspace
+    - name: mas_app_spec_yaml_facilities
+      type: string
+    - name: mas_appws_spec_yaml_facilities
+      type: string
+    - name: facilities_workspace_action
+      type: string
+      default: "deactivate"
+
     - name: cpd_wsl_project_id
       type: string
       default: ""
@@ -540,6 +818,10 @@ spec:
     - name: run_sanity_test
       type: string
       default: "false"
+
+    - name: allow_list
+      type: string
+      default: ""
 
   tasks:
     # 2. Kafka
@@ -566,7 +848,7 @@ spec:
           operator: notin
           values: [""]
 
-    # 3. DB2 for IoT and Manage
+    # 3. DB2 for IoT, Manage and Facilities
     # -------------------------------------------------------------------------
 
     # 3.1 DB2 for IoT
@@ -584,39 +866,39 @@ spec:
           value: iot
 
         - name: db2_meta_storage_class
-          value: $(params.db2_meta_storage_class)
+          value: $(params.db2_meta_storage_class_iot)
         - name: db2_temp_storage_class
-          value: $(params.db2_temp_storage_class)
+          value: $(params.db2_temp_storage_class_iot)
         - name: db2_logs_storage_class
-          value: $(params.db2_logs_storage_class)
+          value: $(params.db2_logs_storage_class_iot)
         - name: db2_audit_logs_storage_class
-          value: $(params.db2_audit_logs_storage_class)
+          value: $(params.db2_audit_logs_storage_class_iot)
         - name: db2_data_storage_class
-          value: $(params.db2_data_storage_class)
+          value: $(params.db2_data_storage_class_iot)
         - name: db2_backup_storage_class
-          value: $(params.db2_backup_storage_class)
+          value: $(params.db2_backup_storage_class_iot)
         - name: db2_archivelogs_storage_class
-          value: $(params.db2_archivelogs_storage_class)
+          value: $(params.db2_archivelogs_storage_class_iot)
 
         - name: db2_meta_storage_size
-          value: $(params.db2_meta_storage_size)
+          value: $(params.db2_meta_storage_size_iot)
         - name: db2_temp_storage_size
-          value: $(params.db2_temp_storage_size)
+          value: $(params.db2_temp_storage_size_iot)
         - name: db2_logs_storage_size
-          value: $(params.db2_logs_storage_size)
+          value: $(params.db2_logs_storage_size_iot)
         - name: db2_audit_logs_storage_size
-          value: $(params.db2_audit_logs_storage_size)
+          value: $(params.db2_audit_logs_storage_size_iot)
         - name: db2_data_storage_size
-          value: $(params.db2_data_storage_size)
+          value: $(params.db2_data_storage_size_iot)
         - name: db2_backup_storage_size
-          value: $(params.db2_backup_storage_size)
+          value: $(params.db2_backup_storage_size_iot)
         - name: db2_archivelogs_storage_size
-          value: $(params.db2_archivelogs_storage_size)
+          value: $(params.db2_archivelogs_storage_size_iot)
 
         - name: db2_version
-          value: $(params.db2_version)
+          value: $(params.db2_version_iot)
         - name: db2_tls_version
-          value: $(params.db2_tls_version)
+          value: $(params.db2_tls_version_iot)
         - name: db2_instance_registry_yaml
           value: $(params.db2_instance_registry_yaml_iot)
         - name: db2_instance_dbm_config_yaml
@@ -626,51 +908,53 @@ spec:
         - name: db2_addons_audit_config_yaml
           value: $(params.db2_addons_audit_config_yaml_iot)
         - name: db2_table_org
-          value: $(params.db2_table_org)
+          value: $(params.db2_table_org_iot)
         - name: db2_mln_count
-          value: $(params.db2_mln_count)
+          value: $(params.db2_mln_count_iot)
         - name: db2_num_pods
-          value: $(params.db2_num_pods)
+          value: $(params.db2_num_pods_iot)
         - name: db2_meta_storage_accessmode
-          value: $(params.db2_meta_storage_accessmode)
+          value: $(params.db2_meta_storage_accessmode_iot)
         - name: db2_data_storage_accessmode
-          value: $(params.db2_data_storage_accessmode)
+          value: $(params.db2_data_storage_accessmode_iot)
         - name: db2_backup_storage_accessmode
-          value: $(params.db2_backup_storage_accessmode)
+          value: $(params.db2_backup_storage_accessmode_iot)
         - name: db2_logs_storage_accessmode
-          value: $(params.db2_logs_storage_accessmode)
+          value: $(params.db2_logs_storage_accessmode_iot)
         - name: db2_audit_logs_storage_accessmode
-          value: $(params.db2_audit_logs_storage_accessmode)
+          value: $(params.db2_audit_logs_storage_accessmode_iot)
         - name: db2_temp_storage_accessmode
-          value: $(params.db2_temp_storage_accessmode)
+          value: $(params.db2_temp_storage_accessmode_iot)
         - name: db2_archivelogs_storage_accessmode
-          value: $(params.db2_archivelogs_storage_accessmode)
+          value: $(params.db2_archivelogs_storage_accessmode_iot)
         - name: db2_cpu_requests
-          value: $(params.db2_cpu_requests)
+          value: $(params.db2_cpu_requests_iot)
         - name: db2_cpu_limits
-          value: $(params.db2_cpu_limits)
+          value: $(params.db2_cpu_limits_iot)
         - name: db2_memory_requests
-          value: $(params.db2_memory_requests)
+          value: $(params.db2_memory_requests_iot)
         - name: db2_memory_limits
-          value: $(params.db2_memory_limits)
+          value: $(params.db2_memory_limits_iot)
         - name: db2_affinity_key
-          value: $(params.db2_affinity_key)
+          value: $(params.db2_affinity_key_iot)
         - name: db2_affinity_value
-          value: $(params.db2_affinity_value)
+          value: $(params.db2_affinity_value_iot)
         - name: db2_tolerate_key
-          value: $(params.db2_tolerate_key)
+          value: $(params.db2_tolerate_key_iot)
         - name: db2_tolerate_value
-          value: $(params.db2_tolerate_value)
+          value: $(params.db2_tolerate_value_iot)
         - name: db2_tolerate_effect
-          value: $(params.db2_tolerate_effect)
+          value: $(params.db2_tolerate_effect_iot)
         - name: jdbc_route
           value: $(params.jdbc_route_iot)
         - name: db2_timezone
-          value: $(params.db2_timezone)
+          value: $(params.db2_timezone_iot)
         - name: db2_backup_notify_slack_url
-          value: $(params.db2_backup_notify_slack_url)
+          value: $(params.db2_backup_notify_slack_url_iot)
         - name: auto_backup
-          value: $(params.auto_backup)
+          value: $(params.auto_backup_iot)
+        - name: allow_list
+          value: $(params.allow_list)
 
       workspaces:
         - name: configs
@@ -681,7 +965,7 @@ spec:
         kind: Task
         name: gitops-db2u-database
       when:
-        - input: "$(params.db2_action)"
+        - input: "$(params.db2_action_iot)"
           operator: notin
           values: [""]
         - input: "$(params.jdbc_type_iot)"
@@ -746,39 +1030,39 @@ spec:
           value: manage
 
         - name: db2_meta_storage_class
-          value: $(params.db2_meta_storage_class)
+          value: $(params.db2_meta_storage_class_manage)
         - name: db2_temp_storage_class
-          value: $(params.db2_temp_storage_class)
+          value: $(params.db2_temp_storage_class_manage)
         - name: db2_logs_storage_class
-          value: $(params.db2_logs_storage_class)
+          value: $(params.db2_logs_storage_class_manage)
         - name: db2_audit_logs_storage_class
-          value: $(params.db2_audit_logs_storage_class)
+          value: $(params.db2_audit_logs_storage_class_manage)
         - name: db2_data_storage_class
-          value: $(params.db2_data_storage_class)
+          value: $(params.db2_data_storage_class_manage)
         - name: db2_backup_storage_class
-          value: $(params.db2_backup_storage_class)
+          value: $(params.db2_backup_storage_class_manage)
         - name: db2_archivelogs_storage_class
-          value: $(params.db2_archivelogs_storage_class)
+          value: $(params.db2_archivelogs_storage_class_manage)
 
         - name: db2_meta_storage_size
-          value: $(params.db2_meta_storage_size)
+          value: $(params.db2_meta_storage_size_manage)
         - name: db2_temp_storage_size
-          value: $(params.db2_temp_storage_size)
+          value: $(params.db2_temp_storage_size_manage)
         - name: db2_logs_storage_size
-          value: $(params.db2_logs_storage_size)
+          value: $(params.db2_logs_storage_size_manage)
         - name: db2_audit_logs_storage_size
-          value: $(params.db2_audit_logs_storage_size)
+          value: $(params.db2_audit_logs_storage_size_manage)
         - name: db2_data_storage_size
-          value: $(params.db2_data_storage_size)
+          value: $(params.db2_data_storage_size_manage)
         - name: db2_backup_storage_size
-          value: $(params.db2_backup_storage_size)
+          value: $(params.db2_backup_storage_size_manage)
         - name: db2_archivelogs_storage_size
-          value: $(params.db2_archivelogs_storage_size)
+          value: $(params.db2_archivelogs_storage_size_manage)
 
         - name: db2_version
-          value: $(params.db2_version)
+          value: $(params.db2_version_manage)
         - name: db2_tls_version
-          value: $(params.db2_tls_version)
+          value: $(params.db2_tls_version_manage)
         - name: db2_instance_registry_yaml
           value: $(params.db2_instance_registry_yaml_manage)
         - name: db2_instance_dbm_config_yaml
@@ -788,55 +1072,57 @@ spec:
         - name: db2_addons_audit_config_yaml
           value: $(params.db2_addons_audit_config_yaml_manage)
         - name: db2_table_org
-          value: $(params.db2_table_org)
+          value: $(params.db2_table_org_manage)
         - name: db2_mln_count
-          value: $(params.db2_mln_count)
+          value: $(params.db2_mln_count_manage)
         - name: db2_num_pods
-          value: $(params.db2_num_pods)
+          value: $(params.db2_num_pods_manage)
         - name: db2_meta_storage_accessmode
-          value: $(params.db2_meta_storage_accessmode)
+          value: $(params.db2_meta_storage_accessmode_manage)
         - name: db2_data_storage_accessmode
-          value: $(params.db2_data_storage_accessmode)
+          value: $(params.db2_data_storage_accessmode_manage)
         - name: db2_backup_storage_accessmode
-          value: $(params.db2_backup_storage_accessmode)
+          value: $(params.db2_backup_storage_accessmode_manage)
         - name: db2_logs_storage_accessmode
-          value: $(params.db2_logs_storage_accessmode)
+          value: $(params.db2_logs_storage_accessmode_manage)
         - name: db2_audit_logs_storage_accessmode
-          value: $(params.db2_audit_logs_storage_accessmode)
+          value: $(params.db2_audit_logs_storage_accessmode_manage)
         - name: db2_temp_storage_accessmode
-          value: $(params.db2_temp_storage_accessmode)
+          value: $(params.db2_temp_storage_accessmode_manage)
         - name: db2_archivelogs_storage_accessmode
-          value: $(params.db2_archivelogs_storage_accessmode)
+          value: $(params.db2_archivelogs_storage_accessmode_manage)
         - name: db2_cpu_requests
-          value: $(params.db2_cpu_requests)
+          value: $(params.db2_cpu_requests_manage)
         - name: db2_cpu_limits
-          value: $(params.db2_cpu_limits)
+          value: $(params.db2_cpu_limits_manage)
         - name: db2_memory_requests
-          value: $(params.db2_memory_requests)
+          value: $(params.db2_memory_requests_manage)
         - name: db2_memory_limits
-          value: $(params.db2_memory_limits)
+          value: $(params.db2_memory_limits_manage)
         - name: db2_affinity_key
-          value: $(params.db2_affinity_key)
+          value: $(params.db2_affinity_key_manage)
         - name: db2_affinity_value
-          value: $(params.db2_affinity_value)
+          value: $(params.db2_affinity_value_manage)
         - name: db2_tolerate_key
-          value: $(params.db2_tolerate_key)
+          value: $(params.db2_tolerate_key_manage)
         - name: db2_tolerate_value
-          value: $(params.db2_tolerate_value)
+          value: $(params.db2_tolerate_value_manage)
         - name: db2_tolerate_effect
-          value: $(params.db2_tolerate_effect)
+          value: $(params.db2_tolerate_effect_manage)
         - name: jdbc_route
           value: $(params.jdbc_route_manage)
         - name: db2_timezone
-          value: $(params.db2_timezone)
+          value: $(params.db2_timezone_manage)
         - name: db2_backup_notify_slack_url
-          value: $(params.db2_backup_notify_slack_url)
+          value: $(params.db2_backup_notify_slack_url_manage)
         - name: replica_db
-          value: $(params.replica_db)
+          value: $(params.replica_db_manage)
         - name: manually_set_enhanced_hadr
-          value: $(params.manually_set_enhanced_hadr)
+          value: $(params.manually_set_enhanced_hadr_manage)
         - name: auto_backup
-          value: $(params.auto_backup)
+          value: $(params.auto_backup_manage)
+        - name: allow_list
+          value: $(params.allow_list)
         
       workspaces:
         - name: configs
@@ -847,7 +1133,7 @@ spec:
         kind: Task
         name: gitops-db2u-database
       when:
-        - input: "$(params.db2_action)"
+        - input: "$(params.db2_action_manage)"
           operator: notin
           values: [""]
         - input: "$(params.jdbc_type_manage)"
@@ -911,39 +1197,39 @@ spec:
           value: manage
 
         - name: db2_meta_storage_class
-          value: $(params.db2_meta_storage_class)
+          value: $(params.db2_meta_storage_class_manage)
         - name: db2_temp_storage_class
-          value: $(params.db2_temp_storage_class)
+          value: $(params.db2_temp_storage_class_manage)
         - name: db2_logs_storage_class
-          value: $(params.db2_logs_storage_class)
+          value: $(params.db2_logs_storage_class_manage)
         - name: db2_audit_logs_storage_class
-          value: $(params.db2_audit_logs_storage_class)
+          value: $(params.db2_audit_logs_storage_class_manage)
         - name: db2_data_storage_class
-          value: $(params.db2_data_storage_class)
+          value: $(params.db2_data_storage_class_manage)
         - name: db2_backup_storage_class
-          value: $(params.db2_backup_storage_class)
+          value: $(params.db2_backup_storage_class_manage)
         - name: db2_archivelogs_storage_class
-          value: $(params.db2_archivelogs_storage_class)
+          value: $(params.db2_archivelogs_storage_class_manage)
 
         - name: db2_meta_storage_size
-          value: $(params.db2_meta_storage_size)
+          value: $(params.db2_meta_storage_size_manage)
         - name: db2_temp_storage_size
-          value: $(params.db2_temp_storage_size)
+          value: $(params.db2_temp_storage_size_manage)
         - name: db2_logs_storage_size
-          value: $(params.db2_logs_storage_size)
+          value: $(params.db2_logs_storage_size_manage)
         - name: db2_audit_logs_storage_size
-          value: $(params.db2_audit_logs_storage_size)
+          value: $(params.db2_audit_logs_storage_size_manage)
         - name: db2_data_storage_size
-          value: $(params.db2_data_storage_size)
+          value: $(params.db2_data_storage_size_manage)
         - name: db2_backup_storage_size
-          value: $(params.db2_backup_storage_size)
+          value: $(params.db2_backup_storage_size_manage)
         - name: db2_archivelogs_storage_size
-          value: $(params.db2_archivelogs_storage_size)
+          value: $(params.db2_archivelogs_storage_size_manage)
 
         - name: db2_version
-          value: $(params.db2_version)
+          value: $(params.db2_version_manage)
         - name: db2_tls_version
-          value: $(params.db2_tls_version)
+          value: $(params.db2_tls_version_manage)
         - name: db2_instance_registry_yaml
           value: $(params.db2_instance_registry_yaml_manage)
         - name: db2_instance_dbm_config_yaml
@@ -953,55 +1239,352 @@ spec:
         - name: db2_addons_audit_config_yaml
           value: $(params.db2_addons_audit_config_yaml_manage)
         - name: db2_table_org
-          value: $(params.db2_table_org)
+          value: $(params.db2_table_org_manage)
         - name: db2_mln_count
-          value: $(params.db2_mln_count)
+          value: $(params.db2_mln_count_manage)
         - name: db2_num_pods
-          value: $(params.db2_num_pods)
+          value: $(params.db2_num_pods_manage)
         - name: db2_meta_storage_accessmode
-          value: $(params.db2_meta_storage_accessmode)
+          value: $(params.db2_meta_storage_accessmode_manage)
         - name: db2_data_storage_accessmode
-          value: $(params.db2_data_storage_accessmode)
+          value: $(params.db2_data_storage_accessmode_manage)
         - name: db2_backup_storage_accessmode
-          value: $(params.db2_backup_storage_accessmode)
+          value: $(params.db2_backup_storage_accessmode_manage)
         - name: db2_logs_storage_accessmode
-          value: $(params.db2_logs_storage_accessmode)
+          value: $(params.db2_logs_storage_accessmode_manage)
         - name: db2_audit_logs_storage_accessmode
-          value: $(params.db2_audit_logs_storage_accessmode)
+          value: $(params.db2_audit_logs_storage_accessmode_manage)
         - name: db2_temp_storage_accessmode
-          value: $(params.db2_temp_storage_accessmode)
+          value: $(params.db2_temp_storage_accessmode_manage)
         - name: db2_archivelogs_storage_accessmode
-          value: $(params.db2_archivelogs_storage_accessmode)
+          value: $(params.db2_archivelogs_storage_accessmode_manage)
         - name: db2_cpu_requests
-          value: $(params.db2_cpu_requests)
+          value: $(params.db2_cpu_requests_manage)
         - name: db2_cpu_limits
-          value: $(params.db2_cpu_limits)
+          value: $(params.db2_cpu_limits_manage)
         - name: db2_memory_requests
-          value: $(params.db2_memory_requests)
+          value: $(params.db2_memory_requests_manage)
         - name: db2_memory_limits
-          value: $(params.db2_memory_limits)
+          value: $(params.db2_memory_limits_manage)
         - name: db2_affinity_key
-          value: $(params.db2_affinity_key)
+          value: $(params.db2_affinity_key_manage)
         - name: db2_affinity_value
-          value: $(params.db2_affinity_value)
+          value: $(params.db2_affinity_value_manage)
         - name: db2_tolerate_key
-          value: $(params.db2_tolerate_key)
+          value: $(params.db2_tolerate_key_manage)
         - name: db2_tolerate_value
-          value: $(params.db2_tolerate_value)
+          value: $(params.db2_tolerate_value_manage)
         - name: db2_tolerate_effect
-          value: $(params.db2_tolerate_effect)
+          value: $(params.db2_tolerate_effect_manage)
         - name: jdbc_route
           value: $(params.jdbc_route_manage)
         - name: db2_timezone
-          value: $(params.db2_timezone)
+          value: $(params.db2_timezone_manage)
         - name: db2_backup_notify_slack_url
-          value: $(params.db2_backup_notify_slack_url)
+          value: $(params.db2_backup_notify_slack_url_manage)
         - name: auto_backup
           value: "false"
         - name: replica_db
-          value: $(params.replica_db)
+          value: $(params.replica_db_manage)
         - name: manually_set_enhanced_hadr
-          value: $(params.manually_set_enhanced_hadr)
+          value: $(params.manually_set_enhanced_hadr_manage)
+        - name: mas_annotations
+          value: $(params.mas_annotations)
+        - name: is_replica_task
+          value: 'true'
+        - name: allow_list
+          value: $(params.allow_list)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u-database
+      when:
+        - input: "$(params.db2_action_manage)"
+          operator: notin
+          values: [""]
+        - input: "$(params.jdbc_type_manage)"
+          operator: in
+          values: ["incluster-db2"]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+
+    # 3.3 DB2 for Facilities
+    - name: gitops-db2u-database-facilities
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: facilities
+
+        - name: db2_meta_storage_class
+          value: $(params.db2_meta_storage_class_facilities)
+        - name: db2_temp_storage_class
+          value: $(params.db2_temp_storage_class_facilities)
+        - name: db2_logs_storage_class
+          value: $(params.db2_logs_storage_class_facilities)
+        - name: db2_audit_logs_storage_class
+          value: $(params.db2_audit_logs_storage_class_facilities)
+        - name: db2_data_storage_class
+          value: $(params.db2_data_storage_class_facilities)
+        - name: db2_backup_storage_class
+          value: $(params.db2_backup_storage_class_facilities)
+        - name: db2_archivelogs_storage_class
+          value: $(params.db2_archivelogs_storage_class_facilities)
+
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size_facilities)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size_facilities)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size_facilities)
+        - name: db2_audit_logs_storage_size
+          value: $(params.db2_audit_logs_storage_size_facilities)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size_facilities)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size_facilities)
+        - name: db2_archivelogs_storage_size
+          value: $(params.db2_archivelogs_storage_size_facilities)
+
+        - name: db2_version
+          value: $(params.db2_version_facilities)
+        - name: db2_tls_version
+          value: $(params.db2_tls_version_facilities)
+        - name: db2_instance_registry_yaml
+          value: $(params.db2_instance_registry_yaml_facilities)
+        - name: db2_instance_dbm_config_yaml
+          value: $(params.db2_instance_dbm_config_yaml_facilities)
+        - name: db2_database_db_config_yaml
+          value: $(params.db2_database_db_config_yaml_facilities)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_facilities)
+        - name: db2_table_org
+          value: $(params.db2_table_org_facilities)
+        - name: db2_mln_count
+          value: $(params.db2_mln_count_facilities)
+        - name: db2_num_pods
+          value: $(params.db2_num_pods_facilities)
+        - name: db2_meta_storage_accessmode
+          value: $(params.db2_meta_storage_accessmode_facilities)
+        - name: db2_data_storage_accessmode
+          value: $(params.db2_data_storage_accessmode_facilities)
+        - name: db2_backup_storage_accessmode
+          value: $(params.db2_backup_storage_accessmode_facilities)
+        - name: db2_logs_storage_accessmode
+          value: $(params.db2_logs_storage_accessmode_facilities)
+        - name: db2_audit_logs_storage_accessmode
+          value: $(params.db2_audit_logs_storage_accessmode_facilities)
+        - name: db2_temp_storage_accessmode
+          value: $(params.db2_temp_storage_accessmode_facilities)
+        - name: db2_archivelogs_storage_accessmode
+          value: $(params.db2_archivelogs_storage_accessmode_facilities)
+        - name: db2_cpu_requests
+          value: $(params.db2_cpu_requests_facilities)
+        - name: db2_cpu_limits
+          value: $(params.db2_cpu_limits_facilities)
+        - name: db2_memory_requests
+          value: $(params.db2_memory_requests_facilities)
+        - name: db2_memory_limits
+          value: $(params.db2_memory_limits_facilities)
+        - name: db2_affinity_key
+          value: $(params.db2_affinity_key_facilities)
+        - name: db2_affinity_value
+          value: $(params.db2_affinity_value_facilities)
+        - name: db2_tolerate_key
+          value: $(params.db2_tolerate_key_facilities)
+        - name: db2_tolerate_value
+          value: $(params.db2_tolerate_value_facilities)
+        - name: db2_tolerate_effect
+          value: $(params.db2_tolerate_effect_facilities)
+        - name: jdbc_route
+          value: $(params.jdbc_route_facilities)
+        - name: db2_timezone
+          value: $(params.db2_timezone_facilities)
+        - name: db2_backup_notify_slack_url
+          value: $(params.db2_backup_notify_slack_url_facilities)
+        - name: replica_db
+          value: $(params.replica_db_facilities)
+        - name: manually_set_enhanced_hadr
+          value: $(params.manually_set_enhanced_hadr_facilities)
+        - name: auto_backup
+          value: $(params.auto_backup_facilities)
+        
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u-database
+      when:
+        - input: "$(params.db2_action_facilities)"
+          operator: notin
+          values: [""]
+        - input: "$(params.jdbc_type_facilities)"
+          operator: in
+          values: ["incluster-db2"]
+        - input: "$(params.mas_app_channel_facilities)"
+          operator: notin
+          values: [""]
+    - name: gitops-jdbc-config-facilities
+      runAfter:
+        - gitops-db2u-database-facilities
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: facilities
+        - name: mas_config_scope
+          value: wsapp
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: jdbc_type
+          value: $(params.jdbc_type_facilities)
+        - name: jdbc_instance_name
+          value: $(params.jdbc_instance_name_facilities)
+        - name: jdbc_connection_url
+          value: $(params.jdbc_connection_url_facilities)
+        - name: jdbc_certificate_file
+          value: $(params.jdbc_certificate_file_facilities)
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-jdbc-config
+      when:
+        - input: "$(params.jdbc_type_facilities)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_facilities)"
+          operator: notin
+          values: [""]
+    - name: gitops-db2u-replica-database-facilities
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: facilities
+
+        - name: db2_meta_storage_class
+          value: $(params.db2_meta_storage_class_facilities)
+        - name: db2_temp_storage_class
+          value: $(params.db2_temp_storage_class_facilities)
+        - name: db2_logs_storage_class
+          value: $(params.db2_logs_storage_class_facilities)
+        - name: db2_audit_logs_storage_class
+          value: $(params.db2_audit_logs_storage_class_facilities)
+        - name: db2_data_storage_class
+          value: $(params.db2_data_storage_class_facilities)
+        - name: db2_backup_storage_class
+          value: $(params.db2_backup_storage_class_facilities)
+        - name: db2_archivelogs_storage_class
+          value: $(params.db2_archivelogs_storage_class_facilities)
+
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size_facilities)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size_facilities)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size_facilities)
+        - name: db2_audit_logs_storage_size
+          value: $(params.db2_audit_logs_storage_size_facilities)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size_facilities)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size_facilities)
+        - name: db2_archivelogs_storage_size
+          value: $(params.db2_archivelogs_storage_size_facilities)
+
+        - name: db2_version
+          value: $(params.db2_version_facilities)
+        - name: db2_tls_version
+          value: $(params.db2_tls_version_facilities)
+        - name: db2_instance_registry_yaml
+          value: $(params.db2_instance_registry_yaml_facilities)
+        - name: db2_instance_dbm_config_yaml
+          value: $(params.db2_instance_dbm_config_yaml_facilities)
+        - name: db2_database_db_config_yaml
+          value: $(params.db2_database_db_config_yaml_facilities)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_facilities)
+        - name: db2_table_org
+          value: $(params.db2_table_org_facilities)
+        - name: db2_mln_count
+          value: $(params.db2_mln_count_facilities)
+        - name: db2_num_pods
+          value: $(params.db2_num_pods_facilities)
+        - name: db2_meta_storage_accessmode
+          value: $(params.db2_meta_storage_accessmode_facilities)
+        - name: db2_data_storage_accessmode
+          value: $(params.db2_data_storage_accessmode_facilities)
+        - name: db2_backup_storage_accessmode
+          value: $(params.db2_backup_storage_accessmode_facilities)
+        - name: db2_logs_storage_accessmode
+          value: $(params.db2_logs_storage_accessmode_facilities)
+        - name: db2_audit_logs_storage_accessmode
+          value: $(params.db2_audit_logs_storage_accessmode_facilities)
+        - name: db2_temp_storage_accessmode
+          value: $(params.db2_temp_storage_accessmode_facilities)
+        - name: db2_archivelogs_storage_accessmode
+          value: $(params.db2_archivelogs_storage_accessmode_facilities)
+        - name: db2_cpu_requests
+          value: $(params.db2_cpu_requests_facilities)
+        - name: db2_cpu_limits
+          value: $(params.db2_cpu_limits_facilities)
+        - name: db2_memory_requests
+          value: $(params.db2_memory_requests_facilities)
+        - name: db2_memory_limits
+          value: $(params.db2_memory_limits_facilities)
+        - name: db2_affinity_key
+          value: $(params.db2_affinity_key_facilities)
+        - name: db2_affinity_value
+          value: $(params.db2_affinity_value_facilities)
+        - name: db2_tolerate_key
+          value: $(params.db2_tolerate_key_facilities)
+        - name: db2_tolerate_value
+          value: $(params.db2_tolerate_value_facilities)
+        - name: db2_tolerate_effect
+          value: $(params.db2_tolerate_effect_facilities)
+        - name: jdbc_route
+          value: $(params.jdbc_route_facilities)
+        - name: db2_timezone
+          value: $(params.db2_timezone_facilities)
+        - name: db2_backup_notify_slack_url
+          value: $(params.db2_backup_notify_slack_url_facilities)
+        - name: auto_backup
+          value: "false"
+        - name: replica_db
+          value: $(params.replica_db_facilities)
+        - name: manually_set_enhanced_hadr
+          value: $(params.manually_set_enhanced_hadr_facilities)
         - name: mas_annotations
           value: $(params.mas_annotations)
         - name: is_replica_task
@@ -1016,16 +1599,16 @@ spec:
         kind: Task
         name: gitops-db2u-database
       when:
-        - input: "$(params.db2_action)"
+        - input: "$(params.db2_action_facilities)"
           operator: notin
           values: [""]
-        - input: "$(params.jdbc_type_manage)"
+        - input: "$(params.jdbc_type_facilities)"
           operator: in
           values: ["incluster-db2"]
-        - input: "$(params.mas_app_channel_manage)"
+        - input: "$(params.mas_app_channel_facilities)"
           operator: notin
           values: [""]
-      
+
     # 4. Install & Configure IoT
     # -------------------------------------------------------------------------
     # 4.1 Install IoT
@@ -1454,6 +2037,19 @@ spec:
         - input: "$(params.cp4d_spss_modeler_action)"
           operator: in
           values: ["install"]
+
+    # 14. Install & Configure facilities
+    # -------------------------------------------------------------------------
+    # 14.1 Install facilities
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/facilities-app.yml.j2') | indent(4) }}
+      runAfter:
+        - gitops-jdbc-config-facilities
+
+    # 14.2 Configure facilities workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/apps/facilities-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-facilities
+
 
     # -------------------------------------------------------------------------
     # Deprovision task section
@@ -2120,3 +2716,160 @@ spec:
         - input: "$(params.mas_edition)"
           operator: in
           values: ["standard", "premium"]
+
+    # 11. Facilities Deprovision
+    # -------------------------------------------------------------------------
+    # 11.1 Facilities Config/Workspace
+    - name: gitops-deprovision-mas-app-config-facilities
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: mas_app_id
+          value: facilities
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.facilities_workspace_action)"
+          operator: in
+          values: ["deactivate", ""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-lease-management", "essentials-space-management", "essentials-capital-planning", "standard", "premium"]
+
+    # 11.2 Facilities App
+    - name: gitops-deprovision-mas-app-install-facilities
+      runAfter:
+        - gitops-deprovision-mas-app-config-facilities
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: facilities
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-app-install
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_facilities)"
+          operator: in
+          values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-lease-management", "essentials-space-management", "essentials-capital-planning", "standard", "premium"]
+
+    # 11.3 Facilities Database
+    - name: gitops-deprovision-db2u-database-facilities
+      runAfter:
+        - gitops-deprovision-mas-app-install-facilities
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: facilities
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u-database
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_facilities)"
+          operator: in
+          values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-lease-management", "essentials-space-management", "essentials-capital-planning", "standard", "premium"]
+
+    # 11.4 facilities JDBC Config
+    - name: gitops-delete-jdbc-config-facilities
+      runAfter:
+        - gitops-deprovision-db2u-database-facilities
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: facilities
+        - name: mas_config_scope
+          value: wsapp
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: jdbc_type
+          value: $(params.jdbc_type_facilities)
+        - name: jdbc_instance_name
+          value: $(params.jdbc_instance_name_facilities)
+        - name: jdbc_connection_url
+          value: $(params.jdbc_connection_url_facilities)
+        - name: jdbc_certificate_file
+          value: $(params.jdbc_certificate_file_facilities)
+        - name: jdbc_route
+          value: $(params.jdbc_route_facilities)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-delete-jdbc-config
+      when:
+        - input: "$(params.mas_app_channel_facilities)"
+          operator: in
+          values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-lease-management", "essentials-space-management", "essentials-capital-planning", "standard", "premium"]
+
+    # 11.5 Facilities Replica Config
+    - name: gitops-deprovision-db2u-replica-database-facilities
+      runAfter:
+        - gitops-deprovision-db2u-database-facilities
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: facilities
+        - name: is_replica_task
+          value: 'true'
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u-database
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_facilities)"
+          operator: in
+          values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["essentials-lease-management", "essentials-space-management", "essentials-capital-planning", "standard", "premium"]
