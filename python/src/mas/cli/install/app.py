@@ -1026,6 +1026,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             # If Manage is being installed and --is-full-manage was set to something different than "false", assume it is "true"
             if self.getParam("is_full_manage") != "false":
                 self.setParam("is_full_manage", "true")
+            
+            # Configure Storage and Access mode
+            self.manageStorageAndAccessMode()
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
