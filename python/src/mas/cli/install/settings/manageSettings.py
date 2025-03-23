@@ -53,7 +53,7 @@ class ManageSettingsMixin():
             self.manageSettingsCustomizationArchive()
             self.manageSettingsOther()
             self.manageStorageAndAccessMode()
-    
+
     def manageStorageAndAccessMode(self) -> None:
         # Default to RWX storage classes, but fall back to RWO in SNO or when user
         # has chosen not to provide a RWX storage class
