@@ -197,27 +197,7 @@ spec:
           hs.status = "Progressing"
           hs.message = ""
           return hs  
-    
-      # dscinitialization.opendatahub.io/DSCInitialization:
-      #   health.lua: |
-      #     hs = {}
-      #     if obj.status ~= nil then
-      #       if obj.status.phase ~= nil then
-      #         if obj.status.phase == "Ready" then
-      #           hs.status = "Healthy"
-      #           hs.message = "DSCInitialization instance is ready"
-      #           return hs
-      #         else
-      #           hs.status = "Progressing"
-      #           hs.message = "DSCInitialization instance is not ready yet"
-      #           return hs
-      #         end
-      #       end
-      #     end
-      #     hs.status = "Unknown"
-      #     hs.message = "Status phase not found"
-      #     return hs
-
+          
       apps.mas.ibm.com/AssistWorkspace:
         health.lua: |
           hs = {}
