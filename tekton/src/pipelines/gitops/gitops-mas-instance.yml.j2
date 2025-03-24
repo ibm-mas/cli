@@ -201,6 +201,9 @@ spec:
     - name: oidc
       type: string
 
+    - name: allow_list
+      type: string
+
   tasks:
 
     # 0. Per-instance DB2U Operator
@@ -391,6 +394,8 @@ spec:
           value: $(params.mas_wipe_mongo_data)
         - name: oidc
           value: $(params.oidc)
+        - name: allow_list
+          value: $(params.allow_list)
       taskRef:
         kind: Task
         name: gitops-suite
@@ -491,6 +496,8 @@ spec:
           value: $(params.cluster_url)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: allow_list
+          value: $(params.allow_list)
       taskRef:
         kind: Task
         name: gitops-suite-workspace
