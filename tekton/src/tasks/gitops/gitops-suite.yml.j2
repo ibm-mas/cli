@@ -124,6 +124,9 @@ spec:
       default: "false"
     - name: oidc
       type: string
+    - name: allow_list
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
@@ -222,6 +225,9 @@ spec:
 
       - name: OIDC_CONFIG
         value: $(params.oidc)
+
+      - name: ALLOW_LIST
+        value: $(params.allow_list)
     envFrom:
       - configMapRef:
           name: environment-properties
