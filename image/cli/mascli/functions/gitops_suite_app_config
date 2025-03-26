@@ -500,7 +500,7 @@ function gitops_suite_app_config() {
       fi
       yq '.mas_appws_spec.settings.deployment.serverBundles[].bundleLevelProperties // ""' ${MAS_APPWS_SPEC_YAML} > all_bundle_props.props
       if [[ -s all_bundle_props.props ]]; then
-        cat all_bundle_props.props | grep "<path:arn:" | awk -F= '{print $2}' >> bundlesecretrefs.txt
+        cat all_bundle_props.props | awk -F= '{print $2}' >> bundlesecretrefs.txt
         if [[ -s bundlesecretrefs.txt ]]; then
           while read BUNDLE_SECRET_REF; do
             if [[ $BUNDLE_SECRET_REF == "<path:arn"* ]]; then
