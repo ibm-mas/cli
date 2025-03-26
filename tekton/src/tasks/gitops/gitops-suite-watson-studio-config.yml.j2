@@ -31,6 +31,8 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: cp4d_wsl_action
+      type: string
   stepTemplate:
     name: gitops-suite-watson-studio-config
     env:
@@ -59,6 +61,8 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: CP4D_WSL_ACTION
+        value: $(params.cp4d_wsl_action)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -75,6 +79,12 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
+        if [[ "$CP4D_WSL_ACTION" == "install" ]]; then
+          CHECK_SECRET="false"
+        else
+          CHECK_SECRET="true"
+        fi
+
         mas gitops-mas-config \
         --account-id "$ACCOUNT_ID" \
         --cluster-id "$CLUSTER_ID" \
@@ -88,6 +98,7 @@ spec:
         --config-action upsert \
         --mas-config-scope system \
         --mas-config-type watsonstudio \
+        --check-secret "$CHECK_SECRET" \
         --dir /tmp/init-suite-watson-studio-config
 
         exit $?

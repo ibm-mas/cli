@@ -38,6 +38,9 @@ spec:
     - name: mas_app_install_plan_assist
       type: string
       default: "Automatic"
+    - name: mas_app_install_plan_facilities
+      type: string
+      default: "Automatic"
     - name: mas_app_channel_iot
       type: string
     - name: mas_app_install_plan_iot
@@ -140,6 +143,8 @@ spec:
         value: $(params.mas_app_channel_assist)
       - name: MAS_APP_INSTALL_PLAN_ASSIST
         value: $(params.mas_app_install_plan_assist)
+      - name: MAS_APP_INSTALL_PLAN_FACILITIES
+        value: $(params.mas_app_install_plan_facilities)
       - name: MAS_APP_CHANNEL_IOT
         value: $(params.mas_app_channel_iot)
       - name: MAS_APP_INSTALL_PLAN_IOT

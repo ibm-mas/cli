@@ -85,6 +85,8 @@ spec:
       type: string
     - name: smtp_use_sendgrid
       type: string
+    - name: smtp_disabled_templates
+      type: string
 
     - name: ldap_url
       type: string
@@ -197,6 +199,9 @@ spec:
     # oidc parameters
     # ------------------------------------------------------------------------- 
     - name: oidc
+      type: string
+
+    - name: allow_list
       type: string
 
   tasks:
@@ -389,6 +394,8 @@ spec:
           value: $(params.mas_wipe_mongo_data)
         - name: oidc
           value: $(params.oidc)
+        - name: allow_list
+          value: $(params.allow_list)
       taskRef:
         kind: Task
         name: gitops-suite
@@ -489,6 +496,8 @@ spec:
           value: $(params.cluster_url)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: allow_list
+          value: $(params.allow_list)
       taskRef:
         kind: Task
         name: gitops-suite-workspace
@@ -541,6 +550,8 @@ spec:
           value: $(params.smtp_default_recipient_email)
         - name: smtp_default_should_email_passwords
           value: $(params.smtp_default_should_email_passwords)
+        - name: smtp_disabled_templates
+          value: $(params.smtp_disabled_templates)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: mas_smtpcfg_pod_template_yaml
@@ -581,6 +592,8 @@ spec:
           value: $(params.github_host)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: smtp_disabled_templates
+          value: $(params.smtp_disabled_templates)
         - name: mas_smtpcfg_pod_template_yaml
           value: $(params.mas_smtpcfg_pod_template_yaml)
         
