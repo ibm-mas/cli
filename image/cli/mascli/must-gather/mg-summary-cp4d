@@ -29,4 +29,10 @@ echo "IBM Cloud Pak For Data - Analytics Engine"
 echo "--------------------------------------------------------------------------------"
 oc -n ibm-cpd get analyticsengine
 
+echo ""
+echo "IBM Cloud Pak For Data - Cognos Analytics"
+echo "--------------------------------------------------------------------------------"
+oc -n ibm-cpd get CAService
+oc -n ibm-cpd get CAServiceInstance
+
 exit 0

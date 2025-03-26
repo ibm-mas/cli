@@ -188,6 +188,7 @@ function mustgather() {
   LOG_FILE=${OUTPUT_DIR}/must-gather.log
   exec > >(tee ${LOG_FILE}) 2>&1
 
+  echo "Must gather generated with mas cli version: $VERSION"
   echo "Must gather will be saved to: $OUTPUT_FILE"
 
   # ---------------------------------------------------------------------------
@@ -198,7 +199,7 @@ function mustgather() {
     echo_h3 "Cluster Resources"
     startTimer
 
-    for RESOURCE in nodes storageclasses clusterversions imagecontentsourcepolicy
+    for RESOURCE in nodes storageclasses clusterversions imagecontentsourcepolicy imagedigestmirrorset imagetagmirrorset
     do
       $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources
     done
@@ -245,7 +246,12 @@ function mustgather() {
     fi
 
     echo_h3 "IBM Db2 Universal Operator"
-    DB2U_NAMESPACES=$(oc get db2ucluster -A --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}' | tr " " "\n"  |sort  | uniq)
+    if [[ "$MAS_INSTANCE_IDS" != "" ]]; then
+      # using the jdbccfg determine what db2 service is used, search for that service to determine the db2u namespace
+      DB2U_NAMESPACES=$(for JDBC_URL in $(oc get jdbccfg -n mas-${MAS_INSTANCE_IDS}-core -o jsonpath='{.items[*].spec.config.url}'); do echo $JDBC_URL| cut -d"/" -f3| cut -d"." -f2; done | sort | uniq )
+    else
+      DB2U_NAMESPACES=$(oc get db2ucluster -A --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}' | tr " " "\n"  |sort  | uniq)
+    fi
     for DB2U_NAMESPACE in $DB2U_NAMESPACES
     do
       $MG_SCRIPT_DIR/mg-summary-db2u &> ${OUTPUT_DIR}/db2u.txt
@@ -318,7 +324,13 @@ function mustgather() {
   echo_h2 "Suite License Service"
   if [[ "$SLS_REPORT" == "true" ]]; then
     startTimer
-    SLS_NAMESPACES=$(oc get LicenseService --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+    if [[ "$MAS_INSTANCE_IDS" != "" ]]; then
+      # using the jdbccfg determine what db2 service is used, search for that service to determine the db2u namespace
+      SLS_NAMESPACES=$(for SLS_URL in $(oc get slscfg -n mas-${MAS_INSTANCE_IDS}-core -o jsonpath='{.items[*].spec.config.url}'); do SLS_ROUTE=$(echo $SLS_URL| cut -d"/" -f3) ; oc get route -A| grep $SLS_ROUTE | cut -d" " -f1; done)
+    else
+      SLS_NAMESPACES=$(oc get LicenseService --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
+    fi
+    
     echo ""
     for SLS_NAMESPACE in $SLS_NAMESPACES
     do
