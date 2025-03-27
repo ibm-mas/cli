@@ -204,7 +204,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             summary = [
                 "",
                 "<u>Catalog Details</u>",
-                f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
+                f"Catalog Image:         docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
                 f"Catalog Digest:        {self.catalogDigest}",
                 f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
                 f"MongoDb:               {self.catalogMongoDbVersion}",
