@@ -25,11 +25,11 @@ class Db2SettingsMixin():
             self.setParam("db2_action_manage", "none")
             return
 
-        # For now we are limiting users to bring your own database for Manage on s390x
-        # Eventually we will be able to remove this clause and allow the standard logic to work for both s390x and amd64
-        if self.architecture == "s390x" and self.installManage:
+        # For now we are limiting users to bring your own database for Manage on s390x and power
+        # Eventually we will be able to remove this clause and allow the standard logic to work for both s390x, power and amd64
+        if (self.architecture == "s390x" or self.architecture == "ppc64le") and self.installManage:
             self.printDescription([
-                "Installation of a Db2 instance using the IBM Db2 Universal Operator is not currently supported on s390x, please provide configuration details for the database you wish to use.",
+                "Installation of a Db2 instance using the IBM Db2 Universal Operator is not currently supported on s390x and power, please provide configuration details for the database you wish to use.",
             ])
             instanceId = self.getParam('mas_instance_id')
             workspaceId = self.getParam("mas_workspace_id")
