@@ -7,6 +7,7 @@
 # http://www.eclipse.org/legal/epl-v10.html
 #
 # *****************************************************************************
+#Need to add ppc64le catalog
 supportedCatalogs = {
     "amd64": [
         "v9-250306-amd64",
@@ -20,4 +21,10 @@ supportedCatalogs = {
         "v9-250109-s390x",
         "v9-241205-s390x",
     ],
+     "ppc64le": [
+            "v9-250306-amd64",
+            "v9-250206-s390x",
+            "v9-250109-s390x",
+            "v9-241205-s390x",
+        ],
 }
