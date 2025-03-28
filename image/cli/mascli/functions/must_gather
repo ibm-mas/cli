@@ -325,7 +325,7 @@ function mustgather() {
   if [[ "$SLS_REPORT" == "true" ]]; then
     startTimer
     if [[ "$MAS_INSTANCE_IDS" != "" ]]; then
-      # using the jdbccfg determine what db2 service is used, search for that service to determine the db2u namespace
+      # using the slscfg determine what sls service is used, search for that service to determine the sls namespace
       SLS_NAMESPACES=$(for SLS_URL in $(oc get slscfg -n mas-${MAS_INSTANCE_IDS}-core -o jsonpath='{.items[*].spec.config.url}'); do SLS_ROUTE=$(echo $SLS_URL| cut -d"/" -f3) ; oc get route -A| grep $SLS_ROUTE | cut -d" " -f1; done)
     else
       SLS_NAMESPACES=$(oc get LicenseService --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.namespace}')
