@@ -155,6 +155,10 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+      when:
+        - input: "$(params.mongo_action)"
+          operator: notin
+          values: [""]
 
     # 2. Kafka
     # -------------------------------------------------------------------------
