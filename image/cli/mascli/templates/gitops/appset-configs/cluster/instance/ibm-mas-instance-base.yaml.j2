@@ -26,3 +26,7 @@ mas_wipe_mongo_data: true
 {% else %}
 mas_wipe_mongo_data: false
 {% endif %}
+
+{% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
+allow_list: {{ ALLOW_LIST }}
+{% endif %}
