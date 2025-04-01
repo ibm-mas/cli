@@ -182,7 +182,6 @@ class Db2SettingsMixin():
         self.setParam("db2_cpu_limits", "6000m")
         self.setParam("db2_memory_requests", "8Gi")
         self.setParam("db2_memory_limits", "12Gi")
-        self.params["db2_cpu_requests"] = "300m"
 
         if self.isSNO():
             # Set smaller defaults for SNO deployments
@@ -197,6 +196,8 @@ class Db2SettingsMixin():
             self.params["db2_backup_storage_accessmode"] = "ReadWriteOnce"
             self.params["db2_logs_storage_accessmode"] = "ReadWriteOnce"
             self.params["db2_data_storage_accessmode"] = "ReadWriteOnce"
+            self.params["db2_cpu_requests"] = "300m"
+
         else:
             self.setParam("db2_meta_storage_size", "20Gi")
             self.setParam("db2_backup_storage_size", "100Gi")
