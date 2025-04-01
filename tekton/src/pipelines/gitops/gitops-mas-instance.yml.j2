@@ -211,6 +211,9 @@ spec:
 
     - name: allow_list
       type: string
+    
+    - name: devops_build_number
+      type: string
 
   tasks:
 
@@ -410,6 +413,8 @@ spec:
           value: $(params.oidc)
         - name: allow_list
           value: $(params.allow_list)
+        - name: devops_build_number
+          value: $(params.devops_build_number)
       taskRef:
         kind: Task
         name: gitops-suite

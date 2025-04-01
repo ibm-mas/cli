@@ -127,7 +127,10 @@ spec:
     - name: allow_list
       type: string
       default: ""
-  stepTemplate:
+    - name: devops_build_number
+      type: string
+
+stepTemplate:
     name: gitops-suite
     env:
       - name: CLUSTER_URL
@@ -228,6 +231,10 @@ spec:
 
       - name: ALLOW_LIST
         value: $(params.allow_list)
+
+      - name: DEVOPS_BUILD_NUMBER
+        value: $(params.devops_build_number)
+
     envFrom:
       - configMapRef:
           name: environment-properties
