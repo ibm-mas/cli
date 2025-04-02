@@ -402,6 +402,13 @@ spec:
           yq -i '.fvt.ansible_version = env(FVT_ANSIBLE_VERSION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
         fi
 
+        if [[ ! "$GIT_COMMIT_MSG" =~ ^[skip deploy] ]]; then
+            # Append a new line to the file to drive the deployment at cluster level
+            echo "" >> gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+        else
+            echo "Commit message starts with [skip deploy], no changes made."
+        fi
+      
         echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
         FILES_ADDED_OUTPUT="$(git add -v .)"
         return_code=$?
