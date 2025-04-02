@@ -494,7 +494,7 @@ class UpdateApp(BaseApp):
             "v9-250109-amd64": "5.0.0",
             "v9-250206-amd64": "5.0.0",
             "v9-250306-amd64": "5.0.0",
-            "v9-250403-amd64": "5.1.0"
+            "v9-250403-amd64": "5.0.0"
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
