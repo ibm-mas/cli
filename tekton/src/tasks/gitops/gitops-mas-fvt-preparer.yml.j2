@@ -176,6 +176,8 @@ spec:
   stepTemplate:
     name: gitops-mas-fvt-preparer
     env:
+      - name: TERM
+        value: xterm
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT_ID
