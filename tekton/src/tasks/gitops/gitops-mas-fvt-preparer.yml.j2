@@ -187,7 +187,7 @@ spec:
       - name: TRAVIS_BUILD_NUMBER
         value: $(params.devops_build_number)
       - name: DEVOPS_BUILD_NUMBER
-        value: $(params.devops_build_number)
+        value: $(params.devops_build_number).$(params.mas_instance_id)
       - name: LAUNCHER_ID
         value: $(params.launcher_id)
       - name: DEVOPS_ENVIRONMENT
