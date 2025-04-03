@@ -1,0 +1,24 @@
+mas_appws_spec:
+  bindings:
+    jdbc: workspace-application
+  settings:
+    size: small
+    routes:
+      contextpath:
+      timeout: 600s
+    libertyExtensionXML: {}
+    imagePullPolicy: IfNotPresent
+    storage:
+      log:
+        class: {{ DEFAULT_FILE_STORAGE_CLASS }}
+        mode: ReadWriteMany
+        size: 30
+      userfiles:
+        class: {{ DEFAULT_FILE_STORAGE_CLASS }}
+        mode: ReadWriteMany
+        size: 50
+    vault_secret: na
+    wfagents: []
+    db:
+      maxconnpoolsize: 200
+      sid: default

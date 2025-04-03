@@ -1,2 +1,5 @@
 mas_workspace_id: {{ MAS_WORKSPACE_ID }}
 mas_workspace_name: {{ MAS_WORKSPACE_NAME }}
+{% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
+allow_list: {{ALLOW_LIST}}
+{% endif %}

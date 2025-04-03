@@ -129,6 +129,9 @@ spec:
     - name: manually_set_enhanced_hadr
       type: string
       default: "false"
+    - name: allow_list
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-db2u-database
     env:
@@ -248,6 +251,8 @@ spec:
         value: $(params.mas_annotations)
       - name: MANUALLY_SET_ENHANCED_HADR
         value: $(params.manually_set_enhanced_hadr)
+      - name: ALLOW_LIST
+        value: $(params.allow_list)
     envFrom:
       - configMapRef:
           name: environment-properties

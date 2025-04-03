@@ -53,3 +53,17 @@
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mobile-api-it
+
+- name: fvt-mobile-pytest-calibration
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-calibration
+
+- name: fvt-mobile-pytest-civil-defects
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-civil-defects
