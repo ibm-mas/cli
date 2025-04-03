@@ -402,7 +402,7 @@ spec:
           yq -i '.fvt.ansible_version = env(FVT_ANSIBLE_VERSION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
         fi
 
-        if [[ ! "$GIT_COMMIT_MSG" =~ ^[skip deploy] ]]; then
+        if [[ ! "$GIT_COMMIT_MSG" =~ ^"[skip deploy]" ]]; then
             # Append a new line to the file to drive the deployment at cluster level
             echo "" >> gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
         else
