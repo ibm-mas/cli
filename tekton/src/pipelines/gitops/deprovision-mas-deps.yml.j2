@@ -215,6 +215,10 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+      when:
+        - input: "$(params.kafka_action)"
+          operator: notin
+          values: [""]
 
     # Deprovision COS
     # -------------------------------------------------------------------------
