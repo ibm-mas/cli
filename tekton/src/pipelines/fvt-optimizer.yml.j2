@@ -275,7 +275,45 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 7. Run "cypress/optimizer/e2e/ui/bvt/MOAdmin.cy.js"
+    # 7. Run "api_authentication_service" (CTF)
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-authentication-service
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: ai-solutions
+        - name: fvt_image_name
+          value: common-test-framework
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_ctf)
+        - name: fvt_test_suite
+          value: api_python_optim_model # pytest_marker in Common Test Framework
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_ctf)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - ivtcore-optimizer
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+    # 8. Run "cypress/optimizer/e2e/ui/bvt/MOAdmin.cy.js"
     # -----------------------------------------------------------------------------
     - name: moadmin
       params:
@@ -315,7 +353,7 @@ spec:
         - name: configs
           workspace: shared-configs
   
-    # 8. Run "cypress/optimizer/e2e/ui/bvt/MOAdminJobs.cy.js"
+    # 9. Run "cypress/optimizer/e2e/ui/bvt/MOAdminJobs.cy.js"
     # -----------------------------------------------------------------------------
     - name: moadminjobs
       params:
@@ -355,7 +393,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 9. Run "cypress/optimizer/e2e/ui/bvt/MOAdminModels.cy.js"
+    # 10. Run "cypress/optimizer/e2e/ui/bvt/MOAdminModels.cy.js"
     # -----------------------------------------------------------------------------
     - name: moadminmodels
       params:
@@ -395,7 +433,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 10. Run "cypress/optimizer/e2e/ui/bvt/MOAdminOverview.cy.js"
+    # 11. Run "cypress/optimizer/e2e/ui/bvt/MOAdminOverview.cy.js"
     # -----------------------------------------------------------------------------
     - name: moadminoverview
       params:
@@ -435,7 +473,7 @@ spec:
         - name: configs
           workspace: shared-configs
       
-    # 11. Run "cypress/optimizer/e2e/ui/bvt/MOAdminProjects.cy.js"
+    # 12. Run "cypress/optimizer/e2e/ui/bvt/MOAdminProjects.cy.js"
     # -----------------------------------------------------------------------------
     - name: moadminprojects
       params:
@@ -475,7 +513,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 12. Run "cypress/optimizer/e2e/ui/bvt/MOModels/MOModels.cy.js"
+    # 13. Run "cypress/optimizer/e2e/ui/bvt/MOModels/MOModels.cy.js"
     # -----------------------------------------------------------------------------
     - name: momodels
       params:
@@ -515,7 +553,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 13. Run "cypress/optimizer/e2e/ui/bvt/MOProjects/MOProjects.cy.js"
+    # 14. Run "cypress/optimizer/e2e/ui/bvt/MOProjects/MOProjects.cy.js"
     # -----------------------------------------------------------------------------
     - name: moprojects
       params:
@@ -555,7 +593,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 14. Run "cypress/optimizer/e2e/ui/bvt/MOProjects/MOWorkspace.cy.js"
+    # 15. Run "cypress/optimizer/e2e/ui/bvt/MOProjects/MOWorkspace.cy.js"
     # -----------------------------------------------------------------------------
     - name: moworkspace
       params:
