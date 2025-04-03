@@ -33,10 +33,10 @@ nav:
       - "configtool-oidc": commands/configtool-oidc.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
+      - "Apr 03 2025": catalogs/v9-250403-amd64.md
       - "Mar 06 2025": catalogs/v9-250306-amd64.md
       - "Feb 06 2025": catalogs/v9-250206-amd64.md
       - "Jan 09 2025": catalogs/v9-250109-amd64.md
-      - "Dec 05 2024": catalogs/v9-241205-amd64.md
   - "Reference":
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
