@@ -26,8 +26,3 @@ mas_wipe_mongo_data: true
 {% else %}
 mas_wipe_mongo_data: false
 {% endif %}
-
-{% if DEVOPS_BUILD_NUMBER is defined and DEVOPS_BUILD_NUMBER !='' %}
-devops:
-  build_number: {{ DEVOPS_BUILD_NUMBER }}.{{ MAS_INSTANCE_ID }}
-{% endif %}

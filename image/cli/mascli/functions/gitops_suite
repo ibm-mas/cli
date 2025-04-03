@@ -87,9 +87,6 @@ IBM Maximo Application Suite:
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
-DevOps Details (Optional):
-      --devops-build-number ${COLOR_YELLOW}DEVOPS_BUILD_NUMBER${TEXT_RESET}                                     The build number to associate with the junitreporter for each argocd app sync
-
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
@@ -306,11 +303,6 @@ function gitops_suite_noninteractive() {
         export OIDC_CONFIG=$1 && shift
         ;;
 
-
-      # DevOps Details
-      --devops-build-number)
-        export DEVOPS_BUILD_NUMBER=$1 && shift
-        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -536,10 +528,6 @@ function gitops_suite() {
     reset_colors
   fi
 
-  echo "${TEXT_DIM}"
-  echo_h2 "DevOps Details" "    "
-  echo_reset_dim "Devops Build Number ............. ${COLOR_MAGENTA}${DEVOPS_BUILD_NUMBER}"
-  reset_colors
 
   echo "${TEXT_DIM}"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
