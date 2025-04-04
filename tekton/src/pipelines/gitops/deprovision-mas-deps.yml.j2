@@ -51,12 +51,16 @@ spec:
     - name: mongo_provider
       type: string
       default: aws
+    - name: mongodb_action
+      type: string
     - name: aws_docdb_instance_number
       type: string
       default: 3
     - name: kafka_provider
       type: string
       default: aws
+    - name: kafka_action
+      type: string
     - name: mas_instance_id
       type: string
 
@@ -176,6 +180,10 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+      when:
+        - input: "$(params.mongodb_action)"
+          operator: notin
+          values: [""]
 
     # Deprovision Kafka
     # -------------------------------------------------------------------------
@@ -209,6 +217,10 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+      when:
+        - input: "$(params.kafka_action)"
+          operator: notin
+          values: [""]
 
     # Deprovision COS
     # -------------------------------------------------------------------------
