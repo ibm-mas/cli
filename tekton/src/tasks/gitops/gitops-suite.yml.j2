@@ -266,6 +266,27 @@ spec:
         export CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | yq --output-format yaml)
         echo " CUSTOM_LABELS = ${CUSTOM_LABELS}"
 
+        # Tekton interprets false (boolean) values as the string ""
+        # The gitops-suite function defaults the following flags to "true" when their value is ""
+        # We'll fix this here by setting these values to "false" explicitly before we call
+        # (these are all required parameters in the pipeline so we don't have to worry about
+        # any impliciations of changing their defaults in this task)
+        if [[ -z "${CIS_ENHANCED_SECURITY}" ]]; then
+          CIS_ENHANCED_SECURITY="false"
+        fi
+        if [[ -z "${OVERRIDE_EDGE_CERTS}" ]]; then
+          OVERRIDE_EDGE_CERTS="false"
+        fi
+        if [[ -z "${CIS_WAF}" ]]; then
+          CIS_WAF="false"
+        fi
+        if [[ -z "${UPDATE_DNS_ENTRIES}" ]]; then
+          UPDATE_DNS_ENTRIES="false"
+        fi
+        if [[ -z "${DELETE_WILDCARDS}" ]]; then
+          DELETE_WILDCARDS="false"
+        fi
+
         sed -n -e 's/^.*api.fvtsaas.//p' | cut -d: -f1
         mkdir -p /tmp/init-suite
         mas gitops-suite -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
