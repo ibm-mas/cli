@@ -541,7 +541,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - manage-setup
+        - approval-manage
 
 
     # 7. Application FVT - Monitor
@@ -977,8 +977,6 @@ spec:
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: configmap_namespace
-          value: mas-pipelines
         - name: configmap_name
           value: sync-update
         - name: configmap_target_value

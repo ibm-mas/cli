@@ -615,7 +615,21 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installMonitor:
             self.configAppChannel("monitor")
 
-        self.installManage = self.yesOrNo("Install Manage")
+        self.manageAppName = "Manage"
+        self.isManageFoundation = False
+        self.installManage = self.yesOrNo(f"Install {self.manageAppName}")
+
+        # If the selection was to not install manage but we are in mas_channel 9.1 or later, we need to set self.isManageFoundation to True
+        # Also, we need to force self.installManage to be True because Manage must always be installed in MAS 9.1 or later
+        if not self.installManage:
+            if not self.getParam("mas_channel").startswith("8.") and not self.getParam("mas_channel").startswith("9.0"):
+                self.installManage = True
+                self.isManageFoundation = True
+                self.setParam("is_full_manage", "false")
+                self.manageAppName = "Manage foundation"
+                self.printDescription([f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."])
+        else:
+            self.setParam("is_full_manage", "true")
 
         if self.installManage:
             self.configAppChannel("manage")
@@ -852,6 +866,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         }
 
         self.configGrafana()
+        self.configSNO()
+        self.setDB2DefaultSettings()
 
         for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
@@ -1005,6 +1021,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             else:
                 print(f"Unknown option: {key} {value}")
                 self.fatalError(f"Unknown option: {key} {value}")
+
+        if self.installManage:
+            # If Manage is being installed and --is-full-manage was set to something different than "false", assume it is "true"
+            if self.getParam("is_full_manage") != "false":
+                self.setParam("is_full_manage", "true")
+
+            # Configure Storage and Access mode
+            self.manageStorageAndAccessMode()
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
