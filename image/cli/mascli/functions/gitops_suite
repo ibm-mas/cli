@@ -437,13 +437,13 @@ function gitops_suite() {
 
   export DOMAIN=${MAS_DOMAIN}
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then
-    export CIS_ENHANCED_SECURITY=${CIS_ENHANCED_SECURITY:-"true"}
+    export CIS_ENHANCED_SECURITY=${CIS_ENHANCED_SECURITY:-"false"}
     export CIS_PROXY=${CIS_PROXY:-"false"}
-    export OVERRIDE_EDGE_CERTS=${OVERRIDE_EDGE_CERTS:-"true"}
+    export OVERRIDE_EDGE_CERTS=${OVERRIDE_EDGE_CERTS:-"false"}
 
-    export CIS_WAF=${CIS_WAF:-"true"}
-    export UPDATE_DNS_ENTRIES=${UPDATE_DNS_ENTRIES:-"true"}
-    export DELETE_WILDCARDS=${DELETE_WILDCARDS:-"true"}
+    export CIS_WAF=${CIS_WAF:-"false"}
+    export UPDATE_DNS_ENTRIES=${UPDATE_DNS_ENTRIES:-"false"}
+    export DELETE_WILDCARDS=${DELETE_WILDCARDS:-"false"}
 
     export DOMAIN=${CIS_MAS_DOMAIN}
     # Disable provision public ingress controller by default
