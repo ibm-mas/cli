@@ -543,8 +543,8 @@ spec:
           WINDOW_DURATION=4
         fi
 
-        echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration ${WINDOW_DURATION}h --applications *"  
-        argocd proj windows add mas --kind deny --schedule "* * * * *" --duration ${WINDOW_DURATION}h --applications "*.$MAS_INSTANCE_ID"
+        echo "argo:argocd proj windows add mas --kind deny --schedule * * * * * --duration ${WINDOW_DURATION}h --applications *.$CLUSTER_NAME.$MAS_INSTANCE_ID.*,*.$CLUSTER_NAME.$MAS_INSTANCE_ID,$MAS_INSTANCE_ID-*"  
+        argocd proj windows add mas --kind deny --schedule "* * * * *" --duration ${WINDOW_DURATION}h --applications "*.$CLUSTER_NAME.$MAS_INSTANCE_ID.*,*.$CLUSTER_NAME.$MAS_INSTANCE_ID,$MAS_INSTANCE_ID-*" --grpc-web
 
         UNESCAPED_LDAP_CRT=$(</workspace/shared-additional-configs/ldap_masdeps1_cert.pem)
         ESCAPED_LDAP_CRT=${UNESCAPED_LDAP_CRT//\"/\\\"}
@@ -557,9 +557,9 @@ spec:
 
         # Remove argocd window
         argocd_login
-        ARGOWINDOW=$(argocd proj windows list mas | grep "*.$MAS_INSTANCE_ID\b" | cut -c1-1)
+        ARGOWINDOW=$(argocd proj windows list mas | grep "$CLUSTER_NAME.$MAS_INSTANCE_ID\b" | cut -c1-1)
         echo "argo:argocd proj windows delete mas $ARGOWINDOW"
-        argocd proj windows delete mas $ARGOWINDOW
+        argocd proj windows delete mas $ARGOWINDOW --grpc-web
 
         # Set auto_delete: true, to allow ArgoCD to automatically delete resources when the deprovision pipelines run
         if [[ "$LAUNCHER_ID" == "apps" ]]; then
@@ -567,7 +567,7 @@ spec:
           CLUSTER_ROOT_APP="cluster.${CLUSTER_NAME}"
           INSTANCE_ROOT_APP="instance.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
 
-          argocd app set ${ACCOUNT_ROOT_APP} --parameter auto_delete=true
+          argocd app set ${ACCOUNT_ROOT_APP} --parameter auto_delete=true --grpc-web
 
           # wait for the root apps to sync to make sure the setting has been applied everywhere
           check_argo_app_synced "${ACCOUNT_ROOT_APP}"
