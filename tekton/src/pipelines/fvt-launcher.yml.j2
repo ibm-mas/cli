@@ -897,7 +897,7 @@ spec:
         - name: launchdyncscan_visualinspection
           value: $(params.launchdyncscan_visualinspection)
       when:
-        - input: "$(params.launchdyncscan_core)$(params.launchdyncscan_iot)$(params.launchdyncscan_monitor)$(params.launchdyncscan_manage)($params.launchdyncscan_assist)($params.launchdyncscan_optimizer)($params.launchdyncscan_predict)($params.launchdyncscan_visualinspection)"
+        - input: "$(params.launchdyncscan_core)$(params.launchdyncscan_iot)$(params.launchdyncscan_monitor)$(params.launchdyncscan_manage)$(params.launchdyncscan_assist)$(params.launchdyncscan_optimizer)$(params.launchdyncscan_predict)$(params.launchdyncscan_visualinspection)"
           operator: notin
           values: [ "", "falsefalsefalsefalsefalsefalsefalsefalse", "FalseFalseFalseFalseFalseFalseFalseFalse" ]
       runAfter:
@@ -977,8 +977,6 @@ spec:
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: configmap_namespace
-          value: mas-pipelines
         - name: configmap_name
           value: sync-update
         - name: configmap_target_value
