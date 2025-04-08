@@ -49,6 +49,8 @@ spec:
     - name: aws_docdb_engine_version
       type: string
       default: 4.0.0
+    - name: mongodb_action
+      type: string
 
     - name: kafka_provider
       type: string
@@ -155,6 +157,10 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+      when:
+        - input: "$(params.mongodb_action)"
+          operator: notin
+          values: [""]
 
     # 2. Kafka
     # -------------------------------------------------------------------------

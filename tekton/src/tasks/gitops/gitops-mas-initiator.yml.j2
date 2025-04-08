@@ -27,6 +27,9 @@ spec:
       type: string
     - name: source_path
       type: string
+    - name: git_commit_msg
+      type: string
+      default: "gitops-initiator deploy"
     - name: mas_channel
       type: string
     - name: mas_operationalmode
@@ -36,6 +39,9 @@ spec:
     - name: mas_app_channel_assist
       type: string
     - name: mas_app_install_plan_assist
+      type: string
+      default: "Automatic"
+    - name: mas_app_install_plan_facilities
       type: string
       default: "Automatic"
     - name: mas_app_channel_iot
@@ -130,6 +136,8 @@ spec:
         value: $(params.source_github_repo)
       - name: SOURCE_PATH
         value: $(params.source_path)
+      - name: GIT_COMMIT_MSG
+        value: $(params.git_commit_msg)
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
       - name: MAS_OPERATIONALMODE
@@ -140,6 +148,8 @@ spec:
         value: $(params.mas_app_channel_assist)
       - name: MAS_APP_INSTALL_PLAN_ASSIST
         value: $(params.mas_app_install_plan_assist)
+      - name: MAS_APP_INSTALL_PLAN_FACILITIES
+        value: $(params.mas_app_install_plan_facilities)
       - name: MAS_APP_CHANNEL_IOT
         value: $(params.mas_app_channel_iot)
       - name: MAS_APP_INSTALL_PLAN_IOT
@@ -240,8 +250,14 @@ spec:
 
         mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
 
+        set +e +o pipefail
         echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME"
-        cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
+        cp --no-clobber $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
+        set -e -o pipefail
+
+        mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID
+        echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
+        cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/
 
         echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
         if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
@@ -264,6 +280,12 @@ spec:
 
           # Remove manual-certs folder
           rm -rf $TARGET_LOCAL_DIR/manual-certs
+          
+          echo "gitops-mas-initiator: setting dns.cis.proxy enhanced_security and waf to false"
+          yq -i '.dns.cis.proxy = false' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+          yq -i '.dns.cis.enhanced_security = false' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+          yq -i '.dns.cis.waf = false' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
+
         fi
 
         cd $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO
@@ -380,6 +402,13 @@ spec:
           yq -i '.fvt.ansible_version = env(FVT_ANSIBLE_VERSION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
         fi
 
+        if [[ ! "$GIT_COMMIT_MSG" =~ ^"[skip deploy]" ]]; then
+            # Append a new line to the file to drive the deployment at cluster level
+            echo "" >> gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+        else
+            echo "Commit message starts with [skip deploy], no changes made."
+        fi
+      
         echo "git: Adding all files in $TARGET_LOCAL_DIR working directory"
         FILES_ADDED_OUTPUT="$(git add -v .)"
         return_code=$?
@@ -390,10 +419,9 @@ spec:
         export FILES_ADDED=$(echo "$FILES_ADDED_OUTPUT" | awk NF | wc -l | xargs)
         echo "git: Added ${FILES_ADDED} files"
 
-        export COMMIT_MSG="gitops-initiator deploy for $CLUSTER_NAME"
         if [ "$FILES_ADDED" != "0" ]; then
-          echo "git: Committing files using message $COMMIT_MSG"
-          git commit -m "$COMMIT_MSG" || exit 1
+          echo "git: Committing files using message $GIT_COMMIT_MSG"
+          git commit -m "$GIT_COMMIT_MSG" || exit 1
           retries=5
           interval=30
           index=0

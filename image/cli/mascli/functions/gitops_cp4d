@@ -312,7 +312,7 @@ function gitops_cp4d() {
   echo "- CP4D operator"
 
   echo "Generating IBM CP4D file ${GITOPS_INSTANCE_DIR}/ibm-cp4d.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-cp4d.yaml
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-cp4d.yaml
 
 
   # Commit and push to github target repo

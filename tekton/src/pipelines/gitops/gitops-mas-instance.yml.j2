@@ -53,6 +53,12 @@ spec:
       type: string
     - name: mas_workspace_name
       type: string
+    - name: mas_install_plan
+      type: string
+      default: "Automatic"
+    - name: sls_install_plan
+      type: string
+      default: "Automatic"
     - name: docdb_user_action
       type: string
       default: add
@@ -84,6 +90,8 @@ spec:
     - name: smtp_default_should_email_passwords
       type: string
     - name: smtp_use_sendgrid
+      type: string
+    - name: smtp_disabled_templates
       type: string
 
     - name: ldap_url
@@ -177,9 +185,11 @@ spec:
     - name: db2_channel
       type: string
       default: ""
-
     - name: db2_action
       type: string
+    - name: db2_subscription_install_plan
+      type: string
+      default: "Automatic"
 
     # gitops-license-generator parameters
     # ------------------------------------------------------------------------- 
@@ -197,6 +207,9 @@ spec:
     # oidc parameters
     # ------------------------------------------------------------------------- 
     - name: oidc
+      type: string
+
+    - name: allow_list
       type: string
 
   tasks:
@@ -229,6 +242,8 @@ spec:
           value: $(params.db2_channel)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: db2_subscription_install_plan
+          value: $(params.db2_subscription_install_plan)
       workspaces:
         - name: configs
           workspace: configs
@@ -335,6 +350,10 @@ spec:
           value: $(params.custom_labels)
         - name: mas_domain
           value: $(params.mas_domain)
+        - name: mas_install_plan
+          value: $(params.mas_install_plan)
+        - name: sls_install_plan
+          value: $(params.sls_install_plan)
         - name: github_pat
           value: $(params.github_pat)
         - name: avp_aws_secret_region
@@ -389,6 +408,8 @@ spec:
           value: $(params.mas_wipe_mongo_data)
         - name: oidc
           value: $(params.oidc)
+        - name: allow_list
+          value: $(params.allow_list)
       taskRef:
         kind: Task
         name: gitops-suite
@@ -489,6 +510,8 @@ spec:
           value: $(params.cluster_url)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: allow_list
+          value: $(params.allow_list)
       taskRef:
         kind: Task
         name: gitops-suite-workspace
@@ -541,6 +564,8 @@ spec:
           value: $(params.smtp_default_recipient_email)
         - name: smtp_default_should_email_passwords
           value: $(params.smtp_default_should_email_passwords)
+        - name: smtp_disabled_templates
+          value: $(params.smtp_disabled_templates)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: mas_smtpcfg_pod_template_yaml
@@ -581,6 +606,8 @@ spec:
           value: $(params.github_host)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: smtp_disabled_templates
+          value: $(params.smtp_disabled_templates)
         - name: mas_smtpcfg_pod_template_yaml
           value: $(params.mas_smtpcfg_pod_template_yaml)
         

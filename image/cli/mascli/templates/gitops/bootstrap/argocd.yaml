@@ -150,6 +150,52 @@ spec:
           hs.message = ""
           return hs
 
+      apps.mas.ibm.com/FacilitiesApp:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
+      apps.mas.ibm.com/FacilitiesWorkspace:
+        health.lua: |
+          hs = {}
+          if obj.status ~= nil then
+            if obj.status.conditions ~= nil then
+              for i, condition in ipairs(obj.status.conditions) do
+                if condition.type == "Failure" and condition.status == "True" then
+                  hs.status = "Degraded"
+                  hs.message = condition.message
+                  return hs
+                end
+                if condition.type == "Ready" and condition.status == "True" then
+                  hs.status = "Healthy"
+                  hs.message = condition.message
+                  return hs
+                end
+              end
+            end
+          end
+          hs.status = "Progressing"
+          hs.message = ""
+          return hs
+
       apps.mas.ibm.com/ManageApp:
         health.lua: |
           hs = {}
@@ -1353,7 +1399,7 @@ spec:
           - '-c'
         env:
           - name: AVP_VERSION
-            value: 1.11.0
+            value: 1.18.1
         image: registry.access.redhat.com/ubi8
         name: download-tools
         securityContext:
