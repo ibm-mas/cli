@@ -207,5 +207,22 @@ function provision_aws_cluster() {
 
 function provision_aws() {
   set_default_vars
-  provision_aws_cluster
+
+  # Take the first parameter off (it will be provision-aws-sno)
+  echo "Before shift the value is: $#"
+  shift
+  echo "$#"
+  if [[ $# -gt 0 ]]; then
+    provision_aws_noninteractive "$@"
+  else
+    provision_aws_interactive
+  fi
+
+  ansible-playbook ibm.mas_devops.ocp_aws_provision || exit 1
+
+  echo ""
+  echo "AWS cluster is ready to use"
+  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+
 }
