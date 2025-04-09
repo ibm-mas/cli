@@ -153,7 +153,9 @@ def getcp4dCompsVersions():
         cr = crs.get(name="spssmodeler", namespace="ibm-cpd")
         if cr.status and cr.status.version:
             setObject["target.SpssVersion"] = cr.status.version
-        else:
+        elif cr is None or cr.status is None or cr.status.version.find('spssmodeler.cpd.ibm.com/v1') is None: 
+            setObject["target.SpssVersion"] = 'unknown'
+        else: 
             print("Unable to determine SPSS Modeler version: status.version unavailable")
     except Exception as e:
         print(f"Unable to determine SPSS Modeler version: {e}")
@@ -483,7 +485,8 @@ if __name__ == "__main__":
         cr = crs.get(name="sls", namespace="ibm-sls")
         if cr.status and cr.status.versions:
             slsVersion = cr.status.versions.reconciled
-            setObject["target.slsVersion"] = slsVersion
+        elif cr is None or cr.status is None or cr.status.versions.find('sls.ibm.com/v1') is None:
+            setObject["target.slsVersion"] = 'unknown'
         else:
             print("Unable to determine SLS version: status.versions unavailable")
     except Exception as e:
