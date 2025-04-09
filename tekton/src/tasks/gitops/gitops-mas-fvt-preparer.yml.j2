@@ -320,7 +320,7 @@ spec:
       - |-
 
         set -o pipefail
-        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --extra-namespaces selenium' ERR EXIT
+        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium' ERR EXIT
 
         get_trailing_number() {
           local input_string="$1"
