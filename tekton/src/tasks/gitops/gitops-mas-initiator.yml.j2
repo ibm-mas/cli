@@ -215,7 +215,7 @@ spec:
 
           find "$source_dir" -type f -name "*.j2" | while read -r file; do
               local output_file="${file%.j2}"
-              jinjanate_common "$file" > "$output_file"
+              jinjanate_commmon "$file" > "$output_file"
               echo "Processed: $file -> $output_file"
           done
         }
