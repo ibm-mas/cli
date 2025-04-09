@@ -217,6 +217,7 @@ spec:
               local output_file="${file%.j2}"
               jinjanate_commmon "$file" > "$output_file"
               echo "Processed: $file -> $output_file"
+              rm $file
           done
         }
 
