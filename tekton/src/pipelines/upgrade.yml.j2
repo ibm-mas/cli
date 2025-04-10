@@ -78,30 +78,45 @@ spec:
       runAfter:
         - core-upgrade
 
-
-    # 3. IoT Upgrade (Phase 2)
-    # -------------------------------------------------------------------------
-    - name: app-iot-upgrade
-      timeout: "0"
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_app_id
-          value: iot
-        - name: mas_app_channel
-          value: $(params.mas_app_channel_iot)
-        - name: skip_compatibility_check
-          value: $(params.skip_compatibility_check)
-        - name: devops_suite_name
-          value: app-iot-upgrade
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-app-upgrade
+    # 3. Install Universal Dependencies (Phase 2)
+    # 3.1 Db2
+    # 3.1.1 System Db2
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
       runAfter:
         - core-verify
 
+    # 3.1.2 Dedicated Manage Db2
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
+      runAfter:
+        - db2-system
 
-    # 4. Manage Upgrade (Phase 2)
+    # 3.1.3 Configure Db2 in MAS
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
+      runAfter:
+        - db2-manage  # db2-manage already waits for db2-system so we don't need to list both
+
+    # 4. Install & Configure Manage (Phase 3)
+    # -------------------------------------------------------------------------
+    # 4.1. Prepare database for Maxinst
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-system.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-manage.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+
+    # 4.2 Manage Install
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-db2-setup-system
+        - suite-db2-setup-manage
+
+    # 4.3 Configure Manage workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-manage
+
+    # 5. Manage Upgrade (Phase 4)
     # -------------------------------------------------------------------------
     - name: app-manage-upgrade
       timeout: "0"
@@ -120,10 +135,30 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - core-verify
+        - app-cfg-manage
 
+    # 6. IoT Upgrade (Phase 5 - after Manage)
+    # -------------------------------------------------------------------------
+    - name: app-iot-upgrade
+      timeout: "0"
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_iot)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: app-iot-upgrade
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-upgrade
+      runAfter:
+        - app-manage-upgrade
 
-    # 5. Visual Inspection Upgrade (Phase 2)
+    # 7. Visual Inspection Upgrade (Phase 5 - after Manage)
     # -------------------------------------------------------------------------
     - name: app-visualinspection-upgrade
       timeout: "0"
@@ -142,10 +177,10 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - core-verify
+        - app-manage-upgrade
 
 
-    # 6. Assist Upgrade (Phase 2)
+    # 8. Assist Upgrade (Phase 5 - after Manage)
     # -------------------------------------------------------------------------
     - name: app-assist-upgrade
       timeout: "0"
@@ -164,10 +199,10 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - core-verify
+        - app-manage-upgrade
 
 
-    # 7. Optimizer Upgrade (Phase 2)
+    # 9. Optimizer Upgrade (Phase 5 - after Manage)
     # -------------------------------------------------------------------------
     - name: app-optimizer-upgrade
       timeout: "0"
@@ -186,32 +221,9 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - core-verify
+        - app-manage-upgrade
 
-
-    # 8. Monitor Upgrade (Phase 3 - after IoT)
-    # -------------------------------------------------------------------------
-    - name: app-monitor-upgrade
-      timeout: "0"
-      params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_app_id
-          value: monitor
-        - name: mas_app_channel
-          value: $(params.mas_app_channel_monitor)
-        - name: skip_compatibility_check
-          value: $(params.skip_compatibility_check)
-        - name: devops_suite_name
-          value: app-monitor-upgrade
-      taskRef:
-        kind: Task
-        name: mas-devops-suite-app-upgrade
-      runAfter:
-        - app-iot-upgrade
-
-
-    # 9. Predict Upgrade (Phase 3 - after Manage)
+    # 10. Predict Upgrade (Phase 5 - after Manage)
     # -------------------------------------------------------------------------
     - name: app-predict-upgrade
       timeout: "0"
@@ -232,20 +244,40 @@ spec:
       runAfter:
         - app-manage-upgrade
 
+    # 11. Monitor Upgrade (Phase 6 - after IoT)
+    # -------------------------------------------------------------------------
+    - name: app-monitor-upgrade
+      timeout: "0"
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: monitor
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_monitor)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: app-monitor-upgrade
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-upgrade
+      runAfter:
+        - app-iot-upgrade
 
-    # 10. Verify health of the cluster after upgrade
+    # 12. Verify health of the cluster after upgrade
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
         'name': 'post-upgrade-verify',
         'devops_suite_name': 'post-upgrade-verify'
       }) | indent(4) }}
       runAfter:
-        # Phase 2 apps that don't have a phase 3 app following it
+        # Phase 5 apps that don't have a phase 6 app following it
         - app-assist-upgrade
         - app-optimizer-upgrade
         - app-visualinspection-upgrade
-        # Phase 3 apps
         - app-predict-upgrade
+        # Phase 6 apps
         - app-monitor-upgrade
 
   finally:
