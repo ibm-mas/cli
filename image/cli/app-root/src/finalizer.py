@@ -153,9 +153,7 @@ def getcp4dCompsVersions():
         cr = crs.get(name="spssmodeler", namespace="ibm-cpd")
         if cr.status and cr.status.version:
             setObject["target.SpssVersion"] = cr.status.version
-        elif cr is None or cr.status is None or cr.status.version.find('spssmodeler.cpd.ibm.com/v1') is None: 
-            setObject["target.SpssVersion"] = 'unknown'
-        else: 
+        else:
             print("Unable to determine SPSS Modeler version: status.version unavailable")
     except Exception as e:
         print(f"Unable to determine SPSS Modeler version: {e}")
@@ -485,8 +483,7 @@ if __name__ == "__main__":
         cr = crs.get(name="sls", namespace="ibm-sls")
         if cr.status and cr.status.versions:
             slsVersion = cr.status.versions.reconciled
-        elif cr is None or cr.status is None or cr.status.versions.find('sls.ibm.com/v1') is None:
-            setObject["target.slsVersion"] = 'unknown'
+            setObject["target.slsVersion"] = slsVersion
         else:
             print("Unable to determine SLS version: status.versions unavailable")
     except Exception as e:
@@ -555,6 +552,11 @@ if __name__ == "__main__":
     messageBlocks.append(buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
     for product in sorted(result["products"]):
+        if "version" not in productVersion or result["products"][product]["version"] == "":
+            print("productVersion is not set")
+            version = 0
+        else:  
+            version = result["products"][product]["version"]
         version = result["products"][product]["version"]
         tests = 0
         skipped = 0
