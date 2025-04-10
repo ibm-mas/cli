@@ -206,7 +206,20 @@ spec:
     - args:
       - |-
 
+        source /mascli/functions/internal/utils
+
         set -e -o pipefail
+
+        process_j2_files() {
+          local source_dir="$1"
+
+          find "$source_dir" -type f -name "*.j2" | while read -r file; do
+              local output_file="${file%.j2}"
+              jinjanate_commmon "$file" > "$output_file"
+              echo "Processed: $file -> $output_file"
+              rm $file
+          done
+        }
 
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
@@ -258,6 +271,9 @@ spec:
         mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID
         echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
         cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/
+
+        # Process any .j2 files
+        process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
 
         echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
         if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
