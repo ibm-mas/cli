@@ -4,12 +4,22 @@ kind: Pipeline
 metadata:
   name: mas-upgrade
 spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+    # PodTemplates configurations
+    - name: shared-pod-templates
   params:
     # 1. Common Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
+    
+    # 2. Installation
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
+    {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
 
-    # 2. Upgrade
+    # 3. Upgrade
     # -------------------------------------------------------------------------
     - name: skip_compatibility_check
       type: string
