@@ -101,7 +101,7 @@ class UpgradeApp(BaseApp):
 
         if not self.noConfirm:
             print()
-            continueWithUpgrade = self.yesOrNo("Proceed with these settings?")
+            continueWithUpgrade = self.yesOrNo("Proceed with these settings")
 
         if self.noConfirm or continueWithUpgrade:
             self.createTektonFileWithDigest()
