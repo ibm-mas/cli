@@ -314,12 +314,6 @@ function gitops_cp4d_service() {
     export SECRET_KEY_OPENCONTENT_ELASTICSEARCH_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}opencontent_elasticsearch_channel#opencontent_elasticsearch_channel
   fi
 
-  if [[ "$CPD_SERVICE_NAME" == "aiopenscale" ]]; then
-    export SECRET_KEY_AIOPENSCALE_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}aiopenscale_version#aiopenscale_version
-    export SECRET_KEY_AIOPENSCALE_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}aiopenscale_channel#aiopenscale_channel
-    export AIOPENSCALE_INSTALL_PLAN=${CPD_SERVICE_INSTALLPLAN_APPROVAL}
-  fi
-
   if [[ "$CPD_SERVICE_NAME" == "wsl" ]]; then
     export SECRET_KEY_WSL_VERSION=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl_version#wsl_version
     export SECRET_KEY_WSL_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}wsl_channel#wsl_channel
@@ -378,14 +372,14 @@ function gitops_cp4d_service() {
 
   if [[ "$CPD_SERVICE_NAME" == "wsl" || "$CPD_SERVICE_NAME" == "wml" || "$CPD_SERVICE_NAME" == "spss" ]]; then
     echo "Generating IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml"
-    jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d-services-base.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-cp4d-services-base.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml
   fi
   
   echo
   echo "- ${CPD_SERVICE_NAME} operator"
 
   echo "Generating IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml"
-  jinja -X .+ $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-${CPD_SERVICE_NAME}.yaml.j2 -o ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-${CPD_SERVICE_NAME}.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------

@@ -18,6 +18,7 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                IBM Suite Maximo Application Suite App that uses this db2u instance      
+  --is-replica-task ${COLOR_YELLOW}IS_REPLICA_TASK${TEXT_RESET}      To deprovision standby database
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -88,6 +89,9 @@ function gitops_deprovision_db2u_database_noninteractive() {
       --db2-instance-name)
         export DB2_INSTANCE_NAME=$1 && shift
         ;;
+      --is-replica-task)
+        export IS_REPLICA_TASK=$1 && shift
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -136,8 +140,15 @@ function gitops_deprovision_db2u_database_noninteractive() {
     [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_db2u_database_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_db2u_database_help "GIT_BRANCH is not set"
   fi
+  if [[ -z $IS_REPLICA_TASK ]]; then
+    export IS_REPLICA_TASK='false'
+  fi
   if [[ -z $DB2_INSTANCE_NAME ]]; then
-    export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+    if [[ $IS_REPLICA_TASK == 'true' ]]; then
+      export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}-sdb
+    else
+      export DB2_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+    fi
   fi
 }
 
@@ -207,6 +218,7 @@ function gitops_deprovision_db2u_database() {
   echo "${TEXT_DIM}"
   echo_h2 "DB2 Cluster Configuration" "    "
   echo_reset_dim "db2-instance-name ....................... ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
+  echo_reset_dim "is-replica-task ......................... ${COLOR_MAGENTA}${IS_REPLICA_TASK}"
   reset_colors
 
   TEMP_DIR=$GITOPS_WORKING_DIR/tmp-deprovision-db2u-database
@@ -240,6 +252,7 @@ function gitops_deprovision_db2u_database() {
   # If the file doesn't exist, nothing to remove, so no-op
   if [ -f ${CONFIGS_FILE} ]; then
     yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > ${TEMP_DIR}/configs.yaml
+
     cp ${TEMP_DIR}/configs.yaml ${CONFIGS_FILE}
 
     # If the file is there, but the configs are empty, delete the file

@@ -18,6 +18,11 @@ logger = logging.getLogger(__name__)
 
 class InstallSummarizerMixin():
     def ocpSummary(self) -> None:
+        self.printH2("Pipeline Configuration")
+        self.printParamSummary("Service Account", "service_account_name")
+        self.printParamSummary("Image Pull Policy", "image_pull_policy")
+        self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
+
         self.printH2("OpenShift Container Platform")
         self.printSummary("Worker Node Architecture", self.architecture)
         self.printSummary("Storage Class Provider", self.storageClassProvider)
@@ -31,9 +36,6 @@ class InstallSummarizerMixin():
             self.printSummary("Single Node OpenShift", "Yes")
         else:
             self.printSummary("Single Node OpenShift", "No")
-
-        self.printSummary("Skip Pre-Install Healthcheck", "Yes" if self.getParam('skip_pre_check') == "true" else "No")
-        self.printSummary("Skip Grafana-Install", "Yes" if self.getParam('grafana_action') == "none" else "No")
 
     def masSummary(self) -> None:
         operationalModeNames = ["", "Production", "Non-Production"]
@@ -176,39 +178,39 @@ class InstallSummarizerMixin():
 
     def manageSummary(self) -> None:
         if self.installManage:
-            self.printSummary("Manage", self.params["mas_app_channel_manage"])
-            print_formatted_text(HTML("  <SkyBlue>+ Components</SkyBlue>"))
-            self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Civil Infrastructure", "Enabled" if "civil=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Envizi", "Enabled" if "envizi=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Health", "Enabled" if "health=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + HSE", "Enabled" if "hse=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Maximo IT", "Enabled" if "icd=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Nuclear", "Enabled" if "nuclear=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Oil & Gas", "Enabled" if "oilandgas=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Connector for Oracle", "Enabled" if "oracleadapter=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Connector for SAP", "Enabled" if "sapadapter=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Service Provider", "Enabled" if "serviceprovider=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Spatial", "Enabled" if "spatial=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Strategize", "Enabled" if "strategize=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Transportation", "Enabled" if "transportation=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Tririga", "Enabled" if "tririga=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Utilities", "Enabled" if "utilities=" in self.getParam("mas_appws_components") else "Disabled")
-            self.printSummary("  + Workday Applications", "Enabled" if "workday=" in self.getParam("mas_appws_components") else "Disabled")
+            self.printSummary(f"{'Manage foundation' if self.getParam('is_full_manage') == 'false' else 'Manage'}", self.params["mas_app_channel_manage"])
+            if self.getParam("is_full_manage") != "false":
+                print_formatted_text(HTML("  <SkyBlue>+ Components</SkyBlue>"))
+                self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Civil Infrastructure", "Enabled" if "civil=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Envizi", "Enabled" if "envizi=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Health", "Enabled" if "health=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + HSE", "Enabled" if "hse=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Maximo IT", "Enabled" if "icd=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Nuclear", "Enabled" if "nuclear=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Oil & Gas", "Enabled" if "oilandgas=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Connector for Oracle", "Enabled" if "oracleadapter=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Connector for SAP", "Enabled" if "sapadapter=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Service Provider", "Enabled" if "serviceprovider=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Spatial", "Enabled" if "spatial=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Strategize", "Enabled" if "strategize=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Transportation", "Enabled" if "transportation=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Tririga", "Enabled" if "tririga=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Utilities", "Enabled" if "utilities=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + Workday Applications", "Enabled" if "workday=" in self.getParam("mas_appws_components") else "Disabled")
 
-            self.printParamSummary("+ Server bundle size", "mas_app_settings_server_bundles_size")
-            self.printParamSummary("+ Enable JMS queues", "mas_app_settings_default_jms")
-            self.printParamSummary("+ Server Timezone", "mas_app_settings_server_timezone")
-            self.printParamSummary("+ Base Language", "mas_app_settings_base_lang")
-            self.printParamSummary("+ Additional Languages", "mas_app_settings_secondary_langs")
+                self.printParamSummary("+ Server bundle size", "mas_app_settings_server_bundles_size")
+                self.printParamSummary("+ Enable JMS queues", "mas_app_settings_default_jms")
+                self.printParamSummary("+ Server Timezone", "mas_app_settings_server_timezone")
+                self.printParamSummary("+ Base Language", "mas_app_settings_base_lang")
+                self.printParamSummary("+ Additional Languages", "mas_app_settings_secondary_langs")
 
-            print_formatted_text(HTML("  <SkyBlue>+ Database Settings</SkyBlue>"))
-            self.printParamSummary("  + Schema", "mas_app_settings_indexspace")
-            self.printParamSummary("  + Username", "mas_app_settings_db2_schema")
-            self.printParamSummary("  + Tablespace", "mas_app_settings_tablespace")
-            self.printParamSummary("  + Indexspace", "mas_app_settings_indexspace")
-
+                print_formatted_text(HTML("  <SkyBlue>+ Database Settings</SkyBlue>"))
+                self.printParamSummary("  + Schema", "mas_app_settings_indexspace")
+                self.printParamSummary("  + Username", "mas_app_settings_db2_schema")
+                self.printParamSummary("  + Tablespace", "mas_app_settings_tablespace")
+                self.printParamSummary("  + Indexspace", "mas_app_settings_indexspace")
         else:
             self.printSummary("Manage", "Do Not Install")
 
@@ -252,7 +254,11 @@ class InstallSummarizerMixin():
                 self.printSummary("Watson Studio Local", "Install (Required by Maximo Predict)")
                 self.printSummary("Watson Machine Learning", "Install (Required by Maximo Predict)")
                 self.printSummary("Analytics Engine", "Install (Required by Maximo Predict)")
-            self.printSummary("Watson Openscale", "Install" if self.getParam("cpd_install_openscale") == "true" else "Do Not Install")
+            else:
+                self.printSummary("Watson Studio Local", "Install" if self.getParam("cpd_install_ws") == "true" else "Do Not Install")
+                self.printSummary("Watson Machine Learning", "Install" if self.getParam("cpd_install_wml") == "true" else "Do Not Install")
+                self.printSummary("Analytics Engine", "Install" if self.getParam("cpd_install_ae") == "true" else "Do Not Install")
+
             self.printSummary("SPSS Modeler", "Install" if self.getParam("cpd_install_spss") == "true" else "Do Not Install")
             self.printSummary("Cognos Analytics", "Install" if self.getParam("cpd_install_cognos") == "true" else "Do Not Install")
 
@@ -265,9 +271,12 @@ class InstallSummarizerMixin():
 
     def slsSummary(self) -> None:
         self.printH2("IBM Suite License Service")
-        self.printSummary("License File", self.slsLicenseFileLocal)
-        self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
         self.printParamSummary("Namespace", "sls_namespace")
+        if self.getParam("sls_action") == "install":
+            self.printSummary("Subscription Channel", "3.x")
+            self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
+            if self.slsLicenseFileLocal:
+                self.printSummary("License File", self.slsLicenseFileLocal)
 
     def cosSummary(self) -> None:
         self.printH2("Cloud Object Storage")

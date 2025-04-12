@@ -63,16 +63,6 @@ spec:
       type: string
       default: "Automatic"
 
-    - name: db2_channel
-      type: string
-      default: ""
-    - name: db2_action
-      type: string
-      default: ""
-    - name: db2_subscription_install_plan
-      type: string
-      default: "Automatic"
-
     - name: nvidia_gpu_action
       type: string
       default: ""
@@ -100,6 +90,9 @@ spec:
     - name: gpu_driver_repository_path
       type: string
       default: nvcr.io/nvidia
+    - name: nfd_image
+      type: string
+      default: "registry.redhat.io/openshift4/ose-node-feature-discovery-rhel9@sha256:45192fef5a1250ee573975ced1e897662116d5a30a1f8f4baa4497f64933fba3"
     
     - name: cis_compliance_install_plan
       type: string
@@ -170,6 +163,30 @@ spec:
     - name: falcon_operator_node_sensor
       type: string
       default: ''
+
+    - name: cluster_logging_operator_install
+      type: string
+      default: 'false'
+    - name: cluster_logging_operator_use_syslog_forwarder
+      type: string
+      default: 'true'
+
+    - name: instana_agent_operator_install
+      type: string
+      default: 'false'
+    - name: instana_agent_operator_endpoint_host
+      type: string
+      default: ''
+    - name: instana_agent_operator_endpoint_port
+      type: string
+      default: ''
+    - name: instana_agent_operator_env
+      type: string
+      default: ''
+    - name: instana_agent_operator_jks_storage_class
+      type: string
+      default: ''
+
   tasks:
     - name: gitops-cluster
       params:
@@ -257,6 +274,23 @@ spec:
           value: $(params.falcon_operator_cloud_region)
         - name: falcon_operator_node_sensor
           value: $(params.falcon_operator_node_sensor)
+
+        - name: cluster_logging_operator_install
+          value: $(params.cluster_logging_operator_install)
+        - name: cluster_logging_operator_use_syslog_forwarder
+          value: $(params.cluster_logging_operator_use_syslog_forwarder)
+        
+        - name: instana_agent_operator_install
+          value: $(params.instana_agent_operator_install)
+        - name: instana_agent_operator_endpoint_host
+          value: $(params.instana_agent_operator_endpoint_host)
+        - name: instana_agent_operator_endpoint_port
+          value: $(params.instana_agent_operator_endpoint_port)
+        - name: instana_agent_operator_env
+          value: $(params.instana_agent_operator_env)
+        - name: instana_agent_operator_jks_storage_class
+          value: $(params.instana_agent_operator_jks_storage_class)
+
       taskRef:
         kind: Task
         name: gitops-cluster
@@ -370,6 +404,8 @@ spec:
           value: $(params.nfd_channel)
         - name: nfd_install_plan
           value: $(params.nfd_install_plan)
+        - name: nfd_image
+          value: $(params.nfd_image)
         - name: gpu_namespace
           value: $(params.gpu_namespace)
         - name: gpu_channel

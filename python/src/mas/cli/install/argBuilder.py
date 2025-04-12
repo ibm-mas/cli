@@ -122,9 +122,15 @@ class installArgBuilderMixin():
 
         # IBM Suite License Service
         # -----------------------------------------------------------------------------
-        command += f"  --license-file \"{self.slsLicenseFileLocal}\"{newline}"
-        if self.getParam("sls_namespace") != "ibm-sls":
-            command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\"{newline}"
+        if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls":
+            if self.getParam("mas_instance_id") and self.getParam("sls_namespace") == f"mas-{self.getParam('mas_instance_id')}-sls":
+                command += "  --dedicated-sls"
+            else:
+                command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\""
+        if self.slsLicenseFileLocal:
+            command += f"  --license-file \"{self.slsLicenseFileLocal}\""
+        if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls" or self.slsLicenseFileLocal:
+            command += newline
 
         # IBM Data Reporting Operator (DRO)
         # -----------------------------------------------------------------------------
@@ -154,6 +160,7 @@ class installArgBuilderMixin():
             command += f"  --monitor-channel \"{self.getParam('mas_app_channel_monitor')}\"{newline}"
         if self.installManage:
             command += f"  --manage-channel \"{self.getParam('mas_app_channel_manage')}\"{newline}"
+            command += f"  --is-full-manage \"{self.getParam('is_full_manage')}\"{newline}"
         if self.installOptimizer:
             command += f"  --optimizer-channel \"{self.getParam('mas_app_channel_optimizer')}\""
             command += f" --optimizer-plan \"{self.getParam('mas_app_plan_optimizer')}\"{newline}"
@@ -222,16 +229,23 @@ class installArgBuilderMixin():
             if self.getParam('mas_manage_attachment_configuration_mode') != "":
                 command += f"  --manage-attachments-mode \"{self.getParam('mas_manage_attachment_configuration_mode')}\"{newline}"
 
+            if self.getParam('mas_appws_bindings_health_wsl_flag') == "true":
+                command += f"  --manage-health-wsl{newline}"
+
         # IBM Cloud Pak for Data
         # -----------------------------------------------------------------------------
         if self.getParam('cpd_product_version') != "":
             command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
             if self.getParam('cpd_install_spss') == "install":
                 command += " --cp4d-install-spss"
-            if self.getParam('cpd_install_openscale') == "install":
-                command += " --cp4d-install-openscal"
             if self.getParam('cpd_install_cognos') == "install":
                 command += " --cp4d-install-cognos"
+            if self.getParam('cpd_install_ws') == "install":
+                command += " --cp4d-install-ws"
+            if self.getParam('cpd_install_wml') == "install":
+                command += " --cp4d-install-wml"
+            if self.getParam('cpd_install_ae') == "install":
+                command += " --cp4d-install-ae"
             command += newline
 
         # IBM Db2 Universal Operator
@@ -394,6 +408,8 @@ class installArgBuilderMixin():
             command += f"  --skip-grafana-install{newline}"
         if self.getParam('image_pull_policy') != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
+        if self.getParam('service_account_name') != "":
+            command += f"  --service-account {self.getParam('service_account_name')}{newline}"
 
         command += "  --accept-license --no-confirm"
         return command

@@ -723,7 +723,7 @@ function argocd_login() {
       exit 1
     fi
     echo "argo:argocd_login : ARGOCD_URL=$ARGOCD_URL ARGOCD_USERNAME=$ARGOCD_USERNAME ARGOCD_PASSWORD=${ARGOCD_PASSWORD:0:8}<snip> ..."
-    argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure
+    argocd login $ARGOCD_URL --username $ARGOCD_USERNAME --password $ARGOCD_PASSWORD --insecure --skip-test-tls --grpc-web
     return_code=$?
     echo "argo:argocd_login : return_code=$return_code"
 
@@ -746,7 +746,7 @@ function argocd_sync(){
   APP_NAME=$1
   echo
   echo "Force Application $APP_NAME to Sync ..."
-  argocd app sync $APP_NAME --force --timeout 30 --assumeYes
+  argocd app sync $APP_NAME --force --timeout 30 --assumeYes --grpc-web
   RC=$?
   echo "ArgoCD response for Force Application $APP_NAME to Sync: $RC"
 }
@@ -754,7 +754,7 @@ function argocd_sync(){
 function argocd_prune_sync(){
   APP_NAME=$1
   echo "Force Application $APP_NAME to Sync with --prune ..."
-  argocd app sync $APP_NAME --prune
+  argocd app sync $APP_NAME --prune --grpc-web
   RC=$?
   echo "ArgoCD response for Force Application $APP_NAME to Sync with --prune: $RC"
 }
@@ -762,7 +762,7 @@ function argocd_prune_sync(){
 function argocd_hard_refresh(){
   APP_NAME=$1
   echo "Force Application $APP_NAME to hard refresh ..."
-  argocd app get $APP_NAME --hard-refresh
+  argocd app get $APP_NAME --hard-refresh --grpc-web
   RC=$?
   echo "ArgoCD response for Force Application $APP_NAME to hard refresh: $RC"
 }

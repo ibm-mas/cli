@@ -52,6 +52,8 @@ spec:
     - name: source_path
       type: string
       default: ""
+    - name: git_commit_msg
+      type: string
     - name: mas_channel
       type: string
     - name: mas_operationalmode
@@ -174,6 +176,8 @@ spec:
           value: $(params.source_github_repo)
         - name: source_path
           value: $(params.source_path)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
         - name: mas_channel
           value: $(params.mas_channel)
         - name: mas_operationalmode

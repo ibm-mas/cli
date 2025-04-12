@@ -112,6 +112,13 @@ class UpdateApp(BaseApp):
             else:
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Watson Discovery is not installed")
 
+        with Halo(text='Checking for IBM Watson Openscale', spinner=self.spinner) as h:
+            if self.isWatsonOpenscaleInstalled():
+                h.stop_and_persist(symbol=self.failureIcon, text="IBM Watson Openscale is installed")
+                self.fatalError("Watson Openscale is currently installed in the instance of Cloud Pak for Data that is managed by the MAS CLI (in the ibm-cpd namespace), this is no longer supported and the update can not proceed as a result. Please contact IBM support for assistance")
+            else:
+                h.stop_and_persist(symbol=self.successIcon, text="IBM Watson Openscale is not installed")
+
         with Halo(text='Checking for IBM Certificate-Manager', spinner=self.spinner) as h:
             if self.isIBMCertManagerInstalled():
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager will be replaced by Red Hat Certificate-Manager")
@@ -235,13 +242,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Jan 09 2025 Update (MAS 9.0.7, 8.11.18, &amp; 8.10.21)",
-            "  2) Dec 05 2024 Update (MAS 9.0.6, 8.11.17, &amp; 8.10.20)",
-            "  3) Nov 07 2024 Update (MAS 9.0.4, 8.11.16, &amp; 8.10.19)",
+            "  1) Apr 03 2025 Update (MAS 9.0.10, 8.11.21, &amp; 8.10.24)",
+            "  2) Mar 06 2025 Update (MAS 9.0.9, 8.11.20, &amp; 8.10.23)",
+            "  3) Feb 06 2025 Update (MAS 9.0.8, 8.11.19, &amp; 8.10.22)",
         ])
 
         catalogOptions = [
-            "v9-250109-amd64", "v9-241205-amd64", "v9-241107-amd64"
+            "v9-250403-amd64", "v9-250306-amd64", "v9-250206-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -258,6 +265,17 @@ class UpdateApp(BaseApp):
             return False
         except (ResourceNotFoundError, NotFoundError):
             # Watson Discovery has never been installed on this cluster
+            return False
+
+    def isWatsonOpenscaleInstalled(self) -> bool:
+        try:
+            wosAPI = self.dynamicClient.resources.get(api_version="wos.cpd.ibm.com/v1", kind="WOService")
+            wos = wosAPI.get(namespace="ibm-cpd").to_dict()['items']
+            if len(wos) > 0:
+                return True
+            return False
+        except (ResourceNotFoundError, NotFoundError):
+            # Watson Openscale has never been installed on this cluster
             return False
 
     def isIBMCertManagerInstalled(self) -> bool:
@@ -340,7 +358,10 @@ class UpdateApp(BaseApp):
                         "v9-241003-amd64": "6.0.12",
                         "v9-241107-amd64": "7.0.12",
                         "v9-241205-amd64": "7.0.12",
-                        "v9-250109-amd64": "7.0.12"
+                        "v9-250109-amd64": "7.0.12",
+                        "v9-250206-amd64": "7.0.12",
+                        "v9-250306-amd64": "7.0.12",
+                        "v9-250403-amd64": "7.0.12",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -470,7 +491,10 @@ class UpdateApp(BaseApp):
             "v9-241003-amd64": "4.8.0",
             "v9-241107-amd64": "4.8.0",
             "v9-241205-amd64": "5.0.0",
-            "v9-250109-amd64": "5.0.0"
+            "v9-250109-amd64": "5.0.0",
+            "v9-250206-amd64": "5.0.0",
+            "v9-250306-amd64": "5.0.0",
+            "v9-250403-amd64": "5.0.0"
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:

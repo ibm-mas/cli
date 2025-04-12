@@ -1,0 +1,7 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+cluster_logging_operator:
+  install: "{{ CLUSTER_LOGGING_OPERATOR_INSTALL }}"
+  aws_secret_access_key:  "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLOUDWATCH_AWS_SECRET_ACCESS_KEY }}>"
+  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLOUDWATCH_AWS_ACCESS_KEY_ID }}>"
+  use_syslog_forwarder: "{{ CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER }}"
