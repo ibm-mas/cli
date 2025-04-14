@@ -11,6 +11,7 @@
 from ...install.settings.db2Settings import Db2SettingsMixin
 from ...install.settings.manageSettings import ManageSettingsMixin
 
+
 class UpgradeSettingsMixin(Db2SettingsMixin, ManageSettingsMixin):
     """
     This class collects all the Mixins providing interactive prompts for mas-upgrade
