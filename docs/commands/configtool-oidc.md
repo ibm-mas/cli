@@ -1,6 +1,9 @@
 Manage OpenID client for Configuration Tool
 ===============================================================================
 
+> [!IMPORTANT]
+> MAS 9.1 and above this configuration is not supported anymore as Configuration Tool is now part of the MAS.
+
 Overview
 -------------------------------------------------------------------------------
 Configuration Tool can be used to configure and customize MAS apps through OIDC authentication since MAS 8.10.  
