@@ -39,6 +39,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         self.noConfirm = args.no_confirm
         self.skipPreCheck = args.skip_pre_check
         self.licenseAccepted = args.accept_license
+        self.devMode = args.dev_mode
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -53,6 +54,9 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         self.printH1("Configure IBM Container Registry")
         self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+        if self.devMode:
+            self.promptForString("Artifactory username", "artifactory_username")
+            self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
 
         if instanceId is None:
             # Interactive mode
@@ -84,7 +88,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             currentChannel = "Unknown"
             nextChannel = "Unknown"
 
-        if not self.licenseAccepted:
+        if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
             self.printDescription([
                 "To continue with the upgrade, you must accept the license terms:",
