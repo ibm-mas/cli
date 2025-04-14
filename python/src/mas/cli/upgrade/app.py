@@ -11,7 +11,6 @@
 
 import sys
 import logging
-from os import getenv
 import logging.handlers
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
@@ -109,7 +108,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.installManage = True
             self.manageAppName = "Manage foundation"
             self.configDb2()
-
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
