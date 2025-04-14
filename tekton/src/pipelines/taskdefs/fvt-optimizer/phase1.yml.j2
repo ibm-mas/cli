@@ -1,8 +1,0 @@
-- name: fvt-optimizer-authorization-service
-  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: api_authorization_service
-  runAfter:
-    - fvt-optimizer-project-endpoints
