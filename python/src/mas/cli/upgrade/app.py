@@ -11,6 +11,7 @@
 
 import sys
 import logging
+from os import getenv
 import logging.handlers
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
@@ -20,6 +21,7 @@ from halo import Halo
 from ..cli import BaseApp
 from ..validators import InstanceIDValidator
 from .argParser import upgradeArgParser
+from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
 from mas.devops.mas import listMasInstances, getMasChannel
@@ -28,7 +30,7 @@ from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions
 logger = logging.getLogger(__name__)
 
 
-class UpgradeApp(BaseApp):
+class UpgradeApp(BaseApp, UpgradeSettingsMixin):
     def upgrade(self, argv):
         """
         Upgrade MAS instance
@@ -49,6 +51,9 @@ class UpgradeApp(BaseApp):
         if self.dynamicClient is None:
             print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
             sys.exit(1)
+
+        self.printH1("Configure IBM Container Registry")
+        self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
 
         if instanceId is None:
             # Interactive mode
@@ -93,6 +98,19 @@ class UpgradeApp(BaseApp):
                 if not self.yesOrNo("Do you accept the license terms"):
                     exit(1)
 
+        # TODO: Need to check if Manage is installed, this should only run if Manage is not installed
+        if not nextChannel.startswith("8.") and not nextChannel.startswith("9.0"):
+            self.setParam("is_full_manage", "false")
+            self.setParam("mas_appws_components", "")
+            self.setParam("mas_app_channel_manage", nextChannel)
+            self.showAdvancedOptions = False
+            # TODO: Detect if IoT is installed
+            self.installIoT = False
+            self.installManage = True
+            self.manageAppName = "Manage foundation"
+            self.configDb2()
+
+
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
@@ -101,6 +119,8 @@ class UpgradeApp(BaseApp):
 
         if not self.noConfirm:
             print()
+            self.printH1(f"!!!!!!!!! params {self.params}")
+
             continueWithUpgrade = self.yesOrNo("Proceed with these settings")
 
         if self.noConfirm or continueWithUpgrade:
@@ -122,7 +142,7 @@ class UpgradeApp(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:
-                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck)
+                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
