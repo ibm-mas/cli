@@ -17,11 +17,11 @@
   runAfter:
     - ivtcore-manage
     
-- name: fvt-manage-authorization-services
+- name: fvt-manage-foundation-api-auth
   {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
-      value: authorization-services
+      value: foundation-api-auth
   runAfter:
     - ivtcore-manage
