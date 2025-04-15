@@ -320,7 +320,7 @@ spec:
       - |-
 
         set -o pipefail
-        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --extra-namespaces selenium' ERR EXIT
+        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium' ERR EXIT
 
         get_trailing_number() {
           local input_string="$1"
@@ -405,7 +405,7 @@ spec:
           WORKSPACE_APP="${MAS_WORKSPACE_ID}.suite.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
 
           check_argo_app_healthy "${SLS_APP_NAME}" 180 #90 minutes
-          check_argo_app_healthy "${MONGO_CONFIG_APP}" 30 #15 minutes
+          check_argo_app_healthy "${MONGO_CONFIG_APP}" 60 #30 minutes
           check_argo_app_healthy "${SLS_CONFIG_APP}" 30
           check_argo_app_healthy "${BAS_CONFIG_APP}" 30
           check_argo_app_healthy "${SUITE_APP_NAME}" 30
