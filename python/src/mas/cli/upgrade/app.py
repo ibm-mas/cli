@@ -101,6 +101,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 if not self.yesOrNo("Do you accept the license terms"):
                     exit(1)
 
+        self.setParam("is_full_manage", "true")
         # TODO: Need to check if Manage is installed, this should only run if Manage is not installed
         if not nextChannel.startswith("8.") and not nextChannel.startswith("9.0"):
             self.setParam("is_full_manage", "false")
