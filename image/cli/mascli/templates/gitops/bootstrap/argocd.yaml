@@ -157,7 +157,7 @@ spec:
           if obj.status ~= nil then
             if obj.status.conditions ~= nil then
               for i, condition in ipairs(obj.status.conditions) do
-                if condition.type == "Degraded" and condition.status == "True" then
+                if (condition.type == "Ready" or condition.type == "kserveReady" or condition.type == "Available") and condition.status == "True" then
                   hs.status = "Degraded"
                   hs.message = condition.message
                   return hs
