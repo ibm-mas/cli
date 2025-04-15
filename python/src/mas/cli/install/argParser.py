@@ -199,7 +199,9 @@ masAdvancedArgGroup.add_argument(
     "--enable-ipv6",
     dest="enable_ipv6",
     required=False,
-    help="Configure MAS to run in IP version 6. Before setting this option, be sure your cluster is configured in IP version 6.",
+    help="Configure MAS to run in IP version 6. Before setting this option, be sure your cluster is configured in IP version 6",
+    action="store_const",
+    const="false"
 )
 
 # DNS Configuration - IBM CIS
