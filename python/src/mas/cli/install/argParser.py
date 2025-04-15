@@ -195,6 +195,13 @@ masAdvancedArgGroup.add_argument(
     help="Provide the name of the ClusterIssuer to configure MAS to issue certificates",
 )
 
+masAdvancedArgGroup.add_argument(
+    "--enable-ipv6",
+    dest="enable_ipv6",
+    required=False,
+    help="Configure MAS to run in IP version 6. Before setting this option, be sure your cluster is configured in IP version 6.",
+)
+
 # DNS Configuration - IBM CIS
 # -----------------------------------------------------------------------------
 cisArgGroup = installArgParser.add_argument_group("DNS Configuration - CIS")
