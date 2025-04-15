@@ -201,7 +201,7 @@ masAdvancedArgGroup.add_argument(
     required=False,
     help="Configure MAS to run in IP version 6. Before setting this option, be sure your cluster is configured in IP version 6",
     action="store_const",
-    const="false"
+    const="true"
 )
 
 # DNS Configuration - IBM CIS
