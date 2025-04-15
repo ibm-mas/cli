@@ -139,10 +139,6 @@ spec:
         name: mas-devops-suite-app-upgrade
       runAfter:
         - app-cfg-manage
-      when:
-        - input: "$(params.is_full_manage)"
-          operator: notin
-          values: ["false"]
 
     # 6. IoT Upgrade (Phase 5 - after Manage)
     # -------------------------------------------------------------------------
