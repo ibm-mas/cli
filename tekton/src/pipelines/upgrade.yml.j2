@@ -139,6 +139,8 @@ spec:
         name: mas-devops-suite-app-upgrade
       runAfter:
         - app-cfg-manage
+      # TODO: Replace this with a condition to only run when manage was already installed
+      when: false
 
     # 6. IoT Upgrade (Phase 5 - after Manage)
     # -------------------------------------------------------------------------
