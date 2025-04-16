@@ -47,6 +47,8 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.connect()
         else:
             logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
+            # Need to lookup target architecture because configDb2 will try to access self.architecture
+            self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:
             print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
@@ -103,18 +105,17 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         # The only scenario where Manage Foundation needs to be installed during an upgrade is from 9.0.x to 9.1.x (if Manage was not installed already in 9.0.x).
         self.setParam("should_install_manage_foundation", "false")
-        if nextChannel.startswith("9.1") and not verifyAppInstance("manage"):
+        if nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
             self.setParam("should_install_manage_foundation", "true")
             self.setParam("is_full_manage", "false")
             self.setParam("mas_appws_components", "")
             self.setParam("mas_app_channel_manage", nextChannel)
             self.setParam("mas_workspace_id", getWorkspaceId(self.dynamicClient, instanceId))
             self.showAdvancedOptions = False
-            # TODO: Detect if IoT is installed
-            self.installIoT = False
+            self.installIoT = verifyAppInstance(self.dynamicClient, instanceId, "iot")
             self.installManage = True
             self.manageAppName = "Manage foundation"
-            self.configDb2()
+            self.configDb2(silentMode=True)
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))

@@ -822,7 +822,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Dependencies
         self.configMongoDb()
-        self.configDb2()
+        # If Manage Foundation is going to be installed, try to configure DB2 in silent mode
+        self.configDb2(silentMode=self.isManageFoundation)
         self.configKafka()  # Will only do anything if IoT has been selected for install
 
         self.configGrafana()
