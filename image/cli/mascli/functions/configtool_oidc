@@ -4,7 +4,7 @@ function configtool_oidc_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
-${COLOR_YELLOW}The OpenID client for the Configuration tool is applicable only to Maximo Application Suite 9.0 and earlier. Starting in Maximo Application Suite 9.1, the Configuration tool is available with Maximo Application Suite and the OpenID client configuration tool is no longer supported.${TEXT_RESET} 
+${COLOR_YELLOW}The OpenID client for the Configuration tool is applicable only to Maximo Application Suite 9.0 and earlier. Starting in Maximo Application Suite 9.1, the Configuration tool is available with Maximo Application Suite and the OpenID client configuration tool is no longer required.${TEXT_RESET} 
 
 Usage:
   mas oidc [register|unregister|update|-h|--help] [options]
