@@ -13,6 +13,9 @@ spec:
       default: "false"
     - name: cluster_name
       type: string
+    - name: is_non_shared_cluster
+      type: string
+      default: "false"
     - name: account
       type: string
     - name: secrets_path
@@ -127,6 +130,9 @@ spec:
     - name: allow_list
       type: string
       default: ""
+    - name: enhanced_dr
+      type: string
+      default: "false"
   stepTemplate:
     name: gitops-suite
     env:
@@ -228,6 +234,8 @@ spec:
 
       - name: ALLOW_LIST
         value: $(params.allow_list)
+      - name: ENHANCED_DR
+        value: $(params.enhanced_dr)
 
     envFrom:
       - configMapRef:
