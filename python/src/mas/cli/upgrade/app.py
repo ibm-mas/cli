@@ -103,7 +103,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 if not self.yesOrNo("Do you accept the license terms"):
                     exit(1)
 
-        # The only scenario where Manage Foundation needs to be installed during an upgrade is from 9.0.x to 9.1.x (if Manage was not installed already in 9.0.x).
+        # The only scenario where Manage Foundation needs to be installed during an upgrade is from 9.0.x to 9.1.x (if Manage was not already installed in 9.0.x).
         self.setParam("should_install_manage_foundation", "false")
         if nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
             self.setParam("should_install_manage_foundation", "true")
@@ -114,7 +114,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.showAdvancedOptions = False
             self.installIoT = verifyAppInstance(self.dynamicClient, instanceId, "iot")
             self.installManage = True
-            self.isManageFoundation = True            
+            self.isManageFoundation = True
             self.manageAppName = "Manage foundation"
             # It has been decided that we don't need to ask for any specific Manage Settings
             # self.manageSettings()
