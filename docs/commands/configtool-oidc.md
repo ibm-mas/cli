@@ -2,7 +2,7 @@ Manage OpenID client for Configuration Tool
 ===============================================================================
 
 > [!IMPORTANT]
-> MAS 9.1 and above this configuration is not supported anymore as Configuration Tool is now part of the MAS.
+> The OpenID client for the Configuration tool is applicable only to Maximo Application Suite 9.0 and earlier. Starting in Maximo Application Suite 9.1, the Configuration tool is available with Maximo Application Suite and the OpenID client configuration tool is no longer supported.
 
 Overview
 -------------------------------------------------------------------------------
