@@ -81,9 +81,12 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
         if currentChannel is not None:
-            if currentChannel not in self.upgrade_path:
-                self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")
-            nextChannel = self.upgrade_path[currentChannel]
+            if self.devMode:
+                nextChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+            else:
+                if currentChannel not in self.upgrade_path:
+                    self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")
+                nextChannel = self.upgrade_path[currentChannel]
         else:
             # We still allow the upgrade to proceed even though we can't detect the MAS instance.  The upgrade may be being
             # queued up to run after install for instance
@@ -151,7 +154,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:
-                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, params=self.params)
+                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, masChannel=nextChannel, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
