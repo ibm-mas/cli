@@ -54,12 +54,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
             sys.exit(1)
 
-        self.printH1("Configure IBM Container Registry")
-        self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
-        if self.devMode:
-            self.promptForString("Artifactory username", "artifactory_username")
-            self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
-
         if instanceId is None:
             # Interactive mode
             self.printH1("Instance Selection")
@@ -109,16 +103,22 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         # The only scenario where Manage Foundation needs to be installed during an upgrade is from 9.0.x to 9.1.x (if Manage was not already installed in 9.0.x).
         self.setParam("should_install_manage_foundation", "false")
         if nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
+            self.manageAppName = "Manage foundation"
+            self.showAdvancedOptions = False
+            self.installIoT = verifyAppInstance(self.dynamicClient, instanceId, "iot")
+            self.installManage = True
+            self.isManageFoundation = True
+            self.printDescription([f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."])
+            self.printH1("Configure IBM Container Registry")
+            self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+            if self.devMode:
+                self.promptForString("Artifactory username", "artifactory_username")
+                self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
             self.setParam("should_install_manage_foundation", "true")
             self.setParam("is_full_manage", "false")
             self.setParam("mas_appws_components", "")
             self.setParam("mas_app_channel_manage", nextChannel)
             self.setParam("mas_workspace_id", getWorkspaceId(self.dynamicClient, instanceId))
-            self.showAdvancedOptions = False
-            self.installIoT = verifyAppInstance(self.dynamicClient, instanceId, "iot")
-            self.installManage = True
-            self.isManageFoundation = True
-            self.manageAppName = "Manage foundation"
             # It has been decided that we don't need to ask for any specific Manage Settings
             # self.manageSettings()
             self.configDb2(silentMode=True)
