@@ -26,6 +26,11 @@ spec:
       default: "False"
       description: Skip performing compatiblity checks before upgrade
 
+    - name: should_install_manage_foundation
+      type: string
+      description: Set to true if Manage Foundation is supposed to be installed (when upgrading to 9.1 from a 9.0 MAS without Manage)
+      default: "false"      
+
   tasks:
     # 1. Wait for approval & verify health of the cluster before we change anything
     # -------------------------------------------------------------------------
@@ -139,6 +144,10 @@ spec:
         name: mas-devops-suite-app-upgrade
       runAfter:
         - app-cfg-manage
+      when:
+        - input: "$(params.should_install_manage_foundation)"
+          operator: notin
+          values: ["true"]
 
     # 6. IoT Upgrade (Phase 5 - after Manage)
     # -------------------------------------------------------------------------

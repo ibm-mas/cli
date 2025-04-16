@@ -23,7 +23,7 @@ from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, getMasChannel, getWorkspaceId
+from mas.devops.mas import listMasInstances, getMasChannel, getWorkspaceId, verifyAppInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 
 logger = logging.getLogger(__name__)
@@ -101,12 +101,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 if not self.yesOrNo("Do you accept the license terms"):
                     exit(1)
 
-        # TODO: Need to check if Manage is installed, this should only run if Manage is not installed
-        # If Manage is installed, do not set is_full_manage
-        # If Manage is not installed, set is_full_manage to false by default
-        #
         # The only scenario where Manage Foundation needs to be installed during an upgrade is from 9.0.x to 9.1.x (if Manage was not installed already in 9.0.x).
-        if nextChannel.startswith("9.1"):
+        self.setParam("should_install_manage_foundation", "false")
+        if nextChannel.startswith("9.1") and not verifyAppInstance("manage"):
+            self.setParam("should_install_manage_foundation", "true")
             self.setParam("is_full_manage", "false")
             self.setParam("mas_appws_components", "")
             self.setParam("mas_app_channel_manage", nextChannel)
