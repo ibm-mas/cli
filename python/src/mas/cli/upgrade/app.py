@@ -114,7 +114,10 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.showAdvancedOptions = False
             self.installIoT = verifyAppInstance(self.dynamicClient, instanceId, "iot")
             self.installManage = True
+            self.isManageFoundation = True            
             self.manageAppName = "Manage foundation"
+            # It has been decided that we don't need to ask for any specific Manage Settings
+            # self.manageSettings()
             self.configDb2(silentMode=True)
 
         self.printH1("Review Settings")
