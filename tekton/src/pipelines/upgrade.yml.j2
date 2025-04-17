@@ -14,7 +14,7 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
     
-    # 2. Installation
+    # 2. Installation (only needed if Manage Foundation is going to be installed)
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
     {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
