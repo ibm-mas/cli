@@ -485,7 +485,7 @@ jobs:
     name: Build Linux CLI
     # We intentionally run on the oldest available Ubuntu runner, as this will result in a binary
     # usable on older and newer versions of linux.
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     needs:
       - build-tekton
