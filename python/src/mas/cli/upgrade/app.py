@@ -75,9 +75,14 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
         if currentChannel is not None:
-            if currentChannel not in self.upgrade_path:
-                self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")
-            nextChannel = self.upgrade_path[currentChannel]
+            if self.devMode:
+                # This is mainly used for the scenario where Managa Foundation would be installed, because core-upgrade does not use the value of nextChannel,
+                # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
+                nextChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+            else:
+                if currentChannel not in self.upgrade_path:
+                    self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")
+                nextChannel = self.upgrade_path[currentChannel]
         else:
             # We still allow the upgrade to proceed even though we can't detect the MAS instance.  The upgrade may be being
             # queued up to run after install for instance
