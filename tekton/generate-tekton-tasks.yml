@@ -50,6 +50,8 @@
         src: "{{ task_src_dir }}/aibroker/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - minio
+        - mariadb
         - aibroker
         - kmodels
         - odh
