@@ -158,12 +158,12 @@ spec:
             if obj.status.conditions ~= nil then
               for i, condition in ipairs(obj.status.conditions) do
                 if (condition.type == "Ready" or condition.type == "kserveReady" or condition.type == "Available") and condition.status == "True" then
-                  hs.status = "Degraded"
+                  hs.status = "Healthy"
                   hs.message = condition.message
                   return hs
                 end
-                if condition.type == "Ready" and condition.status == "True" then
-                  hs.status = "Healthy"
+                if condition.type == "Degraded" and condition.status == "True" then
+                  hs.status = "Degraded"
                   hs.message = condition.message
                   return hs
                 end
