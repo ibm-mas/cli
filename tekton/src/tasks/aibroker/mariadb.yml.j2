@@ -51,17 +51,17 @@ spec:
         value: mariadb-instance
 
       - name: MARIADB_USER
-        value: mariadb
+        value: $(params.mas_aibroker_db_user)
 
       - name: MARIADB_PASSWORD
-        value: mariadb
+        value: $(params.mas_aibroker_db_secret_value)
 
       - name: MARIADB_DATABASE
-        value: kmpipeline
+        value: $(params.mas_aibroker_db_database)
 
 
   steps:
-    - name: minio
+    - name: mariadb
       command:
         - /opt/app-root/src/run-role.sh
         - mariadb
