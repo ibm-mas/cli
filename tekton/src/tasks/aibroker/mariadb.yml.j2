@@ -26,6 +26,19 @@ spec:
       type: string
       description: Instance ID
 
+    - name: mas_aibroker_db_user
+      type: string
+      description: database user for IBM Maximo AI Broker
+      default: ""
+    - name: mas_aibroker_db_database
+      type: string
+      description: database name for IBM Maximo AI Broker
+      default: ""
+    - name: mas_aibroker_db_secret_value
+      type: string
+      description: database secret value for IBM Maximo AI Broker
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}

@@ -25,6 +25,14 @@ spec:
     - name: mas_instance_id
       type: string
       description: Instance ID
+    
+    # 
+    - name: mas_aibroker_storage_accesskey
+      type: string
+      description: S3/Minio storage access key for IBM Maximo AI Broker
+      default: ""
+    - name: mas_aibroker_storage_secretkey
+      type: string
 
   stepTemplate:
     env:
