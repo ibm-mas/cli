@@ -51,10 +51,10 @@ spec:
         value: minio
 
       - name: MINIO_ROOT_USER
-        value: $(params.mas_aibroker_storage_accesskey)
+        value: minio
 
       - name: MINIO_ROOT_PASSWORD
-        value: $(params.mas_aibroker_storage_secretkey)
+        value: minio123
 
   steps:
     - name: minio
