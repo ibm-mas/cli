@@ -282,6 +282,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - approval-suite-verify
+        - manage-setup
 
     - name: launchfvt-assist
       timeout: "0"
@@ -356,6 +357,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - approval-suite-verify
+        - manage-setup
 
     - name: launchfvt-iot
       timeout: "0"
@@ -656,7 +658,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - approval-manage
+        - manage-setup
 
     - name: launchfvt-optimizer
       timeout: "0"
@@ -809,6 +811,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - approval-suite-verify
+        - manage-setup
 
     - name: launchfvt-visualinspection
       timeout: "0"
