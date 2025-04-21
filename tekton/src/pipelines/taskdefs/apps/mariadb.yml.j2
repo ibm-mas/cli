@@ -2,6 +2,7 @@
   timeout: "0"
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    {{ lookup('template', '../params/install-aibroker.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: aibroker
     - name: mas_instance_id
