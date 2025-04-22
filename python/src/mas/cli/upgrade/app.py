@@ -76,7 +76,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
         if currentChannel is not None:
             if self.devMode:
-                # This is mainly used for the scenario where Managa Foundation would be installed, because core-upgrade does not use the value of nextChannel,
+                # This is mainly used for the scenario where Manage Foundation would be installed, because core-upgrade does not use the value of nextChannel,
                 # it uses a compatibility_matrix object in ansible-devops to determine the next channel, so nextChannel is only informative for core upgrade purposes
                 nextChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
             else:
@@ -133,8 +133,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         if not self.noConfirm:
             print()
-            self.printH1(f"!!!!!!!!! params {self.params}")
-
             continueWithUpgrade = self.yesOrNo("Proceed with these settings")
 
         if self.noConfirm or continueWithUpgrade:
