@@ -1196,7 +1196,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details")
                     print()
-                    
+
     @logMethodCall
     def setupApprovals(self, namespace: str) -> None:
         """
