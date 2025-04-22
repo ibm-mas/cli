@@ -212,6 +212,9 @@ spec:
     - name: allow_list
       type: string
 
+    - name: additional_vpn
+          type: string
+
   tasks:
 
     # 0. Per-instance DB2U Operator
@@ -410,6 +413,8 @@ spec:
           value: $(params.oidc)
         - name: allow_list
           value: $(params.allow_list)
+        - name: additional_vpn
+          value: $(params.additional_vpn)
       taskRef:
         kind: Task
         name: gitops-suite

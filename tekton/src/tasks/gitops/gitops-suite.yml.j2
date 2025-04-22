@@ -127,6 +127,9 @@ spec:
     - name: allow_list
       type: string
       default: ""
+    - name: additional_vpn
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
@@ -228,6 +231,8 @@ spec:
 
       - name: ALLOW_LIST
         value: $(params.allow_list)
+      - name: ADDITIONAL_VPN
+        value: $(params.additional_vpn)
 
     envFrom:
       - configMapRef:
