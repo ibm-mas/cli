@@ -16,7 +16,6 @@
       value: "$(params.mas_app_channel_aibroker)"
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
-
     - name: mas_aibroker_db_user
       value: $(params.mas_aibroker_db_user)
     - name: mas_aibroker_db_secret_value
@@ -24,8 +23,11 @@
     - name: mas_aibroker_db_database
       value: $(params.mas_aibroker_db_database)
 
-    
   taskRef:
     name: mas-devops-mariadb
     kind: Task
+  when:
+    - input: "$(params.mas_app_channel_aibroker)"
+      operator: notin
+      values: [""]
 

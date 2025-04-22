@@ -26,4 +26,10 @@
   taskRef:
     name: mas-devops-minio
     kind: Task
-
+  when:
+    - input: "$(params.mas_app_channel_aibroker)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_aibroker_storage_provider)"
+      operator: in
+      values: ["minio"]
