@@ -1213,3 +1213,4 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 # Disable this approval workload
                 logger.debug(f"Approval workflow for {approval['id']} will be disabled during install")
                 self.initializeApprovalConfigMap(namespace, approval['id'], False)
+                
