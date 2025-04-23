@@ -687,3 +687,4 @@ if __name__ == "__main__":
             messageBlocks.append(buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
             messageBlocks.append(buildSection("Sorry.  The build is so bad it can't even be summarized within the size limit of a Slack message!"))
             postMessage(FVT_SLACK_CHANNEL, messageBlocks, threadId)
+            
