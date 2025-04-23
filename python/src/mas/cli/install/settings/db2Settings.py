@@ -106,7 +106,6 @@ class Db2SettingsMixin():
             # Determine whether to use the system or a dedicated database
             reuseSystemDb2 = False
             if self.installIoT:
-                reuseSystemDb2 = True
                 if not silentMode:
                     reuseSystemDb2 = self.yesOrNo(f"Re-use System Db2 instance for {self.manageAppName} application")
             if reuseSystemDb2:

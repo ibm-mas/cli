@@ -107,7 +107,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         if nextChannel.startswith("9.1") and not verifyAppInstance(self.dynamicClient, instanceId, "manage"):
             self.manageAppName = "Manage foundation"
             self.showAdvancedOptions = False
-            self.installIoT = verifyAppInstance(self.dynamicClient, instanceId, "iot")
+            self.installIoT = False
             self.installManage = True
             self.isManageFoundation = True
             self.printDescription([f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."])
