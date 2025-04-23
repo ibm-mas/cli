@@ -216,6 +216,8 @@ spec:
       type: string
     - name: enhanced_dr
       type: string
+    - name: extensions
+      type: string
 
   tasks:
 
@@ -419,6 +421,8 @@ spec:
           value: $(params.allow_list)
         - name: enhanced_dr
           value: $(params.enhanced_dr)
+        - name: extensions
+          value: $(params.extensions)
       taskRef:
         kind: Task
         name: gitops-suite

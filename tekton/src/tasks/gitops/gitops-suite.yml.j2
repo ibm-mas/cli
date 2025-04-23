@@ -133,6 +133,9 @@ spec:
     - name: enhanced_dr
       type: string
       default: "false"
+    - name: extensions
+      type: string
+      default: "false"
   stepTemplate:
     name: gitops-suite
     env:
@@ -238,6 +241,8 @@ spec:
         value: $(params.enhanced_dr)
       - name: IS_NON_SHARED_CLUSTER
         value: $(params.is_non_shared_cluster)
+      - name: EXTENSIONS
+        value: $(params.extensions)
 
     envFrom:
       - configMapRef:
