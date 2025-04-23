@@ -34,3 +34,9 @@ allow_list: {{ ALLOW_LIST }}
 {% if EXTENSIONS is defined and EXTENSIONS != '' %}
 extensions: {{ EXTENSIONS }}
 {% endif %}
+
+{% if IS_NON_SHARED_CLUSTER is defined and IS_NON_SHARED_CLUSTER == 'true' %}
+{% if ENHANCED_DR is defined and ENHANCED_DR != '' %}
+enhanced_dr: {{ ENHANCED_DR }}
+{% endif %}
+{% endif %}
