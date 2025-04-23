@@ -557,7 +557,6 @@ if __name__ == "__main__":
             version = 0
         else:  
             version = result["products"][product]["version"]
-        version = result["products"][product]["version"]
         tests = 0
         skipped = 0
         errors = 0
