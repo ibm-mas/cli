@@ -13,6 +13,9 @@ spec:
       default: "false"
     - name: cluster_name
       type: string
+    - name: is_non_shared_cluster
+      type: string
+      default: "false"
     - name: account
       type: string
     - name: secrets_path
@@ -127,6 +130,12 @@ spec:
     - name: allow_list
       type: string
       default: ""
+    - name: enhanced_dr
+      type: string
+      default: "false"
+    - name: extensions
+      type: string
+      default: "false"
   stepTemplate:
     name: gitops-suite
     env:
@@ -228,6 +237,12 @@ spec:
 
       - name: ALLOW_LIST
         value: $(params.allow_list)
+      - name: ENHANCED_DR
+        value: $(params.enhanced_dr)
+      - name: IS_NON_SHARED_CLUSTER
+        value: $(params.is_non_shared_cluster)
+      - name: EXTENSIONS
+        value: $(params.extensions)
 
     envFrom:
       - configMapRef:
@@ -265,6 +280,27 @@ spec:
         CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | sed "s/'/\"/g")
         export CUSTOM_LABELS=$(echo "${CUSTOM_LABELS}" | yq --output-format yaml)
         echo " CUSTOM_LABELS = ${CUSTOM_LABELS}"
+
+        # Tekton interprets false (boolean) values as the string ""
+        # The gitops-suite function defaults the following flags to "true" when their value is ""
+        # We'll fix this here by setting these values to "false" explicitly before we call
+        # (these are all required parameters in the pipeline so we don't have to worry about
+        # any impliciations of changing their defaults in this task)
+        if [[ -z "${CIS_ENHANCED_SECURITY}" ]]; then
+          CIS_ENHANCED_SECURITY="false"
+        fi
+        if [[ -z "${OVERRIDE_EDGE_CERTS}" ]]; then
+          OVERRIDE_EDGE_CERTS="false"
+        fi
+        if [[ -z "${CIS_WAF}" ]]; then
+          CIS_WAF="false"
+        fi
+        if [[ -z "${UPDATE_DNS_ENTRIES}" ]]; then
+          UPDATE_DNS_ENTRIES="false"
+        fi
+        if [[ -z "${DELETE_WILDCARDS}" ]]; then
+          DELETE_WILDCARDS="false"
+        fi
 
         sed -n -e 's/^.*api.fvtsaas.//p' | cut -d: -f1
         mkdir -p /tmp/init-suite

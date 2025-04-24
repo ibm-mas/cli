@@ -183,12 +183,12 @@ function provision_aws_interactive() {
 
 }
 
-# The following function is a work in progress and is not ready for testing
-function provision_aws_cluster() {
-  # Take the first parameter off (it will be provision-aws-sno)
-  echo "Before shift the value is: $#"
+
+function provision_aws() {
+  set_default_vars
+
+  # Take the first parameter off (it will be provision-aws)
   shift
-  echo "$#"
   if [[ $# -gt 0 ]]; then
     provision_aws_noninteractive "$@"
   else
@@ -202,10 +202,4 @@ function provision_aws_cluster() {
   OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
   echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
 
-}
-
-
-function provision_aws() {
-  set_default_vars
-  provision_aws_cluster
 }
