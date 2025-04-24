@@ -15,6 +15,8 @@ spec:
   params:
     - name: cluster_name
       type: string
+    - name: is_non_shared_cluster
+      type: string
     - name: account
       type: string
     - name: secrets_path
@@ -209,7 +211,12 @@ spec:
     - name: oidc
       type: string
 
+    # addons
     - name: allow_list
+      type: string
+    - name: enhanced_dr
+      type: string
+    - name: extensions
       type: string
 
     - name: additional_vpn
@@ -319,6 +326,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: is_non_shared_cluster
+          value: $(params.is_non_shared_cluster)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -413,8 +422,12 @@ spec:
           value: $(params.oidc)
         - name: allow_list
           value: $(params.allow_list)
+        - name: enhanced_dr
+          value: $
         - name: additional_vpn
           value: $(params.additional_vpn)
+        - name: extensions
+          value: $(params.extensions)
       taskRef:
         kind: Task
         name: gitops-suite

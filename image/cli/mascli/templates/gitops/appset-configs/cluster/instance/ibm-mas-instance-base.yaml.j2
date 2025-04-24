@@ -34,3 +34,13 @@ allow_list: {{ ALLOW_LIST }}
 {% if ADDITIONAL_VPN is defined and ADDITIONAL_VPN != '' %}
 additional_vpn: {{ ADDITIONAL_VPN }}
 {% endif %}
+
+{% if EXTENSIONS is defined and EXTENSIONS != '' %}
+extensions: {{ EXTENSIONS }}
+{% endif %}
+
+{% if IS_NON_SHARED_CLUSTER is defined and IS_NON_SHARED_CLUSTER == 'true' %}
+{% if ENHANCED_DR is defined and ENHANCED_DR != '' %}
+enhanced_dr: {{ ENHANCED_DR }}
+{% endif %}
+{% endif %}
