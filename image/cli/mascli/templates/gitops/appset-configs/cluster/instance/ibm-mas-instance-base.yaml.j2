@@ -30,3 +30,13 @@ mas_wipe_mongo_data: false
 {% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
 allow_list: {{ ALLOW_LIST }}
 {% endif %}
+
+{% if EXTENSIONS is defined and EXTENSIONS != '' %}
+extensions: {{ EXTENSIONS }}
+{% endif %}
+
+{% if IS_NON_SHARED_CLUSTER is defined and IS_NON_SHARED_CLUSTER == 'true' %}
+{% if ENHANCED_DR is defined and ENHANCED_DR != '' %}
+enhanced_dr: {{ ENHANCED_DR }}
+{% endif %}
+{% endif %}
