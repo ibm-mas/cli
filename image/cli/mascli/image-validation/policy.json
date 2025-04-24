@@ -6,7 +6,7 @@
         {
           "type": "signedBy",
           "keyType": "GPGKeys",
-          "keyPath": "/home/pubkeys/PRD0010163key.pub.asc",
+          "keyPath": "/mascli/image-validation/PRD0010163key.pub.asc",
           "signedIdentity": {
             "type": "remapIdentity",
             "prefix": "cp.icr.io",

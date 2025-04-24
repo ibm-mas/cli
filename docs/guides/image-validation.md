@@ -11,8 +11,25 @@ Install skopeo locally by following the instructions in the document: https://gi
 
 Validating images during image pull:
 -------------------------------------------------------------------------------
-1. Copy the file public key PRD0010163key.pub.asc in the path image/cli/mascli/image-validation/ into local path
-2. Copy the policy.json file in the path image/cli/mascli/image-validation into /etc/containers/
-3. Update the policy.json with the public key path copied in step 1
-4. Validate using skopeo copy to a local temp directory
-skopeo copy docker://cp.icr.io/cpopen/ibm-mas@sha256:c148d5a9ba21009495a9c3fb94a561aab9e31789cadb3b7a2af6e2b4bd2f6f34 dir:/var/lib/docker --src-creds cp:<IBM Entitlement key>
+1. Copy the policy.json file into /etc/containers
+2. Validate using skopeo copy to a local temp directory
+skopeo copy docker://cp.icr.io/cpopen/<image-name>@<digest> dir:/var/lib/docker --src-creds cp:<IBM Entitlement key>
+
+Validate the Chain of Trust:
+-------------------------------------------------------------------------------
+As a Customer on customer env to validate the public key owner is IBM, Customer can compare the certificate to contain the public key. This is once in 2 years when ever they receive new PRD0010163key.pub.asc key from IBM Dev team.
+
+1. openssl x509 -text -in /mascli/image-validation/PRD0010163key.pem.cer 
+
+# shows the certificate details, e.g. it is signed by IBM and Digicert 
+
+2. gpg2 -v --list-packets /mascli/image-validation/PRD0010163key.pub.asc 
+
+# shows the public key details
+
+Customer can check the IBM certificate validity
+-------------------------------------------------------------------------------
+1. openssl ocsp -no_nonce -issuer /mascli/image-validation/PRD0010163key.pem.chain -cert /mascli/image-validation/PRD0010163key.pem.cer -VAfile /mascli/image-validation/PRD0010163key.pem.chain -text -url http://ocsp.digicert.com -respout ocsptest
+
+# If the certificate is valid, the output will be: Response verify OK
+
