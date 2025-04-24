@@ -25,6 +25,7 @@ Cluster Configuration (Required):
 
 Cluster Configuration (Optional):
       --enable-fips                                                   Enable FIPS settings in this Fyre cluster
+      --enable-ipv6                                                   Enable IPV6 settings in this Fyre cluster. When enabled, site will be automatically changed to 'rtp'.
 
 Fyre Quick Burn Worker Node Configuration (Optional, only takes effect when quota-type is set to "quickburn"):
       --cluster-size ${COLOR_YELLOW}FYRE_CLUSTER_SIZE${TEXT_RESET}    When Fyre Quick Burn, defines the size category ("medium" or "large")
@@ -98,6 +99,9 @@ function provision_fyre_noninteractive() {
       --enable-fips)
         OCP_FIPS_ENABLED=true && shift
         ;;
+      --enable-ipv6)
+        ENABLE_IPV6=true && shift
+        ;;
 
       # Worker configuration
       --worker-count)
@@ -153,6 +157,11 @@ function provision_fyre_noninteractive() {
 
   if [[ -z "$FYRE_SITE" ]]; then
     FYRE_SITE=svl
+  fi
+
+  # IPV6 supported only in rtp site
+  if [[ "$ENABLE_IPV6" == "true" ]]; then
+    FYRE_SITE=rtp
   fi
 
   [[ "$FYRE_SITE" != "svl" && "$FYRE_QUOTA_TYPE" == "quick_burn" ]] && provision_fyre_help "Quickburn is only available in svl"
@@ -234,6 +243,7 @@ function provision_fyre_interactive() {
     prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY "32"
     prompt_for_input "Worker Additional Disk Sizes (GB, comma-seperated list)" FYRE_WORKER_ADDITIONAL_DISKS
     prompt_for_confirm "Enable FIPS? " OCP_FIPS_ENABLED
+    prompt_for_confirm "Enable IPV6? " ENABLE_IPV6
   else
     FYRE_QUOTA_TYPE="quick_burn"
     if [[ "$FYRE_SITE" != "svl" ]]; then
@@ -302,6 +312,7 @@ function provision_fyre() {
   export FYRE_WORKER_MEMORY
   export FYRE_WORKER_ADDITIONAL_DISKS
   export OCP_FIPS_ENABLED
+  export ENABLE_IPV6
 
   export FYRE_CLUSTER_SIZE
 
@@ -337,6 +348,7 @@ function provision_fyre() {
     echo_reset_dim "Worker Node Memory ........ ${COLOR_MAGENTA}${FYRE_WORKER_MEMORY:-Default}"
     echo_reset_dim "Worker Node Disks ......... ${COLOR_MAGENTA}${FYRE_WORKER_ADDITIONAL_DISKS:-None}"
     echo_reset_dim "Enable FIPS? .............. ${COLOR_MAGENTA}${OCP_FIPS_ENABLED:-None}"
+    echo_reset_dim "Enable IPV6? .............. ${COLOR_MAGENTA}${ENABLE_IPV6:-None}"
   fi
 
   reset_colors
