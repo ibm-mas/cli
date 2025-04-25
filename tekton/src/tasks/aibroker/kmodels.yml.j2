@@ -47,6 +47,14 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    # Artifactory details
+    - name: mas_icr_cp
+      type: string
+      default: ""
+    - name: mas_icr_cpopen
+      type: string
+      default: ""
+
     # Kmodels details
     - name: mas_aibroker_controller_tag
       type: string
@@ -137,6 +145,12 @@ spec:
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
 
+      # Artifactory Details
+      - name: MAS_ICR_CP
+        value: $(params.mas_icr_cp)
+      - name: MAS_ICR_CPOPEN
+        value: $(params.mas_icr_cpopen)
+        
       # Kmodels details
       - name: MAS_AIBROKER_CONTROLLER_TAG
         value: $(params.mas_aibroker_controller_tag)
