@@ -555,6 +555,7 @@ if __name__ == "__main__":
         if "version" not in productVersion or result["products"][product]["version"] == "":
             print("productVersion is not set")
             version = 0
+            
         else:  
             version = result["products"][product]["version"]
         tests = 0
