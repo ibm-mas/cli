@@ -70,7 +70,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
-          <td>latest</td>
+          <td>13.0.0</td>
           <td>OCP 4.16 EOS December 27, 2025</td>
         </tr>
       </tbody>
