@@ -720,7 +720,7 @@ function gitops_suite() {
 
   # Set Suite Spec additional properties
   # ---------------------------------------------------------------------------
-  echo_h2 "Generating Suite Spec additional properties'
+  echo_h2 "Generating Suite Spec additional properties"
   ls /workspace/shared-gitops-configs
   echo -e "\n Suite spec yaml - ${SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML}"
   echo -e "\n Display yaml file content"
