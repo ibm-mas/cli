@@ -119,6 +119,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.setParam("should_install_manage_foundation", "true")
             self.setParam("is_full_manage", "false")
             self.setParam("mas_appws_components", "")
+            self.setParam("mas_app_settings_aio_flag", "false")
             self.setParam("mas_app_channel_manage", nextChannel)
             self.setParam("mas_workspace_id", getWorkspaceId(self.dynamicClient, instanceId))
             # It has been decided that we don't need to ask for any specific Manage Settings
