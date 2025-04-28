@@ -70,6 +70,9 @@ class InstallSummarizerMixin():
             elif self.getParam('dns_provider') == "":
                 pass
 
+        print()
+        self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
+
         if self.getParam("mas_manual_cert_mgmt") != "":
             print()
             self.printSummary("Manual Certificates", self.manualCertsDir)
