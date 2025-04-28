@@ -46,6 +46,10 @@ spec:
         value: $(params.country)
       - name: ICN
         value: $(params.icn)
+
+      - name: SUBSCRIPTION_ID
+        value: $(params.subscription_id)
+
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -57,11 +61,21 @@ spec:
       - |-
         ansible-playbook ibm.mas_saas.generate_saas_license_file || exit 1
 
-        mas gitops-license \
-          -a $ACCOUNT \
-          -c $CLUSTER_NAME \
-          -m $MAS_INSTANCE_ID \
-          --license-file /tmp/authorized_entitlement_saas.lic
+        if [[ -z "${MAS_INSTANCE_ID}" ]]; then
+          mas gitops-license \
+            -a ${ACCOUNT} \
+            -i ${ICN} \
+            -s ${SUBSCRIPTION_ID} \
+            --license-file /tmp/authorized_entitlement_saas.lic
+          exit $?
+        else
+          mas gitops-license \
+            -a ${ACCOUNT} \
+            -c ${CLUSTER_NAME} \
+            -m ${MAS_INSTANCE_ID} \
+            --license-file /tmp/authorized_entitlement_saas.lic     
+          exit $?
+        fi
 
         exit $?
       command:
