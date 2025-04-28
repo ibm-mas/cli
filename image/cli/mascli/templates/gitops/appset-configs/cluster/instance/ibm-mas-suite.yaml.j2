@@ -86,3 +86,8 @@ ibm_mas_suite:
 {% if ALLOW_LIST is defined and ALLOW_LIST != '' %}
   allow_list: {{ALLOW_LIST}}
 {% endif %}
+
+{% if SUITE_SPEC_ADDITIONAL_PROPERTIES is defined and SUITE_SPEC_ADDITIONAL_PROPERTIES != '' %}
+suite_spec_additional_properties:
+  {{ SUITE_SPEC_ADDITIONAL_PROPERTIES | indent(2) }}
+{% endif %}
