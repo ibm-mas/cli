@@ -720,8 +720,10 @@ function gitops_suite() {
 
   # Set Suite Spec additional properties
   # ---------------------------------------------------------------------------
+  ls /workspace/shared-gitops-configs
+  cat $SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML
   if [[ -n "$SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML" && -s "$SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML" ]]; then
-    export SUITE_SPEC_ADDITIONAL_PROPERTIES=$(yq eval '.podTemplates' ${SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML})
+    export SUITE_SPEC_ADDITIONAL_PROPERTIES=$(yq eval ${SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML})
     echo -e "\n - SUITE_SPEC_ADDITIONAL_PROPERTIES CONTENT ............... ${SUITE_SPEC_ADDITIONAL_PROPERTIES}"
   fi
 
