@@ -104,6 +104,7 @@ optionalParams = [
     "cpd_install_wml",
     "cpd_install_ae",
     # Kafka
+    "kafka_provider",
     "kafka_namespace",
     "kafka_version",
     "aws_msk_instance_type",
@@ -114,9 +115,9 @@ optionalParams = [
     "aws_msk_cidr_az3",
     "aws_msk_egress_cidr",
     "aws_msk_ingress_cidr",
-    "eventstreams_resource_group",
-    "eventstreams_instance_name",
-    "eventstreams_instance_location",
+    "eventstreams_resourcegroup",
+    "eventstreams_name",
+    "eventstreams_location",
     # COS
     "cos_type",
     "cos_resourcegroup",
