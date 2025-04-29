@@ -200,7 +200,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
-        if self.architecture == "s390x":
+        if self.architecture == "s390x"  or self.architecture == "ppc64le":
             summary = [
                 "",
                 "<u>Catalog Details</u>",
@@ -326,7 +326,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configGrafana(self) -> None:
-        if self.architecture == "s390x":
+        if self.architecture == "s390x" or self.architecture == "ppc64le":
             # We are not supporting Grafana on s390x at the moment
             self.setParam("grafana_action", "none")
         else:
