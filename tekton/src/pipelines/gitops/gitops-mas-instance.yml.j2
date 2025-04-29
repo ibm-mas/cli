@@ -218,6 +218,8 @@ spec:
       type: string
     - name: extensions
       type: string
+    - name: additional_vpn
+      type: string
 
   tasks:
 
@@ -421,6 +423,8 @@ spec:
           value: $(params.allow_list)
         - name: enhanced_dr
           value: $(params.enhanced_dr)
+        - name: additional_vpn
+          value: $(params.additional_vpn)
         - name: extensions
           value: $(params.extensions)
       taskRef:

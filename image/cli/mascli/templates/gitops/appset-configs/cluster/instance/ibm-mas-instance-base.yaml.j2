@@ -31,6 +31,10 @@ mas_wipe_mongo_data: false
 allow_list: {{ ALLOW_LIST }}
 {% endif %}
 
+{% if ADDITIONAL_VPN is defined and ADDITIONAL_VPN != '' %}
+additional_vpn: {{ ADDITIONAL_VPN }}
+{% endif %}
+
 {% if EXTENSIONS is defined and EXTENSIONS != '' %}
 extensions: {{ EXTENSIONS }}
 {% endif %}
