@@ -200,7 +200,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
-        if self.architecture == "s390x"  or self.architecture == "ppc64le":
+        if self.architecture == "s390x" or self.architecture == "ppc64le":
             summary = [
                 "",
                 "<u>Catalog Details</u>",
