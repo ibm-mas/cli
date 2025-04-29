@@ -823,9 +823,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Dependencies
         self.configMongoDb()
-        # If Manage Foundation is going to be installed and IoT is not going to be installed, try to configure DB2 in silent mode
-        # to avoid bothering the user with DB2 settings when the user did not want to install IoT nor Manage (but Manage Foundation needs to be installed anyway)
-        self.configDb2(silentMode=self.isManageFoundation and not self.installIoT)
+        self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
 
         self.configGrafana()
