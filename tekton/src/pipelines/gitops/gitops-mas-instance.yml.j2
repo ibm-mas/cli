@@ -186,6 +186,9 @@ spec:
     - name: suite_spec_additional_properties_yaml
       type: string
       default: ""
+    - name: suite_spec_settings_additional_properties_yaml
+      type: string
+      default: ""
 
     - name: db2_channel
       type: string
@@ -422,6 +425,8 @@ spec:
           value: $(params.mas_wipe_mongo_data)
         - name: suite_spec_additional_properties_yaml
           value: $(params.suite_spec_additional_properties_yaml)
+        - name: suite_spec_settings_additional_properties_yaml
+          value: $(params.suite_spec_settings_additional_properties_yaml)
         - name: oidc
           value: $(params.oidc)
         - name: allow_list

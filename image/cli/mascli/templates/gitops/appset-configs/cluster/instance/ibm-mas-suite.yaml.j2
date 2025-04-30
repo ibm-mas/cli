@@ -91,3 +91,8 @@ ibm_mas_suite:
   suite_spec_additional_properties:
     {{ SUITE_SPEC_ADDITIONAL_PROPERTIES | indent(4) }}
 {% endif %}
+
+{% if SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES is defined and SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES != '' %}
+  suite_spec_settings_additional_properties:
+    {{ SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES | indent(4) }}
+{% endif %}
