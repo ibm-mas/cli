@@ -19,55 +19,59 @@ Validating images during image pull:
 ------------------------------------
 - Inside MAS CLI container images can be validated using skopeo command by specifying the policy file.
 
-```bash
-skopeo copy --policy ~/policy.json docker://cp.icr.io/cpopen/image-name@sha256:abc123... dir:/var/lib/docker --src-creds cp:<IBM Entitlement key>
-```
+    ```bash
+    skopeo copy --policy ~/policy.json docker://cp.icr.io/cp/mas/image-name@sha256:abc123... dir:/var/lib/docker --src-creds cp:<IBM Entitlement key>
+    ```
 
-Here’s an example of validating using skopeo copy to a local temp directory in Mas CLI:
+    Here’s an example of validating using skopeo copy to a local temp directory in Mas CLI:
 
-[ibmmas/cli:13.18.0-pre.imagevalidation]mascli$ skopeo copy --policy ~/policy.json docker://cp.icr.io/cp/mas/coreapi@sha256:99a8066af64a298a14364b217fa36add2e607e7aba88c81ae4c5ef5b0e94d8e6 dir:/var/lib/docker --src-creds cp:<IBM Entitlement Key>
+    [ibmmas/cli:13.18.0-pre.imagevalidation]mascli$ skopeo copy --policy ~/policy.json docker://cp.icr.io/cp/mas/coreapi@sha256:99a8066af64a298a14364b217fa36add2e607e7aba88c81ae4c5ef5b0e94d8e6 dir:/var/lib/docker --src-creds cp:<IBM Entitlement Key>
 
-Getting image source signatures
+    Getting image source signatures
 
-Checking if image destination supports signatures
+    Checking if image destination supports signatures
 
-Copying blob d849bfe684ef done   | 
+    Copying blob d849bfe684ef done   | 
 
-Copying blob 2923e04ba5db done   | 
+    Copying blob 2923e04ba5db done   | 
 
-Copying blob 318ff0aed3a3 done   | 
+    Copying blob 318ff0aed3a3 done   | 
 
-Copying config bb4a868cff done   | 
+    Copying config bb4a868cff done   | 
 
-Writing manifest to image destination
+    Writing manifest to image destination
 
-Storing signatures
+    Storing signatures
 
 - Images can be validated outside CLI container using the podman and the user would need to provide the policy.json file in one of the paths ($HOME/.config/containers/policy.json or /etc/containers/policy.json)
+    
+    ```bash
+    podman pull cp.icr.io/cp/mas/image-name@sha256:abc123...
+    ```
 
-Here’s an example of validating image using podman pull outside MAS CLI:
+    Here’s an example of validating image using podman pull outside MAS CLI:
 
-podman pull cp.icr.io/cp/mas/coreapi@sha256:99a8066af64a298a14364b217fa36add2e607e7aba88c81ae4c5ef5b0e94d8e6
+    podman pull cp.icr.io/cp/mas/coreapi@sha256:99a8066af64a298a14364b217fa36add2e607e7aba88c81ae4c5ef5b0e94d8e6
 
-Trying to pull cp.icr.io/cp/mas/coreapi@sha256:99a8066af64a298a14364b217fa36add2e607e7aba88c81ae4c5ef5b0e94d8e6...
+    Trying to pull cp.icr.io/cp/mas/coreapi@sha256:99a8066af64a298a14364b217fa36add2e607e7aba88c81ae4c5ef5b0e94d8e6...
 
-Getting image source signatures
+    Getting image source signatures
 
-Checking if image destination supports signatures
+    Checking if image destination supports signatures
 
-Copying blob sha256:d849bfe684ef268bbed3ffbad07ba1e7ade6311d96ab4a3f4124ad33ba629227
+    Copying blob sha256:d849bfe684ef268bbed3ffbad07ba1e7ade6311d96ab4a3f4124ad33ba629227
 
-Copying blob sha256:318ff0aed3a36bed3edfb9dbbb1a01b7840c46c805be3dc9276856299aabea2c
+    Copying blob sha256:318ff0aed3a36bed3edfb9dbbb1a01b7840c46c805be3dc9276856299aabea2c
 
-Copying blob sha256:2923e04ba5db0463883fd4d8138b8b5ae3286fc51a95d9fe5a86effe9bd128af
+    Copying blob sha256:2923e04ba5db0463883fd4d8138b8b5ae3286fc51a95d9fe5a86effe9bd128af
 
-Copying config sha256:bb4a868cffc9e2e1a77e56eeb9a5427e5c4ec1d56315a002eae2e49c81c79afe
+    Copying config sha256:bb4a868cffc9e2e1a77e56eeb9a5427e5c4ec1d56315a002eae2e49c81c79afe
 
-Writing manifest to image destination
+    Writing manifest to image destination
 
-Storing signatures
+    Storing signatures
 
-bb4a868cffc9e2e1a77e56eeb9a5427e5c4ec1d56315a002eae2e49c81c79afe
+    bb4a868cffc9e2e1a77e56eeb9a5427e5c4ec1d56315a002eae2e49c81c79afe
 
 Validate the Chain of Trust for the MAS Signing Certificate:
 ------------------------------------------------------------
