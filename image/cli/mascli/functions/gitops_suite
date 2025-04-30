@@ -721,11 +721,6 @@ function gitops_suite() {
   # Set Suite Spec additional properties
   # ---------------------------------------------------------------------------
   echo_h2 "Generating Suite Spec additional properties"
-  ls /workspace/shared-gitops-configs
-  echo -e "\n Suite spec yaml - ${SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML}"
-  echo -e "\n Display yaml file content"
-  cat ${SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML}
-  echo -e "\n Done "
   if [[ -n "$SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML" && -s "$SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML" ]]; then
     export SUITE_SPEC_ADDITIONAL_PROPERTIES=$(yq eval ${SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML})
     echo -e "\n - SUITE_SPEC_ADDITIONAL_PROPERTIES CONTENT ............... ${SUITE_SPEC_ADDITIONAL_PROPERTIES}"
