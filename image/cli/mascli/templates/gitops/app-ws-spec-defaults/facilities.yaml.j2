@@ -2,7 +2,8 @@ mas_appws_spec:
   bindings:
     jdbc: workspace-application
   settings:
-    size: small
+    deployment:
+      size: small
     routes:
       timeout: 600s
     storage:
@@ -14,6 +15,6 @@ mas_appws_spec:
         class: {{ DEFAULT_FILE_STORAGE_CLASS }}
         mode: ReadWriteMany
         size: 50
-    wfagents: []
+    dwfagents: []
     db:
       maxconnpoolsize: 100
