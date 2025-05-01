@@ -1017,6 +1017,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("mas_manual_cert_mgmt", False)
                     self.manualCertsDir = None
 
+            elif key == "enable_ipv6":
+                self.setParam("enable_ipv6", True)
+
             # Fail if there's any arguments we don't know how to handle
             else:
                 print(f"Unknown option: {key} {value}")

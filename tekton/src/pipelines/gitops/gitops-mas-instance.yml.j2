@@ -15,6 +15,8 @@ spec:
   params:
     - name: cluster_name
       type: string
+    - name: is_non_shared_cluster
+      type: string
     - name: account
       type: string
     - name: secrets_path
@@ -181,6 +183,12 @@ spec:
     - name: mas_smtpcfg_pod_template_yaml
       type: string
       default: ""
+    - name: suite_spec_additional_properties_yaml
+      type: string
+      default: ""
+    - name: suite_spec_settings_additional_properties_yaml
+      type: string
+      default: ""
 
     - name: db2_channel
       type: string
@@ -209,7 +217,14 @@ spec:
     - name: oidc
       type: string
 
+    # addons
     - name: allow_list
+      type: string
+    - name: enhanced_dr
+      type: string
+    - name: extensions
+      type: string
+    - name: additional_vpn
       type: string
 
   tasks:
@@ -316,6 +331,8 @@ spec:
       params:
         - name: cluster_name
           value: $(params.cluster_name)
+        - name: is_non_shared_cluster
+          value: $(params.is_non_shared_cluster)
         - name: account
           value: $(params.account)
         - name: secrets_path
@@ -406,10 +423,20 @@ spec:
           value: $(params.mas_pod_template_yaml)
         - name: mas_wipe_mongo_data
           value: $(params.mas_wipe_mongo_data)
+        - name: suite_spec_additional_properties_yaml
+          value: $(params.suite_spec_additional_properties_yaml)
+        - name: suite_spec_settings_additional_properties_yaml
+          value: $(params.suite_spec_settings_additional_properties_yaml)
         - name: oidc
           value: $(params.oidc)
         - name: allow_list
           value: $(params.allow_list)
+        - name: enhanced_dr
+          value: $(params.enhanced_dr)
+        - name: additional_vpn
+          value: $(params.additional_vpn)
+        - name: extensions
+          value: $(params.extensions)
       taskRef:
         kind: Task
         name: gitops-suite
