@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Image Validation - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css" />
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+    html.glightbox-open { overflow: initial; height: 100%; }
+    .gslide-title { margin-top: 0px; user-select: text; }
+    .gslide-desc { color: #666; user-select: text; }
+    .gslide-image img { background: black; }</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+
+  <body>
+    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item  target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/guides/image-validation.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+
+    </cds-header>
+
+    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
+      <cds-side-nav-items>
+        
+          
+  <cds-side-nav-menu title="Guides" active expanded>
+    
+      
+  <cds-side-nav-menu-item href="../image-mirroring/" >
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="./" active expanded>
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../install/" >
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../update/" >
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../upgrade/" >
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/" >
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Examples" >
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/" >
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/" >
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/" >
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Command Reference" >
+    
+      
+  <cds-side-nav-menu-item href="../../commands/update/" >
+    update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/upgrade/" >
+    upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/uninstall/" >
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/must-gather/" >
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configure-airgap/" >
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/mirror-redhat-images/" >
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/setup-registry/" >
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/teardown-registry/" >
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-fyre/" >
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-roks/" >
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-rosa/" >
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configtool-oidc/" >
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Operator Catalogs" >
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/" >
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-250403-amd64/" >
+    Apr 03 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-250306-amd64/" >
+    Mar 06 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-250206-amd64/" >
+    Feb 06 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-250109-amd64/" >
+    Jan 09 2025
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Reference" >
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/" >
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/" >
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/" >
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+      </cds-side-nav-items>
+    </cds-side-nav>
+
+    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+      <cds-breadcrumb-item>Guides</cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-breadcrumb-link href="#image-validation">Image Validation</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item>
+    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#preparation">Preparation</cds-select-item>
+    
+      <cds-select-item value="#validating-images-during-image-pull">Validating images during image pull:</cds-select-item>
+    
+      <cds-select-item value="#validate-the-chain-of-trust-for-the-mas-signing-certificate">Validate the Chain of Trust for the MAS Signing Certificate:</cds-select-item>
+    
+      <cds-select-item value="#verify-the-validity-of-the-mas-container-signing-certificate">Verify the Validity of the MAS Container Signing Certificate:</cds-select-item>
+    
+  </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+    </div>
+
+    <div id="main-content" class="rst-content">
+      
+      <h1 id="image-validation">Image Validation<a class="headerlink" href="#image-validation" title="Permanent link">¤</a></h1>
+<p>MAS container images are digitally signed, and their signatures can be verified using the MAS public key. The private key is used to generate the signature, while the corresponding public key enables anyone to validate the signature, ensuring both the integrity and authenticity of the content. To begin the verification process, the customer must have the following items:</p>
+<ul>
+<li><a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/image-validation/PRD0010163key.pub.asc">PRD0010163key.pub.asc</a> - the MAS public key that should be used to validate image signatures</li>
+<li><a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/image-validation/PRD0010163key.pem.cer">PRD0010163key.pem.cer</a> - the MAS public certificate associated with the public key </li>
+<li><a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/image-validation/PRD0010163key.pem.chain">PRD0010163key.pem.chain</a> - a certificate chain that may be used to validate the MAS public certificate is authentic</li>
+</ul>
+<p>Tools such as <a href="https://github.com/containers/skopeo">skopeo</a>, <a href="https://podman.io/">podman</a> and <a href="https://github.com/containers/image/blob/main/docs/containers-policy.json.5.md">signature verification policy files</a> may be used to help with MAS container signature validation.</p>
+<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¤</a></h2>
+<h3 id="ibm-entitlement-key">IBM Entitlement Key<a class="headerlink" href="#ibm-entitlement-key" title="Permanent link">¤</a></h3>
+<p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
+<h2 id="validating-images-during-image-pull">Validating images during image pull:<a class="headerlink" href="#validating-images-during-image-pull" title="Permanent link">¤</a></h2>
+<p>The <a href="https://github.com/containers/skopeo">skopeo</a> CLI  can be used in combination with a <a href="https://github.com/containers/image/blob/main/docs/containers-policy.json.5.md">signature verification policy file</a> to validate MAS container signatures:</p>
+<pre><code class="language-bash">skopeo copy --policy ~/policy.json docker://cp.icr.io/cp/mas/image-name@sha256:abc123... dir:/var/lib/docker --src-creds cp:&lt;IBM Entitlement key&gt;
+</code></pre>
+<p>A sample <a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/image-validation/policy.json">policy.json</a> has been provided as a convenience and should be used as a guide when creating signature verification policy files that will be used to validate MAS container images. </p>
+<p>The following is an example of how to validate MAS container signatures using a container image name and digest. To emphasize the <code>skopeo</code> CLI and the <code>policy.json</code> file are built into the MAS CLI container. </p>
+<pre><code class="language-bash">[ibmmas/cli:13.18.0]mascli$ skopeo copy --policy ~/policy.json docker://cp.icr.io/cp/mas coreapi@sha256:99a8066af64a298a14364b217fa36add2e607e7aba88c81ae4c5ef5b0e94d8e6 dir:/var/lib/docker --src-creds cp:&lt;IBM Entitlement Key&gt;
+
+ Getting image source signatures
+ Checking if image destination supports signatures
+ Copying blob d849bfe684ef done   | 
+ Copying blob 2923e04ba5db done   | 
+ Copying blob 318ff0aed3a3 done   | 
+ Copying config bb4a868cff done   | 
+ Writing manifest to image destination
+ Storing signatures
+</code></pre>
+<p>Images can be validated outside MAS CLI container using podman and an applicable policy.json file in one of the paths ($HOME/.config/containers/policy.json or /etc/containers/policy.json)</p>
+<p><code>bash
+ podman pull cp.icr.io/cp/mas/image-name@sha256:abc123...</code></p>
+<p>A more detailed example is:</p>
+<pre><code class="language-bash"> podman pull cp.icr.io/cp/mas/coreapi@sha256:99a8066af64a298a14364b217fa36add2e607e7aba88c81ae4c5ef5b0e94d8e6
+
+ Trying to pull cp.icr.io/cp/mas/coreapi@sha256:99a8066af64a298a14364b217fa36add2e607e7aba88c81ae4c5ef5b0e94d8e6...
+ Getting image source signatures
+ Checking if image destination supports signatures
+ Copying blob sha256:d849bfe684ef268bbed3ffbad07ba1e7ade6311d96ab4a3f4124ad33ba629227
+ Copying blob sha256:318ff0aed3a36bed3edfb9dbbb1a01b7840c46c805be3dc9276856299aabea2c
+ Copying blob sha256:2923e04ba5db0463883fd4d8138b8b5ae3286fc51a95d9fe5a86effe9bd128af
+ Copying config sha256:bb4a868cffc9e2e1a77e56eeb9a5427e5c4ec1d56315a002eae2e49c81c79afe
+ Writing manifest to image destination
+ Storing signatures
+ bb4a868cffc9e2e1a77e56eeb9a5427e5c4ec1d56315a002eae2e49c81c79afe
+</code></pre>
+<h2 id="validate-the-chain-of-trust-for-the-mas-signing-certificate">Validate the Chain of Trust for the MAS Signing Certificate:<a class="headerlink" href="#validate-the-chain-of-trust-for-the-mas-signing-certificate" title="Permanent link">¤</a></h2>
+<p>To validate the public key owner is IBM, examine the certificate and ensure it contains the public key.  The MAS signing certificate is renewed every two years.</p>
+<pre><code class="language-bash">openssl x509 -text -in /mascli/image-validation/PRD0010163key.pem.cer  # shows the certificate details, e.g. it is signed by IBM and Digicert 
+
+gpg2 -v --list-packets /mascli/image-validation/PRD0010163key.pub.asc  # shows the public key details
+</code></pre>
+<h2 id="verify-the-validity-of-the-mas-container-signing-certificate">Verify the Validity of the MAS Container Signing Certificate:<a class="headerlink" href="#verify-the-validity-of-the-mas-container-signing-certificate" title="Permanent link">¤</a></h2>
+<pre><code class="language-bash">openssl ocsp -no_nonce -issuer /mascli/image-validation/PRD0010163key.pem.chain -cert /mascli/image-validation/PRD0010163key.pem.cer -VAfile /mascli/image-validation/PRD0010163key.pem.chain -text -url http://ocsp.digicert.com -respout ocsptest
+</code></pre>
+<p>If the certificate is valid, the output will be: Response verify OK</p>
+      
+    </div>
+    <!-- <div id="footer" class="rst-content">
+      Built with mkdocs v1.6.1 (2025-05-02 08:20:15.831589+00:00)
+    </div> -->
+  <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body>
+</html>
