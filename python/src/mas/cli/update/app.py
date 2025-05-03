@@ -242,13 +242,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Apr 03 2025 Update (MAS 9.0.10, 8.11.21, &amp; 8.10.24)",
-            "  2) Mar 06 2025 Update (MAS 9.0.9, 8.11.20, &amp; 8.10.23)",
-            "  3) Feb 06 2025 Update (MAS 9.0.8, 8.11.19, &amp; 8.10.22)",
+            "  1) May 01 2025 Update (MAS 9.0.11, 8.11.22, &amp; 8.10.25)",
+            "  2) Apr 03 2025 Update (MAS 9.0.10, 8.11.21, &amp; 8.10.24)",
+            "  3) Mar 06 2025 Update (MAS 9.0.9, 8.11.20, &amp; 8.10.23)",
         ])
 
         catalogOptions = [
-            "v9-250403-amd64", "v9-250306-amd64", "v9-250206-amd64",
+            "v9-250501-amd64", "v9-250403-amd64", "v9-250306-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -362,6 +362,7 @@ class UpdateApp(BaseApp):
                         "v9-250206-amd64": "7.0.12",
                         "v9-250306-amd64": "7.0.12",
                         "v9-250403-amd64": "7.0.12",
+                        "v9-250501-amd64": "7.0.12",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -494,7 +495,8 @@ class UpdateApp(BaseApp):
             "v9-250109-amd64": "5.0.0",
             "v9-250206-amd64": "5.0.0",
             "v9-250306-amd64": "5.0.0",
-            "v9-250403-amd64": "5.0.0"
+            "v9-250403-amd64": "5.0.0",
+            "v9-250501-amd64": "5.1.0",
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
@@ -552,6 +554,21 @@ class UpdateApp(BaseApp):
                             cpdBlockStorage = cpds[0]["spec"]["blockStorageClass"]
                         else:
                             self.fatalError("Unable to determine the block storage class used in IBM Cloud Pak for Data")
+
+                        # If running 5.0.x and trying to upgrade to 5.1.0 and ElasticSearch is installed and it is at
+                        # version 2.18.x then we cannot do the upgrade
+                        if (currentCpdVersionMajorMinor == "5.0" and cpdTargetVersion == "5.1.0"):
+                            # get all the statefulsets in the cpd instance namespace that are owned by an Elastic search cluster
+                            statefulsetAPI = self.dynamicClient.resources.get(api_version="apps/v1", kind="StatefulSet")
+                            statefulsets = statefulsetAPI.get().to_dict()["items"]
+                            namespaced = [item for item in statefulsets if item.get("metadata").get("namespace") == cpdInstanceNamespace]
+                            owned = [item for item in namespaced if "ownerReferences" in item.get("metadata") and any(ref.get("kind") == "ElasticsearchCluster" for ref in item.get("metadata").get("ownerReferences"))]
+
+                            # if any images for the pods contain "opencontent-opensearch-2.18" then we can't proceed with the upgrade
+                            specs = [obj["spec"]["template"]["spec"] for obj in owned]
+                            containers = [container for obj in specs for container in obj.get("containers", [])]
+                            if any("opencontent-opensearch-2.18" in container.get("image") for container in containers):
+                                self.fatalError("Unable to update IBM Cloud Pak for Data 5.1.0 on this cluster - Please contact IBM support for assistance")
 
                         # Set the desired storage classes (the same ones already in use)
                         self.setParam("storage_class_rwx", cpdFileStorage)
