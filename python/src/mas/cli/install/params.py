@@ -114,9 +114,9 @@ optionalParams = [
     "aws_msk_cidr_az3",
     "aws_msk_egress_cidr",
     "aws_msk_ingress_cidr",
-    "eventstreams_resource_group"
-    "eventstreams_instance_name"
-    "eventstreams_instance_location"
+    "eventstreams_resource_group",
+    "eventstreams_instance_name",
+    "eventstreams_instance_location",
     # COS
     "cos_type",
     "cos_resourcegroup",

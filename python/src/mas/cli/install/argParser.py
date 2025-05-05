@@ -966,12 +966,12 @@ eventstreamsArgGroup.add_argument(
 eventstreamsArgGroup.add_argument(
     "--eventstreams-instance-name",
     required=False,
-    help="Set IBM Event Streams name"
+    help="Set IBM Event Streams instance name"
 )
 eventstreamsArgGroup.add_argument(
     "--eventstreams-instance-location",
     required=False,
-    help="Set IBM Event Streams location"
+    help="Set IBM Event Streams instance location"
 )
 
 # COS
