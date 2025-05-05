@@ -242,13 +242,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Apr 03 2025 Update (MAS 9.0.10, 8.11.21, &amp; 8.10.24)",
-            "  2) Mar 06 2025 Update (MAS 9.0.9, 8.11.20, &amp; 8.10.23)",
-            "  3) Feb 06 2025 Update (MAS 9.0.8, 8.11.19, &amp; 8.10.22)",
+            "  1) May 01 2025 Update (MAS 9.0.11, 8.11.22, &amp; 8.10.25)",
+            "  2) Apr 03 2025 Update (MAS 9.0.10, 8.11.21, &amp; 8.10.24)",
+            "  3) Mar 06 2025 Update (MAS 9.0.9, 8.11.20, &amp; 8.10.23)",
         ])
 
         catalogOptions = [
-            "v9-250403-amd64", "v9-250306-amd64", "v9-250206-amd64",
+            "v9-250501-amd64", "v9-250403-amd64", "v9-250306-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -362,6 +362,7 @@ class UpdateApp(BaseApp):
                         "v9-250206-amd64": "7.0.12",
                         "v9-250306-amd64": "7.0.12",
                         "v9-250403-amd64": "7.0.12",
+                        "v9-250501-amd64": "7.0.12",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -494,7 +495,8 @@ class UpdateApp(BaseApp):
             "v9-250109-amd64": "5.0.0",
             "v9-250206-amd64": "5.0.0",
             "v9-250306-amd64": "5.0.0",
-            "v9-250403-amd64": "5.0.0"
+            "v9-250403-amd64": "5.0.0",
+            "v9-250501-amd64": "5.0.0",
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
