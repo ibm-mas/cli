@@ -240,6 +240,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-250501-amd64/" >
+    May 01 2025
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-250403-amd64/" >
     Apr 03 2025
   </cds-side-nav-menu-item>
@@ -254,12 +260,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-250206-amd64/" >
     Feb 06 2025
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-250109-amd64/" >
-    Jan 09 2025
   </cds-side-nav-menu-item>
 
     
@@ -447,7 +447,7 @@
 </code></pre>
 <h2 id="interactive-install">Interactive Install<a class="headerlink" href="#interactive-install" title="Permanent link">¤</a></h2>
 <p>Regardless of whether you are running a connected or disconnected installation, simply run the <code>mas install</code> command and follow the prompts, the basic structure of the interactive flow is described below.  We will need the <code>entitlement.lic</code> file to perform the installation so we will mount your home directory into the running container.  When prompted you will be able to set license file to <code>/mnt/home/entitlement.lic</code></p>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:13.10.0 mas install
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:13.20.0 mas install
 </code></pre>
 <p>The interactive install will guide you through a series of questioned designed to help you arrive at the best configuration for your scenario, it can be broken down as below:</p>
 <div>
@@ -526,10 +526,10 @@
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=xxx
 SUPERUSER_PASSWORD=xxx
 
-docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:13.10.0  bash -c &quot;
+docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:13.20.0  bash -c &quot;
   oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
   mas install \
-    --mas-catalog-version v9-250306-amd64 \
+    --mas-catalog-version v9-250501-amd64 \
     --mas-instance-id mas1 \
     --mas-workspace-id ws1 \
     --mas-workspace-name &quot;My Workspace&quot;
@@ -597,7 +597,7 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-05-02 08:20:15.833217+00:00)
+      Built with mkdocs v1.6.1 (2025-05-05 11:28:28.892759+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>

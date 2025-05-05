@@ -240,6 +240,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-250501-amd64/" >
+    May 01 2025
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-250403-amd64/" >
     Apr 03 2025
   </cds-side-nav-menu-item>
@@ -254,12 +260,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-250206-amd64/" >
     Feb 06 2025
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-250109-amd64/" >
-    Jan 09 2025
   </cds-side-nav-menu-item>
 
     
@@ -363,9 +363,9 @@ echo $INSTALL_TOKEN
 oc login --token $INSTALL_TOKEN --server $SERVER
 
 # Install MAS (using IBMCloud storage classes)
-docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:13.10.0 bash -c &quot;
+docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:13.20.0 bash -c &quot;
   oc login --token $INSTALL_TOKEN --server=$SERVER &amp;&amp;
-  mas install --mas-catalog-version v9-250306-amd64 --ibm-entitlement-key $IBM_ENTITLEMENT_KEY \
+  mas install --mas-catalog-version v9-250501-amd64 --ibm-entitlement-key $IBM_ENTITLEMENT_KEY \
     --mas-channel 9.0.x --mas-instance-id ${MAS_INSTANCE_ID} --mas-workspace-id masdev --mas-workspace-name &quot;My Workspace&quot; \
     --storage-class-rwo &quot;ibmc-block-gold&quot; --storage-class-rwx &quot;ibmc-file-gold-gid&quot; \
     --storage-pipeline &quot;ibmc-file-gold-gid&quot; --storage-accessmode &quot;ReadWriteMany&quot; \
@@ -384,7 +384,7 @@ oc auth can-i --list --as=system:serviceaccount:mas-${MAS_INSTANCE_ID}-pipelines
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-05-02 08:20:15.824754+00:00)
+      Built with mkdocs v1.6.1 (2025-05-05 11:28:28.884303+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
