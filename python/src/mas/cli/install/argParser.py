@@ -960,16 +960,19 @@ mskArgGroup.add_argument(
 eventstreamsArgGroup = installArgParser.add_argument_group("Kafka - Event Streams")
 eventstreamsArgGroup.add_argument(
     "--eventstreams-resource-group",
+    dest="eventstreams_resource_group",
     required=False,
     help="Set IBM Cloud resource group to target the Event Streams instance provisioning"
 )
 eventstreamsArgGroup.add_argument(
     "--eventstreams-instance-name",
+    dest="eventstreams_instance_name",
     required=False,
     help="Set IBM Event Streams instance name"
 )
 eventstreamsArgGroup.add_argument(
     "--eventstreams-instance-location",
+    dest="eventstreams_instance_location",
     required=False,
     help="Set IBM Event Streams instance location"
 )
