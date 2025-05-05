@@ -22,6 +22,10 @@
       value: $(params.mas_aibroker_db_secret_value)
     - name: mas_aibroker_db_database
       value: $(params.mas_aibroker_db_database)
+    - name: mariadb_user
+      value: $(params.mariadb_user)
+    - name: mariadb_password
+      value: $(params.mariadb_password)
 
   taskRef:
     name: mas-devops-mariadb

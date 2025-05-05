@@ -22,6 +22,10 @@
       value: $(params.mas_aibroker_storage_accesskey)
     - name: mas_aibroker_storage_secretkey
       value: $(params.mas_aibroker_storage_secretkey)
+    - name: minio_root_user
+      value: $(params.minio_root_user)
+    - name: minio_root_password
+      value: $(params.minio_root_password)
       
   taskRef:
     name: mas-devops-minio

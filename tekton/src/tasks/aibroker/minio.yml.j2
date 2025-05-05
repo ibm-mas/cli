@@ -27,11 +27,11 @@ spec:
       description: Instance ID
     
     # Minio credentials
-    - name: mas_aibroker_storage_accesskey
+    - name: minio_root_user
       type: string
-      description: S3/Minio storage access key for IBM Maximo AI Broker
+      description: root user for minio
       default: ""
-    - name: mas_aibroker_storage_secretkey
+    - name: minio_root_password
       type: string
 
   stepTemplate:
@@ -59,10 +59,10 @@ spec:
         value: minio
 
       - name: MINIO_ROOT_USER
-        value: $(params.mas_aibroker_storage_accesskey)
+        value: $(params.minio_root_user)
 
       - name: MINIO_ROOT_PASSWORD
-        value: $(params.mas_aibroker_storage_secretkey)
+        value: $(params.minio_root_password)
 
   steps:
     - name: minio

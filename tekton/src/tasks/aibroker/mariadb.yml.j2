@@ -26,6 +26,12 @@ spec:
       type: string
       description: Instance ID
 
+    - name: mariadb_user
+      type: string
+      description: user for mariadb
+    - name: mariadb_password
+      type: string
+      description: password for mariadb user
     - name: mas_aibroker_db_user
       type: string
       description: database user for IBM Maximo AI Broker
@@ -64,10 +70,10 @@ spec:
         value: mariadb-instance
 
       - name: MARIADB_USER
-        value: $(params.mas_aibroker_db_user)
+        value: $(params.mariadb_user)
 
       - name: MARIADB_PASSWORD
-        value: $(params.mas_aibroker_db_secret_value)
+        value: $(params.mariadb_password)
 
       - name: MARIADB_DATABASE
         value: $(params.mas_aibroker_db_database)
