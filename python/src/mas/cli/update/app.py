@@ -496,7 +496,7 @@ class UpdateApp(BaseApp):
             "v9-250206-amd64": "5.0.0",
             "v9-250306-amd64": "5.0.0",
             "v9-250403-amd64": "5.0.0",
-            "v9-250501-amd64": "5.1.0",
+            "v9-250501-amd64": "5.0.0",
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
@@ -554,21 +554,6 @@ class UpdateApp(BaseApp):
                             cpdBlockStorage = cpds[0]["spec"]["blockStorageClass"]
                         else:
                             self.fatalError("Unable to determine the block storage class used in IBM Cloud Pak for Data")
-
-                        # If running 5.0.x and trying to upgrade to 5.1.0 and ElasticSearch is installed and it is at
-                        # version 2.18.x then we cannot do the upgrade
-                        if (currentCpdVersionMajorMinor == "5.0" and cpdTargetVersion == "5.1.0"):
-                            # get all the statefulsets in the cpd instance namespace that are owned by an Elastic search cluster
-                            statefulsetAPI = self.dynamicClient.resources.get(api_version="apps/v1", kind="StatefulSet")
-                            statefulsets = statefulsetAPI.get().to_dict()["items"]
-                            namespaced = [item for item in statefulsets if item.get("metadata").get("namespace") == cpdInstanceNamespace]
-                            owned = [item for item in namespaced if "ownerReferences" in item.get("metadata") and any(ref.get("kind") == "ElasticsearchCluster" for ref in item.get("metadata").get("ownerReferences"))]
-
-                            # if any images for the pods contain "opencontent-opensearch-2.18" then we can't proceed with the upgrade
-                            specs = [obj["spec"]["template"]["spec"] for obj in owned]
-                            containers = [container for obj in specs for container in obj.get("containers", [])]
-                            if any("opencontent-opensearch-2.18" in container.get("image") for container in containers):
-                                self.fatalError("Unable to update IBM Cloud Pak for Data 5.1.0 on this cluster - Please contact IBM support for assistance")
 
                         # Set the desired storage classes (the same ones already in use)
                         self.setParam("storage_class_rwx", cpdFileStorage)
