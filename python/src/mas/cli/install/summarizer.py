@@ -216,7 +216,13 @@ class InstallSummarizerMixin():
                 self.printParamSummary("  + Indexspace", "mas_app_settings_indexspace")
         else:
             self.printSummary("Manage", "Do Not Install")
-
+    
+    def facilitiesSummary(self) -> None:
+        if self.installFacilities:
+            self.printSummary("Facilities", self.params["mas_app_channel_facilities"])
+            # TODO: Add details for summary
+            
+            
     def db2Summary(self) -> None:
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
             self.printH2("IBM Db2 Univeral Operator Configuration")
@@ -379,6 +385,7 @@ class InstallSummarizerMixin():
         self.assistSummary()
         self.inspectionSummary()
         self.aibrokerSummary()
+        self.facilitiesSummary()
 
         # Application Dependencies
         self.mongoSummary()

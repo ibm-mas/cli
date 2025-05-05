@@ -175,6 +175,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Optimizer": "mas_optimizer_version",
                 "Predict": "mas_predict_version",
                 "Inspection": "mas_visualinspection_version",
+                "Facilities": "mas_facilities_version",
             }
         else:
             applications = {
@@ -662,6 +663,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installAiBroker = self.yesOrNo("Install AI Broker")
         if self.installAiBroker:
             self.configAppChannel("aibroker")
+        
+        self.installFacilities = self.yesOrNo("Install Facilities")
+        if self.installFacilities:
+            self.configAppChannel("facilities")
 
     @logMethodCall
     def configAppChannel(self, appId):
@@ -755,6 +760,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if self.getParam("cos_type") == "ibm":
                 self.promptForString("IBM Cloud API Key", "cos_apikey", isPassword=True)
                 self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
+    
+    @logMethodCall
+    def facilitiesSettings(self) -> None:
+        # TODO: Add configurations for Facilities
+        if self.installFaciltieis:
+            self.printH1("Configure Maximo Real Estate and Facilities")
+            self.printDescription([
+                "Facilities custom configurations"
+            ])
 
     @logMethodCall
     def chooseInstallFlavour(self) -> None:
@@ -819,6 +833,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.predictSettings()
         self.assistSettings()
         self.aibrokerSettings()
+        self.facilitiesSettings()
 
         # Dependencies
         self.configMongoDb()
@@ -849,6 +864,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installInspection = False
         self.installOptimizer = False
         self.installAiBroker = False
+        self.installFacilities = False
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
@@ -862,7 +878,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "approval_monitor": {"id": "app-cfg-monitor"},  # After Monitor workspace has been configured
             "approval_optimizer": {"id": "app-cfg-optimizer"},  # After Optimizer workspace has been configured
             "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
-            "approval_visualinspection": {"id": "app-cfg-visualinspection"}  # After Visual Inspection workspace has been configured
+            "approval_visualinspection": {"id": "app-cfg-visualinspection"},  # After Visual Inspection workspace has been configured
+            "approval_facilities": {"id": "app-cfg-facilities"}, # After Facilities workspace has been configured 
         }
 
         self.configGrafana()
@@ -956,6 +973,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "optimizer_plan":
                 if value is not None and value != "":
                     self.setParam("mas_app_plan_optimizer", value)
+            elif key == "facilities_channel":
+                if value is not None and value != "":
+                    self.setParam("mas_app_channel_facilities", value)
 
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":

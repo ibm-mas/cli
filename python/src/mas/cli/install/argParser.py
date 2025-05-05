@@ -784,6 +784,14 @@ db2ArgGroup.add_argument(
     const="install"
 )
 db2ArgGroup.add_argument(
+    "--db2-facilities",
+    dest="db2_action_facilities",
+    required=False,
+    help="Install a dedicated Db2u instance for Maximo Real Estate and Facilities (supported by Facilities)",
+    action="store_const",
+    const="install"
+)
+db2ArgGroup.add_argument(
     "--db2-type",
     required=False,
     help="Choose the type of the Manage dedicated Db2u instance. Available options are `db2wh` (default) or `db2oltp`"

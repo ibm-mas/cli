@@ -18,15 +18,17 @@ class Db2SettingsMixin():
         # The channel used for Db2 used has not changed since the January 2024 catalog update
         self.params["db2_channel"] = "v110509.0"
 
-        # If neither Iot or Manage is being installed, we have nothing to do
-        if not self.installIoT and not self.installManage:
+        # If neither Iot, Manage or Facilities is being installed, we have nothing to do
+        if not self.installIoT and not self.installManage and not self.installFacilities:
             print_formatted_text("No applications have been selected that require a Db2 installation")
             self.setParam("db2_action_system", "none")
             self.setParam("db2_action_manage", "none")
+            self.setParam("db2_action_facilities", "none")
             return
 
         # For now we are limiting users to bring your own database for Manage on s390x
         # Eventually we will be able to remove this clause and allow the standard logic to work for both s390x and amd64
+        # TODO: Verify if we need a condition like that for Facilities
         if self.architecture == "s390x" and self.installManage:
             self.printDescription([
                 "Installation of a Db2 instance using the IBM Db2 Universal Operator is not currently supported on s390x, please provide configuration details for the database you wish to use.",
@@ -50,9 +52,9 @@ class Db2SettingsMixin():
             return
 
         # Proceed as normal
-        # We know we are installing either IoT or Manage, and on amd64 target architecture
+        # We know we are installing either IoT, Manage or Facilities, and on amd64 target architecture
         self.printDescription([
-            f"The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, {self.manageAppName}, Monitor, &amp; Predict) or you may choose to configure MAS to use an existing database"
+            f"The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, {self.manageAppName}, Monitor, &amp; Predict, Facilities) or you may choose to configure MAS to use an existing database"
         ])
 
         self.setDB2DefaultSettings()
@@ -175,6 +177,11 @@ class Db2SettingsMixin():
                     self.promptForString(" + Backup Volume", "db2_backup_storage_size", default=self.getParam("db2_backup_storage_size"))
             else:
                 self.setParam("db2_namespace", "db2u")
+        
+        # Do we need to create and configure a Db2 for Facilities ?
+        if self.getParam("db2_action_facilities") == "install":
+            # TODO: fill with logic for DB2 for Facilities
+            pass
 
     def setDB2DefaultSettings(self) -> None:
 

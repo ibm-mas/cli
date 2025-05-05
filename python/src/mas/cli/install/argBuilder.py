@@ -171,6 +171,8 @@ class installArgBuilderMixin():
             command += f"  --predict-channel \"{self.getParam('mas_app_channel_predict')}\"{newline}"
         if self.installInspection:
             command += f"  --visualinspection-channel \"{self.getParam('mas_app_channel_visualinspection')}\"{newline}"
+        if self.installFacilities:
+            command += f"  --facilities-channel \"{self.getParam('mas_app_channel_facilities')}\"{newline}"
 
         # Arcgis
         # -----------------------------------------------------------------------------
@@ -253,11 +255,13 @@ class installArgBuilderMixin():
 
         # IBM Db2 Universal Operator
         # -----------------------------------------------------------------------------
-        if self.getParam('db2_action_system') == "install" or self.getParam('db2_action_manage') == "install":
+        if self.getParam('db2_action_system') == "install" or self.getParam('db2_action_manage') == "install" or self.getParam('db2_action_facilities') == "install":
             if self.getParam('db2_action_system') == "install":
                 command += f"  --db2-system{newline}"
             if self.getParam('db2_action_manage') == "install":
                 command += f"  --db2-manage{newline}"
+            if self.getParam('db2_action_facilities') == "install":
+                command += f"  --db2-facilities{newline}"
 
             if self.getParam('db2_channel') != "":
                 command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
@@ -398,6 +402,8 @@ class installArgBuilderMixin():
             command += f"  --approval-predict \"{self.getParam('approval_predict')}\"{newline}"
         if self.getParam('approval_visualinspection') != "":
             command += f"  --approval-visualinspection \"{self.getParam('approval_visualinspection')}\"{newline}"
+        if self.getParam('approval_facilities') != "":
+            command += f"  --approval-facilities \"{self.getParam('approval_facilities')}\"{newline}"
 
         # More Options
         # -----------------------------------------------------------------------------

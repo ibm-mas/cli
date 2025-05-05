@@ -78,6 +78,7 @@ optionalParams = [
     # Db2
     "db2_action_system",
     "db2_action_manage",
+    "db2_action_facilities",
     "db2_type",
     "db2_timezone",
     "db2_namespace",
