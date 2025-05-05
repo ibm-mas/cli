@@ -63,9 +63,9 @@ class KafkaSettingsMixin():
                 elif self.getParam("kafka_provider") == "ibm":
                     print()
                     self.promptForString("IBM Cloud API Key", "ibmcloud_apikey", isPassword=True)
-                    self.promptForString("IBM Event Streams resource group" "eventstreams_resource_group", default="Default")
-                    self.promptForString("IBM Event Streams instance name", "eventstreams_instance_name", default=f"eventstreams-{self.getParam('mas_instance_id')}")
-                    self.promptForString("IBM Event Streams location", "eventstreams_instance_location", default="us-east")
+                    self.promptForString("IBM Event Streams resource group" "eventstreams_resourcegroup", default="Default")
+                    self.promptForString("IBM Event Streams instance name", "eventstreams_name", default=f"eventstreams-{self.getParam('mas_instance_id')}")
+                    self.promptForString("IBM Event Streams location", "eventstreams_location", default="us-east")
 
                 elif self.getParam("kafka_provider") == "aws":
                     self.printDescription([
