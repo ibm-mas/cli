@@ -336,9 +336,9 @@ class installArgBuilderMixin():
             # Kafka - Event Streams
             # -----------------------------------------------------------------------------
             if self.getParam('eventstreams_name') != "":
-                command += f"  --eventstreams-resourcegroup \"{self.getParam('eventstreams_resourcegroup')}\""
-                command += f" --eventstreams-name \"{self.getParam('eventstreams_name')}\""
-                command += f" --eventstreams-location \"{self.getParam('eventstreams_location')}\"{newline}"
+                command += f"  --eventstreams-resource-group \"{self.getParam('eventstreams_resource_group')}\""
+                command += f" --eventstreams-instance-name \"{self.getParam('eventstreams_instance_name')}\""
+                command += f" --eventstreams-instance-location \"{self.getParam('eventstreams_instance_location')}\"{newline}"
 
         # COS
         # -----------------------------------------------------------------------------

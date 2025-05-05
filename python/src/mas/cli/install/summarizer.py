@@ -332,9 +332,9 @@ class InstallSummarizerMixin():
                 self.printParamSummary("Install Namespace", "kafka_namespace")
 
             elif self.getParam("kafka_provider") == "ibm":
-                self.printParamSummary("Resource group", "eventstreams_resourcegroup")
-                self.printParamSummary("Instance name", "eventstreams_name")
-                self.printParamSummary("Instance location", "eventstreams_location")
+                self.printParamSummary("Resource group", "eventstreams_resource_group")
+                self.printParamSummary("Instance name", "eventstreams_instance_name")
+                self.printParamSummary("Instance location", "eventstreams_instance_location")
 
             elif self.getParam("kafka_provider") == "aws":
                 self.printParamSummary("VPC ID", "vpc_id")
