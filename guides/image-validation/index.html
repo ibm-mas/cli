@@ -300,20 +300,12 @@
       <cds-breadcrumb-item>Guides</cds-breadcrumb-item>
 
   <cds-breadcrumb-item aria-current="page">
-    <cds-breadcrumb-link href="#image-validation">Image Validation</cds-breadcrumb-link>
+    <cds-breadcrumb-link href="#verifying-ibm-maximo-operator-catalog-content">Verifying IBM Maximo Operator Catalog Content:</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 
   <cds-breadcrumb-item>
     <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
     
-    
-      <cds-select-item value="#preparation">Preparation</cds-select-item>
-    
-      <cds-select-item value="#validating-images-during-image-pull">Validating images during image pull:</cds-select-item>
-    
-      <cds-select-item value="#validate-the-chain-of-trust-for-the-mas-signing-certificate">Validate the Chain of Trust for the MAS Signing Certificate:</cds-select-item>
-    
-      <cds-select-item value="#verify-the-validity-of-the-mas-container-signing-certificate">Verify the Validity of the MAS Container Signing Certificate:</cds-select-item>
     
   </cds-select>
   </cds-breadcrumb-item>
@@ -322,8 +314,10 @@
 
     <div id="main-content" class="rst-content">
       
-      <h1 id="image-validation">Image Validation<a class="headerlink" href="#image-validation" title="Permanent link">¤</a></h1>
-<p>MAS container images are digitally signed, and their signatures can be verified using the MAS public key. The private key is used to generate the signature, while the corresponding public key enables anyone to validate the signature, ensuring both the integrity and authenticity of the content. To begin the verification process, the customer must have the following items:</p>
+      <h1 id="verifying-ibm-maximo-operator-catalog-content">Verifying IBM Maximo Operator Catalog Content:<a class="headerlink" href="#verifying-ibm-maximo-operator-catalog-content" title="Permanent link">¤</a></h1>
+<p>All IBM content is digitally signed, and their signatures can be verified using the MAS public key. The private key is used to generate the signature, while the corresponding public key enables anyone to validate the signature, ensuring both the integrity and authenticity of the content. </p>
+<h1 id="heres-how-to-verify-images-from-ibm-maximo">Here's how to verify images from IBM Maximo:<a class="headerlink" href="#heres-how-to-verify-images-from-ibm-maximo" title="Permanent link">¤</a></h1>
+<p>To begin the verification process, the customer must have the following items:</p>
 <ul>
 <li><a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/image-validation/PRD0010163key.pub.asc">PRD0010163key.pub.asc</a> - the MAS public key that should be used to validate image signatures</li>
 <li><a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/image-validation/PRD0010163key.pem.cer">PRD0010163key.pem.cer</a> - the MAS public certificate associated with the public key </li>
@@ -377,10 +371,12 @@ gpg2 -v --list-packets /mascli/image-validation/PRD0010163key.pub.asc  # shows t
 <pre><code class="language-bash">openssl ocsp -no_nonce -issuer /mascli/image-validation/PRD0010163key.pem.chain -cert /mascli/image-validation/PRD0010163key.pem.cer -VAfile /mascli/image-validation/PRD0010163key.pem.chain -text -url http://ocsp.digicert.com -respout ocsptest
 </code></pre>
 <p>If the certificate is valid, the output will be: Response verify OK</p>
+<h1 id="heres-how-to-verify-images-from-ibm-db2">Here's how to verify images from IBM DB2:<a class="headerlink" href="#heres-how-to-verify-images-from-ibm-db2" title="Permanent link">¤</a></h1>
+<p>https://www.ibm.com/docs/en/db2/11.5.x?topic=installing-code-signing-db2-images-post-02282023</p>
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-05-06 07:43:12.764853+00:00)
+      Built with mkdocs v1.6.1 (2025-05-06 07:50:22.114993+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
