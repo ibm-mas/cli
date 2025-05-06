@@ -79,7 +79,10 @@ Your cluster must be configured to use the private registry as a mirror for the 
 ```bash
 docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap
 ```
-
+To set up Red Hat Operator, Community, and Certified catalogs with IDMS, run the below command. (Needed to install DRO and Grafana operators)
+```bash
+docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap --setup-redhat-catalogs
+```
 You will be prompted to provide information about the private registry, including the CA certificate necessary to configure your cluster to trust the private registry.
 
 This command can also be ran non-interactive, for full details refer to the [configure-airgap](../commands/configure-airgap.md) command documentation.
