@@ -1,0 +1,64 @@
+---
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+
+ibm_odh:
+  openshift_namespace: "openshift-operators"
+  odh_pipeline_channel: "latest"
+  odh_pipeline_installplan: "Automatic"
+  pipeline_catalog_source: "redhat-operators"
+  service_mesh_namespace: "openshift-operators"
+  service_mesh_channel: "stable"
+  service_mesh_catalog_source: "redhat-operators"
+  service_mesh_sourceNamespace: "openshift-marketplace"
+  operatorName: "openshift-pipelines-operator-rh"
+  serverless_channel: "stable"
+  authorino_catalog_source: "community-operators"
+  odh_channel: "fast"
+  odh_catalog_source: "community-operators"
+  odh_operator_version: "opendatahub-operator.v2.19.0"
+  odh_namespace: "opendatahub"
+
+  aibroker_namespace: "{{ AIBROKER_NAMESPACE }}"
+  pull_secret_name: "<path:{{ SECRETS_PATH }}/ibm_entitlement#image_pull_secret_b64>"
+
+  # ODH Pipeline operator
+  odh_pipeline_name: "openshift-pipelines-operator"
+  odh_pipeline_namespace: "openshift-operators"
+  odh_pipeline_operatorName: "openshift-pipelines-operator-rh"
+  odh_pipeline_source: "redhat_operators"
+  odh_pipeline_sourceNamespace: "openshift_marketplace"
+
+  # Serverless Operator
+  serverless_namespace: "openshift-serverless"
+  serverless_operator_name: "serverless-operator"
+  serverless_operator_source: "redhat-operators"
+  serverless_operator_sourceNamespace: "openshift-marketplace"
+
+  # OpenDataHub Operator
+  opendatahub_OperatorGroup_name: "opendatahub-operator-group"
+  opendatahub_name: "opendatahub-operator"
+  opendatahub_namespace: "opendatahub"
+  opendatahub_installPlanApproval: "Manual"
+  opendatahub_channel: "fast"
+  opendatahub_source: "community-operators"
+  opendatahub__sourceNamespace: "openshift-marketplace"
+
+  # Storage configuration
+  mas_aibroker_storage_provider: "minio"
+  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}/minio#sm_minio_accesskey>"
+  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}/minio#sm_minio_secretkey>"
+  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}/minio#sm_minio_host>"
+  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}/minio#sm_minio_port>"
+  mas_aibroker_storage_ssl: "true"
+  mas_aibroker_storage_region: ""
+  mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}/minio#sm_minio_bucket_default>"
+
+  # MariaDB configuration
+  mas_aibroker_db_host: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_host>"
+  mas_aibroker_db_port: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_port>"
+  mas_aibroker_db_user: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_user>"
+  mas_aibroker_db_database: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_database>"
+  mas_aibroker_db_secret_name: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_secret_name>"
+  mas_aibroker_db_secret_value: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_secret_value>"
+
+  primary_storage_class: "nfs-client"
