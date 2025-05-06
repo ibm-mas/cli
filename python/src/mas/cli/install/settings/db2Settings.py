@@ -33,7 +33,7 @@ class Db2SettingsMixin():
         # Eventually we will be able to remove this clause and allow the standard logic to work for both s390x and amd64
         if (self.architecture == "s390x" or self.architecture == "ppc64le") and self.installManage:
             self.printDescription([
-                "Installation of a Db2 instance using the IBM Db2 Universal Operator is not currently supported on s390x, please provide configuration details for the database you wish to use.",
+                "Installation of a Db2 instance using the IBM Db2 Universal Operator is not currently supported on s390x /ppc64le, please provide configuration details for the database you wish to use.",
             ])
             instanceId = self.getParam('mas_instance_id')
             workspaceId = self.getParam("mas_workspace_id")
