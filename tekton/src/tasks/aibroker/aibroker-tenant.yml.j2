@@ -211,9 +211,9 @@ spec:
         value: $(params.tenant_entitlement_end_date)
 
   steps:
-    - name: aibroker-tenant
+    - name: aibroker_tenant
       command:
         - /opt/app-root/src/run-role.sh
-        - aibroker-tenant
+        - aibroker_tenant
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)

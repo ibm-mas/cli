@@ -534,7 +534,7 @@ aibrokerArgGroup.add_argument(
 )
 aibrokerArgGroup.add_argument(
     "--mariadb-password",
-    dest="mas_aibroker_db_secret_value",
+    dest="mariadb_password",
     required=False,
     help="Password for mariadb user"
 )
