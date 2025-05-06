@@ -527,6 +527,10 @@ if __name__ == "__main__":
         print("FVT_SLACK_TOKEN is not set")
         sys.exit(0)
 
+    if setFinished.lower() == "false":
+        print("FVT Run is not yet completed. Skipping slack message with results to report channel")
+        sys.exit(0)
+
     if instanceId.startswith("fvt"):
         # To generate the channel name we remove the "fvt" prefix from the instanceId
         FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId.replace('fvt', '')}"
