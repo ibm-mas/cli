@@ -8,7 +8,7 @@ spec:
       type: string
     - name: account
       type: string
-    - name: aiservice_instance_id
+    - name: mas_instance_id
       type: string
     - name: cluster_url
       type: string
@@ -23,8 +23,6 @@ spec:
       type: string
     - name: secrets_path
       type: string
-    - name: aiservice_namespace
-      type: string
     - name: avp_aws_secret_region
       type: string
     - name: odh_channel
@@ -38,18 +36,6 @@ spec:
       type: string
     - name: opendatahub_namespace
       type: string
-    - name: odh_operator_version
-      type: string
-    - name: aiservice_storage_ssl
-      type: string
-      default: "true"
-    - name: aiservice_storage_region
-      type: string
-    - name: opendatahub_source 
-      type: string
-    - name: aiservice_odh_model_deployment_type
-      type: string
-
   stepTemplate:
     name: gitops-odh
     env:
@@ -57,8 +43,8 @@ spec:
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
-      - name: AISERVICE_INSTANCE_ID
-        value: $(params.aiservice_instance_id)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
       - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: GITHUB_REPO
@@ -75,8 +61,6 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: AISERVICE_NAMESPACE
-        value: $(params.aiservice_namespace)
       - name: ODH_CHANNEL
         value: $(params.odh_channel)
       - name: ODH_INSTALL_PLAN
@@ -87,16 +71,6 @@ spec:
         value: $(params.opendatahub_operator_group)
       - name: ODH_NAMESPACE
         value: $(params.opendatahub_namespace)
-      - name: ODH_OPERATOR_VERSION
-        value: $(params.odh_operator_version)
-      - name: AISERVICE_STORAGE_SSL
-        value: $(params.aiservice_storage_ssl)
-      - name: AISERVICE_STORAGE_REGION
-        value: $(params.aiservice_storage_region)
-      - name: OPENDATAHUB_SOURCE 
-        value: $(params.opendatahub_source)
-      - name: AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE
-        value: $(params.aiservice_odh_model_deployment_type)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -109,16 +83,60 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
+        
         mkdir -p /tmp/init-odh
         mas gitops-odh -a $ACCOUNT -c $CLUSTER_NAME \
-        --secrets-path $SECRET_PATH \
         --dir /tmp/init-odh \
+        --secrets-path $SECRET_PATH \
         --github-push \
         --github-host $GITHUB_HOST \
-        --github-org  $GITHUB_ORG \
+        --github-org $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
-
+        --git-branch $GIT_BRANCH \
+        --odh-channel $ODH_CHANNEL \
+        --odh-catalog-source $ODH_CATALOG_SOURCE \
+        --odh-operator-version $ODH_OPERATOR_VERSION \
+        --odh-namespace $ODH_NAMESPACE \
+        --pull-secret-name $PULL_SECRET_NAME \
+        --opendatahub-name $OPENDATAHUB_NAME \
+        --opendatahub-operator-group $OPENDATAHUB_OPERATOR_GROUP_NAME \
+        --opendatahub-installplan $ODH_INSTALL_PLAN \
+        --opendatahub-channel $OPENDATAHUB_CHANNEL \
+        --opendatahub-source $OPENDATAHUB_SOURCE \
+        --opendatahub-source-namespace $OPENDATAHUB_SOURCE_NAMESPACE \
+        --odh-pipeline-name $ODH_PIPELINE_NAME \
+        --odh-pipeline-namespace $ODH_PIPELINE_NAMESPACE \
+        --odh-pipeline-operator-name $ODH_PIPELINE_OPERATOR_NAME \
+        --odh-pipeline-source $ODH_PIPELINE_SOURCE \
+        --odh-pipeline-source-namespace $ODH_PIPELINE_SOURCE_NAMESPACE \
+        --odh-pipeline-channel $ODH_PIPELINE_CHANNEL \
+        --odh-pipeline-installplan $ODH_PIPELINE_INSTALLPLAN \
+        --pipeline-catalog-source $PIPELINE_CATALOG_SOURCE \
+        --service-mesh-namespace $SERVICE_MESH_NAMESPACE \
+        --service-mesh-channel $SERVICE_MESH_CHANNEL \
+        --service-mesh-catalog-source $SERVICE_MESH_CATALOG_SOURCE \
+        --service-mesh-source-namespace $SERVICE_MESH_SOURCE_NAMESPACE \
+        --serverless-namespace $SERVERLESS_NAMESPACE \
+        --serverless-channel $SERVERLESS_CHANNEL \
+        --serverless-operator-name $SERVERLESS_OPERATOR_NAME \
+        --serverless-operator-source $SERVERLESS_OPERATOR_SOURCE \
+        --serverless-operator-source-namespace $SERVERLESS_OPERATOR_SOURCE_NAMESPACE \
+        --authorino-catalog-source $AUTHORINO_CATALOG_SOURCE \
+        --storage-provider $MAS_AIBROKER_STORAGE_PROVIDER \
+        --storage-accesskey $MAS_AIBROKER_STORAGE_ACCESSKEY \
+        --storage-secretkey $MAS_AIBROKER_STORAGE_SECRETKEY \
+        --storage-host $MAS_AIBROKER_STORAGE_HOST \
+        --storage-port $MAS_AIBROKER_STORAGE_PORT \
+        --storage-ssl $MAS_AIBROKER_STORAGE_SSL \
+        --storage-region $MAS_AIBROKER_STORAGE_REGION \
+        --pipelines-bucket $MAS_AIBROKER_STORAGE_PIPELINES_BUCKET \
+        --primary-storage-class $PRIMARY_STORAGE_CLASS \
+        --db-host $MAS_AIBROKER_DB_HOST \
+        --db-port $MAS_AIBROKER_DB_PORT \
+        --db-user $MAS_AIBROKER_DB_USER \
+        --db-database $MAS_AIBROKER_DB_DATABASE \
+        --db-secret-name $MAS_AIBROKER_DB_SECRET_NAME \
+        --db-secret-value $MAS_AIBROKER_DB_SECRET_VALUE
 
         exit $?
       command:

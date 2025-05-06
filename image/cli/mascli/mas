@@ -92,13 +92,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
 . $CLI_DIR/functions/gitops_nvidia_gpu
 . $CLI_DIR/functions/gitops_deprovision_db2u
-. $CLI_DIR/functions/gitops_deprovision_odh
 . $CLI_DIR/functions/gitops_odh
-. $CLI_DIR/functions/gitops_aiservice
-. $CLI_DIR/functions/gitops_aiservice_tenant
-. $CLI_DIR/functions/gitops_deprovision_aiservice_tenant
-. $CLI_DIR/functions/gitops_deprovision_aiservice
-. $CLI_DIR/functions/gitops_mas_provisioner
 
 # TODO: The path from the CLI the installation of the Ansible collection should be configurable
 MAS_DEVOPS_COLLECTION_PATH=${MAS_DEVOPS_COLLECTION_PATH:-ansible-devops}
