@@ -294,7 +294,7 @@ class ManageSettingsMixin():
 
             self.promptForString("Mariadb username", "mariadb_user")
             self.promptForString("Mariadb password", "mariadb_password")
-            
+
             self.promptForString("Database host", "mas_aibroker_db_host")
             self.promptForString("Database port", "mas_aibroker_db_port")
             self.promptForString("Database user", "mas_aibroker_db_user")
