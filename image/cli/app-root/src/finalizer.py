@@ -480,7 +480,7 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     try:
         crs = dynClient.resources.get(api_version="sls.ibm.com/v1", kind="LicenseService")
-        cr = crs.get(name="sls", namespace="ibm-sls")
+        cr = crs.get(name="sls", namespace=f"sls-{instanceId}")
         if cr.status and cr.status.versions:
             slsVersion = cr.status.versions.reconciled
             setObject["target.slsVersion"] = slsVersion
@@ -527,6 +527,10 @@ if __name__ == "__main__":
         print("FVT_SLACK_TOKEN is not set")
         sys.exit(0)
 
+    if setFinished.lower() == "false":
+        print("FVT Run is not yet completed. Skipping slack message with results to report channel")
+        sys.exit(0)
+
     if instanceId.startswith("fvt"):
         # To generate the channel name we remove the "fvt" prefix from the instanceId
         FVT_SLACK_CHANNEL = f"mas-fvtreports-{instanceId.replace('fvt', '')}"
@@ -552,7 +556,14 @@ if __name__ == "__main__":
     messageBlocks.append(buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
     for product in sorted(result["products"]):
-        version = result["products"][product]["version"]
+
+        try:
+            version = result["products"][product]["version"]
+        except KeyError:
+            print(f"Unable to find version for {product}")
+            version = "unknown"
+
+        print(f"{product} version: {version}")
         tests = 0
         skipped = 0
         errors = 0

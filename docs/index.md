@@ -34,7 +34,7 @@ Introduced in Summer 2024, the standalone binary is a new way to use the MAS CLI
 For example, to install the CLI and launch a MAS install on Linux:
 
 ```bash
-wget https://github.com/ibm-mas/cli/releases/download/@@CLI_LATEST_VERSION@@/mas-cli-linux-amd64
+wget https://github.com/ibm-mas/cli/releases/@@CLI_LATEST_VERSION@@/mas-cli-linux-amd64
 cp mas-cli-linux-amd64 /usr/local/bin/mas-cli
 mas-cli install --help
 ```
