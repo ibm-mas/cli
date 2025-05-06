@@ -98,7 +98,6 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
 . $CLI_DIR/functions/gitops_nvidia_gpu
 . $CLI_DIR/functions/gitops_deprovision_db2u
-. $CLI_DIR/functions/gitops_deprovision_odh
 . $CLI_DIR/functions/gitops_odh
 . $CLI_DIR/functions/gitops_aiservice
 . $CLI_DIR/functions/gitops_aiservice_tenant
