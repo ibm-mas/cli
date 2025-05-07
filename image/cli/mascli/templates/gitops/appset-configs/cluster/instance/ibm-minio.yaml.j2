@@ -1,0 +1,10 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+
+ibm_minio:
+  minio_namespace: {{ MINIO_NAMESPACE }}
+  minio_instance_name: {{ MINIO_INSTANCE_NAME }}
+  minio_root_user: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MINIO_USER }}>"
+  minio_root_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MINIO_PASSWORD }}>"
+  minio_storage_class: {{ MINIO_STORAGE_CLASS }}
+  minio_storage_size: {{ MINIO_STORAGE_SIZE }}
+  minio_image: {{ MINIO_IMAGE }}
