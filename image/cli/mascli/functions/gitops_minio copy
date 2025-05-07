@@ -163,8 +163,14 @@ function gitops_minio_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_minio_help "GIT_BRANCH is not set"
   fi
 
+  # [[ -z "$MINIO_NAMESPACE" ]] && gitops_minio_help "MINIO_NAMESPACE is not set. Please provide the namespace where MinIO should be deployed using --minio_namespace."
+  # [[ -z "$MINIO_INSTANCE_NAME" ]] && gitops_minio_help "MINIO_INSTANCE_NAME is not set. Please provide a unique name for the MinIO instance using --minio_instance_name."
+  # [[ -z "$MINIO_ROOT_USER" ]] && gitops_minio_help "MINIO_ROOT_USER is not set. Please provide the root username (access key) using --minio_root_user."
+  # [[ -z "$MINIO_ROOT_PASSWORD" ]] && gitops_minio_help "MINIO_ROOT_PASSWORD is not set. Please provide the root password (secret key) using --minio_root_password."
   [[ -z "$MINIO_STORAGE_CLASS" ]] && gitops_minio_help "MINIO_STORAGE_CLASS is not set. Please specify the Kubernetes storage class using --minio_storage_class."
-  
+  # [[ -z "$MINIO_STORAGE_SIZE" ]] && gitops_minio_help "MINIO_STORAGE_SIZE is not set. Please provide the storage size (e.g., 50Gi) using --minio_storage_size."
+  # [[ -z "$MINIO_IMAGE" ]] && gitops_minio_help "MINIO_IMAGE is not set. Please provide the MinIO container image name using --minio_image."
+
 }
 
 function gitops_minio() {
@@ -244,27 +250,63 @@ function gitops_minio() {
     #minio provider role specific env variables
     export MINIO_ACTION="install"
 
+    # export MINIO_NAMESPACE=${MINIO_NAMESPACE:-"minio"}
+    # export MINIO_INSTANCE_NAME=${MINIO_INSTANCE_NAME:-"minio"}
+    # export MINIO_STORAGE_CLASS=${MINIO_STORAGE_CLASS:-""}
+    # export MINIO_STORAGE_SIZE=${MINIO_STORAGE_SIZE:-"40Gi"}
+    # export MINIO_IMAGE=${MINIO_IMAGE:-"quay.io/minio/minio:latest"}
+
     export SECRET_NAME_MINIO_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio
     echo_reset_dim "SECRET_NAME_MINIO_AUTH ................ ${COLOR_MAGENTA}$SECRET_NAME_MINIO_AUTH"
 
     if [ -z "$MINIO_ROOT_PASSWORD" ]; then
       # Create a secret in SM containing the username/password for this specific minio instance.
       export MINIO_SECRET_FILE=$TEMP_DIR/minio-secret.json
+
+      # Generate random username and password using /dev/urandom
+      # RANDOM_USER=`minio-$(cat /dev/urandom | tr -dc '0-9' | head -c 4)`
+      # export MINIO_ROOT_USER=${MINIO_ROOT_USER:-RANDOM_USER}
       export MINIO_ROOT_USER=${MINIO_ROOT_USER:-"minio"}
       echo_reset_dim "MINIO_ROOT_USER ............................. ${COLOR_MAGENTA}$MINIO_ROOT_USER"
       
       export MINIO_ROOT_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
       sm_get_secret_file ${SECRET_NAME_MINIO_AUTH} $MINIO_SECRET_FILE
-      TEMP_MINIO_PASSWORD=$(jq -r .password $MINIO_SECRET_FILE)
-      if [[ -n ${TEMP_MINIO_PASSWORD} ]]; then
-        export MINIO_ROOT_PASSWORD=${TEMP_MINIO_PASSWORD}
+      TEMP_MINIO_LDAP_PASSWORD=$(jq -r .password $MINIO_SECRET_FILE)
+      if [[ -n ${TEMP_MINIO_LDAP_PASSWORD} ]]; then
+        export MINIO_ROOT_PASSWORD=${TEMP_MINIO_LDAP_PASSWORD}
         echo_reset_dim "MINIO_ROOT_PASSWORD ........................... ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:8}<snip> is available in the secret, using that value"
       fi
       echo_reset_dim "MINIO_ROOT_PASSWORD ............................. ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:8}<snip>"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_minio\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       
-      sm_update_secret $SECRET_NAME_MINIO_AUTH "{ \"username\": \"$MINIO_ROOT_USER\", \"password\": \"$MINIO_ROOT_PASSWORD\"}" "${TAGS}"
+      # sm_update_secret and need to pss secrert | idempotent
+      ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
+      ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+      # sm_update_secret $SECRET_NAME_MINIO_AUTH "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$SECRET_KEY_MINIO_USER\", \"password\": \"$SECRET_KEY_MINIO_PASSWORD\"}" "${TAGS}"
+
+      sm_update_secret $SECRET_NAME_MINIO_AUTH "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$MINIO_ROOT_USER\", \"password\": \"$MINIO_ROOT_PASSWORD\"}" "${TAGS}"
     fi
+    
+    # Generate random username and password using /dev/urandom
+    # RANDOM_USER="minio-$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 8)"
+    # RANDOM_PASS="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20)"
+    # export JDBRANDOM_PASSC_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
+
+    # export MINIO_ROOT_USER=${MINIO_ROOT_USER:-"minio"}
+    # export MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-"minio123"}
+
+    # export SECRET_NAME_MINIO_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio
+
+    # export SECRET_KEY_MINIO_USER=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_user
+    # export SECRET_KEY_MINIO_PASSWORD=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_password
+    
+    # export MINIO_SECRET_FILE=$TEMP_DIR/MINIO-secret.json
+    # sm_get_secret_file ${AWS_MSK_SECRET} $MINIO_SECRET_FILE
+    # TEMP_AWS_MINIO_USER_PASSWORD=$(jq -r .password $MINIO_SECRET_FILE)
+    # if [[ -n ${TEMP_AWS_MINIO_USER_PASSWORD} ]]; then
+    #   export AWS_MINIO_USER_PASSWORD=${TEMP_AWS_MINIO_USER_PASSWORD}
+    #   echo "gitops_minio : AWS_MINIO_USER_PASSWORD=${AWS_MINIO_USER_PASSWORD:0:8}<snip> is available in the secret, use the same while invoking the role again"
+    # fi
     
   
     #export MINIO_CFG_FILE_NAME=${MINIO_CFG_FILE_NAME:-"aws-msk-${MINIO_CLUSTER_NAME}-miniocfg.yml"}
@@ -277,6 +319,23 @@ function gitops_minio() {
     echo_reset_dim "minio_root_user ....................... ${COLOR_MAGENTA}${MINIO_ROOT_USER}"
     echo_reset_dim "minio_root_password ................... ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:4}<snip>"
 
+    #echo_reset_dim "MINIO_CFG_FILE_NAME .................... ${COLOR_MAGENTA}${MINIO_CFG_FILE_NAME}"
+
+    # export AWS_DEFAULT_OUTPUT="json"
+    # export ROLE_NAME=minio && ansible-playbook ibm.mas_devops.run_role
+
+    # rc=$?
+    # [ $rc -ne 0 ] && exit $rc
+    # Extract the required details from the generated miniocfg/secret. For msk this is in plain text (stringData)
+    # export MINIO_USERNAME=$(yq 'select(di == 0) | .data.username' $TEMP_DIR/${MINIO_CFG_FILE_NAME} | base64 -d)
+    # export MINIO_PASSWORD=$(yq 'select(di == 0) | .data.password' $TEMP_DIR/${MINIO_CFG_FILE_NAME} | base64 -d)
+    # yq 'select(di == 1) | .spec' $TEMP_DIR/${MINIO_CFG_FILE_NAME} >> $TEMP_DIR/minio-info.yaml
+    # yq -i 'del(.config.credentials)' $TEMP_DIR/minio-info.yaml
+    # yq -i 'del(.displayName)' $TEMP_DIR/minio-info.yaml
+    # yq -i 'del(.type)' $TEMP_DIR/minio-info.yaml
+
+    # UNESCAPED_INFO="$(cat $TEMP_DIR/minio-info.yaml)"
+    
 
     if [ -z $GIT_SSH ]; then
       export GIT_SSH=false
