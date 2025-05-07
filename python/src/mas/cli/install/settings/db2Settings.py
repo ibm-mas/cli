@@ -13,21 +13,26 @@ from prompt_toolkit import print_formatted_text
 
 
 class Db2SettingsMixin():
-    def configDb2(self) -> None:
-        self.printH1("Configure Databases")
+    # In silentMode, no prompts will show up for "happy path" DB2 configuration scenarios. Prompts will still show up when an input is absolutely required
+    # Settings under showAdvancedOptions are always prompted
+    def configDb2(self, silentMode=False) -> None:
+        if not silentMode:
+            self.printH1("Configure Databases")
         # The channel used for Db2 used has not changed since the January 2024 catalog update
         self.params["db2_channel"] = "v110509.0"
 
         # If neither Iot or Manage is being installed, we have nothing to do
         if not self.installIoT and not self.installManage:
-            print_formatted_text("No applications have been selected that require a Db2 installation")
-            self.setParam("db2_action_system", "none")
-            self.setParam("db2_action_manage", "none")
+            if not silentMode:
+                print_formatted_text("No applications have been selected that require a Db2 installation")
+                self.setParam("db2_action_system", "none")
+                self.setParam("db2_action_manage", "none")
             return
 
         # For now we are limiting users to bring your own database for Manage on s390x
         # Eventually we will be able to remove this clause and allow the standard logic to work for both s390x and amd64
         if self.architecture == "s390x" and self.installManage:
+            # silentMode does not apply for s390x because it requires interaction when selecting local config directory
             self.printDescription([
                 "Installation of a Db2 instance using the IBM Db2 Universal Operator is not currently supported on s390x, please provide configuration details for the database you wish to use.",
             ])
@@ -51,21 +56,26 @@ class Db2SettingsMixin():
 
         # Proceed as normal
         # We know we are installing either IoT or Manage, and on amd64 target architecture
-        self.printDescription([
-            f"The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, {self.manageAppName}, Monitor, &amp; Predict) or you may choose to configure MAS to use an existing database"
-        ])
+        if not silentMode:
+            self.printDescription([
+                f"The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, {self.manageAppName}, Monitor, &amp; Predict) or you may choose to configure MAS to use an existing database"
+            ])
 
         self.setDB2DefaultSettings()
 
         instanceId = self.getParam('mas_instance_id')
         # Do we need to set up an IoT database?
         if self.installIoT:
-            self.printH2("Database Configuration for Maximo IoT")
-            self.printDescription([
-                "Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source",
-                " - Only IBM Db2 is supported for this database"
-            ])
-            if self.yesOrNo("Create system Db2 instance using the IBM Db2 Universal Operator"):
+            if not silentMode:
+                self.printH2("Database Configuration for Maximo IoT")
+                self.printDescription([
+                    "Maximo IoT requires a shared system-scope Db2 instance because others application in the suite require access to the same database source",
+                    " - Only IBM Db2 is supported for this database"
+                ])
+            createSystemDb2UsingUniversalOperator = True
+            if not silentMode:
+                createSystemDb2UsingUniversalOperator = self.yesOrNo("Create system Db2 instance using the IBM Db2 Universal Operator")
+            if createSystemDb2UsingUniversalOperator:
                 self.setParam("db2_action_system", "install")
             else:
                 self.setParam("db2_action_system", "byo")
@@ -85,28 +95,39 @@ class Db2SettingsMixin():
             self.setParam("db2_action_system", "none")
 
         if self.installManage:
-            self.printH2(f"Database Configuration for Maximo {self.manageAppName}")
-            self.printDescription([
-                f"Maximo {self.manageAppName} can be configured to share the system Db2 instance or use it's own dedicated database:",
-                " - Use of a shared instance has a significant footprint reduction but is only recommended for development/test/demo installs",
-                " - In most production systems you will want to use a dedicated database",
-                " - IBM Db2, Oracle Database, &amp; Microsoft SQL Server are all supported database options"
-            ])
+            if not silentMode:
+                self.printH2(f"Database Configuration for Maximo {self.manageAppName}")
+                self.printDescription([
+                    f"Maximo {self.manageAppName} can be configured to share the system Db2 instance or use it's own dedicated database:",
+                    " - Use of a shared instance has a significant footprint reduction but is only recommended for development/test/demo installs",
+                    " - In most production systems you will want to use a dedicated database",
+                    " - IBM Db2, Oracle Database, &amp; Microsoft SQL Server are all supported database options"
+                ])
             # Determine whether to use the system or a dedicated database
-            if self.installIoT and self.yesOrNo(f"Re-use System Db2 instance for {self.manageAppName} application"):
+            reuseSystemDb2 = False
+            if self.installIoT:
+                if not silentMode:
+                    reuseSystemDb2 = self.yesOrNo(f"Re-use System Db2 instance for {self.manageAppName} application")
+            if reuseSystemDb2:
                 # We are going to bind Manage to the system database, which has already been set up in the previous step
                 self.setParam("mas_appws_bindings_jdbc_manage", "system")
                 self.setParam("db2_action_manage", "none")
             else:
                 self.setParam("mas_appws_bindings_jdbc_manage", "workspace-application")
-                if self.yesOrNo(f"Create {self.manageAppName} dedicated Db2 instance using the IBM Db2 Universal Operator"):
+                createSystemDb2UsingUniversalOperator = True
+                if not silentMode:
+                    createSystemDb2UsingUniversalOperator = self.yesOrNo(f"Create {self.manageAppName} dedicated Db2 instance using the IBM Db2 Universal Operator")
+                if createSystemDb2UsingUniversalOperator:
                     self.setParam("db2_action_manage", "install")
-                    self.printDescription([
-                        f"Available Db2 instance types for {self.manageAppName}:",
-                        "  1. DB2 Warehouse (Default option)",
-                        "  2. DB2 Online Transactional Processing (OLTP)"
-                    ])
-                    self.promptForListSelect(message=f"Select the {self.manageAppName} dedicated DB2 instance type", options=["db2wh", "db2oltp"], param="db2_type", default="1")
+                    if not silentMode:
+                        self.printDescription([
+                            f"Available Db2 instance types for {self.manageAppName}:",
+                            "  1. DB2 Warehouse (Default option)",
+                            "  2. DB2 Online Transactional Processing (OLTP)"
+                        ])
+                        self.promptForListSelect(message=f"Select the {self.manageAppName} dedicated DB2 instance type", options=["db2wh", "db2oltp"], param="db2_type", default="1")
+                    else:
+                        self.setParam("db2_type", "db2wh")
                 else:
                     workspaceId = self.getParam("mas_workspace_id")
                     self.setParam("db2_action_manage", "byo")
