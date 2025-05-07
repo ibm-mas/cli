@@ -626,6 +626,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.installManage = True
                 self.isManageFoundation = True
                 self.setParam("is_full_manage", "false")
+                self.setParam("mas_app_settings_aio_flag", "false")
                 self.manageAppName = "Manage foundation"
                 self.printDescription([f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."])
         else:
