@@ -1,0 +1,354 @@
+#!/usr/bin/env bash
+
+function gitops_minio_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+
+
+Usage:
+  mas gitops-minio [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+GitOps Configuration:
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
+
+minio Provider Selection / Version:
+      --minio_namespace ${COLOR_YELLOW}MINIO_NAMESPACE${TEXT_RESET}                                         The minio namespace to install
+      --minio_instance_name ${COLOR_YELLOW}MINIO_INSTANCE_NAME${TEXT_RESET}                                 The minio instance name
+      --minio_root_user ${COLOR_YELLOW}MINIO_ROOT_USER${TEXT_RESET}                                         The minio user name
+      --minio_root_password ${COLOR_YELLOW}MINIO_ROOT_PASSWORD${TEXT_RESET}                                 The minio user password
+      --minio_storage_class ${COLOR_YELLOW}MINIO_STORAGE_CLASS${TEXT_RESET}                                 The minio storage class
+      --minio_storage_size ${COLOR_YELLOW}MINIO_STORAGE_SIZE${TEXT_RESET}                                   The minio storage size
+      --minio_image ${COLOR_YELLOW}MINIO_IMAGE${TEXT_RESET}                                                 The minio image name
+
+Automatic GitHub Push (Optional):
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
+  -O, --github-org ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}          Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
+  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}             Git ssh key path
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}          Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
+
+Other Commands:
+      -h, --help                                                                                           Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function gitops_minio_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/working-dir  
+  SECRETS_KEY_SEPERATOR="/"
+  GIT_COMMIT_MSG="gitops-minio commit"
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+
+  #adding default values 
+  export MINIO_NAMESPACE=${MINIO_NAMESPACE:-"minio"}
+  export MINIO_INSTANCE_NAME=${MINIO_INSTANCE_NAME:-"minio"}
+  export MINIO_STORAGE_SIZE=${MINIO_STORAGE_SIZE:-"40Gi"}
+  export MINIO_IMAGE=${MINIO_IMAGE:-"quay.io/minio/minio:latest"}
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+
+      # AWS Secrets Manager Configuration
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
+        ;;
+      --sm-aws-access-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --sm-aws-secret-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+
+      # minio Provider Selection
+      --minio_namespace)
+        export MINIO_NAMESPACE=$1 && shift
+        ;;
+      --minio_instance_name)
+        export MINIO_INSTANCE_NAME=$1 && shift
+        ;;
+      # --minio_root_user)
+      #   export MINIO_ROOT_USER=$1 && shift
+      #   ;;
+      # --minio_root_password)
+      #   export MINIO_ROOT_PASSWORD=$1 && shift
+      #   ;;
+      --minio_storage_class)
+        export MINIO_STORAGE_CLASS=$1 && shift
+        ;;
+      --minio_storage_size)
+        export MINIO_STORAGE_SIZE=$1 && shift
+        ;;
+      --minio_image)
+        export MINIO_IMAGE=$1 && shift
+        ;;
+
+	    # optional parameters if needed
+
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_minio_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_minio_help  "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_minio_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_minio_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_minio_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_minio_help "REGION_ID or SM_AWS_REGION is not set"
+
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_minio_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_minio_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_minio_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_minio_help "GIT_BRANCH is not set"
+  fi
+
+  # [[ -z "$MINIO_NAMESPACE" ]] && gitops_minio_help "MINIO_NAMESPACE is not set. Please provide the namespace where MinIO should be deployed using --minio_namespace."
+  # [[ -z "$MINIO_INSTANCE_NAME" ]] && gitops_minio_help "MINIO_INSTANCE_NAME is not set. Please provide a unique name for the MinIO instance using --minio_instance_name."
+  # [[ -z "$MINIO_ROOT_USER" ]] && gitops_minio_help "MINIO_ROOT_USER is not set. Please provide the root username (access key) using --minio_root_user."
+  # [[ -z "$MINIO_ROOT_PASSWORD" ]] && gitops_minio_help "MINIO_ROOT_PASSWORD is not set. Please provide the root password (secret key) using --minio_root_password."
+  # [[ -z "$MINIO_STORAGE_CLASS" ]] && gitops_minio_help "MINIO_STORAGE_CLASS is not set. Please specify the Kubernetes storage class using --minio_storage_class."
+  # [[ -z "$MINIO_STORAGE_SIZE" ]] && gitops_minio_help "MINIO_STORAGE_SIZE is not set. Please provide the storage size (e.g., 50Gi) using --minio_storage_size."
+  # [[ -z "$MINIO_IMAGE" ]] && gitops_minio_help "MINIO_IMAGE is not set. Please provide the MinIO container image name using --minio_image."
+
+}
+
+function gitops_minio() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_minio_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_minio_interactive
+  fi
+
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  rm -rf $GITOPS_WORKING_DIR
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
+  TEMP_DIR=$GITOPS_CLUSTER_DIR/tmp-minio
+  mkdir -p ${TEMP_DIR}
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host .................................. ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "minio" "    "
+  echo_reset_dim "MinIO Namespace (minio_namespace)  .................... ${COLOR_MAGENTA}${MINIO_NAMESPACE}"
+  echo_reset_dim "MinIO Instance Name (minio_instance_name)  ............ ${COLOR_MAGENTA}${MINIO_INSTANCE_NAME}"
+  echo_reset_dim "MinIO Root User (minio_root_user)  .................... ${COLOR_MAGENTA}${MINIO_ROOT_USER}"
+  echo_reset_dim "MinIO Root Password (minio_root_password)  ............ ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:4}<snip>"
+  echo_reset_dim "MinIO Storage Class (minio_storage_class)  ............ ${COLOR_MAGENTA}${MINIO_STORAGE_CLASS}"
+  echo_reset_dim "MinIO Storage Size (minio_storage_size)  .............. ${COLOR_MAGENTA}${MINIO_STORAGE_SIZE}"
+  echo_reset_dim "MinIO Image (minio_image)  .............................${COLOR_MAGENTA}${MINIO_IMAGE}"
+
+  reset_colors
+
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+
+  if [ ! -z "$MINIO_NAMESPACE" ]; then
+
+    #minio provider role specific env variables
+    export MAS_CONFIG_DIR=$TEMP_DIR
+    export MINIO_ACTION="install"
+
+    # export MINIO_NAMESPACE=${MINIO_NAMESPACE:-"minio"}
+    # export MINIO_INSTANCE_NAME=${MINIO_INSTANCE_NAME:-"minio"}
+    # export MINIO_STORAGE_CLASS=${MINIO_STORAGE_CLASS:-""}
+    # export MINIO_STORAGE_SIZE=${MINIO_STORAGE_SIZE:-"40Gi"}
+    # export MINIO_IMAGE=${MINIO_IMAGE:-"quay.io/minio/minio:latest"}
+
+    # Set default root user and password if not provided it should re renadom gne
+    export MINIO_ROOT_USER=${MINIO_ROOT_USER:-"minio"}
+    export MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-"minio123"}
+
+    export SECRET_NAME_MINIO_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio
+
+    export SECRET_KEY_MINIO_USER=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_user
+    export SECRET_KEY_MINIO_PASSWORD=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_password
+    
+    # sm_update_secret and need to pss secrert | idempotent
+    ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
+    ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_minio\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_MINIO_AUTH "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$SECRET_KEY_MINIO_USER\", \"password\": \"$SECRET_KEY_MINIO_PASSWORD\"}" "${TAGS}"
+
+    # export MINIO_SECRET_FILE=$TEMP_DIR/MINIO-secret.json
+    # sm_get_secret_file ${AWS_MSK_SECRET} $MINIO_SECRET_FILE
+    # TEMP_AWS_MINIO_USER_PASSWORD=$(jq -r .password $MINIO_SECRET_FILE)
+    # if [[ -n ${TEMP_AWS_MINIO_USER_PASSWORD} ]]; then
+    #   export AWS_MINIO_USER_PASSWORD=${TEMP_AWS_MINIO_USER_PASSWORD}
+    #   echo "gitops_minio : AWS_MINIO_USER_PASSWORD=${AWS_MINIO_USER_PASSWORD:0:8}<snip> is available in the secret, use the same while invoking the role again"
+    # fi
+    
+  
+    #export MINIO_CFG_FILE_NAME=${MINIO_CFG_FILE_NAME:-"aws-msk-${MINIO_CLUSTER_NAME}-miniocfg.yml"}
+
+    # echo_reset_dim "minio_namespace ....................... ${COLOR_MAGENTA}${MINIO_NAMESPACE}"
+    # echo_reset_dim "minio_instance_name ................... ${COLOR_MAGENTA}${MINIO_INSTANCE_NAME}"
+    # echo_reset_dim "minio_storage_class ................... ${COLOR_MAGENTA}${MINIO_STORAGE_CLASS}"
+    # echo_reset_dim "minio_storage_size .................... ${COLOR_MAGENTA}${MINIO_STORAGE_SIZE}"
+    # echo_reset_dim "minio_image ........................... ${COLOR_MAGENTA}${MINIO_IMAGE}"
+    # echo_reset_dim "minio_root_user ....................... ${COLOR_MAGENTA}${MINIO_ROOT_USER}"
+    # echo_reset_dim "minio_root_password ................... ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:4}<snip>"
+
+    #echo_reset_dim "MINIO_CFG_FILE_NAME .................... ${COLOR_MAGENTA}${MINIO_CFG_FILE_NAME}"
+
+    # export AWS_DEFAULT_OUTPUT="json"
+    # export ROLE_NAME=minio && ansible-playbook ibm.mas_devops.run_role
+
+    # rc=$?
+    # [ $rc -ne 0 ] && exit $rc
+    # Extract the required details from the generated miniocfg/secret. For msk this is in plain text (stringData)
+    # export MINIO_USERNAME=$(yq 'select(di == 0) | .data.username' $TEMP_DIR/${MINIO_CFG_FILE_NAME} | base64 -d)
+    # export MINIO_PASSWORD=$(yq 'select(di == 0) | .data.password' $TEMP_DIR/${MINIO_CFG_FILE_NAME} | base64 -d)
+    # yq 'select(di == 1) | .spec' $TEMP_DIR/${MINIO_CFG_FILE_NAME} >> $TEMP_DIR/minio-info.yaml
+    # yq -i 'del(.config.credentials)' $TEMP_DIR/minio-info.yaml
+    # yq -i 'del(.displayName)' $TEMP_DIR/minio-info.yaml
+    # yq -i 'del(.type)' $TEMP_DIR/minio-info.yaml
+
+    # UNESCAPED_INFO="$(cat $TEMP_DIR/minio-info.yaml)"
+    
+
+    if [ -z $GIT_SSH ]; then
+      export GIT_SSH=false
+    fi
+
+    # Clone github target repo
+    # ---------------------------------------------------------------------------
+    if [ "$GITHUB_PUSH" == "true" ]; then
+      echo
+      echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+      clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+    fi
+    mkdir -p ${GITOPS_CLUSTER_DIR}
+
+
+    # Generate ArgoApps
+    # ---------------------------------------------------------------------------
+    echo
+    echo_h2 "Generating minio operator Applications"
+    echo "- minio operator"
+
+    # Generate ArgoApps
+    # ---------------------------------------------------------------------------
+    echo
+    echo_h2 "Generating minio operator Applications"
+    echo "- minio operator"
+
+    echo "Generating minio file ${GITOPS_CLUSTER_DIR}/ibm-minio.yaml"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-minio.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-minio.yaml
+
+    # Commit and push to github target repo
+    # ---------------------------------------------------------------------------
+    if [ "$GITHUB_PUSH" == "true" ]; then
+      echo
+      echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+      save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+      remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    fi
+
+    rm -rf $TEMP_DIR
+  
+  fi
+  exit 0
+}
