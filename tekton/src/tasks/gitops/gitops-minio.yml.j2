@@ -1,0 +1,116 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-minio
+spec:
+  params: 
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+      
+    - name: minio_namespace
+      type: string
+      default: minio
+    - name: minio_instance_name
+      type: string
+      default: minio
+    - name: minio_root_user
+      type: string
+    - name: minio_root_password
+      type: string
+    - name: minio_storage_class
+      type: string
+      default: nfs-client
+    - name: minio_storage_size
+      type: string
+      default: 40Gi
+    - name: minio_image
+      type: string
+      default: quay.io/minio/minio:latest
+  stepTemplate:
+    name: gitops-minio
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      #- name: CLUSTER_ID
+      #  value: $(params.cluster_id)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+
+      - name: MINIO_NAMESPACE
+        value: $(params.minio_namespace)
+      - name: MINIO_INSTANCE_NAME
+        value: $(params.minio_instance_name)
+      - name: MINIO_ROOT_USER
+        value: $(params.minio_root_user)
+      - name: MINIO_ROOT_PASSWORD
+        value: $(params.minio_root_password)
+      - name: MINIO_STORAGE_CLASS
+        value: $(params.minio_storage_class)
+      - name: MINIO_STORAGE_SIZE
+        value: $(params.minio_storage_size)
+      - name: MINIO_IMAGE
+        value: $(params.minio_image)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        mkdir -p /tmp/init-minio
+        mas gitops-minio -a $ACCOUNT -c $CLUSTER_NAME \
+        --secrets-path $SECRET_PATH \
+        --dir /tmp/init-minio \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-minio
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
