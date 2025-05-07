@@ -482,6 +482,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("mongodb_cpu_requests", "500m")
             self.setParam("mas_app_settings_aio_flag", "false")
 
+        # Configure storage class for pipeline PVC
+        # We prefer to use ReadWriteMany, but we can cope with ReadWriteOnce if necessary
+        if self.isSNO() or self.params["storage_class_rwx"] == "none":
+            self.pipelineStorageClass = self.getParam("storage_class_rwo")
+            self.pipelineStorageAccessMode = "ReadWriteOnce"
+        else:
+            self.pipelineStorageClass = self.getParam("storage_class_rwx")
+            self.pipelineStorageAccessMode = "ReadWriteMany"
+
     @logMethodCall
     def configDNSAndCerts(self):
         if self.showAdvancedOptions:
