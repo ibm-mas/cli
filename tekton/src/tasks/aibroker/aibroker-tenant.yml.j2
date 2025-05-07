@@ -217,3 +217,7 @@ spec:
         - aibroker_tenant
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
