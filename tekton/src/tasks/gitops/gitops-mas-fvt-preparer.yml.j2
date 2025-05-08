@@ -333,6 +333,12 @@ spec:
           fi
         }
 
+        # Assisted by watsonx Code Assistant 
+        get_random_email() {
+          local random_part=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
+          echo "${random_part}@example.com"
+        }
+
         export ARTIFACTORY_TOKEN=${FVT_ARTIFACTORY_TOKEN}
         export ARTIFACTORY_UPLOAD_DIR=${ARTIFACTORY_GENERIC_LOGS_URL}/mas-fvt/${MAS_INSTANCE_ID}/${DEVOPS_BUILD_NUMBER}
 
@@ -529,6 +535,51 @@ spec:
           fi
 
         fi
+
+
+        # - Automated Initial User Tests
+        # -----------------------------------
+        # See https://pages.github.ibm.com/maximoappsuite/saas/walkthrough/#automated-creation-of-initial-users for details
+
+        # Now all the MAS apps are installed, we are going to test the automated initial user creation feature
+        # We perform this test here (rather than after the first MAS Core phase of our FVT proess) so we can drive 
+        # the logic that grants application roles and assigns Manage Security Groups to the initial users
+
+        # Establish the initial_users secret
+          
+        export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
+        sm_login || exit 1
+
+        IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/initial_users" 
+        IU_SECRET_VALUE="{\"$(get_random_email)\": \"primary,john,smith\", \"$(get_random_email)\": \"primary,jane,doe\", \"$(get_random_email)\": \"secondary,joe,bloggs\", \"$(get_random_email)\": \"secondary,billy,bob\"}"
+        IU_SECRET_TAGS="[{\"Key\": \"source\", \"Value\": \"gitops-mas-fvt-preparer\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_NAME}\"}]"
+        
+        echo "Creating ${IU_SECRET_NAME} secret"
+        sm_update_secret "${IU_SECRET_NAME}" "${IU_SECRET_VALUE}" "${IU_SECRET_TAGS}"
+
+        # The Job will have already run when MAS Core was installed during the first phase of our FVT process
+        # Since no initial_users secret existed at that time, it will not have done anything
+        # The only way to get it to rerun and pick up the new initial_secret is to delete the Job and get ArgoCD to resync
+        # the application that the Job belongs to:
+
+        IU_JOB_LIST=$(oc get jobs -n mas-${MAS_INSTANCE_ID}-syncres -o jsonpath='{range .items[?(@.spec.template.metadata.labels.app=="ibm-create-initial-users-l")]}{.metadata.name}{"\n"}{end}')
+        echo "Deleting the following ibm-create-initial-user Jobs in mas-${MAS_INSTANCE_ID}-syncres namespace:"
+        echo "${IU_JOB_LIST}"
+        oc delete jobs "${IU_JOB_LIST}"
+
+        # Force a resync of the postsyncjobs app
+        POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+        echo "Forcing ${POSTSYNCJOBS_APP} to resync"
+        argocd_sync "${POSTSYNCJOBS_APP}"
+        check_argo_app_synced "${POSTSYNCJOBS_APP}"
+        check_argo_app_healthy "${POSTSYNCJOBS_APP}" 120
+
+        # TODO: I don't think we want to block MAS App FVTs if this goes wrong?
+        #       also no indication will be given in the FVT dashboard that this failed
+        #       could we do something with a junit reporter job in the app instead here?
+
+        # If we get here, the app is synced and healthy so we know that the Job rerun was successful
+
 
         echo "Sleeping for 180 seconds to give postsync job a chance to run before creating sync window"
         sleep 180
