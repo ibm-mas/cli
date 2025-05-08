@@ -256,7 +256,6 @@ spec:
     # IoT install *after* any Manage database preparation has completed
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/iot-app.yml.j2') | indent(4) }}
       runAfter:
-        - app-cfg-manage
         - suite-db2-setup-system
         - suite-config-kafka
 
@@ -270,6 +269,7 @@ spec:
     # 8.1 Install Monitor
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/monitor-app.yml.j2') | indent(4) }}
       runAfter:
+        - app-cfg-manage
         - app-cfg-iot
 
     # 8.2 Configure Monitor workspace
