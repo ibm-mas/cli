@@ -322,6 +322,8 @@ spec:
         set -o pipefail
         trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium' ERR EXIT
 
+
+
         get_trailing_number() {
           local input_string="$1"
           local trailing_number=$(echo $input_string | grep -Eo '[0-9]+$')
@@ -545,41 +547,67 @@ spec:
         # We perform this test here (rather than after the first MAS Core phase of our FVT proess) so we can drive 
         # the logic that grants application roles and assigns Manage Security Groups to the initial users
 
-        # Establish the initial_users secret
+        initial_user_test() {
+
+          # Establish the initial_users secret
+          export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
+          sm_login || return $?
+
+          IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/initial_users" 
+          IU_SECRET_VALUE="{\"$(get_random_email)\": \"primary,john,smith\", \"$(get_random_email)\": \"primary,jane,doe\", \"$(get_random_email)\": \"secondary,joe,bloggs\", \"$(get_random_email)\": \"secondary,billy,bob\"}"
+          IU_SECRET_TAGS="[{\"Key\": \"source\", \"Value\": \"gitops-mas-fvt-preparer\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_NAME}\"}]"
           
-        export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
-        sm_login || exit 1
+          echo "Creating ${IU_SECRET_NAME} secret"
+          sm_update_secret "${IU_SECRET_NAME}" "${IU_SECRET_VALUE}" "${IU_SECRET_TAGS}" || return $?
 
-        IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/initial_users" 
-        IU_SECRET_VALUE="{\"$(get_random_email)\": \"primary,john,smith\", \"$(get_random_email)\": \"primary,jane,doe\", \"$(get_random_email)\": \"secondary,joe,bloggs\", \"$(get_random_email)\": \"secondary,billy,bob\"}"
-        IU_SECRET_TAGS="[{\"Key\": \"source\", \"Value\": \"gitops-mas-fvt-preparer\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_NAME}\"}]"
-        
-        echo "Creating ${IU_SECRET_NAME} secret"
-        sm_update_secret "${IU_SECRET_NAME}" "${IU_SECRET_VALUE}" "${IU_SECRET_TAGS}"
+          # The Job will have already run when MAS Core was installed during the first phase of our FVT process
+          # Since no initial_users secret existed at that time, it will not have done anything
+          # The only way to get it to rerun and pick up the new initial_secret is to delete the Job and get ArgoCD to resync
+          # the application that the Job belongs to:
 
-        # The Job will have already run when MAS Core was installed during the first phase of our FVT process
-        # Since no initial_users secret existed at that time, it will not have done anything
-        # The only way to get it to rerun and pick up the new initial_secret is to delete the Job and get ArgoCD to resync
-        # the application that the Job belongs to:
+          IU_JOB_LIST=$(oc get jobs -n mas-${MAS_INSTANCE_ID}-syncres -o jsonpath='{range .items[?(@.spec.template.metadata.labels.app=="ibm-create-initial-users-l")]}{.metadata.name}{"\n"}{end}') || return $?
+          echo "Deleting the following ibm-create-initial-user Jobs in mas-${MAS_INSTANCE_ID}-syncres namespace:"
+          echo "${IU_JOB_LIST}"
+          oc delete jobs "${IU_JOB_LIST}" || return $?
 
-        IU_JOB_LIST=$(oc get jobs -n mas-${MAS_INSTANCE_ID}-syncres -o jsonpath='{range .items[?(@.spec.template.metadata.labels.app=="ibm-create-initial-users-l")]}{.metadata.name}{"\n"}{end}')
-        echo "Deleting the following ibm-create-initial-user Jobs in mas-${MAS_INSTANCE_ID}-syncres namespace:"
-        echo "${IU_JOB_LIST}"
-        oc delete jobs "${IU_JOB_LIST}"
+          
 
-        # Force a resync of the postsyncjobs app
-        POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-        echo "Forcing ${POSTSYNCJOBS_APP} to resync"
-        argocd_sync "${POSTSYNCJOBS_APP}"
-        check_argo_app_synced "${POSTSYNCJOBS_APP}"
-        check_argo_app_healthy "${POSTSYNCJOBS_APP}" 120
+          # Force a resync of the postsyncjobs app
+          POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          echo "Forcing ${POSTSYNCJOBS_APP} to resync"
+          argocd_sync "${POSTSYNCJOBS_APP}" || return $?
+          check_argo_app_synced "${POSTSYNCJOBS_APP}" || return $?
+          check_argo_app_healthy "${POSTSYNCJOBS_APP}" 5 || return $?
+        }
 
-        # TODO: I don't think we want to block MAS App FVTs if this goes wrong?
-        #       also no indication will be given in the FVT dashboard that this failed
-        #       could we do something with a junit reporter job in the app instead here?
+        IU_SYNC_START_TIME=$(date +%s)
+        initial_user_test
+        IU_RC=$?
+        IU_SYNC_ELAPSED_TIME=$(($(date +%s)-$IU_SYNC_START_TIME))
+
+        # Create junit xml for one testsuite of the parent argo app, and the testcase of sync
+        # DEVOPS_MONGO_URI=<set in secure properties>
+        # DEVOPS_ENVIRONMENT=<param>
+        # DEVOPS_BUILD_NUMBER=<param>
+        export DEVOPS_SUITE_NAME="initial-users-automation-${MAS_INSTANCE_ID}"
+        export JUNIT_OUTPUT_DIR="/tmp"
+        export PRODUCT_ID="ibm-mas-gitops"
+
+
+        IU_TEST_RESULT_XML='
+          <testsuites disabled="0" errors="0" failures="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+            <testsuite disabled="0" errors="0" failures="0" name="initial-users-automation-'${MAS_INSTANCE_ID}'" skipped="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+              <testcase name="Sync" time="'${IU_SYNC_ELAPSED_TIME}'" classname="Sync" />
+            </testsuite>
+          </testsuites>' > $JUNIT_OUTPUT_DIR/output.xml
+
+
+        echo "Run save-junit-to-mongo.py"
+        python3 /opt/app-root/src/save-junit-to-mongo.py
+
 
         # If we get here, the app is synced and healthy so we know that the Job rerun was successful
-
+        # -----------------------------------
 
         echo "Sleeping for 180 seconds to give postsync job a chance to run before creating sync window"
         sleep 180
