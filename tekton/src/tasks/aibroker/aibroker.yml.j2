@@ -42,6 +42,14 @@ spec:
       description: Application installation plan
       default: ""
 
+    # Artifactory details
+    - name: mas_icr_cp
+      type: string
+      default: ""
+    - name: mas_icr_cpopen
+      type: string
+      default: ""
+
     # Custom Label Support
     - name: custom_labels
       type: string
@@ -145,6 +153,12 @@ spec:
         value: /workspace/configs
       - name: MAS_APP_ID
         value: aibroker
+
+      # Artifactory Details
+      - name: MAS_ICR_CP
+        value: $(params.mas_icr_cp)
+      - name: MAS_ICR_CPOPEN
+        value: $(params.mas_icr_cpopen)
 
       # Custom Label Support
       - name: CUSTOM_LABELS

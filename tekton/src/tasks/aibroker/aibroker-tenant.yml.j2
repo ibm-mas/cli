@@ -26,6 +26,14 @@ spec:
       type: string
       description: Instance ID
 
+    # Artifactory details
+    - name: mas_icr_cp
+      type: string
+      default: ""
+    - name: mas_icr_cpopen
+      type: string
+      default: ""
+
     # Application - Operator
     # - name: mas_aibroker_channel
     - name: mas_app_channel
@@ -152,6 +160,12 @@ spec:
       - name: MAS_CONFIG_DIR
         value: /workspace/configs
 
+      # Artifactory Details
+      - name: MAS_ICR_CP
+        value: $(params.mas_icr_cp)
+      - name: MAS_ICR_CPOPEN
+        value: $(params.mas_icr_cpopen)
+
       # Custom Label Support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
@@ -222,4 +236,3 @@ spec:
   workspaces:
     - name: configs
       optional: true
-      

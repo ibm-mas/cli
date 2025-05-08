@@ -52,6 +52,11 @@
       value: $(params.mas_aibroker_apikey_action)
     - name: mas_aibroker_tenant_name
       value: $(params.mas_aibroker_tenant_name)
+    - name: mas_icr_cp
+      value: $(params.mas_icr_cp)
+    - name: mas_icr_cpopen
+      value: $(params.mas_icr_cpopen) 
+      
   taskRef:
     name: mas-devops-aibroker
     kind: Task
