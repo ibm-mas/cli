@@ -127,8 +127,32 @@ class Db2SettingsMixin():
         else:
             self.setParam("db2_action_manage", "none")
 
+        # Do we need to create and configure a Db2 for Facilities ?
+        if self.installFacilities:
+            self.printH2(f"Database Configuration for Maximo Real Estate and Facilities")
+            if self.yesOrNo("Create Facilities dedicated Db2 instance using the IBM Db2 Universal Operator"):
+                self.setParam("db2_action_facilities", "install")
+            else:
+                self.setParam("db2_action_facilities", "none")
+                instanceId = self.getParam('mas_instance_id')
+                workspaceId = self.getParam("mas_workspace_id")
+                self.selectLocalConfigDir()
+
+                # Check if a configuration already exists before creating a new one
+                jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-facilities.yaml")
+                print_formatted_text(f"Searching for Facilities database configuration file in {jdbcCfgFile} ...")
+                if path.exists(jdbcCfgFile):
+                    if self.yesOrNo(f"Facilities database configuration file 'jdbc-{instanceId}-facilities.yaml' already exists.  Do you want to generate a new one"):
+                        self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="facilities", destination=jdbcCfgFile)
+                else:
+                    print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid Facilities database configuration file now ...")
+                    self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="facilities", destination=jdbcCfgFile)
+        else:
+            self.setParam("db2_action_facilities", "none")
+        
+        
         # Do we need to configure Db2u?
-        if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
+        if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install" or self.getParam("db2_action_facilities") == "install":
             if self.showAdvancedOptions:
                 self.printH2("Installation Namespace")
                 self.promptForString("Install namespace", "db2_namespace", default="db2u")
@@ -177,11 +201,6 @@ class Db2SettingsMixin():
                     self.promptForString(" + Backup Volume", "db2_backup_storage_size", default=self.getParam("db2_backup_storage_size"))
             else:
                 self.setParam("db2_namespace", "db2u")
-        
-        # Do we need to create and configure a Db2 for Facilities ?
-        if self.getParam("db2_action_facilities") == "install":
-            # TODO: fill with logic for DB2 for Facilities
-            pass
 
     def setDB2DefaultSettings(self) -> None:
 

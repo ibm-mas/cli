@@ -763,13 +763,67 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     
     @logMethodCall
     def facilitiesSettings(self) -> None:
-        # TODO: Add configurations for Facilities
-        if self.installFaciltieis:
+        if self.installFacilities:
             self.printH1("Configure Maximo Real Estate and Facilities")
             self.printDescription([
                 "Facilities custom configurations"
             ])
-
+            self.printDescription([
+            "Maximo Real Estate and Facilities Size:",
+            "  1. Small",
+            "  2. Medium",
+            "  3. Large"
+            ])
+            self.promptForListSelect("Select the size:",["small","medium","large"],"mas_ws_facilities_size")
+            
+            if self.yesOrNo("Supply extra XML tags for Facilities server.xml"):
+                self.promptForString("Facilities Liberty Extension Secret Name", "mas_ws_facilities_liberty_extension_XML")
+            if self.yesOrNo("Supply custom AES Encryption Password"):
+                self.promptForString("Facilities AES Vault Secret Name", "mas_ws_facilities_vault_secret")
+            
+            self.promptForString("Set Facilities Routes Timeout:", "mas_ws_facilities_routes_timeout", default="600s")
+            self.promptForInt("Set Facilities maximum connection poll size:", default=200)
+            
+            self.printDescription(["Facilities Persistent Volume Storage Configuration"])
+            defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+            notUseAutodetectedStorageClasses = False
+            if defaultStorageClasses.provider is not None:
+                self.storageClassProvider = defaultStorageClasses.provider
+                print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
+                print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
+                if self.yesOrNo("Use the auto-detected storage classes"):
+                    self.printDescription([
+                    "Storage Mode for Userfiles PVC:",
+                    "  1. ReadWriteMany",
+                    "  2. ReadWriteOnce"
+                    ])
+                    storageMode = self.promptForListSelect("Select the storage mode for user files PVC:",["ReadWriteMany","ReadWriteOnce"],"mas_ws_facilities_storage_userfiles_mode",default=1)
+                    _ = self.setParam("mas_ws_facilities_storage_userfiles_class", defaultStorageClasses.rwx) if storageMode == "ReadWriteMany" else self.setParam("mas_ws_facilities_storage_userfiles_class", defaultStorageClasses.rwo)
+                    self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size",default=50)
+                    storageMode = self.promptForListSelect("Select the storage mode for log PVC:",["ReadWriteMany","ReadWriteOnce"],"mas_ws_facilities_storage_log_mode",default=1)
+                    _ = self.setParam("mas_ws_facilities_storage_log_class", defaultStorageClasses.rwx) if storageMode == "ReadWriteMany" else self.setParam("mas_ws_facilities_storage_log_class", defaultStorageClasses.rwo)
+                    self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size",default=30)
+                else:
+                    notUseAutodetectedStorageClasses = True
+            if defaultStorageClasses.provider is None or notUseAutodetectedStorageClasses:
+                for storageClass in getStorageClasses(self.dynamicClient):
+                    print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+                self.promptForString("Select storage class for user files PVC:","mas_ws_facilities_storage_userfiles_class")
+                self.promptForString("Select storage class for log PVC:","mas_ws_facilities_storage_log_class")
+                self.printDescription([
+                    "Storage Mode for Userfiles PVC:",
+                    "  1. ReadWriteMany",
+                    "  2. ReadWriteOnce"
+                ])
+                self.promptForListSelect("Select the storage mode for user files PVC:",["ReadWriteMany","ReadWriteOnce"],"mas_ws_facilities_storage_userfiles_mode",default=1)
+                self.promptForListSelect("Select the storage mode for log PVC:",["ReadWriteMany","ReadWriteOnce"],"mas_ws_facilities_storage_log_mode",default=1)
+                self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size",default=50)
+                self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size",default=30)
+            
+            if self.yesOrNo("Supply configuration for dedicated workflow agents"):
+                self.promptForString("Dedicated Workflow Agent JSON:")
+                
     @logMethodCall
     def chooseInstallFlavour(self) -> None:
         self.printH1("Choose Install Mode")

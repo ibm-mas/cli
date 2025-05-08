@@ -378,6 +378,11 @@ masAppsArgGroup.add_argument(
     required=False,
     help="Subscription channel for Maximo Ai Broker"
 )
+masAppsArgGroup.add_argument(
+    "--facilities-channel",
+    required=False,
+    help="Subscription channel for Maximo Real Estate and Facilities"
+)
 
 # AI Broker
 # -----------------------------------------------------------------------------
@@ -1136,6 +1141,11 @@ approvalsGroup.add_argument(
     "--approval-visualinspection",
     default="",
     help="Require approval after the Maximo Visual Inspection workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-facilities",
+    default="",
+    help="Require approval after the Maximo Real Estate and Facilities workspace has been configured"
 )
 
 
