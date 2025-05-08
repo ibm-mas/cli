@@ -184,6 +184,7 @@ function gitops_odh_noninteractive() {
 }
 
 function gitops_odh() {
+  # Remove the subcommand (e.g., "create-gitops")
   shift
   if [[ $# -gt 0 ]]; then
     gitops_odh_noninteractive "$@"
@@ -192,19 +193,85 @@ function gitops_odh() {
     exit 1
   fi
 
-  mkdir -p "$GITOPS_WORKING_DIR"
-  GITOPS_INSTANCE_DIR="${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}"
-  mkdir -p "$GITOPS_INSTANCE_DIR"
+  # Error trap
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  # Prepare directories
+  rm -rf "$GITOPS_WORKING_DIR"
+  mkdir -p "${GITOPS_WORKING_DIR}"
+  GITOPS_CLUSTER_DIR="${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}"
+  TEMP_DIR="${GITOPS_CLUSTER_DIR}/tmp-odh"
+  mkdir -p "$TEMP_DIR"
 
   echo
+  echo_h2 "Review Settings"
+  echo "${TEXT_DIM}"
+  echo_h2 "Target"
+  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Temp Directory ........................ ${COLOR_MAGENTA}${TEMP_DIR}"
+  echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  AVP_TYPE=aws
+  sm_login
+
+  # Set up secret key and fetch secret
+  export MAS_CONFIG_DIR="$TEMP_DIR"
+  export ODH_SECRET="odh${SECRETS_KEY_SEPERATOR}${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}"
+  export ODH_SECRET_FILE="$TEMP_DIR/odh-secret.json"
+
+  sm_get_secret_file "$ODH_SECRET" "$ODH_SECRET_FILE"
+
+  # Extract and export secrets
+  export MINIO_ACCESS_KEY=$(jq -r .sm_minio_accesskey "$ODH_SECRET_FILE")
+  export MINIO_SECRET_KEY=$(jq -r .sm_minio_secretkey "$ODH_SECRET_FILE")
+  export MINIO_HOST=$(jq -r .sm_minio_host "$ODH_SECRET_FILE")
+  export MINIO_PORT=$(jq -r .sm_minio_port "$ODH_SECRET_FILE")
+  export MINIO_BUCKET=$(jq -r .sm_minio_bucket_default "$ODH_SECRET_FILE")
+
+  export MARIADB_HOST=$(jq -r .sm_mariadb_host "$ODH_SECRET_FILE")
+  export MARIADB_PORT=$(jq -r .sm_mariadb_port "$ODH_SECRET_FILE")
+  export MARIADB_USER=$(jq -r .sm_mariadb_user "$ODH_SECRET_FILE")
+  export MARIADB_DATABASE=$(jq -r .sm_mariadb_database "$ODH_SECRET_FILE")
+  export MARIADB_SECRET_NAME=$(jq -r .sm_mariadb_secret_name "$ODH_SECRET_FILE")
+  export MARIADB_SECRET_VALUE=$(jq -r .sm_mariadb_secret_value "$ODH_SECRET_FILE")
+
+  echo_h2 "ODH Secret Summary"
+  echo_reset_dim "MINIO_HOST ............................. ${COLOR_MAGENTA}${MINIO_HOST}"
+  echo_reset_dim "MINIO_BUCKET ........................... ${COLOR_MAGENTA}${MINIO_BUCKET}"
+  echo_reset_dim "MARIADB_HOST ........................... ${COLOR_MAGENTA}${MARIADB_HOST}"
+  echo_reset_dim "MARIADB_DATABASE ....................... ${COLOR_MAGENTA}${MARIADB_DATABASE}"
+  reset_colors
+
+  # Render YAML
   echo_h2 "Generating OpenDataHub GitOps YAML"
-  echo "Output: ${GITOPS_INSTANCE_DIR}/ibm-mas-odh-install.yaml"
+  echo "Output: ${TEMP_DIR}/ibm-mas-odh-install.yaml"
 
-  jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-odh-install.yaml.j2" "${GITOPS_INSTANCE_DIR}/ibm-mas-odh-install.yaml"
+  jinjanate_commmon \
+    "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-odh-install.yaml.j2" \
+    "${TEMP_DIR}/ibm-mas-odh-install.yaml"
 
+  # Collect info block for secret update
+  yq eval '.' "${TEMP_DIR}/ibm-mas-odh-install.yaml" > "${TEMP_DIR}/odh-info.yaml"
+  UNESCAPED_INFO="$(cat ${TEMP_DIR}/odh-info.yaml)"
+  ESCAPED_INFO="${UNESCAPED_INFO//\"/\\\"}"
+
+  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_odh\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+
+  sm_update_secret "$ODH_SECRET" \
+    "{\"minio_access_key\": \"${MINIO_ACCESS_KEY}\", \"minio_secret_key\": \"${MINIO_SECRET_KEY}\", \"mariadb_user\": \"${MARIADB_USER}\"}" \
+    "$TAGS"
+
+  # GitHub push
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     echo_h2 "Pushing changes to GitHub"
     save_to_target_git_repo "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$GIT_BRANCH" "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "$GIT_COMMIT_MSG"
-    remove_git_repo_clone "$GITOPS_WORKING_DIR/$GITHUB_REPO"
+    remove_git_repo_clone "${GITOPS_WORKING_DIR}/${GITHUB_REPO}"
   fi
+
+  rm -rf "$TEMP_DIR"
+  echo_h2 "ODH GitOps completed."
 }
