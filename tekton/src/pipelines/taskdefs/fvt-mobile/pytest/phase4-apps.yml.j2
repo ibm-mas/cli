@@ -1,0 +1,29 @@
+- name: mobile-pytest-ic
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-ic
+  runAfter:
+    - mobile-pytest-calibration
+    - mobile-pytest-civil-defects
+
+- name: mobile-pytest-ir
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-ir
+  runAfter:
+    - mobile-pytest-calibration
+    - mobile-pytest-civil-defects
+    
+- name: mobile-pytest-it
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-it
+  runAfter:
+    - mobile-pytest-calibration
+    - mobile-pytest-civil-defects
