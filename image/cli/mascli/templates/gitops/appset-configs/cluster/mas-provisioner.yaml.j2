@@ -1,0 +1,21 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+mas_provisioner:
+  account_alias: {{ ACCOUNT_ALIAS }}
+  image_pull_secret: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
+  cluster_domain: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLUSTER_DOMAIN }}>"
+  provisioner_namespace: {{ PROVISIONER_NAMESPACE }}
+  provisioner_version: {{ PROVISIONER_VERSION }}
+  enable_mtls: {{ ENABLE_MTLS }}
+  github_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_GITHUB_TOKEN }}>"
+  csb_client_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CSB_CLIENT_CA }}>"
+  pagerduty_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_PAGERDUTY }}>"
+  service_port: {{ SERVICE_PORT }}
+  status_repo_url: {{ STATUS_REPO_URL }}
+  base_branch: {{ BASE_BRANCH }}
+  async_poll_interval: {{ ASYNC_POLL_INTERVAL }}
+  async_poll_max: {{ ASYNC_POLL_MAX }}
+  instana_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_API }}>"
+  enable_pd_alert: {{ ENABLE_PD_ALERT }}
+  enable_ocm_alert: {{ ENABLE_OCM_ALERT }}
+  ocm_api_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OCM_API }}>"
