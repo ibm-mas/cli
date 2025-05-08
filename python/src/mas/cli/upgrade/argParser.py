@@ -54,6 +54,13 @@ otherArgGroup.add_argument(
     help="Accept all license terms without prompting"
 )
 otherArgGroup.add_argument(
+    "--dev-mode",
+    required=False,
+    action="store_true",
+    default=False,
+    help="Configure upgrade for development mode",
+)
+otherArgGroup.add_argument(
     '-h', "--help",
     action='help',
     default=False,

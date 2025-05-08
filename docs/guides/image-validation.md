@@ -1,6 +1,11 @@
-Image Validation
+Verifying IBM Maximo Operator Catalog Content:
 ===============================================================================
-MAS container images are digitally signed, and their signatures can be verified using the MAS public key. The private key is used to generate the signature, while the corresponding public key enables anyone to validate the signature, ensuring both the integrity and authenticity of the content. To begin the verification process, the customer must have the following items:
+
+All IBM content is digitally signed, and their signatures can be verified using the MAS public key. The private key is used to generate the signature, while the corresponding public key enables anyone to validate the signature, ensuring both the integrity and authenticity of the content. 
+
+Here's how to verify images from IBM Maximo:
+===============================================================================
+To begin the verification process, the customer must have the following items:
 
 - [PRD0010163key.pub.asc](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/image-validation/PRD0010163key.pub.asc) - the MAS public key that should be used to validate image signatures
 - [PRD0010163key.pem.cer](https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/image-validation/PRD0010163key.pem.cer) - the MAS public certificate associated with the public key 
@@ -81,3 +86,7 @@ openssl ocsp -no_nonce -issuer /mascli/image-validation/PRD0010163key.pem.chain 
 
 If the certificate is valid, the output will be: Response verify OK
 
+
+Here's how to verify images from IBM DB2:
+===============================================================================
+https://www.ibm.com/docs/en/db2/11.5.x?topic=installing-code-signing-db2-images-post-02282023
