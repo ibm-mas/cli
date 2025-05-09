@@ -129,7 +129,7 @@ class Db2SettingsMixin():
 
         # Do we need to create and configure a Db2 for Facilities ?
         if self.installFacilities:
-            self.printH2(f"Database Configuration for Maximo Real Estate and Facilities")
+            self.printH2("Database Configuration for Maximo Real Estate and Facilities")
             if self.yesOrNo("Create Facilities dedicated Db2 instance using the IBM Db2 Universal Operator"):
                 self.setParam("db2_action_facilities", "install")
             else:
@@ -149,8 +149,7 @@ class Db2SettingsMixin():
                     self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="facilities", destination=jdbcCfgFile)
         else:
             self.setParam("db2_action_facilities", "none")
-        
-        
+
         # Do we need to configure Db2u?
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install" or self.getParam("db2_action_facilities") == "install":
             if self.showAdvancedOptions:

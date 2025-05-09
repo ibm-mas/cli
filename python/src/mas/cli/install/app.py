@@ -663,10 +663,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installAiBroker = self.yesOrNo("Install AI Broker")
         if self.installAiBroker:
             self.configAppChannel("aibroker")
-        
-        self.installFacilities = self.yesOrNo("Install Facilities")
-        if self.installFacilities:
-            self.configAppChannel("facilities")
+
+        # TODO: Update the condition to allow 9.1 or greater
+        if not self.getParam("mas_channel").startswith("9.1"):
+            self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
+            if self.installFacilities:
+                self.configAppChannel("facilities")
 
     @logMethodCall
     def configAppChannel(self, appId):
@@ -760,7 +762,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if self.getParam("cos_type") == "ibm":
                 self.promptForString("IBM Cloud API Key", "cos_apikey", isPassword=True)
                 self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
-    
+
     @logMethodCall
     def facilitiesSettings(self) -> None:
         if self.installFacilities:
@@ -769,21 +771,21 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Facilities custom configurations"
             ])
             self.printDescription([
-            "Maximo Real Estate and Facilities Size:",
-            "  1. Small",
-            "  2. Medium",
-            "  3. Large"
+                "Maximo Real Estate and Facilities Size:",
+                "  1. Small",
+                "  2. Medium",
+                "  3. Large"
             ])
-            self.promptForListSelect("Select the size:",["small","medium","large"],"mas_ws_facilities_size")
-            
+            self.promptForListSelect("Select the size:", ["small", "medium", "large"], "mas_ws_facilities_size")
+
             if self.yesOrNo("Supply extra XML tags for Facilities server.xml"):
                 self.promptForString("Facilities Liberty Extension Secret Name", "mas_ws_facilities_liberty_extension_XML")
             if self.yesOrNo("Supply custom AES Encryption Password"):
                 self.promptForString("Facilities AES Vault Secret Name", "mas_ws_facilities_vault_secret")
-            
+
             self.promptForString("Set Facilities Routes Timeout:", "mas_ws_facilities_routes_timeout", default="600s")
             self.promptForInt("Set Facilities maximum connection poll size:", default=200)
-            
+
             self.printDescription(["Facilities Persistent Volume Storage Configuration"])
             defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
             notUseAutodetectedStorageClasses = False
@@ -794,36 +796,36 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
                 if self.yesOrNo("Use the auto-detected storage classes"):
                     self.printDescription([
-                    "Storage Mode for Userfiles PVC:",
-                    "  1. ReadWriteMany",
-                    "  2. ReadWriteOnce"
+                        "Storage Mode for Userfiles PVC:",
+                        "  1. ReadWriteMany",
+                        "  2. ReadWriteOnce"
                     ])
-                    storageMode = self.promptForListSelect("Select the storage mode for user files PVC:",["ReadWriteMany","ReadWriteOnce"],"mas_ws_facilities_storage_userfiles_mode",default=1)
+                    storageMode = self.promptForListSelect("Select the storage mode for user files PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_userfiles_mode", default=1)
                     _ = self.setParam("mas_ws_facilities_storage_userfiles_class", defaultStorageClasses.rwx) if storageMode == "ReadWriteMany" else self.setParam("mas_ws_facilities_storage_userfiles_class", defaultStorageClasses.rwo)
-                    self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size",default=50)
-                    storageMode = self.promptForListSelect("Select the storage mode for log PVC:",["ReadWriteMany","ReadWriteOnce"],"mas_ws_facilities_storage_log_mode",default=1)
+                    self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
+                    storageMode = self.promptForListSelect("Select the storage mode for log PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_log_mode", default=1)
                     _ = self.setParam("mas_ws_facilities_storage_log_class", defaultStorageClasses.rwx) if storageMode == "ReadWriteMany" else self.setParam("mas_ws_facilities_storage_log_class", defaultStorageClasses.rwo)
-                    self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size",default=30)
+                    self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
                 else:
                     notUseAutodetectedStorageClasses = True
             if defaultStorageClasses.provider is None or notUseAutodetectedStorageClasses:
                 for storageClass in getStorageClasses(self.dynamicClient):
                     print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-                self.promptForString("Select storage class for user files PVC:","mas_ws_facilities_storage_userfiles_class")
-                self.promptForString("Select storage class for log PVC:","mas_ws_facilities_storage_log_class")
+                self.promptForString("Select storage class for user files PVC:", "mas_ws_facilities_storage_userfiles_class")
+                self.promptForString("Select storage class for log PVC:", "mas_ws_facilities_storage_log_class")
                 self.printDescription([
                     "Storage Mode for Userfiles PVC:",
                     "  1. ReadWriteMany",
                     "  2. ReadWriteOnce"
                 ])
-                self.promptForListSelect("Select the storage mode for user files PVC:",["ReadWriteMany","ReadWriteOnce"],"mas_ws_facilities_storage_userfiles_mode",default=1)
-                self.promptForListSelect("Select the storage mode for log PVC:",["ReadWriteMany","ReadWriteOnce"],"mas_ws_facilities_storage_log_mode",default=1)
-                self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size",default=50)
-                self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size",default=30)
-            
+                self.promptForListSelect("Select the storage mode for user files PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_userfiles_mode", default=1)
+                self.promptForListSelect("Select the storage mode for log PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_log_mode", default=1)
+                self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
+                self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
+
             if self.yesOrNo("Supply configuration for dedicated workflow agents"):
                 self.promptForString("Dedicated Workflow Agent JSON:")
-                
+
     @logMethodCall
     def chooseInstallFlavour(self) -> None:
         self.printH1("Choose Install Mode")
@@ -933,7 +935,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "approval_optimizer": {"id": "app-cfg-optimizer"},  # After Optimizer workspace has been configured
             "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
             "approval_visualinspection": {"id": "app-cfg-visualinspection"},  # After Visual Inspection workspace has been configured
-            "approval_facilities": {"id": "app-cfg-facilities"}, # After Facilities workspace has been configured 
+            "approval_facilities": {"id": "app-cfg-facilities"},  # After Facilities workspace has been configured 
         }
 
         self.configGrafana()
