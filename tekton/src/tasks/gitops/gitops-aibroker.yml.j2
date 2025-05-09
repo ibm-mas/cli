@@ -1,0 +1,244 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-aibroker
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: aibroker_namespace
+      type: string
+    - name: mas_aibroker_watsonx_secret
+      type: string
+    - name: pull_secret_name
+      type: string
+    - name: mas_aibroker_storage_provider
+      type: string
+    - name: mas_aibroker_minio_secret
+      type: string
+    - name: mas_aibroker_storage_accesskey
+      type: string
+    - name: mas_aibroker_storage_secretkey
+      type: string
+    - name: mas_aibroker_storage_host
+      type: string
+    - name: mas_aibroker_storage_port
+      type: string
+    - name: mas_aibroker_storage_ssl
+      type: string
+    - name: mas_aibroker_storage_region
+      type: string
+    - name: mas_aibroker_storage_pipelines_bucket
+      type: string
+    - name: mas_aibroker_storage_tenants_bucket
+      type: string
+    - name: mas_aibroker_storage_templates_bucket
+      type: string
+    - name: mas_aibroker_db_host
+      type: string
+    - name: mas_aibroker_mariadb_secret
+      type: string
+    - name: mas_aibroker_db_port
+      type: string
+    - name: mas_aibroker_db_user
+      type: string
+    - name: mas_aibroker_db_database
+      type: string
+    - name: mas_aibroker_db_secret_name
+      type: string
+    - name: mas_aibroker_db_secret_value
+      type: string
+    - name: primary_storage_class
+      type: string
+    - name: slscfg_registration_key
+      type: string
+    - name: drocfg_ca
+      type: string
+    - name: drocfg_registration_key
+      type: string
+    - name: drocfg_url
+      type: string
+    - name: jdbccfg_username
+      type: string
+    - name: jdbccfg_password
+      type: string
+    - name: jdbccfg_url
+      type: string
+    - name: jdbccfg_sslenabled
+      type: string
+    - name: jdbccfg_ca
+      type: string
+    - name: mas_entitlement_key
+      type: string
+    - name: artifactory_username
+      type: string
+    - name: artifactory_token
+      type: string
+    - name: mas_app_channel
+      type: string
+    - name: mas_catalog_source
+      type: string
+    - name: mas_icr_cp
+      type: string
+    - name: mas_icr_cpopen
+      type: string
+    - name: cluster_domain
+      type: string
+    - name: in_saas_env
+      type: string
+
+  stepTemplate:
+    name: gitops-aibroker
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: AIBROKER_NAMESPACE
+        value: $(params.aibroker_namespace)
+      - name: MAS_AIBROKER_WATSONX_SECRET
+        value: $(params.mas_aibroker_watsonx_secret)
+      - name: PULL_SECRET_NAME
+        value: $(params.pull_secret_name)
+      - name: MAS_AIBROKER_STORAGE_PROVIDER
+        value: $(params.mas_aibroker_storage_provider)
+      - name: MAS_AIBROKER_MINIO_SECRET
+        value: $(params.mas_aibroker_minio_secret)
+      - name: MAS_AIBROKER_STORAGE_ACCESSKEY
+        value: $(params.mas_aibroker_storage_accesskey)
+      - name: MAS_AIBROKER_STORAGE_SECRETKEY
+        value: $(params.mas_aibroker_storage_secretkey)
+      - name: MAS_AIBROKER_STORAGE_HOST
+        value: $(params.mas_aibroker_storage_host)
+      - name: MAS_AIBROKER_STORAGE_PORT
+        value: $(params.mas_aibroker_storage_port)
+      - name: MAS_AIBROKER_STORAGE_SSL
+        value: $(params.mas_aibroker_storage_ssl)
+      - name: MAS_AIBROKER_STORAGE_REGION
+        value: $(params.mas_aibroker_storage_region)
+      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
+        value: $(params.mas_aibroker_storage_pipelines_bucket)
+      - name: MAS_AIBROKER_STORAGE_TENANTS_BUCKET
+        value: $(params.mas_aibroker_storage_tenants_bucket)
+      - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
+        value: $(params.mas_aibroker_storage_templates_bucket)
+      - name: MAS_AIBROKER_DB_HOST
+        value: $(params.mas_aibroker_db_host)
+      - name: MAS_AIBROKER_MARIADB_SECRET
+        value: $(params.mas_aibroker_mariadb_secret)
+      - name: MAS_AIBROKER_DB_PORT
+        value: $(params.mas_aibroker_db_port)
+      - name: MAS_AIBROKER_DB_USER
+        value: $(params.mas_aibroker_db_user)
+      - name: MAS_AIBROKER_DB_DATABASE
+        value: $(params.mas_aibroker_db_database)
+      - name: MAS_AIBROKER_DB_SECRET_NAME
+        value: $(params.mas_aibroker_db_secret_name)
+      - name: MAS_AIBROKER_DB_SECRET_VALUE
+        value: $(params.mas_aibroker_db_secret_value)
+      - name: PRIMARY_STORAGE_CLASS
+        value: $(params.primary_storage_class)
+      - name: SLSCFG_REGISTRATION_KEY
+        value: $(params.slscfg_registration_key)
+      - name: DROCFG_CA
+        value: $(params.drocfg_ca)
+      - name: DROCFG_REGISTRATION_KEY
+        value: $(params.drocfg_registration_key)
+      - name: DROCFG_URL
+        value: $(params.drocfg_url)
+      - name: JDBCCFG_USERNAME
+        value: $(params.jdbccfg_username)
+      - name: JDBCCFG_PASSWORD
+        value: $(params.jdbccfg_password)
+      - name: JDBCCFG_URL
+        value: $(params.jdbccfg_url)
+      - name: JDBCCFG_SSLENABLED
+        value: $(params.jdbccfg_sslenabled)
+      - name: JDBCCFG_CA
+        value: $(params.jdbccfg_ca)
+      - name: MAS_ENTITLEMENT_KEY
+        value: $(params.mas_entitlement_key)
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
+      - name: MAS_APP_CHANNEL
+        value: $(params.mas_app_channel)
+      - name: MAS_CATALOG_SOURCE
+        value: $(params.mas_catalog_source)
+      - name: MAS_ICR_CP
+        value: $(params.mas_icr_cp)
+      - name: MAS_ICR_CPOPEN
+        value: $(params.mas_icr_cpopen)
+      - name: CLUSTER_DOMAIN
+        value: $(params.cluster_domain)
+      - name: IN_SAAS_ENV
+        value: $(params.in_saas_env)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        mkdir -p /tmp/init-aibroker
+        mas gitops-aibroker -a $ACCOUNT -c $CLUSTER_NAME \
+        --secrets-path $SECRET_PATH \
+        --dir /tmp/init-aibroker \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-aibroker
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
