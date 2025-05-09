@@ -1,0 +1,23 @@
+- name: suite-db2-setup-facilities
+  timeout: "0"
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: suite-db2-setup-facilities
+
+    - name: db2_instance_name
+      value: "mas-$(params.mas_instance_id)-$(params.mas_workspace_id)-facilities"
+
+    - name: db2_namespace
+      value: "$(params.db2_namespace)"
+  # Only perform the task when a dedicated database is selected 
+  when:
+    - input: "$(params.mas_app_channel_facilities)"
+      operator: notin
+      values: [""]
+    - input: "$(params.db2_action_facilities)"
+      operator: in
+      values: ["install"]
+  taskRef:
+    name: mas-devops-suite-db2-setup-for-facilities
+    kind: Task
