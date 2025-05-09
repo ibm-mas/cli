@@ -20,7 +20,8 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 MAS PROVISIONER OPERATOR:
-      --status-repo-url ${COLOR_YELLOW}STATUS_REPO_URL${TEXT_RESET}              GitHub repo where the status of the operation will be recorded   
+      --status-repo-url ${COLOR_YELLOW}STATUS_REPO_URL${TEXT_RESET}              GitHub repo where the status of the operation will be recorded
+      --mas-broker-domain ${COLOR_YELLOW}MAS_BROKER_DOMAIN${TEXT_RESET}          The domain to route the service for the MAS Provisioner
     (Optional)
       --provisioner-namespace ${COLOR_YELLOW}PROVISIONER_NAMESPACE${TEXT_RESET}  Namespace for the mas provisioner
       --account-alias ${COLOR_YELLOW}ACCOUNT_ALIAS${TEXT_RESET}                  Enables customization for the account id to use in the status repo. Default is fetched from the order payload received
@@ -108,6 +109,9 @@ function gitops_mas_provisioner_noninteractive() {
       --status-repo-url)
         export STATUS_REPO_URL=$1 && shift
         ;;
+      --mas-broker-domain)
+        export MAS_BROKER_DOMAIN=$1 && shift
+        ;;
       --base-branch)
         export BASE_BRANCH=$1 && shift
         ;;
@@ -174,6 +178,7 @@ function gitops_mas_provisioner_noninteractive() {
   fi
 
   [[ -z "$STATUS_REPO_URL" ]] && gitops_mas_provisioner_help "STATUS_REPO_URL is not set"
+  [[ -z "$MAS_BROKER_DOMAIN" ]] && gitops_mas_provisioner_help "MAS_BROKER_DOMAIN is not set"
 
 }
 
@@ -252,7 +257,6 @@ function gitops_mas_provisioner() {
 
   export SECRET_NAME_PROVISIONER=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}provisioner
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
-  export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain_public#cluster_domain_public
   export SECRET_KEY_INSTANA_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}instana#key
   export SECRET_KEY_GITHUB_TOKEN=${SECRET_NAME_PROVISIONER}#git_token
   export SECRET_KEY_PAGERDUTY=${SECRET_NAME_PROVISIONER}#pd_key
