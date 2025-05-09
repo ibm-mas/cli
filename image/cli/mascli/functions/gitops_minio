@@ -96,12 +96,6 @@ function gitops_minio_noninteractive() {
       --minio_instance_name)
         export MINIO_INSTANCE_NAME=$1 && shift
         ;;
-      # --minio_root_user)
-      #   export MINIO_ROOT_USER=$1 && shift
-      #   ;;
-      # --minio_root_password)
-      #   export MINIO_ROOT_PASSWORD=$1 && shift
-      #   ;;
       --minio_storage_class)
         export MINIO_STORAGE_CLASS=$1 && shift
         ;;
@@ -111,9 +105,6 @@ function gitops_minio_noninteractive() {
       --minio_image)
         export MINIO_IMAGE=$1 && shift
         ;;
-
-	    # optional parameters if needed
-
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -182,11 +173,8 @@ function gitops_minio() {
   set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
-  rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  TEMP_DIR=$GITOPS_CLUSTER_DIR/tmp-minio
-  mkdir -p ${TEMP_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
 
   echo
   reset_colors
@@ -228,13 +216,17 @@ function gitops_minio() {
   echo_h2 "minio" "    "
   echo_reset_dim "MinIO Namespace (minio_namespace)  .................... ${COLOR_MAGENTA}${MINIO_NAMESPACE}"
   echo_reset_dim "MinIO Instance Name (minio_instance_name)  ............ ${COLOR_MAGENTA}${MINIO_INSTANCE_NAME}"
-  # echo_reset_dim "MinIO Root User (minio_root_user)  .................... ${COLOR_MAGENTA}${MINIO_ROOT_USER}"
-  # echo_reset_dim "MinIO Root Password (minio_root_password)  ............ ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:4}<snip>"
   echo_reset_dim "MinIO Storage Class (minio_storage_class)  ............ ${COLOR_MAGENTA}${MINIO_STORAGE_CLASS}"
   echo_reset_dim "MinIO Storage Size (minio_storage_size)  .............. ${COLOR_MAGENTA}${MINIO_STORAGE_SIZE}"
   echo_reset_dim "MinIO Image (minio_image)  .............................${COLOR_MAGENTA}${MINIO_IMAGE}"
 
   reset_colors
+
+  # Set up secrets
+  # ---------------------------------------------------------------------------
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$GITOPS_CLUSTER_DIR/tmp-minio
+  mkdir -p ${TEMP_DIR}
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
@@ -246,7 +238,9 @@ function gitops_minio() {
 
     export SECRET_NAME_MINIO_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio
     echo_reset_dim "SECRET_NAME_MINIO_AUTH ................ ${COLOR_MAGENTA}$SECRET_NAME_MINIO_AUTH"
-
+    export SECRET_KEY_MINIO_USER=${SECRET_NAME_MINIO_AUTH}#sm_minio_user
+    export SECRET_KEY_MINIO_PASSWORD=${SECRET_NAME_MINIO_AUTH}#sm_minio_password
+    
     if [ -z "$MINIO_ROOT_PASSWORD" ]; then
       # Create a secret in SM containing the username/password for this specific minio instance.
       export MINIO_SECRET_FILE=$TEMP_DIR/minio-secret.json
@@ -256,6 +250,7 @@ function gitops_minio() {
       export MINIO_ROOT_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
       sm_get_secret_file ${SECRET_NAME_MINIO_AUTH} $MINIO_SECRET_FILE
       TEMP_MINIO_PASSWORD=$(jq -r .password $MINIO_SECRET_FILE)
+      TEMP_MINIO_PASSWORD=$(jq -r .sm_minio_password $MINIO_SECRET_FILE)
       if [[ -n ${TEMP_MINIO_PASSWORD} ]]; then
         export MINIO_ROOT_PASSWORD=${TEMP_MINIO_PASSWORD}
         echo_reset_dim "MINIO_ROOT_PASSWORD ........................... ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:8}<snip> is available in the secret, using that value"
@@ -266,9 +261,6 @@ function gitops_minio() {
       sm_update_secret $SECRET_NAME_MINIO_AUTH "{ \"username\": \"$MINIO_ROOT_USER\", \"password\": \"$MINIO_ROOT_PASSWORD\"}" "${TAGS}"
     fi
     
-  
-    #export MINIO_CFG_FILE_NAME=${MINIO_CFG_FILE_NAME:-"aws-msk-${MINIO_CLUSTER_NAME}-miniocfg.yml"}
-
     echo_reset_dim "minio_namespace ....................... ${COLOR_MAGENTA}${MINIO_NAMESPACE}"
     echo_reset_dim "minio_instance_name ................... ${COLOR_MAGENTA}${MINIO_INSTANCE_NAME}"
     echo_reset_dim "minio_storage_class ................... ${COLOR_MAGENTA}${MINIO_STORAGE_CLASS}"
@@ -298,14 +290,8 @@ function gitops_minio() {
     echo_h2 "Generating minio operator Applications"
     echo "- minio operator"
 
-    # Generate ArgoApps
-    # ---------------------------------------------------------------------------
-    echo
-    echo_h2 "Generating minio operator Applications"
-    echo "- minio operator"
-
     echo "Generating minio file ${GITOPS_CLUSTER_DIR}/ibm-minio.yaml"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-minio.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-minio.yaml
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-minio.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-minio.yaml
 
     # Commit and push to github target repo
     # ---------------------------------------------------------------------------
@@ -317,7 +303,8 @@ function gitops_minio() {
     fi
 
     rm -rf $TEMP_DIR
-  
+    rm -rf $GITOPS_WORKING_DIR
+
   fi
   exit 0
 }
