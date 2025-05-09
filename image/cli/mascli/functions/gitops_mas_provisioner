@@ -265,25 +265,25 @@ function gitops_mas_provisioner() {
 
   if [ -n "$GITHUB_PAT" ]; then
     echo "- Update GITHUB_PAT secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_PROVISIONER "{\"git_token\": \"${GITHUB_PAT}\"}" "${TAGS}"
   fi
 
   if [ -n "$PAGERDUTY_KEY" ]; then
     echo "- Update PAGERDUTY_KEY secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_PROVISIONER "{\"pd_key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
   fi
 
   if [ -n "$OCM_API_KEY" ]; then
     echo "- Update OCM_API_KEY secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_PROVISIONER "{\"ocm_api\": \"${OCM_API_KEY}\"}" "${TAGS}"
   fi
   
   if [ -n "$CSB_CA_CERT" ]; then
     echo "- Update CSB_CA_CERT secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_PROVISIONER "{\"cert\": \"${CSB_CA_CERT}\"}" "${TAGS}"
   fi
 
