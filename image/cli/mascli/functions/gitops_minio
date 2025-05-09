@@ -249,7 +249,6 @@ function gitops_minio() {
       
       export MINIO_ROOT_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
       sm_get_secret_file ${SECRET_NAME_MINIO_AUTH} $MINIO_SECRET_FILE
-      TEMP_MINIO_PASSWORD=$(jq -r .password $MINIO_SECRET_FILE)
       TEMP_MINIO_PASSWORD=$(jq -r .sm_minio_password $MINIO_SECRET_FILE)
       if [[ -n ${TEMP_MINIO_PASSWORD} ]]; then
         export MINIO_ROOT_PASSWORD=${TEMP_MINIO_PASSWORD}
@@ -282,7 +281,6 @@ function gitops_minio() {
       clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
     fi
     mkdir -p ${GITOPS_CLUSTER_DIR}
-
 
     # Generate ArgoApps
     # ---------------------------------------------------------------------------
