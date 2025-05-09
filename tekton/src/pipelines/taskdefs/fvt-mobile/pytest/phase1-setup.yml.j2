@@ -1,5 +1,5 @@
 ## Mobile Foundation Manage Setup
-- name: fvt-mobile-setup-pytest
+- name: mobile-setup-pytest
   taskRef:
     kind: Task
     name: mas-fvt-mobile-pytest
@@ -30,5 +30,13 @@
     - input: "$(params.fvt_digest_mobile_pytest)"
       operator: notin
       values: [""]
+
+
+- name: mobile-pytest-requests
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-requests
   runAfter:
-    - wait-for-manage-ivtcore
+    - mobile-setup-pytest
