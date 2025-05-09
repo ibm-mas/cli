@@ -853,6 +853,14 @@ case $1 in
     gitops_minio "$@"
     ;;
 
+  gitops-aibroker)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Minio Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_aibroker "$@"
+    ;;
+
   *)
     echo "unknown parameter $1"
     exit 1
