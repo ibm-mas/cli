@@ -1,0 +1,72 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ INSTANCE_ID }}"
+
+ibm_aibroker:
+  mas_instance_id: "sremat"
+  aibroker_namespace: "mas-sremat-aibroker"
+  mas_aibroker_watsonx_secret: "sremat-watsonxcfg"
+  pull_secret_name: "<path:arn:aws:secretsmanager:us-east-2:435377327995:secret:fyre-sre-dev/sremat-test/ibm_entitlement#image_pull_secret_b64>"
+
+  # Storage vars
+  mas_aibroker_storage_provider: "minio"
+  mas_aibroker_minio_secret: "minio-secret"
+  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}/minio#sm_minio_accesskey>"
+  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}/minio##sm_minio_host>"
+  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}/minio#sm_minio_port>"
+  mas_aibroker_storage_ssl: "true"
+  mas_aibroker_storage_region: ""
+  mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}/minio##sm_minio_bucket_default>"
+  mas_aibroker_storage_tenants_bucket: "<path:{{ SECRETS_PATH }}/minio##sm_minio_bucket_tenants>"
+  mas_aibroker_storage_templates_bucket: "<path:{{ SECRETS_PATH }}/minio##sm_minio_bucket_templates>"
+  
+  # MariaDB
+  mas_aibroker_db_host: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_host>"
+  mas_aibroker_mariadb_secret: "sremat-mariadbcfg"
+  mas_aibroker_db_port: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_port>"
+
+  mas_aibroker_db_user: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_user>"
+
+  mas_aibroker_db_database: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_database>"
+
+  mas_aibroker_db_secret_name: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_secret_name>"
+
+  mas_aibroker_db_secret_value: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_secret_value>"
+
+
+  primary_storage_class: "nfs-client"
+
+  #SLS
+  slscfg_registration_key: "<path:{{ SECRETS_PATH }}/sls#slscfg_registration_key>"
+
+  #DRO
+  drocfg_ca: "<path:{{ SECRETS_PATH }}//dro#drocfg_ca>"
+  drocfg_registration_key: "<path:{{ SECRETS_PATH }}/dro#drocfg_registration_key>"
+  drocfg_url: "<path:{{ SECRETS_PATH }}/dro#drocfg_url>"
+
+  #JDBC
+  jdbccfg_username: "<path:{{ SECRETS_PATH }}/jdbc#jdbccfg_username>"
+  jdbccfg_password: "<path:{{ SECRETS_PATH }}/#jdbccfg_password>"
+  jdbccfg_url:"<path:{{ SECRETS_PATH }}/jdbc#jdbccfg_url>"
+  jdbccfg_sslenabled:"<path:{{ SECRETS_PATH }}/jdbc#jdbccfg_sslenabled>"
+  jdbccfg_ca: "<path:{{ SECRETS_PATH }}/jdbc#jdbccfg_ca>"
+
+
+  # MAS Entitlement
+  mas_entitlement_key:"<path:{{ SECRETS_PATH }}/ibm_entitlement#entitlement_key>"
+  
+  # Development Registry Entitlement
+  artifactory_username: "pmqcloud@us.ibm.com"
+  artifactory_token: "<path:{{ SECRETS_PATH }}/ibm_entitlement#aibroker_image_pull_secret_b64>"
+  # Environment Variable:
+  mas_app_channel: "workspace"
+  # mas_app_channel: "9.1.x-dev"
+  mas_catalog_source: "ibm-operator-catalog"
+
+  # Source container registry
+  # -----------------------------------------------------------------------------
+  # mas_icr_cp: "cp.icr.io/cp"
+  # mas_icr_cpopen: "icr.io/cpopen"
+  mas_icr_cp: "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"
+  mas_icr_cpopen: "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"
+
+  cluster_domain: "sremat-test.cp.fyre.ibm.com"
+  in_saas_env: "false"
