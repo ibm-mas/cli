@@ -365,7 +365,7 @@ spec:
     # 14.3 Install db2 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aibroker'}) | indent(4) }}
       runAfter:
-        - suite-verify
+        - mariadb
 
     # 14.4 Install Opendatahub
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/odh.yml.j2') | indent(4) }}
@@ -381,13 +381,13 @@ spec:
     # 14.6 Install Aibroker app
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/aibroker-app.yml.j2') | indent(4) }}
       runAfter:
-        - db2-aibroker
         - kmodels
 
     # 14.7 Configure Aibroker
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/aibroker.yml.j2') | indent(4) }}
       runAfter:
         - app-install-aibroker
+        - db2-aibroker
 
     # 14.8 Aibroker tenant creation
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/aibroker-tenant.yml.j2') | indent(4) }}
