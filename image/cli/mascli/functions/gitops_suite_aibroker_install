@@ -340,36 +340,48 @@ echo_reset_dim "Primary Storage Class ................. ${COLOR_MAGENTA}${PRIMAR
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
-  # update those varialbe which are necessory to be updated into aws ,
-  # check if those are already present
-  # and update them
-  # finally get values into tempalte
-  # push them on github repo ,
-  # final output
-  # updated var in sm
-  # and git repo
-  
-  # Define cluster-level secrets used
-  # ---------------------------------------------------------------------------
-  # Note that SECRET_KEY_IBM_ENTITLEMENT cluster-level secret is set up by gitops-cluster
-  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#entitlement_key
-  
-  
+  # update those varialbe which are necessory to be updated into aws , 
+
+  # pull_secret_name
+  export image_pull_secret_b64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
+  # mas_aibroker_storage_accesskey
+  export SM_MINIO_ACCESSKEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_accesskey
+  # mas_aibroker_storage_secretkey
+  export SM_MINIO_SECRETKEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_secretkey
+  # mas_aibroker_storage_host
+  export SM_MINIO_HOST=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_host
+  # mas_aibroker_storage_port
+  export SM_MINIO_PORT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_port
+  # mas_aibroker_storage_templates_bucket
+  export SM_MINIO_BUCKET_TEMPLATES=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_bucket_templates
+  # mas_aibroker_storage_tenants_bucket
+  export SM_MINIO_BUCKET_TENANTS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_bucket_tenants
+  # mas_aibroker_storage_pipelines_bucket
+  export SM_MINIO_BUCKET_PIPELINES=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_bucket_pipelines
+  # check if those are already present 
+  # and update them 
+
+  # finally get values into tempalte 
+  # push them on github repo , 
+
+  # final output 
+  # updated var in sm 
+  # and git repo 
+
+
+  # sm_update_secret and need to pss secrert | idempotent
+  ESCAPED_INFO=${UNESCAPED_INFO//\"/\\\"}
+  ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_kmodel\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+  # Auth necessary for kmodel ???
+  # sm_update_secret $SECRET_NAME_MINIO_AUTH "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$SECRET_KEY_MINIO_USER\", \"password\": \"$SECRET_KEY_MINIO_PASSWORD\"}" "${TAGS}"
+
+
+
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
   fi
-
-
-  # Set and Validate App Names
-  # ---------------------------------------------------------------------------
-  ROOT_APP_NAME="root.${ACCOUNT_ID}"
-  CLUSTER_APP_NAME="cluster.${CLUSTER_ID}"
-  AIBROKER_APP_NAME="dro.${CLUSTER_ID}"
-
-  validate_app_name "${ROOT_APP_NAME}"
-  validate_app_name "${CLUSTER_APP_NAME}"
-  validate_app_name "${DRO_APP_NAME}"
 
 
   # Clone github target repo
@@ -385,13 +397,13 @@ echo_reset_dim "Primary Storage Class ................. ${COLOR_MAGENTA}${PRIMAR
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
-  echo_h2 "Generating dro operator Applications"
+  echo_h2 "Generating aibroker operator Applications"
   echo "- aibroker operator"
 
   export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
 
-  echo "Generating aibroker file ${GITOPS_CLUSTER_DIR}/ibm-dro.yaml"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-mas-aibroker-install.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mas-aibroker-install.yaml
+  echo "Generating aibroker file ${GITOPS_CLUSTER_DIR}/ibm-aibroker.yaml"
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/ibm-mas-aibroker-install.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aibroker.yaml
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------

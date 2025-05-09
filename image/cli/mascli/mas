@@ -94,6 +94,8 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_db2u
 . $CLI_DIR/functions/gitops_minio
 . $CLI_DIR/functions/gitops_odh
+. $CLI_DIR/functions/gitops_aibroker
+
 
 # TODO: The path from the CLI the installation of the Ansible collection should be configurable
 MAS_DEVOPS_COLLECTION_PATH=${MAS_DEVOPS_COLLECTION_PATH:-ansible-devops}
@@ -652,6 +654,14 @@ case $1 in
     echo
     reset_colors
     gitops_minio "$@"
+    ;;
+
+  gitops-aibroker)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Minio Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_aibroker "$@"
     ;;
 
   *)
