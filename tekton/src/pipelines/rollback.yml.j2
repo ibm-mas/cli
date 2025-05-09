@@ -55,6 +55,10 @@ spec:
     - name: mas_app_iot_version
       type: string
 
+    # Optimizer Rollback Version
+    - name: mas_app_optimizer_version
+      type: string
+
     # Development Build Support
     - name: artifactory_username
       default: ""
@@ -147,7 +151,7 @@ spec:
         kind: Task
         name: mas-devops-suite-app-rollback
 
-    # 3. Rollback App
+    # 4. Rollback App
     # -------------------------------------------------------------------------
     # Manage App Rollback
     - name: iot-rollback
@@ -173,7 +177,33 @@ spec:
         kind: Task
         name: mas-devops-suite-app-rollback
 
-    # 4. Verify health of the cluster after the rollback complete
+    # 5. Rollback App
+    # -------------------------------------------------------------------------
+    # Manage App Rollback
+    - name: optimizer-rollback
+      timeout: "0"
+      runAfter:
+        - core-rollback
+      params:
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
+        - name: mas_app_id
+          value: optimizer
+        - name: mas_app_version
+          value: $(params.mas_app_optimizer_version)
+        - name: devops_suite_name
+          value: optimizer-rollback
+      when:
+        - input: "$(params.mas_app_optimizer_version)"
+          operator: notin
+          values: [""]
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-rollback
+
+    # 6. Verify health of the cluster after the rollback complete
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={
         'name': 'post-rollback-verify-cluster',
@@ -185,9 +215,9 @@ spec:
         'verify_ingress': 'False'
       }) | indent(4) }}
       runAfter:
-        - iot-rollback
+        - optimizer-rollback
 
-    # 5. Verify MAS core version after the rollback complete
+    # 7. Verify MAS core version after the rollback complete
     # -------------------------------------------------------------------------
     - name: post-rollback-verify-core-version
       timeout: "0"
@@ -214,7 +244,7 @@ spec:
           operator: notin
           values: [""]
 
-    # 6. Verify MAS Manage App version after the rollback complete
+    # 8. Verify MAS Manage App version after the rollback complete
     # -------------------------------------------------------------------------
     - name: post-rollback-verify-app-version
       timeout: "0"
@@ -243,6 +273,8 @@ spec:
           operator: notin
           values: [""]
 
+    # 9. Verify IoT App version after the rollback complete
+    # -------------------------------------------------------------------------
     - name: post-rollback-verify-iot-app-version
       timeout: "0"
       taskRef:
@@ -267,6 +299,35 @@ spec:
           value: post-rollback-verify-iot-app-version (MAS IoT)
       when:
         - input: "$(params.mas_app_iot_version)"
+          operator: notin
+          values: [""]
+
+    # 10. Verify Optimizer App version after the rollback complete
+    # -------------------------------------------------------------------------
+    - name: post-rollback-verify-optimizer-app-version
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-rollback
+      runAfter:
+        - post-rollback-verify-cluster
+      params:
+{% if wait_for_install == true %}
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+{% endif %}
+        - name: mas_app_id
+          value: optimizer
+        - name: mas_app_version
+          value: $(params.mas_app_optimizer_version)
+        - name: rollback_mas_app
+          value: 'False'
+        - name: verify_app_version
+          value: 'True'
+        - name: devops_suite_name
+          value: post-rollback-verify-optimizer-app-version (MAS Optimizer)
+      when:
+        - input: "$(params.mas_app_optimizer_version)"
           operator: notin
           values: [""]
 
