@@ -175,6 +175,13 @@ optionalParams = [
     "mas_aibroker_db_secret_name",
     "mas_aibroker_db_secret_key",
     "mas_aibroker_db_secret_value",
+    "mariadb_user",
+    "mariadb_password",
+    "minio_root_user",
+    "minio_root_password",
+    "tenant_entitlement_type",
+    "tenant_entitlement_start_date",
+    "tenant_entitlement_end_date",
     # Special chars
     "mas_special_characters"
 ]

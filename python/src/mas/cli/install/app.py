@@ -175,6 +175,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Optimizer": "mas_optimizer_version",
                 "Predict": "mas_predict_version",
                 "Inspection": "mas_visualinspection_version",
+                "Aibroker": "mas_aibroker_version",
             }
         else:
             applications = {
