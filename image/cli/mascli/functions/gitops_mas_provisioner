@@ -21,7 +21,7 @@ Secrets Manager:
 
 MAS PROVISIONER OPERATOR:
       --status-repo-url ${COLOR_YELLOW}STATUS_REPO_URL${TEXT_RESET}              GitHub repo where the status of the operation will be recorded
-      --mas-broker-domain ${COLOR_YELLOW}MAS_BROKER_DOMAIN${TEXT_RESET}          The domain to route the service for the MAS Provisioner
+      --provisioner-domain ${COLOR_YELLOW}PROVISIONER_DOMAIN${TEXT_RESET}          The domain to setup route and service for the MAS Provisioner
     (Optional)
       --provisioner-namespace ${COLOR_YELLOW}PROVISIONER_NAMESPACE${TEXT_RESET}  Namespace for the mas provisioner
       --account-alias ${COLOR_YELLOW}ACCOUNT_ALIAS${TEXT_RESET}                  Enables customization for the account id to use in the status repo. Default is fetched from the order payload received
@@ -109,8 +109,8 @@ function gitops_mas_provisioner_noninteractive() {
       --status-repo-url)
         export STATUS_REPO_URL=$1 && shift
         ;;
-      --mas-broker-domain)
-        export MAS_BROKER_DOMAIN=$1 && shift
+      --provisioner-domain)
+        export PROVISIONER_DOMAIN=$1 && shift
         ;;
       --base-branch)
         export BASE_BRANCH=$1 && shift
@@ -178,7 +178,7 @@ function gitops_mas_provisioner_noninteractive() {
   fi
 
   [[ -z "$STATUS_REPO_URL" ]] && gitops_mas_provisioner_help "STATUS_REPO_URL is not set"
-  [[ -z "$MAS_BROKER_DOMAIN" ]] && gitops_mas_provisioner_help "MAS_BROKER_DOMAIN is not set"
+  [[ -z "$PROVISIONER_DOMAIN" ]] && gitops_mas_provisioner_help "PROVISIONER_DOMAIN is not set"
 
 }
 

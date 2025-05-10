@@ -3,7 +3,7 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 mas_provisioner:
   account_alias: {{ ACCOUNT_ALIAS }}
   ibm_entitlement: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
-  mas_broker_domain: "{{ MAS_BROKER_DOMAIN }}"
+  provisioner_domain: "{{ PROVISIONER_DOMAIN }}"
   provisioner_namespace: {{ PROVISIONER_NAMESPACE }}
   provisioner_version: {{ PROVISIONER_VERSION }}
   enable_mtls: {{ ENABLE_MTLS }}
