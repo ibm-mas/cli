@@ -32,7 +32,7 @@ MAS PROVISIONER OPERATOR:
       --async-poll-interval ${COLOR_YELLOW}ASYNC_POLL_INTERVAL${TEXT_RESET}      The intervals in seconds between each poll from MCSP to check the status of the orders. Default is 600
       --async-poll-max ${COLOR_YELLOW}ASYNC_POLL_MAX${TEXT_RESET}                The maximum amount of time in seconds for MCSP to keep polling to check the status of an order. Default is 864000
       --enable-pd-alert ${COLOR_YELLOW}ENABLE_PD_ALERT${TEXT_RESET}              Turn PagerDuty alerts on/off. Default is false
-      --enable-ocm-alert ${COLOR_YELLOW}ENABLE_OCM_ALERT${TEXT_RESET}            Turn On Call Manager alerts on/off. Default is true
+      --enable-ocm-alert ${COLOR_YELLOW}ENABLE_OCM_ALERT${TEXT_RESET}            Turn On Call Manager alerts on/off. Default is false
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -101,7 +101,7 @@ function gitops_mas_provisioner_noninteractive() {
         export PROVISIONER_VERSION=$1 && shift
         ;;
       --enable-mtls)
-        export ENABLE_MTLS=$1 && shift
+        export ENABLE_MTLS=true
         ;;
       --service-port)
         export SERVICE_PORT=$1 && shift
@@ -122,10 +122,10 @@ function gitops_mas_provisioner_noninteractive() {
         export ASYNC_POLL_MAX=$1 && shift
         ;;
       --enable-pd-alert)
-        export ENABLE_PD_ALERT=$1 && shift
+        export ENABLE_PD_ALERT=true
         ;;
       --enable-ocm-alert)
-        export ENABLE_OCM_ALERT=$1 && shift
+        export ENABLE_OCM_ALERT=true
         ;;
 
       # Automatic GitHub Push
@@ -202,6 +202,8 @@ function gitops_mas_provisioner() {
 
   # set default values of envs if not provided
   export ENABLE_MTLS=${ENABLE_MTLS:-false}
+  export ENABLE_OCM_ALERT=${ENABLE_OCM_ALERT:-false}
+  export ENABLE_PD_ALERT=${ENABLE_PD_ALERT:-false}
   export PROVISIONER_VERSION=${PROVISIONER_VERSION:-latest}
   export PROVISIONER_NAMESPACE=${PROVISIONER_NAMESPACE:-"mas-provisioner"}
 
@@ -244,7 +246,6 @@ function gitops_mas_provisioner() {
   echo_reset_dim "PROVISIONER_NAMESPACE ................... ${COLOR_MAGENTA}${PROVISIONER_NAMESPACE}"
   echo_reset_dim "PROVISIONER_VERSION ..................... ${COLOR_MAGENTA}${PROVISIONER_VERSION}"
   echo_reset_dim "STATUS_REPO_URL ......................... ${COLOR_MAGENTA}${STATUS_REPO_URL}"
-  echo_reset_dim "ENABLE_MTLS ............................. ${COLOR_MAGENTA}${ENABLE_MTLS}"
   reset_colors
 
   CURRENT_DIR=$PWD
