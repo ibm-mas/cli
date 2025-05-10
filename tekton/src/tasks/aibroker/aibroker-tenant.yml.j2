@@ -224,6 +224,10 @@ spec:
       - name: MAS_AIBROKER_TENANT_ENTITLEMENT_END_DATE
         value: $(params.tenant_entitlement_end_date)
 
+      # Ai Broker Saas
+      - name: MAS_AIBROKER_SAAS
+        value: 'true'
+
   steps:
     - name: aibroker-tenant
       command:

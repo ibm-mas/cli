@@ -183,6 +183,10 @@ spec:
       - name: MAS_AIBROKER_STORAGE_REGION
         value: $(params.mas_aibroker_storage_region)
 
+      # Ai Broker Saas
+      - name: MAS_AIBROKER_SAAS
+        value: 'true'
+
   steps:
     - name: kmodels
       command:
