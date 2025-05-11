@@ -556,6 +556,14 @@ aibrokerArgGroup.add_argument(
     required=False,
     help="End date for Aibroker tenant"
 )
+aibrokerArgGroup.add_argument(
+    "--aibroker-stand-alone",
+    dest="aibroker_stand_alone",
+    required=False,
+    help="Install stand-alone aibroker without MAS",
+    action="store_const",
+    const="true"
+)
 
 # Arcgis
 # -----------------------------------------------------------------------------

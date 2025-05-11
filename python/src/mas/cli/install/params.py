@@ -182,6 +182,7 @@ optionalParams = [
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",
+    "aibroker_stand_alone",
     # Special chars
     "mas_special_characters"
 ]

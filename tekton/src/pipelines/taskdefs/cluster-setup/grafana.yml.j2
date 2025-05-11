@@ -23,3 +23,7 @@
       value: $(params.storage_class_rwo)
     - name: grafana_instance_storage_size
       value: $(params.grafana_instance_storage_size)
+  when:
+    - input: "$(params.aibroker_stand_alone)"
+      operator: notin
+      values: ["true"]
