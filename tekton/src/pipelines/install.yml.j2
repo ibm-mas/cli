@@ -62,6 +62,10 @@ spec:
         - input: "$(params.grafana_action)"
           operator: in
           values: ["install"]
+        - input: "$(params.aibroker_stand_alone)"
+          operator: notin
+          values: ["true"]
+          
       runAfter:
         - ibm-catalogs
 
