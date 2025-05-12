@@ -53,34 +53,15 @@ spec:
       type: string
       description: The git commit message to use in the push
       default: ""
-
-
     - name: github_url
       type: string
+
     - name: mas_instance_id
       type: string
     - name: mongo_provider
       type: string
       default: aws
     - name: sls_channel
-      type: string
-    - name: mas_channel
-      type: string
-    - name: mas_annotations
-      type: string
-    - name: mas_image_tags
-      type: string
-    - name: mas_labels
-      type: string
-    - name: custom_labels
-      type: string
-      default: ""
-    - name: mas_domain
-      type: string
-    - name: mas_workspace_id
-      type: string
-
-    - name: mas_workspace_name
       type: string
 
     - name: sls_install_plan
@@ -104,9 +85,6 @@ spec:
       type: string
       default: ""
 
-    - name: mas_config_dir
-      type: string
-
     - name: mas_slscfg_pod_template_yaml
       type: string
       default: ""
@@ -123,7 +101,8 @@ spec:
       type: string
     - name: sls_license_icn
       type: string
-
+    - name: sls_subscription_id
+      type: string
 
   tasks:
 
@@ -146,7 +125,7 @@ spec:
         kind: Task
         name: gitops-license
       when:
-        - input: "$(params.subscription_id)"
+        - input: "$(params.sls_subscription_id)"
           operator: in
           values: [""]
 
@@ -171,6 +150,8 @@ spec:
           value: $(params.sls_license_country)
         - name: icn
           value: $(params.sls_license_icn)
+        - name: sls_subscription_id
+          value: $(params.sls_subscription_id)
       taskRef:
         kind: Task
         name: gitops-license-generator
@@ -198,6 +179,7 @@ spec:
           value: $(params.mongo_provider)
         - name: user_action
           value: $(params.docdb_user_action)
+
         - name: git_branch
           value: $(params.git_branch)
         - name: github_org
@@ -208,53 +190,25 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: sls_channel
-          value: $(params.sls_channel)
-        - name: mas_channel
-          value: $(params.mas_channel)
-        - name: mas_annotations
-          value: $(params.mas_annotations)
-        - name: mas_image_tags
-          value: $(params.mas_image_tags)
-        - name: mas_labels
-          value: $(params.mas_labels)
-        - name: custom_labels
-          value: $(params.custom_labels)
-        - name: mas_domain
-          value: $(params.mas_domain)
-        - name: mas_install_plan
-          value: $(params.mas_install_plan)
-        - name: sls_install_plan
-          value: $(params.sls_install_plan)
         - name: github_pat
           value: $(params.github_pat)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+
+        - name: sls_channel
+          value: $(params.sls_channel)
+        - name: sls_install_plan
+          value: $(params.sls_install_plan)
         - name: icr_cp
           value: $(params.icr_cp)
         - name: icr_cp_open
           value: $(params.icr_cp_open)
-        - name: mas_manual_cert_mgmt
-          value: $(params.mas_manual_cert_mgmt)
+
         - name: cluster_url
           value: $(params.cluster_url)
-        - name: cert_manager_namespace
-          value: $(params.cert_manager_namespace)
-        - name: dns_provider
-          value: $(params.dns_provider)
-        - name: ingress
-          value: $(params.ingress)
-        - name: cis_subdomain
-          value: $(params.cis_subdomain)
-        - name: cis_mas_domain
-          value: $(params.cis_mas_domain)
         - name: ocp_cluster_domain
           value: $(params.ocp_cluster_domain)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
 
-        - name: mas_config_dir
-          value: $(params.mas_config_dir)
       taskRef:
         kind: Task
         name: gitops-sls
@@ -263,3 +217,7 @@ spec:
           workspace: configs
         - name: shared-gitops-configs
           workspace: shared-gitops-configs
+      when:
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
