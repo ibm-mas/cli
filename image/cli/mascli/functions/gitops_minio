@@ -61,8 +61,6 @@ function gitops_minio_noninteractive() {
   export MINIO_INSTANCE_NAME=${MINIO_INSTANCE_NAME:-"minio"}
   export MINIO_STORAGE_SIZE=${MINIO_STORAGE_SIZE:-"40Gi"}
   export MINIO_IMAGE=${MINIO_IMAGE:-"quay.io/minio/minio:latest"}
-  export MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-"minio"}
-  export MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-"minio123"}
   export MINIO_PORT=${MINIO_PORT:-"9000"}
   export MINIO_HOST=${MINIO_HOST:-"minio-service.minio.svc.cluster.local"}
 
@@ -114,12 +112,6 @@ function gitops_minio_noninteractive() {
       --minio_image)
         export MINIO_IMAGE=$1 && shift
         ;;
-      --minio_access_key)
-        export MINIO_ACCESS_KEY=$1 && shift
-        ;;
-      --minio_secret_key)
-          export MINIO_SECRET_KEY=$1 && shift
-          ;;
       --minio_host)
           export MINIO_HOST=$1 && shift
           ;;
@@ -256,7 +248,6 @@ function gitops_minio() {
   if [ ! -z "$MINIO_NAMESPACE" ]; then
 
     #minio provider role specific env variables
-    export MINIO_ACTION="install"
 
     export SECRET_NAME_MINIO_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio
     echo_reset_dim "SECRET_NAME_MINIO_AUTH ................ ${COLOR_MAGENTA}$SECRET_NAME_MINIO_AUTH"
@@ -272,45 +263,45 @@ function gitops_minio() {
       export MINIO_ROOT_USER=${MINIO_ROOT_USER:-"minio"}
       echo_reset_dim "MINIO_ROOT_USER ............................. ${COLOR_MAGENTA}$MINIO_ROOT_USER"
 
+      export MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
       # Extract and export sm_minio_accesskey
       TEMP_MINIO_ACCESSKEY=$(jq -r .sm_minio_accesskey $MINIO_SECRET_FILE)
-      # echo_reset_dim "TEMP_MINIO_ACCESSKEY .............................. ${COLOR_MAGENTA}${TEMP_MINIO_ACCESSKEY:0:8}<snip> is available in the secret, using that value"
-      if [[ -n ${TEMP_MINIO_ACCESSKEY} ]]; then
+      if [[ -n ${TEMP_MINIO_ACCESSKEY} && ${TEMP_MINIO_ACCESSKEY} != "null" ]]; then
         export MINIO_ACCESS_KEY=${TEMP_MINIO_ACCESSKEY}
         echo_reset_dim "MINIO_ACCESS_KEY .............................. ${COLOR_MAGENTA}${MINIO_ACCESS_KEY:0:8}<snip> is available in the secret, using that value"
       fi
-
-      # Extract and export sm_minio_secretkey
-      TEMP_MINIO_SECRETKEY=$(jq -r .sm_minio_secretkey $MINIO_SECRET_FILE)
-      # echo_reset_dim "TEMP_MINIO_SECRETKEY .............................. ${COLOR_MAGENTA}${TEMP_MINIO_SECRETKEY:0:8}<snip> is available in the secret, using that value"
-      if [[ -n ${TEMP_MINIO_SECRETKEY} ]]; then
-        export MINIO_SECRET_KEY=${TEMP_MINIO_SECRETKEY}
-        echo_reset_dim "MINIO_SECRET_KEY .............................. ${COLOR_MAGENTA}${MINIO_SECRET_KEY:0:8}<snip> is available in the secret, using that value"
-      fi
-
+      
+      export MINIO_PORT=${MINIO_PORT:-"9000"}
       # Extract and export sm_minio_port
       TEMP_MINIO_PORT=$(jq -r .sm_minio_port $MINIO_SECRET_FILE)
-      # echo_reset_dim "TEMP_MINIO_PORT .............................. ${COLOR_MAGENTA}${TEMP_MINIO_PORT:0:8}<snip> is available in the secret, using that value"
-      if [[ -n ${TEMP_MINIO_PORT} ]]; then
+      if [[ -n ${TEMP_MINIO_PORT} && ${TEMP_MINIO_PORT} != "null" ]]; then
         export MINIO_PORT=${TEMP_MINIO_PORT}
         echo_reset_dim "MINIO_PORT .................................... ${COLOR_MAGENTA}${MINIO_PORT} is available in the secret, using that value"
       fi
-
+      
+      export MINIO_HOST=${MINIO_HOST:-"minio-service.minio.svc.cluster.local"}
       # Extract and export sm_minio_host
       TEMP_MINIO_HOST=$(jq -r .sm_minio_host $MINIO_SECRET_FILE)
-      # echo_reset_dim "TEMP_MINIO_HOST .............................. ${COLOR_MAGENTA}${TEMP_MINIO_HOST:0:8}<snip> is available in the secret, using that value"
-      if [[ -n ${TEMP_MINIO_HOST} ]]; then
+      if [[ -n ${TEMP_MINIO_HOST} && ${TEMP_MINIO_HOST} != "null" ]]; then
         export MINIO_HOST=${TEMP_MINIO_HOST}
         echo_reset_dim "MINIO_HOST .................................... ${COLOR_MAGENTA}${MINIO_HOST} is available in the secret, using that value"
       fi
 
       export MINIO_ROOT_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
-
       TEMP_MINIO_PASSWORD=$(jq -r .sm_minio_password $MINIO_SECRET_FILE)
-      if [[ -n ${TEMP_MINIO_PASSWORD} ]]; then
+      if [[ -n ${TEMP_MINIO_PASSWORD} && ${TEMP_MINIO_PASSWORD} != "null" ]]; then
         export MINIO_ROOT_PASSWORD=${TEMP_MINIO_PASSWORD}
         echo_reset_dim "MINIO_ROOT_PASSWORD ........................... ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:8}<snip> is available in the secret, using that value"
       fi
+
+      export MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      # Extract and export sm_minio_secretkey
+      TEMP_MINIO_SECRETKEY=$(jq -r .sm_minio_secretkey $MINIO_SECRET_FILE)
+      if [[ -n ${TEMP_MINIO_SECRETKEY} && ${TEMP_MINIO_SECRETKEY} != "null" ]]; then
+        export MINIO_SECRET_KEY=${TEMP_MINIO_SECRETKEY}
+        echo_reset_dim "MINIO_SECRET_KEY .............................. ${COLOR_MAGENTA}${MINIO_SECRET_KEY:0:8}<snip> is available in the secret, using that value"
+      fi
+
       echo_reset_dim "MINIO_ROOT_PASSWORD ............................. ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:8}<snip>"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_minio\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       
@@ -324,7 +315,7 @@ function gitops_minio() {
     echo_reset_dim "minio_image ........................... ${COLOR_MAGENTA}${MINIO_IMAGE}"
     echo_reset_dim "minio_root_user ....................... ${COLOR_MAGENTA}${MINIO_ROOT_USER}"
     echo_reset_dim "minio_root_password ................... ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:4}<snip>"
-    echo_reset_dim "minio_access_key ...................... ${COLOR_MAGENTA}${MINIO_ACCESS_KEY:0:4}<snip>"
+    echo_reset_dim "minio_access_key ...................... ${COLOR_MAGENTA}${MINIO_ACCESS_KEY}"
     echo_reset_dim "minio_secret_key ...................... ${COLOR_MAGENTA}${MINIO_SECRET_KEY:0:4}<snip>"
     echo_reset_dim "minio_port ............................ ${COLOR_MAGENTA}${MINIO_PORT}"
     echo_reset_dim "minio_host ............................ ${COLOR_MAGENTA}${MINIO_HOST}"
