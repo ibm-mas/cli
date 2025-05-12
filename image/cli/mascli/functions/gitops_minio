@@ -263,9 +263,12 @@ function gitops_minio() {
     export SECRET_KEY_MINIO_USER=${SECRET_NAME_MINIO_AUTH}#sm_minio_user
     export SECRET_KEY_MINIO_PASSWORD=${SECRET_NAME_MINIO_AUTH}#sm_minio_password
     
+    # Create a secret in SM containing the username/password for this specific minio instance.
+    export MINIO_SECRET_FILE=$TEMP_DIR/minio-secret.json
+    sm_get_secret_file ${SECRET_NAME_MINIO_AUTH} $MINIO_SECRET_FILE
+    
     if [ -z "$MINIO_ROOT_PASSWORD" ]; then
-      # Create a secret in SM containing the username/password for this specific minio instance.
-      export MINIO_SECRET_FILE=$TEMP_DIR/minio-secret.json
+
       export MINIO_ROOT_USER=${MINIO_ROOT_USER:-"minio"}
       echo_reset_dim "MINIO_ROOT_USER ............................. ${COLOR_MAGENTA}$MINIO_ROOT_USER"
 
@@ -302,8 +305,7 @@ function gitops_minio() {
       fi
 
       export MINIO_ROOT_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
-     
-      sm_get_secret_file ${SECRET_NAME_MINIO_AUTH} $MINIO_SECRET_FILE
+
       TEMP_MINIO_PASSWORD=$(jq -r .sm_minio_password $MINIO_SECRET_FILE)
       if [[ -n ${TEMP_MINIO_PASSWORD} ]]; then
         export MINIO_ROOT_PASSWORD=${TEMP_MINIO_PASSWORD}
@@ -322,7 +324,7 @@ function gitops_minio() {
     echo_reset_dim "minio_image ........................... ${COLOR_MAGENTA}${MINIO_IMAGE}"
     echo_reset_dim "minio_root_user ....................... ${COLOR_MAGENTA}${MINIO_ROOT_USER}"
     echo_reset_dim "minio_root_password ................... ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:4}<snip>"
-    echo_reset_dim "minio_access_key ...................... ${COLOR_MAGENTA}${MINIO_ACCESS_KEY}"
+    echo_reset_dim "minio_access_key ...................... ${COLOR_MAGENTA}${MINIO_ACCESS_KEY:0:4}<snip>"
     echo_reset_dim "minio_secret_key ...................... ${COLOR_MAGENTA}${MINIO_SECRET_KEY:0:4}<snip>"
     echo_reset_dim "minio_port ............................ ${COLOR_MAGENTA}${MINIO_PORT}"
     echo_reset_dim "minio_host ............................ ${COLOR_MAGENTA}${MINIO_HOST}"
