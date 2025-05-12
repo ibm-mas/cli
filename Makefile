@@ -27,7 +27,7 @@ tekton:
 docker:
 	docker build -t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
 
-all: ansible python-build tekton docker
+all: ansible python tekton docker
 
 run:
 	docker run -ti quay.io/ibmmas/cli:100.0.0-pre.local
