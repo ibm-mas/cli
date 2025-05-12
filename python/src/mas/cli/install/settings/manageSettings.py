@@ -275,6 +275,9 @@ class ManageSettingsMixin():
             self.printH2("Maximo AI Broker Settings - Storage, WatsonX, MariaDB details")
             self.printDescription(["Customise AI Broker details"])
             self.promptForString("Storage provider", "mas_aibroker_storage_provider")
+            if self.getParam("mas_aibroker_storage_provider") == "minio" and self.getParam("mas_app_channel_aibroker") != "9.0.x":
+                self.promptForString("minio root username", "minio_root_user")
+                self.promptForString("minio root password", "minio_root_password")
             self.promptForString("Storage access key", "mas_aibroker_storage_accesskey")
             self.promptForString("Storage secret key", "mas_aibroker_storage_secretkey")
             self.promptForString("Storage host", "mas_aibroker_storage_host")
@@ -288,10 +291,17 @@ class ManageSettingsMixin():
             self.promptForString("Watsonxai api key", "mas_aibroker_watsonxai_apikey")
             self.promptForString("Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
             self.promptForString("Watsonxai project id", "mas_aibroker_watsonxai_project_id")
-
+                
             self.promptForString("Database host", "mas_aibroker_db_host")
             self.promptForString("Database port", "mas_aibroker_db_port")
             self.promptForString("Database user", "mas_aibroker_db_user")
             self.promptForString("Database name", "mas_aibroker_db_database")
             self.promptForString("Database Secretname", "mas_aibroker_db_secret_name")
             self.promptForString("Database password", "mas_aibroker_db_secret_value")
+
+            if self.getParam("mas_app_channel_aibroker") != "9.0.x":
+                self.promptForString("Mariadb username", "mariadb_user")
+                self.promptForString("Mariadb password", "mariadb_password")
+                self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
+                self.promptForString("Tenant start date", "tenant_entitlement_start_date")
+                self.promptForString("Tenant end date", "tenant_entitlement_end_date")

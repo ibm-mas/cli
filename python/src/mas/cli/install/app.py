@@ -1316,14 +1316,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
 
             applications = {
-                "Core": "mas_core_version",
-                "Manage": "mas_manage_version",
-                "IoT": "mas_iot_version",
-                "Monitor": "mas_monitor_version",
-                "Assist": "mas_assist_version",
-                "Optimizer": "mas_optimizer_version",
-                "Predict": "mas_predict_version",
-                "Inspection": "mas_visualinspection_version",
+                "Aibroker": "mas_aibroker_version",
             }
         else:
             applications = {
@@ -1376,7 +1369,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         self.printH1("IBM Maximo Operator Catalog Selection")
         if self.devMode:
             self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
-            self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
+            # self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
         else:
             catalogInfo = getCurrentCatalog(self.dynamicClient)
 
@@ -1960,21 +1953,24 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         self.configMAS()
 
         # MAS Applications
-        self.configApps()
+        # self.configApps()
+        self.installAiBroker = True
+        self.configAppChannel("aibroker")
+
         self.validateInternalRegistryAvailable()
         # Note: manageSettings(), predictSettings(), or assistSettings() functions can trigger configCP4D()
-        self.manageSettings()
-        self.optimizerSettings()
-        self.predictSettings()
-        self.assistSettings()
+        # self.manageSettings()
+        # self.optimizerSettings()
+        # self.predictSettings()
+        # self.assistSettings()
         self.aibrokerSettings()
 
         # Dependencies
         self.configMongoDb()
         self.configDb2()
-        self.configKafka()  # Will only do anything if IoT has been selected for install
+        # self.configKafka()  # Will only do anything if IoT has been selected for install
 
-        self.configGrafana()
+        # self.configGrafana()
         self.configTurbonomic()
 
         # TODO: Support ECK integration via the interactive install mode
@@ -2014,14 +2010,14 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             "approval_visualinspection": {"id": "app-cfg-visualinspection"}  # After Visual Inspection workspace has been configured
         }
 
-        self.configGrafana()
-        self.configSNO()
+        # self.configGrafana()
+        # self.configSNO()
         self.setDB2DefaultSettings()
 
         for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
             if key in requiredParams:
-                if value is None:
+                if value is None and key != 'mas_channel':
                     self.fatalError(f"{key} must be set")
                 self.setParam(key, value)
 
@@ -2262,7 +2258,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             self.nonInteractiveMode()
 
         # After we've configured the basic inputs, we can calculate these ones
-        self.setIoTStorageClasses()
+        # self.setIoTStorageClasses()
         if self.deployCP4D:
             self.configCP4D()
 
