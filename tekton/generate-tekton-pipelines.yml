@@ -88,6 +88,7 @@
         - gitops-mas-cluster
         - gitops-mas-deps
         - gitops-mas-initiator
+        - gitops-suite-license-service
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
