@@ -128,7 +128,7 @@ function gitops_aibroker_noninteractive() {
         export INSTANCE_ID=$1 && shift 
 
       # Secrets Manager
-      --secrets-path)
+      --secrets-path
         export SECRETS_PATH=$1 && shift
         ;;
       --primary-storage-class)
@@ -409,7 +409,7 @@ function gitops_aibroker() {
     echo_h2 "Generating aibroker operator Applications"
     echo "- minio operator"
 
-    echo "Generating aibroker file ${GITOPS_CLUSTER_DIR}/ibm-aibrokernio.yaml"
+    echo "Generating aibroker file ${GITOPS_CLUSTER_DIR}/ibm-aibroker.yaml"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aibroker.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aibroker.yaml
 
     # Commit and push to github target repo
@@ -424,6 +424,6 @@ function gitops_aibroker() {
     rm -rf $TEMP_DIR
     rm -rf $GITOPS_WORKING_DIR
 
-  fi
+   
   exit 0
 }
