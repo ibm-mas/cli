@@ -154,7 +154,7 @@ The interactive install will guide you through a series of questioned designed t
       <ul>
         <li>Monitor is only available for install if IoT is selected</li>
         <li>Assist and Predict are only available for install if Monitor is selected</li>
-        <li>From now on Assist will be labeled as collaborate. So while installing the assist you will see assist right now but after logging in you will find collaborate in place of assist. Soon this is also gonna be improved and while installing also you will be able to see collaborate.</li>
+        <li>From now on Assist will be labeled as Collaborate. Although while installing the Assist you will see Assist right now but after logging in you will find Collaborate in place of Assist. Soon this is also gonna be improved and while installing also you will be able to see Collaborate.</li>
       </ul>
     </cds-accordion-item>
     <cds-accordion-item title="Application Configuration">
