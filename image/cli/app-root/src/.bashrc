@@ -34,7 +34,7 @@ echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas must-gather${TEXT_RESET} to perform must
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas uninstall${TEXT_RESET} to uninstall a MAS instance"
 
 # None of these functions are tested/supported on s390x /ppc64le yet
-if  [ $arch != "s390x" ] ||  [ $arch != "ppc64le" ]; then
+if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas configtool-oidc${TEXT_RESET} to configure OIDC integration"
     echo "Disconnected Install Support:"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas setup-registry${TEXT_RESET} to setup a private container registry on an OCP cluster"
