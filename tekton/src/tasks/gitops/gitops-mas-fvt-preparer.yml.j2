@@ -51,6 +51,8 @@ spec:
       type: string
     - name: fvt_version_sls
       type: string
+    - name: fvt_version_facilities
+      type: string
 
     - name: fvt_blacklist_core
       type: string
@@ -132,7 +134,13 @@ spec:
     - name: launchfvt_manage_is
       type: string
       default: "true"
+    - name: launchfvt_facilities
+      type: string
+      default: "true"
 
+    - name: mas_app_channel_facilities
+      type: string
+      default: ""
     - name: mas_app_channel_iot
       type: string
       default: ""
@@ -242,6 +250,8 @@ spec:
         value: $(params.fvt_version_data_dictionary)
       - name: FVT_VERSION_SLS
         value: $(params.fvt_version_sls)
+      - name: FVT_VERSION_FACILITIES
+        value: $(params.fvt_version_facilities)
       - name: FVT_BLACKLIST_CORE
         value: $(params.fvt_blacklist_core)
       - name: FVT_WHITELIST_CORE
@@ -278,6 +288,10 @@ spec:
         value: $(params.launchfvt_visualinspection)
       - name: LAUNCHFVT_MANAGE_IS
         value: $(params.launchfvt_manage_is)
+      - name: LAUNCHFVT_FACILITIES
+        value: $(params.launchfvt_facilities)
+      - name: MAS_APP_CHANNEL_FACILITIES
+        value: $(params.mas_app_channel_facilities)
       - name: MAS_APP_CHANNEL_IOT
         value: $(params.mas_app_channel_iot)
       - name: MAS_APP_CHANNEL_MANAGE
@@ -480,6 +494,10 @@ spec:
             MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}" 120
           fi
+          if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
+            MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 120
+          fi
           if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
             MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}" 240
@@ -504,6 +522,10 @@ spec:
           if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
             MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 20
+          fi
+          if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
+            MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
           fi
           # Fourth wave
           if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
