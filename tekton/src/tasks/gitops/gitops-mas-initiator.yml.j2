@@ -41,6 +41,8 @@ spec:
     - name: mas_app_install_plan_assist
       type: string
       default: "Automatic"
+    - name: mas_app_channel_facilities
+      type: string
     - name: mas_app_install_plan_facilities
       type: string
       default: "Automatic"
@@ -148,6 +150,8 @@ spec:
         value: $(params.mas_app_channel_assist)
       - name: MAS_APP_INSTALL_PLAN_ASSIST
         value: $(params.mas_app_install_plan_assist)
+      - name: MAS_APP_CHANNEL_FACILITIES
+        value: $(params.mas_app_channel_facilities)
       - name: MAS_APP_INSTALL_PLAN_FACILITIES
         value: $(params.mas_app_install_plan_facilities)
       - name: MAS_APP_CHANNEL_IOT
@@ -392,6 +396,9 @@ spec:
             yq -i '.launchfvt.assist = false' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
             echo "gitops-mas-initiator: set .launchfvt.assist to false"
           fi
+        fi
+        if [ -n $MAS_APP_CHANNEL_FACILITIES ]; then
+          yq -i '(. | select(has("facilities")) |  .facilities.app_channel) = env(MAS_APP_CHANNEL_FACILITIES)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
         fi
         if [ -n $MAS_APP_CHANNEL_IOT ]; then
           yq -i '(. | select(has("iot")) |  .iot.app_channel) = env(MAS_APP_CHANNEL_IOT)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
