@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function gitops_suite_aibroker_install_help() {
+function gitops_aibroker_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
