@@ -1,0 +1,28 @@
+
+
+- name: mobile-pytest-assetmanager
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-assetm
+  runAfter:
+    - mobile-pytest-requests
+    
+- name: mobile-pytest-tech
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-tech
+  runAfter:
+    - mobile-pytest-requests
+
+- name: mobile-pytest-supervisor
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-supervisor
+  runAfter:
+    - mobile-pytest-requests
