@@ -29,6 +29,7 @@
       with_items:
         # Main Pipelines
         - install
+        - install-aiservice
         - update
         - upgrade
         - rollback

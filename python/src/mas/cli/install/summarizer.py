@@ -158,6 +158,12 @@ class InstallSummarizerMixin():
             self.printSummary("AI Broker", self.params["mas_app_channel_aibroker"])
             print_formatted_text(HTML("  <SkyBlue>+ Maximo AI Broker Settings</SkyBlue>"))
             self.printParamSummary("  + Storage provider", "mas_aibroker_storage_provider")
+            if self.getParam("mas_aibroker_storage_provider") == "minio":
+                self.printParamSummary("  + minio root username", "minio_root_user")
+                self.printParamSummary("  + minio root password", "minio_root_password")
+            if self.getParam("mas_app_channel_aibroker") != "9.0.x":    
+                self.printParamSummary("  + Mariadb username", "mariadb_user")
+                self.printParamSummary("  + Mariadb password", "mariadb_password")
             self.printParamSummary("  + Storage access key", "mas_aibroker_storage_accesskey")
             self.printParamSummary("  + Storage secret key", "mas_aibroker_storage_secretkey")
             self.printParamSummary("  + Storage host", "mas_aibroker_storage_host")
@@ -176,6 +182,9 @@ class InstallSummarizerMixin():
             self.printParamSummary("  + Database name", "mas_aibroker_db_database")
             self.printParamSummary("  + Database Secretname", "mas_aibroker_db_secret_name")
             self.printParamSummary("  + Database password", "mas_aibroker_db_secret_value")
+            self.printParamSummary("  + Tenant entitlement type", "tenant_entitlement_type")
+            self.printParamSummary("  + Tenant start date", "tenant_entitlement_start_date")
+            self.printParamSummary("  + Tenant end date", "tenant_entitlement_end_date")
         else:
             self.printSummary("AI Broker", "Do Not Install")
 

@@ -514,6 +514,48 @@ aibrokerArgGroup.add_argument(
     required=False,
     help="Customize Manage database encryption keys"
 )
+aibrokerArgGroup.add_argument(
+    "--minio-root-user",
+    dest="minio_root_user",
+    required=False,
+    help="Root user for minio"
+)
+aibrokerArgGroup.add_argument(
+    "--minio-root-password",
+    dest="minio_root_password",
+    required=False,
+    help="Password for minio rootuser"
+)
+aibrokerArgGroup.add_argument(
+    "--mariadb-user",
+    dest="mariadb_user",
+    required=False,
+    help="Mariadb user name"
+)
+aibrokerArgGroup.add_argument(
+    "--mariadb-password",
+    dest="mariadb_password",
+    required=False,
+    help="Password for mariadb user"
+)
+aibrokerArgGroup.add_argument(
+    "--tenant-entitlement-type",
+    dest="tenant_entitlement_type",
+    required=False,
+    help="Type of aibroker tenant"
+)
+aibrokerArgGroup.add_argument(
+    "--tenant-entitlement-start-date",
+    dest="tenant_entitlement_start_date",
+    required=False,
+    help="Start date for Aibroker tenant"
+)
+aibrokerArgGroup.add_argument(
+    "--tenant-entitlement-end-date",
+    dest="tenant_entitlement_end_date",
+    required=False,
+    help="End date for Aibroker tenant"
+)
 
 # Arcgis
 # -----------------------------------------------------------------------------

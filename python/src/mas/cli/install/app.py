@@ -1807,12 +1807,8 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
 
     @logMethodCall
     def configAppChannel(self, appId):
-        versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
-        if len(versions) == 0:
-            self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel</Yellow> '))
-        else:
-            self.params[f"mas_app_channel_{appId}"] = versions[0]
-
+        self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+       
     @logMethodCall
     def configStorageClasses(self):
         self.printH1("Configure Storage Class Usage")
