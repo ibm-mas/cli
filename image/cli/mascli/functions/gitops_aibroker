@@ -83,7 +83,7 @@ function gitops_aibroker_noninteractive() {
   GIT_COMMIT_MSG="gitops-aibroker commit"
 
    #adding default values # all generic values should to put here # check with ansible playbook/gitops anvs 
-   only export below in whiel loop
+   #only export below in whiel loop
 
   #adding default values 
   export PRIMARY_STORAGE_CLASS=${PRIMARY_STORAGE_CLASS:-"nfs-client"}
@@ -126,74 +126,67 @@ function gitops_aibroker_noninteractive() {
         ;;
       -i|--instance-id)
         export INSTANCE_ID=$1 && shift 
-
-      # Secrets Manager
-      --secrets-path
-        export SECRETS_PATH=$1 && shift
         ;;
-      --primary-storage-class)
-         export PRIMARY_STORAGE_CLASS=$1 && shift
-          ;;
       --mas-icr-cp)
-          export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-pu"} && shift
-          ;;
+        export MAS_ICR_CP=$1 && shift
+        ;;
       --mas-icr-cpopen)
-          export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"d"} && shift
-          ;;
+        export MAS_ICR_CPOPEN=$1 && shift
+        ;;
       --artifactory-username)
-          export ARTIFACTORY_USERNAME=$1 && shift
-          ;;
+        export ARTIFACTORY_USERNAME=$1 && shift
+        ;;
       --region-id)
-          export REGION_ID=${REGION_ID:-${SM_AWS_REGION}} && shift
-          ;;
-      --minio-namespace)
-          export MINIO_NAMESPACE=$1 && shift
-          ;;
+        export REGION_ID=$1 && shift
+        ;;
+      --minio_namespace)
+        export MINIO_NAMESPACE=$1 && shift
+        ;;
       --minio-instance-name)
           export MINIO_INSTANCE_NAME=$1 && shift
-          ;;
+        ;;
       --minio-storage-size)
           export MINIO_STORAGE_SIZE=$1 && shift
-          ;;
+        ;;
       --minio-image)
-          export MINIO_IMAGE=${MINIO_IMAGE:-"quay.io/minio"} && shift
-          ;;
+          export MINIO_IMAGE=$1 && shift
+        ;;
       --aibroker-namespace)
           export AIBROKER_NAMESPACE=$1 && shift
-          ;;
+        ;;
       --mas-instance-id)
-          export MAS_INSTACE_ID=${MAS_INSTACE_ID:-"sre"} && shift
-          ;;
+          export MAS_INSTACE_ID=$1 && shift
+        ;;
       --mas-aibroker-watsonx-secret)
           export MAS_AIBROKER_WATSONX_SECRET=$1 && shift
-          ;;
+        ;;
       --mas-aibroker-storage-provider)
           export MAS_AIBROKER_STORAGE_PROVIDER=$1 && shift
-          ;;
+        ;;
       --mas-aibroker-minio-secret)
           export MAS_AIBROKER_MINIO_SECRET=$1 && shift
-          ;;
+        ;;
       --mas-aibroker-storage-ssl)
           export MAS_AIBROKER_STORAGE_SSL=$1 && shift
-          ;;
+        ;;
       --mas-aibroker-storage-region)
           export MAS_AIBROKER_STORAGE_REGION=$1 && shift
-          ;;
+        ;;
       --mas-app-channel)
           export MAS_APP_CHANNEL=$1 && shift
-          ;;
+        ;;
       --mas-catalog-source)
           export MAS_CATALOG_SOURCE=$1 && shift
-          ;;
+        ;;
       --cluster-domain)
-          export CLUSTER_DOMAIN=${CLUSTER_DOMAIN:-""} && shift
-          ;;
+          export CLUSTER_DOMAIN=$1 && shift
+        ;;
       --in-saas-env)
-          export IN_SAAS_ENV=${IN_SAAS_ENV:-"false"} && shift
-          ;;
+          export IN_SAAS_ENV=$1 && shift
+        ;;
       --mas-aibroker-mariadb-secret)
           export MAS_AIBROKER_MARIADB_SECRET=$1 && shift
-          ;;
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
