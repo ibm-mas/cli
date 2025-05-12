@@ -28,6 +28,11 @@ minio Provider Selection / Version:
       --minio_storage_class ${COLOR_YELLOW}MINIO_STORAGE_CLASS${TEXT_RESET}                                 The minio storage class
       --minio_storage_size ${COLOR_YELLOW}MINIO_STORAGE_SIZE${TEXT_RESET}                                   The minio storage size
       --minio_image ${COLOR_YELLOW}MINIO_IMAGE${TEXT_RESET}                                                 The minio image name
+      --minio_access_key=${COLOR_YELLOW}MINIO_ACCESS_KEY${TEXT_RESET}                                    The access key for MinIO, used as the username
+      --minio_secret_key=${COLOR_YELLOW}MINIO_SECRET_KEY${TEXT_RESET}                                    The secret key for MinIO, used as the password
+      --minio_host=${COLOR_YELLOW}MINIO_HOST${TEXT_RESET}                                                The hostname or service URL where MinIO is reachable
+      --minio_port=${COLOR_YELLOW}MINIO_PORT${TEXT_RESET}                                                The port number on which MinIO is exposed
+
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -56,6 +61,10 @@ function gitops_minio_noninteractive() {
   export MINIO_INSTANCE_NAME=${MINIO_INSTANCE_NAME:-"minio"}
   export MINIO_STORAGE_SIZE=${MINIO_STORAGE_SIZE:-"40Gi"}
   export MINIO_IMAGE=${MINIO_IMAGE:-"quay.io/minio/minio:latest"}
+  export MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-"minio"}
+  export MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-"minio123"}
+  export MINIO_PORT=${MINIO_PORT:-"9000"}
+  export MINIO_HOST=${MINIO_HOST:-"minio-service.minio.svc.cluster.local"}
 
   while [[ $# -gt 0 ]]
   do
@@ -105,6 +114,19 @@ function gitops_minio_noninteractive() {
       --minio_image)
         export MINIO_IMAGE=$1 && shift
         ;;
+      --minio_access_key)
+        export MINIO_ACCESS_KEY=$1 && shift
+        ;;
+      --minio_secret_key)
+          export MINIO_SECRET_KEY=$1 && shift
+          ;;
+      --minio_host)
+          export MINIO_HOST=$1 && shift
+          ;;
+      --minio_port)
+          export MINIO_PORT=$1 && shift
+          ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -225,7 +247,7 @@ function gitops_minio() {
   # Set up secrets
   # ---------------------------------------------------------------------------
   CURRENT_DIR=$PWD
-  TEMP_DIR=$GITOPS_CLUSTER_DIR/tmp-minio
+  TEMP_DIR=$GITOPS_CLUSTER_DIR/aibroker01
   mkdir -p ${TEMP_DIR}
 
   AVP_TYPE=aws  # Support for IBM will be added later
@@ -246,8 +268,41 @@ function gitops_minio() {
       export MINIO_SECRET_FILE=$TEMP_DIR/minio-secret.json
       export MINIO_ROOT_USER=${MINIO_ROOT_USER:-"minio"}
       echo_reset_dim "MINIO_ROOT_USER ............................. ${COLOR_MAGENTA}$MINIO_ROOT_USER"
-      
+
+      # Extract and export sm_minio_accesskey
+      TEMP_MINIO_ACCESSKEY=$(jq -r .sm_minio_accesskey $MINIO_SECRET_FILE)
+      # echo_reset_dim "TEMP_MINIO_ACCESSKEY .............................. ${COLOR_MAGENTA}${TEMP_MINIO_ACCESSKEY:0:8}<snip> is available in the secret, using that value"
+      if [[ -n ${TEMP_MINIO_ACCESSKEY} ]]; then
+        export MINIO_ACCESS_KEY=${TEMP_MINIO_ACCESSKEY}
+        echo_reset_dim "MINIO_ACCESS_KEY .............................. ${COLOR_MAGENTA}${MINIO_ACCESS_KEY:0:8}<snip> is available in the secret, using that value"
+      fi
+
+      # Extract and export sm_minio_secretkey
+      TEMP_MINIO_SECRETKEY=$(jq -r .sm_minio_secretkey $MINIO_SECRET_FILE)
+      # echo_reset_dim "TEMP_MINIO_SECRETKEY .............................. ${COLOR_MAGENTA}${TEMP_MINIO_SECRETKEY:0:8}<snip> is available in the secret, using that value"
+      if [[ -n ${TEMP_MINIO_SECRETKEY} ]]; then
+        export MINIO_SECRET_KEY=${TEMP_MINIO_SECRETKEY}
+        echo_reset_dim "MINIO_SECRET_KEY .............................. ${COLOR_MAGENTA}${MINIO_SECRET_KEY:0:8}<snip> is available in the secret, using that value"
+      fi
+
+      # Extract and export sm_minio_port
+      TEMP_MINIO_PORT=$(jq -r .sm_minio_port $MINIO_SECRET_FILE)
+      # echo_reset_dim "TEMP_MINIO_PORT .............................. ${COLOR_MAGENTA}${TEMP_MINIO_PORT:0:8}<snip> is available in the secret, using that value"
+      if [[ -n ${TEMP_MINIO_PORT} ]]; then
+        export MINIO_PORT=${TEMP_MINIO_PORT}
+        echo_reset_dim "MINIO_PORT .................................... ${COLOR_MAGENTA}${MINIO_PORT} is available in the secret, using that value"
+      fi
+
+      # Extract and export sm_minio_host
+      TEMP_MINIO_HOST=$(jq -r .sm_minio_host $MINIO_SECRET_FILE)
+      # echo_reset_dim "TEMP_MINIO_HOST .............................. ${COLOR_MAGENTA}${TEMP_MINIO_HOST:0:8}<snip> is available in the secret, using that value"
+      if [[ -n ${TEMP_MINIO_HOST} ]]; then
+        export MINIO_HOST=${TEMP_MINIO_HOST}
+        echo_reset_dim "MINIO_HOST .................................... ${COLOR_MAGENTA}${MINIO_HOST} is available in the secret, using that value"
+      fi
+
       export MINIO_ROOT_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
+     
       sm_get_secret_file ${SECRET_NAME_MINIO_AUTH} $MINIO_SECRET_FILE
       TEMP_MINIO_PASSWORD=$(jq -r .sm_minio_password $MINIO_SECRET_FILE)
       if [[ -n ${TEMP_MINIO_PASSWORD} ]]; then
@@ -257,7 +312,7 @@ function gitops_minio() {
       echo_reset_dim "MINIO_ROOT_PASSWORD ............................. ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:8}<snip>"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_minio\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       
-      sm_update_secret $SECRET_NAME_MINIO_AUTH "{ \"username\": \"$MINIO_ROOT_USER\", \"password\": \"$MINIO_ROOT_PASSWORD\"}" "${TAGS}"
+      sm_update_secret $SECRET_NAME_MINIO_AUTH "{ \"sm_minio_user\": \"$MINIO_ROOT_USER\", \"sm_minio_password\": \"$MINIO_ROOT_PASSWORD\", \"sm_minio_accesskey\": \"$MINIO_ROOT_USER\", \"sm_minio_secretkey\": \"$MINIO_ROOT_PASSWORD\", \"sm_minio_port\": \"$MINIO_PORT\", \"sm_minio_host\": \"$MINIO_HOST\" }" "${TAGS}"
     fi
     
     echo_reset_dim "minio_namespace ....................... ${COLOR_MAGENTA}${MINIO_NAMESPACE}"
@@ -267,7 +322,10 @@ function gitops_minio() {
     echo_reset_dim "minio_image ........................... ${COLOR_MAGENTA}${MINIO_IMAGE}"
     echo_reset_dim "minio_root_user ....................... ${COLOR_MAGENTA}${MINIO_ROOT_USER}"
     echo_reset_dim "minio_root_password ................... ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:4}<snip>"
-
+    echo_reset_dim "minio_access_key ...................... ${COLOR_MAGENTA}${MINIO_ACCESS_KEY}"
+    echo_reset_dim "minio_secret_key ...................... ${COLOR_MAGENTA}${MINIO_SECRET_KEY:0:4}<snip>"
+    echo_reset_dim "minio_port ............................ ${COLOR_MAGENTA}${MINIO_PORT}"
+    echo_reset_dim "minio_host ............................ ${COLOR_MAGENTA}${MINIO_HOST}"
 
     if [ -z $GIT_SSH ]; then
       export GIT_SSH=false
