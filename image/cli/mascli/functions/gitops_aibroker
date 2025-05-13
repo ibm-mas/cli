@@ -101,7 +101,7 @@ function gitops_aibroker_noninteractive() {
   export MAS_AIBROKER_STORAGE_PROVIDER=${MAS_AIBROKER_STORAGE_PROVIDER:-"minio"}
   export MAS_AIBROKER_MINIO_SECRET=${MAS_AIBROKER_MINIO_SECRET:-"minio-secret"}
   export MAS_AIBROKER_STORAGE_SSL=${MAS_AIBROKER_STORAGE_SSL:-"true"}
-  export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
+ # export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
   export MAS_APP_CHANNEL=${MAS_APP_CHANNEL:-"workspace"}
   export MAS_CATALOG_SOURCE=${MAS_CATALOG_SOURCE:-"ibm-operator-catalog"}
   export CLUSTER_DOMAIN=${CLUSTER_DOMAIN:-"sremat-test.cp.fyre.ibm.com"}
@@ -123,9 +123,6 @@ function gitops_aibroker_noninteractive() {
         ;;
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
-        ;;
-      -i|--instance-id)
-        export INSTANCE_ID=$1 && shift 
         ;;
       --mas-icr-cp)
         export MAS_ICR_CP=$1 && shift
@@ -169,9 +166,9 @@ function gitops_aibroker_noninteractive() {
       --mas-aibroker-storage-ssl)
           export MAS_AIBROKER_STORAGE_SSL=$1 && shift
         ;;
-      --mas-aibroker-storage-region)
-          export MAS_AIBROKER_STORAGE_REGION=$1 && shift
-        ;;
+      # --mas-aibroker-storage-region)
+      #     export MAS_AIBROKER_STORAGE_REGION=$1 && shift
+      #   ;;
       --mas-app-channel)
           export MAS_APP_CHANNEL=$1 && shift
         ;;
@@ -187,11 +184,11 @@ function gitops_aibroker_noninteractive() {
       --mas-aibroker-mariadb-secret)
           export MAS_AIBROKER_MARIADB_SECRET=$1 && shift
         ;;
-
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
         ;;
+
       -H|--github-host)
         export GITHUB_HOST=$1 && shift
         ;;
@@ -223,10 +220,8 @@ function gitops_aibroker_noninteractive() {
 
 
   [[ -z "$CLUSTER_ID" ]] && gitops_aibroker_help "CLUSTER_ID is not set"
-  //need to ask for instace id
-  [[ -z "$INSTANCE_ID" ]] && gitops_aibroker_help "INSTANCE_ID is not set"
+  #[[ -z "$INSTANCE_ID" ]] && gitops_aibroker_help "INSTANCE_ID is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_aibroker_help "ACCOUNT_ID is not set"
-  [[ -z "$INSTANCE_ID" ]] && gitops_aibroker_help "INSTANCE_ID is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_aibroker_help "ACCOUNT_ID is not set"
   #[[ -z "$MAS_INSTANCE_ID" ]] && gitops_aibroker_help "MAS_INSTANCE_ID is not set"
 
@@ -250,7 +245,7 @@ function gitops_aibroker_noninteractive() {
     [[ -z "$MAS_AIBROKER_STORAGE_PROVIDER" ]] && gitops_aibroker_help "MAS_AIBROKER_STORAGE_PROVIDER is not set"
     [[ -z "$MAS_AIBROKER_MINIO_SECRET" ]] && gitops_aibroker_help "MAS_AIBROKER_MINIO_SECRET is not set"
     [[ -z "$MAS_AIBROKER_STORAGE_SSL" ]] && gitops_aibroker_help "MAS_AIBROKER_STORAGE_SSL is not set"
-    [[ -z "$MAS_AIBROKER_STORAGE_REGION" ]] && gitops_aibroker_help "MAS_AIBROKER_STORAGE_REGION is not set"
+   # [[ -z "$MAS_AIBROKER_STORAGE_REGION" ]] && gitops_aibroker_help "MAS_AIBROKER_STORAGE_REGION is not set"
     [[ -z "$MAS_APP_CHANNEL" ]] && gitops_aibroker_help "MAS_APP_CHANNEL is not set"
     [[ -z "$MAS_CATALOG_SOURCE" ]] && gitops_aibroker_help "MAS_CATALOG_SOURCE is not set"
     [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aibroker_help "CLUSTER_DOMAIN is not set"
