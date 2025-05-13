@@ -242,9 +242,9 @@ function gitops_odh() {
   # Prepare directories
   rm -rf "$GITOPS_WORKING_DIR"
   mkdir -p "${GITOPS_WORKING_DIR}"
-  GITOPS_CLUSTER_DIR="${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}"
-  TEMP_DIR="${GITOPS_CLUSTER_DIR}/tmp-odh"
-  mkdir -p "$TEMP_DIR"
+  #GITOPS_CLUSTER_DIR="${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}"
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  
 
   echo
   echo_h2 "Review Settings"
@@ -257,16 +257,33 @@ function gitops_odh() {
   echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
   reset_colors
 
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$CURRENT_DIR/aibroker01
+  mkdir -p $TEMP_DIR
+
   AVP_TYPE=aws
   sm_login
 
   # Set up secret key and fetch secret
+  export SECRET_ACCOUNT_PATH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
   export MAS_CONFIG_DIR="$TEMP_DIR"
   export ODH_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio"
   export ODH_SECRET_FILE="$TEMP_DIR/odh-secret.json"
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH=false
+  fi
 
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio "sm_minio_bucket_templates,sm_minio_bucket_tenants,sm_minio_bucket_pipelines,sm_minio_bucket_default"
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb "sm_mariadb_host,sm_mariadb_database"
   sm_get_secret_file "$ODH_SECRET" "$ODH_SECRET_FILE"
-
+  #################################################################
+   export MARIA_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb"
+   export MARIA_SECRET_FILE="$TEMP_DIR/mariadb-secret.json"
+   sm_get_secret_file "$MARIA_SECRET" "$MARIA_SECRET_FILE"
+  ######################################################################
+   #######################Checking condition Storage_provider#######################################
+   #mas_aibroker_storage_provider
+  ######################################################################
   # Reuse existing secret values if present
   TEMP_MINIO_ACCESS_KEY=$(jq -r .sm_minio_accesskey "$ODH_SECRET_FILE")
   if [[ -n ${TEMP_MINIO_ACCESS_KEY} ]]; then
@@ -300,12 +317,12 @@ function gitops_odh() {
   export MINIO_PORT=$(jq -r .sm_minio_port "$ODH_SECRET_FILE")
   export MINIO_BUCKET=$(jq -r .sm_minio_bucket_default "$ODH_SECRET_FILE")
 
-  export MARIADB_HOST=$(jq -r .sm_mariadb_host "$ODH_SECRET_FILE")
-  export MARIADB_PORT=$(jq -r .sm_mariadb_port "$ODH_SECRET_FILE")
-  export MARIADB_USER=$(jq -r .sm_mariadb_user "$ODH_SECRET_FILE")
-  export MARIADB_DATABASE=$(jq -r .sm_mariadb_database "$ODH_SECRET_FILE")
-  export MARIADB_SECRET_NAME=$(jq -r .sm_mariadb_secret_name "$ODH_SECRET_FILE")
-  export MARIADB_SECRET_VALUE=$(jq -r .sm_mariadb_secret_value "$ODH_SECRET_FILE")
+  export MARIADB_HOST=$(jq -r .sm_mariadb_host "$MARIA_SECRET_FILE")
+  export MARIADB_PORT=$(jq -r .sm_mariadb_port "$MARIA_SECRET_FILE")
+  export MARIADB_USER=$(jq -r .sm_mariadb_user "$MARIA_SECRET_FILE")
+  export MARIADB_DATABASE=$(jq -r .sm_mariadb_database "$MARIA_SECRET_FILE")
+  export MARIADB_SECRET_NAME=$(jq -r .sm_mariadb_secret_name "$$MARIA_SECRET_FILE")
+  export MARIADB_SECRET_VALUE=$(jq -r .sm_mariadb_secret_value "$MARIA_SECRET_FILE")
 
   echo_h2 "ODH Secret Summary"
   echo_reset_dim "MINIO_HOST ............................. ${COLOR_MAGENTA}${MINIO_HOST}"
@@ -314,27 +331,39 @@ function gitops_odh() {
   echo_reset_dim "MARIADB_DATABASE ....................... ${COLOR_MAGENTA}${MARIADB_DATABASE}"
   reset_colors
 
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo "GITOPS_WORKING_DIR  ${GITOPS_WORKING_DIR}"
+    echo "GITOPS_CLUSTER_DIR  ${GITOPS_CLUSTER_DIR}"
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+
+  mkdir -p ${GITOPS_CLUSTER_DIR}
   # Render YAML
   echo_h2 "Generating OpenDataHub GitOps YAML"
-  echo "${TEMP_DIR}"
-  echo "Output: ${TEMP_DIR}/ibm-mas-odh-install.yaml"
+  echo "${GITOPS_CLUSTER_DIR}"
+  echo "Output: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
 
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-odh-install.yaml.j2 ${TEMP_DIR}/ibm-mas-odh-install.yaml
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-odh-install.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
 
   # Collect info block for secret update
-  yq eval '.' "${TEMP_DIR}/ibm-mas-odh-install.yaml" > "${TEMP_DIR}/odh-info.yaml"
-  UNESCAPED_INFO="$(cat ${TEMP_DIR}/odh-info.yaml)"
+  yq eval '.' "${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml" > "${GITOPS_CLUSTER_DIR}/odh-info.yaml"
+  UNESCAPED_INFO="$(cat ${GITOPS_CLUSTER_DIR}/odh-info.yaml)"
   ESCAPED_INFO="${UNESCAPED_INFO//\"/\\\"}"
 
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_odh\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
 
-  sm_update_secret "$ODH_SECRET" \
-    "{\"minio_access_key\": \"${MINIO_ACCESS_KEY}\", \"minio_secret_key\": \"${MINIO_SECRET_KEY}\", \"mariadb_user\": \"${MARIADB_USER}\"}" \
-    "$TAGS"
-
+  # sm_update_secret "$ODH_SECRET" \
+  #   "{\"minio_access_key\": \"${MINIO_ACCESS_KEY}\", \"minio_secret_key\": \"${MINIO_SECRET_KEY}\", \"mariadb_user\": \"${MARIADB_USER}\"}" \
+  #   "$TAGS"
+  #rm -rf "$TEMP_DIR"
   # GitHub push
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     echo_h2 "Pushing changes to GitHub"
+    echo "Github push" "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$GIT_BRANCH" "Working: " "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" " Commit :" "$GIT_COMMIT_MSG"
     save_to_target_git_repo "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$GIT_BRANCH" "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "$GIT_COMMIT_MSG"
     remove_git_repo_clone "${GITOPS_WORKING_DIR}/${GITHUB_REPO}"
   fi
