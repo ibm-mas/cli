@@ -1807,7 +1807,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
 
     @logMethodCall
     def configAppChannel(self, appId):
-        self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+        self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel for Aibroker</Yellow> '))
        
     @logMethodCall
     def configStorageClasses(self):
@@ -1922,6 +1922,20 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         # Interactive mode
         self.interactiveMode = True
 
+        self.storageClassProvider = "custom"
+        self.installAssist = False
+        self.installIoT = False
+        self.installMonitor = False
+        self.installManage = False
+        self.installPredict = False
+        self.installInspection = False
+        self.installOptimizer = False
+        self.installAiBroker = True
+        self.deployCP4D = False
+        self.db2SetAffinity = False
+        self.db2SetTolerations = False
+        self.slsLicenseFileLocal = None
+
         if simplified:
             self.showAdvancedOptions = False
         elif advanced:
@@ -1950,7 +1964,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
 
         # MAS Applications
         # self.configApps()
-        self.installAiBroker = True
         self.configAppChannel("aibroker")
 
         self.validateInternalRegistryAvailable()
@@ -2333,7 +2346,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text=f"Submitting PipelineRun for {self.getParam('mas_instance_id')} install", spinner=self.spinner) as h:
-                pipelineURL = launchInstallPipeline(dynClient=self.dynamicClient, params=self.params)
+                pipelineURL = launchInstallPipelineForAiservice(dynClient=self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('mas_instance_id')} install submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
