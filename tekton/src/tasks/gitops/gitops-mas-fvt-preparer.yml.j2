@@ -562,8 +562,8 @@ spec:
 
         # This test runs twice: once in the core phase and once again in the apps phase (to drive the logic that grants application roles and assigns Manage Security Groups to the initial users):
         #  - The initial_user secret is primed with 3 primary and 3 secondary users with randomised emails
-        #  - The Job that reads the secret is deleted so ArgoCD resyncs it and causes it to rerun
-        #  - The test passes if the postsync app that contains the Job becomes healthy again after rerunning the Job
+        #  - The ibm-create-initial-users Job that reads the secret and runs creates the users is deleted so ArgoCD resyncs it, causing it to be rerun
+        #  - The test passes if the postsyncjobs app that contains the Job becomes healthy again after rerunning the Job
         
         # The results of the tests are registered with the FVT dashboard under ibm-mas-gitops/initial-users-automation-${LAUNCHER_ID}-${MAS_INSTANCE_ID}
 
