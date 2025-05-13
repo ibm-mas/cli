@@ -1,0 +1,244 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-aibroker-tenant
+spec:
+  params: 
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_id
+      type: string
+    - name: cluster_url
+      type: string    
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+
+    - name: aibroker_namespace
+      type: string
+    - name: mas_aibroker_provision_tenant
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: tenant_namespace
+      type: string
+    - name: cluster_domain
+      type: string
+    - name: in_saas_env
+      type: string
+    - name: ibm_entitlement_key
+      type: string
+    - name: mas_icr_cp
+      type: string
+    - name: mas_icr_cpopen
+      type: string
+
+    - name: artifactory_token
+      type: string
+    - name: drocfg_url
+      type: string
+    - name: mas_aibroker_dro_token_secret
+      type: string
+    - name: drocfg_ca
+      type: string
+    - name: drocfg_registration_key
+      type: string
+
+    - name: slscfg_url
+      type: string
+    - name: slscfg_registration_key
+      type: string
+    - name: mas_aibroker_sls_subscription_id
+      type: string
+    - name: slscfg_clientId
+      type: string
+    - name: slscfg_ca
+      type: string
+    - name: slscfg_tls
+      type: string
+    - name: slscfg_key
+      type: string
+    
+    - name: mas_aibroker_watsonxai_url
+      type: string
+    - name: mas_aibroker_watsonxai_apikey
+      type: string
+    - name: mas_aibroker_watsonxai_project_id
+      type: string
+    
+    - name: mas_aibroker_storage_host
+      type: string
+    - name: mas_aibroker_storage_port
+      type: string
+    - name: mas_aibroker_storage_region
+      type: string
+    - name: mas_aibroker_storage_accesskey
+      type: string
+    - name: mas_aibroker_storage_secretkey
+      type: string
+    - name: mas_aibroker_storage_pipelines_bucket
+      type: string
+    - name: mas_aibroker_storage_ssl
+      type: string
+      
+  stepTemplate:
+    name: gitops-aibroker-tenant
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      #- name: CLUSTER_ID
+      #  value: $(params.cluster_id)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+
+      - name: AIBROKER_NAMESPACE
+        value: $(params.aibroker_namespace)
+
+      - name: MAS_AIBROKER_PROVISION_TENANT
+        value: $(params.mas_aibroker_provision_tenant)
+
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      - name: TENANT_NAMESPACE
+        value: $(params.tenant_namespace)
+
+      - name: CLUSTER_DOMAIN
+        value: $(params.cluster_domain)
+
+      - name: IN_SAAS_ENV
+        value: $(params.in_saas_env)
+
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+
+      - name: MAS_ICR_CP
+        value: $(params.mas_icr_cp)
+
+      - name: MAS_ICR_CPOPEN
+        value: $(params.mas_icr_cpopen)
+
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
+
+      - name: DROCFG_URL
+        value: $(params.drocfg_url)
+
+      - name: MAS_AIBROKER_DRO_TOKEN_SECRET
+        value: $(params.mas_aibroker_dro_token_secret)
+
+      - name: DROCFG_CA
+        value: $(params.drocfg_ca)
+
+      - name: DROCFG_REGISTRATION_KEY
+        value: $(params.drocfg_registration_key)
+
+      - name: SLSCFG_URL
+        value: $(params.slscfg_url)
+
+      - name: SLSCFG_REGISTRATION_KEY
+        value: $(params.slscfg_registration_key)
+
+      - name: MAS_AIBROKER_SLS_SUBSCRIPTION_ID
+        value: $(params.mas_aibroker_sls_subscription_id)
+
+      - name: SLSCFG_CLIENTID
+        value: $(params.slscfg_clientId)
+
+      - name: SLSCFG_CA
+        value: $(params.slscfg_ca)
+
+      - name: SLSCFG_TLS
+        value: $(params.slscfg_tls)
+
+      - name: SLSCFG_KEY
+        value: $(params.slscfg_key)
+
+      - name: MAS_AIBROKER_WATSONXAI_URL
+        value: $(params.mas_aibroker_watsonxai_url)
+
+      - name: MAS_AIBROKER_WATSONXAI_APIKEY
+        value: $(params.mas_aibroker_watsonxai_apikey)
+
+      - name: MAS_AIBROKER_WATSONXAI_PROJECT_ID
+        value: $(params.mas_aibroker_watsonxai_project_id)
+
+      - name: MAS_AIBROKER_STORAGE_HOST
+        value: $(params.mas_aibroker_storage_host)
+
+      - name: MAS_AIBROKER_STORAGE_PORT
+        value: $(params.mas_aibroker_storage_port)
+
+      - name: MAS_AIBROKER_STORAGE_REGION
+        value: $(params.mas_aibroker_storage_region)
+
+      - name: MAS_AIBROKER_STORAGE_ACCESSKEY
+        value: $(params.mas_aibroker_storage_accesskey)
+
+      - name: MAS_AIBROKER_STORAGE_SECRETKEY
+        value: $(params.mas_aibroker_storage_secretkey)
+
+      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
+        value: $(params.mas_aibroker_storage_pipelines_bucket)
+
+      - name: MAS_AIBROKER_STORAGE_SSL
+        value: $(params.mas_aibroker_storage_ssl)
+
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        mkdir -p /tmp/init-aibroker-tenant
+        mas gitops-aibroker-tenant -a $ACCOUNT -c $CLUSTER_NAME \
+        --secrets-path $SECRET_PATH \
+        --dir /tmp/init-aibroker-tenant \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-aibroker-tenant
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
