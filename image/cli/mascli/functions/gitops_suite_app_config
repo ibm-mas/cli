@@ -535,7 +535,7 @@ function gitops_suite_app_config() {
           echo "Error: Secret name $FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME does not match ${MAS_WORKSPACE_ID}-facilities-lexml--sn" 
           exit 1
         fi
-        sm_verify_secret_exists ${FACILITIES_LIBERTY_EXTENSIONS_SECRET}${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME} "xml" 
+        sm_verify_secret_exists ${FACILITIES_LIBERTY_EXTENSIONS_SECRET}${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME} "b64_xml" 
       fi
     fi # end if [[ "${MAS_APP_ID}" == "facilities" ]]
 
