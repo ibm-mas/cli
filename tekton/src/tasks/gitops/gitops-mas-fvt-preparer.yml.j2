@@ -561,7 +561,7 @@ spec:
         # See https://pages.github.ibm.com/maximoappsuite/saas/walkthrough/#automated-creation-of-initial-users for details
 
         # This test runs twice: once in the core phase and once again in the apps phase (to drive the logic that grants application roles and assigns Manage Security Groups to the initial users):
-        #  - The initial_user secret is primed with 3 primary and 3 secondary users with randomised emails
+        #  - The initial_user secret is primed with 2 primary and 2 secondary users with randomised emails
         #  - The ibm-create-initial-users Job that reads the secret and runs creates the users is deleted so ArgoCD resyncs it, causing it to be rerun
         #  - The test passes if the postsyncjobs app that contains the Job becomes healthy again after rerunning the Job
         
