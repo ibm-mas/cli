@@ -53,7 +53,8 @@ from mas.devops.tekton import (
     preparePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
-    launchInstallPipeline
+    launchInstallPipeline,
+    launchInstallPipelineForAiservice
 )
 
 logger = logging.getLogger(__name__)
