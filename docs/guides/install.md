@@ -154,6 +154,7 @@ The interactive install will guide you through a series of questioned designed t
       <ul>
         <li>Monitor is only available for install if IoT is selected</li>
         <li>Assist and Predict are only available for install if Monitor is selected</li>
+        <li>From MAS 9.1 onwards, Assist will be rebranded as Collaborate in the MAS UI. It will still appear as Assist in the MAS CLI and within the OpenShift Cluster, but from the MAS UI it will appear as Collaborate.</li>
       </ul>
     </cds-accordion-item>
     <cds-accordion-item title="Application Configuration">
