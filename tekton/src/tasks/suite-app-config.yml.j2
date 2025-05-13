@@ -211,6 +211,61 @@ spec:
       type: string
       description: Optional. Url to access WML service (same as Cloud Pak for Data url)
       default: ""
+    
+    # Application Workspace - Operand (Real Estate and Facilities)
+    # TODO: Add params
+    - name: mas_ws_facilities_size
+      type: string
+      description: Size of the Facilities Deployment
+      default: ""
+    - name: mas_ws_facilities_routes_timeout
+      type: string
+      description: Optional. Connection timeout of the route.
+      default: ""
+    - name: mas_ws_facilities_liberty_extension_XML
+      type: string
+      description: Optional. Secret name containing XML extension for server.xml
+      default: ""
+    - name: mas_ws_facilities_vault_secret
+      type: string
+      description: Optional. Secret name containing AES encryption secret.
+      default: ""
+    - name: mas_ws_facilities_pull_policy
+      type: string
+      description: Optional. Pull Policy
+      default: ""
+    - name: mas_ws_facilities_storage_log_class
+      type: string
+      description: Define storage class for log
+      default: ""
+    - name: mas_ws_facilities_storage_log_mode
+      type: string
+      description: Define storage mode for log
+      default: ""
+    - name: mas_ws_facilities_storage_log_size
+      description: Define storage size for log
+      type: string
+      default: ""
+    - name: mas_ws_facilities_storage_userfiles_class
+      type: string
+      description: Define storage class for userfiles
+      default: ""
+    - name: mas_ws_facilities_storage_userfiles_mode
+      type: string
+      description: Define storage mode for userfiles
+      default: ""
+    - name: mas_ws_facilities_storage_userfiles_size
+      description: Define storage size for userfiles
+      type: string
+      default: ""
+    - name: mas_ws_facilities_dwfagents
+      type: string
+      description: Define a list of dedicated workflow agents
+      default: ""
+    - name: mas_ws_facilities_db_maxconnpoolsize
+      description: Define maximum connection pool size
+      type: string
+      default: ""
 
     # Custom Label Support
     - name: custom_labels
@@ -337,6 +392,34 @@ spec:
         value: $(params.cpd_wml_instance_id)
       - name: CPD_WML_URL
         value: $(params.cpd_wml_url)
+      
+      # Application Workspace - Operand (Real Estate and Facilities)
+      - name: MAS_FACILIITIES_SIZE
+        value: $(mas_ws_facilities_size)
+      - name: MAS_FACILITIES_ROUTES_TIMEOUT
+        value: $(mas_ws_facilities_routes_timeout)
+      - name: MAS_FACILITIES_LIBERTY_EXTENSION_XML
+        value: $(mas_ws_facilities_liberty_extension_XML)
+      - name: MAS_FACILITIES_VAULT_SECRET
+        value: $(mas_ws_facilities_vault_secret)
+      - name: MAS_FACILITIES_PULL_POLICY
+        value: $(mas_ws_facilities_pull_policy)
+      - name: MAS_FACILITIES_STORAGE_LOG_CLASS
+        value: $(mas_ws_facilities_storage_log_class)
+      - name: MAS_FACILITIES_STORAGE_LOG_MODE
+        value: $(mas_ws_facilities_storage_log_mode)
+      - name: MAS_FACILITIES_STORAGE_LOG_SIZE
+        value: $(mas_ws_facilities_storage_log_size)
+      - name: MAS_FACILITIES_STORAGE_USERFILES_CLASS
+        value: $(mas_ws_facilities_storage_userfiles_class)
+      - name: MAS_FACILITIES_STORAGE_USERFILES_MODE
+        value: $(mas_ws_facilities_storage_userfiles_mode)
+      - name: MAS_FACILITIES_STORAGE_USERFILES_SIZE
+        value: $(mas_ws_facilities_storage_userfiles_size)
+      - name: MAS_FACILITIES_DWFAGENTS
+        value: $(mas_ws_facilities_dwfagents)
+      - name: MAS_FACILITIES_DB_MAX_POOLSIZE
+        value: $(mas_ws_facilities_db_maxconnpoolsize)
 
       # Custom Label Support
       - name: CUSTOM_LABELS
