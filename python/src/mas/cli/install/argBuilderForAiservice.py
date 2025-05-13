@@ -467,7 +467,7 @@ class installArgBuilderMixinForAiservice():
         if self.getParam('mariadb_password') != "":
             command += f"  --mariadb-password \"{self.getParam('mariadb_password')}\"{newline}"
         if self.getParam('minio_root_user') != "":
-            ommand += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
+            command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
         if self.getParam('minio_root_password') != "":
             command += f"  --minio-root-password \"{self.getParam('minio_root_password')}\"{newline}"
         if self.getParam('tenant_entitlement_type') != "":
