@@ -95,6 +95,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_minio
 . $CLI_DIR/functions/gitops_odh
 . $CLI_DIR/functions/gitops_aibroker
+. $CLI_DIR/functions/gitops_aibroker_tenant
 
 
 # TODO: The path from the CLI the installation of the Ansible collection should be configurable
@@ -662,6 +663,14 @@ case $1 in
     echo
     reset_colors
     gitops_aibroker "$@"
+    ;;
+
+  gitops-aibroker_tenant)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker tenant Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_aibroker_tenant "$@"
     ;;
 
   *)
