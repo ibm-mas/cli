@@ -213,7 +213,7 @@ case $1 in
 
   aiservice-install)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
-    echo "!! aiservice-install                                                                   !!" >> $LOGFILE
+    echo "!! aiservice-install                                                         !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     # Take the first parameter off (it will be "aiservice-install")
     shift

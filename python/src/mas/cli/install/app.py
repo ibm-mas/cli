@@ -28,6 +28,7 @@ from halo import Halo
 from ..cli import BaseApp
 from ..gencfg import ConfigGeneratorMixin
 from .argBuilder import installArgBuilderMixin
+from .argBuilderForAiservice import installArgBuilderMixinForAiservice
 from .argParser import installArgParser
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
@@ -1222,7 +1223,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 logger.debug(f"Approval workflow for {approval['id']} will be disabled during install")
                 self.initializeApprovalConfigMap(namespace, approval['id'], False)
 
-class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
+class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixinForAiservice):
     @logMethodCall
     def validateCatalogSource(self):
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
