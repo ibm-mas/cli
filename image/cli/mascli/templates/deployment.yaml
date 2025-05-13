@@ -29,3 +29,6 @@ spec:
         - name: config
           persistentVolumeClaim:
             claimName: config-pvc
+        - name: config-aiservice
+          persistentVolumeClaim:
+            claimName: config-pvc-aiservice
