@@ -31,8 +31,7 @@ spec:
     # -------
     # 1. Setup Cluster-wide Dependencies inc. Grafana, ECK, and Turbonomic
     # 2. Install Universal Dependencies
-    # 3. Cloud Pak for Data
-    # 4. Install & Configure Aibroker
+    # 3. Install & Configure Aibroker
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
 
@@ -71,83 +70,43 @@ spec:
       runAfter:
         - ibm-catalogs
 
-
-    # 3. Cloud Pak for Data
+    # 3 Install and configure AI Broker
     # -------------------------------------------------------------------------
-    # 3.1 Cloud Pak for Data Platform
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-platform.yml.j2') | indent(4) }}
-      runAfter:
-        - cert-manager
-        - ibm-catalogs
-
-    # 3.2 Watson Studio
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-wsl.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
-
-    # 3.3 Watson Machine Learning
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-wml.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
-
-    # 3.4 Analytics Service (Spark)
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-spark.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
-
-    # 3.5 SPSS Statistics
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-spss.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
-
-    # 3.6 Cognos Analytics
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-cognos.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
-
-    # 3.7 Configure Watson Studio in MAS
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-verify
-        - watson-studio
-
-    # 4 Install and configure AI Broker
-    # -------------------------------------------------------------------------
-    # 4.1 Install minio storage class
+    # 3.1 Install minio storage class
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/minio.yml.j2') | indent(4) }}
       runAfter:
         - uds
         - sls
 
-    # 4.2 Install mariabd 
+    # 3.2 Install mariabd 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/mariadb.yml.j2') | indent(4) }}
       runAfter:
         - sls
         - uds
 
-    # 4.3 Install db2 
+    # 3.3 Install db2 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aibroker'}) | indent(4) }}
       runAfter:
         - mariadb
 
-    # 4.4 Install Opendatahub
+    # 3.4 Install Opendatahub
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/odh.yml.j2') | indent(4) }}
       runAfter:
         - minio
         - mariadb
 
-    # 4.5 Install Kmodels
+    # 3.5 Install Kmodels
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/kmodels.yml.j2') | indent(4) }}
       runAfter:
         - odh
 
-    # 4.6 Install and Configure Aibroker
+    # 3.6 Install and Configure Aibroker
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/aibroker.yml.j2') | indent(4) }}
       runAfter:
         - kmodels
         - db2-aibroker
 
-    # 4.7 Aibroker tenant creation
+    # 3.7 Aibroker tenant creation
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/aibroker-tenant.yml.j2') | indent(4) }}
       runAfter:
         - aibroker

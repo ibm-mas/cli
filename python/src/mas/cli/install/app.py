@@ -1113,6 +1113,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             self.nonInteractiveMode()
 
+        # If User want to install aibroker for version 9.1.x or above then we have different command "mas aiservice-install" ( standalone aiservice )
+        if self.installAiBroker == True and self.getParam("mas_app_channel_aibroker") != "9.0.x":
+            self.fatalError(f"mas install Not support aibroker for version 9.1.x or above please use mas aiservice-install")
+
         # After we've configured the basic inputs, we can calculate these ones
         self.setIoTStorageClasses()
         if self.deployCP4D:
