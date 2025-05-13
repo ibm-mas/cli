@@ -26,7 +26,7 @@ echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas install${TEXT_RESET} to install a new MA
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas update${TEXT_RESET} to apply a new catalog update"
 
 # Upgrade is not tested/supported on s390x /ppc64le yet
-if  [ $arch != "s390x" ] ||  [ $arch != "ppc64le" ]; then
+if  [ $arch != "s390x" ] &&  [ $arch != "ppc64le" ]; then
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas upgrade${TEXT_RESET} to upgrade an existing MAS install to a new release"
 fi
 
