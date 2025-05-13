@@ -665,7 +665,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.configAppChannel("aibroker")
 
         # TODO: Update the condition to allow 9.1 or greater
-        if not self.getParam("mas_channel").startswith("9.1"):
+        if self.getParam("mas_channel").startswith("9.1"):
             self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
             if self.installFacilities:
                 self.configAppChannel("facilities")
@@ -1032,6 +1032,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "facilities_channel":
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_facilities", value)
+                    self.installFacilities = True
 
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":
