@@ -19,7 +19,7 @@ ibm_odh:
   odh_namespace: "opendatahub"
 
   aibroker_namespace: "{{ AIBROKER_NAMESPACE }}"
-  pull_secret_name: "<path:{{ SECRETS_PATH }}/ibm_entitlement#image_pull_secret_b64>"
+  pull_secret_name: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}/ibm_entitlement#image_pull_secret_b64>"
 
   # ODH Pipeline operator
   odh_pipeline_name: "openshift-pipelines-operator"
@@ -45,20 +45,20 @@ ibm_odh:
 
   # Storage configuration
   mas_aibroker_storage_provider: "minio"
-  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}/minio#sm_minio_accesskey>"
-  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}/minio#sm_minio_secretkey>"
-  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}/minio#sm_minio_host>"
-  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}/minio#sm_minio_port>"
+  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}minio#sm_minio_accesskey>"
+  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}minio#sm_minio_secretkey>"
+  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}minio#sm_minio_host>"
+  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}minio#sm_minio_port>"
   mas_aibroker_storage_ssl: "true"
   mas_aibroker_storage_region: ""
-  mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}/minio#sm_minio_bucket_default>"
+  mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}minio#sm_minio_bucket_default>"
 
   # MariaDB configuration
-  mas_aibroker_db_host: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_host>"
-  mas_aibroker_db_port: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_port>"
-  mas_aibroker_db_user: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_user>"
-  mas_aibroker_db_database: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_database>"
-  mas_aibroker_db_secret_name: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_secret_name>"
-  mas_aibroker_db_secret_value: "<path:{{ SECRETS_PATH }}/mariadb#sm_mariadb_secret_value>"
+  mas_aibroker_db_host: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_host>"
+  mas_aibroker_db_port: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_port>"
+  mas_aibroker_db_user: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_user>"
+  mas_aibroker_db_database: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_database>"
+  mas_aibroker_db_secret_name: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_secret_name>"
+  mas_aibroker_db_secret_value: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_secret_value>"
 
   primary_storage_class: "nfs-client"
