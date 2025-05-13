@@ -560,9 +560,12 @@ spec:
         '
         # See https://pages.github.ibm.com/maximoappsuite/saas/walkthrough/#automated-creation-of-initial-users for details
 
-        # Now all the MAS apps are installed, we are going to test the automated initial user creation feature
-        # We perform this test here (rather than after the first MAS Core phase of our FVT proess) so we can drive 
-        # the logic that grants application roles and assigns Manage Security Groups to the initial users
+        # This test runs twice: once in the core phase and once again in the apps phase (to drive the logic that grants application roles and assigns Manage Security Groups to the initial users):
+        #  - The initial_user secret is primed with 3 primary and 3 secondary users with randomised emails
+        #  - The Job that reads the secret is deleted so ArgoCD resyncs it and causes it to rerun
+        #  - The test passes if the postsync app that contains the Job becomes healthy again after rerunning the Job
+        
+        # The results of the tests are registered with the FVT dashboard under ibm-mas-gitops/initial-users-automation-${LAUNCHER_ID}-${MAS_INSTANCE_ID}
 
         # Assisted by watsonx Code Assistant 
         get_random_email() {
@@ -580,6 +583,10 @@ spec:
           sm_login || return $?
 
           argocd_login || return $?
+
+          # First check the POSTSYNCJOBS_APP is healthy so we know the initial users job has run already (and so will exist)
+          POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
 
           IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_NAME}/${MAS_INSTANCE_ID}/initial_users" 
           IU_SECRET_VALUE="{\"$(get_random_email)\": \"primary,john,smith\", \"$(get_random_email)\": \"primary,jane,doe\", \"$(get_random_email)\": \"secondary,joe,bloggs\", \"$(get_random_email)\": \"secondary,billy,bob\"}"
@@ -602,7 +609,6 @@ spec:
           done
 
           # Force a resync of the postsyncjobs app
-          POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
           echo "Forcing ${POSTSYNCJOBS_APP} to resync"
           argocd_sync "${POSTSYNCJOBS_APP}" || return $?
           check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
@@ -643,8 +649,8 @@ spec:
         # DEVOPS_MONGO_URI=<set in secure properties>
         # DEVOPS_ENVIRONMENT=<param>
         # DEVOPS_BUILD_NUMBER=<param>
-        export DEVOPS_SUITE_NAME="initial-users-automation-${MAS_INSTANCE_ID}"
-        export JUNIT_OUTPUT_DIR="/tmp/initial-users-automation-${MAS_INSTANCE_ID}"
+        export DEVOPS_SUITE_NAME="initial-users-automation-${LAUNCHER_ID}-${MAS_INSTANCE_ID}"
+        export JUNIT_OUTPUT_DIR="/tmp/initial-users-automation-${LAUNCHER_ID}-${MAS_INSTANCE_ID}"
         export PRODUCT_ID="ibm-mas-gitops"
 
         mkdir -p $JUNIT_OUTPUT_DIR
