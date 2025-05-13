@@ -13,6 +13,7 @@ Contents
 8. [Pull Requests](#pull-requests)
 9. [Pulling MAS Ansible Devops into MAS Command Line Interface](#pulling-mas-ansible-devops-into-mas-command-line-interface)
 
+
 Detect Secrets
 -------------------------------------------------------------------------------
 - Update the `.secrets.baseline` file using: `detect-secrets scan --update .secrets.baseline`
