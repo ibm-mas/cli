@@ -1,0 +1,44 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+
+ibm_kmodel:
+  mas_instance_id: {{ MAS_INSTANCE_ID }}
+  aibroker_internal_tls: "{{ MAS_INSTANCE_ID }}-internal-aibroker-tls"
+
+  aibroker_namespace: "{{ AIBROKER_NAMESPACE }}"
+
+  pull_secret_name: "<path:{{ SECRETS_PATH }}:{{ IMAGE_PULL_SECRET_B64 }}>"
+
+  mas_aibroker_storage_provider: "minio"
+  mas_aibroker_storage_ssl: "false"
+
+  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_ACCESSKEY }}>"
+  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_SECRETKEY }}>"
+  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_HOST }}>"
+  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_PORT }}>"
+  mas_aibroker_storage_region: ""
+
+  mas_aibroker_storage_templates_bucket: "km-templates"
+  mas_aibroker_storage_tenants_bucket: "km-tenants"
+  mas_aibroker_storage_pipelines_bucket: "km-pipelines"
+
+  ssh_secret_name: "{{ MAS_INSTANCE_ID }}-kmodel-aibroker-tls"
+  
+  docker_server: "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/aibroker"
+
+  tenantNamespace: "aibroker-user"
+  mas_aibroker_provision_tenant: ""
+
+  primary_storage_class: "nfs-client"
+
+# Docker image
+  image_store: "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/aibroker/store:1.0.3-pre.maint10xdev"
+  image_watcher: "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/aibroker/watcher:1.0.5-pre.maint10xdev"
+  image_controller: "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/aibroker/controller:1.0.8-pre.maint10xdev"  
+  
+  mas_aibroker_pipeline_steps_tag: 1.0.0
+  mas_aibroker_connector_tag: 1.0.0
+
+  mas_aibroker_saas: "true"
+  
+  model_id_unique_length: "8"
+  model_id_prefix: "m"

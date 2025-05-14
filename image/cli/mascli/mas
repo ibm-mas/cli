@@ -94,6 +94,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_db2u
 . $CLI_DIR/functions/gitops_minio
 . $CLI_DIR/functions/gitops_odh
+. $CLI_DIR/functions/gitops_kmodel
 . $CLI_DIR/functions/gitops_aibroker
 . $CLI_DIR/functions/gitops_aibroker_tenant
 
@@ -655,6 +656,14 @@ case $1 in
     echo
     reset_colors
     gitops_minio "$@"
+    ;;
+
+    gitops-kmodel)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_kmodel "$@"
     ;;
 
   gitops-aibroker)
