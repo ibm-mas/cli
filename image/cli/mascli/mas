@@ -853,6 +853,14 @@ case $1 in
     gitops_minio "$@"
     ;;
 
+    gitops-kmodel)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_kmodel "$@"
+    ;;
+
   gitops-aibroker)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Minio Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
