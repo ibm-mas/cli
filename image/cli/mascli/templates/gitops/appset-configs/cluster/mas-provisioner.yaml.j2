@@ -7,9 +7,19 @@ mas_provisioner:
   provisioner_namespace: {{ PROVISIONER_NAMESPACE }}
   provisioner_version: {{ PROVISIONER_VERSION }}
   enable_mtls: {{ ENABLE_MTLS }}
+
+  {% if SECRET_KEY_GITHUB_TOKEN is defined and SECRET_KEY_GITHUB_TOKEN != "" %}
   github_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_GITHUB_TOKEN }}>"
+  {% endif %}
+
+  {% if SECRET_KEY_CSB_CLIENT_CA is defined and SECRET_KEY_CSB_CLIENT_CA != "" %}
   csb_client_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CSB_CLIENT_CA }}>"
+  {% endif %}
+
+  {% if SECRET_KEY_PAGERDUTY is defined and SECRET_KEY_PAGERDUTY != "" %}
   pagerduty_integration: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_PAGERDUTY }}>"
+  {% endif %}
+
   service_port: {{ SERVICE_PORT }}
   status_repo_url: {{ STATUS_REPO_URL }}
   base_branch: {{ BASE_BRANCH }}
@@ -18,4 +28,7 @@ mas_provisioner:
   instana_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_API }}>"
   enable_pd_alert: {{ ENABLE_PD_ALERT }}
   enable_ocm_alert: {{ ENABLE_OCM_ALERT }}
+
+  {% if SECRET_KEY_OCM_API is defined and SECRET_KEY_OCM_API != "" %}
   ocm_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OCM_API }}>"
+  {% endif %}

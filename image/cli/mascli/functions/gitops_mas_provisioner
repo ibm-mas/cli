@@ -206,7 +206,10 @@ function gitops_mas_provisioner() {
   export ENABLE_PD_ALERT=${ENABLE_PD_ALERT:-false}
   export PROVISIONER_VERSION=${PROVISIONER_VERSION:-latest}
   export PROVISIONER_NAMESPACE=${PROVISIONER_NAMESPACE:-"mas-provisioner"}
-  export BASE_BRANCH=${BASE_BRANCH:-"master"}
+  export BASE_BRANCH=${BASE_BRANCH:-master}
+  export SERVICE_PORT=${SERVICE_PORT:-7329}
+  export ASYNC_POLL_INTERVAL=${ASYNC_POLL_INTERVAL:-600}
+  export ASYNC_POLL_MAX=${ASYNC_POLL_MAX:-864000}
 
   echo
   reset_colors
@@ -281,24 +284,32 @@ function gitops_mas_provisioner() {
     echo "- Update GITHUB_PAT secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_PROVISIONER "{\"git_token\": \"${GITHUB_PAT}\"}" "${TAGS}"
+  else
+    export SECRET_KEY_GITHUB_TOKEN=""
   fi
 
   if [ -n "$PAGERDUTY_KEY" ]; then
     echo "- Update PAGERDUTY_KEY secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_PROVISIONER "{\"pd_key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
+  else
+    export SECRET_KEY_PAGERDUTY=""
   fi
 
   if [ -n "$OCM_API_KEY" ]; then
     echo "- Update OCM_API_KEY secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_PROVISIONER "{\"ocm_api\": \"${OCM_API_KEY}\"}" "${TAGS}"
+  else
+    export SECRET_KEY_OCM_API=""
   fi
   
   if [ -n "$CSB_CA_CERT" ]; then
     echo "- Update CSB_CA_CERT secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_PROVISIONER "{\"cert\": \"${CSB_CA_CERT}\"}" "${TAGS}"
+  else
+    export SECRET_KEY_CSB_CLIENT_CA=""
   fi
 
   # Set and Validate App Names
