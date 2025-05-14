@@ -1,0 +1,205 @@
+
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-kmodel
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_id
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+
+    - name: mas_instance_id
+      type: string
+    - name: aibroker_internal_tls
+      type: string
+    - name: aibroker_namespace
+      type: string
+    - name: pull_secret_name
+      type: string
+    - name: mas_aibroker_storage_provider
+      type: string
+    - name: mas_aibroker_storage_ssl
+      type: string
+    - name: mas_aibroker_storage_accesskey
+      type: string
+      default: ""
+    - name: mas_aibroker_storage_secretkey
+      type: string
+      default: ""
+    - name: mas_aibroker_storage_host
+      type: string
+      default: ""
+    - name: mas_aibroker_storage_port
+      type: string
+    - name: mas_aibroker_storage_region
+      type: string
+      default: ""
+    - name: mas_aibroker_storage_templates_bucket
+      type: string
+    - name: mas_aibroker_storage_tenants_bucket
+      type: string
+    - name: mas_aibroker_storage_pipelines_bucket
+      type: string
+    - name: ssh_secret_name
+      type: string
+    - name: docker_server
+      type: string
+    - name: tenantNamespace
+      type: string
+    - name: mas_aibroker_provision_tenant
+      type: string
+      default: provision-tenant
+    - name: primary_storage_class
+      type: string
+    - name: image_store
+      type: string
+    - name: image_watcher
+      type: string
+    - name: image_controller
+      type: string
+    - name: mas_aibroker_pipeline_steps_tag
+      type: string
+    - name: mas_aibroker_connector_tag
+      type: string
+    - name: mas_aibroker_saas
+      default: false
+      type: string
+    - name: model_id_unique_length
+      type: string
+      default: 8
+    - name: model_id_prefix
+      type: string
+      default: m
+
+
+
+
+  stepTemplate:
+    name: gitops-kmodel
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      #- name: CLUSTER_ID
+      #  value: $(params.cluster_id)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: AIBROKER_INTERNAL_TLS
+        value: $(params.aibroker_internal_tls)
+      - name: AIBROKER_NAMESPACE
+        value: $(params.aibroker_namespace)
+      - name: PULL_SECRET_NAME
+        value: $(params.pull_secret_name)
+      - name: MAS_AIBROKER_STORAGE_PROVIDER
+        value: $(params.mas_aibroker_storage_provider)
+      - name: MAS_AIBROKER_STORAGE_SSL
+        value: $(params.mas_aibroker_storage_ssl)
+      - name: MAS_AIBROKER_STORAGE_ACCESSKEY
+        value: $(params.mas_aibroker_storage_accesskey)
+      - name: MAS_AIBROKER_STORAGE_SECRETKEY
+        value: $(params.mas_aibroker_storage_secretkey)
+      - name: MAS_AIBROKER_STORAGE_HOST
+        value: $(params.mas_aibroker_storage_host)
+      - name: MAS_AIBROKER_STORAGE_PORT
+        value: $(params.mas_aibroker_storage_port)
+      - name: MAS_AIBROKER_STORAGE_REGION
+        value: $(params.mas_aibroker_storage_region)
+      - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
+        value: $(params.mas_aibroker_storage_templates_bucket)
+      - name: MAS_AIBROKER_STORAGE_TENANTS_BUCKET
+        value: $(params.mas_aibroker_storage_tenants_bucket)
+      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
+        value: $(params.mas_aibroker_storage_pipelines_bucket)
+      - name: SSH_SECRET_NAME
+        value: $(params.ssh_secret_name)
+      - name: DOCKER_SERVER
+        value: $(params.docker_server)
+      - name: TENANTNAMESPACE
+        value: $(params.tenantNamespace)
+      - name: MAS_AIBROKER_PROVISION_TENANT
+        value: $(params.mas_aibroker_provision_tenant)
+      - name: PRIMARY_STORAGE_CLASS
+        value: $(params.primary_storage_class)
+      - name: IMAGE_STORE
+        value: $(params.image_store)
+      - name: IMAGE_WATCHER
+        value: $(params.image_watcher)
+      - name: IMAGE_CONTROLLER
+        value: $(params.image_controller)
+      - name: MAS_AIBROKER_PIPELINE_STEPS_TAG
+        value: $(params.mas_aibroker_pipeline_steps_tag)
+      - name: MAS_AIBROKER_CONNECTOR_TAG
+        value: $(params.mas_aibroker_connector_tag)
+      - name: MAS_AIBROKER_SAAS
+        value: $(params.mas_aibroker_saas)
+      - name: MODEL_ID_UNIQUE_LENGTH
+        value: $(params.model_id_unique_length)
+      - name: MODEL_ID_PREFIX
+        value: $(params.model_id_prefix)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+        
+        mkdir -p /tmp/init-kmodel
+        mas gitops-kmodel -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/init-kmodel \
+        --secrets-path $SECRET_PATH \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH \
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-kmodel
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
