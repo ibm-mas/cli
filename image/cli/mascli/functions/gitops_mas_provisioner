@@ -206,6 +206,7 @@ function gitops_mas_provisioner() {
   export ENABLE_PD_ALERT=${ENABLE_PD_ALERT:-false}
   export PROVISIONER_VERSION=${PROVISIONER_VERSION:-latest}
   export PROVISIONER_NAMESPACE=${PROVISIONER_NAMESPACE:-"mas-provisioner"}
+  export BASE_BRANCH=${BASE_BRANCH:-"master"}
 
   echo
   reset_colors
@@ -243,9 +244,14 @@ function gitops_mas_provisioner() {
 
   echo "${TEXT_DIM}"
   echo_h2 "MAS Provisioner" "    "
-  echo_reset_dim "PROVISIONER_NAMESPACE ................... ${COLOR_MAGENTA}${PROVISIONER_NAMESPACE}"
-  echo_reset_dim "PROVISIONER_VERSION ..................... ${COLOR_MAGENTA}${PROVISIONER_VERSION}"
-  echo_reset_dim "STATUS_REPO_URL ......................... ${COLOR_MAGENTA}${STATUS_REPO_URL}"
+  echo_reset_dim "Provisioner Namespace ................... ${COLOR_MAGENTA}${PROVISIONER_NAMESPACE}"
+  echo_reset_dim "Provisioner Version ..................... ${COLOR_MAGENTA}${PROVISIONER_VERSION}"
+  echo_reset_dim "Provisioner Domain ...................... ${COLOR_MAGENTA}${PROVISIONER_DOMAIN}"
+  echo_reset_dim "Status Repo URL ......................... ${COLOR_MAGENTA}${STATUS_REPO_URL}"
+  echo_reset_dim "Base Branch ............................. ${COLOR_MAGENTA}${BASE_BRANCH}"
+  echo_reset_dim "Enable MTLS ............................. ${COLOR_MAGENTA}${ENABLE_MTLS}"
+  echo_reset_dim "Enable PD Alert ......................... ${COLOR_MAGENTA}${ENABLE_PD_ALERT}"
+  echo_reset_dim "Enable OCM Alert ........................ ${COLOR_MAGENTA}${ENABLE_OCM_ALERT}"
   reset_colors
 
   CURRENT_DIR=$PWD
@@ -255,6 +261,13 @@ function gitops_mas_provisioner() {
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
   fi
+
+  # Set up secrets
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Configuring MAS Provisioner Secrets"
+  AVP_TYPE=aws
+  sm_login
 
   export SECRET_NAME_PROVISIONER=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}provisioner
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
