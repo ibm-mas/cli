@@ -224,14 +224,23 @@ spec:
         git config --global user.password $GITHUB_PAT
 
         mkdir -p /tmp/init-aibroker-tenant
-        mas gitops-aibroker-tenant -a $ACCOUNT -c $CLUSTER_NAME \
-        --secrets-path $SECRET_PATH \
-        --dir /tmp/init-aibroker-tenant \
+        
+        mas gitops-aibroker-tenant --account-id "$ACCOUNT_ID" --cluster-id "$CLUSTER_ID" \
+        --secrets-path "$SECRETS_PATH" \
         --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org  $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+        --mas_instance_id "$MAS_INSTANCE_ID" \
+        --tenant_namespace "$TENANT_NAMESPACE" \
+        --cluster_domain "$CLUSTER_DOMAIN" \
+        --slscfg_url "$SLSCFG_URL" \
+        --slscfg_client_id "$SLSCFG_CLIENT_ID" \
+        --mas_aibroker_watsonxai_url "$MAS_AIBROKER_WATSONXAI_URL" \
+        --mas_aibroker_watsonxai_apikey "$MAS_AIBROKER_WATSONXAI_APIKEY" \
+        --mas_aibroker_watsonxai_project_id "$MAS_AIBROKER_WATSONXAI_PROJECT_ID" \
+        --drocfg_url "$DROCFG_URL"
 
         exit $?
       command:
