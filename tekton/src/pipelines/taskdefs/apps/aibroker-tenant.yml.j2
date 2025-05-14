@@ -62,6 +62,16 @@
       value: $(params.mas_icr_cp)
     - name: mas_icr_cpopen
       value: $(params.mas_icr_cpopen) 
+    - name: mas_aibroker_tenant_s3_bucket_prefix
+      value: $(params.mas_aibroker_tenant_s3_bucket_prefix) 
+    - name: mas_aibroker_tenant_s3_region
+      value: $(params.mas_aibroker_tenant_s3_region) 
+    - name: mas_aibroker_tenant_s3_endpoint_url
+      value: $(params.mas_aibroker_tenant_s3_endpoint_url)  
+    - name: mas_aibroker_tenant_s3_access_key
+      value: $(params.mas_aibroker_tenant_s3_access_key)  
+    - name: mas_aibroker_tenant_s3_secret_key
+      value: $(params.mas_aibroker_tenant_s3_secret_key) 
 
   taskRef:
     name: mas-devops-aibroker-tenant

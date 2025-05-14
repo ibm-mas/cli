@@ -182,6 +182,14 @@ optionalParams = [
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",
+    "mas_aibroker_s3_bucket_prefix",
+    "mas_aibroker_s3_region",
+    "mas_aibroker_s3_endpoint_url",
+    "mas_aibroker_tenant_s3_bucket_prefix",
+    "mas_aibroker_tenant_s3_region",
+    "mas_aibroker_tenant_s3_endpoint_url",
+    "mas_aibroker_tenant_s3_access_key",
+    "mas_aibroker_tenant_s3_secret_key",
     # Special chars
     "mas_special_characters"
 ]

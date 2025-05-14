@@ -125,6 +125,12 @@ spec:
       type: string
       default: "This option is mandatory"
       default: ""
+    - name: mas_aibroker_s3_bucket_prefix
+      type: string
+      default: ""
+    - name: mas_aibroker_s3_endpoint_url
+      type: string
+      default: ""
     
   stepTemplate:
     env:
@@ -209,6 +215,10 @@ spec:
         value: $(params.mas_aibroker_storage_tenants_bucket)
       - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
         value: $(params.mas_aibroker_storage_templates_bucket)
+      - name: MAS_AIBROKER_S3_BUCKET_PREFIX
+        value: $(params.mas_aibroker_s3_bucket_prefix)
+      - name: MAS_AIBROKER_S3_ENDPOINT_URL
+        value: $(params.mas_aibroker_s3_endpoint_url)
 
       # Ai Broker Saas
       - name: MAS_AIBROKER_SAAS
