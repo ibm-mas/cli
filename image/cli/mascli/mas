@@ -674,7 +674,7 @@ case $1 in
     gitops_aibroker "$@"
     ;;
 
-  gitops-aibroker_tenant)
+  gitops-aibroker-tenant)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker tenant Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
