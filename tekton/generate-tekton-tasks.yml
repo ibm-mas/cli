@@ -106,6 +106,7 @@
         - launchfvt-monitor
         - launchfvt-optimizer
         - launchfvt-predict
+        - launchfvt-aibroker
         - launchfvt-visualinspection
         - launchfvt-upgrade-post
         - launchfvt-upgrade-pre

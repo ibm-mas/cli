@@ -81,6 +81,10 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable launch of the Predict FVT pipeline after app-cfg-predict completes"
+    - name: launchfvt_aibroker
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable launch of the AIBroker FVT pipeline after app-cfg-aibroker completes"
     - name: launchfvt_visualinspection
       type: string
       default: "false"
@@ -120,6 +124,10 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable dynamic scanning pipeline for Predict after waitfor-installation completes"
+    - name: launchdyncscan_aibroker
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable dynamic scanning pipeline for AIBroker after waitfor-installation completes"
     - name: launchdyncscan_visualinspection
       type: string
       default: "false"
@@ -425,9 +433,9 @@ spec:
           operator: in
           values: ["true", "True"]
         # All these launchers require manage in place to then run setup, therefore the criteria
-        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_predict)$(params.launchivt_manage)
+        - input: $(params.launchfvt_manage)$(params.launchfvt_mobile)$(params.launchfvt_manage_is)$(params.launchfvt_predict)$(params.launchfvt_aibroker)$(params.launchivt_manage)
           operator: notin
-          values: ["falsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
+          values: ["falsefalsefalsefalsefalsefalse"] # case sensitive to simplify (here is how launchfvt flags are in fvt template repos)
       runAfter:
         - approval-suite-verify
 
@@ -773,8 +781,79 @@ spec:
       runAfter:
         - launchfvt-predict
 
+    # 10. Application FVT - AIBroker
+    # -------------------------------------------------------------------------
+    # We start the AIBroker part of the FVT launcher
+    - name: waitfor-aibroker
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-aibroker
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.launchfvt_aibroker)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
 
-    # 10. Application FVT - Visual Inspection
+    - name: launchfvt-aibroker
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-aibroker"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-aibroker
+      when:
+        - input: $(params.launchfvt_aibroker)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-aibroker
+
+    - name: approval-aibroker
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-app-cfg-aibroker
+        - name: configmap_value
+          value: approved
+      when:
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-aibroker
+
+
+    # 11. Application FVT - Visual Inspection
     # -------------------------------------------------------------------------
     - name: waitfor-visualinspection
       timeout: "0"
@@ -846,7 +925,7 @@ spec:
       runAfter:
         - launchfvt-visualinspection
 
-    # 11. IVT
+    # 12. IVT
     # -------------------------------------------------------------------------
     - name: launchivt-manage
       timeout: "0"
@@ -867,7 +946,7 @@ spec:
         - approval-monitor
         - launchfvt-mobile
 
-    # 12. Dynamic Application Security Testing
+    # 13. Dynamic Application Security Testing
     # -------------------------------------------------------------------------
     # Need to be started without blocking install for other apps
     - name: launchfvt-dynamicscan
@@ -894,12 +973,15 @@ spec:
           value: $(params.launchdyncscan_optimizer)
         - name: launchdyncscan_predict
           value: $(params.launchdyncscan_predict)
+        - name: launchdyncscan_aibroker
+          value: $(params.launchdyncscan_aibroker)
         - name: launchdyncscan_visualinspection
           value: $(params.launchdyncscan_visualinspection)
       when:
-        - input: "$(params.launchdyncscan_core)$(params.launchdyncscan_iot)$(params.launchdyncscan_monitor)$(params.launchdyncscan_manage)$(params.launchdyncscan_assist)$(params.launchdyncscan_optimizer)$(params.launchdyncscan_predict)$(params.launchdyncscan_visualinspection)"
+        - input: "$(params.launchdyncscan_core)$(params.launchdyncscan_iot)$(params.launchdyncscan_monitor)$(params.launchdyncscan_manage)$(params.launchdyncscan_assist)$(params.launchdyncscan_optimizer)$(params.launchdyncscan_predict)        - name: launchdyncscan_predict
+          value: $(params.launchdyncscan_aibroker)$(params.launchdyncscan_visualinspection)"
           operator: notin
-          values: [ "", "falsefalsefalsefalsefalsefalsefalsefalse", "FalseFalseFalseFalseFalseFalseFalseFalse" ]
+          values: [ "", "falsefalsefalsefalsefalsefalsefalsefalsefalse", "FalseFalseFalseFalseFalseFalseFalseFalseFalse" ]
       runAfter:
         - waitfor-suite-verify
 
@@ -936,6 +1018,7 @@ spec:
         - approval-assist
         - approval-optimizer
         - approval-predict # Infers Manage, Monitor and IoT completed
+        - approval-aibroker
         - approval-visualinspection
         - launchivt-manage
         - launchfvt-dynamicscan
