@@ -170,7 +170,7 @@ class installArgBuilderMixinForAiservice():
             command += f"  --predict-channel \"{self.getParam('mas_app_channel_predict')}\"{newline}"
         if self.installInspection:
             command += f"  --visualinspection-channel \"{self.getParam('mas_app_channel_visualinspection')}\"{newline}"
-        if self.installAibroker:
+        if self.installAiBroker:
             command += f"  --aibroker-channel \"{self.getParam('mas_app_channel_aibroker')}\"{newline}"
 
 
