@@ -519,6 +519,6 @@ spec:
         - name: configs
           workspace: configs
       when:
-        - input: "$(params.status_repo_url)"
+        - input: "$(params.provisioner_status_repo_url)"
           operator: notin
           values: [""]
