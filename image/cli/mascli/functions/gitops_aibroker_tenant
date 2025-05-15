@@ -29,7 +29,7 @@ ibm_aibroker_tenant(required):
 
 AIBroker :
 --aibroker_namespace ${COLOR_YELLOW}AIBROKER_NAMESPACE${TEXT_RESET}                                         The namespace where AI Broker is deployed
---mas_aibroker_provision_tenant ${COLOR_YELLOW}MAS_AIBROKER_PROVISION_TENANT${TEXT_RESET}                   Whether to provision the AI Broker tenant (true/false)
+--mas_aibroker_provision_tenant ${COLOR_YELLOW}MAS_AIBROKER_PROVISION_TENANT${TEXT_RESET}                   Whether to provision the AI Broker tenant
 --mas_instance_id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                               The MAS instance ID used by AI Broker
 --tenant_namespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                             The tenant's Kubernetes namespace
 --cluster_domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                 The domain name of the Kubernetes cluster (e.g., cluster.local)
