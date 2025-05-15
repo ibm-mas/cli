@@ -14,9 +14,9 @@ spec:
     - name: avp_aws_secret_region
       type: string
     
-    - name: icn
+    - name: sls_license_icn
       type: string
-    - name: subscription_id
+    - name: sls_subscription_id
       type: string
   stepTemplate:
     name: gitops-license
@@ -30,9 +30,9 @@ spec:
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: ICN
-        value: $(params.icn)
-      - name: SUBSCRIPTION_ID
-        value: $(params.subscription_id)
+        value: $(params.sls_license_icn)
+      - name: SAAS_SUB_ID
+        value: $(params.sls_subscription_id)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -44,7 +44,7 @@ spec:
       - |-
 
         if [[ -z "${MAS_INSTANCE_ID}" ]]; then
-          mas gitops-license -a $ACCOUNT -i $ICN -s $SUBSCRIPTION_ID \
+          mas gitops-license -a $ACCOUNT -i $ICN -s $SAAS_SUB_ID \
           --license-file /workspace/shared-entitlement/entitlement.lic
           exit $?
         else
