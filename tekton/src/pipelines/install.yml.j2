@@ -41,6 +41,8 @@ spec:
     # 10. Install & Configure Optimizer
     # 12. Install & Configure Assist
     # 13. Install & Configure Visual Inspection
+    # 14. Install & Configure AI Broker
+    # 15. Install & Configure Facilities
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
 
@@ -103,6 +105,11 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
       runAfter:
         - db2-system
+
+    # 2.3.3 Dedicated Facilities Db2
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
+      runAfter:
+        - db2-manage
 
     # 2.4 IBM SLS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2') | indent(4) }}
@@ -371,6 +378,24 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/aibroker.yml.j2') | indent(4) }}
       runAfter:
         - app-install-aibroker
+    
+    # 15 Install and configure Facilities
+    # -------------------------------------------------------------------------    
+
+    # 15.2 Install Facilities
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-db2-setup-facilities
+
+    # 15.3 Configure Facilities workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-facilities
+    
+    # 15.4 Verify Facilities Installation
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-verify.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-facilities
 
   finally:
     # Update synchronization configmap

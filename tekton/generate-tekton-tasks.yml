@@ -138,6 +138,7 @@
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
+        - suite-db2-setup-for-facilities
         - suite-dns
         - suite-install
         - suite-rollback
