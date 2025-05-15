@@ -782,7 +782,7 @@ facilitiesArgGroup.add_argument(
     help="Defines the user files storage class",
 )
 facilitiesArgGroup.add_argument(
-    "--faciliites-userfiles-storage-mode",
+    "--facilities-userfiles-storage-mode",
     dest="mas_ws_facilities_storage_userfiles_mode",
     required=False,
     help="Defines the user files storage mode",
