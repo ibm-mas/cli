@@ -79,6 +79,12 @@ spec:
               name: mas-fvt-manage
               key: MAS_WORKSPACE_ID
               optional: false
+        - name: MANAGE_COMPONENTS
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: MANAGE_COMPONENTS
+              optional: false
         # Digests
         - name: FVT_DIGEST_MANAGE
           valueFrom:
