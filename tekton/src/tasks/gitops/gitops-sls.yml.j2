@@ -13,8 +13,12 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
+    - name: sls_license_icn
+      type: string
+    - name: sls_subscription_id
+      type: string
   stepTemplate:
-    name: gitops-license
+    name: gitops-sls
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -25,9 +29,9 @@ spec:
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: ICN
-        value: $(params.icn)
+        value: $(params.sls_license_icn)
       - name: SUBSCRIPTION_ID
-        value: $(params.subscription_id)
+        value: $(params.sls_subscription_id)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -38,20 +42,12 @@ spec:
     - args:
       - |-
 
-        if [[ -z "${MAS_INSTANCE_ID}" ]]; then
-          mas gitops-license -a $ACCOUNT -i $ICN -s $SUBSCRIPTION_ID \
-          --license-file /workspace/shared-entitlement/entitlement.lic
-          exit $?
-        else
-          mas gitops-license -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
-          --license-file /workspace/shared-entitlement/entitlement.lic
-          exit $?
-        fi
+        echo "Run some command here to setup the ibm-sls.yml file"
 
       command:
         - /bin/sh
         - -c
-      name: gitops-license
+      name: gitops-sls
       imagePullPolicy: Always
       image: quay.io/ibmmas/cli:latest
   workspaces:
