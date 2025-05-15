@@ -1213,6 +1213,11 @@ approvalsGroup.add_argument(
     help="Require approval after the Maximo Predict workspace has been configured"
 )
 approvalsGroup.add_argument(
+    "--approval-aibroker",
+    default="",
+    help="Require approval after the Maximo Predict workspace has been configured"
+)
+approvalsGroup.add_argument(
     "--approval-visualinspection",
     default="",
     help="Require approval after the Maximo Visual Inspection workspace has been configured"

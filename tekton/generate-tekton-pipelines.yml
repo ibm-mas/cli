@@ -52,6 +52,7 @@
         - fvt-sls
         - fvt-visualinspection
         - fvt-launcher
+        - fvt-launcher-for-aiservice
         - fvt-dynamicscan
         - ivt-manage
 
