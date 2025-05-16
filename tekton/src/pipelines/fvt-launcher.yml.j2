@@ -978,8 +978,7 @@ spec:
         - name: launchdyncscan_visualinspection
           value: $(params.launchdyncscan_visualinspection)
       when:
-        - input: "$(params.launchdyncscan_core)$(params.launchdyncscan_iot)$(params.launchdyncscan_monitor)$(params.launchdyncscan_manage)$(params.launchdyncscan_assist)$(params.launchdyncscan_optimizer)$(params.launchdyncscan_predict)        - name: launchdyncscan_predict
-          value: $(params.launchdyncscan_aibroker)$(params.launchdyncscan_visualinspection)"
+        - input: "$(params.launchdyncscan_core)$(params.launchdyncscan_iot)$(params.launchdyncscan_monitor)$(params.launchdyncscan_manage)$(params.launchdyncscan_assist)$(params.launchdyncscan_optimizer)$(params.launchdyncscan_predict)$(params.launchdyncscan_aibroker)$(params.launchdyncscan_visualinspection)"
           operator: notin
           values: [ "", "falsefalsefalsefalsefalsefalsefalsefalsefalse", "FalseFalseFalseFalseFalseFalseFalseFalseFalse" ]
       runAfter:
