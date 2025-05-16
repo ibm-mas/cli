@@ -105,7 +105,7 @@ function gitops_cos_noninteractive() {
   fi
   [[ -z "$ACCOUNT_ID" ]] && gitops_cos_help "ACCOUNT_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_cos_help "MAS_INSTANCE_ID is not set"
-  [[ -z "$MAS_CONFIG_DIR" ]] && gitops_cp4d_service_help "MAS_CONFIG_DIR is not set"
+  [[ -z "$MAS_CONFIG_DIR" ]] && gitops_cos_help "MAS_CONFIG_DIR is not set"
 
 }
 
