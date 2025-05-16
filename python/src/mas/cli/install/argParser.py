@@ -569,6 +569,12 @@ aibrokerArgGroup.add_argument(
     help="endpoint url for s3"
 )
 aibrokerArgGroup.add_argument(
+    "--mas-aibroker-s3-region",
+    dest="mas_aibroker_s3_region",
+    required=False,
+    help="region for s3"
+)
+aibrokerArgGroup.add_argument(
     "--mas-aibroker-tenant-s3-bucket-prefix",
     dest="mas_aibroker_tenant_s3_bucket_prefix",
     required=False,

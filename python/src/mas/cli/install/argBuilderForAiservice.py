@@ -476,6 +476,22 @@ class installArgBuilderMixinForAiservice():
             command += f"  --tenant-entitlement-start-date \"{self.getParam('tenant_entitlement_start_date')}\"{newline}"
         if self.getParam('tenant_entitlement_end_date') != "":
             command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-s3-bucket-prefix \"{self.getParam('mas_aibroker_s3_bucket_prefix')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-s3-endpoint-url \"{self.getParam('mas_aibroker_s3_endpoint_url')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-s3-region \"{self.getParam('mas_aibroker_s3_region')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-tenant-s3-bucket-prefix \"{self.getParam('mas_aibroker_tenant_s3_bucket_prefix')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-tenant-s3-region \"{self.getParam('mas_aibroker_tenant_s3_region')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-tenant-s3-endpoint-url \"{self.getParam('mas_aibroker_tenant_s3_endpoint_url')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-tenant-s3-access-key \"{self.getParam('mas_aibroker_tenant_s3_access_key')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-tenant-s3-secret-key \"{self.getParam('mas_aibroker_tenant_s3_secret_key')}\"{newline}"
 
         command += "  --accept-license --no-confirm"
         return command
