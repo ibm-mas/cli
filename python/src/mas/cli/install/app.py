@@ -764,6 +764,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
 
     @logMethodCall
+    # TODO: Fix type for storage sizes and max conn pool size
     def facilitiesSettings(self) -> None:
         if self.installFacilities:
             self.printH1("Configure Maximo Real Estate and Facilities")
@@ -784,7 +785,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("Facilities AES Vault Secret Name", "mas_ws_facilities_vault_secret")
 
             self.promptForString("Set Facilities Routes Timeout:", "mas_ws_facilities_routes_timeout", default="600s")
-            self.promptForInt("Set Facilities maximum connection poll size:", default=200)
+            # self.promptForInt("Set Facilities maximum connection poll size:", default=200)
 
             self.printDescription(["Facilities Persistent Volume Storage Configuration"])
             defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
@@ -802,10 +803,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     ])
                     storageMode = self.promptForListSelect("Select the storage mode for user files PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_userfiles_mode", default=1)
                     _ = self.setParam("mas_ws_facilities_storage_userfiles_class", defaultStorageClasses.rwx) if storageMode == "ReadWriteMany" else self.setParam("mas_ws_facilities_storage_userfiles_class", defaultStorageClasses.rwo)
-                    self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
+                    # self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
                     storageMode = self.promptForListSelect("Select the storage mode for log PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_log_mode", default=1)
                     _ = self.setParam("mas_ws_facilities_storage_log_class", defaultStorageClasses.rwx) if storageMode == "ReadWriteMany" else self.setParam("mas_ws_facilities_storage_log_class", defaultStorageClasses.rwo)
-                    self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
+                    # self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
                 else:
                     notUseAutodetectedStorageClasses = True
             if defaultStorageClasses.provider is None or notUseAutodetectedStorageClasses:
@@ -820,8 +821,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 ])
                 self.promptForListSelect("Select the storage mode for user files PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_userfiles_mode", default=1)
                 self.promptForListSelect("Select the storage mode for log PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_log_mode", default=1)
-                self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
-                self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
+                # self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
+                # self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
 
             if self.yesOrNo("Supply configuration for dedicated workflow agents"):
                 self.promptForString("Dedicated Workflow Agent JSON:")

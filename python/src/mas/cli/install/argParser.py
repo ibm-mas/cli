@@ -710,6 +710,7 @@ manageArgGroup.add_argument(
 )
 
 # Facilities Advanced Settings
+# TODO: Fix type for storage sizes and max conn pool size
 facilitiesArgGroup = installArgParser.add_argument_group("Facilities Advanced Configuration")
 facilitiesArgGroup.add_argument(
     "--facilities-size",
@@ -750,13 +751,13 @@ facilitiesArgGroup.add_argument(
     required=False,
     help="Defines the list of dedicates workflow agents",
 )
-facilitiesArgGroup.add_argument(
-    "--facilities-maxconnpoolsize",
-    dest="mas_ws_facilities_db_maxconnpoolsize",
-    required=False,
-    help="Defines the maximum connection pool size",
-    default=200,
-)
+# facilitiesArgGroup.add_argument(
+#     "--facilities-maxconnpoolsize",
+#     dest="mas_ws_facilities_db_maxconnpoolsize",
+#     required=False,
+#     help="Defines the maximum connection pool size",
+#     default=200,
+# )
 facilitiesArgGroup.add_argument(
     "--facilities-log-storage-class",
     dest="mas_ws_facilities_storage_log_class",
@@ -769,12 +770,12 @@ facilitiesArgGroup.add_argument(
     required=False,
     help="Defines the log storage mode",
 )
-facilitiesArgGroup.add_argument(
-    "--facilities-log-storage-size",
-    dest="mas_ws_facilities_storage_log_size",
-    required=False,
-    help="Defines the logs storage size",
-)
+# facilitiesArgGroup.add_argument(
+#     "--facilities-log-storage-size",
+#     dest="mas_ws_facilities_storage_log_size",
+#     required=False,
+#     help="Defines the logs storage size",
+# )
 facilitiesArgGroup.add_argument(
     "--facilities-userfiles-storage-class",
     dest="mas_ws_facilities_storage_userfiles_class",
@@ -787,12 +788,12 @@ facilitiesArgGroup.add_argument(
     required=False,
     help="Defines the user files storage mode",
 )
-facilitiesArgGroup.add_argument(
-    "--facilities-userfiles-storage-size",
-    dest="mas_ws_facilities_storage_userfiles_size",
-    required=False,
-    help="Defines the user files storage size",
-)
+# facilitiesArgGroup.add_argument(
+#     "--facilities-userfiles-storage-size",
+#     dest="mas_ws_facilities_storage_userfiles_size",
+#     required=False,
+#     help="Defines the user files storage size",
+# )
 
 # IBM Cloud Pak for Data
 # -----------------------------------------------------------------------------

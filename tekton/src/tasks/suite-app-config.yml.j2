@@ -213,6 +213,7 @@ spec:
       default: ""
     
     # Application Workspace - Operand (Real Estate and Facilities)
+    # TODO: Fix type for storage sizes and max conn pool size
     - name: mas_ws_facilities_size
       type: string
       description: Size of the Facilities Deployment
@@ -241,10 +242,10 @@ spec:
       type: string
       description: Define storage mode for log
       default: ""
-    - name: mas_ws_facilities_storage_log_size
-      description: Define storage size for log
-      type: integer
-      default: 50
+    # - name: mas_ws_facilities_storage_log_size
+    #   description: Define storage size for log
+    #   type: string
+    #   default: ""
     - name: mas_ws_facilities_storage_userfiles_class
       type: string
       description: Define storage class for userfiles
@@ -253,18 +254,18 @@ spec:
       type: string
       description: Define storage mode for userfiles
       default: ""
-    - name: mas_ws_facilities_storage_userfiles_size
-      description: Define storage size for userfiles
-      type: integer
-      default: 50
+    # - name: mas_ws_facilities_storage_userfiles_size
+    #   description: Define storage size for userfiles
+    #   type: string
+    #   default: ""
     - name: mas_ws_facilities_dwfagents
       type: array
       description: Define a list of dedicated workflow agents
       default: []
-    - name: mas_ws_facilities_db_maxconnpoolsize
-      description: Define maximum connection pool size
-      type: integer
-      default: 50
+    # - name: mas_ws_facilities_db_maxconnpoolsize
+    #   description: Define maximum connection pool size
+    #   type: string
+    #   default: ""
 
     # Custom Label Support
     - name: custom_labels
@@ -393,6 +394,7 @@ spec:
         value: $(params.cpd_wml_url)
       
       # Application Workspace - Operand (Real Estate and Facilities)
+      # TODO: Fix type for storage sizes and max conn pool size
       - name: MAS_FACILIITIES_SIZE
         value: $(params.mas_ws_facilities_size)
       - name: MAS_FACILITIES_ROUTES_TIMEOUT
@@ -407,18 +409,18 @@ spec:
         value: $(params.mas_ws_facilities_storage_log_class)
       - name: MAS_FACILITIES_STORAGE_LOG_MODE
         value: $(params.mas_ws_facilities_storage_log_mode)
-      - name: MAS_FACILITIES_STORAGE_LOG_SIZE
-        value: $(params.mas_ws_facilities_storage_log_size)
+      # - name: MAS_FACILITIES_STORAGE_LOG_SIZE
+      #   value: $(params.mas_ws_facilities_storage_log_size)
       - name: MAS_FACILITIES_STORAGE_USERFILES_CLASS
         value: $(params.mas_ws_facilities_storage_userfiles_class)
       - name: MAS_FACILITIES_STORAGE_USERFILES_MODE
         value: $(params.mas_ws_facilities_storage_userfiles_mode)
-      - name: MAS_FACILITIES_STORAGE_USERFILES_SIZE
-        value: $(params.mas_ws_facilities_storage_userfiles_size)
+      # - name: MAS_FACILITIES_STORAGE_USERFILES_SIZE
+      #   value: $(params.mas_ws_facilities_storage_userfiles_size)
       - name: MAS_FACILITIES_DWFAGENTS
         value: $(params.mas_ws_facilities_dwfagents)
-      - name: MAS_FACILITIES_DB_MAX_POOLSIZE
-        value: $(params.mas_ws_facilities_db_maxconnpoolsize)
+      # - name: MAS_FACILITIES_DB_MAX_POOLSIZE
+      #   value: $(params.mas_ws_facilities_db_maxconnpoolsize)
 
       # Custom Label Support
       - name: CUSTOM_LABELS

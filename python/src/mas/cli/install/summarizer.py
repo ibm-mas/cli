@@ -218,6 +218,7 @@ class InstallSummarizerMixin():
             self.printSummary("Manage", "Do Not Install")
 
     def facilitiesSummary(self) -> None:
+        # TODO: Fix type for storage sizes and max conn pool size
         if self.installFacilities:
             self.printSummary("Facilities", self.params["mas_app_channel_facilities"])
             print_formatted_text(HTML("  <SkyBlue>+ Maximo Real Estate and Facilities Settings</SkyBlue>"))
@@ -226,13 +227,13 @@ class InstallSummarizerMixin():
             self.printParamSummary("  + XML Extension", "mas_ws_facilities_liberty_extension_XML")
             self.printParamSummary("  + AES vault secret name", "mas_ws_facilities_vault_secret")
             self.printParamSummary("  + Dedicated Workflow Agents", "mas_ws_facilities_dwfagents")
-            self.printParamSummary("  + Maximum pool size connection ", "mas_ws_facilities_db_maxconnpoolsize")
+            # self.printParamSummary("  + Maximum pool size connection ", "mas_ws_facilities_db_maxconnpoolsize")
             self.printParamSummary("  + Log Storage Class ", "mas_ws_facilities_storage_log_class")
             self.printParamSummary("  + Log Storage Mode", "mas_ws_facilities_storage_log_mode")
-            self.printParamSummary("  + Log Storage Size", "mas_ws_facilities_storage_log_size")
+            # self.printParamSummary("  + Log Storage Size", "mas_ws_facilities_storage_log_size")
             self.printParamSummary("  + Userfiles Storage Class ", "mas_ws_facilities_storage_userfiles_class")
             self.printParamSummary("  + User files Storage Mode", "mas_ws_facilities_storage_userfiles_mode")
-            self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
+            # self.printParamSummary("  + User files Storage Size", "mas_ws_facilities_storage_userfiles_size")
             if self.getParam("db2_action_facilities") == 'none':
                 self.printParamSummary("  + Dedicated DB2 Database", "No")
             else:
