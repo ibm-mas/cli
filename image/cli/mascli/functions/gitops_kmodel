@@ -20,34 +20,36 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
 
+ibm_kmodel(required):
+      --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                                     The MAS instance ID used by AI Broker
+      --primary-storage-class ${COLOR_YELLOW}PRIMARY_STORAGE_CLASS${TEXT_RESET}                                         Kubernetes storage class to be used for provisioning persistent volumes
+      --mas-aibroker-storage-templates-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET${TEXT_RESET}         Storage templates bucket for Kmodels role
+      --mas-aibroker-storage-pipelines-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}         Storage piplines bucket for Kmodels role
+      --mas-aibroker-storage-tenants-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_TENANTS_BUCKET${TEXT_RESET}             Storage tenants bucket for Kmodels role
+
 Kkmodel Configuration:
-      --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}
-      --aibroker-internal-tls ${COLOR_YELLOW}AIBROKER_INTERNAL_TLS${TEXT_RESET}
-      --aibroker-namespace ${COLOR_YELLOW}AIBROKER_NAMESPACE${TEXT_RESET}
-      --pull-secret-name ${COLOR_YELLOW}PULL_SECRET_NAME${TEXT_RESET}
-      --mas-aibroker-storage-provider ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PROVIDER${TEXT_RESET}
-      --mas-aibroker-storage-ssl ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}
-      --mas-aibroker-storage-accesskey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_ACCESSKEY${TEXT_RESET}
-      --mas-aibroker-storage-secretkey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SECRETKEY${TEXT_RESET}
-      --mas-aibroker-storage-host ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}
-      --mas-aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}
-      --mas-aibroker-storage-region ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}
-      --mas-aibroker-storage-templates-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET${TEXT_RESET}
-      --mas-aibroker-storage-tenants-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_TENANTS_BUCKET${TEXT_RESET}
-      --mas-aibroker-storage-pipelines-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}
-      --ssh-secret-name ${COLOR_YELLOW}SSH_SECRET_NAME${TEXT_RESET}
-      --docker-server ${COLOR_YELLOW}DOCKER_SERVER${TEXT_RESET}
-      --tenant-namespace ${COLOR_YELLOW}TENANTNAMESPACE${TEXT_RESET}
-      --mas-aibroker-provision-tenant ${COLOR_YELLOW}MAS_AIBROKER_PROVISION_TENANT${TEXT_RESET}
-      --primary-storage-class ${COLOR_YELLOW}PRIMARY_STORAGE_CLASS${TEXT_RESET}
-      --image-store ${COLOR_YELLOW}IMAGE_STORE${TEXT_RESET}
-      --image-watcher ${COLOR_YELLOW}IMAGE_WATCHER${TEXT_RESET}
-      --image-controller ${COLOR_YELLOW}IMAGE_CONTROLLER${TEXT_RESET}
-      --mas-aibroker-pipeline-steps-tag ${COLOR_YELLOW}MAS_AIBROKER_PIPELINE_STEPS_TAG${TEXT_RESET}
-      --mas-aibroker-connector-tag ${COLOR_YELLOW}MAS_AIBROKER_CONNECTOR_TAG${TEXT_RESET}
-      --mas-aibroker-saas ${COLOR_YELLOW}MAS_AIBROKER_SAAS${TEXT_RESET}
-      --model-id-unique-length ${COLOR_YELLOW}MODEL_ID_UNIQUE_LENGTH${TEXT_RESET}
-      --model-id-prefix ${COLOR_YELLOW}MODEL_ID_PREFIX${TEXT_RESET}
+      --aibroker-internal-tls ${COLOR_YELLOW}AIBROKER_INTERNAL_TLS${TEXT_RESET}                                         Identifier for the internal TLS configuration 
+      --aibroker-namespace ${COLOR_YELLOW}AIBROKER_NAMESPACE${TEXT_RESET}                                               The namespace where AI Broker is deployed
+      --mas-aibroker-storage-provider ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PROVIDER${TEXT_RESET}                         Backend storage service used by AI Broker to store models, pipelines, and tenant data
+      --mas-aibroker-storage-ssl ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}                                   Whether MinIO uses SSL (true/false)
+      --mas_aibroker-storage-host ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}                                 Hostname or service name of the MinIO backend
+      --mas_aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}                                 Port number MinIO is exposed on
+      --mas_aibroker-storage-accesskey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_ACCESSKEY${TEXT_RESET}                       Access key to authenticate with MinIO
+      --mas_aibroker-storage-secretkey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SECRETKEY${TEXT_RESET}                       Secret key for authenticating with MinIO
+      --mas-aibroker-storage-region ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}                             Storage region used in MinIO (if applicable)
+      --ssh-secret-name ${COLOR_YELLOW}SSH_SECRET_NAME${TEXT_RESET}                                                     SSH secret for securely provide SSH credentials
+      --mas_aibroker_tenant_name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                                   Aibroker Tenant name
+      --mas-aibroker-provision-tenant ${COLOR_YELLOW}MAS_AIBROKER_PROVISION_TENANT${TEXT_RESET}                         Whether to provision the AI Broker tenant (true/false)
+      --mas-aibroker-connector-tag ${COLOR_YELLOW}MAS_AIBROKER_CONNECTOR_TAG${TEXT_RESET}                               AI Broker connector for integration or communication.
+      --mas-aibroker-pipeline-steps-tag ${COLOR_YELLOW}MAS_AIBROKER_PIPELINE_STEPS_TAG${TEXT_RESET}                     Version tag of the AI Broker pipeline steps image used to run model-related processing tasks in KModel deployments
+      --mas-aibroker-saas ${COLOR_YELLOW}MAS_AIBROKER_SAAS${TEXT_RESET}                                                 AI Broker is deployed as a SaaS
+      --model-id-unique-length ${COLOR_YELLOW}MODEL_ID_UNIQUE_LENGTH${TEXT_RESET}                                       Length of the unique identifier used for model IDs
+      --model-id-prefix ${COLOR_YELLOW}MODEL_ID_PREFIX${TEXT_RESET}                                                     Model ID prefix
+      --mas_icr_cp ${COLOR_YELLOW}MAS_ICR_CP${TEXT_RESET}                                                               Prefix to be used for generating model IDs
+      --docker-server ${COLOR_YELLOW}DOCKER_SERVER${TEXT_RESET}                                                         Docker registry where kmodel container images is stored and pulled from.
+      --image-store ${COLOR_YELLOW}IMAGE_STORE${TEXT_RESET}                                                             Docker image for storing models and artifacts.
+      --image-watcher ${COLOR_YELLOW}IMAGE_WATCHER${TEXT_RESET}                                                         Docker image for monitoring and detecting changes to models or configurations.
+      --image-controller ${COLOR_YELLOW}IMAGE_CONTROLLER${TEXT_RESET}                                                   Docker image for controlling and managing the deployment and lifecycle of models.
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -72,21 +74,27 @@ function gitops_kmodel_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   #adding default values 
-  export MAS_AIBROKER_STORAGE_PROVIDER=${MAS_AIBROKER_STORAGE_PROVIDER:-"minio"}
-  export MAS_AIBROKER_STORAGE_SSL=${MAS_AIBROKER_STORAGE_SSL:-"false"}
-  export SSH_SECRET_NAME=${SSH_SECRET_NAME:-"sremat-kmodel-aibroker-tls"}
-  export DOCKER_SERVER=${DOCKER_SERVER:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/aibroker"}
-  export TENANTNAMESPACE=${TENANTNAMESPACE:-"aibroker-user"}
-  export PRIMARY_STORAGE_CLASS=${PRIMARY_STORAGE_CLASS:-"nfs-client"}
-  export IMAGE_STORE=${IMAGE_STORE:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/aibroker/store:1.0.3-pre.maint10xdev"}
-  export IMAGE_WATCHER=${IMAGE_WATCHER:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/aibroker/watcher:1.0.5-pre.maint10xdev"}
-  export IMAGE_CONTROLLER=${IMAGE_CONTROLLER:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/aibroker/controller:1.0.8-pre.maint10xdev"}
-  export MAS_AIBROKER_PIPELINE_STEPS_TAG=${MAS_AIBROKER_PIPELINE_STEPS_TAG:-"1.0.0"}
-  export MAS_AIBROKER_CONNECTOR_TAG=${MAS_AIBROKER_CONNECTOR_TAG:-"1.0.0"}
-  export MAS_AIBROKER_SAAS=${MAS_AIBROKER_SAAS:-"true"}
-  export MODEL_ID_UNIQUE_LENGTH=${MODEL_ID_UNIQUE_LENGTH:-"8"}
-  export MODEL_ID_PREFIX=${MODEL_ID_PREFIX:-"m"}
-
+  export AIBROKER_INTERNAL_TLS=${AIBROKER_INTERNAL_TLS:-"${MAS_INSTANCE_ID}-internal-aibroker-tls"}
+  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${MAS_INSTANCE_ID}-aibroker"}
+  export MAS_AIBROKER_STORAGE_PROVIDER=${MAS_AIBROKER_STORAGE_PROVIDER:-"aws"}
+  export MAS_AIBROKER_STORAGE_SSL=${MAS_AIBROKER_STORAGE_SSL:-"true"}
+  export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
+  export SSH_SECRET_NAME=${SSH_SECRET_NAME:-"${MAS_INSTANCE_ID}-kmodel-aibroker-tls"}
+  export MAS_AIBROKER_TENANT_NAME=${MAS_AIBROKER_TENANT_NAME:-"user"}
+  export TENANT_NAMESPACE=${TENANT_NAMESPACE:-"aibroker-${MAS_AIBROKER_TENANT_NAME}"}
+  export MAS_AIBROKER_PROVISION_TENANT=${MAS_AIBROKER_PROVISION_TENANT:-"provision-tenant"}
+  export MAS_AIBROKER_CONNECTOR_TAG=${MAS_AIBROKER_CONNECTOR_TAG:-"1.0.2"}
+  export MAS_AIBROKER_PIPELINE_STEPS_TAG=${MAS_AIBROKER_PIPELINE_STEPS_TAG:-"1.0.3"}
+  export MAS_AIBROKER_SAAS=${MAS_AIBROKER_SAAS:-"false"}
+  export MODEL_ID_UNIQUE_LENGTH=${MODEL_ID_UNIQUE_LENGTH:-"15"}
+  export MODEL_ID_PREFIX=${MODEL_ID_PREFIX:-"m"}  
+  export MAS_ICR_CP=${MAS_ICR_CP:-"cp.icr.io/cp"}
+  export DOCKER_SERVER=${DOCKER_SERVER:-"${MAS_ICR_CP}/aibroker"}
+  export IMAGE_STORE=${IMAGE_STORE:-"${DOCKER_SERVER}/store:1.0.3-pre.maint10xdev"}
+  export IMAGE_WATCHER=${IMAGE_WATCHER:-"${DOCKER_SERVER}/watcher:1.0.5-pre.maint10xdev"}
+  export IMAGE_CONTROLLER=${IMAGE_CONTROLLER:-"${DOCKER_SERVER}/controller:1.0.8-pre.maint10xdev"}
+  
+  
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -119,7 +127,7 @@ function gitops_kmodel_noninteractive() {
         export SECRETS_PATH=$1 && shift
         ;;
 
-      # kmodel
+      # kmodel - all input params default + sm
       --mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
@@ -180,12 +188,16 @@ function gitops_kmodel_noninteractive() {
         export SSH_SECRET_NAME=$1 && shift
         ;;
 
+      --mas_icr_cp)
+        export MAS_ICR_CP=$1 && shift
+        ;;
+
       --docker-server)
         export DOCKER_SERVER=$1 && shift
         ;;
 
       --tenant-namespace)
-        export TENANTNAMESPACE=$1 && shift
+        export TENANT_NAMESPACE=$1 && shift
         ;;
 
       --mas-aibroker-provision-tenant)
@@ -278,7 +290,13 @@ function gitops_kmodel_noninteractive() {
     [[ -z "$GITHUB_REPO" ]] && gitops_kmodel_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_kmodel_help "GIT_BRANCH is not set"
   fi
+
   # add validation for those variable which have the value needed for further execution
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_kmodel_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
+  [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_kmodel_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
+  [[ -z "$MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET is not set. Please provide the templates bucket name using --mas-aibroker-storage-templates-bucket."
+  [[ -z "$MAS_AIBROKER_STORAGE_TENANTS_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_TENANTS_BUCKET is not set. Please provide the tenants bucket name using --mas-aibroker-storage-tenants-bucket."
+  [[ -z "$MAS_AIBROKER_STORAGE_PIPELINES_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_PIPELINES_BUCKET is not set. Please provide the pipelines bucket name using --mas-aibroker-storage-pipelines-bucket."
 
 }
 
@@ -297,6 +315,7 @@ function gitops_kmodel() {
   set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
+  # Prepare directories
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
 
@@ -336,35 +355,34 @@ function gitops_kmodel() {
   fi
   reset_colors
 
+  # echo all the variables of gitops envs
+
   echo "${TEXT_DIM}"
   echo_h2 "kmodel" "    "
-  echo_reset_dim "Mas Instance Id (mas_instance_id)  .................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "AI Broker Internal TLS (aibroker_internal_tls)  .................... ${COLOR_MAGENTA}${AIBROKER_INTERNAL_TLS}"
-  echo_reset_dim "AI Broker Namespace (aibroker_namespace)  .................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
-  echo_reset_dim "Pull Secret Name (pull_secret_name)  .................... ${COLOR_MAGENTA}${PULL_SECRET_NAME}"
-  echo_reset_dim "MAS AI Broker Storage Provider (mas_aibroker_storage_provider)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PROVIDER}"
-  echo_reset_dim "MAS AI Broker Storage SSL (mas_aibroker_storage_ssl)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
-  echo_reset_dim "MAS AI Broker Storage Access Key (mas_aibroker_storage_accesskey)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_ACCESSKEY}"
-  echo_reset_dim "MAS AI Broker Storage Secret Key (mas_aibroker_storage_secretkey)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SECRETKEY}"
-  echo_reset_dim "MAS AI Broker Storage Host (mas_aibroker_storage_host)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_HOST}"
-  echo_reset_dim "MAS AI Broker Storage Port (mas_aibroker_storage_port)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PORT}"
-  echo_reset_dim "MAS AI Broker Storage Region (mas_aibroker_storage_region)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_REGION}"
-  echo_reset_dim "MAS AI Broker Storage Templates Bucket (mas_aibroker_storage_templates_bucket)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"
-  echo_reset_dim "MAS AI Broker Storage Tenants Bucket (mas_aibroker_storage_tenants_bucket)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
-  echo_reset_dim "MAS AI Broker Storage Pipelines Bucket (mas_aibroker_storage_pipelines_bucket)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
-  echo_reset_dim "SSH Secret Name (ssh_secret_name)  .................... ${COLOR_MAGENTA}${SSH_SECRET_NAME}"
-  echo_reset_dim "Docker Server (docker_server)  .................... ${COLOR_MAGENTA}${DOCKER_SERVER}"
-  echo_reset_dim "Tenant Namespace (tenantNamespace)  .................... ${COLOR_MAGENTA}${TENANTNAMESPACE}"
-  echo_reset_dim "MAS AI Broker Provision Tenant (mas_aibroker_provision_tenant)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_PROVISION_TENANT}"
-  echo_reset_dim "Primary Storage Class (primary_storage_class)  .................... ${COLOR_MAGENTA}${PRIMARY_STORAGE_CLASS}"
-  echo_reset_dim "Image Store (image_store)  .................... ${COLOR_MAGENTA}${IMAGE_STORE}"
-  echo_reset_dim "Image Watcher (image_watcher)  .................... ${COLOR_MAGENTA}${IMAGE_WATCHER}"
-  echo_reset_dim "Image Controller (image_controller)  .................... ${COLOR_MAGENTA}${IMAGE_CONTROLLER}"
-  echo_reset_dim "MAS AI Broker Pipeline Steps Tag (mas_aibroker_pipeline_steps_tag)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_PIPELINE_STEPS_TAG}"
-  echo_reset_dim "MAS AI Broker Connector Tag (mas_aibroker_connector_tag)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_CONNECTOR_TAG}"
-  echo_reset_dim "MAS AI Broker SAAS (mas_aibroker_saas)  .................... ${COLOR_MAGENTA}${MAS_AIBROKER_SAAS}"
-  echo_reset_dim "Model ID Unique Length (model_id_unique_length)  .................... ${COLOR_MAGENTA}${MODEL_ID_UNIQUE_LENGTH}"
-  echo_reset_dim "Model ID Prefix (model_id_prefix)  .................... ${COLOR_MAGENTA}${MODEL_ID_PREFIX}"
+  echo_reset_dim "Mas Instance Id ................................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "AI Broker Internal TLS ............................ ${COLOR_MAGENTA}${AIBROKER_INTERNAL_TLS}"
+  echo_reset_dim "AI Broker Namespace ............................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
+  echo_reset_dim "MAS AI Broker Storage Provider .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PROVIDER}"
+  echo_reset_dim "MAS AI Broker Storage SSL ......................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
+  echo_reset_dim "MAS AI Broker Storage Access Key .................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_ACCESSKEY}"
+  echo_reset_dim "MAS AI Broker Storage Secret Key .................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SECRETKEY}"
+  echo_reset_dim "MAS AI Broker Storage Templates Bucket ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"
+  echo_reset_dim "MAS AI Broker Storage Tenants Bucket .............. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
+  echo_reset_dim "MAS AI Broker Storage Pipelines Bucket ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
+  echo_reset_dim "SSH Secret Name ................................... ${COLOR_MAGENTA}${SSH_SECRET_NAME}"
+  echo_reset_dim "MAS ICR CP Registry ............................... ${COLOR_MAGENTA}${MAS_ICR_CP}"
+  echo_reset_dim "Docker Server ..................................... ${COLOR_MAGENTA}${DOCKER_SERVER}"
+  echo_reset_dim "Tenant Namespace .................................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
+  echo_reset_dim "MAS AI Broker Provision Tenant .................... ${COLOR_MAGENTA}${MAS_AIBROKER_PROVISION_TENANT}"
+  echo_reset_dim "Primary Storage Class ............................. ${COLOR_MAGENTA}${PRIMARY_STORAGE_CLASS}"
+  echo_reset_dim "Image Store ....................................... ${COLOR_MAGENTA}${IMAGE_STORE}"
+  echo_reset_dim "Image Watcher ..................................... ${COLOR_MAGENTA}${IMAGE_WATCHER}"
+  echo_reset_dim "Image Controller .................................. ${COLOR_MAGENTA}${IMAGE_CONTROLLER}"
+  echo_reset_dim "MAS AI Broker Pipeline Steps Tag .................. ${COLOR_MAGENTA}${MAS_AIBROKER_PIPELINE_STEPS_TAG}"
+  echo_reset_dim "MAS AI Broker Connector Tag ....................... ${COLOR_MAGENTA}${MAS_AIBROKER_CONNECTOR_TAG}"
+  echo_reset_dim "MAS AI Broker SAAS ................................ ${COLOR_MAGENTA}${MAS_AIBROKER_SAAS}"
+  echo_reset_dim "Model ID Unique Length ............................ ${COLOR_MAGENTA}${MODEL_ID_UNIQUE_LENGTH}"
+  echo_reset_dim "Model ID Prefix ................................... ${COLOR_MAGENTA}${MODEL_ID_PREFIX}"
 
   reset_colors
 
@@ -377,81 +395,60 @@ function gitops_kmodel() {
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
   
-  # update those varialbe which are necessory to be updated into aws , 
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
 
-  # pull_secret_name
-  export image_pull_secret_b64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
-  # mas_aibroker_storage_accesskey
-  export SM_MINIO_ACCESSKEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_accesskey
-  # mas_aibroker_storage_secretkey
-  export SM_MINIO_SECRETKEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_secretkey
-  # mas_aibroker_storage_host
-  export SM_MINIO_HOST=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_host
-  # mas_aibroker_storage_port
-  export SM_MINIO_PORT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_port
-  # mas_aibroker_storage_templates_bucket
-  export SM_MINIO_BUCKET_TEMPLATES=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_bucket_templates
-  # mas_aibroker_storage_tenants_bucket
-  export SM_MINIO_BUCKET_TENANTS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_bucket_tenants
-  # mas_aibroker_storage_pipelines_bucket
-  export SM_MINIO_BUCKET_PIPELINES=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_bucket_pipelines
   # check if those are already present 
-  # and update them 
+  export image_pull_secret_b64=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
+  
+  # minio
+  export SM_MINIO_ACCESSKEY=${SECRETS_PREFIX}minio#sm_minio_accesskey
+  export SM_MINIO_SECRETKEY=${SECRETS_PREFIX}minio#sm_minio_secretkey
+  export SM_MINIO_HOST=${SECRETS_PREFIX}minio#sm_minio_host
+  export SM_MINIO_PORT=${SECRETS_PREFIX}minio#sm_minio_port
 
-  # finally get values into tempalte 
-  # push them on github repo , 
+# check for those variables present into the aws sm 
+  sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64"
 
-  # final output 
-  # updated var in sm 
-  # and git repo 
+  sm_verify_secret_exists ${SECRETS_PREFIX}minio "sm_minio_host,sm_minio_port,sm_minio_accesskey,sm_minio_secretkey"
 
+    # finally push them into the git repo
+    # ---------------------------------------------------------------------------
 
-  # sm_update_secret and need to pss secrert | idempotent
-  # TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_kmodel\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-  # Auth necessary for kmodel ???
-  # sm_update_secret $SECRET_NAME_MINIO_AUTH "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$SECRET_KEY_MINIO_USER\", \"password\": \"$SECRET_KEY_MINIO_PASSWORD\"}" "${TAGS}"
+    if [ -z $GIT_SSH ]; then
+      export GIT_SSH=false
+    fi
 
+    # Clone github target repo
+    # ---------------------------------------------------------------------------
+    if [ "$GITHUB_PUSH" == "true" ]; then
+      echo
+      echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+      clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+    fi
 
-  echo_reset_dim "AIBROKER_NAMESPACE ....................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
+    mkdir -p ${GITOPS_CLUSTER_DIR}
 
-  GITOPS_WORKING_DIR=/Users/nikitakumble/temp/working-dir
-  mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/kmodel
-
-  if [ -z $GIT_SSH ]; then
-    export GIT_SSH=false
-  fi
-
-  # Clone github target repo
-  # ---------------------------------------------------------------------------
-  if [ "$GITHUB_PUSH" == "true" ]; then
+    # Generate ArgoApps
+    # ---------------------------------------------------------------------------
     echo
-    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
-  fi
+    echo_h2 "Generating kmodel operator Applications"
+    echo "- kmodel operator"
 
-  mkdir -p ${GITOPS_CLUSTER_DIR}
-
-  # Generate ArgoApps
-  # ---------------------------------------------------------------------------
-  echo
-  echo_h2 "Generating kmodel operator Applications"
-  echo "- kmodel operator"
-
-  echo "Generating kmodel file ${GITOPS_CLUSTER_DIR}/ibm-kmodel.yaml"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-kmodel.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-kmodel.yaml
+    echo "Generating kmodel file ${GITOPS_CLUSTER_DIR}/ibm-kmodel.yaml"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-kmodel.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-kmodel.yaml
 
 
-  # Commit and push to github target repo
-  # ---------------------------------------------------------------------------
-  if [ "$GITHUB_PUSH" == "true" ]; then
-    echo
-    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
-    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-  fi
+    # Commit and push to github target repo
+    # ---------------------------------------------------------------------------
+    if [ "$GITHUB_PUSH" == "true" ]; then
+      echo
+      echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+      save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+      remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    fi
 
-  rm -rf $TEMP_DIR
+    rm -rf $TEMP_DIR
+    rm -rf $GITOPS_WORKING_DIR
 
   exit 0
 }

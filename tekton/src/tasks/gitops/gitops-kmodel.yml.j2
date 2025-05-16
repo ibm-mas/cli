@@ -41,18 +41,14 @@ spec:
       type: string
     - name: mas_aibroker_storage_accesskey
       type: string
-      default: ""
     - name: mas_aibroker_storage_secretkey
       type: string
-      default: ""
     - name: mas_aibroker_storage_host
       type: string
-      default: ""
     - name: mas_aibroker_storage_port
       type: string
     - name: mas_aibroker_storage_region
       type: string
-      default: ""
     - name: mas_aibroker_storage_templates_bucket
       type: string
     - name: mas_aibroker_storage_tenants_bucket
@@ -63,11 +59,10 @@ spec:
       type: string
     - name: docker_server
       type: string
-    - name: tenantNamespace
+    - name: tenant_namespace
       type: string
     - name: mas_aibroker_provision_tenant
       type: string
-      default: provision-tenant
     - name: primary_storage_class
       type: string
     - name: image_store
@@ -81,17 +76,11 @@ spec:
     - name: mas_aibroker_connector_tag
       type: string
     - name: mas_aibroker_saas
-      default: false
       type: string
     - name: model_id_unique_length
       type: string
-      default: 8
     - name: model_id_prefix
       type: string
-      default: m
-
-
-
 
   stepTemplate:
     name: gitops-kmodel
@@ -149,8 +138,8 @@ spec:
         value: $(params.ssh_secret_name)
       - name: DOCKER_SERVER
         value: $(params.docker_server)
-      - name: TENANTNAMESPACE
-        value: $(params.tenantNamespace)
+      - name: TENANT_NAMESPACE
+        value: $(params.tenant_namespace)
       - name: MAS_AIBROKER_PROVISION_TENANT
         value: $(params.mas_aibroker_provision_tenant)
       - name: PRIMARY_STORAGE_CLASS
