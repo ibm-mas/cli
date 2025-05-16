@@ -162,6 +162,7 @@ The interactive install will guide you through a series of questioned designed t
     </cds-accordion-item>
     <cds-accordion-item title="Configure Databases">
       <p>The install supports the automatic provision of in-cluster MongoDb and Db2 databases for use with Maximo Application Suite, you may also choose to bring your own (BYO) by providing the necessary configuration files (which the installer will also help you create).</p>
+      <p><strong>Note:</strong> In-cluster MongoDB deployment using the MongoDB Community Edition Operator is only supported on <code>amd64</code> architecture. For <code>s390x</code> and <code>ppc64le</code>, only external MongoDB instances are supported. The installer will automatically detect the system architecture and skip in-cluster MongoDB provisioning for unsupported platforms.</p>
     </cds-accordion-item>
     <cds-accordion-item title="Configure Integrations & Additional Configuration">
       <p>The install supports the abilty to install and configure Turbonomic's Kubeturbo operator and the Grafana Community Operator.  Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.</p>
@@ -227,7 +228,7 @@ The engine that performs all tasks is written in Ansible, you can directly use t
 
 - IBM Maximo Operator Catalog installation
 - Required dependency installation:
-    - MongoDb (Community Edition)
+    - MongoDb (Community Edition only for amd64 arch)
     - IBM Suite License Service
     - IBM Data Reporter Operator
     - Red Hat Certificate Manager
