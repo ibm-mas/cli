@@ -50,9 +50,12 @@
         src: "{{ task_src_dir }}/aibroker/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - minio
+        - mariadb
         - aibroker
         - kmodels
         - odh
+        - aibroker-tenant
 
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
@@ -103,6 +106,7 @@
         - launchfvt-monitor
         - launchfvt-optimizer
         - launchfvt-predict
+        - launchfvt-aibroker
         - launchfvt-visualinspection
         - launchfvt-upgrade-post
         - launchfvt-upgrade-pre

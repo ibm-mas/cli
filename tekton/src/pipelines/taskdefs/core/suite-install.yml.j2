@@ -88,3 +88,7 @@
       workspace: shared-additional-configs
     - name: pod-templates
       workspace: shared-pod-templates
+  when:
+    - input: "$(params.aibroker_stand_alone)"
+      operator: notin
+      values: ["true"]

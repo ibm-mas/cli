@@ -10,3 +10,7 @@
   taskRef:
     kind: Task
     name: mas-devops-suite-verify
+  when:
+    - input: "$(params.aibroker_stand_alone)"
+      operator: notin
+      values: ["true"]
