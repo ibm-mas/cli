@@ -31,6 +31,15 @@ manage_logging_access_secret_key: <path:{{ SECRETS_PATH }}:{{ MANAGE_LOGGING_SEC
 manage_update_schedule: {{ MANAGE_UPDATE_SCHEDULE }}
 {%- endif %}
 
+{%- if FACILITIES_VAULT_SECRET_NAME is defined and FACILITIES_VAULT_SECRET_NAME !='' %}
+facilities_vault_secret_name: {{ FACILITIES_VAULT_SECRET_NAME }}
+facilities_vault_secret_value: <path:{{ SECRETS_PATH }}:{{ FACILITIES_VAULT_SECRET }}{{ FACILITIES_VAULT_SECRET_NAME }}#pwd>
+{%- endif %}
+{%- if FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME is defined and FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME !='' %}
+facilities_liberty_extensions_secret_name: {{ FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME }}
+facilities_liberty_extensions_b64_secret_value: <path:{{ SECRETS_PATH }}:{{ FACILITIES_LIBERTY_EXTENSIONS_SECRET }}{{ FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME }}#b64_xml>
+{%- endif %}
+
 {{ MAS_APPWS_SPEC | indent(2) }}
 
 {% if MAS_MANUAL_CERT_MGMT == 'true' %}

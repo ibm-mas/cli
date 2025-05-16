@@ -635,8 +635,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installManage:
             self.configAppChannel("manage")
 
-        # Predict for MAS 8.10 is effectively unsupported now, because it has not shipped support for Cloud Pak for Data 4.8 as of June 2023 catalog update
-        if self.installIoT and self.installManage and self.getParam("mas_channel") != "8.10.x":
+        if self.installIoT and self.installManage:
             self.installPredict = self.yesOrNo("Install Predict")
         else:
             self.installPredict = False

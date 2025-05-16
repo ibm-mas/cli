@@ -51,6 +51,8 @@ spec:
       type: string
     - name: fvt_version_sls
       type: string
+    - name: fvt_version_facilities
+      type: string
 
     - name: fvt_blacklist_core
       type: string
@@ -132,7 +134,13 @@ spec:
     - name: launchfvt_manage_is
       type: string
       default: "true"
+    - name: launchfvt_facilities
+      type: string
+      default: "true"
 
+    - name: mas_app_channel_facilities
+      type: string
+      default: ""
     - name: mas_app_channel_iot
       type: string
       default: ""
@@ -242,6 +250,8 @@ spec:
         value: $(params.fvt_version_data_dictionary)
       - name: FVT_VERSION_SLS
         value: $(params.fvt_version_sls)
+      - name: FVT_VERSION_FACILITIES
+        value: $(params.fvt_version_facilities)
       - name: FVT_BLACKLIST_CORE
         value: $(params.fvt_blacklist_core)
       - name: FVT_WHITELIST_CORE
@@ -278,6 +288,10 @@ spec:
         value: $(params.launchfvt_visualinspection)
       - name: LAUNCHFVT_MANAGE_IS
         value: $(params.launchfvt_manage_is)
+      - name: LAUNCHFVT_FACILITIES
+        value: $(params.launchfvt_facilities)
+      - name: MAS_APP_CHANNEL_FACILITIES
+        value: $(params.mas_app_channel_facilities)
       - name: MAS_APP_CHANNEL_IOT
         value: $(params.mas_app_channel_iot)
       - name: MAS_APP_CHANNEL_MANAGE
@@ -321,6 +335,8 @@ spec:
 
         set -o pipefail
         trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium' ERR EXIT
+
+
 
         get_trailing_number() {
           local input_string="$1"
@@ -478,6 +494,10 @@ spec:
             MASAPP_APP="visualinspection.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}" 120
           fi
+          if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
+            MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MASAPP_APP}" 120
+          fi
           if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
             MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}" 240
@@ -502,6 +522,10 @@ spec:
           if [[ "$LAUNCHFVT_IOT" == "true" ]]; then
             MASAPP_APP="iot.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 20
+          fi
+          if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
+            MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
           fi
           # Fourth wave
           if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then
@@ -529,6 +553,112 @@ spec:
           fi
 
         fi
+
+        echo '
+        # - Automated Initial User Tests
+        # -----------------------------------
+        '
+        # See https://pages.github.ibm.com/maximoappsuite/saas/walkthrough/#automated-creation-of-initial-users for details
+
+        # This test runs twice: once in the core phase and once again in the apps phase (to drive the logic that grants application roles and assigns Manage Security Groups to the initial users):
+        #  - The initial_user secret is primed with 2 primary and 2 secondary users with randomised emails
+        #  - The ibm-create-initial-users Job that reads the secret and runs creates the users is deleted so ArgoCD resyncs it, causing it to be rerun
+        #  - The test passes if the postsyncjobs app that contains the Job becomes healthy again after rerunning the Job
+        
+        # The results of the tests are registered with the FVT dashboard under ibm-mas-gitops/initial-users-automation-${LAUNCHER_ID}-${MAS_INSTANCE_ID}
+
+        # Assisted by watsonx Code Assistant 
+        get_random_email() {
+          local random_part=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)
+          echo "${random_part}@example.com"
+        }
+
+        initial_user_test() {
+          # Because some of the functions in gitops_utils call exit 1,
+          # it's important that this function is only called from a subshell
+          # otherwise if it fails it might cause the whole script (and thus the FVT run) to exit
+
+          # Establish the initial_users secret
+          export AVP_TYPE="aws" # required by sm_login (only AWS supported at present)
+          sm_login || return $?
+
+          argocd_login || return $?
+
+          # First check the POSTSYNCJOBS_APP is healthy so we know the initial users job has run already (and so will exist)
+          POSTSYNCJOBS_APP="postsyncjobs.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
+          check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
+
+          IU_SECRET_NAME="${ACCOUNT_ID}/${CLUSTER_NAME}/${MAS_INSTANCE_ID}/initial_users" 
+          IU_SECRET_VALUE="{\"$(get_random_email)\": \"primary,john,smith\", \"$(get_random_email)\": \"primary,jane,doe\", \"$(get_random_email)\": \"secondary,joe,bloggs\", \"$(get_random_email)\": \"secondary,billy,bob\"}"
+          IU_SECRET_TAGS="[{\"Key\": \"source\", \"Value\": \"gitops-mas-fvt-preparer\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_NAME}\"}]"
+          
+          echo "Creating ${IU_SECRET_NAME} secret"
+          sm_update_secret "${IU_SECRET_NAME}" "${IU_SECRET_VALUE}" "${IU_SECRET_TAGS}" || return $?
+
+          # The Job will have already run when MAS Core was installed during the first phase of our FVT process
+          # Since no initial_users secret existed at that time, it will not have done anything
+          # The only way to get it to rerun and pick up the new initial_secret is to delete the Job and get ArgoCD to resync
+          # the application that the Job belongs to:
+
+          IU_JOB_LIST=$(oc get jobs -n mas-${MAS_INSTANCE_ID}-postsyncjobs -o jsonpath='{range .items[?(@.spec.template.metadata.labels.app=="ibm-create-initial-users-l")]}{.metadata.name}{"\n"}{end}') || return $?
+          echo "Deleting the following ibm-create-initial-user Jobs in mas-${MAS_INSTANCE_ID}-postsyncjobs namespace:"
+          echo "${IU_JOB_LIST}"
+          echo "${IU_JOB_LIST}"
+          for IU_JOB in $IU_JOB_LIST; do
+              oc delete job "${IU_JOB}" -n mas-${MAS_INSTANCE_ID}-postsyncjobs || return $?
+          done
+
+          # Force a resync of the postsyncjobs app
+          echo "Forcing ${POSTSYNCJOBS_APP} to resync"
+          argocd_sync "${POSTSYNCJOBS_APP}" || return $?
+          check_argo_app_healthy "${POSTSYNCJOBS_APP}" 20 || return $?
+        }
+
+
+        IU_SYNC_START_TIME=$(date +%s)
+        IU_SYNC_LOGS="$(initial_user_test 2>&1 | tee /dev/fd/2)"  
+        IU_RC=$? # NOTE: set -o pipefail ensures we get exit code of initial_user_test (not tee)
+        IU_SYNC_LOGS_CDATA=$(printf '%s\n' "${IU_SYNC_LOGS}"| sed 's|\]\]>|]]]]><![CDATA[>|g') # guard against any "]]>" in the output
+        IU_SYNC_ELAPSED_TIME=$(($(date +%s)-$IU_SYNC_START_TIME))
+
+        if [[ "${IU_RC}" == "0" ]]; then
+          IU_TEST_RESULT_XML='
+            <testsuites disabled="0" errors="0" failures="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+              <testsuite disabled="0" errors="0" failures="0" name="initial-users-automation-'${MAS_INSTANCE_ID}'" skipped="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+                <testcase name="Sync" time="'${IU_SYNC_ELAPSED_TIME}'" classname="Sync" />
+              </testsuite>
+            </testsuites>
+          '
+        else
+          IU_TEST_RESULT_XML='
+            <testsuites disabled="0" errors="0" failures="1" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+              <testsuite disabled="0" errors="0" failures="1" name="initial-users-automation-'${MAS_INSTANCE_ID}'" skipped="0" tests="1" time="'${IU_SYNC_ELAPSED_TIME}'">
+                <testcase name="Sync" time="'${IU_SYNC_ELAPSED_TIME}'" classname="Sync">
+                  <failure message="Initial user creation failed (rc '${IU_RC}')" type="Failure"><![CDATA[
+                    '${IU_SYNC_LOGS_CDATA}'
+                  ]]></failure>
+                </testcase>
+              </testsuite>
+            </testsuites>
+          '       
+        fi
+
+
+
+        # Create junit xml for one testsuite of the parent argo app, and the testcase of sync
+        # DEVOPS_MONGO_URI=<set in secure properties>
+        # DEVOPS_ENVIRONMENT=<param>
+        # DEVOPS_BUILD_NUMBER=<param>
+        export DEVOPS_SUITE_NAME="initial-users-automation-${LAUNCHER_ID}-${MAS_INSTANCE_ID}"
+        export JUNIT_OUTPUT_DIR="/tmp/initial-users-automation-${LAUNCHER_ID}-${MAS_INSTANCE_ID}"
+        export PRODUCT_ID="ibm-mas-gitops"
+
+        mkdir -p $JUNIT_OUTPUT_DIR
+        echo ${IU_TEST_RESULT_XML} > $JUNIT_OUTPUT_DIR/output.xml
+
+        echo "Run save-junit-to-mongo.py"
+        python3 /opt/app-root/src/save-junit-to-mongo.py
+        # -----------------------------------
 
         echo "Sleeping for 180 seconds to give postsync job a chance to run before creating sync window"
         sleep 180
