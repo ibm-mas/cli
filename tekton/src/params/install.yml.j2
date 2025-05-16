@@ -722,8 +722,7 @@
   default: ""
 - name: mas_ws_facilities_storage_log_size
   description: Define storage size for log
-  type: string
-  default: ""
+  type: integer
 - name: mas_ws_facilities_storage_userfiles_class
   type: string
   description: Define storage class for userfiles
@@ -734,13 +733,11 @@
   default: ""
 - name: mas_ws_facilities_storage_userfiles_size
   description: Define storage size for userfiles
-  type: string
-  default: ""
+  type: integer
 - name: mas_ws_facilities_dwfagents
-  type: string
+  type: array
   description: Define a list of dedicated workflow agents
-  default: ""
+  default: []
 - name: mas_ws_facilities_db_maxconnpoolsize
   description: Define maximum connection pool size
-  type: string
-  default: ""
+  type: integer

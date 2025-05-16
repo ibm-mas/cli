@@ -213,7 +213,6 @@ spec:
       default: ""
     
     # Application Workspace - Operand (Real Estate and Facilities)
-    # TODO: Add params
     - name: mas_ws_facilities_size
       type: string
       description: Size of the Facilities Deployment
@@ -244,8 +243,8 @@ spec:
       default: ""
     - name: mas_ws_facilities_storage_log_size
       description: Define storage size for log
-      type: string
-      default: ""
+      type: integer
+      default: 50
     - name: mas_ws_facilities_storage_userfiles_class
       type: string
       description: Define storage class for userfiles
@@ -256,16 +255,16 @@ spec:
       default: ""
     - name: mas_ws_facilities_storage_userfiles_size
       description: Define storage size for userfiles
-      type: string
-      default: ""
+      type: integer
+      default: 50
     - name: mas_ws_facilities_dwfagents
-      type: string
+      type: array
       description: Define a list of dedicated workflow agents
-      default: ""
+      default: []
     - name: mas_ws_facilities_db_maxconnpoolsize
       description: Define maximum connection pool size
-      type: string
-      default: ""
+      type: integer
+      default: 50
 
     # Custom Label Support
     - name: custom_labels
@@ -395,31 +394,31 @@ spec:
       
       # Application Workspace - Operand (Real Estate and Facilities)
       - name: MAS_FACILIITIES_SIZE
-        value: $(mas_ws_facilities_size)
+        value: $(params.mas_ws_facilities_size)
       - name: MAS_FACILITIES_ROUTES_TIMEOUT
-        value: $(mas_ws_facilities_routes_timeout)
+        value: $(params.mas_ws_facilities_routes_timeout)
       - name: MAS_FACILITIES_LIBERTY_EXTENSION_XML_SECRET_NAME
-        value: $(mas_ws_facilities_liberty_extension_XML)
+        value: $(params.mas_ws_facilities_liberty_extension_XML)
       - name: MAS_FACILITIES_VAULT_SECRET_NAME
-        value: $(mas_ws_facilities_vault_secret)
+        value: $(params.mas_ws_facilities_vault_secret)
       - name: MAS_FACILITIES_PULL_POLICY
-        value: $(mas_ws_facilities_pull_policy)
+        value: $(params.mas_ws_facilities_pull_policy)
       - name: MAS_FACILITIES_STORAGE_LOG_CLASS
-        value: $(mas_ws_facilities_storage_log_class)
+        value: $(params.mas_ws_facilities_storage_log_class)
       - name: MAS_FACILITIES_STORAGE_LOG_MODE
-        value: $(mas_ws_facilities_storage_log_mode)
+        value: $(params.mas_ws_facilities_storage_log_mode)
       - name: MAS_FACILITIES_STORAGE_LOG_SIZE
-        value: $(mas_ws_facilities_storage_log_size)
+        value: $(params.mas_ws_facilities_storage_log_size)
       - name: MAS_FACILITIES_STORAGE_USERFILES_CLASS
-        value: $(mas_ws_facilities_storage_userfiles_class)
+        value: $(params.mas_ws_facilities_storage_userfiles_class)
       - name: MAS_FACILITIES_STORAGE_USERFILES_MODE
-        value: $(mas_ws_facilities_storage_userfiles_mode)
+        value: $(params.mas_ws_facilities_storage_userfiles_mode)
       - name: MAS_FACILITIES_STORAGE_USERFILES_SIZE
-        value: $(mas_ws_facilities_storage_userfiles_size)
+        value: $(params.mas_ws_facilities_storage_userfiles_size)
       - name: MAS_FACILITIES_DWFAGENTS
-        value: $(mas_ws_facilities_dwfagents)
+        value: $(params.mas_ws_facilities_dwfagents)
       - name: MAS_FACILITIES_DB_MAX_POOLSIZE
-        value: $(mas_ws_facilities_db_maxconnpoolsize)
+        value: $(params.mas_ws_facilities_db_maxconnpoolsize)
 
       # Custom Label Support
       - name: CUSTOM_LABELS
