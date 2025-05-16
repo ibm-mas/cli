@@ -16,6 +16,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
 ### Architecture
 - amd64
 - s390x
+- ppc64le
 
 ### Catalog Directory
 
