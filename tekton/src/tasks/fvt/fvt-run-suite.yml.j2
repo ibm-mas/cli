@@ -161,6 +161,12 @@ spec:
       - name: CYPRESS_BASE_URL
         value: $(params.fvt_base_url)
 
+      - name: TEST_SUITE
+        value: $(params.fvt_test_suite)
+
+      - name: TEST_MARKER
+        value: $(params.fvt_test_suite)
+
       # Test Data
       - name: DDP_APIKEY
         valueFrom:
