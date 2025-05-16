@@ -19,6 +19,12 @@ class MongoDbSettingsMixin():
             "The installer can setup mongoce in your OpenShift cluster (available only for amd64) or you may choose to configure MAS to use an existing mongodb"
         ])
 
+        if (self.architecture != "s390x" and self.architecture != "ppc64le") and self.yesOrNo("Create MongoDb cluster using MongoDb Community Edition Operator"):
+            if self.showAdvancedOptions:
+                self.promptForString("MongoDb namespace", "mongodb_namespace", default="mongoce")
+            else:
+                # Even though "" works as the default, we use this value to contruct other values so we need to explicitly set it
+                self.setParam("mongodb_namespace", "mongoce")
         if self.architecture in ["s390x", "ppc64le"]:
             print_formatted_text("[WARNING] MongoDB Community Edition Operator is not supported on this architecture ({}). Defaulting to external MongoDB.".format(self.architecture))
             print_formatted_text("For details, see: https://www.ibm.com/docs/en/masv-and-l/cd?topic=new-in-fix-packs")
