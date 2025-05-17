@@ -56,6 +56,7 @@
         - kmodels
         - odh
         - aibroker-tenant
+        - aibroker-post-verify
         
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------

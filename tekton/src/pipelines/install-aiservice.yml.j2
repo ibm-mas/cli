@@ -111,6 +111,10 @@ spec:
       runAfter:
         - aibroker
 
+    # 3.7 Aibroker Post Verification
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/aibroker-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - aibroker-tenant
 
   finally:
     # Update synchronization configmap
