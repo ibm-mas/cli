@@ -12,14 +12,6 @@
     - name: mas_workspace_id
       value: "$(params.mas_workspace_id)"
 
-    - name: cpd_product_version
-      value: "$(params.cpd_product_version)"
-
-
-    - name: aibroker_deployment_size
-      value: "$(params.aibroker_deployment_size)"
-    - name: custom_labels
-      value: $(params.custom_labels)
   taskRef:
     name: aibroker-post-verify
     kind: Task
