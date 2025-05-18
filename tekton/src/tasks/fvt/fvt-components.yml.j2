@@ -12,20 +12,18 @@ spec:
       description: List of Manage components i.e. base=Latest,health=latest
   results:
     - name: component_names
-      type: string
+      type: array
       description: Extracted component names as a JSON array
   steps:
     - name: extract
-      image: alpine
+      image: 'quay.io/ibmmas/cli:latest'
       script: |
         #!/bin/sh
-        apk add --no-cache jq
         echo "Hello.. Start extraction: $(params.mas_appws_components)"
         echo "$(params.mas_appws_components)" \
             | tr ',' '\n' \
             | cut -d'=' -f1 \
-            | jq -R . \
-            | jq -s . > $(results.component_names.path)
+            > $(results.component_names.path)
         echo "End of the extraction"
         echo "$(results.component_names.path)"
         cat $(results.component_names.path)
