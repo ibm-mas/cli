@@ -41,8 +41,12 @@ spec:
   steps:
     - args:
       - |-
+        while ! test -f "/workspace/shared-entitlement/entitlement.lic"; do
+           echo "Waiting for /workspace/shared-entitlement/entitlement.lic"
+           sleep 5
+        done
 
-        echo "Run some command here to setup the ibm-sls.yml file"
+        echo "Run gitops mas-suite-license-service command to generate ibm-sls.yaml file"
 
       command:
         - /bin/sh
