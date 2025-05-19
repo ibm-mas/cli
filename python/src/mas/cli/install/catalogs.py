@@ -20,4 +20,6 @@ supportedCatalogs = {
         "v9-250403-s390x",
         "v9-250306-s390x",
     ],
+    "ppc64le": [
+    ],
 }
