@@ -7,23 +7,279 @@ spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
-    - name: db2_instance_name
+    # Entitlement
+    - name: ibm_entitlement_key
       type: string
-      description: Name (specifically, not the ID) of the DB2 Warehouse instance to execute the hack
+      default: ""
+
+    # Db2u Operator
+    - name: db2_channel
+      type: string
+      description: Subscription channel for the Db2 Universal Operator
+      default: ""
+    - name: db2_action
+      type: string
+      description: Action to perform for db2u such as install or upgrade
+      default: ""
+
+    # Db2 - Instance
     - name: db2_namespace
       type: string
-      description: Namespace where the DB2 Warehouse instance to execute the hack resides
-      default: "db2u"
+      description: Namespace to create Db2uCluster instances
+      default: ""
+    - name: db2_instance_name
+      type: string
+      default: ""
+    - name: db2_dbname
+      type: string
+      default: ""
+    - name: db2_version
+      type: string
+      default: ""
+    - name: db2_type
+      type: string
+      default: ""
+    - name: db2_timezone
+      type: string
+      default: ""
+    - name: db2_workload
+      type: string
+      default: ""
+    - name: db2_4k_device_support
+      type: string
+      default: ""
+    - name: db2_table_org
+      type: string
+      default: ""
+
+    # Db2 - Node scheduling
+    - name: db2_affinity_key
+      type: string
+      default: ""
+    - name: db2_affinity_value
+      type: string
+      default: ""
+    - name: db2_tolerate_key
+      type: string
+      default: ""
+    - name: db2_tolerate_value
+      type: string
+      default: ""
+    - name: db2_tolerate_effect
+      type: string
+      default: ""
+
+    # Db2 - CPU requests and limits
+    - name: db2_cpu_requests
+      type: string
+      default: ""
+    - name: db2_cpu_limits
+      type: string
+      default: ""
+
+    # Db2 - Memory requests and limits
+    - name: db2_memory_requests
+      type: string
+      default: ""
+    - name: db2_memory_limits
+      type: string
+      default: ""
+
+    # Db2 - Storage - Capacity
+    - name: db2_meta_storage_size
+      type: string
+      default: ""
+    - name: db2_data_storage_size
+      type: string
+      default: ""
+    - name: db2_backup_storage_size
+      type: string
+      default: ""
+    - name: db2_logs_storage_size
+      type: string
+      default: ""
+    - name: db2_temp_storage_size
+      type: string
+      default: ""
+
+    # Db2 - Storage - Class
+    - name: db2_meta_storage_class
+      type: string
+      default: ""
+    - name: db2_data_storage_class
+      type: string
+      default: ""
+    - name: db2_backup_storage_class
+      type: string
+      default: ""
+    - name: db2_logs_storage_class
+      type: string
+      default: ""
+    - name: db2_temp_storage_class
+      type: string
+      default: ""
+
+    # Db2 - Storage - Access Mode
+    - name: db2_meta_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_data_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_backup_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_logs_storage_accessmode
+      type: string
+      default: ""
+    - name: db2_temp_storage_accessmode
+      type: string
+      default: ""
+
+    # Db2 - LDAP
+    - name: db2_ldap_username
+      type: string
+      default: ""
+    - name: db2_ldap_password
+      type: string
+      default: ""
+
+    # JDBCCfg
+    - name: mas_config_scope
+      type: string
+      default: ""
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+    - name: mas_application_id
+      type: string
+      default: ""
+
+    # Custom Labels support
+    - name: custom_labels
+      type: string
+      description: Optional MAS custom labels, comma separated list of key=value pairs
+      default: ""
 
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
 
-      # General
-      - name: DB2_INSTANCE_NAME
-        value: $(params.db2_instance_name)
+      # Entitlement
+      - name: IBM_ENTITLEMENT_KEY
+        value: $(params.ibm_entitlement_key)
+
+      # Db2u Operator
+      - name: DB2_CHANNEL
+        value: $(params.db2_channel)
+      - name: DB2_ACTION
+        value: $(params.db2_action)
+
+      # Db2 - Instance
       - name: DB2_NAMESPACE
         value: $(params.db2_namespace)
+      - name: DB2_INSTANCE_NAME
+        value: $(params.db2_instance_name)
+      - name: DB2_DBNAME
+        value: $(params.db2_dbname)
+      - name: DB2_VERSION
+        value: $(params.db2_version)
+      - name: DB2_TYPE
+        value: $(params.db2_type)
+      - name: DB2_TIMEZONE
+        value: $(params.db2_timezone)
+      - name: DB2_WORKLOAD
+        value: $(params.db2_workload)
+      - name: DB2_4K_DEVICE_SUPPORT
+        value: $(params.db2_4k_device_support)
+      - name: DB2_TABLE_ORG
+        value: $(params.db2_table_org)
+
+      # Db2 - Node Scheduling
+      - name: DB2_AFFINITY_KEY
+        value: $(params.db2_affinity_key)
+      - name: DB2_AFFINITY_VALUE
+        value: $(params.db2_affinity_value)
+      - name: DB2_TOLERATE_KEY
+        value: $(params.db2_tolerate_key)
+      - name: DB2_TOLERATE_VALUE
+        value: $(params.db2_tolerate_value)
+      - name: DB2_TOLERATE_EFFECT
+        value: $(params.db2_tolerate_effect)
+
+      # Db2 - CPU requests and limits
+      - name: DB2_CPU_REQUESTS
+        value: $(params.db2_cpu_requests)
+      - name: DB2_CPU_LIMITS
+        value: $(params.db2_cpu_limits)
+
+      # Db2 - Memory requests and limits
+      - name: DB2_MEMORY_REQUESTS
+        value: $(params.db2_memory_requests)
+      - name: DB2_MEMORY_LIMITS
+        value: $(params.db2_memory_limits)
+
+      # Db2 - Storage - Capacity
+      - name: DB2_META_STORAGE_SIZE
+        value: $(params.db2_meta_storage_size)
+      - name: DB2_DATA_STORAGE_SIZE
+        value: $(params.db2_data_storage_size)
+      - name: DB2_BACKUP_STORAGE_SIZE
+        value: $(params.db2_backup_storage_size)
+      - name: DB2_LOGS_STORAGE_SIZE
+        value: $(params.db2_logs_storage_size)
+      - name: DB2_TEMP_STORAGE_SIZE
+        value: $(params.db2_temp_storage_size)
+
+      # Db2 - Storage - Class
+      - name: DB2_META_STORAGE_CLASS
+        value: $(params.db2_meta_storage_class)
+      - name: DB2_DATA_STORAGE_CLASS
+        value: $(params.db2_data_storage_class)
+      - name: DB2_BACKUP_STORAGE_CLASS
+        value: $(params.db2_backup_storage_class)
+      - name: DB2_LOGS_STORAGE_CLASS
+        value: $(params.db2_logs_storage_class)
+      - name: DB2_TEMP_STORAGE_CLASS
+        value: $(params.db2_temp_storage_class)
+
+      # Db2 - Storage - Access mode
+      - name: DB2_META_STORAGE_ACCESSMODE
+        value: $(params.db2_meta_storage_accessmode)
+      - name: DB2_DATA_STORAGE_ACCESSMODE
+        value: $(params.db2_data_storage_accessmode)
+      - name: DB2_BACKUP_STORAGE_ACCESSMODE
+        value: $(params.db2_backup_storage_accessmode)
+      - name: DB2_LOGS_STORAGE_ACCESSMODE
+        value: $(params.db2_logs_storage_accessmode)
+      - name: DB2_TEMP_STORAGE_ACCESSMODE
+        value: $(params.db2_temp_storage_accessmode)
+
+      # Db2 - LDAP
+      - name: DB2_LDAP_USERNAME
+        value: $(params.db2_ldap_username)
+      - name: DB2_LDAP_PASSWORD
+        value: $(params.db2_ldap_password)
+
+      # MAS - JdbcCfg
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_CONFIG_SCOPE
+        value: $(params.mas_config_scope)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_APP_ID
+        value: $(params.mas_application_id)
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+
+      # Custom labels support
+      - name: CUSTOM_LABELS
+        value: $(params.custom_labels)
 
   steps:
     - name: suite-db2-setup-for-facilities
