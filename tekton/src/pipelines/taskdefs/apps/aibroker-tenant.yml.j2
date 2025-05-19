@@ -81,8 +81,8 @@
       operator: notin
       values: [""]
     - input: "$(params.mas_app_channel_aibroker)"
-      operator: in
-      values: ["workspace"]
+      operator: notin
+      values: ["9.0.x"]
   workspaces:
     - name: configs
       workspace: shared-configs
