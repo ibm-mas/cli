@@ -745,12 +745,12 @@ facilitiesArgGroup.add_argument(
     required=False,
     help="Defines the name of the secret that holds the AES Encryption password",
 )
-facilitiesArgGroup.add_argument(
-    "--facilities-dwfagent",
-    dest="mas_ws_facilities_dwfagents",
-    required=False,
-    help="Defines the list of dedicates workflow agents",
-)
+# facilitiesArgGroup.add_argument(
+#     "--facilities-dwfagent",
+#     dest="mas_ws_facilities_dwfagents",
+#     required=False,
+#     help="Defines the list of dedicates workflow agents",
+# )
 # facilitiesArgGroup.add_argument(
 #     "--facilities-maxconnpoolsize",
 #     dest="mas_ws_facilities_db_maxconnpoolsize",
