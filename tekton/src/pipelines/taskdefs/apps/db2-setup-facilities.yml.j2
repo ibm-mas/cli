@@ -10,6 +10,110 @@
 
     - name: db2_namespace
       value: "$(params.db2_namespace)"
+
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+
+    # Entitlement
+    - name: ibm_entitlement_key
+      value: $(params.ibm_entitlement_key)
+
+    # Operator Subscription
+    - name: db2_channel
+      value: $(params.db2_channel)
+
+    # DB2 instance
+    - name: db2_ldap_username
+      value: $(params.db2_ldap_username)
+    - name: db2_ldap_password
+      value: $(params.db2_ldap_password)
+    - name: db2_type
+      value: $(params.db2_type)
+    - name: db2_timezone
+      value: $(params.db2_timezone)
+    - name: db2_namespace
+      value: $(params.db2_namespace)
+    - name: db2_dbname
+      value: $(params.db2_dbname)
+
+    - name: db2_version
+      value: $(params.db2_version)
+    - name: db2_workload
+      value: $(params.db2_workload)
+    - name: db2_4k_device_support
+      value: $(params.db2_4k_device_support)
+    - name: db2_table_org
+      value: $(params.db2_table_org)
+
+    # Node Scheduling
+    - name: db2_affinity_key
+      value: $(params.db2_affinity_key)
+    - name: db2_affinity_value
+      value: $(params.db2_affinity_value)
+    - name: db2_tolerate_key
+      value: $(params.db2_tolerate_key)
+    - name: db2_tolerate_value
+      value: $(params.db2_tolerate_value)
+    - name: db2_tolerate_effect
+      value: $(params.db2_tolerate_effect)
+
+    # Requests and Limits - CPU
+    - name: db2_cpu_requests
+      value: $(params.db2_cpu_requests)
+    - name: db2_cpu_limits
+      value: $(params.db2_cpu_limits)
+
+    # Requests and Limits - Memory
+    - name: db2_memory_requests
+      value: $(params.db2_memory_requests)
+    - name: db2_memory_limits
+      value: $(params.db2_memory_limits)
+
+    # Storage - Capacity
+    - name: db2_meta_storage_size
+      value: $(params.db2_meta_storage_size)
+    - name: db2_backup_storage_size
+      value: $(params.db2_backup_storage_size)
+    - name: db2_logs_storage_size
+      value: $(params.db2_logs_storage_size)
+    - name: db2_temp_storage_size
+      value: $(params.db2_temp_storage_size)
+    - name: db2_data_storage_size
+      value: $(params.db2_data_storage_size)
+
+    # Storage - Class
+    - name: db2_meta_storage_class
+      value: $(params.storage_class_rwx)
+    - name: db2_data_storage_class
+      value: $(params.storage_class_rwo)
+    - name: db2_backup_storage_class
+      value: $(params.storage_class_rwx)
+    - name: db2_logs_storage_class
+      value: $(params.storage_class_rwo)
+    - name: db2_temp_storage_class
+      value: $(params.storage_class_rwo)
+
+    # Storage - Access mode
+    - name: db2_meta_storage_accessmode
+      value: $(params.db2_meta_storage_accessmode)
+    - name: db2_backup_storage_accessmode
+      value: $(params.db2_backup_storage_accessmode)
+    - name: db2_temp_storage_accessmode
+      value: $(params.db2_temp_storage_accessmode)
+    - name: db2_logs_storage_accessmode
+      value: $(params.db2_logs_storage_accessmode)
+    - name: db2_data_storage_accessmode
+      value: $(params.db2_data_storage_accessmode)
+    - name: mas_config_scope
+      value: wsapp
+    - name: mas_workspace_id
+      value: $(params.mas_workspace_id)
+    - name: mas_application_id
+      value: facilities
+
+    # Custom label support
+    - name: custom_labels
+      value: $(params.custom_labels)
   # Only perform the task when a dedicated database is selected 
   when:
     - input: "$(params.mas_app_channel_facilities)"
