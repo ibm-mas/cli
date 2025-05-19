@@ -5,14 +5,12 @@
     - name: devops_suite_name
       value: suite-db2-setup-facilities
 
+    - name: mas_instance_id
+      value: $(params.mas_instance_id)
+      
     - name: db2_instance_name
       value: "mas-$(params.mas_instance_id)-$(params.mas_workspace_id)-facilities"
 
-    - name: db2_namespace
-      value: "$(params.db2_namespace)"
-
-    - name: mas_instance_id
-      value: $(params.mas_instance_id)
 
     # Entitlement
     - name: ibm_entitlement_key
