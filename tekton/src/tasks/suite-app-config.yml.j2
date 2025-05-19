@@ -258,10 +258,10 @@ spec:
     #   description: Define storage size for userfiles
     #   type: string
     #   default: ""
-    - name: mas_ws_facilities_dwfagents
-      type: array
-      description: Define a list of dedicated workflow agents
-      default: []
+    # - name: mas_ws_facilities_dwfagents
+    #   type: array
+    #   description: Define a list of dedicated workflow agents
+    #   default: []
     # - name: mas_ws_facilities_db_maxconnpoolsize
     #   description: Define maximum connection pool size
     #   type: string
@@ -417,8 +417,8 @@ spec:
         value: $(params.mas_ws_facilities_storage_userfiles_mode)
       # - name: MAS_FACILITIES_STORAGE_USERFILES_SIZE
       #   value: $(params.mas_ws_facilities_storage_userfiles_size)
-      - name: MAS_FACILITIES_DWFAGENTS
-        value: $(params.mas_ws_facilities_dwfagents)
+      # - name: MAS_FACILITIES_DWFAGENTS
+      #   value: $(params.mas_ws_facilities_dwfagents)
       # - name: MAS_FACILITIES_DB_MAX_POOLSIZE
       #   value: $(params.mas_ws_facilities_db_maxconnpoolsize)
 

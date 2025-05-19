@@ -226,7 +226,7 @@ class InstallSummarizerMixin():
             self.printParamSummary("  + Routes Timeout", "mas_ws_facilities_routes_timeout")
             self.printParamSummary("  + XML Extension", "mas_ws_facilities_liberty_extension_XML")
             self.printParamSummary("  + AES vault secret name", "mas_ws_facilities_vault_secret")
-            self.printParamSummary("  + Dedicated Workflow Agents", "mas_ws_facilities_dwfagents")
+            # self.printParamSummary("  + Dedicated Workflow Agents", "mas_ws_facilities_dwfagents")
             # self.printParamSummary("  + Maximum pool size connection ", "mas_ws_facilities_db_maxconnpoolsize")
             self.printParamSummary("  + Log Storage Class ", "mas_ws_facilities_storage_log_class")
             self.printParamSummary("  + Log Storage Mode", "mas_ws_facilities_storage_log_mode")

@@ -256,8 +256,8 @@ class installArgBuilderMixin():
             if self.getParam('mas_ws_facilities_vault_secret') != "":
                 command += f"  --facilities-vault-secret \"{self.getParam('mas_ws_facilities_vault_secret')}\"{newline}"
 
-            if self.getParam('mas_ws_facilities_dwfagents') != "":
-                command += f"  --facilities-dwfagent \"{self.getParam('mas_ws_facilities_dwfagents')}\"{newline}"
+            # if self.getParam('mas_ws_facilities_dwfagents') != "":
+            #     command += f"  --facilities-dwfagent \"{self.getParam('mas_ws_facilities_dwfagents')}\"{newline}"
 
             # if self.getParam('mas_ws_facilities_db_maxconnpoolsize') != "":
             #     command += f"  --facilities-maxconnpoolsize \"{self.getParam('mas_ws_facilities_db_maxconnpoolsize')}\"{newline}"
