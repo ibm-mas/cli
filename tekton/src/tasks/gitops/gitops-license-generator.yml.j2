@@ -50,13 +50,6 @@ spec:
         value: $(params.sls_license_icn)
       - name: SAAS_SUB_ID
         value: $(params.sls_subscription_id)
-
-
-
-
-
-
-
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -73,7 +66,7 @@ spec:
             -a ${ACCOUNT} \
             -i ${ICN} \
             -s ${SAAS_SUB_ID} \
-            --license-file /tmp/authorized_entitlement_saas.lic
+            --license-file /workspace/shared-entitlement/entitlement.lic
           exit $?
         else
           ansible-playbook ibm.mas_saas.generate_saas_license_file || exit 1
@@ -81,7 +74,7 @@ spec:
             -a ${ACCOUNT} \
             -c ${CLUSTER_NAME} \
             -m ${MAS_INSTANCE_ID} \
-            --license-file /tmp/authorized_entitlement_saas.lic     
+            --license-file /workspace/shared-entitlement/entitlement.lic
           exit $?
         fi
 
