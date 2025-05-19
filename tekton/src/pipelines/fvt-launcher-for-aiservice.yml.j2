@@ -228,3 +228,27 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-aibroker
+
+  # Finally
+  # ---------------------------------------------------------------------------
+  finally:
+    - name: launchfvt-finally
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-finally
+      params:
+        - name: deprovision
+          value: "$(params.deprovision)"
+        - name: finalize
+          value: "$(params.finalize)"
+        - name: set_finished
+          value: "$(params.set_finished)"
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(context.pipelineRun.name)-fvt-finally"
+
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
