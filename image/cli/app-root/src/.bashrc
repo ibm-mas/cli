@@ -25,14 +25,6 @@ echo "MAS Management:"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas install${TEXT_RESET} to install a new MAS instance"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas update${TEXT_RESET} to apply a new catalog update"
 
-# Warn if on unsupported architecture
-if [ "$arch" == "s390x" ] || [ "$arch" == "ppc64le" ]; then
-    echo
-    echo "${COLOR_YELLOW}${TEXT_BOLD}NOTE:${TEXT_RESET}In-cluster MongoDB deployment via the MongoDB Community Edition Operator is ${COLOR_RED}not supported${TEXT_RESET} on architecture ${COLOR_CYAN}$arch${TEXT_RESET}."
-    echo "${COLOR_YELLOW}!!! Please configure an external MongoDB instance for MAS installation on this platform.${TEXT_RESET}"
-    echo
-fi
-
 # Upgrade is not tested/supported on s390x /ppc64le yet
 if  [ $arch != "s390x" ] &&  [ $arch != "ppc64le" ]; then
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas upgrade${TEXT_RESET} to upgrade an existing MAS install to a new release"
@@ -40,6 +32,14 @@ fi
 
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas must-gather${TEXT_RESET} to perform must-gather against the target cluster"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas uninstall${TEXT_RESET} to uninstall a MAS instance"
+
+# Warn if on unsupported architecture
+if [ "$arch" == "s390x" ] || [ "$arch" == "ppc64le" ]; then
+    echo
+    echo "${COLOR_YELLOW}${TEXT_BOLD}NOTE:${TEXT_RESET}In-cluster MongoDB deployment via the MongoDB Community Edition Operator is ${COLOR_RED}not supported${TEXT_RESET} on architecture ${COLOR_CYAN}$arch${TEXT_RESET}."
+    echo "${COLOR_YELLOW}!!! Please configure an external MongoDB instance for MAS installation on this platform.${TEXT_RESET}"
+    echo
+fi
 
 # None of these functions are tested/supported on s390x /ppc64le yet
 if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
