@@ -28,10 +28,10 @@ mas_smtpcfg_pod_templates:
 suite_smtp_disabled_templates: {{ SMTP_DISABLED_TEMPLATES }}
 {% endif %}
 
-{% if SMPTP_CONFIG_CA_CERTIFICATE is defined and SMPTP_CONFIG_CA_CERTIFICATE != '' %}
+{% if SMTP_CONFIG_CA_CERTIFICATE_FILE is defined and SMTP_CONFIG_CA_CERTIFICATE_FILE != '' %}
 smtp_config_ca_certificate:
   crt: |
     {% filter indent(width=4) -%}
-    {{ SMPTP_CONFIG_CA_CERTIFICATE }}
+    {{ SMTP_CONFIG_CA_CERTIFICATE_FILE }}
     {%- endfilter %}
 {% endif %}
