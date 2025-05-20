@@ -20,7 +20,7 @@
   when:
     - input: "acm"
       operator: in
-      values: ["$(tasks.fvt-component.results.component_names)"]
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
@@ -40,7 +40,7 @@
   when:
     - input: "acm"
       operator: in
-      values: ["$(tasks.fvt-component.results.component_names)"]
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
@@ -57,7 +57,7 @@
   when:
     - input: "hse"
       operator: in
-      values: ["$(tasks.fvt-component.results.component_names)"]
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
@@ -77,7 +77,7 @@
   when:
     - input: "hse"
       operator: in
-      values: ["$(tasks.fvt-component.results.component_names)"]
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
@@ -92,9 +92,9 @@
     - name: fvt_test_suite
       value: serviceprovider-api
   when:
-    - input: "hse"
+    - input: "serviceprovider"
       operator: in
-      values: ["$(tasks.fvt-component.results.component_names)"]
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
@@ -112,9 +112,9 @@
     - name: fvt_test_driver
       value: tpae
   when:
-    - input: "hse"
+    - input: "serviceprovider"
       operator: in
-      values: ["$(tasks.fvt-component.results.component_names)"]
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python

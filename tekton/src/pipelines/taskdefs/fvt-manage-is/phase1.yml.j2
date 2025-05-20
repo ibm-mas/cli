@@ -2,7 +2,7 @@
 # PHASE 1
 #   - fvt-health-testng-preparedata    # Health
 #   - fvt-health-python                # Health
-#   - fvt-health-cp4d-wsl                  # Health
+#   - fvt-health-cp4d-wsl              # Health
 #   - fvt-health-testng-desktop        # Health
 #   - fvt-civil-api-defectdetection    # Civil
 # -----------------------------------------------------------------------------
@@ -47,7 +47,7 @@
       values: [""]
     - input: "health"
       operator: in
-      values: ["$(tasks.fvt-component.results.component_names)"]
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -88,7 +88,7 @@
       values: [""]
     - input: "health"
       operator: in
-      values: ["$(tasks.fvt-component.results.component_names)"]
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -133,7 +133,7 @@
       values: [""]
     - input: "health"
       operator: in
-      values: ["$(tasks.fvt-component.results.component_names)"]
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -178,7 +178,7 @@
       values: [""]
     - input: "health"
       operator: in
-      values: ["$(tasks.fvt-component.results.component_names)"]
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   workspaces:
     - name: configs
       workspace: shared-configs
@@ -193,8 +193,8 @@
     - name: fvt_test_suite
       value: civil-api-defectdetection
   when:
-    - input: "health"
+    - input: "civil"
       operator: in
-      values: ["$(tasks.fvt-component.results.component_names)"]
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-setup-is

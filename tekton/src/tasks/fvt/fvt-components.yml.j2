@@ -19,11 +19,13 @@ spec:
       image: 'quay.io/ibmmas/cli:latest'
       script: |
         #!/bin/sh
+        apk add --no-cache jq
         echo "Hello.. Start extraction: $(params.mas_appws_components)"
         echo "$(params.mas_appws_components)" \
             | tr ',' '\n' \
             | cut -d'=' -f1 \
-            > $(results.component_names.path)
+            | jq -R . \
+            | jq -s . > $(results.component_names.path)
         echo "End of the extraction"
         echo "$(results.component_names.path)"
         cat $(results.component_names.path)
