@@ -7,10 +7,8 @@
 
     - name: mas_instance_id
       value: $(params.mas_instance_id)
-      
     - name: db2_instance_name
       value: "mas-$(params.mas_instance_id)-$(params.mas_workspace_id)-facilities"
-
 
     # Entitlement
     - name: ibm_entitlement_key
@@ -108,6 +106,8 @@
       value: $(params.mas_workspace_id)
     - name: mas_application_id
       value: facilities
+    - name: db2_action_facilities
+      value: $(params.db2_action_facilities)
 
     # Custom label support
     - name: custom_labels
