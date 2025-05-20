@@ -311,10 +311,6 @@
     
       <cds-select-item value="#cli-support">CLI Support</cds-select-item>
     
-      <cds-select-item value="#known-issues">Known Issues</cds-select-item>
-    
-      <cds-select-item value="#architecture">Architecture</cds-select-item>
-    
       <cds-select-item value="#catalog-directory">Catalog Directory</cds-select-item>
     
       <cds-select-item value="#faq">FAQ</cds-select-item>
@@ -334,21 +330,6 @@
 <p>All versions of the catalog are available <strong>indefinitely</strong>, but they have a useful lifespan limited by the support statements of the packages available in the catalog and the OCP release the catalog is certified on.  We <strong>never</strong> remove catalog images from the IBM Container Registry (ICR); even the <a href="v8-220717-amd64/">first</a> Maximo Operator Catalog ever published is still available today, however it's usefulness is questionable due to the end of life of all compatible OCP releases.</p>
 <h3 id="cli-support">CLI Support<a class="headerlink" href="#cli-support" title="Permanent link">¤</a></h3>
 <p>The MAS CLI maintains a rolling window of approximately four months worth of supported catalogs for the install, mirror-images, and update functions.  When using an older catalog it is recommended to use a version of the CLI that was released around the same time as the catalog, refer to the table below for the recommended version of the CLI to use with older versions of the operator catalog.</p>
-<h3 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">¤</a></h3>
-<ul>
-<li>
-<p><strong>October 2024</strong> IBM Cloud Pak for Data 4.8, used in catalogs released between June and October 2024 uses a Postgres license key that expired on October 1, 2024.  A fix is available from CLI version 11.2.1 onwards; if you are installing CP4D as a MAS dependency you must use at least version 11.2.1 of the CLI.  If you need to install MAS with CP4D using an older catalog than supported by this version of the CLI please contact IBM support for assistance.</p>
-</li>
-<li>
-<p><strong>November, December 2024 &amp; January 2025</strong> Disconnected environment with Manage Civil, Aviation and ICD cannot be updated by these patch. These patch does not support new installation of Civil, Aviation and ICD for disconnected environment. </p>
-</li>
-</ul>
-<h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">¤</a></h3>
-<ul>
-<li>amd64</li>
-<li>s390x</li>
-<li>ppc64le</li>
-</ul>
 <h3 id="catalog-directory">Catalog Directory<a class="headerlink" href="#catalog-directory" title="Permanent link">¤</a></h3>
 <p><cds-tabs trigger-content="Select an item" value="2025">
   <cds-tab id="tab-2025" target="panel-2025" value="2025">2025 Catalogs</cds-tab>
@@ -405,7 +386,7 @@
           <td style="font-style: italic">v9-250904</td>
           <td style="font-style: italic"></td>
           <td style="font-style: italic"></td>
-          <td style="font-style: italic">4.15-4.18 (TBC)</td>
+          <td style="font-style: italic">4.15 - 4.18 (TBC)</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
           <td style="font-style: italic">N/A</td>
@@ -797,7 +778,7 @@ spec:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-05-20 14:46:15.350076+00:00)
+      Built with mkdocs v1.6.1 (2025-05-20 16:59:39.694828+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
