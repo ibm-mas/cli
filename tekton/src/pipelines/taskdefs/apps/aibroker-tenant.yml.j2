@@ -72,6 +72,12 @@
       value: $(params.mas_aibroker_tenant_s3_access_key)  
     - name: mas_aibroker_tenant_s3_secret_key
       value: $(params.mas_aibroker_tenant_s3_secret_key) 
+    - name: rsl_url
+      value: $(params.rsl_url)  
+    - name: rsl_org_id
+      value: $(params.rsl_org_id)  
+    - name: rsl_token
+      value: $(params.rsl_token)  
 
   taskRef:
     name: mas-devops-aibroker-tenant

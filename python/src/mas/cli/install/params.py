@@ -190,6 +190,9 @@ optionalParams = [
     "mas_aibroker_tenant_s3_endpoint_url",
     "mas_aibroker_tenant_s3_access_key",
     "mas_aibroker_tenant_s3_secret_key",
+    "rsl_url",
+    "rsl_org_id",
+    "rsl_token",
     # Special chars
     "mas_special_characters"
 ]

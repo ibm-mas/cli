@@ -312,3 +312,6 @@ class ManageSettingsMixin():
                 self.promptForString("S3 endpoint url (tenant level)", "mas_aibroker_tenant_s3_endpoint_url")
                 self.promptForString("S3 access key (tenant level)", "mas_aibroker_tenant_s3_access_key")
                 self.promptForString("S3 secret key (tenant level)", "mas_aibroker_tenant_s3_secret_key")
+                self.promptForString("RSL url", "rsl_url")
+                self.promptForString("ORG Id of RSL", "rsl_org_id")
+                self.promptForString("Token for RSL", "rsl_token")

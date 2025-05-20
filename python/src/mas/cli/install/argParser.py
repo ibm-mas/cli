@@ -604,6 +604,24 @@ aibrokerArgGroup.add_argument(
     required=False,
     help="secret key for s3 ( tenant level )"
 )
+aibrokerArgGroup.add_argument(
+    "--rsl-url",
+    dest="rsl_url",
+    required=False,
+    help="secret key for s3 ( tenant level )"
+)
+aibrokerArgGroup.add_argument(
+    "--rsl-org-id",
+    dest="rsl_org_id",
+    required=False,
+    help="secret key for s3 ( tenant level )"
+)
+aibrokerArgGroup.add_argument(
+    "--rsl-token",
+    dest="rsl_token",
+    required=False,
+    help="secret key for s3 ( tenant level )"
+)
 
 
 # Arcgis

@@ -143,6 +143,12 @@ spec:
       type: string
     - name: mas_aibroker_tenant_s3_secret_key
       type: string
+    - name: rsl_url
+      type: string
+    - name: rsl_org_id
+      type: string
+    - name: rsl_token
+      type: string
 
   stepTemplate:
     env:
@@ -243,6 +249,12 @@ spec:
         value: $(params.mas_aibroker_tenant_s3_access_key)
       - name: MAS_AIBROKER_TENANT_S3_SECRET_KEY
         value: $(params.mas_aibroker_tenant_s3_secret_key)
+      - name: RSL_URL
+        value: $(params.rsl_url)
+      - name: RSL_ORG_ID
+        value: $(params.rsl_org_id)
+      - name: RSL_TOKEN
+        value: $(params.rsl_token)
 
       # Ai Broker Saas
       - name: MAS_AIBROKER_SAAS
