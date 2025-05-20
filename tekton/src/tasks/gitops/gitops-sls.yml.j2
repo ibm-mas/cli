@@ -41,13 +41,13 @@ spec:
   steps:
     - args:
       - |-
-        while ! test -f "/workspace/shared-entitlement/entitlement.lic"; do
-           echo "Waiting for /workspace/shared-entitlement/entitlement.lic"
-           sleep 5
-        done
 
-        echo "Run gitops mas-suite-license-service command to generate ibm-sls.yaml file"
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
 
+        mas mas-suite-license-service 
+        
       command:
         - /bin/sh
         - -c
