@@ -142,7 +142,9 @@ spec:
     - name: configs
 
   tasks:
-    # 1.gitops-minio  Condition MINIO/S3
+    # 1.gitops-minio  
+    # MINIO-Condition Added but mas_aibroker_storage_provider is part of ODH 
+    # S3 pending for testing  When we test at that time whatever condition needed here we have to Added
     # -------------------------------------------------------------------------
     - name: gitops-minio
       taskRef:
@@ -185,6 +187,10 @@ spec:
           value: $(params.minio_storage_size)
         - name: minio_image
           value: $(params.minio_image)
+      when:
+        - input: "$(params.mas_aibroker_storage_provider)"
+          operator: notin
+          values: ["minio"]
 
     # 2.gitops-odh
     # -------------------------------------------------------------------------
