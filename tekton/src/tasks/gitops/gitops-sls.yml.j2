@@ -47,7 +47,7 @@ spec:
         value: $(params.sls_channel)
       - name: SLS_INSTALL_PLAN
         value: $(params.sls_install_plan)
-      - name: OCP_CLUSTER_DOMAIN
+      - name: SLS_DOMAIN
         value: $(params.ocp_cluster_domain)
     envFrom:
       - configMapRef:

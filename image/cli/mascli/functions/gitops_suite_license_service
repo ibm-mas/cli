@@ -140,10 +140,6 @@ function gitops_suite_license_service_noninteractive() {
         export CLUSTER_URL=$1 && shift
         ;;
 
-      --ocp-cluster-domain)
-        export OCP_CLUSTER_DOMAIN=$1 && shift
-        ;;
-
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
