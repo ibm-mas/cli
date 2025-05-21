@@ -395,7 +395,7 @@ function gitops_suite_license_service() {
   echo_h2 "Generating Argo Project and Applications"
 
   echo "- IBM Suite License Service"
-  jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/sls/configs/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
+  jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/sls/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
 
 
   # Commit and push to github target repo

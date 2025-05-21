@@ -17,6 +17,13 @@ spec:
       type: string
     - name: sls_subscription_id
       type: string
+    - name: sls_install_plan
+      type: string
+    - name: sls_channel
+      type: string
+    - name: ocp_cluster_domain
+      type: string
+
     - name: mongo_provider
       type: string
   stepTemplate:
@@ -36,6 +43,12 @@ spec:
         value: $(params.sls_subscription_id)
       - name: MONGODB_PROVIDER
         value: $(params.mongo-provider)
+      - name: SLS_CHANNEL
+        value: $(params.sls_channel)
+      - name: SLS_INSTALL_PLAN
+        value: $(params.sls_install_plan)
+      - name: OCP_CLUSTER_DOMAIN
+        value: $(params.ocp_cluster_domain)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -55,9 +68,8 @@ spec:
            mkdir -p ${WORKING_DIR} 
         fi
 
-        mas mas-suite-license-service -d $WORKING_DIR -a $ACCOUNT -c $CLUSTER_NAME --ibm-customer-number ${SLS_LICENSE_ICN} --subscription-id ${SLS_SUBSCRIPTION_ID} \
-        --secrets-path "${SECRETS_PATH}" --domain ${OCP_CLUSTER_DOMAIN} --sls-channel ${SLS_CHANNEL} --sls-install-plan ${SLS_INSTALL_PLAN} \
-        --mongo-provider ${MONGODB_PROVIDER}
+        mas gitops-suite-license-service -d $WORKING_DIR -a $ACCOUNT -c $CLUSTER_NAME --ibm-customer-number ${ICN} --subscription-id ${SAAS_SUB_ID} \
+        --secrets-path "${SECRETS_PATH}" --domain ${OCP_CLUSTER_DOMAIN} --sls-channel ${SLS_CHANNEL} --sls-install-plan ${SLS_INSTALL_PLAN} 
         sleep 6000
       command:
         - /bin/sh
