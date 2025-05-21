@@ -110,6 +110,7 @@ storage_class_definitions:
   {%- endfilter %}
 {% endif %}
 
+auto_backup: {{ AUTO_BACKUP }}
 {% if BACKUP %}
 db2_backup_bucket_name: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_NAME }}>
 db2_backup_bucket_endpoint: <path:{{ SECRETS_PATH }}:{{ DB2_BACKUP_BUCKET_ENDPOINT }}>
