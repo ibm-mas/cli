@@ -50,6 +50,9 @@ spec:
       default: ""
     - name: github_url
       type: string
+    - name: github_ssh
+      type: string
+      default: ""
 
     - name: mas_instance_id
       type: string
@@ -198,8 +201,9 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: github_pat
-          value: $(params.github_pat)
+        - name: github_ssh
+          value: $(params.github_ssh)
+
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
 
