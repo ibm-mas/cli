@@ -23,9 +23,30 @@ spec:
       type: string
     - name: ocp_cluster_domain
       type: string
-
+    - name: secrets_path
+      type: string
     - name: mongo_provider
       type: string
+    - name: icr_cp
+      type: string
+    - name: icr_cp_open
+      type: string
+
+    - name: github_push
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: git_commit_msg
+      type: string
+    - name: github_ssh
+      type: string
+
   stepTemplate:
     name: gitops-sls
     env:
@@ -42,13 +63,35 @@ spec:
       - name: SAAS_SUB_ID
         value: $(params.sls_subscription_id)
       - name: MONGODB_PROVIDER
-        value: $(params.mongo-provider)
+        value: $(params.mongo_provider)
       - name: SLS_CHANNEL
         value: $(params.sls_channel)
       - name: SLS_INSTALL_PLAN
         value: $(params.sls_install_plan)
       - name: SLS_DOMAIN
         value: $(params.ocp_cluster_domain)
+      - name: SECRETS_PATH
+        value: $(params.secrets_path)
+      - name: ICR_CP
+        value: $(params.icr_cp)
+      - name: ICR_CP_OPEN
+        value: $(params.icr_cp_open)
+
+      - name: GITHUB_PUSH
+        value: $(params.github_push)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GIT_COMMIT_MSG
+        value: $(params.git_commit_msg)
+      - name: GIT_SSH
+        value: $(params.github_ssh)
+
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -63,14 +106,12 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        WORKING_DIR=/workspace/shared-entitlement
-        if [ ! -d $WORKING_DIR ]; then
-           mkdir -p ${WORKING_DIR} 
-        fi
+        WORKING_DIR=/tmp
 
         mas gitops-suite-license-service -d $WORKING_DIR -a $ACCOUNT -c $CLUSTER_NAME --ibm-customer-number ${ICN} --subscription-id ${SAAS_SUB_ID} \
-        --secrets-path "${SECRETS_PATH}" --domain ${OCP_CLUSTER_DOMAIN} --sls-channel ${SLS_CHANNEL} --sls-install-plan ${SLS_INSTALL_PLAN} 
-        sleep 6000
+        --secrets-path "${SECRETS_PATH}" --domain ${SLS_DOMAIN} --sls-channel ${SLS_CHANNEL} --sls-install-plan ${SLS_INSTALL_PLAN} 
+        
+        sleep 3000
       command:
         - /bin/sh
         - -c
