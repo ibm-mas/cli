@@ -1123,9 +1123,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.slsLicenseFile()
         self.manualCertificates()
 
-        if not self.noConfirm:
+        if not self.noConfirm and not self.waitForPVC:
             self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
             self.waitForPVC = self.yesOrNo("Wait for PVCs to bind")
+
+        if not self.waitForPVC:
+            self.setParam("no_wait_for_pvc", True)
 
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
@@ -1165,7 +1168,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     instanceId=self.getParam("mas_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
-                    waitForBind=self.WaitForPVC,
+                    waitForBind=self.waitForPVC,
                     configureRBAC=(self.getParam("service_account_name") == "")
                 )
                 prepareInstallSecrets(

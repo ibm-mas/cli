@@ -355,7 +355,7 @@ class InstallSummarizerMixin():
 
     def installSummary(self) -> None:
         self.printH2("Install Process")
-        self.printSummary("Wait for PVCs to bind", "No" if self.getParam("no_wait_for_pvc") == "true" else "Yes")
+        self.printSummary("Wait for PVCs to bind", "No" if self.getParam("no_wait_for_pvc") else "Yes")
 
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
