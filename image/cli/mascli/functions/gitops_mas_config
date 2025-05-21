@@ -849,7 +849,12 @@ function gitops_mas_config() {
 
       export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username
       export SECRET_KEY_SMTP_PASSWORD=${SECRET_NAME_SMTP}#password
-      export SMTP_CONFIG_CA_CERTIFICATE=$(cat ${SMTP_CONFIG_CA_CERTIFICATE_FILE})
+      echo "certificate path - ${SMTP_CONFIG_CA_CERTIFICATE_FILE}"
+      if [[ ! -z "${SMTP_CONFIG_CA_CERTIFICATE_FILE}" ]]; then
+        export SMTP_CONFIG_CA_CERTIFICATE=$(cat ${SMTP_CONFIG_CA_CERTIFICATE_FILE})
+        echo "CA certificate content"
+        echo ${SMTP_CONFIG_CA_CERTIFICATE}
+      fi
     fi
 
     # Source: gitops_suite_watson_studio_config
