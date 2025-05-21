@@ -17,6 +17,8 @@ spec:
       type: string
     - name: sls_subscription_id
       type: string
+    - name: mongo_provider
+      type: string
   stepTemplate:
     name: gitops-sls
     env:
@@ -32,6 +34,8 @@ spec:
         value: $(params.sls_license_icn)
       - name: SAAS_SUB_ID
         value: $(params.sls_subscription_id)
+      - name: MONGODB_PROVIDER
+        value: $(params.mongo-provider)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -46,8 +50,15 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mas mas-suite-license-service 
-        
+        WORKING_DIR=/workspace/shared-entitlement
+        if [ ! -d $WORKING_DIR ]; then
+           mkdir -p ${WORKING_DIR} 
+        fi
+
+        mas mas-suite-license-service -d $WORKING_DIR -a $ACCOUNT -c $CLUSTER_NAME --ibm-customer-number ${SLS_LICENSE_ICN} --subscription-id ${SLS_SUBSCRIPTION_ID} \
+        --secrets-path "${SECRETS_PATH}" --domain ${OCP_CLUSTER_DOMAIN} --sls-channel ${SLS_CHANNEL} --sls-install-plan ${SLS_INSTALL_PLAN} \
+        --mongo-provider ${MONGODB_PROVIDER}
+        sleep 6000
       command:
         - /bin/sh
         - -c
