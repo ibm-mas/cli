@@ -1154,7 +1154,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printH1("Launch Install")
             pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
 
-
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
                 installOpenShiftPipelines(self.dynamicClient)
                 h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
