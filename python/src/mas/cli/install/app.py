@@ -665,7 +665,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.configAppChannel("aibroker")
 
         # TODO: Update the condition to allow 9.1 or greater
-        if self.getParam("mas_channel").startswith("9.1"):
+        if 'facilities' not in self.compatibilityMatrix[self.getParam("mas_channel")].keys():
             self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
             if self.installFacilities:
                 self.configAppChannel("facilities")
@@ -769,7 +769,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installFacilities:
             self.printH1("Configure Maximo Real Estate and Facilities")
             self.printDescription([
-                "Facilities custom configurations"
+                "Real Estate and Facilities custom configurations"
             ])
             self.printDescription([
                 "Maximo Real Estate and Facilities Size:",
@@ -780,15 +780,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForListSelect("Select the size:", ["small", "medium", "large"], "mas_ws_facilities_size")
 
             if self.showAdvancedOptions:
-                if self.yesOrNo("Supply extra XML tags for Facilities server.xml"):
-                    self.promptForString("Facilities Liberty Extension Secret Name", "mas_ws_facilities_liberty_extension_XML")
+                if self.yesOrNo("Supply extra XML tags for Real Estate and Facilities server.xml"):
+                    self.promptForString("Real Estate and Facilities Liberty Extension Secret Name", "mas_ws_facilities_liberty_extension_XML")
                 if self.yesOrNo("Supply custom AES Encryption Password"):
-                    self.promptForString("Facilities AES Vault Secret Name", "mas_ws_facilities_vault_secret")
+                    self.promptForString("Real Estate and Facilities AES Vault Secret Name", "mas_ws_facilities_vault_secret")
 
-                self.promptForString("Set Facilities Routes Timeout:", "mas_ws_facilities_routes_timeout", default="600s")
+                self.promptForString("Set Real Estate and Facilities Routes Timeout:", "mas_ws_facilities_routes_timeout", default="600s")
                 # self.promptForInt("Set Facilities maximum connection poll size:", default=200)
 
-                self.printDescription(["Facilities Persistent Volume Storage Configuration"])
+                self.printDescription(["Real Estate and Facilities Persistent Volume Storage Configuration"])
                 defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
                 notUseAutodetectedStorageClasses = False
                 if defaultStorageClasses.provider is not None:
@@ -845,7 +845,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
             " - Enable optional Maximo Predict integration with SPSS",
             " - Enable optional IBM Turbonomic integration",
-            " - Enable optional Facilities configurations",
+            " - Enable optional Real Estate and Facilities configurations",
             " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
             " - Choose alternative Apache Kafka providers (default to Strimzi)",
             " - Customize Grafana storage settings"
