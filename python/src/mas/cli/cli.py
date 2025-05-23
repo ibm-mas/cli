@@ -145,6 +145,9 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture = None
 
         self.compatibilityMatrix = {
+            "9.1.x": {
+              "facilities": ["9.1.x"]
+            },
             "9.1.x-feature": {
                 "assist": ["9.0.x"],
                 "iot": ["9.0.x"],
@@ -154,7 +157,6 @@ class BaseApp(PrintMixin, PromptMixin):
                 "predict": ["9.0.x"],
                 "visualinspection": ["9.1.x-feature", "9.0.x"],
                 "aibroker": ["9.0.x"],
-                "facilities": ["9.1.x-feature"]  # TODO: Verify the channel since Facilities will be available only on 9.1
             },
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
