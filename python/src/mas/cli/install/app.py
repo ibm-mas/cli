@@ -1115,8 +1115,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.nonInteractiveMode()
 
         # If User want to install aibroker for version 9.1.x or above then we have different command "mas aiservice-install" ( standalone aiservice )
-        if self.installAiBroker == True and self.getParam("mas_app_channel_aibroker") != "9.0.x":
-            self.fatalError(f"mas install Not support aibroker for version 9.1.x or above please use mas aiservice-install")
+        if self.installAiBroker and self.getParam("mas_app_channel_aibroker") != "9.0.x":
+            self.fatalError('mas install Not support aibroker for version 9.1.x or above please use mas aiservice-install')
 
         # After we've configured the basic inputs, we can calculate these ones
         self.setIoTStorageClasses()
@@ -1221,6 +1221,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 # Disable this approval workload
                 logger.debug(f"Approval workflow for {approval['id']} will be disabled during install")
                 self.initializeApprovalConfigMap(namespace, approval['id'], False)
+
 
 class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixinForAiservice):
     @logMethodCall
@@ -1813,7 +1814,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
     @logMethodCall
     def configAppChannel(self, appId):
         self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel for Aibroker</Yellow> '))
-       
+
     @logMethodCall
     def configStorageClasses(self):
         self.printH1("Configure Storage Class Usage")

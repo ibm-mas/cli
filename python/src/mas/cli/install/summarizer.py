@@ -161,7 +161,7 @@ class InstallSummarizerMixin():
             if self.getParam("mas_aibroker_storage_provider") == "minio":
                 self.printParamSummary("  + minio root username", "minio_root_user")
                 self.printParamSummary("  + minio root password", "minio_root_password")
-            if self.getParam("mas_app_channel_aibroker") != "9.0.x":    
+            if self.getParam("mas_app_channel_aibroker") != "9.0.x":
                 self.printParamSummary("  + Mariadb username", "mariadb_user")
                 self.printParamSummary("  + Mariadb password", "mariadb_password")
             self.printParamSummary("  + Storage access key", "mas_aibroker_storage_accesskey")

@@ -291,7 +291,7 @@ class ManageSettingsMixin():
             self.promptForString("Watsonxai api key", "mas_aibroker_watsonxai_apikey")
             self.promptForString("Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
             self.promptForString("Watsonxai project id", "mas_aibroker_watsonxai_project_id")
-                
+
             self.promptForString("Database host", "mas_aibroker_db_host")
             self.promptForString("Database port", "mas_aibroker_db_port")
             self.promptForString("Database user", "mas_aibroker_db_user")
