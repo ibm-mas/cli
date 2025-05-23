@@ -59,7 +59,7 @@ class Db2SettingsMixin():
         # We know we are installing either IoT, Manage or Facilities, and on amd64 target architecture
         if not silentMode:
             self.printDescription([
-                f"The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, {self.manageAppName}, Monitor, &amp; Predict, Facilities) or you may choose to configure MAS to use an existing database"
+                f"The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, {self.manageAppName}, Monitor, &amp; Predict, Real Estate and Facilities) or you may choose to configure MAS to use an existing database"
             ])
 
         self.setDB2DefaultSettings()
@@ -160,12 +160,12 @@ class Db2SettingsMixin():
 
                 # Check if a configuration already exists before creating a new one
                 jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-facilities.yaml")
-                print_formatted_text(f"Searching for Facilities database configuration file in {jdbcCfgFile} ...")
+                print_formatted_text(f"Searching for Real Estate and Facilities database configuration file in {jdbcCfgFile} ...")
                 if path.exists(jdbcCfgFile):
-                    if self.yesOrNo(f"Facilities database configuration file 'jdbc-{instanceId}-facilities.yaml' already exists.  Do you want to generate a new one"):
+                    if self.yesOrNo(f"Real Estate and Facilities database configuration file 'jdbc-{instanceId}-facilities.yaml' already exists.  Do you want to generate a new one"):
                         self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="facilities", destination=jdbcCfgFile)
                 else:
-                    print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid Facilities database configuration file now ...")
+                    print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid Real Estate and Facilities database configuration file now ...")
                     self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="facilities", destination=jdbcCfgFile)
         else:
             self.setParam("db2_action_facilities", "none")
