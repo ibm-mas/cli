@@ -43,6 +43,7 @@ def usage():
         + " - <ForestGreen>mas-cli update</ForestGreen>    Apply updates and security fixes\n"  # noqa: W503
         + " - <ForestGreen>mas-cli upgrade</ForestGreen>   Upgrade to a new MAS release\n"  # noqa: W503
         + " - <ForestGreen>mas-cli uninstall</ForestGreen> Remove MAS from the cluster\n"  # noqa: W503
+        + " - <ForestGreen>mas-cli rollback</ForestGreen> Rollback MAS from the cluster\n"  # noqa: W503
 
     ))
     print_formatted_text(HTML("For usage information run <ForestGreen>mas-cli [action] --help</ForestGreen>\n"))
