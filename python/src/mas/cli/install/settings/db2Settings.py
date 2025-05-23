@@ -150,7 +150,7 @@ class Db2SettingsMixin():
         # Do we need to create and configure a Db2 for Facilities ?
         if self.installFacilities:
             self.printH2("Database Configuration for Maximo Real Estate and Facilities")
-            if self.yesOrNo("Create Facilities dedicated Db2 instance using the IBM Db2 Universal Operator"):
+            if self.yesOrNo("Create Real Estate and Facilities dedicated Db2 instance using the IBM Db2 Universal Operator"):
                 self.setParam("db2_action_facilities", "install")
             else:
                 self.setParam("db2_action_facilities", "none")

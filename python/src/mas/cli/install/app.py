@@ -47,7 +47,7 @@ from mas.devops.ocp import createNamespace, getStorageClasses
 from mas.devops.mas import (
     getCurrentCatalog,
     getDefaultStorageClasses,
-    isVersionAfter,
+    isVersionEqualOrAfter,
     isVersionBefore
 )
 from mas.devops.sls import findSLSByNamespace
@@ -650,7 +650,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.configAppChannel("predict")
 
         # Assist is only installable on MAS 9.0.x due to withdrawal of support for Watson Discovery in our managed dependency stack and the inability of Assist 8.x to support this
-        if isVersionAfter('9.0.0',self.getParam("mas_channel")):
+        if isVersionEqualOrAfter('9.0.0',self.getParam("mas_channel")):
             self.installAssist = self.yesOrNo("Install Assist")
             if self.installAssist:
                 self.configAppChannel("assist")
@@ -669,7 +669,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installAiBroker:
             self.configAppChannel("aibroker")
 
-        if isVersionAfter('9.1.0',self.getParam("mas_channel")):
+        if isVersionEqualOrAfter('9.1.0',self.getParam("mas_channel")):
             self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
             if self.installFacilities:
                 self.configAppChannel("facilities")
