@@ -41,7 +41,7 @@ class RollbackApp(BaseApp):
         if self.args.mas_catalog_version:
             # Non-interactive mode
             logger.debug("Maximo Operator Catalog version is set, so we assume already connected to the desired OCP")
-            requiredParams = ["mas_catalog_version", "mas_instance_id", "mas_channel", "mas_app_channel_manage", "mas_app_channel_iot"]
+            requiredParams = ["mas_catalog_version", "mas_instance_id", "mas_core_version", "mas_app_manage_version", "mas_app_iot_version"]
             optionalParams = [
                 "skip_pre_check",
                 "dev_mode",
@@ -105,11 +105,11 @@ class RollbackApp(BaseApp):
         self.printSummary("Installed Catalog", self.installedCatalogId)
         self.printSummary("Rollback Catalog", self.getParam("mas_catalog_version"))
         self.printSummary("Current Instance ID", self.getParam("mas_instance_id"))
-        self.printSummary("Rollback Channel for Core Platform", self.getParam("mas_channel"))
+        self.printSummary("Rollback Channel for Core Platform", self.getParam("mas_core_version"))
 
-        self.printSummary("Rollback Channel for Maximo Manage", self.getParam("mas_app_channel_manage"))
+        self.printSummary("Rollback Channel for Maximo Manage", self.getParam("mas_app_manage_version"))
 
-        self.printSummary("Rollback Channel for Maximo IoT", self.getParam("mas_app_channel_iot"))        
+        self.printSummary("Rollback Channel for Maximo IoT", self.getParam("mas_app_iot_version"))        
         
         if not self.noConfirm:
             print()

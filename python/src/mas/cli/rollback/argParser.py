@@ -43,24 +43,24 @@ masArgGroup.add_argument(
 )
 
 masArgGroup.add_argument(
-    "--mas-channel",
-    dest='mas_channel',
+    "--mas-version",
+    dest='mas_core_version',
     required=False,
     help="Subscription channel for the Core Platform"
 )
 
 
 masArgGroup.add_argument(
-    "--manage-channel",
-    dest='mas_app_channel_manage',
+    "--manage-version",
+    dest='mas_app_manage_version',
     required=False,
     help="Subscription channel for Maximo Manage"
 )
 
 masArgGroup.add_argument(
-    "--iot-channel",
+    "--iot-version",
     required=False,
-    dest='mas_app_channel_iot',
+    dest='mas_app_iot_version',
     help="Subscription channel for Maximo IoT"
 )
 
