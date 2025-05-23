@@ -18,6 +18,7 @@ from mas.cli.install.app import InstallApp
 from mas.cli.update.app import UpdateApp
 from mas.cli.upgrade.app import UpgradeApp
 from mas.cli.uninstall.app import UninstallApp
+from mas.cli.rollback.app import RollbackApp
 
 from prompt_toolkit import HTML, print_formatted_text
 from urllib3.exceptions import MaxRetryError
@@ -63,6 +64,9 @@ if __name__ == '__main__':
         elif function == "upgrade":
             app = UpgradeApp()
             app.upgrade(argv[2:])
+        elif function == "rollback":
+            app = RollbackApp()
+            app.rollback(argv[2:])            
         elif function in ["-h", "--help"]:
             usage()
             exit(0)
