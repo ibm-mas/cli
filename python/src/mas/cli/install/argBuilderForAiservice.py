@@ -173,7 +173,6 @@ class installArgBuilderMixinForAiservice():
         if self.installAiBroker:
             command += f"  --aibroker-channel \"{self.getParam('mas_app_channel_aibroker')}\"{newline}"
 
-
         # Arcgis
         # -----------------------------------------------------------------------------
         # TODO: Add ArcGis after we have properly fixed how it's installed
@@ -421,7 +420,7 @@ class installArgBuilderMixinForAiservice():
         if self.getParam('mas_aibroker_storage_provider') != "":
             command += f"  --mas-aibroker-storage-provider \"{self.getParam('mas_aibroker_storage_provider')}\"{newline}"
         if self.getParam('mas_aibroker_storage_accesskey') != "":
-             command += f"  --mas-aibroker-storage-accesskey \"{self.getParam('mas_aibroker_storage_accesskey')}\"{newline}"
+            command += f"  --mas-aibroker-storage-accesskey \"{self.getParam('mas_aibroker_storage_accesskey')}\"{newline}"
         if self.getParam('mas_aibroker_storage_secretkey') != "":
             command += f"  --mas-aibroker-storage-secretkey \"{self.getParam('mas_aibroker_storage_secretkey')}\"{newline}"
         if self.getParam('mas_aibroker_storage_host') != "":
