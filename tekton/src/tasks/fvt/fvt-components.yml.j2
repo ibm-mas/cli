@@ -28,4 +28,4 @@ spec:
             | jq -s . > $(results.component_names.path)
         echo "End of the extraction"
         echo "$(results.component_names.path)"
-        cat $(results.component_names.path)
+        cat "$(results.component_names.path)"
