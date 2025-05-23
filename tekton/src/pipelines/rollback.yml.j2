@@ -197,10 +197,8 @@ spec:
       runAfter:
         - post-rollback-verify-cluster
       params:
-{% if wait_for_install == true %}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-{% endif %}
         - name: mas_core_version
           value: $(params.mas_core_version)
         - name: rollback_mas_core
