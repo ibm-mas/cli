@@ -15,10 +15,10 @@ spec:
 {% endif %}
 
   params:
-{% if wait_for_install == true %}
     # MAS Instance ID (the instance who's install to wait for)
     - name: mas_instance_id
       type: string
+{% if wait_for_install == true %}
     - name: pipelinerun_name
       type: string
       description: name of the installation pipelinerun that must be tracked til completion
@@ -108,10 +108,8 @@ spec:
         - pre-rollback-check
 {% endif %}
       params:
-{% if wait_for_install == true %}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-{% endif %}
         - name: mas_core_version
           value: $(params.mas_core_version)
         - name: devops_suite_name
@@ -129,10 +127,8 @@ spec:
       runAfter:
         - core-rollback
       params:
-{% if wait_for_install == true %}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-{% endif %}
         - name: mas_app_id
           value: manage
         - name: mas_app_version
@@ -155,10 +151,8 @@ spec:
       runAfter:
         - core-rollback
       params:
-{% if wait_for_install == true %}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-{% endif %}
         - name: mas_app_id
           value: iot
         - name: mas_app_version
@@ -222,10 +216,8 @@ spec:
       runAfter:
         - post-rollback-verify-cluster
       params:
-{% if wait_for_install == true %}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-{% endif %}
         - name: mas_app_id
           value: manage
         - name: mas_app_version
@@ -249,10 +241,8 @@ spec:
       runAfter:
         - post-rollback-verify-cluster
       params:
-{% if wait_for_install == true %}
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-{% endif %}
         - name: mas_app_id
           value: iot
         - name: mas_app_version
