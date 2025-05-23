@@ -99,7 +99,7 @@ otherArgGroup.add_argument(
 otherArgGroup.add_argument(
     '--skip-pre-check',
     required=False,
-    action='skip_pre_check',
+    action='store_true',
     default=False,
     help="Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline",
 )
