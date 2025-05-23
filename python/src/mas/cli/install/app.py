@@ -665,7 +665,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.configAppChannel("aibroker")
 
         # TODO: Update the condition to allow 9.1 or greater
-        if 'facilities' not in self.compatibilityMatrix[self.getParam("mas_channel")].keys():
+        if self.getParam("mas_channel").startswith("9.1"):
             self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
             if self.installFacilities:
                 self.configAppChannel("facilities")
