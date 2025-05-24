@@ -13,7 +13,7 @@
   # Only load the JDBCCfg if IoT or Manage are being installed
   # See: https://github.com/tektoncd/pipeline/issues/3591#issuecomment-1073901961
   when:
-    - input: "$(params.mas_app_channel_iot)$(params.mas_app_channel_manage)"
+    - input: "$(params.mas_app_channel_iot)$(params.mas_app_channel_manage)$(params.mas_app_channel_facilities)"
       operator: notin
       values: [""]
   workspaces:

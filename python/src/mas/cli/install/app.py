@@ -44,7 +44,11 @@ from mas.cli.validators import (
 )
 
 from mas.devops.ocp import createNamespace, getStorageClasses
-from mas.devops.mas import getCurrentCatalog, getDefaultStorageClasses
+from mas.devops.mas import (
+    getCurrentCatalog,
+    getDefaultStorageClasses,
+    isVersionEqualOrAfter
+)
 from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog
 from mas.devops.tekton import (
@@ -175,6 +179,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Optimizer": "mas_optimizer_version",
                 "Predict": "mas_predict_version",
                 "Inspection": "mas_visualinspection_version",
+                "Facilities": "mas_facilities_version",
             }
         else:
             applications = {
@@ -644,7 +649,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.configAppChannel("predict")
 
         # Assist is only installable on MAS 9.0.x due to withdrawal of support for Watson Discovery in our managed dependency stack and the inability of Assist 8.x to support this
-        if not self.getParam("mas_channel").startswith("8."):
+        if isVersionEqualOrAfter('9.0.0', self.getParam("mas_channel")):
             self.installAssist = self.yesOrNo("Install Assist")
             if self.installAssist:
                 self.configAppChannel("assist")
@@ -662,6 +667,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installAiBroker = self.yesOrNo("Install AI Broker")
         if self.installAiBroker:
             self.configAppChannel("aibroker")
+
+        if isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.1.x-feature':
+            self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
+            if self.installFacilities:
+                self.configAppChannel("facilities")
+        else:
+            self.installFacilities = False
 
     @logMethodCall
     def configAppChannel(self, appId):
@@ -757,6 +769,71 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
 
     @logMethodCall
+    # TODO: Fix type for storage sizes and max conn pool size
+    def facilitiesSettings(self) -> None:
+        if self.installFacilities:
+            self.printH1("Configure Maximo Real Estate and Facilities")
+            self.printDescription([
+                "Real Estate and Facilities custom configurations"
+            ])
+            self.printDescription([
+                "Maximo Real Estate and Facilities Size:",
+                "  1. Small",
+                "  2. Medium",
+                "  3. Large"
+            ])
+            self.promptForListSelect("Select the size:", ["small", "medium", "large"], "mas_ws_facilities_size")
+
+            if self.showAdvancedOptions:
+                if self.yesOrNo("Supply extra XML tags for Real Estate and Facilities server.xml"):
+                    self.promptForString("Real Estate and Facilities Liberty Extension Secret Name", "mas_ws_facilities_liberty_extension_XML")
+                if self.yesOrNo("Supply custom AES Encryption Password"):
+                    self.promptForString("Real Estate and Facilities AES Vault Secret Name", "mas_ws_facilities_vault_secret")
+
+                self.promptForString("Set Real Estate and Facilities Routes Timeout:", "mas_ws_facilities_routes_timeout", default="600s")
+                # self.promptForInt("Set Facilities maximum connection poll size:", default=200)
+
+                self.printDescription(["Real Estate and Facilities Persistent Volume Storage Configuration"])
+                defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+                notUseAutodetectedStorageClasses = False
+                if defaultStorageClasses.provider is not None:
+                    self.storageClassProvider = defaultStorageClasses.provider
+                    print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
+                    print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
+                    print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
+                    if self.yesOrNo("Use the auto-detected storage classes"):
+                        self.printDescription([
+                            "Storage Mode for Userfiles PVC:",
+                            "  1. ReadWriteMany",
+                            "  2. ReadWriteOnce"
+                        ])
+                        storageMode = self.promptForListSelect("Select the storage mode for user files PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_userfiles_mode", default=1)
+                        _ = self.setParam("mas_ws_facilities_storage_userfiles_class", defaultStorageClasses.rwx) if storageMode == "ReadWriteMany" else self.setParam("mas_ws_facilities_storage_userfiles_class", defaultStorageClasses.rwo)
+                        # self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
+                        storageMode = self.promptForListSelect("Select the storage mode for log PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_log_mode", default=1)
+                        _ = self.setParam("mas_ws_facilities_storage_log_class", defaultStorageClasses.rwx) if storageMode == "ReadWriteMany" else self.setParam("mas_ws_facilities_storage_log_class", defaultStorageClasses.rwo)
+                        # self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
+                    else:
+                        notUseAutodetectedStorageClasses = True
+                if defaultStorageClasses.provider is None or notUseAutodetectedStorageClasses:
+                    for storageClass in getStorageClasses(self.dynamicClient):
+                        print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
+                    self.promptForString("Select storage class for user files PVC:", "mas_ws_facilities_storage_userfiles_class")
+                    self.promptForString("Select storage class for log PVC:", "mas_ws_facilities_storage_log_class")
+                    self.printDescription([
+                        "Storage Mode for Userfiles PVC:",
+                        "  1. ReadWriteMany",
+                        "  2. ReadWriteOnce"
+                    ])
+                    self.promptForListSelect("Select the storage mode for user files PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_userfiles_mode", default=1)
+                    self.promptForListSelect("Select the storage mode for log PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_log_mode", default=1)
+                    # self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
+                    # self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
+
+                if self.yesOrNo("Supply configuration for dedicated workflow agents"):
+                    self.promptForString("Dedicated Workflow Agent JSON:")
+
+    @logMethodCall
     def chooseInstallFlavour(self) -> None:
         self.printH1("Choose Install Mode")
         self.printDescription([
@@ -773,6 +850,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
             " - Enable optional Maximo Predict integration with SPSS",
             " - Enable optional IBM Turbonomic integration",
+            " - Enable optional Real Estate and Facilities configurations",
             " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
             " - Choose alternative Apache Kafka providers (default to Strimzi)",
             " - Customize Grafana storage settings"
@@ -819,6 +897,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.predictSettings()
         self.assistSettings()
         self.aibrokerSettings()
+        self.facilitiesSettings()
 
         # Dependencies
         self.configMongoDb()
@@ -849,6 +928,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installInspection = False
         self.installOptimizer = False
         self.installAiBroker = False
+        self.installFacilities = False
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
@@ -862,7 +942,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "approval_monitor": {"id": "app-cfg-monitor"},  # After Monitor workspace has been configured
             "approval_optimizer": {"id": "app-cfg-optimizer"},  # After Optimizer workspace has been configured
             "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
-            "approval_visualinspection": {"id": "app-cfg-visualinspection"}  # After Visual Inspection workspace has been configured
+            "approval_visualinspection": {"id": "app-cfg-visualinspection"},  # After Visual Inspection workspace has been configured
+            "approval_facilities": {"id": "app-cfg-facilities"},  # After Facilities workspace has been configured 
         }
 
         self.configGrafana()
@@ -956,6 +1037,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "optimizer_plan":
                 if value is not None and value != "":
                     self.setParam("mas_app_plan_optimizer", value)
+            elif key == "facilities_channel":
+                if value is not None and value != "":
+                    self.setParam("mas_app_channel_facilities", value)
+                    self.installFacilities = True
 
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":
