@@ -29,7 +29,6 @@ class Db2SettingsMixin():
             self.setParam("db2_action_facilities", "none")
             return
 
-
         # For now we are limiting users to bring your own database for Manage on s390x & ppc64le
         # Eventually we will be able to remove this clause and allow the standard logic to work for s390x, ppc64le and amd64
         if (self.architecture == "s390x" or self.architecture == "ppc64le") and self.installManage:

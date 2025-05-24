@@ -146,7 +146,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self.compatibilityMatrix = {
             "9.1.x": {
-              "facilities": ["9.1.x"]
+                "facilities": ["9.1.x"]
             },
             "9.1.x-feature": {
                 "assist": ["9.0.x"],
