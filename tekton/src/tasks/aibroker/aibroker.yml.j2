@@ -131,6 +131,27 @@ spec:
     - name: mas_aibroker_s3_endpoint_url
       type: string
       default: ""
+    - name: mas_aibroker_db_host
+      type: string
+      default: ""
+    - name: mas_aibroker_db_port
+      type: string
+      default: ""
+    - name: mas_aibroker_db_user
+      type: string
+      default: ""
+    - name: mas_aibroker_db_database
+      type: string
+      default: ""
+    - name: mas_aibroker_db_secret_name
+      type: string
+      default: ""
+    - name: mas_aibroker_db_secret_key
+      type: string
+      default: ""
+    - name: mas_aibroker_db_secret_value
+      type: string
+      default: ""
     
   stepTemplate:
     env:
@@ -223,6 +244,20 @@ spec:
       # Ai Broker Saas
       - name: MAS_AIBROKER_SAAS
         value: 'true'
+
+      # MariaDB details
+      - name: MAS_AIBROKER_DB_HOST
+        value: $(params.mas_aibroker_db_host)
+      - name: MAS_AIBROKER_DB_PORT
+        value: $(params.mas_aibroker_db_port)
+      - name: MAS_AIBROKER_DB_USER
+        value: $(params.mas_aibroker_db_user)
+      - name: MAS_AIBROKER_DB_DATABASE
+        value: $(params.mas_aibroker_db_database)
+      - name: MAS_AIBROKER_DB_SECRET_NAME
+        value: $(params.mas_aibroker_db_secret_name)
+      - name: MAS_AIBROKER_DB_SECRET_VALUE
+        value: $(params.mas_aibroker_db_secret_value)
 
   steps:
     - name: aibroker

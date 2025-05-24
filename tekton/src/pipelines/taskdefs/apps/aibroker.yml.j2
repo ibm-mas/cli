@@ -60,6 +60,18 @@
       value: $(params.mas_aibroker_s3_bucket_prefix)
     - name: mas_aibroker_s3_endpoint_url
       value: $(params.mas_aibroker_s3_endpoint_url)
+    - name: mas_aibroker_db_host
+      value: $(params.mas_aibroker_db_host)
+    - name: mas_aibroker_db_port
+      value: $(params.mas_aibroker_db_port)
+    - name: mas_aibroker_db_user
+      value: $(params.mas_aibroker_db_user)
+    - name: mas_aibroker_db_database
+      value: $(params.mas_aibroker_db_database)
+    - name: mas_aibroker_db_secret_name
+      value: $(params.mas_aibroker_db_secret_name)
+    - name: mas_aibroker_db_secret_value
+      value: $(params.mas_aibroker_db_secret_value)
 
   taskRef:
     name: mas-devops-aibroker
