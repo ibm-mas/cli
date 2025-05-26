@@ -145,6 +145,9 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture = None
 
         self.compatibilityMatrix = {
+            "9.1.x": {
+                "facilities": ["9.1.x"]
+            },
             "9.1.x-feature": {
                 "assist": ["9.0.x"],
                 "iot": ["9.0.x"],
@@ -380,7 +383,7 @@ class BaseApp(PrintMixin, PromptMixin):
             self.architecture = nodes[0]["status"]["nodeInfo"]["architecture"]
             logger.debug(f"Target architecture: {self.architecture}")
 
-        if self.architecture not in ["amd64", "s390x"]:
+        if self.architecture not in ["amd64", "s390x", "ppc64le"]:
             self.fatalError(f"Unsupported worker node architecture: {self.architecture}")
 
     @logMethodCall

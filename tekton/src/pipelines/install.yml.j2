@@ -41,6 +41,8 @@ spec:
     # 10. Install & Configure Optimizer
     # 12. Install & Configure Assist
     # 13. Install & Configure Visual Inspection
+    # 14. Install & Configure AI Broker
+    # 15. Install & Configure Facilities
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
 
@@ -213,6 +215,7 @@ spec:
       runAfter:
         - suite-verify
         - db2-manage  # db2-manage already waits for db2-system so we don't need to list both
+        - suite-db2-setup-facilities
 
     # 5.8 Configure Kafka in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
@@ -220,10 +223,37 @@ spec:
         - suite-verify
         - kafka
 
-
-    # 6. Install & Configure IoT
+    # 6. Install & Configure Manage
     # -------------------------------------------------------------------------
-    # 6.1 Install IoT
+    # 6.1. Prepare database for Maxinst
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-system.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-manage.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+
+    # 6.2 Manage Install
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-db2-setup-system
+        - suite-db2-setup-manage
+        - suite-config-watson-studio
+        - suite-config-cos
+
+    # 6.3 Configure Manage workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-manage
+
+    # 6.4 Configure IBM Maximo Location Services for ESRI
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/arcgis.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-verify
+
+    # 7. Install & Configure IoT
+    # -------------------------------------------------------------------------
+    # 7.1 Install IoT
     #
     # Note: In the case of manage using the shared Db2 instance only start the
     # IoT install *after* any Manage database preparation has completed
@@ -232,52 +262,24 @@ spec:
         - suite-db2-setup-system
         - suite-config-kafka
 
-    # 6.2 Configure IoT workspace
+    # 7.2 Configure IoT workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/iot-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-iot
 
-
-    # 7. Install & Configure Monitor
+    # 8. Install & Configure Monitor
     # -------------------------------------------------------------------------
-    # 7.1 Install Monitor
+    # 8.1 Install Monitor
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/monitor-app.yml.j2') | indent(4) }}
       runAfter:
+        - app-cfg-manage
         - app-cfg-iot
 
-    # 7.2 Configure Monitor workspace
+    # 8.2 Configure Monitor workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/monitor-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-monitor
 
-
-    # 8. Install & Configure Manage
-    # -------------------------------------------------------------------------
-    # 8.1. Prepare database for Maxinst
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-system.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-config-db2
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-manage.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-config-db2
-
-    # 8.2 Manage Install
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-app.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-db2-setup-system
-        - suite-db2-setup-manage
-        - suite-config-watson-studio
-        - suite-config-cos
-
-    # 8.3 Configure Manage workspace
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-manage
-
-    # 8.4 Configure IBM Maximo Location Services for ESRI
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/arcgis.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-verify
 
     # 9. Install & Configure Predict
     # -------------------------------------------------------------------------
@@ -296,7 +298,6 @@ spec:
       runAfter:
         - app-install-predict
 
-
     # 10. Install & Configure Optimizer
     # -------------------------------------------------------------------------
     # 10.1 Optimizer Install
@@ -314,6 +315,7 @@ spec:
     # 11.1 Assist Install
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/assist-app.yml.j2') | indent(4) }}
       runAfter:
+        - app-cfg-manage
         - suite-config-cos
 
     # 11.2 Configure Assist workspace
@@ -327,6 +329,7 @@ spec:
     # 12.1 MVI Install
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/visualinspection-app.yml.j2') | indent(4) }}
       runAfter:
+        - app-cfg-manage
         - nvidia-gpu
         - suite-verify
 
@@ -371,6 +374,29 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/aibroker.yml.j2') | indent(4) }}
       runAfter:
         - app-install-aibroker
+    
+    # 15 Install and configure Facilities
+    # -------------------------------------------------------------------------    
+
+    # 15.1 Dedicated Facilities Db2
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
+      runAfter:
+        - cert-manager
+
+    # 15.2 Install Facilities
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+
+    # 15.3 Configure Facilities workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-facilities
+    
+    # 15.4 Verify Facilities Installation
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-verify.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-facilities
 
   finally:
     # Update synchronization configmap

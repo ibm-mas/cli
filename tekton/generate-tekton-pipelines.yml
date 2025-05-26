@@ -50,7 +50,6 @@
         - fvt-sls
         - fvt-visualinspection
         - fvt-launcher
-        - fvt-dynamicscan
         - ivt-manage
 
     # 2. Generate Pipelines
