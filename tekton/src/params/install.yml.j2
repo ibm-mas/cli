@@ -208,6 +208,10 @@
   type: string
   description: Set to 'system' if using the shared system JDBC configuration, or 'workspace-application' if using a dedicated JDBC configuration.
   default: ""
+- name: db2_action_facilities
+  type: string
+  description: Set to 'install' to set up a Db2 instance for Real Estate and Facilities
+  default: "none"
 
 # Dependencies - CP4D
 # -----------------------------------------------------------------------------
@@ -686,3 +690,55 @@
 # Dependencies - IBM Maximo AI Broker
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-aibroker.yml.j2') }}
+
+# MAS Application Configuration - Facilities
+# TODO: Fix type for storage sizes and max conn pool size
+- name: mas_ws_facilities_size
+  type: string
+  description: Size of the Facilities Deployment
+  default: "small"
+- name: mas_ws_facilities_routes_timeout
+  type: string
+  description: Optional. Connection timeout of the route.
+  default: ""
+- name: mas_ws_facilities_liberty_extension_XML
+  type: string
+  description: Optional. Secret name containing XML extension for server.xml
+  default: ""
+- name: mas_ws_facilities_vault_secret
+  type: string
+  description: Optional. Secret name containing AES encryption secret.
+  default: ""
+- name: mas_ws_facilities_pull_policy
+  type: string
+  description: Optional. Pull Policy
+  default: ""
+- name: mas_ws_facilities_storage_log_class
+  type: string
+  description: Define storage class for log
+  default: ""
+- name: mas_ws_facilities_storage_log_mode
+  type: string
+  description: Define storage mode for log
+  default: ""
+# - name: mas_ws_facilities_storage_log_size
+#   description: Define storage size for log
+#   type: integer
+- name: mas_ws_facilities_storage_userfiles_class
+  type: string
+  description: Define storage class for userfiles
+  default: ""
+- name: mas_ws_facilities_storage_userfiles_mode
+  type: string
+  description: Define storage mode for userfiles
+  default: ""
+# - name: mas_ws_facilities_storage_userfiles_size
+#   description: Define storage size for userfiles
+#   type: integer
+# - name: mas_ws_facilities_dwfagents
+#   type: array
+#   description: Define a list of dedicated workflow agents
+#   default: []
+# - name: mas_ws_facilities_db_maxconnpoolsize
+#   description: Define maximum connection pool size
+#   type: integer

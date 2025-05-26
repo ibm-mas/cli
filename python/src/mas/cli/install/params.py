@@ -78,6 +78,7 @@ optionalParams = [
     # Db2
     "db2_action_system",
     "db2_action_manage",
+    "db2_action_facilities",
     "db2_type",
     "db2_timezone",
     "db2_namespace",
@@ -175,6 +176,20 @@ optionalParams = [
     "mas_aibroker_db_secret_name",
     "mas_aibroker_db_secret_key",
     "mas_aibroker_db_secret_value",
+    # Facilities
+    "mas_ws_facilities_size",
+    "mas_ws_facilities_routes_timeout",
+    "mas_ws_facilities_liberty_extension_XML",
+    "mas_ws_facilities_vault_secret",
+    "mas_ws_facilities_pull_policy",
+    "mas_ws_facilities_storage_log_class",
+    "mas_ws_facilities_storage_log_mode",
+    # "mas_ws_facilities_storage_log_size",
+    "mas_ws_facilities_storage_userfiles_class",
+    "mas_ws_facilities_storage_userfiles_mode",
+    # "mas_ws_facilities_storage_userfiles_size",
+    # "mas_ws_facilities_dwfagents",
+    # "mas_ws_facilities_db_maxconnpoolsize",
     # Special chars
     "mas_special_characters"
 ]
