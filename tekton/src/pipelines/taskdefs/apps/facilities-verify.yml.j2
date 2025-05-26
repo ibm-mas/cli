@@ -25,3 +25,7 @@
     # Custom Label Support
     - name: custom_labels
       value: $(params.custom_labels)
+  when:
+    - input: "$(params.mas_app_channel_facilities)"
+      operator: notin
+      values: [""]
