@@ -17,6 +17,10 @@
       value: base-ui
     - name: fvt_test_suite
       value: classification
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-api-system
     - fvt-manage-base-api-mif
@@ -31,6 +35,10 @@
       value: base-ui
     - name: fvt_test_suite
       value: helplinks
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-api-system
     - fvt-manage-base-api-mif
@@ -45,6 +53,10 @@
       value: base-ui
     - name: fvt_test_suite
       value: wo-basic
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-api-system
     - fvt-manage-base-api-mif
@@ -59,6 +71,10 @@
       value: base-ui
     - name: fvt_test_suite
       value: requestreport-pages
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-api-system
     - fvt-manage-base-api-mif
@@ -73,6 +89,10 @@
       value: base-ui
     - name: fvt_test_suite
       value: application-designer-ccp
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-api-system
     - fvt-manage-base-api-mif
@@ -84,6 +104,10 @@
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: base-api-scheduler-qualification
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-api-system
     - fvt-manage-base-api-mif

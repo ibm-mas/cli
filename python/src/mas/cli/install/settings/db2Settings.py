@@ -21,12 +21,12 @@ class Db2SettingsMixin():
         # The channel used for Db2 used has not changed since the January 2024 catalog update
         self.params["db2_channel"] = "v110509.0"
 
-        # If neither Iot or Manage is being installed, we have nothing to do
-        if not self.installIoT and not self.installManage:
-            if not silentMode:
-                print_formatted_text("No applications have been selected that require a Db2 installation")
-                self.setParam("db2_action_system", "none")
-                self.setParam("db2_action_manage", "none")
+        # If neither Iot, Manage or Facilities is being installed, we have nothing to do
+        if not self.installIoT and not self.installManage and not self.installFacilities:
+            print_formatted_text("No applications have been selected that require a Db2 installation")
+            self.setParam("db2_action_system", "none")
+            self.setParam("db2_action_manage", "none")
+            self.setParam("db2_action_facilities", "none")
             return
 
         # For now we are limiting users to bring your own database for Manage on s390x & ppc64le
@@ -55,10 +55,10 @@ class Db2SettingsMixin():
             return
 
         # Proceed as normal
-        # We know we are installing either IoT or Manage, and on amd64 target architecture
+        # We know we are installing either IoT, Manage or Facilities, and on amd64 target architecture
         if not silentMode:
             self.printDescription([
-                f"The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, {self.manageAppName}, Monitor, &amp; Predict) or you may choose to configure MAS to use an existing database"
+                f"The installer can setup one or more IBM Db2 instances in your OpenShift cluster for the use of applications that require a JDBC datasource (IoT, {self.manageAppName}, Monitor, &amp; Predict, Real Estate and Facilities) or you may choose to configure MAS to use an existing database"
             ])
 
         self.setDB2DefaultSettings()
@@ -146,8 +146,31 @@ class Db2SettingsMixin():
         else:
             self.setParam("db2_action_manage", "none")
 
+        # Do we need to create and configure a Db2 for Facilities ?
+        if self.installFacilities:
+            self.printH2("Database Configuration for Maximo Real Estate and Facilities")
+            if self.yesOrNo("Create Real Estate and Facilities dedicated Db2 instance using the IBM Db2 Universal Operator"):
+                self.setParam("db2_action_facilities", "install")
+            else:
+                self.setParam("db2_action_facilities", "none")
+                instanceId = self.getParam('mas_instance_id')
+                workspaceId = self.getParam("mas_workspace_id")
+                self.selectLocalConfigDir()
+
+                # Check if a configuration already exists before creating a new one
+                jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-facilities.yaml")
+                print_formatted_text(f"Searching for Real Estate and Facilities database configuration file in {jdbcCfgFile} ...")
+                if path.exists(jdbcCfgFile):
+                    if self.yesOrNo(f"Real Estate and Facilities database configuration file 'jdbc-{instanceId}-facilities.yaml' already exists.  Do you want to generate a new one"):
+                        self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="facilities", destination=jdbcCfgFile)
+                else:
+                    print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid Real Estate and Facilities database configuration file now ...")
+                    self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="facilities", destination=jdbcCfgFile)
+        else:
+            self.setParam("db2_action_facilities", "none")
+
         # Do we need to configure Db2u?
-        if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
+        if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install" or self.getParam("db2_action_facilities") == "install":
             if self.showAdvancedOptions:
                 self.printH2("Installation Namespace")
                 self.promptForString("Install namespace", "db2_namespace", default="db2u")
