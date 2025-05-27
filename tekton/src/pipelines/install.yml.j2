@@ -41,6 +41,8 @@ spec:
     # 10. Install & Configure Optimizer
     # 12. Install & Configure Assist
     # 13. Install & Configure Visual Inspection
+    # 14. Install & Configure AI Broker
+    # 15. Install & Configure Facilities
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
 
@@ -213,6 +215,7 @@ spec:
       runAfter:
         - suite-verify
         - db2-manage  # db2-manage already waits for db2-system so we don't need to list both
+        - suite-db2-setup-facilities
 
     # 5.8 Configure Kafka in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-kafka.yml.j2') | indent(4) }}
@@ -371,6 +374,29 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/aibroker.yml.j2') | indent(4) }}
       runAfter:
         - app-install-aibroker
+    
+    # 15 Install and configure Facilities
+    # -------------------------------------------------------------------------    
+
+    # 15.1 Dedicated Facilities Db2
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
+      runAfter:
+        - cert-manager
+
+    # 15.2 Install Facilities
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+
+    # 15.3 Configure Facilities workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-facilities
+    
+    # 15.4 Verify Facilities Installation
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-verify.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-facilities
 
   finally:
     # Update synchronization configmap
