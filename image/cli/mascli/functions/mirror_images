@@ -21,6 +21,8 @@ Registry Details (Required):
 
 Registry Prefix (Optional):
   -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}                    Prefix for the mirror image
+
+AWS Elastic Container Registry (Optional):
   -r, --aws-ecr-region ${COLOR_YELLOW}REGISTRY_ECR_AWS_REGION${TEXT_RESET}    The AWS region if the target registry is Elastic Container Registry
   -e, --target-is-ecr                                                         Indicate that the target registry is Elastic Container Registry
 
@@ -174,6 +176,8 @@ function mirror_to_registry_noninteractive() {
       -p|--password)
         REGISTRY_PASSWORD=$1 && shift
         ;;
+
+      # AWS Elastic Container Registry
       -e|--target-is-ecr)
         REGISTRY_IS_ECR=true
         ;;
