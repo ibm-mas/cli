@@ -64,6 +64,7 @@
         - fvt-assist-desktop
         - fvt-assist
         - fvt-core
+        - fvt-components
         - fvt-data-dictionary
         - fvt-deprovision-ocp
         - fvt-deprovision-cos
@@ -136,6 +137,7 @@
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
+        - suite-db2-setup-for-facilities
         - suite-dns
         - suite-install
         - suite-rollback
