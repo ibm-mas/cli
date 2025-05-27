@@ -223,6 +223,18 @@ spec:
       - name: FOUNDATION_SERVER_TYPE
         value: $(params.foundation_server_type)
 
+      # Aibroker Specific information
+      - name: PCC_TEMPLATE_VERSION
+        value: 1.2.0-pre.dev
+      - name: MCC_TEMPLATE_VERSION 
+        value: 1.1.0-pre.dev
+      - name: FMEA_TEMPLATE_VERSION 
+        value: 1.0.0-pre.dev
+      - name: NL2OSLC_TEMPLATE_VERSION 
+        value: 1.0.0-pre.dev
+      - name: SIMILARITY_TEMPLATE_VERSION 
+        value: 1.0.0-pre.dev
+
       # Common Test Framework Specific information
       - name: CTF_IS_LOCAL
         value: $(params.ctf_is_local)
