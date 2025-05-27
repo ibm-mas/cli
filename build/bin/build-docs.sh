@@ -8,7 +8,7 @@ find docs -type f -name '*.md' -exec sed -i \
   -e 's/@@MAS_PREVIOUS_CATALOG@@/v9-250501-amd64/g' \
   -e 's/@@MAS_LATEST_CHANNEL@@/9.0.x/g' \
   -e 's/@@MAS_LATEST_CHANNEL_MANAGE@@/9.0.x/g' \
-  -e 's/@@MAS_LATEST_CATALOG@@/v9-250605-amd64/g' \
+  -e 's/@@MAS_LATEST_CATALOG@@/v9-250624-amd64/g' \
   {} \;
 
 python -m pip install -q mkdocs mkdocs-carbon mkdocs-glightbox mkdocs-redirects
