@@ -864,6 +864,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "approval_monitor": {"id": "app-cfg-monitor"},  # After Monitor workspace has been configured
             "approval_optimizer": {"id": "app-cfg-optimizer"},  # After Optimizer workspace has been configured
             "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
+            "approval_aibroker": {"id": "app-cfg-aibroker"},  # After Aibroker workspace has been configured
             "approval_visualinspection": {"id": "app-cfg-visualinspection"}  # After Visual Inspection workspace has been configured
         }
 
