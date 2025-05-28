@@ -88,3 +88,20 @@ class ConfigGeneratorMixin():
         with open(destination, 'w') as f:
             f.write(cfg)
             f.write('\n')
+
+    def generateFacilitiesCfg(self, destination: str) -> None:
+        templateFile = path.join(self.templatesDir, "facilities-configs.yml.j2")
+
+        with open(templateFile) as tFile:
+            template = Template(tFile.read())
+
+        cfg = template.render(
+            mas_ws_facilities_storage_log_size=self.getParam("mas_ws_facilities_storage_log_size"),
+            mas_ws_facilities_storage_userfiles_size=self.getParam("mas_ws_facilities_storage_userfiles_size"),
+            mas_ws_facilities_db_maxconnpoolsize=self.getParam("mas_ws_facilities_db_maxconnpoolsize"),
+            mas_ws_facilities_dwfagents=self.getParam("mas_ws_facilities_dwfagents")
+        )
+
+        with open(destination, 'w') as f:
+            f.write(cfg)
+            f.write('\n')
