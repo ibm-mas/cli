@@ -242,10 +242,6 @@ spec:
       type: string
       description: Define storage mode for log
       default: ""
-    # - name: mas_ws_facilities_storage_log_size
-    #   description: Define storage size for log
-    #   type: string
-    #   default: ""
     - name: mas_ws_facilities_storage_userfiles_class
       type: string
       description: Define storage class for userfiles
@@ -254,19 +250,10 @@ spec:
       type: string
       description: Define storage mode for userfiles
       default: ""
-    # - name: mas_ws_facilities_storage_userfiles_size
-    #   description: Define storage size for userfiles
-    #   type: string
-    #   default: ""
-    # - name: mas_ws_facilities_dwfagents
-    #   type: array
-    #   description: Define a list of dedicated workflow agents
-    #   default: []
-    # - name: mas_ws_facilities_db_maxconnpoolsize
-    #   description: Define maximum connection pool size
-    #   type: string
-    #   default: ""
-
+    - name: mas_ws_facilities_config_file
+      type: string
+      description: Path to file with configurations not supported by Tekton
+      default: ""
     # Custom Label Support
     - name: custom_labels
       type: string
@@ -409,18 +396,12 @@ spec:
         value: $(params.mas_ws_facilities_storage_log_class)
       - name: MAS_FACILITIES_STORAGE_LOG_MODE
         value: $(params.mas_ws_facilities_storage_log_mode)
-      # - name: MAS_FACILITIES_STORAGE_LOG_SIZE
-      #   value: $(params.mas_ws_facilities_storage_log_size)
       - name: MAS_FACILITIES_STORAGE_USERFILES_CLASS
         value: $(params.mas_ws_facilities_storage_userfiles_class)
       - name: MAS_FACILITIES_STORAGE_USERFILES_MODE
         value: $(params.mas_ws_facilities_storage_userfiles_mode)
-      # - name: MAS_FACILITIES_STORAGE_USERFILES_SIZE
-      #   value: $(params.mas_ws_facilities_storage_userfiles_size)
-      # - name: MAS_FACILITIES_DWFAGENTS
-      #   value: $(params.mas_ws_facilities_dwfagents)
-      # - name: MAS_FACILITIES_DB_MAX_POOLSIZE
-      #   value: $(params.mas_ws_facilities_db_maxconnpoolsize)
+      - name: MAS_FACILITIES_CONFIG_FILE
+        value: $(params.mas_ws_facilities_config_file)
 
       # Custom Label Support
       - name: CUSTOM_LABELS

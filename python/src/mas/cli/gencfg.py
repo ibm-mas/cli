@@ -11,6 +11,7 @@
 from os import path
 from jinja2 import Template
 from base64 import b64encode
+from json import loads
 
 
 class ConfigGeneratorMixin():
@@ -95,11 +96,12 @@ class ConfigGeneratorMixin():
         with open(templateFile) as tFile:
             template = Template(tFile.read())
 
+        dwfagents = self.getParam("mas_ws_facilities_dwfagents")
         cfg = template.render(
             mas_ws_facilities_storage_log_size=self.getParam("mas_ws_facilities_storage_log_size"),
             mas_ws_facilities_storage_userfiles_size=self.getParam("mas_ws_facilities_storage_userfiles_size"),
             mas_ws_facilities_db_maxconnpoolsize=self.getParam("mas_ws_facilities_db_maxconnpoolsize"),
-            mas_ws_facilities_dwfagents=self.getParam("mas_ws_facilities_dwfagents")
+            mas_ws_facilities_dwfagents=loads(dwfagents if dwfagents != '' else '{}')
         )
 
         with open(destination, 'w') as f:

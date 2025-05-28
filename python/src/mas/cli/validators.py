@@ -10,7 +10,7 @@
 
 from re import match
 from os import path
-from json import loads
+from json import loads, JSONDecodeError
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from openshift import dynamic
@@ -147,5 +147,5 @@ class JsonValidator(Validator):
         inputJson = document.text
         try:
             loads(inputJson)
-        except:
+        except JSONDecodeError:
             raise (ValidationError(message='Enter a valid JSON', cursor_position=len(inputJson)))

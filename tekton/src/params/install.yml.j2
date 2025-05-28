@@ -721,9 +721,6 @@
   type: string
   description: Define storage mode for log
   default: ""
-# - name: mas_ws_facilities_storage_log_size
-#   description: Define storage size for log
-#   type: integer
 - name: mas_ws_facilities_storage_userfiles_class
   type: string
   description: Define storage class for userfiles
@@ -732,13 +729,7 @@
   type: string
   description: Define storage mode for userfiles
   default: ""
-# - name: mas_ws_facilities_storage_userfiles_size
-#   description: Define storage size for userfiles
-#   type: integer
-# - name: mas_ws_facilities_dwfagents
-#   type: array
-#   description: Define a list of dedicated workflow agents
-#   default: []
-# - name: mas_ws_facilities_db_maxconnpoolsize
-#   description: Define maximum connection pool size
-#   type: integer
+- name: mas_ws_facilities_config_file
+  description: Path to file with configurations not supported by Tekton
+  type: string
+  default: ""
