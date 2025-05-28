@@ -193,15 +193,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Dynamically fetch the channels from the chosen catalog
         # based on mas core
         for channel in self.chosenCatalog["mas_core_version"]:
-            # {"9.1-feature": "9.1.x-feature"}
+            # {"9.1-feature": "9.1.x-dev"}
             self.catalogReleases.update({channel.replace('.x', ''): channel})
 
         # Generate catalogTable
         for application, key in applications.items():
             # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             tempChosenCatalog = self.chosenCatalog[key].copy()
-            if '9.1.x-feature' not in tempChosenCatalog:
-                tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
+            if '9.1.x-dev' not in tempChosenCatalog:
+                tempChosenCatalog.update({"9.1.x-dev": tempChosenCatalog["9.0.x"]})
 
             self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
@@ -668,7 +668,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installAiBroker:
             self.configAppChannel("aibroker")
 
-        if isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.1.x-feature':
+        if isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.1.x-dev':
             self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
             if self.installFacilities:
                 self.configAppChannel("facilities")
