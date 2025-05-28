@@ -2374,7 +2374,3 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
                 # Enable this approval workload
                 logger.debug(f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['ignoreFailure']})")
                 self.initializeApprovalConfigMap(namespace, approval['id'], True, approval['maxRetries'], approval['retryDelay'], approval['ignoreFailure'])
-            else:
-                # Disable this approval workload
-                logger.debug(f"Approval workflow for {approval['id']} will be disabled during install")
-                self.initializeApprovalConfigMap(namespace, approval['id'], False)
