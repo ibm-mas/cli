@@ -550,7 +550,7 @@ function gitops_suite_app_config() {
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
 
-  # Set certs only if manual cert is True (to create k8s secret in gitops) only required for manage
+  # Set certs only if manual cert is True (to create k8s secret in gitops) only required for manage, facilites
   # ---------------------------------------------------------------------------
   if [ "${MAS_MANUAL_CERT_MGMT}" == "true" ] ; then
     if [[ -n "$MAS_MANUAL_CERTS_YAML" ]] && [[ -s "$MAS_MANUAL_CERTS_YAML" ]]; then
@@ -558,7 +558,8 @@ function gitops_suite_app_config() {
       declare -A tls_secret_name
       tls_secret_name['health']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
       tls_secret_name['manage']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
-      
+      tls_secret_name['facilities']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-public-facilities-tls"
+
       if [[ -n "${tls_secret_name[$MAS_APP_ID]}" ]]; then
 
         echo

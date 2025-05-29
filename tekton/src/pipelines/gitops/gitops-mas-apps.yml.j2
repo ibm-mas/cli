@@ -1283,7 +1283,7 @@ spec:
         - name: db2_backup_notify_slack_url
           value: $(params.db2_backup_notify_slack_url_manage)
         - name: auto_backup
-          value: "false"
+          value: $(params.auto_backup_manage)
         - name: replica_db
           value: $(params.replica_db_manage)
         - name: manually_set_enhanced_hadr
@@ -1580,7 +1580,7 @@ spec:
         - name: db2_backup_notify_slack_url
           value: $(params.db2_backup_notify_slack_url_facilities)
         - name: auto_backup
-          value: "false"
+          value: $(params.auto_backup_facilities)
         - name: replica_db
           value: $(params.replica_db_facilities)
         - name: manually_set_enhanced_hadr

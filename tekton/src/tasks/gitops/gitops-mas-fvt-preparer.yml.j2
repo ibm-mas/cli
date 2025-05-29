@@ -525,7 +525,7 @@ spec:
           fi
           if [[ "$LAUNCHFVT_FACILITIES" == "true" ]]; then
             MASAPP_APP="facilities.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 480
           fi
           # Fourth wave
           if [[ "$LAUNCHFVT_MONITOR" == "true" ]]; then

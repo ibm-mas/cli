@@ -108,6 +108,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.manageAppName = "Manage foundation"
             self.showAdvancedOptions = False
             self.installIoT = False
+            self.installFacilities = False
             self.installManage = True
             self.isManageFoundation = True
             self.printDescription([f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."])

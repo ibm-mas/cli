@@ -8,14 +8,6 @@ All versions of the catalog are available **indefinitely**, but they have a usef
 ### CLI Support
 The MAS CLI maintains a rolling window of approximately four months worth of supported catalogs for the install, mirror-images, and update functions.  When using an older catalog it is recommended to use a version of the CLI that was released around the same time as the catalog, refer to the table below for the recommended version of the CLI to use with older versions of the operator catalog.
 
-### Known Issues
-- **October 2024** IBM Cloud Pak for Data 4.8, used in catalogs released between June and October 2024 uses a Postgres license key that expired on October 1, 2024.  A fix is available from CLI version 11.2.1 onwards; if you are installing CP4D as a MAS dependency you must use at least version 11.2.1 of the CLI.  If you need to install MAS with CP4D using an older catalog than supported by this version of the CLI please contact IBM support for assistance.
-
-- **November, December 2024 & January 2025** Disconnected environment with Manage Civil, Aviation and ICD cannot be updated by these patch. These patch does not support new installation of Civil, Aviation and ICD for disconnected environment. 
-
-### Architecture
-- amd64
-- s390x
 
 ### Catalog Directory
 
@@ -32,7 +24,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     <table>
       <thead>
         <tr>
-          <th>Catalog</th>
+          <th colspan="3">Catalog</th>
           <th>OCP Support</th>
           <th>CPD Support</th>
           <th>MongoDB Support (CE or EE)</th>
@@ -42,7 +34,69 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
       </thead>
       <tbody>
         <tr>
-          <td><a href="v9-250501-amd64/">v9-250501-amd64</a>, <a href="v9-250501-s390x/">v9-250501-s390x</a></td>
+          <td style="font-style: italic">v9-251204</td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+        </tr>  
+        <tr>
+          <td style="font-style: italic">v9-251106</td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+        </tr>  
+        <tr>
+          <td style="font-style: italic">v9-251003</td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+        </tr>  
+        <tr>
+          <td style="font-style: italic">v9-250904</td>
+          <td style="font-style: italic"></td>
+          <td style="font-style: italic"></td>
+          <td style="font-style: italic">4.15 - 4.18 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+        </tr>  
+        <tr>
+          <td style="font-style: italic">v9-250807</td>
+          <td style="font-style: italic"></td>
+          <td style="font-style: italic"></td>
+          <td style="font-style: italic">4.15 - 4.18 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+        </tr>  
+        <tr>
+          <td style="font-style: italic">v9-250624</td>
+          <td style="font-style: italic"></td>
+          <td style="font-style: italic"></td>
+          <td style="font-style: italic">4.14 - 4.18 (TBC)</td>
+          <td style="font-style: italic">5.1.3 (TBC)</td>
+          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+        </tr>
+        <tr>
+          <td>v9-250501</td>
+          <td><a href="v9-250501-amd64/">amd64</a></td>
+          <td><a href="v9-250501-s390x/">s390x</a></td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -50,7 +104,9 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td>OCP 4.16 EOS December 27, 2025</td>
         </tr>  
         <tr>
-          <td><a href="v9-250403-amd64/">v9-250403-amd64</a>, <a href="v9-250403-s390x/">v9-250403-s390x</a></td>
+          <td>v9-250403</td>
+          <td><a href="v9-250403-amd64/">amd64</a></td>
+          <td><a href="v9-250403-s390x/">s390x</a></td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -58,7 +114,9 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td>OCP 4.16 EOS December 27, 2025</td>
         </tr>      
         <tr>
-          <td><a href="v9-250306-amd64/">v9-250306-amd64</a>, <a href="v9-250306-s390x/">v9-250306-s390x</a></td>
+          <td>v9-250306</td>
+          <td><a href="v9-250306-amd64/">amd64</a></td>
+          <td><a href="v9-250306-s390x/">s390x</a></td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -66,7 +124,9 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td>OCP 4.16 EOS December 27, 2025</td>
         </tr>      
         <tr>
-          <td><a href="v9-250206-amd64/">v9-250206-amd64</a>, <a href="v9-250206-s390x/">v9-250206-s390x</a></td>
+          <td>v9-250206</td>
+          <td><a href="v9-250206-amd64/">amd64</a></td>
+          <td><a href="v9-250206-s390x/">s390x</a></td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -74,7 +134,9 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td>OCP 4.16 EOS December 27, 2025</td>
         </tr>
         <tr>
-          <td><a href="v9-250109-amd64/">v9-250109-amd64</a>, <a href="v9-250109-s390x/">v9-250109-s390x</a></td>
+          <td>v9-250109</td>
+          <td><a href="v9-250109-amd64/">amd64</a></td>
+          <td><a href="v9-250109-s390x/">s390x</a></td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>

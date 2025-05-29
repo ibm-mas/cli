@@ -63,13 +63,13 @@ class ManageSettingsMixin():
             storageClass = self.getParam("storage_class_rwo")
             accessMode = "ReadWriteOnce"
 
-            self.setParam("mas_app_settings_doclinks_pvc_storage_class", storageClass)
-            self.setParam("mas_app_settings_bim_pvc_storage_class", storageClass)
-            self.setParam("mas_app_settings_jms_queue_pvc_storage_class", storageClass)
+        self.setParam("mas_app_settings_doclinks_pvc_storage_class", storageClass)
+        self.setParam("mas_app_settings_bim_pvc_storage_class", storageClass)
+        self.setParam("mas_app_settings_jms_queue_pvc_storage_class", storageClass)
 
-            self.setParam("mas_app_settings_doclinks_pvc_accessmode", accessMode)
-            self.setParam("mas_app_settings_bim_pvc_accessmode", accessMode)
-            self.setParam("mas_app_settings_jms_queue_pvc_accessmode", accessMode)
+        self.setParam("mas_app_settings_doclinks_pvc_accessmode", accessMode)
+        self.setParam("mas_app_settings_bim_pvc_accessmode", accessMode)
+        self.setParam("mas_app_settings_jms_queue_pvc_accessmode", accessMode)
 
     def manageSettingsComponents(self) -> None:
         # Only ask to install Manage components if this is a full Manage installation

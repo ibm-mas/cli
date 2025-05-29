@@ -238,6 +238,19 @@ spec:
               end
             end
           end
+          if obj.spec ~= nil then
+            if obj.spec.settings ~= nil then
+              if obj.spec.settings.deployment ~= nill then
+                if obj.spec.settings.deployment.mode ~= nil then
+                  if obj.spec.settings.deployment.mode == "down" then
+                    hs.status = "Healthy"
+                    hs.message = "Manage mode is down"
+                    return hs
+                  end
+                end
+              end
+            end
+          end
           hs.status = "Progressing"
           hs.message = ""
           return hs

@@ -56,6 +56,9 @@ spec:
     - name: mas_smtpcfg_pod_template_yaml
       type: string
       default: ""
+    - name: smtp_config_ca_certificate_file
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-smtp-config
     env:
@@ -99,6 +102,8 @@ spec:
         value: $(params.smtp_disabled_templates)
       - name: MAS_SMTPCFG_POD_TEMPLATE_YAML
         value: $(params.mas_smtpcfg_pod_template_yaml)
+      - name: SMTP_CONFIG_CA_CERTIFICATE_FILE
+        value: $(params.smtp_config_ca_certificate_file)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -140,7 +145,7 @@ spec:
       image: quay.io/ibmmas/cli:latest
   workspaces:
     - name: configs
-
+    - name: shared-gitops-configs
 
 
 
