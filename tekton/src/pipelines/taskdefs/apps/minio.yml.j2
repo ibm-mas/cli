@@ -37,3 +37,6 @@
     - input: "$(params.mas_aibroker_storage_provider)"
       operator: in
       values: ["minio"]
+    - input: "$(params.install_minio_aiservice)"
+      operator: in
+      values: ["true", "True"]

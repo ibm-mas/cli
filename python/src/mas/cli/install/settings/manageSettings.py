@@ -315,3 +315,8 @@ class ManageSettingsMixin():
                 self.promptForString("RSL url", "rsl_url")
                 self.promptForString("ORG Id of RSL", "rsl_org_id")
                 self.promptForString("Token for RSL", "rsl_token")
+                self.promptForString("Install minio", "install_minio_aiservice")
+                self.promptForString("Install mariadb", "install_mariadb_aiservice")
+                self.promptForString("Install mongodb", "install_mongo_aiservice")
+                self.promptForString("Install SLS", "install_sls_aiservice")
+                self.promptForString("Insall DRO", "install_dro_aiservice")

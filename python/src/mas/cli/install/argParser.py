@@ -622,6 +622,36 @@ aibrokerArgGroup.add_argument(
     required=False,
     help="secret key for s3 ( tenant level )"
 )
+aibrokerArgGroup.add_argument(
+    "--install-minio-aiservice",
+    dest="install_minio_aiservice",
+    required=False,
+    help="secret key for s3 ( tenant level )"
+)
+aibrokerArgGroup.add_argument(
+    "--install-mariadb-aiservice",
+    dest="install_mariadb_aiservice",
+    required=False,
+    help="secret key for s3 ( tenant level )"
+)
+aibrokerArgGroup.add_argument(
+    "--install-mongo-aiservice",
+    dest="install_mongo_aiservice",
+    required=False,
+    help="secret key for s3 ( tenant level )"
+)
+aibrokerArgGroup.add_argument(
+    "--install-sls-aiservice",
+    dest="install_sls_aiservice",
+    required=False,
+    help="secret key for s3 ( tenant level )"
+)
+aibrokerArgGroup.add_argument(
+    "--install-dro-aiservice",
+    dest="install_dro_aiservice",
+    required=False,
+    help="secret key for s3 ( tenant level )"
+)
 
 
 # Arcgis
