@@ -250,9 +250,9 @@ spec:
       type: string
       description: Define storage mode for userfiles
       default: ""
-    - name: mas_ws_facilities_config_file
+    - name: mas_ws_facilities_config_map_name
       type: string
-      description: Path to file with configurations not supported by Tekton
+      description: ConfigMap with configurations not supported by Tekton
       default: ""
     # Custom Label Support
     - name: custom_labels
@@ -400,8 +400,8 @@ spec:
         value: $(params.mas_ws_facilities_storage_userfiles_class)
       - name: MAS_FACILITIES_STORAGE_USERFILES_MODE
         value: $(params.mas_ws_facilities_storage_userfiles_mode)
-      - name: MAS_FACILITIES_CONFIG_FILE
-        value: $(params.mas_ws_facilities_config_file)
+      - name: MAS_FACILITIES_CONFIG_MAP_NAME
+        value: $(params.mas_ws_facilities_config_map_name)
 
       # Custom Label Support
       - name: CUSTOM_LABELS

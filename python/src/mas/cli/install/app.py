@@ -1135,7 +1135,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.selectLocalConfigDir()
                 facilitiesConfigsPath = path.join(self.localConfigDir, "facilities-configs.yaml")
                 self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
-                self.setParam("mas_ws_facilities_config_file", "/workspace/configs/facilities-configs.yaml")
+                self.setParam("mas_ws_facilities_config_map_name", "facilities-config")
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))

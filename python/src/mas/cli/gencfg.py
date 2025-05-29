@@ -98,10 +98,11 @@ class ConfigGeneratorMixin():
 
         dwfagents = self.getParam("mas_ws_facilities_dwfagents")
         cfg = template.render(
+            mas_instance_id=self.getParam("mas_instance_id"),
             mas_ws_facilities_storage_log_size=self.getParam("mas_ws_facilities_storage_log_size"),
             mas_ws_facilities_storage_userfiles_size=self.getParam("mas_ws_facilities_storage_userfiles_size"),
             mas_ws_facilities_db_maxconnpoolsize=self.getParam("mas_ws_facilities_db_maxconnpoolsize"),
-            mas_ws_facilities_dwfagents=loads(dwfagents if dwfagents != '' else '{}')
+            mas_ws_facilities_dwfagents=loads(dwfagents) if dwfagents != '' else ''
         )
 
         with open(destination, 'w') as f:
