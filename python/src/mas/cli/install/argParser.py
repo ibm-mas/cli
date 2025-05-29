@@ -608,49 +608,55 @@ aibrokerArgGroup.add_argument(
     "--rsl-url",
     dest="rsl_url",
     required=False,
-    help="secret key for s3 ( tenant level )"
+    help="rsl url"
 )
 aibrokerArgGroup.add_argument(
     "--rsl-org-id",
     dest="rsl_org_id",
     required=False,
-    help="secret key for s3 ( tenant level )"
+    help="org id for rsl"
 )
 aibrokerArgGroup.add_argument(
     "--rsl-token",
     dest="rsl_token",
     required=False,
-    help="secret key for s3 ( tenant level )"
+    help="token for rsl"
 )
 aibrokerArgGroup.add_argument(
     "--install-minio-aiservice",
     dest="install_minio_aiservice",
     required=False,
-    help="secret key for s3 ( tenant level )"
+    help="flag for install minio"
 )
 aibrokerArgGroup.add_argument(
     "--install-mariadb-aiservice",
     dest="install_mariadb_aiservice",
     required=False,
-    help="secret key for s3 ( tenant level )"
+    help="flag for install mariadb"
 )
 aibrokerArgGroup.add_argument(
     "--install-mongo-aiservice",
     dest="install_mongo_aiservice",
     required=False,
-    help="secret key for s3 ( tenant level )"
+    help="flag for install mongodb"
 )
 aibrokerArgGroup.add_argument(
     "--install-sls-aiservice",
     dest="install_sls_aiservice",
     required=False,
-    help="secret key for s3 ( tenant level )"
+    help="flag for install sls"
 )
 aibrokerArgGroup.add_argument(
     "--install-dro-aiservice",
     dest="install_dro_aiservice",
     required=False,
-    help="secret key for s3 ( tenant level )"
+    help="flag for install dro"
+)
+aibrokerArgGroup.add_argument(
+    "--hold-aiservice-for-mas",
+    dest="hold_aiservice_for_mas",
+    required=False,
+    help="hold aiservice till suite-verification"
 )
 
 

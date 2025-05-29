@@ -27,6 +27,35 @@ spec:
     {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
 
   tasks:
+    - name: waitfor-suite-verify
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-suite-verify
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.hold_aiservice_for_mas)
+          operator: notin
+          values: ["true", "True"]
+
     # Content
     # -------
     # 1. Setup Cluster-wide Dependencies inc. Grafana, ECK, and Turbonomic
@@ -41,6 +70,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ibm-catalogs.yml.j2') | indent(4) }}
       runAfter:
         - pre-install-check
+        - waitfor-suite-verify
 
     # 1.2 Red Hat Certificate Manager
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
@@ -51,7 +81,6 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/turbonomic.yml.j2') | indent(4) }}
       runAfter:
         - pre-install-check
-
 
     # 2. Install Universal Dependencies
     # -------------------------------------------------------------------------

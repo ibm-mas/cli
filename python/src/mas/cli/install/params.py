@@ -198,6 +198,7 @@ optionalParams = [
     "install_mongo_aiservice",
     "install_sls_aiservice",
     "install_dro_aiservice",
+    "hold_aiservice_for_mas",
     # Special chars
     "mas_special_characters"
 ]
