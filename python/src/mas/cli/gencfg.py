@@ -97,11 +97,14 @@ class ConfigGeneratorMixin():
             template = Template(tFile.read())
 
         dwfagents = self.getParam("mas_ws_facilities_dwfagents")
+        maxconnpoolsize = self.getParam("mas_ws_facilities_db_maxconnpoolsize")
+        userfiles_size = self.getParam("mas_ws_facilities_storage_userfiles_size")
+        log_size = self.getParam("mas_ws_facilities_storage_log_size")
         cfg = template.render(
             mas_instance_id=self.getParam("mas_instance_id"),
-            mas_ws_facilities_storage_log_size=self.getParam("mas_ws_facilities_storage_log_size"),
-            mas_ws_facilities_storage_userfiles_size=self.getParam("mas_ws_facilities_storage_userfiles_size"),
-            mas_ws_facilities_db_maxconnpoolsize=self.getParam("mas_ws_facilities_db_maxconnpoolsize"),
+            mas_ws_facilities_storage_log_size= log_size if log_size != "" else 30,
+            mas_ws_facilities_storage_userfiles_size=userfiles_size if userfiles_size != "" else 50,
+            mas_ws_facilities_db_maxconnpoolsize=maxconnpoolsize if maxconnpoolsize != "" else 200,
             mas_ws_facilities_dwfagents=loads(dwfagents) if dwfagents != '' else ''
         )
 
