@@ -1,6 +1,14 @@
-merge-key: "{{ ACCOUNT_ID }}/{{ REGION_ID }}/{{ CLUSTER_ID }}"
 
-ibm_sls:
+cluster:
+   id: {{ CLUSTER_ID }}
+   url: {{ CLUSTER_URL }}
+region:
+   id: {{ REGION_ID }}
+sm:
+  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/aws#sm_aws_access_key_id>"
+  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/aws#sm_aws_secret_access_key>"
+
+ibm_sls_standalone:
   sls_channel: {{ SLS_CHANNEL }}
   sls_entitlement_file: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSE_FILE }}>
   ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
