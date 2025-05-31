@@ -53,7 +53,7 @@ spec:
           value: "False"
       when:
         - input: $(params.hold_aiservice_for_mas)
-          operator: notin
+          operator: in
           values: ["true", "True"]
 
     # Content
