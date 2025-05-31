@@ -1,0 +1,21 @@
+- name: mobile-pytest-sr
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-sr
+  runAfter:
+    - mobile-pytest-ic
+    - mobile-pytest-ir
+    - mobile-pytest-it
+
+- name: mobile-pytest-insp
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-insp
+  runAfter:
+    - mobile-pytest-ic
+    - mobile-pytest-ir
+    - mobile-pytest-it

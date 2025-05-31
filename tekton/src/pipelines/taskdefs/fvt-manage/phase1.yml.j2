@@ -2,6 +2,7 @@
 # -------------------------------------------------------------
 # PHASE 1
 # - ivt-manage-base-api (pytest)
+# - fvt-manage-foundation-api-auth (pytest)
 # -------------------------------------------------------------
 
 # Manage Integration 
@@ -14,6 +15,10 @@
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: base-api-ivt
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - ivtcore-manage
     
@@ -23,5 +28,9 @@
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: foundation-api-auth
+  when:
+    - input: "foundation"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - ivtcore-manage

@@ -163,6 +163,10 @@ class AdditionalConfigsMixin():
                 "mas_app_channel_optimizer": {
                     "dir": self.manualCertsDir + "/optimizer/",
                     "keyPrefix": "optimizer."
+                },
+                "mas_app_channel_facilities": {
+                    "dir": self.manualCertsDir + "/facilities/",
+                    "keyPrefix": "facilities."
                 }
             }
 

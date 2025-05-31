@@ -64,6 +64,7 @@
         - fvt-assist-desktop
         - fvt-assist
         - fvt-core
+        - fvt-components
         - fvt-data-dictionary
         - fvt-deprovision-ocp
         - fvt-deprovision-cos
@@ -106,7 +107,6 @@
         - launchfvt-visualinspection
         - launchfvt-upgrade-post
         - launchfvt-upgrade-pre
-        - launchfvt-dynamicscan
         - launchivt-manage
 
     # 5. Generate Tasks (IVT)
@@ -118,7 +118,6 @@
       with_items:
         - ivt-core
         - ivt-manage
-        - ivt-dynamicscan
 
     # 6. Generate Tasks (Suite)
     # -------------------------------------------------------------------------
@@ -138,6 +137,7 @@
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
+        - suite-db2-setup-for-facilities
         - suite-dns
         - suite-install
         - suite-rollback

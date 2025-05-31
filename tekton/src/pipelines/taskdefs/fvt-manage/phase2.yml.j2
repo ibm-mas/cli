@@ -11,6 +11,10 @@
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: base-api-system
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-api-ivt
     - fvt-manage-foundation-api-auth
@@ -22,6 +26,10 @@
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: base-api-mif
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-api-ivt
     - fvt-manage-foundation-api-auth

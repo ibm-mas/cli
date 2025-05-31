@@ -79,7 +79,10 @@ Your cluster must be configured to use the private registry as a mirror for the 
 ```bash
 docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap
 ```
-
+To set up Red Hat Operator, Community, and Certified catalogs with IDMS, run the below command. (Needed to install DRO and Grafana operators)
+```bash
+docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap --setup-redhat-catalogs
+```
 You will be prompted to provide information about the private registry, including the CA certificate necessary to configure your cluster to trust the private registry.
 
 This command can also be ran non-interactive, for full details refer to the [configure-airgap](../commands/configure-airgap.md) command documentation.
@@ -151,6 +154,7 @@ The interactive install will guide you through a series of questioned designed t
       <ul>
         <li>Monitor is only available for install if IoT is selected</li>
         <li>Assist and Predict are only available for install if Monitor is selected</li>
+        <li>From MAS 9.1 onwards, Assist will be rebranded as Collaborate in the MAS UI. It will still appear as Assist in the MAS CLI and within the OpenShift Cluster, but from the MAS UI it will appear as Collaborate.</li>
       </ul>
     </cds-accordion-item>
     <cds-accordion-item title="Application Configuration">

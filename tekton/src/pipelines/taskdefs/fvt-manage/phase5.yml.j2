@@ -16,6 +16,10 @@
       value: base-ui
     - name: fvt_test_suite
       value: sec-audit-log
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-ui-escalation-action
     - fvt-manage-base-ui-birt-report
@@ -33,6 +37,10 @@
       value: base-ui
     - name: fvt_test_suite
       value: wo-doclink
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-ui-escalation-action
     - fvt-manage-base-ui-birt-report
@@ -48,6 +56,10 @@
     name: mas-fvt-manage-directprint
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-ui-escalation-action
     - fvt-manage-base-ui-birt-report
@@ -63,6 +75,10 @@
     name: mas-fvt-manage-adhoc-report
   params:
     {{ lookup('template', 'taskdefs/fvt-manage/ui/params.yml.j2') | indent(4) }}
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-base-ui-escalation-action
     - fvt-manage-base-ui-birt-report

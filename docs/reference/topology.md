@@ -15,7 +15,7 @@
 ## High-Level View
 Multiple instances of IBM Maximo Application Suite can be installed into a single OpenShift Cluster.  The diagram below details the reference topology that will be created using the MAS CLI.
 
-![](../img/topology-highlevel.png)
+![](../img/topology-highlevel.svg)
 
 ## Operator View
 An alternate way to look at the deployment is based on the placement of operators and key custom resources into namespaces.  The diagram below does not show every single custom resource that can be created as part of installing and configuration IBM Maximo Application Suite, but it does cover all the **key** resources directly created during the install:

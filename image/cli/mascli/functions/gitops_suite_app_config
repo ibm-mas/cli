@@ -513,7 +513,32 @@ function gitops_suite_app_config() {
         rm -f bundlesecretrefs.txt
       fi
       rm -f all_bundle_props.props
-    fi
+    fi # end if [[ "${MAS_APP_ID}" == "manage" ]]
+
+    if [[ "${MAS_APP_ID}" == "facilities" ]]; then
+      # Although the name of the secret can be set in the CR, it is expected to be of the form <workspaceId>-facilities-vs--sn to allow the UI to work
+      export FACILITIES_VAULT_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.vaultSecret.secretName // ""' ${MAS_APPWS_SPEC_YAML})
+      export FACILITIES_VAULT_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}
+      if [[ -n "${FACILITIES_VAULT_SECRET_NAME}" ]]; then
+        if [ "$FACILITIES_VAULT_SECRET_NAME" != "${MAS_WORKSPACE_ID}-facilities-vs--sn" ]; then
+          echo "Error: Secret name $FACILITIES_VAULT_SECRET_NAME does not match ${MAS_WORKSPACE_ID}-facilities-vs--sn" 
+          exit 1
+        fi
+        sm_verify_secret_exists ${FACILITIES_VAULT_SECRET}${FACILITIES_VAULT_SECRET_NAME} "pwd" 
+      fi
+
+      # Although the name of the secret can be set in the CR, it is expected to be of the form <workspaceId>-facilities-lexml--sn to allow the UI to work
+      export FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME=$(yq eval '.mas_appws_spec.settings.libertyExtensionXML.secretName // ""' ${MAS_APPWS_SPEC_YAML})
+      export FACILITIES_LIBERTY_EXTENSIONS_SECRET=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}facilities${SECRETS_KEY_SEPERATOR}
+      if [[ -n "${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME}" ]]; then
+        if [ "$FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME" != "${MAS_WORKSPACE_ID}-facilities-lexml--sn" ]; then 
+          echo "Error: Secret name $FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME does not match ${MAS_WORKSPACE_ID}-facilities-lexml--sn" 
+          exit 1
+        fi
+        sm_verify_secret_exists ${FACILITIES_LIBERTY_EXTENSIONS_SECRET}${FACILITIES_LIBERTY_EXTENSIONS_SECRET_NAME} "b64_xml" 
+      fi
+    fi # end if [[ "${MAS_APP_ID}" == "facilities" ]]
+
   else
     echo
     echo_h2 "Using default application spec for $MAS_APP_ID"
@@ -525,7 +550,7 @@ function gitops_suite_app_config() {
   export MAS_APP_NAMESPACE="mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}"
 
 
-  # Set certs only if manual cert is True (to create k8s secret in gitops) only required for manage
+  # Set certs only if manual cert is True (to create k8s secret in gitops) only required for manage, facilites
   # ---------------------------------------------------------------------------
   if [ "${MAS_MANUAL_CERT_MGMT}" == "true" ] ; then
     if [[ -n "$MAS_MANUAL_CERTS_YAML" ]] && [[ -s "$MAS_MANUAL_CERTS_YAML" ]]; then
@@ -533,7 +558,8 @@ function gitops_suite_app_config() {
       declare -A tls_secret_name
       tls_secret_name['health']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
       tls_secret_name['manage']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-cert-public-81"
-      
+      tls_secret_name['facilities']="${MAS_INSTANCE_ID}-${MAS_WORKSPACE_ID}-public-facilities-tls"
+
       if [[ -n "${tls_secret_name[$MAS_APP_ID]}" ]]; then
 
         echo
@@ -569,7 +595,6 @@ function gitops_suite_app_config() {
   if ! [ -f ${CONFIGS_FILE} ]; then
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/masapp/ibm-mas-masapp-config-common.yaml.j2 $CONFIGS_FILE
   fi
-
 
   # Remove any existing config with this app id and workspace id
   yq 'del(.ibm_mas_masapp_configs[] | select(.mas_app_id == "'${MAS_APP_ID}'" and .mas_workspace_id == "'${MAS_WORKSPACE_ID}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml

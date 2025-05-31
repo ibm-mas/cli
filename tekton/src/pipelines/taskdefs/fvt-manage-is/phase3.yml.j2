@@ -6,8 +6,8 @@
 # - fvt-manage-transportation-ui       # Transportation
 # - fvt-manage-lbs-api                 # LBS
 # - fvt-manage-lbs-spatial-ui          # LBS
-#   - fvt-manage-lbs-utilities-ui      # LBS
-#     - fvt-manage-lbs-linear-ui       # LBS
+# - fvt-manage-lbs-utilities-ui      # LBS
+# - fvt-manage-lbs-linear-ui       # LBS
 # -----------------------------------------------------------------------------
 
 
@@ -20,6 +20,10 @@
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: nuclear-api
+  when:
+    - input: "nuclear"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-acm-api
     - fvt-manage-acm-ui
@@ -40,6 +44,10 @@
       value: nuclear
     - name: fvt_test_driver
       value: tpae
+  when:
+    - input: "nuclear"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-acm-api
     - fvt-manage-acm-ui
@@ -58,6 +66,10 @@
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: transportation-api
+  when:
+    - input: "transportation"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-acm-api
     - fvt-manage-acm-ui
@@ -78,6 +90,10 @@
       value: transportation
     - name: fvt_test_driver
       value: tpae
+  when:
+    - input: "transportation"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-acm-api
     - fvt-manage-acm-ui
@@ -96,6 +112,10 @@
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: lbs-api
+  when:
+    - input: "spatial"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-acm-api
     - fvt-manage-acm-ui
@@ -116,6 +136,10 @@
       value: spatial
     - name: fvt_test_driver
       value: tpae
+  when:
+    - input: "spatial"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-acm-api
     - fvt-manage-acm-ui
@@ -136,6 +160,10 @@
       value: spatial
     - name: fvt_test_driver
       value: tpae
+  when:
+    - input: "spatial"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-lbs-spatial-ui
 
@@ -151,5 +179,9 @@
       value: spatial
     - name: fvt_test_driver
       value: tpae
+  when:
+    - input: "spatial"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-lbs-utilities-ui

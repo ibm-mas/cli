@@ -78,6 +78,7 @@ SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"):
   --smtp-disabled-templates ${COLOR_YELLOW}SMTP_DISABLED_TEMPLATES${TEXT_RESET}                           JSON string specifying a list of MAS Suite email templates to disable
       E.g. '["UserPasswordReset", "WelcomeUsername", "WelcomePassword"]'
       See https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=notifications-disabling-email
+  --smtp-config-ca-certificate-file ${COLOR_YELLOW}SMTP_CONFIG_CA_CERTIFICATE_FILE${TEXT_RESET}           Optional certificate not available in CA
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -257,6 +258,9 @@ function gitops_mas_config_noninteractive() {
         ;;
       --mas-smtpcfg-pod-template-yaml)
         export MAS_SMTPCFG_POD_TEMPLATE_YAML=$1 && shift
+        ;;
+      --smtp-config-ca-certificate-file)
+        export SMTP_CONFIG_CA_CERTIFICATE_FILE=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration
@@ -628,6 +632,7 @@ function gitops_mas_config() {
       echo_reset_dim "Smtp Server Password ........................... ${COLOR_MAGENTA}${SMTP_PASSWORD:0:4}<snip>"
       echo_reset_dim "Smtp Disabled Templates ........................ ${COLOR_MAGENTA}${SMTP_DISABLED_TEMPLATES}"
       echo_reset_dim "Pod Template YAML File  ........................ ${COLOR_MAGENTA}${MAS_SMTPCFG_POD_TEMPLATE_YAML}"
+      echo_reset_dim "SMTP CA certificate ............................ ${COLOR_MAGENTA}${SMTP_CONFIG_CA_CERTIFICATE_FILE}"
       reset_colors
     fi
   fi
@@ -844,6 +849,9 @@ function gitops_mas_config() {
 
       export SECRET_KEY_SMTP_USERNAME=${SECRET_NAME_SMTP}#username
       export SECRET_KEY_SMTP_PASSWORD=${SECRET_NAME_SMTP}#password
+      if [[ ! -z "${SMTP_CONFIG_CA_CERTIFICATE_FILE}" ]]; then
+        export SMTP_CONFIG_CA_CERTIFICATE=$(cat ${SMTP_CONFIG_CA_CERTIFICATE_FILE})
+      fi
     fi
 
     # Source: gitops_suite_watson_studio_config

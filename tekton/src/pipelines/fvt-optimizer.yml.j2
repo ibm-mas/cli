@@ -51,6 +51,9 @@ spec:
       type: string
       description: IVT Digest - Core
       default: ""
+    - name: fvt_digest_manage_pytest
+      type: string
+      default: ""
 
   tasks:
     # 1. Core x Optimizer
@@ -275,7 +278,44 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 7. Run "cypress/optimizer/e2e/ui/bvt/MOAdmin.cy.js"
+    # 7. Run "api_authorization_service"
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-authorization-service
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-manage
+        - name: fvt_image_name
+          value: fvt-ibm-mas-manage-pytest
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_manage_pytest)
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: fvt_test_suite
+          value: optimizer-api
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-manage-pytest
+      when:
+        - input: "$(params.fvt_digest_manage_pytest)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - fvt-optimizer-project-endpoints
+    
+    # 8. Run "cypress/optimizer/e2e/ui/bvt/MOAdmin.cy.js"
     # -----------------------------------------------------------------------------
     - name: moadmin
       params:
@@ -310,12 +350,12 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - fvt-optimizer-project-endpoints
+        - fvt-optimizer-authorization-service
       workspaces:
         - name: configs
           workspace: shared-configs
   
-    # 8. Run "cypress/optimizer/e2e/ui/bvt/MOAdminJobs.cy.js"
+    # 9. Run "cypress/optimizer/e2e/ui/bvt/MOAdminJobs.cy.js"
     # -----------------------------------------------------------------------------
     - name: moadminjobs
       params:
@@ -355,7 +395,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 9. Run "cypress/optimizer/e2e/ui/bvt/MOAdminModels.cy.js"
+    # 10. Run "cypress/optimizer/e2e/ui/bvt/MOAdminModels.cy.js"
     # -----------------------------------------------------------------------------
     - name: moadminmodels
       params:
@@ -395,7 +435,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 10. Run "cypress/optimizer/e2e/ui/bvt/MOAdminOverview.cy.js"
+    # 11. Run "cypress/optimizer/e2e/ui/bvt/MOAdminOverview.cy.js"
     # -----------------------------------------------------------------------------
     - name: moadminoverview
       params:
@@ -435,7 +475,7 @@ spec:
         - name: configs
           workspace: shared-configs
       
-    # 11. Run "cypress/optimizer/e2e/ui/bvt/MOAdminProjects.cy.js"
+    # 12. Run "cypress/optimizer/e2e/ui/bvt/MOAdminProjects.cy.js"
     # -----------------------------------------------------------------------------
     - name: moadminprojects
       params:
@@ -475,7 +515,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 12. Run "cypress/optimizer/e2e/ui/bvt/MOModels/MOModels.cy.js"
+    # 13. Run "cypress/optimizer/e2e/ui/bvt/MOModels/MOModels.cy.js"
     # -----------------------------------------------------------------------------
     - name: momodels
       params:
@@ -515,7 +555,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 13. Run "cypress/optimizer/e2e/ui/bvt/MOProjects/MOProjects.cy.js"
+    # 14. Run "cypress/optimizer/e2e/ui/bvt/MOProjects/MOProjects.cy.js"
     # -----------------------------------------------------------------------------
     - name: moprojects
       params:
@@ -555,7 +595,7 @@ spec:
         - name: configs
           workspace: shared-configs
 
-    # 14. Run "cypress/optimizer/e2e/ui/bvt/MOProjects/MOWorkspace.cy.js"
+    # 15. Run "cypress/optimizer/e2e/ui/bvt/MOProjects/MOWorkspace.cy.js"
     # -----------------------------------------------------------------------------
     - name: moworkspace
       params:

@@ -17,6 +17,10 @@
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: acm-api
+  when:
+    - input: "acm"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
@@ -33,6 +37,10 @@
       value: acm
     - name: fvt_test_driver
       value: tpae
+  when:
+    - input: "acm"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
@@ -46,6 +54,10 @@
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: hse-api
+  when:
+    - input: "hse"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
@@ -62,6 +74,10 @@
       value: hse
     - name: fvt_test_driver
       value: tpae
+  when:
+    - input: "hse"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
@@ -75,6 +91,10 @@
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: serviceprovider-api
+  when:
+    - input: "serviceprovider"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python
@@ -91,6 +111,10 @@
       value: serviceprovider
     - name: fvt_test_driver
       value: tpae
+  when:
+    - input: "serviceprovider"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-health-testng-desktop
     - fvt-health-python

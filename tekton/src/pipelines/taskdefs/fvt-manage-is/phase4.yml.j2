@@ -15,6 +15,10 @@
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: maintmanager-api
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-nuclear-api
     - fvt-manage-nuclear-ui
@@ -35,6 +39,10 @@
       value: maintmanager
     - name: fvt_test_driver
       value: graphite
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-nuclear-api
     - fvt-manage-nuclear-ui
@@ -53,6 +61,10 @@
     {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: aviation-api
+  when:
+    - input: "aviation"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-nuclear-api
     - fvt-manage-nuclear-ui

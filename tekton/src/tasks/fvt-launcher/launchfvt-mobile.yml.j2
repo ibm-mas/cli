@@ -16,9 +16,6 @@ spec:
     - name: pipelinerun_name_pytest
       type: string
 
-    - name: launchfvt_manage
-      type: string
-
   steps:
     - name: start-pytest-pipelinerun
       image: quay.io/ibmmas/cli:latest
@@ -31,8 +28,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: PIPELINERUN_NAME
           value: $(params.pipelinerun_name_pytest)
-        - name: LAUNCHFVT_MANAGE
-          value: $(params.launchfvt_manage)
         - name: PIPELINERUN_NAMESPACE
           value: $(context.taskRun.namespace)
 
