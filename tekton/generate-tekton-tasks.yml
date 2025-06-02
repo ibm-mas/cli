@@ -239,5 +239,8 @@
         - gitops-suite-watson-studio-config
         - gitops-suite-workspace
         - gitops-suite
-        - gitops-aibroker-tenant
+        - gitops-minio
+        - gitops-odh
+        - gitops-kmodel
         - gitops-aibroker
+        - gitops-aibroker-tenant
