@@ -239,5 +239,5 @@
         - gitops-suite-watson-studio-config
         - gitops-suite-workspace
         - gitops-suite
-        - gitops-aibroker-tenant.yml.j2
-        - gitops-aibroker.yml.j2
+        - gitops-aibroker-tenant
+        - gitops-aibroker
