@@ -91,12 +91,8 @@
         - gitops-mas-cluster
         - gitops-mas-deps
         - gitops-mas-initiator
-        - gitops-suite-license-service
-        - deprovision-suite-license-service
-        - gitops-aiservice-pipeline
-        - gitops-aiservice-tenant-pipeline
-        - gitops-deprovision-aiservice-pipeline
-        - gitops-deprovision-aiservice-tenant-pipeline
+        - gitops-mas-aibroker
+        - gitops-mas-aibroker-tenant.yml.j2
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
