@@ -47,7 +47,10 @@ class installArgBuilderMixin():
         if self.getParam('mas_app_settings_old_cryptox_key') != "":
             command += "export OLD_CRYTPOX_KEY=x\n"
 
-        command += f"mas install --mas-catalog-version {self.getParam('mas_catalog_version')}"
+        if self.installAiBroker and self.getParam('mas_app_channel_aibroker') != '9.0.x':
+            command += f"mas aiservice-install --mas-catalog-version {self.getParam('mas_catalog_version')}"
+        else:
+            command += f"mas install --mas-catalog-version {self.getParam('mas_catalog_version')}"
 
         if self.getParam('mas_catalog_digest') != "":
             command += f" --mas-catalog-digest {self.getParam('mas_catalog_digest')}"
@@ -171,6 +174,8 @@ class installArgBuilderMixin():
             command += f"  --predict-channel \"{self.getParam('mas_app_channel_predict')}\"{newline}"
         if self.installInspection:
             command += f"  --visualinspection-channel \"{self.getParam('mas_app_channel_visualinspection')}\"{newline}"
+        if self.installAiBroker:
+            command += f"  --aibroker-channel \"{self.getParam('mas_app_channel_aibroker')}\"{newline}"
 
         # Arcgis
         # -----------------------------------------------------------------------------
@@ -413,6 +418,83 @@ class installArgBuilderMixin():
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam('service_account_name') != "":
             command += f"  --service-account {self.getParam('service_account_name')}{newline}"
+
+        # Aibroker Advanced Settings
+        # -----------------------------------------------------------------------------
+        if self.getParam('mas_aibroker_storage_provider') != "":
+            command += f"  --mas-aibroker-storage-provider \"{self.getParam('mas_aibroker_storage_provider')}\"{newline}"
+        if self.getParam('mas_aibroker_storage_accesskey') != "":
+            command += f"  --mas-aibroker-storage-accesskey \"{self.getParam('mas_aibroker_storage_accesskey')}\"{newline}"
+        if self.getParam('mas_aibroker_storage_secretkey') != "":
+            command += f"  --mas-aibroker-storage-secretkey \"{self.getParam('mas_aibroker_storage_secretkey')}\"{newline}"
+        if self.getParam('mas_aibroker_storage_host') != "":
+            command += f"  --mas-aibroker-storage-host \"{self.getParam('mas_aibroker_storage_host')}\"{newline}"
+        if self.getParam('mas_aibroker_storage_port') != "":
+            command += f"  --mas-aibroker-storage-port \"{self.getParam('mas_aibroker_storage_port')}\"{newline}"
+        if self.getParam('mas_aibroker_storage_ssl') != "":
+            command += f"  --mas-aibroker-storage-ssl \"{self.getParam('mas_aibroker_storage_ssl')}\"{newline}"
+        if self.getParam('mas_aibroker_storage_region') != "":
+            command += f"  --mas-aibroker-storage-region \"{self.getParam('mas_aibroker_storage_region')}\"{newline}"
+        if self.getParam('mas_aibroker_storage_pipelines_bucket') != "":
+            command += f"  --mas-aibroker-storage-pipelines-bucket \"{self.getParam('mas_aibroker_storage_pipelines_bucket')}\"{newline}"
+        if self.getParam('mas_aibroker_storage_tenants_bucket') != "":
+            command += f"  --mas-aibroker-storage-tenants-bucket \"{self.getParam('mas_aibroker_storage_tenants_bucket')}\"{newline}"
+        if self.getParam('mas_aibroker_storage_templates_bucket') != "":
+            command += f"  --mas-aibroker-storage-templates-bucket \"{self.getParam('mas_aibroker_storage_templates_bucket')}\"{newline}"
+        if self.getParam('mas_aibroker_tenant_name') != "":
+            command += f"  --mas-aibroker-tenant-name \"{self.getParam('mas_aibroker_tenant_name')}\"{newline}"
+        if self.getParam('mas_aibroker_watsonxai_apikey') != "":
+            command += f"  --mas-aibroker-watsonxai-apikey \"{self.getParam('mas_aibroker_watsonxai_apikey')}\"{newline}"
+        if self.getParam('mas_aibroker_watsonxai_url') != "":
+            command += f"  --mas-aibroker-watsonxai-url \"{self.getParam('mas_aibroker_watsonxai_url')}\"{newline}"
+        if self.getParam('mas_aibroker_watsonxai_project_id') != "":
+            command += f"  --mas-aibroker-watsonxai-project-id \"{self.getParam('mas_aibroker_watsonxai_project_id')}\"{newline}"
+        if self.getParam('mas_aibroker_watsonx_action') != "":
+            command += f"  --mas-aibroker-watsonx-action \"{self.getParam('mas_aibroker_watsonx_action')}\"{newline}"
+        if self.getParam('mas_aibroker_db_host') != "":
+            command += f"  --mas-aibroker-db-host \"{self.getParam('mas_aibroker_db_host')}\"{newline}"
+        if self.getParam('mas_aibroker_db_port') != "":
+            command += f"  --mas-aibroker-db-port \"{self.getParam('mas_aibroker_db_port')}\"{newline}"
+        if self.getParam('mas_aibroker_db_user') != "":
+            command += f"  --mas-aibroker-db-user \"{self.getParam('mas_aibroker_db_user')}\"{newline}"
+        if self.getParam('mas_aibroker_db_database') != "":
+            command += f"  --mas-aibroker-db-database \"{self.getParam('mas_aibroker_db_database')}\"{newline}"
+        if self.getParam('mas_aibroker_db_secret_name') != "":
+            command += f"  --mas-aibroker-db-secret-name \"{self.getParam('mas_aibroker_db_secret_name')}\"{newline}"
+        if self.getParam('mas_aibroker_db_secret_key') != "":
+            command += f"  --mas-aibroker-db-secret-key \"{self.getParam('mas_aibroker_db_secret_key')}\"{newline}"
+        if self.getParam('mas_aibroker_db_secret_value') != "":
+            command += f"  --mas-aibroker-db-secret-value \"{self.getParam('mas_aibroker_db_secret_value')}\"{newline}"
+        if self.getParam('mariadb_user') != "":
+            command += f"  --mariadb-user \"{self.getParam('mariadb_user')}\"{newline}"
+        if self.getParam('mariadb_password') != "":
+            command += f"  --mariadb-password \"{self.getParam('mariadb_password')}\"{newline}"
+        if self.getParam('minio_root_user') != "":
+            command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
+        if self.getParam('minio_root_password') != "":
+            command += f"  --minio-root-password \"{self.getParam('minio_root_password')}\"{newline}"
+        if self.getParam('tenant_entitlement_type') != "":
+            command += f"  --tenant-entitlement-type \"{self.getParam('tenant_entitlement_type')}\"{newline}"
+        if self.getParam('tenant_entitlement_start_date') != "":
+            command += f"  --tenant-entitlement-start-date \"{self.getParam('tenant_entitlement_start_date')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-s3-bucket-prefix \"{self.getParam('mas_aibroker_s3_bucket_prefix')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-s3-endpoint-url \"{self.getParam('mas_aibroker_s3_endpoint_url')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-s3-region \"{self.getParam('mas_aibroker_s3_region')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-tenant-s3-bucket-prefix \"{self.getParam('mas_aibroker_tenant_s3_bucket_prefix')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-tenant-s3-region \"{self.getParam('mas_aibroker_tenant_s3_region')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-tenant-s3-endpoint-url \"{self.getParam('mas_aibroker_tenant_s3_endpoint_url')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-tenant-s3-access-key \"{self.getParam('mas_aibroker_tenant_s3_access_key')}\"{newline}"
+        if self.getParam('tenant_entitlement_end_date') != "":
+            command += f"  --mas-aibroker-tenant-s3-secret-key \"{self.getParam('mas_aibroker_tenant_s3_secret_key')}\"{newline}"
 
         command += "  --accept-license --no-confirm"
         return command
