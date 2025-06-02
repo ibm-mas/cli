@@ -207,7 +207,7 @@ class ManageSettingsMixin():
                 self.promptForString("Customization archive path/url", "mas_app_settings_customization_archive_url")
                 if self.yesOrNo("Provide authentication to access customization archive URL"):
                     self.promptForString("Username", "mas_app_settings_customization_archive_username")
-                    self.promptForString("Password", "mas_app_settings_customization_archive_password", isPassword=True)
+                    self.promptForString("Password", "mas_app_settings_customization_archive_password", isPassword=True)  # pragma: allowlist secret
 
     def manageSettingsDemodata(self) -> None:
         self.yesOrNo("Create demo data", "mas_app_settings_demodata")
