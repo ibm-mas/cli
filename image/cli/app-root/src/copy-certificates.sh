@@ -10,6 +10,7 @@ appList=(
   "optimizer"  
   "predict"
   "visualinspection"
+  "facilities"
 )
 
 if [ -e "/workspace/certificates" ]; then
