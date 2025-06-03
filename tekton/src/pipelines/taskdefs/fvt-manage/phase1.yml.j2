@@ -29,7 +29,7 @@
     - name: fvt_test_suite
       value: foundation-api-auth
   when:
-    - input: "foundation"
+    - input: "base"
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
