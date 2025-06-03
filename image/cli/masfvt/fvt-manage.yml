@@ -8,6 +8,7 @@
     mas_app_channel_manage: "{{ lookup('env', 'MAS_APP_CHANNEL_MANAGE') }}"
     mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
     mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
+    mas_appws_components: "{{ lookup('env', 'MANAGE_COMPONENTS') }}"
     # FVT Configuration
     fvt_image_registry: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
     fvt_artifactory_username: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
@@ -41,6 +42,7 @@
           - "mas_app_channel_manage .......... {{ mas_app_channel_manage }}"
           - "mas_instance_id ................. {{ mas_instance_id }}"
           - "mas_workspace_id ................ {{ mas_workspace_id }}"
+          - "mas_appws_components ............ {{ mas_appws_components }}"
           - ""
           - "fvt_image_registry .............. {{ fvt_image_registry }}"
           - "fvt_artifactory_username ........ {{ fvt_artifactory_username }}"

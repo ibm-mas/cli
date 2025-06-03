@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-fvt-manage
+  name: mas-fvt-facilities
 spec:
   workspaces:
     # The generated configuration files
@@ -18,7 +18,7 @@ spec:
       description: Pull policy for pipeline container images
 
     # MAS Configuration
-    - name: mas_app_channel_manage
+    - name: mas_app_channel_facilities
       type: string
       default: ""
     - name: mas_instance_id
@@ -26,15 +26,6 @@ spec:
       default: ""
     - name: mas_workspace_id
       type: string
-      default: ""
-    - name: mas_appws_components
-      type: string
-      default: ""
-
-    # Test Requirements
-    - name: kafka_provider
-      type: string
-      description: kafka provider used during installation (ibm, aws or redhat) to pick up right MIF tests
       default: ""
 
     # FVT Configuration
@@ -49,41 +40,31 @@ spec:
       default: ""
 
     # Image Digests
-    - name: fvt_digest_manage
+    - name: fvt_digest_facilities
       type: string
       default: ""
-    - name: fvt_digest_manage_pytest
-      type: string
-      default: ""
-    - name: fvt_digest_manage_cypress
-      type: string
-      default: ""
+    # - name: fvt_digest_facilities_pytest
+    #   type: string
+    #   default: ""
+    # - name: fvt_digest_facilities_cypress
+    #   type: string
+    #   default: ""
 
     - name: ivt_digest_core
       type: string
       default: ""
 
   tasks:
-
-    # Manage Components Information
-    - name: fvt-component
-      taskRef:
-        kind: Task
-        name: mas-fvt-components
-      params:
-        - name: mas_appws_components
-          value: "$(params.mas_appws_components)"
-
-    # 1. Core x Manage
+    # 1. Core x Facilities
     # -------------------------------------------------------------------------
-    - name: ivtcore-manage
+    - name: ivtcore-facilities
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
         - name: product_id
-          value: ibm-mas-manage
+          value: ibm-mas-facilities
         - name: product_channel
-          value: $(params.mas_app_channel_manage)
+          value: $(params.mas_app_channel_facilities)
         - name: fvt_test_suite
           value: coreivt
         - name: workspace_id
@@ -92,7 +73,7 @@ spec:
         - input: "$(params.ivt_digest_core)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
+        - input: "$(params.mas_app_channel_facilities)"
           operator: notin
           values: [""]
       workspaces:
@@ -101,14 +82,14 @@ spec:
         - name: pod-templates
           workspace: shared-pod-templates
 
-    - name: imagescan-manage
+    - name: imagescan-facilities
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
         - name: product_id
-          value: ibm-mas-manage
+          value: ibm-mas-facilities
         - name: product_channel
-          value: $(params.mas_app_channel_manage)
+          value: $(params.mas_app_channel_facilities)
         - name: fvt_test_suite
           value: imagescan
       when:
@@ -116,31 +97,23 @@ spec:
           operator: notin
           values: [""]
 
-    # 2. Manage FVT - Manage
-    # -------------------------------------------------------------------------
-    {{ lookup('template', 'taskdefs/fvt-manage/phase1.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase2.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase3.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase4.yml.j2') | indent(4) }}
-    {{ lookup('template', 'taskdefs/fvt-manage/phase5.yml.j2') | indent(4) }}
-
   finally:
     # 1. Run CV
     # -----------------------------------------------------------------------------
-    - name: cv-manage
+    - name: cv-facilities
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
         - name: product_id
-          value: ibm-mas-manage
+          value: ibm-mas-facilities
         - name: product_channel
-          value: $(params.mas_app_channel_manage)
+          value: $(params.mas_app_channel_facilities)
         - name: fvt_test_suite
           value: contentverification
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin
           values: [""]
-        - input: "$(params.mas_app_channel_manage)"
+        - input: "$(params.mas_app_channel_facilities)"
           operator: notin
           values: [""]
