@@ -44,6 +44,14 @@ function mirror_redhat_noninteractive() {
         REGISTRY_PASSWORD=$1 && shift
         ;;
 
+      # AWS Elastic Container Registry
+      -e|--target-is-ecr)
+        REGISTRY_IS_ECR=true
+        ;;
+      -r|--aws-ecr-region)
+        REGISTRY_ECR_AWS_REGION=$1 && shift
+        ;;
+
       # Pull secret
       --pullsecret)
         REDHAT_PULLSECRET=$1 && shift
@@ -260,6 +268,10 @@ function mirror_redhat() {
   export REGISTRY_PREFIX_REDHAT
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
+
+  # AWS Elastic Container Registry
+  export REGISTRY_IS_ECR
+  export REGISTRY_ECR_AWS_REGION
 
   echo
   reset_colors
