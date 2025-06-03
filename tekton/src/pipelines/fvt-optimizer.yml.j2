@@ -90,7 +90,7 @@ spec:
 
     # 2. Run "api_python_optim_model" (CTF)
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer-python-model
+    - name: fvt-optimizer-python-model-ctf
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -120,6 +120,9 @@ spec:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
           values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: in
+          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
       runAfter:
         - ivtcore-optimizer
       workspaces:
@@ -128,7 +131,7 @@ spec:
     
     # 3. Run "api_java_optim_model" (CTF)
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer-java-model
+    - name: fvt-optimizer-java-model-ctf
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -158,15 +161,18 @@ spec:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
           values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: in
+          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
       runAfter:
-        - fvt-optimizer-python-model
+        - fvt-optimizer-python-model-ctf
       workspaces:
         - name: configs
           workspace: shared-configs
 
     # 4. Run "api_model_endpoints" (CTF)
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer-model-endpoints
+    - name: fvt-optimizer-model-endpoints-ctf
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -196,15 +202,18 @@ spec:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
           values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: in
+          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
       runAfter:
-        - fvt-optimizer-java-model
+        - fvt-optimizer-java-model-ctf
       workspaces:
         - name: configs
           workspace: shared-configs
 
     # 5. Run "api_job_endpoints" (CTF)
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer-job-endpoints
+    - name: fvt-optimizer-job-endpoints-ctf
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -234,15 +243,18 @@ spec:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
           values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: in
+          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
       runAfter:
-        - fvt-optimizer-model-endpoints
+        - fvt-optimizer-model-endpoints-ctf
       workspaces:
         - name: configs
           workspace: shared-configs
 
     # 6. Run "api_project_endpoints" (CTF)
     # -----------------------------------------------------------------------------
-    - name: fvt-optimizer-project-endpoints
+    - name: fvt-optimizer-project-endpoints-ctf
       params:
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -272,8 +284,11 @@ spec:
         - input: "$(params.fvt_digest_ctf)"
           operator: notin
           values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: in
+          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
       runAfter:
-        - fvt-optimizer-job-endpoints
+        - fvt-optimizer-job-endpoints-ctf
       workspaces:
         - name: configs
           workspace: shared-configs
@@ -298,6 +313,8 @@ spec:
           value: ibm-mas-optimizer
         - name: fvt_test_suite
           value: optimizer-api
+        - name: test_marker
+          value: api_authorization_service
       timeout: "0"
       taskRef:
         kind: Task
@@ -309,11 +326,230 @@ spec:
         - input: "$(params.mas_app_channel_manage)"
           operator: notin
           values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: notin
+          values: [""]
+          # values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
       workspaces:
         - name: configs
           workspace: shared-configs
       runAfter:
-        - fvt-optimizer-project-endpoints
+        - imagescan-optimizer
+
+    # 8. Run "api_python_optim_model"
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-python-model
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-manage
+        - name: fvt_image_name
+          value: fvt-ibm-mas-manage-pytest
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_manage_pytest)
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: fvt_test_suite
+          value: optimizer-api
+        - name: test_marker
+          value: api_python_optim_model
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-manage-pytest
+      when:
+        - input: "$(params.fvt_digest_manage_pytest)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: notin
+          values: [""]
+          # values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - fvt-optimizer-authorization-service
+
+    # 8. Run "api_java_optim_model"
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-java-model
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-manage
+        - name: fvt_image_name
+          value: fvt-ibm-mas-manage-pytest
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_manage_pytest)
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: fvt_test_suite
+          value: optimizer-api
+        - name: test_marker
+          value: api_java_optim_model
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-manage-pytest
+      when:
+        - input: "$(params.fvt_digest_manage_pytest)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: notin
+          values: [""]
+          # values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - fvt-optimizer-python-model
+
+    # 8. Run "api_model_endpoints"
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-model-endpoints
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-manage
+        - name: fvt_image_name
+          value: fvt-ibm-mas-manage-pytest
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_manage_pytest)
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: fvt_test_suite
+          value: optimizer-api
+        - name: test_marker
+          value: api_model_endpoints
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-manage-pytest
+      when:
+        - input: "$(params.fvt_digest_manage_pytest)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: notin
+          values: [""]
+          # values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - fvt-optimizer-java-model
+
+    # 8. Run "api_job_endpoints"
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-job-endpoints
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-manage
+        - name: fvt_image_name
+          value: fvt-ibm-mas-manage-pytest
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_manage_pytest)
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: fvt_test_suite
+          value: optimizer-api
+        - name: test_marker
+          value: api_job_endpoints
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-manage-pytest
+      when:
+        - input: "$(params.fvt_digest_manage_pytest)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: notin
+          values: [""]
+          # values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - fvt-optimizer-model-endpoints
+
+    # 8. Run "api_project_endpoints"
+    # -----------------------------------------------------------------------------
+    - name: fvt-optimizer-project-endpoints
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-manage
+        - name: fvt_image_name
+          value: fvt-ibm-mas-manage-pytest
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_manage_pytest)
+        - name: product_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: product_id
+          value: ibm-mas-optimizer
+        - name: fvt_test_suite
+          value: optimizer-api
+        - name: test_marker
+          value: api_project_endpoints
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-manage-pytest
+      when:
+        - input: "$(params.fvt_digest_manage_pytest)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_optimizer)"
+          operator: notin
+          values: [""]
+          # values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - fvt-optimizer-job-endpoints
     
     # 8. Run "cypress/optimizer/e2e/ui/bvt/MOAdmin.cy.js"
     # -----------------------------------------------------------------------------
@@ -350,7 +586,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - fvt-optimizer-authorization-service
+        - imagescan-optimizer
       workspaces:
         - name: configs
           workspace: shared-configs
