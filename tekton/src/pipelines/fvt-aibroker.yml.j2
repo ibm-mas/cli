@@ -64,41 +64,55 @@ spec:
           operator: notin
           values: [""]
 
-    # 2. Prepare data for Python and Desktop suites
+    # 2. Aibroker base test suite
     # -----------------------------------------------------------------------------
-    - name: fvt-aibroker
+    - name: fvt-aibroker-tenant-entitlement
+      {{ lookup('template', 'taskdefs/fvt-aibroker/common/taskref.yml.j2') | indent(6) }}
       params:
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: mas_workspace_id
-          value: $(params.mas_workspace_id)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_namespace
-          value: fvt-aibroker
-        - name: fvt_image_name
-          value: fvt-ibm-mas-aibroker
-        - name: fvt_image_digest
-          value: $(params.fvt_digest_aibroker)
+        {{ lookup('template', 'taskdefs/fvt-aibroker/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: ai_service_fvt # pytest_marker
-        - name: product_channel
-          value: $(params.mas_app_channel_aibroker)
-        - name: product_id
-          value: ibm-mas-aibroker
+          value: tenant_entitlement 
 
-      timeout: "5h"
-      taskRef:
-        kind: Task
-        name: mas-fvt-run-suite
-      # Only if we've set a digest of the AIBroker FVT to run
-      when:
-        - input: "$(params.fvt_digest_aibroker)"
-          operator: notin
-          values: [""]
-        - input: "$(params.mas_app_channel_aibroker)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
+    # 3. Aibroker mcc test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aibroker-mcc
+      {{ lookup('template', 'taskdefs/fvt-aibroker/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aibroker/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: mcc 
+      runAfter:
+        - fvt-aibroker-tenant-entitlement
+
+    # 4. Aibroker pcc test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aibroker-pcc
+      {{ lookup('template', 'taskdefs/fvt-aibroker/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aibroker/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: pcc 
+      runAfter:
+        - fvt-aibroker-tenant-entitlement
+
+    # 5. Aibroker nl2oslc test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aibroker-nl2oslc
+      {{ lookup('template', 'taskdefs/fvt-aibroker/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aibroker/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: nl2oslc 
+      runAfter:
+        - fvt-aibroker-tenant-entitlement
+
+    # 6. Aibroker similarity test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aibroker-similarity
+      {{ lookup('template', 'taskdefs/fvt-aibroker/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aibroker/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: similarity 
+      runAfter:
+        - fvt-aibroker-tenant-entitlement
