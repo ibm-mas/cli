@@ -214,7 +214,6 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
-        - db2-manage  # db2-manage already waits for db2-system so we don't need to list both
         - suite-db2-setup-facilities
 
     # 5.8 Configure Kafka in MAS
@@ -381,7 +380,7 @@ spec:
     # 15.1 Dedicated Facilities Db2
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
       runAfter:
-        - cert-manager
+        - db2-manage
 
     # 15.2 Install Facilities
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-app.yml.j2') | indent(4) }}
