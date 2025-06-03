@@ -1184,6 +1184,8 @@ spec:
           operator: notin
           values: [""]
     - name: gitops-db2u-replica-database-manage
+      runAfter:
+        - gitops-db2u-database-manage
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -1481,6 +1483,8 @@ spec:
           operator: notin
           values: [""]
     - name: gitops-db2u-replica-database-facilities
+      runAfter:
+        - gitops-db2u-database-facilities
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
