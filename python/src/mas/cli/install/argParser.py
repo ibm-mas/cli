@@ -378,6 +378,11 @@ masAppsArgGroup.add_argument(
     required=False,
     help="Subscription channel for Maximo Ai Broker"
 )
+masAppsArgGroup.add_argument(
+    "--facilities-channel",
+    required=False,
+    help="Subscription channel for Maximo Real Estate and Facilities"
+)
 
 # AI Broker
 # -----------------------------------------------------------------------------
@@ -849,6 +854,92 @@ manageArgGroup.add_argument(
     choices=["cr", "db"]
 )
 
+# Facilities Advanced Settings
+# TODO: Fix type for storage sizes and max conn pool size
+facilitiesArgGroup = installArgParser.add_argument_group("Facilities Advanced Configuration")
+facilitiesArgGroup.add_argument(
+    "--facilities-size",
+    dest="mas_ws_facilities_size",
+    required=False,
+    help="Defines the size of Facilities deployment",
+    choices=['small', 'medium', 'large'],
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-pull-policy",
+    dest="mas_ws_facilities_pull_policy",
+    required=False,
+    help="Defines the pull policy for the images",
+    choices=["IfNotPresent", "Always"],
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-routes-timeout",
+    dest="mas_ws_facilities_routes_timeout",
+    required=False,
+    help="Defines the timeout for the routes",
+    default="600s",
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-xml-extension",
+    dest="mas_ws_facilities_liberty_extension_XML",
+    required=False,
+    help="Defines the name of the secret that holds the extensions for Liberty server",
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-vault-secret",
+    dest="mas_ws_facilities_vault_secret",
+    required=False,
+    help="Defines the name of the secret that holds the AES Encryption password",
+)
+# facilitiesArgGroup.add_argument(
+#     "--facilities-dwfagent",
+#     dest="mas_ws_facilities_dwfagents",
+#     required=False,
+#     help="Defines the list of dedicates workflow agents",
+# )
+# facilitiesArgGroup.add_argument(
+#     "--facilities-maxconnpoolsize",
+#     dest="mas_ws_facilities_db_maxconnpoolsize",
+#     required=False,
+#     help="Defines the maximum connection pool size",
+#     default=200,
+# )
+facilitiesArgGroup.add_argument(
+    "--facilities-log-storage-class",
+    dest="mas_ws_facilities_storage_log_class",
+    required=False,
+    help="Defines the log storage class",
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-log-storage-mode",
+    dest="mas_ws_facilities_storage_log_mode",
+    required=False,
+    help="Defines the log storage mode",
+)
+# facilitiesArgGroup.add_argument(
+#     "--facilities-log-storage-size",
+#     dest="mas_ws_facilities_storage_log_size",
+#     required=False,
+#     help="Defines the logs storage size",
+# )
+facilitiesArgGroup.add_argument(
+    "--facilities-userfiles-storage-class",
+    dest="mas_ws_facilities_storage_userfiles_class",
+    required=False,
+    help="Defines the user files storage class",
+)
+facilitiesArgGroup.add_argument(
+    "--facilities-userfiles-storage-mode",
+    dest="mas_ws_facilities_storage_userfiles_mode",
+    required=False,
+    help="Defines the user files storage mode",
+)
+# facilitiesArgGroup.add_argument(
+#     "--facilities-userfiles-storage-size",
+#     dest="mas_ws_facilities_storage_userfiles_size",
+#     required=False,
+#     help="Defines the user files storage size",
+# )
+
 # IBM Cloud Pak for Data
 # -----------------------------------------------------------------------------
 cpdAppsArgGroup = installArgParser.add_argument_group("IBM Cloud Pak for Data")
@@ -925,6 +1016,14 @@ db2ArgGroup.add_argument(
     dest="db2_action_manage",
     required=False,
     help="Install a dedicated Db2u instance for Maximo Manage (supported by Manage)",
+    action="store_const",
+    const="install"
+)
+db2ArgGroup.add_argument(
+    "--db2-facilities",
+    dest="db2_action_facilities",
+    required=False,
+    help="Install a dedicated Db2u instance for Maximo Real Estate and Facilities (supported by Facilities)",
     action="store_const",
     const="install"
 )
@@ -1281,6 +1380,11 @@ approvalsGroup.add_argument(
     "--approval-visualinspection",
     default="",
     help="Require approval after the Maximo Visual Inspection workspace has been configured"
+)
+approvalsGroup.add_argument(
+    "--approval-facilities",
+    default="",
+    help="Require approval after the Maximo Real Estate and Facilities workspace has been configured"
 )
 
 
