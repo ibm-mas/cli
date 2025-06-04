@@ -29,7 +29,7 @@ from ..cli import BaseApp
 from ..gencfg import ConfigGeneratorMixin
 from .argBuilder import installArgBuilderMixin
 from .argParser import installArgParser
-from .argParser import installArgParserAiservice
+from .argParserAiservice import installArgParserAiservice
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
 from .params import requiredParams, optionalParams
