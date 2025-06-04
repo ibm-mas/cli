@@ -260,6 +260,9 @@ function gitops_cluster_noninteractive() {
         export INGRESS=$1 && shift
         ;;
 
+      --nonshared)
+        export NONSHARED=$1 && shift
+        ;;
       --install-selenium-grid)
         export INSTALL_SELENIUM_GRID=true
         ;;
@@ -406,6 +409,8 @@ function gitops_cluster() {
     # Disable provision public ingress controller by default 
     export INGRESS=${INGRESS:-"false"}
   fi
+  export CLUSTER_NONSHARED=${NONSHARED:-"false"}
+  
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
@@ -413,6 +418,7 @@ function gitops_cluster() {
   echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+  echo_reset_dim "Nonshared Cluster .............. ${COLOR_MAGENTA}${CLUSTER_NONSHARED}"
   reset_colors
 
   echo "${TEXT_DIM}"

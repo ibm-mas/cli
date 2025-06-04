@@ -84,6 +84,9 @@ spec:
     - name: ingress
       type: string
       default: "false"
+    - name: nonshared
+      type: string
+      default: "false"
 
     - name: redhat_cert_manager_install_plan
       type: string
@@ -214,6 +217,8 @@ spec:
         value: $(params.ocp_cluster_domain)
       - name: INGRESS
         value: $(params.ingress)
+      - name: NONSHARED
+        value: $(params.nonshared)
 
       - name: REDHAT_CERT_MANAGER_INSTALL_PLAN
         value: $(params.redhat_cert_manager_install_plan)
