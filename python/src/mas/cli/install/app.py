@@ -2202,6 +2202,10 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             elif key == "optimizer_plan":
                 if value is not None and value != "":
                     self.setParam("mas_app_plan_optimizer", value)
+            elif key == "facilities_channel":
+                if value is not None and value != "":
+                    self.setParam("mas_app_channel_facilities", value)
+                    self.installFacilities = True
 
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":
