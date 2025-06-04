@@ -29,6 +29,7 @@ from ..cli import BaseApp
 from ..gencfg import ConfigGeneratorMixin
 from .argBuilder import installArgBuilderMixin
 from .argParser import installArgParser
+from .argParser import installArgParserAiservice
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
 from .params import requiredParams, optionalParams
@@ -1558,30 +1559,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             self.localConfigDir = self.promptForDir("Select Local configuration directory")
 
     @logMethodCall
-    def configGrafana(self) -> None:
-        if self.architecture == "s390x":
-            # We are not supporting Grafana on s390x at the moment
-            self.setParam("grafana_action", "none")
-        else:
-            try:
-                packagemanifestAPI = self.dynamicClient.resources.get(api_version="packages.operators.coreos.com/v1", kind="PackageManifest")
-                packagemanifestAPI.get(name="grafana-operator", namespace="openshift-marketplace")
-                if self.skipGrafanaInstall:
-                    self.setParam("grafana_action", "none")
-                else:
-                    self.setParam("grafana_action", "install")
-            except NotFoundError:
-                self.setParam("grafana_action", "none")
-
-            if self.interactiveMode and self.showAdvancedOptions:
-                self.printH1("Configure Grafana")
-                if self.getParam("grafana_action") == "none":
-                    print_formatted_text("The Grafana operator package is not available in any catalogs on the target cluster, the installation of Grafana will be disabled")
-                else:
-                    self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
-                    self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
-
-    @logMethodCall
     def configSpecialCharacters(self):
         if self.showAdvancedOptions:
             self.printH1("Configure special characters for userID and username")
@@ -1589,24 +1566,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
                 "By default Maximo Application Suite will not allow special characters in usernames and userIDs, and this is the recommended setting.  However, legacy Maximo products allowed this, so for maximum compatibilty when migrating from EAM 7 you can choose to enable this support."
             ])
             self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
-
-    @logMethodCall
-    def configCP4D(self):
-        if self.getParam("mas_catalog_version") in self.catalogOptions:
-            # Note: this will override any version provided by the user (which is intentional!)
-            logger.debug(f"Using automatic CP4D product version: {self.getParam('cpd_product_version')}")
-            self.setParam("cpd_product_version", self.chosenCatalog["cpd_product_version_default"])
-        elif self.getParam("cpd_product_version") == "":
-            if self.noConfirm:
-                self.fatalError("Cloud Pak for Data version must be set manually, but --no-confirm has been set without setting --cp4d-version")
-            self.printDescription([
-                f"Unknown catalog {self.getParam('mas_catalog_version')}, please manually select the version of Cloud Pak for Data to use"
-            ])
-            self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="4.8.0")
-            logger.debug(f"Using user-provided (prompt) CP4D product version: {self.getParam('cpd_product_version')}")
-        else:
-            logger.debug(f"Using user-provided (flags) CP4D product version: {self.getParam('cpd_product_version')}")
-        self.deployCP4D = True
 
     @logMethodCall
     def configSSOProperties(self):
@@ -1835,68 +1794,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
 
     @logMethodCall
-    def configApps(self):
-        self.printH1("Application Selection")
-        self.installIoT = self.yesOrNo("Install IoT")
-
-        if self.installIoT:
-            self.configAppChannel("iot")
-            self.installMonitor = self.yesOrNo("Install Monitor")
-        else:
-            self.installMonitor = False
-
-        if self.installMonitor:
-            self.configAppChannel("monitor")
-
-        self.manageAppName = "Manage"
-        self.isManageFoundation = False
-        self.installManage = self.yesOrNo(f"Install {self.manageAppName}")
-
-        # If the selection was to not install manage but we are in mas_channel 9.1 or later, we need to set self.isManageFoundation to True
-        # Also, we need to force self.installManage to be True because Manage must always be installed in MAS 9.1 or later
-        if not self.installManage:
-            if not self.getParam("mas_channel").startswith("8.") and not self.getParam("mas_channel").startswith("9.0"):
-                self.installManage = True
-                self.isManageFoundation = True
-                self.setParam("is_full_manage", "false")
-                self.setParam("mas_app_settings_aio_flag", "false")
-                self.manageAppName = "Manage foundation"
-                self.printDescription([f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."])
-        else:
-            self.setParam("is_full_manage", "true")
-
-        if self.installManage:
-            self.configAppChannel("manage")
-
-        if self.installIoT and self.installManage:
-            self.installPredict = self.yesOrNo("Install Predict")
-        else:
-            self.installPredict = False
-
-        if self.installPredict:
-            self.configAppChannel("predict")
-
-        # Assist is only installable on MAS 9.0.x due to withdrawal of support for Watson Discovery in our managed dependency stack and the inability of Assist 8.x to support this
-        if not self.getParam("mas_channel").startswith("8."):
-            self.installAssist = self.yesOrNo("Install Assist")
-            if self.installAssist:
-                self.configAppChannel("assist")
-        else:
-            self.installAssist = False
-
-        self.installOptimizer = self.yesOrNo("Install Optimizer")
-        if self.installOptimizer:
-            self.configAppChannel("optimizer")
-
-        self.installInspection = self.yesOrNo("Install Visual Inspection")
-        if self.installInspection:
-            self.configAppChannel("visualinspection")
-
-        self.installAiBroker = self.yesOrNo("Install AI Broker")
-        if self.installAiBroker:
-            self.configAppChannel("aibroker")
-
-    @logMethodCall
     def configAppChannel(self, appId):
         self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel for Aibroker</Yellow> '))
 
@@ -1945,47 +1842,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             self.pipelineStorageAccessMode = "ReadWriteMany"
 
     @logMethodCall
-    def setIoTStorageClasses(self) -> None:
-        if self.installIoT:
-            self.setParam("mas_app_settings_iot_fpl_pvc_storage_class", self.getParam("storage_class_rwo"))
-            self.setParam("mas_app_settings_iot_mqttbroker_pvc_storage_class", self.getParam("storage_class_rwo"))
-
-    @logMethodCall
-    def optimizerSettings(self) -> None:
-        if self.installOptimizer:
-            self.printH1("Configure Maximo Optimizer")
-            if self.isSNO():
-                self.printDescription(["Using Optimizer 'limited' plan as it is being installed in a single node cluster"])
-                self.setParam("mas_app_plan_optimizer", "limited")
-            else:
-                self.printDescription(["Customize your Optimizer installation, 'full' and 'limited' install plans are available, refer to the product documentation for more information"])
-                self.promptForString("Plan [full/limited]", "mas_app_plan_optimizer", default="full", validator=OptimizerInstallPlanValidator())
-
-    @logMethodCall
-    def predictSettings(self) -> None:
-        if self.showAdvancedOptions and self.installPredict:
-            self.printH1("Configure Maximo Predict")
-            self.printDescription([
-                "Predict application supports integration with IBM SPSS which is an optional service installed on top of IBM Cloud Pak for Data",
-                "Unless requested these will not be installed"
-            ])
-            self.configCP4D()
-            self.yesOrNo("Install IBM SPSS Statistics", "cpd_install_spss")
-
-    @logMethodCall
-    def assistSettings(self) -> None:
-        if self.installAssist:
-            self.printH1("Configure Maximo Assist")
-            self.printDescription([
-                "Assist requires access to Cloud Object Storage (COS), this install supports automatic setup using either IBMCloud COS or in-cluster COS via OpenShift Container Storage/OpenShift Data Foundation (OCS/ODF)"
-            ])
-            self.configCP4D()
-            self.promptForString("COS Provider [ibm/ocs]", "cos_type")
-            if self.getParam("cos_type") == "ibm":
-                self.promptForString("IBM Cloud API Key", "cos_apikey", isPassword=True)
-                self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
-
-    @logMethodCall
     def chooseInstallFlavour(self) -> None:
         self.printH1("Choose Install Mode")
         self.printDescription([
@@ -2021,6 +1877,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         self.installPredict = False
         self.installInspection = False
         self.installOptimizer = False
+        self.installFacilities = False
         self.installAiBroker = True
         self.deployCP4D = False
         self.db2SetAffinity = False
@@ -2053,22 +1910,14 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         self.configCertManager()
         self.configMAS()
 
-        # MAS Applications
-        # self.configApps()
         self.configAppChannel("aibroker")
 
         self.validateInternalRegistryAvailable()
-        # Note: manageSettings(), predictSettings(), or assistSettings() functions can trigger configCP4D()
-        # self.manageSettings()
-        # self.optimizerSettings()
-        # self.predictSettings()
-        # self.assistSettings()
         self.aibrokerSettings()
 
         # Dependencies
         self.configMongoDb()
         self.configDb2()
-        # self.configKafka()  # Will only do anything if IoT has been selected for install
 
         # self.configGrafana()
         self.configTurbonomic()
@@ -2092,23 +1941,16 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         self.installManage = False
         self.installPredict = False
         self.installInspection = False
+        self.installFacilities = False
         self.installOptimizer = False
-        self.installAiBroker = False
+        self.installAiBroker = True
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
         self.slsLicenseFileLocal = None
 
         self.approvals = {
-            "approval_core": {"id": "suite-verify"},  # After Core Platform verification has completed
-            "approval_assist": {"id": "app-cfg-assist"},  # After Assist workspace has been configured
-            "approval_iot": {"id": "app-cfg-iot"},  # After IoT workspace has been configured
-            "approval_manage": {"id": "app-cfg-manage"},  # After Manage workspace has been configured
-            "approval_monitor": {"id": "app-cfg-monitor"},  # After Monitor workspace has been configured
-            "approval_optimizer": {"id": "app-cfg-optimizer"},  # After Optimizer workspace has been configured
-            "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
             "approval_aibroker": {"id": "app-cfg-aibroker"},  # After Aibroker workspace has been configured
-            "approval_visualinspection": {"id": "app-cfg-visualinspection"}  # After Visual Inspection workspace has been configured
         }
 
         # self.configGrafana()
@@ -2126,21 +1968,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             elif key in optionalParams:
                 if value is not None:
                     self.setParam(key, value)
-
-            elif key == "kafka_provider":
-                if value is not None:
-                    self.setParam("kafka_provider", value)
-                    self.setParam("kafka_action_system", "install")
-
-            elif key == "kafka_username":
-                if value is not None:
-                    self.setParam("kafka_user_name", value)
-                    self.setParam("aws_kafka_user_name", value)
-
-            elif key == "kafka_password":
-                if value is not None:
-                    self.setParam("kafka_user_password", value)
-                    self.setParam("aws_kafka_user_password", value)
 
             elif key == "non_prod":
                 if not value:
@@ -2166,46 +1993,10 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             # We check for both None and "" values for the application channel parameters
             # value = None means the parameter wasn't set at all
             # value = "" means the paramerter was explicitly set to "don't install this application"
-            elif key == "assist_channel":
-                if value is not None and value != "":
-                    self.setParam("mas_app_channel_assist", value)
-                    self.installAssist = True
-            elif key == "iot_channel":
-                if value is not None and value != "":
-                    self.setParam("mas_app_channel_iot", value)
-                    self.installIoT = True
-            elif key == "monitor_channel":
-                if value is not None and value != "":
-                    self.setParam("mas_app_channel_monitor", value)
-                    self.installMonitor = True
-            elif key == "manage_channel":
-                if value is not None and value != "":
-                    self.setParam("mas_app_channel_manage", value)
-                    self.installManage = True
-            elif key == "predict_channel":
-                if value is not None and value != "":
-                    self.setParam("mas_app_channel_predict", value)
-                    self.installPredict = True
-                    self.deployCP4D = True
-            elif key == "visualinspection_channel":
-                if value is not None and value != "":
-                    self.setParam("mas_app_channel_visualinspection", value)
-                    self.installInspection = True
             elif key == "aibroker_channel":
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_aibroker", value)
                     self.installAiBroker = True
-            elif key == "optimizer_channel":
-                if value is not None and value != "":
-                    self.setParam("mas_app_channel_optimizer", value)
-                    self.installOptimizer = True
-            elif key == "optimizer_plan":
-                if value is not None and value != "":
-                    self.setParam("mas_app_plan_optimizer", value)
-            elif key == "facilities_channel":
-                if value is not None and value != "":
-                    self.setParam("mas_app_channel_facilities", value)
-                    self.installFacilities = True
 
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":
@@ -2303,7 +2094,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         """
         Install MAS instance
         """
-        args = installArgParser.parse_args(args=argv)
+        args = installArgParserAiservice.parse_args(args=argv)
 
         # We use the presence of --mas-instance-id to determine whether
         # the CLI is being started in interactive mode or not
@@ -2314,7 +2105,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
-        self.skipGrafanaInstall = args.skip_grafana_install
 
         # Set image_pull_policy of the CLI in interactive mode
         if args.image_pull_policy and args.image_pull_policy != "":
@@ -2361,11 +2151,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             self.interactiveMode(simplified=args.simplified, advanced=args.advanced)
         else:
             self.nonInteractiveMode()
-
-        # After we've configured the basic inputs, we can calculate these ones
-        # self.setIoTStorageClasses()
-        if self.deployCP4D:
-            self.configCP4D()
 
         # Set up the secrets for additional configs, podtemplates, sls license file and manual certificates
         self.additionalConfigs()
