@@ -38,5 +38,5 @@
       operator: in
       values: ["minio"]
     - input: "$(params.install_minio_aiservice)"
-      operator: in
-      values: ["true", "True"]
+      operator: notin
+      values: ["false", "False"]

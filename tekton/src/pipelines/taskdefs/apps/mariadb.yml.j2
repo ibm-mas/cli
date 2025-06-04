@@ -35,5 +35,5 @@
       operator: notin
       values: [""]
     - input: "$(params.install_mariadb_aiservice)"
-      operator: in
-      values: ["true", "True"]
+      operator: notin
+      values: ["false", "False"]
