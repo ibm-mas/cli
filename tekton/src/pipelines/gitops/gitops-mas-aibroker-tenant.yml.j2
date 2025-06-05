@@ -31,7 +31,7 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: tenant_namespace
+    - name: tenantNamespace
       type: string
     - name: cluster_domain
       type: string
@@ -130,8 +130,8 @@ spec:
           value: $(params.mas_aibroker_provision_tenant)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
-        - name: tenant_namespace
-          value: $(params.tenant_namespace)
+        - name: tenantNamespace
+          value: $(params.tenantNamespace)
         - name: cluster_domain
           value: $(params.cluster_domain)
         - name: in_saas_env
