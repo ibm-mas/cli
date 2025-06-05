@@ -52,7 +52,6 @@
         - fvt-sls
         - fvt-visualinspection
         - fvt-launcher
-        - fvt-launcher-for-aiservice
         - ivt-manage
 
     # 2. Generate Pipelines
