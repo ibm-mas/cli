@@ -59,7 +59,7 @@ spec:
       type: string
     - name: docker_server
       type: string
-    - name: tenant_namespace
+    - name: tenantNamespace
       type: string
     - name: mas_aibroker_provision_tenant
       type: string
@@ -139,7 +139,7 @@ spec:
       - name: DOCKER_SERVER
         value: $(params.docker_server)
       - name: TENANT_NAMESPACE
-        value: $(params.tenant_namespace)
+        value: $(params.tenantNamespace)
       - name: MAS_AIBROKER_PROVISION_TENANT
         value: $(params.mas_aibroker_provision_tenant)
       - name: PRIMARY_STORAGE_CLASS
