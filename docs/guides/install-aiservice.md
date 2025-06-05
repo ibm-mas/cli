@@ -116,7 +116,6 @@ The following command will launch the MAS CLI container image, login to your Ope
 
 ```bash
 IBM_ENTITLEMENT_KEY=xxx
-SUPERUSER_PASSWORD=xxx
 
 docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@  bash -c "
   oc login --token=sha256~xxxx --server=https://xxx &&
