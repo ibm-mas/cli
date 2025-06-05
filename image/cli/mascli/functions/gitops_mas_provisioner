@@ -272,18 +272,17 @@ function gitops_mas_provisioner() {
   AVP_TYPE=aws
   sm_login
 
-  export SECRET_NAME_PROVISIONER=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}provisioner
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
   export SECRET_KEY_INSTANA_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}instana#key
-  export SECRET_KEY_GITHUB_TOKEN=${SECRET_NAME_PROVISIONER}#git_token
-  export SECRET_KEY_PAGERDUTY=${SECRET_NAME_PROVISIONER}#pd_key
-  export SECRET_KEY_OCM_API=${SECRET_NAME_PROVISIONER}#ocm_api
-  export SECRET_KEY_CSB_CLIENT_CA=${SECRET_NAME_PROVISIONER}#cert
+  export SECRET_KEY_GITHUB_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}git#token
+  export SECRET_KEY_PAGERDUTY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}pd#key
+  export SECRET_KEY_OCM_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocm#api
+  export SECRET_KEY_CSB_CLIENT_CA=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}csb#cert
 
   if [ -n "$GITHUB_PAT" ]; then
     echo "- Update GITHUB_PAT secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret $SECRET_NAME_PROVISIONER "{\"git_token\": \"${GITHUB_PAT}\"}" "${TAGS}"
+    sm_update_secret ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}git "{\"token\": \"${GITHUB_PAT}\"}" "${TAGS}"
   else
     export SECRET_KEY_GITHUB_TOKEN=""
   fi
@@ -291,7 +290,7 @@ function gitops_mas_provisioner() {
   if [ -n "$PAGERDUTY_KEY" ]; then
     echo "- Update PAGERDUTY_KEY secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret $SECRET_NAME_PROVISIONER "{\"pd_key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
+    sm_update_secret ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}pd "{\"key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
   else
     export SECRET_KEY_PAGERDUTY=""
   fi
@@ -299,7 +298,7 @@ function gitops_mas_provisioner() {
   if [ -n "$OCM_API_KEY" ]; then
     echo "- Update OCM_API_KEY secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret $SECRET_NAME_PROVISIONER "{\"ocm_api\": \"${OCM_API_KEY}\"}" "${TAGS}"
+    sm_update_secret ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocm "{\"api\": \"${OCM_API_KEY}\"}" "${TAGS}"
   else
     export SECRET_KEY_OCM_API=""
   fi
@@ -307,7 +306,7 @@ function gitops_mas_provisioner() {
   if [ -n "$CSB_CA_CERT" ]; then
     echo "- Update CSB_CA_CERT secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret $SECRET_NAME_PROVISIONER "{\"cert\": \"${CSB_CA_CERT}\"}" "${TAGS}"
+    sm_update_secret ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}csb "{\"cert\": \"${CSB_CA_CERT}\"}" "${TAGS}"
   else
     export SECRET_KEY_CSB_CLIENT_CA=""
   fi
