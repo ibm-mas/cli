@@ -17,7 +17,7 @@ Basic Configuration:
 
 ibm_aibroker_tenant(required):
       --mas_instance_id ${COLOR_YELLOW}MAS_INSTACE_ID${TEXT_RESET}                                          The MAS instance ID used by AI Broker
-      --tenant_namespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                       The tenant's Kubernetes namespace
+      --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                       The tenant's Kubernetes namespace
       --cluster_domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                           The domain name of the Kubernetes cluster (e.g., cluster.local)
       --drocfg_url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                   URL of the DRO configuration service
       --slscfg_url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
@@ -31,7 +31,7 @@ AIBroker :
 --aibroker_namespace ${COLOR_YELLOW}AIBROKER_NAMESPACE${TEXT_RESET}                                         The namespace where AI Broker is deployed
 --mas_aibroker_provision_tenant ${COLOR_YELLOW}MAS_AIBROKER_PROVISION_TENANT${TEXT_RESET}                   Whether to provision the AI Broker tenant
 --mas_instance_id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                               The MAS instance ID used by AI Broker
---tenant_namespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                             The tenant's Kubernetes namespace
+--tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                             The tenant's Kubernetes namespace
 --cluster_domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                 The domain name of the Kubernetes cluster (e.g., cluster.local)
 --in_saas_env ${COLOR_YELLOW}IN_SAAS_ENV${TEXT_RESET}                                                       Whether the environment is SaaS (true/false)
 --ibm_entitlement_key ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}                                       IBM Entitlement API key for accessing IBM container registries
@@ -157,7 +157,7 @@ function gitops_aibroker_tenant_noninteractive() {
       --mas_instance_id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
-      --tenant_namespace)
+      --tenantNamespace)
         export TENANT_NAMESPACE=$1 && shift
         ;;
       --cluster_domain)

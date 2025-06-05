@@ -32,7 +32,7 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: tenant_namespace
+    - name: tenantNamespace
       type: string
     - name: cluster_domain
       type: string
@@ -127,7 +127,7 @@ spec:
         value: $(params.mas_instance_id)
 
       - name: TENANT_NAMESPACE
-        value: $(params.tenant_namespace)
+        value: $(params.tenantNamespace)
 
       - name: CLUSTER_DOMAIN
         value: $(params.cluster_domain)
@@ -233,7 +233,7 @@ spec:
         --github-repo "$GITHUB_REPO" \
         --git-branch "$GIT_BRANCH" \
         --mas_instance_id "$MAS_INSTANCE_ID" \
-        --tenant_namespace "$TENANT_NAMESPACE" \
+        --tenantNamespace "$TENANT_NAMESPACE" \
         --cluster_domain "$CLUSTER_DOMAIN" \
         --slscfg_url "$SLSCFG_URL" \
         --slscfg_client_id "$SLSCFG_CLIENT_ID" \
