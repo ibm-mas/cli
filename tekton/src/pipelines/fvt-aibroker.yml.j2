@@ -66,53 +66,9 @@ spec:
 
     # 2. Aibroker base test suite
     # -----------------------------------------------------------------------------
-    - name: fvt-aibroker-tenant-entitlement
+    - name: fvt-aibroker
       {{ lookup('template', 'taskdefs/fvt-aibroker/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-aibroker/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: tenant_entitlement 
-
-    # 3. Aibroker mcc test suite
-    # -----------------------------------------------------------------------------
-    - name: fvt-aibroker-mcc
-      {{ lookup('template', 'taskdefs/fvt-aibroker/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/fvt-aibroker/common/params.yml.j2') | indent(8) }}
-        - name: fvt_test_suite
-          value: mcc 
-      runAfter:
-        - fvt-aibroker-tenant-entitlement
-
-    # 4. Aibroker pcc test suite
-    # -----------------------------------------------------------------------------
-    - name: fvt-aibroker-pcc
-      {{ lookup('template', 'taskdefs/fvt-aibroker/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/fvt-aibroker/common/params.yml.j2') | indent(8) }}
-        - name: fvt_test_suite
-          value: pcc 
-      runAfter:
-        - fvt-aibroker-tenant-entitlement
-
-    # 5. Aibroker nl2oslc test suite
-    # -----------------------------------------------------------------------------
-    - name: fvt-aibroker-nl2oslc
-      {{ lookup('template', 'taskdefs/fvt-aibroker/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/fvt-aibroker/common/params.yml.j2') | indent(8) }}
-        - name: fvt_test_suite
-          value: nl2oslc 
-      runAfter:
-        - fvt-aibroker-tenant-entitlement
-
-    # 6. Aibroker similarity test suite
-    # -----------------------------------------------------------------------------
-    - name: fvt-aibroker-similarity
-      {{ lookup('template', 'taskdefs/fvt-aibroker/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/fvt-aibroker/common/params.yml.j2') | indent(8) }}
-        - name: fvt_test_suite
-          value: similarity 
-      runAfter:
-        - fvt-aibroker-tenant-entitlement
+          value: ai_service_fvt
