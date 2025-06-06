@@ -119,6 +119,8 @@ class ManageSettingsMixin():
                     self.params["mas_appws_components"] += ",utilities=latest"
                 if self.yesOrNo(" - Workday Applications"):
                     self.params["mas_appws_components"] += ",workday=latest"
+                if self.yesOrNo(" - AIP"):
+                    self.params["mas_appws_components"] += ",aip=latest"                    
                 logger.debug(f"Generated mas_appws_components = {self.params['mas_appws_components']}")
 
                 if ",icd=" in self.params["mas_appws_components"]:
