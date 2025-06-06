@@ -215,10 +215,10 @@ spec:
           value: $(params.minio_storage_size)
         - name: minio_image
           value: $(params.minio_image)
-      when:
-        - input: "$(params.mas_aibroker_storage_provider)"
-          operator: notin
-          values: ["minio"]
+      #when:
+       # - input: "$(params.mas_aibroker_storage_provider)"
+       #   operator: notin
+      #  values: ["minio"]
 
     # 2.gitops-odh
     # -------------------------------------------------------------------------
