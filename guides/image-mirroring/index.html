@@ -607,7 +607,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.20.0 $REGISTRY_HOST:$R
 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><a href="https://ibm-mas.github.io/cli/commands/mirror-redhat-images">Mirror Redhat images</a> to install required redhat dependencies for Mas installation to progress.</p>
+<p><a href="https://ibm-mas.github.io/cli/commands/mirror-redhat-images">Mirror Redhat images</a> to install required ( DRO, Cert Manager and Grafana) redhat dependencies for Mas installation to progress. Missing this step will result in installation failures.</p>
 </div>
 <h2 id="storage-requirements">Storage Requirements<a class="headerlink" href="#storage-requirements" title="Permanent link">¤</a></h2>
 <p>As of MAS 8.10 (June 2023) the total capacity requirement to mirror content from the IBM Maximo Operator Catalog is approximately <strong>484G</strong>, the following table can be used to determine the approximate storage requirement for your mirrored content based on what content you need to mirror:</p>
@@ -761,7 +761,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.20.0 $REGISTRY_HOST:$R
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-05-23 21:26:15.446431+00:00)
+      Built with mkdocs v1.6.1 (2025-06-06 14:29:52.443051+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
