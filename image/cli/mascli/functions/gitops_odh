@@ -103,7 +103,7 @@ function gitops_odh_noninteractive() {
   while [[ $# -gt 0 ]]; do
     key="$1"; shift
     case $key in
-      #-d|--dir) export GITOPS_WORKING_DIR="$1"; shift ;;
+      -d|--dir) export GITOPS_WORKING_DIR="$1"; shift ;;
       -a|--account-id) export ACCOUNT_ID="$1"; shift ;;
       -c|--cluster-id) export CLUSTER_ID="$1"; shift ;;
       -m|--mas-instance-id) export MAS_INSTANCE_ID="$1"; shift ;;
