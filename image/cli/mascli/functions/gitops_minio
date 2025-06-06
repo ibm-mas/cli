@@ -63,7 +63,8 @@ function gitops_minio_noninteractive() {
   export MINIO_IMAGE=${MINIO_IMAGE:-"quay.io/minio/minio:latest"}
   export MINIO_PORT=${MINIO_PORT:-"9000"}
   export MINIO_HOST=${MINIO_HOST:-"minio-service.minio.svc.cluster.local"}
-
+  export AIBROKER_INSTANCE_ID=${AIBROKER_INSTANCE_ID:-"aibroker-inst-1"}
+  
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -333,6 +334,10 @@ function gitops_minio() {
       mkdir -p ${GITOPS_WORKING_DIR}
       clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
     fi
+    
+    # Create cluster directory to clone the repo into
+    # ---------------------------------------------------------------------------
+    GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
     mkdir -p ${GITOPS_CLUSTER_DIR}
 
     # Generate ArgoApps
