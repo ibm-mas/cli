@@ -32,6 +32,9 @@
     - name: db2_timezone
       value: $(params.db2_timezone)
 {% endif %}
+{% if suffix == "aibroker" %}
+      value: aibroker
+{% endif %}
     - name: db2_namespace
       value: $(params.db2_namespace)
     - name: db2_dbname
