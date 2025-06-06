@@ -244,8 +244,8 @@ function gitops_minio() {
   # Set up secrets
   # ---------------------------------------------------------------------------
   CURRENT_DIR=$PWD
-  TEMP_DIR=$GITOPS_CLUSTER_DIR/aibroker01
-  mkdir -p ${TEMP_DIR}
+  # TEMP_DIR=$GITOPS_CLUSTER_DIR/aibroker01
+  # mkdir -p ${TEMP_DIR}
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
@@ -361,7 +361,7 @@ function gitops_minio() {
       remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
     fi
 
-    rm -rf $TEMP_DIR
+    # rm -rf $TEMP_DIR
     rm -rf $GITOPS_WORKING_DIR
 
   fi
