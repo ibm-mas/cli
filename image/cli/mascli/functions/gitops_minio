@@ -329,6 +329,8 @@ function gitops_minio() {
     if [ "$GITHUB_PUSH" == "true" ]; then
       echo
       echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+      rm -rf $GITOPS_WORKING_DIR
+      mkdir -p ${GITOPS_WORKING_DIR}
       clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
     fi
     mkdir -p ${GITOPS_CLUSTER_DIR}
