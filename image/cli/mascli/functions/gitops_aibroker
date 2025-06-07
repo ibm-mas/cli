@@ -298,9 +298,9 @@ function gitops_aibroker() {
 
   rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  TEMP_DIR=$GITOPS_CLUSTER_DIR/tmp-aibroker
-  mkdir -p ${TEMP_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  # TEMP_DIR=$GITOPS_CLUSTER_DIR/tmp-aibroker
+  # mkdir -p ${TEMP_DIR}
   echo
   reset_colors
   echo_h2 "Review Settings"
@@ -408,6 +408,8 @@ function gitops_aibroker() {
     # ---------------------------------------------------------------------------
     if [ "$GITHUB_PUSH" == "true" ]; then
       echo
+      echo "GITOPS_WORKING_DIR  ${GITOPS_WORKING_DIR}"
+      echo "GITOPS_CLUSTER_DIR  ${GITOPS_CLUSTER_DIR}"
       echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
       clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
     fi
@@ -431,7 +433,7 @@ function gitops_aibroker() {
       remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
     fi
 
-    rm -rf $TEMP_DIR
+    # rm -rf $TEMP_DIR
     rm -rf $GITOPS_WORKING_DIR
 
    
