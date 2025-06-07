@@ -15,3 +15,4 @@ $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-facilities $OUTP
 # $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr $OUTPUT_DIR
 $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType datainit $OUTPUT_DIR
 $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType appserver $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType agent $OUTPUT_DIR
