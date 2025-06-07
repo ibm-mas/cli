@@ -98,7 +98,6 @@ EOM
 function gitops_odh_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir  
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-minio commit"
   GIT_COMMIT_MSG="gitops-odh commit"
   while [[ $# -gt 0 ]]; do
     key="$1"; shift
@@ -253,22 +252,22 @@ function gitops_odh() {
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "Temp Directory ........................ ${COLOR_MAGENTA}${TEMP_DIR}"
+
   echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
   reset_colors
 
   CURRENT_DIR=$PWD
-  TEMP_DIR=$CURRENT_DIR/aibroker01
-  mkdir -p $TEMP_DIR
-
+  # TEMP_DIR=$CURRENT_DIR/aibroker01
+  # mkdir -p $TEMP_DIR
+  # echo_reset_dim "Temp Directory ........................ ${COLOR_MAGENTA}${TEMP_DIR}"
+  
   AVP_TYPE=aws
   sm_login
 
   # Set up secret key and fetch secret
   export SECRET_ACCOUNT_PATH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
-  export MAS_CONFIG_DIR="$TEMP_DIR"
   export ODH_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio"
-  export ODH_SECRET_FILE="$TEMP_DIR/odh-secret.json"
+  export ODH_SECRET_FILE="$GITOPS_WORKING_DIR/odh-secret.json"
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
   fi
@@ -278,7 +277,7 @@ function gitops_odh() {
   sm_get_secret_file "$ODH_SECRET" "$ODH_SECRET_FILE"
   #################################################################
    export MARIA_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb"
-   export MARIA_SECRET_FILE="$TEMP_DIR/mariadb-secret.json"
+   export MARIA_SECRET_FILE="$GITOPS_WORKING_DIR/mariadb-secret.json"
    sm_get_secret_file "$MARIA_SECRET" "$MARIA_SECRET_FILE"
   ######################################################################
    #######################Checking condition Storage_provider#######################################
@@ -368,6 +367,8 @@ function gitops_odh() {
     remove_git_repo_clone "${GITOPS_WORKING_DIR}/${GITHUB_REPO}"
   fi
 
-  rm -rf "$TEMP_DIR"
+  # rm -rf "$TEMP_DIR"
+  rm -rf "$ODH_SECRET_FILE"
+  rm -rf "$MARIA_SECRET_FILE"
   echo_h2 "ODH GitOps completed."
 }
