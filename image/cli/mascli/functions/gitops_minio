@@ -309,8 +309,12 @@ function gitops_minio() {
 
       echo_reset_dim "MINIO_ROOT_PASSWORD ............................. ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:8}<snip>"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_minio\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-      
-      sm_update_secret $SECRET_NAME_MINIO_AUTH "{ \"sm_minio_user\": \"$MINIO_ROOT_USER\", \"sm_minio_password\": \"$MINIO_ROOT_PASSWORD\", \"sm_minio_accesskey\": \"$MINIO_ROOT_USER\", \"sm_minio_secretkey\": \"$MINIO_ROOT_PASSWORD\", \"sm_minio_port\": \"$MINIO_PORT\", \"sm_minio_host\": \"$MINIO_HOST\" }" "${TAGS}"
+      #SREMAT : remove those buckets name if no longer needed
+      MINIO_BUCKET_FIELDS="\"sm_minio_bucket_templates\": \"km-templates\", \
+      \"sm_minio_bucket_tenants\": \"km-tenants\", \
+      \"sm_minio_bucket_pipelines\": \"km-pipelineset\", \
+      \"sm_minio_bucket_default\": \"miniobucket1\""
+      sm_update_secret $SECRET_NAME_MINIO_AUTH "{ \"sm_minio_user\": \"$MINIO_ROOT_USER\", \"sm_minio_password\": \"$MINIO_ROOT_PASSWORD\", \"sm_minio_accesskey\": \"$MINIO_ROOT_USER\", \"sm_minio_secretkey\": \"$MINIO_ROOT_PASSWORD\", \"sm_minio_port\": \"$MINIO_PORT\", \"sm_minio_host\": \"$MINIO_HOST\", $MINIO_BUCKET_FIELDS }" "${TAGS}"
     fi
     
     echo_reset_dim "minio_namespace ....................... ${COLOR_MAGENTA}${MINIO_NAMESPACE}"
