@@ -294,9 +294,9 @@ function gitops_kmodel_noninteractive() {
   # add validation for those variable which have the value needed for further execution
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_kmodel_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
   [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_kmodel_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
-  [[ -z "$MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET is not set. Please provide the templates bucket name using --mas-aibroker-storage-templates-bucket."
-  [[ -z "$MAS_AIBROKER_STORAGE_TENANTS_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_TENANTS_BUCKET is not set. Please provide the tenants bucket name using --mas-aibroker-storage-tenants-bucket."
-  [[ -z "$MAS_AIBROKER_STORAGE_PIPELINES_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_PIPELINES_BUCKET is not set. Please provide the pipelines bucket name using --mas-aibroker-storage-pipelines-bucket."
+  # [[ -z "$MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET is not set. Please provide the templates bucket name using --mas-aibroker-storage-templates-bucket."
+  # [[ -z "$MAS_AIBROKER_STORAGE_TENANTS_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_TENANTS_BUCKET is not set. Please provide the tenants bucket name using --mas-aibroker-storage-tenants-bucket."
+  # [[ -z "$MAS_AIBROKER_STORAGE_PIPELINES_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_PIPELINES_BUCKET is not set. Please provide the pipelines bucket name using --mas-aibroker-storage-pipelines-bucket."
 
 }
 
@@ -405,11 +405,14 @@ function gitops_kmodel() {
   export SM_MINIO_SECRETKEY=${SECRETS_PREFIX}minio#sm_minio_secretkey
   export SM_MINIO_HOST=${SECRETS_PREFIX}minio#sm_minio_host
   export SM_MINIO_PORT=${SECRETS_PREFIX}minio#sm_minio_port
+  export SM_MINIO_BUCKET_TEMPLATES=${SECRETS_PREFIX}minio#sm_minio_bucket_templates
+  export SM_MINIO_BUCKET_TENANTS=${SECRETS_PREFIX}minio#sm_minio_bucket_tenants
+  export SM_MINIO_BUCKET_PIPELINES=${SECRETS_PREFIX}minio#sm_minio_bucket_pipelines
 
 # check for those variables present into the aws sm 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64"
 
-  sm_verify_secret_exists ${SECRETS_PREFIX}minio "sm_minio_host,sm_minio_port,sm_minio_accesskey,sm_minio_secretkey"
+  sm_verify_secret_exists ${SECRETS_PREFIX}minio "sm_minio_host,sm_minio_port,sm_minio_accesskey,sm_minio_secretkey,sm_minio_bucket_templates,sm_minio_bucket_tenants,sm_minio_bucket_pipelines"
 
     # finally push them into the git repo
     # ---------------------------------------------------------------------------
