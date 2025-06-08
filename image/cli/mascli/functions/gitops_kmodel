@@ -317,8 +317,8 @@ function gitops_kmodel() {
 
   # Prepare directories
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
-
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  
   echo
   reset_colors
   echo_h2 "Review Settings"
