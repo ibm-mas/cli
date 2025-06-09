@@ -99,6 +99,55 @@ function gitops_odh_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir  
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-odh commit"
+
+
+
+  export OPENSHIFT_NAMESPACE="${OPENSHIFT_NAMESPACE:-"openshift-operators"}"
+  export ODH_PIPELINE_CHANNEL="${ODH_PIPELINE_CHANNEL:-"latest"}"
+  export ODH_PIPELINE_INSTALLPLAN="${ODH_PIPELINE_INSTALLPLAN:-"Automatic"}"
+  export PIPELINE_CATALOG_SOURCE="${PIPELINE_CATALOG_SOURCE:-"redhat-operators"}"
+  export SERVICE_MESH_NAMESPACE="${SERVICE_MESH_NAMESPACE:-"openshift-operators"}"
+  export SERVICE_MESH_CHANNEL="${SERVICE_MESH_CHANNEL:-"stable"}"
+  export SERVICE_MESH_CATALOG_SOURCE="${SERVICE_MESH_CATALOG_SOURCE:-"redhat-operators"}"
+  export SERVICE_MESH_SOURCENAMESPACE="${SERVICE_MESH_SOURCENAMESPACE:-"openshift-marketplace"}"
+  export OPERATOR_NAME="${OPERATOR_NAME:-"openshift-pipelines-operator-rh"}"
+  export SERVERLESS_CHANNEL="${SERVERLESS_CHANNEL:-"stable"}"
+  export AUTHORINO_CATALOG_SOURCE="${AUTHORINO_CATALOG_SOURCE:-"community-operators"}"
+  export ODH_CHANNEL="${ODH_CHANNEL:-"fast"}"
+  export ODH_CATALOG_SOURCE="${ODH_CATALOG_SOURCE:-"community-operators"}"
+  export ODH_OPERATOR_VERSION="${ODH_OPERATOR_VERSION:-"opendatahub-operator.v2.19.0"}"
+  export ODH_NAMESPACE="${ODH_NAMESPACE:-"opendatahub"}"
+
+  export AIBROKER_NAMESPACE="${AIBROKER_NAMESPACE:-"mas-${MAS_INSTANCE_ID}-aibroker"}"
+  # skip pull_secret_name, it is a secret reference
+
+  export ODH_PIPELINE_NAME="${ODH_PIPELINE_NAME:-"openshift-pipelines-operator"}"
+  export ODH_PIPELINE_NAMESPACE="${ODH_PIPELINE_NAMESPACE:-"openshift-operators"}"
+  export ODH_PIPELINE_OPERATOR_NAME="${ODH_PIPELINE_OPERATOR_NAME:-"openshift-pipelines-operator-rh"}"
+  export ODH_PIPELINE_SOURCE="${ODH_PIPELINE_SOURCE:-"redhat_operators"}"
+  export ODH_PIPELINE_SOURCE_NAMESPACE="${ODH_PIPELINE_SOURCE_NAMESPACE:-"openshift_marketplace"}"
+
+  export SERVERLESS_NAMESPACE="${SERVERLESS_NAMESPACE:-"openshift-serverless"}"
+  export SERVERLESS_OPERATOR_NAME="${SERVERLESS_OPERATOR_NAME:-"serverless-operator"}"
+  export SERVERLESS_OPERATOR_SOURCE="${SERVERLESS_OPERATOR_SOURCE:-"redhat-operators"}"
+  export SERVERLESS_OPERATOR_SOURCE_NAMESPACE="${SERVERLESS_OPERATOR_SOURCE_NAMESPACE:-"openshift-marketplace"}"
+
+  export OPENDATAHUB_OPERATORGROUP_NAME="${OPENDATAHUB_OPERATORGROUP_NAME:-"opendatahub-operator-group"}"
+  export OPENDATAHUB_NAME="${OPENDATAHUB_NAME:-"opendatahub-operator"}"
+  export OPENDATAHUB_NAMESPACE="${OPENDATAHUB_NAMESPACE:-"opendatahub"}"
+  export OPENDATAHUB_INSTALLPLAN_APPROVAL="${OPENDATAHUB_INSTALLPLAN_APPROVAL:-"Manual"}"
+  export OPENDATAHUB_CHANNEL="${OPENDATAHUB_CHANNEL:-"fast"}"
+  export OPENDATAHUB_SOURCE="${OPENDATAHUB_SOURCE:-"community-operators"}"
+  export OPENDATAHUB_SOURCE_NAMESPACE="${OPENDATAHUB_SOURCE_NAMESPACE:-"openshift-marketplace"}"
+
+  export MAS_AIBROKER_STORAGE_PROVIDER="${MAS_AIBROKER_STORAGE_PROVIDER:-"minio"}"
+  export MAS_AIBROKER_STORAGE_SSL="${MAS_AIBROKER_STORAGE_SSL:-"true"}"
+  export MAS_AIBROKER_STORAGE_REGION="${MAS_AIBROKER_STORAGE_REGION:-"us-east-2"}"
+  export PRIMARY_STORAGE_CLASS="${PRIMARY_STORAGE_CLASS:-"nfs-client"}"
+
+
+
+
   while [[ $# -gt 0 ]]; do
     key="$1"; shift
     case $key in
@@ -146,63 +195,157 @@ function gitops_odh_noninteractive() {
         ;;
 
 
-      # ODH
-      --odh-channel) export ODH_CHANNEL="$1"; shift ;;
-      --odh-catalog-source) export ODH_CATALOG_SOURCE="$1"; shift ;;
-      --odh-operator-version) export ODH_OPERATOR_VERSION="$1"; shift ;;
-      --odh-namespace) export ODH_NAMESPACE="$1"; shift ;;
-      --pull-secret-name) export PULL_SECRET_NAME="$1"; shift ;;
-      --opendatahub-name) export OPENDATAHUB_NAME="$1"; shift ;;
-      --opendatahub-operator-group) export OPENDATAHUB_OPERATOR_GROUP_NAME="$1"; shift ;;
-      --opendatahub-installplan) export OPENDATAHUB_INSTALLPLAN_APPROVAL="$1"; shift ;;
-      --opendatahub-channel) export OPENDATAHUB_CHANNEL="$1"; shift ;;
-      --opendatahub-source) export OPENDATAHUB_SOURCE="$1"; shift ;;
-      --opendatahub-source-namespace) export OPENDATAHUB_SOURCE_NAMESPACE="$1"; shift ;;
+      --odh-channel)
+        export ODH_CHANNEL=$1 && shift
+        ;;
+      --odh-catalog-source)
+        export ODH_CATALOG_SOURCE=$1 && shift
+        ;;
+      --odh-operator-version)
+        export ODH_OPERATOR_VERSION=$1 && shift
+        ;;
+      --odh-namespace)
+        export ODH_NAMESPACE=$1 && shift
+        ;;
+      --openshift-namespace)
+        export OPENSHIFT_NAMESPACE=$1 && shift
+        ;;
+      --pull-secret-name)
+        export PULL_SECRET_NAME=$1 && shift
+        ;;
 
-      # Pipeline
-      --odh-pipeline-name) export ODH_PIPELINE_NAME="$1"; shift ;;
-      --odh-pipeline-namespace) export ODH_PIPELINE_NAMESPACE="$1"; shift ;;
-      --odh-pipeline-operator-name) export ODH_PIPELINE_OPERATOR_NAME="$1"; shift ;;
-      --odh-pipeline-source) export ODH_PIPELINE_SOURCE="$1"; shift ;;
-      --odh-pipeline-source-namespace) export ODH_PIPELINE_SOURCE_NAMESPACE="$1"; shift ;;
-      --odh-pipeline-channel) export ODH_PIPELINE_CHANNEL="$1"; shift ;;
-      --odh-pipeline-installplan) export ODH_PIPELINE_INSTALLPLAN="$1"; shift ;;
-      --pipeline-catalog-source) export PIPELINE_CATALOG_SOURCE="$1"; shift ;;
+      --opendatahub-name)
+        export OPENDATAHUB_NAME=$1 && shift
+        ;;
+      --opendatahub-operator-group)
+        export OPENDATAHUB_OPERATORGROUP_NAME=$1 && shift
+        ;;
+      --opendatahub-installplan)
+        export OPENDATAHUB_INSTALLPLAN_APPROVAL=$1 && shift
+        ;;
+      --opendatahub-channel)
+        export OPENDATAHUB_CHANNEL=$1 && shift
+        ;;
+      --opendatahub-source)
+        export OPENDATAHUB_SOURCE=$1 && shift
+        ;;
+      --opendatahub-source-namespace)
+        export OPENDATAHUB_SOURCE_NAMESPACE=$1 && shift
+        ;;
 
-      # Service Mesh
-      --service-mesh-namespace) export SERVICE_MESH_NAMESPACE="$1"; shift ;;
-      --service-mesh-channel) export SERVICE_MESH_CHANNEL="$1"; shift ;;
-      --service-mesh-catalog-source) export SERVICE_MESH_CATALOG_SOURCE="$1"; shift ;;
-      --service-mesh-source-namespace) export SERVICE_MESH_SOURCE_NAMESPACE="$1"; shift ;;
+      --odh-pipeline-name)
+        export ODH_PIPELINE_NAME=$1 && shift
+        ;;
+      --odh-pipeline-namespace)
+        export ODH_PIPELINE_NAMESPACE=$1 && shift
+        ;;
+      --odh-pipeline-operator-name)
+        export ODH_PIPELINE_OPERATOR_NAME=$1 && shift
+        ;;
+      --odh-pipeline-source)
+        export ODH_PIPELINE_SOURCE=$1 && shift
+        ;;
+      --odh-pipeline-source-namespace)
+        export ODH_PIPELINE_SOURCE_NAMESPACE=$1 && shift
+        ;;
+      --odh-pipeline-channel)
+        export ODH_PIPELINE_CHANNEL=$1 && shift
+        ;;
+      --odh-pipeline-installplan)
+        export ODH_PIPELINE_INSTALLPLAN=$1 && shift
+        ;;
+      --pipeline-catalog-source)
+        export PIPELINE_CATALOG_SOURCE=$1 && shift
+        ;;
 
-      # Serverless
-      --serverless-namespace) export SERVERLESS_NAMESPACE="$1"; shift ;;
-      --serverless-channel) export SERVERLESS_CHANNEL="$1"; shift ;;
-      --serverless-operator-name) export SERVERLESS_OPERATOR_NAME="$1"; shift ;;
-      --serverless-operator-source) export SERVERLESS_OPERATOR_SOURCE="$1"; shift ;;
-      --serverless-operator-source-namespace) export SERVERLESS_OPERATOR_SOURCE_NAMESPACE="$1"; shift ;;
+      --service-mesh-namespace)
+        export SERVICE_MESH_NAMESPACE=$1 && shift
+        ;;
+      --service-mesh-channel)
+        export SERVICE_MESH_CHANNEL=$1 && shift
+        ;;
+      --service-mesh-catalog-source)
+        export SERVICE_MESH_CATALOG_SOURCE=$1 && shift
+        ;;
+      --service-mesh-source-namespace)
+        export SERVICE_MESH_SOURCE_NAMESPACE=$1 && shift
+        ;;
 
-      # Authorino
-      --authorino-catalog-source) export AUTHORINO_CATALOG_SOURCE="$1"; shift ;;
+      --serverless-namespace)
+        export SERVERLESS_NAMESPACE=$1 && shift
+        ;;
+      --serverless-channel)
+        export SERVERLESS_CHANNEL=$1 && shift
+        ;;
+      --serverless-operator-name)
+        export SERVERLESS_OPERATOR_NAME=$1 && shift
+        ;;
+      --serverless-operator-source)
+        export SERVERLESS_OPERATOR_SOURCE=$1 && shift
+        ;;
+      --serverless-operator-source-namespace)
+        export SERVERLESS_OPERATOR_SOURCE_NAMESPACE=$1 && shift
+        ;;
 
-      # Storage
-      --storage-provider) export MAS_AIBROKER_STORAGE_PROVIDER="$1"; shift ;;
-      --storage-accesskey) export MAS_AIBROKER_STORAGE_ACCESSKEY="$1"; shift ;;
-      --storage-secretkey) export MAS_AIBROKER_STORAGE_SECRETKEY="$1"; shift ;;
-      --storage-host) export MAS_AIBROKER_STORAGE_HOST="$1"; shift ;;
-      --storage-port) export MAS_AIBROKER_STORAGE_PORT="$1"; shift ;;
-      --storage-ssl) export MAS_AIBROKER_STORAGE_SSL="$1"; shift ;;
-      --storage-region) export MAS_AIBROKER_STORAGE_REGION="$1"; shift ;;
-      --pipelines-bucket) export MAS_AIBROKER_STORAGE_PIPELINES_BUCKET="$1"; shift ;;
-      --primary-storage-class) export PRIMARY_STORAGE_CLASS="$1"; shift ;;
+      --authorino-catalog-source)
+        export AUTHORINO_CATALOG_SOURCE=$1 && shift
+        ;;
 
-      # Database
-      --db-host) export MAS_AIBROKER_DB_HOST="$1"; shift ;;
-      --db-port) export MAS_AIBROKER_DB_PORT="$1"; shift ;;
-      --db-user) export MAS_AIBROKER_DB_USER="$1"; shift ;;
-      --db-database) export MAS_AIBROKER_DB_DATABASE="$1"; shift ;;
-      --db-secret-name) export MAS_AIBROKER_DB_SECRET_NAME="$1"; shift ;;
-      --db-secret-value) export MAS_AIBROKER_DB_SECRET_VALUE="$1"; shift ;;
+      --aibroker-namespace)
+        export AIBROKER_NAMESPACE=$1 && shift
+        ;;
+
+      --storage-provider)
+        export MAS_AIBROKER_STORAGE_PROVIDER=$1 && shift
+        ;;
+      --storage-accesskey)
+        export MAS_AIBROKER_STORAGE_ACCESSKEY=$1 && shift
+        ;;
+      --storage-secretkey)
+        export MAS_AIBROKER_STORAGE_SECRETKEY=$1 && shift
+        ;;
+      --storage-host)
+        export MAS_AIBROKER_STORAGE_HOST=$1 && shift
+        ;;
+      --storage-port)
+        export MAS_AIBROKER_STORAGE_PORT=$1 && shift
+        ;;
+      --storage-ssl)
+        export MAS_AIBROKER_STORAGE_SSL=$1 && shift
+        ;;
+      --storage-region)
+        export MAS_AIBROKER_STORAGE_REGION=$1 && shift
+        ;;
+      --storage-pipelines-bucket)
+        export MAS_AIBROKER_STORAGE_PIPELINES_BUCKET=$1 && shift
+        ;;
+
+      --db-host)
+        export MAS_AIBROKER_DB_HOST=$1 && shift
+        ;;
+      --db-port)
+        export MAS_AIBROKER_DB_PORT=$1 && shift
+        ;;
+      --db-user)
+        export MAS_AIBROKER_DB_USER=$1 && shift
+        ;;
+      --db-database)
+        export MAS_AIBROKER_DB_DATABASE=$1 && shift
+        ;;
+      --db-secret-name)
+        export MAS_AIBROKER_DB_SECRET_NAME=$1 && shift
+        ;;
+      --db-secret-value)
+        export MAS_AIBROKER_DB_SECRET_VALUE=$1 && shift
+        ;;
+
+      --primary-storage-class)
+        export PRIMARY_STORAGE_CLASS=$1 && shift
+        ;;
+
+      --operator-name)
+        export OPERATOR_NAME=$1 && shift
+        ;;
 
       # GitHub
       -P|--github-push) export GITHUB_PUSH=true ;;
@@ -267,6 +410,27 @@ function gitops_odh() {
   # Set up secret key and fetch secret
   export SECRET_ACCOUNT_PATH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
   export ODH_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio"
+
+
+  export SECRET_KEY_IMAGE_PULL_SECRET_B64="${SECRET_ACCOUNT_PATH}ibm_entitlement#image_pull_secret_b64"
+
+  # MinIO
+  export SECRET_KEY_SM_MINIO_ACCESSKEY="${SECRET_ACCOUNT_PATH}minio#sm_minio_accesskey"
+  export SECRET_KEY_SM_MINIO_SECRETKEY="${SECRET_ACCOUNT_PATH}minio#sm_minio_secretkey"
+  export SECRET_KEY_SM_MINIO_HOST="${SECRET_ACCOUNT_PATH}minio#sm_minio_host"
+  export SECRET_KEY_SM_MINIO_PORT="${SECRET_ACCOUNT_PATH}minio#sm_minio_port"
+  export SECRET_KEY_SM_MINIO_BUCKET_DEFAULT="${SECRET_ACCOUNT_PATH}minio#sm_minio_bucket_default"
+
+  # MariaDB
+  export SECRET_KEY_SM_MARIADB_HOST="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_host"
+  export SECRET_KEY_SM_MARIADB_PORT="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_port"
+  export SECRET_KEY_SM_MARIADB_USER="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_user"
+  export SECRET_KEY_SM_MARIADB_DATABASE="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_database"
+  export SECRET_KEY_SM_MARIADB_SECRET_NAME="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_secret_name"
+  export SECRET_KEY_SM_MARIADB_SECRET_VALUE="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_secret_value"
+
+
+
   export ODH_SECRET_FILE="$GITOPS_WORKING_DIR/odh-secret.json"
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
