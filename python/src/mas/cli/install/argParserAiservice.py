@@ -62,16 +62,6 @@ masArgGroup.add_argument(
     required=False,
     help="MAS Instance ID"
 )
-masArgGroup.add_argument(
-    "-w", "--mas-workspace-id",
-    required=False,
-    help="MAS Workspace ID"
-)
-masArgGroup.add_argument(
-    "-W", "--mas-workspace-name",
-    required=False,
-    help="MAS Workspace Name"
-)
 
 # MAS Special characters
 # -----------------------------------------------------------------------------

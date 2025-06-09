@@ -1603,8 +1603,8 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
                 self.setParam("mas_enable_walkme", "false")
 
     @logMethodCall
-    def configMAS(self):
-        self.printH1("Configure MAS Instance")
+    def configAibroker(self):
+        self.printH1("Configure Aibroker Instance")
         self.printDescription([
             "Instance ID restrictions:",
             " - Must be 3-12 characters long",
@@ -1613,20 +1613,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             " - Must end with a lowercase letter or a number"
         ])
         self.promptForString("Instance ID", "mas_instance_id", validator=InstanceIDFormatValidator())
-        self.printDescription([
-            "",
-            "Workspace ID restrictions:",
-            " - Must be 3-12 characters long",
-            " - Must only use lowercase letters and numbers",
-            " - Must start with a lowercase letter"
-        ])
-        self.promptForString("Workspace ID", "mas_workspace_id", validator=WorkspaceIDFormatValidator())
-        self.printDescription([
-            "",
-            "Workspace display name restrictions:",
-            " - Must be 3-300 characters long"
-        ])
-        self.promptForString("Workspace name", "mas_workspace_name", validator=WorkspaceNameFormatValidator())
 
         if self.slsMode == 2 and not self.getParam("sls_namespace"):
             self.setParam("sls_namespace", f"mas-{self.getParam('mas_instance_id')}-sls")
@@ -1908,7 +1894,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
 
         # MAS Core
         self.configCertManager()
-        self.configMAS()
+        self.configAibroker()
 
         self.configAppChannel("aibroker")
 
