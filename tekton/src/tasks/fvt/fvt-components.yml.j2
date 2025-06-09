@@ -33,7 +33,7 @@ spec:
             | jq -R . \
             | jq -s .)
           echo "$component_var" > "$(results.component_names.path)"
-          echo "Extracted components: $component_var"
+          echo "Extracted components are $component_var"
         fi
         
         echo "End of the extraction"
