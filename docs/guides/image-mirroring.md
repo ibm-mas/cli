@@ -60,8 +60,11 @@ Transfer the content of `$LOCAL_DIR/cli` to your system within the private netwo
 docker login $REGISTRY_HOST:$REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD
 oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:@@CLI_LATEST_VERSION@@ $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:@@CLI_LATEST_VERSION@@
 ```
-
-
+!!! note
+    If you want to mirror Single architecture images, include the variable as explained below. Available list of images include "amd64", "ppc64le", "s390x". This step helps save storage space else all the images with three architectures get downloaded. 
+```bash
+    export MIRROR_SINGLE_ARCH=amd64
+```
 ### Stage 1 - Core
 Let's start simple and just get the MAS Core and IBM Maximo Operator Catalog mirrored to the registry, this shouldn't take long and provides an early measure of the download and upload performance to help estimate the time to complete the larger stages.
 
