@@ -13,6 +13,3 @@ echo_h4 "Collect Reconcile Logs"
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-facilities $OUTPUT_DIR
 # TODO: Update the entitymgr operator to a fix value of the appType
 # $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr $OUTPUT_DIR
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType datainit $OUTPUT_DIR
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType appserver $OUTPUT_DIR
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType agent $OUTPUT_DIR
