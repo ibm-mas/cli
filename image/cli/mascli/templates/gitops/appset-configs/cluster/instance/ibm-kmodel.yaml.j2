@@ -22,6 +22,8 @@ ibm_kmodel:
   mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_BUCKET_PIPELINES }}>"
 
   ssh_secret_name: "{{ SSH_SECRET_NAME }}"
+
+  pullSecretName: "ibm-entitlement"
   
   docker_server: "{{ DOCKER_SERVER }}"
 
