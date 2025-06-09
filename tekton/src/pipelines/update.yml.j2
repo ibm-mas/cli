@@ -447,6 +447,8 @@ spec:
         kind: Task
         name: mas-devops-update-configmap
       params:
+        - name: configmap_namespace
+          value: $(context.taskRun.namespace)
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: configmap_name
