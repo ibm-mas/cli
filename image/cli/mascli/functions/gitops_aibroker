@@ -347,44 +347,43 @@ function gitops_aibroker() {
 
 
 
-  AVP_TYPE=aws  # Support for IBM will be added later
+   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
   # update those varialbe which are necessory to be updated into aws , 
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
 
-  # pull_secret_name
-  export image_pull_secret_b64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
+  export image_pull_secret_b64=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
   # mas_aibroker_storage_accesskey
-  export SM_MINIO_ACCESSKEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_accesskey
+  export SM_MINIO_ACCESSKEY=${SECRETS_PREFIX}minio#sm_minio_accesskey
   # mas_aibroker_storage_secretkey
-  export SM_MINIO_SECRETKEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_secretkey
+  export SM_MINIO_SECRETKEY=${SECRETS_PREFIX}minio#sm_minio_secretkey
   # mas_aibroker_storage_host
-  export SM_MINIO_HOST=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_host
+  export SM_MINIO_HOST=${SECRETS_PREFIX}minio#sm_minio_host
   # mas_aibroker_storage_port
-  export SM_MINIO_PORT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_port
+  export SM_MINIO_PORT=${SECRETS_PREFIX}minio#sm_minio_port
   # mas_aibroker_storage_templates_bucket
-  export SM_MINIO_BUCKET_TEMPLATES=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_bucket_templates
+  export SM_MINIO_BUCKET_TEMPLATES=${SECRETS_PREFIX}minio#sm_minio_bucket_templates
   # mas_aibroker_storage_tenants_bucket
-  export SM_MINIO_BUCKET_TENANTS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_bucket_tenants
+  export SM_MINIO_BUCKET_TENANTS=${SECRETS_PREFIX}minio#sm_minio_bucket_tenants
   # mas_aibroker_storage_pipelines_bucket
-  export SM_MINIO_BUCKET_PIPELINES=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio#sm_minio_bucket_pipelines
-  export MAS_AIBROKER_DB_HOST=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb#sm_mariadb_host
-  export MAS_AIBROKER_DB_PORT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb#sm_mariadb_port
-  export MAS_AIBROKER_DB_USER=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb#sm_mariadb_user
-  export MAS_AIBROKER_DB_DATABASE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb#sm_mariadb_database
-  export MAS_AIBROKER_DB_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb#sm_mariadb_secret_name
-  export MAS_AIBROKER_DB_SECRET_VALUE=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb#sm_mariadb_secret_value
-  export SLSCFG_REGISTRATION_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}sls#slscfg_registration_key
-  export DROCFG_CA=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#drocfg_ca
-  export DROCFG_REGISTRATION_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#drocfg_registration_key
-  export DROCFG_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#drocfg_url
-  export JDBCCFG_USERNAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}jdbc#jdbccfg_username
-  export JDBCCFG_PASSWORD=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}jdbc#jdbccfg_password
-  export JDBCCFG_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}jdbc#jdbccfg_url
-  export JDBCCFG_SSLENABLED=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}jdbc#jdbccfg_sslenabled
-  export JDBCCFG_CA=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}jdbc#jdbccfg_ca
-  export MAS_ENTITLEMENT_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#entitlement_key
-  export ARTIFACTORY_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#aibroker_image_pull_secret_b64
-
+  export SM_MINIO_BUCKET_PIPELINES=${SECRETS_PREFIX}minio#sm_minio_bucket_pipelines
+  export MAS_AIBROKER_DB_HOST=${SECRETS_PREFIX}mariadb#sm_mariadb_host
+  export MAS_AIBROKER_DB_PORT=${SECRETS_PREFIX}mariadb#sm_mariadb_port
+  export MAS_AIBROKER_DB_USER=${SECRETS_PREFIX}mariadb#sm_mariadb_user
+  export MAS_AIBROKER_DB_DATABASE=${SECRETS_PREFIX}mariadb#sm_mariadb_database
+  export MAS_AIBROKER_DB_SECRET_NAME=${SECRETS_PREFIX}mariadb#sm_mariadb_secret_name
+  export MAS_AIBROKER_DB_SECRET_VALUE=${SECRETS_PREFIX}mariadb#sm_mariadb_secret_value
+  export SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
+  export DROCFG_CA=${SECRETS_PREFIX}dro#drocfg_ca
+  export DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}dro#drocfg_registration_key
+  export DROCFG_URL=${SECRETS_PREFIX}dro#drocfg_url
+  export JDBCCFG_USERNAME=${SECRETS_PREFIX}jdbc#jdbccfg_username
+  export JDBCCFG_PASSWORD=${SECRETS_PREFIX}jdbc#jdbccfg_password
+  export JDBCCFG_URL=${SECRETS_PREFIX}jdbc#jdbccfg_url
+  export JDBCCFG_SSLENABLED=${SECRETS_PREFIX}jdbc#jdbccfg_sslenabled
+  export JDBCCFG_CA=${SECRETS_PREFIX}jdbc#jdbccfg_ca
+  export MAS_ENTITLEMENT_KEY=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
+  export ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#aibroker_image_pull_secret_b64
   # check if those are already present 
   # and update them 
 
