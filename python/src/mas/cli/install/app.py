@@ -201,11 +201,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Generate catalogTable
         for application, key in applications.items():
             # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
-            tempChosenCatalog = self.chosenCatalog[key].copy()
-            if '9.1.x-feature' not in tempChosenCatalog:
-                tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
+            if key in self.chosenCatalog:
+                tempChosenCatalog = self.chosenCatalog[key].copy()
+                if '9.1.x-feature' not in tempChosenCatalog:
+                    tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
 
-            self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
+                self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
         if self.architecture == "s390x" or self.architecture == "ppc64le":
             summary = [
