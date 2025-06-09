@@ -349,9 +349,9 @@ function gitops_odh() {
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-odh-install.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
 
   # Collect info block for secret update
-  yq eval '.' "${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml" > "${GITOPS_CLUSTER_DIR}/odh-info.yaml"
-  UNESCAPED_INFO="$(cat ${GITOPS_CLUSTER_DIR}/odh-info.yaml)"
-  ESCAPED_INFO="${UNESCAPED_INFO//\"/\\\"}"
+  # yq eval '.' "${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml" > "${GITOPS_CLUSTER_DIR}/odh-info.yaml"
+  # UNESCAPED_INFO="$(cat ${GITOPS_CLUSTER_DIR}/odh-info.yaml)"
+  # ESCAPED_INFO="${UNESCAPED_INFO//\"/\\\"}"
 
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_odh\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
 
