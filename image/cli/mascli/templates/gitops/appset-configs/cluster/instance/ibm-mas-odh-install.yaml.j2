@@ -2,63 +2,63 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
 ibm_odh:
-  openshift_namespace: "openshift-operators"
-  odh_pipeline_channel: "latest"
-  odh_pipeline_installplan: "Automatic"
-  pipeline_catalog_source: "redhat-operators"
-  service_mesh_namespace: "openshift-operators"
-  service_mesh_channel: "stable"
-  service_mesh_catalog_source: "redhat-operators"
-  service_mesh_sourceNamespace: "openshift-marketplace"
-  operatorName: "openshift-pipelines-operator-rh"
-  serverless_channel: "stable"
-  authorino_catalog_source: "community-operators"
-  odh_channel: "fast"
-  odh_catalog_source: "community-operators"
-  odh_operator_version: "opendatahub-operator.v2.19.0"
-  odh_namespace: "opendatahub"
+  openshift_namespace: {{ OPENSHIFT_NAMESPACE }}
+  odh_pipeline_channel: {{ ODH_PIPELINE_CHANNEL }}
+  odh_pipeline_installplan: {{ ODH_PIPELINE_INSTALLPLAN }}
+  pipeline_catalog_source: {{ PIPELINE_CATALOG_SOURCE }}
+  service_mesh_namespace: {{ SERVICE_MESH_NAMESPACE }}
+  service_mesh_channel: {{ SERVICE_MESH_CHANNEL }}
+  service_mesh_catalog_source: {{ SERVICE_MESH_CATALOG_SOURCE }}
+  service_mesh_sourceNamespace: {{ SERVICE_MESH_SOURCENAMESPACE }}
+  operatorName: {{ OPERATOR_NAME }}
+  serverless_channel: {{ SERVERLESS_CHANNEL }}
+  authorino_catalog_source: {{ AUTHORINO_CATALOG_SOURCE }}
+  odh_channel: {{ ODH_CHANNEL }}
+  odh_catalog_source: {{ ODH_CATALOG_SOURCE }}
+  odh_operator_version: {{ ODH_OPERATOR_VERSION }}
+  odh_namespace: {{ ODH_NAMESPACE }}
 
-  aibroker_namespace: "{{ AIBROKER_NAMESPACE }}"
-  pull_secret_name: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}ibm_entitlement#image_pull_secret_b64>"
+  aibroker_namespace: {{ AIBROKER_NAMESPACE }}
+  pull_secret_name: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IMAGE_PULL_SECRET_B64 }}>"
 
   # ODH Pipeline operator
-  odh_pipeline_name: "openshift-pipelines-operator"
-  odh_pipeline_namespace: "openshift-operators"
-  odh_pipeline_operatorName: "openshift-pipelines-operator-rh"
-  odh_pipeline_source: "redhat_operators"
-  odh_pipeline_sourceNamespace: "openshift_marketplace"
+  odh_pipeline_name: {{ ODH_PIPELINE_NAME }}
+  odh_pipeline_namespace: {{ ODH_PIPELINE_NAMESPACE }}
+  odh_pipeline_operatorName: {{ ODH_PIPELINE_OPERATOR_NAME }}
+  odh_pipeline_source: {{ ODH_PIPELINE_SOURCE }}
+  odh_pipeline_sourceNamespace: {{ ODH_PIPELINE_SOURCE_NAMESPACE }}
 
   # Serverless Operator
-  serverless_namespace: "openshift-serverless"
-  serverless_operator_name: "serverless-operator"
-  serverless_operator_source: "redhat-operators"
-  serverless_operator_sourceNamespace: "openshift-marketplace"
+  serverless_namespace: {{ SERVERLESS_NAMESPACE }}
+  serverless_operator_name: {{ SERVERLESS_OPERATOR_NAME }}
+  serverless_operator_source: {{ SERVERLESS_OPERATOR_SOURCE }}
+  serverless_operator_sourceNamespace: {{ SERVERLESS_OPERATOR_SOURCE_NAMESPACE }}
 
   # OpenDataHub Operator
-  opendatahub_OperatorGroup_name: "opendatahub-operator-group"
-  opendatahub_name: "opendatahub-operator"
-  opendatahub_namespace: "opendatahub"
-  opendatahub_installPlanApproval: "Manual"
-  opendatahub_channel: "fast"
-  opendatahub_source: "community-operators"
-  opendatahub__sourceNamespace: "openshift-marketplace"
+  opendatahub_OperatorGroup_name: {{ OPENDATAHUB_OPERATORGROUP_NAME }}
+  opendatahub_name: {{ OPENDATAHUB_NAME }}
+  opendatahub_namespace: {{ OPENDATAHUB_NAMESPACE }}
+  opendatahub_installPlanApproval: {{ OPENDATAHUB_INSTALLPLAN_APPROVAL }}
+  opendatahub_channel: {{ OPENDATAHUB_CHANNEL }}
+  opendatahub_source: {{ OPENDATAHUB_SOURCE }}
+  opendatahub__sourceNamespace: {{ OPENDATAHUB_SOURCE_NAMESPACE }}
 
   # Storage configuration
-  mas_aibroker_storage_provider: "minio"
-  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}minio#sm_minio_accesskey>"
-  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}minio#sm_minio_secretkey>"
-  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}minio#sm_minio_host>"
-  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}minio#sm_minio_port>"
-  mas_aibroker_storage_ssl: "true"
-  mas_aibroker_storage_region: ""
-  mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}minio#sm_minio_bucket_default>"
+  mas_aibroker_storage_provider: {{ MAS_AIBROKER_STORAGE_PROVIDER }}
+  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MINIO_ACCESSKEY }}>"
+  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MINIO_SECRETKEY }}>"
+  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MINIO_HOST }}>"
+  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MINIO_PORT }}>"
+  mas_aibroker_storage_ssl: {{ MAS_AIBROKER_STORAGE_SSL }}
+  mas_aibroker_storage_region: {{ MAS_AIBROKER_STORAGE_REGION }}
+  mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MINIO_BUCKET_DEFAULT }}>"
 
   # MariaDB configuration
-  mas_aibroker_db_host: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_host>"
-  mas_aibroker_db_port: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_port>"
-  mas_aibroker_db_user: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_user>"
-  mas_aibroker_db_database: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_database>"
-  mas_aibroker_db_secret_name: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_secret_name>"
-  mas_aibroker_db_secret_value: "<path:{{ SECRETS_PATH }}/{{ SECRET_ACCOUNT_PATH }}mariadb#sm_mariadb_secret_value>"
+  mas_aibroker_db_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_HOST }}>"
+  mas_aibroker_db_port: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_PORT }}>"
+  mas_aibroker_db_user: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_USER }}>"
+  mas_aibroker_db_database: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_DATABASE }}>"
+  mas_aibroker_db_secret_name: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_SECRET_NAME }}>"
+  mas_aibroker_db_secret_value: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_SECRET_VALUE }}>"
 
-  primary_storage_class: "nfs-client"
+  primary_storage_class: {{ PRIMARY_STORAGE_CLASS }}
