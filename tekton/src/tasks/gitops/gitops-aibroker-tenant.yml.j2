@@ -9,8 +9,6 @@ spec:
       type: string
     - name: account
       type: string
-    - name: cluster_id
-      type: string
     - name: cluster_url
       type: string    
     - name: secrets_path
@@ -100,8 +98,6 @@ spec:
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
-      #- name: CLUSTER_ID
-      #  value: $(params.cluster_id)
       - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: SECRET_PATH
