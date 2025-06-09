@@ -50,6 +50,7 @@ Kkmodel Configuration:
       --image-store ${COLOR_YELLOW}IMAGE_STORE${TEXT_RESET}                                                             Docker image for storing models and artifacts.
       --image-watcher ${COLOR_YELLOW}IMAGE_WATCHER${TEXT_RESET}                                                         Docker image for monitoring and detecting changes to models or configurations.
       --image-controller ${COLOR_YELLOW}IMAGE_CONTROLLER${TEXT_RESET}                                                   Docker image for controlling and managing the deployment and lifecycle of models.
+      --pullSecretName ${COLOR_YELLOW}PULLSECRETNAME${TEXT_RESET}                                                       IBM Pull Secret name
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -93,7 +94,7 @@ function gitops_kmodel_noninteractive() {
   export IMAGE_STORE=${IMAGE_STORE:-"${DOCKER_SERVER}/store:1.0.3-pre.maint10xdev"}
   export IMAGE_WATCHER=${IMAGE_WATCHER:-"${DOCKER_SERVER}/watcher:1.0.5-pre.maint10xdev"}
   export IMAGE_CONTROLLER=${IMAGE_CONTROLLER:-"${DOCKER_SERVER}/controller:1.0.8-pre.maint10xdev"}
-  
+  export PULLSECRETNAME=${PULLSECRETNAME:-"ibm-entitlement"}
   
   while [[ $# -gt 0 ]]
   do
@@ -238,6 +239,10 @@ function gitops_kmodel_noninteractive() {
 
       --model-id-prefix)
         export MODEL_ID_PREFIX=$1 && shift
+        ;;
+      
+      --pullSecretName)
+        export PULLSECRETNAME=$1 && shift
         ;;
 
 	    # optional parameters if needed
@@ -398,7 +403,7 @@ function gitops_kmodel() {
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
 
   # check if those are already present 
-  export image_pull_secret_b64=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
+  export IMAGE_PULL_SECRET_B64=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
   
   # minio
   export SM_MINIO_ACCESSKEY=${SECRETS_PREFIX}minio#sm_minio_accesskey
