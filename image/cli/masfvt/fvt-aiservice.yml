@@ -35,7 +35,7 @@
           - "fvt_digest_aibroker ................ {{ fvt_digest_aibroker }}"
           - "ivt_digest_core ................... {{ ivt_digest_core }}"
 
-    - name: "Start fvt-aibroker pipeline"
+    - name: "Start fvt-aiservice pipeline"
       kubernetes.core.k8s:
         apply: true
-        template: templates/mas-fvt-aibroker.yml.j2
+        template: templates/mas-fvt-aiservice.yml.j2

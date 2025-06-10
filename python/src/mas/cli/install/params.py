@@ -190,6 +190,7 @@ optionalParams = [
     # "mas_ws_facilities_storage_userfiles_size",
     # "mas_ws_facilities_dwfagents",
     # "mas_ws_facilities_db_maxconnpoolsize",
+    "aibroker_instance_id"
     "mariadb_user",
     "mariadb_password",
     "minio_root_user",
@@ -213,7 +214,6 @@ optionalParams = [
     "install_mongo_aiservice",
     "install_sls_aiservice",
     "install_dro_aiservice",
-    "hold_aiservice_for_mas",
     # Special chars
     "mas_special_characters"
 ]

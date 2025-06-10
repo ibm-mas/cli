@@ -1,10 +1,11 @@
-- name: kmodels
+- name: aibroker-tenant
+  timeout: "0"
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
-      value: kmodels
+      value: aibroker
     - name: mas_instance_id
-      value: $(params.mas_instance_id)
+      value: $(params.aibroker_instance_id)
     - name: mas_app_id
       value: aibroker
     - name: artifactory_username
@@ -37,27 +38,57 @@
       value: $(params.mas_aibroker_storage_tenants_bucket)
     - name: mas_aibroker_storage_templates_bucket
       value: $(params.mas_aibroker_storage_templates_bucket)
-    - name: mas_aibroker_controller_tag
-      value: $(params.mas_aibroker_controller_tag)
-    - name: mas_aibroker_store_tag
-      value: $(params.mas_aibroker_store_tag)
-    - name: mas_aibroker_watcher_tag
-      value: $(params.mas_aibroker_watcher_tag)
-    - name: mas_aibroker_connector_tag
-      value: $(params.mas_aibroker_connector_tag)
-    - name: mas_aibroker_pipeline_steps_tag
-      value: $(params.mas_aibroker_pipeline_steps_tag)
+    - name: mas_aibroker_watsonxai_apikey
+      value: $(params.mas_aibroker_watsonxai_apikey)
+    - name: mas_aibroker_watsonxai_url
+      value: $(params.mas_aibroker_watsonxai_url)
+    - name: mas_aibroker_watsonxai_project_id
+      value: $(params.mas_aibroker_watsonxai_project_id)
+    - name: mas_aibroker_watsonx_action
+      value: $(params.mas_aibroker_watsonx_action)
+    - name: mas_aibroker_s3_action
+      value: $(params.mas_aibroker_s3_action)
+    - name: mas_aibroker_apikey_action
+      value: $(params.mas_aibroker_apikey_action)
     - name: mas_aibroker_tenant_name
       value: $(params.mas_aibroker_tenant_name)
+    - name: tenant_entitlement_type
+      value: $(params.tenant_entitlement_type)
+    - name: tenant_entitlement_start_date
+      value: $(params.tenant_entitlement_start_date)
+    - name: tenant_entitlement_end_date
+      value: $(params.tenant_entitlement_end_date)
     - name: mas_icr_cp
       value: $(params.mas_icr_cp)
     - name: mas_icr_cpopen
       value: $(params.mas_icr_cpopen) 
-    
+    - name: mas_aibroker_tenant_s3_bucket_prefix
+      value: $(params.mas_aibroker_tenant_s3_bucket_prefix) 
+    - name: mas_aibroker_tenant_s3_region
+      value: $(params.mas_aibroker_tenant_s3_region) 
+    - name: mas_aibroker_tenant_s3_endpoint_url
+      value: $(params.mas_aibroker_tenant_s3_endpoint_url)  
+    - name: mas_aibroker_tenant_s3_access_key
+      value: $(params.mas_aibroker_tenant_s3_access_key)  
+    - name: mas_aibroker_tenant_s3_secret_key
+      value: $(params.mas_aibroker_tenant_s3_secret_key) 
+    - name: rsl_url
+      value: $(params.rsl_url)  
+    - name: rsl_org_id
+      value: $(params.rsl_org_id)  
+    - name: rsl_token
+      value: $(params.rsl_token)  
+
   taskRef:
-    name: mas-devops-kmodels
+    name: mas-devops-aibroker-tenant
     kind: Task
   when:
     - input: "$(params.mas_app_channel_aibroker)"
       operator: notin
       values: [""]
+    - input: "$(params.mas_app_channel_aibroker)"
+      operator: notin
+      values: ["9.0.x"]
+  workspaces:
+    - name: configs
+      workspace: shared-configs

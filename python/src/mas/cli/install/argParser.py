@@ -657,12 +657,6 @@ aibrokerArgGroup.add_argument(
     required=False,
     help="flag for install dro"
 )
-aibrokerArgGroup.add_argument(
-    "--hold-aiservice-for-mas",
-    dest="hold_aiservice_for_mas",
-    required=False,
-    help="hold aiservice till suite-verification"
-)
 
 
 # Arcgis

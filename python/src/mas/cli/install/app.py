@@ -1613,10 +1613,10 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             " - Must start with a lowercase letter",
             " - Must end with a lowercase letter or a number"
         ])
-        self.promptForString("Instance ID", "mas_instance_id", validator=InstanceIDFormatValidator())
+        self.promptForString("Instance ID", "aibroker_instance_id", validator=InstanceIDFormatValidator())
 
         if self.slsMode == 2 and not self.getParam("sls_namespace"):
-            self.setParam("sls_namespace", f"mas-{self.getParam('mas_instance_id')}-sls")
+            self.setParam("sls_namespace", f"mas-{self.getParam('aibroker_instance_id')}-sls")
 
         self.configOperationMode()
         self.configCATrust()
@@ -1727,8 +1727,8 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         ])
         certIssuer = self.promptForInt("Certificate issuer")
         certIssuerOptions = [
-            f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
-            f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
+            f"{self.getParam('aibroker_instance_id')}-cloudflare-le-prod",
+            f"{self.getParam('aibroker_instance_id')}-cloudflare-le-stg",
             ""
         ]
         self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
@@ -1749,8 +1749,8 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         ])
         certIssuer = self.promptForInt("Certificate issuer")
         certIssuerOptions = [
-            f"{self.getParam('mas_instance_id')}-cis-le-prod",
-            f"{self.getParam('mas_instance_id')}-cis-le-stg",
+            f"{self.getParam('aibroker_instance_id')}-cis-le-prod",
+            f"{self.getParam('aibroker_instance_id')}-cis-le-stg",
             ""
         ]
         self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
@@ -1778,7 +1778,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         self.promptForString("AWS Route 53 subdomain", "route53_subdomain")
         self.promptForString("AWS Route 53 e-mail", "route53_email")
 
-        self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
+        self.setParam("mas_cluster_issuer", f"{self.getParam('aibroker_instance_id')}-route53-le-prod")
 
     @logMethodCall
     def configAppChannel(self, appId):
@@ -2005,7 +2005,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
                     self.setParam("sls_action", "install")
             elif key == "dedicated_sls":
                 if value:
-                    self.setParam("sls_namespace", f"mas-{self.args.mas_instance_id}-sls")
+                    self.setParam("sls_namespace", f"mas-{self.args.aibroker_instance_id}-sls")
 
             # These settings are used by the CLI rather than passed to the PipelineRun
             elif key == "storage_accessmode":
@@ -2085,7 +2085,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
 
         # We use the presence of --mas-instance-id to determine whether
         # the CLI is being started in interactive mode or not
-        instanceId = args.mas_instance_id
+        instanceId = args.aibroker_instance_id
 
         # Properties for arguments that control the behavior of the CLI
         self.noConfirm = args.no_confirm
@@ -2170,7 +2170,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             self.createTektonFileWithDigest()
 
             self.printH1("Launch Install")
-            pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
+            pipelinesNamespace = f"mas-{self.getParam('aibroker_instance_id')}-pipelines"
 
             if not self.noConfirm:
                 self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
@@ -2186,7 +2186,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 preparePipelinesNamespace(
                     dynClient=self.dynamicClient,
-                    instanceId=self.getParam("mas_instance_id"),
+                    instanceId=self.getParam("aibroker_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
                     waitForBind=wait,
@@ -2194,7 +2194,7 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
                 )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,
-                    instanceId=self.getParam("mas_instance_id"),
+                    instanceId=self.getParam("aibroker_instance_id"),
                     slsLicenseFile=self.slsLicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
@@ -2213,13 +2213,13 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text=f"Submitting PipelineRun for {self.getParam('mas_instance_id')} install", spinner=self.spinner) as h:
+            with Halo(text=f"Submitting PipelineRun for {self.getParam('aibroker_instance_id')} install", spinner=self.spinner) as h:
                 pipelineURL = launchInstallPipelineForAiservice(dynClient=self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('mas_instance_id')} install submitted")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aibroker_instance_id')} install submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
                 else:
-                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('mas_instance_id')} install, see log file for details")
+                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('aibroker_instance_id')} install, see log file for details")
                     print()
 
     @logMethodCall

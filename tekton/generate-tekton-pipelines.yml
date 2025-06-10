@@ -48,7 +48,7 @@
         - fvt-monitor
         - fvt-optimizer
         - fvt-predict
-        - fvt-aibroker
+        - fvt-aiservice
         - fvt-sls
         - fvt-visualinspection
         - fvt-launcher

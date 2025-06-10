@@ -58,7 +58,7 @@ catArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 masArgGroup = installArgParserAiservice.add_argument_group("MAS Basic Configuration")
 masArgGroup.add_argument(
-    "-i", "--mas-instance-id",
+    "-i", "--aibroker-instance-id",
     required=False,
     help="MAS Instance ID"
 )
@@ -592,12 +592,6 @@ aibrokerArgGroup.add_argument(
     dest="install_dro_aiservice",
     required=False,
     help="flag for install dro"
-)
-aibrokerArgGroup.add_argument(
-    "--hold-aiservice-for-mas",
-    dest="hold_aiservice_for_mas",
-    required=False,
-    help="hold aiservice till suite-verification"
 )
 
 

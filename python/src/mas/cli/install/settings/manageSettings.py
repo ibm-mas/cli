@@ -320,5 +320,3 @@ class ManageSettingsMixin():
                 self.yesOrNo("Install mongodb", "install_mongo_aiservice")
                 self.yesOrNo("Install SLS", "install_sls_aiservice")
                 self.yesOrNo("Insall DRO", "install_dro_aiservice")
-            if self.devMode:
-                self.yesOrNo("Wait for suite-verify", "hold_aiservice_for_mas")

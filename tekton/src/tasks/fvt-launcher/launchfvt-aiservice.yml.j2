@@ -19,7 +19,7 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
       command:
         - ansible-playbook
-        - /masfvt/fvt-aibroker.yml
+        - /masfvt/fvt-aiservice.yml
       env:
         - name: IMAGE_PULL_POLICY
           value: $(params.image_pull_policy)

@@ -687,9 +687,9 @@
   description: controls the workload size of predict containers
   default: "small"
 
-# Dependencies - IBM Maximo AI Broker
+# Dependencies - IBM Maximo AI Service
 # -----------------------------------------------------------------------------
-{{ lookup('template', params_src_dir ~ '/install-aibroker.yml.j2') }}
+{{ lookup('template', params_src_dir ~ '/install-aiservice.yml.j2') }}
 
 # MAS Application Configuration - Facilities
 # TODO: Fix type for storage sizes and max conn pool size
