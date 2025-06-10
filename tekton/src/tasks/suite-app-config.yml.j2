@@ -381,7 +381,7 @@ spec:
       - name: COS_BUCKET_NAME
         value: $(params.cos_bucket_name)
       - name: MAS_APPWS_UPGRADE_TYPE
-        value: ${params.mas_appws_upgrade_type}
+        value: $(params.mas_appws_upgrade_type)
 
       # Application Workspace - Operand (Predict)
       - name: PREDICT_DEPLOYMENT_SIZE
