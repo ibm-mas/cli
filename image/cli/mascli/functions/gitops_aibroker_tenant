@@ -333,8 +333,8 @@ function gitops_aibroker_tenant() {
   rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}
-  TEMP_DIR=$GITOPS_CLUSTER_DIR/${MAS_INSTANCE_ID}
-  mkdir -p ${TEMP_DIR}
+  # TEMP_DIR=$GITOPS_CLUSTER_DIR/${MAS_INSTANCE_ID}
+  # mkdir -p ${TEMP_DIR}
 
   echo
   reset_colors
@@ -469,7 +469,7 @@ function gitops_aibroker_tenant() {
       remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
     fi
 
-    rm -rf $TEMP_DIR
+    # rm -rf $TEMP_DIR
     rm -rf $GITOPS_WORKING_DIR
 
   exit 0
