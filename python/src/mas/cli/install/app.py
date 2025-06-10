@@ -1560,50 +1560,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             self.localConfigDir = self.promptForDir("Select Local configuration directory")
 
     @logMethodCall
-    def configSpecialCharacters(self):
-        if self.showAdvancedOptions:
-            self.printH1("Configure special characters for userID and username")
-            self.printDescription([
-                "By default Maximo Application Suite will not allow special characters in usernames and userIDs, and this is the recommended setting.  However, legacy Maximo products allowed this, so for maximum compatibilty when migrating from EAM 7 you can choose to enable this support."
-            ])
-            self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
-
-    @logMethodCall
-    def configSSOProperties(self):
-        if self.showAdvancedOptions:
-            self.printH1("Single Sign-On (SSO)")
-            self.printDescription([
-                "Many aspects of Maximo Application Suite's Single Sign-On (SSO) can be customized:",
-                " - Idle session automatic logout timer",
-                " - Session, access token, and refresh token timeouts",
-                " - Default identity provider (IDP), and seamless login",
-                " - Brower cookie properties"
-            ])
-            if self.yesOrNo("Configure SSO properties"):
-                self.promptForInt("Idle session logout timer (seconds)", "idle_timeout")
-                self.promptForString("Session timeout (e.g. '12h' for 12 hours)", "idp_session_timeout", validator=TimeoutFormatValidator())
-                self.promptForString("Access token timeout (e.g. '30m' for 30 minutes)", "access_token_timeout", validator=TimeoutFormatValidator())
-                self.promptForString("Refresh token timeout (e.g. '12h' for 12 hours)", "refresh_token_timeout", validator=TimeoutFormatValidator())
-                self.promptForString("Default Identity Provider", "default_idp")
-
-                self.promptForString("SSO cookie name", "sso_cookie_name")
-                self.yesOrNo("Enable seamless login", "seamless_login")
-                self.yesOrNo("Allow default SSO cookie name", "allow_default_sso_cookie_name")
-                self.yesOrNo("Use only custom cookie name", "use_only_custom_cookie_name")
-                self.yesOrNo("Disable LDAP cookie", "disable_ldap_cookie")
-                self.yesOrNo("Allow custom cache key", "allow_custom_cache_key")
-
-    @logMethodCall
-    def configGuidedTour(self):
-        if self.showAdvancedOptions:
-            self.printH1("Enable Guided Tour")
-            self.printDescription([
-                "By default, Maximo Application Suite is configured with guided tour, you can disable this if it not required"
-            ])
-            if not self.yesOrNo("Enable Guided Tour"):
-                self.setParam("mas_enable_walkme", "false")
-
-    @logMethodCall
     def configAibroker(self):
         self.printH1("Configure Aibroker Instance")
         self.printDescription([
@@ -1621,9 +1577,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         self.configOperationMode()
         self.configCATrust()
         self.configDNSAndCerts()
-        self.configSSOProperties()
-        self.configSpecialCharacters()
-        self.configGuidedTour()
 
     @logMethodCall
     def configCATrust(self) -> None:
