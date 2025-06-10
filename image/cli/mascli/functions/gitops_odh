@@ -103,8 +103,8 @@ function gitops_odh_noninteractive() {
 
 
   export OPENSHIFT_NAMESPACE="${OPENSHIFT_NAMESPACE:-"openshift-operators"}"
-  export ODH_PIPELINE_CHANNEL="${ODH_PIPELINE_CHANNEL:-"latest"}"
-  export ODH_PIPELINE_INSTALLPLAN="${ODH_PIPELINE_INSTALLPLAN:-"Automatic"}"
+  #export ODH_PIPELINE_CHANNEL="${ODH_PIPELINE_CHANNEL:-"latest"}"
+  #export ODH_PIPELINE_INSTALLPLAN="${ODH_PIPELINE_INSTALLPLAN:-"Automatic"}"
   export PIPELINE_CATALOG_SOURCE="${PIPELINE_CATALOG_SOURCE:-"redhat-operators"}"
   export SERVICE_MESH_NAMESPACE="${SERVICE_MESH_NAMESPACE:-"openshift-operators"}"
   export SERVICE_MESH_CHANNEL="${SERVICE_MESH_CHANNEL:-"stable"}"
@@ -133,8 +133,8 @@ function gitops_odh_noninteractive() {
   export SERVERLESS_OPERATOR_SOURCE_NAMESPACE="${SERVERLESS_OPERATOR_SOURCE_NAMESPACE:-"openshift-marketplace"}"
 
   export OPENDATAHUB_OPERATORGROUP_NAME="${OPENDATAHUB_OPERATORGROUP_NAME:-"opendatahub-operator-group"}"
-  export OPENDATAHUB_NAME="${OPENDATAHUB_NAME:-"opendatahub-operator"}"
-  export OPENDATAHUB_NAMESPACE="${OPENDATAHUB_NAMESPACE:-"opendatahub"}"
+  #export OPENDATAHUB_NAME="${OPENDATAHUB_NAME:-"opendatahub-operator"}"
+  #export OPENDATAHUB_NAMESPACE="${OPENDATAHUB_NAMESPACE:-"opendatahub"}"
   export OPENDATAHUB_INSTALLPLAN_APPROVAL="${OPENDATAHUB_INSTALLPLAN_APPROVAL:-"Manual"}"
   export OPENDATAHUB_CHANNEL="${OPENDATAHUB_CHANNEL:-"fast"}"
   export OPENDATAHUB_SOURCE="${OPENDATAHUB_SOURCE:-"community-operators"}"
@@ -229,10 +229,12 @@ function gitops_odh_noninteractive() {
       --opendatahub-source)
         export OPENDATAHUB_SOURCE=$1 && shift
         ;;
+      --opendatahub-namespace)
+        export OPENDATAHUB_NAMESPACE=$1 && shift
+        ;;
       --opendatahub-source-namespace)
         export OPENDATAHUB_SOURCE_NAMESPACE=$1 && shift
         ;;
-
       --odh-pipeline-name)
         export ODH_PIPELINE_NAME=$1 && shift
         ;;
@@ -365,6 +367,19 @@ function gitops_odh_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_odh_help "Missing ACCOUNT_ID"
   [[ -z "$CLUSTER_ID" ]] && gitops_odh_help "Missing CLUSTER_ID"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_odh_help "Missing MAS_INSTANCE_ID"
+
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_odh_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_odh_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_odh_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_odh_help "GIT_BRANCH is not set"
+  fi
+  #odh variables
+  [[ -z "$ODH_PIPELINE_CHANNEL" ]] && gitops_odh_help "ODH_PIPELINE_CHANNEL is not set. Please provide the ODH PIPELINE CHANNEL using --odh-pipeline-channel."
+  [[ -z "$ODH_PIPELINE_INSTALLPLAN" ]] && gitops_odh_help "ODH_PIPELINE_INSTALLPLAN is not set. Please provide the OODH_PIPELINE_INSTALLPLAN using --odh-pipeline-installplan."
+  [[ -z "$OPENDATAHUB_NAME" ]] && gitops_odh_help "OPENDATAHUB_NAME is not set. Please provide the OPENDATAHUB NAME using --opendatahub-name."
+  [[ -z "$OPENDATAHUB_NAMESPACE" ]] && gitops_odh_help "OPENDATAHUB_NAMESPACE is not set. Please provide the OPENDATAHUB NAMESPACE using --opendatahub-namespace."
+
 }
 
 function gitops_odh() {
