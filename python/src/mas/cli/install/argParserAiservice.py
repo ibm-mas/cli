@@ -54,13 +54,13 @@ catArgGroup.add_argument(
     help="IBM entitlement key"
 )
 
-# MAS Basic Configuration
+# Aibroker Basic Configuration
 # -----------------------------------------------------------------------------
-masArgGroup = installArgParserAiservice.add_argument_group("MAS Basic Configuration")
+masArgGroup = installArgParserAiservice.add_argument_group("Aibroker Basic Configuration")
 masArgGroup.add_argument(
     "-i", "--aibroker-instance-id",
     required=False,
-    help="MAS Instance ID"
+    help="Aibroker Instance ID"
 )
 
 # MAS Special characters
