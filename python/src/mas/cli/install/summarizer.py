@@ -211,6 +211,7 @@ class InstallSummarizerMixin():
                 self.printSummary("  + Tririga", "Enabled" if "tririga=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Utilities", "Enabled" if "utilities=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Workday Applications", "Enabled" if "workday=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + AIP", "Enabled" if "aip=" in self.getParam("mas_appws_components") else "Disabled")
 
                 self.printParamSummary("+ Server bundle size", "mas_app_settings_server_bundles_size")
                 self.printParamSummary("+ Enable JMS queues", "mas_app_settings_default_jms")
