@@ -202,6 +202,7 @@ class InstallSummarizerMixin():
                 self.printSummary("  + Tririga", "Enabled" if "tririga=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Utilities", "Enabled" if "utilities=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Workday Applications", "Enabled" if "workday=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + AIP", "Enabled" if "aip=" in self.getParam("mas_appws_components") else "Disabled")
 
                 self.printParamSummary("+ Upgrade Type", "mas_appws_upgrade_type")
 
