@@ -221,8 +221,9 @@ spec:
 
         mkdir -p /tmp/init-aibroker-tenant
         
-        mas gitops-aibroker-tenant -a $ACCOUNT \
-        --secrets-path "$SECRETS_PATH" \
+        mas gitops-aibroker-tenant -a $ACCOUNT -c $CLUSTER_NAME \
+        --secrets-path $SECRET_PATH \
+        --dir /tmp/init-aibroker-tenant \
         --github-push \
         --github-host "$GITHUB_HOST" \
         --github-org "$GITHUB_ORG" \
