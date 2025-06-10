@@ -56,7 +56,7 @@ spec:
     # 2. Install Universal Dependencies
     # -------------------------------------------------------------------------
     # 2.1 MongoDb
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/mongo.yml.j2'), template_vars={'application': 'aibroker'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/mongo.yml.j2', template_vars={'application': 'aibroker'}) | indent(4) }}
       runAfter:
         - cert-manager
       when:
@@ -65,7 +65,7 @@ spec:
           values: ["false", "False"]
 
     # 2.2 IBM SLS
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2'), template_vars={'application': 'aibroker'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2', template_vars={'application': 'aibroker'}) | indent(4) }}
       runAfter:
         - mongodb
       when:
@@ -74,7 +74,7 @@ spec:
           values: ["false", "False"]
 
     # 2.3 DRO
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/uds.yml.j2'), template_vars={'application': 'aibroker'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/uds.yml.j2', template_vars={'application': 'aibroker'}) | indent(4) }}
       runAfter:
         - ibm-catalogs
       when:
@@ -102,18 +102,18 @@ spec:
         - mariadb
 
     # 3.4 Install Opendatahub
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/odh.yml.j2'), template_vars={'application': 'aibroker'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/odh.yml.j2', template_vars={'application': 'aibroker'}) | indent(4) }}
       runAfter:
         - minio
         - mariadb
 
     # 3.5 Install Kmodels
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/kmodels.yml.j2'), template_vars={'application': 'aibroker'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/kmodels.yml.j2', template_vars={'application': 'aibroker'}) | indent(4) }}
       runAfter:
         - odh
 
     # 3.6 Install and Configure Aibroker
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2'), template_vars={'application': 'aibroker'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2', template_vars={'application': 'aibroker'}) | indent(4) }}
       runAfter:
         - kmodels
         - db2-aibroker
