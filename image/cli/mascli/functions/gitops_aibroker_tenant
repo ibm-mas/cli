@@ -31,7 +31,6 @@ AIBroker :
 --aibroker-namespace ${COLOR_YELLOW}AIBROKER_NAMESPACE${TEXT_RESET}                                         The namespace where AI Broker is deployed
 --mas-aibroker-provision-tenant ${COLOR_YELLOW}MAS_AIBROKER_PROVISION_TENANT${TEXT_RESET}                   Whether to provision the AI Broker tenant
 --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                               The MAS instance ID used by AI Broker
---tenant_id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Broker
 --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                             The tenant's Kubernetes namespace
 --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                 The domain name of the Kubernetes cluster (e.g., cluster.local)
 --in-saas-env ${COLOR_YELLOW}IN_SAAS_ENV${TEXT_RESET}                                                       Whether the environment is SaaS (true/false)
@@ -157,9 +156,6 @@ function gitops_aibroker_tenant_noninteractive() {
         ;;
       --mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
-        ;;
-      --tenant-id)
-        export TENANT_ID=$1 && shift
         ;;
       --tenantNamespace)
         export TENANT_NAMESPACE=$1 && shift
@@ -382,7 +378,6 @@ function gitops_aibroker_tenant() {
   echo_reset_dim "aibroker namespace ........................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
   echo_reset_dim "mas aibroker provision tenant ................ ${COLOR_MAGENTA}${MAS_AIBROKER_PROVISION_TENANT}"
   echo_reset_dim "mas instance ID .............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
   echo_reset_dim "tenant namespace ............................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
   echo_reset_dim "cluster domain ............................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "in SaaS environment .......................... ${COLOR_MAGENTA}${IN_SAAS_ENV}"
