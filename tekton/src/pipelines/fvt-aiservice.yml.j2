@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-fvt-aibroker
+  name: mas-fvt-aiservice
 spec:
   workspaces:
     # The generated configuration files
@@ -66,7 +66,7 @@ spec:
 
     # 2. Aibroker base test suite
     # -----------------------------------------------------------------------------
-    - name: fvt-aibroker-tenant-entitlement
+    - name: fvt-aiservice-tenant-entitlement
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
@@ -75,44 +75,44 @@ spec:
 
     # 3. Aibroker mcc test suite
     # -----------------------------------------------------------------------------
-    - name: fvt-aibroker-mcc
+    - name: fvt-aiservice-mcc
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: mcc 
       runAfter:
-        - fvt-aibroker-tenant-entitlement
+        - fvt-aiservice-tenant-entitlement
 
     # 4. Aibroker pcc test suite
     # -----------------------------------------------------------------------------
-    - name: fvt-aibroker-pcc
+    - name: fvt-aiservice-pcc
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: pcc 
       runAfter:
-        - fvt-aibroker-tenant-entitlement
+        - fvt-aiservice-tenant-entitlement
 
     # 5. Aibroker nl2oslc test suite
     # -----------------------------------------------------------------------------
-    - name: fvt-aibroker-nl2oslc
+    - name: fvt-aiservice-nl2oslc
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: nl2oslc 
       runAfter:
-        - fvt-aibroker-tenant-entitlement
+        - fvt-aiservice-tenant-entitlement
 
     # 6. Aibroker similarity test suite
     # -----------------------------------------------------------------------------
-    - name: fvt-aibroker-similarity
+    - name: fvt-aiservice-similarity
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: similarity 
       runAfter:
-        - fvt-aibroker-tenant-entitlement
+        - fvt-aiservice-tenant-entitlement
