@@ -91,6 +91,38 @@ spec:
       type: string
     - name: mas_aibroker_storage_ssl
       type: string
+    
+    ##review
+    - name: mas_aibroker_s3_endpoint_url
+      type: string
+
+    - name: mas_aibroker_s3_region
+      type: string
+
+    - name: mas_aibroker_s3_bucket_prefix
+      type: string
+
+    - name: rsl_url
+      type: string
+
+    - name: rsl_org_id
+      type: string
+
+    - name: rsl_token
+      type: string
+
+    - name: tenant_entitlement_type
+      type: string
+
+    - name: tenant_entitlement_start_date
+      type: string
+
+    - name: tenant_entitlement_end_date
+      type: string
+
+    ##review
+
+
 
   workspaces:
     - name: configs
@@ -190,3 +222,33 @@ spec:
           value: $(params.mas_aibroker_storage_pipelines_bucket)
         - name: mas_aibroker_storage_ssl
           value: $(params.mas_aibroker_storage_ssl)
+        
+        ##review
+        - name: mas_aibroker_s3_endpoint_url
+          value: $(params.mas_aibroker_s3_endpoint_url)
+
+        - name: mas_aibroker_s3_region
+          value: $(params.mas_aibroker_s3_region)
+
+        - name: mas_aibroker_s3_bucket_prefix
+          value: $(params.mas_aibroker_s3_bucket_prefix)
+
+        - name: rsl_url
+          value: $(params.rsl_url)
+
+        - name: rsl_org_id
+          value: $(params.rsl_org_id)
+
+        - name: rsl_token
+          value: $(params.rsl_token)
+
+        - name: tenant_entitlement_type
+          value: $(params.tenant_entitlement_type)
+
+        - name: tenant_entitlement_start_date
+          value: $(params.tenant_entitlement_start_date)
+
+        - name: tenant_entitlement_end_date
+          value: $(params.tenant_entitlement_end_date)
+        ##review
+
