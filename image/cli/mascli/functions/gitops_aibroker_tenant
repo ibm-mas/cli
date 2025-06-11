@@ -102,6 +102,14 @@ function gitops_aibroker_tenant_noninteractive() {
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
   export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"}
+  
+  ##review
+  export MAS_AIBROKER_S3_BUCKET_PREFIX=${MAS_AIBROKER_S3_BUCKET_PREFIX:-"m"}
+  export MAS_AIBROKER_S3_REGION=${MAS_AIBROKER_S3_REGION:-"us-east-2"}
+  export TENANT_ENTITLEMENT_TYPE=${TENANT_ENTITLEMENT_TYPE:-"standard"}
+  export TENANT_ENTITLEMENT_START_DATE=${TENANT_ENTITLEMENT_START_DATE:-"2025-06-11"}
+  export TENANT_ENTITLEMENT_END_DATE=${TENANT_ENTITLEMENT_END_DATE:-"2049-11-11"}
+  ##review
 
   # -- DRO Defaults
   export MAS_AIBROKER_DRO_TOKEN_SECRET=${MAS_AIBROKER_DRO_TOKEN_SECRET:-"dro-token"}
@@ -250,6 +258,44 @@ function gitops_aibroker_tenant_noninteractive() {
         export MAS_AIBROKER_STORAGE_SSL=$1 && shift
         ;;
 
+      ##review
+      --rsl-url)
+        export RSL_URL=$1 && shift
+        ;;
+
+      --rsl-org-id)
+        export SECRET_KEY_RSL_ORG_ID=$1 && shift
+        ;;
+
+      --rsl-token)
+        export SECRET_KEY_RSL_TOKEN=$1 && shift
+        ;;
+
+      --mas-aibroker-s3-endpoint-url)
+        export MAS_AIBROKER_S3_ENDPOINT_URL=$1 && shift
+        ;;
+
+      --mas-aibroker-s3-region)
+        export MAS_AIBROKER_S3_REGION=$1 && shift
+        ;;
+
+      --mas-aibroker-s3-bucket-prefix)
+        export MAS_AIBROKER_S3_BUCKET_PREFIX=$1 && shift
+        ;;
+
+      --tenant-entitlement-type)
+        export TENANT_ENTITLEMENT_TYPE=$1 && shift
+        ;;
+
+      --tenant-entitlement-start-date)
+        export TENANT_ENTITLEMENT_START_DATE=$1 && shift
+        ;;
+
+      --tenant-entitlement-end-date)
+        export TENANT_ENTITLEMENT_END_DATE=$1 && shift
+        ;;
+      ##review  
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -312,7 +358,11 @@ function gitops_aibroker_tenant_noninteractive() {
   [[ -z "$MAS_AIBROKER_WATSONXAI_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --mas-aibroker-watsonxai-url."
   [[ -z "$MAS_AIBROKER_WATSONXAI_APIKEY" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_APIKEY is not set. Please provide the Watsonx.ai API key using --mas-aibroker-watsonxai-apikey."
   [[ -z "$MAS_AIBROKER_WATSONXAI_PROJECT_ID" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_PROJECT_ID is not set. Please specify the Watsonx.ai project ID using --mas-aibroker-watsonxai-project-id."
-
+  
+  ##review
+  [[ -z "$RSL_URL" ]] && gitops_aibroker_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
+  [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
+  ##review
 }
 
 function gitops_aibroker_tenant() {
@@ -419,6 +469,11 @@ function gitops_aibroker_tenant() {
   export SECRET_KEY_SLSCFG_TLS=${SECRETS_PREFIX}sls#slscfg_tls
   export SECRET_KEY_SLSCFG_KEY=${SECRETS_PREFIX}sls#slscfg_key
 
+  #rsl  ##review
+  export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
+  export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
+  ##review
+
   # minio
   export SECRET_KEY_MINIO_HOST=${SECRETS_PREFIX}minio#sm_minio_host
   export SECRET_KEY_MINIO_PORT=${SECRETS_PREFIX}minio#sm_minio_port
@@ -435,7 +490,9 @@ function gitops_aibroker_tenant() {
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca,slscfg_tls,slscfg_key"
  
   sm_verify_secret_exists ${SECRETS_PREFIX}minio "sm_minio_host,sm_minio_port,sm_minio_accesskey,sm_minio_secretkey,sm_minio_bucket_default"
-
+  ##review
+  sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
+  ##review
   # finally push them into the git repo
 
     if [ -z $GIT_SSH ]; then

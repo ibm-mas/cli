@@ -90,6 +90,37 @@ spec:
       type: string
     - name: mas_aibroker_storage_ssl
       type: string
+
+        ##review
+    - name: mas_aibroker_s3_endpoint_url
+      type: string
+
+    - name: mas_aibroker_s3_region
+      type: string
+
+    - name: mas_aibroker_s3_bucket_prefix
+      type: string
+
+    - name: rsl_url
+      type: string
+
+    - name: rsl_org_id
+      type: string
+
+    - name: rsl_token
+      type: string
+
+    - name: tenant_entitlement_type
+      type: string
+
+    - name: tenant_entitlement_start_date
+      type: string
+
+    - name: tenant_entitlement_end_date
+      type: string
+
+    ##review
+
       
   stepTemplate:
     name: gitops-aibroker-tenant
@@ -206,6 +237,36 @@ spec:
       - name: MAS_AIBROKER_STORAGE_SSL
         value: $(params.mas_aibroker_storage_ssl)
 
+      ##review
+      - name: MAS_AIBROKER_S3_ENDPOINT_URL
+        value: $(params.mas_aibroker_s3_endpoint_url)
+
+      - name: MAS_AIBROKER_S3_REGION
+        value: $(params.mas_aibroker_s3_region)
+
+      - name: MAS_AIBROKER_S3_BUCKET_PREFIX
+        value: $(params.mas_aibroker_s3_bucket_prefix)
+
+      - name: RSL_URL
+        value: $(params.rsl_url)
+
+      - name: RSL_ORG_ID
+        value: $(params.rsl_org_id)
+
+      - name: RSL_TOKEN
+        value: $(params.rsl_token)
+
+      - name: TENANT_ENTITLEMENT_TYPE
+        value: $(params.tenant_entitlement_type)
+
+      - name: TENANT_ENTITLEMENT_START_DATE
+        value: $(params.tenant_entitlement_start_date)
+
+      - name: TENANT_ENTITLEMENT_END_DATE
+        value: $(params.tenant_entitlement_end_date)
+
+      ##review
+            
     envFrom:
       - configMapRef:
           name: environment-properties
