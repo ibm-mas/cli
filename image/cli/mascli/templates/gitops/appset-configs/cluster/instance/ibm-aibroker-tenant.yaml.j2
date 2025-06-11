@@ -13,6 +13,12 @@ ibm_aibroker_tenant:
   mas_icr_cp: "{{ MAS_ICR_CP }}"
   mas_icr_cpopen: "{{ MAS_ICR_CPOPEN }}"
 
+  #tenant ##review
+  tenant_entitlement_type: "{{ TENANT_ENTITLEMENT_TYPE }}"
+  tenant_entitlement_start_date: "{{ TENANT_ENTITLEMENT_START_DATE }}"
+  tenant_entitlement_end_date: "{{ TENANT_ENTITLEMENT_END_DATE }}"
+  ##review
+  
   # dro
   artifactory_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_ARTIFACTORY_TOKEN }}>"
   drocfg_url: "{{ DROCFG_URL }}"
@@ -28,7 +34,20 @@ ibm_aibroker_tenant:
   slscfg_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_CA }}>"
   slscfg_tls: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_TLS }}>"
   slscfg_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_KEY }}>"
+  
+  # RSL ##review
+  rsl_url: "{{ RSL_URL }}"
+  rsl_org_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_ORG_ID }}>"
+  rsl_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_TOKEN }}>"
 
+
+  # S3
+  mas_aibroker_s3_endpoint_url: "{{ MAS_AIBROKER_S3_ENDPOINT_URL }}"
+  mas_aibroker_s3_region: "{{ MAS_AIBROKER_S3_REGION }}"
+  mas_aibroker_s3_bucket_prefix: "{{ MAS_AIBROKER_S3_BUCKET_PREFIX }}"
+  ##review
+
+  
   # watsonx
   mas_aibroker_watsonxai_url: "{{ MAS_AIBROKER_WATSONXAI_URL }}"
   mas_aibroker_watsonxai_apikey: "{{ MAS_AIBROKER_WATSONXAI_APIKEY }}"
