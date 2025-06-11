@@ -110,6 +110,11 @@ function gitops_aibroker_noninteractive() {
   #-- mariadb defaults
   export MAS_AIBROKER_MARIADB_SECRET=${MAS_AIBROKER_MARIADB_SECRET:-"${MAS_APP_ID}-mariadbcfge"}
 
+    ##review
+  export MAS_AIBROKER_S3_BUCKET_PREFIX=${MAS_AIBROKER_S3_BUCKET_PREFIX:-"m"}
+  export MAS_AIBROKER_S3_REGION=${MAS_AIBROKER_S3_REGION:-"us-east-2"}
+  export ENVIRONMENT_TYPE=${ENVIRONMENT_TYPE:-"standard"}
+  ##review
 
   while [[ $# -gt 0 ]]
   do
@@ -182,6 +187,23 @@ function gitops_aibroker_noninteractive() {
       --mas-aibroker-mariadb-secret)
           export MAS_AIBROKER_MARIADB_SECRET=$1 && shift
         ;;
+      ##review
+      --environment-type)
+        export ENVIRONMENT_TYPE=$1 && shift
+        ;;
+
+      --mas-aibroker-s3-endpoint-url)
+        export MAS_AIBROKER_S3_ENDPOINT_URL=$1 && shift
+        ;;
+
+      --mas-aibroker-s3-region)
+        export MAS_AIBROKER_S3_REGION=$1 && shift
+        ;;
+
+      --mas-aibroker-s3-bucket-prefix)
+        export MAS_AIBROKER_S3_BUCKET_PREFIX=$1 && shift
+        ;;
+      ##review
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -243,6 +265,9 @@ function gitops_aibroker_noninteractive() {
   [[ -z "$MAS_APP_CHANNEL" ]] && gitops_aibroker_help "MAS_APP_CHANNEL is not set. Please provide the mas app channel using --mas-app-channel"
   # -- DRO
   #[[ -z "$DROCFG_URL" ]] && gitops_aibroker_help "DROCFG_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
+  ##review
+  [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
+  ##review
 
 }
 
@@ -453,5 +478,3 @@ function gitops_aibroker() {
 
 
   exit 0 
-
- }

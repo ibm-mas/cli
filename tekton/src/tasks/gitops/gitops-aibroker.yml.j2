@@ -106,6 +106,20 @@ spec:
       type: string
     - name: in_saas_env
       type: string
+    ##review
+    - name: environment_type
+      type: string
+
+    - name: mas_aibroker_s3_endpoint_url
+      type: string
+
+    - name: mas_aibroker_s3_region
+      type: string
+
+    - name: mas_aibroker_s3_bucket_prefix
+      type: string
+        ##review
+
 
   stepTemplate:
     name: gitops-aibroker
@@ -210,6 +224,19 @@ spec:
         value: $(params.cluster_domain)
       - name: IN_SAAS_ENV
         value: $(params.in_saas_env)
+      ##review
+      - name: environment_type
+        value: $(params.environment_type)
+
+      - name: mas_aibroker_s3_endpoint_url
+        value: $(params.mas_aibroker_s3_endpoint_url)
+
+      - name: mas_aibroker_s3_region
+        value: $(params.mas_aibroker_s3_region)
+
+      - name: mas_aibroker_s3_bucket_prefix
+        value: $(params.mas_aibroker_s3_bucket_prefix)
+      ##review
     envFrom:
       - configMapRef:
           name: environment-properties
