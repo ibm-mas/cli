@@ -17,7 +17,7 @@ Basic Configuration:
 
 ibm_aibroker_tenant(required):
       --mas-instance-id ${COLOR_YELLOW}MAS_INSTACE_ID${TEXT_RESET}                                          The MAS instance ID used by AI Broker
-      --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                       The tenant's Kubernetes namespace
+      --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                        The tenant's Kubernetes namespace
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                           The domain name of the Kubernetes cluster (e.g., cluster.local)
       --drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                   URL of the DRO configuration service
       --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
