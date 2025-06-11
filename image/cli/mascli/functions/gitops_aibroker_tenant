@@ -259,7 +259,7 @@ function gitops_aibroker_tenant_noninteractive() {
         ;;
 
       ##review
-      --rsl-url)
+            --rsl-url)
         export RSL_URL=$1 && shift
         ;;
 
@@ -361,6 +361,8 @@ function gitops_aibroker_tenant_noninteractive() {
   
   ##review
   [[ -z "$RSL_URL" ]] && gitops_aibroker_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
+  [[ -z "$SECRET_KEY_RSL_ORG_ID" ]] && gitops_aibroker_tenant_help "SECRET_KEY_RSL_ORG_ID is not set. Please specify the RSL Org ID secret key using --rsl-org-id."
+  [[ -z "$SECRET_KEY_RSL_TOKEN" ]] && gitops_aibroker_tenant_help "SECRET_KEY_RSL_TOKEN is not set. Please specify the RSL token secret key using --rsl-token."
   [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
   ##review
 }
