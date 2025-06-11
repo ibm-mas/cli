@@ -1,37 +1,37 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
 ibm_aibroker:
-  mas_instance_id: "sremat"
-  aibroker_namespace: "mas-sremat-aibroker"
-  mas_aibroker_watsonx_secret: "sremat-watsonxcfg"
-  pull_secret_name: "<path:{{ SECRETS_PATH }}:{{ image_pull_secret_b64 }}>"
+  mas_instance_id: "{{ MAS_INSTANCE_ID }}"
+  aibroker_namespace: "{{ AIBROKER_NAMESPACE }}"
+  mas_aibroker_watsonx_secret: "{{ MAS_AIBROKER_WATSONX_SECRET }}"
+  ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
 
+ #minio......
+  mas_aibroker_storage_provider: "{{ MAS_AIBROKER_STORAGE_PROVIDER }}"
+  mas_aibroker_storage_ssl: "{{ MAS_AIBROKER_STORAGE_SSL }}"  #mas_aibroker_minio_secret: "minio-secret"
+  mas_aibroker_storage_region: "{{ MAS_AIBROKER_STORAGE_REGION }}"
+  mas_aibroker_minio_secret: "{{ MAS_AIBROKER_MINIO_SECRET }}"
 
-  # Storage vars
-  mas_aibroker_storage_provider: "minio"
-  mas_aibroker_minio_secret: "minio-secret"
-  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_ACCESSKEY }}>"
-  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_SECRETKEY }}>"
-  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_HOST }}>"
-  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_PORT }}>"
-  mas_aibroker_storage_ssl: "true"
-  mas_aibroker_storage_region: ""
+  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MINIO_ACCESSKEY }}>"
+  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MINIO_SECRETKEY }}>"
+  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MINIO_HOST }}>"
+  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MINIO_PORT }}>"
+
   mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_BUCKET_PIPELINES }}>"
   mas_aibroker_storage_tenants_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_BUCKET_TENANTS }}>"
   mas_aibroker_storage_templates_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_BUCKET_TEMPLATES }}>"
 
-  
+
 
   # MariaDB
   mas_aibroker_db_host: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_HOST }}>"
-  mas_aibroker_mariadb_secret: "sremat-mariadbcfg"
+  mas_aibroker_mariadb_secret: "{{ MAS_AIBROKER_MARIADB_SECRET }}"
   mas_aibroker_db_port: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_PORT }}>"
   mas_aibroker_db_user: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_USER }}>"
   mas_aibroker_db_database: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_DATABASE }}>"
   mas_aibroker_db_secret_name: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_SECRET_NAME }}>"
   mas_aibroker_db_secret_value: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_SECRET_VALUE }}>"
-
-  primary_storage_class: "nfs-client"
+  primary_storage_class: "{{ PRIMARY_STORAGE_CLASS }}"
 
   #SLS
   slscfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SLSCFG_REGISTRATION_KEY }}>"
@@ -52,19 +52,18 @@ ibm_aibroker:
   mas_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ MAS_ENTITLEMENT_KEY }}>"
   
   # Development Registry Entitlement
-  artifactory_username: "pmqcloud@us.ibm.com"
+  artifactory_username: "{{ ARTIFACTORY_USERNAME }}"
   artifactory_token: "<path:{{ SECRETS_PATH }}:{{ ARTIFACTORY_TOKEN }}>"
   # Environment Variable:
-  mas_app_channel: "workspace"
+  mas_app_channel: "{{ MAS_APP_CHANNEL }}"
   # mas_app_channel: "9.1.x-dev"
-  mas_catalog_source: "ibm-operator-catalog"
+  mas_catalog_source: "{{ MAS_CATALOG_SOURCE }}"
 
   # Source container registry
   # -----------------------------------------------------------------------------
-  # mas_icr_cp: "cp.icr.io/cp"
-  # mas_icr_cpopen: "icr.io/cpopen"
-  mas_icr_cp: "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"
-  mas_icr_cpopen: "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"
+ 
+  mas_icr_cp: "{{ MAS_ICR_CP }}"
+  mas_icr_cpopen: "{{ MAS_ICR_CPOPEN }}"
 
-  cluster_domain: "sremat-test.cp.fyre.ibm.com"
-  in_saas_env: "false"
+  cluster_domain: "{{ CLUSTER_DOMAIN }}"
+  in_saas_env: "{{ IN_SAAS_ENV }}"
