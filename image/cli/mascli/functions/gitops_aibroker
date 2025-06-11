@@ -92,27 +92,23 @@ function gitops_aibroker_noninteractive() {
    #only export below in whiel loop
 
   #adding default values 
-  export PRIMARY_STORAGE_CLASS=${PRIMARY_STORAGE_CLASS:-"nfs-client"}
+  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${MAS_INSTANCE_ID}-aibroker"}
+  export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
   export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"}
-  export ARTIFACTORY_USERNAME=${ARTIFACTORY_USERNAME:-"pmqcloud@us.ibm.com"}
-  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
-  export MINIO_NAMESPACE=${MINIO_NAMESPACE:-"minio"}
-  export MINIO_INSTANCE_NAME=${MINIO_INSTANCE_NAME:-"minio"}
-  export MINIO_STORAGE_SIZE=${MINIO_STORAGE_SIZE:-"40Gi"}
-  export MINIO_IMAGE=${MINIO_IMAGE:-"quay.io/minio/minio:latest"}
-  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-sremat-aibroker"}
-  export MAS_INSTACE_ID=${MAS_INSTACE_ID:-"sremat"}
-  export MAS_AIBROKER_WATSONX_SECRET=${MAS_AIBROKER_WATSONX_SECRET:-"sremat-watsonxcfg"}
-  export MAS_AIBROKER_STORAGE_PROVIDER=${MAS_AIBROKER_STORAGE_PROVIDER:-"minio"}
-  export MAS_AIBROKER_MINIO_SECRET=${MAS_AIBROKER_MINIO_SECRET:-"minio-secret"}
+  #dro
+  # -- SLS Defaults
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}} 
+  export MAS_APP_ID=${MAS_APP_ID:-"aibroker"}
+  export MAS_AIBROKER_WATSONX_SECRET=${MAS_AIBROKER_WATSONX_SECRET:-"${MAS_APP_ID}-watsonxcfg"}
+  export MAS_AIBROKER_STORAGE_PROVIDER=${MAS_AIBROKER_STORAGE_PROVIDER:-"aws"}
+  #Minio Defaults
+  export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
   export MAS_AIBROKER_STORAGE_SSL=${MAS_AIBROKER_STORAGE_SSL:-"true"}
- # export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
-  export MAS_APP_CHANNEL=${MAS_APP_CHANNEL:-"workspace"}
+  export MAS_AIBROKER_MINIO_SECRET=${MAS_AIBROKER_MINIO_SECRET:-"${MAS_APP_ID}-miniocfg"}
   export MAS_CATALOG_SOURCE=${MAS_CATALOG_SOURCE:-"ibm-operator-catalog"}
-  export CLUSTER_DOMAIN=${CLUSTER_DOMAIN:-"sremat-test.cp.fyre.ibm.com"}
-  export IN_SAAS_ENV=${IN_SAAS_ENV:-"false"}
-  export MAS_AIBROKER_MARIADB_SECRET=${MAS_AIBROKER_MARIADB_SECRET:-"sremat-mariadbcfge"}
+  #-- mariadb defaults
+  export MAS_AIBROKER_MARIADB_SECRET=${MAS_AIBROKER_MARIADB_SECRET:-"${MAS_APP_ID}-mariadbcfge"}
 
 
   while [[ $# -gt 0 ]]
@@ -147,60 +143,42 @@ function gitops_aibroker_noninteractive() {
         export SECRETS_PATH=$1 && shift
         ;;
 
+       --aibroker-namespace)
+          export AIBROKER_NAMESPACE=$1 && shift
+        ;;
+       --in-saas-env)
+          export IN_SAAS_ENV=$1 && shift
+        ;;
       --mas-icr-cp)
         export MAS_ICR_CP=$1 && shift
         ;;
       --mas-icr-cpopen)
         export MAS_ICR_CPOPEN=$1 && shift
         ;;
-      --artifactory-username)
-        export ARTIFACTORY_USERNAME=$1 && shift
-        ;;
+
       --region-id)
         export REGION_ID=$1 && shift
         ;;
-      --minio_namespace)
-        export MINIO_NAMESPACE=$1 && shift
-        ;;
-      --minio-instance-name)
-          export MINIO_INSTANCE_NAME=$1 && shift
-        ;;
-      --minio-storage-size)
-          export MINIO_STORAGE_SIZE=$1 && shift
-        ;;
-      --minio-image)
-          export MINIO_IMAGE=$1 && shift
-        ;;
-      --aibroker-namespace)
-          export AIBROKER_NAMESPACE=$1 && shift
-        ;;
-      --mas-instance-id)
-          export MAS_INSTACE_ID=$1 && shift
-        ;;
+
       --mas-aibroker-watsonx-secret)
           export MAS_AIBROKER_WATSONX_SECRET=$1 && shift
         ;;
       --mas-aibroker-storage-provider)
           export MAS_AIBROKER_STORAGE_PROVIDER=$1 && shift
         ;;
-      --mas-aibroker-minio-secret)
-          export MAS_AIBROKER_MINIO_SECRET=$1 && shift
+      --mas-aibroker-storage-region)
+        export MAS_AIBROKER_STORAGE_REGION=$1 && shift
         ;;
       --mas-aibroker-storage-ssl)
-          export MAS_AIBROKER_STORAGE_SSL=$1 && shift
+        export MAS_AIBROKER_STORAGE_SSL=$1 && shift
         ;;
-      --mas-app-channel)
-          export MAS_APP_CHANNEL=$1 && shift
+      --mas-aibroker-minio-secret)
+          export MAS_AIBROKER_MINIO_SECRET=$1 && shift
         ;;
       --mas-catalog-source)
           export MAS_CATALOG_SOURCE=$1 && shift
         ;;
-      --cluster-domain)
-          export CLUSTER_DOMAIN=$1 && shift
-        ;;
-      --in-saas-env)
-          export IN_SAAS_ENV=$1 && shift
-        ;;
+
       --mas-aibroker-mariadb-secret)
           export MAS_AIBROKER_MARIADB_SECRET=$1 && shift
         ;;
@@ -242,42 +220,29 @@ function gitops_aibroker_noninteractive() {
   done
 
 
-  [[ -z "$CLUSTER_ID" ]] && gitops_aibroker_help "CLUSTER_ID is not set"
-  #[[ -z "$INSTANCE_ID" ]] && gitops_aibroker_help "INSTANCE_ID is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_aibroker_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_aibroker_help "ACCOUNT_ID is not set"
-  #[[ -z "$MAS_INSTANCE_ID" ]] && gitops_aibroker_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_aibroker_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_aibroker_help "REGION_ID or SM_AWS_REGION is not set"
 
-   if [[ "$GITHUB_PUSH" == "true" ]]; then
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_aibroker_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_aibroker_help "GITHUB_ORG is not set"
     [[ -z "$GITHUB_REPO" ]] && gitops_aibroker_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_aibroker_help "GIT_BRANCH is not set"
-    [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_aibroker_help "PRIMARY_STORAGE_CLASS is not set"
-    [[ -z "$MAS_ICR_CP" ]] && gitops_aibroker_help "MAS_ICR_CP is not set"
-    [[ -z "$MAS_ICR_CPOPEN" ]] && gitops_aibroker_help "MAS_ICR_CPOPEN is not set"
-    [[ -z "$ARTIFACTORY_USERNAME" ]] && gitops_aibroker_help "ARTIFACTORY_USERNAME is not set"
-    [[ -z "$REGION_ID" ]] && gitops_aibroker_help "REGION_ID is not set"
-    [[ -z "$MINIO_NAMESPACE" ]] && gitops_aibroker_help "MINIO_NAMESPACE is not set"
-    [[ -z "$MINIO_INSTANCE_NAME" ]] && gitops_aibroker_help "MINIO_INSTANCE_NAME is not set"
-    [[ -z "$MINIO_STORAGE_SIZE" ]] && gitops_aibroker_help "MINIO_STORAGE_SIZE is not set"
-    [[ -z "$MINIO_IMAGE" ]] && gitops_aibroker_help "MINIO_IMAGE is not set"
-    [[ -z "$AIBROKER_NAMESPACE" ]] && gitops_aibroker_help "AIBROKER_NAMESPACE is not set"
-    [[ -z "$MAS_INSTACE_ID" ]] && gitops_aibroker_help "MAS_INSTACE_ID is not set"
-    [[ -z "$MAS_AIBROKER_WATSONX_SECRET" ]] && gitops_aibroker_help "MAS_AIBROKER_WATSONX_SECRET is not set"
-    [[ -z "$MAS_AIBROKER_STORAGE_PROVIDER" ]] && gitops_aibroker_help "MAS_AIBROKER_STORAGE_PROVIDER is not set"
-    [[ -z "$MAS_AIBROKER_MINIO_SECRET" ]] && gitops_aibroker_help "MAS_AIBROKER_MINIO_SECRET is not set"
-    [[ -z "$MAS_AIBROKER_STORAGE_SSL" ]] && gitops_aibroker_help "MAS_AIBROKER_STORAGE_SSL is not set"
-   # [[ -z "$MAS_AIBROKER_STORAGE_REGION" ]] && gitops_aibroker_help "MAS_AIBROKER_STORAGE_REGION is not set"
-    [[ -z "$MAS_APP_CHANNEL" ]] && gitops_aibroker_help "MAS_APP_CHANNEL is not set"
-    [[ -z "$MAS_CATALOG_SOURCE" ]] && gitops_aibroker_help "MAS_CATALOG_SOURCE is not set"
-    [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aibroker_help "CLUSTER_DOMAIN is not set"
-    [[ -z "$IN_SAAS_ENV" ]] && gitops_aibroker_help "IN_SAAS_ENV is not set"
-    [[ -z "$MAS_AIBROKER_MARIADB_SECRET" ]] && gitops_aibroker_help "MAS_AIBROKER_MARIADB_SECRET is not set"
-
+    
   fi
 
 # add validation below like above  for those variable which have the value needed for further execution
-
+# -- AIBroker
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_aibroker_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
+  [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_aibroker_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
+  #[[ -z "$TENANT_NAMESPACE" ]] && gitops_aibroker_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
+  [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aibroker_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
+  [[ -z "$ARTIFACTORY_USERNAME" ]] && gitops_aibroker_help "ARTIFACTORY_USERNAME is not set. Please provide the artifactory username using --artifactory-username"
+  [[ -z "$MAS_APP_CHANNEL" ]] && gitops_aibroker_help "MAS_APP_CHANNEL is not set. Please provide the mas app channel using --mas-app-channel"
+  # -- DRO
+  #[[ -z "$DROCFG_URL" ]] && gitops_aibroker_help "DROCFG_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
 
 }
 
@@ -307,8 +272,34 @@ function gitops_aibroker() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Target" "    "
-  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
-  echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host .................................. ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
   reset_colors
 
 # echo all the variables ofgitops+envs
@@ -335,56 +326,78 @@ function gitops_aibroker() {
   echo_reset_dim "MAS AI Broker DB Database ............. ${COLOR_MAGENTA}${MAS_AIBROKER_DB_DATABASE}"
   echo_reset_dim "MAS AI Broker DB Secret Name .......... ${COLOR_MAGENTA}${MAS_AIBROKER_DB_SECRET_NAME}"
   echo_reset_dim "MAS AI Broker DB Secret Value ......... ${COLOR_MAGENTA}${MAS_AIBROKER_DB_SECRET_VALUE}"
-  echo_reset_dim "Primary Storage Class ................. ${COLOR_MAGENTA}${PRIMARY_STORAGE_CLASS}"
-  echo_reset_dim "MAS AI Broker DB Host ................. ${COLOR_MAGENTA}${MAS_AIBROKER_DB_HOST}"
-  echo_reset_dim "MAS AI Broker MariaDB Secret .......... ${COLOR_MAGENTA}${MAS_AIBROKER_MARIADB_SECRET}"
-  echo_reset_dim "MAS AI Broker DB Port ................. ${COLOR_MAGENTA}${MAS_AIBROKER_DB_PORT}"
-  echo_reset_dim "MAS AI Broker DB User ................. ${COLOR_MAGENTA}${MAS_AIBROKER_DB_USER}"
-  echo_reset_dim "MAS AI Broker DB Database ............. ${COLOR_MAGENTA}${MAS_AIBROKER_DB_DATABASE}"
-  echo_reset_dim "MAS AI Broker DB Secret Name .......... ${COLOR_MAGENTA}${MAS_AIBROKER_DB_SECRET_NAME}"
-  echo_reset_dim "MAS AI Broker DB Secret Value ......... ${COLOR_MAGENTA}${MAS_AIBROKER_DB_SECRET_VALUE}"
+  
   echo_reset_dim "Primary Storage Class ................. ${COLOR_MAGENTA}${PRIMARY_STORAGE_CLASS}"
 
 
+  echo_reset_dim "SLS Config Registration Key ............ ${COLOR_MAGENTA}${SLSCFG_REGISTRATION_KEY}"
+  echo_reset_dim "DRO Config CA .......................... ${COLOR_MAGENTA}${DROCFG_CA}"
+  echo_reset_dim "DRO Config Registration Key ............ ${COLOR_MAGENTA}${DROCFG_REGISTRATION_KEY}"
+  echo_reset_dim "DRO Config URL ......................... ${COLOR_MAGENTA}${DROCFG_URL}"
+  echo_reset_dim "JDBC Config Username ................... ${COLOR_MAGENTA}${JDBCCFG_USERNAME}"
+  echo_reset_dim "JDBC Config Password ................... ${COLOR_MAGENTA}${JDBCCFG_PASSWORD}"
+  echo_reset_dim "JDBC Config URL ........................ ${COLOR_MAGENTA}${JDBCCFG_URL}"
+  echo_reset_dim "JDBC SSL Enabled ....................... ${COLOR_MAGENTA}${JDBCCFG_SSLENABLED}"
+  echo_reset_dim "JDBC Config CA ......................... ${COLOR_MAGENTA}${JDBCCFG_CA}"
+  echo_reset_dim "MAS Entitlement Key .................... ${COLOR_MAGENTA}${MAS_ENTITLEMENT_KEY}"
+  echo_reset_dim "Artifactory Username ................... ${COLOR_MAGENTA}${ARTIFACTORY_USERNAME}"
+  echo_reset_dim "Artifactory Token ...................... ${COLOR_MAGENTA}${ARTIFACTORY_TOKEN}"
+  echo_reset_dim "MAS App Channel ........................ ${COLOR_MAGENTA}${MAS_APP_CHANNEL}"
+  echo_reset_dim "MAS Catalog Source ..................... ${COLOR_MAGENTA}${MAS_CATALOG_SOURCE}"
+  echo_reset_dim "MAS ICR CP ............................. ${COLOR_MAGENTA}${MAS_ICR_CP}"
+  echo_reset_dim "MAS ICR CPOpen ......................... ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
+  echo_reset_dim "Cluster Domain ......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
+  echo_reset_dim "In SaaS Environment .................... ${COLOR_MAGENTA}${IN_SAAS_ENV}"
 
-   AVP_TYPE=aws  # Support for IBM will be added later
+
+  AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
   # update those varialbe which are necessory to be updated into aws , 
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
 
-  export image_pull_secret_b64=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
+
+  export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
+
+  #minio
   # mas_aibroker_storage_accesskey
-  export SM_MINIO_ACCESSKEY=${SECRETS_PREFIX}minio#sm_minio_accesskey
-  # mas_aibroker_storage_secretkey
-  export SM_MINIO_SECRETKEY=${SECRETS_PREFIX}minio#sm_minio_secretkey
+  export SECRET_KEY_MINIO_ACCESSKEY=${SECRETS_PREFIX}minio#sm_minio_accesskey
+  export SECRET_KEY_MINIO_SECRETKEY=${SECRETS_PREFIX}minio#sm_minio_secretkey
   # mas_aibroker_storage_host
-  export SM_MINIO_HOST=${SECRETS_PREFIX}minio#sm_minio_host
-  # mas_aibroker_storage_port
-  export SM_MINIO_PORT=${SECRETS_PREFIX}minio#sm_minio_port
+  export SECRET_KEY_MINIO_HOST=${SECRETS_PREFIX}minio#sm_minio_host
+  export SECRET_KEY_MINIO_PORT=${SECRETS_PREFIX}minio#sm_minio_port
   # mas_aibroker_storage_templates_bucket
   export SM_MINIO_BUCKET_TEMPLATES=${SECRETS_PREFIX}minio#sm_minio_bucket_templates
   # mas_aibroker_storage_tenants_bucket
   export SM_MINIO_BUCKET_TENANTS=${SECRETS_PREFIX}minio#sm_minio_bucket_tenants
   # mas_aibroker_storage_pipelines_bucket
   export SM_MINIO_BUCKET_PIPELINES=${SECRETS_PREFIX}minio#sm_minio_bucket_pipelines
+
+
+  #mariadb
   export MAS_AIBROKER_DB_HOST=${SECRETS_PREFIX}mariadb#sm_mariadb_host
   export MAS_AIBROKER_DB_PORT=${SECRETS_PREFIX}mariadb#sm_mariadb_port
   export MAS_AIBROKER_DB_USER=${SECRETS_PREFIX}mariadb#sm_mariadb_user
   export MAS_AIBROKER_DB_DATABASE=${SECRETS_PREFIX}mariadb#sm_mariadb_database
   export MAS_AIBROKER_DB_SECRET_NAME=${SECRETS_PREFIX}mariadb#sm_mariadb_secret_name
   export MAS_AIBROKER_DB_SECRET_VALUE=${SECRETS_PREFIX}mariadb#sm_mariadb_secret_value
+
+  #sls
   export SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
+  #dro
   export DROCFG_CA=${SECRETS_PREFIX}dro#drocfg_ca
   export DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}dro#drocfg_registration_key
   export DROCFG_URL=${SECRETS_PREFIX}dro#drocfg_url
+  #jdbc
   export JDBCCFG_USERNAME=${SECRETS_PREFIX}jdbc#jdbccfg_username
   export JDBCCFG_PASSWORD=${SECRETS_PREFIX}jdbc#jdbccfg_password
   export JDBCCFG_URL=${SECRETS_PREFIX}jdbc#jdbccfg_url
   export JDBCCFG_SSLENABLED=${SECRETS_PREFIX}jdbc#jdbccfg_sslenabled
   export JDBCCFG_CA=${SECRETS_PREFIX}jdbc#jdbccfg_ca
+
   export MAS_ENTITLEMENT_KEY=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
-  export ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#aibroker_image_pull_secret_b64
+  export ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
   # check if those are already present 
+  
   # and update them 
 
   # finally get values into tempalte 
@@ -394,10 +407,13 @@ function gitops_aibroker() {
   # updated var in sm 
   # and git repo 
 
+  sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
+  sm_verify_secret_exists ${SECRETS_PREFIX}dro "drocfg_ca,drocfg_registration_key,drocfg_url"
+  sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
+  sm_verify_secret_exists ${SECRETS_PREFIX}minio "sm_minio_host,sm_minio_port,sm_minio_accesskey,sm_minio_secretkey,sm_minio_bucket_templates,sm_minio_bucket_tenants,sm_minio_bucket_pipelines"
+  sm_verify_secret_exists ${SECRETS_PREFIX}mariadb "sm_mariadb_host,sm_mariadb_port,sm_mariadb_user,sm_mariadb_database,sm_mariadb_secret_name,sm_mariadb_secret_value"
 
-  # sm_update_secret and need to pss secrert | idempotent
-  # sm_update_secret $SECRET_NAME_MINIO_AUTH "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$SECRET_KEY_MINIO_USER\", \"password\": \"$SECRET_KEY_MINIO_PASSWORD\"}" "${TAGS}"fi
-
+  
 
     if [ -z $GIT_SSH ]; then
       export GIT_SSH=false
@@ -435,6 +451,7 @@ function gitops_aibroker() {
     # rm -rf $TEMP_DIR
     rm -rf $GITOPS_WORKING_DIR
 
-   
-  exit 0
-}
+
+  exit 0 
+
+ }
