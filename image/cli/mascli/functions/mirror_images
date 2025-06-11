@@ -668,6 +668,6 @@ function mirror_to_registry() {
   mirror_one_thing $MIRROR_MAS_PREDICT          "IBM Maximo Predict"                    "$LOG_PREFIX-predict.log"          mirror_add_predict
   mirror_one_thing $MIRROR_MAS_OPTIMIZER        "IBM Maximo Optimizer"                  "$LOG_PREFIX-optimizer.log"        mirror_add_optimizer
   mirror_one_thing $MIRROR_MAS_VISUALINSPECTION "IBM Maximo Visual Inspection"          "$LOG_PREFIX-visualinspection.log" mirror_add_visualinspection
-  mirror_one_thing $MIRROR_MAS_FACILIRIES       "IBM Maximo Facilities"                 "$LOG_PREFIX-facilities.log"       mirror_add_facilities
+  mirror_one_thing $MIRROR_MAS_FACILITIES       "IBM Maximo Facilities"                 "$LOG_PREFIX-facilities.log"       mirror_add_facilities
   mirror_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
 }
