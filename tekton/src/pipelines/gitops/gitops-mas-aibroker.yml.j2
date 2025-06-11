@@ -151,8 +151,6 @@ spec:
       type: string
     - name: mas_aibroker_connector_tag
       type: string
-    - name: mas_aibroker_pipeline_steps_tag
-      type: string
     - name: mas_aibroker_provision_tenant
       type: string
     - name: mas_aibroker_saas
@@ -164,7 +162,10 @@ spec:
     - name: ssh_secret_name
       type: string
     - name: tenantNamespace
-      type: string   
+      type: string 
+    ##review  
+    - name: mas_app_channel
+      type: string  
 
     ##review
     - name: environment_type
@@ -480,8 +481,6 @@ spec:
           value: $(params.image_watcher)
         - name: image_controller
           value: $(params.image_controller)
-        - name: mas_aibroker_pipeline_steps_tag
-          value: $(params.mas_aibroker_pipeline_steps_tag)
         - name: mas_aibroker_connector_tag
           value: $(params.mas_aibroker_connector_tag)
         - name: mas_aibroker_saas
@@ -490,3 +489,5 @@ spec:
           value: $(params.model_id_unique_length)
         - name: model_id_prefix
           value: $(params.model_id_prefix)
+        - name: mas_app_channel
+          value: $(params.mas_app_channel)
