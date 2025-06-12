@@ -137,7 +137,9 @@ spec:
       type: string
     - name: opendatahub_namespace
       type: string
- 
+    - name: odh_operator_version
+      type: string
+
     # KMODEL-specific 
     - name: aibroker_internal_tls
       type: string
@@ -275,6 +277,8 @@ spec:
           value: $(params.opendatahub_operator_group)
         - name: opendatahub_namespace
           value: $(params.opendatahub_namespace)
+        - name: odh_operator_version
+          value: $(params.odh_operator_version)
 
     # 3.gitops-Aibroker
     # -------------------------------------------------------------------------

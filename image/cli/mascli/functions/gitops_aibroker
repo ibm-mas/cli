@@ -327,7 +327,7 @@ function gitops_aibroker() {
   fi
   reset_colors
 
-# echo all the variables ofgitops+envs
+  # echo all the variables ofgitops+envs
   echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "AI Broker Namespace ................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
   echo_reset_dim "MAS AI Broker WatsonX Secret .......... ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONX_SECRET}"
