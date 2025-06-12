@@ -3,9 +3,9 @@ Installation
 Usage
 -------------------------------------------------------------------------------
 For full usage information run `mas aiservice-install --help` <br>
-`mas aiservice-install` is specifically built for installation of Aiservice 9.1.x or above without any MAS dependency. <br>
+`mas aiservice-install` is specifically built for installation of Aiservice 9.1.x or above. <br>
 <br>
-For installation of Aiservice 9.0.x have to use `mas install` which depends on MAS.
+For installation of Aiservice 9.0.x have to use `mas install` command.
 
 Preparation
 -------------------------------------------------------------------------------
@@ -121,14 +121,8 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
   oc login --token=sha256~xxxx --server=https://xxx &&
   mas aiservice-install \
     --mas-catalog-version @@MAS_LATEST_CATALOG@@ \
-    --mas-instance-id mas1 \
-    --mas-workspace-id ws1 \
-    --mas-workspace-name "My Workspace"
-    \
-    --superuser-username superuser \
-    --superuser-password '${SUPERUSER_PASSWORD}' \
-    \
-    --aibroker-channel @@AISERVICE_CHANNEL@@ \
+    --aibroker-instance-id aib1 \
+    --aibroker-channel @@AIBROKER_CHANNEL@@ \
     \
     --ibm-entitlement-key '${IBM_ENTITLEMENT_KEY}' \
     --license-file /mnt/home/entitlement.lic \
@@ -149,8 +143,6 @@ More Information
 The install is designed to work on any OCP cluster, but has been specifically tested in these environments:
 
 - IBMCloud ROKS
-- Microsoft Azure
-- AWS ROSA
 - IBM DevIT FYRE (internal)
 
 The engine that performs all tasks is written in Ansible, you can directly use the same automation outside of this CLI if you wish.  The code is open source and available in [ibm-mas/ansible-devops](https://github.com/ibm-mas/ansible-devops), the collection is also available to install directly from [Ansible Galaxy](https://galaxy.ansible.com/ibm/mas_devops), the install supports the following actions:

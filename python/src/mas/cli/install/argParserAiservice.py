@@ -23,10 +23,10 @@ def isValidFile(parser, arg) -> str:
 
 
 installArgParserAiservice = argparse.ArgumentParser(
-    prog="mas install",
+    prog="mas install-aiservice",
     description="\n".join([
         f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
-        "Install MAS by configuring and launching the MAS Uninstall Tekton Pipeline.\n",
+        "Install Aiservice by configuring and launching the Tekton Pipeline.\n",
         "Interactive Mode:",
         "Omitting the --instance-id option will trigger an interactive prompt"
     ]),
@@ -63,69 +63,9 @@ masArgGroup.add_argument(
     help="Aibroker Instance ID"
 )
 
-# MAS Special characters
-# -----------------------------------------------------------------------------
-masSpecialCharacters = installArgParserAiservice.add_argument_group("Mas Special Characters")
-masSpecialCharacters.add_argument(
-    "--allow-special-chars",
-    dest="mas_special_characters",
-    required=False,
-    help="Allow special chars for users username/ID",
-    action="store_true"
-)
-# ECK Integration
-# -----------------------------------------------------------------------------
-eckArgGroup = installArgParserAiservice.add_argument_group("ECK Integration")
-eckArgGroup.add_argument(
-    "--eck",
-    dest="eck_action",
-    required=False,
-    help="",
-    action="store_const",
-    const="install"
-)
-eckArgGroup.add_argument(
-    "--eck-enable-logstash",
-    required=False,
-    help="",
-    action="store_true"
-)
-eckArgGroup.add_argument(
-    "--eck-remote-es-hosts",
-    required=False,
-    help=""
-)
-eckArgGroup.add_argument(
-    "--eck-remote-es-username",
-    required=False,
-    help=""
-)
-eckArgGroup.add_argument(
-    "--eck-remote-es-password",
-    required=False,
-    help=""
-)
-
 # MAS Advanced Configuration
 # -----------------------------------------------------------------------------
 masAdvancedArgGroup = installArgParserAiservice.add_argument_group("MAS Advanced Configuration")
-masAdvancedArgGroup.add_argument(
-    "--superuser-username",
-    dest="mas_superuser_username",
-    required=False,
-    help=""
-)
-masAdvancedArgGroup.add_argument(
-    "--superuser-password",
-    dest="mas_superuser_password",
-    required=False,
-    help=""
-)
-masAdvancedArgGroup.add_argument(
-    "--additional-configs",
-    required=False,
-    help="Path to a directory containing additional configuration files to be applied"
-)
 masAdvancedArgGroup.add_argument(
     "--pod-templates",
     required=False,
@@ -594,57 +534,6 @@ aibrokerArgGroup.add_argument(
     help="flag for install dro"
 )
 
-
-# IBM Cloud Pak for Data
-# -----------------------------------------------------------------------------
-cpdAppsArgGroup = installArgParserAiservice.add_argument_group("IBM Cloud Pak for Data")
-cpdAppsArgGroup.add_argument(
-    "--cp4d-version",
-    dest="cpd_product_version",
-    required=False,
-    help="Product version of CP4D to use"
-)
-cpdAppsArgGroup.add_argument(
-    "--cp4d-install-spss",
-    dest="cpd_install_spss",
-    required=False,
-    help="Add SPSS Modeler as part of Cloud Pak for Data",
-    action="store_const",
-    const="install"
-)
-cpdAppsArgGroup.add_argument(
-    "--cp4d-install-cognos",
-    dest="cpd_install_cognos",
-    required=False,
-    help="Add Cognos as part of Cloud Pak for Data",
-    action="store_const",
-    const="install"
-)
-cpdAppsArgGroup.add_argument(
-    "--cp4d-install-ws",
-    dest="cpd_install_ws",
-    required=False,
-    help="Add Watson Studio as part of Cloud Pak for Data",
-    action="store_const",
-    const="install"
-)
-cpdAppsArgGroup.add_argument(
-    "--cp4d-install-wml",
-    dest="cpd_install_wml",
-    required=False,
-    help="Add Watson Machine Learning as part of Cloud Pak for Data",
-    action="store_const",
-    const="install"
-)
-cpdAppsArgGroup.add_argument(
-    "--cp4d-install-ae",
-    dest="cpd_install_ae",
-    required=False,
-    help="Add Spark Analytics Engine as part of Cloud Pak for Data",
-    action="store_const",
-    const="install"
-)
-
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------
 db2ArgGroup = installArgParserAiservice.add_argument_group("IBM Db2 Universal Operator")
@@ -851,7 +740,7 @@ approvalsGroup = installArgParserAiservice.add_argument_group("Integrated Approv
 approvalsGroup.add_argument(
     "--approval-aibroker",
     default="",
-    help="Require approval after the Maximo Predict workspace has been configured"
+    help="Require approval after the Aibroker has been configured"
 )
 
 # More Options
@@ -894,12 +783,6 @@ otherArgGroup.add_argument(
     required=False,
     action="store_true",
     help="Disable the 'pre-install-check' at the start of the install pipeline"
-)
-otherArgGroup.add_argument(
-    "--skip-grafana-install",
-    required=False,
-    action="store_true",
-    help="Skips Grafana install action"
 )
 otherArgGroup.add_argument(
     "--no-confirm",
