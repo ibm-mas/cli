@@ -472,7 +472,10 @@ function gitops_aibroker_tenant() {
   #rsl  ##review
   export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
   export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
+  #watsonx
+  export SECRET_KEY_WATSONXAI_APIKEY=${SECRETS_PREFIX}watsonx#watsonxai_apikey
   ##review
+
 
   # minio
   export SECRET_KEY_MINIO_HOST=${SECRETS_PREFIX}minio#sm_minio_host
