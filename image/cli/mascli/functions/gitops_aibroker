@@ -266,7 +266,7 @@ function gitops_aibroker_noninteractive() {
   # -- DRO
   #[[ -z "$DROCFG_URL" ]] && gitops_aibroker_help "DROCFG_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
   ##review
-  [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
+  [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
   ##review
 
 }
