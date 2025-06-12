@@ -133,8 +133,8 @@ function gitops_odh_noninteractive() {
   export SERVERLESS_OPERATOR_SOURCE_NAMESPACE="${SERVERLESS_OPERATOR_SOURCE_NAMESPACE:-"openshift-marketplace"}"
 
   export OPENDATAHUB_OPERATORGROUP_NAME="${OPENDATAHUB_OPERATORGROUP_NAME:-"opendatahub-operator-group"}"
-  #export OPENDATAHUB_NAME="${OPENDATAHUB_NAME:-"opendatahub-operator"}"
-  #export OPENDATAHUB_NAMESPACE="${OPENDATAHUB_NAMESPACE:-"opendatahub"}"
+  export OPENDATAHUB_NAME="${OPENDATAHUB_NAME:-"opendatahub-operator"}"
+  export OPENDATAHUB_NAMESPACE="${OPENDATAHUB_NAMESPACE:-"opendatahub"}"
   export OPENDATAHUB_INSTALLPLAN_APPROVAL="${OPENDATAHUB_INSTALLPLAN_APPROVAL:-"Manual"}"
   export OPENDATAHUB_CHANNEL="${OPENDATAHUB_CHANNEL:-"fast"}"
   export OPENDATAHUB_SOURCE="${OPENDATAHUB_SOURCE:-"community-operators"}"
@@ -377,8 +377,8 @@ function gitops_odh_noninteractive() {
   #odh variables
   #[[ -z "$ODH_PIPELINE_CHANNEL" ]] && gitops_odh_help "ODH_PIPELINE_CHANNEL is not set. Please provide the ODH PIPELINE CHANNEL using --odh-pipeline-channel."
   #[[ -z "$ODH_PIPELINE_INSTALLPLAN" ]] && gitops_odh_help "ODH_PIPELINE_INSTALLPLAN is not set. Please provide the OODH_PIPELINE_INSTALLPLAN using --odh-pipeline-installplan."
-  [[ -z "$OPENDATAHUB_NAME" ]] && gitops_odh_help "OPENDATAHUB_NAME is not set. Please provide the OPENDATAHUB NAME using --opendatahub-name."
-  [[ -z "$OPENDATAHUB_NAMESPACE" ]] && gitops_odh_help "OPENDATAHUB_NAMESPACE is not set. Please provide the OPENDATAHUB NAMESPACE using --opendatahub-namespace."
+  # [[ -z "$OPENDATAHUB_NAME" ]] && gitops_odh_help "OPENDATAHUB_NAME is not set. Please provide the OPENDATAHUB NAME using --opendatahub-name."
+  # [[ -z "$OPENDATAHUB_NAMESPACE" ]] && gitops_odh_help "OPENDATAHUB_NAMESPACE is not set. Please provide the OPENDATAHUB NAMESPACE using --opendatahub-namespace."
 
 }
 
