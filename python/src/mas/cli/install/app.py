@@ -1310,112 +1310,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.initializeApprovalConfigMap(namespace, approval['id'], False)
 
 
-class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
-    @logMethodCall
-    def validateCatalogSource(self):
-        catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
-        try:
-            catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
-            catalogDisplayName = catalog.spec.displayName
-
-            m = re.match(r".+(?P<catalogId>v[89]-(?P<catalogVersion>[0-9]+)-amd64)", catalogDisplayName)
-            if m:
-                # catalogId = v8-yymmdd-amd64
-                # catalogVersion = yymmdd
-                catalogId = m.group("catalogId")
-            elif re.match(r".+v8-amd64", catalogDisplayName):
-                catalogId = "v8-amd64"
-            else:
-                self.fatalError(f"IBM Maximo Operator Catalog is already installed on this cluster. However, it is not possible to identify its version. If you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
-
-            if catalogId != self.getParam("mas_catalog_version"):
-                self.fatalError(f"IBM Maximo Operator Catalog {catalogId} is already installed on this cluster, if you wish to install a new MAS instance using the {self.getParam('mas_catalog_version')} catalog please first run 'mas update' to switch to this catalog, this will ensure the appropriate actions are performed as part of the catalog update")
-        except NotFoundError:
-            # There's no existing catalog installed
-            pass
-
-    @logMethodCall
-    def validateInternalRegistryAvailable(self):
-        """
-        We can save customers wasted time by detecting if the image-registry service
-        is available in the cluster.  If it's not, and they've selected to install
-        Manage then their install is going to fail, so let's just prevent the install
-        starting in the first place.
-        """
-        serviceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Service")
-        try:
-            serviceAPI.get(name="image-registry", namespace="openshift-image-registry")
-        except NotFoundError:
-            self.fatalError(
-                "\n".join([
-                    "Unable to proceed with installation of Maximo Manage.  Could not detect the required \"image-registry\" service in the openshift-image-registry namespace",
-                    "For more information refer to <Orange><u>https://www.ibm.com/docs/en/masv-and-l/continuous-delivery?topic=installing-enabling-openshift-internal-image-registry</u></Orange>"
-                ])
-            )
-
-    @logMethodCall
-    def licensePrompt(self):
-        if not self.licenseAccepted:
-            self.printH1("License Terms")
-            self.printDescription([
-                "To continue with the installation, you must accept the license terms:",
-                self.licenses[self.getParam('mas_channel')]
-            ])
-
-            if self.noConfirm:
-                self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")
-            else:
-                if not self.yesOrNo("Do you accept the license terms"):
-                    exit(1)
-
-    @logMethodCall
-    def configICR(self):
-        if self.devMode:
-            self.setParam("mas_icr_cp", getenv("MAS_ICR_CP", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"))
-            self.setParam("mas_icr_cpopen", getenv("MAS_ICR_CPOPEN", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"))
-            self.setParam("sls_icr_cpopen", getenv("SLS_ICR_CPOPEN", "docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"))
-        else:
-            self.setParam("mas_icr_cp", getenv("MAS_ICR_CP", "cp.icr.io/cp"))
-            self.setParam("mas_icr_cpopen", getenv("MAS_ICR_CPOPEN", "icr.io/cpopen"))
-            self.setParam("sls_icr_cpopen", getenv("SLS_ICR_CPOPEN", "icr.io/cpopen"))
-
-    @logMethodCall
-    def configICRCredentials(self):
-        self.printH1("Configure IBM Container Registry")
-        self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
-        if self.devMode:
-            self.promptForString("Artifactory username", "artifactory_username")
-            self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
-
-    @logMethodCall
-    def configCertManager(self):
-        # Only install of Red Hat Cert-Manager has been supported since the January 2025 catalog update
-        self.setParam("cert_manager_provider", "redhat")
-        self.setParam("cert_manager_action", "install")
-
-    def formatCatalog(self, name: str) -> str:
-        # Convert "v9-241107-amd64" into "November 2024 Update (v9-241107-amd64)"
-        date = name.split("-")[1]
-        month = int(date[2:4])
-        monthName = calendar.month_name[month]
-        year = date[:2]
-        return f" - {monthName} 20{year} Update\n   <Orange><u>https://ibm-mas.github.io/cli/catalogs/{name}</u></Orange>"
-
+class InstallAiService(InstallApp, BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
-        if self.architecture != "s390x":
-            self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
-
-            applications = {
-                "Aibroker": "mas_aibroker_version",
-            }
-        else:
-            applications = {
-                "Core": "mas_core_version",
-                "Manage": "mas_manage_version",
-            }
+        applications = {
+            "Aibroker": "mas_aibroker_version",
+        }
 
         self.catalogReleases = {}
         self.catalogTable = []
@@ -1451,113 +1353,10 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
                 f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
                 f"Catalog Digest:        {self.catalogDigest}",
                 f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
-                f"Cloud Pak for Data:    {self.catalogCp4dVersion}",
                 f"MongoDb:               {self.catalogMongoDbVersion}",
             ]
 
         return summary
-
-    @logMethodCall
-    def configCatalog(self):
-        self.printH1("IBM Maximo Operator Catalog Selection")
-        if self.devMode:
-            self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
-            # self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
-        else:
-            catalogInfo = getCurrentCatalog(self.dynamicClient)
-
-            if catalogInfo is None:
-                self.printDescription([
-                    "The catalog you choose dictates the version of everything that is installed, with Maximo Application Suite this is the only version you need to remember; all other versions are determined by this choice.",
-                    "Older catalogs can still be used, but we recommend using an older version of the CLI that aligns with the release date of the catalog.",
-                    " - Learn more: <Orange><u>https://ibm-mas.github.io/cli/catalogs/</u></Orange>",
-                    ""
-                ])
-                print("Supported Catalogs:")
-                for catalog in self.catalogOptions:
-                    catalogString = self.formatCatalog(catalog)
-                    print_formatted_text(HTML(f"{catalogString}"))
-                print()
-
-                catalogCompleter = WordCompleter(self.catalogOptions)
-                catalogSelection = self.promptForString("Select catalog", completer=catalogCompleter)
-                self.setParam("mas_catalog_version", catalogSelection)
-            else:
-                self.printDescription([
-                    f"The IBM Maximo Operator Catalog is already installed in this cluster ({catalogInfo['catalogId']}).  If you wish to install MAS using a newer version of the catalog please first update the catalog using mas update."
-                ])
-                self.setParam("mas_catalog_version", catalogInfo["catalogId"])
-
-            self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
-            catalogSummary = self.processCatalogChoice()
-            self.printDescription(catalogSummary)
-            self.printDescription([
-                "",
-                "Two types of release are available:",
-                " - GA releases of Maximo Application Suite are supported under IBM's standard 3+1+3 support lifecycle policy.",
-                " - 'Feature' releases allow early access to new features for evaluation in non-production environments and are only supported through to the next GA release.",
-                ""
-            ])
-
-            print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
-
-            releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
-            releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
-
-            self.setParam("mas_channel", self.catalogReleases[releaseSelection])
-
-    @logMethodCall
-    def configSLS(self) -> None:
-        self.printH1("Configure AppPoint Licensing")
-        self.printDescription(
-            [
-                "By default the MAS instance will be configured to use a cluster-shared License, this provides a shared pool of AppPoints available to all MAS instances on the cluster.",
-                "",
-            ]
-        )
-
-        self.slsMode = 1
-        self.slsLicenseFileLocal = None
-
-        if self.showAdvancedOptions:
-            self.printDescription(
-                [
-                    "Alternatively you may choose to install using a dedicated license only available to this MAS instance.",
-                    "  1. Install MAS with Cluster-Shared License (AppPoints)",
-                    "  2. Install MAS with Dedicated License (AppPoints)",
-                ]
-            )
-            self.slsMode = self.promptForInt("SLS Mode", default=1)
-
-            if self.slsMode not in [1, 2]:
-                self.fatalError(f"Invalid selection: {self.slsMode}")
-
-        if not (self.slsMode == 2 and not self.getParam("sls_namespace")):
-            sls_namespace = "ibm-sls" if self.slsMode == 1 else self.getParam("sls_namespace")
-            if findSLSByNamespace(sls_namespace, dynClient=self.dynamicClient):
-                print_formatted_text(HTML(f"<MediumSeaGreen>SLS auto-detected: {sls_namespace}</MediumSeaGreen>"))
-                print()
-                if not self.yesOrNo("Upload/Replace the license file"):
-                    self.setParam("sls_action", "gencfg")
-                    return
-
-        self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
-        self.setParam("sls_action", "install")
-
-    @logMethodCall
-    def configDRO(self) -> None:
-        self.promptForString("Contact e-mail address", "uds_contact_email")
-        self.promptForString("Contact first name", "uds_contact_firstname")
-        self.promptForString("Contact last name", "uds_contact_lastname")
-
-        if self.showAdvancedOptions:
-            self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
-
-    @logMethodCall
-    def selectLocalConfigDir(self) -> None:
-        if self.localConfigDir is None:
-            # You need to tell us where the configuration file can be found
-            self.localConfigDir = self.promptForDir("Select Local configuration directory")
 
     @logMethodCall
     def configAibroker(self):
@@ -1577,91 +1376,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
         self.configOperationMode()
         self.configCATrust()
         self.configDNSAndCerts()
-
-    @logMethodCall
-    def configCATrust(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH1("Certificate Authority Trust")
-            self.printDescription([
-                "By default, Maximo Application Suite is configured to trust well-known certificate authoritories, you can disable this so that it will only trust the CAs that you explicitly define"
-            ])
-            self.yesOrNo("Trust default CAs", "mas_trust_default_cas")
-        else:
-            self.setParam("mas_trust_default_cas", True)
-
-    @logMethodCall
-    def configOperationMode(self):
-        self.printH1("Configure Operational Mode")
-        self.printDescription([
-            "Maximo Application Suite can be installed in a non-production mode for internal development and testing, this setting cannot be changed after installation:",
-            " - All applications, add-ons, and solutions have 0 (zero) installation AppPoints in non-production installations.",
-            " - These specifications are also visible in the metrics that are shared with IBM and in the product UI.",
-            "",
-            "  1. Production",
-            "  2. Non-Production"
-        ])
-        self.operationalMode = self.promptForInt("Operational Mode", default=1)
-
-    @logMethodCall
-    def configAnnotations(self):
-        if self.operationalMode == 2:
-            self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
-
-    @logMethodCall
-    def configSNO(self):
-        if self.isSNO():
-            self.setParam("mongodb_replicas", "1")
-            self.setParam("mongodb_cpu_requests", "500m")
-            self.setParam("mas_app_settings_aio_flag", "false")
-
-    @logMethodCall
-    def configDNSAndCerts(self):
-        if self.showAdvancedOptions:
-            self.printH1("Cluster Ingress Secret Override")
-            self.printDescription([
-                "In most OpenShift clusters the installation is able to automatically locate the default ingress certificate, however in some configurations it is necessary to manually configure the name of the secret",
-                "Unless you see an error during the ocp-verify stage indicating that the secret can not be determined you do not need to set this and can leave the response empty"
-            ])
-            self.promptForString("Cluster ingress certificate secret name", "ocp_ingress_tls_secret_name", default="")
-
-            self.printH1("Configure Domain & Certificate Management")
-            configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
-            if configureDomainAndCertMgmt:
-                configureDomain = self.yesOrNo('Configure custom domain')
-                if configureDomain:
-                    self.promptForString("MAS top-level domain", "mas_domain")
-                    self.printDescription([
-                        "",
-                        "DNS Integrations:",
-                        "  1. Cloudflare",
-                        "  2. IBM Cloud Internet Services",
-                        "  3. AWS Route 53",
-                        "  4. None (I will set up DNS myself)"
-                    ])
-
-                    dnsProvider = self.promptForInt("DNS Provider")
-
-                    if dnsProvider == 1:
-                        self.configDNSAndCertsCloudflare()
-                    elif dnsProvider == 2:
-                        self.configDNSAndCertsCIS()
-                    elif dnsProvider == 3:
-                        self.configDNSAndCertsRoute53()
-                    elif dnsProvider == 4:
-                        # Use MAS default self-signed cluster issuer with a custom domain
-                        self.setParam("dns_provider", "")
-                        self.setParam("mas_cluster_issuer", "")
-                else:
-                    # Use MAS default self-signed cluster issuer with the default domain
-                    self.setParam("dns_provider", "")
-                    self.setParam("mas_domain", "")
-                    self.setParam("mas_cluster_issuer", "")
-                self.manualCerts = self.yesOrNo("Configure manual certificates")
-                self.setParam("mas_manual_cert_mgmt", self.manualCerts)
-                if self.getParam("mas_manual_cert_mgmt"):
-                    self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
-                else:
-                    self.manualCertsDir = None
 
     @logMethodCall
     def configDNSAndCertsCloudflare(self):
@@ -1736,73 +1450,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
     @logMethodCall
     def configAppChannel(self, appId):
         self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel for Aibroker</Yellow> '))
-
-    @logMethodCall
-    def configStorageClasses(self):
-        self.printH1("Configure Storage Class Usage")
-        self.printDescription([
-            "Maximo Application Suite and it's dependencies require storage classes that support ReadWriteOnce (RWO) and ReadWriteMany (RWX) access modes:",
-            "  - ReadWriteOnce volumes can be mounted as read-write by multiple pods on a single node.",
-            "  - ReadWriteMany volumes can be mounted as read-write by multiple pods across many nodes.",
-            ""
-        ])
-        defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
-        if defaultStorageClasses.provider is not None:
-            print_formatted_text(HTML(f"<MediumSeaGreen>Storage provider auto-detected: {defaultStorageClasses.providerName}</MediumSeaGreen>"))
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {defaultStorageClasses.rwo}</LightSlateGrey>"))
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteMany): {defaultStorageClasses.rwx}</LightSlateGrey>"))
-            self.storageClassProvider = defaultStorageClasses.provider
-            self.params["storage_class_rwo"] = defaultStorageClasses.rwo
-            self.params["storage_class_rwx"] = defaultStorageClasses.rwx
-
-        overrideStorageClasses = False
-        if "storage_class_rwx" in self.params and self.params["storage_class_rwx"] != "":
-            overrideStorageClasses = not self.yesOrNo("Use the auto-detected storage classes")
-
-        if "storage_class_rwx" not in self.params or self.params["storage_class_rwx"] == "" or overrideStorageClasses:
-            self.storageClassProvider = "custom"
-
-            self.printDescription([
-                "Select the ReadWriteOnce and ReadWriteMany storage classes to use from the list below:",
-                "Enter 'none' for the ReadWriteMany storage class if you do not have a suitable class available in the cluster, however this will limit what can be installed"
-            ])
-            for storageClass in getStorageClasses(self.dynamicClient):
-                print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-
-            self.params["storage_class_rwo"] = prompt(HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
-            self.params["storage_class_rwx"] = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
-
-        # Configure storage class for pipeline PVC
-        # We prefer to use ReadWriteMany, but we can cope with ReadWriteOnce if necessary
-        if self.isSNO() or self.params["storage_class_rwx"] == "none":
-            self.pipelineStorageClass = self.getParam("storage_class_rwo")
-            self.pipelineStorageAccessMode = "ReadWriteOnce"
-        else:
-            self.pipelineStorageClass = self.getParam("storage_class_rwx")
-            self.pipelineStorageAccessMode = "ReadWriteMany"
-
-    @logMethodCall
-    def chooseInstallFlavour(self) -> None:
-        self.printH1("Choose Install Mode")
-        self.printDescription([
-            "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
-            " - Configure installation namespaces",
-            " - Provide pod templates",
-            " - Configure Single Sign-On (SSO) settings"
-            " - Configure whether to trust well-known certificate authorities by default (defaults to enabled)",
-            " - Configure whether the Guided Tour feature is enabled (defaults to enabled)",
-            " - Configure whether special characters are allowed in usernames and userids (defaults to disabled)",
-            " - Configure a custom domain, DNS integrations, and manual certificates",
-            " - Customize Maximo Manage database settings (schema, tablespace, indexspace)",
-            " - Customize Maximo Manage server bundle configuration (defaults to \"all\" configuration)",
-            " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
-            " - Enable optional Maximo Predict integration with SPSS",
-            " - Enable optional IBM Turbonomic integration",
-            " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
-            " - Choose alternative Apache Kafka providers (default to Strimzi)",
-            " - Customize Grafana storage settings"
-        ])
-        self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
 
     @logMethodCall
     def interactiveMode(self, simplified: bool, advanced: bool) -> None:
@@ -2005,11 +1652,6 @@ class InstallAiService(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, Co
             else:
                 print(f"Unknown option: {key} {value}")
                 self.fatalError(f"Unknown option: {key} {value}")
-
-        if self.installManage:
-            # If Manage is being installed and --is-full-manage was set to something different than "false", assume it is "true"
-            if self.getParam("is_full_manage") != "false":
-                self.setParam("is_full_manage", "true")
 
             # Configure Storage and Access mode
             self.manageStorageAndAccessMode()
