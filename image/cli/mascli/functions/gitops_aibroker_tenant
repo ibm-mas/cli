@@ -331,8 +331,8 @@ function gitops_aibroker_tenant_noninteractive() {
 
   # -- Watsonx
   [[ -z "$MAS_AIBROKER_WATSONXAI_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --mas-aibroker-watsonxai-url."
-  [[ -z "$MAS_AIBROKER_WATSONXAI_APIKEY" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_APIKEY is not set. Please provide the Watsonx.ai API key using --mas-aibroker-watsonxai-apikey."
-  [[ -z "$MAS_AIBROKER_WATSONXAI_PROJECT_ID" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_PROJECT_ID is not set. Please specify the Watsonx.ai project ID using --mas-aibroker-watsonxai-project-id."
+  # [[ -z "$MAS_AIBROKER_WATSONXAI_APIKEY" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_APIKEY is not set. Please provide the Watsonx.ai API key using --mas-aibroker-watsonxai-apikey."
+  # [[ -z "$MAS_AIBROKER_WATSONXAI_PROJECT_ID" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_PROJECT_ID is not set. Please specify the Watsonx.ai project ID using --mas-aibroker-watsonxai-project-id."
   
   ##review
   [[ -z "$RSL_URL" ]] && gitops_aibroker_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
@@ -441,6 +441,7 @@ function gitops_aibroker_tenant() {
   export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
   #watsonx
   export SECRET_KEY_WATSONXAI_APIKEY=${SECRETS_PREFIX}watsonx#watsonxai_apikey
+  export MAS_AIBROKER_WATSONXAI_PROJECT_ID=${SECRETS_PREFIX}watsonx#watsonxai_project_id
   ##review
 
 
@@ -462,6 +463,7 @@ function gitops_aibroker_tenant() {
   sm_verify_secret_exists ${SECRETS_PREFIX}minio "sm_minio_host,sm_minio_port,sm_minio_accesskey,sm_minio_secretkey,sm_minio_bucket_default"
   ##review
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
+  sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   ##review
   # finally push them into the git repo
 
