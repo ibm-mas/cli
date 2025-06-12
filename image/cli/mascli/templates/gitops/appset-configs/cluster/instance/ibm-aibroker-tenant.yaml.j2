@@ -18,7 +18,7 @@ ibm_aibroker_tenant:
   tenant_entitlement_start_date: "{{ TENANT_ENTITLEMENT_START_DATE }}"
   tenant_entitlement_end_date: "{{ TENANT_ENTITLEMENT_END_DATE }}"
   ##review
-  
+
   # dro
   artifactory_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_ARTIFACTORY_TOKEN }}>"
   drocfg_url: "{{ DROCFG_URL }}"
@@ -50,8 +50,8 @@ ibm_aibroker_tenant:
   
   # watsonx
   mas_aibroker_watsonxai_url: "{{ MAS_AIBROKER_WATSONXAI_URL }}"
-  mas_aibroker_watsonxai_apikey: "{{ MAS_AIBROKER_WATSONXAI_APIKEY }}"
   mas_aibroker_watsonxai_project_id: "{{ MAS_AIBROKER_WATSONXAI_PROJECT_ID }}"
+  mas_aibroker_watsonxai_apikey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSONXAI_APIKEY }}>"
 
   # minio
   mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MINIO_HOST }}>"

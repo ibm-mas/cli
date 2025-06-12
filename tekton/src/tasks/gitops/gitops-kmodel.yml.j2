@@ -71,8 +71,6 @@ spec:
       type: string
     - name: image_controller
       type: string
-    - name: mas_aibroker_pipeline_steps_tag
-      type: string
     - name: mas_aibroker_connector_tag
       type: string
     - name: mas_aibroker_saas
@@ -80,6 +78,9 @@ spec:
     - name: model_id_unique_length
       type: string
     - name: model_id_prefix
+      type: string
+      ##review
+    - name: mas_app_channel
       type: string
 
   stepTemplate:
@@ -150,8 +151,6 @@ spec:
         value: $(params.image_watcher)
       - name: IMAGE_CONTROLLER
         value: $(params.image_controller)
-      - name: MAS_AIBROKER_PIPELINE_STEPS_TAG
-        value: $(params.mas_aibroker_pipeline_steps_tag)
       - name: MAS_AIBROKER_CONNECTOR_TAG
         value: $(params.mas_aibroker_connector_tag)
       - name: MAS_AIBROKER_SAAS
@@ -160,6 +159,11 @@ spec:
         value: $(params.model_id_unique_length)
       - name: MODEL_ID_PREFIX
         value: $(params.model_id_prefix)
+      ##review
+      - name: MAS_APP_CHANNEL
+        value: $(params.mas_app_channel)
+
+
     envFrom:
       - configMapRef:
           name: environment-properties
