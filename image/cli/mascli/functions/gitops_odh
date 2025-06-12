@@ -103,8 +103,8 @@ function gitops_odh_noninteractive() {
 
 
   export OPENSHIFT_NAMESPACE="${OPENSHIFT_NAMESPACE:-"openshift-operators"}"
-  #export ODH_PIPELINE_CHANNEL="${ODH_PIPELINE_CHANNEL:-"latest"}"
-  #export ODH_PIPELINE_INSTALLPLAN="${ODH_PIPELINE_INSTALLPLAN:-"Automatic"}"
+  export ODH_PIPELINE_CHANNEL="${ODH_PIPELINE_CHANNEL:-"latest"}"
+  export ODH_PIPELINE_INSTALLPLAN="${ODH_PIPELINE_INSTALLPLAN:-"manual"}"
   export PIPELINE_CATALOG_SOURCE="${PIPELINE_CATALOG_SOURCE:-"redhat-operators"}"
   export SERVICE_MESH_NAMESPACE="${SERVICE_MESH_NAMESPACE:-"openshift-operators"}"
   export SERVICE_MESH_CHANNEL="${SERVICE_MESH_CHANNEL:-"stable"}"
@@ -375,8 +375,8 @@ function gitops_odh_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_odh_help "GIT_BRANCH is not set"
   fi
   #odh variables
-  [[ -z "$ODH_PIPELINE_CHANNEL" ]] && gitops_odh_help "ODH_PIPELINE_CHANNEL is not set. Please provide the ODH PIPELINE CHANNEL using --odh-pipeline-channel."
-  [[ -z "$ODH_PIPELINE_INSTALLPLAN" ]] && gitops_odh_help "ODH_PIPELINE_INSTALLPLAN is not set. Please provide the OODH_PIPELINE_INSTALLPLAN using --odh-pipeline-installplan."
+  #[[ -z "$ODH_PIPELINE_CHANNEL" ]] && gitops_odh_help "ODH_PIPELINE_CHANNEL is not set. Please provide the ODH PIPELINE CHANNEL using --odh-pipeline-channel."
+  #[[ -z "$ODH_PIPELINE_INSTALLPLAN" ]] && gitops_odh_help "ODH_PIPELINE_INSTALLPLAN is not set. Please provide the OODH_PIPELINE_INSTALLPLAN using --odh-pipeline-installplan."
   [[ -z "$OPENDATAHUB_NAME" ]] && gitops_odh_help "OPENDATAHUB_NAME is not set. Please provide the OPENDATAHUB NAME using --opendatahub-name."
   [[ -z "$OPENDATAHUB_NAMESPACE" ]] && gitops_odh_help "OPENDATAHUB_NAMESPACE is not set. Please provide the OPENDATAHUB NAMESPACE using --opendatahub-namespace."
 
