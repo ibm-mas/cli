@@ -48,8 +48,6 @@ spec:
       type: string
     - name: drocfg_url
       type: string
-    - name: mas_aibroker_dro_token_secret
-      type: string
     - name: drocfg_ca
       type: string
     - name: drocfg_registration_key
@@ -60,14 +58,6 @@ spec:
     - name: slscfg_registration_key
       type: string
     - name: mas_aibroker_sls_subscription_id
-      type: string
-    - name: slscfg_clientId
-      type: string
-    - name: slscfg_ca
-      type: string
-    - name: slscfg_tls
-      type: string
-    - name: slscfg_key
       type: string
 
     - name: mas_aibroker_watsonxai_url
@@ -179,8 +169,7 @@ spec:
           value: $(params.artifactory_token)
         - name: drocfg_url
           value: $(params.drocfg_url)
-        - name: mas_aibroker_dro_token_secret
-          value: $(params.mas_aibroker_dro_token_secret)
+
         - name: drocfg_ca
           value: $(params.drocfg_ca)
         - name: drocfg_registration_key
@@ -192,14 +181,6 @@ spec:
           value: $(params.slscfg_registration_key)
         - name: mas_aibroker_sls_subscription_id
           value: $(params.mas_aibroker_sls_subscription_id)
-        - name: slscfg_clientId
-          value: $(params.slscfg_clientId)
-        - name: slscfg_ca
-          value: $(params.slscfg_ca)
-        - name: slscfg_tls
-          value: $(params.slscfg_tls)
-        - name: slscfg_key
-          value: $(params.slscfg_key)
 
         - name: mas_aibroker_watsonxai_url
           value: $(params.mas_aibroker_watsonxai_url)

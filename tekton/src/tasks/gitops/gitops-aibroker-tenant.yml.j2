@@ -47,8 +47,7 @@ spec:
       type: string
     - name: drocfg_url
       type: string
-    - name: mas_aibroker_dro_token_secret
-      type: string
+
     - name: drocfg_ca
       type: string
     - name: drocfg_registration_key
@@ -59,14 +58,6 @@ spec:
     - name: slscfg_registration_key
       type: string
     - name: mas_aibroker_sls_subscription_id
-      type: string
-    - name: slscfg_clientId
-      type: string
-    - name: slscfg_ca
-      type: string
-    - name: slscfg_tls
-      type: string
-    - name: slscfg_key
       type: string
     
     - name: mas_aibroker_watsonxai_url
@@ -177,9 +168,6 @@ spec:
       - name: DROCFG_URL
         value: $(params.drocfg_url)
 
-      - name: MAS_AIBROKER_DRO_TOKEN_SECRET
-        value: $(params.mas_aibroker_dro_token_secret)
-
       - name: DROCFG_CA
         value: $(params.drocfg_ca)
 
@@ -194,18 +182,6 @@ spec:
 
       - name: MAS_AIBROKER_SLS_SUBSCRIPTION_ID
         value: $(params.mas_aibroker_sls_subscription_id)
-
-      - name: SLSCFG_CLIENT_ID
-        value: $(params.slscfg_clientId)
-
-      - name: SLSCFG_CA
-        value: $(params.slscfg_ca)
-
-      - name: SLSCFG_TLS
-        value: $(params.slscfg_tls)
-
-      - name: SLSCFG_KEY
-        value: $(params.slscfg_key)
 
       - name: MAS_AIBROKER_WATSONXAI_URL
         value: $(params.mas_aibroker_watsonxai_url)
