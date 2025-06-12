@@ -225,17 +225,18 @@ spec:
       - name: IN_SAAS_ENV
         value: $(params.in_saas_env)
       ##review
-      - name: environment_type
+      - name: ENVIRONMENT_TYPE
         value: $(params.environment_type)
 
-      - name: mas_aibroker_s3_endpoint_url
+      - name: MAS_AIBROKER_S3_ENDPOINT_URL
         value: $(params.mas_aibroker_s3_endpoint_url)
 
-      - name: mas_aibroker_s3_region
+      - name: MAS_AIBROKER_S3_REGION
         value: $(params.mas_aibroker_s3_region)
 
-      - name: mas_aibroker_s3_bucket_prefix
+      - name: MAS_AIBROKER_S3_BUCKET_PREFIX
         value: $(params.mas_aibroker_s3_bucket_prefix)
+        
       ##review
     envFrom:
       - configMapRef:
