@@ -22,7 +22,6 @@ ibm_aibroker_tenant:
   # dro
   artifactory_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_ARTIFACTORY_TOKEN }}>"
   drocfg_url: "{{ DROCFG_URL }}"
-  mas_aibroker_dro_token_secret: "{{ MAS_AIBROKER_DRO_TOKEN_SECRET }}"
   drocfg_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DROCFG_CA }}>"
   drocfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DROCFG_REGISTRATION_KEY }}>"
 
@@ -30,10 +29,6 @@ ibm_aibroker_tenant:
   slscfg_url: "{{ SLSCFG_URL }}"
   slscfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_REGISTRATION_KEY }}>"
   mas_aibroker_sls_subscription_id: "{{ MAS_AIBROKER_SLS_SUBSCRIPTION_ID }}"
-  slscfg_clientId: "{{ SLSCFG_CLIENT_ID }}"
-  slscfg_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_CA }}>"
-  slscfg_tls: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_TLS }}>"
-  slscfg_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_KEY }}>"
   
   # RSL ##review
   rsl_url: "{{ RSL_URL }}"
