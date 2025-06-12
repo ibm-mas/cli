@@ -45,7 +45,7 @@ ibm_aibroker_tenant:
   
   # watsonx
   mas_aibroker_watsonxai_url: "{{ MAS_AIBROKER_WATSONXAI_URL }}"
-  mas_aibroker_watsonxai_project_id: "{{ MAS_AIBROKER_WATSONXAI_PROJECT_ID }}"
+  mas_aibroker_watsonxai_project_id: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_WATSONXAI_PROJECT_ID }}"
   mas_aibroker_watsonxai_apikey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSONXAI_APIKEY }}>"
 
   # minio
