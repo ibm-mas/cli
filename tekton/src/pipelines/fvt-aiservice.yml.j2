@@ -91,18 +91,19 @@ spec:
           value: pcc 
       runAfter:
         - fvt-aiservice-tenant-entitlement
-
-    # 5. Aibroker nl2oslc test suite
+        
+    # 5. Aibroker fmea test suite
     # -----------------------------------------------------------------------------
-    - name: fvt-aiservice-nl2oslc
+    - name: fvt-aiservice-fmea
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: nl2oslc 
+          value: fmea 
       runAfter:
-        - fvt-aiservice-tenant-entitlement
-
+        - fvt-aiservice-tenant-pcc
+        - fvt-aiservice-tenant-mcc
+        
     # 6. Aibroker similarity test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-similarity
@@ -112,4 +113,18 @@ spec:
         - name: fvt_test_suite
           value: similarity 
       runAfter:
-        - fvt-aiservice-tenant-entitlement
+        - fvt-aiservice-tenant-pcc
+        - fvt-aiservice-tenant-mcc
+
+
+    # 7. Aibroker nl2oslc test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-nl2oslc
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: nl2oslc 
+      runAfter:
+        - fvt-aiservice-similarity
+        - fvt-aiservice-fmea
