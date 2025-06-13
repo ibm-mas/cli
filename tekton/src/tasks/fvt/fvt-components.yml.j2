@@ -16,7 +16,7 @@ spec:
       description: Extracted component names as a JSON array
   steps:
     - name: extract
-      image: 'quay.io/ibmmas/cli:latest'
+      image: quay.io/ibmmas/cli:latest
       script: |
         #!/bin/sh
         echo "Hello.. Start extraction for $(params.mas_appws_components)"
