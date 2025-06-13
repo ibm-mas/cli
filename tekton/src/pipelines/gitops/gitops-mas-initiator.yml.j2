@@ -52,6 +52,8 @@ spec:
     - name: source_path
       type: string
       default: ""
+    - name: git_commit_msg
+      type: string
     - name: mas_channel
       type: string
     - name: mas_operationalmode
@@ -78,6 +80,9 @@ spec:
       type: string
       default: ""
     - name: mas_app_channel_visualinspection
+      type: string
+      default: ""
+    - name: mas_app_channel_facilities
       type: string
       default: ""
     - name: github_pat
@@ -174,6 +179,8 @@ spec:
           value: $(params.source_github_repo)
         - name: source_path
           value: $(params.source_path)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
         - name: mas_channel
           value: $(params.mas_channel)
         - name: mas_operationalmode
@@ -194,6 +201,8 @@ spec:
           value: $(params.mas_app_channel_predict)
         - name: mas_app_channel_visualinspection
           value: $(params.mas_app_channel_visualinspection)
+        - name: mas_app_channel_facilities
+          value: $(params.mas_app_channel_facilities)
         - name: github_pat
           value: $(params.github_pat)
         - name: manual_certs_control_flag

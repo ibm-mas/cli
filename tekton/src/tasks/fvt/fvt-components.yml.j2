@@ -1,0 +1,42 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-fvt-components
+spec:
+  params:
+    # Test Container Information
+    # -------------------------------------------------------------------------
+    - name: mas_appws_components
+      type: string
+      description: List of Manage components i.e. base=Latest,health=latest
+  results:
+    - name: component_names
+      type: array
+      description: Extracted component names as a JSON array
+  steps:
+    - name: extract
+      image: 'quay.io/ibmmas/cli:latest'
+      script: |
+        #!/bin/sh
+        echo "Hello.. Start extraction for $(params.mas_appws_components)"
+
+        component_input="$(params.mas_appws_components)"
+
+        if [ -z "$component_input" ]; then
+          echo '["foundation"]' > "$(results.component_names.path)"
+          echo "Component list was empty. Defaulted to ['foundation']"
+        else
+          component_var=$(echo "$component_input" \
+            | tr ',' '\n' \
+            | cut -d'=' -f1 \
+            | jq -R . \
+            | jq -s .)
+          echo "$component_var" > "$(results.component_names.path)"
+          echo "Extracted components are $component_var"
+        fi
+        
+        echo "End of the extraction"
+        cat "$(results.component_names.path)"
+
+        

@@ -1,0 +1,19 @@
+{
+  "default": [{ "type": "reject" }],
+  "transports": {
+    "docker": {
+      "": [
+        {
+          "type": "signedBy",
+          "keyType": "GPGKeys",
+          "keyPath": "/mascli/image-validation/PRD0010163key.pub.asc",
+          "signedIdentity": {
+            "type": "remapIdentity",
+            "prefix": "cp.icr.io",
+            "signedPrefix": "private.icr.io"
+          }
+        }
+      ]
+    }
+  }
+}

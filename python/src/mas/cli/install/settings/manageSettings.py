@@ -52,22 +52,24 @@ class ManageSettingsMixin():
             self.manageSettingsDatabase()
             self.manageSettingsCustomizationArchive()
             self.manageSettingsOther()
+            self.manageStorageAndAccessMode()
 
-            # Default to RWX storage classes, but fall back to RWO in SNO or when user
-            # has chosen not to provide a RWX storage class
-            storageClass = self.getParam("storage_class_rwx")
-            accessMode = "ReadWriteMany"
-            if self.isSNO() or self.getParam("storage_class_rwx") == "none":
-                storageClass = self.getParam("storage_class_rwo")
-                accessMode = "ReadWriteOnce"
+    def manageStorageAndAccessMode(self) -> None:
+        # Default to RWX storage classes, but fall back to RWO in SNO or when user
+        # has chosen not to provide a RWX storage class
+        storageClass = self.getParam("storage_class_rwx")
+        accessMode = "ReadWriteMany"
+        if self.isSNO() or self.getParam("storage_class_rwx") == "none":
+            storageClass = self.getParam("storage_class_rwo")
+            accessMode = "ReadWriteOnce"
 
-            self.setParam("mas_app_settings_doclinks_pvc_storage_class", storageClass)
-            self.setParam("mas_app_settings_bim_pvc_storage_class", storageClass)
-            self.setParam("mas_app_settings_jms_queue_pvc_storage_class", storageClass)
+        self.setParam("mas_app_settings_doclinks_pvc_storage_class", storageClass)
+        self.setParam("mas_app_settings_bim_pvc_storage_class", storageClass)
+        self.setParam("mas_app_settings_jms_queue_pvc_storage_class", storageClass)
 
-            self.setParam("mas_app_settings_doclinks_pvc_accessmode", accessMode)
-            self.setParam("mas_app_settings_bim_pvc_accessmode", accessMode)
-            self.setParam("mas_app_settings_jms_queue_pvc_accessmode", accessMode)
+        self.setParam("mas_app_settings_doclinks_pvc_accessmode", accessMode)
+        self.setParam("mas_app_settings_bim_pvc_accessmode", accessMode)
+        self.setParam("mas_app_settings_jms_queue_pvc_accessmode", accessMode)
 
     def manageSettingsComponents(self) -> None:
         # Only ask to install Manage components if this is a full Manage installation
@@ -117,6 +119,8 @@ class ManageSettingsMixin():
                     self.params["mas_appws_components"] += ",utilities=latest"
                 if self.yesOrNo(" - Workday Applications"):
                     self.params["mas_appws_components"] += ",workday=latest"
+                if self.yesOrNo(" - AIP"):
+                    self.params["mas_appws_components"] += ",aip=latest"
                 logger.debug(f"Generated mas_appws_components = {self.params['mas_appws_components']}")
 
                 if ",icd=" in self.params["mas_appws_components"]:
@@ -205,7 +209,7 @@ class ManageSettingsMixin():
                 self.promptForString("Customization archive path/url", "mas_app_settings_customization_archive_url")
                 if self.yesOrNo("Provide authentication to access customization archive URL"):
                     self.promptForString("Username", "mas_app_settings_customization_archive_username")
-                    self.promptForString("Password", "mas_app_settings_customization_archive_password", isPassword=True)
+                    self.promptForString("Password", "mas_app_settings_customization_archive_password", isPassword=True)  # pragma: allowlist secret
 
     def manageSettingsDemodata(self) -> None:
         self.yesOrNo("Create demo data", "mas_app_settings_demodata")

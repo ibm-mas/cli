@@ -10,6 +10,7 @@ edit_uri: blob/master/docs/
 nav:
   - "Guides":
       - "Image Mirroring": guides/image-mirroring.md
+      - "Image Validation": guides/image-validation.md
       - "Install": guides/install.md
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
@@ -33,10 +34,10 @@ nav:
       - "configtool-oidc": commands/configtool-oidc.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
+      - "May 01 2025": catalogs/v9-250501-amd64.md
+      - "Apr 03 2025": catalogs/v9-250403-amd64.md
       - "Mar 06 2025": catalogs/v9-250306-amd64.md
       - "Feb 06 2025": catalogs/v9-250206-amd64.md
-      - "Jan 09 2025": catalogs/v9-250109-amd64.md
-      - "Dec 05 2024": catalogs/v9-241205-amd64.md
   - "Reference":
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md
