@@ -73,6 +73,12 @@ spec:
               name: mas-fvt-aibroker
               key: MAS_APP_CHANNEL_AIBROKER
               optional: false
+        - name: MAS_WORKSPACE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-aibroker
+              key: MAS_WORKSPACE_ID
+              optional: false
         # Digests
         - name: FVT_DIGEST_AIBROKER
           valueFrom:
