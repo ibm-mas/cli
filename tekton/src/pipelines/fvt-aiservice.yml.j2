@@ -19,7 +19,10 @@ spec:
     - name: mas_app_channel_aibroker
       type: string
       default: ""
-    - name: aibroker_instance_id
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
       type: string
       default: ""
 
@@ -101,8 +104,8 @@ spec:
         - name: fvt_test_suite
           value: fmea 
       runAfter:
-        - fvt-aiservice-tenant-pcc
-        - fvt-aiservice-tenant-mcc
+        - fvt-aiservice-pcc
+        - fvt-aiservice-mcc
         
     # 6. Aibroker similarity test suite
     # -----------------------------------------------------------------------------
@@ -113,8 +116,8 @@ spec:
         - name: fvt_test_suite
           value: similarity 
       runAfter:
-        - fvt-aiservice-tenant-pcc
-        - fvt-aiservice-tenant-mcc
+        - fvt-aiservice-pcc
+        - fvt-aiservice-mcc
 
 
     # 7. Aibroker nl2oslc test suite
