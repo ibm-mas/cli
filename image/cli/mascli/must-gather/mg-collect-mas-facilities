@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. $DIR/../functions/internal/utils
+
+NAMESPACE=$1
+OUTPUT_DIR=$2
+
+# Collect Reconcile Logs
+# -----------------------------------------------------------------------------
+echo_h4 "Collect Reconcile Logs"
+$DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-facilities $OUTPUT_DIR
+# TODO: Update the entitymgr operator to a fix value of the appType
+# $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr $OUTPUT_DIR

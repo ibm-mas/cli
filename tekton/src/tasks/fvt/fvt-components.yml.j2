@@ -19,14 +19,24 @@ spec:
       image: 'quay.io/ibmmas/cli:latest'
       script: |
         #!/bin/sh
-        apk add --no-cache jq
-        echo "Hello.. Start extraction: $(params.mas_appws_components)"
-        echo "$(params.mas_appws_components)" \
+        echo "Hello.. Start extraction for $(params.mas_appws_components)"
+
+        component_input="$(params.mas_appws_components)"
+
+        if [ -z "$component_input" ]; then
+          echo '["foundation"]' > "$(results.component_names.path)"
+          echo "Component list was empty. Defaulted to ['foundation']"
+        else
+          component_var=$(echo "$component_input" \
             | tr ',' '\n' \
             | cut -d'=' -f1 \
             | jq -R . \
-            | jq -s . > $(results.component_names.path)
+            | jq -s .)
+          echo "$component_var" > "$(results.component_names.path)"
+          echo "Extracted components are $component_var"
+        fi
+        
         echo "End of the extraction"
-        echo "$(results.component_names.path)"
         cat "$(results.component_names.path)"
+
         

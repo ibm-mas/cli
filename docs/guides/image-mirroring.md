@@ -303,7 +303,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ib
 </div>
 
 !!! note
-    [Mirror Redhat images](https://ibm-mas.github.io/cli/commands/mirror-redhat-images) to install required redhat dependencies for Mas installation to progress.
+    [Mirror Redhat images](https://ibm-mas.github.io/cli/commands/mirror-redhat-images) to install required ( DRO, Cert Manager and Grafana) redhat dependencies for Mas installation to progress. Missing this step will result in installation failures.
 
 Storage Requirements
 -------------------------------------------------------------------------------
