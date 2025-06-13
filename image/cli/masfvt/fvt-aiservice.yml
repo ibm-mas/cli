@@ -6,8 +6,7 @@
     image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
     # MAS Details
     mas_app_channel_aibroker: "{{ lookup('env', 'MAS_APP_CHANNEL_AIBROKER') }}"
-    mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
-    mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
+    aibroker_instance_id: "{{ lookup('env', 'AIBROKER_INSTANCE_ID') }}"
     # FVT Configuration
     fvt_image_registry: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
     fvt_artifactory_username: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
@@ -17,7 +16,7 @@
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-aibroker', True) }}-{{ devops_build_number }}"
-    pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ mas_instance_id ~ '-pipelines', True) }}"
+    pipelinerun_namespace: "{{ lookup('env', 'PIPELINERUN_NAMESPACE') | default('mas-' ~ aibroker_instance_id ~ '-pipelines', True) }}"
   tasks:
     - name: "Debug"
       debug:
@@ -26,8 +25,7 @@
           - "pipelinerun_namespace ............. {{ pipelinerun_namespace }}"
           - ""
           - "mas_app_channel_aibroker ........... {{ mas_app_channel_aibroker }}"
-          - "mas_instance_id ................... {{ mas_instance_id }}"
-          - "mas_workspace_id .................. {{ mas_workspace_id }}"
+          - "aibroker_instance_id ................... {{ aibroker_instance_id }}"
           - ""
           - "fvt_image_registry ................ {{ fvt_image_registry }}"
           - "fvt_artifactory_username .......... {{ fvt_artifactory_username }}"
