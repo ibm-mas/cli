@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo "IBM Maximo Application Suite - Real Estate and Facilities Application"
+echo "--------------------------------------------------------------------------------"
+oc get facilitiesapp -n $1
+echo ""
+
+echo ""
+echo "IBM Maximo Application Suite - Real Estate and Facilities Workspace Configuration"
+echo "--------------------------------------------------------------------------------"
+oc get facilitiesworkspace -n $1
+echo ""
+
+exit 0
