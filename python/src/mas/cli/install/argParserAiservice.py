@@ -67,6 +67,11 @@ masArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 masAdvancedArgGroup = installArgParserAiservice.add_argument_group("MAS Advanced Configuration")
 masAdvancedArgGroup.add_argument(
+    "--additional-configs",
+    required=False,
+    help="Path to a directory containing additional configuration files to be applied"
+)
+masAdvancedArgGroup.add_argument(
     "--pod-templates",
     required=False,
     help="Path to directory containing custom podTemplates configuration files to be applied"
