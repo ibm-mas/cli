@@ -5,19 +5,13 @@ ibm_aibroker_tenant:
   aibroker_namespace: "{{ AIBROKER_NAMESPACE }}"
   mas_aibroker_provision_tenant: "{{ MAS_AIBROKER_PROVISION_TENANT }}"
   mas_instance_id: "{{ MAS_INSTANCE_ID }}"
-  tenantNamespace: "{{ TENANTNAMESPACE }}"
+  tenantNamespace: "{{ TENANT_NAMESPACE }}"
   cluster_domain: "{{ CLUSTER_DOMAIN }}"
   in_saas_env: "{{ IN_SAAS_ENV }}"
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
 
   mas_icr_cp: "{{ MAS_ICR_CP }}"
   mas_icr_cpopen: "{{ MAS_ICR_CPOPEN }}"
-
-  #tenant ##review
-  tenant_entitlement_type: "{{ TENANT_ENTITLEMENT_TYPE }}"
-  tenant_entitlement_start_date: "{{ TENANT_ENTITLEMENT_START_DATE }}"
-  tenant_entitlement_end_date: "{{ TENANT_ENTITLEMENT_END_DATE }}"
-  ##review
 
   # dro
   artifactory_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_ARTIFACTORY_TOKEN }}>"
@@ -34,12 +28,6 @@ ibm_aibroker_tenant:
   rsl_url: "{{ RSL_URL }}"
   rsl_org_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_ORG_ID }}>"
   rsl_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_TOKEN }}>"
-
-
-  # S3
-  mas_aibroker_s3_endpoint_url: "{{ MAS_AIBROKER_S3_ENDPOINT_URL }}"
-  mas_aibroker_s3_region: "{{ MAS_AIBROKER_S3_REGION }}"
-  mas_aibroker_s3_bucket_prefix: "{{ MAS_AIBROKER_S3_BUCKET_PREFIX }}"
   ##review
 
   
@@ -56,3 +44,15 @@ ibm_aibroker_tenant:
   mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MINIO_SECRETKEY }}>"
   mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MINIO_BUCKET }}>"
   mas_aibroker_storage_ssl: "{{ MAS_AIBROKER_STORAGE_SSL }}"
+
+
+  #tenant ##review
+  # S3
+  mas_aibroker_s3_endpoint_url: "{{ MAS_AIBROKER_S3_ENDPOINT_URL }}"
+  mas_aibroker_s3_region: "{{ MAS_AIBROKER_S3_REGION }}"
+  mas_aibroker_s3_bucket_prefix: "{{ MAS_AIBROKER_S3_BUCKET_PREFIX }}"
+
+  tenant_entitlement_type: "{{ TENANT_ENTITLEMENT_TYPE }}"
+  tenant_entitlement_start_date: "{{ TENANT_ENTITLEMENT_START_DATE }}"
+  tenant_entitlement_end_date: "{{ TENANT_ENTITLEMENT_END_DATE }}"
+  ##review
