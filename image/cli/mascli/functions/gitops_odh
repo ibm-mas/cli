@@ -124,8 +124,8 @@ function gitops_odh_noninteractive() {
   export ODH_PIPELINE_NAME="${ODH_PIPELINE_NAME:-"openshift-pipelines-operator"}"
   export ODH_PIPELINE_NAMESPACE="${ODH_PIPELINE_NAMESPACE:-"openshift-operators"}"
   export ODH_PIPELINE_OPERATOR_NAME="${ODH_PIPELINE_OPERATOR_NAME:-"openshift-pipelines-operator-rh"}"
-  export ODH_PIPELINE_SOURCE="${ODH_PIPELINE_SOURCE:-"redhat_operators"}"
-  export ODH_PIPELINE_SOURCE_NAMESPACE="${ODH_PIPELINE_SOURCE_NAMESPACE:-"openshift_marketplace"}"
+  export ODH_PIPELINE_SOURCE="${ODH_PIPELINE_SOURCE:-"redhat-operators"}"
+  export ODH_PIPELINE_SOURCE_NAMESPACE="${ODH_PIPELINE_SOURCE_NAMESPACE:-"openshift-marketplace"}"
 
   export SERVERLESS_NAMESPACE="${SERVERLESS_NAMESPACE:-"openshift-serverless"}"
   export SERVERLESS_OPERATOR_NAME="${SERVERLESS_OPERATOR_NAME:-"serverless-operator"}"
