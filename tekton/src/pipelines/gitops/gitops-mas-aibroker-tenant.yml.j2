@@ -33,6 +33,8 @@ spec:
       type: string
     - name: tenantNamespace
       type: string
+    - name: tenant_id
+      type: string
     - name: cluster_domain
       type: string
     - name: in_saas_env
@@ -154,6 +156,8 @@ spec:
           value: $(params.mas_instance_id)
         - name: tenantNamespace
           value: $(params.tenantNamespace)
+        - name: tenant_id
+          value: $(params.tenant_id)
         - name: cluster_domain
           value: $(params.cluster_domain)
         - name: in_saas_env
