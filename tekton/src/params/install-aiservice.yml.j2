@@ -1,6 +1,10 @@
 # MAS Application Configuration - IBM Maximo AI Broker
 # -----------------------------------------------------------------------------
 # - name: mas_aibroker_channel
+- name: aibroker_instance_id
+  type: string
+  description: Aibroker instance id
+  default: ""
 - name: mas_app_channel_aibroker
   type: string
   description: Default channel for IBM Maximo AI Broker
@@ -121,3 +125,99 @@
   type: string
   description: database secret value for IBM Maximo AI Broker
   default: ""
+- name: minio_root_user
+  type: string
+  description: root user for minio
+  default: ""
+- name: minio_root_password
+  type: string
+  description: password for minio root user
+  default: ""
+- name: mariadb_user
+  type: string
+  description: user for mariadb
+  default: ""
+- name: mariadb_password
+  type: string
+  description: password for mariadb user
+  default: ""
+- name: tenant_entitlement_type
+  type: string
+  description: type of tenant
+  default: ""
+- name: tenant_entitlement_start_date
+  type: string
+  description: define start date for tenant 
+  default: ""
+- name: tenant_entitlement_end_date
+  type: string
+  description: define end date for tenant
+  default: ""
+- name: db2_action_aibroker
+  type: string
+  description: install dedicated db2 for aibroker
+  default: "install"
+- name: mas_aibroker_s3_bucket_prefix
+  type: string
+  description: s3 bucker prefix
+  default: ""
+- name: mas_aibroker_s3_region
+  type: string
+  description: s3 region
+  default: ""
+- name: mas_aibroker_s3_endpoint_url
+  type: string
+  description: endpoint url for s3
+  default: ""
+- name: mas_aibroker_tenant_s3_bucket_prefix
+  type: string
+  description: s3 bucker prefix ( tenant level )
+  default: ""
+- name: mas_aibroker_tenant_s3_region
+  type: string
+  description: s3 region ( tenant level )
+  default: ""
+- name: mas_aibroker_tenant_s3_endpoint_url
+  type: string
+  description: endpoint url for s3 ( tenant level )
+  default: ""
+- name: mas_aibroker_tenant_s3_access_key
+  type: string
+  description: access key for s3 ( tenant level )
+  default: ""
+- name: mas_aibroker_tenant_s3_secret_key
+  type: string
+  description: secret key for s3 ( tenant level )
+  default: ""
+- name: rsl_url
+  type: string
+  description: url of RSL
+  default: ""
+- name: rsl_org_id
+  type: string
+  description: org id for RSL
+  default: ""
+- name: rsl_token
+  type: string
+  description: token for RSL
+  default: ""
+- name: install_minio_aiservice
+  type: string
+  description: flag for install minio
+  default: "true"
+- name: install_mariadb_aiservice
+  type: string
+  description: flag for install mariadb
+  default: "true"
+- name: install_mongo_aiservice
+  type: string
+  description: flag for install mongodb
+  default: "true"
+- name: install_sls_aiservice
+  type: string
+  description: flag for install sls
+  default: "true"
+- name: install_dro_aiservice
+  type: string
+  description: flag for install dro
+  default: "true"

@@ -1,0 +1,25 @@
+- name: aibroker-post-verify
+  timeout: "0"
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: app-aibroker-cfg
+
+    - name: mas_instance_id
+      value: $(params.aibroker_instance_id)
+    - name: mas_app_id
+      value: aibroker
+    - name: mas_workspace_id
+      value: "$(params.mas_workspace_id)"
+
+  taskRef:
+    name: aibroker-post-verify
+    kind: Task
+  # Only install aibroker if a channel has been chosen
+  when:
+    - input: "$(params.mas_app_channel_aibroker)"
+      operator: notin
+      values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs
