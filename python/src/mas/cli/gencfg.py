@@ -11,6 +11,7 @@
 from os import path
 from jinja2 import Template
 from base64 import b64encode
+from json import loads
 
 
 class ConfigGeneratorMixin():
@@ -83,6 +84,28 @@ class ConfigGeneratorMixin():
             mongodb_admin_username=encoded_username,
             mongodb_admin_password=encoded_password,
             mongodb_ca_pem_local_file=certLocalFileContent
+        )
+
+        with open(destination, 'w') as f:
+            f.write(cfg)
+            f.write('\n')
+
+    def generateFacilitiesCfg(self, destination: str) -> None:
+        templateFile = path.join(self.templatesDir, "facilities-configs.yml.j2")
+
+        with open(templateFile) as tFile:
+            template = Template(tFile.read())
+
+        dwfagents = self.getParam("mas_ws_facilities_dwfagents")
+        maxconnpoolsize = self.getParam("mas_ws_facilities_db_maxconnpoolsize")
+        userfiles_size = self.getParam("mas_ws_facilities_storage_userfiles_size")
+        log_size = self.getParam("mas_ws_facilities_storage_log_size")
+        cfg = template.render(
+            mas_instance_id=self.getParam("mas_instance_id"),
+            mas_ws_facilities_storage_log_size=log_size if log_size != "" else 30,
+            mas_ws_facilities_storage_userfiles_size=userfiles_size if userfiles_size != "" else 50,
+            mas_ws_facilities_db_maxconnpoolsize=maxconnpoolsize if maxconnpoolsize != "" else 200,
+            mas_ws_facilities_dwfagents=loads(dwfagents) if dwfagents != '' else ''
         )
 
         with open(destination, 'w') as f:
