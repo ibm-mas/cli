@@ -68,6 +68,9 @@ sls_dro_jdbc
       --cluster-domain ${TEXT_RESET}CLUSTER_DOMAIN${TEXT_RESET}
       --in-saas-env ${TEXT_RESET}IN_SAAS_ENV${TEXT_RESET}
 
+Target Cluster (Optional):
+      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
@@ -110,11 +113,14 @@ function gitops_aibroker_noninteractive() {
   #-- mariadb defaults
   export MAS_AIBROKER_MARIADB_SECRET=${MAS_AIBROKER_MARIADB_SECRET:-"${MAS_APP_ID}-mariadbcfge"}
 
-    ##review
+  ##review
   export MAS_AIBROKER_S3_BUCKET_PREFIX=${MAS_AIBROKER_S3_BUCKET_PREFIX:-"m"}
   export MAS_AIBROKER_S3_REGION=${MAS_AIBROKER_S3_REGION:-"us-east-2"}
   export ENVIRONMENT_TYPE=${ENVIRONMENT_TYPE:-"standard"}
   ##review
+
+  # Target the local (to ArgoCD) cluster
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
 
   while [[ $# -gt 0 ]]
   do
@@ -205,6 +211,11 @@ function gitops_aibroker_noninteractive() {
         ;;
       ##review
 
+     # Target Cluster (Optional)
+      --cluster-url)
+        export CLUSTER_URL=$1 && shift
+        ;;
+        
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -246,7 +257,8 @@ function gitops_aibroker_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_aibroker_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_aibroker_help "CLUSTER_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_aibroker_help "REGION_ID or SM_AWS_REGION is not set"
-
+  [[ -z "$CLUSTER_URL" ]] && gitops_suite_help "CLUSTER_URL is not set"
+  
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_aibroker_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_aibroker_help "GITHUB_ORG is not set"
@@ -300,6 +312,7 @@ function gitops_aibroker() {
   echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
   echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
 
@@ -454,6 +467,14 @@ function gitops_aibroker() {
       clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
     fi
     mkdir -p ${GITOPS_CLUSTER_DIR}
+
+    # Generate ArgoApps
+    # ---------------------------------------------------------------------------
+    echo
+    echo_h2 "Generating Argo Project and Applications"
+
+    echo "- Base Config"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-instance-base.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-aibroker-instance-base.yaml
 
     # Generate ArgoApps
     # ---------------------------------------------------------------------------
