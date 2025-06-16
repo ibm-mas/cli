@@ -4,9 +4,10 @@
 # - adoptionusagemetering: I can't see anything disruptive happening in this suite at all !?
 # - coreidp-ldap: reconfigures MAS IDP multiple times
 # - coreidp-saml: reconfigures MAS IDP multiple times
-# - coreidp-saml-ui: ??
-# - coreidp-ssoconfig: ??
-# - licensingapi: ??
+# - coreidp-saml-ui: reconfigures MAS IDP multiple times - seamless login test, default IDP etc
+# - coreidp-oidc: reconfigures MAS IDP multiple times
+# - coreidp-ssoconfig: reconfigures default IDPs and seamless login
+# - licensingapi: Will be calculating appPoints and can be impacted by other user logins in parallel
 # - operatormaturity: non-disruptive, we just want it to be the last thing that runs
 
 # 1. smtp
@@ -85,7 +86,18 @@
   runAfter:
     - coreidp-saml
 
-# 7. coreidp-ssoconfig
+# 7. coreidp-oidc
+# -------------------------------------------------------------------------
+- name: coreidp-oidc
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: coreidp-oidc
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - coreidp-saml-ui
+
+# 8. coreidp-ssoconfig
 # -------------------------------------------------------------------------
 - name: coreidp-ssoconfig
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -94,9 +106,9 @@
       value: coreidp-ssoconfig
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - coreidp-saml-ui
+    - coreidp-oidc
 
-# 8. licensingapi
+# 9. licensingapi
 # -------------------------------------------------------------------------
 - name: licensingapi
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -107,7 +119,7 @@
   runAfter:
     - coreidp-ssoconfig
 
-# 9. operatormaturity
+# 10. operatormaturity
 # -------------------------------------------------------------------------
 - name: operatormaturity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
