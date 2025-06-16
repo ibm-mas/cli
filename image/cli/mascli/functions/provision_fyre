@@ -94,7 +94,7 @@ function provision_fyre_noninteractive() {
       -l|--location)
         FYRE_SITE=$1 && shift
         ;;
-      
+
       # Cluster Definition - optional
       --enable-fips)
         OCP_FIPS_ENABLED=true && shift
@@ -186,19 +186,27 @@ function provision_fyre_interactive() {
 
   echo
   echo "OCP Version:"
-  echo "  1. 4.16"
-  echo "  2. 4.15"
-  echo "  3. 4.14"
+  echo "  1. 4.18"
+  echo "  2. 4.17"
+  echo "  3. 4.16"
+  echo "  4. 4.15"
+  echo "  5. 4.14"
   prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
 
   case $OCP_VERSION_SELECTION in
-    1|4.16)
+    1|4.18)
+      export OCP_VERSION=4.18
+      ;;
+    2|4.17)
+      export OCP_VERSION=4.17
+      ;;
+    3|4.16)
       export OCP_VERSION=4.16
       ;;
-    2|4.15)
+    4|4.15)
       export OCP_VERSION=4.15
       ;;
-    3|4.14)
+    5|4.14)
       export OCP_VERSION=4.14
       ;;
     *)
