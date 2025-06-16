@@ -472,15 +472,15 @@ function gitops_aibroker() {
     # ---------------------------------------------------------------------------
     echo
     echo_h2 "Generating Argo Project and Applications"
-
     echo "- Base Config"
+    echo "Generating aibroker base file ${GITOPS_CLUSTER_DIR}/ibm-aibroker-instance-base.yaml"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-instance-base.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-aibroker-instance-base.yaml
 
     # Generate ArgoApps
     # ---------------------------------------------------------------------------
     echo
     echo_h2 "Generating aibroker operator Applications"
-    echo "- minio operator"
+    echo "- aibroker operator"
 
     echo "Generating aibroker file ${GITOPS_CLUSTER_DIR}/ibm-aibroker.yaml"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aibroker.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aibroker.yaml
