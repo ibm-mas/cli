@@ -1328,7 +1328,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.initializeApprovalConfigMap(namespace, approval['id'], False)
 
 
-class InstallAiService(InstallApp, BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
+class InstallAiService(InstallApp):
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
