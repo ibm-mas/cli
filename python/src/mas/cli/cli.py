@@ -146,7 +146,16 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self.compatibilityMatrix = {
             "9.1.x": {
-                "facilities": ["9.1.x"]
+                "facilities": ["9.1.x"],
+                "assist": ["9.1.x", "9.0.x"],
+                "iot": ["9.1.x", "9.0.x" ],
+                "manage": ["9.1.x", "9.0.x" ],
+                "monitor": [ "9.1.x", "9.0.x" ],
+                "optimizer": [ "9.1.x", "9.0.x" ],
+                "predict": [ "9.1.x", "9.0.x" ],
+                "visualinspection": [ "9.1.x", "9.0.x"],
+                "aibroker": ["9.1.x", "9.0.x"],
+
             },
             "9.1.x-feature": {
                 "assist": ["9.0.x"],
@@ -199,7 +208,7 @@ class BaseApp(PrintMixin, PromptMixin):
         }
 
         self.upgrade_path = {
-            "9.0.x": "9.1.x-feature",
+            "9.0.x": "9.1.x",
             "8.11.x": "9.0.x",
             "8.10.x": "8.11.x",
             "8.9.x": "8.10.x",
