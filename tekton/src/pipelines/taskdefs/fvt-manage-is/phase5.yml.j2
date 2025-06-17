@@ -17,7 +17,7 @@
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
-    - fvt-manage-setup-is
+    - fvt-civil-api-defectdetection
 
 - name: fvt-ibm-mas-manage-defectdetection
   {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
