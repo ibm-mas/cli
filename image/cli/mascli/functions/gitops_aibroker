@@ -433,7 +433,7 @@ function gitops_aibroker() {
   export JDBCCFG_CA=${SECRETS_PREFIX}jdbc#jdbccfg_ca
 
   export MAS_ENTITLEMENT_KEY=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
-  export ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
+  export ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#aibroker_image_pull_secret_b64
   # check if those are already present 
   
   # and update them 
@@ -445,7 +445,7 @@ function gitops_aibroker() {
   # updated var in sm 
   # and git repo 
 
-  sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
+  sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "aibroker_image_pull_secret_b64,entitlement_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}dro "drocfg_ca,drocfg_registration_key,drocfg_url"
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}minio "sm_minio_host,sm_minio_port,sm_minio_accesskey,sm_minio_secretkey,sm_minio_bucket_templates,sm_minio_bucket_tenants,sm_minio_bucket_pipelines"
