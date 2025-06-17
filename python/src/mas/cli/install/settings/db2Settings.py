@@ -169,7 +169,7 @@ class Db2SettingsMixin():
         else:
             self.setParam("db2_action_facilities", "none")
 
-        # Do we need to configure Db2u?
+        ## Do we need to configure Db2u?
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install" or self.getParam("db2_action_facilities") == "install":
             if self.showAdvancedOptions:
                 self.printH2("Installation Namespace")
