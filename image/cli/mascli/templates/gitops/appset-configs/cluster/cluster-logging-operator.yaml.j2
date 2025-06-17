@@ -2,6 +2,12 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
 
 cluster_logging_operator:
   install: "{{ CLUSTER_LOGGING_OPERATOR_INSTALL }}"
+  install_plan: "{{ CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN }}"
+  channel: "{{ CLUSTER_LOGGING_OPERATOR_CHANNEL }}"
   aws_secret_access_key:  "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLOUDWATCH_AWS_SECRET_ACCESS_KEY }}>"
   aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLOUDWATCH_AWS_ACCESS_KEY_ID }}>"
   use_syslog_forwarder: "{{ CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER }}"
+  setup_log_forwarding: "{{ CLUSTER_LOGGING_OPERATOR_ENABLE_LOG_FORWARDING }}"
+  log_forwarder_url: "{{ CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_URL }}"
+  syslog_forwarder_version: "{{ CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION }}"
+  override_logforwarder_version: "{{ CLUSTER_LOGGING_OPERATOR_OVERRIDE_LOGFORWARDER_VERSION }}"
