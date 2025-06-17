@@ -319,6 +319,22 @@ class ManageSettingsMixin():
                 self.promptForString("Token for RSL", "rsl_token", isPassword=True)
                 self.yesOrNo("Install minio", "install_minio_aiservice")
                 self.yesOrNo("Install mariadb", "install_mariadb_aiservice")
-                self.yesOrNo("Install mongodb", "install_mongo_aiservice")
                 self.yesOrNo("Install SLS", "install_sls_aiservice")
                 self.yesOrNo("Insall DRO", "install_dro_aiservice")
+                if self.getParam("install_dro_aiservice") != "true":
+                    self.promptForString("DRO secret name", "mas_aibroker_dro_secret_name")
+                    self.promptForString("DRO API key", "mas_aibroker_dro_api_key")
+                    self.promptForString("DRO URL", "mas_aibroker_dro_url")
+                    self.promptForString("DRO CA certificate", "mas_aibroker_dro_ca_cert")
+                if self.getParam("install_db2_aiservice") != "true":
+                    self.promptForString("DB2 username", "mas_aibroker_db2_username")
+                    self.promptForString("DB2 password", "mas_aibroker_db2_password")
+                    self.promptForString("DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
+                    self.promptForString("DB2 SSL enabled (yes/no)", "mas_aibroker_db2_ssl_enabled")
+                    self.promptForString("DB2 CA certificate", "mas_aibroker_db2_ca_cert")
+                if self.getParam("install_sls_aiservice") != "true":
+                    self.promptForString("SLS secret name", "mas_aibroker_sls_secret_name")
+                    self.promptForString("SLS registration key", "mas_aibroker_sls_registration_key")
+                    self.promptForString("SLS URL", "mas_aibroker_sls_url")
+                    self.promptForString("SLS CA certificate", "mas_aibroker_sls_ca_cert")
+                self.promptForString("Environment type", "environment_type")

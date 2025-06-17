@@ -152,6 +152,62 @@ spec:
     - name: mas_aibroker_db_secret_value
       type: string
       default: ""
+    - name: mas_aibroker_dro_secret_name
+      type: string
+      description: DRO secret name
+      default: ""
+    - name: mas_aibroker_dro_api_key
+      type: string
+      description: DRO API key
+      default: ""
+    - name: mas_aibroker_dro_url
+      type: string
+      description: DRO URL
+      default: ""
+    - name: mas_aibroker_dro_ca_cert
+      type: string
+      description: DRO CA certificate
+      default: ""
+    - name: mas_aibroker_db2_username
+      type: string
+      description: DB2 username
+      default: ""
+    - name: mas_aibroker_db2_password
+      type: string
+      description: DB2 password
+      default: ""
+    - name: mas_aibroker_db2_jdbc_url
+      type: string
+      description: DB2 JDBC URL
+      default: ""
+    - name: mas_aibroker_db2_ssl_enabled
+      type: string
+      description: DB2 SSL enabled
+      default: "false"
+    - name: mas_aibroker_db2_ca_cert
+      type: string
+      description: DB2 CA certificate
+      default: ""
+    - name: mas_aibroker_sls_secret_name
+      type: string
+      description: SLS secret name
+      default: ""
+    - name: mas_aibroker_sls_registration_key
+      type: string
+      description: SLS registration key
+      default: ""
+    - name: mas_aibroker_sls_url
+      type: string
+      description: SLS URL
+      default: ""
+    - name: mas_aibroker_sls_ca_cert
+      type: string
+      description: SLS CA certificate
+      default: ""
+    - name: environment_type
+      type: string
+      description: Environment type
+      default: ""
     
   stepTemplate:
     env:
@@ -259,6 +315,35 @@ spec:
       - name: MAS_AIBROKER_DB_SECRET_VALUE
         value: $(params.mas_aibroker_db_secret_value)
 
+      # DRO, DB2, SLS vars
+      - name: MAS_AIBROKER_DRO_SECRET_NAME
+        value: $(params.mas_aibroker_dro_secret_name)
+      - name: MAS_AIBROKER_DRO_API_KEY
+        value: $(params.mas_aibroker_dro_api_key)
+      - name: MAS_AIBROKER_DRO_URL
+        value: $(params.mas_aibroker_dro_url)
+      - name: MAS_AIBROKER_DRO_CA_CERT
+        value: $(params.mas_aibroker_dro_ca_cert)
+      - name: MAS_AIBROKER_DB2_USERNAME
+        value: $(params.mas_aibroker_db2_username)
+      - name: MAS_AIBROKER_DB2_PASSWORD
+        value: $(params.mas_aibroker_db2_password)
+      - name: MAS_AIBROKER_DB2_JDBC_URL
+        value: $(params.mas_aibroker_db2_jdbc_url)
+      - name: MAS_AIBROKER_DB2_SSL_ENABLED
+        value: $(params.mas_aibroker_db2_ssl_enabled)
+      - name: MAS_AIBROKER_DB2_CA_CERT
+        value: $(params.mas_aibroker_db2_ca_cert)
+      - name: MAS_AIBROKER_SLS_SECRET_NAME
+        value: $(params.mas_aibroker_sls_secret_name)
+      - name: MAS_AIBROKER_SLS_REGISTRATION_KEY
+        value: $(params.mas_aibroker_sls_registration_key)
+      - name: MAS_AIBROKER_SLS_URL
+        value: $(params.mas_aibroker_sls_url)
+      - name: MAS_AIBROKER_SLS_CA_CERT
+        value: $(params.mas_aibroker_sls_ca_cert)
+      - name: ENVIRONMENT_TYPE
+        value: $(params.environment_type)
 
   steps:
     - name: aibroker

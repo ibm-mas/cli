@@ -209,10 +209,6 @@
   type: string
   description: flag for install mariadb
   default: "true"
-- name: install_mongo_aiservice
-  type: string
-  description: flag for install mongodb
-  default: "true"
 - name: install_sls_aiservice
   type: string
   description: flag for install sls
@@ -221,3 +217,63 @@
   type: string
   description: flag for install dro
   default: "true"
+- name: install_db2_aiservice
+  type: string
+  description: flag for install db2
+  default: "true"
+- name: mas_aibroker_dro_secret_name
+  type: string
+  description: DRO secret name
+  default: ""
+- name: mas_aibroker_dro_api_key
+  type: string
+  description: DRO API key
+  default: ""
+- name: mas_aibroker_dro_url
+  type: string
+  description: DRO URL
+  default: ""
+- name: mas_aibroker_dro_ca_cert
+  type: string
+  description: DRO CA certificate
+  default: ""
+- name: mas_aibroker_db2_username
+  type: string
+  description: DB2 username
+  default: ""
+- name: mas_aibroker_db2_password
+  type: string
+  description: DB2 password
+  default: ""
+- name: mas_aibroker_db2_jdbc_url
+  type: string
+  description: DB2 JDBC URL
+  default: ""
+- name: mas_aibroker_db2_ssl_enabled
+  type: string
+  description: DB2 SSL enabled
+  default: "false"
+- name: mas_aibroker_db2_ca_cert
+  type: string
+  description: DB2 CA certificate
+  default: ""
+- name: mas_aibroker_sls_secret_name
+  type: string
+  description: SLS secret name
+  default: ""
+- name: mas_aibroker_sls_registration_key
+  type: string
+  description: SLS registration key
+  default: ""
+- name: mas_aibroker_sls_url
+  type: string
+  description: SLS URL
+  default: ""
+- name: mas_aibroker_sls_ca_cert
+  type: string
+  description: SLS CA certificate
+  default: ""
+- name: environment_type
+  type: string
+  description: Environment type
+  default: ""

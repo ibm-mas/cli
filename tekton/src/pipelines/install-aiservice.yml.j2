@@ -59,7 +59,7 @@ spec:
       runAfter:
         - cert-manager
       when:
-        - input: "$(params.install_mongo_aiservice)"
+        - input: "$(params.install_sls_aiservice)"
           operator: notin
           values: ["false", "False"]
 

@@ -521,12 +521,6 @@ aibrokerArgGroup.add_argument(
     help="flag for install mariadb"
 )
 aibrokerArgGroup.add_argument(
-    "--install-mongo-aiservice",
-    dest="install_mongo_aiservice",
-    required=False,
-    help="flag for install mongodb"
-)
-aibrokerArgGroup.add_argument(
     "--install-sls-aiservice",
     dest="install_sls_aiservice",
     required=False,
@@ -539,6 +533,94 @@ aibrokerArgGroup.add_argument(
     help="flag for install dro"
 )
 
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-dro-secret-name",
+    dest="mas_aibroker_dro_secret_name",
+    required=False,
+    help="DRO secret name"
+)
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-dro-api-key",
+    dest="mas_aibroker_dro_api_key",
+    required=False,
+    help="DRO API key"
+)
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-dro-url",
+    dest="mas_aibroker_dro_url",
+    required=False,
+    help="DRO URL"
+)
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-dro-ca-cert",
+    dest="mas_aibroker_dro_ca_cert",
+    required=False,
+    help="DRO CA certificate"
+)
+
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-db2-username",
+    dest="mas_aibroker_db2_username",
+    required=False,
+    help="DB2 username"
+)
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-db2-password",
+    dest="mas_aibroker_db2_password",
+    required=False,
+    help="DB2 password"
+)
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-db2-jdbc-url",
+    dest="mas_aibroker_db2_jdbc_url",
+    required=False,
+    help="DB2 JDBC URL"
+)
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-db2-ssl-enabled",
+    dest="mas_aibroker_db2_ssl_enabled",
+    required=False,
+    help="DB2 SSL enabled"
+)
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-db2-ca-cert",
+    dest="mas_aibroker_db2_ca_cert",
+    required=False,
+    help="DB2 CA certificate"
+)
+
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-sls-secret-name",
+    dest="mas_aibroker_sls_secret_name",
+    required=False,
+    help="SLS secret name"
+)
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-sls-registration-key",
+    dest="mas_aibroker_sls_registration_key",
+    required=False,
+    help="SLS registration key"
+)
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-sls-url",
+    dest="mas_aibroker_sls_url",
+    required=False,
+    help="SLS URL"
+)
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-sls-ca-cert",
+    dest="mas_aibroker_sls_ca_cert",
+    required=False,
+    help="SLS CA certificate"
+)
+
+aibrokerArgGroup.add_argument(
+    "--environment-type",
+    dest="environment_type",
+    required=False,
+    default="non-production",
+    help="Environment type (default: non-production)"
+)
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------
 db2ArgGroup = installArgParserAiservice.add_argument_group("IBM Db2 Universal Operator")
