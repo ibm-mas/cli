@@ -26,7 +26,7 @@ class Db2SettingsMixin():
             print_formatted_text("No applications have been selected that require a Db2 installation")
             self.setParam("db2_action_system", "none")
             self.setParam("db2_action_manage", "none")
-            self.setParam("db2_action_facilities", "none")
+           # self.setParam("db2_action_facilities", "none")
             return
 
         # For now we are limiting users to bring your own database for Manage on s390x & ppc64le
