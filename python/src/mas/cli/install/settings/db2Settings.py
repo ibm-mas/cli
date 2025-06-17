@@ -29,30 +29,6 @@ class Db2SettingsMixin():
             self.setParam("db2_action_facilities", "none")
             return
 
-        # For now we are limiting users to bring your own database for Manage on s390x & ppc64le
-        # Eventually we will be able to remove this clause and allow the standard logic to work for s390x, ppc64le and amd64
-        if (self.architecture == "s390x" or self.architecture == "ppc64le") and self.installManage:
-            # silentMode does not apply for s390x/ppc64le because it requires interaction when selecting local config directory
-            self.printDescription([
-                "Installation of a Db2 instance using the IBM Db2 Universal Operator is not currently supported on s390x /ppc64le, please provide configuration details for the database you wish to use.",
-            ])
-            instanceId = self.getParam('mas_instance_id')
-            workspaceId = self.getParam("mas_workspace_id")
-
-            self.setParam("mas_appws_bindings_jdbc_manage", "workspace-application")
-            self.setParam("db2_action_manage", "byo")
-            self.selectLocalConfigDir()
-
-            # Check if a configuration already exists before creating a new one
-            jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-manage.yaml")
-            print_formatted_text(f"Searching for {self.manageAppName} database configuration file in {jdbcCfgFile} ...")
-            if path.exists(jdbcCfgFile):
-                if self.yesOrNo(f"{self.manageAppName} database configuration file 'jdbc-{instanceId}-manage.yaml' already exists.  Do you want to generate a new one"):
-                    self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
-            else:
-                print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid {self.manageAppName} database configuration file now ...")
-                self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
-            return
 
         # Proceed as normal
         # We know we are installing either IoT, Manage or Facilities, and on amd64 target architecture
