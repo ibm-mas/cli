@@ -45,7 +45,9 @@ If you have not already determined the catalog version for your installation, re
 
 Interactive Install
 -------------------------------------------------------------------------------
-Regardless of whether you are running a connected or disconnected installation, simply run the `mas aiservice-install` command and follow the prompts, the basic structure of the interactive flow is described below.  We will need the `entitlement.lic` file to perform the installation so we will mount your home directory into the running container.  When prompted you will be able to set license file to `/mnt/home/entitlement.lic`
+Regardless of whether you are running a connected or disconnected installation, simply run the `mas aiservice-install` command and follow the prompts, the basic structure of the interactive flow is described below.  
+
+We will need the `entitlement.lic` file to perform the installation so we will mount your home directory into the running container.  When prompted you will be able to set license file to `/mnt/home/entitlement.lic` - This is a prerequisite step, required only when `sls` has not been installed previously. 
 
 ```bash
 docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ mas aiservice-install
@@ -57,7 +59,7 @@ The interactive install will guide you through a series of questioned designed t
   <cds-accordion>
     <cds-accordion-item title="Connect to OpenShift and Choose a Catalog">
       <p>If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL & token to make a new connection.  If you are already connected to a cluster you will be given the option to change to another cluster</p>
-      <p>You will be presented with a table of available catalogs with information about the different releases of MAS available in each</p>
+      <p>You will be presented with a table of available catalogs with information about the different releases of MAS</p>
       <p>Confirm that you accept the IBM Maximo Application Suite license terms</p>
     </cds-accordion-item>
     <cds-accordion-item title="Select Storage Classes">
