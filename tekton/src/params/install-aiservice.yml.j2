@@ -160,7 +160,7 @@
 - name: db2_action_aibroker
   type: string
   description: install dedicated db2 for aibroker
-  default: {% if params.install_db2_aiservice != 'false' %}install{% else %}dont_install{% endif %}"
+  default: "install"
 - name: mas_aibroker_s3_bucket_prefix
   type: string
   description: s3 bucker prefix
