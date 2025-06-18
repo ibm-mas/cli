@@ -194,25 +194,25 @@ class InstallSummarizerMixin():
                 self.printParamSummary("  + ORG Id of RSL", "rsl_org_id")
                 self.printParamSummary("  + Token for RSL", "rsl_token")
                 self.printParamSummary("  + Install minio", "install_minio_aiservice")
-                self.printParamSummary("  + Install mariadb", "install_mariadb_aiservice")
                 self.printParamSummary("  + Install SLS", "install_sls_aiservice")
+                if self.getParam("install_sls_aiservice") != "true":
+                    self.printParamSummary("  + SLS secret name", "mas_aibroker_sls_secret_name")
+                    self.printParamSummary("  + SLS registration key", "mas_aibroker_sls_registration_key")
+                    self.printParamSummary("  + SLS URL", "mas_aibroker_sls_url")
+                    self.printParamSummary("  + SLS CA certificate", "mas_aibroker_sls_ca_cert")
                 self.printParamSummary("  + Install DRO", "install_dro_aiservice")
                 if self.getParam("install_dro_aiservice") != "true":
                     self.printParamSummary("  + DRO secret name", "mas_aibroker_dro_secret_name")
                     self.printParamSummary("  + DRO API key", "mas_aibroker_dro_api_key")
                     self.printParamSummary("  + DRO URL", "mas_aibroker_dro_url")
                     self.printParamSummary("  + DRO CA certificate", "mas_aibroker_dro_ca_cert")
+                self.printParamSummary("  + Install DB2", "install_db2_aiservice")
                 if self.getParam("install_db2_aiservice") != "true":
                     self.printParamSummary("  + DB2 username", "mas_aibroker_db2_username")
                     self.printParamSummary("  + DB2 password", "mas_aibroker_db2_password")
                     self.printParamSummary("  + DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
                     self.printParamSummary("  + DB2 SSL enabled", "mas_aibroker_db2_ssl_enabled")
                     self.printParamSummary("  + DB2 CA certificate", "mas_aibroker_db2_ca_cert")
-                if self.getParam("install_sls_aiservice") != "true":
-                    self.printParamSummary("  + SLS secret name", "mas_aibroker_sls_secret_name")
-                    self.printParamSummary("  + SLS registration key", "mas_aibroker_sls_registration_key")
-                    self.printParamSummary("  + SLS URL", "mas_aibroker_sls_url")
-                    self.printParamSummary("  + SLS CA certificate", "mas_aibroker_sls_ca_cert")
                 self.printParamSummary("  + Environment type", "environment_type")
 
         else:

@@ -515,12 +515,6 @@ aibrokerArgGroup.add_argument(
     help="flag for install minio"
 )
 aibrokerArgGroup.add_argument(
-    "--install-mariadb-aiservice",
-    dest="install_mariadb_aiservice",
-    required=False,
-    help="flag for install mariadb"
-)
-aibrokerArgGroup.add_argument(
     "--install-sls-aiservice",
     dest="install_sls_aiservice",
     required=False,
@@ -531,6 +525,12 @@ aibrokerArgGroup.add_argument(
     dest="install_dro_aiservice",
     required=False,
     help="flag for install dro"
+)
+aibrokerArgGroup.add_argument(
+    "--install-db2-aiservice",
+    dest="install_db2_aiservice",
+    required=False,
+    help="flag for install db2"
 )
 
 aibrokerArgGroup.add_argument(

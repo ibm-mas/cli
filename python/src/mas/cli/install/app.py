@@ -1511,7 +1511,6 @@ class InstallAiService(InstallApp):
         self.configDRO()
         self.configICRCredentials()
 
-        # MAS Core
         self.configCertManager()
         self.configAibroker()
 
@@ -1524,11 +1523,7 @@ class InstallAiService(InstallApp):
         self.configMongoDb()
         self.configDb2()
 
-        # self.configGrafana()
         self.configTurbonomic()
-
-        # TODO: Support ECK integration via the interactive install mode
-        # TODO: Support MAS superuser username/password via the interactive install mode
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
@@ -1558,8 +1553,7 @@ class InstallAiService(InstallApp):
             "approval_aibroker": {"id": "app-cfg-aibroker"},  # After Aibroker workspace has been configured
         }
 
-        # self.configGrafana()
-        # self.configSNO()
+        self.configSNO()
         self.setDB2DefaultSettings()
 
         for key, value in vars(self.args).items():
@@ -1692,7 +1686,7 @@ class InstallAiService(InstallApp):
     @logMethodCall
     def install(self, argv):
         """
-        Install MAS instance
+        Install Aiservice
         """
         args = installArgParserAiservice.parse_args(args=argv)
 
@@ -1724,7 +1718,7 @@ class InstallAiService(InstallApp):
             # Connect to the target cluster
             self.connect()
         else:
-            logger.debug("MAS instance ID is set, so we assume already connected to the desired OCP")
+            logger.debug("Aiservice instance ID is set, so we assume already connected to the desired OCP")
             self.lookupTargetArchitecture()
 
         if self.dynamicClient is None:

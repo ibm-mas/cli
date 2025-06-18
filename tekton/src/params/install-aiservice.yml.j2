@@ -156,7 +156,9 @@
 - name: db2_action_aibroker
   type: string
   description: install dedicated db2 for aibroker
+{% if install_db2_aiservice != "false" %}
   default: "install"
+{% endif %}
 - name: mas_aibroker_s3_bucket_prefix
   type: string
   description: s3 bucker prefix
@@ -204,10 +206,6 @@
 - name: install_minio_aiservice
   type: string
   description: flag for install minio
-  default: "true"
-- name: install_mariadb_aiservice
-  type: string
-  description: flag for install mariadb
   default: "true"
 - name: install_sls_aiservice
   type: string
