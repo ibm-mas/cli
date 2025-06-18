@@ -153,10 +153,14 @@
   type: string
   description: define end date for tenant
   default: ""
+- name: install_db2_aiservice
+  type: string
+  description: flag for install db2
+  default: "true"
 - name: db2_action_aibroker
   type: string
   description: install dedicated db2 for aibroker
-{% if install_db2_aiservice != "false" %}
+{% if params.install_db2_aiservice != "false" %}
   default: "install"
 {% endif %}
 - name: mas_aibroker_s3_bucket_prefix
@@ -214,10 +218,6 @@
 - name: install_dro_aiservice
   type: string
   description: flag for install dro
-  default: "true"
-- name: install_db2_aiservice
-  type: string
-  description: flag for install db2
   default: "true"
 - name: mas_aibroker_dro_secret_name
   type: string
