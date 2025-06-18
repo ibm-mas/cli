@@ -14,7 +14,7 @@ spec:
     - name: start-offline-upgrade
       image: quay.io/ibmmas/cli:latest
       command: 
-        - /opt/app-root/src/post-upgrade/start-offline-upgrade.sh
+        - /opt/app-root/src/start-offline-upgrade.sh
       env:
         {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
         - name: MAS_INSTANCE_ID
