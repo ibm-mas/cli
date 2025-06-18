@@ -85,8 +85,14 @@ CrowdStrike Falcon Operator (Optional):
       --install-falcon-operator ${COLOR_YELLOW}INSTALL_FALCON_OPERATOR${TEXT_RESET}                             Install the CrowdStrike Falcon Operator
 
 Cluster Logging Operator (Optional):
-      --install-cluster-logging-operator ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL${TEXT_RESET}           Install the Cluster Logging Operator
-
+      --install-cluster-logging-operator ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL${TEXT_RESET}                                           Install the Cluster Logging Operator
+      --cluster-logging-operator-use-syslog-forwarder ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER${TEXT_RESET}                 Flag to use syslog forwarder in the ClusterLogForwarder
+      --cluster-logging-operator-install-plan ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN${TEXT_RESET}                                 Install plan for the subscription of the Cluster Logging Operator
+      --cluster-logging-operator-channel ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_CHANNEL${TEXT_RESET}                                           Channel for the subscription of the Cluster Logging Operator
+      --cluster-logging-operator-setup-log-forwarding ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING${TEXT_RESET}                 Flag to setup the deployment for syslog forwarder and override forwarder
+      --cluster-logging-operator-log-forwarder-client-url ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL${TEXT_RESET}         The syslog forwarder client url that goes into the ConfigMap
+      --cluster-logging-operator-syslog-forwarder-version ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION${TEXT_RESET}         Syslog forwarder image version
+      --cluster-logging-operator-override-forwarder-version ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_OVERRIDE_LOGFORWARDER_VERSION${TEXT_RESET}  Override logforwarder image version
 Instana Agent Operator (Optional):
       --install-instana-agent-operator ${COLOR_YELLOW}INSTANA_AGENT_OPERATOR_INSTALL${TEXT_RESET}               Install the Instana Agent Operator
 
@@ -285,6 +291,27 @@ function gitops_cluster_noninteractive() {
       # Cluster Logging Operator
       --install-cluster-logging-operator)
         export CLUSTER_LOGGING_OPERATOR_INSTALL=true
+        ;;
+      --cluster-logging-operator-use-syslog-forwarder)
+        export CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER=true
+        ;;
+      --cluster-logging-operator-install-plan)
+        export CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN=$1 && shift
+        ;;
+      --cluster-logging-operator-channel)
+        export CLUSTER_LOGGING_OPERATOR_CHANNEL=$1 && shift
+        ;;
+      --cluster-logging-operator-setup-log-forwarding)
+        export CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING=true
+        ;;
+      --cluster-logging-operator-log-forwarder-client-url)
+        export CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL=$1 && shift
+        ;;
+      --cluster-logging-operator-syslog-forwarder-version)
+        export CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION=$1 && shift
+        ;;
+      --cluster-logging-operator-syslog-forwarder-version)
+        export CLUSTER_LOGGING_OPERATOR_OVERRIDE_LOGFORWARDER_VERSION=$1 && shift
         ;;
 
       # Instana Agent Operator

@@ -116,6 +116,24 @@ spec:
     - name: cluster_logging_operator_use_syslog_forwarder
       type: string
       default: 'true'
+    - name: cluster_logging_operator_install_plan
+      type: string
+      default: 'Automatic'
+    - name: cluster_logging_operator_channel
+      type: string
+      default: 'stable-6.0'
+    - name: cluster_logging_operator_setup_log_forwarding
+      type: string
+      default: 'true'
+    - name: cluster_logging_operator_log_forwarder_client_url
+      type: string
+      default: ''
+    - name: cluster_logging_operator_syslog_forwarder_version
+      type: string
+      default: '1.7-amd64'
+    - name: cluster_logging_operator_override_logforwarder_version
+      type: string
+      default: '1.0-amd64'
 
     - name: instana_agent_operator_install
       type: string
@@ -222,6 +240,18 @@ spec:
         value: $(params.cluster_logging_operator_install)
       - name: CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER
         value: $(params.cluster_logging_operator_use_syslog_forwarder)
+      - name: CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN
+        value: $(params.cluster_logging_operator_install_plan)
+      - name: CLUSTER_LOGGING_OPERATOR_CHANNEL
+        value: $(params.cluster_logging_operator_channel)
+      - name: CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL
+        value: $(params.cluster_logging_operator_log_forwarder_client_url)
+      - name: CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING
+        value: $(params.cluster_logging_operator_setup_log_forwarding)
+      - name: CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION
+        value: $(params.cluster_logging_operator_syslog_forwarder_version)
+      - name: CLUSTER_LOGGING_OPERATOR_OVERRIDE_LOGFORWARDER_VERSION
+        value: $(params.cluster_logging_operator_override_logforwarder_version)
 
       - name: INSTANA_AGENT_OPERATOR_INSTALL
         value: $(params.instana_agent_operator_install)
