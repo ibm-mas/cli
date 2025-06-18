@@ -40,6 +40,10 @@ spec:
       type: string
       description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
       default: ""
+    - name: test_marker
+      type: string
+      description: Like fvt_test_suite, if the FVT container image contains multiple suites, use this to control the suite that will be executed providing markers
+      default: ""
     - name: fvt_mas_appws_component
       type: string
       description: Manage product that will be tested by this task. Use official names as expected by Manage operators
@@ -97,6 +101,8 @@ spec:
         value: $(params.fvt_test_suite)
       - name: FVT_MAS_APPWS_COMPONENT
         value: $(params.fvt_mas_appws_component)
+      - name: TEST_MARKER
+        value: $(params.test_marker)
 
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
