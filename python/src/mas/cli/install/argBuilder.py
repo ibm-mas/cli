@@ -259,25 +259,25 @@ class installArgBuilderMixin():
             if self.getParam('mas_ws_facilities_vault_secret') != "":
                 command += f"  --facilities-vault-secret \"{self.getParam('mas_ws_facilities_vault_secret')}\"{newline}"
 
-            # if self.getParam('mas_ws_facilities_dwfagents') != "":
-            #     command += f"  --facilities-dwfagent \"{self.getParam('mas_ws_facilities_dwfagents')}\"{newline}"
+            if self.getParam('mas_ws_facilities_dwfagents') != "":
+                command += f"  --facilities-dwfagent \'{self.getParam('mas_ws_facilities_dwfagents')}\'{newline}"
 
-            # if self.getParam('mas_ws_facilities_db_maxconnpoolsize') != "":
-            #     command += f"  --facilities-maxconnpoolsize \"{self.getParam('mas_ws_facilities_db_maxconnpoolsize')}\"{newline}"
+            if self.getParam('mas_ws_facilities_db_maxconnpoolsize') != "":
+                command += f"  --facilities-maxconnpoolsize \"{self.getParam('mas_ws_facilities_db_maxconnpoolsize')}\"{newline}"
 
             if self.getParam('mas_ws_facilities_storage_log_class') != "":
                 command += f"  --facilities-log-storage-class \"{self.getParam('mas_ws_facilities_storage_log_class')}\"{newline}"
             if self.getParam('mas_ws_facilities_storage_log_mode') != "":
                 command += f"  --facilities-log-storage-mode \"{self.getParam('mas_ws_facilities_storage_log_mode')}\"{newline}"
-            # if self.getParam('mas_ws_facilities_storage_log_size') != "":
-            #     command += f"  --facilities-log-storage-size \"{self.getParam('mas_ws_facilities_storage_log_size')}\"{newline}"
+            if self.getParam('mas_ws_facilities_storage_log_size') != "":
+                command += f"  --facilities-log-storage-size \"{self.getParam('mas_ws_facilities_storage_log_size')}\"{newline}"
 
             if self.getParam('mas_ws_facilities_storage_userfiles_class') != "":
                 command += f"  --facilities-userfiles-storage-class \"{self.getParam('mas_ws_facilities_storage_userfiles_class')}\"{newline}"
             if self.getParam('mas_ws_facilities_storage_userfiles_mode') != "":
                 command += f"  --facilities-userfiles-storage-mode \"{self.getParam('mas_ws_facilities_storage_userfiles_mode')}\"{newline}"
-            # if self.getParam('mas_ws_facilities_storage_userfiles_size') != "":
-            #     command += f"  --facilities-userfiles-storage-size \"{self.getParam('mas_ws_facilities_storage_userfiles_size')}\"{newline}"
+            if self.getParam('mas_ws_facilities_storage_userfiles_size') != "":
+                command += f"  --facilities-userfiles-storage-size \"{self.getParam('mas_ws_facilities_storage_userfiles_size')}\"{newline}"
 
         # IBM Cloud Pak for Data
         # -----------------------------------------------------------------------------

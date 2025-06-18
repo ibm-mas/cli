@@ -187,6 +187,43 @@ spec:
       type: string
       default: ''
 
+    - name: provisioner_namespace
+      type: string
+      default: 'mas-provisioner'
+    - name: provisioner_version
+      type: string
+      default: ''
+    - name: provisioner_domain
+      type: string
+      default: ''
+    - name: provisioner_status_repo_url
+      type: string
+      default: ''
+    - name: provisioner_base_branch
+      type: string
+      default: ''
+    - name: provisioner_service_port
+      type: string
+      default: ''
+    - name: provisioner_account_alias
+      type: string
+      default: ''
+    - name: provisioner_enable_mtls
+      type: string
+      default: ''
+    - name: provisioner_enable_pd_alert
+      type: string
+      default: ''
+    - name: provisioner_enable_ocm_alert
+      type: string
+      default: ''
+    - name: provisioner_async_poll_interval
+      type: string
+      default: ''
+    - name: provisioner_async_poll_max
+      type: string
+      default: ''
+
   tasks:
     - name: gitops-cluster
       params:
@@ -426,3 +463,62 @@ spec:
         - input: "$(params.nvidia_gpu_action)"
           operator: in
           values: ["install"]
+
+    - name: gitops-mas-provisioner
+      runAfter:
+        - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: account
+          value: $(params.account)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: provisioner_namespace
+          value: $(params.provisioner_namespace)
+        - name: provisioner_version
+          value: $(params.provisioner_version)
+        - name: provisioner_domain
+          value: $(params.provisioner_domain)
+        - name: status_repo_url
+          value: $(params.provisioner_status_repo_url)
+        - name: base_branch
+          value: $(params.provisioner_base_branch)
+        - name: service_port
+          value: $(params.provisioner_service_port)
+        - name: account_alias
+          value: $(params.provisioner_account_alias)
+        - name: async_poll_interval
+          value: $(params.provisioner_async_poll_interval)
+        - name: async_poll_max
+          value: $(params.provisioner_async_poll_max)
+        - name: enable_mtls
+          value: $(params.provisioner_enable_mtls)
+        - name: enable_ocm_alert
+          value: $(params.provisioner_enable_ocm_alert)
+        - name: enable_pd_alert
+          value: $(params.provisioner_enable_pd_alert)
+      taskRef:
+        kind: Task
+        name: gitops-mas-provisioner
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.provisioner_status_repo_url)"
+          operator: notin
+          values: [""]

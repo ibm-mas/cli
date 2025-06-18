@@ -10,6 +10,7 @@
 
 from re import match
 from os import path
+from json import loads, JSONDecodeError
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from openshift import dynamic
@@ -136,3 +137,15 @@ class OptimizerInstallPlanValidator(Validator):
         response = document.text
         if response not in ["full", "limited"]:
             raise ValidationError(message='Enter a valid response: full, limited', cursor_position=len(response))
+
+
+class JsonValidator(Validator):
+    def validate(self, document):
+        """
+        Validate that a response is a valid JSON
+        """
+        inputJson = document.text
+        try:
+            loads(inputJson)
+        except JSONDecodeError:
+            raise (ValidationError(message='Enter a valid JSON', cursor_position=len(inputJson)))
