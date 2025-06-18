@@ -985,7 +985,7 @@ spec:
         kind: Task
         name: mas-fvt-finalize
       runAfter:
-        - waitfor-upgrade
+        - start-offline-upgrade
 
     - name: start-uninstall
       timeout: "0"
