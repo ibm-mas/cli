@@ -11,3 +11,4 @@ cluster_logging_operator:
   log_forwarder_client_url: "{{ CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL }}"
   syslog_forwarder_version: "{{ CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION }}"
   override_logforwarder_version: "{{ CLUSTER_LOGGING_OPERATOR_OVERRIDE_LOGFORWARDER_VERSION }}"
+  ibm_entitlement: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
