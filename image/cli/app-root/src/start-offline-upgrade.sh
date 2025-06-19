@@ -27,6 +27,7 @@ if [[ -n $MANAGE_WORKSPACE_NAME ]]; then
 
 		# Check if online upgrade is completed and workspace is ready for offline upgrade
 		while [[ $MANAGE_DEPLOYMENTREADY_MSG == *"$ONLINE_UPDATE_DONE_MSG"* && $RETRIES_USED -le $MAX_RETRIES ]]
+		do
 			if [[ $MANAGE_DEPLOYMENTREADY_MSG == *"$ONLINE_UPDATE_DONE_MSG"* ]]; then
 				echo "Status found is: ${MANAGE_DEPLOYMENTREADY_MSG}"
 				echo "ManageWorkspace indicates it is ready for offline upgrade, patching manageofflineupgraderequest CR to requested, and removing old status if present"
@@ -55,6 +56,7 @@ if [[ -n $MANAGE_WORKSPACE_NAME ]]; then
 			DELAY=120
 			READY_STATUS=$(oc get -n ${MAS_APP_NAMESPACE} ${MANAGE_WORKSPACE_NAME} -o=jsonpath="{.status.conditions[?(@.type=='Ready')].reason}")
 			while [[ $READY_STATUS == *"Ready"* && $RETRIES_USED -le $MAX_RETRIES ]]
+			do
 				if [[ $READY_STATUS == *"Ready"* ]]; then
 					echo "Status found is: ${READY_STATUS}"
 					echo "Online and Offline upgrade complete. Server bundles are up and running."
