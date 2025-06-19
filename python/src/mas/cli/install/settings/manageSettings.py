@@ -277,7 +277,6 @@ class ManageSettingsMixin():
             self.printH2("Maximo AI Broker Settings - Storage, WatsonX, MariaDB details")
             self.printDescription(["Customise AI Broker details"])
             self.promptForString("Storage provider", "mas_aibroker_storage_provider")
-            self.promptForString("Storage provider", "mas_aibroker_storage_provider")
             if self.getParam("mas_aibroker_storage_provider") == "minio" and self.getParam("mas_app_channel_aibroker") != "9.0.x":
                 self.promptForString("minio root username", "minio_root_user")
                 self.promptForString("minio root password", "minio_root_password", isPassword=True)
