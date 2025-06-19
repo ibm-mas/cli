@@ -387,7 +387,7 @@ if __name__ == "__main__":
     try:
         # getting versions from mobile
         mobileVer = MobVer(instanceId=instanceId, dynClient=dynClient)
-        mobileComponents = mobileVer.get_graphite_versions()
+        mobileComponents = mobileVer.get_graphite_versions(mas_ver=setObject["products.ibm-mas.version"])
         treatedComponents = {}
         for key, value in mobileComponents.items():
             if "mobileVersion" in value:
