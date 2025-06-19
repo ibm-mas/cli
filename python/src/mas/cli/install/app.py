@@ -1673,9 +1673,7 @@ class InstallAiService(InstallApp):
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
-            if findSLSByNamespace(self.getParam("sls_namespace"), dynClient=self.dynamicClient):
-                self.setParam("sls_action", "gencfg")
-            else:
+            if self.getParam("install_sls_aiservice") != "false":
                 self.fatalError("--license-file must be set for new SLS install")
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
