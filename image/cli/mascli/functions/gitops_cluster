@@ -400,6 +400,14 @@ function gitops_cluster() {
   reset_colors
   echo_h2 "Review Settings"
 
+  # set default values 
+  export CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER=${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER:-true}
+  export CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN=${CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN:-Automatic}
+  export CLUSTER_LOGGING_OPERATOR_CHANNEL=${CLUSTER_LOGGING_OPERATOR_CHANNEL:-"stable-6.0"}
+  export CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING=${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING:-true}
+  export CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION=${CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION:-"1.7-amd64"}
+  export CLUSTER_LOGGING_OPERATOR_OVERRIDE_LOGFORWARDER_VERSION=${CLUSTER_LOGGING_OPERATOR_OVERRIDE_LOGFORWARDER_VERSION:-"1.0-amd64"}
+
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then
     # Replace first occurance of 'apps.' with 'public.' only if OCP_CLUSTER_DOMAIN starts with 'apps.'
     export OCP_PUBLIC_CLUSTER_DOMAIN=$(echo $OCP_CLUSTER_DOMAIN | sed 's/^apps./public./')
@@ -513,7 +521,9 @@ function gitops_cluster() {
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Logging Operator" "    "
   echo_reset_dim "Install the Cluster Logging Operator ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_INSTALL}"
-  echo_reset_dim "Use Syslog Forwarder ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER}"
+  echo_reset_dim "Use Syslog Forwarder ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER}"
+  echo_reset_dim "Setup Log Forwarding ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING}"
+  echo_reset_dim "Operator Channel ............................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_CHANNEL}"
   reset_colors
 
   echo "${TEXT_DIM}"
