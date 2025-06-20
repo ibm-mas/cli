@@ -4,7 +4,7 @@
 #
 # Restricted Materials of IBM
 #
-# (C) COPYRIGHT IBM CORP. 2014.  All Rights Reserved.
+# (C) COPYRIGHT IBM CORP. 2025.  All Rights Reserved.
 #
 # configure DB2 instance for use by TRIRIGA
 # put instance into ORA mode

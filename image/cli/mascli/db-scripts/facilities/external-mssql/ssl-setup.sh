@@ -1,4 +1,11 @@
 #!/bin/sh
+# 
+# Licensed Materials - Property of IBM
+# 
+# Restricted Materials of IBM
+# 
+# (C) COPYRIGHT IBM CORP. 2025.  All Rights Reserved.
+# 
 
 # Generate Certificate
 openssl req -x509 -nodes -newkey rsa:2048 -subj '/CN=tririga' -keyout mssql.key -out mssql.pem -days 365

@@ -4,7 +4,7 @@
 # 
 # Restricted Materials of IBM
 # 
-# (C) COPYRIGHT IBM CORP. 2014.  All Rights Reserved.
+# (C) COPYRIGHT IBM CORP. 2025.  All Rights Reserved.
 # 
 # create DB2 database for use by TRIRIGA
 # set database level performance and other settings

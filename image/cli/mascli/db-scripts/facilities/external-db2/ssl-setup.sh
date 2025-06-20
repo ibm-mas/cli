@@ -1,4 +1,12 @@
 #!/bin/sh
+# 
+# Licensed Materials - Property of IBM
+# 
+# Restricted Materials of IBM
+# 
+# (C) COPYRIGHT IBM CORP. 2025.  All Rights Reserved.
+# 
+
 
 INSTANCE=${1}
 
