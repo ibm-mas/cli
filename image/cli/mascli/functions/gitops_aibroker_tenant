@@ -426,7 +426,7 @@ function gitops_aibroker_tenant() {
   echo_reset_dim "Watsonx.ai project ID ........................ ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONXAI_PROJECT_ID}"
 
   # -- MinIO
-  echo_reset_dim "MinIO SSL enabled ............................ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
+  echo_reset_dim "SSL enabled ............................ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
@@ -486,6 +486,14 @@ function gitops_aibroker_tenant() {
       clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
     fi
     mkdir -p ${GITOPS_CLUSTER_DIR}
+
+    # Generate ArgoApps
+    # ---------------------------------------------------------------------------
+    echo
+    echo_h2 "Generating Argo Project and Applications"
+    echo "- Base Config"
+    echo "Generating aibroker base file ${GITOPS_CLUSTER_DIR}/ibm-aibroker-instance-base.yaml"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aibroker-tenant-base.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant-base.yaml
 
     # Generate ArgoApps
     # ---------------------------------------------------------------------------
