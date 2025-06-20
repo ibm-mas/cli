@@ -1,6 +1,10 @@
 # MAS Application Configuration - IBM Maximo AI Broker
 # -----------------------------------------------------------------------------
 # - name: mas_aibroker_channel
+- name: aibroker_instance_id
+  type: string
+  description: Aibroker instance id
+  default: ""
 - name: mas_app_channel_aibroker
   type: string
   description: Default channel for IBM Maximo AI Broker
@@ -120,4 +124,152 @@
 - name: mas_aibroker_db_secret_value
   type: string
   description: database secret value for IBM Maximo AI Broker
+  default: ""
+- name: minio_root_user
+  type: string
+  description: root user for minio
+  default: ""
+- name: minio_root_password
+  type: string
+  description: password for minio root user
+  default: ""
+- name: mariadb_user
+  type: string
+  description: user for mariadb
+  default: ""
+- name: mariadb_password
+  type: string
+  description: password for mariadb user
+  default: ""
+- name: tenant_entitlement_type
+  type: string
+  description: type of tenant
+  default: ""
+- name: tenant_entitlement_start_date
+  type: string
+  description: define start date for tenant 
+  default: ""
+- name: tenant_entitlement_end_date
+  type: string
+  description: define end date for tenant
+  default: ""
+- name: install_db2_aiservice
+  type: string
+  description: flag for install db2
+  default: "true"
+- name: db2_action_aibroker
+  type: string
+  description: install dedicated db2 for aibroker
+  default: "install"
+- name: mas_aibroker_s3_bucket_prefix
+  type: string
+  description: s3 bucker prefix
+  default: ""
+- name: mas_aibroker_s3_region
+  type: string
+  description: s3 region
+  default: ""
+- name: mas_aibroker_s3_endpoint_url
+  type: string
+  description: endpoint url for s3
+  default: ""
+- name: mas_aibroker_tenant_s3_bucket_prefix
+  type: string
+  description: s3 bucker prefix ( tenant level )
+  default: ""
+- name: mas_aibroker_tenant_s3_region
+  type: string
+  description: s3 region ( tenant level )
+  default: ""
+- name: mas_aibroker_tenant_s3_endpoint_url
+  type: string
+  description: endpoint url for s3 ( tenant level )
+  default: ""
+- name: mas_aibroker_tenant_s3_access_key
+  type: string
+  description: access key for s3 ( tenant level )
+  default: ""
+- name: mas_aibroker_tenant_s3_secret_key
+  type: string
+  description: secret key for s3 ( tenant level )
+  default: ""
+- name: rsl_url
+  type: string
+  description: url of RSL
+  default: ""
+- name: rsl_org_id
+  type: string
+  description: org id for RSL
+  default: ""
+- name: rsl_token
+  type: string
+  description: token for RSL
+  default: ""
+- name: install_minio_aiservice
+  type: string
+  description: flag for install minio
+  default: "true"
+- name: install_sls_aiservice
+  type: string
+  description: flag for install sls
+  default: "true"
+- name: install_dro_aiservice
+  type: string
+  description: flag for install dro
+  default: "true"
+- name: mas_aibroker_dro_secret_name
+  type: string
+  description: DRO secret name
+  default: ""
+- name: mas_aibroker_dro_api_key
+  type: string
+  description: DRO API key
+  default: ""
+- name: mas_aibroker_dro_url
+  type: string
+  description: DRO URL
+  default: ""
+- name: mas_aibroker_dro_ca_cert
+  type: string
+  description: DRO CA certificate
+  default: ""
+- name: mas_aibroker_db2_username
+  type: string
+  description: DB2 username
+  default: ""
+- name: mas_aibroker_db2_password
+  type: string
+  description: DB2 password
+  default: ""
+- name: mas_aibroker_db2_jdbc_url
+  type: string
+  description: DB2 JDBC URL
+  default: ""
+- name: mas_aibroker_db2_ssl_enabled
+  type: string
+  description: DB2 SSL enabled
+  default: "false"
+- name: mas_aibroker_db2_ca_cert
+  type: string
+  description: DB2 CA certificate
+  default: ""
+- name: mas_aibroker_sls_secret_name
+  type: string
+  description: SLS secret name
+  default: ""
+- name: mas_aibroker_sls_registration_key
+  type: string
+  description: SLS registration key
+  default: ""
+- name: mas_aibroker_sls_url
+  type: string
+  description: SLS URL
+  default: ""
+- name: mas_aibroker_sls_ca_cert
+  type: string
+  description: SLS CA certificate
+  default: ""
+- name: environment_type
+  type: string
+  description: Environment type
   default: ""

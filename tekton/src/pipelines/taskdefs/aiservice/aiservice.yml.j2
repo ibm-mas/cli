@@ -4,8 +4,14 @@
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
       value: aibroker
+
     - name: mas_instance_id
+{% if application is defined and application == "aibroker" %}
+      value: $(params.aibroker_instance_id)
+{% else %}
       value: $(params.mas_instance_id)
+{% endif %}
+
     - name: mas_app_id
       value: aibroker
     - name: artifactory_username
@@ -52,6 +58,55 @@
       value: $(params.mas_aibroker_apikey_action)
     - name: mas_aibroker_tenant_name
       value: $(params.mas_aibroker_tenant_name)
+    - name: mas_icr_cp
+      value: $(params.mas_icr_cp)
+    - name: mas_icr_cpopen
+      value: $(params.mas_icr_cpopen)
+    - name: mas_aibroker_s3_bucket_prefix
+      value: $(params.mas_aibroker_s3_bucket_prefix)
+    - name: mas_aibroker_s3_endpoint_url
+      value: $(params.mas_aibroker_s3_endpoint_url)
+    - name: mas_aibroker_db_host
+      value: $(params.mas_aibroker_db_host)
+    - name: mas_aibroker_db_port
+      value: $(params.mas_aibroker_db_port)
+    - name: mas_aibroker_db_user
+      value: $(params.mas_aibroker_db_user)
+    - name: mas_aibroker_db_database
+      value: $(params.mas_aibroker_db_database)
+    - name: mas_aibroker_db_secret_name
+      value: $(params.mas_aibroker_db_secret_name)
+    - name: mas_aibroker_db_secret_value
+      value: $(params.mas_aibroker_db_secret_value)
+    - name: mas_aibroker_dro_secret_name
+      value: $(params.mas_aibroker_dro_secret_name)
+    - name: mas_aibroker_dro_api_key
+      value: $(params.mas_aibroker_dro_api_key)
+    - name: mas_aibroker_dro_url
+      value: $(params.mas_aibroker_dro_url)
+    - name: mas_aibroker_dro_ca_cert
+      value: $(params.mas_aibroker_dro_ca_cert)
+    - name: mas_aibroker_db2_username
+      value: $(params.mas_aibroker_db2_username)
+    - name: mas_aibroker_db2_password
+      value: $(params.mas_aibroker_db2_password)
+    - name: mas_aibroker_db2_jdbc_url
+      value: $(params.mas_aibroker_db2_jdbc_url)
+    - name: mas_aibroker_db2_ssl_enabled
+      value: $(params.mas_aibroker_db2_ssl_enabled)
+    - name: mas_aibroker_db2_ca_cert
+      value: $(params.mas_aibroker_db2_ca_cert)
+    - name: mas_aibroker_sls_secret_name
+      value: $(params.mas_aibroker_sls_secret_name)
+    - name: mas_aibroker_sls_registration_key
+      value: $(params.mas_aibroker_sls_registration_key)
+    - name: mas_aibroker_sls_url
+      value: $(params.mas_aibroker_sls_url)
+    - name: mas_aibroker_sls_ca_cert
+      value: $(params.mas_aibroker_sls_ca_cert)
+    - name: environment_type
+      value: $(params.environment_type)
+
   taskRef:
     name: mas-devops-aibroker
     kind: Task
@@ -59,3 +114,6 @@
     - input: "$(params.mas_app_channel_aibroker)"
       operator: notin
       values: [""]
+  workspaces:
+    - name: configs
+      workspace: shared-configs
