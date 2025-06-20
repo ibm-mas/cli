@@ -112,7 +112,6 @@ function gitops_aibroker_tenant_noninteractive() {
 
   # -- MinIO Defaults
   export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
-  export MAS_AIBROKER_STORAGE_SSL=${MAS_AIBROKER_STORAGE_SSL:-"true"}
 
   while [[ $# -gt 0 ]]
   do
@@ -344,6 +343,8 @@ function gitops_aibroker_tenant_noninteractive() {
   [[ -z "$RSL_URL" ]] && gitops_aibroker_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
   [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
   ##review
+  [[ -z "$MAS_AIBROKER_STORAGE_SSL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_STORAGE_SSL is not set. Please specify whether SSL is enabled for MinIO using --mas-aibroker-storage-ssl."
+
 }
 
 function gitops_aibroker_tenant() {
@@ -390,16 +391,16 @@ function gitops_aibroker_tenant() {
   echo "${TEXT_DIM}"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     echo_h2 "GitOps Target" "    "
-    echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
-    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
-    echo_reset_dim "Host .................................. ${COLOR_MAGENTA}${GITHUB_HOST}"
-    echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
-    echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
-    echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
+    echo_reset_dim "Automatic Push ............................. ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory .......................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host ....................................... ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization ............................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ................................. ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ..................................... ${COLOR_MAGENTA}${GIT_BRANCH}"
   else
     echo_h2 "GitOps Target" "    "
-    echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
-    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Automatic Push ............................. ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory .......................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
   fi
   reset_colors
 
@@ -426,7 +427,7 @@ function gitops_aibroker_tenant() {
   echo_reset_dim "Watsonx.ai project ID ........................ ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONXAI_PROJECT_ID}"
 
   # -- MinIO
-  echo_reset_dim "SSL enabled ............................ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
+  echo_reset_dim "SSL enabled .................................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
@@ -492,14 +493,14 @@ function gitops_aibroker_tenant() {
     echo
     echo_h2 "Generating Argo Project and Applications"
     echo "- Base Config"
-    echo "Generating aibroker base file ${GITOPS_CLUSTER_DIR}/ibm-aibroker-instance-base.yaml"
+    echo "Generating aibroker base file ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant-base.yaml"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aibroker-tenant-base.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant-base.yaml
 
     # Generate ArgoApps
     # ---------------------------------------------------------------------------
     echo
     echo_h2 "Generating aibroker operator Applications"
-    echo "- minio operator"
+    echo "- aibroker tenant operator"
 
     echo "Generating aibroker file ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant.yaml"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aibroker-tenant.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant.yaml

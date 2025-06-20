@@ -14,12 +14,11 @@ instance:
   id: {{ MAS_INSTANCE_ID }}
 
 tenant:
-  id: "{{ TENANT_ID }}"
+  id: {{ TENANT_ID }}
 
 sm:
   aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_access_key_id>"
   aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_secret_access_key>"
-
 {% if MAS_WIPE_MONGO_DATA == 'true' %}
 mas_wipe_mongo_data: true
 {% else %}
