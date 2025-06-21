@@ -90,9 +90,6 @@ function gitops_kmodel_noninteractive() {
   export MODEL_ID_PREFIX=${MODEL_ID_PREFIX:-"m"}  
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
   export DOCKER_SERVER=${DOCKER_SERVER:-"${MAS_ICR_CP}/aibroker"}
-  export IMAGE_STORE=${IMAGE_STORE:-"${DOCKER_SERVER}/store:1.0.3-pre.maint10xdev"}
-  export IMAGE_WATCHER=${IMAGE_WATCHER:-"${DOCKER_SERVER}/watcher:1.0.5-pre.maint10xdev"}
-  export IMAGE_CONTROLLER=${IMAGE_CONTROLLER:-"${DOCKER_SERVER}/controller:1.0.8-pre.maint10xdev"}
   export PULLSECRETNAME=${PULLSECRETNAME:-"ibm-entitlement"}
   ##review
   export MAS_APP_CHANNEL=${MAS_APP_CHANNEL:-"workspace"}
@@ -304,9 +301,9 @@ function gitops_kmodel_noninteractive() {
   # add validation for those variable which have the value needed for further execution
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_kmodel_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
   [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_kmodel_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
-  # [[ -z "$MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET is not set. Please provide the templates bucket name using --mas-aibroker-storage-templates-bucket."
-  # [[ -z "$MAS_AIBROKER_STORAGE_TENANTS_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_TENANTS_BUCKET is not set. Please provide the tenants bucket name using --mas-aibroker-storage-tenants-bucket."
-  # [[ -z "$MAS_AIBROKER_STORAGE_PIPELINES_BUCKET" ]] && gitops_kmodel_help "MAS_AIBROKER_STORAGE_PIPELINES_BUCKET is not set. Please provide the pipelines bucket name using --mas-aibroker-storage-pipelines-bucket."
+  [[ -z "$IMAGE_STORE" ]] && gitops_kmodel_help "IMAGE_STORE is not set. Please provide the image store using --image-store."
+  [[ -z "$IMAGE_WATCHER" ]] && gitops_kmodel_help "IMAGE_WATCHER is not set. Please provide the image watcher using --image-watcher."
+  [[ -z "$IMAGE_CONTROLLER" ]] && gitops_kmodel_help "IMAGE_CONTROLLER is not set. Please provide the image controller using --image-controller."
 
 }
 
