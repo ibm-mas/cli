@@ -507,6 +507,7 @@ function gitops_odh() {
   echo_reset_dim "MINIO_BUCKET ........................... ${COLOR_MAGENTA}${MINIO_BUCKET}"
   echo_reset_dim "MARIADB_HOST ........................... ${COLOR_MAGENTA}${MARIADB_HOST}"
   echo_reset_dim "MARIADB_DATABASE ....................... ${COLOR_MAGENTA}${MARIADB_DATABASE}"
+  echo_reset_dim "MAS_AIBROKER_STORAGE_SSL ................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
   reset_colors
 
 
