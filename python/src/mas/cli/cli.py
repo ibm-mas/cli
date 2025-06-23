@@ -148,12 +148,12 @@ class BaseApp(PrintMixin, PromptMixin):
             "9.1.x": {
                 "facilities": ["9.1.x"],
                 "assist": ["9.1.x", "9.0.x"],
-                "iot": ["9.1.x", "9.0.x" ],
-                "manage": ["9.1.x", "9.0.x" ],
-                "monitor": [ "9.1.x", "9.0.x" ],
-                "optimizer": [ "9.1.x", "9.0.x" ],
-                "predict": [ "9.1.x", "9.0.x" ],
-                "visualinspection": [ "9.1.x", "9.0.x"],
+                "iot": ["9.1.x", "9.0.x"],
+                "manage": ["9.1.x", "9.0.x"],
+                "monitor": ["9.1.x", "9.0.x"],
+                "optimizer": ["9.1.x", "9.0.x"],
+                "predict": ["9.1.x", "9.0.x"],
+                "visualinspection": ["9.1.x", "9.0.x"],
                 "aibroker": ["9.1.x", "9.0.x"],
 
             },
