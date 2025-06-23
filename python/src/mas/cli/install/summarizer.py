@@ -153,67 +153,6 @@ class InstallSummarizerMixin():
         else:
             self.printSummary("Visual Inspection", "Do Not Install")
 
-    def aibrokerSummary(self) -> None:
-        if self.installAiBroker:
-            self.printSummary("AI Broker", self.params["mas_app_channel_aibroker"])
-            print_formatted_text(HTML("  <SkyBlue>+ Maximo AI Broker Settings</SkyBlue>"))
-            self.printParamSummary("  + Aibroker Instance Id", "aibroker_instance_id")
-            self.printParamSummary("  + Storage provider", "mas_aibroker_storage_provider")
-            if self.getParam("mas_aibroker_storage_provider") == "minio":
-                self.printParamSummary("  + minio root username", "minio_root_user")
-            if self.getParam("mas_app_channel_aibroker") != "9.0.x":
-                self.printParamSummary("  + Mariadb username", "mariadb_user")
-                self.printParamSummary("  + Mariadb password", "mariadb_password")
-            self.printParamSummary("  + Storage access key", "mas_aibroker_storage_accesskey")
-            self.printParamSummary("  + Storage host", "mas_aibroker_storage_host")
-            self.printParamSummary("  + Storage port", "mas_aibroker_storage_port")
-            self.printParamSummary("  + Storage ssl", "mas_aibroker_storage_ssl")
-            self.printParamSummary("  + Storage region", "mas_aibroker_storage_region")
-            self.printParamSummary("  + Storage pipelines bucket", "mas_aibroker_storage_pipelines_bucket")
-            self.printParamSummary("  + Storage tenants bucket", "mas_aibroker_storage_tenants_bucket")
-            self.printParamSummary("  + Storage templates bucket", "mas_aibroker_storage_templates_bucket")
-            self.printParamSummary("  + Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
-            self.printParamSummary("  + Watsonxai project id", "mas_aibroker_watsonxai_project_id")
-            self.printParamSummary("  + Database host", "mas_aibroker_db_host")
-            self.printParamSummary("  + Database port", "mas_aibroker_db_port")
-            self.printParamSummary("  + Database user", "mas_aibroker_db_user")
-            self.printParamSummary("  + Database name", "mas_aibroker_db_database")
-            if self.getParam("mas_app_channel_aibroker") != "9.0.x":
-                self.printParamSummary("  + Tenant entitlement type", "tenant_entitlement_type")
-                self.printParamSummary("  + Tenant start date", "tenant_entitlement_start_date")
-                self.printParamSummary("  + Tenant end date", "tenant_entitlement_end_date")
-                self.printParamSummary("  + Tenant end date", "tenant_entitlement_end_date")
-                self.printParamSummary("  + S3 bucket prefix", "mas_aibroker_s3_bucket_prefix")
-                self.printParamSummary("  + S3 endpoint url", "mas_aibroker_s3_endpoint_url")
-                self.printParamSummary("  + S3 bucket prefix (tenant level)", "mas_aibroker_tenant_s3_bucket_prefix")
-                self.printParamSummary("  + S3 region (tenant level)", "mas_aibroker_tenant_s3_region")
-                self.printParamSummary("  + S3 endpoint url (tenant level)", "mas_aibroker_tenant_s3_endpoint_url")
-                self.printParamSummary("  + S3 access key (tenant level)", "mas_aibroker_tenant_s3_access_key")
-                self.printParamSummary("  + S3 secret key (tenant level)", "mas_aibroker_tenant_s3_secret_key")
-                self.printParamSummary("  + RSL url", "rsl_url")
-                self.printParamSummary("  + ORG Id of RSL", "rsl_org_id")
-                self.printParamSummary("  + Token for RSL", "rsl_token")
-                self.printParamSummary("  + Install minio", "install_minio_aiservice")
-                self.printParamSummary("  + Install SLS", "install_sls_aiservice")
-                if self.getParam("install_sls_aiservice") != "true":
-                    self.printParamSummary("  + SLS secret name", "mas_aibroker_sls_secret_name")
-                    self.printParamSummary("  + SLS registration key", "mas_aibroker_sls_registration_key")
-                    self.printParamSummary("  + SLS URL", "mas_aibroker_sls_url")
-                self.printParamSummary("  + Install DRO", "install_dro_aiservice")
-                if self.getParam("install_dro_aiservice") != "true":
-                    self.printParamSummary("  + DRO secret name", "mas_aibroker_dro_secret_name")
-                    self.printParamSummary("  + DRO API key", "mas_aibroker_dro_api_key")
-                    self.printParamSummary("  + DRO URL", "mas_aibroker_dro_url")
-                self.printParamSummary("  + Install DB2", "install_db2_aiservice")
-                if self.getParam("install_db2_aiservice") != "true":
-                    self.printParamSummary("  + DB2 username", "mas_aibroker_db2_username")
-                    self.printParamSummary("  + DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
-                    self.printParamSummary("  + DB2 SSL enabled", "mas_aibroker_db2_ssl_enabled")
-                self.printParamSummary("  + Environment type", "environment_type")
-
-        else:
-            self.printSummary("AI Broker", "Do Not Install")
-
     def manageSummary(self) -> None:
         if self.installManage:
             self.printSummary(f"{'Manage foundation' if self.getParam('is_full_manage') == 'false' else 'Manage'}", self.params["mas_app_channel_manage"])
@@ -438,7 +377,6 @@ class InstallSummarizerMixin():
         self.optimizerSummary()
         self.assistSummary()
         self.inspectionSummary()
-        self.aibrokerSummary()
         self.facilitiesSummary()
 
         # Application Dependencies
