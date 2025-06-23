@@ -194,7 +194,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Dynamically fetch the channels from the chosen catalog
         # based on mas core
         for channel in self.chosenCatalog["mas_core_version"]:
-            # {"9.1-feature": "9.1.x-issue-MASCORE-5711"}
+            # {"9.1-feature": "9.1.x-i5711"}
             self.catalogReleases.update({channel.replace('.x', ''): channel})
 
         # Generate catalogTable
@@ -202,8 +202,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             if key in self.chosenCatalog:
                 tempChosenCatalog = self.chosenCatalog[key].copy()
-                if '9.1.x-issue-MASCORE-5711' not in tempChosenCatalog:
-                    tempChosenCatalog.update({"9.1.x-issue-MASCORE-5711": tempChosenCatalog["9.0.x"]})
+                if '9.1.x-i5711' not in tempChosenCatalog:
+                    tempChosenCatalog.update({"9.1.x-i5711": tempChosenCatalog["9.0.x"]})
 
                 self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
@@ -670,7 +670,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installAiBroker:
             self.configAppChannel("aibroker")
 
-        if isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.1.x-issue-MASCORE-5711':
+        if isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.1.x-i5711':
             self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
             if self.installFacilities:
                 self.configAppChannel("facilities")

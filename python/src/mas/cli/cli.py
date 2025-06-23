@@ -148,14 +148,14 @@ class BaseApp(PrintMixin, PromptMixin):
             "9.1.x": {
                 "facilities": ["9.1.x"]
             },
-            "9.1.x-issue-MASCORE-5711": {
+            "9.1.x-i5711": {
                 "assist": ["9.0.x"],
                 "iot": ["9.0.x"],
-                "manage": ["9.1.x-issue-MASCORE-5711", "9.0.x"],
+                "manage": ["9.1.x-i5711", "9.0.x"],
                 "monitor": ["9.0.x"],
-                "optimizer": ["9.1.x-issue-MASCORE-5711", "9.0.x"],
+                "optimizer": ["9.1.x-i5711", "9.0.x"],
                 "predict": ["9.0.x"],
-                "visualinspection": ["9.1.x-issue-MASCORE-5711", "9.0.x"],
+                "visualinspection": ["9.1.x-i5711", "9.0.x"],
                 "aibroker": ["9.0.x"],
             },
             "9.0.x": {
@@ -194,11 +194,11 @@ class BaseApp(PrintMixin, PromptMixin):
             "8.10.x": " - <u>https://ibm.biz/MAS810-License</u>",
             "8.11.x": " - <u>https://ibm.biz/MAS811-License</u>\n - <u>https://ibm.biz/MAXIT81-License</u>",
             "9.0.x": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>",
-            "9.1.x-issue-MASCORE-5711": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
+            "9.1.x-i5711": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
         }
 
         self.upgrade_path = {
-            "9.0.x": "9.1.x-issue-MASCORE-5711",
+            "9.0.x": "9.1.x-i5711",
             "8.11.x": "9.0.x",
             "8.10.x": "8.11.x",
             "8.9.x": "8.10.x",
