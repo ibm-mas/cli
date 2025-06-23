@@ -87,6 +87,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td>v9-250624</td>
           <td><a href="v9-250624-amd64/">amd64</a></td>
           <td><a href="v9-250624-s390x/">s390x</a></td>
+          <td><a href="v9-250624-ppc64le/">ppc64le</a></td>
           <td>4.14 - 4.18</td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
