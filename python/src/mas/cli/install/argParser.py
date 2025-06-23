@@ -170,7 +170,12 @@ masAdvancedArgGroup.add_argument(
     required=False,
     help="Configure MAS with a custom domain"
 )
-
+masAdvancedArgGroup.add_argument(
+    "--mas-annotations",
+    dest="mas_annotations",
+    required=False,
+    help="Configure MAS with suite annotations"
+)
 masAdvancedArgGroup.add_argument(
     "--disable-walkme",
     dest="mas_enable_walkme",
