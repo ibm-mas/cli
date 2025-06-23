@@ -3,11 +3,11 @@
 # Update all the placeholders in the doc source
 # Make sure not to commit these changes if you run this script locally
 find docs -type f -name '*.md' -exec sed -i \
-  -e 's/@@CLI_LATEST_VERSION@@/13.22.0/g' \
-  -e 's/@@MAS_PREVIOUS_CHANNEL@@/8.11.x/g' \
+  -e 's/@@CLI_LATEST_VERSION@@/13.26.0/g' \
+  -e 's/@@MAS_PREVIOUS_CHANNEL@@/9.0.x/g' \
   -e 's/@@MAS_PREVIOUS_CATALOG@@/v9-250501-amd64/g' \
-  -e 's/@@MAS_LATEST_CHANNEL@@/9.0.x/g' \
-  -e 's/@@MAS_LATEST_CHANNEL_MANAGE@@/9.0.x/g' \
+  -e 's/@@MAS_LATEST_CHANNEL@@/9.1.x/g' \
+  -e 's/@@MAS_LATEST_CHANNEL_MANAGE@@/9.1.x/g' \
   -e 's/@@MAS_LATEST_CATALOG@@/v9-250624-amd64/g' \
   {} \;
 
