@@ -47,7 +47,7 @@ Interactive Install
 -------------------------------------------------------------------------------
 Regardless of whether you are running a connected or disconnected installation, simply run the `mas aiservice-install` command and follow the prompts, the basic structure of the interactive flow is described below.  
 
-We will need the `entitlement.lic` file to perform the installation so we will mount your home directory into the running container.  When prompted you will be able to set license file to `/mnt/home/entitlement.lic` - This is a prerequisite step, required only when `sls` has not been installed previously. 
+We will need the `entitlement.lic` file to perform the installation so we will mount your home directory into the running container.  When prompted you will be able to set license file to `/mnt/home/entitlement.lic` - <b> This is a prerequisite step, required only when `sls` has not been installed previously. </b>
 
 ```bash
 docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ mas aiservice-install
@@ -79,32 +79,19 @@ The interactive install will guide you through a series of questioned designed t
       <p>Provide the location of your license file, contact information, and IBM entitlement key (if you have set the <code>IBM_ENTITLEMENT_KEY</code> environment variable then this field will be pre-filled with that value already).</p>
     </cds-accordion-item>
     <cds-accordion-item title="Configure your Aiservice Instance">
-      <p>Provide the basic information about your MAS instance:</p>
+      <p>Provide the basic information about your Aiservice instance:</p>
       <ul>
         <li>Instance ID</li>
-        <li>Workspace ID</li>
-        <li>Workspace Display Name</li>
+        <li>Aiservice Channel</li>
+        <li>Choose what dependency to be Installed</li>
         <li>Operational Mode (production or non-production)</li>
-      </ul>
-    </cds-accordion-item>
-    <cds-accordion-item title="Advanced Settings">
-      <p>You will also be able to configure the following advanced settings:</p>
-      <ul>
-        <li>Single Sign-On (SSO)</li>
-        <li>Whether to allow special character in User IDs and Usernames</li>
-        <li>Whether Guided Tours are enabled</li>
       </ul>
     </cds-accordion-item>
     <cds-accordion-item title="Configure Databases">
       <p>The install supports the automatic provision of in-cluster MongoDb and Db2 databases for use with Maximo Application Suite, you may also choose to bring your own (BYO) by providing the necessary configuration files (which the installer will also help you create).</p>
     </cds-accordion-item>
     <cds-accordion-item title="Configure Integrations & Additional Configuration">
-      <p>The install supports the abilty to install and configure Turbonomic's Kubeturbo operator and the Grafana Community Operator.  Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.</p>
-      <p>If you provided one or more configurations for BYO databases then additional configurations will already be enabled and pointing at the directory you chose earlier.</p>
-    </cds-accordion-item>
-    <cds-accordion-item title="Pod Templates">
-      <p>You can choose between three pre-defined pod templates allowing you to configure MAS in each of the standard Kubernetes quality of service (QoS) levels: Burstable, <a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/best-effort">BestEffort</a> and <a href="https://github.com/ibm-mas/cli/blob/master/image/cli/mascli/templates/pod-templates/guaranteed">Guaranteed. By default MAS applications are deployed with a Burstable QoS.</p>
-      <p>Additionally, you may provide your own custom pod templates definition by providing the directory containing your configuration files. More information on podTemplates can be found in the <a href="https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=configuring-customizing-workloads">product documentation</a>.  Note that pod templating support is only available from IBM Maximo Application Suite v8.11 onwards</p>
+      <p>The install supports the abilty to install and configure Turbonomic's Kubeturbo operator.</p>
     </cds-accordion-item>
     <cds-accordion-item title="Review Choices">
       <p>Before the install actually starts you will be presented with a summary of all your choices and a non-interactive command that will allow you to repeat the same installation without going through all the prompts again.</p>
@@ -151,8 +138,8 @@ The engine that performs all tasks is written in Ansible, you can directly use t
 
 - IBM Maximo Operator Catalog installation
 - Required dependency installation:
-    - MongoDb (Community Edition)
-    - IBM Suite License Service
+    - MongoDb (Community Edition) - only needed when want to install SLS.
+    - IBM Suite License Service (installed instance of SLS also can be used).
     - IBM Data Reporter Operator
     - Red Hat Certificate Manager
     - Minio
