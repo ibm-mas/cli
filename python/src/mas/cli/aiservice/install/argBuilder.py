@@ -12,7 +12,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# TODO: Remove all the args that aren't used by the install-aiservice command
+# TODO: Clean this up so that it is specific for aiservice-install command
 
 
 class aiServiceInstallArgBuilderMixin():
