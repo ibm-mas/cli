@@ -29,7 +29,6 @@ from ..cli import BaseApp
 from ..gencfg import ConfigGeneratorMixin
 from .argBuilder import installArgBuilderMixin
 from .argParser import installArgParser
-from .argParserAiservice import installArgParserAiservice
 from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
 from .params import requiredParams, optionalParams
@@ -59,8 +58,7 @@ from mas.devops.tekton import (
     preparePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
-    launchInstallPipeline,
-    launchInstallPipelineForAiservice
+    launchInstallPipeline
 )
 
 logger = logging.getLogger(__name__)
@@ -668,10 +666,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installInspection:
             self.configAppChannel("visualinspection")
 
-        self.installAiBroker = self.yesOrNo("Install AI Broker")
-        if self.installAiBroker:
-            self.configAppChannel("aibroker")
-
         if isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.1.x-feature':
             self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
             if self.installFacilities:
@@ -910,7 +904,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.optimizerSettings()
         self.predictSettings()
         self.assistSettings()
-        self.aibrokerSettings()
         self.facilitiesSettings()
 
         # Dependencies
@@ -941,7 +934,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installPredict = False
         self.installInspection = False
         self.installOptimizer = False
-        self.installAiBroker = False
         self.installFacilities = False
         self.deployCP4D = False
         self.db2SetAffinity = False
@@ -1040,10 +1032,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_visualinspection", value)
                     self.installInspection = True
-            elif key == "aibroker_channel":
-                if value is not None and value != "":
-                    self.setParam("mas_app_channel_aibroker", value)
-                    self.installAiBroker = True
             elif key == "optimizer_channel":
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_optimizer", value)
@@ -1219,10 +1207,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             self.nonInteractiveMode()
 
-        # If User want to install aibroker for version 9.1.x or above then we have different command "mas aiservice-install" ( standalone aiservice )
-        if self.installAiBroker and self.getParam("mas_app_channel_aibroker") != "9.0.x":
-            self.fatalError('mas install Not support aibroker for version 9.1.x or above please use mas aiservice-install')
-
         # After we've configured the basic inputs, we can calculate these ones
         self.setIoTStorageClasses()
         if self.deployCP4D:
@@ -1233,6 +1217,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.podTemplates()
         self.slsLicenseFile()
         self.manualCertificates()
+
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
         self.printDescription([
@@ -1326,516 +1311,3 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 # Disable this approval workload
                 logger.debug(f"Approval workflow for {approval['id']} will be disabled during install")
                 self.initializeApprovalConfigMap(namespace, approval['id'], False)
-
-
-class InstallAiService(InstallApp):
-    @logMethodCall
-    def processCatalogChoice(self) -> list:
-        self.catalogDigest = self.chosenCatalog["catalog_digest"]
-        self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
-        applications = {
-            "Aibroker": "mas_aibroker_version",
-        }
-
-        self.catalogReleases = {}
-        self.catalogTable = []
-
-        # Dynamically fetch the channels from the chosen catalog
-        # based on mas core
-        for channel in self.chosenCatalog["mas_core_version"]:
-            # {"9.1-feature": "9.1.x-feature"}
-            self.catalogReleases.update({channel.replace('.x', ''): channel})
-
-        # Generate catalogTable
-        for application, key in applications.items():
-            # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
-            tempChosenCatalog = self.chosenCatalog[key].copy()
-            if '9.1.x-feature' not in tempChosenCatalog:
-                tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
-
-            self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
-
-        if self.architecture == "s390x":
-            summary = [
-                "",
-                "<u>Catalog Details</u>",
-                f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
-                f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
-                f"MongoDb:               {self.catalogMongoDbVersion}",
-            ]
-        else:
-            summary = [
-                "",
-                "<u>Catalog Details</u>",
-                f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
-                f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
-                f"MongoDb:               {self.catalogMongoDbVersion}",
-            ]
-
-        return summary
-
-    @logMethodCall
-    def configAibroker(self):
-        self.printH1("Configure Aibroker Instance")
-        self.printDescription([
-            "Instance ID restrictions:",
-            " - Must be 3-12 characters long",
-            " - Must only use lowercase letters, numbers, and hypen (-) symbol",
-            " - Must start with a lowercase letter",
-            " - Must end with a lowercase letter or a number"
-        ])
-        self.promptForString("Instance ID", "aibroker_instance_id", validator=InstanceIDFormatValidator())
-
-        if self.slsMode == 2 and not self.getParam("sls_namespace"):
-            self.setParam("sls_namespace", f"mas-{self.getParam('aibroker_instance_id')}-sls")
-
-        self.configOperationMode()
-        self.configCATrust()
-        self.configDNSAndCerts()
-
-    @logMethodCall
-    def configDNSAndCertsCloudflare(self):
-        # User has chosen to set up DNS integration with Cloudflare
-        self.setParam("dns_provider", "cloudflare")
-        self.promptForString("Cloudflare e-mail", "cloudflare_email")
-        self.promptForString("Cloudflare API token", "cloudflare_apitoken")
-        self.promptForString("Cloudflare zone", "cloudflare_zone")
-        self.promptForString("Cloudflare subdomain", "cloudflare_subdomain")
-
-        self.printDescription([
-            "Certificate Issuer:",
-            "  1. LetsEncrypt (Production)",
-            "  2. LetsEncrypt (Staging)",
-            "  3. Self-Signed"
-        ])
-        certIssuer = self.promptForInt("Certificate issuer")
-        certIssuerOptions = [
-            f"{self.getParam('aibroker_instance_id')}-cloudflare-le-prod",
-            f"{self.getParam('aibroker_instance_id')}-cloudflare-le-stg",
-            ""
-        ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
-
-    @logMethodCall
-    def configDNSAndCertsCIS(self):
-        self.setParam("dns_provider", "cis")
-        self.promptForString("CIS e-mail", "cis_email")
-        self.promptForString("CIS API token", "cis_apikey")
-        self.promptForString("CIS CRN", "cis_crn")
-        self.promptForString("CIS subdomain", "cis_subdomain")
-
-        self.printDescription([
-            "Certificate Issuer:",
-            "  1. LetsEncrypt (Production)",
-            "  2. LetsEncrypt (Staging)",
-            "  3. Self-Signed"
-        ])
-        certIssuer = self.promptForInt("Certificate issuer")
-        certIssuerOptions = [
-            f"{self.getParam('aibroker_instance_id')}-cis-le-prod",
-            f"{self.getParam('aibroker_instance_id')}-cis-le-stg",
-            ""
-        ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
-
-    @logMethodCall
-    def configDNSAndCertsRoute53(self):
-        self.setParam("dns_provider", "route53")
-        self.printDescription([
-            "Provide your AWS account access key ID & secret access key",
-            "This will be used to authenticate into the AWS account where your AWS Route 53 hosted zone instance is located",
-            ""
-        ])
-        self.promptForString("AWS Access Key ID", "aws_access_key_id", isPassword=True)
-        self.promptForString("AWS Secret Access Key", "aws_secret_access_key", isPassword=True)
-
-        self.printDescription([
-            "Provide your AWS Route 53 hosted zone instance details",
-            "This information will be used to create webhook resources between your cluster and your AWS Route 53 instance (cluster issuer and cname records)",
-            "in order for it to be able to resolve DNS entries for all the subdomains created for your Maximo Application Suite instance",
-            "",
-            "Therefore, the AWS Route 53 subdomain + the AWS Route 53 hosted zone name defined, when combined, needs to match with the chosen MAS Top Level domain, otherwise the DNS records won't be able to get resolved"
-        ])
-        self.promptForString("AWS Route 53 hosted zone name", "route53_hosted_zone_name")
-        self.promptForString("AWS Route 53 hosted zone region", "route53_hosted_zone_region")
-        self.promptForString("AWS Route 53 subdomain", "route53_subdomain")
-        self.promptForString("AWS Route 53 e-mail", "route53_email")
-
-        self.setParam("mas_cluster_issuer", f"{self.getParam('aibroker_instance_id')}-route53-le-prod")
-
-    @logMethodCall
-    def configAppChannel(self, appId):
-        self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel for Aibroker</Yellow> '))
-
-    @logMethodCall
-    def interactiveMode(self, simplified: bool, advanced: bool) -> None:
-        # Interactive mode
-        self.interactiveMode = True
-
-        self.storageClassProvider = "custom"
-        self.installAssist = False
-        self.installIoT = False
-        self.installMonitor = False
-        self.installManage = False
-        self.installPredict = False
-        self.installInspection = False
-        self.installOptimizer = False
-        self.installFacilities = False
-        self.installAiBroker = True
-        self.deployCP4D = False
-        self.db2SetAffinity = False
-        self.db2SetTolerations = False
-        self.slsLicenseFileLocal = None
-
-        if simplified:
-            self.showAdvancedOptions = False
-        elif advanced:
-            self.showAdvancedOptions = True
-        else:
-            self.chooseInstallFlavour()
-
-        # Catalog
-        self.configCatalog()
-        if not self.devMode:
-            self.validateCatalogSource()
-            self.licensePrompt()
-
-        # SNO & Storage Classes
-        self.configSNO()
-        self.configStorageClasses()
-
-        # Licensing (SLS and DRO)
-        self.configSLS()
-        self.configDRO()
-        self.configICRCredentials()
-
-        self.configCertManager()
-        self.configAibroker()
-
-        self.configAppChannel("aibroker")
-
-        self.validateInternalRegistryAvailable()
-        self.aibrokerSettings()
-
-        # Dependencies
-        self.configMongoDb()
-        self.configDb2()
-
-        self.configTurbonomic()
-
-    @logMethodCall
-    def nonInteractiveMode(self) -> None:
-        self.interactiveMode = False
-
-        # Set defaults
-        # ---------------------------------------------------------------------
-        # Unless a config file named "mongodb-system.yaml" is provided via the additional configs mechanism we will be installing a new MongoDb instance
-        self.setParam("mongodb_action", "install")
-
-        self.storageClassProvider = "custom"
-        self.installAssist = False
-        self.installIoT = False
-        self.installMonitor = False
-        self.installManage = False
-        self.installPredict = False
-        self.installInspection = False
-        self.installFacilities = False
-        self.installOptimizer = False
-        self.installAiBroker = True
-        self.deployCP4D = False
-        self.db2SetAffinity = False
-        self.db2SetTolerations = False
-        self.slsLicenseFileLocal = None
-
-        self.approvals = {
-            "approval_aibroker": {"id": "app-cfg-aibroker"},  # After Aibroker workspace has been configured
-        }
-
-        self.configSNO()
-        self.setDB2DefaultSettings()
-
-        for key, value in vars(self.args).items():
-            # These fields we just pass straight through to the parameters and fail if they are not set
-            if key in requiredParams:
-                if value is None and key != 'mas_channel':
-                    self.fatalError(f"{key} must be set")
-                self.setParam(key, value)
-
-            # These fields we just pass straight through to the parameters
-            elif key in optionalParams:
-                if value is not None:
-                    self.setParam(key, value)
-
-            elif key == "non_prod":
-                if not value:
-                    self.operationalMode = 1
-                else:
-                    self.operationalMode = 2
-                    self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
-
-            elif key == "additional_configs":
-                self.localConfigDir = value
-                # If there is a file named mongodb-system.yaml we will use this as a BYO MongoDB datasource
-                if self.localConfigDir is not None and path.exists(path.join(self.localConfigDir, "mongodb-system.yaml")):
-                    self.setParam("mongodb_action", "byo")
-                    self.setParam("sls_mongodb_cfg_file", "/workspace/additional-configs/mongodb-system.yaml")
-
-            elif key == "pod_templates":
-                # For the named configurations we will convert into the path
-                if value in ["best-effort", "guaranteed"]:
-                    self.setParam("mas_pod_templates_dir", path.join(self.templatesDir, "pod-templates", value))
-                else:
-                    self.setParam("mas_pod_templates_dir", value)
-
-            # We check for both None and "" values for the application channel parameters
-            # value = None means the parameter wasn't set at all
-            # value = "" means the paramerter was explicitly set to "don't install this application"
-            elif key == "aibroker_channel":
-                if value is not None and value != "":
-                    self.setParam("mas_app_channel_aibroker", value)
-                    self.installAiBroker = True
-
-            # Manage advanced settings that need extra processing
-            elif key == "mas_app_settings_server_bundle_size":
-                if value is not None:
-                    self.setParam(key, value)
-                    if value in ["jms", "snojms"]:
-                        self.setParam("mas_app_settings_persistent_volumes_flag", "true")
-
-            # MongoDB
-            elif key == "mongodb_namespace":
-                if value is not None and value != "":
-                    self.setParam(key, value)
-                    self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
-
-            # SLS
-            elif key == "license_file":
-                if value is not None and value != "":
-                    self.slsLicenseFileLocal = value
-                    self.setParam("sls_action", "install")
-            elif key == "dedicated_sls":
-                if value:
-                    self.setParam("sls_namespace", f"mas-{self.args.aibroker_instance_id}-sls")
-
-            # These settings are used by the CLI rather than passed to the PipelineRun
-            elif key == "storage_accessmode":
-                if value is None:
-                    self.fatalError(f"{key} must be set")
-                self.pipelineStorageAccessMode = value
-            elif key == "storage_pipeline":
-                if value is None:
-                    self.fatalError(f"{key} must be set")
-                self.pipelineStorageClass = value
-
-            elif key.startswith("approval_"):
-                if key not in self.approvals:
-                    raise KeyError(f"{key} is not a supported approval workflow ID: {self.approvals.keys()}")
-
-                if value != "":
-                    valueParts = value.split(":")
-                    if len(valueParts) != 3:
-                        self.fatalError(f"Unsupported format for {key} ({value}).  Expected MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE")
-                    else:
-                        try:
-                            self.approvals[key]["maxRetries"] = int(valueParts[0])
-                            self.approvals[key]["retryDelay"] = int(valueParts[1])
-                            self.approvals[key]["ignoreFailure"] = bool(valueParts[2])
-                        except ValueError:
-                            self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
-
-            # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help", "advanced", "simplified"]:
-                pass
-
-            elif key == "manual_certificates":
-                if value is not None:
-                    self.setParam("mas_manual_cert_mgmt", True)
-                    self.manualCertsDir = value
-                else:
-                    self.setParam("mas_manual_cert_mgmt", False)
-                    self.manualCertsDir = None
-
-            elif key == "enable_ipv6":
-                self.setParam("enable_ipv6", True)
-
-            # Fail if there's any arguments we don't know how to handle
-            else:
-                print(f"Unknown option: {key} {value}")
-                self.fatalError(f"Unknown option: {key} {value}")
-
-            # Configure Storage and Access mode
-            self.manageStorageAndAccessMode()
-
-        # Load the catalog information
-        self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
-
-        # License file is only optional for existing SLS instance
-        if self.slsLicenseFileLocal is None:
-            if self.getParam("install_sls_aiservice") != "false":
-                self.fatalError("--license-file must be set for new SLS install")
-
-        # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
-        if not self.devMode:
-            self.validateCatalogSource()
-            self.licensePrompt()
-
-    @logMethodCall
-    def install(self, argv):
-        """
-        Install Aiservice
-        """
-        args = installArgParserAiservice.parse_args(args=argv)
-
-        # We use the presence of --mas-instance-id to determine whether
-        # the CLI is being started in interactive mode or not
-        instanceId = args.aibroker_instance_id
-
-        # Properties for arguments that control the behavior of the CLI
-        self.noConfirm = args.no_confirm
-        self.waitForPVC = not args.no_wait_for_pvc
-        self.licenseAccepted = args.accept_license
-        self.devMode = args.dev_mode
-
-        # Set image_pull_policy of the CLI in interactive mode
-        if args.image_pull_policy and args.image_pull_policy != "":
-            self.setParam("image_pull_policy", args.image_pull_policy)
-
-        self.approvals = {}
-
-        # Store all args
-        self.args = args
-
-        # These flags work for setting params in both interactive and non-interactive modes
-        if args.skip_pre_check:
-            self.setParam("skip_pre_check", "true")
-
-        if instanceId is None:
-            self.printH1("Set Target OpenShift Cluster")
-            # Connect to the target cluster
-            self.connect()
-        else:
-            logger.debug("Aiservice instance ID is set, so we assume already connected to the desired OCP")
-            self.lookupTargetArchitecture()
-
-        if self.dynamicClient is None:
-            print_formatted_text(HTML("<Red>Error: The Kubernetes dynamic Client is not available.  See log file for details</Red>"))
-            exit(1)
-
-        # Perform a check whether the cluster is set up for airgap install, this will trigger an early failure if the cluster is using the now
-        # deprecated MaximoApplicationSuite ImageContentSourcePolicy instead of the new ImageDigestMirrorSet
-        self.isAirgap()
-
-        # Configure the installOptions for the appropriate architecture
-        self.catalogOptions = supportedCatalogs[self.architecture]
-
-        # Basic settings before the user provides any input
-        self.configICR()
-        self.configCertManager()  # TODO: I think this is redundant, we should look to remove this and the appropriate params in the install pipeline
-        self.deployCP4D = False
-
-        # UDS install has not been supported since the January 2024 catalog update
-        self.setParam("uds_action", "install-dro")
-
-        # User must either provide the configuration via numerous command line arguments, or the interactive prompts
-        if instanceId is None:
-            self.interactiveMode(simplified=args.simplified, advanced=args.advanced)
-        else:
-            self.nonInteractiveMode()
-
-        # Set up the secrets for additional configs, podtemplates, sls license file and manual certificates
-        self.additionalConfigs()
-        self.podTemplates()
-        self.slsLicenseFile()
-        self.manualCertificates()
-
-        # Show a summary of the installation configuration
-        self.printH1("Non-Interactive Install Command")
-        self.printDescription([
-            "Save and re-use the following script to re-run this install without needing to answer the interactive prompts again",
-            "",
-            self.buildCommand()
-        ])
-
-        # Based on the parameters set the annotations correctly
-        self.configAnnotations()
-
-        self.displayInstallSummary()
-
-        if not self.noConfirm:
-            print()
-            self.printDescription([
-                "Please carefully review your choices above, correcting mistakes now is much easier than after the install has begun"
-            ])
-            continueWithInstall = self.yesOrNo("Proceed with these settings")
-
-        # Prepare the namespace and launch the installation pipeline
-        if self.noConfirm or continueWithInstall:
-            self.createTektonFileWithDigest()
-
-            self.printH1("Launch Install")
-            pipelinesNamespace = f"mas-{self.getParam('aibroker_instance_id')}-pipelines"
-
-            if not self.noConfirm:
-                self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
-                wait = self.yesOrNo("Wait for PVCs to bind")
-            else:
-                wait = False
-
-            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
-                installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
-
-            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
-                createNamespace(self.dynamicClient, pipelinesNamespace)
-                preparePipelinesNamespace(
-                    dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aibroker_instance_id"),
-                    storageClass=self.pipelineStorageClass,
-                    accessMode=self.pipelineStorageAccessMode,
-                    waitForBind=wait,
-                    configureRBAC=(self.getParam("service_account_name") == "")
-                )
-                prepareInstallSecrets(
-                    dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aibroker_instance_id"),
-                    slsLicenseFile=self.slsLicenseFileSecret,
-                    additionalConfigs=self.additionalConfigsSecret,
-                    podTemplates=self.podTemplatesSecret,
-                    certs=self.certsSecret
-                )
-
-                self.setupApprovals(pipelinesNamespace)
-
-                h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
-
-            with Halo(text='Testing availability of MAS CLI image in cluster', spinner=self.spinner) as h:
-                testCLI()
-                h.stop_and_persist(symbol=self.successIcon, text="MAS CLI image deployment test completed")
-
-            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
-                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
-                h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
-
-            with Halo(text=f"Submitting PipelineRun for {self.getParam('aibroker_instance_id')} install", spinner=self.spinner) as h:
-                pipelineURL = launchInstallPipelineForAiservice(dynClient=self.dynamicClient, params=self.params)
-                if pipelineURL is not None:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aibroker_instance_id')} install submitted")
-                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
-                else:
-                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('aibroker_instance_id')} install, see log file for details")
-                    print()
-
-    @logMethodCall
-    def setupApprovals(self, namespace: str) -> None:
-        """
-        Ensure the supported approval configmaps are in the expected state for the start of the run:
-         - not present (if approval is not required)
-         - present with the chosen state field initialized to ""
-        """
-        for approval in self.approvals.values():
-            if "maxRetries" in approval:
-                # Enable this approval workload
-                logger.debug(f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['ignoreFailure']})")
-                self.initializeApprovalConfigMap(namespace, approval['id'], True, approval['maxRetries'], approval['retryDelay'], approval['ignoreFailure'])

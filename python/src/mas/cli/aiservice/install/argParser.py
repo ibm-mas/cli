@@ -11,8 +11,8 @@
 import argparse
 from os import path
 
-from .. import __version__ as packageVersion
-from ..cli import getHelpFormatter
+from ... import __version__ as packageVersion
+from ...cli import getHelpFormatter
 
 
 def isValidFile(parser, arg) -> str:
@@ -22,7 +22,7 @@ def isValidFile(parser, arg) -> str:
         return arg
 
 
-installArgParserAiservice = argparse.ArgumentParser(
+aiServiceinstallArgParser = argparse.ArgumentParser(
     prog="mas install-aiservice",
     description="\n".join([
         f"IBM Maximo Application Suite Admin CLI v{packageVersion}",
@@ -37,7 +37,7 @@ installArgParserAiservice = argparse.ArgumentParser(
 
 # MAS Catalog Selection & Entitlement
 # -----------------------------------------------------------------------------
-catArgGroup = installArgParserAiservice.add_argument_group("MAS Catalog Selection & Entitlement")
+catArgGroup = aiServiceinstallArgParser.add_argument_group("MAS Catalog Selection & Entitlement")
 catArgGroup.add_argument(
     "-c", "--mas-catalog-version",
     required=False,
@@ -56,7 +56,7 @@ catArgGroup.add_argument(
 
 # Aibroker Basic Configuration
 # -----------------------------------------------------------------------------
-masArgGroup = installArgParserAiservice.add_argument_group("Aibroker Basic Configuration")
+masArgGroup = aiServiceinstallArgParser.add_argument_group("Aibroker Basic Configuration")
 masArgGroup.add_argument(
     "-i", "--aibroker-instance-id",
     required=False,
@@ -65,7 +65,7 @@ masArgGroup.add_argument(
 
 # MAS Advanced Configuration
 # -----------------------------------------------------------------------------
-masAdvancedArgGroup = installArgParserAiservice.add_argument_group("MAS Advanced Configuration")
+masAdvancedArgGroup = aiServiceinstallArgParser.add_argument_group("MAS Advanced Configuration")
 masAdvancedArgGroup.add_argument(
     "--additional-configs",
     required=False,
@@ -137,7 +137,7 @@ masAdvancedArgGroup.add_argument(
 
 # DNS Configuration - IBM CIS
 # -----------------------------------------------------------------------------
-cisArgGroup = installArgParserAiservice.add_argument_group("DNS Configuration - CIS")
+cisArgGroup = aiServiceinstallArgParser.add_argument_group("DNS Configuration - CIS")
 cisArgGroup.add_argument(
     "--cis-email",
     dest="cis_email",
@@ -165,7 +165,7 @@ cisArgGroup.add_argument(
 
 # Storage
 # -----------------------------------------------------------------------------
-storageArgGroup = installArgParserAiservice.add_argument_group("Storage")
+storageArgGroup = aiServiceinstallArgParser.add_argument_group("Storage")
 storageArgGroup.add_argument(
     "--storage-class-rwo",
     required=False,
@@ -190,12 +190,12 @@ storageArgGroup.add_argument(
 
 # IBM Suite License Service
 # -----------------------------------------------------------------------------
-slsArgGroup = installArgParserAiservice.add_argument_group("IBM Suite License Service")
+slsArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Suite License Service")
 slsArgGroup.add_argument(
     "--license-file",
     required=False,
     help="Path to MAS license file",
-    type=lambda x: isValidFile(installArgParserAiservice, x)
+    type=lambda x: isValidFile(aiServiceinstallArgParser, x)
 )
 slsArgGroup.add_argument(
     "--sls-namespace",
@@ -212,7 +212,7 @@ slsArgGroup.add_argument(
 
 # IBM Data Reporting Operator (DRO)
 # -----------------------------------------------------------------------------
-droArgGroup = installArgParserAiservice.add_argument_group("IBM Data Reporting Operator (DRO)")
+droArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Data Reporting Operator (DRO)")
 droArgGroup.add_argument(
     "--uds-email",
     dest="uds_contact_email",
@@ -239,7 +239,7 @@ droArgGroup.add_argument(
 
 # MongoDb Community Operator
 # -----------------------------------------------------------------------------
-mongoArgGroup = installArgParserAiservice.add_argument_group("MongoDb Community Operator")
+mongoArgGroup = aiServiceinstallArgParser.add_argument_group("MongoDb Community Operator")
 mongoArgGroup.add_argument(
     "--mongodb-namespace",
     required=False,
@@ -248,7 +248,7 @@ mongoArgGroup.add_argument(
 
 # OCP Configuration
 # -----------------------------------------------------------------------------
-ocpArgGroup = installArgParserAiservice.add_argument_group("OCP Configuration")
+ocpArgGroup = aiServiceinstallArgParser.add_argument_group("OCP Configuration")
 ocpArgGroup.add_argument(
     "--ocp-ingress-tls-secret-name",
     required=False,
@@ -257,7 +257,7 @@ ocpArgGroup.add_argument(
 
 # MAS Applications
 # -----------------------------------------------------------------------------
-masAppsArgGroup = installArgParserAiservice.add_argument_group("MAS Applications")
+masAppsArgGroup = aiServiceinstallArgParser.add_argument_group("MAS Applications")
 
 masAppsArgGroup.add_argument(
     "--aibroker-channel",
@@ -267,7 +267,7 @@ masAppsArgGroup.add_argument(
 
 # AI Broker
 # -----------------------------------------------------------------------------
-aibrokerArgGroup = installArgParserAiservice.add_argument_group("Maximo AI Broker")
+aibrokerArgGroup = aiServiceinstallArgParser.add_argument_group("Maximo AI Broker")
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-storage-provider",
     dest="mas_aibroker_storage_provider",
@@ -623,7 +623,7 @@ aibrokerArgGroup.add_argument(
 )
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------
-db2ArgGroup = installArgParserAiservice.add_argument_group("IBM Db2 Universal Operator")
+db2ArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Db2 Universal Operator")
 db2ArgGroup.add_argument(
     "--db2-namespace",
     required=False,
@@ -746,7 +746,7 @@ db2ArgGroup.add_argument(
 
 # Turbonomic Integration
 # -----------------------------------------------------------------------------
-turboArgGroup = installArgParserAiservice.add_argument_group("Turbonomic Integration")
+turboArgGroup = aiServiceinstallArgParser.add_argument_group("Turbonomic Integration")
 turboArgGroup.add_argument(
     "--turbonomic-name",
     dest="turbonomic_target_name",
@@ -780,7 +780,7 @@ turboArgGroup.add_argument(
 
 # Cloud Providers
 # -----------------------------------------------------------------------------
-cloudArgGroup = installArgParserAiservice.add_argument_group("Cloud Providers")
+cloudArgGroup = aiServiceinstallArgParser.add_argument_group("Cloud Providers")
 cloudArgGroup.add_argument(
     "--ibmcloud-apikey",
     required=False,
@@ -809,7 +809,7 @@ cloudArgGroup.add_argument(
 
 # Development Mode
 # -----------------------------------------------------------------------------
-devArgGroup = installArgParserAiservice.add_argument_group("Development Mode")
+devArgGroup = aiServiceinstallArgParser.add_argument_group("Development Mode")
 devArgGroup.add_argument(
     "--artifactory-username",
     required=False,
@@ -823,7 +823,7 @@ devArgGroup.add_argument(
 
 # Approvals
 # -----------------------------------------------------------------------------
-approvalsGroup = installArgParserAiservice.add_argument_group("Integrated Approval Workflow (MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
+approvalsGroup = aiServiceinstallArgParser.add_argument_group("Integrated Approval Workflow (MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
 approvalsGroup.add_argument(
     "--approval-aibroker",
     default="",
@@ -832,7 +832,7 @@ approvalsGroup.add_argument(
 
 # More Options
 # -----------------------------------------------------------------------------
-otherArgGroup = installArgParserAiservice.add_argument_group("More")
+otherArgGroup = aiServiceinstallArgParser.add_argument_group("More")
 otherArgGroup.add_argument(
     "--advanced",
     action="store_true",
