@@ -103,7 +103,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td>v9-250501</td>
           <td><a href="v9-250501-amd64/">amd64</a></td>
           <td><a href="v9-250501-s390x/">s390x</a></td>
-          <td></td>
+          <td>N/A</td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -114,7 +114,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td>v9-250403</td>
           <td><a href="v9-250403-amd64/">amd64</a></td>
           <td><a href="v9-250403-s390x/">s390x</a></td>
-          <td></td>
+          <td>N/A</td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -125,7 +125,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td>v9-250306</td>
           <td><a href="v9-250306-amd64/">amd64</a></td>
           <td><a href="v9-250306-s390x/">s390x</a></td>
-          <td></td>
+          <td>N/A</td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -136,7 +136,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td>v9-250206</td>
           <td><a href="v9-250206-amd64/">amd64</a></td>
           <td><a href="v9-250206-s390x/">s390x</a></td>
-          <td></td>
+          <td>N/A</td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -147,7 +147,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td>v9-250109</td>
           <td><a href="v9-250109-amd64/">amd64</a></td>
           <td><a href="v9-250109-s390x/">s390x</a></td>
-          <td></td>
+          <td>N/A</td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
