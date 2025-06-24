@@ -413,63 +413,6 @@ spec:
   </tr>
 </table>
 
-<h3 id="vendor-certification">Vendor Certification<a class="headerlink" href="#vendor-certification" title="Permanent link">¤</a></h3>
-<p>IBM Maximo Application Suite will run anywhere that you can run a supported OpenShift release on AMD64, we group vendor support into two categories:</p>
-<ul>
-<li><strong>Certified</strong> Maximo Application Suite is regularly deployed and tested on this OpenShift service during development.  We have extensive experience operating Maximo Application suite on this vendors service and understand the impact of any restrictions the vendor may impose on the operator of MAS.</li>
-<li><strong>Compatible</strong> Maximo Application Suite will run anywhere that you can run a supported OpenShift release, so it is compatible with this vendor's OpenShift service.  We are not aware of any restrictions imposed by the vendor that will impact running Maximo Application Suite however we do not test using this specific OpenShift offering.</li>
-</ul>
-<table class="compatabilityMatrix">
-  <tr>
-    <th>Vendor</th></td>
-    <th>Status</th></td>
-  </tr>
-  <tr>
-    <td class="firstColumn"><a href="https://www.ibm.com/cloud/openshift">Red Hat OpenShift on IBM Cloud (Classic)</a></td>
-    <td>Certified (using <code>ibmc-ibmc-block-gold</code> and <code>ibmc-file-gold-gid</code> storage classes)</td>
-  </tr>
-  <tr>
-    <td class="firstColumn"><a href="https://www.ibm.com/cloud/openshift">Red Hat OpenShift on IBM Cloud (VPC)</a></td>
-    <td>Compatible</td>
-  </tr>
-  <tr>
-    <td class="firstColumn"><a href="https://www.ibm.com/cloud/openshift">Red Hat OpenShift on IBM Cloud (Satellite)</a></td>
-    <td>Compatible</td>
-  </tr>
-  <tr>
-    <td class="firstColumn"><a href="https://techzone.ibm.com/collection/tech-zone-certified-base-images/journey-vmware-on-ibm-cloud-environments">IBM TechZone: OpenShift (VMware on IBM Cloud) - UPI - Public</a></td>
-    <td>Certified (using <code>managed-nfs-storage</code> storage class)</td>
-  </tr>
-  <tr>
-    <td class="firstColumn"><a href="https://aws.amazon.com/rosa/">Red Hat OpenShift Service on AWS (Classic)</a></td>
-    <td>Certified (using <code>gp3-csi</code> and <code>efs</code> storage classes)</td>
-  </tr>
-  <tr>
-    <td class="firstColumn"><a href="https://aws.amazon.com/rosa/">Red Hat OpenShift Service on AWS (HCP)</a></td>
-    <td>Compatible</td>
-  </tr>
-  <tr>
-    <td class="firstColumn"><a href="https://azure.microsoft.com/en-gb/services/openshift/">Azure Red Hat OpenShift</a></td>
-    <td>Compatible</td>
-  </tr>
-  <tr>
-    <td class="firstColumn"><a href="https://console.cloud.google.com/marketplace/product/redhat-marketplace/red-hat-openshift-dedicated">OpenShift Dedicated on GCP</a></td>
-    <td>Compatible</td>
-  </tr>
-  <tr>
-    <td class="firstColumn"><a href="https://www.oracle.com/cloud/red-hat/">Red Hat on OCI</a></td>
-    <td>Compatible</td>
-  </tr>
-</table>
-
-<div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>Do you want to see more vendor's offerings certified or checked for compatibility?</p>
-<p>Tell us in the <a href="https://ideas.ibm.com/">IBM Ideas Portal</a> (select product <strong>IBM MAS - Common Services</strong>).  Ideas have already been submitted for the following services:</p>
-<ul>
-<li><a href="https://ideas.ibm.com/ideas/MASSWAT-I-110">Azure Red Hat OpenShift</a></li>
-</ul>
-</div>
 <h3 id="certified-operators">Certified Operators<a class="headerlink" href="#certified-operators" title="Permanent link">¤</a></h3>
 <p>The following packages from the <code>registry.redhat.io/redhat/certified-operator-index</code> catalog are used in the Maximo Application Suite install:</p>
 <ul>
@@ -3521,7 +3464,7 @@ spec:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-06-24 13:35:56.321858+00:00)
+      Built with mkdocs v1.6.1 (2025-06-24 18:39:52.483212+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
