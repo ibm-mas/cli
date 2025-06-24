@@ -24,7 +24,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     <table>
       <thead>
         <tr>
-          <th colspan="3">Catalog</th>
+          <th colspan="4">Catalog</th>
           <th>OCP Support</th>
           <th>CPD Support</th>
           <th>MongoDB Support (CE or EE)</th>
