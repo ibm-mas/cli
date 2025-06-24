@@ -366,6 +366,13 @@ export REGISTRY_PASSWORD=xxx
 <pre><code class="language-bash">docker login $REGISTRY_HOST:$REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD
 oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.26.0 $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:13.26.0
 </code></pre>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to mirror Single architecture images, include the variable as explained below depending on your environment. Available list of arch images include "amd64", "ppc64le", "s390x". </p>
+</div>
+<pre><code class="language-bash">    export MIRROR_SINGLE_ARCH=amd64
+</code></pre>
+<p>export the variable in the mascli container before we begin to mirror images. This step helps save storage space else all the images with three architectures get downloaded. </p>
 <h3 id="stage-1-core">Stage 1 - Core<a class="headerlink" href="#stage-1-core" title="Permanent link">¤</a></h3>
 <p>Let's start simple and just get the MAS Core and IBM Maximo Operator Catalog mirrored to the registry, this shouldn't take long and provides an early measure of the download and upload performance to help estimate the time to complete the larger stages.</p>
 <p><cds-tabs trigger-content="Select an item" value="direct">
@@ -767,7 +774,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:13.26.0 $REGISTRY_HOST:$R
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-06-24 12:53:45.314546+00:00)
+      Built with mkdocs v1.6.1 (2025-06-24 13:36:01.993973+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
