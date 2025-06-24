@@ -240,12 +240,6 @@
 
     
       
-  <cds-side-nav-menu-item href="v9-250624-amd64/" >
-    Jun 05 2025
-  </cds-side-nav-menu-item>
-
-    
-      
   <cds-side-nav-menu-item href="v9-250501-amd64/" >
     May 01 2025
   </cds-side-nav-menu-item>
@@ -260,6 +254,12 @@
       
   <cds-side-nav-menu-item href="v9-250306-amd64/" >
     Mar 06 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="v9-250206-amd64/" >
+    Feb 06 2025
   </cds-side-nav-menu-item>
 
     
@@ -361,7 +361,7 @@
           <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
           <td style="font-style: italic">N/A</td>
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>
+        </tr>  
         <tr>
           <td style="font-style: italic">v9-251106</td>
           <td></td>
@@ -371,7 +371,7 @@
           <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
           <td style="font-style: italic">N/A</td>
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>
+        </tr>  
         <tr>
           <td style="font-style: italic">v9-251003</td>
           <td></td>
@@ -381,7 +381,7 @@
           <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
           <td style="font-style: italic">N/A</td>
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>
+        </tr>  
         <tr>
           <td style="font-style: italic">v9-250904</td>
           <td style="font-style: italic"></td>
@@ -391,7 +391,7 @@
           <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
           <td style="font-style: italic">N/A</td>
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>
+        </tr>  
         <tr>
           <td style="font-style: italic">v9-250807</td>
           <td style="font-style: italic"></td>
@@ -401,16 +401,16 @@
           <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
           <td style="font-style: italic">N/A</td>
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>
+        </tr>  
         <tr>
-          <td>v9-250624</td>
-          <td><a href="v9-250624-amd64/">amd64</a></td>
-          <td><a href="v9-250624-s390x/">s390x</a></td>
-          <td>4.14 - 4.18</td>
-          <td>5.1.3</td>
-          <td>6.0 - 7.0</td>
-          <td>N/A</td>
-          <td>OCP 4.18 EOS August 25, 2026</td>
+          <td style="font-style: italic">v9-250624</td>
+          <td style="font-style: italic"></td>
+          <td style="font-style: italic"></td>
+          <td style="font-style: italic">4.14 - 4.18 (TBC)</td>
+          <td style="font-style: italic">5.1.3 (TBC)</td>
+          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
         </tr>
         <tr>
           <td>v9-250501</td>
@@ -421,7 +421,7 @@
           <td>6.0 - 7.0</td>
           <td>latest</td>
           <td>OCP 4.16 EOS December 27, 2025</td>
-        </tr>
+        </tr>  
         <tr>
           <td>v9-250403</td>
           <td><a href="v9-250403-amd64/">amd64</a></td>
@@ -431,7 +431,7 @@
           <td>6.0 - 7.0</td>
           <td>latest</td>
           <td>OCP 4.16 EOS December 27, 2025</td>
-        </tr>
+        </tr>      
         <tr>
           <td>v9-250306</td>
           <td><a href="v9-250306-amd64/">amd64</a></td>
@@ -441,7 +441,7 @@
           <td>6.0 - 7.0</td>
           <td>latest</td>
           <td>OCP 4.16 EOS December 27, 2025</td>
-        </tr>
+        </tr>      
         <tr>
           <td>v9-250206</td>
           <td><a href="v9-250206-amd64/">amd64</a></td>
@@ -744,7 +744,7 @@
 <blockquote>
 <p>I want to control when updates are introduced into my cluster</p>
 </blockquote>
-<p>The packages available in the Maximo Operator Catalog are fixed. Multiple installations at different times will always result in exactly the same version of all IBM-provided operators being installed.  To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.  When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. <code>v9-250501-amd64</code> to <code>v9-250624-amd64</code>.</p>
+<p>The packages available in the Maximo Operator Catalog are fixed. Multiple installations at different times will always result in exactly the same version of all IBM-provided operators being installed.  To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.  When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. <code>v9-250403-amd64</code> to <code>v9-250501-amd64</code>.</p>
 <p>We <strong>strongly discourage the use of manual update approval strategy for operator subscriptions</strong> and all IBM-provided automation is designed to work with the automatic update approval strategy only.  In our experience the use of manual subscription approvals leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. We promote a model of <strong>controling when updates are introduced to a cluster at the catalog level</strong>.</p>
 <p>Updating the operators is only one aspect of keeping a system up to date, when using the MAS CLI <a href="../commands/update/">update</a> function many other additional actions will be performed autoamtically, if you are not using the MAS CLI to drive updates then you should implement your own processes for the non-operator update actions that are part of the MAS update pipeline.</p>
 <h4 id="repeatable-install">Repeatable Install<a class="headerlink" href="#repeatable-install" title="Permanent link">¤</a></h4>
@@ -756,7 +756,7 @@
 <blockquote>
 <p>I want to run a disconnected environment using a private mirror registry</p>
 </blockquote>
-<p>The MAS CLI <a href="../guides/image-mirroring/">mirror-images</a> function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the <a href="../commands/configure-airgap/">configure-airgap</a> function to add the IBM Maximo Application Suite <strong>ImageContentSourcePolicy</strong> to your cluster before starting the installation.</p>
+<p>The MAS CLI <a href="../guides/image-mirroring/">mirror-images</a> function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the <a href="../commands/configure-airgap/">configure-airgap</a> function to add the IBM Maximo Application Suite <strong>ImageDigestMirrorset</strong> to your cluster before starting the installation.</p>
 <h3 id="dynamic-catalog">Dynamic Catalog<a class="headerlink" href="#dynamic-catalog" title="Permanent link">¤</a></h3>
 <p>The legacy dynamic operator catalog is only supported for Maximo Application Suite v8 releases, if you use the dynamic catalog you will always have access to the latest operator updates without updating the <strong>CatalogSource</strong> on your OpenShift cluster.</p>
 <h4 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link">¤</a></h4>
@@ -778,7 +778,7 @@ spec:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-06-23 10:56:40.739116+00:00)
+      Built with mkdocs v1.6.1 (2025-06-24 08:07:14.243546+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
