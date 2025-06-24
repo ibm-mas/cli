@@ -41,6 +41,7 @@ from ...install.catalogs import supportedCatalogs
 
 from ...install.settings.mongodbSettings import MongoDbSettingsMixin
 from ...install.settings.db2Settings import Db2SettingsMixin
+from ...install.settings.additionalConfigs import AdditionalConfigsMixin
 
 from mas.cli.validators import (
     InstanceIDFormatValidator,
@@ -75,7 +76,7 @@ def logMethodCall(func):
     return wrapper
 
 
-class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin):
+class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin):
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
@@ -159,6 +160,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.db2SetAffinity = False
         self.db2SetTolerations = False
         self.slsLicenseFileLocal = None
+        self.showAdvancedOptions = False
 
         # if simplified:
         #     self.showAdvancedOptions = False
@@ -399,7 +401,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # Basic settings before the user provides any input
         self.configICR()
-        self.configCertManager()  # TODO: I think this is redundant, we should look to remove this and the appropriate params in the install pipeline
+        #  self.configCertManager()  # TODO: I think this is redundant, we should look to remove this and the appropriate params in the install pipeline - yes will removed it
         self.deployCP4D = False
 
         # UDS install has not been supported since the January 2024 catalog update
@@ -411,11 +413,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             self.nonInteractiveMode()
 
-        # Set up the secrets for additional configs, podtemplates, sls license file and manual certificates
-        self.additionalConfigs()
-        self.podTemplates()
+        # Set up the sls license file
         self.slsLicenseFile()
-        self.manualCertificates()
 
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
@@ -424,9 +423,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "",
             self.buildCommand()
         ])
-
-        # Based on the parameters set the annotations correctly
-        self.configAnnotations()
 
         self.displayInstallSummary()
 
