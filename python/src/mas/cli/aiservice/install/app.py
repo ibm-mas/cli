@@ -240,9 +240,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             elif key == "non_prod":
                 if not value:
                     self.operationalMode = 1
+                    self.setParam("environment_type", "production")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
+                    self.setParam("environment_type", "non-production")
 
             elif key == "additional_configs":
                 self.localConfigDir = value

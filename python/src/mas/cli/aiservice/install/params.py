@@ -27,6 +27,8 @@ optionalParams = [
     # Pipeline
     "image_pull_policy",
     "service_account_name",
+    # SLS
+    "sls_namespace",
     # DRO
     "dro_namespace",
     # Db2
@@ -51,7 +53,6 @@ optionalParams = [
     "db2_logs_storage_size",
     "db2_meta_storage_size",
     "db2_temp_storage_size",
-
     # Dev Mode
     "artifactory_username",
     "artifactory_token",

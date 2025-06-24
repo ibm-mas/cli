@@ -72,95 +72,10 @@ masAdvancedArgGroup.add_argument(
     help="Path to a directory containing additional configuration files to be applied"
 )
 masAdvancedArgGroup.add_argument(
-    "--pod-templates",
-    required=False,
-    help="Path to directory containing custom podTemplates configuration files to be applied"
-)
-masAdvancedArgGroup.add_argument(
     "--non-prod",
     required=False,
     help="Install MAS in non-production mode",
     action="store_true"
-)
-masAdvancedArgGroup.add_argument(
-    "--disable-ca-trust",
-    dest="mas_trust_default_cas",
-    required=False,
-    help="Disable built-in trust of well-known CAs",
-    action="store_const",
-    const="false"
-)
-masAdvancedArgGroup.add_argument(
-    "--manual-certificates",
-    required=False,
-    help="Path to directory containing the certificates to be applied"
-)
-masAdvancedArgGroup.add_argument(
-    "--domain",
-    dest="mas_domain",
-    required=False,
-    help="Configure MAS with a custom domain"
-)
-
-masAdvancedArgGroup.add_argument(
-    "--disable-walkme",
-    dest="mas_enable_walkme",
-    required=False,
-    help="Disable MAS guided tour",
-    action="store_const",
-    const="false"
-)
-
-masAdvancedArgGroup.add_argument(
-    "--dns-provider",
-    dest="dns_provider",
-    required=False,
-    help="Enable Automatic DNS management (see DNS Configuration options)",
-    choices=["cloudflare", "cis", "route53"]
-)
-
-masAdvancedArgGroup.add_argument(
-    "--mas-cluster-issuer",
-    dest="mas_cluster_issuer",
-    required=False,
-    help="Provide the name of the ClusterIssuer to configure MAS to issue certificates",
-)
-
-masAdvancedArgGroup.add_argument(
-    "--enable-ipv6",
-    dest="enable_ipv6",
-    required=False,
-    help="Configure MAS to run in IP version 6. Before setting this option, be sure your cluster is configured in IP version 6",
-    action="store_const",
-    const="true"
-)
-
-# DNS Configuration - IBM CIS
-# -----------------------------------------------------------------------------
-cisArgGroup = aiServiceinstallArgParser.add_argument_group("DNS Configuration - CIS")
-cisArgGroup.add_argument(
-    "--cis-email",
-    dest="cis_email",
-    required=False,
-    help="Required when DNS provider is CIS and you want to use a Let's Encrypt ClusterIssuer"
-)
-cisArgGroup.add_argument(
-    "--cis-apikey",
-    dest="cis_apikey",
-    required=False,
-    help="Required when DNS provider is CIS"
-)
-cisArgGroup.add_argument(
-    "--cis-crn",
-    dest="cis_crn",
-    required=False,
-    help="Required when DNS provider is CIS"
-)
-cisArgGroup.add_argument(
-    "--cis-subdomain",
-    dest="cis_subdomain",
-    required=False,
-    help="Optionally setup MAS instance as a subdomain under a multi-tenant CIS DNS record"
 )
 
 # Storage
@@ -244,15 +159,6 @@ mongoArgGroup.add_argument(
     "--mongodb-namespace",
     required=False,
     help=""
-)
-
-# OCP Configuration
-# -----------------------------------------------------------------------------
-ocpArgGroup = aiServiceinstallArgParser.add_argument_group("OCP Configuration")
-ocpArgGroup.add_argument(
-    "--ocp-ingress-tls-secret-name",
-    required=False,
-    help="Name of the secret holding the cluster's ingress certificates"
 )
 
 # MAS Applications
@@ -744,68 +650,6 @@ db2ArgGroup.add_argument(
     help="Customize Db2 storage capacity"
 )
 
-# Turbonomic Integration
-# -----------------------------------------------------------------------------
-turboArgGroup = aiServiceinstallArgParser.add_argument_group("Turbonomic Integration")
-turboArgGroup.add_argument(
-    "--turbonomic-name",
-    dest="turbonomic_target_name",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-url",
-    dest="turbonomic_server_url",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-version",
-    dest="turbonomic_server_version",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-username",
-    dest="turbonomic_username",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-password",
-    dest="turbonomic_password",
-    required=False,
-    help=""
-)
-
-# Cloud Providers
-# -----------------------------------------------------------------------------
-cloudArgGroup = aiServiceinstallArgParser.add_argument_group("Cloud Providers")
-cloudArgGroup.add_argument(
-    "--ibmcloud-apikey",
-    required=False,
-    help="Set IBM Cloud API Key"
-)
-cloudArgGroup.add_argument(
-    "--aws-region",
-    required=False,
-    help="Set target AWS region for the MSK instance"
-)
-cloudArgGroup.add_argument(
-    "--aws-access-key-id",
-    required=False,
-    help="Set AWS access key ID for the target AWS account"
-)
-cloudArgGroup.add_argument(
-    "--secret-access-key",
-    required=False,
-    help="Set AWS secret access key for the target AWS account"
-)
-cloudArgGroup.add_argument(
-    "--aws-vpc-id",
-    required=False,
-    help="Set target Virtual Private Cloud ID for the MSK instance"
-)
 
 # Development Mode
 # -----------------------------------------------------------------------------
@@ -845,7 +689,6 @@ otherArgGroup.add_argument(
     default=False,
     help="Don't show advanced install options (in interactve mode)"
 )
-
 otherArgGroup.add_argument(
     "--accept-license",
     action="store_true",
