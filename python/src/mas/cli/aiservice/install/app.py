@@ -160,14 +160,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.db2SetAffinity = False
         self.db2SetTolerations = False
         self.slsLicenseFileLocal = None
-        self.showAdvancedOptions = False
 
-        # if simplified:
-        #     self.showAdvancedOptions = False
-        # elif advanced:
-        #     self.showAdvancedOptions = True
-        # else:
-        #     self.chooseInstallFlavour()
+        if simplified:
+            self.showAdvancedOptions = False
+        elif advanced:
+            self.showAdvancedOptions = True
+        else:
+            self.chooseInstallFlavour()
 
         # Catalog
         self.configCatalog()
@@ -222,7 +221,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "approval_aibroker": {"id": "app-cfg-aibroker"},  # After Aibroker workspace has been configured
         }
 
-        self.configSNO()
         self.setDB2DefaultSettings()
 
         for key, value in vars(self.args).items():
@@ -335,9 +333,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             else:
                 print(f"Unknown option: {key} {value}")
                 self.fatalError(f"Unknown option: {key} {value}")
-
-            # Configure Storage and Access mode
-            self.manageStorageAndAccessMode()
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
@@ -508,10 +503,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     @logMethodCall
     def chooseInstallFlavour(self) -> None:
         # TODO: What advanced options are available for aiservice-install?
+        # We don't have any configuration as Advanced options right now in Aibroker settings
+        # and have added this for SLS Advanced options but this is not specific scenario needed for aibroker so if you want, we can remove this chooseInstallFlavour
         self.printH1("Choose Install Mode")
         self.printDescription([
             "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
-            " - TODO: What advanced options are available for aiservice-install?"
+            " - Configure dedicated License (AppPoints)"
         ])
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
 
@@ -684,6 +681,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             pass
 
     # TODO: does aiservice not have it's own license because it's not part of MAS anymore?
+    # I have asked with team about this will let you know and will make changes accordingly
     @logMethodCall
     def licensePrompt(self):
         if not self.licenseAccepted:

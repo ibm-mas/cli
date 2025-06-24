@@ -27,6 +27,8 @@ optionalParams = [
     # Pipeline
     "image_pull_policy",
     "service_account_name",
+    # Catalogue
+    "mas_catalog_digest",
     # SLS
     "sls_namespace",
     # DRO

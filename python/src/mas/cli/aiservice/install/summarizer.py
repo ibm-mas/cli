@@ -88,8 +88,6 @@ class aiServiceInstallSummarizerMixin():
                 self.printParamSummary("  + S3 bucket prefix (tenant level)", "mas_aibroker_tenant_s3_bucket_prefix")
                 self.printParamSummary("  + S3 region (tenant level)", "mas_aibroker_tenant_s3_region")
                 self.printParamSummary("  + S3 endpoint url (tenant level)", "mas_aibroker_tenant_s3_endpoint_url")
-                self.printParamSummary("  + S3 access key (tenant level)", "mas_aibroker_tenant_s3_access_key")
-                self.printParamSummary("  + S3 secret key (tenant level)", "mas_aibroker_tenant_s3_secret_key")
                 self.printParamSummary("  + RSL url", "rsl_url")
                 self.printParamSummary("  + ORG Id of RSL", "rsl_org_id")
                 self.printParamSummary("  + Token for RSL", "rsl_token")
