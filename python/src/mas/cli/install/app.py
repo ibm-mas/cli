@@ -40,6 +40,7 @@ from mas.cli.validators import (
     WorkspaceNameFormatValidator,
     TimeoutFormatValidator,
     StorageClassValidator,
+    JsonValidator,
     OptimizerInstallPlanValidator
 )
 
@@ -375,7 +376,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printDescription([
                 f"Unknown catalog {self.getParam('mas_catalog_version')}, please manually select the version of Cloud Pak for Data to use"
             ])
-            self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="4.8.0")
+            self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="5.1.3")
             logger.debug(f"Using user-provided (prompt) CP4D product version: {self.getParam('cpd_product_version')}")
         else:
             logger.debug(f"Using user-provided (flags) CP4D product version: {self.getParam('cpd_product_version')}")
@@ -770,7 +771,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
 
     @logMethodCall
-    # TODO: Fix type for storage sizes and max conn pool size
     def facilitiesSettings(self) -> None:
         if self.installFacilities:
             self.printH1("Configure Maximo Real Estate and Facilities")
@@ -786,13 +786,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForListSelect("Select the size:", ["small", "medium", "large"], "mas_ws_facilities_size")
 
             if self.showAdvancedOptions:
+                self.printH2("Maximo Real Estate and Facilities Settings - Advanced")
+                self.printDescription([
+                    "Advanced configurations for Real Estate and Facilities are added through an additional file called facilities-configs.yaml"
+                ])
                 if self.yesOrNo("Supply extra XML tags for Real Estate and Facilities server.xml"):
                     self.promptForString("Real Estate and Facilities Liberty Extension Secret Name", "mas_ws_facilities_liberty_extension_XML")
                 if self.yesOrNo("Supply custom AES Encryption Password"):
                     self.promptForString("Real Estate and Facilities AES Vault Secret Name", "mas_ws_facilities_vault_secret")
 
                 self.promptForString("Set Real Estate and Facilities Routes Timeout:", "mas_ws_facilities_routes_timeout", default="600s")
-                # self.promptForInt("Set Facilities maximum connection poll size:", default=200)
+                self.promptForInt("Set Facilities maximum connection poll size:", "mas_ws_facilities_db_maxconnpoolsize", default=200)
 
                 self.printDescription(["Real Estate and Facilities Persistent Volume Storage Configuration"])
                 defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
@@ -810,10 +814,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         ])
                         storageMode = self.promptForListSelect("Select the storage mode for user files PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_userfiles_mode", default=1)
                         _ = self.setParam("mas_ws_facilities_storage_userfiles_class", defaultStorageClasses.rwx) if storageMode == "ReadWriteMany" else self.setParam("mas_ws_facilities_storage_userfiles_class", defaultStorageClasses.rwo)
-                        # self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
+                        self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
                         storageMode = self.promptForListSelect("Select the storage mode for log PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_log_mode", default=1)
                         _ = self.setParam("mas_ws_facilities_storage_log_class", defaultStorageClasses.rwx) if storageMode == "ReadWriteMany" else self.setParam("mas_ws_facilities_storage_log_class", defaultStorageClasses.rwo)
-                        # self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
+                        self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
                     else:
                         notUseAutodetectedStorageClasses = True
                 if defaultStorageClasses.provider is None or notUseAutodetectedStorageClasses:
@@ -828,11 +832,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     ])
                     self.promptForListSelect("Select the storage mode for user files PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_userfiles_mode", default=1)
                     self.promptForListSelect("Select the storage mode for log PVC:", ["ReadWriteMany", "ReadWriteOnce"], "mas_ws_facilities_storage_log_mode", default=1)
-                    # self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
-                    # self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
+                    self.promptForInt("User file PVC size (Gb):", "mas_ws_facilities_storage_userfiles_size", default=50)
+                    self.promptForInt("Log PVC size (Gb):", "mas_ws_facilities_storage_log_size", default=30)
 
                 if self.yesOrNo("Supply configuration for dedicated workflow agents"):
-                    self.promptForString("Dedicated Workflow Agent JSON:")
+                    print_formatted_text(HTML("<LightSlateGrey> Example: '[{\"name\":\"dwfa1\",\"members\":[{\"name\": \"u1\", \"class\": \"user\"}]}, {\"name\":\"dwfa2\",\"members\":[{\"name\": \"u2\", \"class\": \"user\"},{\"name\":\"g1\", \"class\":\"group\"}]}]' </LightSlateGrey>"))
+                    self.promptForString("Dedicated Workflow Agent JSON:", "mas_ws_facilities_dwfagents", validator=JsonValidator())
+
+                # If advanced options is selected, we need to create a file to add props not supported by Tekton
+                self.selectLocalConfigDir()
+                facilitiesConfigsPath = path.join(self.localConfigDir, "facilities-configs.yaml")
+                self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
+                self.setParam("mas_ws_facilities_config_file", "/workspace/configs/facilities-configs.yaml")
 
     @logMethodCall
     def chooseInstallFlavour(self) -> None:
@@ -1118,6 +1129,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             # Configure Storage and Access mode
             self.manageStorageAndAccessMode()
+
+        if self.installFacilities:
+            # Verifiy if any of the props that needs to be in a file are given
+            if self.getParam("mas_ws_facilities_storage_log_size") != "" or self.getParam("mas_ws_facilities_storage_userfiles_size") != "" or self.getParam("mas_ws_facilities_db_maxconnpoolsize") or self.getParam("mas_ws_facilities_dwfagents"):
+                self.selectLocalConfigDir()
+                facilitiesConfigsPath = path.join(self.localConfigDir, "facilities-configs.yaml")
+                self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
+                self.setParam("mas_ws_facilities_config_map_name", "facilities-config")
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))

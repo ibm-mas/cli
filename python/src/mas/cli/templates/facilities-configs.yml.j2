@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: facilities-config
+  namespace: mas-{{ mas_instance_id }}-pipelines
+data:
+  mas_ws_facilities_storage_log_size: |
+    {{ mas_ws_facilities_storage_log_size }}
+  mas_ws_facilities_storage_userfiles_size: |
+    {{ mas_ws_facilities_storage_userfiles_size }}
+  mas_ws_facilities_db_maxconnpoolsize: |
+    {{ mas_ws_facilities_db_maxconnpoolsize }}
+  mas_ws_facilities_dwfagents: |
+{%- if mas_ws_facilities_dwfagents is defined and mas_ws_facilities_dwfagents != '' %}
+{%- for agent in mas_ws_facilities_dwfagents %}
+    - name: "{{ agent.name }}"
+      members:
+{%- for member in agent.members %}
+        - name: "{{ member.name }}"
+          class: "{{ member.class }}"
+{%- endfor %}
+{%- endfor %}
+{%- else %}
+    []
+{% endif %}
