@@ -202,6 +202,7 @@ class InstallSummarizerMixin():
                 self.printSummary("  + Tririga", "Enabled" if "tririga=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Utilities", "Enabled" if "utilities=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Workday Applications", "Enabled" if "workday=" in self.getParam("mas_appws_components") else "Disabled")
+                self.printSummary("  + AIP", "Enabled" if "aip=" in self.getParam("mas_appws_components") else "Disabled")
 
                 self.printParamSummary("+ Server bundle size", "mas_app_settings_server_bundles_size")
                 self.printParamSummary("+ Enable JMS queues", "mas_app_settings_default_jms")
@@ -377,6 +378,10 @@ class InstallSummarizerMixin():
         self.printH2("Grafana")
         self.printSummary("Install Grafana", "Install" if self.getParam("grafana_action") == "install" else "Do Not Install")
 
+    def installSummary(self) -> None:
+        self.printH2("Install Process")
+        self.printSummary("Wait for PVCs to bind", "No" if self.getParam("no_wait_for_pvc") else "Yes")
+
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
@@ -413,3 +418,6 @@ class InstallSummarizerMixin():
         self.cp4dSummary()
         self.grafanaSummary()
         self.turbonomicSummary()
+
+        # Install options
+        self.installSummary()
