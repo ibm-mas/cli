@@ -37,6 +37,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td style="font-style: italic">v9-251204</td>
           <td></td>
           <td></td>
+          <td></td>
           <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
@@ -45,6 +46,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
         </tr>
         <tr>
           <td style="font-style: italic">v9-251106</td>
+          <td></td>
           <td></td>
           <td></td>
           <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
@@ -57,6 +59,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td style="font-style: italic">v9-251003</td>
           <td></td>
           <td></td>
+          <td></td>
           <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
@@ -65,8 +68,9 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
         </tr>
         <tr>
           <td style="font-style: italic">v9-250904</td>
-          <td style="font-style: italic"></td>
-          <td style="font-style: italic"></td>
+          <td></td>
+          <td></td>
+          <td></td>
           <td style="font-style: italic">4.15 - 4.18 (TBC)</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
@@ -75,8 +79,9 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
         </tr>
         <tr>
           <td style="font-style: italic">v9-250807</td>
-          <td style="font-style: italic"></td>
-          <td style="font-style: italic"></td>
+          <td></td>
+          <td></td>
+          <td></td>
           <td style="font-style: italic">4.15 - 4.18 (TBC)</td>
           <td style="font-style: italic">TBD</td>
           <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
