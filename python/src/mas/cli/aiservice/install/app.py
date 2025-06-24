@@ -32,8 +32,13 @@ from .params import requiredParams, optionalParams
 from ...install.catalogs import supportedCatalogs
 
 # TODO: does aiservice really support all the exact same settings for mongodb and db2 as the mas install does?
+# Actually in Aiservice we don't required mongo. SLS required mongodb so whatever default setting we have in mongdodb that works for SLS.
+# And for db2 as well - default settings works for Aiservice - extra configuration not needed.
 #       I thought aiservice was using mariadb instead of db2 for it's relational database?
+#       No, Aiservice using both db2 and mariadb - db2 getting used by aibroker application and mariadb used by ODH - openDataHub
 # TODO: aiservice-install should not be installing/overwriting the same mongo or db2 instances that are owned by the main (mas) install
+# we need mongo for SLS so we can use same instance of mongo, and for db2 we have separate instance as we pass "suffix" as aibroker while install db2
+
 from ...install.settings.mongodbSettings import MongoDbSettingsMixin
 from ...install.settings.db2Settings import Db2SettingsMixin
 
@@ -134,8 +139,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.setParam("sls_namespace", f"mas-{self.getParam('aibroker_instance_id')}-sls")
 
         self.configOperationMode()
-        self.configCATrust()
-        self.configDNSAndCerts()
 
     @logMethodCall
     def interactiveMode(self, simplified: bool, advanced: bool) -> None:
@@ -157,12 +160,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.db2SetTolerations = False
         self.slsLicenseFileLocal = None
 
-        if simplified:
-            self.showAdvancedOptions = False
-        elif advanced:
-            self.showAdvancedOptions = True
-        else:
-            self.chooseInstallFlavour()
+        # if simplified:
+        #     self.showAdvancedOptions = False
+        # elif advanced:
+        #     self.showAdvancedOptions = True
+        # else:
+        #     self.chooseInstallFlavour()
 
         # Catalog
         self.configCatalog()
@@ -516,7 +519,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     def aibrokerSettings(self) -> None:
         if self.installAiBroker:
-            self.printH2("Maximo AI Broker Settings - Storage, WatsonX, MariaDB details")
+            self.printH2("AI Service Settings - Storage, WatsonX, MariaDB details")
             self.printDescription(["Customise AI Broker details"])
             self.promptForString("Storage provider", "mas_aibroker_storage_provider")
             if self.getParam("mas_aibroker_storage_provider") == "minio" and self.getParam("mas_app_channel_aibroker") != "9.0.x":
@@ -579,7 +582,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.promptForString("DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
                     self.promptForString("DB2 SSL enabled (yes/no)", "mas_aibroker_db2_ssl_enabled")
                     self.promptForString("DB2 CA certificate", "mas_aibroker_db2_ca_cert")
-                self.promptForString("Environment type", "environment_type")
+                # self.promptForString("Environment type", "environment_type")
 
     # These are all candidates to centralise in a new mixin used by both install and aiservice-install
     # TODO: loads of these functions test talk about "MAS" and need to be updated to talk about "AI Service" ... this aiservice-install
@@ -794,18 +797,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel for Aibroker</Yellow> '))
 
     # TODO: Does aiservice actually support this flag, or was it just left in from copy/paste?
-    @logMethodCall
-    def configCATrust(self) -> None:
-        if self.showAdvancedOptions:
-            self.printH1("Certificate Authority Trust")
-            self.printDescription([
-                "By default, Maximo Application Suite is configured to trust well-known certificate authoritories, you can disable this so that it will only trust the CAs that you explicitly define"
-            ])
-            self.yesOrNo("Trust default CAs", "mas_trust_default_cas")
-        else:
-            self.setParam("mas_trust_default_cas", True)
+    # Yeah we not need this flag in Aiservice - so removed it
 
     # TODO: Does aiservice actually support this flag, or was it just left in from copy/paste?
+    # yes in aiservice there is one params environment_type which have same purpose as operational mode.
     @logMethodCall
     def configOperationMode(self):
         self.printH1("Configure Operational Mode")
@@ -818,128 +813,18 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "  2. Non-Production"
         ])
         self.operationalMode = self.promptForInt("Operational Mode", default=1)
-
-    @logMethodCall
-    def configDNSAndCerts(self):
-        if self.showAdvancedOptions:
-            self.printH1("Cluster Ingress Secret Override")
-            self.printDescription([
-                "In most OpenShift clusters the installation is able to automatically locate the default ingress certificate, however in some configurations it is necessary to manually configure the name of the secret",
-                "Unless you see an error during the ocp-verify stage indicating that the secret can not be determined you do not need to set this and can leave the response empty"
-            ])
-            self.promptForString("Cluster ingress certificate secret name", "ocp_ingress_tls_secret_name", default="")
-
-            self.printH1("Configure Domain & Certificate Management")
-            configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
-            if configureDomainAndCertMgmt:
-                configureDomain = self.yesOrNo('Configure custom domain')
-                if configureDomain:
-                    self.promptForString("MAS top-level domain", "mas_domain")
-                    self.printDescription([
-                        "",
-                        "DNS Integrations:",
-                        "  1. Cloudflare",
-                        "  2. IBM Cloud Internet Services",
-                        "  3. AWS Route 53",
-                        "  4. None (I will set up DNS myself)"
-                    ])
-
-                    dnsProvider = self.promptForInt("DNS Provider")
-
-                    if dnsProvider == 1:
-                        self.configDNSAndCertsCloudflare()
-                    elif dnsProvider == 2:
-                        self.configDNSAndCertsCIS()
-                    elif dnsProvider == 3:
-                        self.configDNSAndCertsRoute53()
-                    elif dnsProvider == 4:
-                        # Use MAS default self-signed cluster issuer with a custom domain
-                        self.setParam("dns_provider", "")
-                        self.setParam("mas_cluster_issuer", "")
-                else:
-                    # Use MAS default self-signed cluster issuer with the default domain
-                    self.setParam("dns_provider", "")
-                    self.setParam("mas_domain", "")
-                    self.setParam("mas_cluster_issuer", "")
-                self.manualCerts = self.yesOrNo("Configure manual certificates")
-                self.setParam("mas_manual_cert_mgmt", self.manualCerts)
-                if self.getParam("mas_manual_cert_mgmt"):
-                    self.manualCertsDir = self.promptForDir("Enter the path containing the manual certificates", mustExist=True)
-                else:
-                    self.manualCertsDir = None
+        if self.operationalMode == 1:
+            self.setParam("environment_type", "production")
+        else:
+            self.setParam("environment_type", "non-production")
 
     # TODO: aiservice install shouldn't be touching these resources that are part of the mas install .. was this just left over from the copy/paste of the mas install function?
     #       if aiservice wants to do cert management it needs to manage a seperate set of certificates
-    @logMethodCall
-    def configDNSAndCertsCloudflare(self):
-        # User has chosen to set up DNS integration with Cloudflare
-        self.setParam("dns_provider", "cloudflare")
-        self.promptForString("Cloudflare e-mail", "cloudflare_email")
-        self.promptForString("Cloudflare API token", "cloudflare_apitoken")
-        self.promptForString("Cloudflare zone", "cloudflare_zone")
-        self.promptForString("Cloudflare subdomain", "cloudflare_subdomain")
-
-        self.printDescription([
-            "Certificate Issuer:",
-            "  1. LetsEncrypt (Production)",
-            "  2. LetsEncrypt (Staging)",
-            "  3. Self-Signed"
-        ])
-        certIssuer = self.promptForInt("Certificate issuer")
-        certIssuerOptions = [
-            f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
-            f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
-            ""
-        ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
 
     # TODO: aiservice install shouldn't be touching these resources that are part of the mas install .. was this just left over from the copy/paste of the mas install function?
     #       if aiservice wants to do cert management it needs to manage a seperate set of certificates
-    @logMethodCall
-    def configDNSAndCertsCIS(self):
-        self.setParam("dns_provider", "cis")
-        self.promptForString("CIS e-mail", "cis_email")
-        self.promptForString("CIS API token", "cis_apikey")
-        self.promptForString("CIS CRN", "cis_crn")
-        self.promptForString("CIS subdomain", "cis_subdomain")
-
-        self.printDescription([
-            "Certificate Issuer:",
-            "  1. LetsEncrypt (Production)",
-            "  2. LetsEncrypt (Staging)",
-            "  3. Self-Signed"
-        ])
-        certIssuer = self.promptForInt("Certificate issuer")
-        certIssuerOptions = [
-            f"{self.getParam('mas_instance_id')}-cis-le-prod",
-            f"{self.getParam('mas_instance_id')}-cis-le-stg",
-            ""
-        ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
 
     # TODO: aiservice install shouldn't be touching these resources that are part of the mas install .. was this just left over from the copy/paste of the mas install function?
     #       if aiservice wants to do cert management it needs to manage a seperate set of certificates
-    @logMethodCall
-    def configDNSAndCertsRoute53(self):
-        self.setParam("dns_provider", "route53")
-        self.printDescription([
-            "Provide your AWS account access key ID & secret access key",
-            "This will be used to authenticate into the AWS account where your AWS Route 53 hosted zone instance is located",
-            ""
-        ])
-        self.promptForString("AWS Access Key ID", "aws_access_key_id", isPassword=True)
-        self.promptForString("AWS Secret Access Key", "aws_secret_access_key", isPassword=True)
 
-        self.printDescription([
-            "Provide your AWS Route 53 hosted zone instance details",
-            "This information will be used to create webhook resources between your cluster and your AWS Route 53 instance (cluster issuer and cname records)",
-            "in order for it to be able to resolve DNS entries for all the subdomains created for your Maximo Application Suite instance",
-            "",
-            "Therefore, the AWS Route 53 subdomain + the AWS Route 53 hosted zone name defined, when combined, needs to match with the chosen MAS Top Level domain, otherwise the DNS records won't be able to get resolved"
-        ])
-        self.promptForString("AWS Route 53 hosted zone name", "route53_hosted_zone_name")
-        self.promptForString("AWS Route 53 hosted zone region", "route53_hosted_zone_region")
-        self.promptForString("AWS Route 53 subdomain", "route53_subdomain")
-        self.promptForString("AWS Route 53 e-mail", "route53_email")
-
-        self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
+    # sorry this is copy/pasted from mas install I have removed them.
