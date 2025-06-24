@@ -55,7 +55,7 @@ oc login --token $INSTALL_TOKEN --server $SERVER
 docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ bash -c "
   oc login --token $INSTALL_TOKEN --server=$SERVER &&
   mas install --mas-catalog-version @@MAS_LATEST_CATALOG@@ --ibm-entitlement-key $IBM_ENTITLEMENT_KEY \
-    --mas-channel 9.0.x --mas-instance-id ${MAS_INSTANCE_ID} --mas-workspace-id masdev --mas-workspace-name "My Workspace" \
+    --mas-channel 9.1.x --mas-instance-id ${MAS_INSTANCE_ID} --mas-workspace-id masdev --mas-workspace-name "My Workspace" \
     --storage-class-rwo "ibmc-block-gold" --storage-class-rwx "ibmc-file-gold-gid" \
     --storage-pipeline "ibmc-file-gold-gid" --storage-accessmode "ReadWriteMany" \
     --license-file "/mnt/home/entitlement.lic" \
