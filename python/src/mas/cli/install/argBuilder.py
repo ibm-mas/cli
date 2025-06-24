@@ -280,15 +280,15 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('cpd_product_version') != "":
             command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
-            if self.getParam('cpd_install_spss') == "install":
+            if self.getParam('cpd_install_spss') == "true":
                 command += " --cp4d-install-spss"
-            if self.getParam('cpd_install_cognos') == "install":
+            if self.getParam('cpd_install_cognos') == "true":
                 command += " --cp4d-install-cognos"
-            if self.getParam('cpd_install_ws') == "install":
+            if self.getParam('cpd_install_ws') == "true":
                 command += " --cp4d-install-ws"
-            if self.getParam('cpd_install_wml') == "install":
+            if self.getParam('cpd_install_wml') == "true":
                 command += " --cp4d-install-wml"
-            if self.getParam('cpd_install_ae') == "install":
+            if self.getParam('cpd_install_ae') == "true":
                 command += " --cp4d-install-ae"
             command += newline
 
