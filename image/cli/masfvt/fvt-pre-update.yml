@@ -1,0 +1,13 @@
+---
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    # Image Pull Policy
+    image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
+    mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+  tasks:
+    - name: "Create or update manage offline upgrade check cron job"
+      kubernetes.core.k8s:
+        apply: true
+        template: "/templates/mas-fvt-offline-update.yml.j2"
+        state: present
