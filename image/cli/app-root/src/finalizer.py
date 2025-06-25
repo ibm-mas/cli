@@ -248,19 +248,19 @@ if __name__ == "__main__":
     # Lookup the platform - copes with the fact that fyre doesn't set a platform
     # -------------------------------------------------------------------------
     try:
-       crs = dynClient.resources.get(api_version="config.openshift.io/v1", kind="Infrastrucutre")
-       cr = crs.get(name="cluster")
-       if cr.status and cr.status.platform and cr.status.platform != "None":
-           setObject["target.platform"] = cr.status.platform
-       elif cr.status and cr.status.platform and cr.status.platform == "None": 
-           if cr.status.apiServerURL and "fyre" in cr.status.apiServerURL:
-               setObject["target.platform"] = "Fyre"
-           else:
-               setObject["target.platform"] = "Unknown"
-       else:
-           setObject["target.platform"] = "Unknown"
+        crs = dynClient.resources.get(api_version="config.openshift.io/v1", kind="Infrastrucutre")
+        cr = crs.get(name="cluster")
+        if cr.status and cr.status.platform and cr.status.platform != "None":
+            setObject["target.platform"] = cr.status.platform
+        elif cr.status and cr.status.platform and cr.status.platform == "None":
+            if cr.status.apiServerURL and "fyre" in cr.status.apiServerURL:
+                setObject["target.platform"] = "Fyre"
+            else:
+                setObject["target.platform"] = "Unknown"
+        else:
+            setObject["target.platform"] = "Unknown"
     except Exception as e:
-       print(f"Unable to determine Platform: {e}")
+        print(f"Unable to determine Platform: {e}")
 
     # Get MAS Catalog Version
     # -------------------------------------------------------------------------
