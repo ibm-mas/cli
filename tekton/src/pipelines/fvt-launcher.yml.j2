@@ -913,7 +913,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - pre-update-steps
+        - pre-update
 
     - name: waitfor-update
       timeout: "0"
@@ -985,7 +985,7 @@ spec:
         kind: Task
         name: mas-fvt-finalize
       runAfter:
-        - start-offline-upgrade
+        - waitfor-upgrade
 
     - name: start-uninstall
       timeout: "0"
