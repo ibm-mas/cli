@@ -248,7 +248,7 @@ if __name__ == "__main__":
     # Lookup the platform - copes with the fact that fyre doesn't set a platform
     # -------------------------------------------------------------------------
     try:
-        crs = dynClient.resources.get(api_version="config.openshift.io/v1", kind="Infrastrucutre")
+        crs = dynClient.resources.get(api_version="config.openshift.io/v1", kind="Infrastructure")
         cr = crs.get(name="cluster")
         if cr.status and cr.status.platform and cr.status.platform != "None":
             setObject["target.platform"] = cr.status.platform
