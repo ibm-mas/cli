@@ -6,8 +6,18 @@
     image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
     mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
   tasks:
+    - name: 'Check if ManageWorkspace exists'
+      kubernetes.core.k8s_info:
+        namespace: "mas-{{ mas_instance_id }}-manage"
+        label_selectors:
+          - mas.ibm.com/instanceId={{ mas_instance_id }}
+      register: manage_ws
+
     - name: "Create or update manage offline upgrade check cron job"
       kubernetes.core.k8s:
         apply: true
         template: "/templates/mas-fvt-offline-update.yml.j2"
         state: present
+      when:
+        - manage_ws is defined
+        - manage_ws.resources | length>0
