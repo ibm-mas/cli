@@ -131,9 +131,6 @@ spec:
     - name: cluster_logging_operator_syslog_forwarder_version
       type: string
       default: "1.8-amd64"
-    - name: cluster_logging_operator_override_logforwarder_version
-      type: string
-      default: "1.0-amd64"
 
     - name: instana_agent_operator_install
       type: string
@@ -250,8 +247,6 @@ spec:
         value: $(params.cluster_logging_operator_setup_log_forwarding)
       - name: CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION
         value: $(params.cluster_logging_operator_syslog_forwarder_version)
-      - name: CLUSTER_LOGGING_OPERATOR_OVERRIDE_LOGFORWARDER_VERSION
-        value: $(params.cluster_logging_operator_override_logforwarder_version)
 
       - name: INSTANA_AGENT_OPERATOR_INSTALL
         value: $(params.instana_agent_operator_install)
