@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -32,13 +32,10 @@ from .params import requiredParams, optionalParams
 
 from ...install.catalogs import supportedCatalogs
 
-# TODO: does aiservice really support all the exact same settings for mongodb and db2 as the mas install does?
-# Actually in Aiservice we don't required mongo. SLS required mongodb so whatever default setting we have in mongdodb that works for SLS.
-# And for db2 as well - default settings works for Aiservice - extra configuration not needed.
-#       I thought aiservice was using mariadb instead of db2 for it's relational database?
-#       No, Aiservice using both db2 and mariadb - db2 getting used by aibroker application and mariadb used by ODH - openDataHub
-# TODO: aiservice-install should not be installing/overwriting the same mongo or db2 instances that are owned by the main (mas) install
-# we need mongo for SLS so we can use same instance of mongo, and for db2 we have separate instance as we pass "suffix" as aibroker while install db2
+# AiService relies on SLS, which in turn depends on MongoDB.
+# SLS will utilize the shared MongoDB resource that would be used by MAS if it were deployed within the same OpenShift cluster.
+# AiService utilizes two distinct databases: DB2 is employed by the AiBroker component, while MariaDB supports OpenDataHub (ODH).
+# By default, AiService will deploy DB2 within the same namespace as MAS (db2u), but it will be configured as a separate DB2 instance.
 
 from ...install.settings.mongodbSettings import MongoDbSettingsMixin
 from ...install.settings.db2Settings import Db2SettingsMixin
@@ -399,7 +396,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # Basic settings before the user provides any input
         self.configICR()
-        #  self.configCertManager()  # TODO: I think this is redundant, we should look to remove this and the appropriate params in the install pipeline - yes will removed it
         self.deployCP4D = False
 
         # UDS install has not been supported since the January 2024 catalog update
@@ -503,9 +499,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def chooseInstallFlavour(self) -> None:
-        # TODO: What advanced options are available for aiservice-install?
         # We don't have any configuration as Advanced options right now in Aibroker settings
-        # we can remove this chooseInstallFlavour - if you suggest...
+        # we can remove this chooseInstallFlavour - if we want...
         self.printH1("Choose Install Mode")
         self.printDescription([
             "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
@@ -581,8 +576,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 # self.promptForString("Environment type", "environment_type")
 
     # These are all candidates to centralise in a new mixin used by both install and aiservice-install
-    # TODO: loads of these functions test talk about "MAS" and need to be updated to talk about "AI Service" ... this aiservice-install
-    # function has nothing to do with MAS, it's the AIService install function/pipeline
 
     @logMethodCall
     def configICR(self):
@@ -688,8 +681,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             # There's no existing catalog installed
             pass
 
-    # TODO: does aiservice not have it's own license because it's not part of MAS anymore?
-    # I have asked with team about this, will let you know and will make changes accordingly
+    # TODO: update licenses for aiservice 9.1.x
     @logMethodCall
     def licensePrompt(self):
         if not self.licenseAccepted:
@@ -800,11 +792,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     def configAppChannel(self, appId):
         self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel for Aibroker</Yellow> '))
 
-    # TODO: Does aiservice actually support this flag, or was it just left in from copy/paste?
-    # Yeah we not need this flag in Aiservice - so removed it
-
-    # TODO: Does aiservice actually support this flag, or was it just left in from copy/paste?
-    # yes in aiservice there is one params environment_type which have same purpose as operational mode.
     @logMethodCall
     def configOperationMode(self):
         self.printH1("Configure Operational Mode")
@@ -821,14 +808,3 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.setParam("environment_type", "production")
         else:
             self.setParam("environment_type", "non-production")
-
-    # TODO: aiservice install shouldn't be touching these resources that are part of the mas install .. was this just left over from the copy/paste of the mas install function?
-    #       if aiservice wants to do cert management it needs to manage a seperate set of certificates
-
-    # TODO: aiservice install shouldn't be touching these resources that are part of the mas install .. was this just left over from the copy/paste of the mas install function?
-    #       if aiservice wants to do cert management it needs to manage a seperate set of certificates
-
-    # TODO: aiservice install shouldn't be touching these resources that are part of the mas install .. was this just left over from the copy/paste of the mas install function?
-    #       if aiservice wants to do cert management it needs to manage a seperate set of certificates
-
-    # sorry this is copy/pasted from mas install I have removed them.
