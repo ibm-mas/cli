@@ -8,6 +8,7 @@
   tasks:
     - name: 'Check if ManageWorkspace exists'
       kubernetes.core.k8s_info:
+        kind: ManageWorkspace
         namespace: "mas-{{ mas_instance_id }}-manage"
         label_selectors:
           - mas.ibm.com/instanceId={{ mas_instance_id }}
