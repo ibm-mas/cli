@@ -524,6 +524,7 @@ function gitops_cluster() {
   echo_reset_dim "Use Syslog Forwarder ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER}"
   echo_reset_dim "Setup Log Forwarding ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING}"
   echo_reset_dim "Operator Channel ............................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_CHANNEL}"
+  echo_reset_dim "Test debug for changes ......................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER}"
   reset_colors
 
   echo "${TEXT_DIM}"
