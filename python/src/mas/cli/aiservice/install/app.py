@@ -13,6 +13,7 @@ import logging
 from sys import exit
 from os import path, getenv
 import re
+import calendar
 
 from openshift.dynamic.exceptions import NotFoundError
 
@@ -184,14 +185,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.configCertManager()
         self.configAibroker()
-
-        self.configAppChannel("aibroker")
+        if self.devMode:
+            self.configAppChannel("aibroker")
 
         self.aibrokerSettings()
 
         # Dependencies
         self.configMongoDb()
-        self.configDb2()
+        self.setDB2DefaultSettings()
 
     @logMethodCall
     def nonInteractiveMode(self) -> None:
@@ -226,7 +227,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
             if key in requiredParams:
-                if value is None and key != 'mas_channel':
+                if value is None:
                     self.fatalError(f"{key} must be set")
                 self.setParam(key, value)
 
@@ -504,7 +505,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     def chooseInstallFlavour(self) -> None:
         # TODO: What advanced options are available for aiservice-install?
         # We don't have any configuration as Advanced options right now in Aibroker settings
-        # and have added this for SLS Advanced options but this is not specific scenario needed for aibroker so if you want, we can remove this chooseInstallFlavour
+        # we can remove this chooseInstallFlavour - if you suggest...
         self.printH1("Choose Install Mode")
         self.printDescription([
             "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
@@ -608,12 +609,19 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("cert_manager_provider", "redhat")
         self.setParam("cert_manager_action", "install")
 
+    def formatCatalog(self, name: str) -> str:
+        # Convert "v9-241107-amd64" into "November 2024 Update (v9-241107-amd64)"
+        date = name.split("-")[1]
+        month = int(date[2:4])
+        monthName = calendar.month_name[month]
+        year = date[:2]
+        return f" - {monthName} 20{year} Update\n   <Orange><u>https://ibm-mas.github.io/cli/catalogs/{name}</u></Orange>"
+
     @logMethodCall
     def configCatalog(self):
         self.printH1("IBM Maximo Operator Catalog Selection")
         if self.devMode:
             self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
-            self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
         else:
             catalogInfo = getCurrentCatalog(self.dynamicClient)
 
@@ -655,7 +663,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
             releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
 
-            self.setParam("mas_channel", self.catalogReleases[releaseSelection])
+            self.setParam("mas_app_channel_aibroker", self.catalogReleases[releaseSelection])
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -681,14 +689,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             pass
 
     # TODO: does aiservice not have it's own license because it's not part of MAS anymore?
-    # I have asked with team about this will let you know and will make changes accordingly
+    # I have asked with team about this, will let you know and will make changes accordingly
     @logMethodCall
     def licensePrompt(self):
         if not self.licenseAccepted:
             self.printH1("License Terms")
             self.printDescription([
                 "To continue with the installation, you must accept the license terms:",
-                self.licenses[self.getParam('mas_channel')]
+                self.licenses[f"aibroker-{self.getParam('mas_app_channel_aibroker')}"]
             ])
 
             if self.noConfirm:
