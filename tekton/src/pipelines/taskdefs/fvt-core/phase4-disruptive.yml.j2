@@ -7,7 +7,9 @@
 # - coreidp-saml-ui: ??
 # - coreidp-ssoconfig: ??
 # - licensingapi: ??
+# - usagebilling - simulates app and addon installs, creates and deletes users, disables billing cron jobs, runs billingjobs etc.
 # - operatormaturity: non-disruptive, we just want it to be the last thing that runs
+
 
 # 1. smtp
 # -------------------------------------------------------------------------
@@ -107,7 +109,23 @@
   runAfter:
     - coreidp-ssoconfig
 
-# 9. operatormaturity
+# 9. usagebilling
+# -------------------------------------------------------------------------
+- name: usagebilling
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: usagebilling
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - licensingapi
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+    - name: pod-templates
+      workspace: shared-pod-templates
+
+# 10. operatormaturity
 # -------------------------------------------------------------------------
 - name: operatormaturity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -116,7 +134,7 @@
       value: operatormaturity
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - licensingapi
+    - usagebilling
   workspaces:
     - name: configs
       workspace: shared-configs
