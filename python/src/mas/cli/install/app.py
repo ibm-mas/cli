@@ -376,7 +376,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printDescription([
                 f"Unknown catalog {self.getParam('mas_catalog_version')}, please manually select the version of Cloud Pak for Data to use"
             ])
-            self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="4.8.0")
+            self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="5.1.3")
             logger.debug(f"Using user-provided (prompt) CP4D product version: {self.getParam('cpd_product_version')}")
         else:
             logger.debug(f"Using user-provided (flags) CP4D product version: {self.getParam('cpd_product_version')}")
@@ -1218,6 +1218,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.slsLicenseFile()
         self.manualCertificates()
 
+        if not self.noConfirm and not self.waitForPVC:
+            self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
+            self.waitForPVC = self.yesOrNo("Wait for PVCs to bind")
+
+        if not self.waitForPVC:
+            self.setParam("no_wait_for_pvc", True)
+
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
         self.printDescription([
@@ -1245,12 +1252,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printH1("Launch Install")
             pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
 
-            if not self.noConfirm:
-                self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
-                wait = self.yesOrNo("Wait for PVCs to bind")
-            else:
-                wait = False
-
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
                 installOpenShiftPipelines(self.dynamicClient)
                 h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
@@ -1262,7 +1263,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     instanceId=self.getParam("mas_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
-                    waitForBind=wait,
+                    waitForBind=self.waitForPVC,
                     configureRBAC=(self.getParam("service_account_name") == "")
                 )
                 prepareInstallSecrets(
