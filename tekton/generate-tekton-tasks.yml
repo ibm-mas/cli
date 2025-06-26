@@ -86,6 +86,7 @@
         - fvt-start-upgrade
         - fvt-start-uninstall
         - fvt-pre-update
+        - fvt-pre-upgrade
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:
