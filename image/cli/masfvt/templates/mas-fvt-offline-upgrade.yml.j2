@@ -61,8 +61,8 @@ metadata:
   namespace: mas-{{ mas_instance_id }}-manage
 spec:
   schedule: "*/5 * * * *"
-  concurrencyPolicy: Replace
-  suspend: true
+  concurrencyPolicy: Forbid
+  suspend: false
   jobTemplate:
     spec:
       template:
