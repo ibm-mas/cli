@@ -908,6 +908,8 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: sync-update
+        - name: configmap_namespace
+          value: "mas-pipelines"
         - name: configmap_target_value
           value: Completed,Succeeded,Failed
       when:
