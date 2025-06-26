@@ -380,6 +380,10 @@ class InstallSummarizerMixin():
         self.printH2("Grafana")
         self.printSummary("Install Grafana", "Install" if self.getParam("grafana_action") == "install" else "Do Not Install")
 
+    def installSummary(self) -> None:
+        self.printH2("Install Process")
+        self.printSummary("Wait for PVCs to bind", "No" if self.getParam("no_wait_for_pvc") else "Yes")
+
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
@@ -416,3 +420,6 @@ class InstallSummarizerMixin():
         self.cp4dSummary()
         self.grafanaSummary()
         self.turbonomicSummary()
+
+        # Install options
+        self.installSummary()
