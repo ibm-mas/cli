@@ -13,7 +13,7 @@ spec:
   steps:
     - name: create-offline-upgrade-cron
       image: quay.io/ibmmas/cli:latest
-      imagePullPolicy: Always
+      imagePullPolicy: $(params.image_pull_policy)
       command: 
         - ansible-playbook
         - /masfvt/fvt-pre-upgrade.yml
