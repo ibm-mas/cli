@@ -9,10 +9,14 @@ spec:
     - name: mas_instance_id
       type: string
       description: Instance ID
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
 
   steps:
     - name: create-offline-upgrade-cron
       image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
       command: 
         - ansible-playbook
         - /masfvt/fvt-pre-update.yml
