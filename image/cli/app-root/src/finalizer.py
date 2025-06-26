@@ -146,7 +146,6 @@ def getcp4dCompsVersions():
     except Exception as e:
         print(f"Unable to determine Watson Studio version: {e}")
 
-
     # Get Watson Machine Learning Version
     # -------------------------------------------------------------------------
     try:
