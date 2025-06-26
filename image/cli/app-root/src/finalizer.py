@@ -146,6 +146,20 @@ def getcp4dCompsVersions():
     except Exception as e:
         print(f"Unable to determine Watson Studio version: {e}")
 
+
+    # Get Watson Machine Learning Version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="wml.cpd.ibm.com/v1beta1", kind="WmlBase")
+        cr = crs.get(name="wml-cr", namespace="ibm-cpd")
+        if cr.status and cr.status.versions:
+            wmlVersion = cr.status.versions.reconciled
+            setObject["target.wmlVersion"] = wmlVersion
+        else:
+            print("Unable to determine WML version: status.versions unavailable")
+    except Exception as e:
+        print(f"Unable to determine WML version: {e}")
+
     # Get  SPSS Modeler Version
     # -------------------------------------------------------------------------
     try:
@@ -492,10 +506,10 @@ if __name__ == "__main__":
     # Lookup CP4D version
     # -------------------------------------------------------------------------
     try:
-        crs = dynClient.resources.get(api_version="wml.cpd.ibm.com/v1beta1", kind="WmlBase")
-        cr = crs.get(name="wml-cr", namespace="ibm-cpd")
-        if cr.status and cr.status.versions:
-            cp4dVersion = cr.status.versions.reconciled
+        crs = dynClient.resources.get(api_version="cpd.ibm.com/v1", kind="Ibmcpd")
+        cr = crs.get(name="ibmcpd-cr", namespace="ibm-cpd")
+        if cr.status and cr.status.currentVersion:
+            cp4dVersion = cr.status.currentVersion
             setObject["target.cp4dVersion"] = cp4dVersion
             getcp4dCompsVersions()
         else:
