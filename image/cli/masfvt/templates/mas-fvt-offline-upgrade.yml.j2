@@ -47,7 +47,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: fvt-manage-{{ mas_instance_id }}-sa
-    namespace: {{ $ns }}
+    namespace: mas-{{ mas_instance_id }}-manage
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
