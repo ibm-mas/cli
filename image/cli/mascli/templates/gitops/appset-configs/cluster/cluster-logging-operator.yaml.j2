@@ -4,16 +4,15 @@ cluster_logging_operator:
   install: "{{ CLUSTER_LOGGING_OPERATOR_INSTALL }}"
   aws_secret_access_key:  "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLOUDWATCH_AWS_SECRET_ACCESS_KEY }}>"
   aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLOUDWATCH_AWS_ACCESS_KEY_ID }}>"
+  channel: "{{ CLUSTER_LOGGING_OPERATOR_CHANNEL }}"
   {% if CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER %}
   use_syslog_forwarder: "{{ CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER }}"
   {% endif %}
   {% if CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN is defined and CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN != "" %}
   install_plan: "{{ CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN }}"
   {% endif %}
-  channel: "{{ CLUSTER_LOGGING_OPERATOR_CHANNEL }}"
   {% if CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING %}
   setup_log_forwarding: "{{ CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING }}"
-  {% endif %}
   log_forwarder_client_url: "{{ CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL }}"
   syslog_forwarder_version: "{{ CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION }}"
   log_forwarder_pullsecret: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
@@ -22,3 +21,4 @@ cluster_logging_operator:
   log_forwarder_ca_cert: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LOG_FORWARDER_CA_CERT }}>"
   log_forwarder_tls_cert: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LOG_FORWARDER_TLS_CERT }}>"
   log_forwarder_tls_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LOG_FORWARDER_TLS_KEY }}>"
+  {% endif %}
