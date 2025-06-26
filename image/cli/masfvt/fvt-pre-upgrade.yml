@@ -25,7 +25,7 @@
     - name: "Create or update manage offline upgrade check cron job"
       kubernetes.core.k8s:
         apply: true
-        template: templates/mas-fvt-offline-update.yml.j2
+        template: templates/mas-fvt-offline-upgrade.yml.j2
         state: present
       when:
         - manage_ws is defined and offline_upgrade_job is defined
