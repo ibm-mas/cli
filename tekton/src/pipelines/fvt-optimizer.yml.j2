@@ -123,8 +123,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - imagescan-optimizer
       workspaces:
@@ -166,8 +166,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - moadmin
       workspaces:
@@ -209,8 +209,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - moadminjobs
       workspaces:
@@ -252,8 +252,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - moadminmodels
       workspaces:
@@ -295,8 +295,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - moadminoverview
       workspaces:
@@ -338,8 +338,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - moadminprojects
       workspaces:
@@ -381,8 +381,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - momodels
       workspaces:
