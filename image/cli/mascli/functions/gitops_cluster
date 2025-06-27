@@ -554,14 +554,11 @@ function gitops_cluster() {
   export SECRET_NAME_INSTANA=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}instana
   export SECRET_KEY_INSTANA_KEY=${SECRET_NAME_INSTANA}#key
 
-  export SECRET_NAME_LOG_FORWARDER_CERTS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}syslog_certs
-  export SECRET_KEY_LOG_FORWARDER_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_CERTS}#ca_bundle
-  export SECRET_KEY_LOG_FORWARDER_CA_CERT=${SECRET_NAME_LOG_FORWARDER_CERTS}#ca_cert
-  export SECRET_KEY_LOG_FORWARDER_TLS_CERT=${SECRET_NAME_LOG_FORWARDER_CERTS}#tls_cert
-  export SECRET_KEY_LOG_FORWARDER_TLS_KEY=${SECRET_NAME_LOG_FORWARDER_CERTS}#tls_key
+  export SECRET_NAME_SYSLOG_PULLSECRET=${SYSLOG_PULLSECRET_SECRET_NAME:-"aws-dev/syslog_pullsecret"}
+  export SECRET_KEY_SYSLOG_PULLSECRET=${SECRET_NAME_SYSLOG_PULLSECRET}#pullsecret
 
-  export SECRET_NAME_LOG_FORWARDER_DLC_CERTS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}dlc_certs
-  export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CERTS}#ca_bundle
+  export SECRET_NAME_LOG_FORWARDER_DLC_CERT=${DLC_CERT_SECRET_NAME:-"aws-dev/dlc_certs"}
+  export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CERT}#ca_bundle
 
 
   if [ -n "$DEVOPS_MONGO_URI" ];then
@@ -709,11 +706,10 @@ function gitops_cluster() {
   if [[ -n "$CLUSTER_LOGGING_OPERATOR_INSTALL" ]]; then
     echo "- Cluster Logging Operator"
     sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
-    
     if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
       echo "- Cluster Logging Operator Log Forwarder Setup"
-      sm_verify_secret_exists $SECRET_NAME_LOG_FORWARDER_CERTS "ca_bundle,ca_cert,tls_cert,tls_key"
-      sm_verify_secret_exists $SECRET_NAME_LOG_FORWARDER_DLC_CERTS "ca_bundle"
+      sm_verify_secret_exists $SECRET_NAME_SYSLOG_PULLSECRET "pullsecret"
+      sm_verify_secret_exists $SECRET_NAME_LOG_FORWARDER_DLC_CERT "ca_bundle"
     fi
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi

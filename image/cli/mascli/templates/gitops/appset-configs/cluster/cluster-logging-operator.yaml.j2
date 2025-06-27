@@ -15,10 +15,6 @@ cluster_logging_operator:
   setup_log_forwarding: "{{ CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING }}"
   log_forwarder_client_url: "{{ CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL }}"
   syslog_forwarder_version: "{{ CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION }}"
-  log_forwarder_pullsecret: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
+  log_forwarder_pullsecret: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SYSLOG_PULLSECRET }}>"
   log_forwarder_dlc_cert:  "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE }}>"
-  log_forwarder_ca_bundle: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LOG_FORWARDER_CA_BUNDLE }}>"
-  log_forwarder_ca_cert: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LOG_FORWARDER_CA_CERT }}>"
-  log_forwarder_tls_cert: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LOG_FORWARDER_TLS_CERT }}>"
-  log_forwarder_tls_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LOG_FORWARDER_TLS_KEY }}>"
   {% endif %}
