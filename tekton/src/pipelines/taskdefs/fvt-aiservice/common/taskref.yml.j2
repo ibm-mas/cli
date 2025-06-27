@@ -1,0 +1,14 @@
+timeout: "2h"
+taskRef:
+  kind: Task
+  name: mas-fvt-run-suite
+when:
+  - input: "$(params.fvt_digest_aibroker)"
+    operator: notin
+    values: [""]
+  - input: "$(params.mas_app_channel_aibroker)"
+    operator: notin
+    values: [""]
+workspaces:
+  - name: configs
+    workspace: shared-configs
