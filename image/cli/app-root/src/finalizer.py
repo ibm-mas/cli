@@ -326,6 +326,12 @@ if __name__ == "__main__":
             "namespace": f"mas-{instanceId}-visualinspection",
             "apiVersion": "apps.mas.ibm.com/v1",
             "kind": "VisualInspectionApp"
+        },
+        "ibm-mas-aibroker": {
+            "deployment": "ibm-mas-aibroker-operator",
+            "namespace": f"mas-{instanceId}-aibroker",
+            "apiVersion": "apps.mas.ibm.com/v1",
+            "kind": "AiBrokerApp",
         }
     }
 
@@ -341,7 +347,8 @@ if __name__ == "__main__":
         "ibm-mas-optimizer": "S04PSB1R8DR",
         "ibm-mas-predict": "S04Q53TT5S5",
         "ibm-mas-visualinspection": "S04PUSAL2A0",
-        "ibm-mas-mobile": "S0507GG7V6K"
+        "ibm-mas-mobile": "S0507GG7V6K",
+        "ibm-mas-aibroker": "S04Q53TT5S5"
     }
 
     for productId in knownProductIds:

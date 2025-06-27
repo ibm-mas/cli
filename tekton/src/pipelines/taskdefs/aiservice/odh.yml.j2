@@ -5,7 +5,11 @@
       value: odh
 
     - name: mas_instance_id
+{% if application is defined and application == "aibroker" %}
+      value: $(params.aibroker_instance_id)
+{% else %}
       value: $(params.mas_instance_id)
+{% endif %}
     - name: mas_app_id
       value: aibroker
     - name: artifactory_username

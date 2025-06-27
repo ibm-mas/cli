@@ -1,0 +1,132 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-aibroker
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+
+  params:
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
+
+    # MAS Configuration
+    - name: mas_app_channel_aibroker
+      type: string
+      default: ""
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+
+    # FVT Configuration
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: fvt_artifactory_username
+      type: string
+      default: ""
+    - name: fvt_artifactory_token
+      type: string
+      default: ""
+
+    # Image Digests
+    - name: fvt_digest_aibroker
+      type: string
+      description: FVT Digest - AIBroker
+      default: ""
+    - name: ivt_digest_core
+      type: string
+      description: IVT Digest - Core
+      default: ""
+
+  tasks:
+    # 1. aibroker scan
+    - name: imagescan-aibroker
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-aibroker
+        - name: product_channel
+          value: $(params.mas_app_channel_aibroker)
+        - name: fvt_test_suite
+          value: imagescan
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+
+    # 2. Aibroker base test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-tenant-entitlement
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: tenant_entitlement 
+
+    # 3. Aibroker mcc test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-mcc
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: mcc 
+      runAfter:
+        - fvt-aiservice-tenant-entitlement
+        
+    # 5. Aibroker fmea test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-fmea
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: fmea 
+      runAfter:
+        - fvt-aiservice-tenant-entitlement
+
+    # 4. Aibroker pcc test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-pcc
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: pcc 
+      runAfter:
+        - fvt-aiservice-mcc
+        - fvt-aiservice-fmea
+        
+    # 6. Aibroker similarity test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-similarity
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: similarity 
+      runAfter:
+        - fvt-aiservice-mcc
+        - fvt-aiservice-fmea
+
+    # 7. Aibroker nl2oslc test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-nl2oslc
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: nl2oslc 
+      runAfter:
+        - fvt-aiservice-pcc
+        - fvt-aiservice-similarity

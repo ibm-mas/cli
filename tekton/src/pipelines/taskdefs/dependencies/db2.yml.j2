@@ -6,7 +6,11 @@
       value: dependencies-db2-{{ suffix }}
 
     - name: mas_instance_id
+{% if suffix == "aibroker" %}
+      value: $(params.aibroker_instance_id)
+{% else %}
       value: $(params.mas_instance_id)
+{% endif %}
 
     # Entitlement
     - name: ibm_entitlement_key
@@ -31,6 +35,9 @@
       value: $(params.db2_type)
     - name: db2_timezone
       value: $(params.db2_timezone)
+{% endif %}
+{% if suffix == "aibroker" %}
+      value: aibroker
 {% endif %}
     - name: db2_namespace
       value: $(params.db2_namespace)
