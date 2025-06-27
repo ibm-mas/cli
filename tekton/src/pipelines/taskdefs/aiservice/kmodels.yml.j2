@@ -4,7 +4,11 @@
     - name: devops_suite_name
       value: kmodels
     - name: mas_instance_id
+{% if application is defined and application == "aibroker" %}
+      value: $(params.aibroker_instance_id)
+{% else %}
       value: $(params.mas_instance_id)
+{% endif %}
     - name: mas_app_id
       value: aibroker
     - name: artifactory_username
@@ -49,6 +53,10 @@
       value: $(params.mas_aibroker_pipeline_steps_tag)
     - name: mas_aibroker_tenant_name
       value: $(params.mas_aibroker_tenant_name)
+    - name: mas_icr_cp
+      value: $(params.mas_icr_cp)
+    - name: mas_icr_cpopen
+      value: $(params.mas_icr_cpopen) 
     
   taskRef:
     name: mas-devops-kmodels
