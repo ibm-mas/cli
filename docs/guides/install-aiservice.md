@@ -82,20 +82,15 @@ The interactive install will guide you through a series of questioned designed t
       <p>Provide the basic information about your Aiservice instance:</p>
       <ul>
         <li>Instance ID</li>
-        <li>Aiservice Channel</li>
-        <li>Choose what dependency to be Installed</li>
+        <li>Configure s3 storage, DB, RSL and tenant</li>
+        <li>Choose to install SLS, DB2, or DRO as a dependency, or opt out and provide alternative information including connection URL and token.</li>
         <li>Operational Mode (production or non-production)</li>
       </ul>
-    </cds-accordion-item>
-    <cds-accordion-item title="Configure Databases">
-      <p>The install supports the automatic provision of in-cluster MongoDb and Db2 databases for use with Maximo Application Suite, you may also choose to bring your own (BYO) by providing the necessary configuration files (which the installer will also help you create).</p>
-    </cds-accordion-item>
-    <cds-accordion-item title="Configure Integrations & Additional Configuration">
-      <p>The install supports the abilty to install and configure Turbonomic's Kubeturbo operator.</p>
     </cds-accordion-item>
     <cds-accordion-item title="Review Choices">
       <p>Before the install actually starts you will be presented with a summary of all your choices and a non-interactive command that will allow you to repeat the same installation without going through all the prompts again.</p>
     </cds-accordion-item>
+    
   </cds-accordion>
 </div>
 
@@ -111,7 +106,7 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
   mas aiservice-install \
     --mas-catalog-version @@MAS_LATEST_CATALOG@@ \
     --aibroker-instance-id aib1 \
-    --aibroker-channel @@AIBROKER_CHANNEL@@ \
+    --aibroker-channel 9.1.x \
     \
     --ibm-entitlement-key '${IBM_ENTITLEMENT_KEY}' \
     --license-file /mnt/home/entitlement.lic \

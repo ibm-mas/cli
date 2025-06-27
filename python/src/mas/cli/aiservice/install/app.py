@@ -513,9 +513,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printH2("AI Service Settings - Storage, WatsonX, MariaDB details")
             self.printDescription(["Customise AI Broker details"])
             self.promptForString("Storage provider", "mas_aibroker_storage_provider")
-            if self.getParam("mas_aibroker_storage_provider") == "minio" and self.getParam("mas_app_channel_aibroker") != "9.0.x":
-                self.promptForString("minio root username", "minio_root_user")
-                self.promptForString("minio root password", "minio_root_password", isPassword=True)
             self.promptForString("Storage access key", "mas_aibroker_storage_accesskey")
             self.promptForString("Storage secret key", "mas_aibroker_storage_secretkey", isPassword=True)
             self.promptForString("Storage host", "mas_aibroker_storage_host")
@@ -554,6 +551,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 self.promptForString("ORG Id of RSL", "rsl_org_id")
                 self.promptForString("Token for RSL", "rsl_token", isPassword=True)
                 self.yesOrNo("Install minio", "install_minio_aiservice")
+                if self.getParam("install_minio_aiservice") == "true":
+                    self.promptForString("minio root username", "minio_root_user")
+                    self.promptForString("minio root password", "minio_root_password", isPassword=True)
                 self.yesOrNo("Install SLS", "install_sls_aiservice")
                 if self.getParam("install_sls_aiservice") != "true":
                     self.promptForString("SLS secret name", "mas_aibroker_sls_secret_name")
