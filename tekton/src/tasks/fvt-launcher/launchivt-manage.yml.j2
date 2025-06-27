@@ -104,6 +104,12 @@ spec:
               name: mas-fvt-monitor
               key: FVT_DIGEST_CTF
               optional: false
+        - name: IVT_DIGEST_CORE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-manage
+              key: IVT_DIGEST_CORE
+              optional: false
 
         # Black and white listing
         - name: FVT_BLACKLIST
