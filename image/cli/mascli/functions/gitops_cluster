@@ -85,8 +85,13 @@ CrowdStrike Falcon Operator (Optional):
       --install-falcon-operator ${COLOR_YELLOW}INSTALL_FALCON_OPERATOR${TEXT_RESET}                             Install the CrowdStrike Falcon Operator
 
 Cluster Logging Operator (Optional):
-      --install-cluster-logging-operator ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL${TEXT_RESET}           Install the Cluster Logging Operator
-
+      --install-cluster-logging-operator ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL${TEXT_RESET}                                           Install the Cluster Logging Operator
+      --cluster-logging-operator-use-syslog-forwarder ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER${TEXT_RESET}                 Flag to use syslog forwarder in the ClusterLogForwarder
+      --cluster-logging-operator-install-plan ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN${TEXT_RESET}                                 Install plan for the subscription of the Cluster Logging Operator
+      --cluster-logging-operator-channel ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_CHANNEL${TEXT_RESET}                                           Channel for the subscription of the Cluster Logging Operator
+      --cluster-logging-operator-setup-log-forwarding ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING${TEXT_RESET}                 Flag to setup the deployment for syslog forwarder
+      --cluster-logging-operator-log-forwarder-client-url ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL${TEXT_RESET}         The syslog forwarder client url that goes into the ConfigMap
+      --cluster-logging-operator-syslog-forwarder-version ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION${TEXT_RESET}         Syslog forwarder image version
 Instana Agent Operator (Optional):
       --install-instana-agent-operator ${COLOR_YELLOW}INSTANA_AGENT_OPERATOR_INSTALL${TEXT_RESET}               Install the Instana Agent Operator
 
@@ -286,6 +291,24 @@ function gitops_cluster_noninteractive() {
       --install-cluster-logging-operator)
         export CLUSTER_LOGGING_OPERATOR_INSTALL=true
         ;;
+      --cluster-logging-operator-use-syslog-forwarder)
+        export CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER=true
+        ;;
+      --cluster-logging-operator-install-plan)
+        export CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN=$1 && shift
+        ;;
+      --cluster-logging-operator-channel)
+        export CLUSTER_LOGGING_OPERATOR_CHANNEL=$1 && shift
+        ;;
+      --cluster-logging-operator-setup-log-forwarding)
+        export CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING=true
+        ;;
+      --cluster-logging-operator-log-forwarder-client-url)
+        export CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL=$1 && shift
+        ;;
+      --cluster-logging-operator-syslog-forwarder-version)
+        export CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION=$1 && shift
+        ;;
 
       # Instana Agent Operator
       --install-instana-agent-operator)
@@ -372,6 +395,10 @@ function gitops_cluster() {
   echo
   reset_colors
   echo_h2 "Review Settings"
+
+  # set default values 
+  export CLUSTER_LOGGING_OPERATOR_CHANNEL=${CLUSTER_LOGGING_OPERATOR_CHANNEL:-"stable-5.9"}
+  export CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION=${CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION:-"1.8-amd64"}
 
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then
     # Replace first occurance of 'apps.' with 'public.' only if OCP_CLUSTER_DOMAIN starts with 'apps.'
@@ -485,8 +512,10 @@ function gitops_cluster() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Logging Operator" "    "
-  echo_reset_dim "Install the Cluster Logging Operator ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_INSTALL}"
-  echo_reset_dim "Use Syslog Forwarder ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER}"
+  echo_reset_dim "Install the Cluster Logging Operator ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_INSTALL:-false}"
+  echo_reset_dim "Use Syslog Forwarder ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER:-false}"
+  echo_reset_dim "Setup Log Forwarding ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING:-false}"
+  echo_reset_dim "Operator Channel ............................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_CHANNEL}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -524,6 +553,13 @@ function gitops_cluster() {
 
   export SECRET_NAME_INSTANA=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}instana
   export SECRET_KEY_INSTANA_KEY=${SECRET_NAME_INSTANA}#key
+
+  export SECRET_NAME_SYSLOG_PULLSECRET=${SYSLOG_PULLSECRET_SECRET_NAME:-"aws-dev/syslog_pullsecret"}
+  export SECRET_KEY_SYSLOG_PULLSECRET=${SECRET_NAME_SYSLOG_PULLSECRET}#pullsecret
+
+  export SECRET_NAME_LOG_FORWARDER_DLC_CERT=${DLC_CERT_SECRET_NAME:-"aws-dev/dlc_cert"}
+  export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CERT}#ca_bundle
+
 
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
@@ -670,6 +706,11 @@ function gitops_cluster() {
   if [[ -n "$CLUSTER_LOGGING_OPERATOR_INSTALL" ]]; then
     echo "- Cluster Logging Operator"
     sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
+    if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
+      echo "- Cluster Logging Operator Log Forwarder Setup"
+      sm_verify_secret_exists $SECRET_NAME_SYSLOG_PULLSECRET "pullsecret"
+      sm_verify_secret_exists $SECRET_NAME_LOG_FORWARDER_DLC_CERT "ca_bundle"
+    fi
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi
 
