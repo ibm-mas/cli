@@ -140,7 +140,7 @@ function gitops_odh_noninteractive() {
   export OPENDATAHUB_SOURCE="${OPENDATAHUB_SOURCE:-"community-operators"}"
   export OPENDATAHUB_SOURCE_NAMESPACE="${OPENDATAHUB_SOURCE_NAMESPACE:-"openshift-marketplace"}"
 
-  export MAS_AIBROKER_STORAGE_PROVIDER="${MAS_AIBROKER_STORAGE_PROVIDER:-"minio"}"
+  export MAS_AIBROKER_STORAGE_PROVIDER="${MAS_AIBROKER_STORAGE_PROVIDER:-"aws"}"
   export MAS_AIBROKER_STORAGE_SSL="${MAS_AIBROKER_STORAGE_SSL:-"true"}"
   export MAS_AIBROKER_STORAGE_REGION="${MAS_AIBROKER_STORAGE_REGION:-"us-east-2"}"
   export PRIMARY_STORAGE_CLASS="${PRIMARY_STORAGE_CLASS:-"nfs-client"}"
@@ -424,17 +424,17 @@ function gitops_odh() {
 
   # Set up secret key and fetch secret
   export SECRET_ACCOUNT_PATH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
-  export ODH_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio"
+  export ODH_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage"
 
 
   export SECRET_KEY_IMAGE_PULL_SECRET_B64="${SECRET_ACCOUNT_PATH}ibm_entitlement#image_pull_secret_b64"
 
-  # MinIO
-  export SECRET_KEY_SM_MINIO_ACCESSKEY="${SECRET_ACCOUNT_PATH}minio#sm_minio_accesskey"
-  export SECRET_KEY_SM_MINIO_SECRETKEY="${SECRET_ACCOUNT_PATH}minio#sm_minio_secretkey"
-  export SECRET_KEY_SM_MINIO_HOST="${SECRET_ACCOUNT_PATH}minio#sm_minio_host"
-  export SECRET_KEY_SM_MINIO_PORT="${SECRET_ACCOUNT_PATH}minio#sm_minio_port"
-  export SECRET_KEY_SM_MINIO_BUCKET_DEFAULT="${SECRET_ACCOUNT_PATH}minio#sm_minio_bucket_default"
+  # Storage
+  export SECRET_KEY_SM_STORAGE_ACCESSKEY="${SECRET_ACCOUNT_PATH}storage#sm_storage_accesskey"
+  export SECRET_KEY_SM_STORAGE_SECRETKEY="${SECRET_ACCOUNT_PATH}storage#sm_storage_secretkey"
+  export SECRET_KEY_SM_STORAGE_HOST="${SECRET_ACCOUNT_PATH}storage#sm_storage_host"
+  export SECRET_KEY_SM_STORAGE_PORT="${SECRET_ACCOUNT_PATH}storage#sm_storage_port"
+  export SECRET_KEY_SM_STORAGE_BUCKET_DEFAULT="${SECRET_ACCOUNT_PATH}storage#sm_storage_bucket_pipelines"
 
   # MariaDB
   export SECRET_KEY_SM_MARIADB_HOST="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_host"
@@ -451,7 +451,7 @@ function gitops_odh() {
     export GIT_SSH=false
   fi
 
-  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio "sm_minio_bucket_templates,sm_minio_bucket_tenants,sm_minio_bucket_pipelines,sm_minio_bucket_default"
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage "sm_storage_bucket_templates,sm_storage_bucket_tenants,sm_storage_bucket_pipelines"
   sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb "sm_mariadb_host,sm_mariadb_database"
   sm_get_secret_file "$ODH_SECRET" "$ODH_SECRET_FILE"
   #################################################################
@@ -463,16 +463,16 @@ function gitops_odh() {
    #mas_aibroker_storage_provider
   ######################################################################
   # Reuse existing secret values if present
-  TEMP_MINIO_ACCESS_KEY=$(jq -r .sm_minio_accesskey "$ODH_SECRET_FILE")
-  if [[ -n ${TEMP_MINIO_ACCESS_KEY} ]]; then
-    export MINIO_ACCESS_KEY="${TEMP_MINIO_ACCESS_KEY}"
-    echo "gitops_odh : MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:0:3}<snip> is available in the secret, using existing value."
+  TEMP_STORAGE_ACCESS_KEY=$(jq -r .sm_storage_accesskey "$ODH_SECRET_FILE")
+  if [[ -n ${TEMP_STORAGE_ACCESS_KEY} ]]; then
+    export STORAGE_ACCESS_KEY="${TEMP_STORAGE_ACCESS_KEY}"
+    echo "gitops_odh : STORAGE_ACCESS_KEY=${STORAGE_ACCESS_KEY:0:3}<snip> is available in the secret, using existing value."
   fi
 
-  TEMP_MINIO_SECRET_KEY=$(jq -r .sm_minio_secretkey "$ODH_SECRET_FILE")
-  if [[ -n ${TEMP_MINIO_SECRET_KEY} ]]; then
-    export MINIO_SECRET_KEY="${TEMP_MINIO_SECRET_KEY}"
-    echo "gitops_odh : MINIO_SECRET_KEY=${MINIO_SECRET_KEY:0:3}<snip> is available in the secret, using existing value."
+  TEMP_STORAGE_SECRET_KEY=$(jq -r .sm_storage_secretkey "$ODH_SECRET_FILE")
+  if [[ -n ${TEMP_STORAGE_SECRET_KEY} ]]; then
+    export STORAGE_SECRET_KEY="${TEMP_STORAGE_SECRET_KEY}"
+    echo "gitops_odh : STORAGE_SECRET_KEY=${STORAGE_SECRET_KEY:0:3}<snip> is available in the secret, using existing value."
   fi
 
   TEMP_MARIADB_USER=$(jq -r .sm_mariadb_user "$ODH_SECRET_FILE")
@@ -489,11 +489,11 @@ function gitops_odh() {
 
 
   # Extract and export secrets
-  export MINIO_ACCESS_KEY=$(jq -r .sm_minio_accesskey "$ODH_SECRET_FILE")
-  export MINIO_SECRET_KEY=$(jq -r .sm_minio_secretkey "$ODH_SECRET_FILE")
-  export MINIO_HOST=$(jq -r .sm_minio_host "$ODH_SECRET_FILE")
-  export MINIO_PORT=$(jq -r .sm_minio_port "$ODH_SECRET_FILE")
-  export MINIO_BUCKET=$(jq -r .sm_minio_bucket_default "$ODH_SECRET_FILE")
+  export STORAGE_ACCESS_KEY=$(jq -r .sm_storage_accesskey "$ODH_SECRET_FILE")
+  export STORAGE_SECRET_KEY=$(jq -r .sm_storage_secretkey "$ODH_SECRET_FILE")
+  export STORAGE_HOST=$(jq -r .sm_storage_secretkey "$ODH_SECRET_FILE")
+  export STORAGE_PORT=$(jq -r .sm_storage_port "$ODH_SECRET_FILE")
+  export STORAGE_BUCKET=$(jq -r .sm_storage_bucket_pipelines "$ODH_SECRET_FILE")
 
   export MARIADB_HOST=$(jq -r .sm_mariadb_host "$MARIA_SECRET_FILE")
   export MARIADB_PORT=$(jq -r .sm_mariadb_port "$MARIA_SECRET_FILE")
@@ -503,8 +503,8 @@ function gitops_odh() {
   export MARIADB_SECRET_VALUE=$(jq -r .sm_mariadb_secret_value "$MARIA_SECRET_FILE")
 
   echo_h2 "ODH Secret Summary"
-  echo_reset_dim "MINIO_HOST ............................. ${COLOR_MAGENTA}${MINIO_HOST}"
-  echo_reset_dim "MINIO_BUCKET ........................... ${COLOR_MAGENTA}${MINIO_BUCKET}"
+  echo_reset_dim "STORAGE_HOST ............................. ${COLOR_MAGENTA}${STORAGE_HOST}"
+  echo_reset_dim "STORAGE_BUCKET ........................... ${COLOR_MAGENTA}${STORAGE_BUCKET}"
   echo_reset_dim "MARIADB_HOST ........................... ${COLOR_MAGENTA}${MARIADB_HOST}"
   echo_reset_dim "MARIADB_DATABASE ....................... ${COLOR_MAGENTA}${MARIADB_DATABASE}"
   echo_reset_dim "MAS_AIBROKER_STORAGE_SSL ................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"

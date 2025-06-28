@@ -31,12 +31,12 @@ Kkmodel Configuration:
       --aibroker-internal-tls ${COLOR_YELLOW}AIBROKER_INTERNAL_TLS${TEXT_RESET}                                         Identifier for the internal TLS configuration 
       --aibroker-namespace ${COLOR_YELLOW}AIBROKER_NAMESPACE${TEXT_RESET}                                               The namespace where AI Broker is deployed
       --mas-aibroker-storage-provider ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PROVIDER${TEXT_RESET}                         Backend storage service used by AI Broker to store models, pipelines, and tenant data
-      --mas-aibroker-storage-ssl ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}                                   Whether MinIO uses SSL (true/false)
-      --mas_aibroker-storage-host ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}                                 Hostname or service name of the MinIO backend
-      --mas_aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}                                 Port number MinIO is exposed on
-      --mas_aibroker-storage-accesskey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_ACCESSKEY${TEXT_RESET}                       Access key to authenticate with MinIO
-      --mas_aibroker-storage-secretkey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SECRETKEY${TEXT_RESET}                       Secret key for authenticating with MinIO
-      --mas-aibroker-storage-region ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}                             Storage region used in MinIO (if applicable)
+      --mas-aibroker-storage-ssl ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}                                   Whether STORAGE uses SSL (true/false)
+      --mas_aibroker-storage-host ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}                                 Hostname or service name of the STORAGE backend
+      --mas_aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}                                 Port number STORAGE is exposed on
+      --mas_aibroker-storage-accesskey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_ACCESSKEY${TEXT_RESET}                       Access key to authenticate with STORAGE
+      --mas_aibroker-storage-secretkey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SECRETKEY${TEXT_RESET}                       Secret key for authenticating with STORAGE
+      --mas-aibroker-storage-region ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}                             Storage region used in STORAGE (if applicable)
       --ssh-secret-name ${COLOR_YELLOW}SSH_SECRET_NAME${TEXT_RESET}                                                     SSH secret for securely provide SSH credentials
       --mas_aibroker_tenant_name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                                   Aibroker Tenant name
       --mas-aibroker-provision-tenant ${COLOR_YELLOW}MAS_AIBROKER_PROVISION_TENANT${TEXT_RESET}                         Whether to provision the AI Broker tenant (true/false)
@@ -407,19 +407,19 @@ function gitops_kmodel() {
   # check if those are already present 
   export IMAGE_PULL_SECRET_B64=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
   
-  # minio
-  export SM_MINIO_ACCESSKEY=${SECRETS_PREFIX}minio#sm_minio_accesskey
-  export SM_MINIO_SECRETKEY=${SECRETS_PREFIX}minio#sm_minio_secretkey
-  export SM_MINIO_HOST=${SECRETS_PREFIX}minio#sm_minio_host
-  export SM_MINIO_PORT=${SECRETS_PREFIX}minio#sm_minio_port
-  export SM_MINIO_BUCKET_TEMPLATES=${SECRETS_PREFIX}minio#sm_minio_bucket_templates
-  export SM_MINIO_BUCKET_TENANTS=${SECRETS_PREFIX}minio#sm_minio_bucket_tenants
-  export SM_MINIO_BUCKET_PIPELINES=${SECRETS_PREFIX}minio#sm_minio_bucket_pipelines
+  # STORAGE
+  export SM_STORAGE_ACCESSKEY=${SECRETS_PREFIX}storage#sm_storage_accesskey
+  export SM_STORAGE_SECRETKEY=${SECRETS_PREFIX}storage#sm_storage_secretkey
+  export SM_STORAGE_HOST=${SECRETS_PREFIX}storage#sm_storage_host
+  export SM_STORAGE_PORT=${SECRETS_PREFIX}storage#sm_storage_port
+  export SM_STORAGE_BUCKET_TEMPLATES=${SECRETS_PREFIX}storage#sm_storage_bucket_templates
+  export SM_STORAGE_BUCKET_TENANTS=${SECRETS_PREFIX}storage#sm_storage_bucket_tenants
+  export SM_STORAGE_BUCKET_PIPELINES=${SECRETS_PREFIX}storage#sm_storage_bucket_pipelines
 
 # check for those variables present into the aws sm 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64"
 
-  sm_verify_secret_exists ${SECRETS_PREFIX}minio "sm_minio_host,sm_minio_port,sm_minio_accesskey,sm_minio_secretkey,sm_minio_bucket_templates,sm_minio_bucket_tenants,sm_minio_bucket_pipelines"
+  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_port,sm_storage_accesskey,sm_storage_secretkey,sm_storage_bucket_templates,sm_storage_bucket_tenants,sm_storage_bucket_pipelines"
 
     # finally push them into the git repo
     # ---------------------------------------------------------------------------
