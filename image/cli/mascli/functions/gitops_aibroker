@@ -50,6 +50,7 @@ mariadb storage
 sls_dro_jdbc
       --slscfg-registration-key ${TEXT_RESET}SLSCFG_REGISTRATION_KEY${TEXT_RESET}
       --drocfg-ca ${TEXT_RESET}DROCFG_CA${TEXT_RESET}
+      --drocfg-tenant ${TEXT_RESET}DROCFG_TENANT${TEXT_RESET}
       --drocfg-registration-key ${TEXT_RESET}DROCFG_REGISTRATION_KEY${TEXT_RESET}
       --drocfg-url ${TEXT_RESET}DROCFG_URL${TEXT_RESET}
       --jdbccfg-username ${TEXT_RESET}JDBCCFG_USERNAME${TEXT_RESET}
@@ -116,7 +117,7 @@ function gitops_aibroker_noninteractive() {
   ##review
   export MAS_AIBROKER_S3_BUCKET_PREFIX=${MAS_AIBROKER_S3_BUCKET_PREFIX:-"m"}
   export MAS_AIBROKER_S3_REGION=${MAS_AIBROKER_S3_REGION:-"us-east-2"}
-  export ENVIRONMENT_TYPE=${ENVIRONMENT_TYPE:-"standard"}
+  export ENVIRONMENT_TYPE=${ENVIRONMENT_TYPE:-"PRODUCTION"}
   ##review
 
   # Target the local (to ArgoCD) cluster
@@ -370,6 +371,7 @@ function gitops_aibroker() {
 
   echo_reset_dim "SLS Config Registration Key ............ ${COLOR_MAGENTA}${SLSCFG_REGISTRATION_KEY}"
   echo_reset_dim "DRO Config CA .......................... ${COLOR_MAGENTA}${DROCFG_CA}"
+  echo_reset_dim "DRO Config Tenant ...................... ${COLOR_MAGENTA}${DROCFG_TENANT}"
   echo_reset_dim "DRO Config Registration Key ............ ${COLOR_MAGENTA}${DROCFG_REGISTRATION_KEY}"
   echo_reset_dim "DRO Config URL ......................... ${COLOR_MAGENTA}${DROCFG_URL}"
   echo_reset_dim "JDBC Config Username ................... ${COLOR_MAGENTA}${JDBCCFG_USERNAME}"
@@ -423,6 +425,7 @@ function gitops_aibroker() {
   export SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
   #dro
   export DROCFG_CA=${SECRETS_PREFIX}dro#drocfg_ca
+  export DROCFG_TENANT=${SECRETS_PREFIX}dro#drocfg_ca_tenant
   export DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}dro#drocfg_registration_key
   export DROCFG_URL=${SECRETS_PREFIX}dro#drocfg_url
   #jdbc
@@ -446,7 +449,7 @@ function gitops_aibroker() {
   # and git repo 
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "aibroker_image_pull_secret_b64,entitlement_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}dro "drocfg_ca,drocfg_registration_key,drocfg_url"
+  sm_verify_secret_exists ${SECRETS_PREFIX}dro "drocfg_ca,drocfg_registration_key,drocfg_url,drocfg_tenant"
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}minio "sm_minio_host,sm_minio_port,sm_minio_accesskey,sm_minio_secretkey,sm_minio_bucket_templates,sm_minio_bucket_tenants,sm_minio_bucket_pipelines"
   sm_verify_secret_exists ${SECRETS_PREFIX}mariadb "sm_mariadb_host,sm_mariadb_port,sm_mariadb_user,sm_mariadb_database,sm_mariadb_secret_name,sm_mariadb_secret_value"
