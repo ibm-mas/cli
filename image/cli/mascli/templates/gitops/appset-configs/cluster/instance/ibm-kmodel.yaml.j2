@@ -11,15 +11,15 @@ ibm_kmodel:
   mas_aibroker_storage_provider: "{{ MAS_AIBROKER_STORAGE_PROVIDER }}"
   mas_aibroker_storage_ssl: "{{ MAS_AIBROKER_STORAGE_SSL }}"
 
-  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_ACCESSKEY }}>"
-  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_SECRETKEY }}>"
-  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_HOST }}>"
-  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_PORT }}>"
+  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}:{{ SM_STORAGE_ACCESSKEY }}>"
+  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}:{{ SM_STORAGE_SECRETKEY }}>"
+  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}:{{ SM_STORAGE_HOST }}>"
+  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}:{{ SM_STORAGE_PORT }}>"
   mas_aibroker_storage_region: "{{ MAS_AIBROKER_STORAGE_REGION }}"
 
-  mas_aibroker_storage_templates_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_BUCKET_TEMPLATES }}>"
-  mas_aibroker_storage_tenants_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_BUCKET_TENANTS }}>"
-  mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_MINIO_BUCKET_PIPELINES }}>"
+  mas_aibroker_storage_templates_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_STORAGE_BUCKET_TEMPLATES }}>"
+  mas_aibroker_storage_tenants_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_STORAGE_BUCKET_TENANTS }}>"
+  mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_STORAGE_BUCKET_PIPELINES }}>"
 
   ssh_secret_name: "{{ SSH_SECRET_NAME }}"
 

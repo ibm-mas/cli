@@ -25,7 +25,7 @@ ibm aibroker(required):
       --mas-instance-id ${TEXT_RESET}MAS_INSTACE_ID${TEXT_RESET}
       --primary-storage-class ${TEXT_RESET}PRIMARY_STORAGE_CLASS${TEXT_RESET}
 
-minio storage:
+storage provider:
       --mas-aibroker-storage-provider ${TEXT_RESET}MAS_AIBROKER_STORAGE_PROVIDER${TEXT_RESET}
       --mas-aibroker-minio-secret ${TEXT_RESET}MAS_AIBROKER_MINIO_SECRET${TEXT_RESET}
       --mas-aibroker-storage-accesskey ${TEXT_RESET}MAS_AIBROKER_STORAGE_ACCESSKEY${TEXT_RESET}
@@ -398,19 +398,19 @@ function gitops_aibroker() {
 
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
 
-  #minio
+  #storage
   # mas_aibroker_storage_accesskey
-  export SECRET_KEY_MINIO_ACCESSKEY=${SECRETS_PREFIX}minio#sm_minio_accesskey
-  export SECRET_KEY_MINIO_SECRETKEY=${SECRETS_PREFIX}minio#sm_minio_secretkey
+  export SECRET_KEY_STORAGE_ACCESSKEY=${SECRETS_PREFIX}storage#sm_storage_accesskey
+  export SECRET_KEY_STORAGE_SECRETKEY=${SECRETS_PREFIX}storage#sm_storage_secretkey
   # mas_aibroker_storage_host
-  export SECRET_KEY_MINIO_HOST=${SECRETS_PREFIX}minio#sm_minio_host
-  export SECRET_KEY_MINIO_PORT=${SECRETS_PREFIX}minio#sm_minio_port
+  export SECRET_KEY_STORAGE_HOST=${SECRETS_PREFIX}storage#sm_storage_host
+  export SECRET_KEY_STORAGE_PORT=${SECRETS_PREFIX}storage#sm_storage_port
   # mas_aibroker_storage_templates_bucket
-  export SM_MINIO_BUCKET_TEMPLATES=${SECRETS_PREFIX}minio#sm_minio_bucket_templates
+  export SM_STORAGE_BUCKET_TEMPLATES=${SECRETS_PREFIX}storage#sm_storage_bucket_templates
   # mas_aibroker_storage_tenants_bucket
-  export SM_MINIO_BUCKET_TENANTS=${SECRETS_PREFIX}minio#sm_minio_bucket_tenants
+  export SM_STORAGE_BUCKET_TENANTS=${SECRETS_PREFIX}storage#sm_storage_bucket_tenants
   # mas_aibroker_storage_pipelines_bucket
-  export SM_MINIO_BUCKET_PIPELINES=${SECRETS_PREFIX}minio#sm_minio_bucket_pipelines
+  export SM_STORAGE_BUCKET_PIPELINES=${SECRETS_PREFIX}storage#sm_storage_bucket_pipelines
 
 
   #mariadb
@@ -451,7 +451,7 @@ function gitops_aibroker() {
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "aibroker_image_pull_secret_b64,entitlement_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}dro "drocfg_ca,drocfg_registration_key,drocfg_url,drocfg_tenant"
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}minio "sm_minio_host,sm_minio_port,sm_minio_accesskey,sm_minio_secretkey,sm_minio_bucket_templates,sm_minio_bucket_tenants,sm_minio_bucket_pipelines"
+  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_port,sm_storage_accesskey,sm_storage_secretkey,sm_storage_bucket_templates,sm_storage_bucket_tenants,sm_storage_bucket_pipelines"
   sm_verify_secret_exists ${SECRETS_PREFIX}mariadb "sm_mariadb_host,sm_mariadb_port,sm_mariadb_user,sm_mariadb_database,sm_mariadb_secret_name,sm_mariadb_secret_value"
 
   

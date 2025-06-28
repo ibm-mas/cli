@@ -56,14 +56,14 @@ Watsonx :
 --mas-aibroker-watsonxai-apikey ${COLOR_YELLOW}MAS_AIBROKER_WATSONXAI_APIKEY${TEXT_RESET}                    API key for authenticating with Watsonx.ai
 --mas-aibroker-watsonxai-project-id ${COLOR_YELLOW}MAS_AIBROKER_WATSONXAI_PROJECT_ID${TEXT_RESET}            Watsonx.ai project ID used by AI Broker
 
-MinIO :
---mas-aibroker-storage-host ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}                            Hostname or service name of the MinIO backend
---mas-aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}                            Port number MinIO is exposed on
---mas-aibroker-storage-region ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}                        Storage region used in MinIO (if applicable)
---mas-aibroker-storage-accesskey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_ACCESSKEY${TEXT_RESET}                  Access key to authenticate with MinIO
---mas-aibroker-storage-secretkey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SECRETKEY${TEXT_RESET}                  Secret key for authenticating with MinIO
---mas-aibroker-storage-pipelines-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}    The MinIO bucket used to store pipeline assets
---mas-aibroker-storage-ssl ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}                              Whether MinIO uses SSL (true/false)
+Storage :
+--mas-aibroker-storage-host ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}                            Hostname or service name of the STORAGE backend
+--mas-aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}                            Port number STORAGE is exposed on
+--mas-aibroker-storage-region ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}                        Storage region used in STORAGE (if applicable)
+--mas-aibroker-storage-accesskey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_ACCESSKEY${TEXT_RESET}                  Access key to authenticate with STORAGE
+--mas-aibroker-storage-secretkey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SECRETKEY${TEXT_RESET}                  Secret key for authenticating with STORAGE
+--mas-aibroker-storage-pipelines-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}    The STORAGE bucket used to store pipeline assets
+--mas-aibroker-storage-ssl ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}                              Whether STORAGE uses SSL (true/false)
 
 
 Automatic GitHub Push (Optional):
@@ -110,7 +110,7 @@ function gitops_aibroker_tenant_noninteractive() {
   # -- SLS Defaults
   export MAS_AIBROKER_SLS_SUBSCRIPTION_ID=${MAS_AIBROKER_SLS_SUBSCRIPTION_ID:-"001"}
 
-  # -- MinIO Defaults
+  # -- STORAGE Defaults
   export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
 
   while [[ $# -gt 0 ]]
@@ -215,7 +215,7 @@ function gitops_aibroker_tenant_noninteractive() {
         export MAS_AIBROKER_WATSONXAI_PROJECT_ID=$1 && shift
         ;;
 
-      # -- MinIO
+      # -- STORAGE
       --mas-aibroker-storage-host)
         export MAS_AIBROKER_STORAGE_HOST=$1 && shift
         ;;
@@ -343,7 +343,7 @@ function gitops_aibroker_tenant_noninteractive() {
   [[ -z "$RSL_URL" ]] && gitops_aibroker_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
   [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
   ##review
-  [[ -z "$MAS_AIBROKER_STORAGE_SSL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_STORAGE_SSL is not set. Please specify whether SSL is enabled for MinIO using --mas-aibroker-storage-ssl."
+  [[ -z "$MAS_AIBROKER_STORAGE_SSL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --mas-aibroker-storage-ssl."
 
 }
 
@@ -426,7 +426,7 @@ function gitops_aibroker_tenant() {
   echo_reset_dim "Watsonx.ai API key ........................... ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONXAI_APIKEY}"
   echo_reset_dim "Watsonx.ai project ID ........................ ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONXAI_PROJECT_ID}"
 
-  # -- MinIO
+  # -- STORAGE
   echo_reset_dim "SSL enabled .................................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
 
   AVP_TYPE=aws  # Support for IBM will be added later
@@ -438,11 +438,12 @@ function gitops_aibroker_tenant() {
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
   # dro
   export SECRET_KEY_ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#aibroker_image_pull_secret_b64
-  export SECRET_KEY_DROCFG_CA=${SECRETS_PREFIX}dro#drocfg_ca
+  export SECRET_KEY_DROCFG_CA=${SECRETS_PREFIX}dro#drocfg_ca_tenant
   export SECRET_KEY_DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}dro#drocfg_registration_key
 
   # sls
   export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
+  export SECRET_KEY_SLSCFG_CA_TENANT=${SECRETS_PREFIX}sls#slscfg_ca_tenant
 
   #rsl  ##review
   export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
@@ -453,12 +454,12 @@ function gitops_aibroker_tenant() {
   ##review
 
 
-  # minio
-  export SECRET_KEY_MINIO_HOST=${SECRETS_PREFIX}minio#sm_minio_host
-  export SECRET_KEY_MINIO_PORT=${SECRETS_PREFIX}minio#sm_minio_port
-  export SECRET_KEY_MINIO_ACCESSKEY=${SECRETS_PREFIX}minio#sm_minio_accesskey
-  export SECRET_KEY_MINIO_SECRETKEY=${SECRETS_PREFIX}minio#sm_minio_secretkey
-  export SECRET_KEY_MINIO_BUCKET=${SECRETS_PREFIX}minio#sm_minio_bucket_default
+  # STORAGE
+  export SECRET_KEY_STORAGE_HOST=${SECRETS_PREFIX}storage#sm_storage_host
+  export SECRET_KEY_STORAGE_PORT=${SECRETS_PREFIX}storage#sm_storage_port
+  export SECRET_KEY_STORAGE_ACCESSKEY=${SECRETS_PREFIX}storage#sm_storage_accesskey
+  export SECRET_KEY_STORAGE_SECRETKEY=${SECRETS_PREFIX}storage#sm_storage_secretkey
+  export SECRET_KEY_STORAGE_BUCKET=${SECRETS_PREFIX}storage#sm_storage_bucket_default
 
   # check for those variables present into the aws sm 
 
@@ -466,9 +467,9 @@ function gitops_aibroker_tenant() {
  
   sm_verify_secret_exists ${SECRETS_PREFIX}dro "drocfg_ca,drocfg_registration_key"
 
-  sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
+  sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_tenant"
  
-  sm_verify_secret_exists ${SECRETS_PREFIX}minio "sm_minio_host,sm_minio_port,sm_minio_accesskey,sm_minio_secretkey,sm_minio_bucket_default"
+  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_port,sm_storage_accesskey,sm_storage_secretkey,sm_storage_bucket_default"
   ##review
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
