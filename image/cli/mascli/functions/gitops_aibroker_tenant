@@ -459,7 +459,6 @@ function gitops_aibroker_tenant() {
   export SECRET_KEY_STORAGE_PORT=${SECRETS_PREFIX}storage#sm_storage_port
   export SECRET_KEY_STORAGE_ACCESSKEY=${SECRETS_PREFIX}storage#sm_storage_accesskey
   export SECRET_KEY_STORAGE_SECRETKEY=${SECRETS_PREFIX}storage#sm_storage_secretkey
-  export SECRET_KEY_STORAGE_BUCKET=${SECRETS_PREFIX}storage#sm_storage_bucket_default
 
   # check for those variables present into the aws sm 
 
@@ -469,7 +468,7 @@ function gitops_aibroker_tenant() {
 
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_tenant"
  
-  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_port,sm_storage_accesskey,sm_storage_secretkey,sm_storage_bucket_default"
+  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_port,sm_storage_accesskey,sm_storage_secretkey"
   ##review
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
