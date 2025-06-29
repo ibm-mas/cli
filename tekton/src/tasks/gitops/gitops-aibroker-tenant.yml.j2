@@ -34,6 +34,8 @@ spec:
       type: string
     - name: tenant_id
       type: string
+    - name: mas_aibroker_tenant_name
+      type: string
     - name: cluster_domain
       type: string
     - name: in_saas_env
@@ -74,6 +76,8 @@ spec:
     - name: mas_aibroker_storage_port
       type: string
     - name: mas_aibroker_storage_region
+      type: string
+    - name: mas_aibroker_storage_provider
       type: string
     - name: mas_aibroker_storage_accesskey
       type: string
@@ -148,9 +152,13 @@ spec:
 
       - name: TENANT_NAMESPACE
         value: $(params.tenantNamespace)
+        
       - name: TENANT_ID
         value: $(params.tenant_id)
-        
+
+      - name: MAS_AIBROKER_TENANT_NAME
+        value: $(params.mas_aibroker_tenant_name)
+
       - name: CLUSTER_DOMAIN
         value: $(params.cluster_domain)
 
@@ -204,6 +212,9 @@ spec:
 
       - name: MAS_AIBROKER_STORAGE_REGION
         value: $(params.mas_aibroker_storage_region)
+
+      - name: MAS_AIBROKER_STORAGE_PROVIDER
+        value: $(params.mas_aibroker_storage_provider)
 
       - name: MAS_AIBROKER_STORAGE_ACCESSKEY
         value: $(params.mas_aibroker_storage_accesskey)
