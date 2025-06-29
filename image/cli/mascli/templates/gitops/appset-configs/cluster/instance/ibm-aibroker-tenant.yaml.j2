@@ -3,6 +3,7 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}/{{ TENANT_ID
 ibm_aibroker_tenant:
   # aibroker
   tenant_id: "{{ TENANT_ID }}"
+  mas_aibroker_tenant_name: "{{ MAS_AIBROKER_TENANT_NAME }}"
   aibroker_namespace: "{{ AIBROKER_NAMESPACE }}"
   mas_aibroker_provision_tenant: "{{ MAS_AIBROKER_PROVISION_TENANT }}"
   mas_instance_id: "{{ MAS_INSTANCE_ID }}"
@@ -49,6 +50,7 @@ ibm_aibroker_tenant:
 
   #tenant ##review
   # S3
+  mas_aibroker_storage_provider: "{{ MAS_AIBROKER_STORAGE_PROVIDER }}"
   mas_aibroker_s3_endpoint_url: "{{ MAS_AIBROKER_S3_ENDPOINT_URL }}"
   mas_aibroker_s3_region: "{{ MAS_AIBROKER_S3_REGION }}"
   mas_aibroker_s3_bucket_prefix: "{{ MAS_AIBROKER_S3_BUCKET_PREFIX }}"

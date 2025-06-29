@@ -19,6 +19,7 @@ ibm_aibroker_tenant(required):
       --mas-instance-id ${COLOR_YELLOW}MAS_INSTACE_ID${TEXT_RESET}                                          The MAS instance ID used by AI Broker
       --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                        The tenant's Kubernetes namespace
       --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Broker instance
+      --mas-aibroker-tenant-name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                       The name of the AI Broker tenant
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                           The domain name of the Kubernetes cluster (e.g., cluster.local)
       --drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                   URL of the DRO configuration service
       --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
@@ -33,6 +34,7 @@ AIBroker :
 --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                               The MAS instance ID used by AI Broker
 --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                              The tenant's Kubernetes namespace
 --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                           The tenant ID for the AI Broker instance
+--mas_aibroker_tenant_name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                             The name of the AI Broker tenant
 --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                 The domain name of the Kubernetes cluster (e.g., cluster.local)
 --in-saas-env ${COLOR_YELLOW}IN_SAAS_ENV${TEXT_RESET}                                                       Whether the environment is SaaS (true/false)
 --ibm-entitlement-key ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}                                       IBM Entitlement API key for accessing IBM container registries
@@ -57,6 +59,7 @@ Watsonx :
 --mas-aibroker-watsonxai-project-id ${COLOR_YELLOW}MAS_AIBROKER_WATSONXAI_PROJECT_ID${TEXT_RESET}            Watsonx.ai project ID used by AI Broker
 
 Storage :
+--mas_aibroker_storage_provider ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PROVIDER${TEXT_RESET}                    The storage provider used by AI Broker (e.g., S3, MinIO)
 --mas-aibroker-storage-host ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}                            Hostname or service name of the STORAGE backend
 --mas-aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}                            Port number STORAGE is exposed on
 --mas-aibroker-storage-region ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}                        Storage region used in STORAGE (if applicable)
@@ -163,6 +166,9 @@ function gitops_aibroker_tenant_noninteractive() {
       --tenant-id)
         export TENANT_ID=$1 && shift
         ;;
+      --mas-aibroker-tenant-name)
+        export MAS_AIBROKER_TENANT_NAME=$1 && shift
+        ;;
       --cluster-domain)
         export CLUSTER_DOMAIN=$1 && shift
         ;;
@@ -250,11 +256,12 @@ function gitops_aibroker_tenant_noninteractive() {
       --rsl-token)
         export SECRET_KEY_RSL_TOKEN=$1 && shift
         ;;
-
+      --mas-aibroker-storage-provider)
+        export MAS_AIBROKER_STORAGE_PROVIDER=$1 && shift
+        ;;
       --mas-aibroker-s3-endpoint-url)
         export MAS_AIBROKER_S3_ENDPOINT_URL=$1 && shift
         ;;
-
       --mas-aibroker-s3-region)
         export MAS_AIBROKER_S3_REGION=$1 && shift
         ;;
@@ -326,6 +333,7 @@ function gitops_aibroker_tenant_noninteractive() {
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_aibroker_tenant_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
   [[ -z "$TENANT_NAMESPACE" ]] && gitops_aibroker_tenant_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
   [[ -z "$TENANT_ID" ]] && gitops_aibroker_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
+  [[ -z "$MAS_AIBROKER_TENANT_NAME" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_TENANT_NAME is not set. Please provide the AI Broker tenant name using --mas-aibroker-tenant-name."
   [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aibroker_tenant_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
   
   # -- DRO
@@ -344,8 +352,9 @@ function gitops_aibroker_tenant_noninteractive() {
   [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
   ##review
   [[ -z "$MAS_AIBROKER_STORAGE_SSL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --mas-aibroker-storage-ssl."
-
-}
+  [[ -z "$MAS_AIBROKER_STORAGE_PROVIDER" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_STORAGE_PROVIDER is not set. Please specify the STORAGE provider using --mas-aibroker-storage-provider."
+ 
+ }
 
 function gitops_aibroker_tenant() {
   # Take the first parameter off (it will be create-gitops)
@@ -412,6 +421,7 @@ function gitops_aibroker_tenant() {
   echo_reset_dim "mas instance ID .............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "tenant namespace ............................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
   echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
+  echo_reset_dim "mas aibroker tenant name ..................... ${COLOR_MAGENTA}${MAS_AIBROKER_TENANT_NAME}"
   echo_reset_dim "cluster domain ............................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "in SaaS environment .......................... ${COLOR_MAGENTA}${IN_SAAS_ENV}"
 
@@ -428,7 +438,7 @@ function gitops_aibroker_tenant() {
 
   # -- STORAGE
   echo_reset_dim "SSL enabled .................................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
-
+  echo_reset_dim "Storage provider ............................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PROVIDER}"
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
