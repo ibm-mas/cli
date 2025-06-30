@@ -451,7 +451,12 @@ function gitops_aibroker() {
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "aibroker_image_pull_secret_b64,entitlement_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}dro "drocfg_ca,drocfg_registration_key,drocfg_url,drocfg_ca_tenant"
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_port,sm_storage_accesskey,sm_storage_secretkey,sm_storage_bucket_templates,sm_storage_bucket_tenants,sm_storage_bucket_pipelines"
+  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_accesskey,sm_storage_secretkey,sm_storage_bucket_templates,sm_storage_bucket_tenants,sm_storage_bucket_pipelines"
+  # Conditionally include sm_storage_port for minio
+  if [[ "${MAS_AIBROKER_STORAGE_PROVIDER}" == "minio" ]]; then
+  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_port"
+  fi
+
   sm_verify_secret_exists ${SECRETS_PREFIX}mariadb "sm_mariadb_host,sm_mariadb_port,sm_mariadb_user,sm_mariadb_database,sm_mariadb_secret_name,sm_mariadb_secret_value"
 
   
