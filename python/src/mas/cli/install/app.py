@@ -632,12 +632,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if not self.getParam("mas_channel").startswith("8.") and not self.getParam("mas_channel").startswith("9.0"):
                 self.installManage = True
                 self.isManageFoundation = True
-                self.setParam("is_full_manage", "false")
                 self.setParam("mas_app_settings_aio_flag", "false")
                 self.manageAppName = "Manage foundation"
                 self.printDescription([f"{self.manageAppName} installs the following capabilities: User, Security groups, Application configurator and Mobile configurator."])
-        else:
-            self.setParam("is_full_manage", "true")
 
         if self.installManage:
             self.configAppChannel("manage")
@@ -1123,9 +1120,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.fatalError(f"Unknown option: {key} {value}")
 
         if self.installManage:
-            # If Manage is being installed and --is-full-manage was set to something different than "false", assume it is "true"
-            if self.getParam("is_full_manage") != "false":
-                self.setParam("is_full_manage", "true")
 
             # Configure Storage and Access mode
             self.manageStorageAndAccessMode()
@@ -1152,6 +1146,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
+
+        if not self.isManageFoundation and self.getParam("mas_appws_components") == "":
+            self.fatalError("--mas_appws_components cannot be empty")
 
     @logMethodCall
     def install(self, argv):

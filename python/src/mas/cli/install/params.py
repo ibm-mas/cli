@@ -38,7 +38,6 @@ optionalParams = [
     "mas_superuser_password",
     "mas_trust_default_cas",
     "mas_app_settings_server_bundles_size",
-    "is_full_manage",
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",
     "mas_app_settings_demodata",
