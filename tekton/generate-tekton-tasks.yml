@@ -47,13 +47,17 @@
     # -------------------------------------------------------------------------
     - name: Generate Tasks (AI Broker)
       ansible.builtin.template:
-        src: "{{ task_src_dir }}/aibroker/{{ item }}.yml.j2"
+        src: "{{ task_src_dir }}/aiservice/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - aibroker
+        - minio
+        - mariadb
+        - aiservice
         - kmodels
         - odh
-
+        - aiservice-tenant
+        - aiservice-post-verify
+        
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (FVT)
@@ -106,6 +110,7 @@
         - launchfvt-monitor
         - launchfvt-optimizer
         - launchfvt-predict
+        - launchfvt-aiservice
         - launchfvt-visualinspection
         - launchfvt-upgrade-post
         - launchfvt-upgrade-pre
