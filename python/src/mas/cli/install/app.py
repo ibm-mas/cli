@@ -666,10 +666,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installInspection:
             self.configAppChannel("visualinspection")
 
-        self.installAiBroker = self.yesOrNo("Install AI Broker")
-        if self.installAiBroker:
-            self.configAppChannel("aibroker")
-
         if isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.1.x-feature':
             self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
             if self.installFacilities:
@@ -908,7 +904,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.optimizerSettings()
         self.predictSettings()
         self.assistSettings()
-        self.aibrokerSettings()
         self.facilitiesSettings()
 
         # Dependencies
@@ -939,7 +934,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installPredict = False
         self.installInspection = False
         self.installOptimizer = False
-        self.installAiBroker = False
         self.installFacilities = False
         self.deployCP4D = False
         self.db2SetAffinity = False
@@ -1038,10 +1032,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_visualinspection", value)
                     self.installInspection = True
-            elif key == "aibroker_channel":
-                if value is not None and value != "":
-                    self.setParam("mas_app_channel_aibroker", value)
-                    self.installAiBroker = True
             elif key == "optimizer_channel":
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_optimizer", value)
