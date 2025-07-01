@@ -1599,7 +1599,6 @@ spec:
         name: avp
         resources: {}
         securityContext:
-          runAsNonRoot: true
           allowPrivilegeEscalation: false
           runAsUser: 999
         volumeMounts:
