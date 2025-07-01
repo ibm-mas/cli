@@ -447,7 +447,7 @@ function gitops_aibroker_tenant() {
   # aibroker
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
   # dro
-  export SECRET_KEY_ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#aibroker_image_pull_secret_b64
+  export SECRET_KEY_ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
   export SECRET_KEY_DROCFG_CA=${SECRETS_PREFIX}dro#drocfg_ca_tenant
   export SECRET_KEY_DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}dro#drocfg_registration_key
 
