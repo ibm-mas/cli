@@ -44,19 +44,20 @@ Function support
 -------------------------------------------------------------------------------
 Not all functions supported in the container image are available in the standalone CLI binary:
 
-| CLI Function                                             | Image    | Binary   |
-| -------------------------------------------------------- | :------: | :------: |
-| [install](guides/install.md)                             | &#10003; | &#10003; |
-| [update](commands/update.md)                             | &#10003; | &#10003; |
-| [upgrade](commands/upgrade.md)                           | &#10003; | &#10003; |
-| [uninstall](commands/uninstall.md)                       | &#10003; | &#10003; |
-| [must-gather](commands/must-gather.md)                   | &#10003; | &#10005; |
-| [configure-airgap](commands/configure-airgap.md)         | &#10003; | &#10005; |
-| [mirror-images](guides/image-mirroring.md)               | &#10003; | &#10005; |
-| [mirror-redhat-images](commands/mirror-redhat-images.md) | &#10003; | &#10005; |
-| [setup-registry](commands/setup-registry.md)             | &#10003; | &#10005; |
-| [teardown-registry](commands/teardown-registry.md)       | &#10003; | &#10005; |
-| [provision-fyre](commands/provision-fyre.md)             | &#10003; | &#10005; |
-| [provision-roks](commands/provision-roks.md)             | &#10003; | &#10005; |
-| [provision-rosa](commands/provision-rosa.md)             | &#10003; | &#10005; |
-| [configtool-oidc](commands/configtool-oidc.md)           | &#10003; | &#10005; |
+| CLI Function                                               | Image    | Binary   |
+| ---------------------------------------------------------- | :------: | :------: |
+| [install](guides/install.md)                               | &#10003; | &#10003; |
+| [update](commands/update.md)                               | &#10003; | &#10003; |
+| [upgrade](commands/upgrade.md)                             | &#10003; | &#10003; |
+| [uninstall](commands/uninstall.md)                         | &#10003; | &#10003; |
+| [must-gather](commands/must-gather.md)                     | &#10003; | &#10005; |
+| [configure-airgap](commands/configure-airgap.md)           | &#10003; | &#10005; |
+| [mirror-images](guides/image-mirroring.md)                 | &#10003; | &#10005; |
+| [mirror-redhat-images](commands/mirror-redhat-images.md)   | &#10003; | &#10005; |
+| [setup-registry](commands/setup-registry.md)               | &#10003; | &#10005; |
+| [teardown-registry](commands/teardown-registry.md)         | &#10003; | &#10005; |
+| [provision-fyre](commands/provision-fyre.md)               | &#10003; | &#10005; |
+| [provision-roks](commands/provision-roks.md)               | &#10003; | &#10005; |
+| [provision-rosa](commands/provision-rosa.md)               | &#10003; | &#10005; |
+| [configtool-oidc](commands/configtool-oidc.md)             | &#10003; | &#10005; |
+| [facilities-external-db](guides/facilities-external-db.md) | &#10003; | &#10005; |

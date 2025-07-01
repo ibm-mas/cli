@@ -8,7 +8,9 @@
 # - coreidp-oidc: reconfigures MAS IDP multiple times
 # - coreidp-ssoconfig: reconfigures default IDPs and seamless login
 # - licensingapi: Will be calculating appPoints and can be impacted by other user logins in parallel
+# - usagebilling - simulates app and addon installs, creates and deletes users, disables billing cron jobs, runs billingjobs etc.
 # - operatormaturity: non-disruptive, we just want it to be the last thing that runs
+
 
 # 1. smtp
 # -------------------------------------------------------------------------
@@ -119,7 +121,23 @@
   runAfter:
     - coreidp-ssoconfig
 
-# 10. operatormaturity
+# 10. usagebilling
+# -------------------------------------------------------------------------
+- name: usagebilling
+  {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
+  params:
+    - name: fvt_test_suite
+      value: usagebilling
+    {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
+  runAfter:
+    - licensingapi
+  workspaces:
+    - name: configs
+      workspace: shared-configs
+    - name: pod-templates
+      workspace: shared-pod-templates
+
+# 11. operatormaturity
 # -------------------------------------------------------------------------
 - name: operatormaturity
   {{ lookup('template', 'taskdefs/fvt-core/common/taskref.yml.j2') | indent(2) }}
@@ -128,7 +146,7 @@
       value: operatormaturity
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
-    - licensingapi
+    - usagebilling
   workspaces:
     - name: configs
       workspace: shared-configs
