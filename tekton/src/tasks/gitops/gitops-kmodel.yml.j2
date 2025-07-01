@@ -82,6 +82,8 @@ spec:
       ##review
     - name: mas_app_channel
       type: string
+    - name: mas_icr_cp
+      type: string
 
   stepTemplate:
     name: gitops-kmodel
@@ -162,7 +164,8 @@ spec:
       ##review
       - name: MAS_APP_CHANNEL
         value: $(params.mas_app_channel)
-
+      - name: MAS_ICR_CP
+        value: $(params.mas_icr_cp)
 
     envFrom:
       - configMapRef:
