@@ -14,6 +14,14 @@
           - mas.ibm.com/instanceId={{ mas_instance_id }}
       register: manage_ws
 
+    - name: "Lookup upgradeType"
+      set_fact:
+        manage_upgrade_type: "{{ manage_ws.resources | json_query('[*].spec.settings.db.upgrade.upgradeType') }}"
+      when:
+        - manage_ws is defined
+        - manage_ws.resources is defined
+        - manage_ws.resources | length>0
+
     - name: "Create or update manage offline upgrade check cron job"
       kubernetes.core.k8s:
         apply: true
@@ -22,3 +30,4 @@
       when:
         - manage_ws is defined
         - manage_ws.resources | length>0
+        - '"onlineUpgrade" in manage_upgrade_type'

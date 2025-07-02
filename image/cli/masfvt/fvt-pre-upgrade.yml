@@ -39,5 +39,4 @@
         - manage_ws is defined and offline_upgrade_job is defined
         - manage_ws.resources is defined and offline_upgrade_job.resources is defined
         - manage_ws.resources | length>0 and offline_upgrade_job.resources | length==0
-        - manage_ws.resources | json_query('[*].status.conditions[?type==`Ready`][].reason') | select ('in', ['Ready', 'WorkspaceReady']) | list | length == app_ws_cr_lookup.resources | length
         - '"onlineUpgrade" in manage_upgrade_type'
