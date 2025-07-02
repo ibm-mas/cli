@@ -76,7 +76,7 @@ function mustgather() {
   OCP_REPORT=true
   DEPENDENCY_REPORT=true
   SLS_REPORT=true
-  MAS_APP_IDS="core,add,assist,iot,monitor,manage,optimizer,predict,visualinspection,pipelines"
+  MAS_APP_IDS="core,add,assist,iot,monitor,manage,optimizer,predict,visualinspection,pipelines,facilities,aibroker"
   EXTRA_NAMESPACES=""
 
 
