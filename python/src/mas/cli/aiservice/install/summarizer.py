@@ -55,9 +55,9 @@ class aiServiceInstallSummarizerMixin():
 
     def aibrokerSummary(self) -> None:
         if self.installAiBroker:
-            self.printSummary("AI Broker", self.params["mas_app_channel_aibroker"])
-            print_formatted_text(HTML("  <SkyBlue>+ Maximo AI Broker Settings</SkyBlue>"))
-            self.printParamSummary("  + Aibroker Instance Id", "aibroker_instance_id")
+            self.printSummary("AI Service", self.params["mas_app_channel_aibroker"])
+            print_formatted_text(HTML("  <SkyBlue>+ Maximo AI Service Settings</SkyBlue>"))
+            self.printParamSummary("  + Aiservice Instance Id", "aibroker_instance_id")
             self.printParamSummary("  + Storage provider", "mas_aibroker_storage_provider")
             if self.getParam("mas_aibroker_storage_provider") == "minio":
                 self.printParamSummary("  + minio root username", "minio_root_user")

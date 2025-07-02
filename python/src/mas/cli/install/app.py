@@ -666,6 +666,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installInspection:
             self.configAppChannel("visualinspection")
 
+        self.installAibroker = self.yesOrNo("Install AI Service")
+        if self.installAibroker:
+            self.configAppChannel("aibroker")
+
         if isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.1.x-feature':
             self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
             if self.installFacilities:
@@ -752,6 +756,62 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             ])
             self.configCP4D()
             self.yesOrNo("Install IBM SPSS Statistics", "cpd_install_spss")
+
+    @logMethodCall
+    def aibrokerSettings(self) -> None:
+        if self.installAiBroker:
+            self.setParam("aibroker_instance_id", f"{self.args.mas_instance_id}")
+            self.printH2("AI Service Settings - Storage, WatsonX, MariaDB details")
+            self.printDescription(["Customise AI Broker details"])
+            self.promptForString("Storage provider", "mas_aibroker_storage_provider")
+            self.promptForString("Storage access key", "mas_aibroker_storage_accesskey")
+            self.promptForString("Storage secret key", "mas_aibroker_storage_secretkey", isPassword=True)
+            self.promptForString("Storage host", "mas_aibroker_storage_host")
+            self.promptForString("Storage port", "mas_aibroker_storage_port")
+            self.promptForString("Storage ssl", "mas_aibroker_storage_ssl")
+            self.promptForString("Storage region", "mas_aibroker_storage_region")
+            self.promptForString("Storage pipelines bucket", "mas_aibroker_storage_pipelines_bucket")
+            self.promptForString("Storage tenants bucket", "mas_aibroker_storage_tenants_bucket")
+            self.promptForString("Storage templates bucket", "mas_aibroker_storage_templates_bucket")
+
+            self.promptForString("Watsonxai api key", "mas_aibroker_watsonxai_apikey", isPassword=True)
+            self.promptForString("Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
+            self.promptForString("Watsonxai project id", "mas_aibroker_watsonxai_project_id")
+
+            self.promptForString("Database host", "mas_aibroker_db_host")
+            self.promptForString("Database port", "mas_aibroker_db_port")
+            self.promptForString("Database user", "mas_aibroker_db_user")
+            self.promptForString("Database name", "mas_aibroker_db_database")
+            self.promptForString("Database Secretname", "mas_aibroker_db_secret_name", isPassword=True)
+            self.promptForString("Database password", "mas_aibroker_db_secret_value", isPassword=True)
+
+            if self.getParam("mas_app_channel_aibroker") != "9.0.x":
+                self.promptForString("Mariadb username", "mariadb_user")
+                self.promptForString("Mariadb password", "mariadb_password", isPassword=True)
+                self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
+                self.promptForString("Tenant start date", "tenant_entitlement_start_date")
+                self.promptForString("Tenant end date", "tenant_entitlement_end_date")
+                self.promptForString("S3 bucket prefix", "mas_aibroker_s3_bucket_prefix")
+                self.promptForString("S3 endpoint url", "mas_aibroker_s3_endpoint_url")
+                self.promptForString("S3 bucket prefix (tenant level)", "mas_aibroker_tenant_s3_bucket_prefix")
+                self.promptForString("S3 region (tenant level)", "mas_aibroker_tenant_s3_region")
+                self.promptForString("S3 endpoint url (tenant level)", "mas_aibroker_tenant_s3_endpoint_url")
+                self.promptForString("S3 access key (tenant level)", "mas_aibroker_tenant_s3_access_key", isPassword=True)
+                self.promptForString("S3 secret key (tenant level)", "mas_aibroker_tenant_s3_secret_key", isPassword=True)
+                self.promptForString("RSL url", "rsl_url")
+                self.promptForString("ORG Id of RSL", "rsl_org_id")
+                self.promptForString("Token for RSL", "rsl_token", isPassword=True)
+                self.yesOrNo("Install minio", "install_minio_aiservice")
+                if self.getParam("install_minio_aiservice") == "true":
+                    self.promptForString("minio root username", "minio_root_user")
+                    self.promptForString("minio root password", "minio_root_password", isPassword=True)
+                self.yesOrNo("Install DB2 Instance for AI Service", "install_db2_aiservice")
+                if self.getParam("install_db2_aiservice") != "true":
+                    self.promptForString("DB2 username", "mas_aibroker_db2_username")
+                    self.promptForString("DB2 password", "mas_aibroker_db2_password")
+                    self.promptForString("DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
+                    self.promptForString("DB2 SSL enabled (true/false)", "mas_aibroker_db2_ssl_enabled")
+                    self.promptForString("DB2 CA certificate", "mas_aibroker_db2_ca_cert")
 
     @logMethodCall
     def assistSettings(self) -> None:
@@ -904,6 +964,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.optimizerSettings()
         self.predictSettings()
         self.assistSettings()
+        self.aibrokerSettings()
         self.facilitiesSettings()
 
         # Dependencies
@@ -938,6 +999,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
+        self.installAibroker = False
         self.slsLicenseFileLocal = None
 
         self.approvals = {
@@ -950,6 +1012,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
             "approval_visualinspection": {"id": "app-cfg-visualinspection"},  # After Visual Inspection workspace has been configured
             "approval_facilities": {"id": "app-cfg-facilities"},  # After Facilities workspace has been configured 
+            "approval_aibroker": {"id": "app-cfg-aibroker"},  # After Aibroker workspace has been configured 
         }
 
         self.configGrafana()
@@ -1028,6 +1091,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("mas_app_channel_predict", value)
                     self.installPredict = True
                     self.deployCP4D = True
+            elif key == "aibroker_channel":
+                if value is not None and value != "":
+                    self.setParam("mas_app_channel_aibroker", value)
+                    self.installAibroker = True
             elif key == "visualinspection_channel":
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_visualinspection", value)
@@ -1127,6 +1194,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 facilitiesConfigsPath = path.join(self.localConfigDir, "facilities-configs.yaml")
                 self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
                 self.setParam("mas_ws_facilities_config_map_name", "facilities-config")
+
+        if self.installAibroker:
+            self.setParam("aibroker_instance_id", f"{self.args.mas_instance_id}")
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))

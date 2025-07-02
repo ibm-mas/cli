@@ -571,7 +571,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.promptForString("DB2 username", "mas_aibroker_db2_username")
                     self.promptForString("DB2 password", "mas_aibroker_db2_password")
                     self.promptForString("DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
-                    self.promptForString("DB2 SSL enabled (yes/no)", "mas_aibroker_db2_ssl_enabled")
+                    self.promptForString("DB2 SSL enabled (true/false)", "mas_aibroker_db2_ssl_enabled")
                     self.promptForString("DB2 CA certificate", "mas_aibroker_db2_ca_cert")
                 # self.promptForString("Environment type", "environment_type")
 
