@@ -423,8 +423,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - moprojects
       workspaces:
@@ -464,8 +464,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - fvt-optimizer-python-model-ctf
       workspaces:
@@ -505,8 +505,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - fvt-optimizer-java-model-ctf
       workspaces:
@@ -546,8 +546,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - fvt-optimizer-model-endpoints-ctf
       workspaces:
@@ -587,8 +587,8 @@ spec:
           operator: notin
           values: [""]
         - input: "$(params.mas_app_channel_optimizer)"
-          operator: in
-          values: ["9.0.x-dev", "9.0.x", "8.5.x-dev", "8.5.x", "8.4.x-dev", "8.4.x"]
+          operator: notin
+          values: [""]
       runAfter:
         - fvt-optimizer-job-endpoints-ctf
       workspaces:
