@@ -102,13 +102,13 @@ function gitops_aibroker_tenant_noninteractive() {
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
   export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"}
   
-  ##review
+  
   export MAS_AIBROKER_S3_BUCKET_PREFIX=${MAS_AIBROKER_S3_BUCKET_PREFIX:-"m"}
   export MAS_AIBROKER_S3_REGION=${MAS_AIBROKER_S3_REGION:-"us-east-2"}
   export TENANT_ENTITLEMENT_TYPE=${TENANT_ENTITLEMENT_TYPE:-"standard"}
   export TENANT_ENTITLEMENT_START_DATE=${TENANT_ENTITLEMENT_START_DATE:-"2025-06-11"}
   export TENANT_ENTITLEMENT_END_DATE=${TENANT_ENTITLEMENT_END_DATE:-"2049-11-11"}
-  ##review
+  
 
   # -- SLS Defaults
   export MAS_AIBROKER_SLS_SUBSCRIPTION_ID=${MAS_AIBROKER_SLS_SUBSCRIPTION_ID:-"001"}
@@ -244,7 +244,7 @@ function gitops_aibroker_tenant_noninteractive() {
         export MAS_AIBROKER_STORAGE_SSL=$1 && shift
         ;;
 
-      ##review
+      
       --rsl-url)
         export RSL_URL=$1 && shift
         ;;
@@ -281,7 +281,7 @@ function gitops_aibroker_tenant_noninteractive() {
       --tenant-entitlement-end-date)
         export TENANT_ENTITLEMENT_END_DATE=$1 && shift
         ;;
-      ##review  
+        
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -347,10 +347,10 @@ function gitops_aibroker_tenant_noninteractive() {
   # [[ -z "$MAS_AIBROKER_WATSONXAI_APIKEY" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_APIKEY is not set. Please provide the Watsonx.ai API key using --mas-aibroker-watsonxai-apikey."
   # [[ -z "$MAS_AIBROKER_WATSONXAI_PROJECT_ID" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_PROJECT_ID is not set. Please specify the Watsonx.ai project ID using --mas-aibroker-watsonxai-project-id."
   
-  ##review
+  
   [[ -z "$RSL_URL" ]] && gitops_aibroker_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
   [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
-  ##review
+  
   [[ -z "$MAS_AIBROKER_STORAGE_SSL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --mas-aibroker-storage-ssl."
   [[ -z "$MAS_AIBROKER_STORAGE_PROVIDER" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_STORAGE_PROVIDER is not set. Please specify the STORAGE provider using --mas-aibroker-storage-provider."
  
@@ -455,13 +455,12 @@ function gitops_aibroker_tenant() {
   export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
   export SECRET_KEY_SLSCFG_CA_TENANT=${SECRETS_PREFIX}sls#slscfg_ca_tenant
 
-  #rsl  ##review
   export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
   export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
   #watsonx
   export SECRET_KEY_WATSONXAI_APIKEY=${SECRETS_PREFIX}watsonx#watsonxai_apikey
   export MAS_AIBROKER_WATSONXAI_PROJECT_ID=${SECRETS_PREFIX}watsonx#watsonxai_project_id
-  ##review
+  
 
 
   # STORAGE
@@ -479,10 +478,10 @@ function gitops_aibroker_tenant() {
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_tenant"
  
   sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_port,sm_storage_accesskey,sm_storage_secretkey"
-  ##review
+  
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
-  ##review
+  
   # finally push them into the git repo
 
     if [ -z $GIT_SSH ]; then
