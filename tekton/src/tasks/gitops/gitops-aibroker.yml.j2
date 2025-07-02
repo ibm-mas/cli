@@ -106,7 +106,7 @@ spec:
       type: string
     - name: in_saas_env
       type: string
-    ##review
+    
     - name: environment_type
       type: string
 
@@ -118,7 +118,7 @@ spec:
 
     - name: mas_aibroker_s3_bucket_prefix
       type: string
-        ##review
+        
 
 
   stepTemplate:
@@ -224,7 +224,7 @@ spec:
         value: $(params.cluster_domain)
       - name: IN_SAAS_ENV
         value: $(params.in_saas_env)
-      ##review
+      
       - name: ENVIRONMENT_TYPE
         value: $(params.environment_type)
 
@@ -237,7 +237,7 @@ spec:
       - name: MAS_AIBROKER_S3_BUCKET_PREFIX
         value: $(params.mas_aibroker_s3_bucket_prefix)
         
-      ##review
+      
     envFrom:
       - configMapRef:
           name: environment-properties
