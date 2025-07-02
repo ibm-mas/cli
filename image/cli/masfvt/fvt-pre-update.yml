@@ -29,5 +29,6 @@
         state: present
       when:
         - manage_ws is defined
+        - manage_ws.resources is defined
         - manage_ws.resources | length>0
         - '"onlineUpgrade" in manage_upgrade_type'
