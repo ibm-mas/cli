@@ -88,7 +88,7 @@ spec:
     - name: mas_aibroker_storage_ssl
       type: string
 
-        ##review
+        
     - name: mas_aibroker_s3_endpoint_url
       type: string
 
@@ -116,7 +116,7 @@ spec:
     - name: tenant_entitlement_end_date
       type: string
 
-    ##review
+    
 
       
   stepTemplate:
@@ -228,7 +228,7 @@ spec:
       - name: MAS_AIBROKER_STORAGE_SSL
         value: $(params.mas_aibroker_storage_ssl)
 
-      ##review
+      
       - name: MAS_AIBROKER_S3_ENDPOINT_URL
         value: $(params.mas_aibroker_s3_endpoint_url)
 
@@ -256,7 +256,7 @@ spec:
       - name: TENANT_ENTITLEMENT_END_DATE
         value: $(params.tenant_entitlement_end_date)
 
-      ##review
+      
             
     envFrom:
       - configMapRef:

@@ -91,7 +91,7 @@ function gitops_kmodel_noninteractive() {
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
   export DOCKER_SERVER=${DOCKER_SERVER:-"${MAS_ICR_CP}/aibroker"}
   export PULLSECRETNAME=${PULLSECRETNAME:-"ibm-entitlement"}
-  ##review
+  
   export MAS_APP_CHANNEL=${MAS_APP_CHANNEL:-"workspace"}
   
   while [[ $# -gt 0 ]]
@@ -190,11 +190,11 @@ function gitops_kmodel_noninteractive() {
       --mas_icr_cp)
         export MAS_ICR_CP=$1 && shift
         ;;
-        ##review
+        
       --mas-app-channel)
         export MAS_APP_CHANNEL=$1 && shift
         ;;
-        ##review
+        
       --docker-server)
         export DOCKER_SERVER=$1 && shift
         ;;
