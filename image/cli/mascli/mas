@@ -93,7 +93,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_kmodel
 . $CLI_DIR/functions/gitops_aibroker
 . $CLI_DIR/functions/gitops_aibroker_tenant
-
+. $CLI_DIR/functions/gitops_mas_provisioner
 
 # TODO: The path from the CLI the installation of the Ansible collection should be configurable
 MAS_DEVOPS_COLLECTION_PATH=${MAS_DEVOPS_COLLECTION_PATH:-ansible-devops}
@@ -215,6 +215,16 @@ case $1 in
     shift
     # Run the new Python-based install
     mas-cli install "$@"
+    ;;
+
+  aiservice-install)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! aiservice-install                                                         !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "aiservice-install")
+    shift
+    # Run the new Python-based aiservice-install
+    mas-cli aiservice-install "$@"
     ;;
 
   update)
@@ -589,6 +599,13 @@ case $1 in
     echo
     reset_colors
     gitops_aibroker_tenant "$@"
+    ;;
+  gitops-mas-provisioner)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_mas_provisioner "$@"
     ;;
 
   *)

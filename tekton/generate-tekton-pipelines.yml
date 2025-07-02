@@ -29,6 +29,7 @@
       with_items:
         # Main Pipelines
         - install
+        - install-aiservice
         - update
         - upgrade
         - rollback
@@ -47,6 +48,7 @@
         - fvt-monitor
         - fvt-optimizer
         - fvt-predict
+        - fvt-aiservice
         - fvt-sls
         - fvt-visualinspection
         - fvt-launcher
