@@ -666,8 +666,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.installInspection:
             self.configAppChannel("visualinspection")
 
-        self.installAibroker = self.yesOrNo("Install AI Service")
-        if self.installAibroker:
+        self.installAiBroker = self.yesOrNo("Install AI Service")
+        if self.installAiBroker:
             self.configAppChannel("aibroker")
 
         if isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.1.x-feature':
@@ -999,7 +999,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
-        self.installAibroker = False
+        self.installAiBroker = False
         self.slsLicenseFileLocal = None
 
         self.approvals = {
@@ -1094,7 +1094,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "aibroker_channel":
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_aibroker", value)
-                    self.installAibroker = True
+                    self.installAiBroker = True
             elif key == "visualinspection_channel":
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_visualinspection", value)
@@ -1195,7 +1195,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
                 self.setParam("mas_ws_facilities_config_map_name", "facilities-config")
 
-        if self.installAibroker:
+        if self.installAiBroker:
             self.setParam("aibroker_instance_id", f"{self.args.mas_instance_id}")
 
         # Load the catalog information
