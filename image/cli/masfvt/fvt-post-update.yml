@@ -1,0 +1,100 @@
+---
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    # Image Pull Policy
+    image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
+    mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+  tasks:
+    # 1. Check if manage is installed
+    # -----------------------------------------------------------------------------
+    - name: "Check if ManageWorkspace exists"
+      kubernetes.core.k8s_info:
+        kind: ManageWorkspace
+        namespace: "mas-{{ mas_instance_id }}-manage"
+        label_selectors:
+          - mas.ibm.com/instanceId={{ mas_instance_id }}
+      register: manage_ws
+
+    - name: 'Set fact manage exists'
+      set_fact:
+        manage_exists: true
+      when:
+        - manage_ws is defined
+        - manage_ws.resources is defined
+        - manage_ws.resources | length>0
+
+    - block:
+      # 2. Lookup the Operator Version
+      # -----------------------------------------------------------------------------
+        - name: "upgrade : Lookup OperatorCondition for Manage"
+          kubernetes.core.k8s_info:
+            api_version: operators.coreos.com/v2
+            kind: OperatorCondition
+            namespace: "mas-{{ mas_instance_id }}-manage"
+            label_selectors:
+              - "operators.coreos.com/ibm-mas-manage.mas-{{ mas_instance_id }}-manage"
+          register: updated_opcon
+          retries: 10
+          delay: 120 # 2 minutes
+          until:
+            - updated_opcon.resources is defined
+            - updated_opcon.resources | length == 1
+            - updated_opcon.resources[0].metadata.name is defined
+
+        - name: "upgrade : Debug OperatorCondition"
+          debug:
+            var: updated_opcon
+
+        - name: "upgrade : Lookup operator version for Manage"
+          set_fact:
+            updated_opcon_version: "{{ updated_opcon.resources[0].metadata.name.split('.v')[1] | ibm.mas_devops.format_pre_version_with_buildid }}"
+
+      # 3. Check that the Application CR meets the required state
+      # -----------------------------------------------------------------------------
+        - name: "Check if ManageApp CR is updated to latest version and Ready (120s delay)"
+          kubernetes.core.k8s_info:
+            kind: "ManageApp"
+            name: "{{ mas_instance_id }}"
+            namespace: "mas-{{ mas_instance_id }}-manage"
+          retries: 20 # about 40 minutes
+          delay: 120 # 2 minutes
+          until:
+            - updated_app_info.resources is defined
+            - updated_app_info.resources[0].status is defined
+            - updated_app_info.resources[0].status.versions.reconciled == updated_opcon_version
+            - updated_app_info.resources | json_query('[*].status.conditions[?type==`Ready`][].reason') | select ('match','Ready') | list | length == 1
+          register: updated_app_info
+
+      # 4. Check that the Application Workspaces meet the required state
+      # -----------------------------------------------------------------------------
+        - name: 'Check if workspace CR reconciled version is updated to target version (120s delay)'
+          kubernetes.core.k8s_info:
+            kind: "ManageWorkspace"
+            namespace: "mas-{{ mas_instance_id }}-manage"
+            label_selectors:
+              - mas.ibm.com/instanceId={{ mas_instance_id }}
+          retries: 30 # about 60 minutes
+          delay: 120 # 2 minutes
+          until:
+            - app_ws_cr_version.resources is defined
+            - app_ws_cr_version.resources[0].status.versions.reconciled == updated_opcon_version
+          register: app_ws_cr_version
+
+        - name: 'Check if ManageWorkspace CR is Ready (120s delay)'
+          kubernetes.core.k8s_info:
+            kind: "ManageWorkspace"
+            namespace: "mas-{{ mas_instance_id }}-manage"
+            label_selectors:
+              - mas.ibm.com/instanceId={{ mas_instance_id }}
+          retries: 60 # about 90 minutes
+          delay: 120 # 2 minutes
+          until:
+            - app_ws_cr_lookup.resources is defined
+            - app_ws_cr_lookup.resources | json_query('[*].status.conditions[?type==`Ready`][].reason') | select ('in', ['Ready', 'WorkspaceReady']) | list | length == app_ws_cr_lookup.resources | length
+            - app_ws_cr_lookup.resources | json_query('[*].status.conditions[?type==`Running`][].reason') | select ('in', ['Successful']) | list | length == app_ws_cr_lookup.resources | length
+          register: app_ws_cr_lookup
+
+      when:
+        - manage_exists is defined
+        - manage_exists
