@@ -377,6 +377,7 @@ class UpdateApp(BaseApp):
                     currentMongoVersionMajor = currentMongoVersion.split(".")[0]
 
                     if targetMongoVersionMajor > currentMongoVersionMajor:
+                        self.setParam("mongodb_action", "install")
                         # Let users know that Mongo will be upgraded if existing MongoDb major.minor version
                         # is lower than the target major version
                         # We don't show this message for normal updates, e.g. 5.0.1 to 5.0.2
@@ -401,7 +402,7 @@ class UpdateApp(BaseApp):
                         self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
                         self.fatalError(f"Existing MongoDB Community Edition installation at version {currentMongoVersion} cannot be downgraded to version {targetMongoVersion}")
                     else:
-                        h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE is aleady installed at version {targetMongoVersion}")
+                        h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE is already installed at version {targetMongoVersion}")
                 else:
                     # There's no MongoDb instance installed in the cluster, so nothing to do
                     h.stop_and_persist(symbol=self.successIcon, text="No MongoDb CE instances found")
