@@ -19,6 +19,7 @@
       delay: 120 # 2 minutes
       until:
         - catalog_upd_status.resources is defined
+        - catalog_upd_status.resources | length>0
         - catalog_upd_status.resources[0].status.conditions | selectattr('type', 'equalto', 'Succeeded') | map(attribute='status') | list | first == "True"
       register: catalog_upd_status
 
