@@ -760,7 +760,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def aibrokerSettings(self) -> None:
         if self.installAiBroker:
-            self.setParam("aibroker_instance_id", f"{self.args.mas_instance_id}")
+            self.setParam("aibroker_instance_id", self.getParam("mas_instance_id"))
             self.printH2("AI Service Settings - Storage, WatsonX, MariaDB details")
             self.printDescription(["Customise AI Broker details"])
             self.promptForString("Storage provider", "mas_aibroker_storage_provider")
@@ -1196,7 +1196,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("mas_ws_facilities_config_map_name", "facilities-config")
 
         if self.installAiBroker:
-            self.setParam("aibroker_instance_id", f"{self.args.mas_instance_id}")
+            self.setParam("aibroker_instance_id", self.getParam("mas_instance_id"))
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
