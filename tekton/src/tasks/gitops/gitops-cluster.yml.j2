@@ -84,7 +84,7 @@ spec:
     - name: ingress
       type: string
       default: "false"
-    - name: nonshared
+    - name: cluster_nonshared
       type: string
       default: "false"
 
@@ -218,7 +218,7 @@ spec:
       - name: INGRESS
         value: $(params.ingress)
       - name: NONSHARED
-        value: $(params.nonshared)
+        value: $(params.cluster_nonshared)
 
       - name: REDHAT_CERT_MANAGER_INSTALL_PLAN
         value: $(params.redhat_cert_manager_install_plan)

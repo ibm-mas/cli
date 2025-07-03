@@ -142,7 +142,7 @@ spec:
     - name: ingress
       type: string
       default: "false"
-    - name: nonshared
+    - name: cluster_nonshared
       type: string
       default: "false"
 
@@ -314,8 +314,8 @@ spec:
           value: $(params.dns_provider)
         - name: ingress
           value: $(params.ingress)
-        - name: nonshared
-          value: $(params.nonshared)
+        - name: cluster_nonshared
+          value: $(params.cluster_nonshared)
 
         - name: group_sync_operator_cron_schedule
           value: $(params.group_sync_operator_cron_schedule)
