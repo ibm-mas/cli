@@ -83,8 +83,8 @@ spec:
       type: string
     - name: jdbccfg_username
       type: string
-    - name: jdbccfg_password
-      type: string
+    # - name: jdbccfg_password
+    #   type: string
     - name: jdbccfg_url
       type: string
     - name: jdbccfg_sslenabled
@@ -227,6 +227,9 @@ spec:
           value: $(params.minio_storage_size)
         - name: minio_image
           value: $(params.minio_image)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
       when:
         - input: "$(params.mas_aibroker_storage_provider)"
           operator: in
@@ -366,8 +369,8 @@ spec:
           value: $(params.drocfg_url)
         - name: jdbccfg_username
           value: $(params.jdbccfg_username)
-        - name: jdbccfg_password
-          value: $(params.jdbccfg_password)
+        # - name: jdbccfg_password
+        #   value: $(params.jdbccfg_password)
         - name: jdbccfg_url
           value: $(params.jdbccfg_url)
         - name: jdbccfg_sslenabled
