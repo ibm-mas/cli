@@ -8,13 +8,13 @@
   tasks:
     # 1. Wait for catalog update task run to be completed
     # -----------------------------------------------------------------------------
-    - name: 'Wait for catalog update to comeplete (120s delay)'
+    - name: 'Wait for catalog update to complete (120s delay)'
       kubernetes.core.k8s_info:
         kind: TaskRun
         namespace: mas-pipelines
         label_selectors:
           - tekton.dev/pipeline=mas-update
-          - tekton.dev/pipelineTask=update-catalog
+          - tekton.dev/pipelineTask=post-update-verify
       retries: 15 # about 30 minutes
       delay: 120 # 2 minutes
       until:
