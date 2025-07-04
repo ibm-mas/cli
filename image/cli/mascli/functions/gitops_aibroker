@@ -54,7 +54,7 @@ sls_dro_jdbc
       --drocfg-registration-key ${TEXT_RESET}DROCFG_REGISTRATION_KEY${TEXT_RESET}
       --drocfg-url ${TEXT_RESET}DROCFG_URL${TEXT_RESET}
       --jdbccfg-username ${TEXT_RESET}JDBCCFG_USERNAME${TEXT_RESET}
-      --jdbccfg-password ${TEXT_RESET}JDBCCFG_PASSWORD${TEXT_RESET}
+      # --jdbccfg-password ${TEXT_RESET}JDBCCFG_PASSWORD${TEXT_RESET}
       --jdbccfg-url ${TEXT_RESET}JDBCCFG_URL${TEXT_RESET}
       --jdbccfg-sslenabled ${TEXT_RESET}JDBCCFG_SSLENABLED${TEXT_RESET}
       --jdbccfg-ca ${TEXT_RESET}JDBCCFG_CA${TEXT_RESET}
@@ -372,7 +372,7 @@ function gitops_aibroker() {
   echo_reset_dim "DRO Config Registration Key ............ ${COLOR_MAGENTA}${DROCFG_REGISTRATION_KEY}"
   echo_reset_dim "DRO Config URL ......................... ${COLOR_MAGENTA}${DROCFG_URL}"
   echo_reset_dim "JDBC Config Username ................... ${COLOR_MAGENTA}${JDBCCFG_USERNAME}"
-  echo_reset_dim "JDBC Config Password ................... ${COLOR_MAGENTA}${JDBCCFG_PASSWORD}"
+  # echo_reset_dim "JDBC Config Password ................... ${COLOR_MAGENTA}${JDBCCFG_PASSWORD}"
   echo_reset_dim "JDBC Config URL ........................ ${COLOR_MAGENTA}${JDBCCFG_URL}"
   echo_reset_dim "JDBC SSL Enabled ....................... ${COLOR_MAGENTA}${JDBCCFG_SSLENABLED}"
   echo_reset_dim "JDBC Config CA ......................... ${COLOR_MAGENTA}${JDBCCFG_CA}"

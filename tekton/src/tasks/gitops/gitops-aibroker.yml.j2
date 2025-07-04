@@ -80,8 +80,8 @@ spec:
       type: string
     - name: jdbccfg_username
       type: string
-    - name: jdbccfg_password
-      type: string
+    # - name: jdbccfg_password
+    #   type: string
     - name: jdbccfg_url
       type: string
     - name: jdbccfg_sslenabled
@@ -106,20 +106,14 @@ spec:
       type: string
     - name: in_saas_env
       type: string
-    
     - name: environment_type
       type: string
-
     - name: mas_aibroker_s3_endpoint_url
       type: string
-
     - name: mas_aibroker_s3_region
       type: string
-
     - name: mas_aibroker_s3_bucket_prefix
       type: string
-        
-
 
   stepTemplate:
     name: gitops-aibroker
@@ -198,8 +192,8 @@ spec:
         value: $(params.drocfg_url)
       - name: JDBCCFG_USERNAME
         value: $(params.jdbccfg_username)
-      - name: JDBCCFG_PASSWORD
-        value: $(params.jdbccfg_password)
+      # - name: JDBCCFG_PASSWORD
+      #  value: $(params.jdbccfg_password)
       - name: JDBCCFG_URL
         value: $(params.jdbccfg_url)
       - name: JDBCCFG_SSLENABLED
@@ -224,20 +218,14 @@ spec:
         value: $(params.cluster_domain)
       - name: IN_SAAS_ENV
         value: $(params.in_saas_env)
-      
       - name: ENVIRONMENT_TYPE
         value: $(params.environment_type)
-
       - name: MAS_AIBROKER_S3_ENDPOINT_URL
         value: $(params.mas_aibroker_s3_endpoint_url)
-
       - name: MAS_AIBROKER_S3_REGION
         value: $(params.mas_aibroker_s3_region)
-
       - name: MAS_AIBROKER_S3_BUCKET_PREFIX
         value: $(params.mas_aibroker_s3_bucket_prefix)
-        
-      
     envFrom:
       - configMapRef:
           name: environment-properties

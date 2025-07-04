@@ -32,8 +32,9 @@ minio Provider Selection / Version:
       --minio_secret_key=${COLOR_YELLOW}MINIO_SECRET_KEY${TEXT_RESET}                                    The secret key for MinIO, used as the password
       --minio_host=${COLOR_YELLOW}MINIO_HOST${TEXT_RESET}                                                The hostname or service URL where MinIO is reachable
       --minio_port=${COLOR_YELLOW}MINIO_PORT${TEXT_RESET}                                                The port number on which MinIO is exposed
-      --aibroker_instance_id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                             The AI Broker instance ID
-
+      # --aibroker_instance_id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                             The AI Broker instance ID
+      --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                        The Maximo AI Broker instance ID, used for identifying the specific instance in the GitOps repository
+      
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
@@ -63,7 +64,7 @@ function gitops_minio_noninteractive() {
   export MINIO_IMAGE=${MINIO_IMAGE:-"quay.io/minio/minio:latest"}
   export MINIO_PORT=${MINIO_PORT:-"9000"}
   export MINIO_HOST=${MINIO_HOST:-"minio-service.minio.svc.cluster.local"}
-  export AIBROKER_INSTANCE_ID=${AIBROKER_INSTANCE_ID:-"aibroker-inst-1"}
+  # export AIBROKER_INSTANCE_ID=${AIBROKER_INSTANCE_ID:-"aibroker-inst-1"}
   
   while [[ $# -gt 0 ]]
   do
@@ -119,9 +120,12 @@ function gitops_minio_noninteractive() {
       --minio_port)
           export MINIO_PORT=$1 && shift
           ;;
-      --aibroker_instance_id)
-          export AIBROKER_INSTANCE_ID=$1 && shift
-          ;;
+      --mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      # --aibroker_instance_id)
+      #     export AIBROKER_INSTANCE_ID=$1 && shift
+      #     ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -173,7 +177,8 @@ function gitops_minio_noninteractive() {
   fi
 
   [[ -z "$MINIO_STORAGE_CLASS" ]] && gitops_minio_help "MINIO_STORAGE_CLASS is not set. Please specify the Kubernetes storage class using --minio_storage_class."
-  
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_minio_help "MAS_INSTANCE_ID is not set. Please specify the Maximo AI Broker instance ID using --mas-instance-id."
+  # [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_minio_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
 }
 
 function gitops_minio() {
@@ -237,8 +242,8 @@ function gitops_minio() {
   echo_reset_dim "MinIO Storage Class (minio_storage_class)  ............ ${COLOR_MAGENTA}${MINIO_STORAGE_CLASS}"
   echo_reset_dim "MinIO Storage Size (minio_storage_size)  .............. ${COLOR_MAGENTA}${MINIO_STORAGE_SIZE}"
   echo_reset_dim "MinIO Image (minio_image)  .............................${COLOR_MAGENTA}${MINIO_IMAGE}"
-  echo_reset_dim "AiBroker (aibroker_instance_id)  ..................... ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
-
+  echo_reset_dim "AiBroker (MAS_INSTANCE_ID)  ..................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  
   reset_colors
 
   # Set up secrets
@@ -328,8 +333,8 @@ function gitops_minio() {
     echo_reset_dim "minio_secret_key ...................... ${COLOR_MAGENTA}${MINIO_SECRET_KEY:0:4}<snip>"
     echo_reset_dim "minio_port ............................ ${COLOR_MAGENTA}${MINIO_PORT}"
     echo_reset_dim "minio_host ............................ ${COLOR_MAGENTA}${MINIO_HOST}"
-    echo_reset_dim "aibroker_instance_id .................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
-
+    # echo_reset_dim "aibroker_instance_id .................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
+    echo_reset_dim "mas_instance_id ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
     if [ -z $GIT_SSH ]; then
       export GIT_SSH=false
     fi
@@ -344,7 +349,7 @@ function gitops_minio() {
     
     # Create cluster directory to clone the repo into
     # ---------------------------------------------------------------------------
-    GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
+    GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
     mkdir -p ${GITOPS_CLUSTER_DIR}
 
     # Generate ArgoApps
