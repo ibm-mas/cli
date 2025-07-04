@@ -183,7 +183,12 @@ spec:
             name: mas-fvt-manage
             key: LDAP_CRT
             optional: false
-
+      - name: OIDC_DISCOVERY_ENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: OIDC_DISCOVERY_ENDPOINT
+            optional: false
 
   steps:
     - image: '$(params.fvt_image_registry)/$(params.fvt_image_namespace)/$(params.fvt_image_name)@$(params.fvt_image_digest)'
