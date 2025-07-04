@@ -6,24 +6,7 @@
     image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
     mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
   tasks:
-    # 1. Wait for catalog update task run to be completed
-    # -----------------------------------------------------------------------------
-    - name: 'Wait for catalog update to complete (120s delay)'
-      kubernetes.core.k8s_info:
-        kind: TaskRun
-        namespace: mas-pipelines
-        label_selectors:
-          - tekton.dev/pipeline=mas-update
-          - tekton.dev/pipelineTask=post-update-verify
-      retries: 30 # about 60 minutes
-      delay: 120 # 2 minutes
-      until:
-        - catalog_upd_status.resources is defined
-        - catalog_upd_status.resources | length>0
-        - catalog_upd_status.resources[0].status.conditions | selectattr('type', 'equalto', 'Succeeded') | map(attribute='status') | list | first == "True"
-      register: catalog_upd_status
-
-    # 2. Check if manage is installed
+    # 1. Check if manage is installed
     # -----------------------------------------------------------------------------
     - name: "Check if ManageWorkspace exists"
       kubernetes.core.k8s_info:
@@ -42,6 +25,23 @@
         - manage_ws.resources | length>0
 
     - block:
+      # 2. Wait for catalog update task run to be completed
+      # -----------------------------------------------------------------------------
+        - name: 'Wait for catalog update to complete (120s delay)'
+          kubernetes.core.k8s_info:
+            kind: TaskRun
+            namespace: mas-pipelines
+            label_selectors:
+              - tekton.dev/pipeline=mas-update
+              - tekton.dev/pipelineTask=post-update-verify
+          retries: 30 # about 60 minutes
+          delay: 120 # 2 minutes
+          until:
+            - catalog_upd_status.resources is defined
+            - catalog_upd_status.resources | length>0
+            - catalog_upd_status.resources[0].status.conditions | selectattr('type', 'equalto', 'Succeeded') | map(attribute='status') | list | first == "True"
+          register: catalog_upd_status
+
       # 3. Lookup the Operator Version
       # -----------------------------------------------------------------------------
         - name: "upgrade : Lookup OperatorCondition for Manage"
