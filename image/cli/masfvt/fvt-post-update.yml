@@ -15,7 +15,7 @@
         label_selectors:
           - tekton.dev/pipeline=mas-update
           - tekton.dev/pipelineTask=post-update-verify
-      retries: 15 # about 30 minutes
+      retries: 30 # about 60 minutes
       delay: 120 # 2 minutes
       until:
         - catalog_upd_status.resources is defined
