@@ -25,24 +25,7 @@
         - manage_ws.resources | length>0
 
     - block:
-      # 2. Wait for catalog update task run to be completed
-      # -----------------------------------------------------------------------------
-        - name: 'Wait for catalog update to complete (120s delay)'
-          kubernetes.core.k8s_info:
-            kind: TaskRun
-            namespace: mas-pipelines
-            label_selectors:
-              - tekton.dev/pipeline=mas-update
-              - tekton.dev/pipelineTask=post-update-verify
-          retries: 30 # about 60 minutes
-          delay: 120 # 2 minutes
-          until:
-            - catalog_upd_status.resources is defined
-            - catalog_upd_status.resources | length>0
-            - catalog_upd_status.resources[0].status.conditions | selectattr('type', 'equalto', 'Succeeded') | map(attribute='status') | list | first == "True"
-          register: catalog_upd_status
-
-      # 3. Lookup the Operator Version
+      # 2. Lookup the Operator Version
       # -----------------------------------------------------------------------------
         - name: "upgrade : Lookup OperatorCondition for Manage"
           kubernetes.core.k8s_info:
@@ -67,7 +50,7 @@
           set_fact:
             updated_opcon_version: "{{ updated_opcon.resources[0].metadata.name.split('.v')[1] | ibm.mas_devops.format_pre_version_with_buildid }}"
 
-      # 4. Check that the Application CR meets the required state
+      # 3. Check that the Application CR meets the required state
       # -----------------------------------------------------------------------------
         - name: "Check if ManageApp CR is updated to latest version and Ready (120s delay)"
           kubernetes.core.k8s_info:
@@ -83,7 +66,7 @@
             - updated_app_info.resources | json_query('[*].status.conditions[?type==`Ready`][].reason') | select ('match','Ready') | list | length == 1
           register: updated_app_info
 
-      # 5. Check that the Application Workspaces meet the required state
+      # 4. Check that the Application Workspaces meet the required state
       # -----------------------------------------------------------------------------
         - name: 'Check if workspace CR reconciled version is updated to target version (120s delay)'
           kubernetes.core.k8s_info:
