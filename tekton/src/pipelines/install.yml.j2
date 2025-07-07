@@ -380,18 +380,23 @@ spec:
       runAfter:
         - odh
 
-    # 14.5 Install and Configure Aibroker
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2', template_vars={'application': 'aibroker'}) | indent(4) }}
+    # 14.5 Install Aibroker app
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice-app.yml.j2') | indent(4) }}
       runAfter:
         - kmodels
         - db2-aibroker
 
-    # 14.6 Aibroker tenant creation
+    # 14.6 Install ( If channel is 9.1.x ) and Configure Aibroker
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2', template_vars={'application': 'aibroker'}) | indent(4) }}
+      runAfter:
+        - app-install-aibroker
+
+    # 14.7 Aibroker tenant creation
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice-tenant.yml.j2') | indent(4) }}
       runAfter:
         - aibroker
 
-    # 14.7 Aibroker Post Verification
+    # 14.8 Aibroker Post Verification
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice-post-verify.yml.j2') | indent(4) }}
       runAfter:
         - aibroker-tenant
