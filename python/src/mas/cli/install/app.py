@@ -181,6 +181,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Predict": "mas_predict_version",
                 "Inspection": "mas_visualinspection_version",
                 "Facilities": "mas_facilities_version",
+                "Aibroker": "mas_aibroker_version",
             }
         else:
             applications = {
@@ -669,6 +670,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installAiBroker = self.yesOrNo("Install AI Service")
         if self.installAiBroker:
             self.configAppChannel("aibroker")
+            if self.getParam("mas_app_channel_aibroker") == '9.0.x':
+                self.setParam("db2_action_aibroker", "not_install")
 
         if isVersionEqualOrAfter('9.1.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.1.x-feature':
             self.installFacilities = self.yesOrNo("Install Real Estate and Facilities")
@@ -784,10 +787,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("Database name", "mas_aibroker_db_database")
             self.promptForString("Database Secretname", "mas_aibroker_db_secret_name", isPassword=True)
             self.promptForString("Database password", "mas_aibroker_db_secret_value", isPassword=True)
+            self.promptForString("Mariadb username", "mariadb_user")
+            self.promptForString("Mariadb password", "mariadb_password", isPassword=True)
+            self.yesOrNo("Install minio", "install_minio_aiservice")
+            if self.getParam("install_minio_aiservice") == "true":
+                self.promptForString("minio root username", "minio_root_user")
+                self.promptForString("minio root password", "minio_root_password", isPassword=True)
 
             if self.getParam("mas_app_channel_aibroker") != "9.0.x":
-                self.promptForString("Mariadb username", "mariadb_user")
-                self.promptForString("Mariadb password", "mariadb_password", isPassword=True)
                 self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
                 self.promptForString("Tenant start date", "tenant_entitlement_start_date")
                 self.promptForString("Tenant end date", "tenant_entitlement_end_date")
@@ -801,12 +808,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("RSL url", "rsl_url")
                 self.promptForString("ORG Id of RSL", "rsl_org_id")
                 self.promptForString("Token for RSL", "rsl_token", isPassword=True)
-                self.yesOrNo("Install minio", "install_minio_aiservice")
-                if self.getParam("install_minio_aiservice") == "true":
-                    self.promptForString("minio root username", "minio_root_user")
-                    self.promptForString("minio root password", "minio_root_password", isPassword=True)
                 self.yesOrNo("Install DB2 Instance for AI Service", "install_db2_aiservice")
                 if self.getParam("install_db2_aiservice") != "true":
+                    self.setParam("db2_action_aibroker", "not_install")
                     self.promptForString("DB2 username", "mas_aibroker_db2_username")
                     self.promptForString("DB2 password", "mas_aibroker_db2_password")
                     self.promptForString("DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
