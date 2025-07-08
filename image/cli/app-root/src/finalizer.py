@@ -146,6 +146,19 @@ def getcp4dCompsVersions():
     except Exception as e:
         print(f"Unable to determine Watson Studio version: {e}")
 
+    # Get Watson Machine Learning Version
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="wml.cpd.ibm.com/v1beta1", kind="WmlBase")
+        cr = crs.get(name="wml-cr", namespace="ibm-cpd")
+        if cr.status and cr.status.versions:
+            wmlVersion = cr.status.versions.reconciled
+            setObject["target.wmlVersion"] = wmlVersion
+        else:
+            print("Unable to determine WML version: status.versions unavailable")
+    except Exception as e:
+        print(f"Unable to determine WML version: {e}")
+
     # Get  SPSS Modeler Version
     # -------------------------------------------------------------------------
     try:
@@ -245,6 +258,23 @@ if __name__ == "__main__":
     else:
         print("Unable to lookup OCP version from ClusterVersion.config.openshift.io/v1 resource status")
 
+    # Lookup the platform - copes with the fact that fyre doesn't set a platform
+    # -------------------------------------------------------------------------
+    try:
+        crs = dynClient.resources.get(api_version="config.openshift.io/v1", kind="Infrastructure")
+        cr = crs.get(name="cluster")
+        if cr.status and cr.status.platform and cr.status.platform != "None":
+            setObject["target.platform"] = cr.status.platform
+        elif cr.status and cr.status.platform and cr.status.platform == "None":
+            if cr.status.apiServerURL and "fyre" in cr.status.apiServerURL:
+                setObject["target.platform"] = "Fyre"
+            else:
+                setObject["target.platform"] = "Unknown"
+        else:
+            setObject["target.platform"] = "Unknown"
+    except Exception as e:
+        print(f"Unable to determine Platform: {e}")
+
     # Get MAS Catalog Version
     # -------------------------------------------------------------------------
     try:
@@ -309,6 +339,12 @@ if __name__ == "__main__":
             "namespace": f"mas-{instanceId}-visualinspection",
             "apiVersion": "apps.mas.ibm.com/v1",
             "kind": "VisualInspectionApp"
+        },
+        "ibm-mas-aibroker": {
+            "deployment": "ibm-mas-aibroker-operator",
+            "namespace": f"mas-{instanceId}-aibroker",
+            "apiVersion": "apps.mas.ibm.com/v1",
+            "kind": "AiBrokerApp",
         }
     }
 
@@ -324,7 +360,8 @@ if __name__ == "__main__":
         "ibm-mas-optimizer": "S04PSB1R8DR",
         "ibm-mas-predict": "S04Q53TT5S5",
         "ibm-mas-visualinspection": "S04PUSAL2A0",
-        "ibm-mas-mobile": "S0507GG7V6K"
+        "ibm-mas-mobile": "S0507GG7V6K",
+        "ibm-mas-aibroker": "S04Q53TT5S5"
     }
 
     for productId in knownProductIds:
@@ -492,10 +529,10 @@ if __name__ == "__main__":
     # Lookup CP4D version
     # -------------------------------------------------------------------------
     try:
-        crs = dynClient.resources.get(api_version="wml.cpd.ibm.com/v1beta1", kind="WmlBase")
-        cr = crs.get(name="wml-cr", namespace="ibm-cpd")
-        if cr.status and cr.status.versions:
-            cp4dVersion = cr.status.versions.reconciled
+        crs = dynClient.resources.get(api_version="cpd.ibm.com/v1", kind="Ibmcpd")
+        cr = crs.get(name="ibmcpd-cr", namespace="ibm-cpd")
+        if cr.status and cr.status.currentVersion:
+            cp4dVersion = cr.status.currentVersion
             setObject["target.cp4dVersion"] = cp4dVersion
             getcp4dCompsVersions()
         else:
