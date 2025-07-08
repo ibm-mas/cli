@@ -119,7 +119,6 @@ function gitops_odh_noninteractive() {
   export ODH_NAMESPACE="${ODH_NAMESPACE:-"opendatahub"}"
 
   export AIBROKER_NAMESPACE="${AIBROKER_NAMESPACE:-"mas-${MAS_INSTANCE_ID}-aibroker"}"
-  # skip pull_secret_name, it is a secret reference
 
   export ODH_PIPELINE_NAME="${ODH_PIPELINE_NAME:-"openshift-pipelines-operator"}"
   export ODH_PIPELINE_NAMESPACE="${ODH_PIPELINE_NAMESPACE:-"openshift-operators"}"
@@ -374,11 +373,6 @@ function gitops_odh_noninteractive() {
     [[ -z "$GITHUB_REPO" ]] && gitops_odh_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_odh_help "GIT_BRANCH is not set"
   fi
-  #odh variables
-  #[[ -z "$ODH_PIPELINE_CHANNEL" ]] && gitops_odh_help "ODH_PIPELINE_CHANNEL is not set. Please provide the ODH PIPELINE CHANNEL using --odh-pipeline-channel."
-  #[[ -z "$ODH_PIPELINE_INSTALLPLAN" ]] && gitops_odh_help "ODH_PIPELINE_INSTALLPLAN is not set. Please provide the OODH_PIPELINE_INSTALLPLAN using --odh-pipeline-installplan."
-  # [[ -z "$OPENDATAHUB_NAME" ]] && gitops_odh_help "OPENDATAHUB_NAME is not set. Please provide the OPENDATAHUB NAME using --opendatahub-name."
-  # [[ -z "$OPENDATAHUB_NAMESPACE" ]] && gitops_odh_help "OPENDATAHUB_NAMESPACE is not set. Please provide the OPENDATAHUB NAMESPACE using --opendatahub-namespace."
 
 }
 
@@ -399,7 +393,6 @@ function gitops_odh() {
   # Prepare directories
   rm -rf "$GITOPS_WORKING_DIR"
   mkdir -p "${GITOPS_WORKING_DIR}"
-  #GITOPS_CLUSTER_DIR="${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${CLUSTER_ID}"
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
   
 
@@ -415,9 +408,6 @@ function gitops_odh() {
   reset_colors
 
   CURRENT_DIR=$PWD
-  # TEMP_DIR=$CURRENT_DIR/aibroker01
-  # mkdir -p $TEMP_DIR
-  # echo_reset_dim "Temp Directory ........................ ${COLOR_MAGENTA}${TEMP_DIR}"
   
   AVP_TYPE=aws
   sm_login
@@ -528,17 +518,9 @@ function gitops_odh() {
 
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-odh-install.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
 
-  # Collect info block for secret update
-  # yq eval '.' "${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml" > "${GITOPS_CLUSTER_DIR}/odh-info.yaml"
-  # UNESCAPED_INFO="$(cat ${GITOPS_CLUSTER_DIR}/odh-info.yaml)"
-  # ESCAPED_INFO="${UNESCAPED_INFO//\"/\\\"}"
 
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_odh\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
 
-  # sm_update_secret "$ODH_SECRET" \
-  #   "{\"minio_access_key\": \"${MINIO_ACCESS_KEY}\", \"minio_secret_key\": \"${MINIO_SECRET_KEY}\", \"mariadb_user\": \"${MARIADB_USER}\"}" \
-  #   "$TAGS"
-  #rm -rf "$TEMP_DIR"
   # GitHub push
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     echo_h2 "Pushing changes to GitHub"
@@ -547,7 +529,6 @@ function gitops_odh() {
     remove_git_repo_clone "${GITOPS_WORKING_DIR}/${GITHUB_REPO}"
   fi
 
-  # rm -rf "$TEMP_DIR"
   rm -rf "$ODH_SECRET_FILE"
   rm -rf "$MARIA_SECRET_FILE"
   echo_h2 "ODH GitOps completed."

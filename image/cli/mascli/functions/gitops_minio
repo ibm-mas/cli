@@ -259,14 +259,14 @@ function gitops_minio() {
 
     #minio provider role specific env variables
 
-    export SECRET_NAME_MINIO_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio
-    echo_reset_dim "SECRET_NAME_MINIO_AUTH ................ ${COLOR_MAGENTA}$SECRET_NAME_MINIO_AUTH"
-    export SECRET_KEY_MINIO_USER=${SECRET_NAME_MINIO_AUTH}#sm_minio_user
-    export SECRET_KEY_MINIO_PASSWORD=${SECRET_NAME_MINIO_AUTH}#sm_minio_password
+    export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}minio
+    echo_reset_dim "SECRET_NAME_STORAGE_AUTH ................ ${COLOR_MAGENTA}$SECRET_NAME_STORAGE_AUTH"
+    export SECRET_KEY_STORAGE_USER=${SECRET_NAME_STORAGE_AUTH}#sm_storage_user
+    export SECRET_KEY_STORAGE_PASSWORD=${SECRET_NAME_STORAGE_AUTH}#sm_storage_password
     
     # Create a secret in SM containing the username/password for this specific minio instance.
     export MINIO_SECRET_FILE=$GITOPS_WORKING_DIR/minio-secret.json
-    sm_get_secret_file ${SECRET_NAME_MINIO_AUTH} $MINIO_SECRET_FILE
+    sm_get_secret_file ${SECRET_NAME_STORAGE_AUTH} $MINIO_SECRET_FILE
     
     if [ -z "$MINIO_ROOT_PASSWORD" ]; then
 
@@ -274,52 +274,52 @@ function gitops_minio() {
       echo_reset_dim "MINIO_ROOT_USER ............................. ${COLOR_MAGENTA}$MINIO_ROOT_USER"
 
       export MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
-      # Extract and export sm_minio_accesskey
-      TEMP_MINIO_ACCESSKEY=$(jq -r .sm_minio_accesskey $MINIO_SECRET_FILE)
-      if [[ -n ${TEMP_MINIO_ACCESSKEY} && ${TEMP_MINIO_ACCESSKEY} != "null" ]]; then
-        export MINIO_ACCESS_KEY=${TEMP_MINIO_ACCESSKEY}
+      # Extract and export sm_storage_accesskey
+      TEMP_STORAGE_ACCESSKEY=$(jq -r .sm_storage_accesskey $MINIO_SECRET_FILE)
+      if [[ -n ${TEMP_STORAGE_ACCESSKEY} && ${TEMP_STORAGE_ACCESSKEY} != "null" ]]; then
+        export MINIO_ACCESS_KEY=${TEMP_STORAGE_ACCESSKEY}
         echo_reset_dim "MINIO_ACCESS_KEY .............................. ${COLOR_MAGENTA}${MINIO_ACCESS_KEY:0:8}<snip> is available in the secret, using that value"
       fi
       
       export MINIO_PORT=${MINIO_PORT:-"9000"}
-      # Extract and export sm_minio_port
-      TEMP_MINIO_PORT=$(jq -r .sm_minio_port $MINIO_SECRET_FILE)
-      if [[ -n ${TEMP_MINIO_PORT} && ${TEMP_MINIO_PORT} != "null" ]]; then
-        export MINIO_PORT=${TEMP_MINIO_PORT}
+      # Extract and export sm_storage_port
+      TEMP_STORAGE_PORT=$(jq -r .sm_storage_port $MINIO_SECRET_FILE)
+      if [[ -n ${TEMP_STORAGE_PORT} && ${TEMP_STORAGE_PORT} != "null" ]]; then
+        export MINIO_PORT=${TEMP_STORAGE_PORT}
         echo_reset_dim "MINIO_PORT .................................... ${COLOR_MAGENTA}${MINIO_PORT} is available in the secret, using that value"
       fi
       
       export MINIO_HOST=${MINIO_HOST:-"minio-service.minio.svc.cluster.local"}
-      # Extract and export sm_minio_host
-      TEMP_MINIO_HOST=$(jq -r .sm_minio_host $MINIO_SECRET_FILE)
-      if [[ -n ${TEMP_MINIO_HOST} && ${TEMP_MINIO_HOST} != "null" ]]; then
-        export MINIO_HOST=${TEMP_MINIO_HOST}
+      # Extract and export sm_storage_host
+      TEMP_STORAGE_HOST=$(jq -r .sm_storage_host $MINIO_SECRET_FILE)
+      if [[ -n ${TEMP_STORAGE_HOST} && ${TEMP_STORAGE_HOST} != "null" ]]; then
+        export MINIO_HOST=${TEMP_STORAGE_HOST}
         echo_reset_dim "MINIO_HOST .................................... ${COLOR_MAGENTA}${MINIO_HOST} is available in the secret, using that value"
       fi
 
       export MINIO_ROOT_PASSWORD=`cat /dev/urandom | tr -dc 'a-zA-Z0-9' | head -c 20`
-      TEMP_MINIO_PASSWORD=$(jq -r .sm_minio_password $MINIO_SECRET_FILE)
-      if [[ -n ${TEMP_MINIO_PASSWORD} && ${TEMP_MINIO_PASSWORD} != "null" ]]; then
-        export MINIO_ROOT_PASSWORD=${TEMP_MINIO_PASSWORD}
+      TEMP_STORAGE_PASSWORD=$(jq -r .sm_storage_password $MINIO_SECRET_FILE)
+      if [[ -n ${TEMP_STORAGE_PASSWORD} && ${TEMP_STORAGE_PASSWORD} != "null" ]]; then
+        export MINIO_ROOT_PASSWORD=${TEMP_STORAGE_PASSWORD}
         echo_reset_dim "MINIO_ROOT_PASSWORD ........................... ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:8}<snip> is available in the secret, using that value"
       fi
 
       export MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
-      # Extract and export sm_minio_secretkey
-      TEMP_MINIO_SECRETKEY=$(jq -r .sm_minio_secretkey $MINIO_SECRET_FILE)
-      if [[ -n ${TEMP_MINIO_SECRETKEY} && ${TEMP_MINIO_SECRETKEY} != "null" ]]; then
-        export MINIO_SECRET_KEY=${TEMP_MINIO_SECRETKEY}
+      # Extract and export sm_storage_secretkey
+      TEMP_STORAGE_SECRETKEY=$(jq -r .sm_storage_secretkey $MINIO_SECRET_FILE)
+      if [[ -n ${TEMP_STORAGE_SECRETKEY} && ${TEMP_STORAGE_SECRETKEY} != "null" ]]; then
+        export MINIO_SECRET_KEY=${TEMP_STORAGE_SECRETKEY}
         echo_reset_dim "MINIO_SECRET_KEY .............................. ${COLOR_MAGENTA}${MINIO_SECRET_KEY:0:8}<snip> is available in the secret, using that value"
       fi
 
       echo_reset_dim "MINIO_ROOT_PASSWORD ............................. ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:8}<snip>"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_minio\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       #SREMAT : remove those buckets name if no longer needed
-      MINIO_BUCKET_FIELDS="\"sm_minio_bucket_templates\": \"km-templates\", \
-      \"sm_minio_bucket_tenants\": \"km-tenants\", \
-      \"sm_minio_bucket_pipelines\": \"km-pipelineset\", \
-      \"sm_minio_bucket_default\": \"miniobucket1\""
-      sm_update_secret $SECRET_NAME_MINIO_AUTH "{ \"sm_minio_user\": \"$MINIO_ROOT_USER\", \"sm_minio_password\": \"$MINIO_ROOT_PASSWORD\", \"sm_minio_accesskey\": \"$MINIO_ROOT_USER\", \"sm_minio_secretkey\": \"$MINIO_ROOT_PASSWORD\", \"sm_minio_port\": \"$MINIO_PORT\", \"sm_minio_host\": \"$MINIO_HOST\", $MINIO_BUCKET_FIELDS }" "${TAGS}"
+      MINIO_BUCKET_FIELDS="\"sm_storage_bucket_templates\": \"km-templates\", \
+      \"sm_storage_bucket_tenants\": \"km-tenants\", \
+      \"sm_storage_bucket_pipelines\": \"km-pipelineset\", \
+      \"sm_storage_bucket_default\": \"miniobucket1\""
+      sm_update_secret $SECRET_NAME_STORAGE_AUTH "{ \"sm_storage_user\": \"$MINIO_ROOT_USER\", \"sm_storage_password\": \"$MINIO_ROOT_PASSWORD\", \"sm_storage_accesskey\": \"$MINIO_ROOT_USER\", \"sm_storage_secretkey\": \"$MINIO_ROOT_PASSWORD\", \"sm_storage_port\": \"$MINIO_PORT\", \"sm_storage_host\": \"$MINIO_HOST\", $MINIO_BUCKET_FIELDS }" "${TAGS}"
     fi
     
     echo_reset_dim "minio_namespace ....................... ${COLOR_MAGENTA}${MINIO_NAMESPACE}"
