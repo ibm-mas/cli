@@ -236,5 +236,7 @@
         - gitops-minio
         - gitops-odh
         - gitops-kmodel
+        - gitops-deprovision-kmodel
         - gitops-aibroker
         - gitops-aibroker-tenant
+        - gitops-deprovision-aibroker-tenant
