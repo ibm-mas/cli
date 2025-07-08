@@ -23,8 +23,10 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 IBM CP4D Service:
-      --cpd-service-name ${COLOR_YELLOW}CPD_SERVICE_NAME${TEXT_RESET}                                   CP4D Service Name
-      --delete-cpd-base ${COLOR_YELLOW}DELETE_CPD_BASE${TEXT_RESET}                                     Whether to delete cpd base file
+      --cpd-service-name ${COLOR_YELLOW}CPD_SERVICE_NAME${TEXT_RESET}                                         CP4D Service Name
+      --cp4d-wsl-action ${COLOR_YELLOW}CP4D_WSL_ACTION${TEXT_RESET}                                           Whether WSL service to be uninstalled
+      --cp4d-watson-machine-learning-action ${COLOR_YELLOW}CP4D_WATSON_MACHINE_LEARNING_ACTION${TEXT_RESET}   Whether WML service to be uninstalled
+      --cp4d-spss-modeler-action ${COLOR_YELLOW}CP4D_SPSS_MODELER_ACTION${TEXT_RESET}                         Whether SPSS service to be uninstalled
 
 
 Automatic GitHub Push:
@@ -97,8 +99,14 @@ function gitops_deprovision_cp4d_service_noninteractive() {
       --cpd-service-name)
         export CPD_SERVICE_NAME=$1 && shift
         ;;
-      --delete-cpd-base)
-        export DELETE_CPD_BASE=$1 && shift
+      --cp4d-wsl-action)
+        export CP4D_WSL_ACTION=$1 && shift
+        ;;
+      --cp4d-watson-machine-learning-action)
+        export CP4D_WATSON_MACHINE_LEARNING_ACTION=$1 && shift
+        ;;
+      --cp4d-spss-modeler-action)
+        export CP4D_SPSS_MODELER_ACTION=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -147,7 +155,9 @@ function gitops_deprovision_cp4d_service_noninteractive() {
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_cp4d_service_help "MAS_INSTANCE_ID is not set"
 
   [[ -z "$CPD_SERVICE_NAME" ]] && gitops_deprovision_cp4d_service_help "CPD_SERVICE_NAME is not set"
-  [[ -z "$DELETE_CPD_BASE" ]] && gitops_deprovision_cp4d_service_help "DELETE_CPD_BASE is not set"
+  [[ -z "$CP4D_WSL_ACTION" ]] && gitops_deprovision_cp4d_service_help "CP4D_WSL_ACTION is not set"
+  [[ -z "$CP4D_WATSON_MACHINE_LEARNING_ACTION" ]] && gitops_deprovision_cp4d_service_help "CP4D_WATSON_MACHINE_LEARNING_ACTION is not set"
+  [[ -z "$CP4D_SPSS_MODELER_ACTION" ]] && gitops_deprovision_cp4d_service_help "CP4D_SPSS_MODELER_ACTION is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_cp4d_service_help "GITHUB_HOST is not set"
@@ -198,6 +208,14 @@ function gitops_deprovision_cp4d_service() {
   reset_colors
 
   echo "${TEXT_DIM}"
+  echo_h2 "CP4D service" "    "
+  echo_reset_dim "CPD Service Name ........................ ${COLOR_MAGENTA}${CPD_SERVICE_NAME}"
+  echo_reset_dim "CPD WSL Action .......................... ${COLOR_MAGENTA}${CP4D_WSL_ACTION}"
+  echo_reset_dim "CPD WML Action .......................... ${COLOR_MAGENTA}${CP4D_WATSON_MACHINE_LEARNING_ACTION}"
+  echo_reset_dim "CPD SPSS Action ......................... ${COLOR_MAGENTA}${CP4D_SPSS_MODELER_ACTION}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     echo_h2 "GitOps Target" "    "
     echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
@@ -213,24 +231,9 @@ function gitops_deprovision_cp4d_service() {
   fi
   reset_colors
 
-#   echo "${TEXT_DIM}"
-#   echo_h2 "CP4D Service" "    "
-#   echo_reset_dim "CPD_OPERATORS_NAMESPACE  .................... ${COLOR_MAGENTA}${CPD_OPERATORS_NAMESPACE}"
-#   echo_reset_dim "CPD_INSTANCE_NAMESPACE  ..................... ${COLOR_MAGENTA}${CPD_INSTANCE_NAMESPACE}"
-#   echo_reset_dim "CPD_SERVICE_NAME  ........................... ${COLOR_MAGENTA}${CPD_SERVICE_NAME}"
-#   echo_reset_dim "CPD_SERVICE_INSTALLPLAN_APPROVAL  ........... ${COLOR_MAGENTA}${CPD_SERVICE_INSTALLPLAN_APPROVAL}"
-#   echo_reset_dim "CPD_SERVICE_BLOCK_STORAGE_CLASS  ............ ${COLOR_MAGENTA}${CPD_SERVICE_BLOCK_STORAGE_CLASS}"
-#   echo_reset_dim "CPD_SERVICE_STORAGE_CLASS  .................. ${COLOR_MAGENTA}${CPD_SERVICE_STORAGE_CLASS}"
-#   echo_reset_dim "CPD_SERVICE_DEPLOYMENT_TYPE  ................ ${COLOR_MAGENTA}${CPD_SERVICE_DEPLOYMENT_TYPE}"
-#   echo_reset_dim "CPD_CCS_INSTALL_PLAN  ....................... ${COLOR_MAGENTA}${CPD_CCS_INSTALL_PLAN}"
-#   echo_reset_dim "CPD_DATAREFINERY_INSTALL_PLAN  .............. ${COLOR_MAGENTA}${CPD_DATAREFINERY_INSTALL_PLAN}"
-#   echo_reset_dim "CPD_WS_INSTALL_PLAN  ........................ ${COLOR_MAGENTA}${CPD_WS_INSTALL_PLAN}"
-#   echo_reset_dim "RABBITMQ_INSTALL_PLAN  ...................... ${COLOR_MAGENTA}${RABBITMQ_INSTALL_PLAN}"
-#   echo_reset_dim "ELASTICSEARCH_INSTALL_PLAN  ................. ${COLOR_MAGENTA}${ELASTICSEARCH_INSTALL_PLAN}"
-  reset_colors
-
   GIT_LOCK_BRANCH=$(git_lock_branch_name "gitops-deprovision-cp4d-service" "${ACCOUNT_ID}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}")
   CURRENT_DIR=$PWD
+  CPD_SERVICE_LIST=(wsl wml spss spark)
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
@@ -251,16 +254,24 @@ function gitops_deprovision_cp4d_service() {
    echo
   echo_h2 "Deleting CPD Service (${CPD_SERVICE_NAME}) Application"
 
-  if [[ "$DELETE_CPD_BASE" == "true" ]]; then
+  if [[ "$CP4D_WSL_ACTION" == "uninstall" && "$CP4D_WATSON_MACHINE_LEARNING_ACTION" == "uninstall" && "$CP4D_SPSS_MODELER_ACTION" == "uninstall" ]]; then
     echo "Deleting IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml"
     rm -rf ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml
   fi
   
-  echo
-  echo "- ${CPD_SERVICE_NAME} operator"
+  if [[ "$CPD_SERVICE_NAME" == "all" ]]; then
+    for CPD_SERVICE in "${CPD_SERVICE_LIST[@]}"
+    do
+      echo "Deleting IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE}.yaml"
+      rm -rf ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE}.yaml
+    done
+  else
+    echo
+    echo "- ${CPD_SERVICE_NAME} operator"
 
-  echo "Deleting IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml"
-  rm -rf ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml
+    echo "Deleting IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml"
+    rm -rf ${GITOPS_INSTANCE_DIR}/ibm-${CPD_SERVICE_NAME}.yaml
+  fi
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
