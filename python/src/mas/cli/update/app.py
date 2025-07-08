@@ -242,13 +242,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) May 01 2025 Update (MAS 9.0.11, 8.11.22, &amp; 8.10.25)",
-            "  2) Apr 03 2025 Update (MAS 9.0.10, 8.11.21, &amp; 8.10.24)",
-            "  3) Mar 06 2025 Update (MAS 9.0.9, 8.11.20, &amp; 8.10.23)",
+            "  1) Jun 05 2025 Update (MAS 9.1.0, 9.0.12, 8.11.21, &amp; 8.10.26)",
+            "  2) May 01 2025 Update (MAS 9.0.11, 8.11.22, &amp; 8.10.25)",
+            "  3) Apr 03 2025 Update (MAS 9.0.10, 8.11.21, &amp; 8.10.24)",
         ])
 
         catalogOptions = [
-            "v9-250501-amd64", "v9-250403-amd64", "v9-250306-amd64",
+            "v9-250624-amd64", "v9-250501-amd64", "v9-250403-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -363,6 +363,7 @@ class UpdateApp(BaseApp):
                         "v9-250306-amd64": "7.0.12",
                         "v9-250403-amd64": "7.0.12",
                         "v9-250501-amd64": "7.0.12",
+                        "v9-250624-amd64": "7.0.12",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -376,6 +377,7 @@ class UpdateApp(BaseApp):
                     currentMongoVersionMajor = currentMongoVersion.split(".")[0]
 
                     if targetMongoVersionMajor > currentMongoVersionMajor:
+                        self.setParam("mongodb_action", "install")
                         # Let users know that Mongo will be upgraded if existing MongoDb major.minor version
                         # is lower than the target major version
                         # We don't show this message for normal updates, e.g. 5.0.1 to 5.0.2
@@ -400,7 +402,7 @@ class UpdateApp(BaseApp):
                         self.showMongoDependencyUpdateNotice(currentMongoVersion, targetMongoVersion)
                         self.fatalError(f"Existing MongoDB Community Edition installation at version {currentMongoVersion} cannot be downgraded to version {targetMongoVersion}")
                     else:
-                        h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE is aleady installed at version {targetMongoVersion}")
+                        h.stop_and_persist(symbol=self.successIcon, text=f"MongoDb CE is already installed at version {targetMongoVersion}")
                 else:
                     # There's no MongoDb instance installed in the cluster, so nothing to do
                     h.stop_and_persist(symbol=self.successIcon, text="No MongoDb CE instances found")
@@ -497,6 +499,7 @@ class UpdateApp(BaseApp):
             "v9-250306-amd64": "5.0.0",
             "v9-250403-amd64": "5.0.0",
             "v9-250501-amd64": "5.0.0",
+            "v9-250624-amd64": "5.1.3",
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:

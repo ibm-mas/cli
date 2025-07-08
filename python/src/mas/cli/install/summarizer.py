@@ -153,32 +153,6 @@ class InstallSummarizerMixin():
         else:
             self.printSummary("Visual Inspection", "Do Not Install")
 
-    def aibrokerSummary(self) -> None:
-        if self.installAiBroker:
-            self.printSummary("AI Broker", self.params["mas_app_channel_aibroker"])
-            print_formatted_text(HTML("  <SkyBlue>+ Maximo AI Broker Settings</SkyBlue>"))
-            self.printParamSummary("  + Storage provider", "mas_aibroker_storage_provider")
-            self.printParamSummary("  + Storage access key", "mas_aibroker_storage_accesskey")
-            self.printParamSummary("  + Storage secret key", "mas_aibroker_storage_secretkey")
-            self.printParamSummary("  + Storage host", "mas_aibroker_storage_host")
-            self.printParamSummary("  + Storage port", "mas_aibroker_storage_port")
-            self.printParamSummary("  + Storage ssl", "mas_aibroker_storage_ssl")
-            self.printParamSummary("  + Storage region", "mas_aibroker_storage_region")
-            self.printParamSummary("  + Storage pipelines bucket", "mas_aibroker_storage_pipelines_bucket")
-            self.printParamSummary("  + Storage tenants bucket", "mas_aibroker_storage_tenants_bucket")
-            self.printParamSummary("  + Storage templates bucket", "mas_aibroker_storage_templates_bucket")
-            self.printParamSummary("  + Watsonxai api key", "mas_aibroker_watsonxai_apikey")
-            self.printParamSummary("  + Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
-            self.printParamSummary("  + Watsonxai project id", "mas_aibroker_watsonxai_project_id")
-            self.printParamSummary("  + Database host", "mas_aibroker_db_host")
-            self.printParamSummary("  + Database port", "mas_aibroker_db_port")
-            self.printParamSummary("  + Database user", "mas_aibroker_db_user")
-            self.printParamSummary("  + Database name", "mas_aibroker_db_database")
-            self.printParamSummary("  + Database Secretname", "mas_aibroker_db_secret_name")
-            self.printParamSummary("  + Database password", "mas_aibroker_db_secret_value")
-        else:
-            self.printSummary("AI Broker", "Do Not Install")
-
     def manageSummary(self) -> None:
         if self.installManage:
             self.printSummary(f"{'Manage foundation' if self.getParam('is_full_manage') == 'false' else 'Manage'}", self.params["mas_app_channel_manage"])
@@ -378,6 +352,10 @@ class InstallSummarizerMixin():
         self.printH2("Grafana")
         self.printSummary("Install Grafana", "Install" if self.getParam("grafana_action") == "install" else "Do Not Install")
 
+    def installSummary(self) -> None:
+        self.printH2("Install Process")
+        self.printSummary("Wait for PVCs to bind", "No" if self.getParam("no_wait_for_pvc") else "Yes")
+
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")
         self.printDescription([
@@ -403,7 +381,6 @@ class InstallSummarizerMixin():
         self.optimizerSummary()
         self.assistSummary()
         self.inspectionSummary()
-        self.aibrokerSummary()
         self.facilitiesSummary()
 
         # Application Dependencies
@@ -414,3 +391,6 @@ class InstallSummarizerMixin():
         self.cp4dSummary()
         self.grafanaSummary()
         self.turbonomicSummary()
+
+        # Install options
+        self.installSummary()
