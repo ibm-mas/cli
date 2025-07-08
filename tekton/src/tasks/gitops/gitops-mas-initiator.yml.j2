@@ -272,6 +272,10 @@ spec:
         cp --no-clobber $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME
         set -e -o pipefail
 
+        mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/order-status
+        echo "copy $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/order-status/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/order-status"
+        cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/order-status/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/order-status
+
         mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID
         echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
         cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/
@@ -327,6 +331,9 @@ spec:
         # Update the ocp server url & ingress domain url in the cluster-params.yaml.
         yq -i '.cluster.url = env(OCP_SERVER)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
         yq -i '.cluster.domain = env(APPSDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
+
+        # Update the provisioner_domain in cluster-params.yaml.
+        yq -i '(. | select(has("mas_provisioner")) |  .mas_provisioner.provisioner_domain) = env(APPSDOMAIN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
 
         # Update the channel in the mas-instance-params.yaml. 
         yq -i '.mas_instance.channel = env(MAS_CHANNEL)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
