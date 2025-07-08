@@ -554,10 +554,10 @@ function gitops_cluster() {
   export SECRET_NAME_INSTANA=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}instana
   export SECRET_KEY_INSTANA_KEY=${SECRET_NAME_INSTANA}#key
 
-  export SECRET_NAME_SYSLOG_PULLSECRET=${SYSLOG_PULLSECRET_SECRET_NAME:-"aws-dev/syslog_pullsecret"}
+  export SECRET_NAME_SYSLOG_PULLSECRET=${ACCOUNT_ID}${SM_DELIM}syslog_pullsecret
   export SECRET_KEY_SYSLOG_PULLSECRET=${SECRET_NAME_SYSLOG_PULLSECRET}#pullsecret
 
-  export SECRET_NAME_LOG_FORWARDER_DLC_CERT=${DLC_CERT_SECRET_NAME:-"aws-dev/dlc_cert"}
+  export SECRET_NAME_LOG_FORWARDER_DLC_CERT=${ACCOUNT_ID}${SM_DELIM}dlc_cert
   export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CERT}#ca_bundle
 
 
@@ -590,6 +590,19 @@ function gitops_cluster() {
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_INSTANA "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
   fi
+
+  if [ -n "$SYSLOG_PULLSECRET" ]; then
+    echo "- Update SYSLOG_PULLSECRET secret"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
+    sm_update_secret $SECRET_NAME_SYSLOG_PULLSECRET "{\"pullsecret\": \"${SYSLOG_PULLSECRET}\"}" "${TAGS}"
+  fi
+
+  if [ -n "$DLC_CERT" ]; then
+    echo "- Update DLC_CERT secret"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
+    sm_update_secret $SECRET_NAME_LOG_FORWARDER_DLC_CERT "{\"ca_bundle\": \"${DLC_CERT}\"}" "${TAGS}"
+  fi
+
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
