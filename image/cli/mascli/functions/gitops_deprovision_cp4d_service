@@ -24,6 +24,7 @@ Secrets Manager:
 
 IBM CP4D Service:
       --cpd-service-name ${COLOR_YELLOW}CPD_SERVICE_NAME${TEXT_RESET}                                   CP4D Service Name
+      --delete-cpd-base ${COLOR_YELLOW}DELETE_CPD_BASE${TEXT_RESET}                                     Whether to delete cpd base file
 
 
 Automatic GitHub Push:
@@ -96,6 +97,9 @@ function gitops_deprovision_cp4d_service_noninteractive() {
       --cpd-service-name)
         export CPD_SERVICE_NAME=$1 && shift
         ;;
+      --delete-cpd-base)
+        export DELETE_CPD_BASE=$1 && shift
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -143,6 +147,7 @@ function gitops_deprovision_cp4d_service_noninteractive() {
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_cp4d_service_help "MAS_INSTANCE_ID is not set"
 
   [[ -z "$CPD_SERVICE_NAME" ]] && gitops_deprovision_cp4d_service_help "CPD_SERVICE_NAME is not set"
+  [[ -z "$DELETE_CPD_BASE" ]] && gitops_deprovision_cp4d_service_help "DELETE_CPD_BASE is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_cp4d_service_help "GITHUB_HOST is not set"
@@ -246,7 +251,7 @@ function gitops_deprovision_cp4d_service() {
    echo
   echo_h2 "Deleting CPD Service (${CPD_SERVICE_NAME}) Application"
 
-  if [[ "$CPD_SERVICE_NAME" == "wsl" || "$CPD_SERVICE_NAME" == "wml" || "$CPD_SERVICE_NAME" == "spss" ]]; then
+  if [[ "$DELETE_CPD_BASE" == "true" ]]; then
     echo "Deleting IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml"
     rm -rf ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml
   fi
