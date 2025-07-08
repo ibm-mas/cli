@@ -150,7 +150,7 @@ spec:
           hs.message = ""
           return hs
 
-      apps.mas.ibm.com/AiBrokerApp:
+      apps.mas.ibm.com/AiBrokerWorkspace:
         health.lua: |
           hs = {}
           if obj.status ~= nil then
