@@ -17,5 +17,5 @@ export ROLE_NAME=$1
 shift
 ansible-playbook ibm.mas_devops.run_role $@
 rc=$?
-python3 /opt/app-root/src/save-junit-to-mongo.py
+# python3 /opt/app-root/src/save-junit-to-mongo.py
 exit $rc
