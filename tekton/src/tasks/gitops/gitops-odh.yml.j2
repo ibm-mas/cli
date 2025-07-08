@@ -92,7 +92,6 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-        #mas gitops-odh --account-id "$ACCOUNT_ID" --cluster-id "$CLUSTER_ID"   --secrets-path "$SECRETS_PATH"   --github-host "$GITHUB_HOST"   --github-org "$GITHUB_ORG"   --github-repo "$GITHUB_REPO"   --git-branch "$GIT_BRANCH" --github-push
         mkdir -p /tmp/init-odh
         mas gitops-odh -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
