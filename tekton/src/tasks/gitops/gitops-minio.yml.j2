@@ -37,8 +37,6 @@ spec:
       default: minio
     - name: minio_root_user
       type: string
-    - name: minio_root_password
-      type: string
     - name: minio_storage_class
       type: string
       default: nfs-client
@@ -80,8 +78,6 @@ spec:
         value: $(params.minio_instance_name)
       - name: MINIO_ROOT_USER
         value: $(params.minio_root_user)
-      - name: MINIO_ROOT_PASSWORD
-        value: $(params.minio_root_password)
       - name: MINIO_STORAGE_CLASS
         value: $(params.minio_storage_class)
       - name: MINIO_STORAGE_SIZE
