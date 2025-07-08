@@ -119,6 +119,11 @@
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
   runAfter:
     - licensingapi
+  when:
+    - input: 'disabled'
+      operator: in
+      values:
+        - 'true'    
   workspaces:
     - name: configs
       workspace: shared-configs
