@@ -234,6 +234,7 @@
         - gitops-suite-workspace
         - gitops-suite
         - gitops-minio
+        - gitops-deprovision-minio
         - gitops-odh
         - gitops-kmodel
         - gitops-deprovision-kmodel
