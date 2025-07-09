@@ -88,6 +88,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
 . $CLI_DIR/functions/gitops_nvidia_gpu
 . $CLI_DIR/functions/gitops_deprovision_db2u
+. $CLI_DIR/functions/gitops_deprovision_odh
 . $CLI_DIR/functions/gitops_minio
 . $CLI_DIR/functions/gitops_odh
 . $CLI_DIR/functions/gitops_kmodel
@@ -570,7 +571,13 @@ case $1 in
     reset_colors
     gitops_deprovision_db2u "$@"
     ;;
-
+  gitops-deprovision-odh)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_odh "$@"
+    ;;
   gitops-minio)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Minio Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
