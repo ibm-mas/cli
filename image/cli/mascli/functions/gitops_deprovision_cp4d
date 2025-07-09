@@ -128,10 +128,6 @@ function gitops_deprovision_cp4d_noninteractive() {
   # MAS
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_cp4d_help "MAS_INSTANCE_ID is not set"
 
-#   [[ -z "$CPD_PRODUCT_VERSION" ]] && gitops_deprovision_cp4d_help "CPD_PRODUCT_VERSION is not set"
-#   [[ -z "$CPD_PRIMARY_STORAGE_CLASS" ]] && gitops_deprovision_cp4d_help "CPD_PRIMARY_STORAGE_CLASS is not set"
-#   [[ -z "$CPD_METADATA_STORAGE_CLASS" ]] && gitops_deprovision_cp4d_help "CPD_METADATA_STORAGE_CLASS is not set"
-
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_cp4d_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_cp4d_help "GITHUB_ORG is not set"
@@ -158,9 +154,6 @@ function gitops_deprovision_cp4d() {
 
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
-
-#   export CPD_OPERATORS_NAMESPACE=${CPD_OPERATORS_NAMESPACE:-"ibm-cpd-${MAS_INSTANCE_ID}-operators"}
-#   export CPD_INSTANCE_NAMESPACE=${CPD_INSTANCE_NAMESPACE:-"ibm-cpd-${MAS_INSTANCE_ID}-instance"}
 
   echo
   reset_colors
@@ -192,20 +185,6 @@ function gitops_deprovision_cp4d() {
     echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
     echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
   fi
-  reset_colors
-
-#   echo "${TEXT_DIM}"
-#   echo_h2 "CP4D" "    "
-#   echo_reset_dim "CPD_PRODUCT_VERSION  ..................... ${COLOR_MAGENTA}${CPD_PRODUCT_VERSION}"
-#   echo_reset_dim "CPD_OPERATORS_NAMESPACE  ................. ${COLOR_MAGENTA}${CPD_OPERATORS_NAMESPACE}"
-#   echo_reset_dim "CPD_INSTANCE_NAMESPACE  .................. ${COLOR_MAGENTA}${CPD_INSTANCE_NAMESPACE}"
-#   echo_reset_dim "CPD_PRIMARY_STORAGE_CLASS  ............... ${COLOR_MAGENTA}${CPD_PRIMARY_STORAGE_CLASS}"
-#   echo_reset_dim "CPD_METADATA_STORAGE_CLASS  .............. ${COLOR_MAGENTA}${CPD_METADATA_STORAGE_CLASS}"
-#   echo_reset_dim "CPD_PLATFORM_INSTALL_PLAN  ............... ${COLOR_MAGENTA}${CPD_PLATFORM_INSTALL_PLAN}"
-#   echo_reset_dim "NAMESPACE_SCOPE_INSTALL_PLAN  ............ ${COLOR_MAGENTA}${NAMESPACE_SCOPE_INSTALL_PLAN}"
-#   echo_reset_dim "CPD_LICENSING_INSTALL_PLAN  .............. ${COLOR_MAGENTA}${CPD_LICENSING_INSTALL_PLAN}"
-#   echo_reset_dim "CPFS_INSTALL_PLAN  ....................... ${COLOR_MAGENTA}${CPFS_INSTALL_PLAN}"
-
   reset_colors
 
   if [ -z $GIT_SSH ]; then

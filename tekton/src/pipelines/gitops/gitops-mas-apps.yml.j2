@@ -3043,9 +3043,9 @@ spec:
 
     # 13. CP4D Deprovision
     # -------------------------------------------------------------------------
-    - name: gitops-deprovision-cp4d-uninstall
+    - name: gitops-deprovision-cp4d
       runAfter:
-        - gitops-deprovision-cp4d
+        - gitops-deprovision-cp4d-spss
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
