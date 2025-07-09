@@ -254,7 +254,7 @@ function gitops_deprovision_cp4d_service() {
    echo
   echo_h2 "Deleting CPD Service (${CPD_SERVICE_NAME}) Application"
 
-  if [[ "$CP4D_WSL_ACTION" == "uninstall" && "$CP4D_WATSON_MACHINE_LEARNING_ACTION" == "uninstall" && "$CP4D_SPSS_MODELER_ACTION" == "uninstall" ]]; then
+  if [[ ("$CPD_SERVICE_NAME" == "all") || ("$CP4D_WSL_ACTION" == "uninstall" && "$CP4D_WATSON_MACHINE_LEARNING_ACTION" == "uninstall" && "$CP4D_SPSS_MODELER_ACTION" == "uninstall") ]]; then
     echo "Deleting IBM CPD Service file ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml"
     rm -rf ${GITOPS_INSTANCE_DIR}/ibm-cp4d-services-base.yaml
   fi
