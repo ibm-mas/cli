@@ -70,7 +70,7 @@ spec:
     # -------------------------------------------------------------------------
     - name: mongodb_action
       type: string
-      default: "none"
+      default: "install"
       description: Set to 'install' to update mongodb instances in specified mongodb namespace
     - name: mongodb_namespace
       type: string
@@ -78,7 +78,6 @@ spec:
       description: Namespace where mongodb instances will be updated
     - name: mongodb_version
       type: string
-      default: ""
       description: Override the target version of MongoDb (use with extreme caution)
 
     # TODO: The role should look this up itself
@@ -452,8 +451,6 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: sync-update
-        - name: configmap_namespace
-          value: mas-htday2-pipelines
         - name: configmap_value
           # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
           # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
