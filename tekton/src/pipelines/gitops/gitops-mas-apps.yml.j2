@@ -2877,3 +2877,190 @@ spec:
         - input: "$(params.mas_edition)"
           operator: in
           values: ["essentials-lease-management", "essentials-space-management", "essentials-capital-planning", "standard", "premium"]
+
+    # 12. CP4D Services Deprovision
+    # -------------------------------------------------------------------------
+    # 12.1 Deprovision cp4d service for all
+    - name: gitops-deprovision-cp4d-all
+      runAfter:
+        - gitops-deprovision-db2u-replica-database-facilities
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: 'all'
+        - name: cp4d_wsl_action
+          value: $(params.cp4d_wsl_action)
+        - name: cp4d_watson_machine_learning_action
+          value: $(params.cp4d_watson_machine_learning_action)
+        - name: cp4d_spss_modeler_action
+          value: $(params.cp4d_spss_modeler_action)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-cp4d-service
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_predict)"
+          operator: in
+          values: [""]
+
+    # 12.2 Deprovision cp4d service for wsl
+    - name: gitops-deprovision-cp4d-wsl
+      runAfter:
+        - gitops-deprovision-cp4d-all
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: 'wsl'
+        - name: cp4d_wsl_action
+          value: $(params.cp4d_wsl_action)
+        - name: cp4d_watson_machine_learning_action
+          value: $(params.cp4d_watson_machine_learning_action)
+        - name: cp4d_spss_modeler_action
+          value: $(params.cp4d_spss_modeler_action)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-cp4d-service
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.cp4d_wsl_action)"
+          operator: in
+          values: ["uninstall"]
+
+
+    # 12.3 Deprovision cp4d service for wml
+    - name: gitops-deprovision-cp4d-wml
+      runAfter:
+        - gitops-deprovision-cp4d-wsl
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: 'wml'
+        - name: cp4d_wsl_action
+          value: $(params.cp4d_wsl_action)
+        - name: cp4d_watson_machine_learning_action
+          value: $(params.cp4d_watson_machine_learning_action)
+        - name: cp4d_spss_modeler_action
+          value: $(params.cp4d_spss_modeler_action)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-cp4d-service
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.cp4d_watson_machine_learning_action)"
+          operator: in
+          values: ["uninstall"]
+
+    # 12.4 Deprovision cp4d service for spark
+    - name: gitops-deprovision-cp4d-spark
+      runAfter:
+        - gitops-deprovision-cp4d-wml
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: 'spark'
+        - name: cp4d_wsl_action
+          value: $(params.cp4d_wsl_action)
+        - name: cp4d_watson_machine_learning_action
+          value: $(params.cp4d_watson_machine_learning_action)
+        - name: cp4d_spss_modeler_action
+          value: $(params.cp4d_spss_modeler_action)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-cp4d-service
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.cp4d_analytics_engine_action)"
+          operator: in
+          values: ["uninstall"]
+
+    # 12.5 Deprovision cp4d service for spss
+    - name: gitops-deprovision-cp4d-spss
+      runAfter:
+        - gitops-deprovision-cp4d-spark
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: cpd_service_name
+          value: 'spss'
+        - name: cp4d_wsl_action
+          value: $(params.cp4d_wsl_action)
+        - name: cp4d_watson_machine_learning_action
+          value: $(params.cp4d_watson_machine_learning_action)
+        - name: cp4d_spss_modeler_action
+          value: $(params.cp4d_spss_modeler_action)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-cp4d-service
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.cp4d_spss_modeler_action)"
+          operator: in
+          values: ["uninstall"]
+
+    # 13. CP4D Deprovision
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-cp4d
+      runAfter:
+        - gitops-deprovision-cp4d-spss
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-cp4d
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.cp4d_action)"
+          operator: in
+          values: ["uninstall"]
