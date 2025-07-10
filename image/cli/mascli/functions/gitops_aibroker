@@ -68,6 +68,7 @@ sls_dro_jdbc
       --mas-icr-cpopen ${TEXT_RESET}MAS_ICR_CPOPEN${TEXT_RESET}
       --cluster-domain ${TEXT_RESET}CLUSTER_DOMAIN${TEXT_RESET}
       --in-saas-env ${TEXT_RESET}IN_SAAS_ENV${TEXT_RESET}
+      --route_type ${TEXT_RESET}ROUTE_TYPE${TEXT_RESET}  # Optional, e.g., "route" or "ingress"
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
@@ -98,6 +99,7 @@ function gitops_aibroker_noninteractive() {
   #adding default values 
   export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${MAS_INSTANCE_ID}-aibroker"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
+  export ROUTE_TYPE=${ROUTE_TYPE:-""}  # Default to "", can be set to "ingress" if needed
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
   export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"}
   #dro
@@ -154,11 +156,14 @@ function gitops_aibroker_noninteractive() {
         export SECRETS_PATH=$1 && shift
         ;;
 
-       --aibroker-namespace)
+      --aibroker-namespace)
           export AIBROKER_NAMESPACE=$1 && shift
         ;;
-       --in-saas-env)
+      --in-saas-env)
           export IN_SAAS_ENV=$1 && shift
+        ;;
+      --route-type)
+          export ROUTE_TYPE=$1 && shift
         ;;
       --mas-icr-cp)
         export MAS_ICR_CP=$1 && shift
@@ -385,7 +390,7 @@ function gitops_aibroker() {
   echo_reset_dim "MAS ICR CPOpen ......................... ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
   echo_reset_dim "Cluster Domain ......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "In SaaS Environment .................... ${COLOR_MAGENTA}${IN_SAAS_ENV}"
-
+  echo_reset_dim "Route Type ............................ ${COLOR_MAGENTA}${ROUTE_TYPE}"
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login

@@ -106,6 +106,8 @@ spec:
       type: string
     - name: in_saas_env
       type: string
+    - name: route_type
+      type: string
     - name: environment_type
       type: string
     - name: mas_aibroker_s3_endpoint_url
@@ -218,6 +220,8 @@ spec:
         value: $(params.cluster_domain)
       - name: IN_SAAS_ENV
         value: $(params.in_saas_env)
+      - name: ROUTE_TYPE
+        value: $(params.route_type)
       - name: ENVIRONMENT_TYPE
         value: $(params.environment_type)
       - name: MAS_AIBROKER_S3_ENDPOINT_URL
