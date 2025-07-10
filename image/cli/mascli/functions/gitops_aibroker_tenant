@@ -31,7 +31,8 @@ ibm_aibroker_tenant(required):
 AIBroker :
 --aibroker-namespace ${COLOR_YELLOW}AIBROKER_NAMESPACE${TEXT_RESET}                                         The namespace where AI Broker is deployed
 --mas-aibroker-provision-tenant ${COLOR_YELLOW}MAS_AIBROKER_PROVISION_TENANT${TEXT_RESET}                   Whether to provision the AI Broker tenant
---mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                               The MAS instance ID used by AI Broker
+# --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                             The MAS instance ID used by AI Broker
+--aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                                     The AI Broker instance ID
 --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                              The tenant's Kubernetes namespace
 --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                           The tenant ID for the AI Broker instance
 --mas_aibroker_tenant_name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                             The name of the AI Broker tenant
@@ -96,7 +97,7 @@ function gitops_aibroker_tenant_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   #adding default values # -- AIBroker Defaults
-  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${MAS_INSTANCE_ID}-aibroker"}
+  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${AIBROKER_INSTANCE_ID}-aibroker"}
   export MAS_AIBROKER_PROVISION_TENANT=${MAS_AIBROKER_PROVISION_TENANT:-"provision-tenant"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
@@ -157,8 +158,11 @@ function gitops_aibroker_tenant_noninteractive() {
       --mas-aibroker-provision-tenant)
         export MAS_AIBROKER_PROVISION_TENANT=$1 && shift
         ;;
-      --mas-instance-id)
-        export MAS_INSTANCE_ID=$1 && shift
+      # --mas-instance-id)
+      #   export MAS_INSTANCE_ID=$1 && shift
+      #   ;;
+      --aibroker-instance-id)
+        export AIBROKER_INSTANCE_ID=$1 && shift
         ;;
       --tenantNamespace)
         export TENANT_NAMESPACE=$1 && shift
@@ -330,7 +334,8 @@ function gitops_aibroker_tenant_noninteractive() {
 
   # add validation below like above  for those variable which have the value needed for further execution
   # -- AIBroker
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_aibroker_tenant_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
+  # [[ -z "$MAS_INSTANCE_ID" ]] && gitops_aibroker_tenant_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_minio_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
   [[ -z "$TENANT_NAMESPACE" ]] && gitops_aibroker_tenant_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
   [[ -z "$TENANT_ID" ]] && gitops_aibroker_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
   [[ -z "$MAS_AIBROKER_TENANT_NAME" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_TENANT_NAME is not set. Please provide the AI Broker tenant name using --mas-aibroker-tenant-name."
@@ -373,9 +378,8 @@ function gitops_aibroker_tenant() {
 
   rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/${TENANT_ID}
-  # TEMP_DIR=$GITOPS_CLUSTER_DIR/${MAS_INSTANCE_ID}
-  # mkdir -p ${TEMP_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}/${TENANT_ID}
+
 
   echo
   reset_colors
@@ -418,7 +422,8 @@ function gitops_aibroker_tenant() {
   # -- AIBroker
   echo_reset_dim "aibroker namespace ........................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
   echo_reset_dim "mas aibroker provision tenant ................ ${COLOR_MAGENTA}${MAS_AIBROKER_PROVISION_TENANT}"
-  echo_reset_dim "mas instance ID .............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  # echo_reset_dim "mas instance ID .............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "aibroker instance ID ......................... ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
   echo_reset_dim "tenant namespace ............................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
   echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
   echo_reset_dim "mas aibroker tenant name ..................... ${COLOR_MAGENTA}${MAS_AIBROKER_TENANT_NAME}"

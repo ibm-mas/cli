@@ -29,7 +29,7 @@ spec:
       type: string
     - name: mas_aibroker_provision_tenant
       type: string
-    - name: mas_instance_id
+    - name: aibroker_instance_id
       type: string
     - name: tenantNamespace
       type: string
@@ -156,8 +156,8 @@ spec:
           value: $(params.aibroker_namespace)
         - name: mas_aibroker_provision_tenant
           value: $(params.mas_aibroker_provision_tenant)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
         - name: tenantNamespace
           value: $(params.tenantNamespace)
         - name: tenant_id

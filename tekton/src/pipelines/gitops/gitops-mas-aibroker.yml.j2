@@ -10,7 +10,7 @@ spec:
       type: string
     - name: account
       type: string
-    - name: mas_instance_id
+    - name: aibroker_instance_id
       type: string
     - name: cluster_url
       type: string
@@ -228,8 +228,8 @@ spec:
           value: $(params.minio_storage_size)
         - name: minio_image
           value: $(params.minio_image)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
 
       # when:
       #  - input: "$(params.mas_aibroker_storage_provider)"
@@ -252,8 +252,8 @@ spec:
           value: $(params.cluster_name)
         - name: account
           value: $(params.account)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: git_branch
@@ -314,8 +314,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
         - name: aibroker_namespace
           value: $(params.aibroker_namespace)
         - name: mas_aibroker_watsonx_secret
@@ -408,7 +408,7 @@ spec:
           value: $(params.mas_aibroker_s3_bucket_prefix)
         
 
-    # 3.gitops-Kmodel
+    # 4.gitops-Kmodel
     # -------------------------------------------------------------------------
     - name: gitops-kmodel
       taskRef:
@@ -439,8 +439,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
         - name: aibroker_internal_tls
           value: $(params.aibroker_internal_tls)
         - name: aibroker_namespace
