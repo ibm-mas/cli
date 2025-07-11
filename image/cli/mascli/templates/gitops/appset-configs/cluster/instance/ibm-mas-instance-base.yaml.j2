@@ -1,4 +1,4 @@
-merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AIBROKER_INSTANCE_ID }}"
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
 account:
   id: {{ ACCOUNT_ID }}
@@ -11,7 +11,7 @@ cluster:
   url: {{ CLUSTER_URL }}
 
 instance:
-  id: {{ AIBROKER_INSTANCE_ID }}
+  id: {{ MAS_INSTANCE_ID }}
 
 sm:
   aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_access_key_id>"
