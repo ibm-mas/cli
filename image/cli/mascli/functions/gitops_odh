@@ -15,7 +15,6 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
-  # -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
   -m, --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}  AI Broker Instance ID
 
 Secrets Manager:
@@ -154,7 +153,6 @@ function gitops_odh_noninteractive() {
       -d|--dir) export GITOPS_WORKING_DIR="$1"; shift ;;
       -a|--account-id) export ACCOUNT_ID="$1"; shift ;;
       -c|--cluster-id) export CLUSTER_ID="$1"; shift ;;
-      # -m|--mas-instance-id) export MAS_INSTANCE_ID="$1"; shift ;;
       -m|--aibroker-instance-id) export AIBROKER_INSTANCE_ID="$1"; shift ;;
 
       # AWS Secrets Manager Configuration
@@ -368,7 +366,6 @@ function gitops_odh_noninteractive() {
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_odh_help "Missing GITOPS_WORKING_DIR"
   [[ -z "$ACCOUNT_ID" ]] && gitops_odh_help "Missing ACCOUNT_ID"
   [[ -z "$CLUSTER_ID" ]] && gitops_odh_help "Missing CLUSTER_ID"
-  # [[ -z "$MAS_INSTANCE_ID" ]] && gitops_odh_help "Missing MAS_INSTANCE_ID"
   [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_odh_help "Missing AIBROKER_INSTANCE_ID"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
@@ -406,7 +403,6 @@ function gitops_odh() {
   echo_h2 "Target"
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  # echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "AI Broker Instance ID ................ ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
 
   echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
