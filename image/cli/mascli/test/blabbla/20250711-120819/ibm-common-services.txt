@@ -1,0 +1,1 @@
+/home/matthieu/_work/maximo/dev/dev-mas-cli/cli/image/cli/mascli/functions/must_gather: line 237: /home/matthieu/_work/maximo/dev/dev-mas-cli/cli/image/cli/mascli/must-gather/mg-summary-ibm-common-services: Permission denied

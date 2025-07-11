@@ -64,6 +64,7 @@ function genericMustGather() {
 }
 
 function mustgather() {
+  MG_COMMAND=$(echo $@)
   # Take the first parameter off (it will be "must-gather")
   shift
 
@@ -188,6 +189,7 @@ function mustgather() {
   LOG_FILE=${OUTPUT_DIR}/must-gather.log
   exec > >(tee ${LOG_FILE}) 2>&1
 
+  echo "Command executed: $MG_COMMAND"
   echo "Must gather generated with mas cli version: $VERSION"
   echo "Must gather will be saved to: $OUTPUT_FILE"
 
@@ -354,7 +356,14 @@ function mustgather() {
   if [[ -z $MAS_INSTANCE_IDS ]]; then
     # Find MAS instances
     MAS_INSTANCE_IDS=$(oc get suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
+    if [[ -z $MAS_INSTANCE_IDS ]]; then
+      # if there is no suite CR, search for mas-xxx-pipelines namespace to collect from that namespace
+      echo_warning "Suite CR not found, searching mas-xxx-pipelines project to get mas instance id"
+      MAS_INSTANCE_IDS=$(oc get project -oname | grep -o  mas-.*-pipelines | cut -d"-" -f 2)
+    fi
   fi
+
+
 
   echo ""
   for MAS_INSTANCE_ID in $MAS_INSTANCE_IDS
