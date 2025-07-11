@@ -373,7 +373,7 @@ if __name__ == "__main__":
         os.remove(MobVersion.output_filename)
 
     print("Retrieving Graphite versions for Manage apps")
-    graphite_versions = MobVersion.get_graphite_versions()
+    graphite_versions = MobVersion.get_graphite_versions(mas_ver=os.getenv("PRODUCT_CHANNEL"))
 
     print("Retrieving image versions for Manage IS and Add-ons ")
     img_versions = MobVersion.get_mobile_and_is_image_tags()
