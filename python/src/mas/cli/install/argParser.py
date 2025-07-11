@@ -550,6 +550,15 @@ manageArgGroup.add_argument(
     help="Manage server timezone. Default is `GMT`"
 )
 
+manageArgGroup.add_argument(
+    "--manage-upgrade-type",
+    dest="mas_appws_upgrade_type",
+    required=False,
+    help="Set Manage upgrade type. Default is `regularUpgrade`",
+    default="regularUpgrade",
+    choices=["regularUpgrade", "onlineUpgrade"]
+)
+
 # Manage Attachments
 # -----------------------------------------------------------------------------
 manageArgGroup.add_argument(

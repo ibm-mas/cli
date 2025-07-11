@@ -1,0 +1,139 @@
+---
+# Permit outbound communication by the Job pods
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: fvt-manage-{{ mas_instance_id }}-np
+  namespace: mas-{{ mas_instance_id }}-manage
+spec:
+  podSelector:
+  egress:
+    - {}
+  policyTypes:
+    - Egress
+
+---
+# Service account that is authorized to read k8s secrets (needed by the job)
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fvt-manage-{{ mas_instance_id }}-sa
+  namespace: mas-{{ mas_instance_id }}-manage
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: fvt-manage-{{ mas_instance_id }}-role
+  namespace: mas-{{ mas_instance_id }}-manage
+rules:
+  - verbs:
+      - get
+      - list
+      - patch
+    apiGroups:
+      - "apps.mas.ibm.com"
+    resources:
+      - manageworkspaces
+      - manageofflineupgraderequests
+      - manageofflineupgraderequests/status
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: fvt-manage-{{ mas_instance_id }}-rb
+  namespace: mas-{{ mas_instance_id }}-manage
+subjects:
+  - kind: ServiceAccount
+    name: fvt-manage-{{ mas_instance_id }}-sa
+    namespace: mas-{{ mas_instance_id }}-manage
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: fvt-manage-{{ mas_instance_id }}-role
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: fvt-manage-offline-upgrade-check
+  namespace: mas-{{ mas_instance_id }}-manage
+spec:
+  schedule: "*/5 * * * *"
+  concurrencyPolicy: Forbid
+  suspend: false
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: run
+              image: quay.io/ibmmas/cli:latest
+              imagePullPolicy: IfNotPresent
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 512Mi
+                requests:
+                  cpu: 10m
+                  memory: 64Mi
+              env:
+                - name: MAS_INSTANCE_ID
+                  value: {{ mas_instance_id }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+
+                  set -e
+
+                  echo
+                  echo "================================================================================"
+                  echo "Check if we need to set the ManageOfflineUpgradeRequest stage to Requested"
+                  echo "================================================================================"
+                  echo
+
+                  MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-manage
+
+                  MANAGE_WORKSPACE_NAME=$(oc get ManageWorkspace -n ${MAS_APP_NAMESPACE} -l mas.ibm.com/instanceId=${MAS_INSTANCE_ID} -o name)
+
+                  # Check ManageWorkspace Exists
+                  if [[ -n $MANAGE_WORKSPACE_NAME ]]; then
+                    MANAGE_UPGRADE_TYPE=$(oc get -n ${MAS_APP_NAMESPACE} ${MANAGE_WORKSPACE_NAME} -o=jsonpath="{.spec.settings.db.upgrade.upgradeType}")
+
+                    # Check if upgrade type of manage is online upgrade or regular upgrade
+                    if [[ $MANAGE_UPGRADE_TYPE == *"onlineUpgrade"* ]]; then
+                      ONLINE_UPDATE_DONE_MSG="Database online upgrade portion is done, waiting for offline request."
+                      MANAGE_DEPLOYMENTREADY_MSG=$(oc get -n ${MAS_APP_NAMESPACE} ${MANAGE_WORKSPACE_NAME} -o=jsonpath="{.status.conditions[?(@.type=='DeploymentReady')].message}")
+                          
+                      # Check the status of offline upgrade if the patch is completed
+                      if [[ $MANAGE_DEPLOYMENTREADY_MSG == *"$ONLINE_UPDATE_DONE_MSG"* ]]; then
+                        echo
+                        echo "Status found is: ${MANAGE_DEPLOYMENTREADY_MSG}"
+                        echo "ManageWorkspace indicates it is ready for offline upgrade, patching manageofflineupgraderequest CR to requested, and removing old status if present"
+                        UPGRADE_REQUEST_STATUS=$(oc get -n ${MAS_APP_NAMESPACE} manageofflineupgraderequest.apps.mas.ibm.com -l mas.ibm.com/instanceId=${MAS_INSTANCE_ID} -o=jsonpath="{.status}")
+                        UPGRADE_REQUEST_NAME=$(oc get ManageOfflineUpgradeRequest -n ${MAS_APP_NAMESPACE} -l mas.ibm.com/instanceId=${MAS_INSTANCE_ID} -o name)
+                        if [[ -n $UPGRADE_REQUEST_STATUS ]]; then 
+                          oc patch -n ${MAS_APP_NAMESPACE} ${UPGRADE_REQUEST_NAME} --subresource status --type=json -p="[{'op': 'remove', 'path': '/status'}]"
+                        fi
+                        oc patch -n ${MAS_APP_NAMESPACE} ${UPGRADE_REQUEST_NAME} --type merge -p $'spec:\n stage: requested'
+                        echo "Patch complete for manageofflineupgraderequest CR"
+                        echo
+
+                      else
+                        echo
+                        echo "The ManageWorkspace Status does not indicate it is ready for offlineupgrade, so do nothing"
+                        echo "Final Status found is: ${MANAGE_DEPLOYMENTREADY_MSG}"
+                      fi
+                    else
+                      echo
+                      echo "Upgrade type is: ${MANAGE_UPGRADE_TYPE}."
+                      echo "Upgrade type for manage is not onlineUpgrade, so skipping the step to patch manageofflineupgraderequest CR."
+                    fi
+                  else
+                    echo
+                    echo "ManageWorkspace not found with instance id: ${MAS_INSTANCE_ID} in namespace: ${MAS_APP_NAMESPACE}, so skipping the step to patch manageofflineupgraderequest CR."
+                  fi
+          restartPolicy: Never
+          serviceAccountName: fvt-manage-{{ mas_instance_id }}-sa
