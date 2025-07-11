@@ -1,0 +1,22 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AIBROKER_INSTANCE_ID }}/{{ TENANT_ID }}"
+
+account:
+  id: {{ ACCOUNT_ID }}
+
+region:
+  id: {{ REGION_ID }}
+
+cluster:
+  id: {{ CLUSTER_ID }}
+  url: {{ CLUSTER_URL }}
+
+instance:
+  id: {{ AIBROKER_INSTANCE_ID }}
+
+tenant:
+  id: {{ TENANT_ID }}
+
+sm:
+  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_access_key_id>"
+  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ACCOUNT_ID}}/{{CLUSTER_ID}}/aws#sm_aws_secret_access_key>"
+
