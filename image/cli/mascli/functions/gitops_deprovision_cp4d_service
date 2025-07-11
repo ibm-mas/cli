@@ -155,9 +155,6 @@ function gitops_deprovision_cp4d_service_noninteractive() {
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_cp4d_service_help "MAS_INSTANCE_ID is not set"
 
   [[ -z "$CPD_SERVICE_NAME" ]] && gitops_deprovision_cp4d_service_help "CPD_SERVICE_NAME is not set"
-  [[ -z "$CP4D_WSL_ACTION" ]] && gitops_deprovision_cp4d_service_help "CP4D_WSL_ACTION is not set"
-  [[ -z "$CP4D_WATSON_MACHINE_LEARNING_ACTION" ]] && gitops_deprovision_cp4d_service_help "CP4D_WATSON_MACHINE_LEARNING_ACTION is not set"
-  [[ -z "$CP4D_SPSS_MODELER_ACTION" ]] && gitops_deprovision_cp4d_service_help "CP4D_SPSS_MODELER_ACTION is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_cp4d_service_help "GITHUB_HOST is not set"
