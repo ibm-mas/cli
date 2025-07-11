@@ -93,10 +93,6 @@ spec:
       type: string
       description: Provides different flavors of server bundle configuration to handle workload for Manage application.
       default: ""
-    - name: is_full_manage
-      type: string
-      description: Set to true if full Manage is installed instead of Manage Foundation
-      default: "true"
     - name: mas_app_settings_tablespace
       type: string
       description: Name of the Manage database tablespace
@@ -315,8 +311,6 @@ spec:
         value: $(params.mas_app_settings_doclinks_pvc_accessmode)
       - name: MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE
         value: $(params.mas_app_settings_server_bundles_size)
-      - name: IS_FULL_MANAGE
-        value: $(params.is_full_manage)
       - name: MAS_APP_SETTINGS_TABLESPACE
         value: $(params.mas_app_settings_tablespace)
       - name: MAS_APP_SETTINGS_INDEXSPACE

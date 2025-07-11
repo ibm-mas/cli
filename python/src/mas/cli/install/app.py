@@ -1137,8 +1137,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.validateCatalogSource()
             self.licensePrompt()
 
-        if not self.isManageFoundation and self.getParam("mas_appws_components") == "":
-            self.fatalError("--mas_appws_components cannot be empty")
+        # Version before 9.1 cannot have empty components
+        if (self.getParam("mas_channel").startswith("8.") or self.getParam("mas_channel").startswith("9.0")) and self.getParam("mas_appws_components") == "":
+            self.fatalError("--mas_appws_components must be set for versions earlier than 9.1.0")
 
     @logMethodCall
     def install(self, argv):
