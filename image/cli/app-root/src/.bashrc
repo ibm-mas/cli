@@ -23,6 +23,7 @@ echo "${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/cli${TEXT_RESET}"
 echo
 echo "MAS Management:"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas install${TEXT_RESET} to install a new MAS instance"
+echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-install${TEXT_RESET} to install a new Ai Service instance"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas update${TEXT_RESET} to apply a new catalog update"
 
 # Upgrade is not tested/supported on s390x /ppc64le yet
