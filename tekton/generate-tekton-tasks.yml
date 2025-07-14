@@ -89,6 +89,9 @@
         - fvt-start-update
         - fvt-start-upgrade
         - fvt-start-uninstall
+        - fvt-pre-update
+        - fvt-pre-upgrade
+        - fvt-post-update
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:
@@ -193,6 +196,8 @@
         - gitops-deprovision-app-install
         - gitops-deprovision-cluster
         - gitops-deprovision-cos
+        - gitops-deprovision-cp4d
+        - gitops-deprovision-cp4d-service
         - gitops-deprovision-db2u
         - gitops-deprovision-db2u-database
         - gitops-deprovision-efs

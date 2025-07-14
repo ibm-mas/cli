@@ -236,6 +236,9 @@ class installArgBuilderMixin():
             if self.getParam('mas_appws_bindings_health_wsl_flag') == "true":
                 command += f"  --manage-health-wsl{newline}"
 
+            if self.getParam('mas_appws_upgrade_type') == "true":
+                command += f"  --manage-upgrade-type \"{self.getParam('mas_appws_upgrade_type')}\"{newline}"
+
         # Facilities Advanced Settings
         # -----------------------------------------------------------------------------
         # TODO: Fix type for storage sizes and max conn pool size
