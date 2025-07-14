@@ -437,7 +437,7 @@ manageArgGroup.add_argument(
     dest="mas_appws_components",
     required=False,
     help="Set Manage Components to be installed (e.g 'base=latest,health=latest,civil=latest')",
-    default="base=latest,health=latest"
+    default=""
 )
 
 manageArgGroup.add_argument(
