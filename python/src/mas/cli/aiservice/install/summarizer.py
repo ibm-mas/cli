@@ -108,6 +108,9 @@ class aiServiceInstallSummarizerMixin():
                     self.printParamSummary("  + DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
                     self.printParamSummary("  + DB2 SSL enabled", "mas_aibroker_db2_ssl_enabled")
                 self.printParamSummary("  + Environment type", "environment_type")
+                self.printParamSummary("  + Is External Route?", "mas_aibroker_is_external_route")
+                if self.getParam("mas_aibroker_cluster_domain") != "":
+                    self.printParamSummary("  +  External Domain", "mas_aibroker_cluster_domain")
 
         else:
             self.printSummary("AI Broker", "Do Not Install")

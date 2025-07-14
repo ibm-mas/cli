@@ -117,4 +117,6 @@ optionalParams = [
     "mas_aibroker_sls_url",
     "mas_aibroker_sls_ca_cert",
     "environment_type",
+    "mas_aibroker_is_external_route",
+    "mas_aibroker_cluster_domain",
 ]
