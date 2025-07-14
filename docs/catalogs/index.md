@@ -34,7 +34,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
       </thead>
       <tbody>
         <tr>
-          <td style="font-style: italic">v9-251204</td>
+          <td style="font-style: italic">v9-251224</td>
           <td></td>
           <td></td>
           <td></td>
@@ -45,7 +45,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-251106</td>
+          <td style="font-style: italic">v9-251127</td>
           <td></td>
           <td></td>
           <td></td>
@@ -56,7 +56,18 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-251003</td>
+          <td style="font-style: italic">v9-251030</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-250925</td>
           <td></td>
           <td></td>
           <td></td>
@@ -67,7 +78,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-250904</td>
+          <td style="font-style: italic">v9-250828</td>
           <td></td>
           <td></td>
           <td></td>
@@ -78,7 +89,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-250807</td>
+          <td style="font-style: italic">v9-250731</td>
           <td></td>
           <td></td>
           <td></td>
