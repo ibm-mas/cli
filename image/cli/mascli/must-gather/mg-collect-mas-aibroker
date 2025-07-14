@@ -17,4 +17,5 @@ $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/applicationId aibroker $OU
 $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr-ws-operator $OUTPUT_DIR
 # aibroker-api
 $DIR/mg-collect-reconcile-logs $NAMESPACE app aibroker-api $OUTPUT_DIR
-
+#Truststore
+$DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR
