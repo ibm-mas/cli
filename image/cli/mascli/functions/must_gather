@@ -357,10 +357,10 @@ function mustgather() {
     # Find Aiservice Instances
     MAS_INSTANCE_IDS="$MAS_INSTANCE_IDS $(oc get aibrokerapp --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')"
     # Remove duplicate Instance Ids
-    MAS_IDS=$(echo "$MAS_IDS" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
-    MAS_IDS=$(echo "$MAS_IDS" | sed 's/[[:space:]]*$//')  # Trim trailing space
+    MAS_INSTANCE_IDS=$(echo "$MAS_INSTANCE_IDS" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
+    MAS_INSTANCE_IDS=$(echo "$MAS_INSTANCE_IDS" | sed 's/[[:space:]]*$//')  # Trim trailing space
     echo "Instance Ids: "
-    echo "$MAS_IDS"
+    echo "$MAS_INSTANCE_IDS"
   fi
 
   echo ""
