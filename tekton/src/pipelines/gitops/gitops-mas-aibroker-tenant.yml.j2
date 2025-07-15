@@ -24,7 +24,6 @@ spec:
       type: string
     - name: github_host
       type: string
-
     - name: aibroker_namespace
       type: string
     - name: mas_aibroker_provision_tenant
@@ -41,37 +40,19 @@ spec:
       type: string
     - name: in_saas_env
       type: string
-    - name: ibm_entitlement_key
-      type: string
     - name: mas_icr_cp
       type: string
     - name: mas_icr_cpopen
       type: string
-
-    - name: artifactory_token
-      type: string
     - name: drocfg_url
       type: string
-    - name: drocfg_ca
-      type: string
-    - name: drocfg_registration_key
-      type: string
-
     - name: slscfg_url
-      type: string
-    - name: slscfg_registration_key
       type: string
     - name: mas_aibroker_sls_subscription_id
       type: string
-
     - name: mas_aibroker_watsonxai_url
       type: string
-    - name: mas_aibroker_watsonxai_apikey
-      type: string
     - name: mas_aibroker_watsonxai_project_id
-      type: string
-
-    - name: mas_aibroker_storage_host
       type: string
     - name: mas_aibroker_storage_port
       type: string
@@ -79,50 +60,31 @@ spec:
       type: string
     - name: mas_aibroker_storage_provider
       type: string
-    - name: mas_aibroker_storage_accesskey
-      type: string
-    - name: mas_aibroker_storage_secretkey
-      type: string
     - name: mas_aibroker_storage_pipelines_bucket
       type: string
     - name: mas_aibroker_storage_ssl
       type: string
-    
-    
     - name: mas_aibroker_s3_endpoint_url
       type: string
-
     - name: mas_aibroker_s3_region
       type: string
-
     - name: mas_aibroker_s3_bucket_prefix
       type: string
-
     - name: rsl_url
       type: string
-
     - name: rsl_org_id
       type: string
-
     - name: rsl_token
       type: string
-
     - name: tenant_entitlement_type
       type: string
-
     - name: tenant_entitlement_start_date
       type: string
-
     - name: tenant_entitlement_end_date
       type: string
 
-    
-
-
-
   workspaces:
     - name: configs
-
   tasks:
     - name: run-gitops-aibroker-tenant
       taskRef:
@@ -151,7 +113,6 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-
         - name: aibroker_namespace
           value: $(params.aibroker_namespace)
         - name: mas_aibroker_provision_tenant
@@ -168,80 +129,46 @@ spec:
           value: $(params.cluster_domain)
         - name: in_saas_env
           value: $(params.in_saas_env)
-        - name: ibm_entitlement_key
-          value: $(params.ibm_entitlement_key)
         - name: mas_icr_cp
           value: $(params.mas_icr_cp)
         - name: mas_icr_cpopen
           value: $(params.mas_icr_cpopen)
-
-        - name: artifactory_token
-          value: $(params.artifactory_token)
         - name: drocfg_url
           value: $(params.drocfg_url)
-
-        - name: drocfg_ca
-          value: $(params.drocfg_ca)
-        - name: drocfg_registration_key
-          value: $(params.drocfg_registration_key)
-
         - name: slscfg_url
           value: $(params.slscfg_url)
-        - name: slscfg_registration_key
-          value: $(params.slscfg_registration_key)
         - name: mas_aibroker_sls_subscription_id
           value: $(params.mas_aibroker_sls_subscription_id)
-
         - name: mas_aibroker_watsonxai_url
           value: $(params.mas_aibroker_watsonxai_url)
-        - name: mas_aibroker_watsonxai_apikey
-          value: $(params.mas_aibroker_watsonxai_apikey)
         - name: mas_aibroker_watsonxai_project_id
           value: $(params.mas_aibroker_watsonxai_project_id)
-
-        - name: mas_aibroker_storage_host
-          value: $(params.mas_aibroker_storage_host)
         - name: mas_aibroker_storage_port
           value: $(params.mas_aibroker_storage_port)
         - name: mas_aibroker_storage_region
           value: $(params.mas_aibroker_storage_region)
         - name: mas_aibroker_storage_provider
           value: $(params.mas_aibroker_storage_provider)
-        - name: mas_aibroker_storage_accesskey
-          value: $(params.mas_aibroker_storage_accesskey)
-        - name: mas_aibroker_storage_secretkey
-          value: $(params.mas_aibroker_storage_secretkey)
         - name: mas_aibroker_storage_pipelines_bucket
           value: $(params.mas_aibroker_storage_pipelines_bucket)
         - name: mas_aibroker_storage_ssl
           value: $(params.mas_aibroker_storage_ssl)
-        
-        
         - name: mas_aibroker_s3_endpoint_url
           value: $(params.mas_aibroker_s3_endpoint_url)
-
         - name: mas_aibroker_s3_region
           value: $(params.mas_aibroker_s3_region)
-
         - name: mas_aibroker_s3_bucket_prefix
           value: $(params.mas_aibroker_s3_bucket_prefix)
-
         - name: rsl_url
           value: $(params.rsl_url)
-
         - name: rsl_org_id
           value: $(params.rsl_org_id)
-
         - name: rsl_token
           value: $(params.rsl_token)
-
         - name: tenant_entitlement_type
           value: $(params.tenant_entitlement_type)
-
         - name: tenant_entitlement_start_date
           value: $(params.tenant_entitlement_start_date)
-
         - name: tenant_entitlement_end_date
           value: $(params.tenant_entitlement_end_date)
         
-
