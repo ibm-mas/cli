@@ -232,8 +232,8 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --mas-aibroker-tenant-s3-secret-key \"{self.getParam('mas_aibroker_tenant_s3_secret_key')}\"{newline}"
         if self.getParam('rsl_url') != "":
             command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
-        if self.getParam('rsl_ord_id') != "":
-            command += f"  --rsl-org-id \"{self.getParam('rsl_ord_id')}\"{newline}"
+        if self.getParam('rsl_org_id') != "":
+            command += f"  --rsl-org-id \"{self.getParam('rsl_org_id')}\"{newline}"
         if self.getParam('rsl_token') != "":
             command += f"  --rsl-token \"{self.getParam('rsl_token')}\"{newline}"
 
