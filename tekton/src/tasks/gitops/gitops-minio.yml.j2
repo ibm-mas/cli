@@ -28,7 +28,6 @@ spec:
       type: string
     - name: github_host
       type: string
-      
     - name: minio_namespace
       type: string
       default: minio
@@ -55,8 +54,6 @@ spec:
         value: $(params.account)
       - name: AIBROKER_INSTANCE_ID
         value: $(params.aibroker_instance_id)
-      #- name: CLUSTER_ID
-      #  value: $(params.cluster_id)
       - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: SECRET_PATH
@@ -71,7 +68,6 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-
       - name: MINIO_NAMESPACE
         value: $(params.minio_namespace)
       - name: MINIO_INSTANCE_NAME
