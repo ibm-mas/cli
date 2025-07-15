@@ -30,6 +30,11 @@ class aiServiceInstallArgBuilderMixin():
 
         command += f"mas aiservice-install --mas-catalog-version {self.getParam('mas_catalog_version')}"
 
+        if self.getParam('mas_catalog_digest') != "":
+            command += f" --mas-catalog-digest {self.getParam('mas_catalog_digest')}"
+
+        command += f" --ibm-entitlement-key $IBM_ENTITLEMENT_KEY{newline}"
+
         # Aibroker Instance Id
         command += f"  --aibroker-instance-id  \"{self.getParam('aibroker_instance_id')}\"{newline}"
 
