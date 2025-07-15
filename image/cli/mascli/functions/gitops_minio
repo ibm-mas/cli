@@ -24,7 +24,6 @@ minio Provider Selection / Version:
       --minio_namespace ${COLOR_YELLOW}MINIO_NAMESPACE${TEXT_RESET}                                      The minio namespace to install
       --minio_instance_name ${COLOR_YELLOW}MINIO_INSTANCE_NAME${TEXT_RESET}                              The minio instance name
       --minio_root_user ${COLOR_YELLOW}MINIO_ROOT_USER${TEXT_RESET}                                      The minio user name
-      # --minio_root_password ${COLOR_YELLOW}MINIO_ROOT_PASSWORD${TEXT_RESET}                            The minio user password
       --minio_storage_class ${COLOR_YELLOW}MINIO_STORAGE_CLASS${TEXT_RESET}                              The minio storage class
       --minio_storage_size ${COLOR_YELLOW}MINIO_STORAGE_SIZE${TEXT_RESET}                                The minio storage size
       --minio_image ${COLOR_YELLOW}MINIO_IMAGE${TEXT_RESET}                                              The minio image name

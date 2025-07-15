@@ -118,8 +118,6 @@ spec:
       type: string
     - name: minio_root_user
       type: string
-    - name: minio_root_password
-      type: string
     - name: minio_storage_class
       type: string
     - name: minio_storage_size
@@ -220,8 +218,6 @@ spec:
           value: $(params.minio_instance_name)
         - name: minio_root_user
           value: $(params.minio_root_user)
-        - name: minio_root_password
-          value: $(params.minio_root_password)
         - name: minio_storage_class
           value: $(params.minio_storage_class)
         - name: minio_storage_size
