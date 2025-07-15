@@ -32,6 +32,7 @@
     ldap_user_map: "{{ lookup('env', 'LDAP_USER_MAP') }}"
     ldap_cert_alias: "{{ lookup('env', 'LDAP_CERT_ALIAS') }}"
     ldap_crt: "{{ lookup('env', 'LDAP_CRT') }}"
+    oidc_discovery_endpoint: "{{ lookup('env', 'OIDC_DISCOVERY_ENDPOINT') }}"    
   tasks:
     - name: "Debug"
       debug:
