@@ -72,10 +72,6 @@ spec:
       type: string
     - name: rsl_url
       type: string
-    - name: rsl_org_id
-      type: string
-    - name: rsl_token
-      type: string
     - name: tenant_entitlement_type
       type: string
     - name: tenant_entitlement_start_date
@@ -161,10 +157,6 @@ spec:
           value: $(params.mas_aibroker_s3_bucket_prefix)
         - name: rsl_url
           value: $(params.rsl_url)
-        - name: rsl_org_id
-          value: $(params.rsl_org_id)
-        - name: rsl_token
-          value: $(params.rsl_token)
         - name: tenant_entitlement_type
           value: $(params.tenant_entitlement_type)
         - name: tenant_entitlement_start_date
