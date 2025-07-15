@@ -587,7 +587,7 @@ case $1 in
     gitops_minio "$@"
     ;;
     
-  gitops_deprovision_minio)
+  gitops-deprovision-minio)
    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Minio Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo

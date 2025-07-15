@@ -200,9 +200,21 @@ function gitops_deprovision_kmodel() {
   echo_reset_dim "Mas Instance Id ................................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
 
   reset_colors
-  CURRENT_DIR=$PWD
 
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
   
+  SECRET_NAME_AUTH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement"
+  SECRET_NAME_STORAGE_AUTH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage"
+
+  #deleting secreats from aws
+  echo -e "Deleting ibm entitlement secrets $SECRET_NAME_AUTH"
+   sm_delete_secret $SECRET_NAME_AUTH
+
+  echo -e "Deleting storage secrets $SECRET_NAME_STORAGE_AUTH"
+   sm_delete_secret $SECRET_NAME_STORAGE_AUTH
+
+
     if [ -z $GIT_SSH ]; then
       export GIT_SSH=false
     fi
@@ -215,7 +227,6 @@ function gitops_deprovision_kmodel() {
       clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
     fi
 
-    mkdir -p ${GITOPS_CLUSTER_DIR}
 
     # Generate ArgoApps
     # ---------------------------------------------------------------------------
@@ -223,9 +234,7 @@ function gitops_deprovision_kmodel() {
     echo_h2 "Deleting application configuration files"
     echo "- Deleting kmodel operator"
 
-    # echo "Generating kmodel file ${GITOPS_CLUSTER_DIR}/ibm-kmodel.yaml"
-    # jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-kmodel.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-kmodel.yaml
-
+   
     echo "- Delete kmodel"
     rm -rf ${GITOPS_CLUSTER_DIR}/ibm-kmodel.yaml
     if [ "$GITHUB_PUSH" == "true" ]; then

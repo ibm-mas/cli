@@ -3,9 +3,8 @@ function gitops_deprovision_minio_help() {
   reset_colors
   cat << EOM
 
-
-Usage:
-  mas gitops_deprovision_minio [options]
+Usage
+mas gitops_deprovision_minio [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -17,7 +16,6 @@ GitOps Configuration:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
-
       # --aibroker_instance_id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                             The AI Broker instance ID
       --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                        The Maximo AI Broker instance ID, used for identifying the specific instance in the GitOps repository
       
@@ -126,9 +124,7 @@ function gitops_deprovision_minio_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_minio_help "GIT_BRANCH is not set"
   fi
 
-  #[[ -z "$MINIO_STORAGE_CLASS" ]] && gitops_deprovision_minio_help "MINIO_STORAGE_CLASS is not set. Please specify the Kubernetes storage class using --minio_storage_class."
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_minio_help "MAS_INSTANCE_ID is not set. Please specify the Maximo AI Broker instance ID using --mas-instance-id."
-  # [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_deprovision_minio_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
 }
 
 function gitops_deprovision_minio() {
@@ -192,25 +188,38 @@ function gitops_deprovision_minio() {
   reset_colors
   echo
 
+
+  #secrets path in aws 
+
+  export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage
+  
+  echo -e "login aws"
+
+  AVP_TYPE=aws
+  sm_login
+
+  #deleting secrets from aws
+   echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
+   sm_delete_secret $SECRET_NAME_STORAGE_AUTH
+
+
    if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
   fi
 
-  export GITHUB_PUSH=${GITHUB_PUSH:-"true"}
+  #export GITHUB_PUSH=${GITHUB_PUSH:-"true"}
   #Clone github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
    echo
    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+   clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-  mkdir -p ${GITOPS_CLUSTER_DIR}
 
 
-  export GITHUB_PUSH=${GITHUB_PUSH:-"true"}
 
   echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-minio.yaml"
-  rm -f ${GITOPS_CLUSTER_DIR}/ibm-minio.yaml
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-minio.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
@@ -220,14 +229,4 @@ function gitops_deprovision_minio() {
 
   
 
-
-  export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage
-  AVP_TYPE=aws
-  sm_login
-
-    #deleting secreats from aws
-   echo -e "Deleting secreat $SECRET_NAME_MINIO_AUTH"
-   sm_delete_secret $SECRET_NAME_MINIO_AUTH "{ \"sm_storage_user\": \"$MINIO_ROOT_USER\", \"sm_storage_password\": \"$MINIO_ROOT_PASSWORD\", \"sm_storage_accesskey\": \"$MINIO_ROOT_USER\", \"sm_storage_secretkey\": \"$MINIO_ROOT_PASSWORD\", \"sm_storage_port\": \"$MINIO_PORT\", \"sm_storage_host\": \"$MINIO_HOST\", $MINIO_BUCKET_FIELDS }" "${TAGS}"
-
-   
 }
