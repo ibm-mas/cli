@@ -109,6 +109,8 @@ function mirror_everything() {
     MIRROR_DB2U=true
     MIRROR_APPCONNECT=true
     MIRROR_ODF=true
+    MIRROR_MINIO=true
+    MIRROR_MARIADB=true
 
     # Dependencies (CP4D)
     MIRROR_CP4D=true
@@ -143,6 +145,8 @@ function mirror_to_registry_noninteractive() {
   MIRROR_MONGOCE_V6=false
   MIRROR_MONGOCE_V7=false
   MIRROR_DB2U=false
+  MIRROR_MINIO=false
+  MIRROR_MARIADB=false
   MIRROR_CP4D=false
   MIRROR_WSL=false
   MIRROR_WML=false
@@ -284,6 +288,13 @@ function mirror_to_registry_noninteractive() {
       --mirror-odf)
         MIRROR_ODF=true
         ;;
+      --mirror-minio)
+        MIRROR_MINIO=true
+        ;;
+      --mirror-mariadb)
+        MIRROR_MARIADB=true
+        ;;
+ 
 
       # Content Selection (Cloud Pak for Data)
       --mirror-cp4d)
@@ -461,6 +472,8 @@ function mirror_to_registry_interactive() {
     fi
 
     prompt_for_confirm_default_yes "IBM Db2" MIRROR_DB2U
+    prompt_for_confirm "Minio" MIRROR_MINIO
+    prompt_for_confirm "MariaDB" MIRROR_MARIADB
 
     prompt_for_confirm "IBM Cloud Pak for Data (CP4D)" MIRROR_CP4D
     prompt_for_confirm "IBM Watson Studio Local" MIRROR_WSL
@@ -557,6 +570,8 @@ function mirror_to_registry() {
   export MIRROR_MONGOCE_V6
   export MIRROR_MONGOCE_V7
   export MIRROR_DB2U
+  export MIRROR_MINIO
+  export MIRROR_MARIADB
   export MIRROR_CP4D
   export MIRROR_WML
   export MIRROR_WSL
@@ -584,6 +599,8 @@ function mirror_to_registry() {
     "$MIRROR_DB2U" == true ||
     "$MIRROR_APPCONNECT" == true ||
     "$MIRROR_ODF" == true ||
+    "$MIRROR_MINIO" == true ||
+    "$MIRROR_MARIADB" == true ||
     "$MIRROR_CP4D" == true ||
     "$MIRROR_WSL" == true ||
     "$MIRROR_WML" == true ||
@@ -664,6 +681,8 @@ function mirror_to_registry() {
   show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "IBM AppConnect ......................" $MIRROR_APPCONNECT
   show_mirror_status "RedHat ODF .........................." $MIRROR_ODF
+  show_mirror_status "Minio ..............................." $MIRROR_MINIO
+  show_mirror_status "MariaDb ............................." $MIRROR_MARIADB
 
   echo
   reset_colors
