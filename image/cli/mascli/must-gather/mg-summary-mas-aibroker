@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo "IBM Maximo Application Suite - Aibroker Application"
+echo "--------------------------------------------------------------------------------"
+oc get aibrokerapp -n $1
+echo ""
+
+echo "IBM Maximo Application Suite - Aibroker Workspace Configuration"
+echo "--------------------------------------------------------------------------------"
+oc get aibrokerworkspace -n $1
+echo ""
+
+exit 0
