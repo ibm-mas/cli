@@ -231,10 +231,10 @@ spec:
         - name: aibroker_instance_id
           value: $(params.aibroker_instance_id)
 
-      # when:
-      #  - input: "$(params.mas_aibroker_storage_provider)"
-      #    operator: in
-      #    values: ["minio"]
+      when:
+        - input: "$(params.mas_aibroker_storage_provider)"
+          operator: in
+          values: ["minio"]
 
     # 2.gitops-odh
     # -------------------------------------------------------------------------
