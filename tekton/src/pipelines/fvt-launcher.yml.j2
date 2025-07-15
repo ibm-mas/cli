@@ -901,6 +901,23 @@ spec:
 
     # Update Sync Point
     # -------------------------------------------------------------------------
+    - name: pre-update
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-pre-update
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      when:
+        - input: $(params.sync_with_update)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-install
+
     - name: start-update
       timeout: "0"
       taskRef:
@@ -911,7 +928,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-install
+        - pre-update
 
     - name: waitfor-update
       timeout: "0"
@@ -923,6 +940,8 @@ spec:
           value: $(params.image_pull_policy)
         - name: configmap_name
           value: sync-update
+        - name: configmap_namespace
+          value: "mas-pipelines"
         - name: configmap_target_value
           value: Completed,Succeeded,Failed
       when:
@@ -932,9 +951,43 @@ spec:
       runAfter:
         - start-update
 
+    - name: post-update
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-post-update
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      when:
+        - input: $(params.sync_with_update)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-update
+
 
     # Upgrade Sync Point
     # -------------------------------------------------------------------------
+    - name: pre-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-pre-upgrade
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+      when:
+        - input: $(params.sync_with_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - post-update
+    
     - name: start-upgrade
       timeout: "0"
       taskRef:
@@ -950,7 +1003,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - waitfor-update
+        - pre-upgrade
 
     - name: waitfor-upgrade
       timeout: "0"

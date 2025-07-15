@@ -1,0 +1,42 @@
+---
+- hosts: localhost
+  any_errors_fatal: true
+  vars:
+    # Image Pull Policy
+    image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
+    mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
+  tasks:
+    - name: 'Check if ManageWorkspace exists'
+      kubernetes.core.k8s_info:
+        kind: ManageWorkspace
+        namespace: "mas-{{ mas_instance_id }}-manage"
+        label_selectors:
+          - mas.ibm.com/instanceId={{ mas_instance_id }}
+      register: manage_ws
+
+    - name: "Check if cronjob already exists"
+      kubernetes.core.k8s_info:
+        api_version: batch/v1
+        kind: CronJob
+        name: fvt-manage-offline-upgrade-check
+        namespace: "mas-{{ mas_instance_id }}-manage"
+      register: offline_upgrade_job
+
+    - name: "Lookup upgradeType"
+      set_fact:
+        manage_upgrade_type: "{{ manage_ws.resources | json_query('[*].spec.settings.db.upgrade.upgradeType') }}"
+      when:
+        - manage_ws is defined
+        - manage_ws.resources is defined
+        - manage_ws.resources | length>0
+
+    - name: "Create or update manage offline upgrade check cron job"
+      kubernetes.core.k8s:
+        apply: true
+        template: templates/mas-fvt-offline-upgrade.yml.j2
+        state: present
+      when:
+        - manage_ws is defined and offline_upgrade_job is defined
+        - manage_ws.resources is defined and offline_upgrade_job.resources is defined
+        - manage_ws.resources | length>0 and offline_upgrade_job.resources | length==0
+        - '"onlineUpgrade" in manage_upgrade_type'

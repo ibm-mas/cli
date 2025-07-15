@@ -70,7 +70,7 @@ spec:
     # -------------------------------------------------------------------------
     - name: mongodb_action
       type: string
-      default: "install"
+      default: "none"
       description: Set to 'install' to update mongodb instances in specified mongodb namespace
     - name: mongodb_namespace
       type: string
@@ -78,6 +78,7 @@ spec:
       description: Namespace where mongodb instances will be updated
     - name: mongodb_version
       type: string
+      default: ""
       description: Override the target version of MongoDb (use with extreme caution)
 
     # TODO: The role should look this up itself
