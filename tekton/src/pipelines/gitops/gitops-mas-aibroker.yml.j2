@@ -109,7 +109,7 @@ spec:
       type: string
     - name: in_saas_env
       type: string
-    - name: route_type
+    - name: is_external_route
       type: string
     # MINIO-specific
     - name: minio_namespace
@@ -396,8 +396,8 @@ spec:
           value: $(params.cluster_domain)
         - name: in_saas_env
           value: $(params.in_saas_env)
-        - name: route_type
-          value: $(params.route_type)
+        - name: is_external_route
+          value: $(params.is_external_route)
         - name: environment_type
           value: $(params.environment_type)
         - name: mas_aibroker_s3_endpoint_url
