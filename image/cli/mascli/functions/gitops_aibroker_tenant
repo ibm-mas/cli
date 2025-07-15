@@ -385,7 +385,6 @@ function gitops_aibroker_tenant() {
 
   # -- Watsonx
   echo_reset_dim "Watsonx.ai URL ............................... ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONXAI_URL}"
-  # echo_reset_dim "Watsonx.ai API key ........................... ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONXAI_APIKEY}"
   echo_reset_dim "Watsonx.ai project ID ........................ ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONXAI_PROJECT_ID}"
 
   # -- STORAGE
