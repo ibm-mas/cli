@@ -359,8 +359,6 @@ function mustgather() {
     # Remove duplicate Instance Ids
     MAS_INSTANCE_IDS=$(echo "$MAS_INSTANCE_IDS" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
     MAS_INSTANCE_IDS=$(echo "$MAS_INSTANCE_IDS" | sed 's/[[:space:]]*$//')  # Trim trailing space
-    echo "Instance Ids: "
-    echo "$MAS_INSTANCE_IDS"
   fi
 
   echo ""
