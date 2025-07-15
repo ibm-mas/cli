@@ -39,10 +39,6 @@ spec:
       type: string
     - name: mas_aibroker_minio_secret
       type: string
-    - name: mas_aibroker_storage_accesskey
-      type: string
-    - name: mas_aibroker_storage_secretkey
-      type: string
     - name: mas_aibroker_storage_host
       type: string
     - name: mas_aibroker_storage_port
@@ -57,45 +53,11 @@ spec:
       type: string
     - name: mas_aibroker_storage_templates_bucket
       type: string
-    - name: mas_aibroker_db_host
-      type: string
     - name: mas_aibroker_mariadb_secret
-      type: string
-    - name: mas_aibroker_db_port
-      type: string
-    - name: mas_aibroker_db_user
-      type: string
-    - name: mas_aibroker_db_database
-      type: string
-    - name: mas_aibroker_db_secret_name
-      type: string
-    - name: mas_aibroker_db_secret_value
       type: string
     - name: primary_storage_class
       type: string
-    - name: slscfg_registration_key
-      type: string
-    - name: drocfg_ca
-      type: string
-    - name: drocfg_registration_key
-      type: string
-    - name: drocfg_url
-      type: string
-    - name: jdbccfg_username
-      type: string
-    # - name: jdbccfg_password
-    #   type: string
-    - name: jdbccfg_url
-      type: string
-    - name: jdbccfg_sslenabled
-      type: string
-    - name: jdbccfg_ca
-      type: string
-    - name: mas_entitlement_key
-      type: string
     - name: artifactory_username
-      type: string
-    - name: artifactory_token
       type: string
     - name: mas_app_channel
       type: string
@@ -322,10 +284,6 @@ spec:
           value: $(params.mas_aibroker_storage_provider)
         - name: mas_aibroker_minio_secret
           value: $(params.mas_aibroker_minio_secret)
-        - name: mas_aibroker_storage_accesskey
-          value: $(params.mas_aibroker_storage_accesskey)
-        - name: mas_aibroker_storage_secretkey
-          value: $(params.mas_aibroker_storage_secretkey)
         - name: mas_aibroker_storage_host
           value: $(params.mas_aibroker_storage_host)
         - name: mas_aibroker_storage_port
@@ -340,46 +298,12 @@ spec:
           value: $(params.mas_aibroker_storage_tenants_bucket)
         - name: mas_aibroker_storage_templates_bucket
           value: $(params.mas_aibroker_storage_templates_bucket)
-        - name: mas_aibroker_db_host
-          value: $(params.mas_aibroker_db_host)
         - name: mas_aibroker_mariadb_secret
           value: $(params.mas_aibroker_mariadb_secret)
-        - name: mas_aibroker_db_port
-          value: $(params.mas_aibroker_db_port)
-        - name: mas_aibroker_db_user
-          value: $(params.mas_aibroker_db_user)
-        - name: mas_aibroker_db_database
-          value: $(params.mas_aibroker_db_database)
-        - name: mas_aibroker_db_secret_name
-          value: $(params.mas_aibroker_db_secret_name)
-        - name: mas_aibroker_db_secret_value
-          value: $(params.mas_aibroker_db_secret_value)
         - name: primary_storage_class
           value: $(params.primary_storage_class)
-        - name: slscfg_registration_key
-          value: $(params.slscfg_registration_key)
-        - name: drocfg_ca
-          value: $(params.drocfg_ca)
-        - name: drocfg_registration_key
-          value: $(params.drocfg_registration_key)
-        - name: drocfg_url
-          value: $(params.drocfg_url)
-        - name: jdbccfg_username
-          value: $(params.jdbccfg_username)
-        # - name: jdbccfg_password
-        #   value: $(params.jdbccfg_password)
-        - name: jdbccfg_url
-          value: $(params.jdbccfg_url)
-        - name: jdbccfg_sslenabled
-          value: $(params.jdbccfg_sslenabled)
-        - name: jdbccfg_ca
-          value: $(params.jdbccfg_ca)
-        - name: mas_entitlement_key
-          value: $(params.mas_entitlement_key)
         - name: artifactory_username
           value: $(params.artifactory_username)
-        - name: artifactory_token
-          value: $(params.artifactory_token)
         - name: mas_app_channel
           value: $(params.mas_app_channel)
         - name: mas_catalog_source
@@ -447,10 +371,6 @@ spec:
           value: $(params.mas_aibroker_storage_provider)
         - name: mas_aibroker_storage_ssl
           value: $(params.mas_aibroker_storage_ssl)
-        - name: mas_aibroker_storage_accesskey
-          value: $(params.mas_aibroker_storage_accesskey)
-        - name: mas_aibroker_storage_secretkey
-          value: $(params.mas_aibroker_storage_secretkey)
         - name: mas_aibroker_storage_host
           value: $(params.mas_aibroker_storage_host)
         - name: mas_aibroker_storage_port
