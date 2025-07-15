@@ -14,7 +14,7 @@ When no options are specified on the command line, interactive-mode will be enab
 Basic Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                  Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                  Cluster ID
-  -i, --Instace-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                 Instance ID
+  -i, --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
@@ -22,7 +22,7 @@ Secrets Manager:
 
 ibm aibroker(required):
       --aibroker-namespace ${TEXT_RESET}AIBROKER_NAMESPACE${TEXT_RESET}
-      --aibroker-instance-id ${TEXT_RESET}MAS_INSTACE_ID${TEXT_RESET}
+      --aibroker-instance-id ${TEXT_RESET}AIBROKER_INSTANCE_ID${TEXT_RESET}
       --primary-storage-class ${TEXT_RESET}PRIMARY_STORAGE_CLASS${TEXT_RESET}
 
 storage provider:
@@ -100,9 +100,8 @@ function gitops_aibroker_noninteractive() {
   export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${AIBROKER_INSTANCE_ID}-aibroker"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export IS_EXTERNAL_ROUTE=${IS_EXTERNAL_ROUTE:-"false"}  # Default to "false", can be set to "true" if needed  
-  export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
-  export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"}
-  #dro
+  export MAS_ICR_CP=${MAS_ICR_CP:-"cp.icr.io/cp"}
+  export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"icr.io/cpopen"}
   # -- SLS Defaults
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}} 
   export MAS_APP_ID=${MAS_APP_ID:-"aibroker"}
@@ -272,16 +271,16 @@ function gitops_aibroker_noninteractive() {
 
 # add validation below like above  for those variable which have the value needed for further execution
 # -- AIBroker
-  # [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_aibroker_help "AIBROKER_INSTANCE_ID is not set. Please provide the AIBROKER instance ID using --aibroker-instance-id."
   [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_minio_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
   [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_aibroker_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
-  #[[ -z "$TENANT_NAMESPACE" ]] && gitops_aibroker_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
   [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aibroker_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
   [[ -z "$ARTIFACTORY_USERNAME" ]] && gitops_aibroker_help "ARTIFACTORY_USERNAME is not set. Please provide the artifactory username using --artifactory-username"
   [[ -z "$MAS_APP_CHANNEL" ]] && gitops_aibroker_help "MAS_APP_CHANNEL is not set. Please provide the mas app channel using --mas-app-channel"
-  # -- DRO
-  #[[ -z "$DROCFG_URL" ]] && gitops_aibroker_help "DROCFG_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
-
+  [[ -z "$MAS_CATALOG_SOURCE" ]] && gitops_aibroker_help "MAS_CATALOG_SOURCE is not set. Please provide the mas catalog source using --mas-catalog-source"
+  [[ -z "$MAS_ICR_CP" ]] && gitops_aibroker_help "MAS_ICR_CP is not set. Please provide the MAS ICR CP using --mas-icr-cp"
+  [[ -z "$MAS_ICR_CPOPEN" ]] && gitops_aibroker_help "MAS_ICR_CPOPEN is not set. Please provide the MAS ICR CPOPEN using --mas-icr-cpopopen"
+  [[ -z "$IN_SAAS_ENV" ]] && gitops_aibroker_help "IN_SAAS_ENV is not set. Please specify if this is in SaaS environment using --in-saas-env."
+  [[ -z "$IS_EXTERNAL_ROUTE" ]] && gitops_aibroker_help "IS_EXTERNAL_ROUTE is not set. Please specify if this is an external route using --is-external-route."
   [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
 
 
@@ -305,8 +304,7 @@ function gitops_aibroker() {
   rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
-  # TEMP_DIR=$GITOPS_CLUSTER_DIR/tmp-aibroker
-  # mkdir -p ${TEMP_DIR}
+
   echo
   reset_colors
   echo_h2 "Review Settings"
@@ -344,7 +342,7 @@ function gitops_aibroker() {
   fi
   reset_colors
 
-  # echo all the variables ofgitops+envs
+  # echo all the variables of gitops+envs
   export MAS_INSTANCE_ID="$AIBROKER_INSTANCE_ID"
   echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
@@ -380,7 +378,6 @@ function gitops_aibroker() {
   echo_reset_dim "DRO Config Registration Key ............ ${COLOR_MAGENTA}${DROCFG_REGISTRATION_KEY}"
   echo_reset_dim "DRO Config URL ......................... ${COLOR_MAGENTA}${DROCFG_URL}"
   echo_reset_dim "JDBC Config Username ................... ${COLOR_MAGENTA}${JDBCCFG_USERNAME}"
-  # echo_reset_dim "JDBC Config Password ................... ${COLOR_MAGENTA}${JDBCCFG_PASSWORD}"
   echo_reset_dim "JDBC Config URL ........................ ${COLOR_MAGENTA}${JDBCCFG_URL}"
   echo_reset_dim "JDBC SSL Enabled ....................... ${COLOR_MAGENTA}${JDBCCFG_SSLENABLED}"
   echo_reset_dim "JDBC Config CA ......................... ${COLOR_MAGENTA}${JDBCCFG_CA}"
@@ -399,7 +396,6 @@ function gitops_aibroker() {
   sm_login
   # update those varialbe which are necessory to be updated into aws , 
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
-
 
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
 
@@ -442,16 +438,6 @@ function gitops_aibroker() {
 
   export MAS_ENTITLEMENT_KEY=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
   export ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
-  # check if those are already present 
-  
-  # and update them 
-
-  # finally get values into tempalte 
-  # push them on github repo , 
-
-  # final output 
-  # updated var in sm 
-  # and git repo 
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}dro "drocfg_ca,drocfg_registration_key,drocfg_url,drocfg_ca_tenant"
