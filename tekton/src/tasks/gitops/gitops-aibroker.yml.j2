@@ -54,45 +54,12 @@ spec:
       type: string
     - name: mas_aibroker_storage_templates_bucket
       type: string
-    - name: mas_aibroker_db_host
-      type: string
     - name: mas_aibroker_mariadb_secret
       type: string
-    - name: mas_aibroker_db_port
-      type: string
-    - name: mas_aibroker_db_user
-      type: string
-    - name: mas_aibroker_db_database
-      type: string
-    - name: mas_aibroker_db_secret_name
-      type: string
-    - name: mas_aibroker_db_secret_value
       type: string
     - name: primary_storage_class
       type: string
-    - name: slscfg_registration_key
-      type: string
-    - name: drocfg_ca
-      type: string
-    - name: drocfg_registration_key
-      type: string
-    - name: drocfg_url
-      type: string
-    - name: jdbccfg_username
-      type: string
-    # - name: jdbccfg_password
-    #   type: string
-    - name: jdbccfg_url
-      type: string
-    - name: jdbccfg_sslenabled
-      type: string
-    - name: jdbccfg_ca
-      type: string
-    - name: mas_entitlement_key
-      type: string
     - name: artifactory_username
-      type: string
-    - name: artifactory_token
       type: string
     - name: mas_app_channel
       type: string
@@ -150,10 +117,6 @@ spec:
         value: $(params.mas_aibroker_storage_provider)
       - name: MAS_AIBROKER_MINIO_SECRET
         value: $(params.mas_aibroker_minio_secret)
-      - name: MAS_AIBROKER_STORAGE_ACCESSKEY
-        value: $(params.mas_aibroker_storage_accesskey)
-      - name: MAS_AIBROKER_STORAGE_SECRETKEY
-        value: $(params.mas_aibroker_storage_secretkey)
       - name: MAS_AIBROKER_STORAGE_HOST
         value: $(params.mas_aibroker_storage_host)
       - name: MAS_AIBROKER_STORAGE_PORT
@@ -168,46 +131,12 @@ spec:
         value: $(params.mas_aibroker_storage_tenants_bucket)
       - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
         value: $(params.mas_aibroker_storage_templates_bucket)
-      - name: MAS_AIBROKER_DB_HOST
-        value: $(params.mas_aibroker_db_host)
       - name: MAS_AIBROKER_MARIADB_SECRET
         value: $(params.mas_aibroker_mariadb_secret)
-      - name: MAS_AIBROKER_DB_PORT
-        value: $(params.mas_aibroker_db_port)
-      - name: MAS_AIBROKER_DB_USER
-        value: $(params.mas_aibroker_db_user)
-      - name: MAS_AIBROKER_DB_DATABASE
-        value: $(params.mas_aibroker_db_database)
-      - name: MAS_AIBROKER_DB_SECRET_NAME
-        value: $(params.mas_aibroker_db_secret_name)
-      - name: MAS_AIBROKER_DB_SECRET_VALUE
-        value: $(params.mas_aibroker_db_secret_value)
       - name: PRIMARY_STORAGE_CLASS
         value: $(params.primary_storage_class)
-      - name: SLSCFG_REGISTRATION_KEY
-        value: $(params.slscfg_registration_key)
-      - name: DROCFG_CA
-        value: $(params.drocfg_ca)
-      - name: DROCFG_REGISTRATION_KEY
-        value: $(params.drocfg_registration_key)
-      - name: DROCFG_URL
-        value: $(params.drocfg_url)
-      - name: JDBCCFG_USERNAME
-        value: $(params.jdbccfg_username)
-      # - name: JDBCCFG_PASSWORD
-      #  value: $(params.jdbccfg_password)
-      - name: JDBCCFG_URL
-        value: $(params.jdbccfg_url)
-      - name: JDBCCFG_SSLENABLED
-        value: $(params.jdbccfg_sslenabled)
-      - name: JDBCCFG_CA
-        value: $(params.jdbccfg_ca)
-      - name: MAS_ENTITLEMENT_KEY
-        value: $(params.mas_entitlement_key)
       - name: ARTIFACTORY_USERNAME
         value: $(params.artifactory_username)
-      - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
       - name: MAS_APP_CHANNEL
         value: $(params.mas_app_channel)
       - name: MAS_CATALOG_SOURCE

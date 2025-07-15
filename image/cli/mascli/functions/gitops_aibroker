@@ -28,8 +28,6 @@ ibm aibroker(required):
 storage provider:
       --mas-aibroker-storage-provider ${TEXT_RESET}MAS_AIBROKER_STORAGE_PROVIDER${TEXT_RESET}
       --mas-aibroker-minio-secret ${TEXT_RESET}MAS_AIBROKER_MINIO_SECRET${TEXT_RESET}
-      --mas-aibroker-storage-accesskey ${TEXT_RESET}MAS_AIBROKER_STORAGE_ACCESSKEY${TEXT_RESET}
-      --mas-aibroker-storage-secretkey ${TEXT_RESET}MAS_AIBROKER_STORAGE_SECRETKEY${TEXT_RESET}
       --mas-aibroker-storage-host ${TEXT_RESET}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}
       --mas-aibroker-storage-port ${TEXT_RESET}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}
       --mas-aibroker-storage-ssl ${TEXT_RESET}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}
@@ -39,29 +37,10 @@ storage provider:
       --mas-aibroker-storage-templates-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET${TEXT_RESET}
 
 mariadb storage
-      --mas-aibroker-db-host ${TEXT_RESET}MAS_AIBROKER_DB_HOST${TEXT_RESET}
       --mas-aibroker-mariadb-secret ${TEXT_RESET}MAS_AIBROKER_MARIADB_SECRET${TEXT_RESET}
-      --mas-aibroker-db-port ${TEXT_RESET}MAS_AIBROKER_DB_PORT${TEXT_RESET}
-      --mas-aibroker-db-user ${TEXT_RESET}MAS_AIBROKER_DB_USER${TEXT_RESET}
-      --mas-aibroker-db-database ${TEXT_RESET}MAS_AIBROKER_DB_DATABASE${TEXT_RESET}
-      --mas-aibroker-db-secret-name ${TEXT_RESET}MAS_AIBROKER_DB_SECRET_NAME${TEXT_RESET}
-      --mas-aibroker-db-secret-value ${TEXT_RESET}MAS_AIBROKER_DB_SECRET_VALUE${TEXT_RESET}
 
 sls_dro_jdbc
-      --slscfg-registration-key ${TEXT_RESET}SLSCFG_REGISTRATION_KEY${TEXT_RESET}
-      --drocfg-ca ${TEXT_RESET}DROCFG_CA${TEXT_RESET}
-      --drocfg-tenant ${TEXT_RESET}DROCFG_TENANT${TEXT_RESET}
-      --drocfg-registration-key ${TEXT_RESET}DROCFG_REGISTRATION_KEY${TEXT_RESET}
-      --drocfg-url ${TEXT_RESET}DROCFG_URL${TEXT_RESET}
-      --jdbccfg-username ${TEXT_RESET}JDBCCFG_USERNAME${TEXT_RESET}
-      # --jdbccfg-password ${TEXT_RESET}JDBCCFG_PASSWORD${TEXT_RESET}
-      --jdbccfg-url ${TEXT_RESET}JDBCCFG_URL${TEXT_RESET}
-      --jdbccfg-sslenabled ${TEXT_RESET}JDBCCFG_SSLENABLED${TEXT_RESET}
-      --jdbccfg-ca ${TEXT_RESET}JDBCCFG_CA${TEXT_RESET}
-
-      --mas-entitlement-key ${TEXT_RESET}MAS_ENTITLEMENT_KEY${TEXT_RESET}
       --artifactory-username ${TEXT_RESET}ARTIFACTORY_USERNAME${TEXT_RESET}
-      --artifactory-token ${TEXT_RESET}ARTIFACTORY_TOKEN${TEXT_RESET}
       --mas-app-channel ${TEXT_RESET}MAS_APP_CHANNEL${TEXT_RESET}
       --mas-catalog-source ${TEXT_RESET}MAS_CATALOG_SOURCE${TEXT_RESET}
       --mas-icr-cp ${TEXT_RESET}MAS_ICR_CP${TEXT_RESET}
@@ -352,8 +331,6 @@ function gitops_aibroker() {
   # Storage variables
   echo_reset_dim "MAS AI Broker Storage Provider ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PROVIDER}"
   echo_reset_dim "MAS AI Broker MinIO Secret ............ ${COLOR_MAGENTA}${MAS_AIBROKER_MINIO_SECRET}"
-  echo_reset_dim "MAS AI Broker Storage Access Key ...... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_ACCESSKEY}"
-  echo_reset_dim "MAS AI Broker Storage Secret Key ...... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SECRETKEY}"
   echo_reset_dim "MAS AI Broker Storage Host ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_HOST}"
   echo_reset_dim "MAS AI Broker Storage Port ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PORT}"
   echo_reset_dim "MAS AI Broker Storage SSL ............. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
@@ -361,29 +338,10 @@ function gitops_aibroker() {
   echo_reset_dim "MAS AI Broker Pipelines Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
   echo_reset_dim "MAS AI Broker Tenants Bucket .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
   echo_reset_dim "MAS AI Broker Templates Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"
-  echo_reset_dim "MAS AI Broker DB Host ................. ${COLOR_MAGENTA}${MAS_AIBROKER_DB_HOST}"
   echo_reset_dim "MAS AI Broker MariaDB Secret .......... ${COLOR_MAGENTA}${MAS_AIBROKER_MARIADB_SECRET}"
-  echo_reset_dim "MAS AI Broker DB Port ................. ${COLOR_MAGENTA}${MAS_AIBROKER_DB_PORT}"
-  echo_reset_dim "MAS AI Broker DB User ................. ${COLOR_MAGENTA}${MAS_AIBROKER_DB_USER}"
-  echo_reset_dim "MAS AI Broker DB Database ............. ${COLOR_MAGENTA}${MAS_AIBROKER_DB_DATABASE}"
-  echo_reset_dim "MAS AI Broker DB Secret Name .......... ${COLOR_MAGENTA}${MAS_AIBROKER_DB_SECRET_NAME}"
-  echo_reset_dim "MAS AI Broker DB Secret Value ......... ${COLOR_MAGENTA}${MAS_AIBROKER_DB_SECRET_VALUE}"
   
   echo_reset_dim "Primary Storage Class ................. ${COLOR_MAGENTA}${PRIMARY_STORAGE_CLASS}"
-
-
-  echo_reset_dim "SLS Config Registration Key ............ ${COLOR_MAGENTA}${SLSCFG_REGISTRATION_KEY}"
-  echo_reset_dim "DRO Config CA .......................... ${COLOR_MAGENTA}${DROCFG_CA}"
-  echo_reset_dim "DRO Config Tenant ...................... ${COLOR_MAGENTA}${DROCFG_TENANT}"
-  echo_reset_dim "DRO Config Registration Key ............ ${COLOR_MAGENTA}${DROCFG_REGISTRATION_KEY}"
-  echo_reset_dim "DRO Config URL ......................... ${COLOR_MAGENTA}${DROCFG_URL}"
-  echo_reset_dim "JDBC Config Username ................... ${COLOR_MAGENTA}${JDBCCFG_USERNAME}"
-  echo_reset_dim "JDBC Config URL ........................ ${COLOR_MAGENTA}${JDBCCFG_URL}"
-  echo_reset_dim "JDBC SSL Enabled ....................... ${COLOR_MAGENTA}${JDBCCFG_SSLENABLED}"
-  echo_reset_dim "JDBC Config CA ......................... ${COLOR_MAGENTA}${JDBCCFG_CA}"
-  echo_reset_dim "MAS Entitlement Key .................... ${COLOR_MAGENTA}${MAS_ENTITLEMENT_KEY}"
   echo_reset_dim "Artifactory Username ................... ${COLOR_MAGENTA}${ARTIFACTORY_USERNAME}"
-  echo_reset_dim "Artifactory Token ...................... ${COLOR_MAGENTA}${ARTIFACTORY_TOKEN}"
   echo_reset_dim "MAS App Channel ........................ ${COLOR_MAGENTA}${MAS_APP_CHANNEL}"
   echo_reset_dim "MAS Catalog Source ..................... ${COLOR_MAGENTA}${MAS_CATALOG_SOURCE}"
   echo_reset_dim "MAS ICR CP ............................. ${COLOR_MAGENTA}${MAS_ICR_CP}"
@@ -447,7 +405,7 @@ function gitops_aibroker() {
   if [[ "${MAS_AIBROKER_STORAGE_PROVIDER}" == "minio" ]]; then
   sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_port"
   fi
-
+  sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca"
   sm_verify_secret_exists ${SECRETS_PREFIX}mariadb "sm_mariadb_host,sm_mariadb_port,sm_mariadb_user,sm_mariadb_database,sm_mariadb_secret_name,sm_mariadb_secret_value"
 
   

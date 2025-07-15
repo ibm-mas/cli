@@ -34,8 +34,6 @@ Kkmodel Configuration:
       --mas-aibroker-storage-ssl ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}                                   Whether STORAGE uses SSL (true/false)
       --mas_aibroker-storage-host ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}                                 Hostname or service name of the STORAGE backend
       --mas_aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}                                 Port number STORAGE is exposed on
-      # --mas_aibroker-storage-accesskey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_ACCESSKEY${TEXT_RESET}                       Access key to authenticate with STORAGE
-      # --mas_aibroker-storage-secretkey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SECRETKEY${TEXT_RESET}                       Secret key for authenticating with STORAGE
       --mas-aibroker-storage-region ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}                             Storage region used in STORAGE (if applicable)
       --ssh-secret-name ${COLOR_YELLOW}SSH_SECRET_NAME${TEXT_RESET}                                                     SSH secret for securely provide SSH credentials
       --mas_aibroker_tenant_name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                                   Aibroker Tenant name
@@ -150,14 +148,6 @@ function gitops_kmodel_noninteractive() {
       --mas-aibroker-storage-ssl)
         export MAS_AIBROKER_STORAGE_SSL=$1 && shift
         ;;
-
-      # --mas-aibroker-storage-accesskey)
-      #   export MAS_AIBROKER_STORAGE_ACCESSKEY=$1 && shift
-      #   ;;
-
-      # --mas-aibroker-storage-secretkey)
-      #   export MAS_AIBROKER_STORAGE_SECRETKEY=$1 && shift
-      #   ;;
 
       --mas-aibroker-storage-host)
         export MAS_AIBROKER_STORAGE_HOST=$1 && shift
@@ -371,8 +361,6 @@ function gitops_kmodel() {
   echo_reset_dim "AI Broker Namespace ............................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
   echo_reset_dim "MAS AI Broker Storage Provider .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PROVIDER}"
   echo_reset_dim "MAS AI Broker Storage SSL ......................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
-  # echo_reset_dim "MAS AI Broker Storage Access Key .................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_ACCESSKEY}"
-  # echo_reset_dim "MAS AI Broker Storage Secret Key .................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SECRETKEY}"
   echo_reset_dim "MAS AI Broker Storage Templates Bucket ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"
   echo_reset_dim "MAS AI Broker Storage Tenants Bucket .............. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
   echo_reset_dim "MAS AI Broker Storage Pipelines Bucket ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
