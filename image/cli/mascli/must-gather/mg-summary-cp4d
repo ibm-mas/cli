@@ -2,7 +2,7 @@
 
 echo "IBM Cloud Pak For Data - Platform"
 echo "--------------------------------------------------------------------------------"
-oc -n ibm-cpd get ibmcpd ibmcpd -o jsonpath='Operator Version ..... {.status.controlPlaneOperatorVersion}{"\n"}Product Version ...... {.spec.version}{"\n"}Status ............... {.status.controlPlaneStatus}'
+oc -n ibm-cpd get ibmcpd ibmcpd-cr -o jsonpath='Operator Version ..... {.status.controlPlaneOperatorVersion}{"\n"}Product Version ...... {.spec.version}{"\n"}Status ............... {.status.controlPlaneStatus}'
 echo ""
 
 echo ""
