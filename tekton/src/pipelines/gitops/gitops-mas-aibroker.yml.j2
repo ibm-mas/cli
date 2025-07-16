@@ -126,21 +126,14 @@ spec:
       type: string
     - name: tenantNamespace
       type: string 
-
-    
     - name: environment_type
       type: string
-
     - name: mas_aibroker_s3_endpoint_url
       type: string
-
     - name: mas_aibroker_s3_region
       type: string
-
     - name: mas_aibroker_s3_bucket_prefix
       type: string
-
-    
 
   workspaces:
     - name: configs
@@ -188,11 +181,13 @@ spec:
           value: $(params.minio_image)
         - name: aibroker_instance_id
           value: $(params.aibroker_instance_id)
+        - name: mas_aibroker_storage_provider
+          value: $(params.mas_aibroker_storage_provider)
 
-      when:
-        - input: "$(params.mas_aibroker_storage_provider)"
-          operator: in
-          values: ["minio"]
+      #when:
+      #  - input: "$(params.mas_aibroker_storage_provider)"
+      #    operator: in
+      #    values: ["minio"]
 
     # 2.gitops-odh
     # -------------------------------------------------------------------------
