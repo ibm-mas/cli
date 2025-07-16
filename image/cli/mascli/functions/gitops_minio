@@ -176,7 +176,6 @@ function gitops_minio_noninteractive() {
   fi
 
   [[ -z "$MINIO_STORAGE_CLASS" ]] && gitops_minio_help "MINIO_STORAGE_CLASS is not set. Please specify the Kubernetes storage class using --minio_storage_class."
-  # [[ -z "$MAS_INSTANCE_ID" ]] && gitops_minio_help "MAS_INSTANCE_ID is not set. Please specify the Maximo AI Broker instance ID using --mas-instance-id."
   [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_minio_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
 }
 
@@ -249,8 +248,6 @@ function gitops_minio() {
   # Set up secrets
   # ---------------------------------------------------------------------------
   CURRENT_DIR=$PWD
-  # TEMP_DIR=$GITOPS_CLUSTER_DIR/aibroker01
-  # mkdir -p ${TEMP_DIR}
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
@@ -271,7 +268,12 @@ function gitops_minio() {
     if [ -z "$MINIO_ROOT_PASSWORD" ]; then
 
       export MINIO_ROOT_USER=${MINIO_ROOT_USER:-"minio"}
-      echo_reset_dim "MINIO_ROOT_USER ............................. ${COLOR_MAGENTA}$MINIO_ROOT_USER"
+       # Extract and export sm_storage_accesskey
+      TEMP_STORAGE_USER=$(jq -r .sm_storage_user $MINIO_SECRET_FILE)
+      if [[ -n ${TEMP_STORAGE_USER} && ${TEMP_STORAGE_USER} != "null" ]]; then
+        export MINIO_ROOT_USER=${TEMP_STORAGE_USER}
+        echo_reset_dim "MINIO_ROOT_USER .............................. ${COLOR_MAGENTA}${MINIO_ROOT_USER} is available in the secret, using that value"
+      fi
 
       export MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
       # Extract and export sm_storage_accesskey
@@ -313,13 +315,20 @@ function gitops_minio() {
       fi
 
       echo_reset_dim "MINIO_ROOT_PASSWORD ............................. ${COLOR_MAGENTA}${MINIO_ROOT_PASSWORD:0:8}<snip>"
-      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_minio\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-      #SREMAT : remove those buckets name if no longer needed
-      MINIO_BUCKET_FIELDS="\"sm_storage_bucket_templates\": \"km-templates\", \
-      \"sm_storage_bucket_tenants\": \"km-tenants\", \
-      \"sm_storage_bucket_pipelines\": \"km-pipelineset\", \
-      \"sm_storage_bucket_default\": \"miniobucket1\""
-      sm_update_secret $SECRET_NAME_STORAGE_AUTH "{ \"sm_storage_user\": \"$MINIO_ROOT_USER\", \"sm_storage_password\": \"$MINIO_ROOT_PASSWORD\", \"sm_storage_accesskey\": \"$MINIO_ROOT_USER\", \"sm_storage_secretkey\": \"$MINIO_ROOT_PASSWORD\", \"sm_storage_port\": \"$MINIO_PORT\", \"sm_storage_host\": \"$MINIO_HOST\", $MINIO_BUCKET_FIELDS }" "${TAGS}"
+      
+      # Conditionally update minio related secrets for minio
+      if [[ "${MAS_AIBROKER_STORAGE_PROVIDER}" == "minio" ]]; then
+
+        TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_minio\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+        #SREMAT : remove those buckets name if no longer needed
+        MINIO_BUCKET_FIELDS="\"sm_storage_bucket_templates\": \"km-templates\", \
+        \"sm_storage_bucket_tenants\": \"km-tenants\", \
+        \"sm_storage_bucket_pipelines\": \"km-pipelineset\", \
+        \"sm_storage_bucket_default\": \"miniobucket1\""
+        sm_update_secret $SECRET_NAME_STORAGE_AUTH "{ \"sm_storage_user\": \"$MINIO_ROOT_USER\", \"sm_storage_password\": \"$MINIO_ROOT_PASSWORD\", \"sm_storage_accesskey\": \"$MINIO_ROOT_USER\", \"sm_storage_secretkey\": \"$MINIO_ROOT_PASSWORD\", \"sm_storage_port\": \"$MINIO_PORT\", \"sm_storage_host\": \"$MINIO_HOST\", $MINIO_BUCKET_FIELDS }" "${TAGS}"
+      
+      fi
+
     fi
     
     echo_reset_dim "minio_namespace ....................... ${COLOR_MAGENTA}${MINIO_NAMESPACE}"
@@ -334,7 +343,6 @@ function gitops_minio() {
     echo_reset_dim "minio_port ............................ ${COLOR_MAGENTA}${MINIO_PORT}"
     echo_reset_dim "minio_host ............................ ${COLOR_MAGENTA}${MINIO_HOST}"
     echo_reset_dim "aibroker_instance_id .................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
-    # echo_reset_dim "mas_instance_id ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
     if [ -z $GIT_SSH ]; then
       export GIT_SSH=false
     fi
