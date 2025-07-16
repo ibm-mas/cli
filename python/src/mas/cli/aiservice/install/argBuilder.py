@@ -241,6 +241,10 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --rsl-org-id \"{self.getParam('rsl_org_id')}\"{newline}"
         if self.getParam('rsl_token') != "":
             command += f"  --rsl-token \"{self.getParam('rsl_token')}\"{newline}"
+        if self.getParam('mas_aibroker_is_external_route') == 'true':
+            command += f"  --mas-aibroker-is-external-route \"{self.getParam('mas_aibroker_is_external_route')}\"{newline}"
+        if self.getParam('mas_aibroker_cluster_domain') != "":
+            command += f"  --mas-aibroker-cluster-domain \"{self.getParam('mas_aibroker_cluster_domain')}\"{newline}"
 
         command += "  --accept-license --no-confirm"
         return command
