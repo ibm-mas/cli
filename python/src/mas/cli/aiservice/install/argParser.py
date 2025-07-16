@@ -527,6 +527,20 @@ aibrokerArgGroup.add_argument(
     default="non-production",
     help="Environment type (default: non-production)"
 )
+
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-cluster-domain",
+    dest="mas_aibroker_cluster_domain",
+    required=False,
+    help="External Domain"
+)
+aibrokerArgGroup.add_argument(
+    "--mas-aibroker-is-external-route",
+    dest="mas_aibroker_is_external_route",
+    required=False,
+    help="Flag for either using external route or not"
+)
+
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------
 db2ArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Db2 Universal Operator")

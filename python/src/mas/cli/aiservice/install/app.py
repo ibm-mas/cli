@@ -573,6 +573,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.promptForString("DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
                     self.promptForString("DB2 SSL enabled (yes/no)", "mas_aibroker_db2_ssl_enabled")
                     self.promptForString("DB2 CA certificate", "mas_aibroker_db2_ca_cert")
+                self.yesOrNo("Want to use Externa Route", "mas_aibroker_is_external_route")
+                if self.getParam("mas_aibroker_is_external_route") == "true":
+                    self.promptForString("Provide External Route", "mas_aibroker_cluster_domain")
                 # self.promptForString("Environment type", "environment_type")
 
     # These are all candidates to centralise in a new mixin used by both install and aiservice-install

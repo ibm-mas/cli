@@ -208,6 +208,14 @@ spec:
       type: string
       description: Environment type
       default: ""
+    - name: mas_aibroker_is_external_route
+      type: string
+      description: Flag for either using external route or not
+      default: "false"
+    - name: mas_aibroker_cluster_domain
+      type: string
+      description: External domain
+      default: ""
     
   stepTemplate:
     env:
@@ -344,6 +352,12 @@ spec:
         value: $(params.mas_aibroker_sls_ca_cert)
       - name: ENVIRONMENT_TYPE
         value: $(params.environment_type)
+
+      # Custom domain
+      - name: MAS_AIBROKER_IS_EXTERNAL_ROUTE
+        value: $(params.mas_aibroker_is_external_route)
+      - name: MAS_AIBROKER_CLUSTER_DOMAIN
+        value: $(params.mas_aibroker_cluster_domain)
 
   steps:
     - name: aibroker
