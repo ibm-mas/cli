@@ -80,7 +80,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
         applications = {
-            "Aibroker": "mas_aibroker_version",
+            "Aibroker": "aiservice_version",
         }
 
         self.catalogReleases = {}
@@ -132,10 +132,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             " - Must start with a lowercase letter",
             " - Must end with a lowercase letter or a number"
         ])
-        self.promptForString("Instance ID", "aibroker_instance_id", validator=InstanceIDFormatValidator())
+        self.promptForString("Instance ID", "aiservice_instance_id", validator=InstanceIDFormatValidator())
 
         if self.slsMode == 2 and not self.getParam("sls_namespace"):
-            self.setParam("sls_namespace", f"mas-{self.getParam('aibroker_instance_id')}-sls")
+            self.setParam("sls_namespace", f"mas-{self.getParam('aiservice_instance_id')}-sls")
 
         self.configOperationMode()
 
@@ -259,7 +259,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             # We check for both None and "" values for the application channel parameters
             # value = None means the parameter wasn't set at all
             # value = "" means the paramerter was explicitly set to "don't install this application"
-            elif key == "aibroker_channel":
+            elif key == "aiservice_channel":
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_aibroker", value)
                     self.installAiBroker = True
@@ -284,7 +284,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.setParam("sls_action", "install")
             elif key == "dedicated_sls":
                 if value:
-                    self.setParam("sls_namespace", f"mas-{self.args.aibroker_instance_id}-sls")
+                    self.setParam("sls_namespace", f"mas-{self.args.aiservice_instance_id}-sls")
 
             # These settings are used by the CLI rather than passed to the PipelineRun
             elif key == "storage_accessmode":
@@ -354,7 +354,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # We use the presence of --mas-instance-id to determine whether
         # the CLI is being started in interactive mode or not
-        instanceId = args.aibroker_instance_id
+        instanceId = args.aiservice_instance_id
 
         # Properties for arguments that control the behavior of the CLI
         self.noConfirm = args.no_confirm
@@ -432,7 +432,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.createTektonFileWithDigest()
 
             self.printH1("Launch Install")
-            pipelinesNamespace = f"mas-{self.getParam('aibroker_instance_id')}-pipelines"
+            pipelinesNamespace = f"mas-{self.getParam('aiservice_instance_id')}-pipelines"
 
             if not self.noConfirm:
                 self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
@@ -448,7 +448,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 preparePipelinesNamespace(
                     dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aibroker_instance_id"),
+                    instanceId=self.getParam("aiservice_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
                     waitForBind=wait,
@@ -456,7 +456,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aibroker_instance_id"),
+                    instanceId=self.getParam("aiservice_instance_id"),
                     slsLicenseFile=self.slsLicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
@@ -475,13 +475,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text=f"Submitting PipelineRun for {self.getParam('aibroker_instance_id')} install", spinner=self.spinner) as h:
+            with Halo(text=f"Submitting PipelineRun for {self.getParam('aiservice_instance_id')} install", spinner=self.spinner) as h:
                 pipelineURL = launchInstallPipelineForAiservice(dynClient=self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aibroker_instance_id')} install submitted")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aiservice_instance_id')} install submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
                 else:
-                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('aibroker_instance_id')} install, see log file for details")
+                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('aiservice_instance_id')} install, see log file for details")
                     print()
 
     @logMethodCall
@@ -512,27 +512,27 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if self.installAiBroker:
             self.printH2("AI Service Settings - Storage, WatsonX, MariaDB details")
             self.printDescription(["Customise AI Broker details"])
-            self.promptForString("Storage provider", "mas_aibroker_storage_provider")
-            self.promptForString("Storage access key", "mas_aibroker_storage_accesskey")
-            self.promptForString("Storage secret key", "mas_aibroker_storage_secretkey", isPassword=True)
-            self.promptForString("Storage host", "mas_aibroker_storage_host")
-            self.promptForString("Storage port", "mas_aibroker_storage_port")
-            self.promptForString("Storage ssl", "mas_aibroker_storage_ssl")
-            self.promptForString("Storage region", "mas_aibroker_storage_region")
-            self.promptForString("Storage pipelines bucket", "mas_aibroker_storage_pipelines_bucket")
-            self.promptForString("Storage tenants bucket", "mas_aibroker_storage_tenants_bucket")
-            self.promptForString("Storage templates bucket", "mas_aibroker_storage_templates_bucket")
+            self.promptForString("Storage provider", "aiservice_storage_provider")
+            self.promptForString("Storage access key", "aiservice_storage_accesskey")
+            self.promptForString("Storage secret key", "aiservice_storage_secretkey", isPassword=True)
+            self.promptForString("Storage host", "aiservice_storage_host")
+            self.promptForString("Storage port", "aiservice_storage_port")
+            self.promptForString("Storage ssl", "aiservice_storage_ssl")
+            self.promptForString("Storage region", "aiservice_storage_region")
+            self.promptForString("Storage pipelines bucket", "aiservice_storage_pipelines_bucket")
+            self.promptForString("Storage tenants bucket", "aiservice_storage_tenants_bucket")
+            self.promptForString("Storage templates bucket", "aiservice_storage_templates_bucket")
 
-            self.promptForString("Watsonxai api key", "mas_aibroker_watsonxai_apikey", isPassword=True)
-            self.promptForString("Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
-            self.promptForString("Watsonxai project id", "mas_aibroker_watsonxai_project_id")
+            self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
+            self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
+            self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
 
-            self.promptForString("Database host", "mas_aibroker_db_host")
-            self.promptForString("Database port", "mas_aibroker_db_port")
-            self.promptForString("Database user", "mas_aibroker_db_user")
-            self.promptForString("Database name", "mas_aibroker_db_database")
-            self.promptForString("Database Secretname", "mas_aibroker_db_secret_name", isPassword=True)
-            self.promptForString("Database password", "mas_aibroker_db_secret_value", isPassword=True)
+            self.promptForString("Database host", "aiservice_db_host")
+            self.promptForString("Database port", "aiservice_db_port")
+            self.promptForString("Database user", "aiservice_db_user")
+            self.promptForString("Database name", "aiservice_db_database")
+            self.promptForString("Database Secretname", "aiservice_db_secret_name", isPassword=True)
+            self.promptForString("Database password", "aiservice_db_secret_value", isPassword=True)
 
             if self.getParam("mas_app_channel_aibroker") != "9.0.x":
                 self.promptForString("Mariadb username", "mariadb_user")
@@ -540,13 +540,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
                 self.promptForString("Tenant start date", "tenant_entitlement_start_date")
                 self.promptForString("Tenant end date", "tenant_entitlement_end_date")
-                self.promptForString("S3 bucket prefix", "mas_aibroker_s3_bucket_prefix")
-                self.promptForString("S3 endpoint url", "mas_aibroker_s3_endpoint_url")
-                self.promptForString("S3 bucket prefix (tenant level)", "mas_aibroker_tenant_s3_bucket_prefix")
-                self.promptForString("S3 region (tenant level)", "mas_aibroker_tenant_s3_region")
-                self.promptForString("S3 endpoint url (tenant level)", "mas_aibroker_tenant_s3_endpoint_url")
-                self.promptForString("S3 access key (tenant level)", "mas_aibroker_tenant_s3_access_key", isPassword=True)
-                self.promptForString("S3 secret key (tenant level)", "mas_aibroker_tenant_s3_secret_key", isPassword=True)
+                self.promptForString("S3 bucket prefix", "aiservice_s3_bucket_prefix")
+                self.promptForString("S3 endpoint url", "aiservice_s3_endpoint_url")
+                self.promptForString("S3 bucket prefix (tenant level)", "aiservice_tenant_s3_bucket_prefix")
+                self.promptForString("S3 region (tenant level)", "aiservice_tenant_s3_region")
+                self.promptForString("S3 endpoint url (tenant level)", "aiservice_tenant_s3_endpoint_url")
+                self.promptForString("S3 access key (tenant level)", "aiservice_tenant_s3_access_key", isPassword=True)
+                self.promptForString("S3 secret key (tenant level)", "aiservice_tenant_s3_secret_key", isPassword=True)
                 self.promptForString("RSL url", "rsl_url")
                 self.promptForString("ORG Id of RSL", "rsl_org_id")
                 self.promptForString("Token for RSL", "rsl_token", isPassword=True)
@@ -556,23 +556,23 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.promptForString("minio root password", "minio_root_password", isPassword=True)
                 self.yesOrNo("Install SLS", "install_sls_aiservice")
                 if self.getParam("install_sls_aiservice") != "true":
-                    self.promptForString("SLS secret name", "mas_aibroker_sls_secret_name")
-                    self.promptForString("SLS registration key", "mas_aibroker_sls_registration_key")
-                    self.promptForString("SLS URL", "mas_aibroker_sls_url")
-                    self.promptForString("SLS CA certificate", "mas_aibroker_sls_ca_cert")
+                    self.promptForString("SLS secret name", "aiservice_sls_secret_name")
+                    self.promptForString("SLS registration key", "aiservice_sls_registration_key")
+                    self.promptForString("SLS URL", "aiservice_sls_url")
+                    self.promptForString("SLS CA certificate", "aiservice_sls_ca_cert")
                 self.yesOrNo("Install DRO", "install_dro_aiservice")
                 if self.getParam("install_dro_aiservice") != "true":
-                    self.promptForString("DRO secret name", "mas_aibroker_dro_secret_name")
-                    self.promptForString("DRO API key", "mas_aibroker_dro_api_key")
-                    self.promptForString("DRO URL", "mas_aibroker_dro_url")
-                    self.promptForString("DRO CA certificate", "mas_aibroker_dro_ca_cert")
+                    self.promptForString("DRO secret name", "aiservice_dro_secret_name")
+                    self.promptForString("DRO API key", "aiservice_dro_api_key")
+                    self.promptForString("DRO URL", "aiservice_dro_url")
+                    self.promptForString("DRO CA certificate", "aiservice_dro_ca_cert")
                 self.yesOrNo("Install DB2", "install_db2_aiservice")
                 if self.getParam("install_db2_aiservice") != "true":
-                    self.promptForString("DB2 username", "mas_aibroker_db2_username")
-                    self.promptForString("DB2 password", "mas_aibroker_db2_password")
-                    self.promptForString("DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
-                    self.promptForString("DB2 SSL enabled (yes/no)", "mas_aibroker_db2_ssl_enabled")
-                    self.promptForString("DB2 CA certificate", "mas_aibroker_db2_ca_cert")
+                    self.promptForString("DB2 username", "aiservice_db2_username")
+                    self.promptForString("DB2 password", "aiservice_db2_password")
+                    self.promptForString("DB2 JDBC URL", "aiservice_db2_jdbc_url")
+                    self.promptForString("DB2 SSL enabled (yes/no)", "aiservice_db2_ssl_enabled")
+                    self.promptForString("DB2 CA certificate", "aiservice_db2_ca_cert")
                 # self.promptForString("Environment type", "environment_type")
 
     # These are all candidates to centralise in a new mixin used by both install and aiservice-install

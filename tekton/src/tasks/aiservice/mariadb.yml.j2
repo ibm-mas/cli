@@ -32,15 +32,15 @@ spec:
     - name: mariadb_password
       type: string
       description: password for mariadb user
-    - name: mas_aibroker_db_user
+    - name: aiservice_db_user
       type: string
       description: database user for IBM Maximo AI Broker
       default: ""
-    - name: mas_aibroker_db_database
+    - name: aiservice_db_database
       type: string
       description: database name for IBM Maximo AI Broker
       default: ""
-    - name: mas_aibroker_db_secret_value
+    - name: aiservice_db_secret_value
       type: string
       description: database secret value for IBM Maximo AI Broker
       default: ""
@@ -76,7 +76,7 @@ spec:
         value: $(params.mariadb_password)
 
       - name: MARIADB_DATABASE
-        value: $(params.mas_aibroker_db_database)
+        value: $(params.aiservice_db_database)
 
 
   steps:

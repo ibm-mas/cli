@@ -5,7 +5,7 @@
       value: kmodels
     - name: mas_instance_id
 {% if application is defined and application == "aibroker" %}
-      value: $(params.aibroker_instance_id)
+      value: $(params.aiservice_instance_id)
 {% else %}
       value: $(params.mas_instance_id)
 {% endif %}
@@ -21,43 +21,43 @@
       value: $(params.ibm_entitlement_key)
     - name: custom_labels
       value: $(params.custom_labels)
-    - name: mas_aibroker_storage_provider
-      value: $(params.mas_aibroker_storage_provider)
-    - name: mas_aibroker_storage_accesskey
-      value: $(params.mas_aibroker_storage_accesskey)
-    - name: mas_aibroker_storage_secretkey
-      value: $(params.mas_aibroker_storage_secretkey)
-    - name: mas_aibroker_storage_host
-      value: $(params.mas_aibroker_storage_host)
-    - name: mas_aibroker_storage_port
-      value: $(params.mas_aibroker_storage_port)
-    - name: mas_aibroker_storage_ssl
-      value: $(params.mas_aibroker_storage_ssl)
-    - name: mas_aibroker_storage_region
-      value: $(params.mas_aibroker_storage_region)
-    - name: mas_aibroker_storage_pipelines_bucket
-      value: $(params.mas_aibroker_storage_pipelines_bucket)
-    - name: mas_aibroker_storage_tenants_bucket
-      value: $(params.mas_aibroker_storage_tenants_bucket)
-    - name: mas_aibroker_storage_templates_bucket
-      value: $(params.mas_aibroker_storage_templates_bucket)
-    - name: mas_aibroker_controller_tag
-      value: $(params.mas_aibroker_controller_tag)
-    - name: mas_aibroker_store_tag
-      value: $(params.mas_aibroker_store_tag)
-    - name: mas_aibroker_watcher_tag
-      value: $(params.mas_aibroker_watcher_tag)
-    - name: mas_aibroker_connector_tag
-      value: $(params.mas_aibroker_connector_tag)
-    - name: mas_aibroker_pipeline_steps_tag
-      value: $(params.mas_aibroker_pipeline_steps_tag)
-    - name: mas_aibroker_tenant_name
-      value: $(params.mas_aibroker_tenant_name)
+    - name: aiservice_storage_provider
+      value: $(params.aiservice_storage_provider)
+    - name: aiservice_storage_accesskey
+      value: $(params.aiservice_storage_accesskey)
+    - name: aiservice_storage_secretkey
+      value: $(params.aiservice_storage_secretkey)
+    - name: aiservice_storage_host
+      value: $(params.aiservice_storage_host)
+    - name: aiservice_storage_port
+      value: $(params.aiservice_storage_port)
+    - name: aiservice_storage_ssl
+      value: $(params.aiservice_storage_ssl)
+    - name: aiservice_storage_region
+      value: $(params.aiservice_storage_region)
+    - name: aiservice_storage_pipelines_bucket
+      value: $(params.aiservice_storage_pipelines_bucket)
+    - name: aiservice_storage_tenants_bucket
+      value: $(params.aiservice_storage_tenants_bucket)
+    - name: aiservice_storage_templates_bucket
+      value: $(params.aiservice_storage_templates_bucket)
+    - name: aiservice_controller_tag
+      value: $(params.aiservice_controller_tag)
+    - name: aiservice_store_tag
+      value: $(params.aiservice_store_tag)
+    - name: aiservice_watcher_tag
+      value: $(params.aiservice_watcher_tag)
+    - name: aiservice_connector_tag
+      value: $(params.aiservice_connector_tag)
+    - name: aiservice_pipeline_steps_tag
+      value: $(params.aiservice_pipeline_steps_tag)
+    - name: aiservice_tenant_name
+      value: $(params.aiservice_tenant_name)
     - name: mas_icr_cp
       value: $(params.mas_icr_cp)
     - name: mas_icr_cpopen
-      value: $(params.mas_icr_cpopen) 
-    
+      value: $(params.mas_icr_cpopen)
+
   taskRef:
     name: mas-devops-kmodels
     kind: Task

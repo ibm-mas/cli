@@ -176,133 +176,133 @@ masAppsArgGroup.add_argument(
 aibrokerArgGroup = aiServiceinstallArgParser.add_argument_group("Maximo AI Broker")
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-storage-provider",
-    dest="mas_aibroker_storage_provider",
+    dest="aiservice_storage_provider",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-storage-accesskey",
-    dest="mas_aibroker_storage_accesskey",
+    dest="aiservice_storage_accesskey",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-storage-secretkey",
-    dest="mas_aibroker_storage_secretkey",
+    dest="aiservice_storage_secretkey",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-storage-host",
-    dest="mas_aibroker_storage_host",
+    dest="aiservice_storage_host",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-storage-port",
-    dest="mas_aibroker_storage_port",
+    dest="aiservice_storage_port",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-storage-ssl",
-    dest="mas_aibroker_storage_ssl",
+    dest="aiservice_storage_ssl",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-storage-region",
-    dest="mas_aibroker_storage_region",
+    dest="aiservice_storage_region",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-storage-pipelines-bucket",
-    dest="mas_aibroker_storage_pipelines_bucket",
+    dest="aiservice_storage_pipelines_bucket",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-storage-tenants-bucket",
-    dest="mas_aibroker_storage_tenants_bucket",
+    dest="aiservice_storage_tenants_bucket",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-storage-templates-bucket",
-    dest="mas_aibroker_storage_templates_bucket",
+    dest="aiservice_storage_templates_bucket",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-tenant-name",
-    dest="mas_aibroker_tenant_name",
+    dest="aiservice_tenant_name",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-watsonxai-apikey",
-    dest="mas_aibroker_watsonxai_apikey",
+    dest="aiservice_watsonxai_apikey",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-watsonxai-url",
-    dest="mas_aibroker_watsonxai_url",
+    dest="aiservice_watsonxai_url",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-watsonxai-project-id",
-    dest="mas_aibroker_watsonxai_project_id",
+    dest="aiservice_watsonxai_project_id",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-watsonx-action",
-    dest="mas_aibroker_watsonx_action",
+    dest="aiservice_watsonx_action",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db-host",
-    dest="mas_aibroker_db_host",
+    dest="aiservice_db_host",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db-port",
-    dest="mas_aibroker_db_port",
+    dest="aiservice_db_port",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db-user",
-    dest="mas_aibroker_db_user",
+    dest="aiservice_db_user",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db-database",
-    dest="mas_aibroker_db_database",
+    dest="aiservice_db_database",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db-secret-name",
-    dest="mas_aibroker_db_secret_name",
+    dest="aiservice_db_secret_name",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db-secret-key",
-    dest="mas_aibroker_db_secret_key",
+    dest="aiservice_db_secret_key",
     required=False,
     help="Customize Manage database encryption keys"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db-secret-value",
-    dest="mas_aibroker_db_secret_value",
+    dest="aiservice_db_secret_value",
     required=False,
     help="Customize Manage database encryption keys"
 )
@@ -350,49 +350,49 @@ aibrokerArgGroup.add_argument(
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-s3-bucket-prefix",
-    dest="mas_aibroker_s3_bucket_prefix",
+    dest="aiservice_s3_bucket_prefix",
     required=False,
     help="s3 bucker prefix"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-s3-endpoint-url",
-    dest="mas_aibroker_s3_endpoint_url",
+    dest="aiservice_s3_endpoint_url",
     required=False,
     help="endpoint url for s3"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-s3-region",
-    dest="mas_aibroker_s3_region",
+    dest="aiservice_s3_region",
     required=False,
     help="region for s3"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-tenant-s3-bucket-prefix",
-    dest="mas_aibroker_tenant_s3_bucket_prefix",
+    dest="aiservice_tenant_s3_bucket_prefix",
     required=False,
     help="s3 bucker prefix ( tenant level )"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-tenant-s3-region",
-    dest="mas_aibroker_tenant_s3_region",
+    dest="aiservice_tenant_s3_region",
     required=False,
     help="s3 region ( tenant level )"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-tenant-s3-endpoint-url",
-    dest="mas_aibroker_tenant_s3_endpoint_url",
+    dest="aiservice_tenant_s3_endpoint_url",
     required=False,
     help="endpoint url for s3 ( tenant level )"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-tenant-s3-access-key",
-    dest="mas_aibroker_tenant_s3_access_key",
+    dest="aiservice_tenant_s3_access_key",
     required=False,
     help="access key for s3 ( tenant level )"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-tenant-s3-secret-key",
-    dest="mas_aibroker_tenant_s3_secret_key",
+    dest="aiservice_tenant_s3_secret_key",
     required=False,
     help="secret key for s3 ( tenant level )"
 )
@@ -441,81 +441,81 @@ aibrokerArgGroup.add_argument(
 
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-dro-secret-name",
-    dest="mas_aibroker_dro_secret_name",
+    dest="aiservice_dro_secret_name",
     required=False,
     help="DRO secret name"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-dro-api-key",
-    dest="mas_aibroker_dro_api_key",
+    dest="aiservice_dro_api_key",
     required=False,
     help="DRO API key"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-dro-url",
-    dest="mas_aibroker_dro_url",
+    dest="aiservice_dro_url",
     required=False,
     help="DRO URL"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-dro-ca-cert",
-    dest="mas_aibroker_dro_ca_cert",
+    dest="aiservice_dro_ca_cert",
     required=False,
     help="DRO CA certificate"
 )
 
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db2-username",
-    dest="mas_aibroker_db2_username",
+    dest="aiservice_db2_username",
     required=False,
     help="DB2 username"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db2-password",
-    dest="mas_aibroker_db2_password",
+    dest="aiservice_db2_password",
     required=False,
     help="DB2 password"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db2-jdbc-url",
-    dest="mas_aibroker_db2_jdbc_url",
+    dest="aiservice_db2_jdbc_url",
     required=False,
     help="DB2 JDBC URL"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db2-ssl-enabled",
-    dest="mas_aibroker_db2_ssl_enabled",
+    dest="aiservice_db2_ssl_enabled",
     required=False,
     help="DB2 SSL enabled"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-db2-ca-cert",
-    dest="mas_aibroker_db2_ca_cert",
+    dest="aiservice_db2_ca_cert",
     required=False,
     help="DB2 CA certificate"
 )
 
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-sls-secret-name",
-    dest="mas_aibroker_sls_secret_name",
+    dest="aiservice_sls_secret_name",
     required=False,
     help="SLS secret name"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-sls-registration-key",
-    dest="mas_aibroker_sls_registration_key",
+    dest="aiservice_sls_registration_key",
     required=False,
     help="SLS registration key"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-sls-url",
-    dest="mas_aibroker_sls_url",
+    dest="aiservice_sls_url",
     required=False,
     help="SLS URL"
 )
 aibrokerArgGroup.add_argument(
     "--mas-aibroker-sls-ca-cert",
-    dest="mas_aibroker_sls_ca_cert",
+    dest="aiservice_sls_ca_cert",
     required=False,
     help="SLS CA certificate"
 )

@@ -27,7 +27,6 @@ spec:
       description: Instance ID
 
     # Application - Operator
-    # - name: mas_aibroker_channel
     - name: mas_app_channel
       type: string
       description: Catalog channel for the application operator subscription
@@ -48,75 +47,75 @@ spec:
       default: ""
 
     # Opendatahub details
-    - name: mas_aibroker_storage_provider
+    - name: aiservice_storage_provider
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_accesskey
+    - name: aiservice_storage_accesskey
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_secretkey
+    - name: aiservice_storage_secretkey
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_host
+    - name: aiservice_storage_host
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_port
+    - name: aiservice_storage_port
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_ssl
+    - name: aiservice_storage_ssl
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_region
+    - name: aiservice_storage_region
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_pipelines_bucket
+    - name: aiservice_storage_pipelines_bucket
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_tenants_bucket
+    - name: aiservice_storage_tenants_bucket
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_templates_bucket
+    - name: aiservice_storage_templates_bucket
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_tenant_name
+    - name: aiservice_tenant_name
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_db_host
+    - name: aiservice_db_host
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_db_port
+    - name: aiservice_db_port
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_db_user
+    - name: aiservice_db_user
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_db_database
+    - name: aiservice_db_database
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_db_secret_name
+    - name: aiservice_db_secret_name
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_db_secret_key
+    - name: aiservice_db_secret_key
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_db_secret_value
+    - name: aiservice_db_secret_value
       type: string
       default: "This option is mandatory"
       default: ""
@@ -140,8 +139,6 @@ spec:
         value: $(params.mas_instance_id)
 
       # Application - Operator
-      # - name: MAS_AIBROKER_CHANNEL
-      #   value: $(params.mas_aibroker_channel)
       - name: MAS_APP_CHANNEL
         value: $(params.mas_app_channel)
 
@@ -150,44 +147,44 @@ spec:
         value: $(params.custom_labels)
 
       # Opendatahub storage details
-      - name: MAS_AIBROKER_STORAGE_PROVIDER
-        value: $(params.mas_aibroker_storage_provider)
-      - name: MAS_AIBROKER_STORAGE_ACCESSKEY
-        value: $(params.mas_aibroker_storage_accesskey)
-      - name: MAS_AIBROKER_STORAGE_SECRETKEY
-        value: $(params.mas_aibroker_storage_secretkey)
-      - name: MAS_AIBROKER_STORAGE_HOST
-        value: $(params.mas_aibroker_storage_host)
-      - name: MAS_AIBROKER_STORAGE_PORT
-        value: $(params.mas_aibroker_storage_port)
-      - name: MAS_AIBROKER_STORAGE_SSL
-        value: $(params.mas_aibroker_storage_ssl)
-      - name: MAS_AIBROKER_STORAGE_REGION
-        value: $(params.mas_aibroker_storage_region)
-      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
-        value: $(params.mas_aibroker_storage_pipelines_bucket)
-      - name: MAS_AIBROKER_STORAGE_TENANTS_BUCKET
-        value: $(params.mas_aibroker_storage_tenants_bucket)
-      - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
-        value: $(params.mas_aibroker_storage_templates_bucket)
-      - name: MAS_AIBROKER_TENANT_NAME
-        value: $(params.mas_aibroker_tenant_name)
+      - name: AISERVICE_STORAGE_PROVIDER
+        value: $(params.aiservice_storage_provider)
+      - name: AISERVICE_STORAGE_ACCESSKEY
+        value: $(params.aiservice_storage_accesskey)
+      - name: AISERVICE_STORAGE_SECRETKEY
+        value: $(params.aiservice_storage_secretkey)
+      - name: AISERVICE_STORAGE_HOST
+        value: $(params.aiservice_storage_host)
+      - name: AISERVICE_STORAGE_PORT
+        value: $(params.aiservice_storage_port)
+      - name: AISERVICE_STORAGE_SSL
+        value: $(params.aiservice_storage_ssl)
+      - name: AISERVICE_STORAGE_REGION
+        value: $(params.aiservice_storage_region)
+      - name: AISERVICE_STORAGE_PIPELINES_BUCKET
+        value: $(params.aiservice_storage_pipelines_bucket)
+      - name: AISERVICE_STORAGE_TENANTS_BUCKET
+        value: $(params.aiservice_storage_tenants_bucket)
+      - name: AISERVICE_STORAGE_TEMPLATES_BUCKET
+        value: $(params.aiservice_storage_templates_bucket)
+      - name: AISERVICE_TENANT_NAME
+        value: $(params.aiservice_tenant_name)
 
       # MariaDB details
-      - name: MAS_AIBROKER_DB_HOST
-        value: $(params.mas_aibroker_db_host)
-      - name: MAS_AIBROKER_DB_PORT
-        value: $(params.mas_aibroker_db_port)
-      - name: MAS_AIBROKER_DB_USER
-        value: $(params.mas_aibroker_db_user)
-      - name: MAS_AIBROKER_DB_DATABASE
-        value: $(params.mas_aibroker_db_database)
-      - name: MAS_AIBROKER_DB_SECRET_NAME
-        value: $(params.mas_aibroker_db_secret_name)
-      - name: MAS_AIBROKER_DB_SECRET_KEY
-        value: $(params.mas_aibroker_db_secret_key)
-      - name: MAS_AIBROKER_DB_SECRET_VALUE
-        value: $(params.mas_aibroker_db_secret_value)
+      - name: AISERVICE_DB_HOST
+        value: $(params.aiservice_db_host)
+      - name: AISERVICE_DB_PORT
+        value: $(params.aiservice_db_port)
+      - name: AISERVICE_DB_USER
+        value: $(params.aiservice_db_user)
+      - name: AISERVICE_DB_DATABASE
+        value: $(params.aiservice_db_database)
+      - name: AISERVICE_DB_SECRET_NAME
+        value: $(params.aiservice_db_secret_name)
+      - name: AISERVICE_DB_SECRET_KEY
+        value: $(params.aiservice_db_secret_key)
+      - name: AISERVICE_DB_SECRET_VALUE
+        value: $(params.aiservice_db_secret_value)
 
   steps:
     - name: odh
