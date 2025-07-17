@@ -587,7 +587,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def configDNSAndCertsRoute53(self):
         self.setParam("dns_provider", "route53")
         self.printDescription([
-            "Provide your AWS account access key ID & secret access key",
+            "Provide your AWS account access key ID and secret access key",
             "This will be used to authenticate into the AWS account where your AWS Route 53 hosted zone instance is located",
             ""
         ])
