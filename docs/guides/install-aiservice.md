@@ -45,7 +45,7 @@ If you have not already determined the catalog version for your installation, re
 
 Interactive Install
 -------------------------------------------------------------------------------
-Regardless of whether you are running a connected or disconnected installation, simply run the `mas aiservice-install` command and follow the prompts, the basic structure of the interactive flow is described below.  
+Regardless of whether you are running a connected or disconnected installation, simply run the `mas aiservice-install` command and follow the prompts, the basic structure of the interactive flow is described below.
 
 We will need the `entitlement.lic` file to perform the installation so we will mount your home directory into the running container.  When prompted you will be able to set license file to `/mnt/home/entitlement.lic` - <b> This is a prerequisite step, required only when `sls` has not been installed previously. </b>
 
@@ -90,7 +90,7 @@ The interactive install will guide you through a series of questioned designed t
     <cds-accordion-item title="Review Choices">
       <p>Before the install actually starts you will be presented with a summary of all your choices and a non-interactive command that will allow you to repeat the same installation without going through all the prompts again.</p>
     </cds-accordion-item>
-    
+
   </cds-accordion>
 </div>
 
@@ -105,8 +105,8 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
   oc login --token=sha256~xxxx --server=https://xxx &&
   mas aiservice-install \
     --mas-catalog-version @@MAS_LATEST_CATALOG@@ \
-    --aibroker-instance-id aib1 \
-    --aibroker-channel 9.1.x \
+    --aiservice-instance-id aib1 \
+    --aiservice-channel 9.1.x \
     \
     --ibm-entitlement-key '${IBM_ENTITLEMENT_KEY}' \
     --license-file /mnt/home/entitlement.lic \

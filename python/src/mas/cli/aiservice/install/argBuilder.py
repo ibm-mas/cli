@@ -36,7 +36,7 @@ class aiServiceInstallArgBuilderMixin():
         command += f" --ibm-entitlement-key $IBM_ENTITLEMENT_KEY{newline}"
 
         # Aibroker Instance Id
-        command += f"  --aibroker-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
+        command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
 
         # MAS Advanced Configuration
         # -----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ class aiServiceInstallArgBuilderMixin():
         # Aibroker Channel
         # -----------------------------------------------------------------------------
         if self.installAiBroker:
-            command += f"  --aibroker-channel \"{self.getParam('mas_app_channel_aibroker')}\"{newline}"
+            command += f"  --aiservice-channel \"{self.getParam('mas_app_channel_aibroker')}\"{newline}"
 
         # IBM Db2 Universal Operator
         # -----------------------------------------------------------------------------

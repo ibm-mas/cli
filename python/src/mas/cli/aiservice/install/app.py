@@ -96,9 +96,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         for application, key in applications.items():
             # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             tempChosenCatalog = self.chosenCatalog[key].copy()
-            if '9.1.x-feature' not in tempChosenCatalog:
-                tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
-
             self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
         if self.architecture == "s390x":
@@ -185,7 +182,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if self.devMode:
             self.configAppChannel("aibroker")
 
-        self.aibrokerSettings()
+        self.aiServiceSettings()
+        self.aiServiceTenantSettings()
+        self.aiServiceDependencies()
+        self.aiServiceIntegrations()
 
         # Dependencies
         self.configMongoDb()
@@ -508,72 +508,111 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         ])
         self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
 
-    def aibrokerSettings(self) -> None:
-        if self.installAiBroker:
-            self.printH2("AI Service Settings - Storage, WatsonX, MariaDB details")
-            self.printDescription(["Customise AI Broker details"])
-            self.promptForString("Storage provider", "aiservice_storage_provider")
-            self.promptForString("Storage access key", "aiservice_storage_accesskey")
-            self.promptForString("Storage secret key", "aiservice_storage_secretkey", isPassword=True)
-            self.promptForString("Storage host", "aiservice_storage_host")
-            self.promptForString("Storage port", "aiservice_storage_port")
-            self.promptForString("Storage ssl", "aiservice_storage_ssl")
-            self.promptForString("Storage region", "aiservice_storage_region")
-            self.promptForString("Storage pipelines bucket", "aiservice_storage_pipelines_bucket")
-            self.promptForString("Storage tenants bucket", "aiservice_storage_tenants_bucket")
-            self.promptForString("Storage templates bucket", "aiservice_storage_templates_bucket")
+    def aiServiceSettings(self) -> None:
+        self.printH1("AI Service Settings")
+        self.printH2("Storage")
+        self.printDescription(["TODO: Describe what is this used for, what am I meant to have done to set it up, what type of storage are we even talking about?"])
+        self.promptForString("Storage provider", "aiservice_storage_provider")
+        self.promptForString("Storage access key", "aiservice_storage_accesskey")
+        self.promptForString("Storage secret key", "aiservice_storage_secretkey", isPassword=True)
+        self.promptForString("Storage host", "aiservice_storage_host")
+        self.promptForString("Storage port", "aiservice_storage_port")
+        self.promptForString("Storage ssl", "aiservice_storage_ssl")
+        self.promptForString("Storage region", "aiservice_storage_region")
+        self.promptForString("Storage pipelines bucket", "aiservice_storage_pipelines_bucket")
+        self.promptForString("Storage tenants bucket", "aiservice_storage_tenants_bucket")
+        self.promptForString("Storage templates bucket", "aiservice_storage_templates_bucket")
 
-            self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
-            self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
-            self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
+        self.printH2("Database")
+        self.printDescription(["TODO: How do I get this information?  What type of database are we talking about, am I already meant to have set this up?  What's the difference between storage and database?"])
+        self.promptForString("Database host", "aiservice_db_host")
+        self.promptForString("Database port", "aiservice_db_port")
+        self.promptForString("Database user", "aiservice_db_user")
+        self.promptForString("Database name", "aiservice_db_database")
+        self.printDescription(["TODO: Why do I need to choose a secretname?  Is there any value in me as the user deciding the secretname that the password is stored in?"])
+        self.promptForString("Database Secretname", "aiservice_db_secret_name", isPassword=True)
+        self.promptForString("Database password", "aiservice_db_secret_value", isPassword=True)
 
-            self.promptForString("Database host", "aiservice_db_host")
-            self.promptForString("Database port", "aiservice_db_port")
-            self.promptForString("Database user", "aiservice_db_user")
-            self.promptForString("Database name", "aiservice_db_database")
-            self.promptForString("Database Secretname", "aiservice_db_secret_name", isPassword=True)
-            self.promptForString("Database password", "aiservice_db_secret_value", isPassword=True)
+        self.printH2("MariaDb")
+        self.printDescription(["TODO: Another database, what's the difference between this and the one I just set up?"])
+        self.promptForString("Mariadb username", "mariadb_user")
+        self.promptForString("Mariadb password", "mariadb_password", isPassword=True)
 
-            if self.getParam("mas_app_channel_aibroker") != "9.0.x":
-                self.promptForString("Mariadb username", "mariadb_user")
-                self.promptForString("Mariadb password", "mariadb_password", isPassword=True)
-                self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
-                self.promptForString("Tenant start date", "tenant_entitlement_start_date")
-                self.promptForString("Tenant end date", "tenant_entitlement_end_date")
-                self.promptForString("S3 bucket prefix", "aiservice_s3_bucket_prefix")
-                self.promptForString("S3 endpoint url", "aiservice_s3_endpoint_url")
-                self.promptForString("S3 bucket prefix (tenant level)", "aiservice_tenant_s3_bucket_prefix")
-                self.promptForString("S3 region (tenant level)", "aiservice_tenant_s3_region")
-                self.promptForString("S3 endpoint url (tenant level)", "aiservice_tenant_s3_endpoint_url")
-                self.promptForString("S3 access key (tenant level)", "aiservice_tenant_s3_access_key", isPassword=True)
-                self.promptForString("S3 secret key (tenant level)", "aiservice_tenant_s3_secret_key", isPassword=True)
-                self.promptForString("RSL url", "rsl_url")
-                self.promptForString("ORG Id of RSL", "rsl_org_id")
-                self.promptForString("Token for RSL", "rsl_token", isPassword=True)
-                self.yesOrNo("Install minio", "install_minio_aiservice")
-                if self.getParam("install_minio_aiservice") == "true":
-                    self.promptForString("minio root username", "minio_root_user")
-                    self.promptForString("minio root password", "minio_root_password", isPassword=True)
-                self.yesOrNo("Install SLS", "install_sls_aiservice")
-                if self.getParam("install_sls_aiservice") != "true":
-                    self.promptForString("SLS secret name", "aiservice_sls_secret_name")
-                    self.promptForString("SLS registration key", "aiservice_sls_registration_key")
-                    self.promptForString("SLS URL", "aiservice_sls_url")
-                    self.promptForString("SLS CA certificate", "aiservice_sls_ca_cert")
-                self.yesOrNo("Install DRO", "install_dro_aiservice")
-                if self.getParam("install_dro_aiservice") != "true":
-                    self.promptForString("DRO secret name", "aiservice_dro_secret_name")
-                    self.promptForString("DRO API key", "aiservice_dro_api_key")
-                    self.promptForString("DRO URL", "aiservice_dro_url")
-                    self.promptForString("DRO CA certificate", "aiservice_dro_ca_cert")
-                self.yesOrNo("Install DB2", "install_db2_aiservice")
-                if self.getParam("install_db2_aiservice") != "true":
-                    self.promptForString("DB2 username", "aiservice_db2_username")
-                    self.promptForString("DB2 password", "aiservice_db2_password")
-                    self.promptForString("DB2 JDBC URL", "aiservice_db2_jdbc_url")
-                    self.promptForString("DB2 SSL enabled (yes/no)", "aiservice_db2_ssl_enabled")
-                    self.promptForString("DB2 CA certificate", "aiservice_db2_ca_cert")
-                # self.promptForString("Environment type", "environment_type")
+        self.printH2("S3")
+        self.printDescription(["TODO: Even more storage!  Describe what this S3 storage is used for, so I have to set all this up myself manually before I can install ai service?"])
+        self.promptForString("S3 bucket prefix", "aiservice_s3_bucket_prefix")
+        self.promptForString("S3 endpoint url", "aiservice_s3_endpoint_url")
+        self.promptForString("S3 bucket prefix (tenant level)", "aiservice_tenant_s3_bucket_prefix")
+        self.promptForString("S3 region (tenant level)", "aiservice_tenant_s3_region")
+        self.promptForString("S3 endpoint url (tenant level)", "aiservice_tenant_s3_endpoint_url")
+        self.promptForString("S3 access key (tenant level)", "aiservice_tenant_s3_access_key", isPassword=True)
+        self.promptForString("S3 secret key (tenant level)", "aiservice_tenant_s3_secret_key", isPassword=True)
+
+    def aiServiceTenantSettings(self) -> None:
+        self.printH1("AI Service Tenant Settings")
+        self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
+        self.promptForString("Tenant start date", "tenant_entitlement_start_date")
+        self.promptForString("Tenant end date", "tenant_entitlement_end_date")
+
+    def aiServiceDependencies(self) -> None:
+        self.printH1("Dependencies")
+
+        self.printH2("Minio")
+        self.printDescription(["TODO: Describe how AI service uses minio, is this optional?  What happens if I chose not to install minio? How will the install work in that case?"])
+        self.yesOrNo("Install Minio", "install_minio_aiservice")
+        if self.getParam("install_minio_aiservice") == "true":
+            self.promptForString("minio root username", "minio_root_user")
+            self.promptForString("minio root password", "minio_root_password", isPassword=True)
+
+        self.printH2("IBM Suite License Service")
+        self.printDescription([
+            "The installer can automatically install and configure an instance of SLS for the AI service",
+            "Alternatively you can manually provide the information to connect AI Service to an existing instance of SLS"
+        ])
+        self.yesOrNo("Install Dedicated SLS for AI Service", "install_sls_aiservice")
+        if self.getParam("install_sls_aiservice") != "true":
+            self.promptForString("SLS secret name", "aiservice_sls_secret_name")
+            self.promptForString("SLS registration key", "aiservice_sls_registration_key")
+            self.promptForString("SLS URL", "aiservice_sls_url")
+            self.promptForString("SLS CA certificate", "aiservice_sls_ca_cert")
+
+        self.printH2("IBM Data Reporter Operator")
+        self.printDescription([
+            "The installer can automatically install and configure an instance of DRO for the AI service",
+            "Alternatively you can manually provide the information to connect AI Service to an existing instance of DRO"
+        ])
+        self.yesOrNo("Install Dedicated DRO for AI Service", "install_dro_aiservice")
+        if self.getParam("install_dro_aiservice") != "true":
+            self.promptForString("DRO secret name", "aiservice_dro_secret_name")
+            self.promptForString("DRO API key", "aiservice_dro_api_key")
+            self.promptForString("DRO URL", "aiservice_dro_url")
+            self.promptForString("DRO CA certificate", "aiservice_dro_ca_cert")
+
+        self.printH2("IBM Db2")
+        self.printDescription([
+            "The installer can automatically install and configure an instance of IBM Db2 for the AI service",
+            "Alternatively you can manually provide the information to connect AI Service to an existing instance of IBM Db2"
+        ])
+        self.yesOrNo("Install DB2", "install_db2_aiservice")
+        if self.getParam("install_db2_aiservice") != "true":
+            self.promptForString("DB2 username", "aiservice_db2_username")
+            self.promptForString("DB2 password", "aiservice_db2_password")
+            self.promptForString("DB2 JDBC URL", "aiservice_db2_jdbc_url")
+            self.promptForString("DB2 SSL enabled (yes/no)", "aiservice_db2_ssl_enabled")
+            self.promptForString("DB2 CA certificate", "aiservice_db2_ca_cert")
+
+    def aiServiceIntegrations(self) -> None:
+        self.printH1("WatsonX Integration")
+        self.printDescription(["TODO: Describe how AI service uses Watsonx and how I get this information"])
+        self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
+        self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
+        self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
+
+        self.printH1("RSL Integration")
+        self.printDescription(["TODO: What is RSL?  Describe what this is and how AI service uses it, how do I get the URL and org ID and token?"])
+        self.promptForString("RSL url", "rsl_url")
+        self.promptForString("ORG Id of RSL", "rsl_org_id")
+        self.promptForString("Token for RSL", "rsl_token", isPassword=True)
 
     # These are all candidates to centralise in a new mixin used by both install and aiservice-install
 

@@ -58,7 +58,7 @@ catArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 masArgGroup = aiServiceinstallArgParser.add_argument_group("Aibroker Basic Configuration")
 masArgGroup.add_argument(
-    "-i", "--aibroker-instance-id",
+    "-i", "--aiservice-instance-id",
     required=False,
     help="Aibroker Instance ID"
 )
@@ -166,7 +166,7 @@ mongoArgGroup.add_argument(
 masAppsArgGroup = aiServiceinstallArgParser.add_argument_group("MAS Applications")
 
 masAppsArgGroup.add_argument(
-    "--aibroker-channel",
+    "--aiservice-channel",
     required=False,
     help="Subscription channel for Maximo Ai Broker"
 )
