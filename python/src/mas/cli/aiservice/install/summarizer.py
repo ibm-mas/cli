@@ -10,7 +10,6 @@
 
 import logging
 import yaml
-from prompt_toolkit import print_formatted_text, HTML
 from mas.devops.ocp import getConsoleURL
 
 logger = logging.getLogger(__name__)
@@ -32,84 +31,86 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("Certificate Manager", "cert_manager_provider")
         self.printParamSummary("Cluster Ingress Certificate Secret", "ocp_ingress_tls_secret_name")
 
-    def masSummary(self) -> None:
-
-        self.printH2("IBM Maximo Application Suite")
-
-        print()
+    def aibrokerSummary(self) -> None:
+        self.printH2("Maximo Operator Catalog")
         self.printParamSummary("Catalog Version", "mas_catalog_version")
         # We only list the digest if it's specified (primary use case is when running development builds in airgap environments)
         if self.getParam("mas_catalog_digest" != ""):
             self.printParamSummary("Catalog Digest", "mas_catalog_digest")
-        self.printParamSummary("Subscription Channel", "mas_channel")
 
-        print()
+        self.printH2("IBM Container Registry")
         self.printParamSummary("IBM Entitled Registry", "mas_icr_cp")
         self.printParamSummary("IBM Open Registry", "mas_icr_cpopen")
 
+        self.printH2("AI Service")
+        self.printParamSummary("Release", "mas_app_channel_aibroker")
+        self.printParamSummary("Instance ID", "aiservice_instance_id")
+        self.printParamSummary("Environment type", "environment_type")
+
+        self.printH2("S3 Configuration")
+        self.printParamSummary("Install minio", "install_minio_aiservice")
+        if self.getParam("aiservice_storage_provider") == "minio":
+            self.printParamSummary("minio root username", "minio_root_user")
         print()
-        if self.localConfigDir is not None:
-            self.printSummary("Additional Config", self.localConfigDir)
-        else:
-            self.printSummary("Additional Config", "Not Configured")
+        self.printParamSummary("Storage provider", "aiservice_storage_provider")
+        self.printParamSummary("Storage access key", "aiservice_storage_accesskey")
+        self.printParamSummary("Storage host", "aiservice_storage_host")
+        self.printParamSummary("Storage port", "aiservice_storage_port")
+        self.printParamSummary("Storage ssl", "aiservice_storage_ssl")
+        self.printParamSummary("Storage region", "aiservice_storage_region")
+        self.printParamSummary("Storage pipelines bucket", "aiservice_storage_pipelines_bucket")
+        self.printParamSummary("Storage tenants bucket", "aiservice_storage_tenants_bucket")
+        self.printParamSummary("Storage templates bucket", "aiservice_storage_templates_bucket")
+        print()
+        self.printParamSummary("S3 bucket prefix", "aiservice_s3_bucket_prefix")
+        self.printParamSummary("S3 endpoint url", "aiservice_s3_endpoint_url")
+        self.printParamSummary("S3 bucket prefix (tenant level)", "aiservice_tenant_s3_bucket_prefix")
+        self.printParamSummary("S3 region (tenant level)", "aiservice_tenant_s3_region")
+        self.printParamSummary("S3 endpoint url (tenant level)", "aiservice_tenant_s3_endpoint_url")
 
-    def aibrokerSummary(self) -> None:
-        if self.installAiBroker:
-            self.printSummary("AI Broker", self.params["mas_app_channel_aibroker"])
-            print_formatted_text(HTML("  <SkyBlue>+ Maximo AI Broker Settings</SkyBlue>"))
-            self.printParamSummary("  + Aibroker Instance Id", "aiservice_instance_id")
-            self.printParamSummary("  + Storage provider", "aiservice_storage_provider")
-            if self.getParam("aiservice_storage_provider") == "minio":
-                self.printParamSummary("  + minio root username", "minio_root_user")
-            if self.getParam("mas_app_channel_aibroker") != "9.0.x":
-                self.printParamSummary("  + Mariadb username", "mariadb_user")
-                self.printParamSummary("  + Mariadb password", "mariadb_password")
-            self.printParamSummary("  + Storage access key", "aiservice_storage_accesskey")
-            self.printParamSummary("  + Storage host", "aiservice_storage_host")
-            self.printParamSummary("  + Storage port", "aiservice_storage_port")
-            self.printParamSummary("  + Storage ssl", "aiservice_storage_ssl")
-            self.printParamSummary("  + Storage region", "aiservice_storage_region")
-            self.printParamSummary("  + Storage pipelines bucket", "aiservice_storage_pipelines_bucket")
-            self.printParamSummary("  + Storage tenants bucket", "aiservice_storage_tenants_bucket")
-            self.printParamSummary("  + Storage templates bucket", "aiservice_storage_templates_bucket")
-            self.printParamSummary("  + Watsonxai machine learning url", "aiservice_watsonxai_url")
-            self.printParamSummary("  + Watsonxai project id", "aiservice_watsonxai_project_id")
-            self.printParamSummary("  + Database host", "aiservice_db_host")
-            self.printParamSummary("  + Database port", "aiservice_db_port")
-            self.printParamSummary("  + Database user", "aiservice_db_user")
-            self.printParamSummary("  + Database name", "aiservice_db_database")
-            if self.getParam("mas_app_channel_aibroker") != "9.0.x":
-                self.printParamSummary("  + Tenant entitlement type", "tenant_entitlement_type")
-                self.printParamSummary("  + Tenant start date", "tenant_entitlement_start_date")
-                self.printParamSummary("  + Tenant end date", "tenant_entitlement_end_date")
-                self.printParamSummary("  + S3 bucket prefix", "aiservice_s3_bucket_prefix")
-                self.printParamSummary("  + S3 endpoint url", "aiservice_s3_endpoint_url")
-                self.printParamSummary("  + S3 bucket prefix (tenant level)", "aiservice_tenant_s3_bucket_prefix")
-                self.printParamSummary("  + S3 region (tenant level)", "aiservice_tenant_s3_region")
-                self.printParamSummary("  + S3 endpoint url (tenant level)", "aiservice_tenant_s3_endpoint_url")
-                self.printParamSummary("  + RSL url", "rsl_url")
-                self.printParamSummary("  + ORG Id of RSL", "rsl_org_id")
-                self.printParamSummary("  + Token for RSL", "rsl_token")
-                self.printParamSummary("  + Install minio", "install_minio_aiservice")
-                self.printParamSummary("  + Install SLS", "install_sls_aiservice")
-                if self.getParam("install_sls_aiservice") != "true":
-                    self.printParamSummary("  + SLS secret name", "aiservice_sls_secret_name")
-                    self.printParamSummary("  + SLS registration key", "aiservice_sls_registration_key")
-                    self.printParamSummary("  + SLS URL", "aiservice_sls_url")
-                self.printParamSummary("  + Install DRO", "install_dro_aiservice")
-                if self.getParam("install_dro_aiservice") != "true":
-                    self.printParamSummary("  + DRO secret name", "aiservice_dro_secret_name")
-                    self.printParamSummary("  + DRO API key", "aiservice_dro_api_key")
-                    self.printParamSummary("  + DRO URL", "aiservice_dro_url")
-                self.printParamSummary("  + Install DB2", "install_db2_aiservice")
-                if self.getParam("install_db2_aiservice") != "true":
-                    self.printParamSummary("  + DB2 username", "aiservice_db2_username")
-                    self.printParamSummary("  + DB2 JDBC URL", "aiservice_db2_jdbc_url")
-                    self.printParamSummary("  + DB2 SSL enabled", "aiservice_db2_ssl_enabled")
-                self.printParamSummary("  + Environment type", "environment_type")
+        self.printH2("Database (MariaDb)")
+        self.printParamSummary("Mariadb username", "mariadb_user")
+        self.printParamSummary("Mariadb password", "mariadb_password")
+        print()
+        self.printParamSummary("Database host", "aiservice_db_host")
+        self.printParamSummary("Database port", "aiservice_db_port")
+        self.printParamSummary("Database user", "aiservice_db_user")
+        self.printParamSummary("Database name", "aiservice_db_database")
 
-        else:
-            self.printSummary("AI Broker", "Do Not Install")
+        self.printH2("IBM WatsonX")
+        self.printParamSummary("Watsonxai machine learning url", "aiservice_watsonxai_url")
+        self.printParamSummary("Watsonxai project id", "aiservice_watsonxai_project_id")
+
+        self.printH2("AI Service Tenant")
+        self.printParamSummary("Tenant entitlement type", "tenant_entitlement_type")
+        self.printParamSummary("Tenant start date", "tenant_entitlement_start_date")
+        self.printParamSummary("Tenant end date", "tenant_entitlement_end_date")
+
+        self.printH2("RSL")
+        self.printParamSummary("RSL url", "rsl_url")
+        self.printParamSummary("ORG Id of RSL", "rsl_org_id")
+        self.printParamSummary("Token for RSL", "rsl_token")
+
+        self.printH2("SLS")
+        self.printParamSummary("Install SLS", "install_sls_aiservice")
+        if self.getParam("install_sls_aiservice") != "true":
+            self.printParamSummary("  + SLS secret name", "aiservice_sls_secret_name")
+            self.printParamSummary("  + SLS registration key", "aiservice_sls_registration_key")
+            self.printParamSummary("  + SLS URL", "aiservice_sls_url")
+
+        self.printH2("DRO")
+        self.printParamSummary("  + Install DRO", "install_dro_aiservice")
+        if self.getParam("install_dro_aiservice") != "true":
+            self.printParamSummary("  + DRO secret name", "aiservice_dro_secret_name")
+            self.printParamSummary("  + DRO API key", "aiservice_dro_api_key")
+            self.printParamSummary("  + DRO URL", "aiservice_dro_url")
+
+        self.printH2("Db2")
+        self.printParamSummary("  + Install DB2", "install_db2_aiservice")
+        if self.getParam("install_db2_aiservice") != "true":
+            self.printParamSummary("  + DB2 username", "aiservice_db2_username")
+            self.printParamSummary("  + DB2 JDBC URL", "aiservice_db2_jdbc_url")
+            self.printParamSummary("  + DB2 SSL enabled", "aiservice_db2_ssl_enabled")
 
     def db2Summary(self) -> None:
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":

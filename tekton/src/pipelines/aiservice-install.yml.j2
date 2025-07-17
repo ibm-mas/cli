@@ -54,10 +54,6 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/mongo.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - cert-manager
-      when:
-        - input: "$(params.install_sls_aiservice)"
-          operator: notin
-          values: ["false", "False"]
 
     # 2.2 IBM SLS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
@@ -72,10 +68,6 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/uds.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - ibm-catalogs
-      when:
-        - input: "$(params.install_dro_aiservice)"
-          operator: notin
-          values: ["false", "False"]
 
 
     # 3 Install and Configure AI Broker
