@@ -289,7 +289,7 @@ function gitops_aibroker_tenant_noninteractive() {
   [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_minio_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
   [[ -z "$TENANT_NAMESPACE" ]] && gitops_aibroker_tenant_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
   [[ -z "$TENANT_ID" ]] && gitops_aibroker_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
-  [[ -z "$MAS_AIBROKER_TENANT_NAME" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_TENANT_NAME is not set. Please provide the AI Broker tenant name using --mas-aibroker-tenant-name."
+  # [[ -z "$MAS_AIBROKER_TENANT_NAME" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_TENANT_NAME is not set. Please provide the AI Broker tenant name using --mas-aibroker-tenant-name."
   [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aibroker_tenant_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
   
   # -- DRO
