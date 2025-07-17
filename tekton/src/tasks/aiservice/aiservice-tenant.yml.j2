@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-devops-aibroker-tenant
+  name: mas-devops-aiservice-tenant
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
@@ -345,7 +345,7 @@ spec:
         value: $(params.environment_type)
 
   steps:
-    - name: aibroker-tenant
+    - name: aiservice-tenant
       command:
         - /opt/app-root/src/run-role.sh
         - aiservice_tenant

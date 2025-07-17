@@ -1,4 +1,4 @@
-- name: aibroker-tenant
+- name: aiservice-tenant
   timeout: "0"
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
@@ -108,7 +108,7 @@
       value: $(params.environment_type)
 
   taskRef:
-    name: mas-devops-aibroker-tenant
+    name: mas-devops-aiservice-tenant
     kind: Task
   when:
     - input: "$(params.mas_app_channel_aibroker)"
