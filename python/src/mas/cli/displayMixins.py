@@ -45,7 +45,7 @@ class PrintMixin():
         content[0] = f"<{DESCRIPTIONCOLOR}>{content[0]}"
         content[len(content) - 1] = f"{content[len(content) - 1]}</{DESCRIPTIONCOLOR}>"
         print(f"content:{content}")
-        str="\n".join(content)
+        str = "\n".join(content)
         print(f'str:{str}')
         print_formatted_text(HTML("\n".join(content)))
 
