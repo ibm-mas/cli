@@ -432,7 +432,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.createTektonFileWithDigest()
 
             self.printH1("Launch Install")
-            pipelinesNamespace = f"mas-{self.getParam('aiservice_instance_id')}-pipelines"
+            pipelinesNamespace = f"aiservice-{self.getParam('aiservice_instance_id')}-pipelines"
 
             if not self.noConfirm:
                 self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])

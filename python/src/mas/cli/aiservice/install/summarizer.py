@@ -31,7 +31,7 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("Certificate Manager", "cert_manager_provider")
         self.printParamSummary("Cluster Ingress Certificate Secret", "ocp_ingress_tls_secret_name")
 
-    def aibrokerSummary(self) -> None:
+    def aiServiceSummary(self) -> None:
         self.printH2("Maximo Operator Catalog")
         self.printParamSummary("Catalog Version", "mas_catalog_version")
         # We only list the digest if it's specified (primary use case is when running development builds in airgap environments)
@@ -180,14 +180,12 @@ class aiServiceInstallSummarizerMixin():
         logger.debug("PipelineRun parameters:")
         logger.debug(yaml.dump(self.params, default_flow_style=False))
 
-        # Cluster Config & Dependencies
+        # Cluster Config & AI Service
         self.ocpSummary()
+        self.aiServiceSummary()
+
+        # Dependencies
         self.droSummary()
         self.slsSummary()
-        self.masSummary()
-        self.printH2("IBM Maximo Application Suite Application - Aiservice")
-        self.aibrokerSummary()
-
-        # Application Dependencies
         self.mongoSummary()
         self.db2Summary()
