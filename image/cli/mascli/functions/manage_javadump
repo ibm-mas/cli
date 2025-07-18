@@ -21,6 +21,7 @@ Usage:
 define Liberty pod where the coredump is generated:
   -i, --mas-instance-id : specify mas instance id
   -s, --pod-selector     : pod-selector can be serverBundle, <bundle name>, coreidp
+  -p, --pod-name         : gives the pod where the java dump needs to be created, this overwrites -s if specified.
 
 actions:
   -g, --generate         : generate a coredump for the liberty server according to the pod selector then copies it to the local machine where the script is running
@@ -34,14 +35,17 @@ Other Options:
   -h, --help    Show this help message
 
 Examples:
+  generates a coredump for a particular pod in the manage namespace:
+  mas manage-managejavadump  -i test -p test-testws-foundation-54956ff9d7-bzmgb -g -d /tmp
+
   generates a coredump for the ui server bundle, copies it localy and removes it from the node where it was generated:
-  ./manage-javadump.sh -i test -s ui -g -d /mnt/home
+  mas manage-managejavadump -i test -s ui -g -d /mnt/home
 
   collects all the coredumps present on the node where ui server bundle is running:
-  ./manage-javadump.sh -i test -s ui -c
+  mas manage-managejavadump -i test -s ui -c
 
   removed all the coredumps present on the node where the ui server bundle is running:
-  ./manage-javadump.sh -i test -s ui -r
+  mas manage-managejavadump -i test -s ui -r
 
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
@@ -67,6 +71,11 @@ while [[ $# -gt 0 ]]
     -s|--pod-selector)
       # pod-selector can be "serverBundle, <bundle name>, coreidp"
       POD_SELECTOR=$1; shift
+      ;;
+
+    -p|--pod-name)
+      # pod-selector can be "serverBundle, <bundle name>, coreidp"
+      POD_NAME=$1; shift
       ;;
 
     -g|--generate)
@@ -99,7 +108,10 @@ DEBUG_NAMESPACE="mas-${MAS_INSTANCE_ID}-manage-debug"
 mkdir -p $DIRECTORY
 
 # using pod labels mas.ibm.com/appType and mas.ibm.com/appTypeName
-if [ "$POD_SELECTOR" = "serverBundle" ]; then
+if [ "$POD_NAME" != "" ]; then
+  echo "command specified pod: $POD_NAME"
+  SERVER_POD_NAMES="pod/$POD_NAME"
+elif [ "$POD_SELECTOR" = "serverBundle" ]; then
   echo "select all server bundle pods"
   SERVER_POD_NAMES=$(oc get pods -n $MAS_PROJECT -l "mas.ibm.com/appType=$POD_SELECTOR" -oname)
 elif [ "$POD_SELECTOR" = "coreidp" ]; then
@@ -129,6 +141,7 @@ if [ "$GENERATE" = "true" ]; then
     ## create a project to collect the coredump
     oc new-project $DEBUG_NAMESPACE > /dev/null
     echo "project $DEBUG_NAMESPACE created"
+    oc project $DEBUG_NAMESPACE
 
     ## remove any debug pod that exist in the debug namespace
     for pod in $(oc get pods -oname); do
