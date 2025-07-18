@@ -202,9 +202,40 @@ function gitops_deprovision_aibroker_tenant() {
   echo_reset_dim "mas instance ID .............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
   
-  
-  AVP_TYPE=aws  # Support for IBM will be added later
+ echo -e "login aws"
+
+ AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
+
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
+
+  export SECRET_IBM_ENTITLEMENT_AUTH=${SECRETS_PREFIX}ibm_entitlement
+  export SECRET_DRO_AUTH=${SECRETS_PREFIX}dro
+  export SECRET_SLS_AUTH=${SECRETS_PREFIX}sls
+  export SECRET_WATSONX_AUTH=${SECRETS_PREFIX}watsonx
+  export SECRET_RSL_AUTH=${SECRETS_PREFIX}rsl
+  export SECRET_STORAGE_AUTH=${SECRETS_PREFIX}storage
+
+
+  #deleting secrets from aws
+   echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
+   sm_delete_secret $SECRET_IBM_ENTITLEMENT_AUTH
+
+   echo -e "Deleting dro secrets $SECRET_DRO_AUTH"
+   sm_delete_secret $SECRET_DRO_AUTH
+
+   echo -e "Deleting sls secrets $SECRET_SLS_AUTH"
+   sm_delete_secret $SECRET_SLS_AUTH
+
+   echo -e "Deleting watsonx secrets $SECRET_WATSONX_AUTH"
+   sm_delete_secret $SECRET_WATSONX_AUTH
+
+   echo -e "Deleting rsl secrets $SECRET_RSL_AUTH"
+   sm_delete_secret $SECRET_RSL_AUTH
+
+   echo -e "Deleting storage secrets $SECRET_STORAGE_AUTH"
+   sm_delete_secret $SECRET_STORAGE_AUTH
+
 
   # finally push them into the git repo
 
@@ -212,10 +243,10 @@ function gitops_deprovision_aibroker_tenant() {
       export GIT_SSH=false
     fi
 
-    # Clone github target repo
-    # ---------------------------------------------------------------------------
+    #Clone github target repo
+    #---------------------------------------------------------------------------
     if [ "$GITHUB_PUSH" == "true" ]; then
-      echo
+     echo
       echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
       clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
     fi
@@ -227,7 +258,7 @@ function gitops_deprovision_aibroker_tenant() {
     echo_h2 "Deleting application configuration files"
     echo "- Deleting aibroker tenant"
 
-    rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant.yaml
+   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant.yaml
     if [ "$GITHUB_PUSH" == "true" ]; then
       echo
       echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"

@@ -1,15 +1,13 @@
----
+
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-deprovision-minio
+  name: gitops-deprovision-odh
 spec:
-  params: 
+  params:
     - name: cluster_name
       type: string
     - name: account
-      type: string
-    - name: mas_instance_id
       type: string
     - name: cluster_id
       type: string
@@ -28,17 +26,17 @@ spec:
       type: string
     - name: github_host
       type: string
-      
-      default: quay.io/minio/minio:latest
+
+    - name: mas_instance_id
+      type: string
+
   stepTemplate:
-    name: gitops-deprovision-minio
+    name: gitops-deprovision-odh
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
-      - name: MAS_INSTANCE_ID
-        value: $(params.mas_instance_id)
       #- name: CLUSTER_ID
       #  value: $(params.cluster_id)
       - name: CLUSTER_URL
@@ -56,6 +54,10 @@ spec:
       - name: GITHUB_REPO
         value: $(params.github_repo)
 
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+        
+
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -68,10 +70,10 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-
-        mkdir -p /tmp/deprovision-minio
-        mas gitops-deprovision-minio -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /tmp/deprovision-minio \
+        
+        mkdir -p /tmp/deprovision-odh
+        mas gitops-deprovision-odh -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/deprovision-odh \
         --secrets-path $SECRET_PATH \
         --github-push \
         --github-host $GITHUB_HOST \
@@ -83,7 +85,7 @@ spec:
       command:
         - /bin/sh
         - -c
-      name: gitops-deprovision-minio
+      name: gitops-deprovision-odh
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:latest
   workspaces:
