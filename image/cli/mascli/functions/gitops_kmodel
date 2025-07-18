@@ -408,10 +408,6 @@ function gitops_kmodel() {
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64"
 
   sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_accesskey,sm_storage_secretkey,sm_storage_bucket_templates,sm_storage_bucket_tenants,sm_storage_bucket_pipelines"
-  # Conditionally include sm_storage_port for minio
-  if [[ "${MAS_AIBROKER_STORAGE_PROVIDER}" == "minio" ]]; then
-  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_port"
-  fi
 
     # finally push them into the git repo
     # ---------------------------------------------------------------------------
