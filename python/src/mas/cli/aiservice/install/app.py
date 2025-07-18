@@ -56,10 +56,10 @@ from mas.devops.data import getCatalog
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
-    preparePipelinesNamespace,
+    prepareAiServicePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
-    launchInstallPipelineForAiservice
+    launchAiServiceInstallPipeline
 )
 
 logger = logging.getLogger(__name__)
@@ -446,7 +446,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
-                preparePipelinesNamespace(
+                prepareAiServicePipelinesNamespace(
                     dynClient=self.dynamicClient,
                     instanceId=self.getParam("aiservice_instance_id"),
                     storageClass=self.pipelineStorageClass,
@@ -456,7 +456,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aiservice_instance_id"),
+                    namespace=pipelinesNamespace,
                     slsLicenseFile=self.slsLicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
@@ -476,7 +476,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text=f"Submitting PipelineRun for {self.getParam('aiservice_instance_id')} install", spinner=self.spinner) as h:
-                pipelineURL = launchInstallPipelineForAiservice(dynClient=self.dynamicClient, params=self.params)
+                pipelineURL = launchAiServiceInstallPipeline(dynClient=self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aiservice_instance_id')} install submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
