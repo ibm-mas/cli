@@ -347,11 +347,6 @@ masAppsArgGroup.add_argument(
     help="Subscription channel for Maximo Manage"
 )
 masAppsArgGroup.add_argument(
-    "--is-full-manage",
-    required=False,
-    help="Full Manage instead of Manage Foundation"
-)
-masAppsArgGroup.add_argument(
     "--predict-channel",
     required=False,
     help="Subscription channel for Maximo Predict"
@@ -442,7 +437,7 @@ manageArgGroup.add_argument(
     dest="mas_appws_components",
     required=False,
     help="Set Manage Components to be installed (e.g 'base=latest,health=latest,civil=latest')",
-    default="base=latest,health=latest"
+    default=""
 )
 
 manageArgGroup.add_argument(
