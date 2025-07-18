@@ -198,12 +198,8 @@ if [ "$GENERATE" = "true" ]; then
 
     oc delete project $DEBUG_NAMESPACE
   done
-else
-  echo "skipping coredump generation for $SERVER_POD"
-fi
 
-
-if [ "$COLLECT" = "true" ] || [ "$REMOVE" = "true" ]; then
+elif [ "$COLLECT" = "true" ] || [ "$REMOVE" = "true" ]; then
 
   for SERVER_POD in ${SERVER_POD_NAMES}
   do
@@ -268,7 +264,7 @@ if [ "$COLLECT" = "true" ] || [ "$REMOVE" = "true" ]; then
   oc delete project $DEBUG_NAMESPACE
 
 else
-  echo "skipping collection and deletion of files on the nodes"
+  echo "no action specified, you need to specify at least one action -g -c or -r,. Use -h for more information"
 fi
 
 
