@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. $DIR/../functions/internal/utils
+
+NAMESPACE=$1
+OUTPUT_DIR=$2
+
+# Collect Reconcile Logs
+# -----------------------------------------------------------------------------
+echo_h4 "Collect Reconcile Logs"
+# Operators
+$DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-aibroker $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/applicationId aibroker $OUTPUT_DIR
+# WS
+$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr-ws-operator $OUTPUT_DIR
+# aibroker-api
+$DIR/mg-collect-reconcile-logs $NAMESPACE app aibroker-api $OUTPUT_DIR
+#Truststore
+$DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR

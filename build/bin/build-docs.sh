@@ -20,7 +20,7 @@ echo "MAS_LATEST_CHANNEL:     $MAS_LATEST_CHANNEL"
 echo "MAS_PREVIOUS_CHANNEL:   $MAS_PREVIOUS_CHANNEL"
 
 # Automated Versioning Search
-find docs -type f -name '*.md' -exec sed -i '' \
+find docs -type f -name '*.md' -exec sed -i \
   -e "s/@@CLI_LATEST_VERSION@@/$CLI_LATEST_VERSION/g" \
   -e "s/@@MAS_PREVIOUS_CHANNEL@@/$MAS_PREVIOUS_CHANNEL/g" \
   -e "s/@@MAS_PREVIOUS_CATALOG@@/$PREVIOUS_CATALOG/g" \

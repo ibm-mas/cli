@@ -82,7 +82,6 @@ class aiServiceInstallSummarizerMixin():
                 self.printParamSummary("  + Tenant entitlement type", "tenant_entitlement_type")
                 self.printParamSummary("  + Tenant start date", "tenant_entitlement_start_date")
                 self.printParamSummary("  + Tenant end date", "tenant_entitlement_end_date")
-                self.printParamSummary("  + Tenant end date", "tenant_entitlement_end_date")
                 self.printParamSummary("  + S3 bucket prefix", "mas_aibroker_s3_bucket_prefix")
                 self.printParamSummary("  + S3 endpoint url", "mas_aibroker_s3_endpoint_url")
                 self.printParamSummary("  + S3 bucket prefix (tenant level)", "mas_aibroker_tenant_s3_bucket_prefix")
