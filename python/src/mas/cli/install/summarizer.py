@@ -155,8 +155,8 @@ class InstallSummarizerMixin():
 
     def manageSummary(self) -> None:
         if self.installManage:
-            self.printSummary(f"{'Manage foundation' if self.getParam('is_full_manage') == 'false' else 'Manage'}", self.params["mas_app_channel_manage"])
-            if self.getParam("is_full_manage") != "false":
+            self.printSummary(f"{'Manage foundation' if self.getParam('mas_appws_components') == '' else 'Manage'}", self.params["mas_app_channel_manage"])
+            if self.getParam("mas_appws_components") == "":
                 print_formatted_text(HTML("  <SkyBlue>+ Components</SkyBlue>"))
                 self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
@@ -177,6 +177,8 @@ class InstallSummarizerMixin():
                 self.printSummary("  + Utilities", "Enabled" if "utilities=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Workday Applications", "Enabled" if "workday=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + AIP", "Enabled" if "aip=" in self.getParam("mas_appws_components") else "Disabled")
+
+                self.printParamSummary("+ Upgrade Type", "mas_appws_upgrade_type")
 
                 self.printParamSummary("+ Server bundle size", "mas_app_settings_server_bundles_size")
                 self.printParamSummary("+ Enable JMS queues", "mas_app_settings_default_jms")
