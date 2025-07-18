@@ -49,6 +49,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/configtool_oidc
 # Must Gather
 . $CLI_DIR/functions/must_gather
+. $CLI_DIR/functions/manage_javadump
 # GitOps
 . $CLI_DIR/functions/gitops_utils
 . $CLI_DIR/functions/gitops_bootstrap
@@ -269,6 +270,16 @@ case $1 in
     echo
     mustgather "$@"
     ;;
+
+  coredump|manage-coredump)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! manage-coredump                                                           !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite manage-javadump Tool (v${VERSION})${TEXT_RESET}"
+    echo
+    manage-javadump "$@"
+    ;;
+
   gitops-bootstrap)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
