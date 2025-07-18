@@ -89,6 +89,8 @@
         - gitops-mas-cluster
         - gitops-mas-deps
         - gitops-mas-initiator
+        - gitops-mas-aibroker
+        - gitops-mas-aibroker-tenant
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
