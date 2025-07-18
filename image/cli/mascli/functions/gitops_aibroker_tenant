@@ -286,7 +286,7 @@ function gitops_aibroker_tenant_noninteractive() {
   fi
 
   # add validation below like above  for those variable which have the value needed for further execution
-  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_minio_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_aibroker_tenant_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
   [[ -z "$TENANT_NAMESPACE" ]] && gitops_aibroker_tenant_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
   [[ -z "$TENANT_ID" ]] && gitops_aibroker_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
   # [[ -z "$MAS_AIBROKER_TENANT_NAME" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_TENANT_NAME is not set. Please provide the AI Broker tenant name using --mas-aibroker-tenant-name."
@@ -429,11 +429,9 @@ function gitops_aibroker_tenant() {
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_tenant"
  
   sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_accesskey,sm_storage_secretkey"
-  # Conditionally include sm_storage_port for minio
-  if [[ "${MAS_AIBROKER_STORAGE_PROVIDER}" == "minio" ]]; then
-  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_port"
-  fi
+
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
+  
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   
   # finally push them into the git repo

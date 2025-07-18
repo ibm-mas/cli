@@ -37,7 +37,7 @@ spec:
       type: string
     - name: mas_aibroker_storage_provider
       type: string
-    - name: mas_aibroker_minio_secret
+    - name: mas_aibroker_storage_secret
       type: string
     - name: mas_aibroker_storage_host
       type: string
@@ -72,19 +72,6 @@ spec:
     - name: in_saas_env
       type: string
     - name: is_external_route
-      type: string
-    # MINIO-specific
-    - name: minio_namespace
-      type: string
-    - name: minio_instance_name
-      type: string
-    - name: minio_root_user
-      type: string
-    - name: minio_storage_class
-      type: string
-    - name: minio_storage_size
-      type: string
-    - name: minio_image
       type: string
 
     # ODH-specific
@@ -139,64 +126,12 @@ spec:
     - name: configs
 
   tasks:
-    # 1.gitops-minio  
-    - name: gitops-minio
-      taskRef:
-        name: gitops-minio
-      workspaces:
-        - name: configs
-          workspace: configs
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: cluster_id
-          value: $(params.cluster_id)
-        - name: cluster_url
-          value: $(params.cluster_url)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: git_branch
-          value: $(params.git_branch)
-        - name: github_org
-          value: $(params.github_org)
-        - name: github_repo
-          value: $(params.github_repo)
-        - name: github_host
-          value: $(params.github_host)
-        - name: minio_namespace
-          value: $(params.minio_namespace)
-        - name: minio_instance_name
-          value: $(params.minio_instance_name)
-        - name: minio_root_user
-          value: $(params.minio_root_user)
-        - name: minio_storage_class
-          value: $(params.minio_storage_class)
-        - name: minio_storage_size
-          value: $(params.minio_storage_size)
-        - name: minio_image
-          value: $(params.minio_image)
-        - name: aibroker_instance_id
-          value: $(params.aibroker_instance_id)
-        - name: mas_aibroker_storage_provider
-          value: $(params.mas_aibroker_storage_provider)
-
-      #when:
-      #  - input: "$(params.mas_aibroker_storage_provider)"
-      #    operator: in
-      #    values: ["minio"]
 
     # 2.gitops-odh
     # -------------------------------------------------------------------------
-
     - name: gitops-odh
       taskRef:
         name: gitops-odh
-      runAfter:
-        - gitops-minio
       workspaces:
         - name: configs
           workspace: configs
@@ -277,8 +212,8 @@ spec:
           value: $(params.pull_secret_name)
         - name: mas_aibroker_storage_provider
           value: $(params.mas_aibroker_storage_provider)
-        - name: mas_aibroker_minio_secret
-          value: $(params.mas_aibroker_minio_secret)
+        - name: mas_aibroker_storage_secret
+          value: $(params.mas_aibroker_storage_secret)
         - name: mas_aibroker_storage_host
           value: $(params.mas_aibroker_storage_host)
         - name: mas_aibroker_storage_port

@@ -27,7 +27,7 @@ ibm aibroker(required):
 
 storage provider:
       --mas-aibroker-storage-provider ${TEXT_RESET}MAS_AIBROKER_STORAGE_PROVIDER${TEXT_RESET}
-      --mas-aibroker-minio-secret ${TEXT_RESET}MAS_AIBROKER_MINIO_SECRET${TEXT_RESET}
+      --mas-aibroker-storage-secret ${TEXT_RESET}MAS_AIBROKER_STORAGE_SECRET${TEXT_RESET}
       --mas-aibroker-storage-host ${TEXT_RESET}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}
       --mas-aibroker-storage-port ${TEXT_RESET}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}
       --mas-aibroker-storage-ssl ${TEXT_RESET}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}
@@ -86,10 +86,10 @@ function gitops_aibroker_noninteractive() {
   export MAS_APP_ID=${MAS_APP_ID:-"aibroker"}
   export MAS_AIBROKER_WATSONX_SECRET=${MAS_AIBROKER_WATSONX_SECRET:-"${MAS_APP_ID}-watsonxcfg"}
   export MAS_AIBROKER_STORAGE_PROVIDER=${MAS_AIBROKER_STORAGE_PROVIDER:-"aws"}
-  #Minio Defaults
+  #Storage Defaults
   export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
   export MAS_AIBROKER_STORAGE_SSL=${MAS_AIBROKER_STORAGE_SSL:-"true"}
-  export MAS_AIBROKER_MINIO_SECRET=${MAS_AIBROKER_MINIO_SECRET:-"${MAS_APP_ID}-miniocfg"}
+  export MAS_AIBROKER_STORAGE_SECRET=${MAS_AIBROKER_STORAGE_SECRET:-"${MAS_APP_ID}-miniocfg"}
   export MAS_CATALOG_SOURCE=${MAS_CATALOG_SOURCE:-"ibm-operator-catalog"}
   #-- mariadb defaults
   export MAS_AIBROKER_MARIADB_SECRET=${MAS_AIBROKER_MARIADB_SECRET:-"${MAS_APP_ID}-mariadbcfge"}
@@ -166,8 +166,8 @@ function gitops_aibroker_noninteractive() {
       --mas-aibroker-storage-ssl)
         export MAS_AIBROKER_STORAGE_SSL=$1 && shift
         ;;
-      --mas-aibroker-minio-secret)
-          export MAS_AIBROKER_MINIO_SECRET=$1 && shift
+      --mas-aibroker-storage-secret)
+          export MAS_AIBROKER_STORAGE_SECRET=$1 && shift
         ;;
       --mas-catalog-source)
           export MAS_CATALOG_SOURCE=$1 && shift
@@ -250,7 +250,7 @@ function gitops_aibroker_noninteractive() {
 
 # add validation below like above  for those variable which have the value needed for further execution
 # -- AIBroker
-  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_minio_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_aibroker_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
   [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_aibroker_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
   [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aibroker_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
   [[ -z "$ARTIFACTORY_USERNAME" ]] && gitops_aibroker_help "ARTIFACTORY_USERNAME is not set. Please provide the artifactory username using --artifactory-username"
@@ -330,7 +330,7 @@ function gitops_aibroker() {
   echo_reset_dim "Pull Secret Name ...................... ${COLOR_MAGENTA}${PULL_SECRET_NAME}"
   # Storage variables
   echo_reset_dim "MAS AI Broker Storage Provider ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PROVIDER}"
-  echo_reset_dim "MAS AI Broker MinIO Secret ............ ${COLOR_MAGENTA}${MAS_AIBROKER_MINIO_SECRET}"
+  echo_reset_dim "MAS AI Broker Storage Secret .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SECRET}"
   echo_reset_dim "MAS AI Broker Storage Host ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_HOST}"
   echo_reset_dim "MAS AI Broker Storage Port ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PORT}"
   echo_reset_dim "MAS AI Broker Storage SSL ............. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
@@ -401,10 +401,6 @@ function gitops_aibroker() {
   sm_verify_secret_exists ${SECRETS_PREFIX}dro "drocfg_ca,drocfg_registration_key,drocfg_url,drocfg_ca_tenant"
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_accesskey,sm_storage_secretkey,sm_storage_bucket_templates,sm_storage_bucket_tenants,sm_storage_bucket_pipelines"
-  # Conditionally include sm_storage_port for minio
-  if [[ "${MAS_AIBROKER_STORAGE_PROVIDER}" == "minio" ]]; then
-  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_port"
-  fi
   sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca"
   sm_verify_secret_exists ${SECRETS_PREFIX}mariadb "sm_mariadb_host,sm_mariadb_port,sm_mariadb_user,sm_mariadb_database,sm_mariadb_secret_name,sm_mariadb_secret_value"
 
