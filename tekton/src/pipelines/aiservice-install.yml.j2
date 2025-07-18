@@ -19,7 +19,7 @@ spec:
   params:
     # 1. Common Parameters
     # -------------------------------------------------------------------------
-    {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
+    {{ lookup('template', params_src_dir ~ '/common.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
 
     # 2. Installation
     # -------------------------------------------------------------------------
