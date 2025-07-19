@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-devops-odh
+  name: mas-devops-aiservice-odh
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
@@ -187,9 +187,9 @@ spec:
         value: $(params.aiservice_db_secret_value)
 
   steps:
-    - name: odh
+    - name: aiservice-odh
       command:
         - /opt/app-root/src/run-role.sh
-        - odh
+        - aiservice_odh
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)

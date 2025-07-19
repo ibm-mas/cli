@@ -99,12 +99,12 @@ spec:
     # 3.5 Install Kmodels
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/kmodels.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
-        - odh
+        - aiservice-odh
 
     # 3.6 Install and Configure AI Service
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
-        - kmodels
+        - aiservice-kmodels
         - db2-aiservice
 
     # 3.7 AI Service tenant creation

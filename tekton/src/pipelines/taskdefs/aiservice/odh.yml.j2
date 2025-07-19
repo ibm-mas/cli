@@ -1,8 +1,8 @@
-- name: odh
+- name: aiservice-odh
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
-      value: odh
+      value: aiservice-odh
 
     - name: mas_instance_id
 {% if application is defined and application == "aiservice" %}
@@ -60,7 +60,7 @@
       value: $(params.aiservice_db_secret_value)
 
   taskRef:
-    name: mas-devops-odh
+    name: mas-devops-aiservice-odh
     kind: Task
   when:
     - input: "$(params.mas_app_channel_aibroker)"

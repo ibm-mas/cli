@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-devops-kmodels
+  name: mas-devops-aiservice-kmodels
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
@@ -186,9 +186,9 @@ spec:
 
 
   steps:
-    - name: kmodels
+    - name: aiservice-kmodels
       command:
         - /opt/app-root/src/run-role.sh
-        - kmodels
+        - aiservice_kmodels
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
