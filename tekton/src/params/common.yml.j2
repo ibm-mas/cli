@@ -6,7 +6,7 @@
   default: IfNotPresent
   description: Pull policy for pipeline container images
 
-# Development Build Support 
+# Development Build Support
 - name: artifactory_username
   default: ""
   type: string
@@ -22,6 +22,8 @@
   default: ""
   description: Optional custom labels, comma separated list of key=value pairs
 
+{% if application is not defined %}
+
 # MAS Configuration
 - name: mas_channel
   type: string
@@ -29,3 +31,4 @@
 - name: mas_instance_id
   type: string
   default: ""
+{% endif %}

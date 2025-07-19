@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: aibroker-post-verify
+  name: aiservice-post-verify
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
@@ -37,7 +37,7 @@ spec:
         value: $(params.mas_workspace_id)
 
   steps:
-   
+
     # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"
     - name: app-cfg-post-verify
       image: quay.io/ibmmas/cli:latest
