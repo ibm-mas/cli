@@ -399,8 +399,8 @@ function gitops_aibroker_tenant() {
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
   # dro
   export SECRET_KEY_ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
-  export SECRET_KEY_DROCFG_CA=${SECRETS_PREFIX}dro#drocfg_ca_tenant
-  export SECRET_KEY_DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}dro#drocfg_registration_key
+  export SECRET_KEY_DROCFG_CA=${SECRETS_PREFIX}droai#drocfg_ca_tenant
+  export SECRET_KEY_DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}droai#drocfg_registration_key
 
   # sls
   export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
@@ -431,7 +431,7 @@ function gitops_aibroker_tenant() {
   sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_accesskey,sm_storage_secretkey"
 
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
-  
+
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   
   # finally push them into the git repo
