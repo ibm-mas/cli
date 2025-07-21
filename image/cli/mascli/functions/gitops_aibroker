@@ -383,10 +383,10 @@ function gitops_aibroker() {
   #sls
   export SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
   #dro
-  export DROCFG_CA=${SECRETS_PREFIX}dro#drocfg_ca
-  export DROCFG_TENANT=${SECRETS_PREFIX}dro#drocfg_ca_tenant
-  export DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}dro#drocfg_registration_key
-  export DROCFG_URL=${SECRETS_PREFIX}dro#drocfg_url
+  export DROCFG_CA=${SECRETS_PREFIX}droai#drocfg_ca
+  export DROCFG_TENANT=${SECRETS_PREFIX}droai#drocfg_ca_tenant
+  export DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}droai#drocfg_registration_key
+  export DROCFG_URL=${SECRETS_PREFIX}droai#drocfg_url
   #jdbc
   export JDBCCFG_USERNAME=${SECRETS_PREFIX}jdbc#jdbccfg_username
   export JDBCCFG_PASSWORD=${SECRETS_PREFIX}jdbc#jdbccfg_password
