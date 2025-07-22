@@ -424,7 +424,7 @@ function gitops_aibroker_tenant() {
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
  
-  sm_verify_secret_exists ${SECRETS_PREFIX}dro "drocfg_ca,drocfg_registration_key"
+  sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_ca,drocfg_registration_key"
 
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_tenant"
  
