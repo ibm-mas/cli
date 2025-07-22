@@ -365,6 +365,7 @@ class UpdateApp(BaseApp):
                         "v9-250403-amd64": "7.0.12",
                         "v9-250501-amd64": "7.0.12",
                         "v9-250624-amd64": "7.0.12",
+                        "v9-250731-amd64": "7.0.12",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -501,6 +502,7 @@ class UpdateApp(BaseApp):
             "v9-250403-amd64": "5.0.0",
             "v9-250501-amd64": "5.0.0",
             "v9-250624-amd64": "5.1.3",
+            "v9-250731-amd64": "5.1.3",
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
