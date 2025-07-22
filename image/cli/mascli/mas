@@ -90,6 +90,10 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
 . $CLI_DIR/functions/gitops_nvidia_gpu
 . $CLI_DIR/functions/gitops_deprovision_db2u
+. $CLI_DIR/functions/gitops_odh
+. $CLI_DIR/functions/gitops_kmodel
+. $CLI_DIR/functions/gitops_aibroker
+. $CLI_DIR/functions/gitops_aibroker_tenant
 . $CLI_DIR/functions/gitops_mas_provisioner
 
 # TODO: The path from the CLI the installation of the Ansible collection should be configurable
@@ -496,7 +500,13 @@ case $1 in
     reset_colors
     gitops_db2u "$@"
     ;;
-
+  gitops-odh)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_odh "$@"
+    ;;
   gitops-db2u-database)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -560,6 +570,29 @@ case $1 in
     gitops_deprovision_db2u "$@"
     ;;
 
+  gitops-kmodel)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_kmodel "$@"
+    ;;
+
+  gitops-aibroker)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_aibroker "$@"
+    ;;
+
+  gitops-aibroker-tenant)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker tenant Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_aibroker_tenant "$@"
+    ;;
   gitops-mas-provisioner)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
