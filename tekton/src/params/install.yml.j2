@@ -534,7 +534,7 @@
 - name: mas_appws_components
   type: string
   description: Manage components to configure in the workspace
-  default: "base=latest,health=latest"
+  default: ""
 - name: mas_app_settings_aio_flag
   type: string
   description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
@@ -587,10 +587,6 @@
   type: string
   description: Provides different flavors of server bundle configuration to handle workload for Manage application.
   default: "dev"
-- name: is_full_manage
-  type: string
-  description: Set to true if full Manage is installed instead of Manage Foundation
-  default: "true"
 - name: mas_app_settings_tablespace
   type: string
   description: Name of the Manage database tablespace
