@@ -126,7 +126,7 @@ function gitops_deprovision_aibroker_noninteractive() {
 
   # add validation below like above  for those variable which have the value needed for further execution
   # -- AIBroker
-  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_aibroker_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_deprovision_aibroker_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
 
  }
 

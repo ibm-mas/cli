@@ -13,7 +13,6 @@ Basic Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                  Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                   Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                   Cluster ID
-  -i, --Instace-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                  Instance ID
 
 
 Secrets Manager:
@@ -133,7 +132,7 @@ function gitops_deprovision_aibroker_tenant_noninteractive() {
 
   # add validation below like above  for those variable which have the value needed for further execution
   # -- AIBroker
-  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_aibroker_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_deprovision_aibroker_tenant_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
   [[ -z "$TENANT_ID" ]] && gitops_deprovision_aibroker_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
 
  }
