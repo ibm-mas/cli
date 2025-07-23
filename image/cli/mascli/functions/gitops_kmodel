@@ -21,7 +21,7 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
 
 ibm_kmodel(required):
-      --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                                     The MAS instance ID used by AI Broker
+      --aibroker_instance_id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                                           The AI Broker instance ID
       --primary-storage-class ${COLOR_YELLOW}PRIMARY_STORAGE_CLASS${TEXT_RESET}                                         Kubernetes storage class to be used for provisioning persistent volumes
       --mas-aibroker-storage-templates-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET${TEXT_RESET}         Storage templates bucket for Kmodels role
       --mas-aibroker-storage-pipelines-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}         Storage piplines bucket for Kmodels role
@@ -34,8 +34,6 @@ Kkmodel Configuration:
       --mas-aibroker-storage-ssl ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}                                   Whether STORAGE uses SSL (true/false)
       --mas_aibroker-storage-host ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}                                 Hostname or service name of the STORAGE backend
       --mas_aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}                                 Port number STORAGE is exposed on
-      # --mas_aibroker-storage-accesskey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_ACCESSKEY${TEXT_RESET}                       Access key to authenticate with STORAGE
-      # --mas_aibroker-storage-secretkey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SECRETKEY${TEXT_RESET}                       Secret key for authenticating with STORAGE
       --mas-aibroker-storage-region ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}                             Storage region used in STORAGE (if applicable)
       --ssh-secret-name ${COLOR_YELLOW}SSH_SECRET_NAME${TEXT_RESET}                                                     SSH secret for securely provide SSH credentials
       --mas_aibroker_tenant_name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                                   Aibroker Tenant name
@@ -74,12 +72,12 @@ function gitops_kmodel_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   #adding default values 
-  export AIBROKER_INTERNAL_TLS=${AIBROKER_INTERNAL_TLS:-"${MAS_INSTANCE_ID}-internal-aibroker-tls"}
-  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${MAS_INSTANCE_ID}-aibroker"}
+  export AIBROKER_INTERNAL_TLS=${AIBROKER_INTERNAL_TLS:-"${AIBROKER_INSTANCE_ID}-internal-aibroker-tls"}
+  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${AIBROKER_INSTANCE_ID}-aibroker"}
   export MAS_AIBROKER_STORAGE_PROVIDER=${MAS_AIBROKER_STORAGE_PROVIDER:-"aws"}
   export MAS_AIBROKER_STORAGE_SSL=${MAS_AIBROKER_STORAGE_SSL:-"true"}
   export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
-  export SSH_SECRET_NAME=${SSH_SECRET_NAME:-"${MAS_INSTANCE_ID}-kmodel-aibroker-tls"}
+  export SSH_SECRET_NAME=${SSH_SECRET_NAME:-"${AIBROKER_INSTANCE_ID}-kmodel-aibroker-tls"}
   export MAS_AIBROKER_TENANT_NAME=${MAS_AIBROKER_TENANT_NAME:-"user"}
   export TENANT_NAMESPACE=${TENANT_NAMESPACE:-"aibroker-${MAS_AIBROKER_TENANT_NAME}"}
   export MAS_AIBROKER_PROVISION_TENANT=${MAS_AIBROKER_PROVISION_TENANT:-"provision-tenant"}
@@ -127,8 +125,8 @@ function gitops_kmodel_noninteractive() {
         ;;
 
       # kmodel - all input params default + sm
-      --mas-instance-id)
-        export MAS_INSTANCE_ID=$1 && shift
+      --aibroker-instance-id)
+        export AIBROKER_INSTANCE_ID=$1 && shift
         ;;
 
       --aibroker-internal-tls)
@@ -150,14 +148,6 @@ function gitops_kmodel_noninteractive() {
       --mas-aibroker-storage-ssl)
         export MAS_AIBROKER_STORAGE_SSL=$1 && shift
         ;;
-
-      # --mas-aibroker-storage-accesskey)
-      #   export MAS_AIBROKER_STORAGE_ACCESSKEY=$1 && shift
-      #   ;;
-
-      # --mas-aibroker-storage-secretkey)
-      #   export MAS_AIBROKER_STORAGE_SECRETKEY=$1 && shift
-      #   ;;
 
       --mas-aibroker-storage-host)
         export MAS_AIBROKER_STORAGE_HOST=$1 && shift
@@ -299,7 +289,7 @@ function gitops_kmodel_noninteractive() {
   fi
 
   # add validation for those variable which have the value needed for further execution
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_kmodel_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_kmodel_help "AIBROKER_INSTANCE_ID is not set. Please provide the AI Broker instance ID using --aibroker-instance-id."
   [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_kmodel_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
   [[ -z "$IMAGE_STORE" ]] && gitops_kmodel_help "IMAGE_STORE is not set. Please provide the image store using --image-store."
   [[ -z "$IMAGE_WATCHER" ]] && gitops_kmodel_help "IMAGE_WATCHER is not set. Please provide the image watcher using --image-watcher."
@@ -324,7 +314,7 @@ function gitops_kmodel() {
 
   # Prepare directories
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
   
   echo
   reset_colors
@@ -366,13 +356,11 @@ function gitops_kmodel() {
 
   echo "${TEXT_DIM}"
   echo_h2 "kmodel" "    "
-  echo_reset_dim "Mas Instance Id ................................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "AI Broker Instance Id ............................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
   echo_reset_dim "AI Broker Internal TLS ............................ ${COLOR_MAGENTA}${AIBROKER_INTERNAL_TLS}"
   echo_reset_dim "AI Broker Namespace ............................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
   echo_reset_dim "MAS AI Broker Storage Provider .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PROVIDER}"
   echo_reset_dim "MAS AI Broker Storage SSL ......................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
-  # echo_reset_dim "MAS AI Broker Storage Access Key .................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_ACCESSKEY}"
-  # echo_reset_dim "MAS AI Broker Storage Secret Key .................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SECRETKEY}"
   echo_reset_dim "MAS AI Broker Storage Templates Bucket ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"
   echo_reset_dim "MAS AI Broker Storage Tenants Bucket .............. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
   echo_reset_dim "MAS AI Broker Storage Pipelines Bucket ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
@@ -420,10 +408,6 @@ function gitops_kmodel() {
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64"
 
   sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_accesskey,sm_storage_secretkey,sm_storage_bucket_templates,sm_storage_bucket_tenants,sm_storage_bucket_pipelines"
-  # Conditionally include sm_storage_port for minio
-  if [[ "${MAS_AIBROKER_STORAGE_PROVIDER}" == "minio" ]]; then
-  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_port"
-  fi
 
     # finally push them into the git repo
     # ---------------------------------------------------------------------------

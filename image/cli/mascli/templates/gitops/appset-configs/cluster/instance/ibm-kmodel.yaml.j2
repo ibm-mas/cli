@@ -1,7 +1,7 @@
-merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AIBROKER_INSTANCE_ID }}"
 
 ibm_kmodel:
-  mas_instance_id: {{ MAS_INSTANCE_ID }}
+  aibroker_instance_id: {{ AIBROKER_INSTANCE_ID }}
   aibroker_internal_tls: "{{ AIBROKER_INTERNAL_TLS }}"
 
   aibroker_namespace: "{{ AIBROKER_NAMESPACE }}"
@@ -27,7 +27,6 @@ ibm_kmodel:
   
   docker_server: "{{ DOCKER_SERVER }}"
 
-  tenantNamespace: "{{ TENANT_NAMESPACE }}"
   mas_aibroker_provision_tenant: "{{ MAS_AIBROKER_PROVISION_TENANT }}"
 
   primary_storage_class: "{{ PRIMARY_STORAGE_CLASS }}"

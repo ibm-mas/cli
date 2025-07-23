@@ -38,7 +38,6 @@ optionalParams = [
     "mas_superuser_password",
     "mas_trust_default_cas",
     "mas_app_settings_server_bundles_size",
-    "is_full_manage",
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",
     "mas_app_settings_demodata",
@@ -61,6 +60,7 @@ optionalParams = [
     "mas_appws_components",
     "mas_appws_bindings_health_wsl_flag",
     "mas_domain",
+    "mas_appws_upgrade_type",
     # IPV6
     "enable_ipv6",
     # SLS

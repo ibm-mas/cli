@@ -118,7 +118,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 self.promptForString("Artifactory username", "artifactory_username")
                 self.promptForString("Artifactory token", "artifactory_token", isPassword=True)
             self.setParam("should_install_manage_foundation", "true")
-            self.setParam("is_full_manage", "false")
             self.setParam("mas_appws_components", "")
             self.setParam("mas_app_settings_aio_flag", "false")
             self.setParam("mas_app_channel_manage", nextChannel)

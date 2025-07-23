@@ -81,6 +81,8 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_rosa
 . $CLI_DIR/functions/gitops_deprovision_rosa
 . $CLI_DIR/functions/gitops_deprovision_cluster
+. $CLI_DIR/functions/gitops_deprovision_cp4d
+. $CLI_DIR/functions/gitops_deprovision_cp4d_service
 . $CLI_DIR/functions/gitops_deprovision_mongo
 . $CLI_DIR/functions/gitops_deprovision_efs
 . $CLI_DIR/functions/gitops_deprovision_kafka
@@ -596,7 +598,7 @@ case $1 in
     ;;
 
   gitops-aibroker)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Minio Manager (v${VERSION})${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
@@ -633,6 +635,22 @@ case $1 in
     echo
     reset_colors
     gitops_mas_provisioner "$@"
+    ;;
+
+  gitops-deprovision-cp4d)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_cp4d "$@"
+    ;;
+
+  gitops-deprovision-cp4d-service)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_cp4d_service "$@"
     ;;
 
   *)

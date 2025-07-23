@@ -13,10 +13,10 @@ Basic Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                  Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                   Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                   Cluster ID
-  -i, --Instace-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                  Instance ID
+  -i, --Instance-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                  Instance ID
 
 ibm_aibroker_tenant(required):
-      --mas-instance-id ${COLOR_YELLOW}MAS_INSTACE_ID${TEXT_RESET}                                          The MAS instance ID used by AI Broker
+      --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                                          The AIBROKER instance ID used by AI Broker
       --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                        The tenant's Kubernetes namespace
       --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Broker instance
       --mas-aibroker-tenant-name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                       The name of the AI Broker tenant
@@ -24,47 +24,37 @@ ibm_aibroker_tenant(required):
       --drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                   URL of the DRO configuration service
       --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
       --mas_aibroker_watsonxai_url ${COLOR_YELLOW}MAS_AIBROKER_WATSONXAI_URL${TEXT_RESET}                   Endpoint URL for Watsonx.ai
-      --mas_aibroker_watsonxai_apikey ${COLOR_YELLOW}MAS_AIBROKER_WATSONXAI_APIKEY${TEXT_RESET}             API key for authenticating with Watsonx.ai
       --mas_aibroker_watsonxai_project_id ${COLOR_YELLOW}MAS_AIBROKER_WATSONXAI_PROJECT_ID${TEXT_RESET}     Watsonx.ai project ID used by AI Broker
 
 
 AIBroker :
 --aibroker-namespace ${COLOR_YELLOW}AIBROKER_NAMESPACE${TEXT_RESET}                                         The namespace where AI Broker is deployed
 --mas-aibroker-provision-tenant ${COLOR_YELLOW}MAS_AIBROKER_PROVISION_TENANT${TEXT_RESET}                   Whether to provision the AI Broker tenant
---mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                               The MAS instance ID used by AI Broker
+--aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                                     The AI Broker instance ID
 --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                              The tenant's Kubernetes namespace
 --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                           The tenant ID for the AI Broker instance
 --mas_aibroker_tenant_name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                             The name of the AI Broker tenant
 --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                 The domain name of the Kubernetes cluster (e.g., cluster.local)
 --in-saas-env ${COLOR_YELLOW}IN_SAAS_ENV${TEXT_RESET}                                                       Whether the environment is SaaS (true/false)
---ibm-entitlement-key ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}                                       IBM Entitlement API key for accessing IBM container registries
 
 --mas-icr-cp ${COLOR_YELLOW}MAS_ICR_CP${TEXT_RESET}                                                         IBM Cloud Pak container registry URL
 --mas-icr-cpopen ${COLOR_YELLOW}MAS_ICR_CPOPEN${TEXT_RESET}                                                 IBM Cloud Pak Open container registry URL
 
 DRO :
---artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}                                           API token used to authenticate with Artifactory
 --drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                         URL of the DRO configuration service
---drocfg-ca ${COLOR_YELLOW}DROCFG_CA${TEXT_RESET}                                                           CA certificate for secure communication with DRO config
---drocfg-registration-key ${COLOR_YELLOW}DROCFG_REGISTRATION_KEY${TEXT_RESET}                               Registration key used for DRO setup
 
 SLS :
 --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                          URL of the SLS configuration service
---slscfg-registration-key ${COLOR_YELLOW}SLSCFG_REGISTRATION_KEY${TEXT_RESET}                                Registration key used to register with SLS
 --mas-aibroker-sls-subscription-id ${COLOR_YELLOW}MAS_AIBROKER_SLS_SUBSCRIPTION_ID${TEXT_RESET}              Subscription ID associated with SLS
 
 Watsonx :
 --mas-aibroker-watsonxai-url ${COLOR_YELLOW}MAS_AIBROKER_WATSONXAI_URL${TEXT_RESET}                          Endpoint URL for Watsonx.ai
---mas-aibroker-watsonxai-apikey ${COLOR_YELLOW}MAS_AIBROKER_WATSONXAI_APIKEY${TEXT_RESET}                    API key for authenticating with Watsonx.ai
 --mas-aibroker-watsonxai-project-id ${COLOR_YELLOW}MAS_AIBROKER_WATSONXAI_PROJECT_ID${TEXT_RESET}            Watsonx.ai project ID used by AI Broker
 
 Storage :
 --mas_aibroker_storage_provider ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PROVIDER${TEXT_RESET}                    The storage provider used by AI Broker (e.g., S3, MinIO)
---mas-aibroker-storage-host ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}                            Hostname or service name of the STORAGE backend
 --mas-aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}                            Port number STORAGE is exposed on
 --mas-aibroker-storage-region ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}                        Storage region used in STORAGE (if applicable)
---mas-aibroker-storage-accesskey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_ACCESSKEY${TEXT_RESET}                  Access key to authenticate with STORAGE
---mas-aibroker-storage-secretkey ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SECRETKEY${TEXT_RESET}                  Secret key for authenticating with STORAGE
 --mas-aibroker-storage-pipelines-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}    The STORAGE bucket used to store pipeline assets
 --mas-aibroker-storage-ssl ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}                              Whether STORAGE uses SSL (true/false)
 
@@ -96,7 +86,7 @@ function gitops_aibroker_tenant_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   #adding default values # -- AIBroker Defaults
-  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${MAS_INSTANCE_ID}-aibroker"}
+  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${AIBROKER_INSTANCE_ID}-aibroker"}
   export MAS_AIBROKER_PROVISION_TENANT=${MAS_AIBROKER_PROVISION_TENANT:-"provision-tenant"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
@@ -157,8 +147,8 @@ function gitops_aibroker_tenant_noninteractive() {
       --mas-aibroker-provision-tenant)
         export MAS_AIBROKER_PROVISION_TENANT=$1 && shift
         ;;
-      --mas-instance-id)
-        export MAS_INSTANCE_ID=$1 && shift
+      --aibroker-instance-id)
+        export AIBROKER_INSTANCE_ID=$1 && shift
         ;;
       --tenantNamespace)
         export TENANT_NAMESPACE=$1 && shift
@@ -175,9 +165,6 @@ function gitops_aibroker_tenant_noninteractive() {
       --in-saas-env)
         export IN_SAAS_ENV=$1 && shift
         ;;
-      --ibm-entitlement-key)
-        export IBM_ENTITLEMENT_KEY=$1 && shift
-        ;;
       --mas-icr-cp)
         export MAS_ICR_CP=$1 && shift
         ;;
@@ -186,26 +173,15 @@ function gitops_aibroker_tenant_noninteractive() {
         ;;
 
       # -- DRO
-      --artifactory-token)
-        export ARTIFACTORY_TOKEN=$1 && shift
-        ;;
       --drocfg-url)
         export DROCFG_URL=$1 && shift
-        ;;
-      --drocfg-ca)
-        export DROCFG_CA=$1 && shift
-        ;;
-      --drocfg-registration-key)
-        export DROCFG_REGISTRATION_KEY=$1 && shift
         ;;
 
       # -- SLS
       --slscfg-url)
         export SLSCFG_URL=$1 && shift
         ;;
-      --slscfg-registration-key)
-        export SLSCFG_REGISTRATION_KEY=$1 && shift
-        ;;
+
       --mas-aibroker-sls-subscription-id)
         export MAS_AIBROKER_SLS_SUBSCRIPTION_ID=$1 && shift
         ;;
@@ -214,28 +190,16 @@ function gitops_aibroker_tenant_noninteractive() {
       --mas-aibroker-watsonxai-url)
         export MAS_AIBROKER_WATSONXAI_URL=$1 && shift
         ;;
-      --mas-aibroker-watsonxai-apikey)
-        export MAS_AIBROKER_WATSONXAI_APIKEY=$1 && shift
-        ;;
       --mas-aibroker-watsonxai-project-id)
         export MAS_AIBROKER_WATSONXAI_PROJECT_ID=$1 && shift
         ;;
 
       # -- STORAGE
-      --mas-aibroker-storage-host)
-        export MAS_AIBROKER_STORAGE_HOST=$1 && shift
-        ;;
       --mas-aibroker-storage-port)
         export MAS_AIBROKER_STORAGE_PORT=$1 && shift
         ;;
       --mas-aibroker-storage-region)
         export MAS_AIBROKER_STORAGE_REGION=$1 && shift
-        ;;
-      --mas-aibroker-storage-accesskey)
-        export MAS_AIBROKER_STORAGE_ACCESSKEY=$1 && shift
-        ;;
-      --mas-aibroker-storage-secretkey)
-        export MAS_AIBROKER_STORAGE_SECRETKEY=$1 && shift
         ;;
       --mas-aibroker-storage-pipelines-bucket)
         export MAS_AIBROKER_STORAGE_PIPELINES_BUCKET=$1 && shift
@@ -249,13 +213,6 @@ function gitops_aibroker_tenant_noninteractive() {
         export RSL_URL=$1 && shift
         ;;
 
-      --rsl-org-id)
-        export SECRET_KEY_RSL_ORG_ID=$1 && shift
-        ;;
-
-      --rsl-token)
-        export SECRET_KEY_RSL_TOKEN=$1 && shift
-        ;;
       --mas-aibroker-storage-provider)
         export MAS_AIBROKER_STORAGE_PROVIDER=$1 && shift
         ;;
@@ -329,11 +286,10 @@ function gitops_aibroker_tenant_noninteractive() {
   fi
 
   # add validation below like above  for those variable which have the value needed for further execution
-  # -- AIBroker
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_aibroker_tenant_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_aibroker_tenant_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
   [[ -z "$TENANT_NAMESPACE" ]] && gitops_aibroker_tenant_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
   [[ -z "$TENANT_ID" ]] && gitops_aibroker_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
-  [[ -z "$MAS_AIBROKER_TENANT_NAME" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_TENANT_NAME is not set. Please provide the AI Broker tenant name using --mas-aibroker-tenant-name."
+  # [[ -z "$MAS_AIBROKER_TENANT_NAME" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_TENANT_NAME is not set. Please provide the AI Broker tenant name using --mas-aibroker-tenant-name."
   [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aibroker_tenant_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
   
   # -- DRO
@@ -344,9 +300,6 @@ function gitops_aibroker_tenant_noninteractive() {
 
   # -- Watsonx
   [[ -z "$MAS_AIBROKER_WATSONXAI_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --mas-aibroker-watsonxai-url."
-  # [[ -z "$MAS_AIBROKER_WATSONXAI_APIKEY" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_APIKEY is not set. Please provide the Watsonx.ai API key using --mas-aibroker-watsonxai-apikey."
-  # [[ -z "$MAS_AIBROKER_WATSONXAI_PROJECT_ID" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_WATSONXAI_PROJECT_ID is not set. Please specify the Watsonx.ai project ID using --mas-aibroker-watsonxai-project-id."
-  
   
   [[ -z "$RSL_URL" ]] && gitops_aibroker_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
   [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
@@ -373,9 +326,8 @@ function gitops_aibroker_tenant() {
 
   rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/${TENANT_ID}
-  # TEMP_DIR=$GITOPS_CLUSTER_DIR/${MAS_INSTANCE_ID}
-  # mkdir -p ${TEMP_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}/${TENANT_ID}
+
 
   echo
   reset_colors
@@ -418,7 +370,7 @@ function gitops_aibroker_tenant() {
   # -- AIBroker
   echo_reset_dim "aibroker namespace ........................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
   echo_reset_dim "mas aibroker provision tenant ................ ${COLOR_MAGENTA}${MAS_AIBROKER_PROVISION_TENANT}"
-  echo_reset_dim "mas instance ID .............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "aibroker instance ID ......................... ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
   echo_reset_dim "tenant namespace ............................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
   echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
   echo_reset_dim "mas aibroker tenant name ..................... ${COLOR_MAGENTA}${MAS_AIBROKER_TENANT_NAME}"
@@ -433,7 +385,6 @@ function gitops_aibroker_tenant() {
 
   # -- Watsonx
   echo_reset_dim "Watsonx.ai URL ............................... ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONXAI_URL}"
-  echo_reset_dim "Watsonx.ai API key ........................... ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONXAI_APIKEY}"
   echo_reset_dim "Watsonx.ai project ID ........................ ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONXAI_PROJECT_ID}"
 
   # -- STORAGE
@@ -448,8 +399,8 @@ function gitops_aibroker_tenant() {
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
   # dro
   export SECRET_KEY_ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
-  export SECRET_KEY_DROCFG_CA=${SECRETS_PREFIX}dro#drocfg_ca_tenant
-  export SECRET_KEY_DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}dro#drocfg_registration_key
+  export SECRET_KEY_DROCFG_CA=${SECRETS_PREFIX}droai#drocfg_ca_tenant
+  export SECRET_KEY_DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}droai#drocfg_registration_key
 
   # sls
   export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
@@ -473,15 +424,12 @@ function gitops_aibroker_tenant() {
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
  
-  sm_verify_secret_exists ${SECRETS_PREFIX}dro "drocfg_ca,drocfg_registration_key"
+  sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_ca,drocfg_registration_key"
 
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_tenant"
  
   sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_accesskey,sm_storage_secretkey"
-  # Conditionally include sm_storage_port for minio
-  if [[ "${MAS_AIBROKER_STORAGE_PROVIDER}" == "minio" ]]; then
-  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_port"
-  fi
+
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   

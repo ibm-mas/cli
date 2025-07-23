@@ -10,7 +10,7 @@ spec:
       type: string
     - name: account
       type: string
-    - name: mas_instance_id
+    - name: aibroker_instance_id
       type: string
     - name: cluster_url
       type: string
@@ -37,11 +37,7 @@ spec:
       type: string
     - name: mas_aibroker_storage_provider
       type: string
-    - name: mas_aibroker_minio_secret
-      type: string
-    - name: mas_aibroker_storage_accesskey
-      type: string
-    - name: mas_aibroker_storage_secretkey
+    - name: mas_aibroker_storage_secret
       type: string
     - name: mas_aibroker_storage_host
       type: string
@@ -57,45 +53,11 @@ spec:
       type: string
     - name: mas_aibroker_storage_templates_bucket
       type: string
-    - name: mas_aibroker_db_host
-      type: string
     - name: mas_aibroker_mariadb_secret
-      type: string
-    - name: mas_aibroker_db_port
-      type: string
-    - name: mas_aibroker_db_user
-      type: string
-    - name: mas_aibroker_db_database
-      type: string
-    - name: mas_aibroker_db_secret_name
-      type: string
-    - name: mas_aibroker_db_secret_value
       type: string
     - name: primary_storage_class
       type: string
-    - name: slscfg_registration_key
-      type: string
-    - name: drocfg_ca
-      type: string
-    - name: drocfg_registration_key
-      type: string
-    - name: drocfg_url
-      type: string
-    - name: jdbccfg_username
-      type: string
-    # - name: jdbccfg_password
-    #   type: string
-    - name: jdbccfg_url
-      type: string
-    - name: jdbccfg_sslenabled
-      type: string
-    - name: jdbccfg_ca
-      type: string
-    - name: mas_entitlement_key
-      type: string
     - name: artifactory_username
-      type: string
-    - name: artifactory_token
       type: string
     - name: mas_app_channel
       type: string
@@ -109,21 +71,7 @@ spec:
       type: string
     - name: in_saas_env
       type: string
-
-    # MINIO-specific
-    - name: minio_namespace
-      type: string
-    - name: minio_instance_name
-      type: string
-    - name: minio_root_user
-      type: string
-    - name: minio_root_password
-      type: string
-    - name: minio_storage_class
-      type: string
-    - name: minio_storage_size
-      type: string
-    - name: minio_image
+    - name: is_external_route
       type: string
 
     # ODH-specific
@@ -165,84 +113,25 @@ spec:
       type: string
     - name: tenantNamespace
       type: string 
-
-    
     - name: environment_type
       type: string
-
     - name: mas_aibroker_s3_endpoint_url
       type: string
-
     - name: mas_aibroker_s3_region
       type: string
-
     - name: mas_aibroker_s3_bucket_prefix
       type: string
-
-    
 
   workspaces:
     - name: configs
 
   tasks:
-    # 1.gitops-minio  
-    - name: gitops-minio
-      taskRef:
-        name: gitops-minio
-      workspaces:
-        - name: configs
-          workspace: configs
-      params:
-        - name: cluster_name
-          value: $(params.cluster_name)
-        - name: account
-          value: $(params.account)
-        - name: cluster_id
-          value: $(params.cluster_id)
-        - name: cluster_url
-          value: $(params.cluster_url)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
-        - name: git_branch
-          value: $(params.git_branch)
-        - name: github_org
-          value: $(params.github_org)
-        - name: github_repo
-          value: $(params.github_repo)
-        - name: github_host
-          value: $(params.github_host)
-        - name: minio_namespace
-          value: $(params.minio_namespace)
-        - name: minio_instance_name
-          value: $(params.minio_instance_name)
-        - name: minio_root_user
-          value: $(params.minio_root_user)
-        - name: minio_root_password
-          value: $(params.minio_root_password)
-        - name: minio_storage_class
-          value: $(params.minio_storage_class)
-        - name: minio_storage_size
-          value: $(params.minio_storage_size)
-        - name: minio_image
-          value: $(params.minio_image)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-
-      # when:
-      #  - input: "$(params.mas_aibroker_storage_provider)"
-      #    operator: in
-      #    values: ["minio"]
 
     # 2.gitops-odh
     # -------------------------------------------------------------------------
-
     - name: gitops-odh
       taskRef:
         name: gitops-odh
-      runAfter:
-        - gitops-minio
       workspaces:
         - name: configs
           workspace: configs
@@ -251,8 +140,8 @@ spec:
           value: $(params.cluster_name)
         - name: account
           value: $(params.account)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: git_branch
@@ -313,8 +202,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
         - name: aibroker_namespace
           value: $(params.aibroker_namespace)
         - name: mas_aibroker_watsonx_secret
@@ -323,12 +212,8 @@ spec:
           value: $(params.pull_secret_name)
         - name: mas_aibroker_storage_provider
           value: $(params.mas_aibroker_storage_provider)
-        - name: mas_aibroker_minio_secret
-          value: $(params.mas_aibroker_minio_secret)
-        - name: mas_aibroker_storage_accesskey
-          value: $(params.mas_aibroker_storage_accesskey)
-        - name: mas_aibroker_storage_secretkey
-          value: $(params.mas_aibroker_storage_secretkey)
+        - name: mas_aibroker_storage_secret
+          value: $(params.mas_aibroker_storage_secret)
         - name: mas_aibroker_storage_host
           value: $(params.mas_aibroker_storage_host)
         - name: mas_aibroker_storage_port
@@ -343,46 +228,12 @@ spec:
           value: $(params.mas_aibroker_storage_tenants_bucket)
         - name: mas_aibroker_storage_templates_bucket
           value: $(params.mas_aibroker_storage_templates_bucket)
-        - name: mas_aibroker_db_host
-          value: $(params.mas_aibroker_db_host)
         - name: mas_aibroker_mariadb_secret
           value: $(params.mas_aibroker_mariadb_secret)
-        - name: mas_aibroker_db_port
-          value: $(params.mas_aibroker_db_port)
-        - name: mas_aibroker_db_user
-          value: $(params.mas_aibroker_db_user)
-        - name: mas_aibroker_db_database
-          value: $(params.mas_aibroker_db_database)
-        - name: mas_aibroker_db_secret_name
-          value: $(params.mas_aibroker_db_secret_name)
-        - name: mas_aibroker_db_secret_value
-          value: $(params.mas_aibroker_db_secret_value)
         - name: primary_storage_class
           value: $(params.primary_storage_class)
-        - name: slscfg_registration_key
-          value: $(params.slscfg_registration_key)
-        - name: drocfg_ca
-          value: $(params.drocfg_ca)
-        - name: drocfg_registration_key
-          value: $(params.drocfg_registration_key)
-        - name: drocfg_url
-          value: $(params.drocfg_url)
-        - name: jdbccfg_username
-          value: $(params.jdbccfg_username)
-        # - name: jdbccfg_password
-        #   value: $(params.jdbccfg_password)
-        - name: jdbccfg_url
-          value: $(params.jdbccfg_url)
-        - name: jdbccfg_sslenabled
-          value: $(params.jdbccfg_sslenabled)
-        - name: jdbccfg_ca
-          value: $(params.jdbccfg_ca)
-        - name: mas_entitlement_key
-          value: $(params.mas_entitlement_key)
         - name: artifactory_username
           value: $(params.artifactory_username)
-        - name: artifactory_token
-          value: $(params.artifactory_token)
         - name: mas_app_channel
           value: $(params.mas_app_channel)
         - name: mas_catalog_source
@@ -395,21 +246,19 @@ spec:
           value: $(params.cluster_domain)
         - name: in_saas_env
           value: $(params.in_saas_env)
-        
+        - name: is_external_route
+          value: $(params.is_external_route)
         - name: environment_type
           value: $(params.environment_type)
-
         - name: mas_aibroker_s3_endpoint_url
           value: $(params.mas_aibroker_s3_endpoint_url)
-
         - name: mas_aibroker_s3_region
           value: $(params.mas_aibroker_s3_region)
-
         - name: mas_aibroker_s3_bucket_prefix
           value: $(params.mas_aibroker_s3_bucket_prefix)
         
 
-    # 3.gitops-Kmodel
+    # 4.gitops-Kmodel
     # -------------------------------------------------------------------------
     - name: gitops-kmodel
       taskRef:
@@ -440,8 +289,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
         - name: aibroker_internal_tls
           value: $(params.aibroker_internal_tls)
         - name: aibroker_namespace
@@ -452,10 +301,6 @@ spec:
           value: $(params.mas_aibroker_storage_provider)
         - name: mas_aibroker_storage_ssl
           value: $(params.mas_aibroker_storage_ssl)
-        - name: mas_aibroker_storage_accesskey
-          value: $(params.mas_aibroker_storage_accesskey)
-        - name: mas_aibroker_storage_secretkey
-          value: $(params.mas_aibroker_storage_secretkey)
         - name: mas_aibroker_storage_host
           value: $(params.mas_aibroker_storage_host)
         - name: mas_aibroker_storage_port
