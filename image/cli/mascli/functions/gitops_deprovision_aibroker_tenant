@@ -196,9 +196,7 @@ function gitops_deprovision_aibroker_tenant() {
   # echo all the variables of gitops envs
 
   # -- AIBroker
-  export MAS_INSTANCE_ID="$AIBROKER_INSTANCE_ID"
-
-  echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  
   echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
    
   echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
