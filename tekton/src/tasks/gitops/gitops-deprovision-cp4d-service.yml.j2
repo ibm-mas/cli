@@ -1,23 +1,12 @@
-
+---
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-<<<<<<<< HEAD:tekton/src/tasks/gitops/gitops-deprovision-kmodel.yml.j2
-  name: gitops-deprovision-kmodel
-========
   name: gitops-deprovision-cp4d-service
->>>>>>>> gitops-aibroker-cli:tekton/src/tasks/gitops/gitops-deprovision-cp4d-service.yml.j2
 spec:
   params:
     - name: cluster_name
       type: string
-<<<<<<<< HEAD:tekton/src/tasks/gitops/gitops-deprovision-kmodel.yml.j2
-    - name: account
-      type: string
-    - name: cluster_id
-      type: string
-========
->>>>>>>> gitops-aibroker-cli:tekton/src/tasks/gitops/gitops-deprovision-cp4d-service.yml.j2
     - name: cluster_url
       type: string
       default: ""
@@ -31,20 +20,6 @@ spec:
       type: string
     - name: github_host
       type: string
-<<<<<<<< HEAD:tekton/src/tasks/gitops/gitops-deprovision-kmodel.yml.j2
-    - name: aibroker_instance_id
-      type: string
-
-  stepTemplate:
-    name: gitops-deprovision-kmodel
-    env:
-      - name: CLUSTER_NAME
-        value: $(params.cluster_name)
-      - name: ACCOUNT
-        value: $(params.account)
-      #- name: CLUSTER_ID
-      #  value: $(params.cluster_id)
-========
     - name: secrets_path
       type: string
     - name: avp_aws_secret_region
@@ -64,7 +39,6 @@ spec:
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
->>>>>>>> gitops-aibroker-cli:tekton/src/tasks/gitops/gitops-deprovision-cp4d-service.yml.j2
       - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: OCP_SERVER
@@ -81,12 +55,6 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-<<<<<<<< HEAD:tekton/src/tasks/gitops/gitops-deprovision-kmodel.yml.j2
-       - name: aibroker_instance_id
-        value: $(params.aibroker_instance_id)
-        
-
-========
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
       - name: MAS_INSTANCE_ID
@@ -99,7 +67,6 @@ spec:
         value: $(params.cp4d_watson_machine_learning_action)
       - name: CP4D_SPSS_MODELER_ACTION
         value: $(params.cp4d_spss_modeler_action)
->>>>>>>> gitops-aibroker-cli:tekton/src/tasks/gitops/gitops-deprovision-cp4d-service.yml.j2
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -112,34 +79,23 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
-<<<<<<<< HEAD:tekton/src/tasks/gitops/gitops-deprovision-kmodel.yml.j2
-        
-        mkdir -p /tmp/deprovision-kmodel
-        mas gitops-deprovision-kmodel -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /tmp/deprovision-kmodel \
-========
 
         mkdir -p /tmp/deprovision-cp4d-service
         
         mas gitops-deprovision-cp4d-service -a $ACCOUNT -c $CLUSTER_NAME \
         --dir /tmp/deprovision-cp4d-service \
->>>>>>>> gitops-aibroker-cli:tekton/src/tasks/gitops/gitops-deprovision-cp4d-service.yml.j2
         --secrets-path $SECRET_PATH \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH \
+        --git-branch $GIT_BRANCH
 
         exit $?
       command:
         - /bin/sh
         - -c
-<<<<<<<< HEAD:tekton/src/tasks/gitops/gitops-deprovision-kmodel.yml.j2
-      name: gitops-deprovision-kmodel
-========
       name: gitops-deprovision-cp4d-service
->>>>>>>> gitops-aibroker-cli:tekton/src/tasks/gitops/gitops-deprovision-cp4d-service.yml.j2
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:latest
   workspaces:
