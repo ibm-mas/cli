@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-deprovision-odh
+  name: gitops-deprovision-kmodel
 spec:
   params:
     - name: cluster_name
@@ -30,7 +30,7 @@ spec:
       type: string
 
   stepTemplate:
-    name: gitops-deprovision-odh
+    name: gitops-deprovision-kmodel
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -52,7 +52,7 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: aibroker_instance_id
+       - name: aibroker_instance_id
         value: $(params.aibroker_instance_id)
         
 
@@ -69,9 +69,9 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
         
-        mkdir -p /tmp/deprovision-odh
-        mas gitops-deprovision-odh -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /tmp/deprovision-odh \
+        mkdir -p /tmp/deprovision-kmodel
+        mas gitops-deprovision-kmodel -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/deprovision-kmodel \
         --secrets-path $SECRET_PATH \
         --github-push \
         --github-host $GITHUB_HOST \
@@ -83,7 +83,7 @@ spec:
       command:
         - /bin/sh
         - -c
-      name: gitops-deprovision-odh
+      name: gitops-deprovision-kmodel
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:latest
   workspaces:

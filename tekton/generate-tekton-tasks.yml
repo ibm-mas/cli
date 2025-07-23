@@ -50,6 +50,7 @@
         src: "{{ task_src_dir }}/aiservice/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - mariadb
         - aiservice
         - odh
         - aiservice-tenant
@@ -240,6 +241,11 @@
         - gitops-suite-workspace
         - gitops-suite
         - gitops-odh
+        - gitops-deprovision-odh
         - gitops-kmodel
+        - gitops-deprovision-kmodel
         - gitops-aibroker
         - gitops-aibroker-tenant
+        - gitops-deprovision-aibroker-tenant
+        - gitops-deprovision-aibroker
+

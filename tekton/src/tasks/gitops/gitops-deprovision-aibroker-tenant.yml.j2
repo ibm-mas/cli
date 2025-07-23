@@ -1,19 +1,16 @@
-
+---
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-deprovision-odh
+  name: gitops-deprovision-aibroker-tenant
 spec:
-  params:
+  params: 
     - name: cluster_name
       type: string
     - name: account
       type: string
-    - name: cluster_id
-      type: string
     - name: cluster_url
       type: string
-      default: ""
     - name: secrets_path
       type: string
     - name: avp_aws_secret_region
@@ -28,16 +25,16 @@ spec:
       type: string
     - name: aibroker_instance_id
       type: string
-
+    - name: tenant_id
+      type: string
+      
   stepTemplate:
-    name: gitops-deprovision-odh
+    name: gitops-deprovision-aibroker-tenant
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
-      #- name: CLUSTER_ID
-      #  value: $(params.cluster_id)
       - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: SECRET_PATH
@@ -54,8 +51,8 @@ spec:
         value: $(params.github_repo)
       - name: aibroker_instance_id
         value: $(params.aibroker_instance_id)
-        
-
+      - name: TENANT_ID
+        value: $(params.tenant_id)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -68,23 +65,25 @@ spec:
         git config --global user.name "MAS Automation"
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
+
+        mkdir -p /tmp/init-aibroker-tenant
         
-        mkdir -p /tmp/deprovision-odh
-        mas gitops-deprovision-odh -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /tmp/deprovision-odh \
+        mas gitops-deprovision-aibroker-tenant -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
+        --dir /tmp/init-aibroker-tenant \
         --github-push \
-        --github-host $GITHUB_HOST \
-        --github-org $GITHUB_ORG \
-        --github-repo $GITHUB_REPO \
-        --git-branch $GIT_BRANCH \
+        --github-host "$GITHUB_HOST" \
+        --github-org "$GITHUB_ORG" \
+        --github-repo "$GITHUB_REPO" \
+        --git-branch "$GIT_BRANCH" \
+
 
         exit $?
       command:
         - /bin/sh
         - -c
-      name: gitops-deprovision-odh
+      name: gitops-deprovision-aibroker-tenant
       imagePullPolicy: IfNotPresent
-      image: quay.io/ibmmas/cli:latest
+      image: quay.io/ibmmas/cli:13.27.0-pre.gitops-aibroker-cli
   workspaces:
     - name: configs

@@ -1,48 +1,50 @@
-function gitops_deprovision_odh_help() {
+#!/usr/bin/env bash
+
+function gitops_deprovision_kmodel_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 
 
 Usage:
-  mas gitops_deprovision_odh [options]
+  mas gitops-kmodel-deprovision [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
 GitOps Configuration:
-  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
-  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account name that the cluster belongs to
-  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
-  -i, --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                    AI Broker instance ID  
-
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                 Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                  Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                  Cluster ID
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
 
-      
+ibm_kmodel(required):
+  -i, --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
+
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
-  -O, --github-org ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}          Github org for your GitOps repository
+  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}         Github org for your GitOps repository
   -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
-  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}             Git ssh key path
   -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}          Git branch to commit to of your GitOps repository
   -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
+  -S , --github-ssh  ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}           Git ssh key path
 
 Other Commands:
-      -h, --help     Show this help message
+  -h, --help                                      Show this help message
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_deprovision_odh_noninteractive() {
+
+function gitops_deprovision_kmodel_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir  
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-deprovision-odh commit"
+  GIT_COMMIT_MSG="gitops-kmodel-deprovision commit"
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
-  
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -74,9 +76,12 @@ function gitops_deprovision_odh_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
+
+      # kmodel - all input params default + sm
       --aibroker-instance-id)
         export AIBROKER_INSTANCE_ID=$1 && shift
         ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -102,53 +107,53 @@ function gitops_deprovision_odh_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_deprovision_odh_help
+        gitops_deprovision_kmodel_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_deprovision_odh_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_deprovision_kmodel_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_odh_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_odh_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_odh_help "CLUSTER_ID is not set"
-  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_deprovision_odh_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_kmodel_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_kmodel_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_kmodel_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_deprovision_kmodel_help "REGION_ID or SM_AWS_REGION is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_odh_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_odh_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_odh_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_odh_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_kmodel_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_kmodel_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_kmodel_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_kmodel_help "GIT_BRANCH is not set"
   fi
 
-  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_deprovision_odh_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
+  # add validation for those variable which have the value needed for further execution
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_deprovision_kmodel_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
 }
 
-function gitops_deprovision_odh() {
+function gitops_deprovision_kmodel() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_deprovision_odh_noninteractive "$@"
+    gitops_deprovision_kmodel_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_deprovision_odh_interactive
+    gitops_deprovision_kmodel_interactive
   fi
 
   # catch errors
   set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
+  # Prepare directories
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
-
-
-
+  
   echo
   reset_colors
   echo_h2 "Review Settings"
@@ -186,55 +191,63 @@ function gitops_deprovision_odh() {
   reset_colors
 
   # echo all the variables of gitops envs
+  
   echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
   
 
-  #secrets path in aws 
+  echo "${TEXT_DIM}"
+  echo_h2 "Deleting kmodel"
 
-  export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage
-  export SECRET_NAME_MARIADB_AUTH1=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb
-  export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
+   echo -e "login aws"
 
-  
-  echo -e "login aws"
-
-  AVP_TYPE=aws
+  AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
- echo "${TEXT_DIM}"
-  echo_h2 "Deleting odh related secrets"
+
+  reset_colors
+
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+  
+  SECRET_NAME_AUTH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement"
+  SECRET_NAME_STORAGE_AUTH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage"
 
   #deleting secreats from aws
-  #  echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
+  # echo -e "Deleting ibm entitlement secrets $SECRET_NAME_AUTH"
+  #  sm_delete_secret $SECRET_NAME_AUTH
+
+  # echo -e "Deleting storage secrets $SECRET_NAME_STORAGE_AUTH"
   #  sm_delete_secret $SECRET_NAME_STORAGE_AUTH
-  #  echo -e "Deleting mariadb secreat $SECRET_NAME_MARIADB_AUTH1"
-  #  sm_delete_secret $SECRET_NAME_MARIADB_AUTH1
-  #  echo -e "Deleting image pull secreat $SECRET_KEY_IMAGE_PULL_SECRET_B64"
-  #  sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
 
 
-   if [ -z $GIT_SSH ]; then
-    export GIT_SSH="false"
-  fi
+    if [ -z $GIT_SSH ]; then
+      export GIT_SSH=false
+    fi
 
-  #Clone github target repo
-  # ---------------------------------------------------------------------------
-  if [ "$GITHUB_PUSH" == "true" ]; then
-   echo
-   echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
-   clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
-  fi
+    # Clone github target repo
+    # ---------------------------------------------------------------------------
+    if [ "$GITHUB_PUSH" == "true" ]; then
+      echo
+      echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+      clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+    fi
 
 
-
-  echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-odh.yaml"
-  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-odh.yaml
-  if [ "$GITHUB_PUSH" == "true" ]; then
+    # Generate ArgoApps
+    # ---------------------------------------------------------------------------
     echo
-    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
-    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-  fi
+    echo_h2 "Deleting application configuration files"
+    echo "- Deleting kmodel operator"
+
+   
+    echo "- Delete kmodel"
+    rm -rf ${GITOPS_CLUSTER_DIR}/ibm-kmodel.yaml
+    if [ "$GITHUB_PUSH" == "true" ]; then
+      echo
+      echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+      save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+      remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    fi
 
    
 }
