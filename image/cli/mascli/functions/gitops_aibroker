@@ -180,18 +180,6 @@ function gitops_aibroker_noninteractive() {
         export ENVIRONMENT_TYPE=$1 && shift
         ;;
 
-      --mas-aibroker-s3-endpoint-url)
-        export MAS_AIBROKER_S3_ENDPOINT_URL=$1 && shift
-        ;;
-
-      --mas-aibroker-s3-region)
-        export MAS_AIBROKER_S3_REGION=$1 && shift
-        ;;
-
-      --mas-aibroker-s3-bucket-prefix)
-        export MAS_AIBROKER_S3_BUCKET_PREFIX=$1 && shift
-        ;;
-
      # Target Cluster (Optional)
       --cluster-url)
         export CLUSTER_URL=$1 && shift
@@ -260,7 +248,7 @@ function gitops_aibroker_noninteractive() {
   [[ -z "$MAS_ICR_CPOPEN" ]] && gitops_aibroker_help "MAS_ICR_CPOPEN is not set. Please provide the MAS ICR CPOPEN using --mas-icr-cpopopen"
   [[ -z "$IN_SAAS_ENV" ]] && gitops_aibroker_help "IN_SAAS_ENV is not set. Please specify if this is in SaaS environment using --in-saas-env."
   [[ -z "$IS_EXTERNAL_ROUTE" ]] && gitops_aibroker_help "IS_EXTERNAL_ROUTE is not set. Please specify if this is an external route using --is-external-route."
-  [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
+  # [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
 
 
 }

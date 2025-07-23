@@ -539,14 +539,50 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 self.promptForString("Mariadb password", "mariadb_password", isPassword=True)
                 self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
                 self.promptForString("Tenant start date", "tenant_entitlement_start_date")
-                self.promptForString("Tenant end date", "tenant_entitlement_end_date")
-                self.promptForString("S3 bucket prefix", "mas_aibroker_s3_bucket_prefix")
-                self.promptForString("S3 endpoint url", "mas_aibroker_s3_endpoint_url")
-                self.promptForString("S3 bucket prefix (tenant level)", "mas_aibroker_tenant_s3_bucket_prefix")
-                self.promptForString("S3 region (tenant level)", "mas_aibroker_tenant_s3_region")
-                self.promptForString("S3 endpoint url (tenant level)", "mas_aibroker_tenant_s3_endpoint_url")
-                self.promptForString("S3 access key (tenant level)", "mas_aibroker_tenant_s3_access_key", isPassword=True)
-                self.promptForString("S3 secret key (tenant level)", "mas_aibroker_tenant_s3_secret_key", isPassword=True)
+                self.promptForString("Tenant end date", "tenant_entitlement_end_date")               
+                # Auto-assign S3 parameters from kmodel storage configuration
+                # These prompts have been removed as per customer requirement to reuse kmodel object storage
+                # Reuse storage configuration for S3 parameters
+                storage_provider = self.getParam('mas_aibroker_storage_provider')
+                storage_host = self.getParam('mas_aibroker_storage_host')
+                storage_port = self.getParam('mas_aibroker_storage_port')
+                storage_ssl = self.getParam('mas_aibroker_storage_ssl')
+                storage_region = self.getParam('mas_aibroker_storage_region')
+                storage_accesskey = self.getParam('mas_aibroker_storage_accesskey')
+                storage_secretkey = self.getParam('mas_aibroker_storage_secretkey')
+                
+                # Build endpoint URL from host and port
+                protocol = "https" if storage_ssl == "true" else "http"
+                endpoint_url = f"{protocol}://{storage_host}:{storage_port}" if storage_host and storage_port else ""
+
+                 # Set S3 bucket prefix (non-tenant level) - use a default prefix
+                if not self.getParam('mas_aibroker_s3_bucket_prefix'):
+                    self.setParam('mas_aibroker_s3_bucket_prefix', 's3')
+                
+                # Set S3 endpoint URL (non-tenant level)
+                if not self.getParam('mas_aibroker_s3_endpoint_url') and endpoint_url:
+                    self.setParam('mas_aibroker_s3_endpoint_url', endpoint_url)
+                    
+                # Set S3 region (non-tenant level)
+                if not self.getParam('mas_aibroker_s3_region'):
+                    self.setParam('mas_aibroker_s3_region', storage_region if storage_region else 'none')
+                
+                # Set tenant-specific S3 parameters using the same values
+                if not self.getParam('mas_aibroker_tenant_s3_bucket_prefix'):
+                    self.setParam('mas_aibroker_tenant_s3_bucket_prefix', 's3')
+                    
+                if not self.getParam('mas_aibroker_tenant_s3_endpoint_url') and endpoint_url:
+                    self.setParam('mas_aibroker_tenant_s3_endpoint_url', endpoint_url)
+                    
+                if not self.getParam('mas_aibroker_tenant_s3_region'):
+                    self.setParam('mas_aibroker_tenant_s3_region', storage_region if storage_region else 'none')
+                    
+                if not self.getParam('mas_aibroker_tenant_s3_access_key') and storage_accesskey:
+                    self.setParam('mas_aibroker_tenant_s3_access_key', storage_accesskey)
+                    
+                if not self.getParam('mas_aibroker_tenant_s3_secret_key') and storage_secretkey:
+                    self.setParam('mas_aibroker_tenant_s3_secret_key', storage_secretkey)
+
                 self.promptForString("RSL url", "rsl_url")
                 self.promptForString("ORG Id of RSL", "rsl_org_id")
                 self.promptForString("Token for RSL", "rsl_token", isPassword=True)

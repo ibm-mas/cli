@@ -349,54 +349,6 @@ aibrokerArgGroup.add_argument(
     help="End date for Aibroker tenant"
 )
 aibrokerArgGroup.add_argument(
-    "--mas-aibroker-s3-bucket-prefix",
-    dest="mas_aibroker_s3_bucket_prefix",
-    required=False,
-    help="s3 bucker prefix"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-s3-endpoint-url",
-    dest="mas_aibroker_s3_endpoint_url",
-    required=False,
-    help="endpoint url for s3"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-s3-region",
-    dest="mas_aibroker_s3_region",
-    required=False,
-    help="region for s3"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-s3-bucket-prefix",
-    dest="mas_aibroker_tenant_s3_bucket_prefix",
-    required=False,
-    help="s3 bucker prefix ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-s3-region",
-    dest="mas_aibroker_tenant_s3_region",
-    required=False,
-    help="s3 region ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-s3-endpoint-url",
-    dest="mas_aibroker_tenant_s3_endpoint_url",
-    required=False,
-    help="endpoint url for s3 ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-s3-access-key",
-    dest="mas_aibroker_tenant_s3_access_key",
-    required=False,
-    help="access key for s3 ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-s3-secret-key",
-    dest="mas_aibroker_tenant_s3_secret_key",
-    required=False,
-    help="secret key for s3 ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
     "--rsl-url",
     dest="rsl_url",
     required=False,
