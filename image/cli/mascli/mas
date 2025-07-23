@@ -98,6 +98,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
 . $CLI_DIR/functions/gitops_nvidia_gpu
 . $CLI_DIR/functions/gitops_deprovision_db2u
+. $CLI_DIR/functions/gitops_deprovision_odh
 . $CLI_DIR/functions/gitops_odh
 . $CLI_DIR/functions/gitops_aiservice
 . $CLI_DIR/functions/gitops_aiservice_tenant
@@ -679,21 +680,37 @@ case $1 in
     reset_colors
     gitops_deprovision_odh "$@"
     ;;
-
-  gitops-aiservice)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Manager (v${VERSION})${TEXT_RESET}"
+    
+  gitops-kmodel)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
-    gitops_aiservice "$@"
+    gitops_kmodel "$@"
     ;;
 
-  gitops-aiservice-tenant)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Tenant Manager (v${VERSION})${TEXT_RESET}"
+  gitops-deprovision-kmodel)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel deprovision Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
-    gitops_aiservice_tenant "$@"
+    gitops_deprovision_kmodel "$@"
+    ;;
+
+  gitops-aibroker)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_aibroker "$@"
+    ;;
+
+  gitops-aibroker-tenant)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker tenant Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_aibroker_tenant "$@"
     ;;
 
   gitops-iac)
@@ -766,15 +783,15 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
-    gitops_deprovision_aiservice_tenant "$@"
+    gitops_deprovision_aibroker_tenant "$@"
     ;;
 
-   gitops-deprovision-aiservice)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService deprovision Manager (v${VERSION})${TEXT_RESET}"
+   gitops-deprovision-aibroker)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker tenant deprovision Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
-    gitops_deprovision_aiservice "$@"
+    gitops_deprovision_aibroker "$@"
     ;;
 
   gitops-mas-provisioner)
