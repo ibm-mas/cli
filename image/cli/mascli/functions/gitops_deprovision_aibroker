@@ -13,13 +13,15 @@ Basic Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                  Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                   Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                   Cluster ID
-  -i, --Instace-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                  Instance ID
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  
+
 
 ibm_aibroker(required):
-      --mas-instance-id ${COLOR_YELLOW}MAS_INSTACE_ID${TEXT_RESET}                                          The MAS instance ID used by AI Broker
+  -i, --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
 
-AIBroker :
---mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                               The MAS instance ID used by AI Broker
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                                                  Enable automatic push to GitHub
@@ -59,8 +61,8 @@ function gitops_deprovision_aibroker_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
-      -i|--instance-id)
-        export INSTANCE_ID=$1 && shift 
+      --aibroker-instance-id)
+        export AIBROKER_INSTANCE_ID=$1 && shift
         ;;
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
@@ -77,12 +79,6 @@ function gitops_deprovision_aibroker_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-
-      # -- AIBroker
-      --mas-instance-id)
-        export MAS_INSTANCE_ID=$1 && shift
-        ;;
-
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -130,7 +126,7 @@ function gitops_deprovision_aibroker_noninteractive() {
 
   # add validation below like above  for those variable which have the value needed for further execution
   # -- AIBroker
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_aibroker_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_aibroker_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
 
  }
 
@@ -151,7 +147,7 @@ function gitops_deprovision_aibroker() {
 
   # rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
 
 
   echo
@@ -193,7 +189,9 @@ function gitops_deprovision_aibroker() {
   # echo all the variables of gitops envs
 
   # -- AIBroker
-  echo_reset_dim "mas instance ID .............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  export MAS_INSTANCE_ID="$AIBROKER_INSTANCE_ID"
+  echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
   
  echo -e "login aws"
 
@@ -256,8 +254,4 @@ function gitops_deprovision_aibroker() {
       remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
     fi
 
-    # rm -rf $TEMP_DIR
-    # rm -rf $GITOPS_WORKING_DIR
-
-  # exit 0
 }

@@ -15,13 +15,16 @@ Basic Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                   Cluster ID
   -i, --Instace-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                  Instance ID
 
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  
+
+
 ibm_aibroker_tenant(required):
-      --mas-instance-id ${COLOR_YELLOW}MAS_INSTACE_ID${TEXT_RESET}                                          The MAS instance ID used by AI Broker
+      --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                               The AIBROKER instance ID used by AI Broker
       --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Broker instance
 
-AIBroker :
---mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                               The MAS instance ID used by AI Broker
---tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                           The tenant ID for the AI Broker instance
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                                                  Enable automatic push to GitHub
@@ -61,8 +64,8 @@ function gitops_deprovision_aibroker_tenant_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
-      -i|--instance-id)
-        export INSTANCE_ID=$1 && shift 
+      --aibroker-instance-id)
+        export AIBROKER_INSTANCE_ID=$1 && shift
         ;;
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
@@ -78,12 +81,7 @@ function gitops_deprovision_aibroker_tenant_noninteractive() {
         ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
-        ;;
-
-      # -- AIBroker
-      --mas-instance-id)
-        export MAS_INSTANCE_ID=$1 && shift
-        ;;
+        ;;  
       --tenant-id)
         export TENANT_ID=$1 && shift
         ;;
@@ -135,7 +133,7 @@ function gitops_deprovision_aibroker_tenant_noninteractive() {
 
   # add validation below like above  for those variable which have the value needed for further execution
   # -- AIBroker
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_aibroker_tenant_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_aibroker_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
   [[ -z "$TENANT_ID" ]] && gitops_deprovision_aibroker_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
 
  }
@@ -157,7 +155,7 @@ function gitops_deprovision_aibroker_tenant() {
 
   # rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}/${TENANT_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}/${TENANT_ID}
 
 
   echo
@@ -199,10 +197,14 @@ function gitops_deprovision_aibroker_tenant() {
   # echo all the variables of gitops envs
 
   # -- AIBroker
-  echo_reset_dim "mas instance ID .............................. ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  export MAS_INSTANCE_ID="$AIBROKER_INSTANCE_ID"
+
+  echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
+   
   echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
   
- echo -e "login aws"
+  echo -e "login aws"
 
  AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
@@ -218,23 +220,23 @@ function gitops_deprovision_aibroker_tenant() {
 
 
   #deleting secrets from aws
-   echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
-   sm_delete_secret $SECRET_IBM_ENTITLEMENT_AUTH
+  #  echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
+  #  sm_delete_secret $SECRET_IBM_ENTITLEMENT_AUTH
 
-   echo -e "Deleting dro secrets $SECRET_DRO_AUTH"
-   sm_delete_secret $SECRET_DRO_AUTH
+  #  echo -e "Deleting dro secrets $SECRET_DRO_AUTH"
+  #  sm_delete_secret $SECRET_DRO_AUTH
 
-   echo -e "Deleting sls secrets $SECRET_SLS_AUTH"
-   sm_delete_secret $SECRET_SLS_AUTH
+  #  echo -e "Deleting sls secrets $SECRET_SLS_AUTH"
+  #  sm_delete_secret $SECRET_SLS_AUTH
 
-   echo -e "Deleting watsonx secrets $SECRET_WATSONX_AUTH"
-   sm_delete_secret $SECRET_WATSONX_AUTH
+  #  echo -e "Deleting watsonx secrets $SECRET_WATSONX_AUTH"
+  #  sm_delete_secret $SECRET_WATSONX_AUTH
 
-   echo -e "Deleting rsl secrets $SECRET_RSL_AUTH"
-   sm_delete_secret $SECRET_RSL_AUTH
+  #  echo -e "Deleting rsl secrets $SECRET_RSL_AUTH"
+  #  sm_delete_secret $SECRET_RSL_AUTH
 
-   echo -e "Deleting storage secrets $SECRET_STORAGE_AUTH"
-   sm_delete_secret $SECRET_STORAGE_AUTH
+  #  echo -e "Deleting storage secrets $SECRET_STORAGE_AUTH"
+  #  sm_delete_secret $SECRET_STORAGE_AUTH
 
 
   # finally push them into the git repo
@@ -266,8 +268,4 @@ function gitops_deprovision_aibroker_tenant() {
       remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
     fi
 
-    # rm -rf $TEMP_DIR
-    # rm -rf $GITOPS_WORKING_DIR
-
-  # exit 0
 }

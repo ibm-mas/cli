@@ -21,7 +21,7 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
 
 ibm_kmodel(required):
-      --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                                     The MAS instance ID used by AI Broker
+  -i, --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -78,8 +78,8 @@ function gitops_deprovision_kmodel_noninteractive() {
         ;;
 
       # kmodel - all input params default + sm
-      --mas-instance-id)
-        export MAS_INSTANCE_ID=$1 && shift
+      --aibroker-instance-id)
+        export AIBROKER_INSTANCE_ID=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -132,7 +132,7 @@ function gitops_deprovision_kmodel_noninteractive() {
   fi
 
   # add validation for those variable which have the value needed for further execution
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_kmodel_help "MAS_INSTANCE_ID is not set. Please provide the MAS instance ID using --mas-instance-id."
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_deprovision_kmodel_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
 }
 
 function gitops_deprovision_kmodel() {
@@ -152,7 +152,7 @@ function gitops_deprovision_kmodel() {
 
   # Prepare directories
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
   
   echo
   reset_colors
@@ -191,13 +191,19 @@ function gitops_deprovision_kmodel() {
   reset_colors
 
   # echo all the variables of gitops envs
+  export MAS_INSTANCE_ID="$AIBROKER_INSTANCE_ID"
+  echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
+  
 
   echo "${TEXT_DIM}"
   echo_h2 "Deleting kmodel"
+
+   echo -e "login aws"
+
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-  echo_reset_dim "Mas Instance Id ................................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
 
   reset_colors
 
@@ -208,11 +214,11 @@ function gitops_deprovision_kmodel() {
   SECRET_NAME_STORAGE_AUTH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage"
 
   #deleting secreats from aws
-  echo -e "Deleting ibm entitlement secrets $SECRET_NAME_AUTH"
-   sm_delete_secret $SECRET_NAME_AUTH
+  # echo -e "Deleting ibm entitlement secrets $SECRET_NAME_AUTH"
+  #  sm_delete_secret $SECRET_NAME_AUTH
 
-  echo -e "Deleting storage secrets $SECRET_NAME_STORAGE_AUTH"
-   sm_delete_secret $SECRET_NAME_STORAGE_AUTH
+  # echo -e "Deleting storage secrets $SECRET_NAME_STORAGE_AUTH"
+  #  sm_delete_secret $SECRET_NAME_STORAGE_AUTH
 
 
     if [ -z $GIT_SSH ]; then
@@ -244,8 +250,5 @@ function gitops_deprovision_kmodel() {
       remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
     fi
 
-    # rm -rf $TEMP_DIR
-    # rm -rf $GITOPS_WORKING_DIR
-
-  # exit 0
+   
 }

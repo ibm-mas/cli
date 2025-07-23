@@ -18,8 +18,7 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
 
-      # --aibroker_instance_id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                             The AI Broker instance ID
-      --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}                                        The Maximo AI Broker instance ID, used for identifying the specific instance in the GitOps repository
+  -i, --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
       
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -74,8 +73,8 @@ function gitops_deprovision_odh_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
-      --mas-instance-id)
-        export MAS_INSTANCE_ID=$1 && shift
+      --aibroker-instance-id)
+        export AIBROKER_INSTANCE_ID=$1 && shift
         ;;
       # Automatic GitHub Push
       -P|--github-push)
@@ -126,7 +125,7 @@ function gitops_deprovision_odh_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_odh_help "GIT_BRANCH is not set"
   fi
 
-  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_deprovision_odh_help "MAS_INSTANCE_ID is not set. Please specify the Maximo AI Broker instance ID using --mas-instance-id."
+  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_deprovision_odh_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
 }
 
 function gitops_deprovision_odh() {
@@ -145,7 +144,7 @@ function gitops_deprovision_odh() {
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
 
 
 
@@ -185,11 +184,11 @@ function gitops_deprovision_odh() {
   fi
   reset_colors
 
-  echo_reset_dim "AiBroker (MAS_INSTANCE_ID)  ..................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  # echo all the variables of gitops envs
+  export MAS_INSTANCE_ID="$AIBROKER_INSTANCE_ID"
+  echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
   
-  reset_colors
-  echo
-
 
   #secrets path in aws 
 
@@ -203,13 +202,16 @@ function gitops_deprovision_odh() {
   AVP_TYPE=aws
   sm_login
 
+ echo "${TEXT_DIM}"
+  echo_h2 "Deleting odh related secrets"
+
   #deleting secreats from aws
-   echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
-   sm_delete_secret $SECRET_NAME_STORAGE_AUTH
-   echo -e "Deleting mariadb secreat $SECRET_NAME_MARIADB_AUTH1"
-   sm_delete_secret $SECRET_NAME_MARIADB_AUTH1
-   echo -e "Deleting image pull secreat $SECRET_KEY_IMAGE_PULL_SECRET_B64"
-   sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
+  #  echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
+  #  sm_delete_secret $SECRET_NAME_STORAGE_AUTH
+  #  echo -e "Deleting mariadb secreat $SECRET_NAME_MARIADB_AUTH1"
+  #  sm_delete_secret $SECRET_NAME_MARIADB_AUTH1
+  #  echo -e "Deleting image pull secreat $SECRET_KEY_IMAGE_PULL_SECRET_B64"
+  #  sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
 
 
    if [ -z $GIT_SSH ]; then
@@ -235,7 +237,5 @@ function gitops_deprovision_odh() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
 
-  
-  
    
 }
