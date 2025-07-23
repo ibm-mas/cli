@@ -89,14 +89,13 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_nvidia_gpu
 . $CLI_DIR/functions/gitops_deprovision_db2u
 . $CLI_DIR/functions/gitops_deprovision_odh
-. $CLI_DIR/functions/gitops_minio
-. $CLI_DIR/functions/gitops_deprovision_minio
 . $CLI_DIR/functions/gitops_odh
 . $CLI_DIR/functions/gitops_kmodel
 . $CLI_DIR/functions/gitops_deprovision_kmodel
 . $CLI_DIR/functions/gitops_aibroker
 . $CLI_DIR/functions/gitops_aibroker_tenant
 . $CLI_DIR/functions/gitops_deprovision_aibroker_tenant
+. $CLI_DIR/functions/gitops_deprovision_aibroker
 . $CLI_DIR/functions/gitops_mas_provisioner
 
 # TODO: The path from the CLI the installation of the Ansible collection should be configurable
@@ -618,6 +617,14 @@ case $1 in
     echo
     reset_colors
     gitops_deprovision_aibroker_tenant "$@"
+    ;;
+
+   gitops-deprovision-aibroker)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker tenant deprovision Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_aibroker "$@"
     ;;
 
   gitops-mas-provisioner)

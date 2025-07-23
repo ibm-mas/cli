@@ -240,3 +240,5 @@
         - gitops-aibroker
         - gitops-aibroker-tenant
         - gitops-deprovision-aibroker-tenant
+        - gitops-deprovision-aibroker
+
