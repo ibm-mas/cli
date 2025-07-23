@@ -543,7 +543,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 # Auto-assign S3 parameters from kmodel storage configuration
                 # These prompts have been removed as per customer requirement to reuse kmodel object storage
                 # Reuse storage configuration for S3 parameters
-                storage_provider = self.getParam('mas_aibroker_storage_provider')
                 storage_host = self.getParam('mas_aibroker_storage_host')
                 storage_port = self.getParam('mas_aibroker_storage_port')
                 storage_ssl = self.getParam('mas_aibroker_storage_ssl')
