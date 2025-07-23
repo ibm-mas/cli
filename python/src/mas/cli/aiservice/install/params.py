@@ -99,7 +99,6 @@ optionalParams = [
     "rsl_url",
     "rsl_org_id",
     "rsl_token",
-    "install_minio_aiservice",
     "install_sls_aiservice",
     "install_dro_aiservice",
     "install_db2_aiservice",

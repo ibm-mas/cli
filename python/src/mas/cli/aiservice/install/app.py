@@ -201,16 +201,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("mongodb_action", "install")
 
         self.storageClassProvider = "custom"
-        self.installAssist = False
-        self.installIoT = False
-        self.installMonitor = False
-        self.installManage = False
-        self.installPredict = False
-        self.installInspection = False
-        self.installFacilities = False
-        self.installOptimizer = False
         self.installAiBroker = True
-        self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
         self.slsLicenseFileLocal = None
@@ -232,6 +223,56 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             elif key in optionalParams:
                 if value is not None:
                     self.setParam(key, value)
+
+            elif key == "install_minio_aiservice":
+                incompatibleWithMinioInstall = [
+                    "aiservice_storage_provider",
+                    "aiservice_storage_accesskey",
+                    "aiservice_storage_secretkey",
+                    "aiservice_storage_host",
+                    "aiservice_storage_port",
+                    "aiservice_storage_ssl",
+                    "aiservice_s3_endpoint_url",
+                    "aiservice_storage_region",
+                    "aiservice_tenant_s3_access_key",
+                    "aiservice_tenant_s3_secret_key",
+                    "aiservice_tenant_s3_endpoint_url",
+                    "aiservice_tenant_s3_region"
+                ]
+                if value is None:
+                    self.setParam("install_minio_aiservice", "false")
+                    for uKey in incompatibleWithMinioInstall:
+                        if vars(self.args)[uKey] is None:
+                            self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
+                elif value is not None and value == "true":
+                    # If user is installing Minio in-cluster then we know how to connect to it already
+                    for uKey in incompatibleWithMinioInstall:
+                        if vars(self.args)[uKey] is not None:
+                            self.fatalError(f"Unsupported parameter for --install-minio: {uKey}")
+                    for rKey in ["minio_root_user", "minio_root_password"]:
+                        if vars(self.args)[rKey] is None:
+                            self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
+
+                    self.setParam("install_minio_aiservice", "true")
+                    self.setParam("aiservice_storage_provider", "minio")
+
+                    self.setParam("aiservice_storage_accesskey", self.args.minio_root_user)
+                    self.setParam("aiservice_storage_secretkey", self.args.minio_root_password)
+
+                    # TODO: Duplication -- we already have the URL, why do we need all the individual parts,
+                    # especially when we don't need them for the tenant?
+                    self.setParam("aiservice_storage_host", "minio-service.minio.svc.cluster.local")
+                    self.setParam("aiservice_storage_port", "9000")
+                    self.setParam("aiservice_storage_ssl", "false")
+                    self.setParam("aiservice_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
+                    self.setParam("aiservice_storage_region", "none")
+
+                    self.setParam("aiservice_tenant_s3_access_key", self.args.minio_root_user)
+                    self.setParam("aiservice_tenant_s3_secret_key", self.args.minio_root_password)
+                    self.setParam("aiservice_tenant_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
+                    self.setParam("aiservice_tenant_s3_region", "none")
+                else:
+                    self.fatalError(f"Unsupported value for --install-minio: {value}")
 
             elif key == "non_prod":
                 if not value:
@@ -258,18 +299,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             # We check for both None and "" values for the application channel parameters
             # value = None means the parameter wasn't set at all
-            # value = "" means the paramerter was explicitly set to "don't install this application"
+            # value = "" means the parameter was explicitly set to "don't install this application"
             elif key == "aiservice_channel":
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_aibroker", value)
                     self.installAiBroker = True
-
-            # Manage advanced settings that need extra processing
-            elif key == "mas_app_settings_server_bundle_size":
-                if value is not None:
-                    self.setParam(key, value)
-                    if value in ["jms", "snojms"]:
-                        self.setParam("mas_app_settings_persistent_volumes_flag", "true")
 
             # MongoDB
             elif key == "mongodb_namespace":

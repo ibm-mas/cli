@@ -174,149 +174,234 @@ masAppsArgGroup.add_argument(
 # AI Broker
 # -----------------------------------------------------------------------------
 aibrokerArgGroup = aiServiceinstallArgParser.add_argument_group("Maximo AI Broker")
-aibrokerArgGroup.add_argument(
-    "--aiservice-storage-provider",
-    dest="aiservice_storage_provider",
+
+
+# S3 - Minio
+# -----------------------------------------------------------------------------
+s3ArgGroup = aiServiceinstallArgParser.add_argument_group("S3 Storage")
+s3ArgGroup.add_argument(
+    "--install-minio",
+    dest="install_minio_aiservice",
     required=False,
-    help="Customize Manage database encryption keys"
+    help="Install Minio and configure it as the S3 provider for AI Service",
+    action="store_const",
+    const="true"
 )
-aibrokerArgGroup.add_argument(
-    "--aiservice-storage-accesskey",
-    dest="aiservice_storage_accesskey",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-storage-secretkey",
-    dest="aiservice_storage_secretkey",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-storage-host",
-    dest="aiservice_storage_host",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-storage-port",
-    dest="aiservice_storage_port",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-storage-ssl",
-    dest="aiservice_storage_ssl",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-storage-region",
-    dest="aiservice_storage_region",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-storage-pipelines-bucket",
-    dest="aiservice_storage_pipelines_bucket",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-storage-tenants-bucket",
-    dest="aiservice_storage_tenants_bucket",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-storage-templates-bucket",
-    dest="aiservice_storage_templates_bucket",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-tenant-name",
-    dest="aiservice_tenant_name",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-watsonxai-apikey",
-    dest="aiservice_watsonxai_apikey",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-watsonxai-url",
-    dest="aiservice_watsonxai_url",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-watsonxai-project-id",
-    dest="aiservice_watsonxai_project_id",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-watsonx-action",
-    dest="aiservice_watsonx_action",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-host",
-    dest="aiservice_db_host",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-port",
-    dest="aiservice_db_port",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-user",
-    dest="aiservice_db_user",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-database",
-    dest="aiservice_db_database",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-secret-name",
-    dest="aiservice_db_secret_name",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-secret-key",
-    dest="aiservice_db_secret_key",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-secret-value",
-    dest="aiservice_db_secret_value",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
+
+s3ArgGroup.add_argument(
     "--minio-root-user",
     dest="minio_root_user",
     required=False,
     help="Root user for minio"
 )
-aibrokerArgGroup.add_argument(
+s3ArgGroup.add_argument(
     "--minio-root-password",
     dest="minio_root_password",
     required=False,
-    help="Password for minio rootuser"
+    help="Password for minio root user"
+)
+
+# S3 - General
+# -----------------------------------------------------------------------------
+s3ArgGroup.add_argument(
+    "--s3-provider",
+    dest="aiservice_storage_provider",
+    required=False,
+    help="TODO: Write me"
+)
+
+# S3 - Bucket Naming
+# -----------------------------------------------------------------------------
+s3ArgGroup.add_argument(
+    "--s3-pipelines-bucket",
+    dest="aiservice_storage_pipelines_bucket",
+    required=False,
+    default="km-pipelines",
+    help="TODO: Write me"
+)
+s3ArgGroup.add_argument(
+    "--s3-tenants-bucket",
+    dest="aiservice_storage_tenants_bucket",
+    required=False,
+    default="km-tenants",
+    help="TODO: Write me"
+)
+s3ArgGroup.add_argument(
+    "--s3-templates-bucket",
+    dest="aiservice_storage_templates_bucket",
+    required=False,
+    default="km-templates",
+    help="TODO: Write me"
+)
+
+# S3 - Bucket Prefixes
+# -----------------------------------------------------------------------------
+s3ArgGroup.add_argument(
+    "--s3-bucket-prefix",
+    dest="aiservice_s3_bucket_prefix",
+    required=False,
+    default="s3",
+    help="s3 bucket prefix"
+)
+s3ArgGroup.add_argument(
+    "--s3-bucket-prefix-tenant",
+    dest="aiservice_tenant_s3_bucket_prefix",
+    required=False,
+    default="s3",
+    help="s3 bucket prefix ( tenant level )"
+)
+
+# S3 - External Connection
+# -----------------------------------------------------------------------------
+s3ArgGroup.add_argument(
+    "--s3-host",
+    dest="aiservice_storage_host",
+    required=False,
+    help="TODO: Write me"
+)
+s3ArgGroup.add_argument(
+    "--s3-port",
+    dest="aiservice_storage_port",
+    required=False,
+    help="TODO: Write me"
+)
+s3ArgGroup.add_argument(
+    "--s3-ssl",
+    dest="aiservice_storage_ssl",
+    required=False,
+    help="TODO: Write me"
+)
+s3ArgGroup.add_argument(
+    "--s3-accesskey",
+    dest="aiservice_storage_accesskey",
+    required=False,
+    help="TODO: Write me"
+)
+s3ArgGroup.add_argument(
+    "--s3-secretkey",
+    dest="aiservice_storage_secretkey",
+    required=False,
+    help="TODO: Write me"
+)
+s3ArgGroup.add_argument(
+    "--s3-region",
+    dest="aiservice_storage_region",
+    required=False,
+    help="TODO: Write me"
+)
+s3ArgGroup.add_argument(
+    "--s3-endpoint-url",
+    dest="aiservice_s3_endpoint_url",
+    required=False,
+    help="endpoint url for s3"
+)
+
+# S3 - External Access Credentials (Tenant)
+# -----------------------------------------------------------------------------
+s3ArgGroup.add_argument(
+    "--s3-tenant-access-key",
+    dest="aiservice_tenant_s3_access_key",
+    required=False,
+    help="access key for s3 ( tenant level )"
+)
+s3ArgGroup.add_argument(
+    "--s3-tenant-secret-key",
+    dest="aiservice_tenant_s3_secret_key",
+    required=False,
+    help="secret key for s3 ( tenant level )"
+)
+s3ArgGroup.add_argument(
+    "--s3-tenant-region",
+    dest="aiservice_tenant_s3_region",
+    required=False,
+    help="s3 region ( tenant level )"
+)
+s3ArgGroup.add_argument(
+    "--s3-tenant-endpoint-url",
+    dest="aiservice_tenant_s3_endpoint_url",
+    required=False,
+    help="endpoint url for s3 ( tenant level )"
+)
+
+# Watsonx
+# -----------------------------------------------------------------------------
+watsonxArgGroup = aiServiceinstallArgParser.add_argument_group("Watsonx")
+
+watsonxArgGroup.add_argument(
+    "--watsonxai-apikey",
+    dest="aiservice_watsonxai_apikey",
+    required=False,
+    help="TODO: Write me"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-url",
+    dest="aiservice_watsonxai_url",
+    required=False,
+    help="TODO: Write me"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-project-id",
+    dest="aiservice_watsonxai_project_id",
+    required=False,
+    help="TODO: Write me"
+)
+watsonxArgGroup.add_argument(
+    "--watsonx-action",
+    dest="aiservice_watsonx_action",
+    required=False,
+    help="TODO: Write me"
+)
+
+
+# AI Service
+# -----------------------------------------------------------------------------
+aibrokerArgGroup.add_argument(
+    "--aiservice-tenant-name",
+    dest="aiservice_tenant_name",
+    required=False,
+    help="TODO: Write me"
+)
+aibrokerArgGroup.add_argument(
+    "--aiservice-db-host",
+    dest="aiservice_db_host",
+    required=False,
+    help="TODO: Write me"
+)
+aibrokerArgGroup.add_argument(
+    "--aiservice-db-port",
+    dest="aiservice_db_port",
+    required=False,
+    help="TODO: Write me"
+)
+aibrokerArgGroup.add_argument(
+    "--aiservice-db-user",
+    dest="aiservice_db_user",
+    required=False,
+    help="TODO: Write me"
+)
+aibrokerArgGroup.add_argument(
+    "--aiservice-db-database",
+    dest="aiservice_db_database",
+    required=False,
+    help="TODO: Write me"
+)
+aibrokerArgGroup.add_argument(
+    "--aiservice-db-secret-name",
+    dest="aiservice_db_secret_name",
+    required=False,
+    help="TODO: Write me"
+)
+aibrokerArgGroup.add_argument(
+    "--aiservice-db-secret-key",
+    dest="aiservice_db_secret_key",
+    required=False,
+    help="TODO: Write me"
+)
+aibrokerArgGroup.add_argument(
+    "--aiservice-db-secret-value",
+    dest="aiservice_db_secret_value",
+    required=False,
+    help="TODO: Write me"
 )
 aibrokerArgGroup.add_argument(
     "--mariadb-user",
@@ -349,54 +434,6 @@ aibrokerArgGroup.add_argument(
     help="End date for Aibroker tenant"
 )
 aibrokerArgGroup.add_argument(
-    "--aiservice-s3-bucket-prefix",
-    dest="aiservice_s3_bucket_prefix",
-    required=False,
-    help="s3 bucker prefix"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-s3-endpoint-url",
-    dest="aiservice_s3_endpoint_url",
-    required=False,
-    help="endpoint url for s3"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-s3-region",
-    dest="aiservice_s3_region",
-    required=False,
-    help="region for s3"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-tenant-s3-bucket-prefix",
-    dest="aiservice_tenant_s3_bucket_prefix",
-    required=False,
-    help="s3 bucker prefix ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-tenant-s3-region",
-    dest="aiservice_tenant_s3_region",
-    required=False,
-    help="s3 region ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-tenant-s3-endpoint-url",
-    dest="aiservice_tenant_s3_endpoint_url",
-    required=False,
-    help="endpoint url for s3 ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-tenant-s3-access-key",
-    dest="aiservice_tenant_s3_access_key",
-    required=False,
-    help="access key for s3 ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-tenant-s3-secret-key",
-    dest="aiservice_tenant_s3_secret_key",
-    required=False,
-    help="secret key for s3 ( tenant level )"
-)
-aibrokerArgGroup.add_argument(
     "--rsl-url",
     dest="rsl_url",
     required=False,
@@ -413,12 +450,6 @@ aibrokerArgGroup.add_argument(
     dest="rsl_token",
     required=False,
     help="token for rsl"
-)
-aibrokerArgGroup.add_argument(
-    "--install-minio-aiservice",
-    dest="install_minio_aiservice",
-    required=False,
-    help="flag for install minio"
 )
 aibrokerArgGroup.add_argument(
     "--install-sls-aiservice",
@@ -527,6 +558,7 @@ aibrokerArgGroup.add_argument(
     default="non-production",
     help="Environment type (default: non-production)"
 )
+
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------
 db2ArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Db2 Universal Operator")
@@ -539,30 +571,6 @@ db2ArgGroup.add_argument(
     "--db2-channel",
     required=False,
     help="Subscription channel for Db2u"
-)
-db2ArgGroup.add_argument(
-    "--db2-system",
-    dest="db2_action_system",
-    required=False,
-    help="Install a shared Db2u instance for MAS (required by IoT & Monitor, supported by Manage)",
-    action="store_const",
-    const="install"
-)
-db2ArgGroup.add_argument(
-    "--db2-manage",
-    dest="db2_action_manage",
-    required=False,
-    help="Install a dedicated Db2u instance for Maximo Manage (supported by Manage)",
-    action="store_const",
-    const="install"
-)
-db2ArgGroup.add_argument(
-    "--db2-facilities",
-    dest="db2_action_facilities",
-    required=False,
-    help="Install a dedicated Db2u instance for Maximo Real Estate and Facilities (supported by Facilities)",
-    action="store_const",
-    const="install"
 )
 db2ArgGroup.add_argument(
     "--db2-type",
