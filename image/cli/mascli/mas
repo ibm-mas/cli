@@ -583,6 +583,7 @@ case $1 in
     echo
     reset_colors
     gitops_deprovision_cp4d_service "$@"
+  ;;
 
   gitops-suite-license-service)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
