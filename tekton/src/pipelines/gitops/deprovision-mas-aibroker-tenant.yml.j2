@@ -29,11 +29,11 @@ spec:
       type: string
     - name: github_host
       type: string
-
+  workspaces:
+    - name: configs
   tasks:
     - name: run-gitops-deprovision-aibroker-tenant
       taskRef:
-        kind: Task
         name: gitops-deprovision-aibroker-tenant
       workspaces:
         - name: configs
