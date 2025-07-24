@@ -31,7 +31,13 @@ spec:
       type: string
 
   tasks:
-    - name:  gitops-deprovision-mas-aibroker-tenant
+    - name: gitops-deprovision-aibroker-tenant
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-aibroker-tenant
+      workspaces:
+        - name: configs
+          workspace: configs
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -58,12 +64,6 @@ spec:
         - name: tenant_id
           value: $(params.tenant_id)
           
-      taskRef:
-        kind: Task
-        name: gitops-deprovision-aibroker-tenant
-      workspaces:
-        - name: configs
-          workspace: configs
 
       
    
