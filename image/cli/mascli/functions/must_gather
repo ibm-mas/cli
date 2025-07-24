@@ -376,11 +376,6 @@ function mustgather() {
       echo_warning "Suite CR not found, searching mas-xxx-pipelines project to get mas instance id"
       MAS_INSTANCE_IDS=$(oc get project -oname | grep -o  mas-.*-pipelines | cut -d"-" -f 2)
     fi
-    # Find Aiservice Instances
-    MAS_INSTANCE_IDS="$MAS_INSTANCE_IDS $(oc get aibrokerapp --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')"
-    # Remove duplicate Instance Ids
-    MAS_INSTANCE_IDS=$(echo "$MAS_INSTANCE_IDS" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
-    MAS_INSTANCE_IDS=$(echo "$MAS_INSTANCE_IDS" | sed 's/[[:space:]]*$//')  # Trim trailing space
   fi
 
 
