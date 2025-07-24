@@ -544,18 +544,35 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     def aiServiceSettings(self) -> None:
         self.printH1("AI Service Settings")
-        self.printH2("Storage")
-        self.printDescription(["TODO: Describe what is this used for, what am I meant to have done to set it up, what type of storage are we even talking about?"])
-        self.promptForString("Storage provider", "aiservice_storage_provider")
-        self.promptForString("Storage access key", "aiservice_storage_accesskey")
-        self.promptForString("Storage secret key", "aiservice_storage_secretkey", isPassword=True)
-        self.promptForString("Storage host", "aiservice_storage_host")
-        self.promptForString("Storage port", "aiservice_storage_port")
-        self.promptForString("Storage ssl", "aiservice_storage_ssl")
-        self.promptForString("Storage region", "aiservice_storage_region")
-        self.promptForString("Storage pipelines bucket", "aiservice_storage_pipelines_bucket")
-        self.promptForString("Storage tenants bucket", "aiservice_storage_tenants_bucket")
-        self.promptForString("Storage templates bucket", "aiservice_storage_templates_bucket")
+        
+        # Ask about MinIO installation FIRST (moved from aiServiceDependencies)
+        self.printH2("Storage Configuration")
+        self.printDescription(["AI Service requires object storage for pipelines, tenants, and templates. You can either install MinIO in-cluster or connect to external storage."])
+        self.yesOrNo("Install Minio", "install_minio_aiservice")
+        
+        if self.getParam("install_minio_aiservice") == "true":
+            # Only ask for MinIO credentials
+            self.promptForString("minio root username", "minio_root_user")
+            self.promptForString("minio root password", "minio_root_password", isPassword=True)
+            
+            # Auto-set MinIO storage defaults (same as non-interactive mode)
+            self._setMinioStorageDefaults()
+        else:
+            # Ask for external storage configuration
+            self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
+            self.promptForString("Storage provider", "aiservice_storage_provider")
+            self.promptForString("Storage access key", "aiservice_storage_accesskey")
+            self.promptForString("Storage secret key", "aiservice_storage_secretkey", isPassword=True)
+            self.promptForString("Storage host", "aiservice_storage_host")
+            self.promptForString("Storage port", "aiservice_storage_port")
+            self.promptForString("Storage ssl", "aiservice_storage_ssl")
+            self.promptForString("Storage region", "aiservice_storage_region")
+            self.promptForString("Storage pipelines bucket", "aiservice_storage_pipelines_bucket")
+            self.promptForString("Storage tenants bucket", "aiservice_storage_tenants_bucket")
+            self.promptForString("Storage templates bucket", "aiservice_storage_templates_bucket")
+        
+        # S3 parameters are now auto-derived from storage configuration
+        self._deriveS3ParametersFromStorage()
 
         self.printH2("Database")
         self.printDescription(["TODO: How do I get this information?  What type of database are we talking about, am I already meant to have set this up?  What's the difference between storage and database?"])
@@ -572,31 +589,77 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.promptForString("Mariadb username", "mariadb_user")
         self.promptForString("Mariadb password", "mariadb_password", isPassword=True)
 
-        self.printH2("S3")
-        self.printDescription(["TODO: Even more storage!  Describe what this S3 storage is used for, so I have to set all this up myself manually before I can install ai service?"])
-        self.promptForString("S3 bucket prefix", "aiservice_s3_bucket_prefix")
-        self.promptForString("S3 endpoint url", "aiservice_s3_endpoint_url")
-        self.promptForString("S3 bucket prefix (tenant level)", "aiservice_tenant_s3_bucket_prefix")
-        self.promptForString("S3 region (tenant level)", "aiservice_tenant_s3_region")
-        self.promptForString("S3 endpoint url (tenant level)", "aiservice_tenant_s3_endpoint_url")
-        self.promptForString("S3 access key (tenant level)", "aiservice_tenant_s3_access_key", isPassword=True)
-        self.promptForString("S3 secret key (tenant level)", "aiservice_tenant_s3_secret_key", isPassword=True)
-
     def aiServiceTenantSettings(self) -> None:
         self.printH1("AI Service Tenant Settings")
         self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
         self.promptForString("Tenant start date", "tenant_entitlement_start_date")
         self.promptForString("Tenant end date", "tenant_entitlement_end_date")
+    
+    def _deriveS3ParametersFromStorage(self) -> None:
+        """
+        Auto-derive S3 and tenant S3 parameters from the aiservice_storage_* parameters.
+        This reuses the values provided for kmodel object storage to avoid redundant prompts.
+        """
+        storage_provider = self.getParam("aiservice_storage_provider")
+        storage_host = self.getParam("aiservice_storage_host")
+        storage_port = self.getParam("aiservice_storage_port")
+        storage_ssl = self.getParam("aiservice_storage_ssl")
+        storage_region = self.getParam("aiservice_storage_region")
+        storage_accesskey = self.getParam("aiservice_storage_accesskey")
+        storage_secretkey = self.getParam("aiservice_storage_secretkey")
+        
+        # Build endpoint URL from storage configuration
+        protocol = "https" if storage_ssl == "true" else "http"
+        
+        if storage_provider == "minio":
+            endpoint_url = f"{protocol}://{storage_host}:{storage_port}"
+        elif storage_provider == "s3":
+            # For AWS S3, construct proper endpoint
+            if storage_region and storage_region != "none":
+                endpoint_url = f"{protocol}://s3.{storage_region}.amazonaws.com"
+            else:
+                endpoint_url = f"{protocol}://s3.amazonaws.com"
+        else:
+            # For other providers, construct basic endpoint
+            endpoint_url = f"{protocol}://{storage_host}:{storage_port}" if storage_port else f"{protocol}://{storage_host}"
+        
+        # Set S3 parameters (reusing storage configuration)
+        self.setParam("aiservice_s3_bucket_prefix", "aiservice")  # Default prefix
+        if endpoint_url:
+            self.setParam("aiservice_s3_endpoint_url", endpoint_url)
+        self.setParam("aiservice_s3_region", storage_region if storage_region else "none")
+        
+        # Set tenant S3 parameters (reusing same storage configuration)
+        self.setParam("aiservice_tenant_s3_bucket_prefix", "tenant")  # Default tenant prefix
+        self.setParam("aiservice_tenant_s3_access_key", storage_accesskey)
+        self.setParam("aiservice_tenant_s3_secret_key", storage_secretkey)
+        if endpoint_url:
+            self.setParam("aiservice_tenant_s3_endpoint_url", endpoint_url)
+        self.setParam("aiservice_tenant_s3_region", storage_region if storage_region else "none")
+    
+    def _setMinioStorageDefaults(self) -> None:
+        """
+        Set MinIO storage defaults when MinIO is being installed in-cluster.
+        This mirrors the logic from non-interactive mode.
+        """
+        self.setParam("aiservice_storage_provider", "minio")
+        self.setParam("aiservice_storage_accesskey", self.getParam("minio_root_user"))
+        self.setParam("aiservice_storage_secretkey", self.getParam("minio_root_password"))
+        self.setParam("aiservice_storage_host", "minio-service.minio.svc.cluster.local")
+        self.setParam("aiservice_storage_port", "9000")
+        self.setParam("aiservice_storage_ssl", "false")
+        self.setParam("aiservice_storage_region", "none")
+        
+        # Set default bucket names
+        self.setParam("aiservice_storage_pipelines_bucket", "km-pipelines")
+        self.setParam("aiservice_storage_tenants_bucket", "km-tenants")
+        self.setParam("aiservice_storage_templates_bucket", "km-templates")
 
     def aiServiceDependencies(self) -> None:
         self.printH1("Dependencies")
 
-        self.printH2("Minio")
-        self.printDescription(["TODO: Describe how AI service uses minio, is this optional?  What happens if I chose not to install minio? How will the install work in that case?"])
-        self.yesOrNo("Install Minio", "install_minio_aiservice")
-        if self.getParam("install_minio_aiservice") == "true":
-            self.promptForString("minio root username", "minio_root_user")
-            self.promptForString("minio root password", "minio_root_password", isPassword=True)
+        # MinIO configuration moved to aiServiceSettings()
+        # Remove MinIO prompts from here since they're handled above
 
         self.printH2("IBM Suite License Service")
         self.printDescription([
