@@ -22,6 +22,10 @@ MAS Content Controls:
   --mas-instance-ids         Limit must-gather to a list of MAS instance IDs (comma-seperated list)
   --mas-app-ids              Limit must-gather to a subset of MAS namespaces (comma-seperated list)
 
+AI Service Content Controls:
+  --aiservice-instance-ids   Limit must-gather to a list of AI Service instance IDs (comma-seperated list)
+  --aiservice-tenant-ids     Limit must-gather to a list of AI Service tenant IDs (comma-seperated list)
+
 Disable Collectors:
   --no-ocp                   Disable must-gather for the OCP cluster itself
   --no-dependencies          Disable must-gather for in-cluster dependencies (Db2, Cloud Pak for Data, Cloud Pak Foundational Services, Mongo)
@@ -77,7 +81,7 @@ function mustgather() {
   OCP_REPORT=true
   DEPENDENCY_REPORT=true
   SLS_REPORT=true
-  MAS_APP_IDS="core,add,assist,iot,monitor,manage,optimizer,predict,visualinspection,pipelines,facilities,aibroker"
+  MAS_APP_IDS="core,add,assist,iot,monitor,manage,optimizer,predict,visualinspection,pipelines,facilities"
   EXTRA_NAMESPACES=""
 
 
@@ -122,6 +126,17 @@ function mustgather() {
     # in another application and without the full picture we may not be able to diagnose the problem
     --mas-app-ids)
       MAS_APP_IDS=$1; shift
+      ;;
+
+    # Restict the gather to processing a specific list of AI Service instance IDs, generally discouraged as problems in one instance may be
+    # caused by anything on the cluster, including other instances
+    --aiservice-instance-ids)
+      AISERVICE_INSTANCE_IDS=$1; shift
+      ;;
+
+    # Limit the must-gather to only specific AI Service tenants,
+    --aiservice-tenant-ids)
+      AISERVICE_TENANT_IDS=$1; shift
       ;;
 
     # Provide a list of additional namespaces where generic Kubernetes must-gather will be collected from
@@ -361,11 +376,6 @@ function mustgather() {
       echo_warning "Suite CR not found, searching mas-xxx-pipelines project to get mas instance id"
       MAS_INSTANCE_IDS=$(oc get project -oname | grep -o  mas-.*-pipelines | cut -d"-" -f 2)
     fi
-    # Find Aiservice Instances
-    MAS_INSTANCE_IDS="$MAS_INSTANCE_IDS $(oc get aibrokerapp --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')"
-    # Remove duplicate Instance Ids
-    MAS_INSTANCE_IDS=$(echo "$MAS_INSTANCE_IDS" | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ')
-    MAS_INSTANCE_IDS=$(echo "$MAS_INSTANCE_IDS" | sed 's/[[:space:]]*$//')  # Trim trailing space
   fi
 
 
@@ -391,6 +401,60 @@ function mustgather() {
       fi
     done
     endTimer "${MAS_INSTANCE_ID}:${MAS_APP_ID}"
+  done
+
+
+  # ---------------------------------------------------------------------------
+  # AI Service Must-Gather
+  # ---------------------------------------------------------------------------
+  if [[ -z $AISERVICE_INSTANCE_IDS ]]; then
+    # Find AI Service instances
+    AISERVICE_INSTANCE_IDS=$(oc get aibrokerapp --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
+  fi
+
+  echo ""
+  for AISERVICE_INSTANCE_ID in $AISERVICE_INSTANCE_IDS
+  do
+    echo_h2 "AI Service instance: ${AISERVICE_INSTANCE_ID}"
+    startTimer
+    AISERVICE_NAMESPACE=mas-${AISERVICE_INSTANCE_ID}-aibroker # This needs to be changed to aiservice in future, once name is changed in CLI and ansible playbook
+    NAMESPACE_LOOKUP=$(oc get namespace $AISERVICE_NAMESPACE --ignore-not-found)
+
+    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+      echo_h3 "Namespace: ${AISERVICE_NAMESPACE}"
+      echo
+      
+      $MG_SCRIPT_DIR/mg-summary-aiservice $AISERVICE_NAMESPACE &> ${OUTPUT_DIR}/${AISERVICE_NAMESPACE}.txt
+      $MG_SCRIPT_DIR/mg-collect-aiservice $AISERVICE_NAMESPACE $OUTPUT_DIR
+
+      genericMustGather $AISERVICE_NAMESPACE pipelinerun   # Including model training logs
+    fi
+    endTimer "${AISERVICE_INSTANCE_ID}"
+  done
+
+
+  # ---------------------------------------------------------------------------
+  # AI Service Tenant must-gather
+  # ---------------------------------------------------------------------------
+  if [[ -z $AISERVICE_TENANT_IDS ]]; then
+    # Find AI Service instances
+    AISERVICE_TENANT_IDS=$(oc get aibrokerworkspace --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
+  fi
+
+  echo ""
+  for AISERVICE_TENANT_ID in $AISERVICE_TENANT_IDS
+  do
+    echo_h2 "AI Service Tenant: ${AISERVICE_TENANT_ID}"
+    startTimer
+    NAMESPACE_LOOKUP=$(oc get namespace $AISERVICE_TENANT_ID --ignore-not-found)
+
+    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+      echo_h3 "Namespace: ${AISERVICE_TENANT_ID}"
+      echo
+      
+      genericMustGather $AISERVICE_TENANT_ID
+    fi
+    endTimer "${AISERVICE_TENANT_ID}"
   done
 
 
