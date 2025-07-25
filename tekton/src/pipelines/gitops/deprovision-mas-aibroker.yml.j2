@@ -27,9 +27,18 @@ spec:
       type: string
     - name: github_host
       type: string
-
-  tasks:
-    - name:  gitops-deprovision-mas-aibroker
+  workspaces:
+    - name: configs
+   tasks:
+   # 1.gitops-odh
+    # -------------------------------------------------------------------------
+    - name: run-gitops-deprovision-odh
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-odh
+      workspaces:
+        - name: configs
+          workspace: configs
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -53,13 +62,76 @@ spec:
           value: $(params.github_host)
         - name: aibroker_instance_id
           value: $(params.aibroker_instance_id)
-          
-      taskRef:
+   #3. gitops-deprovision-aibroker
+    # -------------------------------------------------------------------------------------------------------
+    - name: run-gitops-deprovision-aibroker
+      runAfter:
+        - gitops-deprovision-odh
+     taskRef:
         kind: Task
         name: gitops-deprovision-aibroker
       workspaces:
         - name: configs
           workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: cluster_id
+          value: $(params.cluster_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
+   # 2.gitops-kmodel
+    # -------------------------------------------------------------------------
+    - name: run-gitops-deprovision-kmodel
+      runAfter:
+        - gitops-deprovision-aibroker
+      workspaces:
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-kmodel
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: cluster_id
+          value: $(params.cluster_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
+   
 
       
    
