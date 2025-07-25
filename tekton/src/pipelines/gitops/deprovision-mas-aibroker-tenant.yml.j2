@@ -34,6 +34,7 @@ spec:
   tasks:
     - name: run-gitops-deprovision-aibroker-tenant
       taskRef:
+        kind: Task
         name: gitops-deprovision-aibroker-tenant
       workspaces:
         - name: configs
