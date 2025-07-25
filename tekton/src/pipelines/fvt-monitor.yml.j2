@@ -130,7 +130,7 @@ spec:
           values: [""]
         - input: "$(params.fvt_test_suite)"
           operator: in
-          values: ["monitor_fvt"]
+          values: ["monitor_fvt" , "monitor_fvt_with_manage"]
       runAfter:
         - ivtcore-monitor
       workspaces:
