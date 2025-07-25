@@ -29,8 +29,9 @@ spec:
       type: string
   workspaces:
     - name: configs
-   tasks:
-   # 1.gitops-odh
+
+  tasks:
+   # 1.gitops-deprovision-odh
     # -------------------------------------------------------------------------
     - name: run-gitops-deprovision-odh
       taskRef:
@@ -62,12 +63,13 @@ spec:
           value: $(params.github_host)
         - name: aibroker_instance_id
           value: $(params.aibroker_instance_id)
-   #3. gitops-deprovision-aibroker
+
+   #2. gitops-deprovision-aibroker
     # -------------------------------------------------------------------------------------------------------
     - name: run-gitops-deprovision-aibroker
       runAfter:
         - gitops-deprovision-odh
-     taskRef:
+      taskRef:
         kind: Task
         name: gitops-deprovision-aibroker
       workspaces:
@@ -96,7 +98,8 @@ spec:
           value: $(params.github_host)
         - name: aibroker_instance_id
           value: $(params.aibroker_instance_id)
-   # 2.gitops-kmodel
+
+   # 3.gitops-kmodel
     # -------------------------------------------------------------------------
     - name: run-gitops-deprovision-kmodel
       runAfter:
