@@ -245,7 +245,8 @@ function gitops_deprovision_aibroker() {
     echo
     echo_h2 "Deleting application configuration files"
     echo "- Deleting aibroker "
-
+   
+   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aibroker-instance-base.yaml
    rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aibroker.yaml
     if [ "$GITHUB_PUSH" == "true" ]; then
       echo
