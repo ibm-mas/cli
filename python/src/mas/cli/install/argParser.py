@@ -313,6 +313,11 @@ mongoArgGroup.add_argument(
     required=False,
     help=""
 )
+mongoArgGroup.add_argument(
+    "--mongodb-version",
+    required=False,
+    help=""
+)
 
 # OCP Configuration
 # -----------------------------------------------------------------------------
