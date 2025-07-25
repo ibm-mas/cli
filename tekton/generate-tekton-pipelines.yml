@@ -29,11 +29,12 @@
       with_items:
         # Main Pipelines
         - install
-        - install-aiservice
         - update
         - upgrade
         - rollback
         - uninstall
+        # AI Service Pipelines
+        - aiservice-install
         # FVT Pipelines
         - fvt-assist
         - fvt-core
