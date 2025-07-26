@@ -143,7 +143,7 @@ class installArgBuilderMixin():
         if self.getParam('dro_namespace') != "":
             command += f"  --dro-namespace \"{self.getParam('dro_namespace')}\"{newline}"
 
-        # MongoDb Community Operator
+        # MongoDb Community Operator (DBversion variable)
         # -----------------------------------------------------------------------------
         if self.getParam('mongodb_namespace') != "":
             command += f"  --mongodb-namespace \"{self.getParam('mongodb_namespace')}\"{newline}"
