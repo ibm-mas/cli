@@ -138,7 +138,6 @@ The engine that performs all tasks is written in Ansible, you can directly use t
     - IBM Data Reporter Operator
     - Red Hat Certificate Manager
     - Minio
-    - Mariadb
     - db2
 -  Aiservice installation
 

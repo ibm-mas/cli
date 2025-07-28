@@ -130,27 +130,6 @@ spec:
     - name: aiservice_s3_endpoint_url
       type: string
       default: ""
-    - name: aiservice_db_host
-      type: string
-      default: ""
-    - name: aiservice_db_port
-      type: string
-      default: ""
-    - name: aiservice_db_user
-      type: string
-      default: ""
-    - name: aiservice_db_database
-      type: string
-      default: ""
-    - name: aiservice_db_secret_name
-      type: string
-      default: ""
-    - name: aiservice_db_secret_key
-      type: string
-      default: ""
-    - name: aiservice_db_secret_value
-      type: string
-      default: ""
     - name: aiservice_dro_secret_name
       type: string
       description: DRO secret name
@@ -252,19 +231,13 @@ spec:
       - name: AISERVICE_APIKEY_ACTION
         value: $(params.aiservice_apikey_action)
 
-      # WatsonX api key
+      # Watsonx
       - name: AISERVICE_WATSONXAI_APIKEY
         value: $(params.aiservice_watsonxai_apikey)
-
-      # WatsonX url
       - name: AISERVICE_WATSONXAI_URL
         value: $(params.aiservice_watsonxai_url)
-
-      # WatsonX project id
       - name: AISERVICE_WATSONXAI_PROJECT_ID
         value: $(params.aiservice_watsonxai_project_id)
-
-      # WatsonX action
       - name: AISERVICE_WATSONX_ACTION
         value: $(params.aiservice_watsonx_action)
 
@@ -297,20 +270,6 @@ spec:
       # Ai Broker Saas
       - name: AISERVICE_SAAS
         value: 'true'
-
-      # MariaDB details
-      - name: AISERVICE_DB_HOST
-        value: $(params.aiservice_db_host)
-      - name: AISERVICE_DB_PORT
-        value: $(params.aiservice_db_port)
-      - name: AISERVICE_DB_USER
-        value: $(params.aiservice_db_user)
-      - name: AISERVICE_DB_DATABASE
-        value: $(params.aiservice_db_database)
-      - name: AISERVICE_DB_SECRET_NAME
-        value: $(params.aiservice_db_secret_name)
-      - name: AISERVICE_DB_SECRET_VALUE
-        value: $(params.aiservice_db_secret_value)
 
       # DRO, DB2, SLS vars
       - name: AISERVICE_DRO_SECRET_NAME

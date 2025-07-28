@@ -361,60 +361,7 @@ aibrokerArgGroup.add_argument(
     required=False,
     help="TODO: Write me"
 )
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-host",
-    dest="aiservice_db_host",
-    required=False,
-    help="TODO: Write me"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-port",
-    dest="aiservice_db_port",
-    required=False,
-    help="TODO: Write me"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-user",
-    dest="aiservice_db_user",
-    required=False,
-    help="TODO: Write me"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-database",
-    dest="aiservice_db_database",
-    required=False,
-    help="TODO: Write me"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-secret-name",
-    dest="aiservice_db_secret_name",
-    required=False,
-    help="TODO: Write me"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-secret-key",
-    dest="aiservice_db_secret_key",
-    required=False,
-    help="TODO: Write me"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db-secret-value",
-    dest="aiservice_db_secret_value",
-    required=False,
-    help="TODO: Write me"
-)
-aibrokerArgGroup.add_argument(
-    "--mariadb-user",
-    dest="mariadb_user",
-    required=False,
-    help="Mariadb user name"
-)
-aibrokerArgGroup.add_argument(
-    "--mariadb-password",
-    dest="mariadb_password",
-    required=False,
-    help="Password for mariadb user"
-)
+
 aibrokerArgGroup.add_argument(
     "--tenant-entitlement-type",
     dest="tenant_entitlement_type",

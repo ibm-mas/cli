@@ -32,9 +32,9 @@ from .params import requiredParams, optionalParams
 
 from ...install.catalogs import supportedCatalogs
 
-# AiService relies on SLS, which in turn depends on MongoDB.
+# AI Service relies on SLS, which in turn depends on MongoDB.
 # SLS will utilize the shared MongoDB resource that would be used by MAS if it were deployed within the same OpenShift cluster.
-# AiService utilizes two distinct databases: DB2 is employed by the AiBroker component, while MariaDB supports OpenDataHub (ODH).
+# AI Service utilizes two distinct databases: DB2 is employed by the AiBroker component.
 # By default, AiService will deploy DB2 within the same namespace as MAS (db2u), but it will be configured as a separate DB2 instance.
 
 from ...install.settings.mongodbSettings import MongoDbSettingsMixin
@@ -573,21 +573,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # S3 parameters are now auto-derived from storage configuration
         self._deriveS3ParametersFromStorage()
-
-        self.printH2("Database")
-        self.printDescription(["TODO: How do I get this information?  What type of database are we talking about, am I already meant to have set this up?  What's the difference between storage and database?"])
-        self.promptForString("Database host", "aiservice_db_host")
-        self.promptForString("Database port", "aiservice_db_port")
-        self.promptForString("Database user", "aiservice_db_user")
-        self.promptForString("Database name", "aiservice_db_database")
-        self.printDescription(["TODO: Why do I need to choose a secretname?  Is there any value in me as the user deciding the secretname that the password is stored in?"])
-        self.promptForString("Database Secretname", "aiservice_db_secret_name", isPassword=True)
-        self.promptForString("Database password", "aiservice_db_secret_value", isPassword=True)
-
-        self.printH2("MariaDb")
-        self.printDescription(["TODO: Another database, what's the difference between this and the one I just set up?"])
-        self.promptForString("Mariadb username", "mariadb_user")
-        self.promptForString("Mariadb password", "mariadb_password", isPassword=True)
 
     def aiServiceTenantSettings(self) -> None:
         self.printH1("AI Service Tenant Settings")

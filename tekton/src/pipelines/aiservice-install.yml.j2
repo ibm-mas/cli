@@ -79,35 +79,28 @@ spec:
         - uds
         - sls
 
-    # 3.2 Install mariadb
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/mariadb.yml.j2') | indent(4) }}
-      runAfter:
-        - sls
-        - uds
-
-    # 3.3 Install db2
+    # 3.2 Install db2
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aiservice'}) | indent(4) }}
       runAfter:
-        - mariadb
+        - ibm-catalogs
 
-    # 3.4 Install Opendatahub
+    # 3.3 Install Opendatahub
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/odh.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - minio
-        - mariadb
 
-    # 3.5 Install Kmodels
+    # 3.4 Install Kmodels
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/kmodels.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - aiservice-odh
 
-    # 3.6 Install and Configure AI Service
+    # 3.5 Install and Configure AI Service
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - aiservice-kmodels
         - db2-aiservice
 
-    # 3.7 AI Service tenant creation
+    # 3.6 AI Service tenant creation
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice-tenant.yml.j2') | indent(4) }}
       runAfter:
         - aiservice

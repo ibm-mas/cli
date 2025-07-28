@@ -91,34 +91,6 @@ spec:
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: aiservice_db_host
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_db_port
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_db_user
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_db_database
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_db_secret_name
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_db_secret_key
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_db_secret_value
-      type: string
-      default: "This option is mandatory"
-      default: ""
 
   stepTemplate:
     env:
@@ -169,22 +141,6 @@ spec:
         value: $(params.aiservice_storage_templates_bucket)
       - name: AISERVICE_TENANT_NAME
         value: $(params.aiservice_tenant_name)
-
-      # MariaDB details
-      - name: AISERVICE_DB_HOST
-        value: $(params.aiservice_db_host)
-      - name: AISERVICE_DB_PORT
-        value: $(params.aiservice_db_port)
-      - name: AISERVICE_DB_USER
-        value: $(params.aiservice_db_user)
-      - name: AISERVICE_DB_DATABASE
-        value: $(params.aiservice_db_database)
-      - name: AISERVICE_DB_SECRET_NAME
-        value: $(params.aiservice_db_secret_name)
-      - name: AISERVICE_DB_SECRET_KEY
-        value: $(params.aiservice_db_secret_key)
-      - name: AISERVICE_DB_SECRET_VALUE
-        value: $(params.aiservice_db_secret_value)
 
   steps:
     - name: aiservice-odh

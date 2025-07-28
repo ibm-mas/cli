@@ -68,15 +68,6 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("S3 region (tenant level)", "aiservice_tenant_s3_region")
         self.printParamSummary("S3 endpoint url (tenant level)", "aiservice_tenant_s3_endpoint_url")
 
-        self.printH2("Database (MariaDb)")
-        self.printParamSummary("Mariadb username", "mariadb_user")
-        self.printParamSummary("Mariadb password", "mariadb_password")
-        print()
-        self.printParamSummary("Database host", "aiservice_db_host")
-        self.printParamSummary("Database port", "aiservice_db_port")
-        self.printParamSummary("Database user", "aiservice_db_user")
-        self.printParamSummary("Database name", "aiservice_db_database")
-
         self.printH2("IBM WatsonX")
         self.printParamSummary("Watsonxai machine learning url", "aiservice_watsonxai_url")
         self.printParamSummary("Watsonxai project id", "aiservice_watsonxai_project_id")
