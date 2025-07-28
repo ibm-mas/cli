@@ -60,10 +60,6 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - mongodb
-      when:
-        - input: "$(params.install_sls_aiservice)"
-          operator: notin
-          values: ["false", "False"]
 
     # 2.3 DRO
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/uds.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}

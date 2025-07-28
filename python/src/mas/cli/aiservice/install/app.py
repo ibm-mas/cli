@@ -184,7 +184,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.aiServiceSettings()
         self.aiServiceTenantSettings()
-        self.aiServiceDependencies()
         self.aiServiceIntegrations()
 
         # Dependencies
@@ -632,21 +631,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("aiservice_storage_pipelines_bucket", "km-pipelines")
         self.setParam("aiservice_storage_tenants_bucket", "km-tenants")
         self.setParam("aiservice_storage_templates_bucket", "km-templates")
-
-    def aiServiceDependencies(self) -> None:
-        self.printH1("Dependencies")
-
-        self.printH2("IBM Suite License Service")
-        self.printDescription([
-            "The installer can automatically install and configure an instance of SLS for the AI service",
-            "Alternatively you can manually provide the information to connect AI Service to an existing instance of SLS"
-        ])
-        self.yesOrNo("Install Dedicated SLS for AI Service", "install_sls_aiservice")
-        if self.getParam("install_sls_aiservice") != "true":
-            self.promptForString("SLS secret name", "aiservice_sls_secret_name")
-            self.promptForString("SLS registration key", "aiservice_sls_registration_key")
-            self.promptForString("SLS URL", "aiservice_sls_url")
-            self.promptForString("SLS CA certificate", "aiservice_sls_ca_cert")
 
     def aiServiceIntegrations(self) -> None:
         self.printH1("WatsonX Integration")
