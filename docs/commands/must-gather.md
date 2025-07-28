@@ -18,6 +18,10 @@ Usage
 - `--mas-instance-ids` Limit must-gather to a list of MAS instance IDs (comma-seperated list)
 - `--mas-app-ids` Limit must-gather to a subset of MAS namespaces (comma-seperated list)
 
+### AI Service Content Controls:
+- `--aiservice-instance-ids` Limit must-gather to a list of AI Service instance IDs (comma-seperated list)
+- `--aiservice-tenant-ids` Limit must-gather to a list of AI Service tenant IDs (comma-seperated list)
+
 ### Disable Collectors:
 - `--no-ocp` Disable must-gather for the OCP cluster itself
 - `--no-dependencies` Disable must-gather for in-cluster dependencies (Db2, Cloud Pak for Data, Cloud Pak Foundational Services, Mongo)
