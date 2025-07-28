@@ -399,106 +399,6 @@ aibrokerArgGroup.add_argument(
     help="token for rsl"
 )
 aibrokerArgGroup.add_argument(
-    "--install-sls-aiservice",
-    dest="install_sls_aiservice",
-    required=False,
-    help="flag for install sls"
-)
-aibrokerArgGroup.add_argument(
-    "--install-dro-aiservice",
-    dest="install_dro_aiservice",
-    required=False,
-    help="flag for install dro"
-)
-aibrokerArgGroup.add_argument(
-    "--install-db2-aiservice",
-    dest="install_db2_aiservice",
-    required=False,
-    help="flag for install db2"
-)
-
-aibrokerArgGroup.add_argument(
-    "--aiservice-dro-secret-name",
-    dest="aiservice_dro_secret_name",
-    required=False,
-    help="DRO secret name"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-dro-api-key",
-    dest="aiservice_dro_api_key",
-    required=False,
-    help="DRO API key"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-dro-url",
-    dest="aiservice_dro_url",
-    required=False,
-    help="DRO URL"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-dro-ca-cert",
-    dest="aiservice_dro_ca_cert",
-    required=False,
-    help="DRO CA certificate"
-)
-
-aibrokerArgGroup.add_argument(
-    "--aiservice-db2-username",
-    dest="aiservice_db2_username",
-    required=False,
-    help="DB2 username"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db2-password",
-    dest="aiservice_db2_password",
-    required=False,
-    help="DB2 password"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db2-jdbc-url",
-    dest="aiservice_db2_jdbc_url",
-    required=False,
-    help="DB2 JDBC URL"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db2-ssl-enabled",
-    dest="aiservice_db2_ssl_enabled",
-    required=False,
-    help="DB2 SSL enabled"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-db2-ca-cert",
-    dest="aiservice_db2_ca_cert",
-    required=False,
-    help="DB2 CA certificate"
-)
-
-aibrokerArgGroup.add_argument(
-    "--aiservice-sls-secret-name",
-    dest="aiservice_sls_secret_name",
-    required=False,
-    help="SLS secret name"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-sls-registration-key",
-    dest="aiservice_sls_registration_key",
-    required=False,
-    help="SLS registration key"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-sls-url",
-    dest="aiservice_sls_url",
-    required=False,
-    help="SLS URL"
-)
-aibrokerArgGroup.add_argument(
-    "--aiservice-sls-ca-cert",
-    dest="aiservice_sls_ca_cert",
-    required=False,
-    help="SLS CA certificate"
-)
-
-aibrokerArgGroup.add_argument(
     "--environment-type",
     dest="environment_type",
     required=False,
@@ -506,9 +406,11 @@ aibrokerArgGroup.add_argument(
     help="Environment type (default: non-production)"
 )
 
+
 # IBM Db2 Universal Operator
 # -----------------------------------------------------------------------------
 db2ArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Db2 Universal Operator")
+
 db2ArgGroup.add_argument(
     "--db2-namespace",
     required=False,
@@ -518,91 +420,6 @@ db2ArgGroup.add_argument(
     "--db2-channel",
     required=False,
     help="Subscription channel for Db2u"
-)
-db2ArgGroup.add_argument(
-    "--db2-type",
-    required=False,
-    help="Choose the type of the Manage dedicated Db2u instance. Available options are `db2wh` (default) or `db2oltp`"
-)
-db2ArgGroup.add_argument(
-    "--db2-timezone",
-    required=False,
-    help=""
-)
-db2ArgGroup.add_argument(
-    "--db2-affinity-key",
-    required=False,
-    help="Set a node label to declare affinity to"
-)
-db2ArgGroup.add_argument(
-    "--db2-affinity-value",
-    required=False,
-    help="Set the value of the node label to affine with"
-)
-db2ArgGroup.add_argument(
-    "--db2-tolerate-key",
-    required=False,
-    help="Set a node taint to tolerate"
-)
-db2ArgGroup.add_argument(
-    "--db2-tolerate-value",
-    required=False,
-    help="Set the value of the taint to tolerate"
-)
-db2ArgGroup.add_argument(
-    "--db2-tolerate-effect",
-    required=False,
-    help="Set the effect that will be tolerated (NoSchedule, PreferNoSchedule, or NoExecute)"
-)
-db2ArgGroup.add_argument(
-    "--db2-cpu-requests",
-    required=False,
-    help="Customize Db2 CPU request"
-)
-db2ArgGroup.add_argument(
-    "--db2-cpu-limits",
-    required=False,
-    help="Customize Db2 CPU limit"
-)
-db2ArgGroup.add_argument(
-    "--db2-memory-requests",
-    required=False,
-    help="Customize Db2 memory request"
-)
-db2ArgGroup.add_argument(
-    "--db2-memory-limits",
-    required=False,
-    help="Customize Db2 memory limit"
-)
-db2ArgGroup.add_argument(
-    "--db2-backup-storage",
-    dest="db2_backup_storage_size",
-    required=False,
-    help="Customize Db2 storage capacity"
-)
-db2ArgGroup.add_argument(
-    "--db2-data-storage",
-    dest="db2_data_storage_size",
-    required=False,
-    help="Customize Db2 storage capacity"
-)
-db2ArgGroup.add_argument(
-    "--db2-logs-storage",
-    dest="db2_logs_storage_size",
-    required=False,
-    help="Customize Db2 storage capacity"
-)
-db2ArgGroup.add_argument(
-    "--db2-meta-storage",
-    dest="db2_meta_storage_size",
-    required=False,
-    help="Customize Db2 storage capacity"
-)
-db2ArgGroup.add_argument(
-    "--db2-temp-storage",
-    dest="db2_temp_storage_size",
-    required=False,
-    help="Customize Db2 storage capacity"
 )
 
 

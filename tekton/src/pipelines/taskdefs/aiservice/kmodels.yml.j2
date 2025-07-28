@@ -11,16 +11,19 @@
 {% endif %}
     - name: mas_app_id
       value: aibroker
+
     - name: artifactory_username
       value: $(params.artifactory_username)
     - name: artifactory_token
       value: $(params.artifactory_token)
+
     - name: mas_app_channel
       value: "$(params.mas_app_channel_aibroker)"
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
     - name: custom_labels
       value: $(params.custom_labels)
+
     - name: aiservice_storage_provider
       value: $(params.aiservice_storage_provider)
     - name: aiservice_storage_accesskey
@@ -41,18 +44,10 @@
       value: $(params.aiservice_storage_tenants_bucket)
     - name: aiservice_storage_templates_bucket
       value: $(params.aiservice_storage_templates_bucket)
-    - name: aiservice_controller_tag
-      value: $(params.aiservice_controller_tag)
-    - name: aiservice_store_tag
-      value: $(params.aiservice_store_tag)
-    - name: aiservice_watcher_tag
-      value: $(params.aiservice_watcher_tag)
-    - name: aiservice_connector_tag
-      value: $(params.aiservice_connector_tag)
-    - name: aiservice_pipeline_steps_tag
-      value: $(params.aiservice_pipeline_steps_tag)
+
     - name: aiservice_tenant_name
       value: $(params.aiservice_tenant_name)
+
     - name: mas_icr_cp
       value: $(params.mas_icr_cp)
     - name: mas_icr_cpopen

@@ -151,6 +151,13 @@
   type: string
   description: Default channel for IBM Maximo AI Service
   default: ""
+- name: environment_type
+  type: string
+  description: Environment type
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - S3
+# -----------------------------------------------------------------------------
 - name: aiservice_storage_accesskey
   type: string
   description: S3/Minio storage access ket for IBM Maximo AI Service
@@ -191,53 +198,10 @@
   type: string
   description: S3/Minio storage template bucket for IBM Maximo AI Service
   default: ""
-- name: aiservice_tenant_name
-  type: string
-  description: Tenant name for IBM Maximo AI Service
-  default: ""
-- name: aiservice_watsonxai_apikey
-  type: string
-  description: WatsonX api key for IBM Maximo AI Service
-  default: ""
-- name: aiservice_watsonxai_url
-  type: string
-  description: WatsonX url for IBM Maximo AI Service
-  default: ""
-- name: aiservice_watsonxai_project_id
-  type: string
-  description: WatsonX project ID for IBM Maximo AI Service
-  default: ""
-- name: aiservice_watsonx_action
-  type: string
-  description: watsonx action for IBM Maximo AI Service
-  default: ""
-- name: aiservice_apikey_action
-  type: string
-  description: AI Broker api key action for IBM Maximo AI Service
-  default: ""
+
 - name: aiservice_s3_action
   type: string
   description: s3 action for IBM Maximo AI Service
-  default: ""
-- name: aiservice_connector_tag
-  type: string
-  description: connector image tag for IBM Maximo AI Service
-  default: ""
-- name: aiservice_controller_tag
-  type: string
-  description: controller image tag for IBM Maximo AI Service
-  default: ""
-- name: aiservice_pipeline_steps_tag
-  type: string
-  description: pipeline steps image tag for IBM Maximo AI Service
-  default: ""
-- name: aiservice_store_tag
-  type: string
-  description: store image tag for IBM Maximo AI Service
-  default: ""
-- name: aiservice_watcher_tag
-  type: string
-  description: watcher image tag for IBM Maximo AI Service
   default: ""
 - name: minio_root_user
   type: string
@@ -247,22 +211,7 @@
   type: string
   description: password for minio root user
   default: ""
-- name: tenant_entitlement_type
-  type: string
-  description: type of tenant
-  default: ""
-- name: tenant_entitlement_start_date
-  type: string
-  description: define start date for tenant
-  default: ""
-- name: tenant_entitlement_end_date
-  type: string
-  description: define end date for tenant
-  default: ""
-- name: install_db2_aiservice
-  type: string
-  description: flag for install db2
-  default: "true"
+
 - name: aiservice_s3_bucket_prefix
   type: string
   description: s3 bucker prefix
@@ -295,6 +244,51 @@
   type: string
   description: secret key for s3 ( tenant level )
   default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - Tenant
+# -----------------------------------------------------------------------------
+- name: aiservice_tenant_name
+  type: string
+  description: Tenant name for IBM Maximo AI Service
+  default: ""
+- name: tenant_entitlement_type
+  type: string
+  description: type of tenant
+  default: ""
+- name: tenant_entitlement_start_date
+  type: string
+  description: define start date for tenant
+  default: ""
+- name: tenant_entitlement_end_date
+  type: string
+  description: define end date for tenant
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - Watstonx
+# -----------------------------------------------------------------------------
+- name: aiservice_watsonxai_apikey
+  type: string
+  description: WatsonX api key for IBM Maximo AI Service
+  default: ""
+- name: aiservice_watsonxai_url
+  type: string
+  description: WatsonX url for IBM Maximo AI Service
+  default: ""
+- name: aiservice_watsonxai_project_id
+  type: string
+  description: WatsonX project ID for IBM Maximo AI Service
+  default: ""
+- name: aiservice_watsonx_action
+  type: string
+  description: watsonx action for IBM Maximo AI Service
+  default: ""
+- name: aiservice_apikey_action
+  type: string
+  description: AI Broker api key action for IBM Maximo AI Service
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - RSL
+# -----------------------------------------------------------------------------
 - name: rsl_url
   type: string
   description: url of RSL
@@ -306,72 +300,4 @@
 - name: rsl_token
   type: string
   description: token for RSL
-  default: ""
-- name: install_minio_aiservice
-  type: string
-  description: flag for install minio
-  default: "true"
-- name: install_sls_aiservice
-  type: string
-  description: flag for install sls
-  default: "true"
-- name: install_dro_aiservice
-  type: string
-  description: flag for install dro
-  default: "true"
-- name: aiservice_dro_secret_name
-  type: string
-  description: DRO secret name
-  default: ""
-- name: aiservice_dro_api_key
-  type: string
-  description: DRO API key
-  default: ""
-- name: aiservice_dro_url
-  type: string
-  description: DRO URL
-  default: ""
-- name: aiservice_dro_ca_cert
-  type: string
-  description: DRO CA certificate
-  default: ""
-- name: aiservice_db2_username
-  type: string
-  description: DB2 username
-  default: ""
-- name: aiservice_db2_password
-  type: string
-  description: DB2 password
-  default: ""
-- name: aiservice_db2_jdbc_url
-  type: string
-  description: DB2 JDBC URL
-  default: ""
-- name: aiservice_db2_ssl_enabled
-  type: string
-  description: DB2 SSL enabled
-  default: "false"
-- name: aiservice_db2_ca_cert
-  type: string
-  description: DB2 CA certificate
-  default: ""
-- name: aiservice_sls_secret_name
-  type: string
-  description: SLS secret name
-  default: ""
-- name: aiservice_sls_registration_key
-  type: string
-  description: SLS registration key
-  default: ""
-- name: aiservice_sls_url
-  type: string
-  description: SLS URL
-  default: ""
-- name: aiservice_sls_ca_cert
-  type: string
-  description: SLS CA certificate
-  default: ""
-- name: environment_type
-  type: string
-  description: Environment type
   default: ""

@@ -55,26 +55,6 @@ spec:
       default: ""
 
     # Kmodels details
-    - name: aiservice_controller_tag
-      type: string
-      description: Optional Kmodels details
-      default: ""
-    - name: aiservice_store_tag
-      type: string
-      description: Optional Kmodels details
-      default: ""
-    - name: aiservice_watcher_tag
-      type: string
-      description: Optional Kmodels details
-      default: ""
-    - name: aiservice_connector_tag
-      type: string
-      description: Optional Kmodels details
-      default: ""
-    - name: aiservice_pipeline_steps_tag
-      type: string
-      description: Optional Kmodels details
-      default: ""
     - name: aiservice_storage_pipelines_bucket
       type: string
       description: This option is mandatory
@@ -149,16 +129,6 @@ spec:
         value: $(params.mas_icr_cpopen)
 
       # Kmodels details
-      - name: AISERVICE_CONTROLLER_TAG
-        value: $(params.aiservice_controller_tag)
-      - name: AISERVICE_STORE_TAG
-        value: $(params.aiservice_store_tag)
-      - name: AISERVICE_WATCHER_TAG
-        value: $(params.aiservice_watcher_tag)
-      - name: AISERVICE_CONNECTOR_TAG
-        value: $(params.aiservice_connector_tag)
-      - name: AISERVICE_PIPELINE_STEPS_TAG
-        value: $(params.aiservice_pipeline_steps_tag)
       - name: AISERVICE_STORAGE_PIPELINES_BUCKET
         value: $(params.aiservice_storage_pipelines_bucket)
       - name: AISERVICE_STORAGE_TENANTS_BUCKET

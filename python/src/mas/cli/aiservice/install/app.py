@@ -240,7 +240,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     "aiservice_tenant_s3_region"
                 ]
                 if value is None:
-                    self.setParam("install_minio_aiservice", "false")
                     for uKey in incompatibleWithMinioInstall:
                         if vars(self.args)[uKey] is None:
                             self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
@@ -253,7 +252,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                         if vars(self.args)[rKey] is None:
                             self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
 
-                    self.setParam("install_minio_aiservice", "true")
                     self.setParam("aiservice_storage_provider", "minio")
 
                     self.setParam("aiservice_storage_accesskey", self.args.minio_root_user)
@@ -435,6 +433,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # UDS install has not been supported since the January 2024 catalog update
         self.setParam("uds_action", "install-dro")
 
+        # Install Db2 for AI Service
+        self.setParam("db2_action_aiservice", "install")
+
         # User must either provide the configuration via numerous command line arguments, or the interactive prompts
         if instanceId is None:
             self.interactiveMode(simplified=args.simplified, advanced=args.advanced)
@@ -533,14 +534,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def chooseInstallFlavour(self) -> None:
-        # We don't have any configuration as Advanced options right now in Aibroker settings
-        # we can remove this chooseInstallFlavour - if we want...
-        self.printH1("Choose Install Mode")
-        self.printDescription([
-            "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
-            " - Configure dedicated License (AppPoints)"
-        ])
-        self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
+        self.showAdvancedOptions = False
 
     def aiServiceSettings(self) -> None:
         self.printH1("AI Service Settings")
@@ -548,9 +542,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # Ask about MinIO installation FIRST (moved from aiServiceDependencies)
         self.printH2("Storage Configuration")
         self.printDescription(["AI Service requires object storage for pipelines, tenants, and templates. You can either install MinIO in-cluster or connect to external storage."])
-        self.yesOrNo("Install Minio", "install_minio_aiservice")
 
-        if self.getParam("install_minio_aiservice") == "true":
+        if self.yesOrNo("Install Minio"):
             # Only ask for MinIO credentials
             self.promptForString("minio root username", "minio_root_user")
             self.promptForString("minio root password", "minio_root_password", isPassword=True)
@@ -643,9 +636,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
     def aiServiceDependencies(self) -> None:
         self.printH1("Dependencies")
 
-        # MinIO configuration moved to aiServiceSettings()
-        # Remove MinIO prompts from here since they're handled above
-
         self.printH2("IBM Suite License Service")
         self.printDescription([
             "The installer can automatically install and configure an instance of SLS for the AI service",
@@ -657,31 +647,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("SLS registration key", "aiservice_sls_registration_key")
             self.promptForString("SLS URL", "aiservice_sls_url")
             self.promptForString("SLS CA certificate", "aiservice_sls_ca_cert")
-
-        self.printH2("IBM Data Reporter Operator")
-        self.printDescription([
-            "The installer can automatically install and configure an instance of DRO for the AI service",
-            "Alternatively you can manually provide the information to connect AI Service to an existing instance of DRO"
-        ])
-        self.yesOrNo("Install Dedicated DRO for AI Service", "install_dro_aiservice")
-        if self.getParam("install_dro_aiservice") != "true":
-            self.promptForString("DRO secret name", "aiservice_dro_secret_name")
-            self.promptForString("DRO API key", "aiservice_dro_api_key")
-            self.promptForString("DRO URL", "aiservice_dro_url")
-            self.promptForString("DRO CA certificate", "aiservice_dro_ca_cert")
-
-        self.printH2("IBM Db2")
-        self.printDescription([
-            "The installer can automatically install and configure an instance of IBM Db2 for the AI service",
-            "Alternatively you can manually provide the information to connect AI Service to an existing instance of IBM Db2"
-        ])
-        self.yesOrNo("Install DB2", "install_db2_aiservice")
-        if self.getParam("install_db2_aiservice") != "true":
-            self.promptForString("DB2 username", "aiservice_db2_username")
-            self.promptForString("DB2 password", "aiservice_db2_password")
-            self.promptForString("DB2 JDBC URL", "aiservice_db2_jdbc_url")
-            self.promptForString("DB2 SSL enabled (yes/no)", "aiservice_db2_ssl_enabled")
-            self.promptForString("DB2 CA certificate", "aiservice_db2_ca_cert")
 
     def aiServiceIntegrations(self) -> None:
         self.printH1("WatsonX Integration")

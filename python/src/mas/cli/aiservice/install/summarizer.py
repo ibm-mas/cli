@@ -48,11 +48,10 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("Environment type", "environment_type")
 
         self.printH2("S3 Configuration")
-        self.printParamSummary("Install minio", "install_minio_aiservice")
+        self.printParamSummary("Storage provider", "aiservice_storage_provider")
         if self.getParam("aiservice_storage_provider") == "minio":
             self.printParamSummary("minio root username", "minio_root_user")
         print()
-        self.printParamSummary("Storage provider", "aiservice_storage_provider")
         self.printParamSummary("Storage access key", "aiservice_storage_accesskey")
         self.printParamSummary("Storage host", "aiservice_storage_host")
         self.printParamSummary("Storage port", "aiservice_storage_port")
@@ -82,58 +81,11 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("ORG Id of RSL", "rsl_org_id")
         self.printParamSummary("Token for RSL", "rsl_token")
 
-        self.printH2("SLS")
-        self.printParamSummary("Install SLS", "install_sls_aiservice")
-        if self.getParam("install_sls_aiservice") != "true":
-            self.printParamSummary("  + SLS secret name", "aiservice_sls_secret_name")
-            self.printParamSummary("  + SLS registration key", "aiservice_sls_registration_key")
-            self.printParamSummary("  + SLS URL", "aiservice_sls_url")
-
-        self.printH2("DRO")
-        self.printParamSummary("  + Install DRO", "install_dro_aiservice")
-        if self.getParam("install_dro_aiservice") != "true":
-            self.printParamSummary("  + DRO secret name", "aiservice_dro_secret_name")
-            self.printParamSummary("  + DRO API key", "aiservice_dro_api_key")
-            self.printParamSummary("  + DRO URL", "aiservice_dro_url")
-
-        self.printH2("Db2")
-        self.printParamSummary("  + Install DB2", "install_db2_aiservice")
-        if self.getParam("install_db2_aiservice") != "true":
-            self.printParamSummary("  + DB2 username", "aiservice_db2_username")
-            self.printParamSummary("  + DB2 JDBC URL", "aiservice_db2_jdbc_url")
-            self.printParamSummary("  + DB2 SSL enabled", "aiservice_db2_ssl_enabled")
-
     def db2Summary(self) -> None:
-        if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
-            self.printH2("IBM Db2 Univeral Operator Configuration")
-            self.printSummary("System Instance", "Install" if self.getParam("db2_action_system") == "install" else "Do Not Install")
-            self.printSummary("Dedicated Manage Instance", "Install" if self.getParam("db2_action_manage") == "install" else "Do Not Install")
-            self.printParamSummary(" - Type", "db2_type")
-            self.printParamSummary(" - Timezone", "db2_timezone")
-            print()
-            self.printParamSummary("Install Namespace", "db2_namespace")
-            self.printParamSummary("Subscription Channel", "db2_channel")
-            print()
-            self.printParamSummary("CPU Request", "db2_cpu_requests")
-            self.printParamSummary("CPU Limit", "db2_cpu_limits")
-            self.printParamSummary("Memory Request", "db2_memory_requests")
-            self.printParamSummary("Memory Limit ", "db2_memory_limits")
-            print()
-            self.printParamSummary("Meta Storage", "db2_meta_storage_size")
-            self.printParamSummary("Data Storage", "db2_data_storage_size")
-            self.printParamSummary("Backup Storage", "db2_backup_storage_size")
-            self.printParamSummary("Temp Storage", "db2_temp_storage_size")
-            self.printParamSummary("Transaction Logs Storage", "db2_logs_storage_size")
-            print()
-            if self.getParam('db2_affinity_key') != "":
-                self.printSummary("Node Affinity", f"{self.getParam('db2_affinity_key')}={self.getParam('db2_affinity_value')}")
-            else:
-                self.printSummary("Node Affinity", "None")
-
-            if self.getParam('db2_tolerate_key') != "":
-                self.printSummary("Node Tolerations", f"{self.getParam('db2_tolerate_key')}={self.getParam('db2_tolerate_value')} @ {self.getParam('db2_tolerate_effect')}")
-            else:
-                self.printSummary("Node Tolerations", "None")
+        self.printH2("IBM Db2 Univeral Operator Configuration")
+        self.printParamSummary("Action", "db2_action_aiservice")
+        self.printParamSummary("Install Namespace", "db2_namespace")
+        self.printParamSummary("Subscription Channel", "db2_channel")
 
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")

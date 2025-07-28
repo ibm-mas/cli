@@ -149,58 +149,6 @@ spec:
     - name: rsl_token
       type: string
 
-    - name: aiservice_dro_secret_name
-      type: string
-      description: DRO secret name
-      default: ""
-    - name: aiservice_dro_api_key
-      type: string
-      description: DRO API key
-      default: ""
-    - name: aiservice_dro_url
-      type: string
-      description: DRO URL
-      default: ""
-    - name: aiservice_dro_ca_cert
-      type: string
-      description: DRO CA certificate
-      default: ""
-    - name: aiservice_db2_username
-      type: string
-      description: DB2 username
-      default: ""
-    - name: aiservice_db2_password
-      type: string
-      description: DB2 password
-      default: ""
-    - name: aiservice_db2_jdbc_url
-      type: string
-      description: DB2 JDBC URL
-      default: ""
-    - name: aiservice_db2_ssl_enabled
-      type: string
-      description: DB2 SSL enabled
-      default: "false"
-    - name: aiservice_db2_ca_cert
-      type: string
-      description: DB2 CA certificate
-      default: ""
-    - name: aiservice_sls_secret_name
-      type: string
-      description: SLS secret name
-      default: ""
-    - name: aiservice_sls_registration_key
-      type: string
-      description: SLS registration key
-      default: ""
-    - name: aiservice_sls_url
-      type: string
-      description: SLS URL
-      default: ""
-    - name: aiservice_sls_ca_cert
-      type: string
-      description: SLS CA certificate
-      default: ""
     - name: environment_type
       type: string
       description: Environment type
@@ -309,38 +257,8 @@ spec:
         value: $(params.rsl_org_id)
       - name: RSL_TOKEN
         value: $(params.rsl_token)
-
-      # Ai Broker Saas
       - name: AISERVICE_SAAS
         value: 'true'
-
-      # DRO, DB2, SLS vars
-      - name: AISERVICE_DRO_SECRET_NAME
-        value: $(params.aiservice_dro_secret_name)
-      - name: AISERVICE_DRO_API_KEY
-        value: $(params.aiservice_dro_api_key)
-      - name: AISERVICE_DRO_URL
-        value: $(params.aiservice_dro_url)
-      - name: AISERVICE_DRO_CA_CERT
-        value: $(params.aiservice_dro_ca_cert)
-      - name: AISERVICE_DB2_USERNAME
-        value: $(params.aiservice_db2_username)
-      - name: AISERVICE_DB2_PASSWORD
-        value: $(params.aiservice_db2_password)
-      - name: AISERVICE_DB2_JDBC_URL
-        value: $(params.aiservice_db2_jdbc_url)
-      - name: AISERVICE_DB2_SSL_ENABLED
-        value: $(params.aiservice_db2_ssl_enabled)
-      - name: AISERVICE_DB2_CA_CERT
-        value: $(params.aiservice_db2_ca_cert)
-      - name: AISERVICE_SLS_SECRET_NAME
-        value: $(params.aiservice_sls_secret_name)
-      - name: AISERVICE_SLS_REGISTRATION_KEY
-        value: $(params.aiservice_sls_registration_key)
-      - name: AISERVICE_SLS_URL
-        value: $(params.aiservice_sls_url)
-      - name: AISERVICE_SLS_CA_CERT
-        value: $(params.aiservice_sls_ca_cert)
       - name: ENVIRONMENT_TYPE
         value: $(params.environment_type)
 
