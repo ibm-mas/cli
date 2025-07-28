@@ -147,7 +147,7 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('mongodb_namespace') != "":
             command += f"  --mongodb-namespace \"{self.getParam('mongodb_namespace')}\"{newline}"
-        if self.getParam('mongodb-version') != "":
+        if self.getParam('mongodb_version') != "":
             command += f"  --mongodb-version \"{self.getParam('mongodb_version')}\"{newline}"
 
         # OCP Configuration

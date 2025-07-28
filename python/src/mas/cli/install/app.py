@@ -1053,6 +1053,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.setParam(key, value)
                     self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")
+            elif key == "mongodb_version":
+                if value is not None and value != "":
+                    self.setParam(key, value)
 
             # SLS
             elif key == "license_file":

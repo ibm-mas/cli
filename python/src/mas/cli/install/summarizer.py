@@ -318,6 +318,8 @@ class InstallSummarizerMixin():
         if self.getParam("mongodb_action") == "install":
             self.printSummary("Type", "MongoCE Operator")
             self.printParamSummary("Install Namespace", "mongodb_namespace")
+            if self.getParam("mongodb_version") != "":
+                self.printParamSummary("Version", "mongodb_version")
         elif self.getParam("mongodb_action") == "byo":
             self.printSummary("Type", "BYO (mongodb-system.yaml)")
         else:
