@@ -76,6 +76,26 @@ spec:
 
     # 1. Core x Manage
     # -------------------------------------------------------------------------
+    - name: kyverno-manage
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-manage
+        - name: product_channel
+          value: $(params.mas_app_channel_manage)
+        - name: fvt_test_suite
+          value: kyverno
+        - name: workspace_id
+          value: $(params.mas_workspace_id)
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
+
     - name: ivtcore-manage
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -88,6 +108,8 @@ spec:
           value: coreivt
         - name: workspace_id
           value: $(params.mas_workspace_id)
+      runAfter:
+        - kyverno-manage
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin
