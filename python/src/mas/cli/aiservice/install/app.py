@@ -633,13 +633,36 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     def aiServiceIntegrations(self) -> None:
         self.printH1("WatsonX Integration")
-        self.printDescription(["TODO: Describe how AI service uses Watsonx and how I get this information"])
+        self.printDescription([
+            "This CLI section configures the integration between the AI Service and IBM watsonx.ai. AI Service",
+            "uses watsonx for model deployment and inferencing.",
+            "",
+            "The WatsonX API key must be a **platform API key** associated with a user that has at least:",
+            "- **Editor permission** for the project",
+            "- **Viewer permission** for the space",
+            "You can generate this key by following IBM's documentation: https://www.ibm.com/docs/en/watsonx/w-and-w/2.2.0?topic=tutorials-generating-api-keys#api-keys__platform__title__1",
+            "",
+            "The endpoint URL is your WatsonX Machine Learning service URL. It can be found in the watsonx.ai",
+            "documentation: https://cloud.ibm.com/apidocs/watsonx-ai-cp/watsonx-ai-cp-2.2.0#endpoint-url",
+            "",
+            "The project ID refers to your specific watsonx.ai project where your ML models and assets are stored.",
+            "",
+        ])
         self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
         self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
         self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
 
         self.printH1("RSL Integration")
-        self.printDescription(["TODO: What is RSL?  Describe what this is and how AI service uses it, how do I get the URL and org ID and token?"])
+        self.printDescription([
+            "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
+            "",
+            "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
+            "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'", 
+            "Token: Use your IBM entitlement key (same as MAS installation)",
+            "",
+            "Note: Future versions will auto-configure these from MAS Manage.",
+            ""
+        ])
         self.promptForString("RSL url", "rsl_url")
         self.promptForString("ORG Id of RSL", "rsl_org_id")
         self.promptForString("Token for RSL", "rsl_token", isPassword=True)
