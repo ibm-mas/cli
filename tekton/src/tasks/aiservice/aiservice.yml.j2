@@ -221,10 +221,10 @@ spec:
         value: $(params.environment_type)
 
   steps:
-    - name: aibroker
+    - name: aiservice
       command:
         - /opt/app-root/src/run-role.sh
-        - aibroker
+        - aiservice
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs

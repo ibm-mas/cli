@@ -368,8 +368,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
-            if self.getParam("install_sls_aiservice") != "false":
-                self.fatalError("--license-file must be set for new SLS install")
+            self.fatalError("--license-file must be set for new SLS install")
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
         if not self.devMode:
