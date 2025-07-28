@@ -1,0 +1,343 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: gitops-mas-aibroker
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: cluster_id
+      type: string
+    - name: account
+      type: string
+    - name: aibroker_instance_id
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+
+    # AIBROKER-specific
+    - name: aibroker_namespace
+      type: string
+    - name: mas_aibroker_watsonx_secret
+      type: string
+    - name: pull_secret_name
+      type: string
+    - name: mas_aibroker_storage_provider
+      type: string
+    - name: mas_aibroker_storage_secret
+      type: string
+    - name: mas_aibroker_storage_host
+      type: string
+    - name: mas_aibroker_storage_port
+      type: string
+    - name: mas_aibroker_storage_ssl
+      type: string
+    - name: mas_aibroker_storage_region
+      type: string
+    - name: mas_aibroker_storage_pipelines_bucket
+      type: string
+    - name: mas_aibroker_storage_tenants_bucket
+      type: string
+    - name: mas_aibroker_storage_templates_bucket
+      type: string
+    - name: mas_aibroker_mariadb_secret
+      type: string
+    - name: primary_storage_class
+      type: string
+    - name: artifactory_username
+      type: string
+    - name: mas_app_channel
+      type: string
+    - name: mas_catalog_source
+      type: string
+    - name: mas_icr_cp
+      type: string
+    - name: mas_icr_cpopen
+      type: string
+    - name: cluster_domain
+      type: string
+    - name: in_saas_env
+      type: string
+    - name: is_external_route
+      type: string
+
+    # ODH-specific
+    - name: odh_channel
+      type: string
+    - name: odh_subscription_install_plan
+      type: string
+    - name: opendatahub_name
+      type: string
+    - name: opendatahub_operator_group
+      type: string
+    - name: opendatahub_namespace
+      type: string
+    - name: odh_operator_version
+      type: string
+
+    # KMODEL-specific 
+    - name: aibroker_internal_tls
+      type: string
+    - name: docker_server
+      type: string
+    - name: image_controller
+      type: string
+    - name: image_store
+      type: string
+    - name: image_watcher
+      type: string
+    - name: mas_aibroker_connector_tag
+      type: string
+    - name: mas_aibroker_provision_tenant
+      type: string
+    - name: mas_aibroker_saas
+      type: string
+    - name: model_id_prefix
+      type: string
+    - name: model_id_unique_length
+      type: string
+    - name: ssh_secret_name
+      type: string
+    - name: tenantNamespace
+      type: string 
+    - name: environment_type
+      type: string
+    - name: mas_aibroker_s3_endpoint_url
+      type: string
+    - name: mas_aibroker_s3_region
+      type: string
+    - name: mas_aibroker_s3_bucket_prefix
+      type: string
+
+  workspaces:
+    - name: configs
+
+  tasks:
+
+    # 2.gitops-odh
+    # -------------------------------------------------------------------------
+    - name: gitops-odh
+      taskRef:
+        name: gitops-odh
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: odh_channel
+          value: $(params.odh_channel)
+        - name: odh_subscription_install_plan
+          value: $(params.odh_subscription_install_plan)
+        - name: opendatahub_name
+          value: $(params.opendatahub_name)
+        - name: opendatahub_operator_group
+          value: $(params.opendatahub_operator_group)
+        - name: opendatahub_namespace
+          value: $(params.opendatahub_namespace)
+        - name: odh_operator_version
+          value: $(params.odh_operator_version)
+        - name: mas_aibroker_storage_ssl
+          value: $(params.mas_aibroker_storage_ssl)
+          
+    # 3.gitops-Aibroker
+    # -------------------------------------------------------------------------
+
+    - name: gitops-aibroker
+      taskRef:
+        name: gitops-aibroker
+      runAfter:
+        - gitops-odh
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        # AIBROKER shared and specific params
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
+        - name: aibroker_namespace
+          value: $(params.aibroker_namespace)
+        - name: mas_aibroker_watsonx_secret
+          value: $(params.mas_aibroker_watsonx_secret)
+        - name: pull_secret_name
+          value: $(params.pull_secret_name)
+        - name: mas_aibroker_storage_provider
+          value: $(params.mas_aibroker_storage_provider)
+        - name: mas_aibroker_storage_secret
+          value: $(params.mas_aibroker_storage_secret)
+        - name: mas_aibroker_storage_host
+          value: $(params.mas_aibroker_storage_host)
+        - name: mas_aibroker_storage_port
+          value: $(params.mas_aibroker_storage_port)
+        - name: mas_aibroker_storage_ssl
+          value: $(params.mas_aibroker_storage_ssl)
+        - name: mas_aibroker_storage_region
+          value: $(params.mas_aibroker_storage_region)
+        - name: mas_aibroker_storage_pipelines_bucket
+          value: $(params.mas_aibroker_storage_pipelines_bucket)
+        - name: mas_aibroker_storage_tenants_bucket
+          value: $(params.mas_aibroker_storage_tenants_bucket)
+        - name: mas_aibroker_storage_templates_bucket
+          value: $(params.mas_aibroker_storage_templates_bucket)
+        - name: mas_aibroker_mariadb_secret
+          value: $(params.mas_aibroker_mariadb_secret)
+        - name: primary_storage_class
+          value: $(params.primary_storage_class)
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: mas_app_channel
+          value: $(params.mas_app_channel)
+        - name: mas_catalog_source
+          value: $(params.mas_catalog_source)
+        - name: mas_icr_cp
+          value: $(params.mas_icr_cp)
+        - name: mas_icr_cpopen
+          value: $(params.mas_icr_cpopen)
+        - name: cluster_domain
+          value: $(params.cluster_domain)
+        - name: in_saas_env
+          value: $(params.in_saas_env)
+        - name: is_external_route
+          value: $(params.is_external_route)
+        - name: environment_type
+          value: $(params.environment_type)
+        - name: mas_aibroker_s3_endpoint_url
+          value: $(params.mas_aibroker_s3_endpoint_url)
+        - name: mas_aibroker_s3_region
+          value: $(params.mas_aibroker_s3_region)
+        - name: mas_aibroker_s3_bucket_prefix
+          value: $(params.mas_aibroker_s3_bucket_prefix)
+        
+
+    # 4.gitops-Kmodel
+    # -------------------------------------------------------------------------
+    - name: gitops-kmodel
+      taskRef:
+        name: gitops-kmodel
+      runAfter:
+        - gitops-aibroker
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: cluster_id
+          value: $(params.cluster_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
+        - name: aibroker_internal_tls
+          value: $(params.aibroker_internal_tls)
+        - name: aibroker_namespace
+          value: $(params.aibroker_namespace)
+        - name: pull_secret_name
+          value: $(params.pull_secret_name)
+        - name: mas_aibroker_storage_provider
+          value: $(params.mas_aibroker_storage_provider)
+        - name: mas_aibroker_storage_ssl
+          value: $(params.mas_aibroker_storage_ssl)
+        - name: mas_aibroker_storage_host
+          value: $(params.mas_aibroker_storage_host)
+        - name: mas_aibroker_storage_port
+          value: $(params.mas_aibroker_storage_port)
+        - name: mas_aibroker_storage_region
+          value: $(params.mas_aibroker_storage_region)
+        - name: mas_aibroker_storage_templates_bucket
+          value: $(params.mas_aibroker_storage_templates_bucket)
+        - name: mas_aibroker_storage_tenants_bucket
+          value: $(params.mas_aibroker_storage_tenants_bucket)
+        - name: mas_aibroker_storage_pipelines_bucket
+          value: $(params.mas_aibroker_storage_pipelines_bucket)
+        - name: ssh_secret_name
+          value: $(params.ssh_secret_name)
+        - name: docker_server
+          value: $(params.docker_server)
+        - name: tenantNamespace
+          value: $(params.tenantNamespace)
+        - name: mas_aibroker_provision_tenant
+          value: $(params.mas_aibroker_provision_tenant)
+        - name: primary_storage_class
+          value: $(params.primary_storage_class)
+        - name: image_store
+          value: $(params.image_store)
+        - name: image_watcher
+          value: $(params.image_watcher)
+        - name: image_controller
+          value: $(params.image_controller)
+        - name: mas_aibroker_connector_tag
+          value: $(params.mas_aibroker_connector_tag)
+        - name: mas_aibroker_saas
+          value: $(params.mas_aibroker_saas)
+        - name: model_id_unique_length
+          value: $(params.model_id_unique_length)
+        - name: model_id_prefix
+          value: $(params.model_id_prefix)
+        - name: mas_app_channel
+          value: $(params.mas_app_channel)
+        - name: mas_icr_cp
+          value: $(params.mas_icr_cp)
