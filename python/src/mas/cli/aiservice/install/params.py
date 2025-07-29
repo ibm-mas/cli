@@ -68,17 +68,21 @@ optionalParams = [
     "aiservice_storage_pipelines_bucket",
     "aiservice_storage_tenants_bucket",
     "aiservice_storage_templates_bucket",
-    "aiservice_tenant_name",
+
     "aiservice_watsonxai_apikey",
     "aiservice_watsonxai_url",
     "aiservice_watsonxai_project_id",
     "aiservice_watsonx_action",
+
     "aiservice_instance_id",
+
     "minio_root_user",
     "minio_root_password",
+
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",
+
     "aiservice_s3_bucket_prefix",
     "aiservice_s3_region",
     "aiservice_s3_endpoint_url",
@@ -87,8 +91,10 @@ optionalParams = [
     "aiservice_tenant_s3_endpoint_url",
     "aiservice_tenant_s3_access_key",
     "aiservice_tenant_s3_secret_key",
+
     "rsl_url",
     "rsl_org_id",
     "rsl_token",
+
     "environment_type",
 ]

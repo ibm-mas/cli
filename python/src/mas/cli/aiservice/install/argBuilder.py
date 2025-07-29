@@ -130,9 +130,6 @@ class aiServiceInstallArgBuilderMixin():
         if self.getParam('aiservice_storage_templates_bucket') != "":
             command += f"  --aiservice-storage-templates-bucket \"{self.getParam('aiservice_storage_templates_bucket')}\"{newline}"
 
-        if self.getParam('aiservice_tenant_name') != "":
-            command += f"  --aiservice-tenant-name \"{self.getParam('aiservice_tenant_name')}\"{newline}"
-
         if self.getParam('aiservice_watsonxai_apikey') != "":
             command += f"  --aiservice-watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
         if self.getParam('aiservice_watsonxai_url') != "":

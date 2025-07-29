@@ -27,7 +27,7 @@ spec:
       description: Instance ID
 
     # Application - Operator
-    - name: mas_app_channel
+    - name: aiservice_channel
       type: string
       description: Catalog channel for the application operator subscription
 
@@ -87,10 +87,6 @@ spec:
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: aiservice_tenant_name
-      type: string
-      default: "This option is mandatory"
-      default: ""
 
   stepTemplate:
     env:
@@ -112,7 +108,7 @@ spec:
 
       # Application - Operator
       - name: MAS_APP_CHANNEL
-        value: $(params.mas_app_channel)
+        value: $(params.aiservice_channel)
 
       # Custom Label Support
       - name: CUSTOM_LABELS
@@ -139,8 +135,6 @@ spec:
         value: $(params.aiservice_storage_tenants_bucket)
       - name: AISERVICE_STORAGE_TEMPLATES_BUCKET
         value: $(params.aiservice_storage_templates_bucket)
-      - name: AISERVICE_TENANT_NAME
-        value: $(params.aiservice_tenant_name)
 
   steps:
     - name: aiservice-odh

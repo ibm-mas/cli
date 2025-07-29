@@ -356,13 +356,6 @@ watsonxArgGroup.add_argument(
 # AI Service
 # -----------------------------------------------------------------------------
 aibrokerArgGroup.add_argument(
-    "--aiservice-tenant-name",
-    dest="aiservice_tenant_name",
-    required=False,
-    help="TODO: Write me"
-)
-
-aibrokerArgGroup.add_argument(
     "--tenant-entitlement-type",
     dest="tenant_entitlement_type",
     required=False,
