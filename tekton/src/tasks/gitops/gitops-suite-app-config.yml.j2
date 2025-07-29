@@ -70,9 +70,6 @@ spec:
     - name: mas_manual_certs_yaml
       type: string
       default: ""
-    - name: ingress
-      type: string
-      default: "false"
     - name: run_sanity_test
       type: string
       default: "false"
@@ -135,8 +132,6 @@ spec:
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_MANUAL_CERTS_YAML
         value: $(params.mas_manual_certs_yaml)
-      - name: INGRESS
-        value: $(params.ingress)
       - name: RUN_SANITY_TEST
         value: $(params.run_sanity_test)
       - name: MANAGE_UPDATE_SCHEDULE

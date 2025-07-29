@@ -54,11 +54,6 @@ run_sanity_test: true
 run_sanity_test: false
 {% endif %}
 
-{% if INGRESS == 'true' %}
-ingress: true
-{% else %}
-ingress: false
-{% endif %}
 
 {% if PUBLIC_TLS_SECRET_NAME is defined and PUBLIC_TLS_SECRET_NAME !='' %}
 public_tls_secret_name: {{ PUBLIC_TLS_SECRET_NAME }}
