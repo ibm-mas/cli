@@ -709,7 +709,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
             releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
 
-            self.setParam("mas_app_channel_aibroker", self.catalogReleases[releaseSelection])
+            self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -741,7 +741,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printH1("License Terms")
             self.printDescription([
                 "To continue with the installation, you must accept the license terms:",
-                self.licenses[f"aibroker-{self.getParam('mas_app_channel_aibroker')}"]
+                self.licenses[f"aibroker-{self.getParam('aiservice_channel')}"]
             ])
 
             if self.noConfirm:

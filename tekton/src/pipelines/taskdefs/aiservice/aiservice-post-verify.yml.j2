@@ -17,7 +17,7 @@
     kind: Task
   # Only install aibroker if a channel has been chosen
   when:
-    - input: "$(params.mas_app_channel_aibroker)"
+    - input: "$(params.aiservice_channel)"
       operator: notin
       values: [""]
   workspaces:

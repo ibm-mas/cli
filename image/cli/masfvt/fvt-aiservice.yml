@@ -5,7 +5,7 @@
     # Image Pull Policy
     image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
     # MAS Details
-    mas_app_channel_aibroker: "{{ lookup('env', 'MAS_APP_CHANNEL_AIBROKER') }}"
+    aiservice_channel: "{{ lookup('env', 'AISERVICE_CHANNEL') }}"
     mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
 
     aiservice_instance_id: "{{ lookup('env', 'AISERVICE_INSTANCE_ID') }}"
@@ -26,8 +26,8 @@
           - "pipelinerun_name .................. {{ pipelinerun_name }}"
           - "pipelinerun_namespace ............. {{ pipelinerun_namespace }}"
           - ""
-          - "mas_app_channel_aibroker ........... {{ mas_app_channel_aibroker }}"
-          - "aiservice_instance_id ............... {{ aiservice_instance_id }}"
+          - "aiservice_channel ................. {{ aiservice_channel }}"
+          - "aiservice_instance_id ............. {{ aiservice_instance_id }}"
           - ""
           - "fvt_image_registry ................ {{ fvt_image_registry }}"
           - "fvt_artifactory_username .......... {{ fvt_artifactory_username }}"

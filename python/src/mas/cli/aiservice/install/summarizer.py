@@ -43,7 +43,7 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("IBM Open Registry", "mas_icr_cpopen")
 
         self.printH2("AI Service")
-        self.printParamSummary("Release", "mas_app_channel_aibroker")
+        self.printParamSummary("Release", "aiservice_channel")
         self.printParamSummary("Instance ID", "aiservice_instance_id")
         self.printParamSummary("Environment type", "environment_type")
 

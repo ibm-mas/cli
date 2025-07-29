@@ -21,25 +21,6 @@ spec:
     - name: ibm_entitlement_key
       type: string
 
-    # MAS Details
-    - name: mas_instance_id
-      type: string
-      description: Instance ID
-
-    # Application - Operator
-    - name: mas_app_channel
-      type: string
-      description: Catalog channel for the application operator subscription
-
-    # Application - Operand
-    - name: mas_app_bindings_jdbc
-      default: ""
-      type: string
-    - name: mas_app_plan
-      type: string
-      description: Application installation plan
-      default: ""
-
     # Custom Label Support
     - name: custom_labels
       type: string
@@ -55,45 +36,42 @@ spec:
       default: ""
 
     # Kmodels details
+    - name: aiservice_instance_id
+      type: string
+      description: Instance ID
+
     - name: aiservice_storage_pipelines_bucket
       type: string
-      description: This option is mandatory
       default: ""
     - name: aiservice_storage_tenants_bucket
       type: string
-      description: This option is mandatory
       default: ""
     - name: aiservice_storage_templates_bucket
       type: string
-      description: This option is mandatory
       default: ""
+
     - name: aiservice_storage_provider
       type: string
-      default: "This option is mandatory"
+      default: ""
+
+    - name: aiservice_storage_region
+      type: string
       default: ""
     - name: aiservice_storage_accesskey
       type: string
-      default: "This option is mandatory"
       default: ""
     - name: aiservice_storage_secretkey
       type: string
-      default: "This option is mandatory"
       default: ""
+
     - name: aiservice_storage_host
       type: string
-      default: "This option is mandatory"
       default: ""
     - name: aiservice_storage_port
       type: string
-      default: "This option is mandatory"
       default: ""
     - name: aiservice_storage_ssl
       type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_region
-      type: string
-      default: "This option is mandatory"
       default: ""
 
   stepTemplate:
@@ -111,12 +89,8 @@ spec:
         value: $(params.ibm_entitlement_key)
 
       # MAS Details
-      - name: MAS_INSTANCE_ID
-        value: $(params.mas_instance_id)
-
-      # Application - Operator
-      - name: MAS_APP_CHANNEL
-        value: $(params.mas_app_channel)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
 
       # Custom Label Support
       - name: CUSTOM_LABELS
@@ -153,7 +127,6 @@ spec:
       # Ai Broker Saas
       - name: AISERVICE_SAAS
         value: 'true'
-
 
   steps:
     - name: aiservice-kmodels
