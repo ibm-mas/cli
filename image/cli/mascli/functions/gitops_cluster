@@ -38,7 +38,7 @@ Redhat Cert Manager (Optional):
 
 IBM CIS Cert Manager:
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
-      --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET} true/false, If true, ingress-controller for cis-proxy will be configured
+      --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                   true/false, If true, ingress-controller for cis-proxy will be configured
 
 Custom Cluster Service Accounts (Optional):
       --custom_sa_namespace ${COLOR_YELLOW}CUSTOM_SA_NAMESPACE${TEXT_RESET}   Namespace to create the Service Account(s) in
