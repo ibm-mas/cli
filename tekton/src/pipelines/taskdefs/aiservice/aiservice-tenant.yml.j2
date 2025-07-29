@@ -3,21 +3,24 @@
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
-      value: aibroker
-    - name: mas_instance_id
-      value: $(params.aiservice_instance_id)
-    - name: mas_app_id
-      value: aibroker
+      value: aiservice-tenant
+
     - name: artifactory_username
       value: $(params.artifactory_username)
     - name: artifactory_token
       value: $(params.artifactory_token)
-    - name: mas_app_channel
+
+    - name: aiservice_instance_id
+      value: $(params.aiservice_instance_id)
+    - name: aiservice_channel
       value: "$(params.mas_app_channel_aibroker)"
+
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
+
     - name: custom_labels
       value: $(params.custom_labels)
+
     - name: aiservice_storage_provider
       value: $(params.aiservice_storage_provider)
     - name: aiservice_storage_accesskey
@@ -38,6 +41,7 @@
       value: $(params.aiservice_storage_tenants_bucket)
     - name: aiservice_storage_templates_bucket
       value: $(params.aiservice_storage_templates_bucket)
+
     - name: aiservice_watsonxai_apikey
       value: $(params.aiservice_watsonxai_apikey)
     - name: aiservice_watsonxai_url
@@ -46,22 +50,27 @@
       value: $(params.aiservice_watsonxai_project_id)
     - name: aiservice_watsonx_action
       value: $(params.aiservice_watsonx_action)
+
     - name: aiservice_s3_action
       value: $(params.aiservice_s3_action)
     - name: aiservice_apikey_action
       value: $(params.aiservice_apikey_action)
+
     - name: aiservice_tenant_name
       value: $(params.aiservice_tenant_name)
+
     - name: tenant_entitlement_type
       value: $(params.tenant_entitlement_type)
     - name: tenant_entitlement_start_date
       value: $(params.tenant_entitlement_start_date)
     - name: tenant_entitlement_end_date
       value: $(params.tenant_entitlement_end_date)
+
     - name: mas_icr_cp
       value: $(params.mas_icr_cp)
     - name: mas_icr_cpopen
       value: $(params.mas_icr_cpopen)
+
     - name: aiservice_tenant_s3_bucket_prefix
       value: $(params.aiservice_tenant_s3_bucket_prefix)
     - name: aiservice_tenant_s3_region
@@ -72,12 +81,14 @@
       value: $(params.aiservice_tenant_s3_access_key)
     - name: aiservice_tenant_s3_secret_key
       value: $(params.aiservice_tenant_s3_secret_key)
+
     - name: rsl_url
       value: $(params.rsl_url)
     - name: rsl_org_id
       value: $(params.rsl_org_id)
     - name: rsl_token
       value: $(params.rsl_token)
+
     - name: environment_type
       value: $(params.environment_type)
 
@@ -88,9 +99,6 @@
     - input: "$(params.mas_app_channel_aibroker)"
       operator: notin
       values: [""]
-    - input: "$(params.mas_app_channel_aibroker)"
-      operator: notin
-      values: ["9.0.x"]
   workspaces:
     - name: configs
       workspace: shared-configs
