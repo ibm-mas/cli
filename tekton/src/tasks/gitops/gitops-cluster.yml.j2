@@ -81,6 +81,9 @@ spec:
     - name: ocp_cluster_domain
       type: string
       default: ""
+    - name: ingress
+      type: string
+      default: "false"
     - name: cluster_nonshared
       type: string
       default: "false"
@@ -212,6 +215,8 @@ spec:
         value: $(params.dns_provider)
       - name: OCP_CLUSTER_DOMAIN
         value: $(params.ocp_cluster_domain)
+      - name: INGRESS
+        value: $(params.ingress)
       - name: NONSHARED
         value: $(params.cluster_nonshared)
 
