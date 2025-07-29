@@ -227,8 +227,8 @@ function gitops_deprovision_odh() {
 
 
 
-  echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-odh.yaml"
-  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-odh.yaml
+  echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
