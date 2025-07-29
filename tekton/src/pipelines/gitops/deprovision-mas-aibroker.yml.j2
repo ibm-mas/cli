@@ -68,7 +68,7 @@ spec:
     # -------------------------------------------------------------------------------------------------------
     - name: run-gitops-deprovision-aibroker
       runAfter:
-        - gitops-deprovision-odh
+        - run-gitops-deprovision-odh
       taskRef:
         kind: Task
         name: gitops-deprovision-aibroker
@@ -103,7 +103,7 @@ spec:
     # -------------------------------------------------------------------------
     - name: run-gitops-deprovision-kmodel
       runAfter:
-        - gitops-deprovision-aibroker
+        - run-gitops-deprovision-aibroker
       taskRef:
         kind: Task
         name: gitops-deprovision-kmodel
