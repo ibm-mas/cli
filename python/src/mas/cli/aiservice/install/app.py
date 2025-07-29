@@ -657,7 +657,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
             "",
             "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
-            "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'", 
+            "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
             "Token: Use your IBM entitlement key (same as MAS installation)",
             "",
             "Note: Future versions will auto-configure these from MAS Manage.",
