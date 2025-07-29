@@ -28,7 +28,6 @@ spec:
       type: string
     - name: aibroker_instance_id
       type: string
-
   stepTemplate:
     name: gitops-deprovision-odh
     env:
@@ -36,8 +35,6 @@ spec:
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
-      #- name: CLUSTER_ID
-      #  value: $(params.cluster_id)
       - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: SECRET_PATH
@@ -54,8 +51,6 @@ spec:
         value: $(params.github_repo)
       - name: AIBROKER_INSTANCE_ID
         value: $(params.aibroker_instance_id)
-        
-
     envFrom:
       - configMapRef:
           name: environment-properties
