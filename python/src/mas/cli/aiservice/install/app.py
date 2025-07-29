@@ -142,18 +142,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.interactiveMode = True
 
         self.storageClassProvider = "custom"
-        self.installAssist = False
-        self.installIoT = False
-        self.installMonitor = False
-        self.installManage = False
-        self.installPredict = False
-        self.installInspection = False
-        self.installOptimizer = False
-        self.installFacilities = False
-        self.installAiBroker = True
-        self.deployCP4D = False
-        self.db2SetAffinity = False
-        self.db2SetTolerations = False
         self.slsLicenseFileLocal = None
 
         if simplified:
@@ -200,9 +188,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("mongodb_action", "install")
 
         self.storageClassProvider = "custom"
-        self.installAiBroker = True
-        self.db2SetAffinity = False
-        self.db2SetTolerations = False
         self.slsLicenseFileLocal = None
 
         self.approvals = {
@@ -299,8 +284,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             # value = "" means the parameter was explicitly set to "don't install this application"
             elif key == "aiservice_channel":
                 if value is not None and value != "":
-                    self.setParam("mas_app_channel_aibroker", value)
-                    self.installAiBroker = True
+                    self.setParam("aiservice_channel", value)
 
             # MongoDB
             elif key == "mongodb_namespace":

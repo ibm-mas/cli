@@ -78,61 +78,11 @@ class aiServiceInstallArgBuilderMixin():
 
         # Aibroker Channel
         # -----------------------------------------------------------------------------
-        if self.installAiBroker:
-            command += f"  --aiservice-channel \"{self.getParam('mas_app_channel_aibroker')}\"{newline}"
+        command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
 
         # IBM Db2 Universal Operator
         # -----------------------------------------------------------------------------
-        if self.getParam('db2_action_system') == "install" or self.getParam('db2_action_manage') == "install" or self.getParam('db2_action_facilities') == "install":
-            if self.getParam('db2_action_system') == "install":
-                command += f"  --db2-system{newline}"
-            if self.getParam('db2_action_manage') == "install":
-                command += f"  --db2-manage{newline}"
-            if self.getParam('db2_action_facilities') == "install":
-                command += f"  --db2-facilities{newline}"
-
-            if self.getParam('db2_channel') != "":
-                command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
-            if self.getParam('db2_namespace') != "":
-                command += f"  --db2-namespace \"{self.getParam('db2_namespace')}\"{newline}"
-
-            if self.getParam('db2_type') != "":
-                command += f"  --db2-type \"{self.getParam('db2_type')}\"{newline}"
-            if self.getParam('db2_timezone') != "":
-                command += f"  --db2-timezone \"{self.getParam('db2_timezone')}\"{newline}"
-
-            if self.getParam('db2_affinity_key') != "":
-                command += f"  --db2-affinity-key \"{self.getParam('db2_affinity_key')}\"{newline}"
-            if self.getParam('db2_affinity_value') != "":
-                command += f"  --db2-affinity_value \"{self.getParam('db2_affinity_value')}\"{newline}"
-
-            if self.getParam('db2_tolerate_key') != "":
-                command += f"  --db2-tolerate-key \"{self.getParam('db2_tolerate_key')}\"{newline}"
-            if self.getParam('db2_tolerate_value') != "":
-                command += f"  --db2-tolerate-value \"{self.getParam('db2_tolerate_value')}\"{newline}"
-            if self.getParam('db2_tolerate_effect') != "":
-                command += f"  --db2-tolerate-effect \"{self.getParam('db2_tolerate_effect')}\"{newline}"
-
-            if self.getParam('db2_cpu_requests') != "":
-                command += f"  --db2-cpu-requests \"{self.getParam('db2_cpu_requests')}\"{newline}"
-            if self.getParam('db2_cpu_limits') != "":
-                command += f"  --db2-cpu-limits \"{self.getParam('db2_cpu_limits')}\"{newline}"
-
-            if self.getParam('db2_memory_requests') != "":
-                command += f"  --db2-memory-requests \"{self.getParam('db2_memory_requests')}\"{newline}"
-            if self.getParam('db2_memory_limits') != "":
-                command += f"  --db2-memory-limits \"{self.getParam('db2_memory_limits')}\"{newline}"
-
-            if self.getParam('db2_backup_storage_size') != "":
-                command += f"  --db2-backup-storage \"{self.getParam('db2_backup_storage_size')}\"{newline}"
-            if self.getParam('db2_data_storage_size') != "":
-                command += f"  --db2-data-storage \"{self.getParam('db2_data_storage_size')}\"{newline}"
-            if self.getParam('db2_logs_storage_size') != "":
-                command += f"  --db2-logs-storage \"{self.getParam('db2_logs_storage_size')}\"{newline}"
-            if self.getParam('db2_meta_storage_size') != "":
-                command += f"  --db2-meta-storage \"{self.getParam('db2_meta_storage_size')}\"{newline}"
-            if self.getParam('db2_temp_storage_size') != "":
-                command += f"  --db2-temp-storage \"{self.getParam('db2_temp_storage_size')}\"{newline}"
+        command += f"  --db2-aiservice{newline}"
 
         # Development Mode
         # -----------------------------------------------------------------------------
@@ -152,8 +102,6 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --no-wait-for-pvc{newline}"
         if self.getParam('skip_pre_check') is True:
             command += f"  --skip-pre-check{newline}"
-        if self.getParam('skip_grafana_install') is True:
-            command += f"  --skip-grafana-install{newline}"
         if self.getParam('image_pull_policy') != "":
             command += f"  --image-pull-policy {self.getParam('image_pull_policy')}{newline}"
         if self.getParam('service_account_name') != "":
@@ -181,8 +129,10 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --aiservice-storage-tenants-bucket \"{self.getParam('aiservice_storage_tenants_bucket')}\"{newline}"
         if self.getParam('aiservice_storage_templates_bucket') != "":
             command += f"  --aiservice-storage-templates-bucket \"{self.getParam('aiservice_storage_templates_bucket')}\"{newline}"
+
         if self.getParam('aiservice_tenant_name') != "":
             command += f"  --aiservice-tenant-name \"{self.getParam('aiservice_tenant_name')}\"{newline}"
+
         if self.getParam('aiservice_watsonxai_apikey') != "":
             command += f"  --aiservice-watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
         if self.getParam('aiservice_watsonxai_url') != "":
@@ -191,22 +141,26 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --aiservice-watsonxai-project-id \"{self.getParam('aiservice_watsonxai_project_id')}\"{newline}"
         if self.getParam('aiservice_watsonx_action') != "":
             command += f"  --aiservice-watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
+
         if self.getParam('minio_root_user') != "":
             command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
         if self.getParam('minio_root_password') != "":
             command += f"  --minio-root-password \"{self.getParam('minio_root_password')}\"{newline}"
+
         if self.getParam('tenant_entitlement_type') != "":
             command += f"  --tenant-entitlement-type \"{self.getParam('tenant_entitlement_type')}\"{newline}"
         if self.getParam('tenant_entitlement_start_date') != "":
             command += f"  --tenant-entitlement-start-date \"{self.getParam('tenant_entitlement_start_date')}\"{newline}"
         if self.getParam('tenant_entitlement_end_date') != "":
             command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
+
         if self.getParam('aiservice_s3_bucket_prefix') != "":
             command += f"  --aiservice-s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
         if self.getParam('aiservice_s3_endpoint_url') != "":
             command += f"  --aiservice-s3-endpoint-url \"{self.getParam('aiservice_s3_endpoint_url')}\"{newline}"
         if self.getParam('aiservice_s3_region') != "":
             command += f"  --aiservice-s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
+
         if self.getParam('aiservice_tenant_s3_bucket_prefix') != "":
             command += f"  --aiservice-tenant-s3-bucket-prefix \"{self.getParam('aiservice_tenant_s3_bucket_prefix')}\"{newline}"
         if self.getParam('aiservice_tenant_s3_region') != "":
@@ -217,6 +171,7 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --aiservice-tenant-s3-access-key \"{self.getParam('aiservice_tenant_s3_access_key')}\"{newline}"
         if self.getParam('aiservice_tenant_s3_secret_key') != "":
             command += f"  --aiservice-tenant-s3-secret-key \"{self.getParam('aiservice_tenant_s3_secret_key')}\"{newline}"
+
         if self.getParam('rsl_url') != "":
             command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
         if self.getParam('rsl_org_id') != "":
