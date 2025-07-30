@@ -1072,7 +1072,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     # Verifies if the mongodb_version is in SemVer format, being used isVersionEqualOrAfter
                     # to not create more functions in python-devops
                     try:
-                        isVersionEqualOrAfter(value,value)
+                        isVersionEqualOrAfter(value, value)
                         self.setParam(key, value)
                     except:
                         self.fatalError("Invalid format for Mongo version. Please supply a version in SemVer format.")
