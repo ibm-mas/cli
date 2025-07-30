@@ -155,13 +155,11 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --aiservice-s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
         if self.getParam('aiservice_s3_endpoint_url') != "":
             command += f"  --aiservice-s3-endpoint-url \"{self.getParam('aiservice_s3_endpoint_url')}\"{newline}"
-        if self.getParam('aiservice_s3_region') != "":
-            command += f"  --aiservice-s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
+        command += f"  --aiservice-s3-region \"{self.getParam('aiservice_s3_region') or 'none'}\"{newline}"
 
         if self.getParam('aiservice_tenant_s3_bucket_prefix') != "":
             command += f"  --aiservice-tenant-s3-bucket-prefix \"{self.getParam('aiservice_tenant_s3_bucket_prefix')}\"{newline}"
-        if self.getParam('aiservice_tenant_s3_region') != "":
-            command += f"  --aiservice-tenant-s3-region \"{self.getParam('aiservice_tenant_s3_region')}\"{newline}"
+        command += f"  --aiservice-tenant-s3-region \"{self.getParam('aiservice_tenant_s3_region') or 'none'}\"{newline}"
         if self.getParam('aiservice_tenant_s3_endpoint_url') != "":
             command += f"  --aiservice-tenant-s3-endpoint-url \"{self.getParam('aiservice_tenant_s3_endpoint_url')}\"{newline}"
         if self.getParam('aiservice_tenant_s3_access_key') != "":
