@@ -120,15 +120,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def validateMongoVersion(self):
         """
         This is function validates if the version of Mongo is within a minor range
-        of MAS supported versions 
+        of MAS supported versions
         """
         mongoVersion = self.getParam("mongodb_version")
         majorMongoVersion = mongoVersion.split('.')[0]
-        if mongoVersion != "" and mongoVersion != None:
+        if mongoVersion != "" and mongoVersion is not None:
             try:
                 _ = self.chosenCatalog[f"mongo_extras_version_{majorMongoVersion}"]
-            except:
-                self.fatalError(f"Unsupported Mongo version. Please verify Mongo version inserted.")
+            except KeyError:
+                self.fatalError("Unsupported Mongo version. Please verify Mongo version inserted.")
 
     @logMethodCall
     def licensePrompt(self):
@@ -1072,9 +1072,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     # Verifies if the mongodb_version is in SemVer format, being used isVersionEqualOrAfter
                     # to not create more functions in python-devops
                     try:
-                        isVersionEqualOrAfter(value,value)
+                        isVersionEqualOrAfter(value, value)
                         self.setParam(key, value)
-                    except:
+                    except (ValueError, TypeError):
                         self.fatalError("Invalid format for Mongo version. Please supply a version in SemVer format.")
 
             # SLS
