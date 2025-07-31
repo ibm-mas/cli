@@ -246,6 +246,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-250731-amd64/" >
+    Jul 31 2025
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-250624-amd64/" >
     Jun 24 2025
   </cds-side-nav-menu-item>
@@ -260,12 +266,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-250403-amd64/" >
     Apr 03 2025
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-250306-amd64/" >
-    Mar 06 2025
   </cds-side-nav-menu-item>
 
     
@@ -450,7 +450,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:14.1.0 $REGISTRY_HOST:$RE
   -m direct -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-250624-amd64 -C 9.1.x \
-  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection --mirror-facilities \
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
 
@@ -463,7 +463,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:14.1.0 $REGISTRY_HOST:$RE
   -m to-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-250624-amd64 -C 9.1.x \
-  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection --mirror-facilities \
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
 
@@ -476,7 +476,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:14.1.0 $REGISTRY_HOST:$RE
   -m from-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-250624-amd64 -C 9.1.x \
-  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection --mirror-facilities
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
 </code></pre>
 
 
@@ -489,7 +489,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:14.1.0 $REGISTRY_HOST:$RE
   -m from-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-250624-amd64 -C 9.1.x \
-  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection --mirror-facilities
+  --mirror-assist --mirror-iot --mirror-manage --mirror-icd --mirror-monitor --mirror-optimizer --mirror-predict --mirror-visualinspection
 </code></pre>
 
 
@@ -679,11 +679,6 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:14.1.0 $REGISTRY_HOST:$RE
 <td>40G</td>
 </tr>
 <tr>
-<td>Maximo Real Estate and Facilities</td>
-<td><code>--mirror-facilities</code>.</td>
-<td>TBD</td>
-</tr>
-<tr>
 <td><strong>Total</strong></td>
 <td></td>
 <td><strong>92G</strong></td>
@@ -779,7 +774,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:14.1.0 $REGISTRY_HOST:$RE
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-07-31 10:53:38.555422+00:00)
+      Built with mkdocs v1.6.1 (2025-07-31 11:14:31.877932+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
