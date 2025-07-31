@@ -35,7 +35,6 @@ Maximo Application Suite:
   --mas-appws-kind ${COLOR_YELLOW}MAS_APPWS_KIND${TEXT_RESET}                                             IBM Suite Maximo Application Suite Application Workspace Kind
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}                                 MAS Manual Cert Management
   --mas-manual-certs-yaml ${COLOR_YELLOW}MAS_MANUAL_CERTS_YAML${TEXT_RESET}                               YAML file location containing combined MAS Manual Certs of manage app
-  --ingress ${COLOR_YELLOW}INGRESS${TEXT_RESET}                                                           true/false, If true, ingress-controller for cis-proxy will be configured
   --run-sanity-test ${COLOR_YELLOW}RUN_SANITY_TEST${TEXT_RESET}                                           true/false, If true, then the sanity tests are run against the app
 
   Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
@@ -157,9 +156,6 @@ function gitops_suite_app_config_noninteractive() {
         ;;
       --run-sanity-test)
         export RUN_SANITY_TEST=$1 && shift
-        ;;
-      --ingress)
-        export INGRESS=$1 && shift
         ;;
       --mas-app-id)
         export MAS_APP_ID=$1 && shift
@@ -288,8 +284,6 @@ function gitops_suite_app_config() {
   mkdir -p $TEMP_DIR
 
   export CPD_INSTANCE_NAMESPACE=${CPD_INSTANCE_NAMESPACE:-"ibm-cpd-${MAS_INSTANCE_ID}-instance"}
-  # Disable provision public ingress controller by default
-  export INGRESS=${INGRESS:-"false"}
   # Disable sanity tests by default
   export RUN_SANITY_TEST=${RUN_SANITY_TEST:-"false"}
   echo
@@ -351,7 +345,6 @@ function gitops_suite_app_config() {
 
   echo_reset_dim "MAS Manual Cert Mgt ..................... ${COLOR_MAGENTA}${MAS_MANUAL_CERT_MGMT}"
   echo_reset_dim "MAS MANUAL CERTS YAML ................... ${COLOR_MAGENTA}${MAS_MANUAL_CERTS_YAML}"  
-  echo_reset_dim "Public Ingress Controller ............... ${COLOR_MAGENTA}${INGRESS}"
   echo_reset_dim "Run Sanity Test ......................... ${COLOR_MAGENTA}${RUN_SANITY_TEST}"
 
   reset_colors
