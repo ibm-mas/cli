@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-devops-kmodels
+  name: mas-devops-aiservice-kmodels
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
@@ -21,26 +21,6 @@ spec:
     - name: ibm_entitlement_key
       type: string
 
-    # MAS Details
-    - name: mas_instance_id
-      type: string
-      description: Instance ID
-
-    # Application - Operator
-    # - name: mas_aibroker_channel
-    - name: mas_app_channel
-      type: string
-      description: Catalog channel for the application operator subscription
-
-    # Application - Operand
-    - name: mas_app_bindings_jdbc
-      default: ""
-      type: string
-    - name: mas_app_plan
-      type: string
-      description: Application installation plan
-      default: ""
-
     # Custom Label Support
     - name: custom_labels
       type: string
@@ -56,65 +36,42 @@ spec:
       default: ""
 
     # Kmodels details
-    - name: mas_aibroker_controller_tag
+    - name: aiservice_instance_id
       type: string
-      description: Optional Kmodels details
+      description: Instance ID
+
+    - name: aiservice_storage_pipelines_bucket
+      type: string
       default: ""
-    - name: mas_aibroker_store_tag
+    - name: aiservice_storage_tenants_bucket
       type: string
-      description: Optional Kmodels details
       default: ""
-    - name: mas_aibroker_watcher_tag
+    - name: aiservice_storage_templates_bucket
       type: string
-      description: Optional Kmodels details
       default: ""
-    - name: mas_aibroker_connector_tag
+
+    - name: aiservice_storage_provider
       type: string
-      description: Optional Kmodels details
       default: ""
-    - name: mas_aibroker_pipeline_steps_tag
+
+    - name: aiservice_storage_region
       type: string
-      description: Optional Kmodels details
       default: ""
-    - name: mas_aibroker_storage_pipelines_bucket
+    - name: aiservice_storage_accesskey
       type: string
-      description: This option is mandatory
       default: ""
-    - name: mas_aibroker_storage_tenants_bucket
+    - name: aiservice_storage_secretkey
       type: string
-      description: This option is mandatory
       default: ""
-    - name: mas_aibroker_storage_templates_bucket
+
+    - name: aiservice_storage_host
       type: string
-      description: This option is mandatory
       default: ""
-    - name: mas_aibroker_storage_provider
+    - name: aiservice_storage_port
       type: string
-      default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_accesskey
+    - name: aiservice_storage_ssl
       type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: mas_aibroker_storage_secretkey
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: mas_aibroker_storage_host
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: mas_aibroker_storage_port
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: mas_aibroker_storage_ssl
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: mas_aibroker_storage_region
-      type: string
-      default: "This option is mandatory"
       default: ""
 
   stepTemplate:
@@ -132,14 +89,8 @@ spec:
         value: $(params.ibm_entitlement_key)
 
       # MAS Details
-      - name: MAS_INSTANCE_ID
-        value: $(params.mas_instance_id)
-
-      # Application - Operator
-      # - name: MAS_AIBROKER_CHANNEL
-      #   value: $(params.mas_aibroker_channel)
-      - name: MAS_APP_CHANNEL
-        value: $(params.mas_app_channel)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
 
       # Custom Label Support
       - name: CUSTOM_LABELS
@@ -152,46 +103,35 @@ spec:
         value: $(params.mas_icr_cpopen)
 
       # Kmodels details
-      - name: MAS_AIBROKER_CONTROLLER_TAG
-        value: $(params.mas_aibroker_controller_tag)
-      - name: MAS_AIBROKER_STORE_TAG
-        value: $(params.mas_aibroker_store_tag)
-      - name: MAS_AIBROKER_WATCHER_TAG
-        value: $(params.mas_aibroker_watcher_tag)
-      - name: MAS_AIBROKER_CONNECTOR_TAG
-        value: $(params.mas_aibroker_connector_tag)
-      - name: MAS_AIBROKER_PIPELINE_STEPS_TAG
-        value: $(params.mas_aibroker_pipeline_steps_tag)
-      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
-        value: $(params.mas_aibroker_storage_pipelines_bucket)
-      - name: MAS_AIBROKER_STORAGE_TENANTS_BUCKET
-        value: $(params.mas_aibroker_storage_tenants_bucket)
-      - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
-        value: $(params.mas_aibroker_storage_templates_bucket)
-      - name: MAS_AIBROKER_STORAGE_PROVIDER
-        value: $(params.mas_aibroker_storage_provider)
-      - name: MAS_AIBROKER_STORAGE_ACCESSKEY
-        value: $(params.mas_aibroker_storage_accesskey)
-      - name: MAS_AIBROKER_STORAGE_SECRETKEY
-        value: $(params.mas_aibroker_storage_secretkey)
-      - name: MAS_AIBROKER_STORAGE_HOST
-        value: $(params.mas_aibroker_storage_host)
-      - name: MAS_AIBROKER_STORAGE_PORT
-        value: $(params.mas_aibroker_storage_port)
-      - name: MAS_AIBROKER_STORAGE_SSL
-        value: $(params.mas_aibroker_storage_ssl)
-      - name: MAS_AIBROKER_STORAGE_REGION
-        value: $(params.mas_aibroker_storage_region)
+      - name: AISERVICE_STORAGE_PIPELINES_BUCKET
+        value: $(params.aiservice_storage_pipelines_bucket)
+      - name: AISERVICE_STORAGE_TENANTS_BUCKET
+        value: $(params.aiservice_storage_tenants_bucket)
+      - name: AISERVICE_STORAGE_TEMPLATES_BUCKET
+        value: $(params.aiservice_storage_templates_bucket)
+      - name: AISERVICE_STORAGE_PROVIDER
+        value: $(params.aiservice_storage_provider)
+      - name: AISERVICE_STORAGE_ACCESSKEY
+        value: $(params.aiservice_storage_accesskey)
+      - name: AISERVICE_STORAGE_SECRETKEY
+        value: $(params.aiservice_storage_secretkey)
+      - name: AISERVICE_STORAGE_HOST
+        value: $(params.aiservice_storage_host)
+      - name: AISERVICE_STORAGE_PORT
+        value: $(params.aiservice_storage_port)
+      - name: AISERVICE_STORAGE_SSL
+        value: $(params.aiservice_storage_ssl)
+      - name: AISERVICE_STORAGE_REGION
+        value: $(params.aiservice_storage_region)
 
       # Ai Broker Saas
-      - name: MAS_AIBROKER_SAAS
+      - name: AISERVICE_SAAS
         value: 'true'
 
-
   steps:
-    - name: kmodels
+    - name: aiservice-kmodels
       command:
         - /opt/app-root/src/run-role.sh
-        - kmodels
+        - aiservice_kmodels
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)

@@ -41,8 +41,7 @@ spec:
     # 10. Install & Configure Optimizer
     # 12. Install & Configure Assist
     # 13. Install & Configure Visual Inspection
-    # 14. Install & Configure AI Broker
-    # 15. Install & Configure Facilities
+    # 14. Install & Configure Facilities
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
 
@@ -338,7 +337,31 @@ spec:
         - app-install-visualinspection
 
 
-    # 13. Verify health of the cluster before we consider the install complete
+    # 13. Install and configure Facilities
+    # -------------------------------------------------------------------------
+
+    # 13.1 Dedicated Facilities Db2
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
+      runAfter:
+        - db2-manage
+
+    # 13.2 Install Facilities
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-app.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-config-db2
+
+    # 13.3 Configure Facilities workspace
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-workspace.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-facilities
+
+    # 13.4 Verify Facilities Installation
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-verify.yml.j2') | indent(4) }}
+      runAfter:
+        - app-cfg-facilities
+
+
+    # 14. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'post-install-verify', 'devops_suite_name': 'post-install-verify'}) | indent(4) }}
       runAfter:
@@ -347,55 +370,11 @@ spec:
         - app-cfg-predict # infers Manage completed
         - app-cfg-monitor # infers IoT completed
         - app-cfg-visualinspection
+        - app-verify-facilities
         - arcgis
         - eck
         - turbonomic
         - cognos
-
-    # 14 Install and configure AI Broker
-    # -------------------------------------------------------------------------
-    # 14.1 Install Opendatahub
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/odh.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-verify
-
-    # 14.2 Install Kmodels
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/kmodels.yml.j2') | indent(4) }}
-      runAfter:
-        - odh
-
-    # 14.3 Install Aibroker app
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice-app.yml.j2') | indent(4) }}
-      runAfter:
-        - kmodels
-
-    # 14.4 Configure Aibroker
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-aibroker
-    
-    # 15 Install and configure Facilities
-    # -------------------------------------------------------------------------    
-
-    # 15.1 Dedicated Facilities Db2
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-facilities.yml.j2') | indent(4)}}
-      runAfter:
-        - db2-manage
-
-    # 15.2 Install Facilities
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-app.yml.j2') | indent(4) }}
-      runAfter:
-        - suite-config-db2
-
-    # 15.3 Configure Facilities workspace
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-workspace.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-facilities
-    
-    # 15.4 Verify Facilities Installation
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-verify.yml.j2') | indent(4) }}
-      runAfter:
-        - app-cfg-facilities
 
   finally:
     # Update synchronization configmap
