@@ -1,129 +1,207 @@
-# MAS Application Configuration - IBM Maximo AI Broker
+# Cluster config
 # -----------------------------------------------------------------------------
-# - name: mas_aibroker_channel
-- name: aibroker_instance_id
+- name: ocp_ingress_tls_secret_name
+  type: string
+  default: ""
+
+# IBM Cloud
+# -----------------------------------------------------------------------------
+- name: ibmcloud_apikey
+  type: string
+  default: ""
+- name: ibmcloud_resourcegroup
+  type: string
+  default: ""
+
+# MAS (shouldn't really need these in AI service install pipeline)
+# -----------------------------------------------------------------------------
+- name: mas_icr_cp
+  type: string
+  default: ""
+- name: mas_icr_cpopen
+  type: string
+  default: ""
+- name: mas_workspace_id
+  type: string
+  description: Workspace ID used to configure all applications
+  default: ""
+
+# Certificate Manager
+# -----------------------------------------------------------------------------
+- name: cert_manager_provider
+  type: string
+  default: ""
+- name: cert_manager_action
+  type: string
+  default: ""
+
+# Dependencies - DB2
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-db2.yml.j2') }}
+- name: db2_action_aiservice
+  type: string
+  description: Set to 'install' to set up a Db2 instance for AI Service
+  default: "none"
+
+# Dependencies - UDS
+# -----------------------------------------------------------------------------
+- name: uds_contact_email
+  type: string
+  default: ""
+- name: uds_contact_firstname
+  type: string
+  default: ""
+- name: uds_contact_lastname
+  type: string
+  default: ""
+- name: uds_event_scheduler_frequency
+  type: string
+  default: ""
+- name: uds_action
+  type: string
+  default: ""
+- name: dro_namespace
+  type: string
+  default: ""
+- name: mas_segment_key
+  type: string
+  default: ""
+
+# Dependencies - SLS
+# -----------------------------------------------------------------------------
+- name: sls_namespace
+  type: string
+  default: ""
+- name: sls_entitlement_file
+  type: string
+  default: ""
+- name: sls_mongodb_cfg_file
+  type: string
+  # The default value works for the default in-cluster install, it will need
+  # to be modified if the mongodb namespace is changed, or if using BYO MongoDb
+  default: "/workspace/configs/mongo-mongoce.yml"
+- name: sls_catalog_source
+  type: string
+  default: ""
+- name: sls_channel
+  type: string
+  default: ""
+- name: sls_icr_cpopen
+  type: string
+  default: ""
+- name: sls_action
+  type: string
+  default: ""
+
+# Dependencies - MongoDb
+# -----------------------------------------------------------------------------
+- name: mongodb_namespace
+  type: string
+  default: ""
+- name: mongodb_storage_class
+  type: string
+  default: ""
+- name: mongodb_replicas
+  type: string
+  description: Optional configuration for mongodb replicas
+  default: ""
+- name: mongodb_cpu_requests
+  type: string
+  description: Optional configuration for mongodb cpu requests
+  default: ""
+- name: mongodb_provider
+  type: string
+  description: MongoDb provider
+  default: ""
+- name: mongodb_version
+  type: string
+  description: MongoDb version
+  default: ""
+- name: mongodb_action
+  type: string
+  description: MongoDb action
+  default: ""
+
+# Dependencies - IBM Cloud MongoDb
+# -------------------------------------------------------------------------
+- name: ibm_mongo_name
+  type: string
+  description: IBM Cloud MongoDb instance name
+  default: ""
+- name: ibm_mongo_resourcegroup
+  type: string
+  description: IBM Cloud MongoDb resource group
+  default: ""
+- name: ibm_mongo_region
+  type: string
+  description: IBM Cloud MongoDb instance region
+  default: ""
+- name: ibm_mongo_admin_password
+  type: string
+  description: IBM Cloud MongoDb admin password
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service
+# -----------------------------------------------------------------------------
+- name: aiservice_instance_id
   type: string
   description: Aibroker instance id
   default: ""
-- name: mas_app_channel_aibroker
+- name: aiservice_channel
   type: string
-  description: Default channel for IBM Maximo AI Broker
+  description: Default channel for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_storage_accesskey
+- name: environment_type
   type: string
-  description: S3/Minio storage access ket for IBM Maximo AI Broker
+  description: Environment type
   default: ""
-- name: mas_aibroker_storage_secretkey
+
+# MAS Application Configuration - IBM Maximo AI Service - S3
+# -----------------------------------------------------------------------------
+- name: aiservice_storage_accesskey
   type: string
-  description: S3/Minio storage secret key for IBM Maximo AI Broker
+  description: S3/Minio storage access ket for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_storage_host
+- name: aiservice_storage_secretkey
   type: string
-  description: S3/Minio storage host for IBM Maximo AI Broker
+  description: S3/Minio storage secret key for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_storage_region
+- name: aiservice_storage_host
   type: string
-  description: S3/Minio storage region for IBM Maximo AI Broker
+  description: S3/Minio storage host for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_storage_port
+- name: aiservice_storage_region
   type: string
-  description: S3/Minio storage port for IBM Maximo AI Broker
+  description: S3/Minio storage region for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_storage_ssl
+- name: aiservice_storage_port
   type: string
-  description: S3/Minio storage ssl for IBM Maximo AI Broker
+  description: S3/Minio storage port for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_storage_provider
+- name: aiservice_storage_ssl
   type: string
-  description: S3/Minio storage provider IBM Maximo AI Broker
+  description: S3/Minio storage ssl for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_storage_pipelines_bucket
+- name: aiservice_storage_provider
   type: string
-  description: S3/Minio storage pipeline bucket for IBM Maximo AI Broker
+  description: S3/Minio storage provider IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_storage_tenants_bucket
+- name: aiservice_storage_pipelines_bucket
   type: string
-  description: S3/Minio storage tenants bucket for IBM Maximo AI Broker
+  description: S3/Minio storage pipeline bucket for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_storage_templates_bucket
+- name: aiservice_storage_tenants_bucket
   type: string
-  description: S3/Minio storage template bucket for IBM Maximo AI Broker
+  description: S3/Minio storage tenants bucket for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_tenant_name
+- name: aiservice_storage_templates_bucket
   type: string
-  description: Tenant name for IBM Maximo AI Broker
+  description: S3/Minio storage template bucket for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_watsonxai_apikey
+
+- name: aiservice_s3_action
   type: string
-  description: WatsonX api key for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_watsonxai_url
-  type: string
-  description: WatsonX url for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_watsonxai_project_id
-  type: string
-  description: WatsonX project ID for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_watsonx_action
-  type: string
-  description: watsonx action for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_apikey_action
-  type: string
-  description: AI Broker api key action for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_s3_action
-  type: string
-  description: s3 action for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_connector_tag
-  type: string
-  description: connector image tag for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_controller_tag
-  type: string
-  description: controller image tag for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_pipeline_steps_tag
-  type: string
-  description: pipeline steps image tag for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_store_tag
-  type: string
-  description: store image tag for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_watcher_tag
-  type: string
-  description: watcher image tag for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_db_host
-  type: string
-  description: database host for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_db_port
-  type: string
-  description: database port for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_db_user
-  type: string
-  description: database user for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_db_database
-  type: string
-  description: database name for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_db_secret_name
-  type: string
-  description: database secret name for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_db_secret_key
-  type: string
-  description: database secret key for IBM Maximo AI Broker
-  default: ""
-- name: mas_aibroker_db_secret_value
-  type: string
-  description: database secret value for IBM Maximo AI Broker
+  description: s3 action for IBM Maximo AI Service
   default: ""
 - name: minio_root_user
   type: string
@@ -133,66 +211,80 @@
   type: string
   description: password for minio root user
   default: ""
-- name: mariadb_user
+
+- name: aiservice_s3_bucket_prefix
   type: string
-  description: user for mariadb
+  description: s3 bucker prefix
   default: ""
-- name: mariadb_password
+- name: aiservice_s3_region
   type: string
-  description: password for mariadb user
+  description: s3 region
   default: ""
+- name: aiservice_s3_endpoint_url
+  type: string
+  description: endpoint url for s3
+  default: ""
+- name: aiservice_tenant_s3_bucket_prefix
+  type: string
+  description: s3 bucker prefix ( tenant level )
+  default: ""
+- name: aiservice_tenant_s3_region
+  type: string
+  description: s3 region ( tenant level )
+  default: ""
+- name: aiservice_tenant_s3_endpoint_url
+  type: string
+  description: endpoint url for s3 ( tenant level )
+  default: ""
+- name: aiservice_tenant_s3_access_key
+  type: string
+  description: access key for s3 ( tenant level )
+  default: ""
+- name: aiservice_tenant_s3_secret_key
+  type: string
+  description: secret key for s3 ( tenant level )
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - Tenant
+# -----------------------------------------------------------------------------
 - name: tenant_entitlement_type
   type: string
   description: type of tenant
   default: ""
 - name: tenant_entitlement_start_date
   type: string
-  description: define start date for tenant 
+  description: define start date for tenant
   default: ""
 - name: tenant_entitlement_end_date
   type: string
   description: define end date for tenant
   default: ""
-- name: install_db2_aiservice
+
+# MAS Application Configuration - IBM Maximo AI Service - Watstonx
+# -----------------------------------------------------------------------------
+- name: aiservice_watsonxai_apikey
   type: string
-  description: flag for install db2
-  default: "true"
-- name: db2_action_aibroker
-  type: string
-  description: install dedicated db2 for aibroker
-  default: "install"
-- name: mas_aibroker_s3_bucket_prefix
-  type: string
-  description: s3 bucker prefix
+  description: WatsonX api key for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_s3_region
+- name: aiservice_watsonxai_url
   type: string
-  description: s3 region
+  description: WatsonX url for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_s3_endpoint_url
+- name: aiservice_watsonxai_project_id
   type: string
-  description: endpoint url for s3
+  description: WatsonX project ID for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_tenant_s3_bucket_prefix
+- name: aiservice_watsonx_action
   type: string
-  description: s3 bucker prefix ( tenant level )
+  description: watsonx action for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_tenant_s3_region
+- name: aiservice_apikey_action
   type: string
-  description: s3 region ( tenant level )
+  description: AI Broker api key action for IBM Maximo AI Service
   default: ""
-- name: mas_aibroker_tenant_s3_endpoint_url
-  type: string
-  description: endpoint url for s3 ( tenant level )
-  default: ""
-- name: mas_aibroker_tenant_s3_access_key
-  type: string
-  description: access key for s3 ( tenant level )
-  default: ""
-- name: mas_aibroker_tenant_s3_secret_key
-  type: string
-  description: secret key for s3 ( tenant level )
-  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - RSL
+# -----------------------------------------------------------------------------
 - name: rsl_url
   type: string
   description: url of RSL
@@ -204,72 +296,4 @@
 - name: rsl_token
   type: string
   description: token for RSL
-  default: ""
-- name: install_minio_aiservice
-  type: string
-  description: flag for install minio
-  default: "true"
-- name: install_sls_aiservice
-  type: string
-  description: flag for install sls
-  default: "true"
-- name: install_dro_aiservice
-  type: string
-  description: flag for install dro
-  default: "true"
-- name: mas_aibroker_dro_secret_name
-  type: string
-  description: DRO secret name
-  default: ""
-- name: mas_aibroker_dro_api_key
-  type: string
-  description: DRO API key
-  default: ""
-- name: mas_aibroker_dro_url
-  type: string
-  description: DRO URL
-  default: ""
-- name: mas_aibroker_dro_ca_cert
-  type: string
-  description: DRO CA certificate
-  default: ""
-- name: mas_aibroker_db2_username
-  type: string
-  description: DB2 username
-  default: ""
-- name: mas_aibroker_db2_password
-  type: string
-  description: DB2 password
-  default: ""
-- name: mas_aibroker_db2_jdbc_url
-  type: string
-  description: DB2 JDBC URL
-  default: ""
-- name: mas_aibroker_db2_ssl_enabled
-  type: string
-  description: DB2 SSL enabled
-  default: "false"
-- name: mas_aibroker_db2_ca_cert
-  type: string
-  description: DB2 CA certificate
-  default: ""
-- name: mas_aibroker_sls_secret_name
-  type: string
-  description: SLS secret name
-  default: ""
-- name: mas_aibroker_sls_registration_key
-  type: string
-  description: SLS registration key
-  default: ""
-- name: mas_aibroker_sls_url
-  type: string
-  description: SLS URL
-  default: ""
-- name: mas_aibroker_sls_ca_cert
-  type: string
-  description: SLS CA certificate
-  default: ""
-- name: environment_type
-  type: string
-  description: Environment type
   default: ""

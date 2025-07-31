@@ -51,13 +51,12 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - minio
-        - mariadb
         - aiservice
         - kmodels
         - odh
         - aiservice-tenant
         - aiservice-post-verify
-        
+
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (FVT)

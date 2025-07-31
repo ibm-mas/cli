@@ -1270,7 +1270,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,
-                    instanceId=self.getParam("mas_instance_id"),
+                    namespace=pipelinesNamespace,
                     slsLicenseFile=self.slsLicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
