@@ -80,7 +80,7 @@ spec:
           value: "$(params.aiservice_instance_id)-fvt-aiservice"
       taskRef:
         kind: Task
-        name: mas-launchfvt-aiservice
+        name: aiservice-launchfvt
       when:
         - input: $(params.launchfvt_aiservice)
           operator: in
