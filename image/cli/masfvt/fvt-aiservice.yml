@@ -13,7 +13,7 @@
     fvt_image_registry: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
     fvt_artifactory_username: "{{ lookup('env', 'FVT_ARTIFACTORY_USERNAME') }}"
     fvt_artifactory_token: "{{ lookup('env', 'FVT_ARTIFACTORY_TOKEN') }}"
-    fvt_digest_aibroker: "{{ lookup('env', 'FVT_DIGEST_AIBROKER') }}"
+    fvt_digest_aiservice: "{{ lookup('env', 'fvt_digest_aiservice') }}"
     ivt_digest_core: "{{ lookup('env', 'IVT_DIGEST_CORE') }}"
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
@@ -32,7 +32,7 @@
           - "fvt_image_registry ................ {{ fvt_image_registry }}"
           - "fvt_artifactory_username .......... {{ fvt_artifactory_username }}"
           - "fvt_artifactory_token ............. {{ fvt_artifactory_token }}"
-          - "fvt_digest_aibroker ............... {{ fvt_digest_aibroker }}"
+          - "fvt_digest_aiservice ............... {{ fvt_digest_aiservice }}"
           - "ivt_digest_core ................... {{ ivt_digest_core }}"
 
     - name: "Start fvt-aiservice pipeline"

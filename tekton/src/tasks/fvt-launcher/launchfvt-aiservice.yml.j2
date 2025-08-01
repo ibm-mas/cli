@@ -80,11 +80,11 @@ spec:
               key: MAS_WORKSPACE_ID
               optional: false
         # Digests
-        - name: FVT_DIGEST_AIBROKER
+        - name: fvt_digest_aiservice
           valueFrom:
             secretKeyRef:
               name: mas-fvt-aibroker
-              key: FVT_DIGEST_AIBROKER
+              key: fvt_digest_aiservice
               optional: false
         - name: IVT_DIGEST_CORE
           valueFrom:

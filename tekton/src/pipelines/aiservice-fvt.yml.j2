@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: mas-fvt-aibroker
+  name: aiservice-fvt
 spec:
   workspaces:
     # The generated configuration files
@@ -15,14 +15,11 @@ spec:
       default: IfNotPresent
       description: Pull policy for pipeline container images
 
-    # MAS Configuration
+    # AI Service Configuration
     - name: aiservice_channel
       type: string
       default: ""
-    - name: mas_instance_id
-      type: string
-      default: ""
-    - name: mas_workspace_id
+    - name: aiservice_instance_id
       type: string
       default: ""
 
@@ -38,9 +35,9 @@ spec:
       default: ""
 
     # Image Digests
-    - name: fvt_digest_aibroker
+    - name: fvt_digest_aiservice
       type: string
-      description: FVT Digest - AIBroker
+      description: FVT Digest - AIService
       default: ""
     - name: ivt_digest_core
       type: string
