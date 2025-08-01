@@ -67,7 +67,7 @@
       with_items:
         # TODO: Get rid of this, integrate this into main FVT launcher like
         # we do for update, upgrade, & uninstall testing
-        - rollback
+        - mas-rollback
 
     # 3. Generate Gitops Pipelines
     # -------------------------------------------------------------------------
