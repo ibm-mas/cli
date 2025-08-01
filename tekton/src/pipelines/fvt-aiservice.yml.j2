@@ -16,7 +16,7 @@ spec:
       description: Pull policy for pipeline container images
 
     # MAS Configuration
-    - name: mas_app_channel_aibroker
+    - name: aiservice_channel
       type: string
       default: ""
     - name: mas_instance_id
@@ -56,7 +56,7 @@ spec:
         - name: product_id
           value: ibm-mas-aibroker
         - name: product_channel
-          value: $(params.mas_app_channel_aibroker)
+          value: $(params.aiservice_channel)
         - name: fvt_test_suite
           value: imagescan
       when:
@@ -71,7 +71,7 @@ spec:
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: tenant_entitlement 
+          value: tenant_entitlement
 
     # 3. Aibroker mcc test suite
     # -----------------------------------------------------------------------------
@@ -80,10 +80,10 @@ spec:
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: mcc 
+          value: mcc
       runAfter:
         - fvt-aiservice-tenant-entitlement
-        
+
     # 5. Aibroker fmea test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-fmea
@@ -91,7 +91,7 @@ spec:
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: fmea 
+          value: fmea
       runAfter:
         - fvt-aiservice-tenant-entitlement
 
@@ -102,11 +102,11 @@ spec:
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: pcc 
+          value: pcc
       runAfter:
         - fvt-aiservice-mcc
         - fvt-aiservice-fmea
-        
+
     # 6. Aibroker similarity test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-similarity
@@ -114,7 +114,7 @@ spec:
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: similarity 
+          value: similarity
       runAfter:
         - fvt-aiservice-mcc
         - fvt-aiservice-fmea
@@ -126,7 +126,7 @@ spec:
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: nl2oslc 
+          value: nl2oslc
       runAfter:
         - fvt-aiservice-pcc
         - fvt-aiservice-similarity

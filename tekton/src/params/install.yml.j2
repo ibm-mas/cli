@@ -1,4 +1,5 @@
 # Cluster config
+# -----------------------------------------------------------------------------
 - name: ocp_ingress_tls_secret_name
   type: string
   default: ""
@@ -534,7 +535,7 @@
 - name: mas_appws_components
   type: string
   description: Manage components to configure in the workspace
-  default: "base=latest,health=latest"
+  default: ""
 - name: mas_app_settings_aio_flag
   type: string
   description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
@@ -587,10 +588,6 @@
   type: string
   description: Provides different flavors of server bundle configuration to handle workload for Manage application.
   default: "dev"
-- name: is_full_manage
-  type: string
-  description: Set to true if full Manage is installed instead of Manage Foundation
-  default: "true"
 - name: mas_app_settings_tablespace
   type: string
   description: Name of the Manage database tablespace
@@ -672,6 +669,7 @@
   default: "" # default is handled by ansible-devops
 
 # MAS Application Configuration - Health Application
+# -----------------------------------------------------------------------------
 - name: mas_appws_bindings_health_wsl_flag
   type: string
   description: Boolean value indicating if Watson Studio must installed and bound to Manage/Health.
@@ -691,11 +689,8 @@
   description: controls the workload size of predict containers
   default: "small"
 
-# Dependencies - IBM Maximo AI Service
-# -----------------------------------------------------------------------------
-{{ lookup('template', params_src_dir ~ '/install-aiservice.yml.j2') }}
-
 # MAS Application Configuration - Facilities
+# -----------------------------------------------------------------------------
 # TODO: Fix type for storage sizes and max conn pool size
 - name: mas_ws_facilities_size
   type: string
