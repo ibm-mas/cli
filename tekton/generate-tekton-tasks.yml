@@ -98,24 +98,24 @@
         src: "{{ task_src_dir }}/fvt-launcher/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - launchfvt-assist
-        - launchfvt-core
-        - launchfvt-sls
-        - launchfvt-finally
-        - launchfvt-iot
-        - launchfvt-manage
-        - launchfvt-manage-is
-        - launchfvt-mobile
-        - launchfvt-mobile-upgrade-pre
-        - launchfvt-mobile-upgrade-post
-        - launchfvt-monitor
-        - launchfvt-optimizer
-        - launchfvt-predict
-        - launchfvt-aiservice
-        - launchfvt-visualinspection
-        - launchfvt-upgrade-post
-        - launchfvt-upgrade-pre
-        - launchivt-manage
+        - aiservice-launchfvt
+        - mas-launchfvt-assist
+        - mas-launchfvt-core
+        - mas-launchfvt-sls
+        - mas-launchfvt-finally
+        - mas-launchfvt-iot
+        - mas-launchfvt-manage
+        - mas-launchfvt-manage-is
+        - mas-launchfvt-mobile
+        - mas-launchfvt-mobile-upgrade-pre
+        - mas-launchfvt-mobile-upgrade-post
+        - mas-launchfvt-monitor
+        - mas-launchfvt-optimizer
+        - mas-launchfvt-predict
+        - mas-launchfvt-visualinspection
+        - mas-launchfvt-upgrade-post
+        - mas-launchfvt-upgrade-pre
+        - mas-launchivt-manage
 
     # 5. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
