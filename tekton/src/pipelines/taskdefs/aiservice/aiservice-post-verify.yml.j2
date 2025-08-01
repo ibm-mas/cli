@@ -3,14 +3,10 @@
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
-      value: app-aiservice-cfg
+      value: aiservice-post-verify
 
-    - name: mas_instance_id
+    - name: aiservice_instance_id
       value: $(params.aiservice_instance_id)
-    - name: mas_app_id
-      value: aibroker
-    - name: mas_workspace_id
-      value: "$(params.mas_workspace_id)"
 
   taskRef:
     name: aiservice-post-verify
@@ -20,6 +16,3 @@
     - input: "$(params.aiservice_channel)"
       operator: notin
       values: [""]
-  workspaces:
-    - name: configs
-      workspace: shared-configs
