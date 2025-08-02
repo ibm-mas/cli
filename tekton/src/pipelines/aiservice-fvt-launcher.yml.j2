@@ -53,7 +53,7 @@ spec:
         - name: namespace
           value: $(context.taskRun.namespace)
         - name: configmap_name
-          value: approval-app-cfg-aibroker
+          value: approval-aiservice
         - name: configmap_target_value
           value: pending
         # 25 retries at 5 minute intervals = 2 hours
@@ -97,7 +97,7 @@ spec:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: configmap_name
-          value: approval-aiservice-$(params.aiservice_instance_id)
+          value: approval-aiservice
         - name: configmap_value
           value: approved
       when:

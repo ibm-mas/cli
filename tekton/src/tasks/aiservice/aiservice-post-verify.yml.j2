@@ -29,7 +29,7 @@ spec:
         - name: NAMESPACE
           value: $(context.taskRun.namespace)
         - name: CONFIGMAP_NAME
-          value: approval-aiservice-$(params.aiservice_instance_id)
+          value: approval-aiservice
         - name: CONFIGMAP_INITIAL_VALUE
           value: pending
         - name: CONFIGMAP_TARGET_VALUE
@@ -37,18 +37,18 @@ spec:
         - name: DELAY
           valueFrom:
             configMapKeyRef:
-              name: approval-aiservice-$(params.aiservice_instance_id)
+              name: approval-aiservice
               key: DELAY
               optional: true
         - name: MAX_RETRIES
           valueFrom:
             configMapKeyRef:
-              name: approval-aiservice-$(params.aiservice_instance_id)
+              name: approval-aiservice
               key: MAX_RETRIES
               optional: true
         - name: IGNORE_FAILURE
           valueFrom:
             configMapKeyRef:
-              name: approval-aiservice-$(params.aiservice_instance_id)
+              name: approval-aiservice
               key: IGNORE_FAILURE
               optional: true
