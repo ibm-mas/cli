@@ -64,34 +64,35 @@
         src: "{{ task_src_dir }}/fvt/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - fvt-assist-desktop
-        - fvt-assist
-        - fvt-core
-        - fvt-components
-        - fvt-data-dictionary
-        - fvt-deprovision-ocp
-        - fvt-deprovision-cos
-        - fvt-deprovision-kafka
-        - fvt-finalize
-        - fvt-iot
-        - fvt-manage
-        - fvt-mobile-testng
-        - fvt-mobile-pytest
-        - fvt-manage-directprint
-        - fvt-manage-adhoc-report
-        - fvt-manage-birt-report
-        - fvt-manage-last-phase
-        - fvt-manage-pytest
-        - fvt-manage-cypress
-        - fvt-monitor
-        - fvt-run-suite
-        - fvt-sls
-        - fvt-start-update
-        - fvt-start-upgrade
-        - fvt-start-uninstall
-        - fvt-pre-update
-        - fvt-pre-upgrade
-        - fvt-post-update
+        - aiservice-fvt
+        - mas-fvt-assist-desktop
+        - mas-fvt-assist
+        - mas-fvt-core
+        - mas-fvt-components
+        - mas-fvt-data-dictionary
+        - mas-fvt-deprovision-ocp
+        - mas-fvt-deprovision-cos
+        - mas-fvt-deprovision-kafka
+        - mas-fvt-finalize
+        - mas-fvt-iot
+        - mas-fvt-manage
+        - mas-fvt-mobile-testng
+        - mas-fvt-mobile-pytest
+        - mas-fvt-manage-directprint
+        - mas-fvt-manage-adhoc-report
+        - mas-fvt-manage-birt-report
+        - mas-fvt-manage-last-phase
+        - mas-fvt-manage-pytest
+        - mas-fvt-manage-cypress
+        - mas-fvt-monitor
+        - mas-fvt-run-suite
+        - mas-fvt-sls
+        - mas-fvt-start-update
+        - mas-fvt-start-upgrade
+        - mas-fvt-start-uninstall
+        - mas-fvt-pre-update
+        - mas-fvt-pre-upgrade
+        - mas-fvt-post-update
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:

@@ -890,7 +890,7 @@ spec:
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-pre-update
+        name: mas-fvt-pre-update
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -940,7 +940,7 @@ spec:
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-post-update
+        name: mas-fvt-post-update
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -959,7 +959,7 @@ spec:
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-pre-upgrade
+        name: mas-fvt-pre-upgrade
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
