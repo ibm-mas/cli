@@ -45,7 +45,7 @@ spec:
       default: ""
 
   tasks:
-    # 1. Aibroker base test suite
+    # 1. Base test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-tenant-entitlement
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -54,7 +54,7 @@ spec:
         - name: fvt_test_suite
           value: tenant_entitlement
 
-    # 2. Aibroker mcc test suite
+    # 2. MCC test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-mcc
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -65,7 +65,7 @@ spec:
       runAfter:
         - fvt-aiservice-tenant-entitlement
 
-    # 3. Aibroker fmea test suite
+    # 3. FMEA test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-fmea
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -76,7 +76,7 @@ spec:
       runAfter:
         - fvt-aiservice-tenant-entitlement
 
-    # 4. Aibroker pcc test suite
+    # 4. PCC test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-pcc
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -88,7 +88,7 @@ spec:
         - fvt-aiservice-mcc
         - fvt-aiservice-fmea
 
-    # 5. Aibroker similarity test suite
+    # 5. Similarity test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-similarity
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -100,7 +100,7 @@ spec:
         - fvt-aiservice-mcc
         - fvt-aiservice-fmea
 
-    # 6. Aibroker nl2oslc test suite
+    # 6. NL2OSLC test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-nl2oslc
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
