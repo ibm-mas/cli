@@ -434,9 +434,9 @@ devArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 approvalsGroup = aiServiceinstallArgParser.add_argument_group("Integrated Approval Workflow (MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE)")
 approvalsGroup.add_argument(
-    "--approval-aibroker",
+    "--approval-aiservice",
     default="",
-    help="Require approval after the Aibroker has been configured"
+    help="Require approval after the AI Service has been configured"
 )
 
 # More Options

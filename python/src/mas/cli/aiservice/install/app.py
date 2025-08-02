@@ -197,7 +197,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.slsLicenseFileLocal = None
 
         self.approvals = {
-            "approval_aibroker": {"id": "app-cfg-aibroker"},  # After Aibroker workspace has been configured
+            "approval_aiservice": {"id": "aiservice"},
         }
 
         self.setDB2DefaultSettings()
