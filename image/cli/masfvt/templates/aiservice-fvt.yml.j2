@@ -5,10 +5,10 @@ metadata:
   name: "{{ pipelinerun_name }}"
   namespace: "{{ pipelinerun_namespace }}"
   labels:
-    tekton.dev/pipeline: mas-fvt-aibroker
+    tekton.dev/pipeline: aiservice-fvt
 spec:
   pipelineRef:
-    name: mas-fvt-aibroker
+    name: aiservice-fvt
 
   serviceAccountName: pipeline
   timeouts:
@@ -21,10 +21,8 @@ spec:
     # MAS Info
     - name: aiservice_channel
       value: "{{ aiservice_channel }}"
-    - name: mas_instance_id
+    - name: aiservice_instance_id
       value: "{{ aiservice_instance_id }}"
-    - name: mas_workspace_id
-      value: "{{ mas_workspace_id }}"
     # Registry
     - name: fvt_image_registry
       value: "{{ fvt_image_registry }}"
@@ -43,7 +41,3 @@ spec:
     - name: shared-configs
       persistentVolumeClaim:
         claimName: config-pvc
-    # PodTemplates configurations
-    - name: shared-pod-templates
-      secret:
-        secretName: pipeline-pod-templates

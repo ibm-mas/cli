@@ -37,4 +37,4 @@
     - name: "Start fvt-aiservice pipeline"
       kubernetes.core.k8s:
         apply: true
-        template: templates/mas-fvt-aiservice.yml.j2
+        template: templates/aiservice-fvt.yml.j2
