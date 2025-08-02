@@ -24,6 +24,9 @@ python: python-devops python-cli
 tekton:
 	DEV_MODE=true build/bin/build-tekton.sh
 
+tekton-test: tekton
+	tekton/test.sh
+
 docker:
 	docker build -t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
 

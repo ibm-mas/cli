@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-launchfvt-aibroker
+  name: aiservice-launchfvt
 spec:
   params:
     # Control the image pull policy for the FVT container image
@@ -36,7 +36,7 @@ spec:
               name: mas-devops
               key: DEVOPS_BUILD_NUMBER
               optional: true
-        - name: AIBROKER_INSTANCE_ID
+        - name: AISERVICE_INSTANCE_ID
           valueFrom:
             secretKeyRef:
               name: mas-devops
@@ -64,32 +64,25 @@ spec:
               key: FVT_ARTIFACTORY_TOKEN
               optional: false
 
-        # Lookups from mas-fvt-aibroker
         # -----------------------------------------------------------------------
         # Framework Information
-        - name: MAS_APP_CHANNEL_AIBROKER
+        - name: AISERVICE_CHANNEL
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-aibroker
-              key: MAS_APP_CHANNEL_AIBROKER
-              optional: false
-        - name: MAS_WORKSPACE_ID
-          valueFrom:
-            secretKeyRef:
-              name: mas-fvt-aibroker
-              key: MAS_WORKSPACE_ID
+              name: aiservice-fvt
+              key: AISERVICE_CHANNEL
               optional: false
         # Digests
-        - name: FVT_DIGEST_AIBROKER
+        - name: FVT_DIGEST_AISERVICE
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-aibroker
-              key: FVT_DIGEST_AIBROKER
+              name: aiservice-fvt
+              key: FVT_DIGEST_AISERVICE
               optional: false
         - name: IVT_DIGEST_CORE
           valueFrom:
             secretKeyRef:
-              name: mas-fvt-aibroker
+              name: aiservice-fvt
               key: IVT_DIGEST_CORE
               optional: false
 

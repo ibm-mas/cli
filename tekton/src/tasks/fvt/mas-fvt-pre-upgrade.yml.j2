@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-pre-upgrade
+  name: mas-fvt-pre-upgrade
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
@@ -14,7 +14,7 @@ spec:
     - name: create-offline-upgrade-cron
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      command: 
+      command:
         - ansible-playbook
         - /masfvt/fvt-pre-upgrade.yml
       env:

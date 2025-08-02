@@ -2,19 +2,19 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-post-update
+  name: mas-fvt-post-update
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
     - name: mas_instance_id
       type: string
       description: Instance ID
-      
+
   steps:
     - name: post-update-verify
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
-      command: 
+      command:
         - ansible-playbook
         - /masfvt/fvt-post-update.yml
       env:

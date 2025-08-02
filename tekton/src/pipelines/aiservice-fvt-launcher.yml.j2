@@ -1,0 +1,133 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: aiservice-fvt-launcher
+spec:
+  params:
+    - name: image_pull_policy
+      type: string
+
+    - name: aiservice_instance_id
+      type: string
+
+    - name: sync_with_install
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running MAS install pipeline"
+
+    # What to launch
+    # -------------------------------------------------------------------------
+    - name: launchfvt_aiservice
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable launch of the AIBroker FVT pipeline after the ai service has been installed"
+
+    # Finalize
+    # -------------------------------------------------------------------------
+    - name: finalize
+      type: string
+      default: "true"
+      description: "Set this to 'false' to stop the finalize task from running for this launcher"
+    - name: set_finished
+      type: string
+      default: "true"
+      description: "Set this to 'false' to stop the the fvt test being marked as complete"
+
+    # Deprovision Resources
+    # -------------------------------------------------------------------------
+    - name: deprovision
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable deprovision of the target cluster & associated resources following the completion of this pipeline"
+
+  tasks:
+    - name: waitfor-aiservice
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-aiservice
+        - name: configmap_target_value
+          value: pending
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.launchfvt_aiservice)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+
+    - name: launchfvt-aiservice
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.aiservice_instance_id)-fvt-aiservice"
+      taskRef:
+        kind: Task
+        name: aiservice-launchfvt
+      when:
+        - input: $(params.launchfvt_aiservice)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-aiservice
+
+    - name: approval-aiservice
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-aiservice
+        - name: configmap_value
+          value: approved
+      when:
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-aiservice
+
+
+  # Finally
+  # ---------------------------------------------------------------------------
+  finally:
+    - name: launchfvt-finally
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-finally
+      params:
+        - name: deprovision
+          value: "$(params.deprovision)"
+        - name: finalize
+          value: "$(params.finalize)"
+        - name: set_finished
+          value: "$(params.set_finished)"
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(context.pipelineRun.name)-fvt-finally"
+
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs

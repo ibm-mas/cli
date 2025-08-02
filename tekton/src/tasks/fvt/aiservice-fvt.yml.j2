@@ -1,0 +1,107 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: aiservice-fvt
+spec:
+  params:
+    # Control the image pull policy for the FVT container image
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+
+    # Test Container Information
+    # -------------------------------------------------------------------------
+    - name: fvt_image_registry
+      type: string
+      description: FVT Container Image Registry (required)
+    - name: fvt_image_digest
+      type: string
+      description: FVT Container Image Digest
+
+    # Test Framework Information
+    # -------------------------------------------------------------------------
+    - name: fvt_test_suite
+      type: string
+      description: If the FVT container image contains multiple suites, use this to control the suite that will be executed
+      default: ""
+    - name: fvt_enable_debug
+      type: string
+      description: Turn on debug logging (verbose mode)
+      default: "true"
+
+    - name: product_channel
+      type: string
+      description: "Subscription channel for the product (todo: have the test code look this up instead)"
+      default: ""
+
+    - name: aiservice_instance_id
+      type: string
+      description: Instance ID of the target test environment
+
+  stepTemplate:
+    name: 'fvt-aiservice'
+    env:
+      # What are we testing?
+      - name: PRODUCT_ID
+        value: ibm-mas-aibroker
+      - name: PRODUCT_CHANNEL
+        value: $(params.product_channel)
+      - name: NAMESPACE
+        value: "mas-$(params.aiservice_instance_id)-aibroker"
+      - name: INSTANCE_ID
+        value: "$(params.aiservice_instance_id)"
+
+      # Enable results to be saved
+      - name: DEVOPS_MONGO_URI
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_MONGO_URI
+            optional: true
+      - name: BUILD_NUM
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: DEVOPS_BUILD_NUMBER
+            optional: true
+
+      # If this secret exists (with both ARTIFACTORY_TOKEN and ARTIFACTORY_UPLOAD_DIR keys set) the content of /opt/ibm/test/upload file will be automatically uploaded
+      - name: ARTIFACTORY_TOKEN
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_TOKEN
+            optional: true
+      - name: ARTIFACTORY_UPLOAD_DIR
+        valueFrom:
+          secretKeyRef:
+            name: mas-devops
+            key: ARTIFACTORY_UPLOAD_DIR
+            optional: true
+
+      # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
+      - name: TEST_SUITE
+        value: $(params.fvt_test_suite)
+
+      # Set the logging level to debug if this is set to true
+      - name: FVT_ENABLE_DEBUG
+        value: "$(params.fvt_enable_debug)"
+
+  steps:
+    - image: '$(params.fvt_image_registry)/fvt-aibroker/fvt-ibm-mas-aibroker@$(params.fvt_image_digest)'
+      imagePullPolicy: $(params.image_pull_policy)
+      timeout: 3h0m0s # Ensure bad FVTs don't run forever
+      onError: continue # Ensure bad FVTs don't break the pipeline
+      resources: {}
+      workingDir: /opt/ibm/test/src
+      volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+  volumes:
+    - name: dshm
+      emptyDir:
+        medium: Memory
+
+  workspaces:
+    - name: configs
