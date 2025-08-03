@@ -1,9 +1,9 @@
 timeout: "2h"
 taskRef:
   kind: Task
-  name: mas-fvt-run-suite
+  name: aiservice-fvt
 when:
-  - input: "$(params.fvt_digest_aibroker)"
+  - input: "$(params.fvt_digest_aiservice)"
     operator: notin
     values: [""]
   - input: "$(params.aiservice_channel)"
