@@ -1,4 +1,5 @@
 # Cluster config
+# -----------------------------------------------------------------------------
 - name: ocp_ingress_tls_secret_name
   type: string
   default: ""
@@ -668,6 +669,7 @@
   default: "" # default is handled by ansible-devops
 
 # MAS Application Configuration - Health Application
+# -----------------------------------------------------------------------------
 - name: mas_appws_bindings_health_wsl_flag
   type: string
   description: Boolean value indicating if Watson Studio must installed and bound to Manage/Health.
@@ -687,11 +689,8 @@
   description: controls the workload size of predict containers
   default: "small"
 
-# Dependencies - IBM Maximo AI Service
-# -----------------------------------------------------------------------------
-{{ lookup('template', params_src_dir ~ '/install-aiservice.yml.j2') }}
-
 # MAS Application Configuration - Facilities
+# -----------------------------------------------------------------------------
 # TODO: Fix type for storage sizes and max conn pool size
 - name: mas_ws_facilities_size
   type: string

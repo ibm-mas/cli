@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-devops-aibroker-tenant
+  name: mas-devops-aiservice-tenant
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
@@ -21,11 +21,6 @@ spec:
     - name: ibm_entitlement_key
       type: string
 
-    # MAS Details
-    - name: mas_instance_id
-      type: string
-      description: Instance ID
-
     # Artifactory details
     - name: mas_icr_cp
       type: string
@@ -34,178 +29,121 @@ spec:
       type: string
       default: ""
 
-    # Application - Operator
-    # - name: mas_aibroker_channel
-    - name: mas_app_channel
-      type: string
-      description: Catalog channel for the application operator subscription
-
-    # Application - Operand
-    - name: mas_app_bindings_jdbc
-      default: ""
-      type: string
-
-    - name: mas_app_plan
-      type: string
-      description: Application installation plan
-      default: ""
-
     # Custom Label Support
     - name: custom_labels
       type: string
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
-    # AI Broker actions 
-    - name: mas_aibroker_s3_action      
+    # AI Service Details
+    - name: aiservice_instance_id
       type: string
-      description: 
+      description: AI Service Instance ID
+    - name: aiservice_channel
+      type: string
+      description: Catalog channel for the AI Service operator subscription
+
+    - name: environment_type
+      type: string
+      description: Environment type
+      default: ""
+
+    - name: aiservice_s3_action
+      type: string
+      description:
       default: "This option is optional"
-    - name: mas_aibroker_apikey_action      
+    - name: aiservice_apikey_action
       type: string
-      description: 
+      description:
       default: "This option is optional"
 
     # WatsonX params
-    - name: mas_aibroker_watsonxai_apikey      
+    - name: aiservice_watsonxai_apikey
       type: string
-      description: 
+      description:
       default: "This option is mandatory"
-    - name: mas_aibroker_watsonxai_url
+    - name: aiservice_watsonxai_url
       type: string
-      description: 
-      default: "This option is mandatory"   
-    - name: mas_aibroker_watsonxai_project_id
-      type: string
-      description: 
+      description:
       default: "This option is mandatory"
-    - name: mas_aibroker_watsonx_action
+    - name: aiservice_watsonxai_project_id
       type: string
-      description: 
+      description:
+      default: "This option is mandatory"
+    - name: aiservice_watsonx_action
+      type: string
+      description:
       default: "This option is mandatory"
 
-    # AI Broker storage 
-    - name: mas_aibroker_storage_provider
+    # S3 storage
+    - name: aiservice_storage_provider
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_accesskey
+    - name: aiservice_storage_accesskey
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_secretkey
+    - name: aiservice_storage_secretkey
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_host
+    - name: aiservice_storage_host
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_port
+    - name: aiservice_storage_port
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_ssl
+    - name: aiservice_storage_ssl
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_region
+    - name: aiservice_storage_region
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_pipelines_bucket
+    - name: aiservice_storage_pipelines_bucket
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_tenants_bucket
+    - name: aiservice_storage_tenants_bucket
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: mas_aibroker_storage_templates_bucket
+    - name: aiservice_storage_templates_bucket
       type: string
       default: "This option is mandatory"
       default: ""
 
-      # Ai Broker Tenant
+    # Tenant Entitlement
     - name: tenant_entitlement_type
       type: string
     - name: tenant_entitlement_start_date
       type: string
     - name: tenant_entitlement_end_date
       type: string
-    - name: mas_aibroker_tenant_s3_bucket_prefix
+
+    # Tenant S3
+    - name: aiservice_tenant_s3_bucket_prefix
       type: string
-    - name: mas_aibroker_tenant_s3_region
+    - name: aiservice_tenant_s3_region
       type: string
-    - name: mas_aibroker_tenant_s3_endpoint_url
+    - name: aiservice_tenant_s3_endpoint_url
       type: string
-    - name: mas_aibroker_tenant_s3_access_key
+    - name: aiservice_tenant_s3_access_key
       type: string
-    - name: mas_aibroker_tenant_s3_secret_key
+    - name: aiservice_tenant_s3_secret_key
       type: string
+
+    # RSL
     - name: rsl_url
       type: string
     - name: rsl_org_id
       type: string
     - name: rsl_token
       type: string
-
-    - name: mas_aibroker_dro_secret_name
-      type: string
-      description: DRO secret name
-      default: ""
-    - name: mas_aibroker_dro_api_key
-      type: string
-      description: DRO API key
-      default: ""
-    - name: mas_aibroker_dro_url
-      type: string
-      description: DRO URL
-      default: ""
-    - name: mas_aibroker_dro_ca_cert
-      type: string
-      description: DRO CA certificate
-      default: ""
-    - name: mas_aibroker_db2_username
-      type: string
-      description: DB2 username
-      default: ""
-    - name: mas_aibroker_db2_password
-      type: string
-      description: DB2 password
-      default: ""
-    - name: mas_aibroker_db2_jdbc_url
-      type: string
-      description: DB2 JDBC URL
-      default: ""
-    - name: mas_aibroker_db2_ssl_enabled
-      type: string
-      description: DB2 SSL enabled
-      default: "false"
-    - name: mas_aibroker_db2_ca_cert
-      type: string
-      description: DB2 CA certificate
-      default: ""
-    - name: mas_aibroker_sls_secret_name
-      type: string
-      description: SLS secret name
-      default: ""
-    - name: mas_aibroker_sls_registration_key
-      type: string
-      description: SLS registration key
-      default: ""
-    - name: mas_aibroker_sls_url
-      type: string
-      description: SLS URL
-      default: ""
-    - name: mas_aibroker_sls_ca_cert
-      type: string
-      description: SLS CA certificate
-      default: ""
-    - name: environment_type
-      type: string
-      description: Environment type
-      default: ""
 
   stepTemplate:
     env:
@@ -221,15 +159,6 @@ spec:
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
 
-      # MAS Details
-      - name: MAS_INSTANCE_ID
-        value: $(params.mas_instance_id)
-
-      # Application - Operator
-      # - name: MAS_AIBROKER_CHANNEL
-      #   value: $(params.mas_aibroker_channel)
-      - name: MAS_APP_CHANNEL
-        value: $(params.mas_app_channel)     
       - name: MAS_CONFIG_DIR
         value: /workspace/configs
 
@@ -243,69 +172,77 @@ spec:
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
 
-      # AI Broker action for create/delete s3 secret 
-      - name: MAS_AIBROKER_S3_ACTION
-        value: $(params.mas_aibroker_s3_action)
+      # AI Service Configuration
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
+      - name: AISERVICE_CHANNEL
+        value: $(params.aiservice_channel)
+      - name: AISERVICE_SAAS
+        value: 'true'
+      - name: ENVIRONMENT_TYPE
+        value: $(params.environment_type)
 
-      # AI Broker action for create/delete api key 
-      - name: MAS_AIBROKER_APIKEY_ACTION
-        value: $(params.mas_aibroker_apikey_action)
+      # AI Broker action for create/delete s3 secret
+      - name: AISERVICE_S3_ACTION
+        value: $(params.aiservice_s3_action)
 
-      # WatsonX api key
-      - name: MAS_AIBROKER_WATSONXAI_APIKEY
-        value: $(params.mas_aibroker_watsonxai_apikey)
+      # AI Broker action for create/delete api key
+      - name: AISERVICE_APIKEY_ACTION
+        value: $(params.aiservice_apikey_action)
 
-      # WatsonX url
-      - name: MAS_AIBROKER_WATSONXAI_URL
-        value: $(params.mas_aibroker_watsonxai_url)
+      # Watsonx
+      - name: AISERVICE_WATSONXAI_APIKEY
+        value: $(params.aiservice_watsonxai_apikey)
+      - name: AISERVICE_WATSONXAI_URL
+        value: $(params.aiservice_watsonxai_url)
+      - name: AISERVICE_WATSONXAI_PROJECT_ID
+        value: $(params.aiservice_watsonxai_project_id)
+      - name: AISERVICE_WATSONX_ACTION
+        value: $(params.aiservice_watsonx_action)
 
-      # WatsonX project id
-      - name: MAS_AIBROKER_WATSONXAI_PROJECT_ID
-        value: $(params.mas_aibroker_watsonxai_project_id)
+      # S3 storage
+      - name: AISERVICE_STORAGE_PROVIDER
+        value: $(params.aiservice_storage_provider)
+      - name: AISERVICE_STORAGE_ACCESSKEY
+        value: $(params.aiservice_storage_accesskey)
+      - name: AISERVICE_STORAGE_SECRETKEY
+        value: $(params.aiservice_storage_secretkey)
+      - name: AISERVICE_STORAGE_HOST
+        value: $(params.aiservice_storage_host)
+      - name: AISERVICE_STORAGE_PORT
+        value: $(params.aiservice_storage_port)
+      - name: AISERVICE_STORAGE_SSL
+        value: $(params.aiservice_storage_ssl)
+      - name: AISERVICE_STORAGE_REGION
+        value: $(params.aiservice_storage_region)
+      - name: AISERVICE_STORAGE_PIPELINES_BUCKET
+        value: $(params.aiservice_storage_pipelines_bucket)
+      - name: AISERVICE_STORAGE_TENANTS_BUCKET
+        value: $(params.aiservice_storage_tenants_bucket)
+      - name: AISERVICE_STORAGE_TEMPLATES_BUCKET
+        value: $(params.aiservice_storage_templates_bucket)
 
-      # WatsonX action
-      - name: MAS_AIBROKER_WATSONX_ACTION
-        value: $(params.mas_aibroker_watsonx_action)
-
-      # Opendatahub storage details
-      - name: MAS_AIBROKER_STORAGE_PROVIDER
-        value: $(params.mas_aibroker_storage_provider)
-      - name: MAS_AIBROKER_STORAGE_ACCESSKEY
-        value: $(params.mas_aibroker_storage_accesskey)
-      - name: MAS_AIBROKER_STORAGE_SECRETKEY
-        value: $(params.mas_aibroker_storage_secretkey)
-      - name: MAS_AIBROKER_STORAGE_HOST
-        value: $(params.mas_aibroker_storage_host)
-      - name: MAS_AIBROKER_STORAGE_PORT
-        value: $(params.mas_aibroker_storage_port)
-      - name: MAS_AIBROKER_STORAGE_SSL
-        value: $(params.mas_aibroker_storage_ssl)
-      - name: MAS_AIBROKER_STORAGE_REGION
-        value: $(params.mas_aibroker_storage_region)
-      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
-        value: $(params.mas_aibroker_storage_pipelines_bucket)
-      - name: MAS_AIBROKER_STORAGE_TENANTS_BUCKET
-        value: $(params.mas_aibroker_storage_tenants_bucket)
-      - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
-        value: $(params.mas_aibroker_storage_templates_bucket)
-
-      # Ai Broker Tenant
-      - name: MAS_AIBROKER_TENANT_ENTITLEMENT_TYPE
+      # Tenant Entitlement
+      - name: AISERVICE_TENANT_ENTITLEMENT_TYPE
         value: $(params.tenant_entitlement_type)
-      - name: MAS_AIBROKER_TENANT_ENTITLEMENT_START_DATE
+      - name: AISERVICE_TENANT_ENTITLEMENT_START_DATE
         value: $(params.tenant_entitlement_start_date)
-      - name: MAS_AIBROKER_TENANT_ENTITLEMENT_END_DATE
+      - name: AISERVICE_TENANT_ENTITLEMENT_END_DATE
         value: $(params.tenant_entitlement_end_date)
-      - name: MAS_AIBROKER_TENANT_S3_REGION
-        value: $(params.mas_aibroker_tenant_s3_region)
-      - name: MAS_AIBROKER_TENANT_S3_BUCKET_PREFIX
-        value: $(params.mas_aibroker_tenant_s3_bucket_prefix)
-      - name: MAS_AIBROKER_TENANT_S3_ENDPOINT_URL
-        value: $(params.mas_aibroker_tenant_s3_endpoint_url)
-      - name: MAS_AIBROKER_TENANT_S3_ACCESS_KEY
-        value: $(params.mas_aibroker_tenant_s3_access_key)
-      - name: MAS_AIBROKER_TENANT_S3_SECRET_KEY
-        value: $(params.mas_aibroker_tenant_s3_secret_key)
+
+      # Tenant S3 storage
+      - name: AISERVICE_TENANT_S3_REGION
+        value: $(params.aiservice_tenant_s3_region)
+      - name: AISERVICE_TENANT_S3_BUCKET_PREFIX
+        value: $(params.aiservice_tenant_s3_bucket_prefix)
+      - name: AISERVICE_TENANT_S3_ENDPOINT_URL
+        value: $(params.aiservice_tenant_s3_endpoint_url)
+      - name: AISERVICE_TENANT_S3_ACCESS_KEY
+        value: $(params.aiservice_tenant_s3_access_key)
+      - name: AISERVICE_TENANT_S3_SECRET_KEY
+        value: $(params.aiservice_tenant_s3_secret_key)
+
+      # RSL
       - name: RSL_URL
         value: $(params.rsl_url)
       - name: RSL_ORG_ID
@@ -313,45 +250,11 @@ spec:
       - name: RSL_TOKEN
         value: $(params.rsl_token)
 
-      # Ai Broker Saas
-      - name: MAS_AIBROKER_SAAS
-        value: 'true'
-
-      # DRO, DB2, SLS vars
-      - name: MAS_AIBROKER_DRO_SECRET_NAME
-        value: $(params.mas_aibroker_dro_secret_name)
-      - name: MAS_AIBROKER_DRO_API_KEY
-        value: $(params.mas_aibroker_dro_api_key)
-      - name: MAS_AIBROKER_DRO_URL
-        value: $(params.mas_aibroker_dro_url)
-      - name: MAS_AIBROKER_DRO_CA_CERT
-        value: $(params.mas_aibroker_dro_ca_cert)
-      - name: MAS_AIBROKER_DB2_USERNAME
-        value: $(params.mas_aibroker_db2_username)
-      - name: MAS_AIBROKER_DB2_PASSWORD
-        value: $(params.mas_aibroker_db2_password)
-      - name: MAS_AIBROKER_DB2_JDBC_URL
-        value: $(params.mas_aibroker_db2_jdbc_url)
-      - name: MAS_AIBROKER_DB2_SSL_ENABLED
-        value: $(params.mas_aibroker_db2_ssl_enabled)
-      - name: MAS_AIBROKER_DB2_CA_CERT
-        value: $(params.mas_aibroker_db2_ca_cert)
-      - name: MAS_AIBROKER_SLS_SECRET_NAME
-        value: $(params.mas_aibroker_sls_secret_name)
-      - name: MAS_AIBROKER_SLS_REGISTRATION_KEY
-        value: $(params.mas_aibroker_sls_registration_key)
-      - name: MAS_AIBROKER_SLS_URL
-        value: $(params.mas_aibroker_sls_url)
-      - name: MAS_AIBROKER_SLS_CA_CERT
-        value: $(params.mas_aibroker_sls_ca_cert)
-      - name: ENVIRONMENT_TYPE
-        value: $(params.environment_type)
-
   steps:
-    - name: aibroker-tenant
+    - name: aiservice-tenant
       command:
         - /opt/app-root/src/run-role.sh
-        - aibroker_tenant
+        - aiservice_tenant
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs

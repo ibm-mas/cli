@@ -32,9 +32,9 @@ from .params import requiredParams, optionalParams
 
 from ...install.catalogs import supportedCatalogs
 
-# AiService relies on SLS, which in turn depends on MongoDB.
+# AI Service relies on SLS, which in turn depends on MongoDB.
 # SLS will utilize the shared MongoDB resource that would be used by MAS if it were deployed within the same OpenShift cluster.
-# AiService utilizes two distinct databases: DB2 is employed by the AiBroker component, while MariaDB supports OpenDataHub (ODH).
+# AI Service utilizes two distinct databases: DB2 is employed by the AiBroker component.
 # By default, AiService will deploy DB2 within the same namespace as MAS (db2u), but it will be configured as a separate DB2 instance.
 
 from ...install.settings.mongodbSettings import MongoDbSettingsMixin
@@ -56,10 +56,10 @@ from mas.devops.data import getCatalog
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
-    preparePipelinesNamespace,
+    prepareAiServicePipelinesNamespace,
     prepareInstallSecrets,
     testCLI,
-    launchInstallPipelineForAiservice
+    launchAiServiceInstallPipeline
 )
 
 logger = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
         applications = {
-            "Aibroker": "mas_aibroker_version",
+            "Aibroker": "aiservice_version",
         }
 
         self.catalogReleases = {}
@@ -96,9 +96,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         for application, key in applications.items():
             # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             tempChosenCatalog = self.chosenCatalog[key].copy()
-            if '9.1.x-feature' not in tempChosenCatalog:
-                tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
-
             self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
         if self.architecture == "s390x":
@@ -132,10 +129,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             " - Must start with a lowercase letter",
             " - Must end with a lowercase letter or a number"
         ])
-        self.promptForString("Instance ID", "aibroker_instance_id", validator=InstanceIDFormatValidator())
+        self.promptForString("Instance ID", "aiservice_instance_id", validator=InstanceIDFormatValidator())
 
         if self.slsMode == 2 and not self.getParam("sls_namespace"):
-            self.setParam("sls_namespace", f"mas-{self.getParam('aibroker_instance_id')}-sls")
+            self.setParam("sls_namespace", f"mas-{self.getParam('aiservice_instance_id')}-sls")
 
         self.configOperationMode()
 
@@ -145,32 +142,26 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.interactiveMode = True
 
         self.storageClassProvider = "custom"
-        self.installAssist = False
-        self.installIoT = False
-        self.installMonitor = False
-        self.installManage = False
-        self.installPredict = False
-        self.installInspection = False
-        self.installOptimizer = False
-        self.installFacilities = False
-        self.installAiBroker = True
-        self.deployCP4D = False
-        self.db2SetAffinity = False
-        self.db2SetTolerations = False
         self.slsLicenseFileLocal = None
 
-        if simplified:
-            self.showAdvancedOptions = False
-        elif advanced:
-            self.showAdvancedOptions = True
-        else:
-            self.chooseInstallFlavour()
+        self.printDescription([
+            "The AI Broker (introduced with MAS 9.0) has been replaced with Maximo AI Service as of Aug 1 2025.",
+            "To continue using the features that were enabled by the AI broker after that time, you must deploy and use Maximo AI Service 9.1:",
+            " - Maximo AI Service 9.1 is compatible with both Maximo Application Suite 9.0 and 9.1 releases.",
+            " - If Maximo AI Service is deployed with Maximo Application Suite 9.0, you can use only the AI features that were included in Maximo Application Suite 9.0.",
+            "The Maximo AI Service 9.1 includes a limited use license to watsonx.ai and incurs an additional AppPoint cost"
+        ])
 
         # Catalog
         self.configCatalog()
         if not self.devMode:
-            self.validateCatalogSource()
-            self.licensePrompt()
+            self.printDescription([
+                "Coming Soon!",
+                "We are busy putting the finishing touches on Maximo AI Service ahead of a re-launch planned for the August 2025 catalog update."
+            ])
+            exit(0)
+            # self.validateCatalogSource()
+            # self.licensePrompt()
 
         # Storage Classes
         self.configStorageClasses()
@@ -185,7 +176,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if self.devMode:
             self.configAppChannel("aibroker")
 
-        self.aibrokerSettings()
+        self.aiServiceSettings()
+        self.aiServiceTenantSettings()
+        self.aiServiceIntegrations()
 
         # Dependencies
         self.configMongoDb()
@@ -201,22 +194,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("mongodb_action", "install")
 
         self.storageClassProvider = "custom"
-        self.installAssist = False
-        self.installIoT = False
-        self.installMonitor = False
-        self.installManage = False
-        self.installPredict = False
-        self.installInspection = False
-        self.installFacilities = False
-        self.installOptimizer = False
-        self.installAiBroker = True
-        self.deployCP4D = False
-        self.db2SetAffinity = False
-        self.db2SetTolerations = False
         self.slsLicenseFileLocal = None
 
         self.approvals = {
-            "approval_aibroker": {"id": "app-cfg-aibroker"},  # After Aibroker workspace has been configured
+            "approval_aiservice": {"id": "aiservice"},
         }
 
         self.setDB2DefaultSettings()
@@ -232,6 +213,54 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             elif key in optionalParams:
                 if value is not None:
                     self.setParam(key, value)
+
+            elif key == "install_minio_aiservice":
+                incompatibleWithMinioInstall = [
+                    "aiservice_storage_provider",
+                    "aiservice_storage_accesskey",
+                    "aiservice_storage_secretkey",
+                    "aiservice_storage_host",
+                    "aiservice_storage_port",
+                    "aiservice_storage_ssl",
+                    "aiservice_s3_endpoint_url",
+                    "aiservice_storage_region",
+                    "aiservice_tenant_s3_access_key",
+                    "aiservice_tenant_s3_secret_key",
+                    "aiservice_tenant_s3_endpoint_url",
+                    "aiservice_tenant_s3_region"
+                ]
+                if value is None:
+                    for uKey in incompatibleWithMinioInstall:
+                        if vars(self.args)[uKey] is None:
+                            self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
+                elif value is not None and value == "true":
+                    # If user is installing Minio in-cluster then we know how to connect to it already
+                    for uKey in incompatibleWithMinioInstall:
+                        if vars(self.args)[uKey] is not None:
+                            self.fatalError(f"Unsupported parameter for --install-minio: {uKey}")
+                    for rKey in ["minio_root_user", "minio_root_password"]:
+                        if vars(self.args)[rKey] is None:
+                            self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
+
+                    self.setParam("aiservice_storage_provider", "minio")
+
+                    self.setParam("aiservice_storage_accesskey", self.args.minio_root_user)
+                    self.setParam("aiservice_storage_secretkey", self.args.minio_root_password)
+
+                    # TODO: Duplication -- we already have the URL, why do we need all the individual parts,
+                    # especially when we don't need them for the tenant?
+                    self.setParam("aiservice_storage_host", "minio-service.minio.svc.cluster.local")
+                    self.setParam("aiservice_storage_port", "9000")
+                    self.setParam("aiservice_storage_ssl", "false")
+                    self.setParam("aiservice_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
+                    self.setParam("aiservice_storage_region", "none")
+
+                    self.setParam("aiservice_tenant_s3_access_key", self.args.minio_root_user)
+                    self.setParam("aiservice_tenant_s3_secret_key", self.args.minio_root_password)
+                    self.setParam("aiservice_tenant_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
+                    self.setParam("aiservice_tenant_s3_region", "none")
+                else:
+                    self.fatalError(f"Unsupported value for --install-minio: {value}")
 
             elif key == "non_prod":
                 if not value:
@@ -258,18 +287,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             # We check for both None and "" values for the application channel parameters
             # value = None means the parameter wasn't set at all
-            # value = "" means the paramerter was explicitly set to "don't install this application"
-            elif key == "aibroker_channel":
+            # value = "" means the parameter was explicitly set to "don't install this application"
+            elif key == "aiservice_channel":
                 if value is not None and value != "":
-                    self.setParam("mas_app_channel_aibroker", value)
-                    self.installAiBroker = True
-
-            # Manage advanced settings that need extra processing
-            elif key == "mas_app_settings_server_bundle_size":
-                if value is not None:
-                    self.setParam(key, value)
-                    if value in ["jms", "snojms"]:
-                        self.setParam("mas_app_settings_persistent_volumes_flag", "true")
+                    self.setParam("aiservice_channel", value)
 
             # MongoDB
             elif key == "mongodb_namespace":
@@ -284,7 +305,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.setParam("sls_action", "install")
             elif key == "dedicated_sls":
                 if value:
-                    self.setParam("sls_namespace", f"mas-{self.args.aibroker_instance_id}-sls")
+                    self.setParam("sls_namespace", f"mas-{self.args.aiservice_instance_id}-sls")
 
             # These settings are used by the CLI rather than passed to the PipelineRun
             elif key == "storage_accessmode":
@@ -337,8 +358,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
-            if self.getParam("install_sls_aiservice") != "false":
-                self.fatalError("--license-file must be set for new SLS install")
+            self.fatalError("--license-file must be set for new SLS install")
 
         # Once we've processed the inputs, we should validate the catalog source & prompt to accept the license terms
         if not self.devMode:
@@ -354,7 +374,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # We use the presence of --mas-instance-id to determine whether
         # the CLI is being started in interactive mode or not
-        instanceId = args.aibroker_instance_id
+        instanceId = args.aiservice_instance_id
 
         # Properties for arguments that control the behavior of the CLI
         self.noConfirm = args.no_confirm
@@ -401,6 +421,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # UDS install has not been supported since the January 2024 catalog update
         self.setParam("uds_action", "install-dro")
 
+        # Install Db2 for AI Service
+        self.setParam("db2_action_aiservice", "install")
+
         # User must either provide the configuration via numerous command line arguments, or the interactive prompts
         if instanceId is None:
             self.interactiveMode(simplified=args.simplified, advanced=args.advanced)
@@ -432,7 +455,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.createTektonFileWithDigest()
 
             self.printH1("Launch Install")
-            pipelinesNamespace = f"mas-{self.getParam('aibroker_instance_id')}-pipelines"
+            pipelinesNamespace = f"aiservice-{self.getParam('aiservice_instance_id')}-pipelines"
 
             if not self.noConfirm:
                 self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
@@ -446,9 +469,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
-                preparePipelinesNamespace(
+                prepareAiServicePipelinesNamespace(
                     dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aibroker_instance_id"),
+                    instanceId=self.getParam("aiservice_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
                     waitForBind=wait,
@@ -456,7 +479,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 )
                 prepareInstallSecrets(
                     dynClient=self.dynamicClient,
-                    instanceId=self.getParam("aibroker_instance_id"),
+                    namespace=pipelinesNamespace,
                     slsLicenseFile=self.slsLicenseFileSecret,
                     additionalConfigs=self.additionalConfigsSecret,
                     podTemplates=self.podTemplatesSecret,
@@ -475,13 +498,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text=f"Submitting PipelineRun for {self.getParam('aibroker_instance_id')} install", spinner=self.spinner) as h:
-                pipelineURL = launchInstallPipelineForAiservice(dynClient=self.dynamicClient, params=self.params)
+            with Halo(text=f"Submitting PipelineRun for {self.getParam('aiservice_instance_id')} install", spinner=self.spinner) as h:
+                pipelineURL = launchAiServiceInstallPipeline(dynClient=self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
-                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aibroker_instance_id')} install submitted")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aiservice_instance_id')} install submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
                 else:
-                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('aibroker_instance_id')} install, see log file for details")
+                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {self.getParam('aiservice_instance_id')} install, see log file for details")
                     print()
 
     @logMethodCall
@@ -497,83 +520,138 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 logger.debug(f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['ignoreFailure']})")
                 self.initializeApprovalConfigMap(namespace, approval['id'], True, approval['maxRetries'], approval['retryDelay'], approval['ignoreFailure'])
 
-    @logMethodCall
-    def chooseInstallFlavour(self) -> None:
-        # We don't have any configuration as Advanced options right now in Aibroker settings
-        # we can remove this chooseInstallFlavour - if we want...
-        self.printH1("Choose Install Mode")
+    def aiServiceSettings(self) -> None:
+        self.printH1("AI Service Settings")
+
+        # Ask about MinIO installation FIRST (moved from aiServiceDependencies)
+        self.printH2("Storage Configuration")
+        self.printDescription(["AI Service requires object storage for pipelines, tenants, and templates. You can either install MinIO in-cluster or connect to external storage."])
+
+        if self.yesOrNo("Install Minio"):
+            # Only ask for MinIO credentials
+            self.promptForString("minio root username", "minio_root_user")
+            self.promptForString("minio root password", "minio_root_password", isPassword=True)
+
+            # Auto-set MinIO storage defaults (same as non-interactive mode)
+            self._setMinioStorageDefaults()
+        else:
+            # Ask for external storage configuration
+            self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
+            self.promptForString("Storage provider", "aiservice_storage_provider")
+            self.promptForString("Storage access key", "aiservice_storage_accesskey")
+            self.promptForString("Storage secret key", "aiservice_storage_secretkey", isPassword=True)
+            self.promptForString("Storage host", "aiservice_storage_host")
+            self.promptForString("Storage port", "aiservice_storage_port")
+            self.promptForString("Storage ssl", "aiservice_storage_ssl")
+            self.promptForString("Storage region", "aiservice_storage_region")
+            self.promptForString("Storage pipelines bucket", "aiservice_storage_pipelines_bucket")
+            self.promptForString("Storage tenants bucket", "aiservice_storage_tenants_bucket")
+            self.promptForString("Storage templates bucket", "aiservice_storage_templates_bucket")
+
+        # S3 parameters are now auto-derived from storage configuration
+        self._deriveS3ParametersFromStorage()
+
+    def aiServiceTenantSettings(self) -> None:
+        self.printH1("AI Service Tenant Settings")
+        self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
+        self.promptForString("Tenant start date", "tenant_entitlement_start_date")
+        self.promptForString("Tenant end date", "tenant_entitlement_end_date")
+
+    def _deriveS3ParametersFromStorage(self) -> None:
+        """
+        Auto-derive S3 and tenant S3 parameters from the aiservice_storage_* parameters.
+        This reuses the values provided for kmodel object storage to avoid redundant prompts.
+        """
+        storage_provider = self.getParam("aiservice_storage_provider")
+        storage_host = self.getParam("aiservice_storage_host")
+        storage_port = self.getParam("aiservice_storage_port")
+        storage_ssl = self.getParam("aiservice_storage_ssl")
+        storage_region = self.getParam("aiservice_storage_region")
+        storage_accesskey = self.getParam("aiservice_storage_accesskey")
+        storage_secretkey = self.getParam("aiservice_storage_secretkey")
+
+        # Build endpoint URL from storage configuration
+        protocol = "https" if storage_ssl == "true" else "http"
+
+        if storage_provider == "minio":
+            endpoint_url = f"{protocol}://{storage_host}:{storage_port}"
+        elif storage_provider == "s3":
+            # For AWS S3, construct proper endpoint
+            if storage_region and storage_region != "none":
+                endpoint_url = f"{protocol}://s3.{storage_region}.amazonaws.com"
+            else:
+                endpoint_url = f"{protocol}://s3.amazonaws.com"
+        else:
+            # For other providers, construct basic endpoint
+            endpoint_url = f"{protocol}://{storage_host}:{storage_port}" if storage_port else f"{protocol}://{storage_host}"
+
+        # Set S3 parameters (reusing storage configuration)
+        self.setParam("aiservice_s3_bucket_prefix", "aiservice")  # Default prefix
+        if endpoint_url:
+            self.setParam("aiservice_s3_endpoint_url", endpoint_url)
+        self.setParam("aiservice_s3_region", storage_region if storage_region else "none")
+
+        # Set tenant S3 parameters (reusing same storage configuration)
+        self.setParam("aiservice_tenant_s3_bucket_prefix", "tenant")  # Default tenant prefix
+        self.setParam("aiservice_tenant_s3_access_key", storage_accesskey)
+        self.setParam("aiservice_tenant_s3_secret_key", storage_secretkey)
+        if endpoint_url:
+            self.setParam("aiservice_tenant_s3_endpoint_url", endpoint_url)
+        self.setParam("aiservice_tenant_s3_region", storage_region if storage_region else "none")
+
+    def _setMinioStorageDefaults(self) -> None:
+        """
+        Set MinIO storage defaults when MinIO is being installed in-cluster.
+        This mirrors the logic from non-interactive mode.
+        """
+        self.setParam("aiservice_storage_provider", "minio")
+        self.setParam("aiservice_storage_accesskey", self.getParam("minio_root_user"))
+        self.setParam("aiservice_storage_secretkey", self.getParam("minio_root_password"))
+        self.setParam("aiservice_storage_host", "minio-service.minio.svc.cluster.local")
+        self.setParam("aiservice_storage_port", "9000")
+        self.setParam("aiservice_storage_ssl", "false")
+        self.setParam("aiservice_storage_region", "none")
+
+        # Set default bucket names
+        self.setParam("aiservice_storage_pipelines_bucket", "km-pipelines")
+        self.setParam("aiservice_storage_tenants_bucket", "km-tenants")
+        self.setParam("aiservice_storage_templates_bucket", "km-templates")
+
+    def aiServiceIntegrations(self) -> None:
+        self.printH1("WatsonX Integration")
         self.printDescription([
-            "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
-            " - Configure dedicated License (AppPoints)"
+            "This CLI section configures the integration between the AI Service and IBM watsonx.ai. AI Service",
+            "uses watsonx for model deployment and inferencing.",
+            "",
+            "The WatsonX API key must be a **platform API key** associated with a user that has at least:",
+            "- **Editor permission** for the project",
+            "- **Viewer permission** for the space",
+            "You can generate this key by following IBM's documentation: https://www.ibm.com/docs/en/watsonx/w-and-w/2.2.0?topic=tutorials-generating-api-keys#api-keys__platform__title__1",
+            "",
+            "The endpoint URL is your WatsonX Machine Learning service URL. It can be found in the watsonx.ai",
+            "documentation: https://cloud.ibm.com/apidocs/watsonx-ai-cp/watsonx-ai-cp-2.2.0#endpoint-url",
+            "",
+            "The project ID refers to your specific watsonx.ai project where your ML models and assets are stored.",
+            "",
         ])
-        self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
+        self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
+        self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
+        self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
 
-    def aibrokerSettings(self) -> None:
-        if self.installAiBroker:
-            self.printH2("AI Service Settings - Storage, WatsonX, MariaDB details")
-            self.printDescription(["Customise AI Broker details"])
-            self.promptForString("Storage provider", "mas_aibroker_storage_provider")
-            self.promptForString("Storage access key", "mas_aibroker_storage_accesskey")
-            self.promptForString("Storage secret key", "mas_aibroker_storage_secretkey", isPassword=True)
-            self.promptForString("Storage host", "mas_aibroker_storage_host")
-            self.promptForString("Storage port", "mas_aibroker_storage_port")
-            self.promptForString("Storage ssl", "mas_aibroker_storage_ssl")
-            self.promptForString("Storage region", "mas_aibroker_storage_region")
-            self.promptForString("Storage pipelines bucket", "mas_aibroker_storage_pipelines_bucket")
-            self.promptForString("Storage tenants bucket", "mas_aibroker_storage_tenants_bucket")
-            self.promptForString("Storage templates bucket", "mas_aibroker_storage_templates_bucket")
-
-            self.promptForString("Watsonxai api key", "mas_aibroker_watsonxai_apikey", isPassword=True)
-            self.promptForString("Watsonxai machine learning url", "mas_aibroker_watsonxai_url")
-            self.promptForString("Watsonxai project id", "mas_aibroker_watsonxai_project_id")
-
-            self.promptForString("Database host", "mas_aibroker_db_host")
-            self.promptForString("Database port", "mas_aibroker_db_port")
-            self.promptForString("Database user", "mas_aibroker_db_user")
-            self.promptForString("Database name", "mas_aibroker_db_database")
-            self.promptForString("Database Secretname", "mas_aibroker_db_secret_name", isPassword=True)
-            self.promptForString("Database password", "mas_aibroker_db_secret_value", isPassword=True)
-
-            if self.getParam("mas_app_channel_aibroker") != "9.0.x":
-                self.promptForString("Mariadb username", "mariadb_user")
-                self.promptForString("Mariadb password", "mariadb_password", isPassword=True)
-                self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
-                self.promptForString("Tenant start date", "tenant_entitlement_start_date")
-                self.promptForString("Tenant end date", "tenant_entitlement_end_date")
-                self.promptForString("S3 bucket prefix", "mas_aibroker_s3_bucket_prefix")
-                self.promptForString("S3 endpoint url", "mas_aibroker_s3_endpoint_url")
-                self.promptForString("S3 bucket prefix (tenant level)", "mas_aibroker_tenant_s3_bucket_prefix")
-                self.promptForString("S3 region (tenant level)", "mas_aibroker_tenant_s3_region")
-                self.promptForString("S3 endpoint url (tenant level)", "mas_aibroker_tenant_s3_endpoint_url")
-                self.promptForString("S3 access key (tenant level)", "mas_aibroker_tenant_s3_access_key", isPassword=True)
-                self.promptForString("S3 secret key (tenant level)", "mas_aibroker_tenant_s3_secret_key", isPassword=True)
-                self.promptForString("RSL url", "rsl_url")
-                self.promptForString("ORG Id of RSL", "rsl_org_id")
-                self.promptForString("Token for RSL", "rsl_token", isPassword=True)
-                self.yesOrNo("Install minio", "install_minio_aiservice")
-                if self.getParam("install_minio_aiservice") == "true":
-                    self.promptForString("minio root username", "minio_root_user")
-                    self.promptForString("minio root password", "minio_root_password", isPassword=True)
-                self.yesOrNo("Install SLS", "install_sls_aiservice")
-                if self.getParam("install_sls_aiservice") != "true":
-                    self.promptForString("SLS secret name", "mas_aibroker_sls_secret_name")
-                    self.promptForString("SLS registration key", "mas_aibroker_sls_registration_key")
-                    self.promptForString("SLS URL", "mas_aibroker_sls_url")
-                    self.promptForString("SLS CA certificate", "mas_aibroker_sls_ca_cert")
-                self.yesOrNo("Install DRO", "install_dro_aiservice")
-                if self.getParam("install_dro_aiservice") != "true":
-                    self.promptForString("DRO secret name", "mas_aibroker_dro_secret_name")
-                    self.promptForString("DRO API key", "mas_aibroker_dro_api_key")
-                    self.promptForString("DRO URL", "mas_aibroker_dro_url")
-                    self.promptForString("DRO CA certificate", "mas_aibroker_dro_ca_cert")
-                self.yesOrNo("Install DB2", "install_db2_aiservice")
-                if self.getParam("install_db2_aiservice") != "true":
-                    self.promptForString("DB2 username", "mas_aibroker_db2_username")
-                    self.promptForString("DB2 password", "mas_aibroker_db2_password")
-                    self.promptForString("DB2 JDBC URL", "mas_aibroker_db2_jdbc_url")
-                    self.promptForString("DB2 SSL enabled (yes/no)", "mas_aibroker_db2_ssl_enabled")
-                    self.promptForString("DB2 CA certificate", "mas_aibroker_db2_ca_cert")
-                # self.promptForString("Environment type", "environment_type")
+        self.printH1("RSL Integration")
+        self.printDescription([
+            "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
+            "",
+            "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
+            "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
+            "Token: Use your IBM entitlement key (same as MAS installation)",
+            "",
+            "Note: Future versions will auto-configure these from MAS Manage.",
+            ""
+        ])
+        self.promptForString("RSL url", "rsl_url")
+        self.promptForString("ORG Id of RSL", "rsl_org_id")
+        self.promptForString("Token for RSL", "rsl_token", isPassword=True)
 
     # These are all candidates to centralise in a new mixin used by both install and aiservice-install
 
@@ -656,7 +734,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
             releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
 
-            self.setParam("mas_app_channel_aibroker", self.catalogReleases[releaseSelection])
+            self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -688,7 +766,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printH1("License Terms")
             self.printDescription([
                 "To continue with the installation, you must accept the license terms:",
-                self.licenses[f"aibroker-{self.getParam('mas_app_channel_aibroker')}"]
+                self.licenses[f"aibroker-{self.getParam('aiservice_channel')}"]
             ])
 
             if self.noConfirm:

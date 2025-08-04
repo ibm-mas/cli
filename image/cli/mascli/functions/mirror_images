@@ -20,7 +20,11 @@ Registry Details (Required):
   -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
 
 Registry Prefix (Optional):
-  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}            Prefix for the mirror image
+  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}                    Prefix for the mirror image
+
+AWS Elastic Container Registry (Optional):
+  -r, --aws-ecr-region ${COLOR_YELLOW}REGISTRY_ECR_AWS_REGION${TEXT_RESET}    The AWS region if the target registry is Elastic Container Registry
+  -e, --target-is-ecr                                                         Indicate that the target registry is Elastic Container Registry
 
 Source Registry Entitlements (Required based on what content you choose to mirror):
       --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
@@ -173,6 +177,14 @@ function mirror_to_registry_noninteractive() {
         ;;
       -p|--password)
         REGISTRY_PASSWORD=$1 && shift
+        ;;
+
+      # AWS Elastic Container Registry
+      -e|--target-is-ecr)
+        REGISTRY_IS_ECR=true
+        ;;
+      -r|--aws-ecr-region)
+        REGISTRY_ECR_AWS_REGION=$1 && shift
         ;;
 
       # Source Registry Entitlements
@@ -524,6 +536,9 @@ function mirror_to_registry() {
   export REGISTRY_PREFIX
   export REGISTRY_USERNAME
   export REGISTRY_PASSWORD
+
+  export REGISTRY_IS_ECR
+  export REGISTRY_ECR_AWS_REGION
 
   # Dependency control
   export MIRROR_CATALOG
