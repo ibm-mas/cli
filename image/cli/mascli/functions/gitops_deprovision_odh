@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 function gitops_deprovision_odh_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
