@@ -21,10 +21,6 @@ spec:
     - name: mas_instance_id
       type: string
 
-    - name: skip_mas_install
-      type: string
-      default: "false"
-
     - name: sync_with_install
       type: string
       default: "false"
@@ -85,10 +81,6 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable launch of the Predict FVT pipeline after app-cfg-predict completes"
-    - name: launchfvt_aibroker
-      type: string
-      default: "false"
-      description: "Set this to 'true' to enable launch of the AIBroker FVT pipeline after app-cfg-aibroker completes"
     - name: launchfvt_visualinspection
       type: string
       default: "false"
@@ -164,9 +156,6 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
-        - input: $(params.skip_mas_install)
-          operator: notin
-          values: ["true", "True"]
 
     - name: launchfvt-sls
       timeout: "0"
@@ -217,9 +206,6 @@ spec:
       when:
         - input: $(params.sync_with_install)
           operator: in
-          values: ["true", "True"]
-        - input: $(params.skip_mas_install)
-          operator: notin
           values: ["true", "True"]
 
       runAfter:
@@ -898,14 +884,13 @@ spec:
     # update, then upgrade, then uninstall is more efficient use of resources than 3 seperate
     # environments for each day 2 action.
 
-
     # Update Sync Point
     # -------------------------------------------------------------------------
     - name: pre-update
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-pre-update
+        name: mas-fvt-pre-update
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -955,7 +940,7 @@ spec:
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-post-update
+        name: mas-fvt-post-update
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -968,14 +953,13 @@ spec:
       runAfter:
         - waitfor-update
 
-
     # Upgrade Sync Point
     # -------------------------------------------------------------------------
     - name: pre-upgrade
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-pre-upgrade
+        name: mas-fvt-pre-upgrade
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -987,7 +971,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - post-update
-    
+
     - name: start-upgrade
       timeout: "0"
       taskRef:
@@ -1073,75 +1057,6 @@ spec:
           values: ["true", "True"]
       runAfter:
         - start-uninstall
-
-    # 1. Application FVT - AIBroker
-    # -------------------------------------------------------------------------
-    # We start the AIBroker part of the FVT launcher
-    - name: waitfor-aibroker
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-devops-wait-for-configmap
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: namespace
-          value: $(context.taskRun.namespace)
-        - name: configmap_name
-          value: approval-app-cfg-aibroker
-        - name: configmap_target_value
-          value: pending
-        # 25 retries at 5 minute intervals = 2 hours
-        - name: delay
-          value: "300"
-        - name: max_retries
-          value: "25"
-        - name: ignore_failure
-          value: "False"
-      when:
-        - input: $(params.launchfvt_aibroker)
-          operator: in
-          values: ["true", "True"]
-        - input: $(params.sync_with_install)
-          operator: in
-          values: ["true", "True"]
-
-    - name: launchfvt-aibroker
-      timeout: "0"
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-aibroker"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-aibroker
-      when:
-        - input: $(params.launchfvt_aibroker)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - waitfor-aibroker
-
-    - name: approval-aibroker
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-devops-update-configmap
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: configmap_name
-          value: approval-app-cfg-aibroker
-        - name: configmap_value
-          value: approved
-      when:
-        - input: $(params.sync_with_install)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-aibroker
-
 
   # Finally
   # ---------------------------------------------------------------------------
