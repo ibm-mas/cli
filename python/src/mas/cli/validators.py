@@ -149,3 +149,13 @@ class JsonValidator(Validator):
             loads(inputJson)
         except JSONDecodeError:
             raise (ValidationError(message='Enter a valid JSON', cursor_position=len(inputJson)))
+
+
+class UpperCaseValidator(Validator):
+    def validate(self, document):
+        """
+        Validate that an input is uppercase
+        """
+        inputString = document.text
+        if not inputString.isupper():
+            raise (ValidationError(message='This property must be set in uppercase. Please, insert in upper case.', cursor_position=len(inputString)))

@@ -1047,6 +1047,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam(key, value)
                     if value in ["jms", "snojms"]:
                         self.setParam("mas_app_settings_persistent_volumes_flag", "true")
+            elif key == "mas_app_settings_base_lang":
+                if value is not None and value != "":
+                    self.setParam(key, value.upper())
+            elif key == "mas_app_settings_secondary_langs":
+                if value is not None and value != "":
+                    self.setParam(key, value.upper())
 
             # MongoDB
             elif key == "mongodb_namespace":

@@ -8,6 +8,7 @@
 #
 # *****************************************************************************
 
+from mas.cli.validators import UpperCaseValidator
 import logging
 logger = logging.getLogger(__name__)
 
@@ -224,7 +225,7 @@ class ManageSettingsMixin():
         self.printDescription([
             f"Define the base language for Maximo {self.manageAppName}"
         ])
-        self.promptForString("Base language", "mas_app_settings_base_lang", default="EN")
+        self.promptForString("Base language", "mas_app_settings_base_lang", default="EN", validator=UpperCaseValidator())
 
         self.printDescription([
             f"Define the additional languages to be configured in Maximo {self.manageAppName}. provide a comma-separated list of supported languages codes, for example: 'JA,DE,AR'",
@@ -232,7 +233,7 @@ class ManageSettingsMixin():
             "    <Orange><u>https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=deploy-language-support</u></Orange>"
         ])
 
-        self.promptForString("Secondary languages", "mas_app_settings_secondary_langs")
+        self.promptForString("Secondary languages", "mas_app_settings_secondary_langs", validator=UpperCaseValidator())
 
     def manageSettingsCP4D(self) -> None:
         if self.getParam("mas_app_channel_manage") in ["8.7.x", "9.0.x"] and self.showAdvancedOptions:
