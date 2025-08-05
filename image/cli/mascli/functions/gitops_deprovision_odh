@@ -227,10 +227,15 @@ function gitops_deprovision_odh() {
    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
 
+  echo_reset_dim "Deleting  authorino operaotr ............. ${COLOR_MAGENTA}"
+  oc delete $(oc get csv -n openshift-operators -o name | grep authorino) -n openshift-operators 2>/dev/null; \
+  oc delete $(oc get crd -o name | grep authorino) 2>/dev/null; \
+  oc delete deployment $(oc get deployment -n openshift-operators -o name | grep authorino) -n openshift-operators 2>/dev/null
 
 
   echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
+  
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
