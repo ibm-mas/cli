@@ -219,7 +219,7 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    configure_ocp_for_ai_service_mirror "$@"
+    configure_ocp_for_aiservice_mirror "$@"
     ;;
 
   install)
