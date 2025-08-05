@@ -195,11 +195,9 @@ function configure_ocp_for_aiservice_mirror() {
 
     echo_h2 "Configure ImageDigestMirrorSet (with Red Hat catalogs)"
     ROLE_NAME=ocp_idms ansible-playbook ibm.mas_devops.run_role || exit 1
-    ROLE_NAME=ocp_itms ansible-playbook ibm.mas_devops.run_role || exit 1
   else
     echo_h2 "Configure ImageDigestMirrorSet"
     ROLE_NAME=ocp_idms ansible-playbook ibm.mas_devops.run_role || exit 1
-    ROLE_NAME=ocp_itms ansible-playbook ibm.mas_devops.run_role || exit 1
   fi
 
 }
