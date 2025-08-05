@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function configure_ocp_for_mirror_help() {
+function configure_ocp_for_aiservice_mirror_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
@@ -32,7 +32,7 @@ EOM
 }
 
 
-function configure_ocp_for_mirror_noninteractive() {
+function configure_ocp_for_aiservice_mirror_noninteractive() {
   confirm_connection
   OCP_VERSION=$(oc get clusterversion version -o jsonpath='{.status.desired.version}')
   OCP_RELEASE=$(echo "$OCP_VERSION" | cut -d "." -f 1,2)
@@ -70,22 +70,22 @@ function configure_ocp_for_mirror_noninteractive() {
         NO_CONFIRM=true
         ;;
       -h|--help)
-        configure_ocp_for_mirror_help
+        configure_ocp_for_aiservice_mirror_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
-        configure_ocp_for_mirror_help
+        configure_ocp_for_aiservice_mirror_help
         exit 1
         ;;
       esac
   done
 
   # Check all args have been set
-  [[ -z "$REGISTRY_PRIVATE_HOST" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_HOST is not set"
-  [[ -z "$REGISTRY_PRIVATE_CA_FILE" ]] && configure_ocp_for_mirror_help "REGISTRY_PRIVATE_CA_FILE is not set"
-  [[ -z "$REGISTRY_USERNAME" ]] && configure_ocp_for_mirror_help "REGISTRY_USERNAME is not set"
-  [[ -z "$REGISTRY_PASSWORD" ]] && configure_ocp_for_mirror_help "REGISTRY_PASSWORD is not set"
+  [[ -z "$REGISTRY_PRIVATE_HOST" ]] && configure_ocp_for_aiservice_mirror_help "REGISTRY_PRIVATE_HOST is not set"
+  [[ -z "$REGISTRY_PRIVATE_CA_FILE" ]] && configure_ocp_for_aiservice_mirror_help "REGISTRY_PRIVATE_CA_FILE is not set"
+  [[ -z "$REGISTRY_USERNAME" ]] && configure_ocp_for_aiservice_mirror_help "REGISTRY_USERNAME is not set"
+  [[ -z "$REGISTRY_PASSWORD" ]] && configure_ocp_for_aiservice_mirror_help "REGISTRY_PASSWORD is not set"
   if [[ ! -e $REGISTRY_PRIVATE_CA_FILE ]]; then
     echo_warning "Certificate file '$REGISTRY_PRIVATE_CA_FILE' does not exist"
     exit 1
@@ -93,7 +93,7 @@ function configure_ocp_for_mirror_noninteractive() {
 
 }
 
-function configure_ocp_for_mirror_interactive() {
+function configure_ocp_for_aiservice_mirror_interactive() {
   load_config
   connect
   OCP_VERSION=$(oc get clusterversion version -o jsonpath='{.status.desired.version}')
@@ -140,13 +140,13 @@ function configure_ocp_for_mirror_interactive() {
 
 }
 
-function configure_ocp_for_mirror() {
-  # Take the first parameter off (it will be configure-ocp-for-mirror)
+function configure_ocp_for_aiservice_mirror() {
+  # Take the first parameter off (it will be configure-ocp-for-aiservie-mirror)
   shift
   if [[ $# -gt 0 ]]; then
-    configure_ocp_for_mirror_noninteractive "$@"
+    configure_ocp_for_aiservice_mirror_noninteractive "$@"
   else
-    configure_ocp_for_mirror_interactive
+    configure_ocp_for_aiservice_mirror_interactive
   fi
 
   # Ensure all environment variables are available to ansible-playbook
