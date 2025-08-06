@@ -417,7 +417,7 @@ function mustgather() {
   do
     echo_h2 "AI Service instance: ${AISERVICE_INSTANCE_ID}"
     startTimer
-    AISERVICE_NAMESPACE=mas-${AISERVICE_INSTANCE_ID}-aibroker # This needs to be changed to aiservice in future, once name is changed in CLI and ansible playbook
+    AISERVICE_NAMESPACE=aiservice-${AISERVICE_INSTANCE_ID}
     NAMESPACE_LOOKUP=$(oc get namespace $AISERVICE_NAMESPACE --ignore-not-found)
 
     if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
