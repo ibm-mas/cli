@@ -167,6 +167,16 @@ class BaseApp(PrintMixin, PromptMixin):
                 "visualinspection": ["9.1.x-feature", "9.0.x"],
                 "aibroker": ["9.0.x"],
             },
+            "9.2.x-feature": {
+                "assist": ["9.0.x"],
+                "iot": ["9.0.x"],
+                "manage": ["9.1.x-feature", "9.0.x"],
+                "monitor": ["9.0.x"],
+                "optimizer": ["9.1.x-feature", "9.0.x"],
+                "predict": ["9.0.x"],
+                "visualinspection": ["9.1.x-feature", "9.0.x"],
+                "aibroker": ["9.2.x-feature", "9.1.x"],
+            },
             "9.0.x": {
                 "assist": ["9.0.x", "8.8.x"],
                 "iot": ["9.0.x", "8.8.x"],
