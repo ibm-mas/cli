@@ -107,6 +107,13 @@ class installArgBuilderMixin():
             command += f" --cis-crn \"{self.getParam('cis_crn')}\""
             command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
 
+        if self.getParam('--dns-provider') == "cloudflare":
+            command += f"  --dns-provider cloudflare --cloudflare-apitoken \"{self.getParam('cloudflare-apitoken')}\""
+            command += f"  --cloudflare-email \"{self.getParam('cloudflare_email')}\""
+            command += f"  --cloudflare-apitoken \"{self.getParam('cloudflare_apitoken')}\""
+            command += f"  --cloudflare-zone \"{self.getParam('cloudflare_zone')}\""
+            command += f"  --cloudflare-subdomain \"{self.getParam('cloudflare_subdomain')}\"{newline}"
+
         if self.getParam('--mas-cluster-issuer') != "":
             command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
 
@@ -152,6 +159,8 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('ocp_ingress_tls_secret_name') != "":
             command += f"  --ocp-ingress-tls-secret-name \"{self.getParam('ocp_ingress_tls_secret_name')}\"{newline}"
+        if self.getParam('ocp_ingress') != "":
+            command += f" --ocp-ingress \"{self.getParam('ocp_ingress')}\"{newline}"
 
         # MAS Applications
         # -----------------------------------------------------------------------------
