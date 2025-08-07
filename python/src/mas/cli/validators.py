@@ -151,11 +151,12 @@ class JsonValidator(Validator):
             raise (ValidationError(message='Enter a valid JSON', cursor_position=len(inputJson)))
 
 
-class UpperCaseValidator(Validator):
+class LanguageValidator(Validator):
     def validate(self, document):
         """
         Validate that an input is uppercase
         """
+        supportedLanguages = ["AR", "CS", "DA", "DE", "EN", "ES", "FI", "FR", "HE", "HR", "HU", "IT", "JA", "KO", "NL", "NO", "PL", "PT-BR", "RU", "SK", "SL", "SV", "TR", "UK", "ZH-CN", "ZH-TW"]
         inputString = document.text
-        if not inputString.isupper():
-            raise (ValidationError(message='This property must be set in uppercase. Please, insert in upper case.', cursor_position=len(inputString)))
+        if inputString.upper() not in supportedLanguages:
+            raise (ValidationError(message=f'Unsupported language. Supported languages {supportedLanguages}', cursor_position=len(inputString)))
