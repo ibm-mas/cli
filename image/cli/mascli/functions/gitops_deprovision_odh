@@ -230,8 +230,9 @@ function gitops_deprovision_odh() {
   echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
   
-oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY &>> $LOGFILE
-
+  echo "connecting to openshift............. ${COLOR_MAGENTA}"
+  connect
+  
   echo_reset_dim "Deleting  authorino operaotr ............. ${COLOR_MAGENTA}"
   oc delete $(oc get csv -n openshift-operators -o name | grep authorino) -n openshift-operators --wait=true --timeout=5m 2>/dev/null
   #oc delete $(oc get crd -o name | grep authorino) 2>/dev/null; \
