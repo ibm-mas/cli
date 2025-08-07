@@ -228,9 +228,9 @@ function gitops_deprovision_odh() {
   fi
 
   echo_reset_dim "Deleting  authorino operaotr ............. ${COLOR_MAGENTA}"
-  oc delete $(oc get csv -n openshift-operators -o name | grep authorino) -n openshift-operators 2>/dev/null; \
-  oc delete $(oc get crd -o name | grep authorino) 2>/dev/null; \
-  oc delete deployment $(oc get deployment -n openshift-operators -o name | grep authorino) -n openshift-operators 2>/dev/null
+  oc delete $(oc get csv -n openshift-operators -o name | grep authorino) -n openshift-operators --wait=true --timeout=5m 2>/dev/null
+  #oc delete $(oc get crd -o name | grep authorino) 2>/dev/null; \
+  #oc delete deployment $(oc get deployment -n openshift-operators -o name | grep authorino) -n openshift-operators 2>/dev/null
 
 
   echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
