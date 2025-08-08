@@ -3,9 +3,9 @@
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
-      value: aibroker
+      value: dependencies-minio
     - name: mas_instance_id
-      value: $(params.aibroker_instance_id)
+      value: $(params.aiservice_instance_id)
     - name: mas_app_id
       value: aibroker
     - name: artifactory_username
@@ -13,15 +13,15 @@
     - name: artifactory_token
       value: $(params.artifactory_token)
     - name: mas_app_channel
-      value: "$(params.mas_app_channel_aibroker)"
+      value: "$(params.aiservice_channel)"
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
-    - name: mas_aibroker_storage_provider
-      value: $(params.mas_aibroker_storage_provider)
-    - name: mas_aibroker_storage_accesskey
-      value: $(params.mas_aibroker_storage_accesskey)
-    - name: mas_aibroker_storage_secretkey
-      value: $(params.mas_aibroker_storage_secretkey)
+    - name: aiservice_storage_provider
+      value: $(params.aiservice_storage_provider)
+    - name: aiservice_storage_accesskey
+      value: $(params.aiservice_storage_accesskey)
+    - name: aiservice_storage_secretkey
+      value: $(params.aiservice_storage_secretkey)
     - name: minio_root_user
       value: $(params.minio_root_user)
     - name: minio_root_password
@@ -31,12 +31,6 @@
     name: mas-devops-minio
     kind: Task
   when:
-    - input: "$(params.mas_app_channel_aibroker)"
-      operator: notin
-      values: [""]
-    - input: "$(params.mas_aibroker_storage_provider)"
+    - input: "$(params.aiservice_storage_provider)"
       operator: in
       values: ["minio"]
-    - input: "$(params.install_minio_aiservice)"
-      operator: notin
-      values: ["false", "False"]

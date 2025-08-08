@@ -1,0 +1,113 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: aiservice-fvt
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+
+  params:
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
+
+    # AI Service Configuration
+    - name: aiservice_channel
+      type: string
+      default: ""
+    - name: aiservice_instance_id
+      type: string
+      default: ""
+
+    # FVT Configuration
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: fvt_artifactory_username
+      type: string
+      default: ""
+    - name: fvt_artifactory_token
+      type: string
+      default: ""
+
+    # Image Digests
+    - name: fvt_digest_aiservice
+      type: string
+      description: FVT Digest - AIService
+      default: ""
+    - name: ivt_digest_core
+      type: string
+      description: IVT Digest - Core
+      default: ""
+
+  tasks:
+    # 1. Base test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-tenant-entitlement
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: tenant_entitlement
+
+    # 2. MCC test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-mcc
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: mcc
+      runAfter:
+        - fvt-aiservice-tenant-entitlement
+
+    # 3. FMEA test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-fmea
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: fmea
+      runAfter:
+        - fvt-aiservice-tenant-entitlement
+
+    # 4. PCC test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-pcc
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: pcc
+      runAfter:
+        - fvt-aiservice-mcc
+        - fvt-aiservice-fmea
+
+    # 5. Similarity test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-similarity
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: similarity
+      runAfter:
+        - fvt-aiservice-mcc
+        - fvt-aiservice-fmea
+
+    # 6. NL2OSLC test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-nl2oslc
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: nl2oslc
+      runAfter:
+        - fvt-aiservice-pcc
+        - fvt-aiservice-similarity

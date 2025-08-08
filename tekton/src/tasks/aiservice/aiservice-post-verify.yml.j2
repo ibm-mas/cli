@@ -2,42 +2,23 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: aibroker-post-verify
+  name: aiservice-post-verify
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
-    # MAS Details
-    - name: mas_instance_id
+    - name: aiservice_instance_id
       type: string
       description: Instance ID
-
-    # Application Workspace - identifier
-    - name: mas_app_id
-      type: string
-      description: Maximo Application Suite Application ID
-    - name: mas_workspace_id
-      type: string
-      description: Maximo Application Suite Workspace ID
 
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
 
-      # MAS Details
-      - name: MAS_CONFIG_DIR
-        value: /workspace/configs
-      - name: MAS_INSTANCE_ID
-        value: $(params.mas_instance_id)
-
-      # Application Workspace - Identifer
-      - name: MAS_APP_ID
-        value: $(params.mas_app_id)
-      - name: MAS_WORKSPACE_ID
-        value: $(params.mas_workspace_id)
-
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
   steps:
-   
+
     # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"
     - name: app-cfg-post-verify
       image: quay.io/ibmmas/cli:latest
@@ -48,7 +29,7 @@ spec:
         - name: NAMESPACE
           value: $(context.taskRun.namespace)
         - name: CONFIGMAP_NAME
-          value: approval-app-cfg-$(params.mas_app_id)
+          value: approval-aiservice
         - name: CONFIGMAP_INITIAL_VALUE
           value: pending
         - name: CONFIGMAP_TARGET_VALUE
@@ -56,23 +37,18 @@ spec:
         - name: DELAY
           valueFrom:
             configMapKeyRef:
-              name: approval-app-cfg-$(params.mas_app_id)
+              name: approval-aiservice
               key: DELAY
               optional: true
         - name: MAX_RETRIES
           valueFrom:
             configMapKeyRef:
-              name: approval-app-cfg-$(params.mas_app_id)
+              name: approval-aiservice
               key: MAX_RETRIES
               optional: true
         - name: IGNORE_FAILURE
           valueFrom:
             configMapKeyRef:
-              name: approval-app-cfg-$(params.mas_app_id)
+              name: approval-aiservice
               key: IGNORE_FAILURE
               optional: true
-
-  workspaces:
-    - name: configs
-    - name: pod-templates
-      optional: true
