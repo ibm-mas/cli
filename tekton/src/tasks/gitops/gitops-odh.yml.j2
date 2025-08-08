@@ -41,6 +41,8 @@ spec:
     - name: mas_aibroker_storage_ssl
       type: string
       default: "true"
+    - name: mas_aibroker_storage_region
+      type: string
   stepTemplate:
     name: gitops-odh
     env:
@@ -80,6 +82,8 @@ spec:
         value: $(params.odh_operator_version)
       - name: MAS_AIBROKER_STORAGE_SSL
         value: $(params.mas_aibroker_storage_ssl)
+      - name: MAS_AIBROKER_STORAGE_REGION
+        value: $(params.mas_aibroker_storage_region)
     envFrom:
       - configMapRef:
           name: environment-properties
