@@ -500,6 +500,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 testCLI()
                 h.stop_and_persist(symbol=self.successIcon, text="MAS CLI image deployment test completed")
 
+            self.printH1(f"DEBUG: {self.tektonDefsPath}")
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
