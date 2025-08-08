@@ -188,6 +188,13 @@ masAdvancedArgGroup.add_argument(
 )
 
 masAdvancedArgGroup.add_argument(
+    "--ocp-ingress",
+    dest="ocp_ingress",
+    required=False,
+    help="Overwrites Ingress Domain"
+)
+
+masAdvancedArgGroup.add_argument(
     "--mas-cluster-issuer",
     dest="mas_cluster_issuer",
     required=False,
@@ -229,6 +236,34 @@ cisArgGroup.add_argument(
     dest="cis_subdomain",
     required=False,
     help="Optionally setup MAS instance as a subdomain under a multi-tenant CIS DNS record"
+)
+
+# DNS Configuration - CloudFlare
+# -----------------------------------------------------------------------------
+cloudFlareArgGroup = installArgParser.add_argument_group("DNS Configuration - CloudFlare")
+cloudFlareArgGroup.add_argument(
+    "--cloudflare-email",
+    dest="cloudflare_email",
+    required=False,
+    help="Required when DNS provider is Cloudflare"
+)
+cloudFlareArgGroup.add_argument(
+    "--cloudflare-apitoken",
+    dest="cloudflare_apitoken",
+    required=False,
+    help="Required when DNS provider is Cloudflare"
+)
+cloudFlareArgGroup.add_argument(
+    "--cloudflare-zone",
+    dest="cloudflare_zone",
+    required=False,
+    help="Required when DNS provider is Cloudflare"
+)
+cloudFlareArgGroup.add_argument(
+    "--cloudflare-subdomain",
+    dest="cloudflare_subdomain",
+    required=False,
+    help="Required when DNS provider is Cloudflare"
 )
 
 # Storage

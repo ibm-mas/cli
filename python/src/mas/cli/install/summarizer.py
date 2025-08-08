@@ -64,7 +64,10 @@ class InstallSummarizerMixin():
                 self.printParamSummary("CloudFlare zone", "cloudflare_zone")
                 self.printParamSummary("CloudFlare subdomain", "cloudflare_subdomain")
             elif self.getParam('dns_provider') == "cis":
-                pass
+                self.printParamSummary("CIS e-mail", "cis_email")
+                self.printParamSummary("CIS API Key", "cis_apikey")
+                self.printParamSummary("CIS CRN", "cis_crn")
+                self.printParamSummary("CIS subdomain", "cis_subdomain")
             elif self.getParam('dns_provider') == "route53":
                 pass
             elif self.getParam('dns_provider') == "":
