@@ -151,12 +151,19 @@ class JsonValidator(Validator):
             raise (ValidationError(message='Enter a valid JSON', cursor_position=len(inputJson)))
 
 
-class LanguageValidator(Validator):
+class OutOfIndex(Validator):
+    def __init__(self, _to_validate_list):
+        """
+        This function was created to give context of the array that will
+        be validated
+        """
+        self._to_validate_list = _to_validate_list
+
     def validate(self, document):
         """
-        Validate that an input is uppercase
+        Validate if an input it's outside of an list
         """
-        supportedLanguages = ["AR", "CS", "DA", "DE", "EN", "ES", "FI", "FR", "HE", "HR", "HU", "IT", "JA", "KO", "NL", "NO", "PL", "PT-BR", "RU", "SK", "SL", "SV", "TR", "UK", "ZH-CN", "ZH-TW"]
-        inputString = document.text
-        if inputString.upper() not in supportedLanguages:
-            raise (ValidationError(message=f'Unsupported language. Supported languages {supportedLanguages}', cursor_position=len(inputString)))
+        choices = document.text
+        for choice in choices.split(","):
+            if int(choice) - 1 > len(self._to_validate_list) or int(choice) < 0:
+                raise (ValidationError(message='Option out of the list. Please select value(s) from the list', cursor_position=len(choices)))

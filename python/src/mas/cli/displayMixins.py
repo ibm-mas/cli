@@ -100,22 +100,26 @@ class PromptMixin():
             self.params[param] = response
         return response
 
-    def promptForInt(self, message: str, param: str = None, default: int = None) -> int:
+    def promptForInt(self, message: str, param: str = None, default: int = None, validator: Validator = None) -> int:
         if param is not None and default is None:
             default = getenv(param.upper(), default=None)
 
         if default is None:
-            response = int(prompt(masPromptValue(message)))
+            response = int(prompt(masPromptValue(message), validator=validator, validate_while_typing=False))
         else:
-            response = int(prompt(masPromptValue(message), default=str(default)))
+            response = int(prompt(masPromptValue(message), default=str(default), validator=validator, validate_while_typing=False))
         if param is not None:
             self.params[param] = str(response)
         return response
 
-    def promptForListSelect(self, message: str, options: list, param: str = None, default: int = None) -> str:
-        selection = self.promptForInt(message=message, default=default)
+    def promptForListSelect(self, message: str, options: list, param: str = None, default: int = None, validator: Validator = None) -> str:
+        selection = self.promptForInt(message=message, default=default, validator=validator)
         # List indices are 0 origin, so we need to subtract 1 from the selection made to arrive at the correct value
         self.setParam(param, options[selection - 1])
+
+    def promptForListMultiSelect(self, message: str, options: list, param: str = None, default: str = "", validator: Validator = None) -> str:
+        selection = self.promptForString(message=message, default=default, validator=validator)
+        self.setParam(param, ", ".join(map(lambda choice: options[int(choice) - 1], selection.split(','))))
 
     def promptForFile(self, message: str, mustExist: bool = True, default: str = "", envVar: str = "") -> None:
         if default == "" and envVar != "":
