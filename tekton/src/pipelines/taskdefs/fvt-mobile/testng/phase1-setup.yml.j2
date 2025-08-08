@@ -31,6 +31,8 @@
     - input: "$(params.fvt_digest_mobile_pytest)"
       operator: notin
       values: [""]
+  runAfter:
+    - fvt-component
 
 ## Verification for Mobile JSON Schema
 - name: fvt-mob-schema-pre
