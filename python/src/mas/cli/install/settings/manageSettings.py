@@ -281,11 +281,11 @@ class ManageSettingsMixin():
         i = 0
         while i < supportedLanguagesSize:
             if supportedLanguagesSize - i > 3:
-                print_formatted_text(HTML(f"<LightSlateGrey>  {i+1} - {self.supportedLanguages[i]}\t\t{i+2} - {self.supportedLanguages[i+1]}\t\t{i+3} - {self.supportedLanguages[i+2]}</LightSlateGrey>"))
+                print_formatted_text(HTML(f"<LightSlateGrey>  {i + 1} - {self.supportedLanguages[i]}\t\t{i + 2} - {self.supportedLanguages[i + 1]}\t\t{i + 3} - {self.supportedLanguages[i + 2]}</LightSlateGrey>"))
                 i = i + 3
             else:
                 supportedLanguagesText = ""
                 for j in range(supportedLanguagesSize - i):
-                    supportedLanguagesText = supportedLanguagesText + f"{i+j+1} - {self.supportedLanguages[i+j]}\t\t"
+                    supportedLanguagesText = supportedLanguagesText + f"{i + j + 1} - {self.supportedLanguages[i + j]}\t\t"
                 print_formatted_text(HTML("<LightSlateGrey>  " + supportedLanguagesText + "</LightSlateGrey>"))
                 i = supportedLanguagesSize
