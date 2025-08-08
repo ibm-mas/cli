@@ -45,3 +45,11 @@
   runAfter:
     - fvt-civil-api-defectdetection
 
+- name: fvt-ibm-mas-manage-strategylibrary
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+  - name: fvt_test_suite
+    value: rsl-ui-strategylibrary
+    runAfter:
+  - fvt-manage-setup-is
