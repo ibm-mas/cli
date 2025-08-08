@@ -231,6 +231,8 @@ function gitops_deprovision_odh() {
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
   
   echo "connecting to openshift............. ${COLOR_MAGENTA}"
+  
+  load_config
   connect
   
   echo_reset_dim "Deleting  authorino operaotr ............. ${COLOR_MAGENTA}"
