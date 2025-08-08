@@ -8,6 +8,8 @@
 #
 # *****************************************************************************
 
+from prompt_toolkit import print_formatted_text, HTML
+from mas.cli.validators import OutOfIndex
 import logging
 logger = logging.getLogger(__name__)
 
@@ -224,15 +226,16 @@ class ManageSettingsMixin():
         self.printDescription([
             f"Define the base language for Maximo {self.manageAppName}"
         ])
-        self.promptForString("Base language", "mas_app_settings_base_lang", default="EN")
+        self.manageLanguageDisplay()
+        self.promptForListSelect("Base language", self.supportedLanguages, "mas_app_settings_base_lang", validator=OutOfIndex(self.supportedLanguages))
 
         self.printDescription([
-            f"Define the additional languages to be configured in Maximo {self.manageAppName}. provide a comma-separated list of supported languages codes, for example: 'JA,DE,AR'",
+            f"Define the additional languages to be configured in Maximo {self.manageAppName}. Provide a comma-separated list of the supported languages indexes, for example: '2,10,23'",
             "A complete list of available language codes is available online:",
             "    <Orange><u>https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=deploy-language-support</u></Orange>"
         ])
-
-        self.promptForString("Secondary languages", "mas_app_settings_secondary_langs")
+        self.manageLanguageDisplay()
+        self.promptForListMultiSelect("Secondary language", self.supportedLanguages, "mas_app_settings_secondary_langs", validator=OutOfIndex(self.supportedLanguages))
 
     def manageSettingsCP4D(self) -> None:
         if self.getParam("mas_app_channel_manage") in ["8.7.x", "9.0.x"] and self.showAdvancedOptions:
@@ -248,6 +251,7 @@ class ManageSettingsMixin():
 
     def manageSettingsOther(self) -> None:
         self.printH2(f"Maximo {self.manageAppName} Settings - Other")
+        self.supportedLanguages = ["AR", "CS", "DA", "DE", "EN", "ES", "FI", "FR", "HE", "HR", "HU", "IT", "JA", "KO", "NL", "NO", "PL", "PT-BR", "RU", "SK", "SL", "SV", "TR", "UK", "ZH-CN", "ZH-TW"]
         if self.isManageFoundation:
             self.printDescription([
                 "Configure additional settings:",
@@ -271,3 +275,17 @@ class ManageSettingsMixin():
                 self.manageSettingsTimezone()
                 self.manageSettingsLanguages()
                 self.manageSettingsCP4D()
+
+    def manageLanguageDisplay(self):
+        supportedLanguagesSize = len(self.supportedLanguages)
+        i = 0
+        while i < supportedLanguagesSize:
+            if supportedLanguagesSize - i > 3:
+                print_formatted_text(HTML(f"<LightSlateGrey>  {i + 1} - {self.supportedLanguages[i]}\t\t{i + 2} - {self.supportedLanguages[i + 1]}\t\t{i + 3} - {self.supportedLanguages[i + 2]}</LightSlateGrey>"))
+                i = i + 3
+            else:
+                supportedLanguagesText = ""
+                for j in range(supportedLanguagesSize - i):
+                    supportedLanguagesText = supportedLanguagesText + f"{i + j + 1} - {self.supportedLanguages[i + j]}\t\t"
+                print_formatted_text(HTML("<LightSlateGrey>  " + supportedLanguagesText + "</LightSlateGrey>"))
+                i = supportedLanguagesSize
