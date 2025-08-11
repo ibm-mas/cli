@@ -47,9 +47,14 @@ spec:
   tasks:
     # 1. Core x aibroker
     - name: ivtcore-aibroker
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-ivt-core
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
         - name: product_id
           value: ibm-mas-aibroker
         - name: product_channel
