@@ -8,6 +8,7 @@
 # 6. app-cfg-optimizer .......... Triggered after Optimizer is installed and configured
 # 7. app-cfg-predict ............ Triggered after Predict is installed and configured
 # 8. app-cft-visualinspection ... Triggered after Visual Inspection is installed and configured
+# 9. app-cfg-aiservice .......... Triggered after AI Services is installed and configured
 
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -85,11 +86,15 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable launch of the Visual Inspection FVT pipeline after app-cfg-visualinspection completes"
+    - name: launchfvt_aiservice
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable launch of the AI Service FVT pipeline after app-cfg-aiservice completes"
     - name: launchivt_manage
       type: string
       default: "false"
       description: "Set this to 'true' to enable launch of the IVT pipeline at the end of applications FVT"
-
+    - 
     # Finalize
     # -------------------------------------------------------------------------
     - name: finalize
@@ -814,6 +819,80 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-visualinspection
+    
+    # 10. Application FVT - AI Service
+    # ------------------------------------------------------------------------- 
+    - name: waitfor-aiservice
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-aiservice
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.launchfvt_aiservice)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-suite-verify
+        - approval-manage 
+        
+    - name: launchfvt-aiservice
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-aiservice"
+      taskRef:  
+        kind: Task
+        name: aiservice-launchfvt
+      when:
+        - input: $(params.launchfvt_aiservice)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-aiservice
+        
+    - name: approval-aiservice
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-app-cfg-aiservice
+        - name: configmap_value 
+          value: approved
+      when:
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]    
+      runAfter:
+        - launchfvt-aiservice
+
 
     # 11. IVT
     # -------------------------------------------------------------------------
