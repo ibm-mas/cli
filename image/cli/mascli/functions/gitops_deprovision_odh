@@ -197,11 +197,16 @@ function gitops_deprovision_odh() {
   export SECRET_NAME_MARIADB_AUTH1=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb
   export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
 
-  #export OCP_LOGIN_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}#
+  export OCP_LOGIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}SECRET
 
-  #export OCP_LOGIN_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}oc_url
-   OCP_LOGIN_TOKEN="sha256~plBHxVsX1juuNIq-_GXiFcXMDUGjDoUV44e4jVpVQ-A"
-   OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
+  echo " secreat prefix: $OCP_LOGIN"
+  OCP_LOGIN_TOKEN=$(sm_get_secret "$OCP_LOGIN" "oc_token")
+  echo " secreat token: $OCP_LOGIN_TOKEN"
+
+  OCP_LOGIN_URL=$(sm_get_secret "$OCP_LOGIN" "oc_url")
+
+  echo " secreat url : $OCP_LOGIN_URL"
+
    OCP_DISABLE_TLS_VERIFY=true
   echo -e "login aws"
 
@@ -220,13 +225,11 @@ function gitops_deprovision_odh() {
   #  sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
 
   # echo -e "getting ocp cluster token"
-  # sm_get_secret $OCP_LOGIN_TOKEN
+  # sm_get_secret $OCP_LOGIN_TOKEN  
 
   # echo -e "getting ocp url"
   #sm_get_secret $OCP_LOGIN_URL
   
-
-
    if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
   fi
@@ -239,8 +242,6 @@ function gitops_deprovision_odh() {
    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
 
-  echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
-  #rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
   
   
   #load_config
@@ -250,12 +251,14 @@ function gitops_deprovision_odh() {
       echo_warning "Login to $OCP_LOGIN_URL failed"
       exit 1
     fi
-  #echo_reset_dim "Deleting  authorino operaotr ............. ${COLOR_MAGENTA}"
-  #oc delete $(oc get csv -n openshift-operators -o name | grep authorino) -n openshift-operators --wait=true --timeout=5m 2>/dev/null
+  echo_reset_dim "Deleting  authorino operaotr ............. ${COLOR_MAGENTA}"
+  oc delete $(oc get csv -n openshift-operators -o name | grep authorino) -n openshift-operators --wait=true --timeout=5m 2>/dev/null
   #oc delete $(oc get crd -o name | grep authorino) 2>/dev/null; \
   #oc delete deployment $(oc get deployment -n openshift-operators -o name | grep authorino) -n openshift-operators 2>/dev/null
 
-
+  echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
+  
 
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
