@@ -53,7 +53,8 @@ spec:
       type: string
     - name: fvt_version_facilities
       type: string
-
+    - name: fvt_version_aiservice
+      type: string
     - name: fvt_blacklist_core
       type: string
     - name: fvt_whitelist_core
@@ -140,6 +141,10 @@ spec:
     - name: launchfvt_facilities
       type: string
       default: "true"
+    - name: launchfvt_aiservice
+      type: string
+      default: "true"
+      description: "Set this to any value other than 'true' to disable lauch of the AI Service FVT Pipeline after app-cfg-aiservice completes"
 
     - name: mas_app_channel_facilities
       type: string
@@ -257,6 +262,8 @@ spec:
         value: $(params.fvt_version_sls)
       - name: FVT_VERSION_FACILITIES
         value: $(params.fvt_version_facilities)
+      - name: FVT_VERSION_AISERVICE
+        value: $(params.fvt_version_aiservice)
       - name: FVT_BLACKLIST_CORE
         value: $(params.fvt_blacklist_core)
       - name: FVT_WHITELIST_CORE

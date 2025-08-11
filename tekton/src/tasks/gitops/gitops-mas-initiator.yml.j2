@@ -358,7 +358,7 @@ spec:
           yq -i '.cluster.dns.provider = env(DNS_PROVIDER_CONTROL_IDEN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
           echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
         fi
-
+# need to add aiservice related code
         #customizationList customizationArchive credentials
         if [ -f "gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/appws_spec_manage.yaml" ]; then
 

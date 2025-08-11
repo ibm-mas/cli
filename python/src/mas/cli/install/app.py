@@ -949,6 +949,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
             "approval_visualinspection": {"id": "app-cfg-visualinspection"},  # After Visual Inspection workspace has been configured
             "approval_facilities": {"id": "app-cfg-facilities"},  # After Facilities workspace has been configured 
+            "approval_aiservices": {"id": "app-cfg-aiservice"},  # After AI Services workspace has been configured
         }
 
         self.configGrafana()

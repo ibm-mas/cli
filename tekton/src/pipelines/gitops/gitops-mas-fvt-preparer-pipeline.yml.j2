@@ -67,6 +67,8 @@ spec:
       type: string
     - name: fvt_version_facilities
       type: string
+    - name: fvt_version_aiservice
+      type: string
 
     - name: fvt_blacklist_core
       type: string
@@ -134,7 +136,10 @@ spec:
     - name: launchfvt_facilities
       type: string
       default: "true"
-
+    - name: launchfvt_aiservice
+      type: string
+      default: "true"
+      description: "Set this to any value other than 'true' to disable lauch of the AI Service FVT Pipeline after app-cfg-aiservice completes"
     - name: mas_app_channel_iot
       type: string
       default: ""
@@ -157,6 +162,9 @@ spec:
       type: string
       default: ""
     - name: mas_app_channel_facilities
+      type: string
+      default: ""
+    - name: mas_app_channel_aiservice
       type: string
       default: ""
 
@@ -237,6 +245,8 @@ spec:
           value: $(params.fvt_version_sls)
         - name: fvt_version_facilities
           value: $(params.fvt_version_facilities)
+        - name: fvt_version_aiservice
+          value: $(params.fvt_version_aiservice)
 
         - name: fvt_blacklist_core
           value: $(params.fvt_blacklist_core)
@@ -284,6 +294,8 @@ spec:
           value: $(params.launchfvt_manage_is)
         - name: launchfvt_facilities
           value: $(params.launchfvt_facilities)
+        - name: launchfvt_aiservice
+          value: $(params.launchfvt_aiservice)
 
         - name: mas_app_channel_iot
           value: $(params.mas_app_channel_iot)
@@ -301,6 +313,8 @@ spec:
           value: $(params.mas_app_channel_predict)
         - name: mas_app_channel_facilities
           value: $(params.mas_app_channel_facilities)
+        - name: mas_app_channel_aiservice
+          value: $(params.mas_app_channel_aiservice)
 
         - name: ldap_url
           value: $(params.ldap_url)
