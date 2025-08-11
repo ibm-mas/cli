@@ -63,9 +63,22 @@ spec:
 
     # 2. aibroker scan
     - name: imagescan-aibroker
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-ivt-core
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: mas_instance_id
+          value: $(params.aiservice_instance_id)
+        - name: mas_workspace_id
+          value: $(params.aiservice_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.ivt_digest_core)
         - name: product_id
           value: ibm-mas-aibroker
         - name: product_channel
@@ -80,9 +93,22 @@ spec:
     # 2. Aibroker base test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-tenant-entitlement
-      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-ivt-core
+      workspaces:
+        - name: configs
+          workspace: shared-configs
       params:
-        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: mas_instance_id
+          value: $(params.aiservice_instance_id)
+        - name: mas_workspace_id
+          value: $(params.aiservice_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_digest
+          value: $(params.ivt_digest_core)
         - name: fvt_test_suite
           value: tenant_entitlement
 
