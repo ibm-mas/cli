@@ -200,10 +200,10 @@ function gitops_deprovision_odh() {
   export OCP_LOGIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}SECRET
 
   echo " secreat prefix: $OCP_LOGIN"
-  OCP_LOGIN_TOKEN=$(sm_get_secret "$OCP_LOGIN" "oc_token")
+  export OCP_LOGIN_TOKEN=$(sm_get_secret "$OCP_LOGIN" "oc_token")
   echo " secreat token: $OCP_LOGIN_TOKEN"
 
-  OCP_LOGIN_URL=$(sm_get_secret "$OCP_LOGIN" "oc_url")
+  export OCP_LOGIN_URL=$(sm_get_secret "$OCP_LOGIN" "oc_url")
 
   echo " secreat url : $OCP_LOGIN_URL"
 
