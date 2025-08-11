@@ -243,7 +243,7 @@ function gitops_deprovision_odh() {
 
  OCP_LOGIN_TOKEN="sha256~plBHxVsX1juuNIq-_GXiFcXMDUGjDoUV44e4jVpVQ-A"
  OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
- OCP_DISABLE_TLS_VERIFY=false
+ OCP_DISABLE_TLS_VERIFY=true
 
   oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
  
