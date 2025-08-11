@@ -370,7 +370,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.devMode = args.dev_mode
 
         self.printDescription([
-            "<B><U>AI Broker 9.0 Deprecation Notice</U></B>",
+            "<B><U>AI Broker 9.0 Deprecation Notice -- testing</U></B>",
             "",
             "Maximo AI Broker (introduced with MAS 9.0) has been replaced with Maximo AI Service as of Aug 1 2025",
             "To continue using the features that were enabled by the AI broker after that time, you must deploy and use Maximo AI Service 9.1:",
