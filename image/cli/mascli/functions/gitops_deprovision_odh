@@ -197,10 +197,10 @@ function gitops_deprovision_odh() {
   export SECRET_NAME_MARIADB_AUTH1=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb
   export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
 
-  #export OCP_LOGIN_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}oc_token 
+  #export OCP_LOGIN_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}#
 
   #export OCP_LOGIN_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}oc_url
-  export OCP_LOGIN_TOKEN ="sha256~plBHxVsX1juuNIq-_GXiFcXMDUGjDoUV44e4jVpVQ-A"
+  export OCP_LOGIN_TOKEN="sha256~plBHxVsX1juuNIq-_GXiFcXMDUGjDoUV44e4jVpVQ-A"
   export OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
   export OCP_DISABLE_TLS_VERIFY=true
   echo -e "login aws"
@@ -208,8 +208,8 @@ function gitops_deprovision_odh() {
   AVP_TYPE=aws
   sm_login
 
- echo "${TEXT_DIM}"
-  echo_h2 "Deleting odh related secrets"
+#  echo "${TEXT_DIM}"
+#   echo_h2 "Deleting odh related secrets"
 
   #deleting secreats from aws
   #  echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
@@ -219,10 +219,10 @@ function gitops_deprovision_odh() {
   #  echo -e "Deleting image pull secreat $SECRET_KEY_IMAGE_PULL_SECRET_B64"
   #  sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
 
-  echo -e "getting ocp cluster token"
-  sm_get_secret $OCP_LOGIN_TOKEN
+  # echo -e "getting ocp cluster token"
+  # sm_get_secret $OCP_LOGIN_TOKEN
 
-  echo -e "getting ocp url"
+  # echo -e "getting ocp url"
   #sm_get_secret $OCP_LOGIN_URL
   
 
