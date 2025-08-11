@@ -188,8 +188,7 @@ function gitops_deprovision_odh() {
   reset_colors
 
   # echo all the variables of gitops envs
-  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
-  
+  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}" 
 
   #secrets path in aws 
 
@@ -197,18 +196,18 @@ function gitops_deprovision_odh() {
   export SECRET_NAME_MARIADB_AUTH1=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb
   export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
 
-  export OCP_LOGIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}SECRET
+  # export OCP_LOGIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}SECRET
 
-  echo " secreat prefix: $OCP_LOGIN"
-  export OCP_LOGIN_TOKEN=$(sm_get_secret "$OCP_LOGIN" "oc_token")
-  echo " secreat token: $OCP_LOGIN_TOKEN"
+  # echo " secreat prefix: $OCP_LOGIN"
+  # export OCP_LOGIN_TOKEN=$(sm_get_secret "$OCP_LOGIN" "oc_token")
+  # echo " secreat token: $OCP_LOGIN_TOKEN"
 
-  export OCP_LOGIN_URL=$(sm_get_secret "$OCP_LOGIN" "oc_url")
+  # export OCP_LOGIN_URL=$(sm_get_secret "$OCP_LOGIN" "oc_url")
 
-  echo " secreat url : $OCP_LOGIN_URL"
+  # echo " secreat url : $OCP_LOGIN_URL"
 
-   OCP_DISABLE_TLS_VERIFY=true
-  echo -e "login aws"
+  #  OCP_DISABLE_TLS_VERIFY=true
+  # echo -e "login aws"
 
   AVP_TYPE=aws
   sm_login
@@ -242,17 +241,18 @@ function gitops_deprovision_odh() {
    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
 
-  
-  
-  #load_config
-  #connect
+ OCP_LOGIN_TOKEN="sha256~plBHxVsX1juuNIq-_GXiFcXMDUGjDoUV44e4jVpVQ-A"
+ OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
+ OCP_DISABLE_TLS_VERIFY=false
+
   oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
  if [[ $? != "0" ]]; then
       echo_warning "Login to $OCP_LOGIN_URL failed"
       exit 1
     fi
-  echo_reset_dim "Deleting  authorino operaotr ............. ${COLOR_MAGENTA}"
-  oc delete $(oc get csv -n openshift-operators -o name | grep authorino) -n openshift-operators --wait=true --timeout=5m 2>/dev/null
+
+  echo_reset_dim "Deleting  all  operaotors ............. ${COLOR_MAGENTA}"
+  oc delete $(oc get csv -n openshift-operators -o name | grep -E 'authorino|pipelines|servicemesh') -n openshift-operators --wait=true --timeout=5m 2>/dev/null
   #oc delete $(oc get crd -o name | grep authorino) 2>/dev/null; \
   #oc delete deployment $(oc get deployment -n openshift-operators -o name | grep authorino) -n openshift-operators 2>/dev/null
 
