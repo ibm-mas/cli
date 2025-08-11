@@ -246,10 +246,7 @@ function gitops_deprovision_odh() {
  OCP_DISABLE_TLS_VERIFY=false
 
   oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
- if [[ $? != "0" ]]; then
-      echo_warning "Login to $OCP_LOGIN_URL failed"
-      exit 1
-    fi
+ 
 
   echo_reset_dim "Deleting  all  operaotors ............. ${COLOR_MAGENTA}"
   oc delete $(oc get csv -n openshift-operators -o name | grep -E 'authorino|pipelines|servicemesh') -n openshift-operators --wait=true --timeout=5m 2>/dev/null
