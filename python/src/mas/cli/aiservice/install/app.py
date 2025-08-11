@@ -121,7 +121,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def configAibroker(self):
-        self.printH1("Configure Aibroker Instance")
+        self.printH1("Configure AI Service Instance")
         self.printDescription([
             "Instance ID restrictions:",
             " - Must be 3-12 characters long",
@@ -143,6 +143,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.storageClassProvider = "custom"
         self.slsLicenseFileLocal = None
+        self.showAdvancedOptions = True
 
         # Catalog
         self.configCatalog()
@@ -874,7 +875,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def configAppChannel(self, appId):
-        self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel for Aibroker</Yellow> '))
+        self.params[f"aiservice_channel"] = prompt(HTML('<Yellow>Custom channel for AI Service</Yellow> '))
 
     @logMethodCall
     def configOperationMode(self):
