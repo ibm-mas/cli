@@ -67,7 +67,7 @@ Storage:
       --storage-host
       --storage-port
       --storage-ssl
-      --mas-aibroker-storage-region
+      --storage-region
       --pipelines-bucket
       --primary-storage-class
 
@@ -315,7 +315,7 @@ function gitops_odh_noninteractive() {
       --storage-ssl)
         export MAS_AIBROKER_STORAGE_SSL=$1 && shift
         ;;
-      --mas-aibroker-storage-region)
+      --storage-region)
         export MAS_AIBROKER_STORAGE_REGION=$1 && shift
         ;;
       --storage-pipelines-bucket)
