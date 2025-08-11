@@ -875,7 +875,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def configAppChannel(self, appId):
-        self.params[f"aiservice_channel"] = prompt(HTML('<Yellow>Custom channel for AI Service</Yellow> '))
+        self.params["aiservice_channel"] = prompt(HTML('<Yellow>Custom channel for AI Service</Yellow> '))
 
     @logMethodCall
     def configOperationMode(self):
