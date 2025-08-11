@@ -200,9 +200,9 @@ function gitops_deprovision_odh() {
   #export OCP_LOGIN_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}#
 
   #export OCP_LOGIN_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}oc_url
-  export OCP_LOGIN_TOKEN="sha256~plBHxVsX1juuNIq-_GXiFcXMDUGjDoUV44e4jVpVQ-A"
-  export OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
-  export OCP_DISABLE_TLS_VERIFY=true
+   OCP_LOGIN_TOKEN="sha256~plBHxVsX1juuNIq-_GXiFcXMDUGjDoUV44e4jVpVQ-A"
+   OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
+   OCP_DISABLE_TLS_VERIFY=true
   echo -e "login aws"
 
   AVP_TYPE=aws
