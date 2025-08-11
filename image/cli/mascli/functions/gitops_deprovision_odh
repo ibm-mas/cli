@@ -197,6 +197,10 @@ function gitops_deprovision_odh() {
   export SECRET_NAME_MARIADB_AUTH1=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb
   export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
 
+  export OCP_LOGIN_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}oc_token 
+
+  export OCP_LOGIN_URL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}oc_url
+
   
   echo -e "login aws"
 
@@ -214,6 +218,13 @@ function gitops_deprovision_odh() {
   #  echo -e "Deleting image pull secreat $SECRET_KEY_IMAGE_PULL_SECRET_B64"
   #  sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
 
+  echo -e "getting ocp cluster token"
+  sm_get_secret $OCP_LOGIN_TOKEN
+
+  echo -e "getting ocp url"
+  sm_get_secret $OCP_LOGIN_URL
+  
+
 
    if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -230,15 +241,11 @@ function gitops_deprovision_odh() {
   echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
   #rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
   
-  echo "connecting to openshift............. ${COLOR_MAGENTA}"
   
   #load_config
   #connect
-  
-  echo ""
-  echo "IBM DevIT Fyre OCP cluster is ready to use"
-  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+  oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL 
+  echo "connecting to openshift............. ${COLOR_MAGENTA}"
 
   #echo_reset_dim "Deleting  authorino operaotr ............. ${COLOR_MAGENTA}"
   #oc delete $(oc get csv -n openshift-operators -o name | grep authorino) -n openshift-operators --wait=true --timeout=5m 2>/dev/null
