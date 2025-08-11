@@ -37,7 +37,7 @@
       value: $(params.db2_timezone)
 {% endif %}
 {% if suffix == "aiservice" %}
-      value: aiservice
+      value: aiservice-$(params.aiservice_instance_id)
 {% endif %}
     - name: db2_namespace
       value: $(params.db2_namespace)
