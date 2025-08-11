@@ -121,7 +121,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def configAibroker(self):
-        self.printH1("Configure Aibroker Instance")
+        self.printH1("Configure AI Service Instance")
         self.printDescription([
             "Instance ID restrictions:",
             " - Must be 3-12 characters long",
@@ -143,25 +143,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.storageClassProvider = "custom"
         self.slsLicenseFileLocal = None
-
-        self.printDescription([
-            "The AI Broker (introduced with MAS 9.0) has been replaced with Maximo AI Service as of Aug 1 2025.",
-            "To continue using the features that were enabled by the AI broker after that time, you must deploy and use Maximo AI Service 9.1:",
-            " - Maximo AI Service 9.1 is compatible with both Maximo Application Suite 9.0 and 9.1 releases.",
-            " - If Maximo AI Service is deployed with Maximo Application Suite 9.0, you can use only the AI features that were included in Maximo Application Suite 9.0.",
-            "The Maximo AI Service 9.1 includes a limited use license to watsonx.ai and incurs an additional AppPoint cost"
-        ])
+        self.showAdvancedOptions = True
 
         # Catalog
         self.configCatalog()
         if not self.devMode:
-            self.printDescription([
-                "Coming Soon!",
-                "We are busy putting the finishing touches on Maximo AI Service ahead of a re-launch planned for the August 2025 catalog update."
-            ])
-            exit(0)
-            # self.validateCatalogSource()
-            # self.licensePrompt()
+            self.validateCatalogSource()
+            self.licensePrompt()
 
         # Storage Classes
         self.configStorageClasses()
@@ -381,6 +369,25 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
+
+        self.printDescription([
+            "<B><U>AI Broker 9.0 Deprecation Notice</U></B>",
+            "",
+            "Maximo AI Broker (introduced with MAS 9.0) has been replaced with Maximo AI Service as of Aug 1 2025",
+            "To continue using the features that were enabled by the AI broker after that time, you must deploy and use Maximo AI Service 9.1:",
+            " - Maximo AI Service 9.1 is compatible with both Maximo Application Suite 9.0 and 9.1 releases",
+            " - If Maximo AI Service is deployed with Maximo Application Suite 9.0, you can use only the AI features that were included in Maximo Application Suite 9.0",
+            "",
+            "Note: Maximo AI Service 9.1 includes a limited-use license to watsonx.ai and incurs an additional AppPoint cost"
+        ])
+
+        if not self.devMode:
+            self.printDescription([
+                "",
+                "<ForestGreen>Coming Soon!  We are busy putting the finishing touches on Maximo AI Service 9.1 ahead of a re-launch planned for the 28 August 2025 catalog update</ForestGreen>",
+                ""
+            ])
+            exit(1)
 
         # Set image_pull_policy of the CLI in interactive mode
         if args.image_pull_policy and args.image_pull_policy != "":
@@ -868,7 +875,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     @logMethodCall
     def configAppChannel(self, appId):
-        self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel for Aibroker</Yellow> '))
+        self.params["aiservice_channel"] = prompt(HTML('<Yellow>Custom channel for AI Service</Yellow> '))
 
     @logMethodCall
     def configOperationMode(self):

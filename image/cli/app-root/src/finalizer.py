@@ -342,7 +342,7 @@ if __name__ == "__main__":
         },
         "ibm-mas-aibroker": {
             "deployment": "ibm-mas-aibroker-operator",
-            "namespace": f"mas-{instanceId}-aibroker",
+            "namespace": f"aiservice-{instanceId}",
             "apiVersion": "apps.mas.ibm.com/v1",
             "kind": "AiBrokerApp",
         }
