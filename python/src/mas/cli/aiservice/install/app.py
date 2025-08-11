@@ -384,7 +384,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if not self.devMode:
             self.printDescription([
                 "",
-                "<ForestGreen>Coming Soon!  We are busy putting the finishing touches on Maximo AI Service 9.1 ahead of a re-launch planned for the August 2025 catalog update</ForestGreen>",
+                "<ForestGreen>Coming Soon!  We are busy putting the finishing touches on Maximo AI Service 9.1 ahead of a re-launch planned for the 28 August 2025 catalog update</ForestGreen>",
                 ""
             ])
             exit(1)
