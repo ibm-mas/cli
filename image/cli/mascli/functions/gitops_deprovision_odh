@@ -245,7 +245,7 @@ function gitops_deprovision_odh() {
   #oc delete deployment $(oc get deployment -n openshift-operators -o name | grep authorino) -n openshift-operators 2>/dev/null
 
   echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
-  #rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
   
 
   if [ "$GITHUB_PUSH" == "true" ]; then
