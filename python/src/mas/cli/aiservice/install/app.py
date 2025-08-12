@@ -544,7 +544,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             # Ask for external storage configuration
             self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
-            self.promptForString("Storage provider", "aiservice_storage_provider")
+            s3Completer = WordCompleter(["aws","minio"])
+            s3Provider = self.promptForString("Storage provider", completer=s3Completer)
+            self.setParam("aiservice_storage_provider",s3Provider)
             self.promptForString("Storage access key", "aiservice_storage_accesskey")
             self.promptForString("Storage secret key", "aiservice_storage_secretkey", isPassword=True)
             self.promptForString("Storage host", "aiservice_storage_host")
