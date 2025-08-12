@@ -80,10 +80,6 @@ class aiServiceInstallArgBuilderMixin():
         # -----------------------------------------------------------------------------
         command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
 
-        # IBM Db2 Universal Operator
-        # -----------------------------------------------------------------------------
-        command += f"  --db2-aiservice{newline}"
-
         # Development Mode
         # -----------------------------------------------------------------------------
         if self.getParam('artifactory_username') != "":
@@ -110,34 +106,34 @@ class aiServiceInstallArgBuilderMixin():
         # Aibroker Advanced Settings
         # -----------------------------------------------------------------------------
         if self.getParam('aiservice_storage_provider') != "":
-            command += f"  --aiservice-storage-provider \"{self.getParam('aiservice_storage_provider')}\"{newline}"
+            command += f"  --s3-provider \"{self.getParam('aiservice_storage_provider')}\"{newline}"
         if self.getParam('aiservice_storage_accesskey') != "":
-            command += f"  --aiservice-storage-accesskey \"{self.getParam('aiservice_storage_accesskey')}\"{newline}"
+            command += f"  --s3-accesskey \"{self.getParam('aiservice_storage_accesskey')}\"{newline}"
         if self.getParam('aiservice_storage_secretkey') != "":
-            command += f"  --aiservice-storage-secretkey \"{self.getParam('aiservice_storage_secretkey')}\"{newline}"
+            command += f"  --s3-secretkey \"{self.getParam('aiservice_storage_secretkey')}\"{newline}"
         if self.getParam('aiservice_storage_host') != "":
-            command += f"  --aiservice-storage-host \"{self.getParam('aiservice_storage_host')}\"{newline}"
+            command += f"  --s3-host \"{self.getParam('aiservice_storage_host')}\"{newline}"
         if self.getParam('aiservice_storage_port') != "":
-            command += f"  --aiservice-storage-port \"{self.getParam('aiservice_storage_port')}\"{newline}"
+            command += f"  --s3-port \"{self.getParam('aiservice_storage_port')}\"{newline}"
         if self.getParam('aiservice_storage_ssl') != "":
-            command += f"  --aiservice-storage-ssl \"{self.getParam('aiservice_storage_ssl')}\"{newline}"
+            command += f"  --s3-ssl \"{self.getParam('aiservice_storage_ssl')}\"{newline}"
         if self.getParam('aiservice_storage_region') != "":
-            command += f"  --aiservice-storage-region \"{self.getParam('aiservice_storage_region')}\"{newline}"
+            command += f"  --s3-region \"{self.getParam('aiservice_storage_region')}\"{newline}"
         if self.getParam('aiservice_storage_pipelines_bucket') != "":
-            command += f"  --aiservice-storage-pipelines-bucket \"{self.getParam('aiservice_storage_pipelines_bucket')}\"{newline}"
+            command += f"  --s3-pipelines-bucket \"{self.getParam('aiservice_storage_pipelines_bucket')}\"{newline}"
         if self.getParam('aiservice_storage_tenants_bucket') != "":
-            command += f"  --aiservice-storage-tenants-bucket \"{self.getParam('aiservice_storage_tenants_bucket')}\"{newline}"
+            command += f"  --s3-tenants-bucket \"{self.getParam('aiservice_storage_tenants_bucket')}\"{newline}"
         if self.getParam('aiservice_storage_templates_bucket') != "":
-            command += f"  --aiservice-storage-templates-bucket \"{self.getParam('aiservice_storage_templates_bucket')}\"{newline}"
+            command += f"  --s3-templates-bucket \"{self.getParam('aiservice_storage_templates_bucket')}\"{newline}"
 
         if self.getParam('aiservice_watsonxai_apikey') != "":
-            command += f"  --aiservice-watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
+            command += f"  --watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
         if self.getParam('aiservice_watsonxai_url') != "":
-            command += f"  --aiservice-watsonxai-url \"{self.getParam('aiservice_watsonxai_url')}\"{newline}"
+            command += f"  --watsonxai-url \"{self.getParam('aiservice_watsonxai_url')}\"{newline}"
         if self.getParam('aiservice_watsonxai_project_id') != "":
-            command += f"  --aiservice-watsonxai-project-id \"{self.getParam('aiservice_watsonxai_project_id')}\"{newline}"
+            command += f"  --watsonxai-project-id \"{self.getParam('aiservice_watsonxai_project_id')}\"{newline}"
         if self.getParam('aiservice_watsonx_action') != "":
-            command += f"  --aiservice-watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
+            command += f"  --watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
 
         if self.getParam('minio_root_user') != "":
             command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
@@ -152,22 +148,22 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
 
         if self.getParam('aiservice_s3_bucket_prefix') != "":
-            command += f"  --aiservice-s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
+            command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
         if self.getParam('aiservice_s3_endpoint_url') != "":
-            command += f"  --aiservice-s3-endpoint-url \"{self.getParam('aiservice_s3_endpoint_url')}\"{newline}"
+            command += f"  --s3-endpoint-url \"{self.getParam('aiservice_s3_endpoint_url')}\"{newline}"
         if self.getParam('aiservice_s3_region') != "":
-            command += f"  --aiservice-s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
+            command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
 
         if self.getParam('aiservice_tenant_s3_bucket_prefix') != "":
-            command += f"  --aiservice-tenant-s3-bucket-prefix \"{self.getParam('aiservice_tenant_s3_bucket_prefix')}\"{newline}"
+            command += f"  --s3-bucket-prefix-tenant \"{self.getParam('aiservice_tenant_s3_bucket_prefix')}\"{newline}"
         if self.getParam('aiservice_tenant_s3_region') != "":
-            command += f"  --aiservice-tenant-s3-region \"{self.getParam('aiservice_tenant_s3_region')}\"{newline}"
+            command += f"  --s3-tenant-region \"{self.getParam('aiservice_tenant_s3_region')}\"{newline}"
         if self.getParam('aiservice_tenant_s3_endpoint_url') != "":
-            command += f"  --aiservice-tenant-s3-endpoint-url \"{self.getParam('aiservice_tenant_s3_endpoint_url')}\"{newline}"
+            command += f"  --s3-tenant-endpoint-url \"{self.getParam('aiservice_tenant_s3_endpoint_url')}\"{newline}"
         if self.getParam('aiservice_tenant_s3_access_key') != "":
-            command += f"  --aiservice-tenant-s3-access-key \"{self.getParam('aiservice_tenant_s3_access_key')}\"{newline}"
+            command += f"  --s3-tenant-access-key \"{self.getParam('aiservice_tenant_s3_access_key')}\"{newline}"
         if self.getParam('aiservice_tenant_s3_secret_key') != "":
-            command += f"  --aiservice-tenant-s3-secret-key \"{self.getParam('aiservice_tenant_s3_secret_key')}\"{newline}"
+            command += f"  --s3-tenant-secret-key \"{self.getParam('aiservice_tenant_s3_secret_key')}\"{newline}"
 
         if self.getParam('rsl_url') != "":
             command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
