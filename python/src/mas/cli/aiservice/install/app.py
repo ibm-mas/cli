@@ -380,13 +380,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "Note: Maximo AI Service 9.1 includes a limited-use license to watsonx.ai and incurs an additional AppPoint cost"
         ])
 
-        if not self.devMode:
-            self.printDescription([
-                "",
-                "<ForestGreen>Coming Soon!  We are busy putting the finishing touches on Maximo AI Service 9.1 ahead of a re-launch planned for the August 2025 catalog update</ForestGreen>",
-                ""
-            ])
-            exit(1)
+#        if not self.devMode:
+#            self.printDescription([
+#                "",
+#                "<ForestGreen>Coming Soon!  We are busy putting the finishing touches on Maximo AI Service 9.1 ahead of a re-launch planned for the August 2025 catalog update</ForestGreen>",
+#                ""
+#            ])
+#            exit(1)
 
         # Set image_pull_policy of the CLI in interactive mode
         if args.image_pull_policy and args.image_pull_policy != "":
