@@ -255,7 +255,7 @@ function gitops_deprovision_odh() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
   echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
-  sleep 50 
+  sleep 200
   fi
 
   echo "message after pusing to target reposiory"
