@@ -80,10 +80,6 @@ class aiServiceInstallArgBuilderMixin():
         # -----------------------------------------------------------------------------
         command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
 
-        # IBM Db2 Universal Operator
-        # -----------------------------------------------------------------------------
-        command += f"  --db2-aiservice{newline}"
-
         # Development Mode
         # -----------------------------------------------------------------------------
         if self.getParam('artifactory_username') != "":
@@ -131,13 +127,13 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --s3-templates-bucket \"{self.getParam('aiservice_storage_templates_bucket')}\"{newline}"
 
         if self.getParam('aiservice_watsonxai_apikey') != "":
-            command += f"  --aiservice-watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
+            command += f"  --watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
         if self.getParam('aiservice_watsonxai_url') != "":
-            command += f"  --aiservice-watsonxai-url \"{self.getParam('aiservice_watsonxai_url')}\"{newline}"
+            command += f"  --watsonxai-url \"{self.getParam('aiservice_watsonxai_url')}\"{newline}"
         if self.getParam('aiservice_watsonxai_project_id') != "":
-            command += f"  --aiservice-watsonxai-project-id \"{self.getParam('aiservice_watsonxai_project_id')}\"{newline}"
+            command += f"  --watsonxai-project-id \"{self.getParam('aiservice_watsonxai_project_id')}\"{newline}"
         if self.getParam('aiservice_watsonx_action') != "":
-            command += f"  --aiservice-watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
+            command += f"  --watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
 
         if self.getParam('minio_root_user') != "":
             command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
