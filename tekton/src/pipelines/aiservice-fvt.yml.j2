@@ -48,7 +48,8 @@ spec:
       default: ""
 
   tasks:
-    # 1. Base test suite
+
+    # 2. Aibroker base test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-tenant-entitlement
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
