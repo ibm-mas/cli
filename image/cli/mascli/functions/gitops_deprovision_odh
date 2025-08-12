@@ -254,9 +254,13 @@ function gitops_deprovision_odh() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-  echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
-  sleep 200
+  echo "Sleeping for  minutes to allow ArgoCD to sync and apply changes..."
+
+  
+  sleep 500
   fi
+
+
 
   echo "message after pusing to target reposiory"
 
