@@ -252,10 +252,10 @@ function gitops_deprovision_odh() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
   echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
-  #sleep 900
+  sleep 100
   fi
 
-   OCP_LOGIN_TOKEN="sha256~plBHxVsX1juuNIq-_GXiFcXMDUGjDoUV44e4jVpVQ-A"
+   OCP_LOGIN_TOKEN="sha256~Y3KrUvvj5GhzQE2_CLNQ4ohKHAtntM5jc9rjWekLEBs"
    OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
    OCP_DISABLE_TLS_VERIFY=true
   if oc login --token="$OCP_LOGIN_TOKEN" --server="$OCP_LOGIN_URL" --insecure-skip-tls-verify="$OCP_DISABLE_TLS_VERIFY"; then
