@@ -207,7 +207,7 @@ function gitops_deprovision_odh() {
   # echo " secreat url : $OCP_LOGIN_URL"
 
   #  OCP_DISABLE_TLS_VERIFY=true
-  # echo -e "login aws"
+  echo -e "login aws"
 
   AVP_TYPE=aws
   sm_login
@@ -241,39 +241,63 @@ function gitops_deprovision_odh() {
    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
 
-  #oc delete $(oc get crd -o name | grep authorino) 2>/dev/null; \
-  #oc delete deployment $(oc get deployment -n openshift-operators -o name | grep authorino) -n openshift-operators 2>/dev/null
 
   echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
   
-
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-  echo "Sleeping for  minutes to allow ArgoCD to sync and apply changes..."
+  echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
+  #sleep 900
+  fi
 
-  
-  sleep 500
+   OCP_LOGIN_TOKEN="sha256~plBHxVsX1juuNIq-_GXiFcXMDUGjDoUV44e4jVpVQ-A"
+   OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
+   OCP_DISABLE_TLS_VERIFY=true
+  if oc login --token="$OCP_LOGIN_TOKEN" --server="$OCP_LOGIN_URL" --insecure-skip-tls-verify="$OCP_DISABLE_TLS_VERIFY"; then
+      echo "logged in to cluster "
+  else
+      echo "cluster login failed"
+  fi
+
+  namespace="openshift-operators"
+  subs_to_check=("authorino" "pipelines" "servicemesh")
+
+  echo "Checking for Subscriptions in namespace '$namespace'..."
+
+  subscriptions_exist=false
+
+  # Initial check
+  for sub in "${subs_to_check[@]}"; do
+    if oc get subscription "$sub" -n "$namespace" &>/dev/null; then
+      echo "Subscription '$sub' is still present."
+      subscriptions_exist=true
+    else
+      echo "Subscription '$sub' is not present."
+    fi
+  done
+
+  # If any subscription is present, wait 5 minutes
+  if [ "$subscriptions_exist" = true ]; then
+    echo "subscription is present. Waiting 5 minutes before proceeding..."
+    #sleep 300  # 5 minutes
   fi
 
 
+  # if [ "$subscriptions_exist" = false ]; then
+  #   echo "All subscriptions deleted. Proceeding to delete CSVs..."
+  #   oc delete $(oc get csv -n "$namespace" -o name | grep -E 'authorino|pipelines|servicemesh') \
+  #     -n "$namespace" --wait=true --timeout=5m 2>/dev/null
+  #   echo "CSV cleanup completed."
+  # else
+  #   echo "Subscriptions still present after waiting. Skipping CSV deletion."
+  # fi
 
-  echo "message after pusing to target reposiory"
+    
 
-
-
-  # OCP_LOGIN_TOKEN="sha256~plBHxVsX1juuNIq-_GXiFcXMDUGjDoUV44e4jVpVQ-A"
-  # OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
-  # OCP_DISABLE_TLS_VERIFY=true
-
-  # oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
- 
-  # echo_reset_dim "Deleting  all  operaotors ............. ${COLOR_MAGENTA}"
-  # oc delete $(oc get csv -n openshift-operators -o name | grep -E 'authorino|pipelines|servicemesh') -n openshift-operators --wait=true --timeout=5m 2>/dev/null
-
-   
-}
+    
+  }
