@@ -255,13 +255,16 @@ function gitops_deprovision_odh() {
   sleep 100
   fi
 
-   OCP_LOGIN_TOKEN="sha256~Y3KrUvvj5GhzQE2_CLNQ4ohKHAtntM5jc9rjWekLEBs"
-   OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
-   OCP_DISABLE_TLS_VERIFY=true
+    OCP_LOGIN_TOKEN="sha256~Y3KrUvvj5GhzQE2_CLNQ4ohKHAtntM5jc9rjWekLEBs"
+    OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
+    OCP_DISABLE_TLS_VERIFY=true
 
    #need to put check
-   oc login --token="$OCP_LOGIN_TOKEN" --server="$OCP_LOGIN_URL" --insecure-skip-tls-verify="$OCP_DISABLE_TLS_VERIFY"
-  
+    oc login --token="$OCP_LOGIN_TOKEN" --server="$OCP_LOGIN_URL" --insecure-skip-tls-verify="$OCP_DISABLE_TLS_VERIFY"
+    if [[ $? != "0" ]]; then
+      echo_warning "Login to $OCP_LOGIN_URL failed"
+      exit 1
+    fi
 
   namespace="openshift-operators"
   subs_to_check=("authorino-operator" "openshift-pipelines-operator" "servicemeshoperator")
