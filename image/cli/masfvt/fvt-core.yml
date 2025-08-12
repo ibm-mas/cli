@@ -28,6 +28,7 @@
     ldap_user_map: "{{ lookup('env', 'LDAP_USER_MAP') }}"
     ldap_cert_alias: "{{ lookup('env', 'LDAP_CERT_ALIAS') }}"
     ldap_crt: "{{ lookup('env', 'LDAP_CRT') }}"
+    oidc_discovery_endpoint: "{{ lookup('env', 'OIDC_DISCOVERY_ENDPOINT') }}"
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-core', True) }}-{{ devops_build_number }}"
