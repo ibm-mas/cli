@@ -250,14 +250,13 @@ function gitops_deprovision_odh() {
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    cd /tmp || { echo "Failed to cd to /tmp"; exit 1; }
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
    # sleep 900
   fi
 
-   #export OCP_LOGIN_TOKEN=sm_get_secret_value ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}SECRET "oc_token"
-     rm -rf $GITOPS_WORKING_DIR
 
     OCP_LOGIN_TOKEN="sha256~UxngsWxunfamaZNd_i-lx0uRJ702tH0gs-7z3EexHi0"
     OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
