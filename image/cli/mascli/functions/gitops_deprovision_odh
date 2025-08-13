@@ -242,6 +242,7 @@ function gitops_deprovision_odh() {
   fi
 
 
+
   echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
   
@@ -256,9 +257,9 @@ function gitops_deprovision_odh() {
   fi
 
    #export OCP_LOGIN_TOKEN=sm_get_secret_value ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}SECRET "oc_token"
+     rm -rf $GITOPS_WORKING_DIR
 
-
-    OCP_LOGIN_TOKEN="sha256~Y3KrUvvj5GhzQE2_CLNQ4ohKHAtntM5jc9rjWekLEBs"
+    OCP_LOGIN_TOKEN="sha256~UxngsWxunfamaZNd_i-lx0uRJ702tH0gs-7z3EexHi0"
     OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
     OCP_DISABLE_TLS_VERIFY=true
 
