@@ -101,20 +101,20 @@ class installArgBuilderMixin():
         if self.getParam('mas_domain') is True:
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
-        if self.getParam('--dns-provider') == "cis":
+        if self.getParam('dns-provider') == "cis":
             command += f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}\""
             command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
             command += f" --cis-crn \"{self.getParam('cis_crn')}\""
             command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
 
-        if self.getParam('--dns-provider') == "cloudflare":
-            command += f"  --dns-provider cloudflare --cloudflare-apitoken \"{self.getParam('cloudflare-apitoken')}\""
-            command += f"  --cloudflare-email \"{self.getParam('cloudflare_email')}\""
-            command += f"  --cloudflare-apitoken \"{self.getParam('cloudflare_apitoken')}\""
-            command += f"  --cloudflare-zone \"{self.getParam('cloudflare_zone')}\""
+        if self.getParam('dns-provider') == "cloudflare":
+            command += f"  --dns-provider cloudflare --cloudflare-apitoken \"{self.getParam('cloudflare-apitoken')}\"{newline}"
+            command += f"  --cloudflare-email \"{self.getParam('cloudflare_email')}\"{newline}"
+            command += f"  --cloudflare-apitoken \"{self.getParam('cloudflare_apitoken')}\"{newline}"
+            command += f"  --cloudflare-zone \"{self.getParam('cloudflare_zone')}\"{newline}"
             command += f"  --cloudflare-subdomain \"{self.getParam('cloudflare_subdomain')}\"{newline}"
 
-        if self.getParam('--mas-cluster-issuer') != "":
+        if self.getParam('mas-cluster-issuer') != "":
             command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
 
         if self.getParam('mas_enable_walkme') == "false":
