@@ -36,6 +36,9 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
+    - name: aibroker_instance_id
+      type: string
+      default: ""
     - name: mas_app_channel_assist
       type: string
     - name: mas_app_install_plan_assist
@@ -146,6 +149,8 @@ spec:
         value: $(params.mas_operationalmode)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      - name: AIBROKER_INSTANCE_ID
+        value: $(params.aibroker_instance_id)
       - name: MAS_APP_CHANNEL_ASSIST
         value: $(params.mas_app_channel_assist)
       - name: MAS_APP_INSTALL_PLAN_ASSIST
@@ -282,7 +287,23 @@ spec:
 
         # Process any .j2 files
         process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID"
+        
+        # If AIBROKER_INSTANCE_ID is set, copy the AIBROKER_INSTANCE_ID specific files
+        if [ -n "$AIBROKER_INSTANCE_ID" ]; then
+          # 1. Ensure target AIBroker instance folder exists
+          mkdir -p $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AIBROKER_INSTANCE_ID
+          # 2. Log what is being copied
+          echo "copying $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AIBROKER_INSTANCE_ID/* to $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AIBROKER_INSTANCE_ID"
+          # 3. Copy recursively from source to target
+          if [ -d "$SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AIBROKER_INSTANCE_ID" ]; then
+              cp -r $SOURCE_LOCAL_DIR/$SOURCE_GITHUB_REPO/$SOURCE_PATH/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AIBROKER_INSTANCE_ID/* $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AIBROKER_INSTANCE_ID/
+          else
+            echo "Warning: Source AIBroker directory not found."
+          fi
 
+          process_j2_files "$TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AIBROKER_INSTANCE_ID"
+        fi
+        
         echo "gitops-mas-initiator:: DNS_PROVIDER_CONTROL_IDEN=${DNS_PROVIDER_CONTROL_IDEN} MANUAL_CERTS_CONTROL_FLAG=${MANUAL_CERTS_CONTROL_FLAG}"
         if [[ "${MANUAL_CERTS_CONTROL_FLAG}" == "true" ]]; then
 
@@ -358,7 +379,7 @@ spec:
           yq -i '.cluster.dns.provider = env(DNS_PROVIDER_CONTROL_IDEN)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml
           echo "gitops-mas-initiator: .cluster.dns.provider set to $DNS_PROVIDER_CONTROL_IDEN in gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/cluster-params.yaml"
         fi
-# need to add aiservice related code
+
         #customizationList customizationArchive credentials
         if [ -f "gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/appws_spec_manage.yaml" ]; then
 

@@ -61,6 +61,9 @@ spec:
       default: ""
     - name: mas_instance_id
       type: string
+    - name: aibroker_instance_id
+      type: string
+      default: ""
     - name: mas_app_channel_assist
       type: string
       default: ""
@@ -187,6 +190,8 @@ spec:
           value: $(params.mas_operationalmode)
         - name: mas_instance_id
           value: $(params.mas_instance_id)
+        - name: aibroker_instance_id
+          value: $(params.aibroker_instance_id)
         - name: mas_app_channel_assist
           value: $(params.mas_app_channel_assist)
         - name: mas_app_channel_iot
