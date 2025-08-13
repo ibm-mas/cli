@@ -251,8 +251,8 @@ function gitops_deprovision_odh() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-  echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
-  sleep 100
+    echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
+   # sleep 900
   fi
 
     OCP_LOGIN_TOKEN="sha256~Y3KrUvvj5GhzQE2_CLNQ4ohKHAtntM5jc9rjWekLEBs"
@@ -260,9 +260,11 @@ function gitops_deprovision_odh() {
     OCP_DISABLE_TLS_VERIFY=true
 
    #need to put check
-    oc login --token="$OCP_LOGIN_TOKEN" --server="$OCP_LOGIN_URL" --insecure-skip-tls-verify="$OCP_DISABLE_TLS_VERIFY"
-    if [[ $? != "0" ]]; then
-      echo_warning "Login to $OCP_LOGIN_URL failed"
+    oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
+    if [[ $? == "0" ]]; then
+      echo  "Login to $OCP_LOGIN_URL "
+     else
+      echo_warning "You are not connected to an OCP cluster.Run oc login"
       exit 1
     fi
 
