@@ -1,17 +1,11 @@
+#!/bin/bash
+
 MAS_INSTANCE_ID=test
 POD_SELECTOR=""
 GENERATE=false
 COLLECT=false
 REMOVE=false
-DIRECTORY=/tmp
-
-help(){
-
-  echo "program to generate coredumps for server bundle pods \n
-        -i or --mas-instance-id : specify the mas instance id \n
-        -d or --debug-namespace : specify the namespace where the debug pod will be created to retrieve the corebump on the node. \
-       "
-}
+OUTPUT_DIR=/tmp
 
 function manage_javadump_help() {
   cat << EOM
@@ -36,16 +30,16 @@ Other Options:
 
 Examples:
   generates a coredump for a particular pod in the manage namespace:
-  mas manage-managejavadump  -i test -p test-testws-foundation-54956ff9d7-bzmgb -g -d /tmp
+  mas debug coredump  -i test -p test-testws-foundation-54956ff9d7-bzmgb -g -d /tmp
 
   generates a coredump for the ui server bundle, copies it localy and removes it from the node where it was generated:
-  mas manage-managejavadump -i test -s ui -g -d /mnt/home
+  mas debug coredump -i test -s ui -g -d /mnt/home
 
   collects all the coredumps present on the node where ui server bundle is running:
-  mas manage-managejavadump -i test -s ui -c
+  mas debug coredump -i test -s ui -c
 
   removed all the coredumps present on the node where the ui server bundle is running:
-  mas manage-managejavadump -i test -s ui -r
+  mas debug coredump -i test -s ui -r
 
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
@@ -65,7 +59,7 @@ while [[ $# -gt 0 ]]
       ;;
 
     -d|--dir)
-      DIRECTORY=$1; shift
+      OUTPUT_DIR=$1; shift
       ;;
 
     -s|--pod-selector)
@@ -96,16 +90,14 @@ while [[ $# -gt 0 ]]
   esac
 done
 
-####
-# 
-#
-#
-####
 
 COMMAND="/opt/ibm/wlp/bin/server javadump defaultServer --include=system"
 MAS_PROJECT="mas-${MAS_INSTANCE_ID}-manage"
 DEBUG_NAMESPACE="mas-${MAS_INSTANCE_ID}-manage-debug"
-mkdir -p $DIRECTORY
+mkdir -p $OUTPUT_DIR
+
+LOG_FILE=${OUTPUT_DIR}/mas-debug.log
+exec > >(tee ${LOG_FILE}) 2>&1
 
 # using pod labels mas.ibm.com/appType and mas.ibm.com/appTypeName
 if [ "$POD_NAME" != "" ]; then
@@ -132,7 +124,8 @@ NODE_NAMES=""
 if [ "$GENERATE" = "true" ]; then
   for SERVER_POD in ${SERVER_POD_NAMES}
   do
-    
+    JAVACORE_FILE=""
+
     ## get the name of the node where the coredump will be generated
     echo "processing $SERVER_POD"
     NODE_NAME=$(oc get $SERVER_POD -n $MAS_PROJECT -o jsonpath="{.spec.nodeName}")
@@ -175,7 +168,11 @@ if [ "$GENERATE" = "true" ]; then
       if [ "$CONTAINER" != "monitoragent" ] && [ "$CONTAINER" != "coreidp-init" ]
       then
         echo "generate the core dump for container $CONTAINER in pod $SERVER_POD "
-        oc exec $SERVER_POD -n $MAS_PROJECT -c $CONTAINER -- $COMMAND
+        echo "oc exec $SERVER_POD -n $MAS_PROJECT -c $CONTAINER -- $COMMAND" > $OUTPUT_DIR/cmd.txt
+        oc exec $SERVER_POD -n $MAS_PROJECT -c $CONTAINER -- $COMMAND >> $OUTPUT_DIR/cmd.txt
+        cat $OUTPUT_DIR/cmd.txt
+        JAVACORE_FILE=$(cat $OUTPUT_DIR/cmd.txt | grep -o "/.*.txt")
+        oc rsync $SERVER_POD:$JAVACORE_FILE $OUTPUT_DIR/. -n $MAS_PROJECT -c $CONTAINER
 
       fi
     done
@@ -190,7 +187,7 @@ if [ "$GENERATE" = "true" ]; then
     ## collect the coredump file
     echo "collecting coredump file $COREDUMP_FILE from pod $DEBUG_POD"
     oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- ls /host/var/lib/systemd/coredump/
-    oc rsync -n $DEBUG_NAMESPACE $DEBUG_POD:/host/var/lib/systemd/coredump/${COREDUMP_FILE} $DIRECTORY/.
+    oc rsync -n $DEBUG_NAMESPACE $DEBUG_POD:/host/var/lib/systemd/coredump/${COREDUMP_FILE} $OUTPUT_DIR/.
     
     ## remove the coredump file
     echo "removing coredump $COREDUMP_FILE using pod $DEBUG_POD"
@@ -247,7 +244,7 @@ elif [ "$COLLECT" = "true" ] || [ "$REMOVE" = "true" ]; then
     if [ "$COLLECT" = "true" ]; then
       echo "collecting content of coredump folder using pod $DEBUG_POD"
       oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- ls /host/var/lib/systemd/coredump/
-      oc rsync -n $DEBUG_NAMESPACE $DEBUG_POD:/host/var/lib/systemd/coredump $DIRECTORY/.
+      oc rsync -n $DEBUG_NAMESPACE $DEBUG_POD:/host/var/lib/systemd/coredump $OUTPUT_DIR/.
     fi
 
     if [ "$REMOVE" = "true" ]; then
@@ -269,26 +266,3 @@ fi
 
 
 exit 0
-
-# coredumpctl command to search for java coredump for the last ...
-# otherwise list files before and after 
-
-
-
-# list all coredump for java processes:
-# sh-5.1# coredumpctl list /opt/ibm/java/bin/java  > list.txt          
-# TIME                            PID        UID GID SIG     COREFILE EXE                      SIZE
-# Thu 2025-06-19 08:23:11 UTC 4038545 1000750000   0 SIGSEGV present  /opt/ibm/java/bin/java 150.2M
-# Thu 2025-06-19 08:39:53 UTC 4149851 1000750000   0 SIGSEGV present  /opt/ibm/java/bin/java 150.3M
-# sh-5.1# coredumpctl list /opt/ibm/java/bin/java -r
-# TIME                            PID        UID GID SIG     COREFILE EXE                      SIZE
-# Thu 2025-06-19 08:39:53 UTC 4149851 1000750000   0 SIGSEGV present  /opt/ibm/java/bin/java 150.3M
-# Thu 2025-06-19 08:23:11 UTC 4038545 1000750000   0 SIGSEGV present  /opt/ibm/java/bin/java 150.2M
-
-# get the info fors each of the coredumps (using PID)
-# for PID in $(cat list.txt | grep java | cut -d" " -f 5); do coredumpctl info $PID > coredump-${PID}.txt; done
-
-# coredumpctl info command will list the latest coredump info
-# grep "Storage: /var/lib/systemd/coredump/core.kernel-command-.1000750000.1c13eaba74cb4a86bb6ff5c906fd9d4f.4149851.1750322384000000.zst (present)"
-# to get the path of the latest coredump
-
