@@ -160,7 +160,7 @@ class installArgBuilderMixin():
         if self.getParam('ocp_ingress_tls_secret_name') != "":
             command += f"  --ocp-ingress-tls-secret-name \"{self.getParam('ocp_ingress_tls_secret_name')}\"{newline}"
         if self.getParam('ocp_ingress') != "":
-            command += f" --ocp-ingress \"{self.getParam('ocp_ingress')}\"{newline}"
+            command += f"  --ocp-ingress \"{self.getParam('ocp_ingress')}\"{newline}"
 
         # MAS Applications
         # -----------------------------------------------------------------------------

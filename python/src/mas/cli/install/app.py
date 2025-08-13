@@ -505,7 +505,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 configureDomain = self.yesOrNo('Configure custom domain')
                 if configureDomain:
                     self.promptForString("MAS top-level domain", "mas_domain")
-                    if self.yesOrNo("Overwrite Ingress Domain ?"):
+                    if self.yesOrNo("Overwrite Ingress Domain"):
                         self.promptForString("Ingress Domain", "ocp_ingress")
                     self.printDescription([
                         "",
