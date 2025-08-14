@@ -149,7 +149,7 @@ droArgGroup.add_argument(
 droArgGroup.add_argument(
     "--dro-namespace",
     required=False,
-    help=""
+    help="Namespace for the Data Reporting Operator"
 )
 
 # MongoDb Community Operator
@@ -158,7 +158,7 @@ mongoArgGroup = aiServiceinstallArgParser.add_argument_group("MongoDb Community 
 mongoArgGroup.add_argument(
     "--mongodb-namespace",
     required=False,
-    help=""
+    help="Namespace for the MongoDB Community Operator"
 )
 
 # MAS Applications
@@ -207,7 +207,7 @@ s3ArgGroup.add_argument(
     "--s3-provider",
     dest="aiservice_storage_provider",
     required=False,
-    help="TODO: Write me"
+    help="S3 storage provider type (e.g., minio, aws)"
 )
 
 # S3 - Bucket Naming
@@ -217,21 +217,21 @@ s3ArgGroup.add_argument(
     dest="aiservice_storage_pipelines_bucket",
     required=False,
     default="km-pipelines",
-    help="TODO: Write me"
+    help="Name of the S3 bucket for pipelines storage"
 )
 s3ArgGroup.add_argument(
     "--s3-tenants-bucket",
     dest="aiservice_storage_tenants_bucket",
     required=False,
     default="km-tenants",
-    help="TODO: Write me"
+    help="Name of the S3 bucket for tenants storage"
 )
 s3ArgGroup.add_argument(
     "--s3-templates-bucket",
     dest="aiservice_storage_templates_bucket",
     required=False,
     default="km-templates",
-    help="TODO: Write me"
+    help="Name of the S3 bucket for templates storage"
 )
 
 # S3 - Bucket Prefixes
@@ -257,37 +257,37 @@ s3ArgGroup.add_argument(
     "--s3-host",
     dest="aiservice_storage_host",
     required=False,
-    help="TODO: Write me"
+    help="Hostname or IP address of the S3 storage service"
 )
 s3ArgGroup.add_argument(
     "--s3-port",
     dest="aiservice_storage_port",
     required=False,
-    help="TODO: Write me"
+    help="Port number for the S3 storage service"
 )
 s3ArgGroup.add_argument(
     "--s3-ssl",
     dest="aiservice_storage_ssl",
     required=False,
-    help="TODO: Write me"
+    help="Enable or disable SSL for S3 connection (true/false)"
 )
 s3ArgGroup.add_argument(
     "--s3-accesskey",
     dest="aiservice_storage_accesskey",
     required=False,
-    help="TODO: Write me"
+    help="Access key for authenticating with the S3 storage service"
 )
 s3ArgGroup.add_argument(
     "--s3-secretkey",
     dest="aiservice_storage_secretkey",
     required=False,
-    help="TODO: Write me"
+    help="Secret key for authenticating with the S3 storage service"
 )
 s3ArgGroup.add_argument(
     "--s3-region",
     dest="aiservice_storage_region",
     required=False,
-    help="TODO: Write me"
+    help="Region for the S3 storage service"
 )
 s3ArgGroup.add_argument(
     "--s3-endpoint-url",
@@ -331,25 +331,25 @@ watsonxArgGroup.add_argument(
     "--watsonxai-apikey",
     dest="aiservice_watsonxai_apikey",
     required=False,
-    help="TODO: Write me"
+    help="API key for WatsonX"
 )
 watsonxArgGroup.add_argument(
     "--watsonxai-url",
     dest="aiservice_watsonxai_url",
     required=False,
-    help="TODO: Write me"
+    help="URL endpoint for WatsonX"
 )
 watsonxArgGroup.add_argument(
     "--watsonxai-project-id",
     dest="aiservice_watsonxai_project_id",
     required=False,
-    help="TODO: Write me"
+    help="Project ID for WatsonX"
 )
 watsonxArgGroup.add_argument(
     "--watsonx-action",
     dest="aiservice_watsonx_action",
     required=False,
-    help="TODO: Write me"
+    help="Action to perform with WatsonX (install/remove)"
 )
 
 
