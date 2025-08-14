@@ -196,6 +196,7 @@
         - gitops-deprovision-app-config
         - gitops-deprovision-app-install
         - gitops-deprovision-cluster
+        - gitops-deprovision-customer-subscription
         - gitops-deprovision-cos
         - gitops-deprovision-cp4d
         - gitops-deprovision-cp4d-service
@@ -227,6 +228,7 @@
         - gitops-nvidia-gpu
         - gitops-process-mongo-user
         - gitops-rosa
+        - gitops-sls
         - gitops-suite-app-install
         - gitops-suite-app-config
         - gitops-suite-certs
