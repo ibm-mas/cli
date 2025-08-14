@@ -10,7 +10,7 @@ OUTPUT_DIR=/tmp
 function manage_javadump_help() {
   cat << EOM
 Usage:
-  mas manage-javadump [options]
+  mas debug coredump [options]
 
 define Liberty pod where the coredump is generated:
   -i, --mas-instance-id : specify mas instance id
@@ -29,16 +29,16 @@ Other Options:
   -h, --help    Show this help message
 
 Examples:
-  generates a coredump for a particular pod in the manage namespace:
+  generate a coredump for a particular pod in the manage namespace:
   mas debug coredump  -i test -p test-testws-foundation-54956ff9d7-bzmgb -g -d /tmp
 
-  generates a coredump for the ui server bundle, copies it localy and removes it from the node where it was generated:
+  generate a coredump for the ui server bundle, copies it localy and removes it from the node where it was generated:
   mas debug coredump -i test -s ui -g -d /mnt/home
 
-  collects all the coredumps present on the node where ui server bundle is running:
+  collect all the coredumps present on the node where ui server bundle is running:
   mas debug coredump -i test -s ui -c
 
-  removed all the coredumps present on the node where the ui server bundle is running:
+  remove all the coredumps present on the node where the ui server bundle is running:
   mas debug coredump -i test -s ui -r
 
 EOM
