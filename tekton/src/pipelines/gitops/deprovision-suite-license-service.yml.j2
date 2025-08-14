@@ -1,0 +1,64 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: gitops-deprovision-suite-license-service
+spec:
+  description: Deprovision customer subscription
+  workspaces:
+    - name: shared-entitlement
+  params:
+
+    - name: sls_license_icn
+      type: string
+    - name: sls_license_subscription_id
+      type: string
+    - name: account
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: github_user
+      type: string
+    - name: git_commit_msg
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+
+  tasks:
+    - name: gitops-deprovision-customer-subscription
+      params:
+        - name: sls_license_icn
+          value: $(params.sls_license_icn)
+        - name: sls_license_subscription_id
+          value: $(params.sls_license_subscription_id)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-customer-subscription
+      workspaces:
+        - name: shared-entitlement
+          workspace: shared-entitlement
