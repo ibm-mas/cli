@@ -11,7 +11,7 @@ OUTPUT_DIR=$2
 # -----------------------------------------------------------------------------
 echo_h4 "Collect Reconcile Logs"
 # Operators
-$DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-aibroker $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-aiservice $OUTPUT_DIR
 $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/applicationId aibroker $OUTPUT_DIR
 # WS
 $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr-ws-operator $OUTPUT_DIR
