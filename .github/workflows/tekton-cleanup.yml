@@ -1,0 +1,31 @@
+name: Tekton Cleanup
+
+on:
+  pull_request:
+    branches: [ "master" ]
+    types: [ "closed" ]
+
+jobs:
+  tekton-cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get branch name
+        run: |
+          BRANCH_NAME="tekton"-$(echo "${{ github.event.pull_request.number }}")
+
+      - name: Clean up namespace
+        env:
+          OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
+          OCP_SERVER: ${{ secrets.OCP_SERVER }}
+        run: |
+          kubectl config set-cluster my-cluster --server=$OCP_SERVER
+          kubectl config set-credentials my-user --token=$OCP_TOKEN
+          kubectl get namespace $BRANCH_NAME &>/dev/null
+          rc=$?
+          if [ $rc -eq "0" ]; then
+            kubectl delete namespace $BRANCH_NAME
+          fi
+
+      - name: Clean up branch
+        run: |
+          git push origin --delete $BRANCH_NAME

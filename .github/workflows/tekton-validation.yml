@@ -1,0 +1,39 @@
+name: Tekton validation
+
+on:
+  pull_request:
+    branches: [ "master" ]
+    types: [ "opened", "reopened" ]
+
+jobs:
+  tekton-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create new PR branch
+        run: |
+          BRANCH_NAME="tekton"-$(echo "${{ github.event.pull_request.number }}")
+          git checkout -b $BRANCH_NAME
+          git push origin $BRANCH_NAME
+
+      - name: Login to OCP
+        env:
+          OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
+          OCP_SERVER: ${{ secrets.OCP_SERVER }}
+        run: |
+          kubectl config set-cluster my-cluster --server=$OCP_SERVER
+          kubectl config set-credentials my-user --token=$OCP_TOKEN
+          kubectl get namespace $BRANCH_NAME &>/dev/null
+          rc=$?
+          if [ $rc -ne "O" ]; then
+            kubectl create namespace $BRANCH_NAME
+          fi
+          kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=$BRANCH_NAME
+          kubectl config use-context my-context
+          make tekton-test &>/dev/null
+          rc=$?
+          if [ $rc -ne "0" ]; then
+            exit 1
+          fi
