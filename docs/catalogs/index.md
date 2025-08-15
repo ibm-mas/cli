@@ -78,15 +78,15 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-250828</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td style="font-style: italic">4.15 - 4.18 (TBC)</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+          <td>v9-250828</td>
+          <td><a href="v9-250828-amd64/">amd64</a></td>
+          <td><a href="v9-250828-s390x/">s390x</a></td>
+          <td><a href="v9-250828-ppc64le/">ppc64le</a></td>
+          <td>4.14 - 4.18</td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>latest</td>
+          <td>OCP 4.18 EOS August 25, 2026</td>
         </tr>
         <tr>
           <td>v9-250731</td>
