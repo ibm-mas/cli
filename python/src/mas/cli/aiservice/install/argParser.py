@@ -391,7 +391,7 @@ aibrokerArgGroup.add_argument(
     required=False,
     help="token for rsl"
 )
-s3ArgGroup.add_argument(
+aibrokerArgGroup.add_argument(
     "--rsl-ca-crt",
     dest="rsl_ca_crt",
     required=False,
