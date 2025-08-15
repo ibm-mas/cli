@@ -170,7 +170,6 @@ masAdvancedArgGroup.add_argument(
     required=False,
     help="Configure MAS with a custom domain"
 )
-
 masAdvancedArgGroup.add_argument(
     "--disable-walkme",
     dest="mas_enable_walkme",
@@ -348,11 +347,6 @@ masAppsArgGroup.add_argument(
     help="Subscription channel for Maximo Manage"
 )
 masAppsArgGroup.add_argument(
-    "--is-full-manage",
-    required=False,
-    help="Full Manage instead of Manage Foundation"
-)
-masAppsArgGroup.add_argument(
     "--predict-channel",
     required=False,
     help="Subscription channel for Maximo Predict"
@@ -374,150 +368,9 @@ masAppsArgGroup.add_argument(
     help="Install plan for Maximo Optimizer"
 )
 masAppsArgGroup.add_argument(
-    "--aibroker-channel",
-    required=False,
-    help="Subscription channel for Maximo Ai Broker"
-)
-masAppsArgGroup.add_argument(
     "--facilities-channel",
     required=False,
     help="Subscription channel for Maximo Real Estate and Facilities"
-)
-
-# AI Broker
-# -----------------------------------------------------------------------------
-aibrokerArgGroup = installArgParser.add_argument_group("Maximo AI Broker")
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-provider",
-    dest="mas_aibroker_storage_provider",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-accesskey",
-    dest="mas_aibroker_storage_accesskey",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-secretkey",
-    dest="mas_aibroker_storage_secretkey",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-host",
-    dest="mas_aibroker_storage_host",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-port",
-    dest="mas_aibroker_storage_port",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-ssl",
-    dest="mas_aibroker_storage_ssl",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-region",
-    dest="mas_aibroker_storage_region",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-pipelines-bucket",
-    dest="mas_aibroker_storage_pipelines_bucket",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-tenants-bucket",
-    dest="mas_aibroker_storage_tenants_bucket",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-storage-templates-bucket",
-    dest="mas_aibroker_storage_templates_bucket",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-tenant-name",
-    dest="mas_aibroker_tenant_name",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-watsonxai-apikey",
-    dest="mas_aibroker_watsonxai_apikey",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-watsonxai-url",
-    dest="mas_aibroker_watsonxai_url",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-watsonxai-project-id",
-    dest="mas_aibroker_watsonxai_project_id",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-watsonx-action",
-    dest="mas_aibroker_watsonx_action",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-host",
-    dest="mas_aibroker_db_host",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-port",
-    dest="mas_aibroker_db_port",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-user",
-    dest="mas_aibroker_db_user",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-database",
-    dest="mas_aibroker_db_database",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-secret-name",
-    dest="mas_aibroker_db_secret_name",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-secret-key",
-    dest="mas_aibroker_db_secret_key",
-    required=False,
-    help="Customize Manage database encryption keys"
-)
-aibrokerArgGroup.add_argument(
-    "--mas-aibroker-db-secret-value",
-    dest="mas_aibroker_db_secret_value",
-    required=False,
-    help="Customize Manage database encryption keys"
 )
 
 # Arcgis
@@ -584,7 +437,7 @@ manageArgGroup.add_argument(
     dest="mas_appws_components",
     required=False,
     help="Set Manage Components to be installed (e.g 'base=latest,health=latest,civil=latest')",
-    default="base=latest,health=latest"
+    default=""
 )
 
 manageArgGroup.add_argument(
@@ -690,6 +543,15 @@ manageArgGroup.add_argument(
     dest="mas_app_settings_server_timezone",
     required=False,
     help="Manage server timezone. Default is `GMT`"
+)
+
+manageArgGroup.add_argument(
+    "--manage-upgrade-type",
+    dest="mas_appws_upgrade_type",
+    required=False,
+    help="Set Manage upgrade type. Default is `regularUpgrade`",
+    default="regularUpgrade",
+    choices=["regularUpgrade", "onlineUpgrade"]
 )
 
 # Manage Attachments

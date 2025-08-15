@@ -1,0 +1,43 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: "{{ pipelinerun_name }}"
+  namespace: "{{ pipelinerun_namespace }}"
+  labels:
+    tekton.dev/pipeline: aiservice-fvt
+spec:
+  pipelineRef:
+    name: aiservice-fvt
+
+  serviceAccountName: pipeline
+  timeouts:
+    pipeline: "8h"
+
+  params:
+    # Pull Policy
+    - name: image_pull_policy
+      value: "{{ image_pull_policy }}"
+    # MAS Info
+    - name: aiservice_channel
+      value: "{{ aiservice_channel }}"
+    - name: aiservice_instance_id
+      value: "{{ aiservice_instance_id }}"
+    # Registry
+    - name: fvt_image_registry
+      value: "{{ fvt_image_registry }}"
+    - name: fvt_artifactory_username
+      value: "{{ fvt_artifactory_username }}"
+    - name: fvt_artifactory_token
+      value: "{{ fvt_artifactory_token }}"
+    # Digests
+    - name: fvt_digest_aiservice
+      value: "{{ fvt_digest_aiservice }}"
+    - name: ivt_digest_core
+      value: "{{ ivt_digest_core }}"
+
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+      persistentVolumeClaim:
+        claimName: config-pvc

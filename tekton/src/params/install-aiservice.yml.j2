@@ -1,0 +1,299 @@
+# Cluster config
+# -----------------------------------------------------------------------------
+- name: ocp_ingress_tls_secret_name
+  type: string
+  default: ""
+
+# IBM Cloud
+# -----------------------------------------------------------------------------
+- name: ibmcloud_apikey
+  type: string
+  default: ""
+- name: ibmcloud_resourcegroup
+  type: string
+  default: ""
+
+# MAS (shouldn't really need these in AI service install pipeline)
+# -----------------------------------------------------------------------------
+- name: mas_icr_cp
+  type: string
+  default: ""
+- name: mas_icr_cpopen
+  type: string
+  default: ""
+- name: mas_workspace_id
+  type: string
+  description: Workspace ID used to configure all applications
+  default: ""
+
+# Certificate Manager
+# -----------------------------------------------------------------------------
+- name: cert_manager_provider
+  type: string
+  default: ""
+- name: cert_manager_action
+  type: string
+  default: ""
+
+# Dependencies - DB2
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-db2.yml.j2') }}
+- name: db2_action_aiservice
+  type: string
+  description: Set to 'install' to set up a Db2 instance for AI Service
+  default: "none"
+
+# Dependencies - UDS
+# -----------------------------------------------------------------------------
+- name: uds_contact_email
+  type: string
+  default: ""
+- name: uds_contact_firstname
+  type: string
+  default: ""
+- name: uds_contact_lastname
+  type: string
+  default: ""
+- name: uds_event_scheduler_frequency
+  type: string
+  default: ""
+- name: uds_action
+  type: string
+  default: ""
+- name: dro_namespace
+  type: string
+  default: ""
+- name: mas_segment_key
+  type: string
+  default: ""
+
+# Dependencies - SLS
+# -----------------------------------------------------------------------------
+- name: sls_namespace
+  type: string
+  default: ""
+- name: sls_entitlement_file
+  type: string
+  default: ""
+- name: sls_mongodb_cfg_file
+  type: string
+  # The default value works for the default in-cluster install, it will need
+  # to be modified if the mongodb namespace is changed, or if using BYO MongoDb
+  default: "/workspace/configs/mongo-mongoce.yml"
+- name: sls_catalog_source
+  type: string
+  default: ""
+- name: sls_channel
+  type: string
+  default: ""
+- name: sls_icr_cpopen
+  type: string
+  default: ""
+- name: sls_action
+  type: string
+  default: ""
+
+# Dependencies - MongoDb
+# -----------------------------------------------------------------------------
+- name: mongodb_namespace
+  type: string
+  default: ""
+- name: mongodb_storage_class
+  type: string
+  default: ""
+- name: mongodb_replicas
+  type: string
+  description: Optional configuration for mongodb replicas
+  default: ""
+- name: mongodb_cpu_requests
+  type: string
+  description: Optional configuration for mongodb cpu requests
+  default: ""
+- name: mongodb_provider
+  type: string
+  description: MongoDb provider
+  default: ""
+- name: mongodb_version
+  type: string
+  description: MongoDb version
+  default: ""
+- name: mongodb_action
+  type: string
+  description: MongoDb action
+  default: ""
+
+# Dependencies - IBM Cloud MongoDb
+# -------------------------------------------------------------------------
+- name: ibm_mongo_name
+  type: string
+  description: IBM Cloud MongoDb instance name
+  default: ""
+- name: ibm_mongo_resourcegroup
+  type: string
+  description: IBM Cloud MongoDb resource group
+  default: ""
+- name: ibm_mongo_region
+  type: string
+  description: IBM Cloud MongoDb instance region
+  default: ""
+- name: ibm_mongo_admin_password
+  type: string
+  description: IBM Cloud MongoDb admin password
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service
+# -----------------------------------------------------------------------------
+- name: aiservice_instance_id
+  type: string
+  description: AI Service instance id
+  default: ""
+- name: aiservice_channel
+  type: string
+  description: Default channel for IBM Maximo AI Service
+  default: ""
+- name: environment_type
+  type: string
+  description: Environment type
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - S3
+# -----------------------------------------------------------------------------
+- name: aiservice_storage_accesskey
+  type: string
+  description: S3/Minio storage access ket for IBM Maximo AI Service
+  default: ""
+- name: aiservice_storage_secretkey
+  type: string
+  description: S3/Minio storage secret key for IBM Maximo AI Service
+  default: ""
+- name: aiservice_storage_host
+  type: string
+  description: S3/Minio storage host for IBM Maximo AI Service
+  default: ""
+- name: aiservice_storage_region
+  type: string
+  description: S3/Minio storage region for IBM Maximo AI Service
+  default: ""
+- name: aiservice_storage_port
+  type: string
+  description: S3/Minio storage port for IBM Maximo AI Service
+  default: ""
+- name: aiservice_storage_ssl
+  type: string
+  description: S3/Minio storage ssl for IBM Maximo AI Service
+  default: ""
+- name: aiservice_storage_provider
+  type: string
+  description: S3/Minio storage provider IBM Maximo AI Service
+  default: ""
+- name: aiservice_storage_pipelines_bucket
+  type: string
+  description: S3/Minio storage pipeline bucket for IBM Maximo AI Service
+  default: ""
+- name: aiservice_storage_tenants_bucket
+  type: string
+  description: S3/Minio storage tenants bucket for IBM Maximo AI Service
+  default: ""
+- name: aiservice_storage_templates_bucket
+  type: string
+  description: S3/Minio storage template bucket for IBM Maximo AI Service
+  default: ""
+
+- name: aiservice_s3_action
+  type: string
+  description: s3 action for IBM Maximo AI Service
+  default: ""
+- name: minio_root_user
+  type: string
+  description: root user for minio
+  default: ""
+- name: minio_root_password
+  type: string
+  description: password for minio root user
+  default: ""
+
+- name: aiservice_s3_bucket_prefix
+  type: string
+  description: s3 bucker prefix
+  default: ""
+- name: aiservice_s3_region
+  type: string
+  description: s3 region
+  default: ""
+- name: aiservice_s3_endpoint_url
+  type: string
+  description: endpoint url for s3
+  default: ""
+- name: aiservice_tenant_s3_bucket_prefix
+  type: string
+  description: s3 bucker prefix ( tenant level )
+  default: ""
+- name: aiservice_tenant_s3_region
+  type: string
+  description: s3 region ( tenant level )
+  default: ""
+- name: aiservice_tenant_s3_endpoint_url
+  type: string
+  description: endpoint url for s3 ( tenant level )
+  default: ""
+- name: aiservice_tenant_s3_access_key
+  type: string
+  description: access key for s3 ( tenant level )
+  default: ""
+- name: aiservice_tenant_s3_secret_key
+  type: string
+  description: secret key for s3 ( tenant level )
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - Tenant
+# -----------------------------------------------------------------------------
+- name: tenant_entitlement_type
+  type: string
+  description: type of tenant
+  default: ""
+- name: tenant_entitlement_start_date
+  type: string
+  description: define start date for tenant
+  default: ""
+- name: tenant_entitlement_end_date
+  type: string
+  description: define end date for tenant
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - Watstonx
+# -----------------------------------------------------------------------------
+- name: aiservice_watsonxai_apikey
+  type: string
+  description: WatsonX api key for IBM Maximo AI Service
+  default: ""
+- name: aiservice_watsonxai_url
+  type: string
+  description: WatsonX url for IBM Maximo AI Service
+  default: ""
+- name: aiservice_watsonxai_project_id
+  type: string
+  description: WatsonX project ID for IBM Maximo AI Service
+  default: ""
+- name: aiservice_watsonx_action
+  type: string
+  description: watsonx action for IBM Maximo AI Service
+  default: ""
+- name: aiservice_apikey_action
+  type: string
+  description: AI Broker api key action for IBM Maximo AI Service
+  default: ""
+
+# MAS Application Configuration - IBM Maximo AI Service - RSL
+# -----------------------------------------------------------------------------
+- name: rsl_url
+  type: string
+  description: url of RSL
+  default: ""
+- name: rsl_org_id
+  type: string
+  description: org id for RSL
+  default: ""
+- name: rsl_token
+  type: string
+  description: token for RSL
+  default: ""

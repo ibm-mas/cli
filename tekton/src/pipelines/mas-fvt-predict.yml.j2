@@ -1,0 +1,166 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-predict
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+
+  params:
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
+
+    # MAS Configuration
+    - name: mas_app_channel_predict
+      type: string
+      default: ""
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+
+    # FVT Configuration
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: fvt_artifactory_username
+      type: string
+      default: ""
+    - name: fvt_artifactory_token
+      type: string
+      default: ""
+
+    # Image Digests
+    - name: fvt_digest_predict
+      type: string
+      description: FVT Digest - Predict
+      default: ""
+    - name: ivt_digest_core
+      type: string
+      description: IVT Digest - Core
+      default: ""
+
+  tasks:
+    # 1. Core x predict
+    # -------------------------------------------------------------------------
+    - name: kyverno-predict
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-predict
+        - name: product_channel
+          value: $(params.mas_app_channel_predict)
+        - name: fvt_test_suite
+          value: kyverno
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+
+    - name: ivtcore-predict
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-predict
+        - name: product_channel
+          value: $(params.mas_app_channel_predict)
+        - name: fvt_test_suite
+          value: coreivt
+      runAfter:
+        - kyverno-predict
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+
+    - name: imagescan-predict
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-predict
+        - name: product_channel
+          value: $(params.mas_app_channel_predict)
+        - name: fvt_test_suite
+          value: imagescan
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+
+    # 2. Prepare data for Python and Desktop suites
+    # -----------------------------------------------------------------------------
+    - name: fvt-predict
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: fvt_image_registry
+          value: $(params.fvt_image_registry)
+        - name: fvt_image_namespace
+          value: fvt-predict
+        - name: fvt_image_name
+          value: fvt-ibm-mas-predict
+        - name: fvt_image_digest
+          value: $(params.fvt_digest_predict)
+        - name: fvt_test_suite
+          value: predict_fvt # pytest_marker
+        - name: product_channel
+          value: $(params.mas_app_channel_predict)
+        - name: product_id
+          value: ibm-mas-predict
+
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-fvt-run-suite
+      # Only if we've set a digest of the Predict FVT to run
+      when:
+        - input: "$(params.fvt_digest_predict)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - ivtcore-predict
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+
+  finally:
+    # 1. Run CV
+    # -----------------------------------------------------------------------------
+    - name: cv-predict
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-predict
+        - name: product_channel
+          value: $(params.mas_app_channel_predict)
+        - name: fvt_test_suite
+          value: contentverification
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_predict)"
+          operator: notin
+          values: [""]

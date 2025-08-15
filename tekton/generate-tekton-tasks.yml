@@ -47,12 +47,15 @@
     # -------------------------------------------------------------------------
     - name: Generate Tasks (AI Broker)
       ansible.builtin.template:
-        src: "{{ task_src_dir }}/aibroker/{{ item }}.yml.j2"
+        src: "{{ task_src_dir }}/aiservice/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - aibroker
+        - minio
+        - aiservice
         - kmodels
         - odh
+        - aiservice-tenant
+        - aiservice-post-verify
 
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
@@ -61,53 +64,59 @@
         src: "{{ task_src_dir }}/fvt/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - fvt-assist-desktop
-        - fvt-assist
-        - fvt-core
-        - fvt-components
-        - fvt-data-dictionary
-        - fvt-deprovision-ocp
-        - fvt-deprovision-cos
-        - fvt-deprovision-kafka
-        - fvt-finalize
-        - fvt-iot
-        - fvt-manage
-        - fvt-mobile-testng
-        - fvt-mobile-pytest
-        - fvt-manage-directprint
-        - fvt-manage-adhoc-report
-        - fvt-manage-birt-report
-        - fvt-manage-last-phase
-        - fvt-manage-pytest
-        - fvt-monitor
-        - fvt-run-suite
-        - fvt-sls
-        - fvt-start-update
-        - fvt-start-upgrade
-        - fvt-start-uninstall
+        - aiservice-fvt
+        - mas-fvt-assist-desktop
+        - mas-fvt-assist
+        - mas-fvt-core
+        - mas-fvt-components
+        - mas-fvt-data-dictionary
+        - mas-fvt-deprovision-ocp
+        - mas-fvt-deprovision-cos
+        - mas-fvt-deprovision-kafka
+        - mas-fvt-finalize
+        - mas-fvt-iot
+        - mas-fvt-manage
+        - mas-fvt-mobile-testng
+        - mas-fvt-mobile-pytest
+        - mas-fvt-manage-directprint
+        - mas-fvt-manage-adhoc-report
+        - mas-fvt-manage-birt-report
+        - mas-fvt-manage-last-phase
+        - mas-fvt-manage-pytest
+        - mas-fvt-manage-cypress
+        - mas-fvt-monitor
+        - mas-fvt-run-suite
+        - mas-fvt-sls
+        - mas-fvt-start-update
+        - mas-fvt-start-upgrade
+        - mas-fvt-start-uninstall
+        - mas-fvt-pre-update
+        - mas-fvt-pre-upgrade
+        - mas-fvt-post-update
 
     - name: Generate Tasks (FVT Launchers)
       ansible.builtin.template:
         src: "{{ task_src_dir }}/fvt-launcher/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - launchfvt-assist
-        - launchfvt-core
-        - launchfvt-sls
-        - launchfvt-finally
-        - launchfvt-iot
-        - launchfvt-manage
-        - launchfvt-manage-is
-        - launchfvt-mobile
-        - launchfvt-mobile-upgrade-pre
-        - launchfvt-mobile-upgrade-post
-        - launchfvt-monitor
-        - launchfvt-optimizer
-        - launchfvt-predict
-        - launchfvt-visualinspection
-        - launchfvt-upgrade-post
-        - launchfvt-upgrade-pre
-        - launchivt-manage
+        - aiservice-launchfvt
+        - mas-launchfvt-assist
+        - mas-launchfvt-core
+        - mas-launchfvt-sls
+        - mas-launchfvt-finally
+        - mas-launchfvt-iot
+        - mas-launchfvt-manage
+        - mas-launchfvt-manage-is
+        - mas-launchfvt-mobile
+        - mas-launchfvt-mobile-upgrade-pre
+        - mas-launchfvt-mobile-upgrade-post
+        - mas-launchfvt-monitor
+        - mas-launchfvt-optimizer
+        - mas-launchfvt-predict
+        - mas-launchfvt-visualinspection
+        - mas-launchfvt-upgrade-post
+        - mas-launchfvt-upgrade-pre
+        - mas-launchivt-manage
 
     # 5. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -188,6 +197,8 @@
         - gitops-deprovision-app-install
         - gitops-deprovision-cluster
         - gitops-deprovision-cos
+        - gitops-deprovision-cp4d
+        - gitops-deprovision-cp4d-service
         - gitops-deprovision-db2u
         - gitops-deprovision-db2u-database
         - gitops-deprovision-efs
@@ -228,3 +239,7 @@
         - gitops-suite-watson-studio-config
         - gitops-suite-workspace
         - gitops-suite
+        - gitops-odh
+        - gitops-kmodel
+        - gitops-aibroker
+        - gitops-aibroker-tenant

@@ -1,0 +1,50 @@
+- name: aiservice-odh
+  params:
+    {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
+    - name: devops_suite_name
+      value: aiservice-odh
+
+    - name: mas_instance_id
+{% if application is defined and application == "aiservice" %}
+      value: $(params.aiservice_instance_id)
+{% else %}
+      value: $(params.mas_instance_id)
+{% endif %}
+    - name: artifactory_username
+      value: $(params.artifactory_username)
+    - name: artifactory_token
+      value: $(params.artifactory_token)
+    - name: aiservice_channel
+      value: "$(params.aiservice_channel)"
+    - name: ibm_entitlement_key
+      value: $(params.ibm_entitlement_key)
+    - name: custom_labels
+      value: $(params.custom_labels)
+    - name: aiservice_storage_provider
+      value: $(params.aiservice_storage_provider)
+    - name: aiservice_storage_accesskey
+      value: $(params.aiservice_storage_accesskey)
+    - name: aiservice_storage_secretkey
+      value: $(params.aiservice_storage_secretkey)
+    - name: aiservice_storage_host
+      value: $(params.aiservice_storage_host)
+    - name: aiservice_storage_port
+      value: $(params.aiservice_storage_port)
+    - name: aiservice_storage_ssl
+      value: $(params.aiservice_storage_ssl)
+    - name: aiservice_storage_region
+      value: $(params.aiservice_storage_region)
+    - name: aiservice_storage_pipelines_bucket
+      value: $(params.aiservice_storage_pipelines_bucket)
+    - name: aiservice_storage_tenants_bucket
+      value: $(params.aiservice_storage_tenants_bucket)
+    - name: aiservice_storage_templates_bucket
+      value: $(params.aiservice_storage_templates_bucket)
+
+  taskRef:
+    name: mas-devops-aiservice-odh
+    kind: Task
+  when:
+    - input: "$(params.aiservice_channel)"
+      operator: notin
+      values: [""]

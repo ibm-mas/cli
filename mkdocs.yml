@@ -15,6 +15,7 @@ nav:
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
       - "Uninstall": guides/uninstall.md
+      - "MRE&F External DB Setup": guides/facilities-external-db.md
   - "Examples":
       - "EAM Migration": examples/eam-migration.md
       - "Mirror Db2 Images": examples/mirror-db2.md
@@ -34,10 +35,10 @@ nav:
       - "configtool-oidc": commands/configtool-oidc.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
+      - "Jul 31 2025": catalogs/v9-250731-amd64.md
+      - "Jun 24 2025": catalogs/v9-250624-amd64.md
       - "May 01 2025": catalogs/v9-250501-amd64.md
       - "Apr 03 2025": catalogs/v9-250403-amd64.md
-      - "Mar 06 2025": catalogs/v9-250306-amd64.md
-      - "Feb 06 2025": catalogs/v9-250206-amd64.md
   - "Reference":
       - "Dependencies": reference/dependencies.md
       - "Topology": reference/topology.md

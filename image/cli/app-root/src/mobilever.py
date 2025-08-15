@@ -197,6 +197,8 @@ class MobVer(object):
                             }
                         }
                         json.dump(warn_json, dummy_file, indent=4)
+                except zipfile.BadZipFile:
+                    print(f"This is not a zip file: {app_zip_file}")
                 zip_ref.close()
 
             zip_file_prefix = zip_file_path.split(".zip")
@@ -252,7 +254,7 @@ class MobVer(object):
 
         return graphite_json_sorted
 
-    def get_graphite_versions(self):
+    def get_graphite_versions(self, mas_ver=None):
         # This list will contains all files found in the maxinst pod
         pods_list = self.get_maxinst_and_mobileapi_pods()
 
@@ -261,7 +263,9 @@ class MobVer(object):
 
         self.download_mobile_packages(podName=maxinst_pod)
 
-        self.download_navigator_package(podName=mobileapi_pod)
+        # navigator has been moved to manage and should no longer be downloaded from mobileapi pod
+        if '9.1' not in mas_ver:
+            self.download_navigator_package(podName=mobileapi_pod)
 
         self.extract_build_json_from_zip_files(source_zip_files_path=".")
 
@@ -369,7 +373,7 @@ if __name__ == "__main__":
         os.remove(MobVersion.output_filename)
 
     print("Retrieving Graphite versions for Manage apps")
-    graphite_versions = MobVersion.get_graphite_versions()
+    graphite_versions = MobVersion.get_graphite_versions(mas_ver=os.getenv("PRODUCT_CHANNEL"))
 
     print("Retrieving image versions for Manage IS and Add-ons ")
     img_versions = MobVersion.get_mobile_and_is_image_tags()

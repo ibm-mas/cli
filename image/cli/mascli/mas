@@ -81,6 +81,8 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_rosa
 . $CLI_DIR/functions/gitops_deprovision_rosa
 . $CLI_DIR/functions/gitops_deprovision_cluster
+. $CLI_DIR/functions/gitops_deprovision_cp4d
+. $CLI_DIR/functions/gitops_deprovision_cp4d_service
 . $CLI_DIR/functions/gitops_deprovision_mongo
 . $CLI_DIR/functions/gitops_deprovision_efs
 . $CLI_DIR/functions/gitops_deprovision_kafka
@@ -88,6 +90,10 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
 . $CLI_DIR/functions/gitops_nvidia_gpu
 . $CLI_DIR/functions/gitops_deprovision_db2u
+. $CLI_DIR/functions/gitops_odh
+. $CLI_DIR/functions/gitops_kmodel
+. $CLI_DIR/functions/gitops_aibroker
+. $CLI_DIR/functions/gitops_aibroker_tenant
 . $CLI_DIR/functions/gitops_mas_provisioner
 
 # TODO: The path from the CLI the installation of the Ansible collection should be configurable
@@ -210,6 +216,16 @@ case $1 in
     shift
     # Run the new Python-based install
     mas-cli install "$@"
+    ;;
+
+  aiservice-install)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! aiservice-install                                                         !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "aiservice-install")
+    shift
+    # Run the new Python-based aiservice-install
+    mas-cli aiservice-install "$@"
     ;;
 
   update)
@@ -484,7 +500,13 @@ case $1 in
     reset_colors
     gitops_db2u "$@"
     ;;
-
+  gitops-odh)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_odh "$@"
+    ;;
   gitops-db2u-database)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -548,12 +570,51 @@ case $1 in
     gitops_deprovision_db2u "$@"
     ;;
 
+  gitops-kmodel)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_kmodel "$@"
+    ;;
+
+  gitops-aibroker)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_aibroker "$@"
+    ;;
+
+  gitops-aibroker-tenant)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker tenant Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_aibroker_tenant "$@"
+    ;;
   gitops-mas-provisioner)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
     gitops_mas_provisioner "$@"
+    ;;
+
+  gitops-deprovision-cp4d)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_cp4d "$@"
+    ;;
+
+  gitops-deprovision-cp4d-service)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_cp4d_service "$@"
     ;;
 
   *)

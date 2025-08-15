@@ -1,0 +1,14 @@
+timeout: "2h"
+taskRef:
+  kind: Task
+  name: aiservice-fvt
+when:
+  - input: "$(params.fvt_digest_aiservice)"
+    operator: notin
+    values: [""]
+  - input: "$(params.aiservice_channel)"
+    operator: notin
+    values: [""]
+workspaces:
+  - name: configs
+    workspace: shared-configs

@@ -163,7 +163,6 @@ class installArgBuilderMixin():
             command += f"  --monitor-channel \"{self.getParam('mas_app_channel_monitor')}\"{newline}"
         if self.installManage:
             command += f"  --manage-channel \"{self.getParam('mas_app_channel_manage')}\"{newline}"
-            command += f"  --is-full-manage \"{self.getParam('is_full_manage')}\"{newline}"
         if self.installOptimizer:
             command += f"  --optimizer-channel \"{self.getParam('mas_app_channel_optimizer')}\""
             command += f" --optimizer-plan \"{self.getParam('mas_app_plan_optimizer')}\"{newline}"
@@ -237,6 +236,9 @@ class installArgBuilderMixin():
             if self.getParam('mas_appws_bindings_health_wsl_flag') == "true":
                 command += f"  --manage-health-wsl{newline}"
 
+            if self.getParam('mas_appws_upgrade_type') == "true":
+                command += f"  --manage-upgrade-type \"{self.getParam('mas_appws_upgrade_type')}\"{newline}"
+
         # Facilities Advanced Settings
         # -----------------------------------------------------------------------------
         # TODO: Fix type for storage sizes and max conn pool size
@@ -280,15 +282,15 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('cpd_product_version') != "":
             command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
-            if self.getParam('cpd_install_spss') == "install":
+            if self.getParam('cpd_install_spss') == "true":
                 command += " --cp4d-install-spss"
-            if self.getParam('cpd_install_cognos') == "install":
+            if self.getParam('cpd_install_cognos') == "true":
                 command += " --cp4d-install-cognos"
-            if self.getParam('cpd_install_ws') == "install":
+            if self.getParam('cpd_install_ws') == "true":
                 command += " --cp4d-install-ws"
-            if self.getParam('cpd_install_wml') == "install":
+            if self.getParam('cpd_install_wml') == "true":
                 command += " --cp4d-install-wml"
-            if self.getParam('cpd_install_ae') == "install":
+            if self.getParam('cpd_install_ae') == "true":
                 command += " --cp4d-install-ae"
             command += newline
 

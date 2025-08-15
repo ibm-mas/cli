@@ -24,7 +24,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     <table>
       <thead>
         <tr>
-          <th colspan="3">Catalog</th>
+          <th colspan="4">Catalog</th>
           <th>OCP Support</th>
           <th>CPD Support</th>
           <th>MongoDB Support (CE or EE)</th>
@@ -34,17 +34,8 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
       </thead>
       <tbody>
         <tr>
-          <td style="font-style: italic">v9-251204</td>
+          <td style="font-style: italic">v9-251224</td>
           <td></td>
-          <td></td>
-          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>  
-        <tr>
-          <td style="font-style: italic">v9-251106</td>
           <td></td>
           <td></td>
           <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
@@ -52,91 +43,122 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
           <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
           <td style="font-style: italic">N/A</td>
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>  
+        </tr>
         <tr>
-          <td style="font-style: italic">v9-251003</td>
+          <td style="font-style: italic">v9-251127</td>
+          <td></td>
           <td></td>
           <td></td>
           <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
           <td style="font-style: italic">N/A</td>
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>  
+        </tr>
         <tr>
-          <td style="font-style: italic">v9-250904</td>
-          <td style="font-style: italic"></td>
-          <td style="font-style: italic"></td>
-          <td style="font-style: italic">4.15 - 4.18 (TBC)</td>
+          <td style="font-style: italic">v9-251030</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
           <td style="font-style: italic">N/A</td>
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>  
+        </tr>
         <tr>
-          <td style="font-style: italic">v9-250807</td>
-          <td style="font-style: italic"></td>
-          <td style="font-style: italic"></td>
-          <td style="font-style: italic">4.15 - 4.18 (TBC)</td>
+          <td style="font-style: italic">v9-250925</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
           <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
-        </tr>  
-        <tr>
-          <td style="font-style: italic">v9-250624</td>
-          <td style="font-style: italic"></td>
-          <td style="font-style: italic"></td>
-          <td style="font-style: italic">4.14 - 4.18 (TBC)</td>
-          <td style="font-style: italic">5.1.3 (TBC)</td>
           <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
           <td style="font-style: italic">N/A</td>
           <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
         </tr>
         <tr>
+          <td style="font-style: italic">v9-250828</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.15 - 4.18 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">6.0 - 7.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.18 EOS August 25, 2026</td>
+        </tr>
+        <tr>
+          <td>v9-250731</td>
+          <td><a href="v9-250731-amd64/">amd64</a></td>
+          <td><a href="v9-250731-s390x/">s390x</a></td>
+          <td><a href="v9-250731-ppc64le/">ppc64le</a></td>
+          <td>4.14 - 4.18</td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>latest</td>
+          <td>OCP 4.18 EOS August 25, 2026</td>
+        </tr>
+        <tr>
+          <td>v9-250624</td>
+          <td><a href="v9-250624-amd64/">amd64</a></td>
+          <td><a href="v9-250624-s390x/">s390x</a></td>
+          <td><a href="v9-250624-ppc64le/">ppc64le</a></td>
+          <td>4.14 - 4.18</td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>latest</td>
+          <td>OCP 4.18 EOS August 25, 2026</td>
+        </tr>
+        <tr>
           <td>v9-250501</td>
           <td><a href="v9-250501-amd64/">amd64</a></td>
           <td><a href="v9-250501-s390x/">s390x</a></td>
+          <td>N/A</td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
           <td>latest</td>
           <td>OCP 4.16 EOS December 27, 2025</td>
-        </tr>  
+        </tr>
         <tr>
           <td>v9-250403</td>
           <td><a href="v9-250403-amd64/">amd64</a></td>
           <td><a href="v9-250403-s390x/">s390x</a></td>
+          <td>N/A</td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
           <td>latest</td>
           <td>OCP 4.16 EOS December 27, 2025</td>
-        </tr>      
+        </tr>
         <tr>
           <td>v9-250306</td>
           <td><a href="v9-250306-amd64/">amd64</a></td>
           <td><a href="v9-250306-s390x/">s390x</a></td>
+          <td>N/A</td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
-          <td>latest</td>
+          <td>13.10.0</td>
           <td>OCP 4.16 EOS December 27, 2025</td>
-        </tr>      
+        </tr>
         <tr>
           <td>v9-250206</td>
           <td><a href="v9-250206-amd64/">amd64</a></td>
           <td><a href="v9-250206-s390x/">s390x</a></td>
+          <td>N/A</td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
-          <td>latest</td>
+          <td>13.3.0</td>
           <td>OCP 4.16 EOS December 27, 2025</td>
         </tr>
         <tr>
           <td>v9-250109</td>
           <td><a href="v9-250109-amd64/">amd64</a></td>
           <td><a href="v9-250109-s390x/">s390x</a></td>
+          <td>N/A</td>
           <td>4.14 - 4.16</td>
           <td>5.0.0</td>
           <td>6.0 - 7.0</td>
@@ -164,7 +186,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     <td>4.14 - 4.16</td>
     <td>5.0.0</td>
     <td>6.0 - 7.0</td>
-    <td>latest</td>
+    <td>11.12.0</td>
     <td>OCP 4.16 EOS December 27, 2025</td>
     </tr>
     <tr>
@@ -172,7 +194,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
     <td>4.12 - 4.15</td>
     <td>4.8.0</td>
     <td>6.0 - 7.0</td>
-    <td>latest</td>
+    <td>11.7.0</td>
     <td>OCP 4.15 EOS August 27, 2025</td>
     </tr>
     <tr>
@@ -439,7 +461,7 @@ The packages available in these catalogs are fixed. Multiple installations at di
 #### Disconnected Install
 > I want to run a disconnected environment using a private mirror registry
 
-The MAS CLI [mirror-images](../guides/image-mirroring.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../commands/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageContentSourcePolicy** to your cluster before starting the installation.
+The MAS CLI [mirror-images](../guides/image-mirroring.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../commands/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
 
 
 ### Dynamic Catalog

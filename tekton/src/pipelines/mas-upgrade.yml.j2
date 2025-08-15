@@ -1,0 +1,368 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-upgrade
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+    # PodTemplates configurations
+    - name: shared-pod-templates
+  params:
+    # 1. Common Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
+    
+    # 2. Installation (only needed if Manage Foundation is going to be installed)
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
+    {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
+
+    # 3. Upgrade
+    # -------------------------------------------------------------------------
+    - name: skip_compatibility_check
+      type: string
+      default: "False"
+      description: Skip performing compatiblity checks before upgrade
+
+    - name: should_install_manage_foundation
+      type: string
+      description: Set to true if Manage Foundation is supposed to be installed (when upgrading to 9.1 from a 9.0 MAS without Manage)
+      default: "false"      
+
+  tasks:
+    # 1. Wait for approval & verify health of the cluster before we change anything
+    # -------------------------------------------------------------------------
+    - name: waitfor-approval
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap-v2
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-upgrade
+
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={'name': 'pre-upgrade-check', 'devops_suite_name': 'pre-upgrade-check'}) | indent(4) }}
+      runAfter:
+        - waitfor-approval
+
+
+    # 2. Suite Upgrade (Phase 1)
+    # -------------------------------------------------------------------------
+    - name: core-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-upgrade
+      runAfter:
+        - pre-upgrade-check
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_channel
+          value: $(params.mas_channel)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: core-upgrade
+
+    - name: core-verify
+      timeout: "0"
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_channel
+          value: $(params.mas_channel)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: core-verify
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-verify
+      runAfter:
+        - core-upgrade
+
+    # 3. Install Universal Dependencies (Phase 2)
+    # 3.1 Db2
+    # 3.1.1 System Db2
+    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | from_yaml %}
+    {% set task = tasks[0] %}
+    {% set merged_when = (task.when | default([])) + [{
+      'input': '$(params.should_install_manage_foundation)',
+      'operator': 'in',
+      'values': ['true']
+    }] %}
+    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['core-verify']}, recursive=True) %}
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+{# Add 4 spaces to every line, including the first #}
+{{ task_yaml | regex_replace('(?m)^', '    ') }}
+
+    # 3.1.2 Dedicated Manage Db2
+    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | from_yaml %}
+    {% set task = tasks[0] %}
+    {% set merged_when = (task.when | default([])) + [{
+      'input': '$(params.should_install_manage_foundation)',
+      'operator': 'in',
+      'values': ['true']
+    }] %}
+    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['db2-system']}, recursive=True) %}
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+{# Add 4 spaces to every line, including the first #}
+{{ task_yaml | regex_replace('(?m)^', '    ') }}
+
+    # 3.1.3 Configure Db2 in MAS
+    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | from_yaml %}
+    {% set task = tasks[0] %}
+    {% set merged_when = (task.when | default([])) + [{
+      'input': '$(params.should_install_manage_foundation)',
+      'operator': 'in',
+      'values': ['true']
+    }] %}
+    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['db2-manage']}, recursive=True) %}
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+{# Add 4 spaces to every line, including the first #}
+{{ task_yaml | regex_replace('(?m)^', '    ') }}
+
+    # 4. Install & Configure Manage (Phase 3)
+    # -------------------------------------------------------------------------
+    # 4.1. Prepare database for Maxinst
+    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-system.yml.j2') | from_yaml %}
+    {% set task = tasks[0] %}
+    {% set merged_when = (task.when | default([])) + [{
+      'input': '$(params.should_install_manage_foundation)',
+      'operator': 'in',
+      'values': ['true']
+    }] %}
+    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-config-db2']}, recursive=True) %}
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+{# Add 4 spaces to every line, including the first #}
+{{ task_yaml | regex_replace('(?m)^', '    ') }}
+
+    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-manage.yml.j2') | from_yaml %}
+    {% set task = tasks[0] %}
+    {% set merged_when = (task.when | default([])) + [{
+      'input': '$(params.should_install_manage_foundation)',
+      'operator': 'in',
+      'values': ['true']
+    }] %}
+    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-config-db2']}, recursive=True) %}
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+{# Add 4 spaces to every line, including the first #}
+{{ task_yaml | regex_replace('(?m)^', '    ') }}
+
+    # 4.2 Manage Install
+    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-app.yml.j2') | from_yaml %}
+    {% set task = tasks[0] %}
+    {% set merged_when = (task.when | default([])) + [{
+      'input': '$(params.should_install_manage_foundation)',
+      'operator': 'in',
+      'values': ['true']
+    }] %}
+    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-db2-setup-system', 'suite-db2-setup-manage']}, recursive=True) %}
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+{# Add 4 spaces to every line, including the first #}
+{{ task_yaml | regex_replace('(?m)^', '    ') }}
+
+    # 4.3 Configure Manage workspace
+    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | from_yaml %}
+    {% set task = tasks[0] %}
+    {% set merged_when = (task.when | default([])) + [{
+      'input': '$(params.should_install_manage_foundation)',
+      'operator': 'in',
+      'values': ['true']
+    }] %}
+    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['app-install-manage']}, recursive=True) %}
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+{# Add 4 spaces to every line, including the first #}
+{{ task_yaml | regex_replace('(?m)^', '    ') }}
+
+    # 5. Manage Upgrade (Phase 4)
+    # -------------------------------------------------------------------------
+    - name: app-manage-upgrade
+      timeout: "0"
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_manage)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: app-manage-upgrade
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-upgrade
+      runAfter:
+        - app-cfg-manage
+      when:
+        - input: "$(params.should_install_manage_foundation)"
+          operator: notin
+          values: ["true"]
+
+    # 6. IoT Upgrade (Phase 5 - after Manage)
+    # -------------------------------------------------------------------------
+    - name: app-iot-upgrade
+      timeout: "0"
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_iot)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: app-iot-upgrade
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-upgrade
+      runAfter:
+        - app-manage-upgrade
+
+    # 7. Visual Inspection Upgrade (Phase 5 - after Manage)
+    # -------------------------------------------------------------------------
+    - name: app-visualinspection-upgrade
+      timeout: "0"
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: visualinspection
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_visualinspection)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: app-visualinspection-upgrade
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-upgrade
+      runAfter:
+        - app-manage-upgrade
+
+
+    # 8. Assist Upgrade (Phase 5 - after Manage)
+    # -------------------------------------------------------------------------
+    - name: app-assist-upgrade
+      timeout: "0"
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: assist
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_assist)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: app-assist-upgrade
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-upgrade
+      runAfter:
+        - app-manage-upgrade
+
+
+    # 9. Optimizer Upgrade (Phase 5 - after Manage)
+    # -------------------------------------------------------------------------
+    - name: app-optimizer-upgrade
+      timeout: "0"
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: optimizer
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_optimizer)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: app-optimizer-upgrade
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-upgrade
+      runAfter:
+        - app-manage-upgrade
+
+    # 10. Monitor Upgrade (Phase 6 - after IoT)
+    # -------------------------------------------------------------------------
+    - name: app-monitor-upgrade
+      timeout: "0"
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: monitor
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_monitor)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: app-monitor-upgrade
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-upgrade
+      runAfter:
+        - app-iot-upgrade
+
+    # 11. Predict Upgrade (Phase 7 - after Monitor)
+    # -------------------------------------------------------------------------
+    - name: app-predict-upgrade
+      timeout: "0"
+      params:
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: predict
+        - name: mas_app_channel
+          value: $(params.mas_app_channel_predict)
+        - name: skip_compatibility_check
+          value: $(params.skip_compatibility_check)
+        - name: devops_suite_name
+          value: app-predict-upgrade
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-upgrade
+      runAfter:
+        - app-manage-upgrade
+        - app-monitor-upgrade
+
+    # 12. Verify health of the cluster after upgrade
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/cluster-setup/ocp-verify-all.yml.j2', template_vars={
+        'name': 'post-upgrade-verify',
+        'devops_suite_name': 'post-upgrade-verify'
+      }) | indent(4) }}
+      runAfter:
+        # Phase 5 apps that don't have a phase 6 app following it
+        - app-assist-upgrade
+        - app-optimizer-upgrade
+        - app-visualinspection-upgrade
+        - app-predict-upgrade
+        # Phase 6 apps
+        - app-monitor-upgrade
+
+  finally:
+    # Update synchronization configmap
+    # -------------------------------------------------------------------------
+    - name: sync-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-upgrade
+        - name: configmap_value
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)

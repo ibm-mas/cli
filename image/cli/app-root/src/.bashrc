@@ -24,12 +24,7 @@ echo
 echo "MAS Management:"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas install${TEXT_RESET} to install a new MAS instance"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas update${TEXT_RESET} to apply a new catalog update"
-
-# Upgrade is not tested/supported on s390x /ppc64le yet
-if  [ $arch != "s390x" ] &&  [ $arch != "ppc64le" ]; then
-    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas upgrade${TEXT_RESET} to upgrade an existing MAS install to a new release"
-fi
-
+echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas upgrade${TEXT_RESET} to upgrade an existing MAS install to a new release"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas must-gather${TEXT_RESET} to perform must-gather against the target cluster"
 echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas uninstall${TEXT_RESET} to uninstall a MAS instance"
 
@@ -41,10 +36,12 @@ if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas teardown-registry${TEXT_RESET} to delete a private container registry on an OCP cluster"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas mirror-images${TEXT_RESET} to mirror container images required by MAS to a private registry"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas configure-airgap${TEXT_RESET} to configure a cluster to use a private registry as a mirror"
-    echo "Cluster Management:"
-    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-fyre${TEXT_RESET} to provision an OCP cluster on IBM DevIT Fyre (internal)"
-    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-roks${TEXT_RESET} to provision an OCP cluster on IBMCloud Red Hat OpenShift Service (ROKS)"
+    echo "OpenShift Cluster Management:"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-aws${TEXT_RESET} to provision an OCP cluster on AWS"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-roks${TEXT_RESET} to provision an OCP cluster on IBMCloud Red Hat OpenShift Service (ROKS)"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-rosa${TEXT_RESET} to provision an OCP cluster on AWS Red Hat OpenShift Service (ROSA)"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-fyre${TEXT_RESET} to provision an OCP cluster on IBM DevIT Fyre (internal)"
+    echo "AI Service (Standalone) Management:"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas aiservice-install${TEXT_RESET} to install a new AI Service instance"
     echo
 fi
