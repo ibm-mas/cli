@@ -315,6 +315,8 @@
     
       <cds-select-item value="#usage">Usage</cds-select-item>
     
+      <cds-select-item value="#examples">Examples</cds-select-item>
+    
   </cds-select>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
@@ -329,12 +331,28 @@
 <p><strong>IMPORTANT:</strong> The <code>teardown-registry</code> command permanently deletes all registry data.</p>
 <p>An appropriate time to use this tear-down function is when the registry has too many images that are not being used or when there has been a shift to support newer versions but images of older versions are clogging the registry. The tear-down function frees the disk space and allows for a new registry to be setup.</p>
 <p><strong>Note:</strong> Recreating the registry will create a new ca cert for the new registry.</p>
+<p><code>mas setup-registry [options]</code></p>
+<h3 id="registry-cluster-configuration-optional">Registry Cluster Configuration (optional)<a class="headerlink" href="#registry-cluster-configuration-optional" title="Permanent link">¤</a></h3>
+<ul>
+<li><code>-n|--namespace</code> Registry namespace (default is airgap-registry)</li>
+</ul>
+<h3 id="other-commands">Other Commands:<a class="headerlink" href="#other-commands" title="Permanent link">¤</a></h3>
+<ul>
+<li><code>-h|--help</code> Show help message</li>
+</ul>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¤</a></h2>
+<h3 id="interactive-mode">Interactive Mode<a class="headerlink" href="#interactive-mode" title="Permanent link">¤</a></h3>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas teardown-registry
+</code></pre>
+<h3 id="non-interactive-mode">Non-Interactive Mode<a class="headerlink" href="#non-interactive-mode" title="Permanent link">¤</a></h3>
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas teardown-registry \
+  -n airgap \
+  --no-confirm
 </code></pre>
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-08-13 16:28:27.008262+00:00)
+      Built with mkdocs v1.6.1 (2025-08-17 18:09:24.174390+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
