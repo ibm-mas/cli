@@ -170,6 +170,9 @@ spec:
     - name: mas_app_channel_predict
       type: string
       default: ""
+    - name: mas_app_channel_aiservice
+      type: string
+      default: ""
 
     - name: ldap_url
       type: string
@@ -302,6 +305,8 @@ spec:
         value: $(params.launchfvt_manage_is)
       - name: LAUNCHFVT_FACILITIES
         value: $(params.launchfvt_facilities)
+      - name: LAUNCHFVT_AISERVICE
+        value: $(params.launchfvt_aiservice)
       - name: MAS_APP_CHANNEL_FACILITIES
         value: $(params.mas_app_channel_facilities)
       - name: MAS_APP_CHANNEL_IOT
@@ -318,7 +323,8 @@ spec:
         value: $(params.mas_app_channel_optimizer)
       - name: MAS_APP_CHANNEL_PREDICT
         value: $(params.mas_app_channel_predict)
-
+      - name: MAS_APP_CHANNEL_AISERVICE
+        value: $(params.mas_app_channel_aiservice)
       - name: LDAP_URL
         value: $(params.ldap_url)
       - name: LDAP_BASE_DN
