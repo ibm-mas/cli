@@ -661,6 +661,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.promptForString("RSL url", "rsl_url")
         self.promptForString("ORG Id of RSL", "rsl_org_id")
         self.promptForString("Token for RSL", "rsl_token", isPassword=True)
+        if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
+            self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
 
     # These are all candidates to centralise in a new mixin used by both install and aiservice-install
 
