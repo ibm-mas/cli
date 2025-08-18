@@ -85,6 +85,9 @@ spec:
     - name: mas_app_channel_visualinspection
       type: string
       default: ""
+    - name: mas_app_channel_aiservice
+      type: string
+      default: ""
     - name: mas_app_channel_facilities
       type: string
       default: ""
@@ -206,6 +209,8 @@ spec:
           value: $(params.mas_app_channel_predict)
         - name: mas_app_channel_visualinspection
           value: $(params.mas_app_channel_visualinspection)
+        - name: mas_app_channel_aiservice
+          value: $(params.mas_app_channel_aiservice)
         - name: mas_app_channel_facilities
           value: $(params.mas_app_channel_facilities)
         - name: github_pat

@@ -76,6 +76,9 @@ spec:
       default: "Automatic"
     - name: mas_app_channel_visualinspection
       type: string
+    - name: mas_app_channel_aiservice
+      type: string
+      default: ""
     - name: mas_app_install_plan_visualinspection
       type: string
       default: "Automatic"
@@ -181,6 +184,8 @@ spec:
         value: $(params.mas_app_install_plan_predict)
       - name: MAS_APP_CHANNEL_VISUALINSPECTION
         value: $(params.mas_app_channel_visualinspection)
+      - name: MAS_APP_CHANNEL_AISERVICE
+        value: $(params.mas_app_channel_aiservice)
       - name: MAS_APP_INSTALL_PLAN_VISUALINSPECTION
         value: $(params.mas_app_install_plan_visualinspection)
       - name: GITHUB_PAT
@@ -446,7 +451,9 @@ spec:
         if [ -n $MAS_APP_CHANNEL_VISUALINSPECTION ]; then
           yq -i '(. | select(has("visualinspection")) |  .visualinspection.app_channel) = env(MAS_APP_CHANNEL_VISUALINSPECTION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-apps-params.yaml
         fi
-
+        if [ -n $MAS_APP_CHANNEL_AISERVICE ]; then
+          yq -i '(. | select(has("aiservice")) |  .aiservice.app_channel) = env(MAS_APP_CHANNEL_AISERVICE)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$AIBROKER_INSTANCE_ID/mas-apps-params.yaml
+        fi
         # Update the cli_version and ansible_fvt ansible version if mas_fvt_params exists
         if [ -f gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml ]; then
           yq -i '.fvt.cli_version = env(CLI_VERSION)' gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-fvt-params.yaml
