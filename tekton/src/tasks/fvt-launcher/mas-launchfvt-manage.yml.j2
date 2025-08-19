@@ -166,12 +166,12 @@ spec:
               name: mas-fvt-manage
               key: LDAP_CRT
               optional: false
-      - name: OIDC_DISCOVERY_ENDPOINT
-        valueFrom:
-          secretKeyRef:
-            name: mas-fvt-core
-            key: OIDC_DISCOVERY_ENDPOINT
-            optional: false
+        - name: OIDC_DISCOVERY_ENDPOINT
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-core
+              key: OIDC_DISCOVERY_ENDPOINT
+              optional: false
 
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
