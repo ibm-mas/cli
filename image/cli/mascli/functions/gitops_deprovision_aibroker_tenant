@@ -257,8 +257,8 @@ function gitops_deprovision_aibroker_tenant() {
     echo_h2 "Deleting application configuration files"
     echo "- Deleting aibroker tenant"
    
-   #rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant-base.yaml
-   #rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant.yaml
+   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant-base.yaml
+   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant.yaml
     if [ "$GITHUB_PUSH" == "true" ]; then
       echo
       echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
