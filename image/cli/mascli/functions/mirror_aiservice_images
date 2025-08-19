@@ -1,0 +1,409 @@
+#!/bin/bash
+
+function mirror_aiservice_to_registry_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas mirror-images [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Mirror Mode (Required):
+  -m, --mode ${COLOR_YELLOW}MIRROR_MODE${TEXT_RESET}                         Operation mode (direct, to-filesystem, from-filesystem)
+  -d, --dir ${COLOR_YELLOW}MIRROR_WORKING_DIR${TEXT_RESET}                   Working directory for the mirror process
+
+Registry Details (Required):
+  -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
+  -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
+  -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
+  -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
+
+Registry Prefix (Optional):
+  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}                    Prefix for the mirror image
+
+AWS Elastic Container Registry (Optional):
+  -r, --aws-ecr-region ${COLOR_YELLOW}REGISTRY_ECR_AWS_REGION${TEXT_RESET}    The AWS region if the target registry is Elastic Container Registry
+  -e, --target-is-ecr                                                         Indicate that the target registry is Elastic Container Registry
+
+Source Registry Entitlements (Required based on what content you choose to mirror):
+      --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
+      --artifactory-username ${COLOR_YELLOW}ARTIFACTORY_USERNAME${TEXT_RESET} Artifactory Username
+      --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}       Artifactory Token
+
+Maximo Operator Catalog Selection (Optional):
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v9-240625-amd64)
+  -C, --channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                       Maximo Application Suite Channel to mirror (e.g. 9.1.x)
+
+Content Selection (Core Platform):
+      --mirror-catalog                            Mirror the IBM Maximo Operator Catalog
+      --mirror-aiservice                          Mirror images for IBM Maximo Application Suite AI Service
+
+Content Selection (Dependencies):
+      --mirror-minio                   Mirror images for IBM Maximo Visual Inspection
+      --mirror-mariadb
+      --mirror-opendatahub
+      --mirror-kmodels
+
+Content Selection (All images included):
+      --mirror-everything                         Mirror all ai-service related images (including dependencies)
+
+Other Commands:
+      --no-confirm                                Mirror images without prompting for confirmation
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function mirror_aiservice_everything() {
+    # Core
+    MIRROR_CATALOG=true
+
+    # Apps
+    MIRROR_MAS_AISERVICE=true
+
+    # Dependencies (Other)
+    MIRROR_MINIO=true
+    MIRROR_MARIADB=true
+    MIRROR_KMODELS=true
+    MIRROR_OPENDATAHUB=true
+}
+
+function mirror_aiservice_to_registry_noninteractive() {
+  # Main content
+  MIRROR_MAS_AISERVICE=false
+
+  # Dependencies
+  MIRROR_CATALOG=false
+  MIRROR_MINIO=false
+  MIRROR_MARIADB=false
+  MIRROR_KMODELS=false
+  MIRROR_OPENDATAHUB=false
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # Mirror Mode
+      -m|--mode)
+        MIRROR_MODE=$1 && shift
+        ;;
+      -d|--dir)
+        MIRROR_WORKING_DIR=$1 && shift
+        ;;
+
+      # Registry Details
+      -H|--host)
+        REGISTRY_PUBLIC_HOST=$1 && shift
+        ;;
+      -P|--port)
+        REGISTRY_PUBLIC_PORT=$1 && shift
+        ;;
+      -x| --prefix)
+        REGISTRY_PREFIX=$1 && shift
+        ;;
+      -u|--username)
+        REGISTRY_USERNAME=$1 && shift
+        ;;
+      -p|--password)
+        REGISTRY_PASSWORD=$1 && shift
+        ;;
+
+      # AWS Elastic Container Registry
+      -e|--target-is-ecr)
+        REGISTRY_IS_ECR=true
+        ;;
+      -r|--aws-ecr-region)
+        REGISTRY_ECR_AWS_REGION=$1 && shift
+        ;;
+
+      # Source Registry Entitlements
+      --ibm-entitlement)
+        IBM_ENTITLEMENT_KEY=$1 && shift
+        ;;
+      --artifactory-username)
+        ARTIFACTORY_USERNAME=$1 && shift
+        ;;
+      --artifactory-apikey)
+        ARTIFACTORY_TOKEN=$1 && shift
+        ;;
+
+      # Maximo Operator Catalog Selection
+      -c|--catalog)
+        MAS_CATALOG_VERSION=$1 && shift
+        ;;
+      -C|--channel)
+        MAS_CHANNEL=$1 && shift
+        ;;
+
+      # Content Selection (Core Platform)
+      --mirror-catalog)
+        MIRROR_CATALOG=true
+        ;;
+
+      # Content Selection (Applications):
+      --mirror-aiservice)
+        MIRROR_MAS_AISERVICE=true
+        ;;
+
+      # Content Selection (Other Dependencies)
+      --mirror-minio)
+        MIRROR_MINIO=true
+        ;;
+      --mirror-mariadb)
+        MIRROR_MARIADB=true
+        ;;
+      --mirror-kmodels)
+        MIRROR_KMODELS=true
+        ;;
+      --mirror-opendatahub)
+        MIRROR_OPENDATAHUB=true
+        ;;
+ 
+      --no-confirm)
+        NO_CONFIRM=true
+        ;;
+      -h|--help)
+        mirror_aiservice_to_registry_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
+        mirror_aiservice_to_registry_help
+        exit 1
+        ;;
+      esac
+  done
+
+  # Check all args have been set
+  [[ -z "$MIRROR_MODE" ]] && mirror_aiservice_to_registry_help "MIRROR_MODE is not set"
+  [[ -z "$MIRROR_WORKING_DIR" ]] && mirror_aiservice_to_registry_help "MIRROR_WORKING_DIR is not set"
+
+  [[ -z "$MAS_CATALOG_VERSION" ]] && mirror_aiservice_to_registry_help "MAS_CATALOG_VERSION is not set"
+  [[ -z "$MAS_CHANNEL" ]] && mirror_aiservice_to_registry_help "MAS_CHANNEL is not set"
+  [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_aiservice_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
+
+  [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_aiservice_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
+
+  if [[ $MIRROR_MODE != "to-filesystem" ]]; then
+    [[ -z "$REGISTRY_USERNAME" ]] && mirror_aiservice_to_registry_help "REGISTRY_USERNAME is not set"
+    [[ -z "$REGISTRY_PASSWORD" ]] && mirror_aiservice_to_registry_help "REGISTRY_PASSWORD is not set"
+  fi
+
+  if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
+    mirror_aiservice_everything
+  fi
+}
+
+function mirror_aiservice_to_registry_interactive() {
+  load_config
+  echo
+  echo_h2 "Configure Catalog Version (see https://ibm-mas.github.io/cli/catalogs/ for details on catalogs)"
+  prompt_for_input "MAS Catalog Version" MAS_CATALOG_VERSION
+  prompt_for_input "MAS Channel" MAS_CHANNEL
+
+  # Provide a default prefix - For future consideration
+  # DEFAULT_REGISTRY_PREFIX=${MAS_CATALOG_VERSION#*-}  # removes the "v9-" prefix
+  # DEFAULT_REGISTRY_PREFIX="mas-${DEFAULT_REGISTRY_PREFIX%%-*}"  # removes the -arch suffix
+
+  echo
+  echo_h2 "Configure Mirror Mode"
+  prompt_for_input "Working Directory" MIRROR_WORKING_DIR
+
+  echo -e "${COLOR_YELLOW}Mirror Mode:"
+  echo "  1. Direct"
+  echo "  2. To filesystem"
+  echo "  3. From filesystem"
+  prompt_for_input "Select Mirror Mode" MIRROR_MODE_SELECTION "1"
+
+  case $MIRROR_MODE_SELECTION in
+    1|direct)
+      MIRROR_MODE=direct
+      ;;
+    2|t|to|to-filesystem)
+      MIRROR_MODE=to-filesystem
+      ;;
+    3|f|from|from-filesystem)
+      MIRROR_MODE=from-filesystem
+      ;;
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+
+  echo
+  echo_h2 "Configure Target Mirror"
+  prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
+  prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
+  prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX
+
+  if [[ $MIRROR_MODE != "to-filesystem" ]]; then
+    echo
+    echo_h2 "Configure Authentication"
+    prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
+    prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?"
+  fi
+
+  echo
+  echo_h2 "Configure Images to Mirror"
+
+  prompt_for_confirm "Mirror all ai-service images (with dependencies)" MIRROR_EVERYTHING
+
+  if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
+    mirror_aiservice_everything
+  else
+    prompt_for_confirm_default_yes "IBM Maximo Operator Catalog" MIRROR_CATALOG
+    prompt_for_confirm "IBM Maximo Application Suite - AI Service" MIRROR_MAS_AISERVICE
+
+    prompt_for_confirm "Minio" MIRROR_MINIO
+    prompt_for_confirm "MariaDB" MIRROR_MARIADB
+    prompt_for_confirm "KModels" MIRROR_KMODELS
+    prompt_for_confirm "OpenDataHub" MIRROR_OPENDATAHUB
+  fi
+
+  echo
+  echo_h2 "Configure Authentication"
+  prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
+
+}
+
+function mirror_aiservice_one_thing() {
+    MOT_RUNMIRROR=$1
+    MOT_NAME=$2
+    MOT_LOGFILE=$3
+    MOT_PLAYBOOK=$4
+    if [[ "$MOT_RUNMIRROR" == "true" ]]; then
+    echo -en "\033[s" # Save cursor position
+    echo -n "Mirroring ${MOT_NAME} ... ${MOT_LOGFILE}"
+    ansible-playbook ibm.mas_devops.${MOT_PLAYBOOK} &> ${MOT_LOGFILE}
+    mirror_result=$?
+    echo -en "\033[1K" # Clear current line
+    echo -en "\033[u" # Restore cursor position
+    if [[ $mirror_result == "0" ]];
+    then echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+    else
+      echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+      echo
+      cat "$MOT_LOGFILE"
+    fi
+  else
+    echo -e "${COLOR_MAGENTA}[SKIPPED] ${MOT_NAME}${TEXT_RESET}"
+  fi
+}
+
+function show_mirror_aiservice_status() {
+  if [[ "$2" == "true" ]]
+  then echo_reset_dim "$1 ${COLOR_GREEN}Mirror"
+  else echo_reset_dim "$1 ${COLOR_RED}Skip"
+  fi
+}
+
+function mirror_aiservice_to_registry() {
+  # Take the first parameter off (it will be mirror-images)
+  shift
+  if [[ $# -gt 0 ]]; then
+    mirror_aiservice_to_registry_noninteractive "$@"
+  else
+    mirror_aiservice_to_registry_interactive
+  fi
+
+  # Ensure all environment variables are available to ansible-playbook
+
+  # General Config
+  export MIRROR_MODE
+  export MIRROR_WORKING_DIR
+  export MAS_CATALOG_VERSION
+  export MAS_CHANNEL
+
+  export REGISTRY_PUBLIC_HOST
+  export REGISTRY_PUBLIC_PORT
+  export REGISTRY_PREFIX
+  export REGISTRY_USERNAME
+  export REGISTRY_PASSWORD
+
+  export REGISTRY_IS_ECR
+  export REGISTRY_ECR_AWS_REGION
+
+  # Dependency control
+  export MIRROR_CATALOG
+  export MIRROR_MINIO
+  export MIRROR_MARIADB
+  export MIRROR_EVERYTHING
+
+  # Authentication
+  export IBM_ENTITLEMENT_KEY
+  export ARTIFACTORY_USERNAME
+  export ARTIFACTORY_TOKEN
+
+  if [[ "$MIRROR_CATALOG" == true ||
+    "$MIRROR_MINIO" == true ||
+    "$MIRROR_KMODELS" == true ||
+    "$MIRROR_OPENDATAHUB" == true ||
+    "$MIRROR_MARIADB" == true ]]
+  then
+    MIRROR_DEPS=true
+  else
+    MIRROR_DEPS=false
+  fi
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  REGISTRY_URL=$REGISTRY_PUBLIC_HOST
+  if [[ "$REGISTRY_PUBLIC_PORT" != "" ]]; then
+    REGISTRY_URL+=":$REGISTRY_PUBLIC_PORT"
+  fi
+  if [[ "$REGISTRY_PREFIX" != "" ]]; then
+    REGISTRY_URL+="/$REGISTRY_PREFIX"
+  fi
+
+  echo
+  echo_h4 "Settings" "    "
+  echo_reset_dim "Mirror Mode ......................... ${COLOR_MAGENTA}${MIRROR_MODE}"
+  echo_reset_dim "Working Directory ................... ${COLOR_MAGENTA}${MIRROR_WORKING_DIR}"
+  echo_reset_dim "Target Registry ..................... ${COLOR_MAGENTA}${REGISTRY_URL}"
+
+  echo
+  reset_colors
+  echo_h4 "IBM Operator Catalog" "    "
+  echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
+  echo_reset_dim "MAS Update Channel .................. ${COLOR_MAGENTA}${MAS_CHANNEL}"
+
+  # Core
+  echo
+  reset_colors
+  echo_h4 "Content Selection (Core Platform)" "    "
+  show_mirror_aiservice_status "IBM Maximo Operator Catalog ........." $MIRROR_CATALOG
+  show_mirror_aiservice_status "IBM Maximo AI Service ..............." $MIRROR_MAS_AISERVICE
+
+  echo
+  reset_colors
+  echo_h4 "Content Selection (Dependencies)" "    "
+  show_mirror_aiservice_status "Minio ..............................." $MIRROR_MINIO
+  show_mirror_aiservice_status "MariaDb ............................." $MIRROR_MARIADB
+  show_mirror_aiservice_status "KModels ............................." $MIRROR_KMODLES
+  show_mirror_aiservice_status "OpenDataHub ........................." $MIRROR_OPENDATAHUB
+
+  echo
+  reset_colors
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
+
+  echo
+  echo_h2 "Run Mirror Process"
+  TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
+  LOG_PREFIX="$MIRROR_WORKING_DIR/logs/mirror-$TIMESTAMP"
+  if [ ! -d $MIRROR_WORKING_DIR/logs/ ]; then
+    mkdir -p $MIRROR_WORKING_DIR/logs/
+  fi
+
+  export ARTIFACTORY_USERNAME=""
+  export ARTIFACTORY_TOKEN=""
+
+  mirror_aiservice_one_thing $MIRROR_MAS_AISERVICE        "IBM Maximo AI Service"                 "$LOG_PREFIX-aiservice.log"        mirror_add_aiservice
+  mirror_aiservice_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
+}
