@@ -208,24 +208,21 @@ function gitops_deprovision_odh() {
   export SECRET_NAME_MARIADB_AUTH1=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb
   export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
 
-  # export OCP_LOGIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}SECRET
+  
+  export OCP_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}sremat-demo${SECRETS_KEY_SEPERATOR}ocp_login
+  export OAUTH_ADMIN_USERNAME=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_USERNAME")
+  export OAUTH_ADMIN_PWD=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_PWD")
+  export OCP_DISABLE_TLS_VERIFY=$(sm_get_secret_value "$OCP_SECRET_NAME" "OCP_DISABLE_TLS_VERIFY")
+  echo "secreat name is $OCP_DISABLE_TLS_VERIFY"
 
-  # echo " secreat prefix: $OCP_LOGIN"
-  # export OCP_LOGIN_TOKEN=$(sm_get_secret "$OCP_LOGIN" "oc_token")
-  # echo " secreat token: $OCP_LOGIN_TOKEN"
 
-  # export OCP_LOGIN_URL=$(sm_get_secret "$OCP_LOGIN" "oc_url")
-
-  # echo " secreat url : $OCP_LOGIN_URL"
-
-  #  OCP_DISABLE_TLS_VERIFY=true
   echo -e "login aws"
 
   AVP_TYPE=aws
   sm_login
 
-#  echo "${TEXT_DIM}"
-#   echo_h2 "Deleting odh related secrets"
+  #  echo "${TEXT_DIM}"
+  #   echo_h2 "Deleting odh related secrets"
 
   #deleting secreats from aws
   #  echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
@@ -245,14 +242,13 @@ function gitops_deprovision_odh() {
     export GIT_SSH="false"
   fi
 
-  #Clone github target repo
-  # ---------------------------------------------------------------------------
+ #Clone github target repo
+ # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
    echo
    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
-
 
 
   echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
@@ -266,23 +262,12 @@ function gitops_deprovision_odh() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
-   # sleep 900
+    sleep 900
   fi
 
 
-    # OCP_LOGIN_TOKEN="sha256~UxngsWxunfamaZNd_i-lx0uRJ702tH0gs-7z3EexHi0"
-    # OCP_LOGIN_URL="https://api.sremat-demo.cp.fyre.ibm.com:6443"
-    # OCP_DISABLE_TLS_VERIFY=true
-
-
-    export OAUTH_ADMIN_USERNAME=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_USERNAME")
-    export OAUTH_ADMIN_PWD=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_PWD")
-    export OCP_DISABLE_TLS_VERIFY=$(sm_get_secret_value "$OCP_SECRET_NAME" "OCP_DISABLE_TLS_VERIFY")
-
-
-    echo "PWD before login: $(pwd)"
-    # oc login --token=$OCP_LOGIN_TOKEN --server=$OCP_LOGIN_URL --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
-    oc login $CLUSTER_URL -u $OAUTH_ADMIN_USERNAME -p $OAUTH_ADMIN_PWD --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
+  echo "PWD before login: $(pwd)"
+  oc login $CLUSTER_URL -u $OAUTH_ADMIN_USERNAME -p $OAUTH_ADMIN_PWD --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
 
 
   namespace="openshift-operators"
@@ -305,20 +290,18 @@ function gitops_deprovision_odh() {
   # If any subscription is present, wait 5 minutes
   if [ "$subscriptions_exist" = true ]; then
     echo "subscription is present. Waiting 5 minutes before proceeding..."
-    #sleep 300  # 5 minutes
+    sleep 300  # 5 minutes
   fi
 
 
-  # if [ "$subscriptions_exist" = false ]; then
-  #   echo "All subscriptions deleted. Proceeding to delete CSVs..."
-  #   oc delete $(oc get csv -n "$namespace" -o name | grep -E 'authorino-operator|openshift-pipelines-operator|servicemeshoperator') \
-  #     -n "$namespace" --wait=true --timeout=5m 2>/dev/null
-  #   echo "CSV cleanup completed."
-  # else
-  #   echo "Subscriptions still present after waiting. Skipping CSV deletion."
-  # fi
-
-    
+  if [ "$subscriptions_exist" = false ]; then
+    echo "All subscriptions deleted. Proceeding to delete CSVs..."
+    oc delete $(oc get csv -n "$namespace" -o name | grep -E 'authorino-operator|openshift-pipelines-operator|servicemeshoperator') \
+      -n "$namespace" --wait=true --timeout=5m 2>/dev/null
+    echo "CSV cleanup completed."
+  else
+    echo "Subscriptions still present after waiting. Skipping CSV deletion."
+  fi
 
     
   }
