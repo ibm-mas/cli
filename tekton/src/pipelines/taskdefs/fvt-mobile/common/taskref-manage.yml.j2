@@ -9,6 +9,9 @@ when:
   - input: "$(params.mas_app_channel_manage)"
     operator: notin
     values: [""]
+  - input: "civil"
+    operator: in
+    values: ["$(tasks.fvt-component.results.component_names[*])"]
 workspaces:
   - name: configs
     workspace: shared-configs
