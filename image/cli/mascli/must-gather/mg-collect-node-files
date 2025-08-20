@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/../functions/internal/utils
+
+
+while [[ $# -gt 0 ]]
+do
+  key="$1"
+  shift
+  case $key in
+
+  -f)
+    # Convert the resource type to lowercase
+    FILE_PATH=$1; shift
+    ;;
+  -d)
+    OUTPUT_DIR=$1; shift
+    ;;
+  esac
+done
+
+NODES=$(oc get nodes -o jsonpath={.items[*].metadata.name} )
+
+
+for NODE in $NODES; do
+    
+    NODE_DIR=$(echo "${OUTPUT_DIR}/_cluster/$NODE/" | tr . -)
+    mkdir -p $NODE_DIR
+    FILE_NAME=$(echo "$FILE_PATH"  | rev | cut -d "/" -f 1 | rev)
+
+    oc debug node/$NODE -- cat $FILE_PATH > $NODE_DIR/$FILE_NAME
+done
