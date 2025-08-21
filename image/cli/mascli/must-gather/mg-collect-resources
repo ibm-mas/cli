@@ -8,6 +8,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 NAMESPACE_FLAG=""
 NAMESPACE=""
 NO_DETAIL=false
+DESCRIBE=false
 ALL_NAMESPACES=""
 
 while [[ $# -gt 0 ]]
@@ -29,6 +30,9 @@ do
     ;;
   --no-detail)
     NO_DETAIL=true
+    ;;
+  --describe)
+    DESCRIBE=true
     ;;
   -a)
     ALL_NAMESPACES="--all-namespaces"
@@ -68,6 +72,9 @@ if [[ "$NO_DETAIL" == "false" ]]; then
       RESOURCE_NAME=$(echo ${RESOURCE} | cut -d '/' -f 2)
 
       oc ${NAMESPACE_FLAG} get ${RESOURCE} -o yaml > ${RESOURCE_DIR}/${RESOURCE_NAME//:/_}.yaml 2> /dev/null || { echo_warning "    - Error fetching resource: ${RESOURCE}"; exit 0; }
+      if [[ "$DESCRIBE" == "true" ]]; then
+        oc ${NAMESPACE_FLAG} describe ${RESOURCE} > ${RESOURCE_DIR}/${RESOURCE_NAME//:/_}.txt 2> /dev/null || { echo_warning "    - Error fetching resource: ${RESOURCE}"; exit 0; }
+      fi
     done
   else
     oc get ${RESOURCE_TYPE} ${ALL_NAMESPACES} -o yaml > ${RESOURCE_DIR}/all-namespaces.yaml 2> /dev/null || { echo_warning "    - Error fetching resource: ${RESOURCE_TYPE}"; exit 0; }
