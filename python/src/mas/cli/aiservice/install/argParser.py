@@ -392,6 +392,12 @@ aibrokerArgGroup.add_argument(
     help="token for rsl"
 )
 aibrokerArgGroup.add_argument(
+    "--rsl-ca-crt",
+    dest="rsl_ca_crt",
+    required=False,
+    help="CA certificate for RSL API (PEM format, optional, only if using self-signed certs)"
+)
+aibrokerArgGroup.add_argument(
     "--environment-type",
     dest="environment_type",
     required=False,
