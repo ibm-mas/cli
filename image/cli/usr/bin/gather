@@ -2,6 +2,26 @@
 
 # https://github.com/openshift/enhancements/blob/89bbe226db20573f8f489eacb558a9f011072737/enhancements/oc/must-gather.md#must-gather-images
 
+# Check if the user is logged into an OpenShift cluster
+function check_cluster_connection() {
+  echo "Checking connection to OpenShift cluster..."
+  if ! oc whoami &>/dev/null; then
+    echo -e "\033[1;31mERROR: Not logged into an OpenShift cluster.\033[0m"
+    echo -e "\033[1;31mThe must-gather command requires an active connection to an OpenShift cluster.\033[0m"
+    echo -e "\033[1;33mPlease login using one of the following methods:\033[0m"
+    echo "  1. oc login --token=<token> --server=<server>"
+    echo "  2. oc login -u <username> -p <password> --server=<server>"
+    echo "  3. Use KUBECONFIG environment variable pointing to a valid config file"
+    echo ""
+    echo "For more information, see the documentation at: https://docs.openshift.com/container-platform/latest/cli_reference/openshift_cli/getting-started-cli.html"
+    exit 1
+  fi
+  echo "Successfully connected to OpenShift cluster."
+}
+
+# Check if the user is logged into an OpenShift cluster before running the must-gather
+check_cluster_connection
+
 # Creating a directory named /must-gather will change the default output directory from /tmp/must-gather to /must-gather, which is
 # the directory that the oc must-gather command expects to collect the must-gather files from
 mkdir -p /must-gather

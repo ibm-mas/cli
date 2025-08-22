@@ -38,5 +38,25 @@
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mobile-api-requests
+    - name: enable_perf_debug
+      value: "True"  
+  runAfter:
+    - mobile-setup-pytest
+
+- name: mobile-pytest-asset-image
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-asset-image
+  runAfter:
+    - mobile-setup-pytest
+
+- name: mobile-pytest-download
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-pytest.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: mobile-api-download
   runAfter:
     - mobile-setup-pytest

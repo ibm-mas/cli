@@ -12,6 +12,26 @@ An appropriate time to use this tear-down function is when the registry has too 
 
 **Note:** Recreating the registry will create a new ca cert for the new registry.
 
+`mas setup-registry [options]`
+
+### Registry Cluster Configuration (optional)
+- `-n|--namespace` Registry namespace (default is airgap-registry)
+
+### Other Commands:
+- `-h|--help` Show help message
+
+Examples
+-------------------------------------------------------------------------------
+
+### Interactive Mode
 ```bash
 docker run -ti --rm --pull always quay.io/ibmmas/cli mas teardown-registry
 ```
+
+### Non-Interactive Mode
+```bash
+docker run -ti --rm --pull always quay.io/ibmmas/cli mas teardown-registry \
+  -n airgap \
+  --no-confirm
+```
+

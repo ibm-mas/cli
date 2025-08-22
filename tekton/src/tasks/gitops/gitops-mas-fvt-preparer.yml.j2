@@ -94,6 +94,9 @@ spec:
     - name: mas_channel
       type: string
       default: ""
+    - name: mas_appws_components
+      type: string
+      default: ""
 
     - name: launchfvt_core
       type: string
@@ -226,6 +229,8 @@ spec:
         value: $(params.fvt_ansible_version)
       - name: MAS_WORKSPACE_ID
         value: $(params.mas_workspace_id)
+      - name: MANAGE_COMPONENTS
+        value: $(params.mas_appws_components)
       - name: MAS_CHANNEL
         value: $(params.mas_channel)
       - name: FVT_VERSION_CORE

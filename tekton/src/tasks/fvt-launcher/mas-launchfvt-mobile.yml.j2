@@ -89,7 +89,6 @@ spec:
               name: mas-fvt-mobile
               key: MAS_WORKSPACE_ID
               optional: false
-
         # Digests
         - name: FVT_DIGEST_MOBILE_PYTEST
           valueFrom:
@@ -194,6 +193,13 @@ spec:
             secretKeyRef:
               name: mas-fvt-mobile
               key: MAS_WORKSPACE_ID
+              optional: false
+        
+        - name: MANAGE_COMPONENTS
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-mobile
+              key: MANAGE_COMPONENTS
               optional: false
 
         # Digests
