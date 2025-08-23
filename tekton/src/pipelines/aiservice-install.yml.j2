@@ -67,45 +67,49 @@ spec:
         - ibm-catalogs
 
 
-    # 3 Install and Configure AI Broker
+    # 3. Install Minio
     # -------------------------------------------------------------------------
-    # 3.1 Install minio storage class
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/minio.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
 
-    # 3.2 Install db2
+
+    # 4. Install Db2
+    # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aiservice'}) | indent(4) }}
       runAfter:
         - cert-manager
 
-    # 3.3 Install Opendatahub
+
+    # 5. Opendatahub
+    # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/odh.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - minio
 
-    # 3.4 Install Kmodels
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/kmodels.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
-      runAfter:
-        - aiservice-odh
 
-    # 3.5 Install and Configure AI Service
+    # 6. Install AI Service
+    # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - sls
         - uds
         - db2-aiservice
-        - aiservice-kmodels
 
-    # 3.6 AI Service tenant creation
+
+    # 7. Create AI Service Tenant
+    # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice-tenant.yml.j2') | indent(4) }}
       runAfter:
         - aiservice
 
-    # 3.7 AI Service Post Verification
+
+    # 8. AI Service Post Verification
+    # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice-post-verify.yml.j2') | indent(4) }}
       runAfter:
         - aiservice-tenant
+
 
   finally:
     # Update synchronization configmap
