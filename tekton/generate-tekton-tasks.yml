@@ -52,6 +52,7 @@
       with_items:
         - minio
         - aiservice
+        - kmodels
         - odh
         - aiservice-tenant
         - aiservice-post-verify
