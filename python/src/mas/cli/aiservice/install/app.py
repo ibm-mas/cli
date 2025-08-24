@@ -204,14 +204,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             elif key == "install_minio_aiservice":
                 incompatibleWithMinioInstall = [
-                    "aiservice_storage_provider",
-                    "aiservice_storage_accesskey",
-                    "aiservice_storage_secretkey",
-                    "aiservice_storage_host",
-                    "aiservice_storage_port",
-                    "aiservice_storage_ssl",
+                    "aiservice_s3_provider",
+                    "aiservice_s3_accesskey",
+                    "aiservice_s3_secretkey",
+                    "aiservice_s3_host",
+                    "aiservice_s3_port",
+                    "aiservice_s3_ssl",
                     "aiservice_s3_endpoint_url",
-                    "aiservice_storage_region",
+                    "aiservice_s3_region",
                     "aiservice_tenant_s3_access_key",
                     "aiservice_tenant_s3_secret_key",
                     "aiservice_tenant_s3_endpoint_url",
@@ -230,18 +230,18 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                         if vars(self.args)[rKey] is None:
                             self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
 
-                    self.setParam("aiservice_storage_provider", "minio")
+                    self.setParam("aiservice_s3_provider", "minio")
 
-                    self.setParam("aiservice_storage_accesskey", self.args.minio_root_user)
-                    self.setParam("aiservice_storage_secretkey", self.args.minio_root_password)
+                    self.setParam("aiservice_s3_accesskey", self.args.minio_root_user)
+                    self.setParam("aiservice_s3_secretkey", self.args.minio_root_password)
 
                     # TODO: Duplication -- we already have the URL, why do we need all the individual parts,
                     # especially when we don't need them for the tenant?
-                    self.setParam("aiservice_storage_host", "minio-service.minio.svc.cluster.local")
-                    self.setParam("aiservice_storage_port", "9000")
-                    self.setParam("aiservice_storage_ssl", "false")
+                    self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
+                    self.setParam("aiservice_s3_port", "9000")
+                    self.setParam("aiservice_s3_ssl", "false")
                     self.setParam("aiservice_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
-                    self.setParam("aiservice_storage_region", "none")
+                    self.setParam("aiservice_s3_region", "none")
 
                     self.setParam("aiservice_tenant_s3_access_key", self.args.minio_root_user)
                     self.setParam("aiservice_tenant_s3_secret_key", self.args.minio_root_password)
@@ -546,16 +546,16 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
             s3Completer = WordCompleter(["aws", "minio"])
             s3Provider = self.promptForString("Storage provider", completer=s3Completer)
-            self.setParam("aiservice_storage_provider", s3Provider)
-            self.promptForString("Storage access key", "aiservice_storage_accesskey")
-            self.promptForString("Storage secret key", "aiservice_storage_secretkey", isPassword=True)
-            self.promptForString("Storage host", "aiservice_storage_host")
-            self.promptForString("Storage port", "aiservice_storage_port")
-            self.promptForString("Storage ssl", "aiservice_storage_ssl")
-            self.promptForString("Storage region", "aiservice_storage_region")
-            self.promptForString("Storage pipelines bucket", "aiservice_storage_pipelines_bucket")
-            self.promptForString("Storage tenants bucket", "aiservice_storage_tenants_bucket")
-            self.promptForString("Storage templates bucket", "aiservice_storage_templates_bucket")
+            self.setParam("aiservice_s3_provider", s3Provider)
+            self.promptForString("Storage access key", "aiservice_s3_accesskey")
+            self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
+            self.promptForString("Storage host", "aiservice_s3_host")
+            self.promptForString("Storage port", "aiservice_s3_port")
+            self.promptForString("Storage ssl", "aiservice_s3_ssl")
+            self.promptForString("Storage region", "aiservice_s3_region")
+            self.promptForString("Storage pipelines bucket", "aiservice_s3_pipelines_bucket")
+            self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
+            self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
         # S3 parameters are now auto-derived from storage configuration
         self._deriveS3ParametersFromStorage()
@@ -568,16 +568,16 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     def _deriveS3ParametersFromStorage(self) -> None:
         """
-        Auto-derive S3 and tenant S3 parameters from the aiservice_storage_* parameters.
+        Auto-derive S3 and tenant S3 parameters from the aiservice_s3_* parameters.
         This reuses the values provided for kmodel object storage to avoid redundant prompts.
         """
-        storage_provider = self.getParam("aiservice_storage_provider")
-        storage_host = self.getParam("aiservice_storage_host")
-        storage_port = self.getParam("aiservice_storage_port")
-        storage_ssl = self.getParam("aiservice_storage_ssl")
-        storage_region = self.getParam("aiservice_storage_region")
-        storage_accesskey = self.getParam("aiservice_storage_accesskey")
-        storage_secretkey = self.getParam("aiservice_storage_secretkey")
+        storage_provider = self.getParam("aiservice_s3_provider")
+        storage_host = self.getParam("aiservice_s3_host")
+        storage_port = self.getParam("aiservice_s3_port")
+        storage_ssl = self.getParam("aiservice_s3_ssl")
+        storage_region = self.getParam("aiservice_s3_region")
+        storage_accesskey = self.getParam("aiservice_s3_accesskey")
+        storage_secretkey = self.getParam("aiservice_s3_secretkey")
 
         # Build endpoint URL from storage configuration
         protocol = "https" if storage_ssl == "true" else "http"
@@ -613,18 +613,18 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         Set MinIO storage defaults when MinIO is being installed in-cluster.
         This mirrors the logic from non-interactive mode.
         """
-        self.setParam("aiservice_storage_provider", "minio")
-        self.setParam("aiservice_storage_accesskey", self.getParam("minio_root_user"))
-        self.setParam("aiservice_storage_secretkey", self.getParam("minio_root_password"))
-        self.setParam("aiservice_storage_host", "minio-service.minio.svc.cluster.local")
-        self.setParam("aiservice_storage_port", "9000")
-        self.setParam("aiservice_storage_ssl", "false")
-        self.setParam("aiservice_storage_region", "none")
+        self.setParam("aiservice_s3_provider", "minio")
+        self.setParam("aiservice_s3_accesskey", self.getParam("minio_root_user"))
+        self.setParam("aiservice_s3_secretkey", self.getParam("minio_root_password"))
+        self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
+        self.setParam("aiservice_s3_port", "9000")
+        self.setParam("aiservice_s3_ssl", "false")
+        self.setParam("aiservice_s3_region", "none")
 
         # Set default bucket names
-        self.setParam("aiservice_storage_pipelines_bucket", "km-pipelines")
-        self.setParam("aiservice_storage_tenants_bucket", "km-tenants")
-        self.setParam("aiservice_storage_templates_bucket", "km-templates")
+        self.setParam("aiservice_s3_pipelines_bucket", "km-pipelines")
+        self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
+        self.setParam("aiservice_s3_templates_bucket", "km-templates")
 
     def aiServiceIntegrations(self) -> None:
         self.printH1("WatsonX Integration")

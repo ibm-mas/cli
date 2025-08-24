@@ -205,7 +205,7 @@ s3ArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 s3ArgGroup.add_argument(
     "--s3-provider",
-    dest="aiservice_storage_provider",
+    dest="aiservice_s3_provider",
     required=False,
     help="S3 storage provider type (e.g., minio, aws)"
 )
@@ -214,21 +214,21 @@ s3ArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 s3ArgGroup.add_argument(
     "--s3-pipelines-bucket",
-    dest="aiservice_storage_pipelines_bucket",
+    dest="aiservice_s3_pipelines_bucket",
     required=False,
     default="km-pipelines",
     help="Name of the S3 bucket for pipelines storage"
 )
 s3ArgGroup.add_argument(
     "--s3-tenants-bucket",
-    dest="aiservice_storage_tenants_bucket",
+    dest="aiservice_s3_tenants_bucket",
     required=False,
     default="km-tenants",
     help="Name of the S3 bucket for tenants storage"
 )
 s3ArgGroup.add_argument(
     "--s3-templates-bucket",
-    dest="aiservice_storage_templates_bucket",
+    dest="aiservice_s3_templates_bucket",
     required=False,
     default="km-templates",
     help="Name of the S3 bucket for templates storage"
@@ -255,37 +255,37 @@ s3ArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 s3ArgGroup.add_argument(
     "--s3-host",
-    dest="aiservice_storage_host",
+    dest="aiservice_s3_host",
     required=False,
     help="Hostname or IP address of the S3 storage service"
 )
 s3ArgGroup.add_argument(
     "--s3-port",
-    dest="aiservice_storage_port",
+    dest="aiservice_s3_port",
     required=False,
     help="Port number for the S3 storage service"
 )
 s3ArgGroup.add_argument(
     "--s3-ssl",
-    dest="aiservice_storage_ssl",
+    dest="aiservice_s3_ssl",
     required=False,
     help="Enable or disable SSL for S3 connection (true/false)"
 )
 s3ArgGroup.add_argument(
     "--s3-accesskey",
-    dest="aiservice_storage_accesskey",
+    dest="aiservice_s3_accesskey",
     required=False,
     help="Access key for authenticating with the S3 storage service"
 )
 s3ArgGroup.add_argument(
     "--s3-secretkey",
-    dest="aiservice_storage_secretkey",
+    dest="aiservice_s3_secretkey",
     required=False,
     help="Secret key for authenticating with the S3 storage service"
 )
 s3ArgGroup.add_argument(
     "--s3-region",
-    dest="aiservice_storage_region",
+    dest="aiservice_s3_region",
     required=False,
     help="Region for the S3 storage service"
 )

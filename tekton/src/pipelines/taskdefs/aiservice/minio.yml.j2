@@ -16,12 +16,12 @@
       value: "$(params.aiservice_channel)"
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
-    - name: aiservice_storage_provider
-      value: $(params.aiservice_storage_provider)
-    - name: aiservice_storage_accesskey
-      value: $(params.aiservice_storage_accesskey)
-    - name: aiservice_storage_secretkey
-      value: $(params.aiservice_storage_secretkey)
+    - name: aiservice_s3_provider
+      value: $(params.aiservice_s3_provider)
+    - name: aiservice_s3_accesskey
+      value: $(params.aiservice_s3_accesskey)
+    - name: aiservice_s3_secretkey
+      value: $(params.aiservice_s3_secretkey)
     - name: minio_root_user
       value: $(params.minio_root_user)
     - name: minio_root_password
@@ -31,6 +31,6 @@
     name: mas-devops-minio
     kind: Task
   when:
-    - input: "$(params.aiservice_storage_provider)"
+    - input: "$(params.aiservice_s3_provider)"
       operator: in
       values: ["minio"]
