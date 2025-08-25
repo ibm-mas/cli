@@ -168,17 +168,26 @@ masAppsArgGroup = aiServiceinstallArgParser.add_argument_group("MAS Applications
 masAppsArgGroup.add_argument(
     "--aiservice-channel",
     required=False,
-    help="Subscription channel for Maximo Ai Broker"
+    help="Subscription channel for Maximo AI Service"
 )
 
-# AI Broker
+# AI Service
 # -----------------------------------------------------------------------------
-aibrokerArgGroup = aiServiceinstallArgParser.add_argument_group("Maximo AI Broker")
+aiServiceArgGroup = aiServiceinstallArgParser.add_argument_group("Maximo AI Service")
 
+# S3 - General
+# -----------------------------------------------------------------------------
+s3ArgGroup = aiServiceinstallArgParser.add_argument_group("S3 Storage")
+
+# s3ArgGroup.add_argument(
+#     "--s3-provider",
+#     dest="aiservice_s3_provider",
+#     required=False,
+#     help="S3 storage provider type (e.g., minio, aws)"
+# )
 
 # S3 - Minio
 # -----------------------------------------------------------------------------
-s3ArgGroup = aiServiceinstallArgParser.add_argument_group("S3 Storage")
 s3ArgGroup.add_argument(
     "--install-minio",
     dest="install_minio_aiservice",
@@ -199,56 +208,6 @@ s3ArgGroup.add_argument(
     dest="minio_root_password",
     required=False,
     help="Password for minio root user"
-)
-
-# S3 - General
-# -----------------------------------------------------------------------------
-s3ArgGroup.add_argument(
-    "--s3-provider",
-    dest="aiservice_s3_provider",
-    required=False,
-    help="S3 storage provider type (e.g., minio, aws)"
-)
-
-# S3 - Bucket Naming
-# -----------------------------------------------------------------------------
-s3ArgGroup.add_argument(
-    "--s3-pipelines-bucket",
-    dest="aiservice_s3_pipelines_bucket",
-    required=False,
-    default="km-pipelines",
-    help="Name of the S3 bucket for pipelines storage"
-)
-s3ArgGroup.add_argument(
-    "--s3-tenants-bucket",
-    dest="aiservice_s3_tenants_bucket",
-    required=False,
-    default="km-tenants",
-    help="Name of the S3 bucket for tenants storage"
-)
-s3ArgGroup.add_argument(
-    "--s3-templates-bucket",
-    dest="aiservice_s3_templates_bucket",
-    required=False,
-    default="km-templates",
-    help="Name of the S3 bucket for templates storage"
-)
-
-# S3 - Bucket Prefixes
-# -----------------------------------------------------------------------------
-s3ArgGroup.add_argument(
-    "--s3-bucket-prefix",
-    dest="aiservice_s3_bucket_prefix",
-    required=False,
-    default="s3",
-    help="s3 bucket prefix"
-)
-s3ArgGroup.add_argument(
-    "--s3-bucket-prefix-tenant",
-    dest="aiservice_tenant_s3_bucket_prefix",
-    required=False,
-    default="s3",
-    help="s3 bucket prefix ( tenant level )"
 )
 
 # S3 - External Connection
@@ -290,37 +249,34 @@ s3ArgGroup.add_argument(
     help="Region for the S3 storage service"
 )
 s3ArgGroup.add_argument(
-    "--s3-endpoint-url",
-    dest="aiservice_s3_endpoint_url",
+    "--s3-bucket-prefix",
+    dest="aiservice_s3_bucket_prefix",
     required=False,
-    help="endpoint url for s3"
+    help="Bucket prefix configured with S3 storage service"
 )
 
-# S3 - External Access Credentials (Tenant)
+# S3 - Bucket Naming
 # -----------------------------------------------------------------------------
 s3ArgGroup.add_argument(
-    "--s3-tenant-access-key",
-    dest="aiservice_tenant_s3_access_key",
+    "--s3-pipelines-bucket",
+    dest="aiservice_s3_pipelines_bucket",
     required=False,
-    help="access key for s3 ( tenant level )"
+    default="km-pipelines",
+    help="Name of the S3 bucket for pipelines storage"
 )
 s3ArgGroup.add_argument(
-    "--s3-tenant-secret-key",
-    dest="aiservice_tenant_s3_secret_key",
+    "--s3-tenants-bucket",
+    dest="aiservice_s3_tenants_bucket",
     required=False,
-    help="secret key for s3 ( tenant level )"
+    default="km-tenants",
+    help="Name of the S3 bucket for tenants storage"
 )
 s3ArgGroup.add_argument(
-    "--s3-tenant-region",
-    dest="aiservice_tenant_s3_region",
+    "--s3-templates-bucket",
+    dest="aiservice_s3_templates_bucket",
     required=False,
-    help="s3 region ( tenant level )"
-)
-s3ArgGroup.add_argument(
-    "--s3-tenant-endpoint-url",
-    dest="aiservice_tenant_s3_endpoint_url",
-    required=False,
-    help="endpoint url for s3 ( tenant level )"
+    default="km-templates",
+    help="Name of the S3 bucket for templates storage"
 )
 
 # Watsonx
@@ -355,49 +311,49 @@ watsonxArgGroup.add_argument(
 
 # AI Service
 # -----------------------------------------------------------------------------
-aibrokerArgGroup.add_argument(
+aiServiceArgGroup.add_argument(
     "--tenant-entitlement-type",
     dest="tenant_entitlement_type",
     required=False,
     help="Type of aibroker tenant"
 )
-aibrokerArgGroup.add_argument(
+aiServiceArgGroup.add_argument(
     "--tenant-entitlement-start-date",
     dest="tenant_entitlement_start_date",
     required=False,
     help="Start date for Aibroker tenant"
 )
-aibrokerArgGroup.add_argument(
+aiServiceArgGroup.add_argument(
     "--tenant-entitlement-end-date",
     dest="tenant_entitlement_end_date",
     required=False,
     help="End date for Aibroker tenant"
 )
-aibrokerArgGroup.add_argument(
+aiServiceArgGroup.add_argument(
     "--rsl-url",
     dest="rsl_url",
     required=False,
     help="rsl url"
 )
-aibrokerArgGroup.add_argument(
+aiServiceArgGroup.add_argument(
     "--rsl-org-id",
     dest="rsl_org_id",
     required=False,
     help="org id for rsl"
 )
-aibrokerArgGroup.add_argument(
+aiServiceArgGroup.add_argument(
     "--rsl-token",
     dest="rsl_token",
     required=False,
     help="token for rsl"
 )
-aibrokerArgGroup.add_argument(
+aiServiceArgGroup.add_argument(
     "--rsl-ca-crt",
     dest="rsl_ca_crt",
     required=False,
     help="CA certificate for RSL API (PEM format, optional, only if using self-signed certs)"
 )
-aibrokerArgGroup.add_argument(
+aiServiceArgGroup.add_argument(
     "--environment-type",
     dest="environment_type",
     required=False,

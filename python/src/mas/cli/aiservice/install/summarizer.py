@@ -48,8 +48,8 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("Environment type", "environment_type")
 
         self.printH2("S3 Configuration")
-        self.printParamSummary("Storage provider", "aiservice_s3_provider")
-        if self.getParam("aiservice_s3_provider") == "minio":
+        # self.printParamSummary("Storage provider", "aiservice_s3_provider")
+        if self.getParam("minio_root_user") is not None and self.getParam("minio_root_user") != "":
             self.printParamSummary("minio root username", "minio_root_user")
         print()
         self.printParamSummary("Storage access key", "aiservice_s3_accesskey")
@@ -57,15 +57,11 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("Storage port", "aiservice_s3_port")
         self.printParamSummary("Storage ssl", "aiservice_s3_ssl")
         self.printParamSummary("Storage region", "aiservice_s3_region")
+        self.printParamSummary("S3 bucket prefix", "aiservice_s3_bucket_prefix")
         self.printParamSummary("Storage pipelines bucket", "aiservice_s3_pipelines_bucket")
         self.printParamSummary("Storage tenants bucket", "aiservice_s3_tenants_bucket")
         self.printParamSummary("Storage templates bucket", "aiservice_s3_templates_bucket")
         print()
-        self.printParamSummary("S3 bucket prefix", "aiservice_s3_bucket_prefix")
-        self.printParamSummary("S3 endpoint url", "aiservice_s3_endpoint_url")
-        self.printParamSummary("S3 bucket prefix (tenant level)", "aiservice_tenant_s3_bucket_prefix")
-        self.printParamSummary("S3 region (tenant level)", "aiservice_tenant_s3_region")
-        self.printParamSummary("S3 endpoint url (tenant level)", "aiservice_tenant_s3_endpoint_url")
 
         self.printH2("IBM WatsonX")
         self.printParamSummary("Watsonxai machine learning url", "aiservice_watsonxai_url")
