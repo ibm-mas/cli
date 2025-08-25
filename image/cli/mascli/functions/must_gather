@@ -208,6 +208,15 @@ function mustgather() {
   echo "Must gather generated with mas cli version: $VERSION"
   echo "Must gather will be saved to: $OUTPUT_FILE"
 
+  if [ "$(oc whoami 2>/dev/null)" == "" ] ; then 
+    echo_warning "You must be logged in to the server as a cluster administrator before running the must-gather command"
+    exit 1
+  elif [ "$(oc get clusterrolebindings 2>&1 | grep forbidden)" != "" ] ; then 
+    echo_warning "Your user does not appear to be a cluster administrator, you must be logged in to the server as a cluster administrator before running the must-gather command"
+    exit 1
+  fi
+
+
   # ---------------------------------------------------------------------------
   # Generate OCP Report
   # ---------------------------------------------------------------------------
