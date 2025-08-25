@@ -1,7 +1,7 @@
-merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AIBROKER_INSTANCE_ID }}"
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AISERVICE_INSTANCE_ID }}"
 
 ibm_aibroker:
-  aibroker_instance_id: "{{ AIBROKER_INSTANCE_ID }}"
+  aiservice_instance_id: "{{ AISERVICE_INSTANCE_ID }}"
   aibroker_namespace: "{{ AIBROKER_NAMESPACE }}"
   mas_aibroker_watsonx_secret: "{{ MAS_AIBROKER_WATSONX_SECRET }}"
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"

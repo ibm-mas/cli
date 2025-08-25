@@ -27,7 +27,7 @@ spec:
       type: string
     - name: mas_aibroker_provision_tenant
       type: string
-    - name: aibroker_instance_id
+    - name: aiservice_instance_id
       type: string
     - name: tenantNamespace
       type: string
@@ -102,8 +102,8 @@ spec:
         value: $(params.aibroker_namespace)
       - name: MAS_AIBROKER_PROVISION_TENANT
         value: $(params.mas_aibroker_provision_tenant)
-      - name: AIBROKER_INSTANCE_ID
-        value: $(params.aibroker_instance_id)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
       - name: TENANT_NAMESPACE
         value: $(params.tenantNamespace)
       - name: TENANT_ID

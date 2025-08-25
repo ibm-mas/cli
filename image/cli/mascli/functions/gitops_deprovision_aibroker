@@ -20,7 +20,7 @@ Secrets Manager:
 
 
 ibm_aibroker(required):
-  -i, --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
+  -i, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
 
 
 Automatic GitHub Push (Optional):
@@ -61,8 +61,8 @@ function gitops_deprovision_aibroker_noninteractive() {
       -c|--cluster-id)
         export CLUSTER_ID=$1 && shift
         ;;
-      --aibroker-instance-id)
-        export AIBROKER_INSTANCE_ID=$1 && shift
+      --aiservice-instance-id)
+        export AISERVICE_INSTANCE_ID=$1 && shift
         ;;
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
@@ -126,7 +126,7 @@ function gitops_deprovision_aibroker_noninteractive() {
 
   # add validation below like above  for those variable which have the value needed for further execution
   # -- AIBroker
-  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_deprovision_aibroker_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_aibroker_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
 
  }
 
@@ -147,7 +147,7 @@ function gitops_deprovision_aibroker() {
 
   # rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AISERVICE_INSTANCE_ID}
 
 
   echo
@@ -189,7 +189,7 @@ function gitops_deprovision_aibroker() {
   # echo all the variables of gitops envs
 
   # -- AIBroker
-  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
+  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   
  echo -e "login aws"
 

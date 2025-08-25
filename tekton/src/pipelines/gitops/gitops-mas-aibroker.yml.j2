@@ -10,7 +10,7 @@ spec:
       type: string
     - name: account
       type: string
-    - name: aibroker_instance_id
+    - name: aiservice_instance_id
       type: string
     - name: cluster_url
       type: string
@@ -140,8 +140,8 @@ spec:
           value: $(params.cluster_name)
         - name: account
           value: $(params.account)
-        - name: aibroker_instance_id
-          value: $(params.aibroker_instance_id)
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
         - name: cluster_url
           value: $(params.cluster_url)
         - name: git_branch
@@ -202,8 +202,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: aibroker_instance_id
-          value: $(params.aibroker_instance_id)
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
         - name: aibroker_namespace
           value: $(params.aibroker_namespace)
         - name: mas_aibroker_watsonx_secret
@@ -289,8 +289,8 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: aibroker_instance_id
-          value: $(params.aibroker_instance_id)
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
         - name: aibroker_internal_tls
           value: $(params.aibroker_internal_tls)
         - name: aibroker_namespace

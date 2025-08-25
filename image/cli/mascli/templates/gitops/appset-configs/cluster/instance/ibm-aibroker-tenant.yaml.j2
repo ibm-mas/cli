@@ -1,11 +1,11 @@
-merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AIBROKER_INSTANCE_ID }}/{{ TENANT_ID }}"
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AISERVICE_INSTANCE_ID }}/{{ TENANT_ID }}"
 
 ibm_aibroker_tenant:
   # aibroker
   tenant_id: "{{ TENANT_ID }}"
   aibroker_namespace: "{{ AIBROKER_NAMESPACE }}"
   mas_aibroker_provision_tenant: "{{ MAS_AIBROKER_PROVISION_TENANT }}"
-  aibroker_instance_id: "{{ AIBROKER_INSTANCE_ID }}"
+  aiservice_instance_id: "{{ AISERVICE_INSTANCE_ID }}"
   tenantNamespace: "{{ TENANT_NAMESPACE }}"
   cluster_domain: "{{ CLUSTER_DOMAIN }}"
   in_saas_env: "{{ IN_SAAS_ENV }}"

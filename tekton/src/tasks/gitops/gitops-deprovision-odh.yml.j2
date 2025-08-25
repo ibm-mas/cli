@@ -26,7 +26,7 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: aibroker_instance_id
+    - name: aiservice_instance_id
       type: string
   stepTemplate:
     name: gitops-deprovision-odh
@@ -49,8 +49,8 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: AIBROKER_INSTANCE_ID
-        value: $(params.aibroker_instance_id)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
     envFrom:
       - configMapRef:
           name: environment-properties
