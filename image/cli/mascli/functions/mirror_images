@@ -327,7 +327,7 @@ function mirror_to_registry_noninteractive() {
 
   if [[ $MIRROR_MODE != "to-filesystem" && $REGISTRY_IS_ECR == "true" ]]; then
     REGISTRY_USERNAME="AWS"
-    REGISTRY_PASSWORD=$(aws ecr get-authorization-token --region "$REGISTRY_ECR_AWS_REGION" --query 'authorizationData[].authorizationToken' --output text)
+    REGISTRY_PASSWORD=$(aws ecr get-login-password --region "$REGISTRY_ECR_AWS_REGION" --query 'authorizationData[].authorizationToken' --output text)
   elif [[ $MIRROR_MODE != "to-filesystem" ]]; then
     [[ -z "$REGISTRY_USERNAME" ]] && mirror_to_registry_help "REGISTRY_USERNAME is not set"
     [[ -z "$REGISTRY_PASSWORD" ]] && mirror_to_registry_help "REGISTRY_PASSWORD is not set"
