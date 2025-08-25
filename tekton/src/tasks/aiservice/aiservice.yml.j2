@@ -49,11 +49,11 @@ spec:
     {# - name: aiservice_s3_action
       type: string
       description:
-      default: "This option is optional" #}
+      default: "This option is optional"
     - name: aiservice_apikey_action
       type: string
       description:
-      default: "This option is optional"
+      default: "This option is optional" #}
 
     # WatsonX params
     - name: aiservice_watsonxai_apikey
@@ -159,8 +159,8 @@ spec:
         value: $(params.aiservice_s3_action) #}
 
       # AI Broker action for create/delete api key
-      - name: AISERVICE_APIKEY_ACTION
-        value: $(params.aiservice_apikey_action)
+      {# - name: AISERVICE_APIKEY_ACTION
+        value: $(params.aiservice_apikey_action) #}
 
       # Watsonx
       - name: AISERVICE_WATSONXAI_APIKEY
