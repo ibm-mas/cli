@@ -45,16 +45,6 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
-    # AI Broker actions
-    {# - name: aiservice_s3_action
-      type: string
-      description:
-      default: "This option is optional"
-    - name: aiservice_apikey_action
-      type: string
-      description:
-      default: "This option is optional" #}
-
     # WatsonX params
     - name: aiservice_watsonxai_apikey
       type: string
@@ -74,10 +64,6 @@ spec:
       default: "This option is mandatory"
 
     # AI Broker storage
-    {# - name: aiservice_s3_provider
-      type: string
-      default: "This option is mandatory"
-      default: "" #}
     - name: aiservice_s3_accesskey
       type: string
       default: "This option is mandatory"
@@ -154,14 +140,6 @@ spec:
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
 
-      {# # AI Broker action for create/delete s3 secret
-      - name: AISERVICE_S3_ACTION
-        value: $(params.aiservice_s3_action) #}
-
-      # AI Broker action for create/delete api key
-      {# - name: AISERVICE_APIKEY_ACTION
-        value: $(params.aiservice_apikey_action) #}
-
       # Watsonx
       - name: AISERVICE_WATSONXAI_APIKEY
         value: $(params.aiservice_watsonxai_apikey)
@@ -173,8 +151,6 @@ spec:
         value: $(params.aiservice_watsonx_action)
 
       # Opendatahub storage details
-      {# - name: AISERVICE_S3_PROVIDER
-        value: $(params.aiservice_s3_provider) #}
       - name: AISERVICE_S3_ACCESSKEY
         value: $(params.aiservice_s3_accesskey)
       - name: AISERVICE_S3_SECRETKEY
