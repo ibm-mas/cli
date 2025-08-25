@@ -21,8 +21,8 @@
     - name: aiservice_channel
       value: "$(params.aiservice_channel)"
 
-    - name: aiservice_s3_provider
-      value: $(params.aiservice_s3_provider)
+    {# - name: aiservice_s3_provider
+      value: $(params.aiservice_s3_provider) #}
     - name: aiservice_s3_accesskey
       value: $(params.aiservice_s3_accesskey)
     - name: aiservice_s3_secretkey
@@ -35,6 +35,8 @@
       value: $(params.aiservice_s3_ssl)
     - name: aiservice_s3_region
       value: $(params.aiservice_s3_region)
+    - name: aiservice_s3_bucket_prefix
+      value: $(params.aiservice_s3_bucket_prefix)
     - name: aiservice_s3_pipelines_bucket
       value: $(params.aiservice_s3_pipelines_bucket)
     - name: aiservice_s3_tenants_bucket
@@ -51,15 +53,13 @@
     - name: aiservice_watsonx_action
       value: $(params.aiservice_watsonx_action)
 
-    - name: aiservice_s3_action
+    {# - name: aiservice_s3_action
       value: $(params.aiservice_s3_action)
-    - name: aiservice_s3_bucket_prefix
-      value: $(params.aiservice_s3_bucket_prefix)
     - name: aiservice_s3_endpoint_url
-      value: $(params.aiservice_s3_endpoint_url)
+      value: $(params.aiservice_s3_endpoint_url) #}
 
-    - name: aiservice_apikey_action
-      value: $(params.aiservice_apikey_action)
+    {# - name: aiservice_apikey_action
+      value: $(params.aiservice_apikey_action) #}
 
     - name: mas_icr_cp
       value: $(params.mas_icr_cp)

@@ -21,7 +21,7 @@
     - name: custom_labels
       value: $(params.custom_labels)
 
-    - name: aiservice_s3_provider
+    {# - name: aiservice_s3_provider
       value: $(params.aiservice_s3_provider)
     - name: aiservice_s3_accesskey
       value: $(params.aiservice_s3_accesskey)
@@ -40,7 +40,7 @@
     - name: aiservice_s3_tenants_bucket
       value: $(params.aiservice_s3_tenants_bucket)
     - name: aiservice_s3_templates_bucket
-      value: $(params.aiservice_s3_templates_bucket)
+      value: $(params.aiservice_s3_templates_bucket) #}
 
     - name: aiservice_watsonxai_apikey
       value: $(params.aiservice_watsonxai_apikey)
@@ -51,10 +51,10 @@
     - name: aiservice_watsonx_action
       value: $(params.aiservice_watsonx_action)
 
-    - name: aiservice_s3_action
+    {# - name: aiservice_s3_action
       value: $(params.aiservice_s3_action)
     - name: aiservice_apikey_action
-      value: $(params.aiservice_apikey_action)
+      value: $(params.aiservice_apikey_action) #}
 
     - name: tenant_entitlement_type
       value: $(params.tenant_entitlement_type)
@@ -68,7 +68,7 @@
     - name: mas_icr_cpopen
       value: $(params.mas_icr_cpopen)
 
-    - name: aiservice_tenant_s3_bucket_prefix
+    {# - name: aiservice_tenant_s3_bucket_prefix
       value: $(params.aiservice_tenant_s3_bucket_prefix)
     - name: aiservice_tenant_s3_region
       value: $(params.aiservice_tenant_s3_region)
@@ -77,7 +77,7 @@
     - name: aiservice_tenant_s3_access_key
       value: $(params.aiservice_tenant_s3_access_key)
     - name: aiservice_tenant_s3_secret_key
-      value: $(params.aiservice_tenant_s3_secret_key)
+      value: $(params.aiservice_tenant_s3_secret_key) #}
 
     - name: rsl_url
       value: $(params.rsl_url)

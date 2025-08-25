@@ -48,14 +48,14 @@ spec:
       description: Environment type
       default: ""
 
-    - name: aiservice_s3_action
+    {# - name: aiservice_s3_action
       type: string
       description:
-      default: "This option is optional"
-    - name: aiservice_apikey_action
+      default: "This option is optional" #}
+    {# - name: aiservice_apikey_action
       type: string
       description:
-      default: "This option is optional"
+      default: "This option is optional" #}
 
     # WatsonX params
     - name: aiservice_watsonxai_apikey
@@ -76,7 +76,7 @@ spec:
       default: "This option is mandatory"
 
     # S3 storage
-    - name: aiservice_s3_provider
+    {# - name: aiservice_s3_provider
       type: string
       default: "This option is mandatory"
       default: ""
@@ -115,7 +115,7 @@ spec:
     - name: aiservice_s3_templates_bucket
       type: string
       default: "This option is mandatory"
-      default: ""
+      default: "" #}
 
     # Tenant Entitlement
     - name: tenant_entitlement_type
@@ -125,7 +125,7 @@ spec:
     - name: tenant_entitlement_end_date
       type: string
 
-    # Tenant S3
+    {# # Tenant S3
     - name: aiservice_tenant_s3_bucket_prefix
       type: string
     - name: aiservice_tenant_s3_region
@@ -135,7 +135,7 @@ spec:
     - name: aiservice_tenant_s3_access_key
       type: string
     - name: aiservice_tenant_s3_secret_key
-      type: string
+      type: string #}
 
     # RSL
     - name: rsl_url
@@ -180,13 +180,13 @@ spec:
       - name: ENVIRONMENT_TYPE
         value: $(params.environment_type)
 
-      # AI Broker action for create/delete s3 secret
+      {# # AI Broker action for create/delete s3 secret
       - name: AISERVICE_S3_ACTION
-        value: $(params.aiservice_s3_action)
+        value: $(params.aiservice_s3_action) #}
 
-      # AI Broker action for create/delete api key
+      {# # AI Broker action for create/delete api key
       - name: AISERVICE_APIKEY_ACTION
-        value: $(params.aiservice_apikey_action)
+        value: $(params.aiservice_apikey_action) #}
 
       # Watsonx
       - name: AISERVICE_WATSONXAI_APIKEY
@@ -198,7 +198,7 @@ spec:
       - name: AISERVICE_WATSONX_ACTION
         value: $(params.aiservice_watsonx_action)
 
-      # S3 storage
+      {# # S3 storage
       - name: AISERVICE_S3_PROVIDER
         value: $(params.aiservice_s3_provider)
       - name: AISERVICE_S3_ACCESSKEY
@@ -218,7 +218,7 @@ spec:
       - name: AISERVICE_S3_TENANTS_BUCKET
         value: $(params.aiservice_s3_tenants_bucket)
       - name: AISERVICE_S3_TEMPLATES_BUCKET
-        value: $(params.aiservice_s3_templates_bucket)
+        value: $(params.aiservice_s3_templates_bucket) #}
 
       # Tenant Entitlement
       - name: AISERVICE_TENANT_ENTITLEMENT_TYPE
@@ -228,7 +228,7 @@ spec:
       - name: AISERVICE_TENANT_ENTITLEMENT_END_DATE
         value: $(params.tenant_entitlement_end_date)
 
-      # Tenant S3 storage
+      {# # Tenant S3 storage
       - name: AISERVICE_TENANT_S3_REGION
         value: $(params.aiservice_tenant_s3_region)
       - name: AISERVICE_TENANT_S3_BUCKET_PREFIX
@@ -238,7 +238,7 @@ spec:
       - name: AISERVICE_TENANT_S3_ACCESS_KEY
         value: $(params.aiservice_tenant_s3_access_key)
       - name: AISERVICE_TENANT_S3_SECRET_KEY
-        value: $(params.aiservice_tenant_s3_secret_key)
+        value: $(params.aiservice_tenant_s3_secret_key) #}
 
       # RSL
       - name: RSL_URL

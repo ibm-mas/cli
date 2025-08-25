@@ -57,14 +57,15 @@ optionalParams = [
     # Dev Mode
     "artifactory_username",
     "artifactory_token",
-    # Aibroker
-    "aiservice_s3_provider",
+    # AI Service
+    # "aiservice_s3_provider",
     "aiservice_s3_accesskey",
     "aiservice_s3_secretkey",
     "aiservice_s3_host",
     "aiservice_s3_port",
     "aiservice_s3_ssl",
     "aiservice_s3_region",
+    "aiservice_s3_bucket_prefix",
     "aiservice_s3_pipelines_bucket",
     "aiservice_s3_tenants_bucket",
     "aiservice_s3_templates_bucket",
@@ -82,15 +83,6 @@ optionalParams = [
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",
-
-    "aiservice_s3_bucket_prefix",
-    "aiservice_s3_region",
-    "aiservice_s3_endpoint_url",
-    "aiservice_tenant_s3_bucket_prefix",
-    "aiservice_tenant_s3_region",
-    "aiservice_tenant_s3_endpoint_url",
-    "aiservice_tenant_s3_access_key",
-    "aiservice_tenant_s3_secret_key",
 
     "rsl_url",
     "rsl_org_id",

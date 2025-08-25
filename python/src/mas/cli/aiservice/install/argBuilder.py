@@ -103,10 +103,10 @@ class aiServiceInstallArgBuilderMixin():
         if self.getParam('service_account_name') != "":
             command += f"  --service-account {self.getParam('service_account_name')}{newline}"
 
-        # Aibroker Advanced Settings
+        # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
-        if self.getParam('aiservice_s3_provider') != "":
-            command += f"  --s3-provider \"{self.getParam('aiservice_s3_provider')}\"{newline}"
+        # if self.getParam('aiservice_s3_provider') != "":
+        #     command += f"  --s3-provider \"{self.getParam('aiservice_s3_provider')}\"{newline}"
         if self.getParam('aiservice_s3_accesskey') != "":
             command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
         if self.getParam('aiservice_s3_secretkey') != "":
@@ -119,6 +119,8 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
         if self.getParam('aiservice_s3_region') != "":
             command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
+        if self.getParam('aiservice_s3_bucket_prefix') != "":
+            command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
         if self.getParam('aiservice_s3_pipelines_bucket') != "":
             command += f"  --s3-pipelines-bucket \"{self.getParam('aiservice_s3_pipelines_bucket')}\"{newline}"
         if self.getParam('aiservice_s3_tenants_bucket') != "":
@@ -146,24 +148,6 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --tenant-entitlement-start-date \"{self.getParam('tenant_entitlement_start_date')}\"{newline}"
         if self.getParam('tenant_entitlement_end_date') != "":
             command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
-
-        if self.getParam('aiservice_s3_bucket_prefix') != "":
-            command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
-        if self.getParam('aiservice_s3_endpoint_url') != "":
-            command += f"  --s3-endpoint-url \"{self.getParam('aiservice_s3_endpoint_url')}\"{newline}"
-        if self.getParam('aiservice_s3_region') != "":
-            command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
-
-        if self.getParam('aiservice_tenant_s3_bucket_prefix') != "":
-            command += f"  --s3-bucket-prefix-tenant \"{self.getParam('aiservice_tenant_s3_bucket_prefix')}\"{newline}"
-        if self.getParam('aiservice_tenant_s3_region') != "":
-            command += f"  --s3-tenant-region \"{self.getParam('aiservice_tenant_s3_region')}\"{newline}"
-        if self.getParam('aiservice_tenant_s3_endpoint_url') != "":
-            command += f"  --s3-tenant-endpoint-url \"{self.getParam('aiservice_tenant_s3_endpoint_url')}\"{newline}"
-        if self.getParam('aiservice_tenant_s3_access_key') != "":
-            command += f"  --s3-tenant-access-key \"{self.getParam('aiservice_tenant_s3_access_key')}\"{newline}"
-        if self.getParam('aiservice_tenant_s3_secret_key') != "":
-            command += f"  --s3-tenant-secret-key \"{self.getParam('aiservice_tenant_s3_secret_key')}\"{newline}"
 
         if self.getParam('rsl_url') != "":
             command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
