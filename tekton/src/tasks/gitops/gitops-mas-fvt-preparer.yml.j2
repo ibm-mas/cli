@@ -574,13 +574,14 @@ spec:
             check_argo_app_healthy "${MASAPP_APP}" 120
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 120
           fi
+        fi
+        if [[ "$LAUNCHER_ID" == "aiservice" ]]; then
           if [[ "$LAUNCHFVT_AISERVICE" == "true" ]]; then
             MASAPP_APP="aiservice.${CLUSTER_NAME}.${AISERVICE_INSTANCE_ID}"
             check_argo_app_healthy "${MASAPP_APP}" 140
             check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 140
           fi
         fi
-
         echo '
         # - Automated Initial User Tests
         # -----------------------------------
