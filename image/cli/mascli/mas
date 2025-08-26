@@ -160,11 +160,10 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    connect
-    setup_mirror_registry
+    setup_mirror_registry "$@"
     ;;
 
-  delete-registry)
+  delete-registry|teardown-registry)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! delete-registry                                                           !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
@@ -173,8 +172,7 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    connect
-    teardown_mirror_registry
+    teardown_mirror_registry "$@"
     ;;
 
   mirror|mirror-images|mirror-ibm-images)

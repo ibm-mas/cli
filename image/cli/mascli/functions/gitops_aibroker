@@ -32,6 +32,7 @@ storage provider:
       --mas-aibroker-storage-port ${TEXT_RESET}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}
       --aiservice-storage_ssl ${TEXT_RESET}AISERVICE_STORAGE_SSL${TEXT_RESET}
       --aiservice-storage-region ${TEXT_RESET}AISERVICE_STORAGE_REGION${TEXT_RESET}
+      --mas-aibroker-s3-region ${TEXT_RESET}MAS_AIBROKER_S3_REGION${TEXT_RESET}
       --mas-aibroker-storage-pipelines-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}
       --mas-aibroker-storage-tenants-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_TENANTS_BUCKET${TEXT_RESET}
       --mas-aibroker-storage-templates-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET${TEXT_RESET}
@@ -95,7 +96,7 @@ function gitops_aibroker_noninteractive() {
   export MAS_AIBROKER_MARIADB_SECRET=${MAS_AIBROKER_MARIADB_SECRET:-"${MAS_APP_ID}-mariadbcfge"}
 
   export AISERVICE_S3_BUCKET_PREFIX=${AISERVICE_S3_BUCKET_PREFIX:-"m"}
-  export MAS_AIBROKER_S3_REGION=${MAS_AIBROKER_S3_REGION:-"us-east-2"}
+  export MAS_AIBROKER_S3_REGION=${MAS_AIBROKER_S3_REGION:-""}
   export ENVIRONMENT_TYPE=${ENVIRONMENT_TYPE:-"PRODUCTION"}
 
 
@@ -335,6 +336,7 @@ function gitops_aibroker() {
   echo_reset_dim "AI Broker Storage Port ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PORT}"
   echo_reset_dim "AI Broker Storage SSL ............. ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
   echo_reset_dim "AI Broker Storage Region .......... ${COLOR_MAGENTA}${AISERVICE_STORAGE_REGION}"
+  echo_reset_dim "AI Broker S3 Region ............... ${COLOR_MAGENTA}${MAS_AIBROKER_S3_REGION}"
   echo_reset_dim "AI Broker Pipelines Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
   echo_reset_dim "AI Broker Tenants Bucket .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
   echo_reset_dim "AI Broker Templates Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"

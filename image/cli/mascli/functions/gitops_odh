@@ -141,7 +141,7 @@ function gitops_odh_noninteractive() {
 
   export AISERVICE_STORAGE_PROVIDER="${AISERVICE_STORAGE_PROVIDER:-"aws"}"
   export AISERVICE_STORAGE_SSL="${AISERVICE_STORAGE_SSL:-"true"}"
-  export AISERVICE_STORAGE_REGION="${AISERVICE_STORAGE_REGION:-"us-east-2"}"
+  export AISERVICE_STORAGE_REGION="${AISERVICE_STORAGE_REGION:-""}"
   export PRIMARY_STORAGE_CLASS="${PRIMARY_STORAGE_CLASS:-"nfs-client"}"
 
 
@@ -499,6 +499,7 @@ function gitops_odh() {
   echo_reset_dim "MARIADB_HOST ........................... ${COLOR_MAGENTA}${MARIADB_HOST}"
   echo_reset_dim "MARIADB_DATABASE ....................... ${COLOR_MAGENTA}${MARIADB_DATABASE}"
   echo_reset_dim "AISERVICE_STORAGE_SSL ................. ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
+  echo_reset_dim "MAS AI Broker Storage Region .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_REGION}"
   reset_colors
 
 

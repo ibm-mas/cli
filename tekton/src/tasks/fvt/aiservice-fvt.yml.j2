@@ -44,11 +44,11 @@ spec:
     env:
       # What are we testing?
       - name: PRODUCT_ID
-        value: ibm-mas-aibroker
+        value: ibm-aiservice
       - name: PRODUCT_CHANNEL
         value: $(params.product_channel)
       - name: NAMESPACE
-        value: "mas-$(params.aiservice_instance_id)-aibroker"
+        value: "aiservice-$(params.aiservice_instance_id)"
       - name: INSTANCE_ID
         value: "$(params.aiservice_instance_id)"
 

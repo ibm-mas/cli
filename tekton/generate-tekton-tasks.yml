@@ -51,7 +51,6 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - aiservice
-        - kmodels
         - odh
         - aiservice-tenant
         - aiservice-post-verify
