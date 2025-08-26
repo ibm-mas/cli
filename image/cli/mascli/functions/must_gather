@@ -428,7 +428,7 @@ function mustgather() {
   # ---------------------------------------------------------------------------
   if [[ -z $AISERVICE_INSTANCE_IDS ]]; then
     # Find AI Service instances
-    AISERVICE_INSTANCE_IDS=$(oc get aibrokerapp --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
+    AISERVICE_INSTANCE_IDS=$(oc get aiserviceapp --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
   fi
 
   echo ""
@@ -457,7 +457,7 @@ function mustgather() {
   # ---------------------------------------------------------------------------
   if [[ -z $AISERVICE_TENANT_IDS ]]; then
     # Find AI Service instances
-    AISERVICE_TENANT_IDS=$(oc get aibrokerworkspace --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
+    AISERVICE_TENANT_IDS=$(oc get aiservicetenant --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
   fi
 
   echo ""
