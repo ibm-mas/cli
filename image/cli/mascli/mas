@@ -43,6 +43,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/setup_registry
 . $CLI_DIR/functions/teardown_registry
 . $CLI_DIR/functions/mirror_images
+. $CLI_DIR/functions/mirror_aiservice_images
 . $CLI_DIR/functions/mirror_redhat
 . $CLI_DIR/functions/configure_airgap
 . $CLI_DIR/functions/configure_aiservice_airgap
