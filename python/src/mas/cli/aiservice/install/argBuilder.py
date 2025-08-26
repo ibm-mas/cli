@@ -121,8 +121,6 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
         if self.getParam('aiservice_s3_bucket_prefix') != "":
             command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
-        if self.getParam('aiservice_s3_pipelines_bucket') != "":
-            command += f"  --s3-pipelines-bucket \"{self.getParam('aiservice_s3_pipelines_bucket')}\"{newline}"
         if self.getParam('aiservice_s3_tenants_bucket') != "":
             command += f"  --s3-tenants-bucket \"{self.getParam('aiservice_s3_tenants_bucket')}\"{newline}"
         if self.getParam('aiservice_s3_templates_bucket') != "":

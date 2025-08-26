@@ -58,7 +58,6 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("Storage ssl", "aiservice_s3_ssl")
         self.printParamSummary("Storage region", "aiservice_s3_region")
         self.printParamSummary("S3 bucket prefix", "aiservice_s3_bucket_prefix")
-        self.printParamSummary("Storage pipelines bucket", "aiservice_s3_pipelines_bucket")
         self.printParamSummary("Storage tenants bucket", "aiservice_s3_tenants_bucket")
         self.printParamSummary("Storage templates bucket", "aiservice_s3_templates_bucket")
         print()

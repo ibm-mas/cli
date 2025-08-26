@@ -556,7 +556,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Storage ssl", "aiservice_s3_ssl")
             self.promptForString("Storage region", "aiservice_s3_region")
             self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix")
-            self.promptForString("Storage pipelines bucket", "aiservice_s3_pipelines_bucket")
             self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
             self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
@@ -626,7 +625,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("aiservice_s3_bucket_prefix", "aiservice")
 
         # Set default bucket names
-        self.setParam("aiservice_s3_pipelines_bucket", "km-pipelines")
         self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
         self.setParam("aiservice_s3_templates_bucket", "km-templates")
 

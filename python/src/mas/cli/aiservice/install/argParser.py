@@ -258,13 +258,6 @@ s3ArgGroup.add_argument(
 # S3 - Bucket Naming
 # -----------------------------------------------------------------------------
 s3ArgGroup.add_argument(
-    "--s3-pipelines-bucket",
-    dest="aiservice_s3_pipelines_bucket",
-    required=False,
-    default="km-pipelines",
-    help="Name of the S3 bucket for pipelines storage"
-)
-s3ArgGroup.add_argument(
     "--s3-tenants-bucket",
     dest="aiservice_s3_tenants_bucket",
     required=False,
