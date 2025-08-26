@@ -1,0 +1,30 @@
+function mirror_one_thing() {
+    MOT_RUNMIRROR=$1
+    MOT_NAME=$2
+    MOT_LOGFILE=$3
+    MOT_PLAYBOOK=$4
+    if [[ "$MOT_RUNMIRROR" == "true" ]]; then
+    echo -en "\033[s" # Save cursor position
+    echo -n "Mirroring ${MOT_NAME} ... ${MOT_LOGFILE}"
+    ansible-playbook ibm.mas_devops.${MOT_PLAYBOOK} &> ${MOT_LOGFILE}
+    mirror_result=$?
+    echo -en "\033[1K" # Clear current line
+    echo -en "\033[u" # Restore cursor position
+    if [[ $mirror_result == "0" ]];
+    then echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+    else
+      echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+      echo
+      cat "$MOT_LOGFILE"
+    fi
+  else
+    echo -e "${COLOR_MAGENTA}[SKIPPED] ${MOT_NAME}${TEXT_RESET}"
+  fi
+}
+
+function show_mirror_status() {
+  if [[ "$2" == "true" ]]
+  then echo_reset_dim "$1 ${COLOR_GREEN}Mirror"
+  else echo_reset_dim "$1 ${COLOR_RED}Skip"
+  fi
+}

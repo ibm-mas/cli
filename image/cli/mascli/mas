@@ -42,6 +42,7 @@ mkdir -p $CONFIG_DIR
 # Airgap support
 . $CLI_DIR/functions/setup_registry
 . $CLI_DIR/functions/teardown_registry
+. $CLI_DIR/functions/mirror_images_common
 . $CLI_DIR/functions/mirror_images
 . $CLI_DIR/functions/mirror_aiservice_images
 . $CLI_DIR/functions/mirror_redhat
