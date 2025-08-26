@@ -27,19 +27,19 @@ ibm_kmodel(required):
       --mas-aibroker-storage-pipelines-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}         Storage piplines bucket for Kmodels role
       --mas-aibroker-storage-tenants-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_TENANTS_BUCKET${TEXT_RESET}             Storage tenants bucket for Kmodels role
 
-Kkmodel Configuration:
+Kmodel Configuration:
       --aibroker-internal-tls ${COLOR_YELLOW}AIBROKER_INTERNAL_TLS${TEXT_RESET}                                         Identifier for the internal TLS configuration 
-      --aibroker-namespace ${COLOR_YELLOW}AIBROKER_NAMESPACE${TEXT_RESET}                                               The namespace where AI Broker is deployed
-      --mas-aibroker-storage-provider ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PROVIDER${TEXT_RESET}                         Backend storage service used by AI Broker to store models, pipelines, and tenant data
-      --mas-aibroker-storage-ssl ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}                                   Whether STORAGE uses SSL (true/false)
+      --aiservice-namespace ${COLOR_YELLOW}AISERVICE_NAMESPACEE${TEXT_RESET}                                               The namespace where AI Broker is deployed
+      --aiservice-storage-provider ${COLOR_YELLOW}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}                         Backend storage service used by AI Broker to store models, pipelines, and tenant data
+      --aiservice-storage_ssl ${COLOR_YELLOW}AISERVICE_STORAGE_SSL${TEXT_RESET}                                   Whether STORAGE uses SSL (true/false)
       --mas_aibroker-storage-host ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}                                 Hostname or service name of the STORAGE backend
       --mas_aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}                                 Port number STORAGE is exposed on
-      --mas-aibroker-storage-region ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}                             Storage region used in STORAGE (if applicable)
+      --aiservice-storage-region ${COLOR_YELLOW}AISERVICE_STORAGE_REGION${TEXT_RESET}                             Storage region used in STORAGE (if applicable)
       --ssh-secret-name ${COLOR_YELLOW}SSH_SECRET_NAME${TEXT_RESET}                                                     SSH secret for securely provide SSH credentials
       --mas_aibroker_tenant_name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                                   Aibroker Tenant name
-      --mas-aibroker-provision-tenant ${COLOR_YELLOW}MAS_AIBROKER_PROVISION_TENANT${TEXT_RESET}                         Whether to provision the AI Broker tenant (true/false)
+      --aiservice-provision-tenant ${COLOR_YELLOW}AISERVICE_PROVISION_TENANT${TEXT_RESET}                         Whether to provision the AI Broker tenant (true/false)
       --mas-aibroker-connector-tag ${COLOR_YELLOW}MAS_AIBROKER_CONNECTOR_TAG${TEXT_RESET}                               AI Broker connector for integration or communication.
-      --mas-aibroker-saas ${COLOR_YELLOW}MAS_AIBROKER_SAAS${TEXT_RESET}                                                 AI Broker is deployed as a SaaS
+      --aiservice-saas ${COLOR_YELLOW}AISERVICE_SAAS${TEXT_RESET}                                                 AI Broker is deployed as a SaaS
       --model-id-unique-length ${COLOR_YELLOW}MODEL_ID_UNIQUE_LENGTH${TEXT_RESET}                                       Length of the unique identifier used for model IDs
       --model-id-prefix ${COLOR_YELLOW}MODEL_ID_PREFIX${TEXT_RESET}                                                     Model ID prefix
       --mas_icr_cp ${COLOR_YELLOW}MAS_ICR_CP${TEXT_RESET}                                                               Prefix to be used for generating model IDs
@@ -73,24 +73,24 @@ function gitops_kmodel_noninteractive() {
 
   #adding default values 
   export AIBROKER_INTERNAL_TLS=${AIBROKER_INTERNAL_TLS:-"${AISERVICE_INSTANCE_ID}-internal-aibroker-tls"}
-  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aibroker"}
-  export MAS_AIBROKER_STORAGE_PROVIDER=${MAS_AIBROKER_STORAGE_PROVIDER:-"aws"}
-  export MAS_AIBROKER_STORAGE_SSL=${MAS_AIBROKER_STORAGE_SSL:-"true"}
-  export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
+  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aibroker"}
+  export AISERVICE_STORAGE_PROVIDER=${AISERVICE_STORAGE_PROVIDER:-"aws"}
+  export AISERVICE_STORAGE_SSL=${AISERVICE_STORAGE_SSL:-"true"}
+  export AISERVICE_STORAGE_REGION=${AISERVICE_STORAGE_REGION:-""}
   export SSH_SECRET_NAME=${SSH_SECRET_NAME:-"${AISERVICE_INSTANCE_ID}-kmodel-aibroker-tls"}
   export MAS_AIBROKER_TENANT_NAME=${MAS_AIBROKER_TENANT_NAME:-"user"}
   export TENANT_NAMESPACE=${TENANT_NAMESPACE:-"aibroker-${MAS_AIBROKER_TENANT_NAME}"}
-  export MAS_AIBROKER_PROVISION_TENANT=${MAS_AIBROKER_PROVISION_TENANT:-"provision-tenant"}
+  export AISERVICE_PROVISION_TENANT=${AISERVICE_PROVISION_TENANT:-"provision-tenant"}
   export MAS_AIBROKER_CONNECTOR_TAG=${MAS_AIBROKER_CONNECTOR_TAG:-"1.0.2"}
-  #export MAS_AIBROKER_PIPELINE_STEPS_TAG=${MAS_AIBROKER_PIPELINE_STEPS_TAG:-"1.0.3"}
-  export MAS_AIBROKER_SAAS=${MAS_AIBROKER_SAAS:-"false"}
+  #export AISERVICE_PIPELINE_STEPS_TAG=${AISERVICE_PIPELINE_STEPS_TAG:-"1.0.3"}
+  export AISERVICE_SAAS=${AISERVICE_SAAS:-"false"}
   export MODEL_ID_UNIQUE_LENGTH=${MODEL_ID_UNIQUE_LENGTH:-"15"}
   export MODEL_ID_PREFIX=${MODEL_ID_PREFIX:-"m"}  
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
   export DOCKER_SERVER=${DOCKER_SERVER:-"${MAS_ICR_CP}/aibroker"}
   export PULLSECRETNAME=${PULLSECRETNAME:-"ibm-entitlement"}
   
-  export MAS_APP_CHANNEL=${MAS_APP_CHANNEL:-"9.1.x"}
+  export AISERVICE_CHANNEL=${AISERVICE_CHANNEL:-"9.1.x"}
   
   while [[ $# -gt 0 ]]
   do
@@ -133,20 +133,20 @@ function gitops_kmodel_noninteractive() {
         export AIBROKER_INTERNAL_TLS=$1 && shift
         ;;
       
-      --aibroker-namespace)
-        export AIBROKER_NAMESPACE=$1 && shift
+      --aiservice-namespace)
+        export AISERVICE_NAMESPACE=$1 && shift
         ;;
 
       --pull-secret-name)
         export PULL_SECRET_NAME=$1 && shift
         ;;
 
-      --mas-aibroker-storage-provider)
-        export MAS_AIBROKER_STORAGE_PROVIDER=$1 && shift
+      --aiservice-storage-provider)
+        export AISERVICE_STORAGE_PROVIDER=$1 && shift
         ;;
 
-      --mas-aibroker-storage-ssl)
-        export MAS_AIBROKER_STORAGE_SSL=$1 && shift
+      --aiservice-storage_ssl)
+        export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
 
       --mas-aibroker-storage-host)
@@ -158,7 +158,7 @@ function gitops_kmodel_noninteractive() {
         ;;
 
       --mas-aibroker-storage-region)
-        export MAS_AIBROKER_STORAGE_REGION=$1 && shift
+        export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
 
       --mas-aibroker-storage-templates-bucket)
@@ -181,8 +181,8 @@ function gitops_kmodel_noninteractive() {
         export MAS_ICR_CP=$1 && shift
         ;;
         
-      --mas-app-channel)
-        export MAS_APP_CHANNEL=$1 && shift
+      --aiservice-channel)
+        export AISERVICE_CHANNEL=$1 && shift
         ;;
         
       --docker-server)
@@ -193,8 +193,8 @@ function gitops_kmodel_noninteractive() {
         export TENANT_NAMESPACE=$1 && shift
         ;;
 
-      --mas-aibroker-provision-tenant)
-        export MAS_AIBROKER_PROVISION_TENANT=$1 && shift
+      --aiservice-provision-tenant)
+        export AISERVICE_PROVISION_TENANT=$1 && shift
         ;;
 
       --primary-storage-class)
@@ -213,16 +213,16 @@ function gitops_kmodel_noninteractive() {
         export IMAGE_CONTROLLER=$1 && shift
         ;;
 
-      # --mas-aibroker-pipeline-steps-tag)
-      #   export MAS_AIBROKER_PIPELINE_STEPS_TAG=$1 && shift
+      # --aiservice-pipeline-steps-tag)
+      #   export AISERVICE_PIPELINE_STEPS_TAG=$1 && shift
       #   ;;
 
       --mas-aibroker-connector-tag)
         export MAS_AIBROKER_CONNECTOR_TAG=$1 && shift
         ;;
 
-      --mas-aibroker-saas)
-        export MAS_AIBROKER_SAAS=$1 && shift
+      --aiservice-saas)
+        export AISERVICE_SAAS=$1 && shift
         ;;
 
       --model-id-unique-length)
@@ -358,9 +358,9 @@ function gitops_kmodel() {
   echo_h2 "kmodel" "    "
   echo_reset_dim "AI Broker Instance Id ............................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   echo_reset_dim "AI Broker Internal TLS ............................ ${COLOR_MAGENTA}${AIBROKER_INTERNAL_TLS}"
-  echo_reset_dim "AI Broker Namespace ............................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
-  echo_reset_dim "MAS AI Broker Storage Provider .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PROVIDER}"
-  echo_reset_dim "MAS AI Broker Storage SSL ......................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
+  echo_reset_dim "AI Broker Namespace ............................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
+  echo_reset_dim "AI Service Storage Provider ....................... ${COLOR_MAGENTA}${AISERVICE_STORAGE_PROVIDER}"
+  echo_reset_dim "MAS AI Broker Storage SSL ......................... ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
   echo_reset_dim "MAS AI Broker Storage Templates Bucket ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"
   echo_reset_dim "MAS AI Broker Storage Tenants Bucket .............. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
   echo_reset_dim "MAS AI Broker Storage Pipelines Bucket ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
@@ -368,14 +368,14 @@ function gitops_kmodel() {
   echo_reset_dim "MAS ICR CP Registry ............................... ${COLOR_MAGENTA}${MAS_ICR_CP}"
   echo_reset_dim "Docker Server ..................................... ${COLOR_MAGENTA}${DOCKER_SERVER}"
   echo_reset_dim "Tenant Namespace .................................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
-  echo_reset_dim "MAS AI Broker Provision Tenant .................... ${COLOR_MAGENTA}${MAS_AIBROKER_PROVISION_TENANT}"
+  echo_reset_dim "AI Service Provision Tenant ....................... ${COLOR_MAGENTA}${AISERVICE_PROVISION_TENANT}"
   echo_reset_dim "Primary Storage Class ............................. ${COLOR_MAGENTA}${PRIMARY_STORAGE_CLASS}"
   echo_reset_dim "Image Store ....................................... ${COLOR_MAGENTA}${IMAGE_STORE}"
   echo_reset_dim "Image Watcher ..................................... ${COLOR_MAGENTA}${IMAGE_WATCHER}"
   echo_reset_dim "Image Controller .................................. ${COLOR_MAGENTA}${IMAGE_CONTROLLER}"
-  #echo_reset_dim "MAS AI Broker Pipeline Steps Tag .................. ${COLOR_MAGENTA}${MAS_AIBROKER_PIPELINE_STEPS_TAG}"
+  #echo_reset_dim "AiService Pipeline Steps Tag .................. ${COLOR_MAGENTA}${AISERVICE_PIPELINE_STEPS_TAG}"
   echo_reset_dim "MAS AI Broker Connector Tag ....................... ${COLOR_MAGENTA}${MAS_AIBROKER_CONNECTOR_TAG}"
-  echo_reset_dim "MAS AI Broker SAAS ................................ ${COLOR_MAGENTA}${MAS_AIBROKER_SAAS}"
+  echo_reset_dim "MAS AI Broker SAAS ................................ ${COLOR_MAGENTA}${AISERVICE_SAAS}"
   echo_reset_dim "Model ID Unique Length ............................ ${COLOR_MAGENTA}${MODEL_ID_UNIQUE_LENGTH}"
   echo_reset_dim "Model ID Prefix ................................... ${COLOR_MAGENTA}${MODEL_ID_PREFIX}"
 

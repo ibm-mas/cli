@@ -118,7 +118,7 @@ function gitops_odh_noninteractive() {
   export ODH_OPERATOR_VERSION="${ODH_OPERATOR_VERSION:-"opendatahub-operator.v2.19.0"}"
   export ODH_NAMESPACE="${ODH_NAMESPACE:-"opendatahub"}"
 
-  export AIBROKER_NAMESPACE="${AIBROKER_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aiservice"}"
+  export AISERVICE_NAMESPACE="${AISERVICE_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aiservice"}"
 
   export ODH_PIPELINE_NAME="${ODH_PIPELINE_NAME:-"openshift-pipelines-operator"}"
   export ODH_PIPELINE_NAMESPACE="${ODH_PIPELINE_NAMESPACE:-"openshift-operators"}"
@@ -139,9 +139,9 @@ function gitops_odh_noninteractive() {
   export OPENDATAHUB_SOURCE="${OPENDATAHUB_SOURCE:-"community-operators"}"
   export OPENDATAHUB_SOURCE_NAMESPACE="${OPENDATAHUB_SOURCE_NAMESPACE:-"openshift-marketplace"}"
 
-  export MAS_AIBROKER_STORAGE_PROVIDER="${MAS_AIBROKER_STORAGE_PROVIDER:-"aws"}"
-  export MAS_AIBROKER_STORAGE_SSL="${MAS_AIBROKER_STORAGE_SSL:-"true"}"
-  export MAS_AIBROKER_STORAGE_REGION="${MAS_AIBROKER_STORAGE_REGION:-"us-east-2"}"
+  export AISERVICE_STORAGE_PROVIDER="${AISERVICE_STORAGE_PROVIDER:-"aws"}"
+  export AISERVICE_STORAGE_SSL="${AISERVICE_STORAGE_SSL:-"true"}"
+  export AISERVICE_STORAGE_REGION="${AISERVICE_STORAGE_REGION:-"us-east-2"}"
   export PRIMARY_STORAGE_CLASS="${PRIMARY_STORAGE_CLASS:-"nfs-client"}"
 
 
@@ -294,11 +294,11 @@ function gitops_odh_noninteractive() {
         ;;
 
       --aiservice-namespace)
-        export AIBROKER_NAMESPACE=$1 && shift
+        export AISERVICE_NAMESPACE=$1 && shift
         ;;
 
       --storage-provider)
-        export MAS_AIBROKER_STORAGE_PROVIDER=$1 && shift
+        export AISERVICE_STORAGE_PROVIDER=$1 && shift
         ;;
       --storage-accesskey)
         export MAS_AIBROKER_STORAGE_ACCESSKEY=$1 && shift
@@ -313,10 +313,10 @@ function gitops_odh_noninteractive() {
         export MAS_AIBROKER_STORAGE_PORT=$1 && shift
         ;;
       --storage-ssl)
-        export MAS_AIBROKER_STORAGE_SSL=$1 && shift
+        export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
       --storage-region)
-        export MAS_AIBROKER_STORAGE_REGION=$1 && shift
+        export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
       --storage-pipelines-bucket)
         export MAS_AIBROKER_STORAGE_PIPELINES_BUCKET=$1 && shift
@@ -498,7 +498,7 @@ function gitops_odh() {
   echo_reset_dim "STORAGE_BUCKET ........................... ${COLOR_MAGENTA}${STORAGE_BUCKET}"
   echo_reset_dim "MARIADB_HOST ........................... ${COLOR_MAGENTA}${MARIADB_HOST}"
   echo_reset_dim "MARIADB_DATABASE ....................... ${COLOR_MAGENTA}${MARIADB_DATABASE}"
-  echo_reset_dim "MAS_AIBROKER_STORAGE_SSL ................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
+  echo_reset_dim "AISERVICE_STORAGE_SSL ................. ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
   reset_colors
 
 

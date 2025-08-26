@@ -1,7 +1,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: gitops-mas-aibroker
+  name: gitops-aiservice-pipeline
 spec:
   params:
     - name: cluster_name
@@ -29,13 +29,13 @@ spec:
       type: string
 
     # AIBROKER-specific
-    - name: aibroker_namespace
+    - name: aiservice_namespace
       type: string
-    - name: mas_aibroker_watsonx_secret
+    - name: aiservice_watsonx_secret
       type: string
     - name: pull_secret_name
       type: string
-    - name: mas_aibroker_storage_provider
+    - name: aiservice_storage_provider
       type: string
     - name: mas_aibroker_storage_secret
       type: string
@@ -43,9 +43,9 @@ spec:
       type: string
     - name: mas_aibroker_storage_port
       type: string
-    - name: mas_aibroker_storage_ssl
+    - name: aiservice_storage_ssl
       type: string
-    - name: mas_aibroker_storage_region
+    - name: aiservice_storage_region
       type: string
     - name: mas_aibroker_storage_pipelines_bucket
       type: string
@@ -59,7 +59,7 @@ spec:
       type: string
     - name: artifactory_username
       type: string
-    - name: mas_app_channel
+    - name: aiservice_channel
       type: string
     - name: mas_catalog_source
       type: string
@@ -101,9 +101,9 @@ spec:
       type: string
     - name: mas_aibroker_connector_tag
       type: string
-    - name: mas_aibroker_provision_tenant
+    - name: aiservice_provision_tenant
       type: string
-    - name: mas_aibroker_saas
+    - name: aiservice_saas
       type: string
     - name: model_id_prefix
       type: string
@@ -115,11 +115,11 @@ spec:
       type: string 
     - name: environment_type
       type: string
-    - name: mas_aibroker_s3_endpoint_url
+    - name: aiservice_s3_endpoint_url
       type: string
     - name: mas_aibroker_s3_region
       type: string
-    - name: mas_aibroker_s3_bucket_prefix
+    - name: aiservice_s3_bucket_prefix
       type: string
 
   workspaces:
@@ -168,8 +168,8 @@ spec:
           value: $(params.opendatahub_namespace)
         - name: odh_operator_version
           value: $(params.odh_operator_version)
-        - name: mas_aibroker_storage_ssl
-          value: $(params.mas_aibroker_storage_ssl)
+        - name: aiservice_storage_ssl
+          value: $(params.aiservice_storage_ssl)
           
     # 3.gitops-Aibroker
     # -------------------------------------------------------------------------
@@ -204,24 +204,24 @@ spec:
           value: $(params.github_host)
         - name: aiservice_instance_id
           value: $(params.aiservice_instance_id)
-        - name: aibroker_namespace
-          value: $(params.aibroker_namespace)
-        - name: mas_aibroker_watsonx_secret
-          value: $(params.mas_aibroker_watsonx_secret)
+        - name: aiservice_namespace
+          value: $(params.aiservice_namespace)
+        - name: aiservice_watsonx_secret
+          value: $(params.aiservice_watsonx_secret)
         - name: pull_secret_name
           value: $(params.pull_secret_name)
-        - name: mas_aibroker_storage_provider
-          value: $(params.mas_aibroker_storage_provider)
+        - name: aiservice_storage_provider
+          value: $(params.aiservice_storage_provider)
         - name: mas_aibroker_storage_secret
           value: $(params.mas_aibroker_storage_secret)
         - name: mas_aibroker_storage_host
           value: $(params.mas_aibroker_storage_host)
         - name: mas_aibroker_storage_port
           value: $(params.mas_aibroker_storage_port)
-        - name: mas_aibroker_storage_ssl
-          value: $(params.mas_aibroker_storage_ssl)
-        - name: mas_aibroker_storage_region
-          value: $(params.mas_aibroker_storage_region)
+        - name: aiservice_storage_ssl
+          value: $(params.aiservice_storage_ssl)
+        - name: aiservice_storage_region
+          value: $(params.aiservice_storage_region)
         - name: mas_aibroker_storage_pipelines_bucket
           value: $(params.mas_aibroker_storage_pipelines_bucket)
         - name: mas_aibroker_storage_tenants_bucket
@@ -234,8 +234,8 @@ spec:
           value: $(params.primary_storage_class)
         - name: artifactory_username
           value: $(params.artifactory_username)
-        - name: mas_app_channel
-          value: $(params.mas_app_channel)
+        - name: aiservice_channel
+          value: $(params.aiservice_channel)
         - name: mas_catalog_source
           value: $(params.mas_catalog_source)
         - name: mas_icr_cp
@@ -250,12 +250,12 @@ spec:
           value: $(params.is_external_route)
         - name: environment_type
           value: $(params.environment_type)
-        - name: mas_aibroker_s3_endpoint_url
-          value: $(params.mas_aibroker_s3_endpoint_url)
+        - name: aiservice_s3_endpoint_url
+          value: $(params.aiservice_s3_endpoint_url)
         - name: mas_aibroker_s3_region
           value: $(params.mas_aibroker_s3_region)
-        - name: mas_aibroker_s3_bucket_prefix
-          value: $(params.mas_aibroker_s3_bucket_prefix)
+        - name: aiservice_s3_bucket_prefix
+          value: $(params.aiservice_s3_bucket_prefix)
         
 
     # 4.gitops-Kmodel
@@ -293,20 +293,20 @@ spec:
           value: $(params.aiservice_instance_id)
         - name: aibroker_internal_tls
           value: $(params.aibroker_internal_tls)
-        - name: aibroker_namespace
-          value: $(params.aibroker_namespace)
+        - name: aiservice_namespace
+          value: $(params.aiservice_namespace)
         - name: pull_secret_name
           value: $(params.pull_secret_name)
-        - name: mas_aibroker_storage_provider
-          value: $(params.mas_aibroker_storage_provider)
-        - name: mas_aibroker_storage_ssl
-          value: $(params.mas_aibroker_storage_ssl)
+        - name: aiservice_storage_provider
+          value: $(params.aiservice_storage_provider)
+        - name: aiservice_storage_ssl
+          value: $(params.aiservice_storage_ssl)
         - name: mas_aibroker_storage_host
           value: $(params.mas_aibroker_storage_host)
         - name: mas_aibroker_storage_port
           value: $(params.mas_aibroker_storage_port)
-        - name: mas_aibroker_storage_region
-          value: $(params.mas_aibroker_storage_region)
+        - name: aiservice_storage_region
+          value: $(params.aiservice_storage_region)
         - name: mas_aibroker_storage_templates_bucket
           value: $(params.mas_aibroker_storage_templates_bucket)
         - name: mas_aibroker_storage_tenants_bucket
@@ -319,8 +319,8 @@ spec:
           value: $(params.docker_server)
         - name: tenantNamespace
           value: $(params.tenantNamespace)
-        - name: mas_aibroker_provision_tenant
-          value: $(params.mas_aibroker_provision_tenant)
+        - name: aiservice_provision_tenant
+          value: $(params.aiservice_provision_tenant)
         - name: primary_storage_class
           value: $(params.primary_storage_class)
         - name: image_store
@@ -331,13 +331,13 @@ spec:
           value: $(params.image_controller)
         - name: mas_aibroker_connector_tag
           value: $(params.mas_aibroker_connector_tag)
-        - name: mas_aibroker_saas
-          value: $(params.mas_aibroker_saas)
+        - name: aiservice_saas
+          value: $(params.aiservice_saas)
         - name: model_id_unique_length
           value: $(params.model_id_unique_length)
         - name: model_id_prefix
           value: $(params.model_id_prefix)
-        - name: mas_app_channel
-          value: $(params.mas_app_channel)
+        - name: aiservice_channel
+          value: $(params.aiservice_channel)
         - name: mas_icr_cp
           value: $(params.mas_icr_cp)

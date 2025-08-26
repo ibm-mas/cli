@@ -23,9 +23,9 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: aibroker_namespace
+    - name: aiservice_namespace
       type: string
-    - name: mas_aibroker_provision_tenant
+    - name: aiservice_provision_tenant
       type: string
     - name: aiservice_instance_id
       type: string
@@ -47,27 +47,27 @@ spec:
       type: string
     - name: slscfg_url
       type: string
-    - name: mas_aibroker_sls_subscription_id
+    - name: aiservice_sls_subscription_id
       type: string
-    - name: mas_aibroker_watsonxai_url
+    - name: aiservice_watsonxai_url
       type: string
     - name: mas_aibroker_watsonxai_project_id
       type: string
     - name: mas_aibroker_storage_port
       type: string
-    - name: mas_aibroker_storage_region
+    - name: aiservice_storage_region
       type: string
-    - name: mas_aibroker_storage_provider
+    - name: aiservice_storage_provider
       type: string
     - name: mas_aibroker_storage_pipelines_bucket
       type: string
-    - name: mas_aibroker_storage_ssl
+    - name: aiservice_storage_ssl
       type: string
-    - name: mas_aibroker_s3_endpoint_url
+    - name: aiservice_s3_endpoint_url
       type: string
     - name: mas_aibroker_s3_region
       type: string
-    - name: mas_aibroker_s3_bucket_prefix
+    - name: aiservice_s3_bucket_prefix
       type: string
     - name: rsl_url
       type: string
@@ -98,10 +98,10 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: AIBROKER_NAMESPACE
-        value: $(params.aibroker_namespace)
-      - name: MAS_AIBROKER_PROVISION_TENANT
-        value: $(params.mas_aibroker_provision_tenant)
+      - name: AISERVICE_NAMESPACE
+        value: $(params.aiservice_namespace)
+      - name: AISERVICE_PROVISION_TENANT
+        value: $(params.aiservice_provision_tenant)
       - name: AISERVICE_INSTANCE_ID
         value: $(params.aiservice_instance_id)
       - name: TENANT_NAMESPACE
@@ -123,28 +123,28 @@ spec:
       - name: SLSCFG_URL
         value: $(params.slscfg_url)
 
-      - name: MAS_AIBROKER_SLS_SUBSCRIPTION_ID
-        value: $(params.mas_aibroker_sls_subscription_id)
-      - name: MAS_AIBROKER_WATSONXAI_URL
-        value: $(params.mas_aibroker_watsonxai_url)
+      - name: AISERVICE_SLS_SUBSCRIPTION_ID
+        value: $(params.aiservice_sls_subscription_id)
+      - name: AISERVICE_WATSONXAI_URL
+        value: $(params.aiservice_watsonxai_url)
       - name: MAS_AIBROKER_WATSONXAI_PROJECT_ID
         value: $(params.mas_aibroker_watsonxai_project_id)
       - name: MAS_AIBROKER_STORAGE_PORT
         value: $(params.mas_aibroker_storage_port)
-      - name: MAS_AIBROKER_STORAGE_REGION
-        value: $(params.mas_aibroker_storage_region)
-      - name: MAS_AIBROKER_STORAGE_PROVIDER
-        value: $(params.mas_aibroker_storage_provider)
+      - name: AISERVICE_STORAGE_REGION
+        value: $(params.aiservice_storage_region)
+      - name: AISERVICE_STORAGE_PROVIDER
+        value: $(params.aiservice_storage_provider)
       - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
         value: $(params.mas_aibroker_storage_pipelines_bucket)
-      - name: MAS_AIBROKER_STORAGE_SSL
-        value: $(params.mas_aibroker_storage_ssl)
-      - name: MAS_AIBROKER_S3_ENDPOINT_URL
-        value: $(params.mas_aibroker_s3_endpoint_url)
+      - name: AISERVICE_STORAGE_SSL
+        value: $(params.aiservice_storage_ssl)
+      - name: AISERVICE_S3_ENDPOINT_URL
+        value: $(params.aiservice_s3_endpoint_url)
       - name: MAS_AIBROKER_S3_REGION
         value: $(params.mas_aibroker_s3_region)
-      - name: MAS_AIBROKER_S3_BUCKET_PREFIX
-        value: $(params.mas_aibroker_s3_bucket_prefix)
+      - name: AISERVICE_S3_BUCKET_PREFIX
+        value: $(params.aiservice_s3_bucket_prefix)
       - name: RSL_URL
         value: $(params.rsl_url)
       - name: TENANT_ENTITLEMENT_TYPE

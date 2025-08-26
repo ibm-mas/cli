@@ -21,17 +21,17 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  
 
 ibm aibroker(required):
-      --aibroker-namespace ${TEXT_RESET}AIBROKER_NAMESPACE${TEXT_RESET}
+      --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
       --aiservice-instance-id ${TEXT_RESET}AISERVICE_INSTANCE_ID${TEXT_RESET}
       --primary-storage-class ${TEXT_RESET}PRIMARY_STORAGE_CLASS${TEXT_RESET}
 
 storage provider:
-      --mas-aibroker-storage-provider ${TEXT_RESET}MAS_AIBROKER_STORAGE_PROVIDER${TEXT_RESET}
+      --aiservice-storage-provider ${TEXT_RESET}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}
       --mas-aibroker-storage-secret ${TEXT_RESET}MAS_AIBROKER_STORAGE_SECRET${TEXT_RESET}
       --mas-aibroker-storage-host ${TEXT_RESET}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}
       --mas-aibroker-storage-port ${TEXT_RESET}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}
-      --mas-aibroker-storage-ssl ${TEXT_RESET}MAS_AIBROKER_STORAGE_SSL${TEXT_RESET}
-      --mas-aibroker-storage-region ${TEXT_RESET}MAS_AIBROKER_STORAGE_REGION${TEXT_RESET}
+      --aiservice-storage_ssl ${TEXT_RESET}AISERVICE_STORAGE_SSL${TEXT_RESET}
+      --aiservice-storage-region ${TEXT_RESET}AISERVICE_STORAGE_REGION${TEXT_RESET}
       --mas-aibroker-storage-pipelines-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}
       --mas-aibroker-storage-tenants-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_TENANTS_BUCKET${TEXT_RESET}
       --mas-aibroker-storage-templates-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET${TEXT_RESET}
@@ -41,7 +41,7 @@ mariadb storage
 
 sls_dro_jdbc
       --artifactory-username ${TEXT_RESET}ARTIFACTORY_USERNAME${TEXT_RESET}
-      --mas-app-channel ${TEXT_RESET}MAS_APP_CHANNEL${TEXT_RESET}
+      --aiservice-channel ${TEXT_RESET}AISERVICE_CHANNEL${TEXT_RESET}
       --mas-catalog-source ${TEXT_RESET}MAS_CATALOG_SOURCE${TEXT_RESET}
       --mas-icr-cp ${TEXT_RESET}MAS_ICR_CP${TEXT_RESET}
       --mas-icr-cpopen ${TEXT_RESET}MAS_ICR_CPOPEN${TEXT_RESET}
@@ -76,7 +76,7 @@ function gitops_aibroker_noninteractive() {
    #only export below in whiel loop
 
   #adding default values 
-  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aibroker"}
+  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aibroker"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export IS_EXTERNAL_ROUTE=${IS_EXTERNAL_ROUTE:-"false"}  # Default to "false", can be set to "true" if needed  
   export MAS_ICR_CP=${MAS_ICR_CP:-"cp.icr.io/cp"}
@@ -84,17 +84,17 @@ function gitops_aibroker_noninteractive() {
   # -- SLS Defaults
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}} 
   export MAS_APP_ID=${MAS_APP_ID:-"aibroker"}
-  export MAS_AIBROKER_WATSONX_SECRET=${MAS_AIBROKER_WATSONX_SECRET:-"${MAS_APP_ID}-watsonxcfg"}
-  export MAS_AIBROKER_STORAGE_PROVIDER=${MAS_AIBROKER_STORAGE_PROVIDER:-"aws"}
+  export AISERVICE_WATSONX_SECRET=${AISERVICE_WATSONX_SECRET:-"${MAS_APP_ID}-watsonxcfg"}
+  export AISERVICE_STORAGE_PROVIDER=${AISERVICE_STORAGE_PROVIDER:-"aws"}
   #Storage Defaults
-  export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
-  export MAS_AIBROKER_STORAGE_SSL=${MAS_AIBROKER_STORAGE_SSL:-"true"}
+  export AISERVICE_STORAGE_REGION=${AISERVICE_STORAGE_REGION:-""}
+  export AISERVICE_STORAGE_SSL=${AISERVICE_STORAGE_SSL:-"true"}
   export MAS_AIBROKER_STORAGE_SECRET=${MAS_AIBROKER_STORAGE_SECRET:-"${MAS_APP_ID}-miniocfg"}
   export MAS_CATALOG_SOURCE=${MAS_CATALOG_SOURCE:-"ibm-operator-catalog"}
   #-- mariadb defaults
   export MAS_AIBROKER_MARIADB_SECRET=${MAS_AIBROKER_MARIADB_SECRET:-"${MAS_APP_ID}-mariadbcfge"}
 
-  export MAS_AIBROKER_S3_BUCKET_PREFIX=${MAS_AIBROKER_S3_BUCKET_PREFIX:-"m"}
+  export AISERVICE_S3_BUCKET_PREFIX=${AISERVICE_S3_BUCKET_PREFIX:-"m"}
   export MAS_AIBROKER_S3_REGION=${MAS_AIBROKER_S3_REGION:-"us-east-2"}
   export ENVIRONMENT_TYPE=${ENVIRONMENT_TYPE:-"PRODUCTION"}
 
@@ -134,8 +134,8 @@ function gitops_aibroker_noninteractive() {
         export SECRETS_PATH=$1 && shift
         ;;
 
-      --aibroker-namespace)
-          export AIBROKER_NAMESPACE=$1 && shift
+      --aiservice-namespace)
+          export AISERVICE_NAMESPACE=$1 && shift
         ;;
       --in-saas-env)
           export IN_SAAS_ENV=$1 && shift
@@ -154,17 +154,17 @@ function gitops_aibroker_noninteractive() {
         export REGION_ID=$1 && shift
         ;;
 
-      --mas-aibroker-watsonx-secret)
-          export MAS_AIBROKER_WATSONX_SECRET=$1 && shift
+      --aiservice-watsonx-secret)
+          export AISERVICE_WATSONX_SECRET=$1 && shift
         ;;
-      --mas-aibroker-storage-provider)
-          export MAS_AIBROKER_STORAGE_PROVIDER=$1 && shift
+      --aiservice-storage-provider)
+          export AISERVICE_STORAGE_PROVIDER=$1 && shift
         ;;
       --mas-aibroker-storage-region)
-        export MAS_AIBROKER_STORAGE_REGION=$1 && shift
+        export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
-      --mas-aibroker-storage-ssl)
-        export MAS_AIBROKER_STORAGE_SSL=$1 && shift
+      --aiservice-storage_ssl)
+        export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
       --mas-aibroker-storage-secret)
           export MAS_AIBROKER_STORAGE_SECRET=$1 && shift
@@ -180,16 +180,16 @@ function gitops_aibroker_noninteractive() {
         export ENVIRONMENT_TYPE=$1 && shift
         ;;
 
-      --mas-aibroker-s3-endpoint-url)
-        export MAS_AIBROKER_S3_ENDPOINT_URL=$1 && shift
+      --aiservice-s3-endpoint-url)
+        export AISERVICE_S3_ENDPOINT_URL=$1 && shift
         ;;
 
       --mas-aibroker-s3-region)
         export MAS_AIBROKER_S3_REGION=$1 && shift
         ;;
 
-      --mas-aibroker-s3-bucket-prefix)
-        export MAS_AIBROKER_S3_BUCKET_PREFIX=$1 && shift
+      --aiservice-s3-bucket-prefix)
+        export AISERVICE_S3_BUCKET_PREFIX=$1 && shift
         ;;
 
      # Target Cluster (Optional)
@@ -254,13 +254,13 @@ function gitops_aibroker_noninteractive() {
   [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_aibroker_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
   [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aibroker_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
   [[ -z "$ARTIFACTORY_USERNAME" ]] && gitops_aibroker_help "ARTIFACTORY_USERNAME is not set. Please provide the artifactory username using --artifactory-username"
-  [[ -z "$MAS_APP_CHANNEL" ]] && gitops_aibroker_help "MAS_APP_CHANNEL is not set. Please provide the mas app channel using --mas-app-channel"
+  [[ -z "$AISERVICE_CHANNEL" ]] && gitops_aibroker_help "AISERVICE_CHANNEL is not set. Please provide the mas app channel using --aiservice-channel"
   [[ -z "$MAS_CATALOG_SOURCE" ]] && gitops_aibroker_help "MAS_CATALOG_SOURCE is not set. Please provide the mas catalog source using --mas-catalog-source"
   [[ -z "$MAS_ICR_CP" ]] && gitops_aibroker_help "MAS_ICR_CP is not set. Please provide the MAS ICR CP using --mas-icr-cp"
   [[ -z "$MAS_ICR_CPOPEN" ]] && gitops_aibroker_help "MAS_ICR_CPOPEN is not set. Please provide the MAS ICR CPOPEN using --mas-icr-cpopopen"
   [[ -z "$IN_SAAS_ENV" ]] && gitops_aibroker_help "IN_SAAS_ENV is not set. Please specify if this is in SaaS environment using --in-saas-env."
   [[ -z "$IS_EXTERNAL_ROUTE" ]] && gitops_aibroker_help "IS_EXTERNAL_ROUTE is not set. Please specify if this is an external route using --is-external-route."
-  [[ -z "$MAS_AIBROKER_S3_ENDPOINT_URL" ]] && gitops_aibroker_help "MAS_AIBROKER_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --mas-aibroker-s3-endpoint-url."
+  [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aibroker_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
 
 
 }
@@ -325,24 +325,24 @@ function gitops_aibroker() {
   export MAS_INSTANCE_ID="$AISERVICE_INSTANCE_ID"
   echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
-  echo_reset_dim "AI Broker Namespace ................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
-  echo_reset_dim "MAS AI Broker WatsonX Secret .......... ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONX_SECRET}"
+  echo_reset_dim "AI Broker Namespace ................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
+  echo_reset_dim "AI Service WatsonX Secret ............. ${COLOR_MAGENTA}${AISERVICE_WATSONX_SECRET}"
   echo_reset_dim "Pull Secret Name ...................... ${COLOR_MAGENTA}${PULL_SECRET_NAME}"
   # Storage variables
-  echo_reset_dim "MAS AI Broker Storage Provider ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PROVIDER}"
-  echo_reset_dim "MAS AI Broker Storage Secret .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SECRET}"
-  echo_reset_dim "MAS AI Broker Storage Host ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_HOST}"
-  echo_reset_dim "MAS AI Broker Storage Port ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PORT}"
-  echo_reset_dim "MAS AI Broker Storage SSL ............. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
-  echo_reset_dim "MAS AI Broker Storage Region .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_REGION}"
-  echo_reset_dim "MAS AI Broker Pipelines Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
-  echo_reset_dim "MAS AI Broker Tenants Bucket .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
-  echo_reset_dim "MAS AI Broker Templates Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"
-  echo_reset_dim "MAS AI Broker MariaDB Secret .......... ${COLOR_MAGENTA}${MAS_AIBROKER_MARIADB_SECRET}"
+  echo_reset_dim "AI Broker Storage Provider ........ ${COLOR_MAGENTA}${AISERVICE_STORAGE_PROVIDER}"
+  echo_reset_dim "AI Broker Storage Secret .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SECRET}"
+  echo_reset_dim "AI Broker Storage Host ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_HOST}"
+  echo_reset_dim "AI Broker Storage Port ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PORT}"
+  echo_reset_dim "AI Broker Storage SSL ............. ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
+  echo_reset_dim "AI Broker Storage Region .......... ${COLOR_MAGENTA}${AISERVICE_STORAGE_REGION}"
+  echo_reset_dim "AI Broker Pipelines Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
+  echo_reset_dim "AI Broker Tenants Bucket .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
+  echo_reset_dim "AI Broker Templates Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"
+  echo_reset_dim "AI Broker MariaDB Secret .......... ${COLOR_MAGENTA}${MAS_AIBROKER_MARIADB_SECRET}"
   
   echo_reset_dim "Primary Storage Class ................. ${COLOR_MAGENTA}${PRIMARY_STORAGE_CLASS}"
   echo_reset_dim "Artifactory Username ................... ${COLOR_MAGENTA}${ARTIFACTORY_USERNAME}"
-  echo_reset_dim "MAS App Channel ........................ ${COLOR_MAGENTA}${MAS_APP_CHANNEL}"
+  echo_reset_dim "AiService Channel ...................... ${COLOR_MAGENTA}${AISERVICE_CHANNEL}"
   echo_reset_dim "MAS Catalog Source ..................... ${COLOR_MAGENTA}${MAS_CATALOG_SOURCE}"
   echo_reset_dim "MAS ICR CP ............................. ${COLOR_MAGENTA}${MAS_ICR_CP}"
   echo_reset_dim "MAS ICR CPOpen ......................... ${COLOR_MAGENTA}${MAS_ICR_CPOPEN}"
