@@ -68,6 +68,11 @@ Content Selection (Other Dependencies):
       --mirror-appconnect                         Mirror images for IBM AppConnect
       --mirror-odf                                Mirror images for ODF
 
+Content Selection (AIService Dependencies):
+      --mirror-kmodels                            Mirror images for kmodels
+      --mirror-opendatahub                        Mirror images for opendatahub
+      --mirror-minio                              Mirror images for minio
+
 Content Selection (All images included):
       --mirror-everything                         Mirror all MAS related images (including dependencies)
 
@@ -115,6 +120,11 @@ function mirror_everything() {
     MIRROR_WML=true
     MIRROR_SPARK=true
     MIRROR_COGNOS=true
+
+    # Dependencies (AIService)
+    MIRROR_MINIO=true
+    MIRROR_KMODELS=true
+    MIRROR_OPENDATAHUB=true
 }
 
 function mirror_to_registry_noninteractive() {
@@ -148,6 +158,11 @@ function mirror_to_registry_noninteractive() {
   MIRROR_COGNOS=false
   MIRROR_APPCONNECT=false
   MIRROR_ODF=false
+
+  # Dependencies (AIService)
+  MIRROR_MINIO=false
+  MIRROR_KMODELS=false
+  MIRROR_OPENDATAHUB=false
 
   while [[ $# -gt 0 ]]
   do
@@ -278,6 +293,17 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-odf)
         MIRROR_ODF=true
+        ;;
+
+      # Content Selection (AIService)
+      --mirror-kmodels)
+        MIRROR_KMODELS=true
+        ;;
+      --mirror-minio)
+        MIRROR_MINIO=true
+        ;;
+      --mirror-opendatahub)
+        MIRROR_OPENDATAHUB=true
         ;;
 
       # Content Selection (Cloud Pak for Data)
@@ -464,6 +490,12 @@ function mirror_to_registry_interactive() {
 
     prompt_for_confirm "IBM AppConnect" MIRROR_APPCONNECT
     prompt_for_confirm "Red Hat ODF" MIRROR_ODF
+
+    if prompt_for_confirm_default_yes "Mirror AIService Dependencies"; then
+      prompt_for_confirm "KModels" MIRROR_KMODELS
+      prompt_for_confirm "OpenDataHub" MIRROR_OPENDATAHUB
+      prompt_for_confirm "Minio" MIRROR_MINIO
+    fi
   fi
 
   if [[ "$MIRROR_MAS_ICD" == "true" ]]; then
@@ -559,6 +591,10 @@ function mirror_to_registry() {
   export MIRROR_APPCONNECT
   export MIRROR_ODF
   export MIRROR_MAS_ICD
+  export MIRROR_KMODELS
+  export MIRROR_OPENDATAHUB
+  export MIRROR_MINIO
+
   export MIRROR_EVERYTHING
 
   # Authentication
@@ -582,7 +618,10 @@ function mirror_to_registry() {
     "$MIRROR_WSL" == true ||
     "$MIRROR_WML" == true ||
     "$MIRROR_SPARK" == true ||
-    "$MIRROR_COGNOS" == true ]]
+    "$MIRROR_COGNOS" == true ||
+    "$MIRROR_MINIO" == true ||
+    "$MIRROR_KMODELS" == true ||
+    "$MIRROR_OPENDATAHUB" == true ]]
   then
     MIRROR_DEPS=true
   else
@@ -657,6 +696,9 @@ function mirror_to_registry() {
   show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "IBM AppConnect ......................" $MIRROR_APPCONNECT
   show_mirror_status "RedHat ODF .........................." $MIRROR_ODF
+  show_mirror_status "KModels ............................." $MIRROR_KMODELS
+  show_mirror_status "Minio ..............................." $MIRROR_MINIO
+  show_mirror_status "OpenDataHub ........................." $MIRROR_OPENDATAHUB
 
   echo
   reset_colors
