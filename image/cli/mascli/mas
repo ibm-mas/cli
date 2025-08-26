@@ -707,7 +707,7 @@ case $1 in
     ;;
 
   *)
-    echo "unknown parameter"
+    echo "unknown parameter $1"
     exit 1
     ;;
 esac
