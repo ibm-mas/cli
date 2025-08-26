@@ -36,6 +36,8 @@ if  [ $arch != "s390x" ] && [ $arch != "ppc64le" ]; then
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas teardown-registry${TEXT_RESET} to delete a private container registry on an OCP cluster"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas mirror-images${TEXT_RESET} to mirror container images required by MAS to a private registry"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas configure-airgap${TEXT_RESET} to configure a cluster to use a private registry as a mirror"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas mirror-aiservice-images${TEXT_RESET} to mirror container images required by AIService to a private registry"
+    echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas configure-aiservice-airgap${TEXT_RESET} to configure a cluster to use a private registry as a mirror for AIService"
     echo "OpenShift Cluster Management:"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-aws${TEXT_RESET} to provision an OCP cluster on AWS"
     echo "  - ${TEXT_BOLD}${COLOR_GREEN}mas provision-roks${TEXT_RESET} to provision an OCP cluster on IBMCloud Red Hat OpenShift Service (ROKS)"
