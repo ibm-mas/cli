@@ -269,36 +269,6 @@ function mirror_aiservice_to_registry_interactive() {
 
 }
 
-function mirror_aiservice_one_thing() {
-    MOT_RUNMIRROR=$1
-    MOT_NAME=$2
-    MOT_LOGFILE=$3
-    MOT_PLAYBOOK=$4
-    if [[ "$MOT_RUNMIRROR" == "true" ]]; then
-    echo -en "\033[s" # Save cursor position
-    echo -n "Mirroring ${MOT_NAME} ... ${MOT_LOGFILE}"
-    ansible-playbook ibm.mas_devops.${MOT_PLAYBOOK} &> ${MOT_LOGFILE}
-    mirror_result=$?
-    echo -en "\033[1K" # Clear current line
-    echo -en "\033[u" # Restore cursor position
-    if [[ $mirror_result == "0" ]];
-    then echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
-    else
-      echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
-      echo
-      cat "$MOT_LOGFILE"
-    fi
-  else
-    echo -e "${COLOR_MAGENTA}[SKIPPED] ${MOT_NAME}${TEXT_RESET}"
-  fi
-}
-
-function show_mirror_aiservice_status() {
-  if [[ "$2" == "true" ]]
-  then echo_reset_dim "$1 ${COLOR_GREEN}Mirror"
-  else echo_reset_dim "$1 ${COLOR_RED}Skip"
-  fi
-}
 
 function mirror_aiservice_to_registry() {
   # Take the first parameter off (it will be mirror-images)
@@ -376,16 +346,16 @@ function mirror_aiservice_to_registry() {
   echo
   reset_colors
   echo_h4 "Content Selection (Core Platform)" "    "
-  show_mirror_aiservice_status "IBM Maximo Operator Catalog ........." $MIRROR_CATALOG
-  show_mirror_aiservice_status "IBM Maximo AI Service ..............." $MIRROR_MAS_AISERVICE
+  show_mirror_status "IBM Maximo Operator Catalog ........." $MIRROR_CATALOG
+  show_mirror_status "IBM Maximo AI Service ..............." $MIRROR_MAS_AISERVICE
 
   echo
   reset_colors
   echo_h4 "Content Selection (Dependencies)" "    "
-  show_mirror_aiservice_status "Minio ..............................." $MIRROR_MINIO
-  show_mirror_aiservice_status "MariaDb ............................." $MIRROR_MARIADB
-  show_mirror_aiservice_status "KModels ............................." $MIRROR_KMODLES
-  show_mirror_aiservice_status "OpenDataHub ........................." $MIRROR_OPENDATAHUB
+  show_mirror_status "Minio ..............................." $MIRROR_MINIO
+  show_mirror_status "MariaDb ............................." $MIRROR_MARIADB
+  show_mirror_status "KModels ............................." $MIRROR_KMODLES
+  show_mirror_status "OpenDataHub ........................." $MIRROR_OPENDATAHUB
 
   echo
   reset_colors
@@ -404,6 +374,6 @@ function mirror_aiservice_to_registry() {
   export ARTIFACTORY_USERNAME=""
   export ARTIFACTORY_TOKEN=""
 
-  mirror_aiservice_one_thing $MIRROR_MAS_AISERVICE        "IBM Maximo AI Service"                 "$LOG_PREFIX-aiservice.log"        mirror_add_aiservice
-  mirror_aiservice_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
+  mirror_one_thing $MIRROR_MAS_AISERVICE        "IBM Maximo AI Service"                 "$LOG_PREFIX-aiservice.log"        mirror_add_aiservice
+  mirror_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
 }
