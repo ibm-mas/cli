@@ -616,6 +616,7 @@ case $1 in
     reset_colors
     gitops_aibroker_tenant "$@"
     ;;
+
   gitops-mas-provisioner)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -641,7 +642,7 @@ case $1 in
     ;;
 
   *)
-    echo "unknown parameter"
+    echo "unknown parameter $1"
     exit 1
     ;;
 esac
