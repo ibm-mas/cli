@@ -66,7 +66,6 @@ optionalParams = [
     "aiservice_s3_ssl",
     "aiservice_s3_region",
     "aiservice_s3_bucket_prefix",
-    "aiservice_s3_pipelines_bucket",
     "aiservice_s3_tenants_bucket",
     "aiservice_s3_templates_bucket",
 
