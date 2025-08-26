@@ -120,7 +120,7 @@ function mirror_to_registry_interactive_common() {
   echo_h2 "Configure Images to Mirror"
 }
 
-function mirror_to_regsitry_common() {
+function mirror_to_registry_common() {
   # Ensure all environment variables are available to ansible-playbook
 
   # General Config
