@@ -46,48 +46,6 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
-    # Opendatahub details
-    - name: aiservice_storage_provider
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_accesskey
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_secretkey
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_host
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_port
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_ssl
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_region
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_pipelines_bucket
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_tenants_bucket
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_templates_bucket
-      type: string
-      default: "This option is mandatory"
-      default: ""
-
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -113,28 +71,6 @@ spec:
       # Custom Label Support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
-
-      # Opendatahub storage details
-      - name: AISERVICE_STORAGE_PROVIDER
-        value: $(params.aiservice_storage_provider)
-      - name: AISERVICE_STORAGE_ACCESSKEY
-        value: $(params.aiservice_storage_accesskey)
-      - name: AISERVICE_STORAGE_SECRETKEY
-        value: $(params.aiservice_storage_secretkey)
-      - name: AISERVICE_STORAGE_HOST
-        value: $(params.aiservice_storage_host)
-      - name: AISERVICE_STORAGE_PORT
-        value: $(params.aiservice_storage_port)
-      - name: AISERVICE_STORAGE_SSL
-        value: $(params.aiservice_storage_ssl)
-      - name: AISERVICE_STORAGE_REGION
-        value: $(params.aiservice_storage_region)
-      - name: AISERVICE_STORAGE_PIPELINES_BUCKET
-        value: $(params.aiservice_storage_pipelines_bucket)
-      - name: AISERVICE_STORAGE_TENANTS_BUCKET
-        value: $(params.aiservice_storage_tenants_bucket)
-      - name: AISERVICE_STORAGE_TEMPLATES_BUCKET
-        value: $(params.aiservice_storage_templates_bucket)
 
   steps:
     - name: aiservice-odh
