@@ -224,6 +224,7 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
+    export PRODUCT_FAMILY="mas"
     configure_ocp_for_mirror "$@"
     ;;
 
@@ -236,7 +237,8 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
-    configure_ocp_for_aiservice_mirror "$@"
+    export PRODUCT_FAMILY="aiservice"
+    configure_ocp_for_mirror "$@"
     ;;
 
   install)
