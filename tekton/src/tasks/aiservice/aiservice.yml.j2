@@ -91,10 +91,6 @@ spec:
     - name: aiservice_s3_bucket_prefix
       type: string
       default: ""
-    - name: aiservice_s3_pipelines_bucket
-      type: string
-      default: "This option is mandatory"
-      default: ""
     - name: aiservice_s3_tenants_bucket
       type: string
       default: "This option is mandatory"
@@ -165,8 +161,6 @@ spec:
         value: $(params.aiservice_s3_region)
       - name: AISERVICE_S3_BUCKET_PREFIX
         value: $(params.aiservice_s3_bucket_prefix)
-      - name: AISERVICE_S3_PIPELINES_BUCKET
-        value: $(params.aiservice_s3_pipelines_bucket)
       - name: AISERVICE_S3_TENANTS_BUCKET
         value: $(params.aiservice_s3_tenants_bucket)
       - name: AISERVICE_S3_TEMPLATES_BUCKET
