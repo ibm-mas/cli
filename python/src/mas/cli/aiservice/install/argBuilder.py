@@ -105,8 +105,6 @@ class aiServiceInstallArgBuilderMixin():
 
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
-        # if self.getParam('aiservice_s3_provider') != "":
-        #     command += f"  --s3-provider \"{self.getParam('aiservice_s3_provider')}\"{newline}"
         if self.getParam('aiservice_s3_accesskey') != "":
             command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
         if self.getParam('aiservice_s3_secretkey') != "":

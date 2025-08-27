@@ -204,19 +204,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             elif key == "install_minio_aiservice":
                 incompatibleWithMinioInstall = [
-                    # "aiservice_s3_provider",
                     "aiservice_s3_accesskey",
                     "aiservice_s3_secretkey",
                     "aiservice_s3_host",
                     "aiservice_s3_port",
                     "aiservice_s3_ssl",
                     "aiservice_s3_bucket_prefix",
-                    # "aiservice_s3_endpoint_url",
-                    "aiservice_s3_region",
-                    # "aiservice_tenant_s3_access_key",
-                    # "aiservice_tenant_s3_secret_key",
-                    # "aiservice_tenant_s3_endpoint_url",
-                    # "aiservice_tenant_s3_region"
+                    "aiservice_s3_region"
                 ]
                 if value is None:
                     for uKey in incompatibleWithMinioInstall:
@@ -241,14 +235,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
                     self.setParam("aiservice_s3_port", "9000")
                     self.setParam("aiservice_s3_ssl", "false")
-                    # self.setParam("aiservice_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
                     self.setParam("aiservice_s3_region", "none")
-                    self.setParam("aiservice_s3_bucket_prefix", "aiservice")
-
-                    # self.setParam("aiservice_tenant_s3_access_key", self.args.minio_root_user)
-                    # self.setParam("aiservice_tenant_s3_secret_key", self.args.minio_root_password)
-                    # self.setParam("aiservice_tenant_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
-                    # self.setParam("aiservice_tenant_s3_region", "none")
+                    self.setParam("aiservice_s3_bucket_prefix", "aiservice-")
                 else:
                     self.fatalError(f"Unsupported value for --install-minio: {value}")
 
@@ -546,9 +534,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             # Ask for external storage configuration
             self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
-            # s3_completer = WordCompleter(["aws", "minio"])
-            # s3_provider = self.promptForString("Storage provider", completer=s3_completer)
-            # self.setParam("aiservice_s3_provider", s3_provider)
             self.promptForString("Storage access key", "aiservice_s3_accesskey")
             self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
             self.promptForString("Storage host", "aiservice_s3_host")
@@ -559,56 +544,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
             self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
-        # S3 parameters are now auto-derived from storage configuration
-        # self._deriveS3ParametersFromStorage()
-
     def aiServiceTenantSettings(self) -> None:
         self.printH1("AI Service Tenant Settings")
         self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
         self.promptForString("Tenant start date", "tenant_entitlement_start_date")
         self.promptForString("Tenant end date", "tenant_entitlement_end_date")
-
-    # def _deriveS3ParametersFromStorage(self) -> None:
-    #     """
-    #     Auto-derive S3 and tenant S3 parameters from the aiservice_s3_* parameters.
-    #     This reuses the values provided for kmodel object storage to avoid redundant prompts.
-    #     """
-    #     storage_provider = self.getParam("aiservice_s3_provider")
-    #     storage_host = self.getParam("aiservice_s3_host")
-    #     storage_port = self.getParam("aiservice_s3_port")
-    #     storage_ssl = self.getParam("aiservice_s3_ssl")
-    #     storage_region = self.getParam("aiservice_s3_region")
-    #     storage_bucket_prefix = self.getParam("aiservice_s3_bucket_prefix")
-    #     storage_accesskey = self.getParam("aiservice_s3_accesskey")
-    #     storage_secretkey = self.getParam("aiservice_s3_secretkey")
-
-    #     # Build endpoint URL from storage configuration
-    #     protocol = "https" if storage_ssl == "true" else "http"
-
-    #     if storage_provider == "minio":
-    #         endpoint_url = f"{protocol}://{storage_host}:{storage_port}"
-    #     elif storage_provider == "aws":
-    #         # For AWS S3, construct proper endpoint
-    #         if storage_region and storage_region != "none":
-    #             endpoint_url = f"{protocol}://s3.{storage_region}.amazonaws.com"
-    #         else:
-    #             endpoint_url = f"{protocol}://s3.amazonaws.com"
-    #     else:
-    #         # For other providers, construct basic endpoint
-    #         endpoint_url = f"{protocol}://{storage_host}:{storage_port}" if storage_port else f"{protocol}://{storage_host}"
-
-    #     # Set S3 parameters (reusing storage configuration)
-    #     if endpoint_url:
-    #         self.setParam("aiservice_s3_endpoint_url", endpoint_url)
-    #     self.setParam("aiservice_s3_region", storage_region if storage_region else "none")
-
-    #     # Set tenant S3 parameters (reusing same storage configuration)
-    #     self.setParam("aiservice_tenant_s3_bucket_prefix", "tenant")  # Default tenant prefix
-    #     self.setParam("aiservice_tenant_s3_access_key", storage_accesskey)
-    #     self.setParam("aiservice_tenant_s3_secret_key", storage_secretkey)
-    #     if endpoint_url:
-    #         self.setParam("aiservice_tenant_s3_endpoint_url", endpoint_url)
-    #     self.setParam("aiservice_tenant_s3_region", storage_region if storage_region else "none")
 
     def _setMinioStorageDefaults(self) -> None:
         """

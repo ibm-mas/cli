@@ -58,7 +58,6 @@ optionalParams = [
     "artifactory_username",
     "artifactory_token",
     # AI Service
-    # "aiservice_s3_provider",
     "aiservice_s3_accesskey",
     "aiservice_s3_secretkey",
     "aiservice_s3_host",
