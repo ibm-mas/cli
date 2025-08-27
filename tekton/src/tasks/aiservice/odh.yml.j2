@@ -46,6 +46,12 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    # Model deployment type
+    - name: aiservice_odh_model_deployment_type
+      type: string
+      description: Model deployment type for ODH
+      default: "raw"
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -71,6 +77,10 @@ spec:
       # Custom Label Support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+
+      # Model deployment type
+      - name: AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE
+        value: $(params.aiservice_odh_model_deployment_type)
 
   steps:
     - name: aiservice-odh

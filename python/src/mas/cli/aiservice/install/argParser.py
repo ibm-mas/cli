@@ -171,7 +171,16 @@ masAppsArgGroup.add_argument(
     help="Subscription channel for Maximo AI Service"
 )
 
+# ODH
 # -----------------------------------------------------------------------------
+odhArgGroup = aiServiceinstallArgParser.add_argument_group("Opendatahub")
+
+odhArgGroup.add_argument(
+    "--odh-model-deployment-type",
+    required=False,
+    default="raw",
+    help="Model deployment type for ODH"
+)
 
 # S3 - General
 # -----------------------------------------------------------------------------

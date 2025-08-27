@@ -57,6 +57,8 @@ optionalParams = [
     # Dev Mode
     "artifactory_username",
     "artifactory_token",
+    # ODH
+    "aiservice_odh_model_delpoyment_type"
     # AI Service
     "aiservice_s3_accesskey",
     "aiservice_s3_secretkey",
