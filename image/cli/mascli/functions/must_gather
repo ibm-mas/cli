@@ -208,6 +208,15 @@ function mustgather() {
   echo "Must gather generated with mas cli version: $VERSION"
   echo "Must gather will be saved to: $OUTPUT_FILE"
 
+  if [ "$(oc whoami 2>/dev/null)" == "" ] ; then 
+    echo_warning "You must be logged in to the server as a cluster administrator before running the must-gather command"
+    exit 1
+  elif [ "$(oc get clusterrolebindings 2>&1 | grep forbidden)" != "" ] ; then 
+    echo_warning "Your user does not appear to be a cluster administrator, you must be logged in to the server as a cluster administrator before running the must-gather command"
+    exit 1
+  fi
+
+
   # ---------------------------------------------------------------------------
   # Generate OCP Report
   # ---------------------------------------------------------------------------
@@ -216,10 +225,29 @@ function mustgather() {
     echo_h3 "Cluster Resources"
     startTimer
 
-    for RESOURCE in nodes storageclasses clusterversions imagecontentsourcepolicy imagedigestmirrorset imagetagmirrorset objectbucket objectbucketclaim objectstoragecfg
+    for RESOURCE in storageclasses clusterversions objectbucket objectbucketclaim objectstoragecfg
     do
       $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources
     done
+
+    for RESOURCE in nodes
+    do
+      $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources --describe
+    done
+
+    # collection for airgap environment
+    if [[ $(oc get imagecontentsourcepolicy,imagedigestmirrorset,imagetagmirrorset  2> /dev/null) != "" ]]; then 
+    
+      for RESOURCE in imagecontentsourcepolicy imagedigestmirrorset imagetagmirrorset machineconfig machineconfigpool
+      do
+        $MG_SCRIPT_DIR/mg-collect-resources -r $RESOURCE -d $OUTPUT_DIR/resources
+      done
+
+      $MG_SCRIPT_DIR/mg-collect-node-files -d $OUTPUT_DIR/resources -f /host/etc/containers/registries.conf
+    fi
+
+
+    
 
     for RESOURCE in namespaces packagemanifests clusterroles clusterrolebindings
     do
@@ -409,7 +437,7 @@ function mustgather() {
   # ---------------------------------------------------------------------------
   if [[ -z $AISERVICE_INSTANCE_IDS ]]; then
     # Find AI Service instances
-    AISERVICE_INSTANCE_IDS=$(oc get aibrokerapp --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
+    AISERVICE_INSTANCE_IDS=$(oc get aiserviceapp --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
   fi
 
   echo ""
@@ -438,7 +466,7 @@ function mustgather() {
   # ---------------------------------------------------------------------------
   if [[ -z $AISERVICE_TENANT_IDS ]]; then
     # Find AI Service instances
-    AISERVICE_TENANT_IDS=$(oc get aibrokerworkspace --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
+    AISERVICE_TENANT_IDS=$(oc get aiservicetenant --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
   fi
 
   echo ""
