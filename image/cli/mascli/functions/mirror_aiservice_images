@@ -13,6 +13,7 @@ Content Selection (Dependencies):
       --mirror-mariadb
       --mirror-opendatahub
       --mirror-kmodels
+      --mirror-odf                                Mirror images for ODF
 
 Content Selection (All images included):
       --mirror-everything                         Mirror all ai-service related images (including dependencies)
@@ -32,6 +33,7 @@ function mirror_aiservice_everything() {
     MIRROR_MAS_AISERVICE=true
 
     # Dependencies (Other)
+    MIRROR_ODF=true
     MIRROR_MINIO=true
     MIRROR_MARIADB=true
     MIRROR_KMODELS=true
@@ -44,6 +46,7 @@ function mirror_aiservice_to_registry_noninteractive() {
 
   # Dependencies
   MIRROR_CATALOG=false
+  MIRROR_ODF=false
   MIRROR_MINIO=false
   MIRROR_MARIADB=false
   MIRROR_KMODELS=false
@@ -123,6 +126,9 @@ function mirror_aiservice_to_registry_noninteractive() {
       --mirror-mariadb)
         MIRROR_MARIADB=true
         ;;
+      --mirror-odf)
+        MIRROR_ODF=true
+        ;;
       --mirror-kmodels)
         MIRROR_KMODELS=true
         ;;
@@ -176,6 +182,7 @@ function mirror_aiservice_to_registry_interactive() {
     prompt_for_confirm "IBM Maximo Application Suite - AI Service" MIRROR_MAS_AISERVICE
 
     prompt_for_confirm "Minio" MIRROR_MINIO
+    prompt_for_confirm "Red Hat ODF" MIRROR_ODF
     prompt_for_confirm "MariaDB" MIRROR_MARIADB
     prompt_for_confirm "KModels" MIRROR_KMODELS
     prompt_for_confirm "OpenDataHub" MIRROR_OPENDATAHUB
@@ -202,9 +209,11 @@ export MIRROR_MINIO
   
   export MIRROR_KMODELS
   export MIRROR_OPENDATAHUB
+  export MIRROR_ODF
   
   if [[ "$MIRROR_CATALOG" == true ||
     "$MIRROR_MINIO" == true ||
+    "$MIRROR_ODF" == true ||
     "$MIRROR_KMODELS" == true ||
     "$MIRROR_OPENDATAHUB" == true ||
     "$MIRROR_MARIADB" == true ]]
@@ -224,6 +233,7 @@ export MIRROR_MINIO
   echo
   reset_colors
   echo_h4 "Content Selection (Dependencies)" "    "
+  show_mirror_status "RedHat ODF .........................." $MIRROR_ODF
   show_mirror_status "Minio ..............................." $MIRROR_MINIO
   show_mirror_status "MariaDb ............................." $MIRROR_MARIADB
   show_mirror_status "KModels ............................." $MIRROR_KMODLES
