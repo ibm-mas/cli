@@ -534,8 +534,6 @@ function mirror_to_registry() {
   show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "IBM AppConnect ......................" $MIRROR_APPCONNECT
   show_mirror_status "RedHat ODF .........................." $MIRROR_ODF
-  show_mirror_status "KModels ............................." $MIRROR_KMODELS
-  show_mirror_status "Minio ..............................." $MIRROR_MINIO
   show_mirror_status "OpenDataHub ........................." $MIRROR_OPENDATAHUB
 
   confirm_mirror
