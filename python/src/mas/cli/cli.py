@@ -281,6 +281,7 @@ class BaseApp(PrintMixin, PromptMixin):
             with open(self.tektonDefsWithDigestPath, 'w') as file:
                 file.write(tektonDefsWithDigest)
 
+            logger.info(f"Debug tektonDefsWithDigest: {tektonDefsWithDigest} \nDone")
             self.tektonDefsPath = self.tektonDefsWithDigestPath
 
     @logMethodCall
