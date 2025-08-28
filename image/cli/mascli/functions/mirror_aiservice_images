@@ -10,6 +10,7 @@ Content Selection (Core Platform):
 
 Content Selection (Dependencies):
       --mirror-minio                   Mirror images for IBM Maximo Visual Inspection
+      --mirror-db2                                Mirror images for IBM Db2
       --mirror-mariadb
       --mirror-opendatahub
       --mirror-kmodels
@@ -33,6 +34,7 @@ function mirror_aiservice_everything() {
     MIRROR_MAS_AISERVICE=true
 
     # Dependencies (Other)
+    MIRROR_DB2U=true
     MIRROR_ODF=true
     MIRROR_MINIO=true
     MIRROR_MARIADB=true
@@ -46,6 +48,7 @@ function mirror_aiservice_to_registry_noninteractive() {
 
   # Dependencies
   MIRROR_CATALOG=false
+  MIRROR_DB2U=false
   MIRROR_ODF=false
   MIRROR_MINIO=false
   MIRROR_MARIADB=false
@@ -123,6 +126,9 @@ function mirror_aiservice_to_registry_noninteractive() {
       --mirror-minio)
         MIRROR_MINIO=true
         ;;
+      --mirror-db2)
+        MIRROR_DB2U=true
+        ;;
       --mirror-mariadb)
         MIRROR_MARIADB=true
         ;;
@@ -181,6 +187,7 @@ function mirror_aiservice_to_registry_interactive() {
     prompt_for_confirm_default_yes "IBM Maximo Operator Catalog" MIRROR_CATALOG
     prompt_for_confirm "IBM Maximo Application Suite - AI Service" MIRROR_MAS_AISERVICE
 
+    prompt_for_confirm_default_yes "IBM Db2" MIRROR_DB2U
     prompt_for_confirm "Minio" MIRROR_MINIO
     prompt_for_confirm "Red Hat ODF" MIRROR_ODF
     prompt_for_confirm "MariaDB" MIRROR_MARIADB
@@ -205,6 +212,7 @@ function mirror_aiservice_to_registry() {
   fi
 
 export MIRROR_MINIO
+  export MIRROR_DB2U
   export MIRROR_MARIADB
   
   export MIRROR_KMODELS
@@ -213,6 +221,7 @@ export MIRROR_MINIO
   
   if [[ "$MIRROR_CATALOG" == true ||
     "$MIRROR_MINIO" == true ||
+    "$MIRROR_DB2U" == true ||
     "$MIRROR_ODF" == true ||
     "$MIRROR_KMODELS" == true ||
     "$MIRROR_OPENDATAHUB" == true ||
@@ -233,6 +242,7 @@ export MIRROR_MINIO
   echo
   reset_colors
   echo_h4 "Content Selection (Dependencies)" "    "
+  show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "RedHat ODF .........................." $MIRROR_ODF
   show_mirror_status "Minio ..............................." $MIRROR_MINIO
   show_mirror_status "MariaDb ............................." $MIRROR_MARIADB
