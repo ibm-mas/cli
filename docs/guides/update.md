@@ -10,9 +10,9 @@ This guide is specifically for environments using **static catalogs**.  If you a
 
 The catalog update is applied at a cluster level.  When we update we don't update a specific operator running on the cluster, but rather the cluster as a whole.  Everything in the cluster should be running at the latest version available in the catalog that is currently installed.
 
-When apply a catalog update it will apply all the latest fixes for everything in the cluster (all MAS instances and all dependencies), ensuring the that you're on a tested combination of patch levels across the board.  There's no option to mix patch levels (e.g. keep one MAS instance on 8.9.4 and another on 8.9.5).
+When applying a catalog update it will apply all the latest fixes for everything in the cluster (all MAS instances and all dependencies), ensuring the that you're on a tested combination of patch levels across the board.  There's no option to mix patch levels (e.g. keep one MAS instance on 8.9.4 and another on 8.9.5).
 
-Undoing an update is a lot of work as it's reversing a lot of changes throughout the cluster.  Generally it shouldn't be needed as updates are just bringing security and bug fixes.  Think of it like applying a windows update, there's no easy "undo" and if something slipped through we would fast track a new update so that rather than needing to revert from 8.9.5 to 8.9.4 there would be an 8.9.6 provided in double quick time that either reverted whatever caused the regression in 8.9.5 or addressed whatever the issue was.
+Undoing an update is a lot of work as it's reversing a lot of changes throughout the cluster.  Generally it shouldn't be needed as updates are just bringing security and bug fixes.  Think of it like applying a windows update; there's no easy "undo" and if something slipped through we would fast track a new update so that rather than needing to revert from 8.9.5 to 8.9.4 there would be an 8.9.6 provided in double quick time that either reverted whatever caused the regression in 8.9.5 or addressed whatever the issue was.
 
 
 1 Disconnected Update Preparation
