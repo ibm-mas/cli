@@ -116,6 +116,9 @@ class installArgBuilderMixin():
         if self.getParam('enable_ipv6') is True:
             command += f"  --enable-ipv6{newline}"
 
+        if self.getParam('mas_app_cfg_retries') != "":
+            command += f"  --mas-app-cfg-retries \"{self.getParam('mas_app_cfg_retries')}\"{newline}"
+
         # Storage
         # -----------------------------------------------------------------------------
         command += f"  --storage-class-rwo \"{self.getParam('storage_class_rwo')}\""

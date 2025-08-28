@@ -365,6 +365,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
 
     @logMethodCall
+    def configMasRetries(self):
+        if self.showAdvancedOptions:
+            self.printH1("Configure maximum retries")
+            self.promptForString("Maximum app configuration retries", "mas_app_cfg_retries", default="60")
+
+    @logMethodCall
     def configCP4D(self):
         if self.getParam("mas_catalog_version") in self.catalogOptions:
             # Note: this will override any version provided by the user (which is intentional!)
@@ -452,6 +458,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configSSOProperties()
         self.configSpecialCharacters()
         self.configGuidedTour()
+        self.configMasRetries()
 
     @logMethodCall
     def configCATrust(self) -> None:

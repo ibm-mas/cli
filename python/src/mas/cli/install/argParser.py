@@ -203,6 +203,13 @@ masAdvancedArgGroup.add_argument(
     const="true"
 )
 
+masAdvancedArgGroup.add_argument(
+    "--mas-app-cfg-retries",
+    dest="mas_app_cfg_retries",
+    required=False,
+    help="Set the maximo retries for installation"
+)
+
 # DNS Configuration - IBM CIS
 # -----------------------------------------------------------------------------
 cisArgGroup = installArgParser.add_argument_group("DNS Configuration - CIS")
