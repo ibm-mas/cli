@@ -242,14 +242,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) July 31 2025 Update (MAS 9.1.1, 9.0.13, 8.11.22, &amp; 8.10.27)",
-            "  2) Jun 05 2025 Update (MAS 9.1.0, 9.0.12, 8.11.21, &amp; 8.10.26)",
-            "  3) May 01 2025 Update (MAS 9.0.11, 8.11.22, &amp; 8.10.25)",
-            "  4) Apr 03 2025 Update (MAS 9.0.10, 8.11.21, &amp; 8.10.24)",
+            "  1) Aug 28 2025 Update (MAS 9.1.2, 9.0.14, 8.11.23, &amp; 8.10.28)",
+            "  2) July 31 2025 Update (MAS 9.1.1, 9.0.13, 8.11.22, &amp; 8.10.27)",
+            "  3) Jun 05 2025 Update (MAS 9.1.0, 9.0.12, 8.11.21, &amp; 8.10.26)",
         ])
 
         catalogOptions = [
-            "v9-250731-amd64", "v9-250624-amd64", "v9-250501-amd64",
+            "v9-250828-amd64", "v9-250731-amd64", "v9-250624-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -351,7 +350,7 @@ class UpdateApp(BaseApp):
                     # the case bundles in there anymore
                     # Longer term we will centralise this information inside the mas-devops python collection,
                     # where it can be made available to both the ansible collection and this python package.
-                    defaultMongoVersion = "7.0.12"
+                    defaultMongoVersion = "7.0.22"
                     mongoVersions = {
                         "v9-240625-amd64": "6.0.12",
                         "v9-240730-amd64": "6.0.12",
@@ -366,6 +365,7 @@ class UpdateApp(BaseApp):
                         "v9-250501-amd64": "7.0.12",
                         "v9-250624-amd64": "7.0.12",
                         "v9-250731-amd64": "7.0.22",
+                        "v9-250828-amd64": "7.0.22",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -503,6 +503,7 @@ class UpdateApp(BaseApp):
             "v9-250501-amd64": "5.0.0",
             "v9-250624-amd64": "5.1.3",
             "v9-250731-amd64": "5.1.3",
+            "v9-250828-amd64": "5.1.3",
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
