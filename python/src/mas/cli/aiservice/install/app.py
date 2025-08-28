@@ -540,8 +540,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         today = datetime.today()
         oneyear = datetime.today() + relativedelta(years=1)
         self.promptForString("Tenant entitlement type", "tenant_entitlement_type", default="standard")
-        self.promptForString("Tenant start date (YYYY-MM-DD)", "tenant_entitlement_start_date", default=today.strftime('%Y-%m-%d'))
-        self.promptForString("Tenant end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
+        self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
+        self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
 
     def _setMinioStorageDefaults(self) -> None:
         """
@@ -770,7 +770,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.printH1("Configure AppPoint Licensing")
         self.printDescription(
             [
-                "By default the AI Service instance will be configured to use a cluster-shared License, this provides a shared pool of AppPoints available to all MAS & AI Service instances on the cluster.",
+                "By default the AI Service instance will be configured to use a cluster-shared License, this provides a shared pool of AppPoints available to all MAS &amp; AI Service instances on the cluster.",
                 "",
             ]
         )
