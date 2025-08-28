@@ -223,20 +223,24 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.setParam("aiservice_s3_port", "9000")
                     self.setParam("aiservice_s3_ssl", "false")
                     self.setParam("aiservice_s3_region", "none")
-                    self.setParam("aiservice_s3_bucket_prefix", "aiservice-")
+                    self.setParam("aiservice_s3_bucket_prefix", "s3-")
                 else:
                     self.fatalError(f"Unsupported value for --install-minio: {value}")
+
+            elif key == "aiservice_s3_bucket_prefix":
+                if len(value) == 0 or len(value) > 4:
+                    self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
 
             elif key == "non_prod":
                 if not value:
                     self.operationalMode = 1
                     self.setParam("environment_type", "production")
-                    self.setParam("aiservice_odh_model_delpoyment_type", "raw")
+                    self.setParam("aiservice_odh_model_deployment_type", "raw")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
                     self.setParam("environment_type", "non-production")
-                    self.setParam("aiservice_odh_model_delpoyment_type", "serverless")
+                    self.setParam("aiservice_odh_model_deployment_type", "serverless")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -561,7 +565,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("aiservice_s3_port", "9000")
         self.setParam("aiservice_s3_ssl", "false")
         self.setParam("aiservice_s3_region", "none")
-        self.setParam("aiservice_s3_bucket_prefix", "aiservice")
+        self.setParam("aiservice_s3_bucket_prefix", "s3-")
 
         # Set default bucket names
         self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
@@ -601,7 +605,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         ])
         self.promptForString("RSL url", "rsl_url")
         self.promptForString("ORG Id of RSL", "rsl_org_id")
-        self.promptForString("Token for RSL", "rsl_token", isPassword=True)
+        rslToken = self.promptForString("Token for RSL", isPassword=True)
+        if not rslToken.startswith("Bearer "):
+            rslToken = "Bearer " + rslToken
+        self.setParam("rsl_token", rslToken)
         if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
             self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
 
@@ -836,7 +843,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.operationalMode = self.promptForInt("Operational Mode", default=1)
         if self.operationalMode == 1:
             self.setParam("environment_type", "production")
-            self.setParam("aiservice_odh_model_delpoyment_type", "raw")
+            self.setParam("aiservice_odh_model_deployment_type", "raw")
         else:
             self.setParam("environment_type", "non-production")
-            self.setParam("aiservice_odh_model_delpoyment_type", "serverless")
+            self.setParam("aiservice_odh_model_deployment_type", "serverless")
