@@ -16,7 +16,7 @@ docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli mas install 
 !!! tip
     If you want to stick with a specific release of the image you can attach a  version tag to the docker run command: `docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@`
 
-The container image provides an out of the box environment for managing MAS on OpenShift, with numerous dependencies pre-installed (see [cli-base](https://github.com/ibm-mas/cli-base) for details).  The Maximo Application Suite Ansible Collection is included in these dependencies, so even if you prefer to drive Ansible directy the CLI image can be a useful tool:
+The container image provides an out of the box environment for managing MAS on OpenShift, with numerous dependencies pre-installed (see [cli-base](https://github.com/ibm-mas/cli-base) for details).  The Maximo Application Suite Ansible Collection is included in these dependencies, so even if you prefer to drive Ansible directly the CLI image can be a useful tool:
 
 ```bash
 docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-playbook ibm.mas_devops.oneclick_core
