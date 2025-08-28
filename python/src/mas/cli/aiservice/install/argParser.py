@@ -171,20 +171,20 @@ masAppsArgGroup.add_argument(
     help="Subscription channel for Maximo AI Service"
 )
 
-# AI Service
+# ODH
 # -----------------------------------------------------------------------------
-aiServiceArgGroup = aiServiceinstallArgParser.add_argument_group("Maximo AI Service")
+odhArgGroup = aiServiceinstallArgParser.add_argument_group("Opendatahub")
+
+odhArgGroup.add_argument(
+    "--odh-model-deployment-type",
+    required=False,
+    default="raw",
+    help="Model deployment type for ODH"
+)
 
 # S3 - General
 # -----------------------------------------------------------------------------
 s3ArgGroup = aiServiceinstallArgParser.add_argument_group("S3 Storage")
-
-# s3ArgGroup.add_argument(
-#     "--s3-provider",
-#     dest="aiservice_s3_provider",
-#     required=False,
-#     help="S3 storage provider type (e.g., minio, aws)"
-# )
 
 # S3 - Minio
 # -----------------------------------------------------------------------------
@@ -304,6 +304,8 @@ watsonxArgGroup.add_argument(
 
 # AI Service
 # -----------------------------------------------------------------------------
+aiServiceArgGroup = aiServiceinstallArgParser.add_argument_group("Maximo AI Service")
+
 aiServiceArgGroup.add_argument(
     "--tenant-entitlement-type",
     dest="tenant_entitlement_type",

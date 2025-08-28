@@ -190,19 +190,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             elif key == "install_minio_aiservice":
                 incompatibleWithMinioInstall = [
-                    # "aiservice_s3_provider",
                     "aiservice_s3_accesskey",
                     "aiservice_s3_secretkey",
                     "aiservice_s3_host",
                     "aiservice_s3_port",
                     "aiservice_s3_ssl",
                     "aiservice_s3_bucket_prefix",
-                    # "aiservice_s3_endpoint_url",
-                    "aiservice_s3_region",
-                    # "aiservice_tenant_s3_access_key",
-                    # "aiservice_tenant_s3_secret_key",
-                    # "aiservice_tenant_s3_endpoint_url",
-                    # "aiservice_tenant_s3_region"
+                    "aiservice_s3_region"
                 ]
                 if value is None:
                     for uKey in incompatibleWithMinioInstall:
@@ -227,14 +221,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
                     self.setParam("aiservice_s3_port", "9000")
                     self.setParam("aiservice_s3_ssl", "false")
-                    # self.setParam("aiservice_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
                     self.setParam("aiservice_s3_region", "none")
-                    self.setParam("aiservice_s3_bucket_prefix", "aiservice")
-
-                    # self.setParam("aiservice_tenant_s3_access_key", self.args.minio_root_user)
-                    # self.setParam("aiservice_tenant_s3_secret_key", self.args.minio_root_password)
-                    # self.setParam("aiservice_tenant_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
-                    # self.setParam("aiservice_tenant_s3_region", "none")
+                    self.setParam("aiservice_s3_bucket_prefix", "aiservice-")
                 else:
                     self.fatalError(f"Unsupported value for --install-minio: {value}")
 
@@ -242,10 +230,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 if not value:
                     self.operationalMode = 1
                     self.setParam("environment_type", "production")
+                    self.setParam("aiservice_odh_model_delpoyment_type", "raw")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
                     self.setParam("environment_type", "non-production")
+                    self.setParam("aiservice_odh_model_delpoyment_type", "serverless")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -840,5 +830,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.operationalMode = self.promptForInt("Operational Mode", default=1)
         if self.operationalMode == 1:
             self.setParam("environment_type", "production")
+            self.setParam("aiservice_odh_model_delpoyment_type", "raw")
         else:
             self.setParam("environment_type", "non-production")
+            self.setParam("aiservice_odh_model_delpoyment_type", "serverless")
