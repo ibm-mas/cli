@@ -177,6 +177,7 @@ odhArgGroup = aiServiceinstallArgParser.add_argument_group("Opendatahub")
 
 odhArgGroup.add_argument(
     "--odh-model-deployment-type",
+    dest="aiservice_odh_model_delpoyment_type",
     required=False,
     default="raw",
     help="Model deployment type for ODH"
