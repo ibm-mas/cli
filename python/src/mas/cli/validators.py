@@ -156,7 +156,7 @@ class BucketPrefixValidator(Validator):
         """
         Validate Bucket prefix length
         """
-        instanceId = document.text
+        bucketPrefix = document.text
 
-        if not match(r"^.{1,4}$", instanceId):
-            raise ValidationError(message='Bucket prefix does not meet the requirement', cursor_position=len(instanceId))
+        if not match(r"^.{1,4}$", bucketPrefix):
+            raise ValidationError(message='Bucket prefix does not meet the requirement', cursor_position=len(bucketPrefix))
