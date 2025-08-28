@@ -42,7 +42,8 @@ from ...install.settings.additionalConfigs import AdditionalConfigsMixin
 
 from mas.cli.validators import (
     InstanceIDFormatValidator,
-    StorageClassValidator
+    StorageClassValidator,
+    BucketPrefixValidator
 )
 
 from mas.devops.ocp import createNamespace, getStorageClasses
@@ -527,7 +528,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Storage port", "aiservice_s3_port")
             self.promptForString("Storage ssl", "aiservice_s3_ssl")
             self.promptForString("Storage region", "aiservice_s3_region")
-            self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix")
+            self.printDescription([
+                "",
+                "Storage bucket prefix restrictions:",
+                " - Must be 1-4 characters long"
+            ])
+            self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
             self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
             self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
@@ -539,7 +545,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         today = datetime.today()
         oneyear = datetime.today() + relativedelta(years=1)
-        self.promptForString("Tenant entitlement type", "tenant_entitlement_type", default="standard")
+        self.setParam("tenant_entitlement_type", "standard")
         self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
         self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
 

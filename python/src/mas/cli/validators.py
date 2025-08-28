@@ -149,3 +149,14 @@ class JsonValidator(Validator):
             loads(inputJson)
         except JSONDecodeError:
             raise (ValidationError(message='Enter a valid JSON', cursor_position=len(inputJson)))
+
+
+class BucketPrefixValidator(Validator):
+    def validate(self, document):
+        """
+        Validate Bucket prefix length
+        """
+        bucketPrefix = document.text
+
+        if not match(r"^.{1,4}$", bucketPrefix):
+            raise ValidationError(message='Bucket prefix does not meet the requirement', cursor_position=len(bucketPrefix))

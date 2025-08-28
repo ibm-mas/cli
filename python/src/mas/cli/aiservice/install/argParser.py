@@ -54,13 +54,13 @@ catArgGroup.add_argument(
     help="IBM entitlement key"
 )
 
-# Aibroker Basic Configuration
+# AI Service Basic Configuration
 # -----------------------------------------------------------------------------
-masArgGroup = aiServiceinstallArgParser.add_argument_group("Aibroker Basic Configuration")
+masArgGroup = aiServiceinstallArgParser.add_argument_group("AI Service Basic Configuration")
 masArgGroup.add_argument(
     "-i", "--aiservice-instance-id",
     required=False,
-    help="Aibroker Instance ID"
+    help="AI Service Instance ID"
 )
 
 # MAS Advanced Configuration
@@ -310,19 +310,20 @@ aiServiceArgGroup.add_argument(
     "--tenant-entitlement-type",
     dest="tenant_entitlement_type",
     required=False,
-    help="Type of aibroker tenant"
+    default="standard",
+    help="Entitlement type for AI Service tenant"
 )
 aiServiceArgGroup.add_argument(
     "--tenant-entitlement-start-date",
     dest="tenant_entitlement_start_date",
     required=False,
-    help="Start date for Aibroker tenant"
+    help="Start date for AI Service tenant"
 )
 aiServiceArgGroup.add_argument(
     "--tenant-entitlement-end-date",
     dest="tenant_entitlement_end_date",
     required=False,
-    help="End date for Aibroker tenant"
+    help="End date for AI Service tenant"
 )
 aiServiceArgGroup.add_argument(
     "--rsl-url",
