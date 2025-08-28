@@ -26,7 +26,8 @@ Private Registry Prefix (Optional):
   -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}            Prefix for the mirror image
 
 Setup Red Hat Operator Catalogs (Optional):
-  --setup-redhat-catalogs                 Set up Red Hat Operator, Community, and Certified catalogs with ICSP
+  --setup-redhat-catalogs                 Set up Red Hat Operator, Community, and Certified catalogs with IDMS
+  --setup-redhat-release                  Set up Red Hat release with IDMS
 
 Other Commands:
       --no-confirm                        Provision the cluster without prompting for confirmation
@@ -69,6 +70,10 @@ function configure_ocp_for_mirror_noninteractive() {
       --setup-redhat-catalogs)
         SETUP_REDHAT_CATALOGS=true
         OCP_OPERATORHUB_DISABLE_REDHAT_SOURCES=true
+        ;;
+
+      --setup-redhat-release)
+        SETUP_REDHAT_RELEASE=true
         ;;
 
       --no-confirm)
@@ -142,6 +147,7 @@ function configure_ocp_for_mirror_interactive() {
   reset_colors
 
   prompt_for_confirm "Enable IBM managed Red Hat catalogs?" SETUP_REDHAT_CATALOGS
+  prompt_for_confirm "Enable IBM managed Red Hat Release?" SETUP_REDHAT_RELEASE
 
 }
 
@@ -164,6 +170,7 @@ function configure_ocp_for_mirror() {
   export REGISTRY_PASSWORD
 
   export SETUP_REDHAT_CATALOGS
+  export SETUP_REDHAT_RELEASE
   export OCP_OPERATORHUB_DISABLE_REDHAT_SOURCES
   export OCP_RELEASE
 
@@ -185,6 +192,8 @@ function configure_ocp_for_mirror() {
   else
     echo_reset_dim "Management Mode ........... ${COLOR_MAGENTA}User Managed/Configured"
   fi
+
+  echo_reset_dim "Redhat Release ........... ${COLOR_MAGENTA}${SETUP_REDHAT_RELEASE}"
   reset_colors
 
   echo
