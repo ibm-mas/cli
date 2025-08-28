@@ -10,18 +10,17 @@
 # *****************************************************************************
 
 import logging
-from sys import exit
-from os import path, getenv
 import re
 import calendar
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from sys import exit
+from os import path, getenv
 from openshift.dynamic.exceptions import NotFoundError
-
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
-
 from tabulate import tabulate
-
 from halo import Halo
 
 from ...cli import BaseApp
@@ -80,42 +79,29 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
         applications = {
-            "Aibroker": "aiservice_version",
+            "AI Service": "aiservice_version",
         }
 
         self.catalogReleases = {}
         self.catalogTable = []
 
         # Dynamically fetch the channels from the chosen catalog
-        # based on mas core
-        for channel in self.chosenCatalog["mas_core_version"]:
-            # {"9.1-feature": "9.1.x-feature"}
+        for channel in self.chosenCatalog["aiservice_version"]:
             self.catalogReleases.update({channel.replace('.x', ''): channel})
 
         # Generate catalogTable
         for application, key in applications.items():
-            # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             tempChosenCatalog = self.chosenCatalog[key].copy()
             self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
-        if self.architecture == "s390x":
-            summary = [
-                "",
-                "<u>Catalog Details</u>",
-                f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
-                f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
-                f"MongoDb:               {self.catalogMongoDbVersion}",
-            ]
-        else:
-            summary = [
-                "",
-                "<u>Catalog Details</u>",
-                f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
-                f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
-                f"MongoDb:               {self.catalogMongoDbVersion}",
-            ]
+        summary = [
+            "",
+            "<u>Catalog Details</u>",
+            f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
+            f"Catalog Digest:        {self.catalogDigest}",
+            f"AI Service Releases:   {', '.join(sorted(self.catalogReleases, reverse=True))}",
+            f"MongoDb:               {self.catalogMongoDbVersion}",
+        ]
 
         return summary
 
@@ -373,14 +359,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "Note: Maximo AI Service 9.1 includes a limited-use license to watsonx.ai and incurs an additional AppPoint cost"
         ])
 
-        if not self.devMode:
-            self.printDescription([
-                "",
-                "<ForestGreen>Coming Soon!  We are busy putting the finishing touches on Maximo AI Service 9.1 ahead of a re-launch planned for the 28 August 2025 catalog update</ForestGreen>",
-                ""
-            ])
-            exit(1)
-
         # Set image_pull_policy of the CLI in interactive mode
         if args.image_pull_policy and args.image_pull_policy != "":
             self.setParam("image_pull_policy", args.image_pull_policy)
@@ -411,7 +389,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.isAirgap()
 
         # Configure the installOptions for the appropriate architecture
-        self.catalogOptions = supportedCatalogs[self.architecture]
+        # self.catalogOptions = supportedCatalogs[self.architecture]
+
+        # Once AI Service is supported by all supported catalogs we can remove this
+        # In the meantime we will need to update this as we go
+        self.catalogOptions = []
+        for option in supportedCatalogs[self.architecture]:
+            if option >= "v9-250828-amd64":
+                self.catalogOptions.append(option)
 
         # Basic settings before the user provides any input
         self.configICR()
@@ -548,9 +533,15 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
     def aiServiceTenantSettings(self) -> None:
         self.printH1("AI Service Tenant Settings")
-        self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
-        self.promptForString("Tenant start date", "tenant_entitlement_start_date")
-        self.promptForString("Tenant end date", "tenant_entitlement_end_date")
+        self.printDescription([
+            "AI Service will reserve AppPoints for a fixed period of time based on the values you enter:"
+        ])
+
+        today = datetime.today()
+        oneyear = datetime.today() + relativedelta(years=1)
+        self.promptForString("Tenant entitlement type", "tenant_entitlement_type", default="standard")
+        self.promptForString("Tenant start date (YYYY-MM-DD)", "tenant_entitlement_start_date", default=today.strftime('%Y-%m-%d'))
+        self.promptForString("Tenant end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
 
     def _setMinioStorageDefaults(self) -> None:
         """
@@ -779,7 +770,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.printH1("Configure AppPoint Licensing")
         self.printDescription(
             [
-                "By default the MAS instance will be configured to use a cluster-shared License, this provides a shared pool of AppPoints available to all MAS instances on the cluster.",
+                "By default the AI Service instance will be configured to use a cluster-shared License, this provides a shared pool of AppPoints available to all MAS & AI Service instances on the cluster.",
                 "",
             ]
         )
@@ -790,9 +781,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if self.showAdvancedOptions:
             self.printDescription(
                 [
-                    "Alternatively you may choose to install using a dedicated license only available to this MAS instance.",
-                    "  1. Install MAS with Cluster-Shared License (AppPoints)",
-                    "  2. Install MAS with Dedicated License (AppPoints)",
+                    "Alternatively you may choose to install using a dedicated license only available to this AI Service instance.",
+                    "  1. Install AI Service with Cluster-Shared License (AppPoints)",
+                    "  2. Install AI Service with Dedicated License (AppPoints)",
                 ]
             )
             self.slsMode = self.promptForInt("SLS Mode", default=1)
