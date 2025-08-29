@@ -3,7 +3,7 @@
 function configure_ocp_for_mirror_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   if [[ -n "$PRODUCT_FAMILY" && "${PRODUCT_FAMILY^^}" = "AISERVICE" ]]; then
-      COMMAND="configure-aiservice-airgap"
+      COMMAND="aiservice-configure-airgap"
   else
       COMMAND="configure-airgap"
   fi
