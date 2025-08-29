@@ -680,20 +680,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
             catalogSummary = self.processCatalogChoice()
             self.printDescription(catalogSummary)
-            self.printDescription([
-                "",
-                "Two types of release are available:",
-                " - GA releases of Maximo Application Suite are supported under IBM's standard 3+1+3 support lifecycle policy.",
-                " - 'Feature' releases allow early access to new features for evaluation in non-production environments and are only supported through to the next GA release.",
-                ""
-            ])
-
             print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
 
-            releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
-            releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
-
-            self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
+            # There's only one release channel, the user doesn't need to be prompted!!
+            # releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
+            # releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
+            # self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
+            self.setParam("aiservice_channel", "9.1.x")
 
     @logMethodCall
     def validateCatalogSource(self):
