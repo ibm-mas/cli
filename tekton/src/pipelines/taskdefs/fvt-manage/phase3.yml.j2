@@ -5,6 +5,9 @@
 # - fvt-manage-base-ui-wo-basic (selenium)
 # - fvt-manage-base-ui-requestreport-pages (selenium)
 # - fvt-manage-base-api-scheduler-qualification (pytest)
+# - fvt-manage-base-api-scheduler-planning (pytest)
+# - fvt-manage-base-api-scheduler-dispatching (pytest)
+# - fvt-manage-base-api-scheduler-scheduling (pytest)
 # -------------------------------------------------------------
 
 # Manage FVT Classification
@@ -119,6 +122,51 @@
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: base-api-scheduler-apars
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-api-system
+    - fvt-manage-base-api-mif
+
+# Manage Scheduler FVT - Planning Dashboard
+- name: fvt-manage-base-api-scheduler-planning
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-api-scheduler-planning
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-api-system
+    - fvt-manage-base-api-mif
+
+# Manage Scheduler FVT - Dispatching Dashboard
+- name: fvt-manage-base-api-scheduler-dispatching
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-api-scheduler-dispatching
+  when:
+    - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-api-system
+    - fvt-manage-base-api-mif
+
+# Manage Scheduler FVT - Scheduling Dashboard
+- name: fvt-manage-base-api-scheduler-scheduling
+  {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-api-scheduler-scheduling
   when:
     - input: "base"
       operator: in
