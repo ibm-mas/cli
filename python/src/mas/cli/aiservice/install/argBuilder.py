@@ -105,8 +105,6 @@ class aiServiceInstallArgBuilderMixin():
 
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
-        # if self.getParam('aiservice_s3_provider') != "":
-        #     command += f"  --s3-provider \"{self.getParam('aiservice_s3_provider')}\"{newline}"
         if self.getParam('aiservice_s3_accesskey') != "":
             command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
         if self.getParam('aiservice_s3_secretkey') != "":
@@ -121,12 +119,13 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
         if self.getParam('aiservice_s3_bucket_prefix') != "":
             command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
-        if self.getParam('aiservice_s3_pipelines_bucket') != "":
-            command += f"  --s3-pipelines-bucket \"{self.getParam('aiservice_s3_pipelines_bucket')}\"{newline}"
         if self.getParam('aiservice_s3_tenants_bucket') != "":
             command += f"  --s3-tenants-bucket \"{self.getParam('aiservice_s3_tenants_bucket')}\"{newline}"
         if self.getParam('aiservice_s3_templates_bucket') != "":
             command += f"  --s3-templates-bucket \"{self.getParam('aiservice_s3_templates_bucket')}\"{newline}"
+
+        if self.getParam('aiservice_odh_model_deployment_type') != "":
+            command += f"  --odh-model-deployment-type \"{self.getParam('aiservice_odh_model_deployment_type')}\"{newline}"
 
         if self.getParam('aiservice_watsonxai_apikey') != "":
             command += f"  --watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"

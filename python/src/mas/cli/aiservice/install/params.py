@@ -57,8 +57,9 @@ optionalParams = [
     # Dev Mode
     "artifactory_username",
     "artifactory_token",
+    # ODH
+    "aiservice_odh_model_deployment_type",
     # AI Service
-    # "aiservice_s3_provider",
     "aiservice_s3_accesskey",
     "aiservice_s3_secretkey",
     "aiservice_s3_host",
@@ -66,7 +67,6 @@ optionalParams = [
     "aiservice_s3_ssl",
     "aiservice_s3_region",
     "aiservice_s3_bucket_prefix",
-    "aiservice_s3_pipelines_bucket",
     "aiservice_s3_tenants_bucket",
     "aiservice_s3_templates_bucket",
 
