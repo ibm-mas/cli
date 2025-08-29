@@ -191,7 +191,7 @@ case $1 in
     mirror_to_registry "$@"
     ;;
 
-  mirror-aiservice|mirror-aiservice-images)
+  aiservice-mirror|aiservice-mirror-images)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! mirror-aiservice-images                                                   !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
@@ -227,7 +227,7 @@ case $1 in
     configure_ocp_for_mirror "$@"
     ;;
 
-  configure-aiservice-airgap)
+  aiservice-configure-airgap)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! configure-aiservice-airgap                                                !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
