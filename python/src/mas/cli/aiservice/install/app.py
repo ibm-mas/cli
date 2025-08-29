@@ -42,7 +42,8 @@ from ...install.settings.additionalConfigs import AdditionalConfigsMixin
 
 from mas.cli.validators import (
     InstanceIDFormatValidator,
-    StorageClassValidator
+    StorageClassValidator,
+    BucketPrefixValidator
 )
 
 from mas.devops.ocp import createNamespace, getStorageClasses
@@ -190,19 +191,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             elif key == "install_minio_aiservice":
                 incompatibleWithMinioInstall = [
-                    # "aiservice_s3_provider",
                     "aiservice_s3_accesskey",
                     "aiservice_s3_secretkey",
                     "aiservice_s3_host",
                     "aiservice_s3_port",
                     "aiservice_s3_ssl",
                     "aiservice_s3_bucket_prefix",
-                    # "aiservice_s3_endpoint_url",
-                    "aiservice_s3_region",
-                    # "aiservice_tenant_s3_access_key",
-                    # "aiservice_tenant_s3_secret_key",
-                    # "aiservice_tenant_s3_endpoint_url",
-                    # "aiservice_tenant_s3_region"
+                    "aiservice_s3_region"
                 ]
                 if value is None:
                     for uKey in incompatibleWithMinioInstall:
@@ -227,25 +222,25 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
                     self.setParam("aiservice_s3_port", "9000")
                     self.setParam("aiservice_s3_ssl", "false")
-                    # self.setParam("aiservice_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
                     self.setParam("aiservice_s3_region", "none")
-                    self.setParam("aiservice_s3_bucket_prefix", "aiservice")
-
-                    # self.setParam("aiservice_tenant_s3_access_key", self.args.minio_root_user)
-                    # self.setParam("aiservice_tenant_s3_secret_key", self.args.minio_root_password)
-                    # self.setParam("aiservice_tenant_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
-                    # self.setParam("aiservice_tenant_s3_region", "none")
+                    self.setParam("aiservice_s3_bucket_prefix", "s3-")
                 else:
                     self.fatalError(f"Unsupported value for --install-minio: {value}")
+
+            elif key == "aiservice_s3_bucket_prefix":
+                if len(value) == 0 or len(value) > 4:
+                    self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
 
             elif key == "non_prod":
                 if not value:
                     self.operationalMode = 1
                     self.setParam("environment_type", "production")
+                    self.setParam("aiservice_odh_model_deployment_type", "raw")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
                     self.setParam("environment_type", "non-production")
+                    self.setParam("aiservice_odh_model_deployment_type", "serverless")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -537,7 +532,12 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Storage port", "aiservice_s3_port")
             self.promptForString("Storage ssl", "aiservice_s3_ssl")
             self.promptForString("Storage region", "aiservice_s3_region")
-            self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix")
+            self.printDescription([
+                "",
+                "Storage bucket prefix restrictions:",
+                " - Must be 1-4 characters long"
+            ])
+            self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
             self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
             self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
@@ -549,7 +549,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         today = datetime.today()
         oneyear = datetime.today() + relativedelta(years=1)
-        self.promptForString("Tenant entitlement type", "tenant_entitlement_type", default="standard")
+        self.setParam("tenant_entitlement_type", "standard")
         self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
         self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
 
@@ -565,7 +565,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("aiservice_s3_port", "9000")
         self.setParam("aiservice_s3_ssl", "false")
         self.setParam("aiservice_s3_region", "none")
-        self.setParam("aiservice_s3_bucket_prefix", "aiservice")
+        self.setParam("aiservice_s3_bucket_prefix", "s3-")
 
         # Set default bucket names
         self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
@@ -605,7 +605,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         ])
         self.promptForString("RSL url", "rsl_url")
         self.promptForString("ORG Id of RSL", "rsl_org_id")
-        self.promptForString("Token for RSL", "rsl_token", isPassword=True)
+        rslToken = self.promptForString("Token for RSL", isPassword=True)
+        if not rslToken.startswith("Bearer "):
+            rslToken = "Bearer " + rslToken
+        self.setParam("rsl_token", rslToken)
         if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
             self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
 
@@ -677,20 +680,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
             catalogSummary = self.processCatalogChoice()
             self.printDescription(catalogSummary)
-            self.printDescription([
-                "",
-                "Two types of release are available:",
-                " - GA releases of Maximo Application Suite are supported under IBM's standard 3+1+3 support lifecycle policy.",
-                " - 'Feature' releases allow early access to new features for evaluation in non-production environments and are only supported through to the next GA release.",
-                ""
-            ])
-
             print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
 
-            releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
-            releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
-
-            self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
+            # There's only one release channel, the user doesn't need to be prompted!!
+            # releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
+            # releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
+            # self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
+            self.setParam("aiservice_channel", "9.1.x")
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -840,5 +836,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.operationalMode = self.promptForInt("Operational Mode", default=1)
         if self.operationalMode == 1:
             self.setParam("environment_type", "production")
+            self.setParam("aiservice_odh_model_deployment_type", "raw")
         else:
             self.setParam("environment_type", "non-production")
+            self.setParam("aiservice_odh_model_deployment_type", "serverless")
