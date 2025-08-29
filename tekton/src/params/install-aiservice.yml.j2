@@ -195,6 +195,11 @@
   description: S3/Minio storage template bucket for IBM Maximo AI Service
   default: ""
 
+- name: aiservice_odh_model_deployment_type
+  type: string
+  description: Model deployment type for ODH. Must be one of; [raw, serverless]
+  default: "raw"
+
 - name: minio_root_user
   type: string
   description: root user for minio
