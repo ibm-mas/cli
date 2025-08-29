@@ -341,7 +341,7 @@ Omitting the --catalog option will trigger an interactive prompt
 
 Catalog Selection:
   -c MAS_CATALOG_VERSION, --catalog MAS_CATALOG_VERSION
-                                                  Maximo Operator Catalog Version (e.g. v9-250731-amd64)
+                                                  Maximo Operator Catalog Version (e.g. v9-250828-amd64)
 
 Update Dependencies:
   --db2-namespace DB2_NAMESPACE                   Namespace where Db2u operator and instances will be updated
@@ -369,20 +369,20 @@ More:
 <p>Note that <code>mas update</code> will not update any other operator catalogs installed on the OpenShift cluster, including the Red Hat Operator Catalogs.</p>
 </div>
 <h3 id="dependency-management">Dependency Management<a class="headerlink" href="#dependency-management" title="Permanent link">¤</a></h3>
-<p>In addition to it's primary role to update the IBM Maximo Operator Catalog (and verify the successfull rollout of updated operators) the update command will also perform updates to a number of MAS dependencies controlled outside of the IBM Operator Catalog.</p>
+<p>In addition to its primary role to update the IBM Maximo Operator Catalog (and verify the successfull rollout of updated operators) the update command will also perform updates to a number of MAS dependencies controlled outside of the IBM Operator Catalog.</p>
 <p>The update function will automatically search for and detect all of these dependencies and present a summary report that will describe the action it will take for the user to review before they launch the update (unless <code>--no-confirm</code> is set, in which case the update will start without prompt).</p>
 <h4 id="mongodb-kafka">MongoDb &amp; Kafka<a class="headerlink" href="#mongodb-kafka" title="Permanent link">¤</a></h4>
 <p>Each version of the IBM Maximo Operator Catalog is certified against a specific version of MongoDb and Apache Kafka, although other versions of both are supported, the goal of <code>mas update</code> is to ensure customers' are running MongoDb &amp; Kafka with the same latest bug fixes and security patches that we test the catalog with internally.</p>
 <p>To this end <code>mas update</code> will perform updates to both the installed MongoCE Operator and the MongoDbCommunity operand to align the version of the operator and the MongoDb cluster with the same version we have tested with.  When a major version update is required users will be prompted to approve the major version update and recommended to take a database backup, all other updates will be automatically applied.</p>
 <p>For Kafka things work pretty much the same; although the version of the operator is out of our control because it is determined by the version of the Red Hat Operator Catalogs that are installed on the cluster.  MAS update will however perform necessary updates to the Kafka operand to update the version of the Kafka instance at appropriate times.</p>
 <h4 id="ibm-cloud-pak-for-data">IBM Cloud Pak for Data<a class="headerlink" href="#ibm-cloud-pak-for-data" title="Permanent link">¤</a></h4>
-<p>Each version of the IBM Maximo Operator Catalog is certified compatible with a specific version of IBM Cloud Pak for Data (CP4D), it is not recommended to diverge from this captible version because CP4D versioning is very brittle and even a small patch update to one of it's services can create incompatibilities elsewhere.</p>
+<p>Each version of the IBM Maximo Operator Catalog is certified compatible with a specific version of IBM Cloud Pak for Data (CP4D), it is not recommended to diverge from this compatible version because CP4D versioning is very brittle and even a small patch update to one of its services can create incompatibilities elsewhere.</p>
 <h3 id="automatic-migrations">Automatic Migrations<a class="headerlink" href="#automatic-migrations" title="Permanent link">¤</a></h3>
 <p>Sometimes MAS dependencies go out of support and there is a need to migrate to an alternative, the MAS update function is designed to handle these migrations automatically, giving customers the benefit of a fully automated, well-testing, migration path that they can rely on because it's the same migration path used by IBM internally and all other MAS customers.</p>
 <h4 id="uds-to-dro-migration">UDS to DRO Migration<a class="headerlink" href="#uds-to-dro-migration" title="Permanent link">¤</a></h4>
 <p>In November 2023 it was announced that IBM User Data Services (UDS) was being sunset, to be replaced by IBM Data Reporter Operator (DRO).  MAS customers updating from a catalog older than <strong>February 2024</strong> will see UDS uninstalled, DRO installed, and all MAS instances in the cluster automatically migrated to use the new DRO instance.</p>
 <h4 id="ibm-certificate-manager">IBM Certificate Manager<a class="headerlink" href="#ibm-certificate-manager" title="Permanent link">¤</a></h4>
-<p>IBM Certificate-Manager is deprecated, it's replacement is Red Hat Certificate-Manager.  MAS customers updating from catalogs prior to <strong>January 2024</strong> will see IBM Certificate-Manager uninstalled, Red Hat Certificate-Manager installed, and all MAS instances automatically reconfigured to use the latter.</p>
+<p>IBM Certificate-Manager is deprecated, its replacement is Red Hat Certificate-Manager.  MAS customers updating from catalogs prior to <strong>January 2024</strong> will see IBM Certificate-Manager uninstalled, Red Hat Certificate-Manager installed, and all MAS instances automatically reconfigured to use the latter.</p>
 <h4 id="grafana-operator-v4">Grafana Operator v4<a class="headerlink" href="#grafana-operator-v4" title="Permanent link">¤</a></h4>
 <p>In December 2024 is was announced that support for the Grafana v4 Operator would cease later that month, MAS customers updating from a catalog older than <strong>February 2024</strong> will see their Grafana installation automatically migrated to the Grafana v5 Operator.</p>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¤</a></h2>
@@ -390,12 +390,12 @@ More:
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas update
 </code></pre>
 <h3 id="non-interactive-update">Non-Interactive Update<a class="headerlink" href="#non-interactive-update" title="Permanent link">¤</a></h3>
-<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas update -c v9-250731-amd64 --no-confirm
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas update -c v9-250828-amd64 --no-confirm
 </code></pre>
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-08-26 22:53:08.114249+00:00)
+      Built with mkdocs v1.6.1 (2025-08-29 00:42:05.890777+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>

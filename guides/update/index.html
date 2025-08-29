@@ -334,8 +334,8 @@
 <li><a href="#2-update-maximo-application-suite">Update MAS</a></li>
 </ol>
 <p>The catalog update is applied at a cluster level.  When we update we don't update a specific operator running on the cluster, but rather the cluster as a whole.  Everything in the cluster should be running at the latest version available in the catalog that is currently installed.</p>
-<p>When apply a catalog update it will apply all the latest fixes for everything in the cluster (all MAS instances and all dependencies), ensuring the that you're on a tested combination of patch levels across the board.  There's no option to mix patch levels (e.g. keep one MAS instance on 8.9.4 and another on 8.9.5).</p>
-<p>Undoing an update is a lot of work as it's reversing a lot of changes throughout the cluster.  Generally it shouldn't be needed as updates are just bringing security and bug fixes.  Think of it like applying a windows update, there's no easy "undo" and if something slipped through we would fast track a new update so that rather than needing to revert from 8.9.5 to 8.9.4 there would be an 8.9.6 provided in double quick time that either reverted whatever caused the regression in 8.9.5 or addressed whatever the issue was.</p>
+<p>When applying a catalog update it will apply all the latest fixes for everything in the cluster (all MAS instances and all dependencies), ensuring the that you're on a tested combination of patch levels across the board.  There's no option to mix patch levels (e.g. keep one MAS instance on 8.9.4 and another on 8.9.5).</p>
+<p>Undoing an update is a lot of work as it's reversing a lot of changes throughout the cluster.  Generally it shouldn't be needed as updates are just bringing security and bug fixes.  Think of it like applying a windows update; there's no easy "undo" and if something slipped through we would fast track a new update so that rather than needing to revert from 8.9.5 to 8.9.4 there would be an 8.9.6 provided in double quick time that either reverted whatever caused the regression in 8.9.5 or addressed whatever the issue was.</p>
 <h2 id="1-disconnected-update-preparation">1 Disconnected Update Preparation<a class="headerlink" href="#1-disconnected-update-preparation" title="Permanent link">¤</a></h2>
 <p>Before you start the update, you must mirror the images for the new catalog that you wish to update to. Mirroring the images is a simple but time consuming process.  Three modes are available for the mirror process:</p>
 <ul>
@@ -349,7 +349,7 @@
 <p>This command can also be ran non-interactive, for full details refer to the <a href="../image-mirroring/">image mirroring</a> guide.</p>
 <pre><code class="language-bash">mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
-  -c v9-250731-amd64 -C 9.1.x \
+  -c v9-250828-amd64 -C 9.1.x \
   --mirror-catalog --mirror-core --mirror-iot --mirror-manage \
   --mirror-cfs --mirror-sls --mirror-tsm --mirror-mongo --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY --redhat-username $REDHAT_USERNAME --redhat-password $REDHAT_PASSWORD \
@@ -368,12 +368,12 @@
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas update
 </code></pre>
 <p>The command can also be ran non-interactive.</p>
-<pre><code class="language-bash">mas update -c v9-250731-amd64 --no-confirm
+<pre><code class="language-bash">mas update -c v9-250828-amd64 --no-confirm
 </code></pre>
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-08-26 22:53:08.138159+00:00)
+      Built with mkdocs v1.6.1 (2025-08-29 00:42:05.913773+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
