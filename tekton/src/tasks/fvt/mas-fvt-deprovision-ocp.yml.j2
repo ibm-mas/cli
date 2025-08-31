@@ -60,3 +60,46 @@ spec:
               name: mas-fvt
               key: FYRE_SITE
               optional: true
+
+        # AWS (IPI) Support
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: AWS_ACCESS_KEY_ID
+              optional: true
+        
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: AWS_SECRET_ACCESS_KEY
+              optional: true
+
+        - name: IPI_DIR
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: IPI_DIR
+              optional: true
+
+        - name: IPI_CONFIG_DIR
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: IPI_CONFIG_DIR
+              optional: true
+
+        - name: IPI_PLATFORM
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: IPI_PLATFORM
+              optional: true
+
+        - name: OCP_VERSION
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: OCP_VERSION
+              optional: true
