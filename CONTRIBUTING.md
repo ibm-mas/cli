@@ -113,7 +113,7 @@ git checkout name-your-branch
 Testing with a modified python-devops code.
 -------------------------------------------------------------------------------
 Make sure that the python-devops repository is cloned locally in the same directory
-as the CLI repository. 
+as the CLI repository.
 From the top level CLI directory, run
 ```
 make python-devops
