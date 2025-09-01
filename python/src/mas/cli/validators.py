@@ -151,7 +151,6 @@ class JsonValidator(Validator):
             raise (ValidationError(message='Enter a valid JSON', cursor_position=len(inputJson)))
 
 
-
 class OutOfIndex(Validator):
     def __init__(self, _to_validate_list):
         """
@@ -169,6 +168,7 @@ class OutOfIndex(Validator):
             if int(choice) - 1 > len(self._to_validate_list) or int(choice) < 0:
                 raise (ValidationError(message='Option out of the list. Please select value(s) from the list', cursor_position=len(choices)))
 
+
 class BucketPrefixValidator(Validator):
     def validate(self, document):
         """
@@ -178,4 +178,3 @@ class BucketPrefixValidator(Validator):
 
         if not match(r"^.{1,4}$", bucketPrefix):
             raise ValidationError(message='Bucket prefix does not meet the requirement', cursor_position=len(bucketPrefix))
-
