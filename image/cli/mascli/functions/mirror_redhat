@@ -222,6 +222,7 @@ function mirror_redhat_interactive() {
     prompt_for_input "Maximum Version (x.y.z)" OCP_MAX_VERSION
   fi
 
+  # ----------- red hat operators -----------
   echo_h3 "Red Hat OCP Operator Catalogs"
   echo "${TEXT_DIM}Mirror selected content from the Red Hat OCP operator catalogs to your registry, only the following content will be included from each catalog:"
   echo
@@ -247,6 +248,61 @@ function mirror_redhat_interactive() {
   echo
 
   prompt_for_confirm "Mirror selected content from Red Hat OCP operator catalogs" MIRROR_REDHAT_OPERATORS
+
+  if [[ "$MIRROR_REDHAT_OPERATORS" == "true" ]]
+  echo "Do you want to:"
+  echo "  1) Mirror all default operators"
+  echo "  2) Customize and select operators manually"
+  echo
+
+  read -rp "Enter choice [1-2]: " choice
+  # Define operator lists
+  certified_ops=(
+    "crunchy-postgres-operator (v5)"
+    "gpu-operator-certified (v23.3)"
+    "kubeturbo-certified (stable)"
+  )
+
+  community_ops=(
+    "grafana-operator (v4)"
+    "opentelemetry-operator (alpha)"
+    "strimzi-kafka-operator (stable)"
+  )
+
+  redhat_ops=(
+    "amq-streams (stable)"
+    "openshift-pipelines-operator-rh (latest)"
+    "nfd (stable)"
+    "aws-efs-csi-driver-operator (stable)"
+    "local-storage-operator (stable)"
+    "odf-operator (stable-${OCP_RELEASE})"
+  )
+
+  selected_ops=()
+
+  if [[ "$choice" == "1" ]]; then
+  # Just use all operators
+  selected_ops=("${certified_ops[@]}" "${community_ops[@]}" "${redhat_ops[@]}")
+  else
+    # Ask user for each operator
+    echo "Select which operators to include (y/n):"
+    for op in "${certified_ops[@]}" "${community_ops[@]}" "${redhat_ops[@]}"; do
+      read -rp "Include $op? [y/N]: " yn
+      if [[ "$yn" =~ ^[Yy]$ ]]; then
+        selected_ops+=("$op")
+      fi
+    done
+  fi
+
+  echo
+  echo "Operators selected for mirroring:"
+  for op in "${selected_ops[@]}"; do
+    echo " - $op"
+  done
+  MIRROR_OPERATORS_LIST=$(printf '%s\n' "${selected_ops[@]}" | jq -R . | jq -s .)
+  fi
+  
+  
 }
 
 function mirror_redhat() {
@@ -265,6 +321,7 @@ function mirror_redhat() {
   export MIRROR_WORKING_DIR
   export MIRROR_REDHAT_PLATFORM
   export MIRROR_REDHAT_OPERATORS
+  export MIRROR_OPERATORS_LIST
   export REDHAT_PULLSECRET
   export OCP_RELEASE
   export OCP_MIN_VERSION
