@@ -93,8 +93,8 @@
         - gitops-mas-initiator
         - gitops-aiservice-pipeline
         - gitops-aiservice-tenant-pipeline
-        - deprovision-mas-aiservice
-        - deprovision-mas-aiservice-tenant
+        - gitops-deprovision-aiservice-pipeline
+        - gitops-deprovision-aiservice-pipeline-tenant
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
