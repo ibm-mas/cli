@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-function gitops_aibroker_help() {
+function gitops_aiservice_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 
 
 Usage:
-  mas gitops-aibroker [options]
+  mas gitops-aiservice [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -20,7 +20,7 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  
 
-ibm aibroker(required):
+ibm aiservice(required):
       --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
       --aiservice-instance-id ${TEXT_RESET}AISERVICE_INSTANCE_ID${TEXT_RESET}
       --primary-storage-class ${TEXT_RESET}PRIMARY_STORAGE_CLASS${TEXT_RESET}
@@ -68,23 +68,23 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_aibroker_noninteractive() {
+function gitops_aiservice_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-aibroker commit"
+  GIT_COMMIT_MSG="gitops-aiservice commit"
 
    #adding default values # all generic values should to put here # check with ansible playbook/gitops anvs 
    #only export below in whiel loop
 
   #adding default values 
-  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aibroker"}
+  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aiservice"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export IS_EXTERNAL_ROUTE=${IS_EXTERNAL_ROUTE:-"false"}  # Default to "false", can be set to "true" if needed  
   export MAS_ICR_CP=${MAS_ICR_CP:-"cp.icr.io/cp"}
   export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"icr.io/cpopen"}
   # -- SLS Defaults
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}} 
-  export MAS_APP_ID=${MAS_APP_ID:-"aibroker"}
+  export MAS_APP_ID=${MAS_APP_ID:-"aiservice"}
   export AISERVICE_WATSONX_SECRET=${AISERVICE_WATSONX_SECRET:-"${MAS_APP_ID}-watsonxcfg"}
   export AISERVICE_STORAGE_PROVIDER=${AISERVICE_STORAGE_PROVIDER:-"aws"}
   #Storage Defaults
@@ -161,7 +161,7 @@ function gitops_aibroker_noninteractive() {
       --aiservice-storage-provider)
           export AISERVICE_STORAGE_PROVIDER=$1 && shift
         ;;
-      --mas-aibroker-storage-region)
+      --aiservice-storage-region)
         export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
       --aiservice-storage_ssl)
@@ -223,58 +223,58 @@ function gitops_aibroker_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_aibroker_help
+        gitops_aiservice_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_aibroker_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_aiservice_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_aibroker_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_aibroker_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_aibroker_help "CLUSTER_ID is not set"
-  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_aibroker_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_aiservice_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_aiservicee_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_aiservice_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_aiservice_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_suite_help "CLUSTER_URL is not set"
   
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_aibroker_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_aibroker_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_aibroker_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_aibroker_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_aiservicee_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_aiservice_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_aiservice_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_aiservice_help "GIT_BRANCH is not set"
     
   fi
 
 # add validation below like above  for those variable which have the value needed for further execution
-# -- AIBroker
-  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_aibroker_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
-  [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_aibroker_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
-  [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aibroker_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
-  [[ -z "$ARTIFACTORY_USERNAME" ]] && gitops_aibroker_help "ARTIFACTORY_USERNAME is not set. Please provide the artifactory username using --artifactory-username"
-  [[ -z "$AISERVICE_CHANNEL" ]] && gitops_aibroker_help "AISERVICE_CHANNEL is not set. Please provide the mas app channel using --aiservice-channel"
-  [[ -z "$MAS_CATALOG_SOURCE" ]] && gitops_aibroker_help "MAS_CATALOG_SOURCE is not set. Please provide the mas catalog source using --mas-catalog-source"
-  [[ -z "$MAS_ICR_CP" ]] && gitops_aibroker_help "MAS_ICR_CP is not set. Please provide the MAS ICR CP using --mas-icr-cp"
-  [[ -z "$MAS_ICR_CPOPEN" ]] && gitops_aibroker_help "MAS_ICR_CPOPEN is not set. Please provide the MAS ICR CPOPEN using --mas-icr-cpopopen"
-  [[ -z "$IN_SAAS_ENV" ]] && gitops_aibroker_help "IN_SAAS_ENV is not set. Please specify if this is in SaaS environment using --in-saas-env."
-  [[ -z "$IS_EXTERNAL_ROUTE" ]] && gitops_aibroker_help "IS_EXTERNAL_ROUTE is not set. Please specify if this is an external route using --is-external-route."
-  [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aibroker_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
+# -- aiservice
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_aiservicee_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
+  [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_aiservice_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
+  [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aiservicee_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
+  [[ -z "$ARTIFACTORY_USERNAME" ]] && gitops_aiservice_help "ARTIFACTORY_USERNAME is not set. Please provide the artifactory username using --artifactory-username"
+  [[ -z "$AISERVICE_CHANNEL" ]] && gitops_aiservice_help "AISERVICE_CHANNEL is not set. Please provide the mas app channel using --aiservice-channel"
+  [[ -z "$MAS_CATALOG_SOURCE" ]] && gitops_aiservice_help "MAS_CATALOG_SOURCE is not set. Please provide the mas catalog source using --mas-catalog-source"
+  [[ -z "$MAS_ICR_CP" ]] && gitops_aiservice_help "MAS_ICR_CP is not set. Please provide the MAS ICR CP using --mas-icr-cp"
+  [[ -z "$MAS_ICR_CPOPEN" ]] && gitops_aiservice_help "MAS_ICR_CPOPEN is not set. Please provide the MAS ICR CPOPEN using --mas-icr-cpopopen"
+  [[ -z "$IN_SAAS_ENV" ]] && gitops_aiservice_help "IN_SAAS_ENV is not set. Please specify if this is in SaaS environment using --in-saas-env."
+  [[ -z "$IS_EXTERNAL_ROUTE" ]] && gitops_aiservice_help "IS_EXTERNAL_ROUTE is not set. Please specify if this is an external route using --is-external-route."
+  [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aiservice_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
 
 
 }
 
-function gitops_aibroker() {
+function gitops_aiservice() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_aibroker_noninteractive "$@"
+    gitops_aiservice_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_aibroker_interactive
+    gitops_aiservice_interactive
   fi
 
   # catch errors
@@ -428,17 +428,17 @@ function gitops_aibroker() {
     echo
     echo_h2 "Generating Argo Project and Applications"
     echo "- Base Config"
-    echo "Generating aibroker base file ${GITOPS_CLUSTER_DIR}/ibm-aibroker-instance-base.yaml"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-instance-base.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aibroker-instance-base.yaml
+    echo "Generating aiservice base file ${GITOPS_CLUSTER_DIR}/ibm-aiservice-instance-base.yaml"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-instance-base.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aiservice-instance-base.yaml
 
     # Generate ArgoApps
     # ---------------------------------------------------------------------------
     echo
-    echo_h2 "Generating aibroker operator Applications"
-    echo "- aibroker operator"
+    echo_h2 "Generating aiservice operator Applications"
+    echo "- aiservice operator"
 
-    echo "Generating aibroker file ${GITOPS_CLUSTER_DIR}/ibm-aibroker.yaml"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aibroker.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aibroker.yaml
+    echo "Generating aiservice file ${GITOPS_CLUSTER_DIR}/ibm-aiservice.yaml"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aiservice.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aiservice.yaml
 
     # Commit and push to github target repo
     # ---------------------------------------------------------------------------

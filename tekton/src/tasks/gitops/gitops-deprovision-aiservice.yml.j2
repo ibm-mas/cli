@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-deprovision-aibroker
+  name: gitops-deprovision-aiservice
 spec:
   params: 
     - name: cluster_name
@@ -27,7 +27,7 @@ spec:
       type: string
       
   stepTemplate:
-    name: gitops-deprovision-aibroker
+    name: gitops-deprovision-aiservicee
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -62,11 +62,11 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mkdir -p /tmp/init-aibroker
+        mkdir -p /tmp/init-aiservicee
         
-        mas gitops-deprovision-aibroker -a $ACCOUNT -c $CLUSTER_NAME \
+        mas gitops-deprovision-aiservice -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
-        --dir /tmp/init-aibroker \
+        --dir /tmp/init-aiservice \
         --github-push \
         --github-host "$GITHUB_HOST" \
         --github-org "$GITHUB_ORG" \
@@ -78,7 +78,7 @@ spec:
       command:
         - /bin/sh
         - -c
-      name: gitops-deprovision-aibroker
+      name: gitops-deprovision-aiservice
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:latest
   workspaces:

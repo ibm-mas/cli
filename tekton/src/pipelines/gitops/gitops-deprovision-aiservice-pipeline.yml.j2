@@ -64,14 +64,14 @@ spec:
         - name: aiservice_instance_id
           value: $(params.aiservice_instance_id)
 
-   #2. gitops-deprovision-aibroker
+   #2. gitops-deprovision-aiservice
     # -------------------------------------------------------------------------------------------------------
-    - name: run-gitops-deprovision-aibroker
+    - name: run-gitops-deprovision-aiservice
       runAfter:
         - run-gitops-deprovision-kmodel
       taskRef:
         kind: Task
-        name: gitops-deprovision-aibroker
+        name: gitops-deprovision-aiservice
       workspaces:
         - name: configs
           workspace: configs
@@ -103,7 +103,7 @@ spec:
     # -------------------------------------------------------------------------
     - name: run-gitops-deprovision-odh
       runAfter:
-        - run-gitops-deprovision-aibroker
+        - run-gitops-deprovision-aiservice
       taskRef:
         kind: Task
         name: gitops-deprovision-odh

@@ -241,8 +241,8 @@
         - gitops-deprovision-odh
         - gitops-kmodel
         - gitops-deprovision-kmodel
-        - gitops-aibroker
-        - gitops-aibroker-tenant
-        - gitops-deprovision-aibroker-tenant
-        - gitops-deprovision-aibroker
+        - gitops-aiservice
+        - gitops-aiservice-tenant
+        - gitops-deprovision-aiservice-tenant
+        - gitops-deprovision-aiservice
 

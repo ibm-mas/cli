@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-aibroker
+  name: gitops-aiservice
 spec:
   params:
     - name: cluster_name
@@ -80,7 +80,7 @@ spec:
       type: string
 
   stepTemplate:
-    name: gitops-aibroker
+    name: gitops-aiservice
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -169,10 +169,10 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mkdir -p /tmp/init-aibroker
-        mas gitops-aibroker -a $ACCOUNT -c $CLUSTER_NAME \
+        mkdir -p /tmp/init-aiservice
+        mas gitops-aiservice -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
-        --dir /tmp/init-aibroker \
+        --dir /tmp/init-aiservice \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \
@@ -183,7 +183,7 @@ spec:
       command:
         - /bin/sh
         - -c
-      name: gitops-aibroker
+      name: gitops-aiservice
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:latest
   workspaces:

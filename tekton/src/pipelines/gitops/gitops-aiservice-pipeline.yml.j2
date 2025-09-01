@@ -28,7 +28,7 @@ spec:
     - name: github_host
       type: string
 
-    # AIBROKER-specific
+    # aiservice-specific
     - name: aiservice_namespace
       type: string
     - name: aiservice_watsonx_secret
@@ -173,19 +173,19 @@ spec:
         - name: aiservice_storage_region
           value: $(params.aiservice_storage_region)
 
-    # 3.gitops-Aibroker
+    # 3.gitops-aiservice
     # -------------------------------------------------------------------------
 
-    - name: gitops-aibroker
+    - name: gitops-aiservice
       taskRef:
-        name: gitops-aibroker
+        name: gitops-aiservice
       runAfter:
         - gitops-odh
       workspaces:
         - name: configs
           workspace: configs
       params:
-        # AIBROKER shared and specific params
+        # aiservice shared and specific params
         - name: cluster_name
           value: $(params.cluster_name)
         - name: account
@@ -266,7 +266,7 @@ spec:
       taskRef:
         name: gitops-kmodel
       runAfter:
-        - gitops-aibroker
+        - gitops-aiservice
       workspaces:
         - name: configs
           workspace: configs

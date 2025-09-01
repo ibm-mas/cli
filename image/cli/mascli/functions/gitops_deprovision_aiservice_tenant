@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_deprovision_aibroker_help() {
+function gitops_deprovision_aiservicee_tenant_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops-aibroker-deprovision [options]
+  mas gitops-aiservice-tenant-deprovision [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -14,13 +14,15 @@ Basic Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                   Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                   Cluster ID
 
+
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  
 
 
-ibm_aibroker(required):
-  -i, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
+ibm_aiservice_tenant(required):
+      --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                               The aiservice instance ID used by AI Broker
+      --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Broker instance
 
 
 Automatic GitHub Push (Optional):
@@ -38,10 +40,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_deprovision_aibroker_noninteractive() {
+function gitops_deprovision_aiservice_tenant_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-aibroker-deprovision commit"
+  GIT_COMMIT_MSG="gitops-aiservice-tenant-deprovision commit"
 
   # adding default values 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
@@ -78,7 +80,11 @@ function gitops_deprovision_aibroker_noninteractive() {
         ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
+        ;;  
+      --tenant-id)
+        export TENANT_ID=$1 && shift
         ;;
+
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -101,44 +107,45 @@ function gitops_deprovision_aibroker_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_deprovision_aibroker_help
+        gitops_deprovision_aiservicee_tenant_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_deprovision_aibroker_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_deprovision_aiservice_tenant_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_aibroker_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_aibroker_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_aibroker_help "CLUSTER_ID is not set"
-  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_deprovision_aibroker_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_aiservicee_tenant_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_aiservice_tenant_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_aiservice_tenant_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_deprovision_aiservice_tenant_help "REGION_ID or SM_AWS_REGION is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_aibroker_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_aibroker_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_aibroker_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_aibroker_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_aiservice_tenant_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_aiservice_tenant_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_aiservicee_tenant_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_aiservice_tenant_help "GIT_BRANCH is not set"
   fi
 
   # add validation below like above  for those variable which have the value needed for further execution
-  # -- AIBroker
-  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_aibroker_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
+  # -- aiservice
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_aiservice_tenant_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
+  [[ -z "$TENANT_ID" ]] && gitops_deprovision_aiservice_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
 
  }
 
-function gitops_deprovision_aibroker() {
+function gitops_deprovision_aiservice_tenant() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_deprovision_aibroker_noninteractive "$@"
+    gitops_deprovision_aiservice_tenant_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_deprovision_aibroker_interactive
+    gitops_deprovision_aiservice_tenant_interactive
   fi
 
   # catch errors
@@ -147,7 +154,7 @@ function gitops_deprovision_aibroker() {
 
   # rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AISERVICE_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AISERVICE_INSTANCE_ID}/${TENANT_ID}
 
 
   echo
@@ -188,10 +195,13 @@ function gitops_deprovision_aibroker() {
 
   # echo all the variables of gitops envs
 
-  # -- AIBroker
-  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
+  # -- aiservice
   
- echo -e "login aws"
+  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
+   
+  echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
+  
+  echo -e "login aws"
 
  AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
@@ -199,31 +209,32 @@ function gitops_deprovision_aibroker() {
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
 
   export SECRET_IBM_ENTITLEMENT_AUTH=${SECRETS_PREFIX}ibm_entitlement
-  export SECRET_STORAGE_AUTH=${SECRETS_PREFIX}storage
-  export SECRET_MARIADB_AUTH=${SECRETS_PREFIX}mariadb
   export SECRET_DRO_AUTH=${SECRETS_PREFIX}droai
   export SECRET_SLS_AUTH=${SECRETS_PREFIX}sls
-  export SECRET_JDBC_AUTH=${SECRETS_PREFIX}jdbc
+  export SECRET_WATSONX_AUTH=${SECRETS_PREFIX}watsonx
+  export SECRET_RSL_AUTH=${SECRETS_PREFIX}rsl
+  export SECRET_STORAGE_AUTH=${SECRETS_PREFIX}storage
 
-#   #deleting secrets from aws
-#    echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
-#    sm_delete_secret $SECRET_IBM_ENTITLEMENT_AUTH
 
-#    echo -e "Deleting storage secrets $SECRET_STORAGE_AUTH"
-#    sm_delete_secret $SECRET_STORAGE_AUTH
+  #deleting secrets from aws
+  #  echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
+  #  sm_delete_secret $SECRET_IBM_ENTITLEMENT_AUTH
 
-#    echo -e "Deleting watsonx secrets $SECRET_MARIADB_AUTH"
-#    sm_delete_secret $SECRET_MARIADB_AUTH
+  #  echo -e "Deleting dro secrets $SECRET_DRO_AUTH"
+  #  sm_delete_secret $SECRET_DRO_AUTH
 
-#    echo -e "Deleting dro secrets $SECRET_DRO_AUTH"
-#    sm_delete_secret $SECRET_DRO_AUTH
+  #  echo -e "Deleting sls secrets $SECRET_SLS_AUTH"
+  #  sm_delete_secret $SECRET_SLS_AUTH
 
-#    echo -e "Deleting jdbc secrets $SECRET_JDBC_AUTH"
-#    sm_delete_secret $SECRET_JDBC_AUTH
+  #  echo -e "Deleting watsonx secrets $SECRET_WATSONX_AUTH"
+  #  sm_delete_secret $SECRET_WATSONX_AUTH
 
-#    echo -e "Deleting sls secrets $SECRET_SLS_AUTH"
-#    sm_delete_secret $SECRET_SLS_AUTH
-  
+  #  echo -e "Deleting rsl secrets $SECRET_RSL_AUTH"
+  #  sm_delete_secret $SECRET_RSL_AUTH
+
+  #  echo -e "Deleting storage secrets $SECRET_STORAGE_AUTH"
+  #  sm_delete_secret $SECRET_STORAGE_AUTH
+
 
   # finally push them into the git repo
 
@@ -244,10 +255,10 @@ function gitops_deprovision_aibroker() {
     # ---------------------------------------------------------------------------
     echo
     echo_h2 "Deleting application configuration files"
-    echo "- Deleting aibroker "
+    echo "- Deleting aiservice tenant"
    
-   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aibroker-instance-base.yaml
-   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aibroker.yaml
+   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aiservicee-tenant-base.yaml
+   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aiservice-tenant.yaml
     if [ "$GITHUB_PUSH" == "true" ]; then
       echo
       echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"

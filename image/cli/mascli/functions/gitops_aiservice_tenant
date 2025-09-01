@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-function gitops_aibroker_tenant_help() {
+function gitops_aiservice_tenant_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
 Usage:
-  mas gitops-aibroker-tenant [options]
+  mas gitops-aiservice-tenant [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -13,10 +13,10 @@ Basic Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                                                  Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                   Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                   Cluster ID
-  -i, --Instance-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                  Instance ID
+  -i, --Instance-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                 Instance ID
 
-ibm_aibroker_tenant(required):
-      --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                                          The AIBROKER instance ID used by AI Broker
+ibm_aiservice_tenant(required):
+      --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                             The AIBROKER instance ID used by AI Broker
       --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                        The tenant's Kubernetes namespace
       --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Broker instance
       --mas-aibroker-tenant-name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                       The name of the AI Broker tenant
@@ -74,10 +74,10 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_aibroker_tenant_noninteractive() {
+function gitops_aiservice_tenant_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-aibroker-tenant commit"
+  GIT_COMMIT_MSG="gitops-aiservice-tenant commit"
 
   # adding default values 
   # all generic values should to put here 
@@ -85,8 +85,8 @@ function gitops_aibroker_tenant_noninteractive() {
   # only export below in whiel loop
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
-  #adding default values # -- AIBroker Defaults
-  export AISERVICE_NAMESPACEE=${AISERVICE_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aibroker"}
+  #adding default values # -- aiservice Defaults
+  export AISERVICE_NAMESPACEE=${AISERVICE_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aiservice"}
   export AISERVICE_PROVISION_TENANT=${AISERVICE_PROVISION_TENANT:-"provision-tenant"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
@@ -140,7 +140,7 @@ function gitops_aibroker_tenant_noninteractive() {
         export SECRETS_PATH=$1 && shift
         ;;
 
-      # -- AIBroker
+      # -- aiservice
       --aiservice-namespace)
         export AISERVICE_NAMESPACE=$1 && shift
         ;;
@@ -262,62 +262,61 @@ function gitops_aibroker_tenant_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_aibroker_tenant_help
+        gitops_aiservice_tenant_help
         ;;
       *)
         # unknown option
         echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
-        gitops_aibroker_tenant_help  "Usage Error: Unsupported option \"${key}\" "
+        gitops_aiservice_tenant_help  "Usage Error: Unsupported option \"${key}\" "
         exit 1
         ;;
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_aibroker_tenant_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_aibroker_tenant_help "ACCOUNT_ID is not set"
-  [[ -z "$CLUSTER_ID" ]] && gitops_aibroker_tenant_help "CLUSTER_ID is not set"
-  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_aibroker_tenant_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_aiservice_tenant_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_aiservicee_tenant_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_aiservice_tenant_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_aiservice_tenant_help "REGION_ID or SM_AWS_REGION is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_aibroker_tenant_help "GITHUB_HOST is not set"
-    [[ -z "$GITHUB_ORG" ]] && gitops_aibroker_tenant_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_aibroker_tenant_help "GITHUB_REPO is not set"
-    [[ -z "$GIT_BRANCH" ]] && gitops_aibroker_tenant_help "GIT_BRANCH is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_aiservice_tenant_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_aiservice_tenant_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_aiservice_tenant_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_aiservice_tenant_help "GIT_BRANCH is not set"
   fi
 
   # add validation below like above  for those variable which have the value needed for further execution
-  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_aibroker_tenant_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
-  [[ -z "$TENANT_NAMESPACE" ]] && gitops_aibroker_tenant_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
-  [[ -z "$TENANT_ID" ]] && gitops_aibroker_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
-  # [[ -z "$MAS_AIBROKER_TENANT_NAME" ]] && gitops_aibroker_tenant_help "MAS_AIBROKER_TENANT_NAME is not set. Please provide the AI Broker tenant name using --mas-aibroker-tenant-name."
-  [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aibroker_tenant_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_aiservice_tenant_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
+  [[ -z "$TENANT_NAMESPACE" ]] && gitops_aiservicee_tenant_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
+  [[ -z "$TENANT_ID" ]] && gitops_aiservice_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
+  [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aiservice_tenant_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
   
   # -- DRO
-  [[ -z "$DROCFG_URL" ]] && gitops_aibroker_tenant_help "DROCFG_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
+  [[ -z "$DROCFG_URL" ]] && gitops_aiservice_tenant_help "DROCFG_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
   
   # -- SLS
-  [[ -z "$SLSCFG_URL" ]] && gitops_aibroker_tenant_help "SLSCFG_URL is not set. Please specify the SLS configuration URL using --slscfg-url."
+  [[ -z "$SLSCFG_URL" ]] && gitops_aiservice_tenant_help "SLSCFG_URL is not set. Please specify the SLS configuration URL using --slscfg-url."
 
   # -- Watsonx
-  [[ -z "$AISERVICE_WATSONXAI_URL" ]] && gitops_aibroker_tenant_help "AISERVICE_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --aiservice-watsonxai-url."
+  [[ -z "$AISERVICE_WATSONXAI_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --aiservice-watsonxai-url."
   
-  [[ -z "$RSL_URL" ]] && gitops_aibroker_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
-  [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aibroker_tenant_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
+  [[ -z "$RSL_URL" ]] && gitops_aiservice_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
+  [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
   
-  [[ -z "$AISERVICE_STORAGE_SSL" ]] && gitops_aibroker_tenant_help "AISERVICE_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --aiservice-storage_ssl."
-  [[ -z "$AISERVICE_STORAGE_PROVIDER" ]] && gitops_aibroker_tenant_help "AISERVICE_STORAGE_PROVIDER is not set. Please specify the STORAGE provider using --aiservice-storage-provider."
+  [[ -z "$AISERVICE_STORAGE_SSL" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_SSL is not set. Please specify whether SSL is enabled for STORAGE using --aiservice-storage_ssl."
+  [[ -z "$AISERVICE_STORAGE_PROVIDER" ]] && gitops_aiservice_tenant_help "AISERVICE_STORAGE_PROVIDER is not set. Please specify the STORAGE provider using --aiservice-storage-provider."
  
  }
 
-function gitops_aibroker_tenant() {
+function gitops_aiservice_tenant() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_aibroker_tenant_noninteractive "$@"
+    gitops_aiservice_tenant_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_aibroker_tenant_interactive
+    gitops_aiservice_tenant_interactive
   fi
 
   # catch errors
@@ -367,10 +366,10 @@ function gitops_aibroker_tenant() {
 
   # echo all the variables of gitops envs
 
-  # -- AIBroker
-  echo_reset_dim "aibroker namespace ........................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
+  # -- aiservice
+  echo_reset_dim "Aiservice namespace ........................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
   echo_reset_dim "AiService provision tenant ................... ${COLOR_MAGENTA}${AISERVICE_PROVISION_TENANT}"
-  echo_reset_dim "aibroker instance ID ......................... ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
+  echo_reset_dim "AiService instance ID ......................... ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   echo_reset_dim "tenant namespace ............................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
   echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
   echo_reset_dim "mas aibroker tenant name ..................... ${COLOR_MAGENTA}${MAS_AIBROKER_TENANT_NAME}"
@@ -395,7 +394,7 @@ function gitops_aibroker_tenant() {
 
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
 
-  # aibroker
+  # aiservice
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
   # dro
   export SECRET_KEY_ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
@@ -453,17 +452,17 @@ function gitops_aibroker_tenant() {
     echo
     echo_h2 "Generating Argo Project and Applications"
     echo "- Base Config"
-    echo "Generating aibroker base file ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant-base.yaml"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aibroker-tenant-base.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant-base.yaml
+    echo "Generating aiservice base file ${GITOPS_CLUSTER_DIR}/ibm-aiservice-tenant-base.yaml"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aiservice-tenant-base.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aiservice-tenant-base.yaml
 
     # Generate ArgoApps
     # ---------------------------------------------------------------------------
     echo
-    echo_h2 "Generating aibroker operator Applications"
-    echo "- aibroker tenant operator"
+    echo_h2 "Generating aiservice operator Applications"
+    echo "- aiservice tenant operator"
 
-    echo "Generating aibroker file ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant.yaml"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aibroker-tenant.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aibroker-tenant.yaml
+    echo "Generating aiservice file ${GITOPS_CLUSTER_DIR}/ibm-aiservice-tenant.yaml"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-aiservice-tenant.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-aiservice-tenant.yaml
 
     # Commit and push to github target repo
     # ---------------------------------------------------------------------------
