@@ -1141,11 +1141,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Version before 9.1 cannot have empty components
         if (self.getParam("mas_channel").startswith("8.") or self.getParam("mas_channel").startswith("9.0")) and self.getParam("mas_appws_components") == "":
-            self.fatalError("--mas_appws_components must be set for versions earlier than 9.1.0")
+            self.fatalError("--manage-components must be set for versions earlier than 9.1.0")
 
         #  An error should be raised if "health" is not specified when installing Predict.
         if ((self.getParam("mas_app_channel_predict") is not None and self.getParam("mas_app_channel_predict") != "") and 'health' not in self.getParam("mas_appws_components")):
-            self.fatalError("--mas_appws_components must include 'health' component when installing Predict")
+            self.fatalError("--manage-components must include 'health' component when installing Predict")
 
     @logMethodCall
     def install(self, argv):
