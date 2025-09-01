@@ -249,13 +249,13 @@ function mirror_redhat_interactive() {
 
   prompt_for_confirm "Mirror selected content from Red Hat OCP operator catalogs" MIRROR_REDHAT_OPERATORS
 
-  if [[ "$MIRROR_REDHAT_OPERATORS" == "true" ]]; then 
-    echo "Do you want to:"
-    echo "  1) Mirror all default operators"
-    echo "  2) Customize and select operators manually"
+  if [[ "$MIRROR_REDHAT_OPERATORS" == "true" ]]; then
+    echo -e "${COLOR_YELLOW}Do you want to:"
+    echo "  1. Mirror all default operators"
+    echo "  2. Customize and select operators manually"
+    prompt_for_input "Select Mirror operator mode" choice "1"
     echo
 
-    read -rp "Enter choice [1-2]: " choice
     # Define operator lists
     certified_ops=(
       "crunchy-postgres-operator (v5)"
@@ -285,9 +285,9 @@ function mirror_redhat_interactive() {
     selected_ops=("${certified_ops[@]}" "${community_ops[@]}" "${redhat_ops[@]}")
     else
       # Ask user for each operator
-      echo "Select which operators to include (y/n):"
+      echo "${COLOR_YELLOW}Select which operators to include [y/N]:"
       for op in "${certified_ops[@]}" "${community_ops[@]}" "${redhat_ops[@]}"; do
-        read -rp "Include $op? [y/N]: " yn
+        prompt_for_input "Include $op? [y/N]: " yn
         if [[ "$yn" =~ ^[Yy]$ ]]; then
           selected_ops+=("$op")
         fi
@@ -295,7 +295,7 @@ function mirror_redhat_interactive() {
     fi
 
     echo
-    echo "Operators selected for mirroring:"
+    echo_h4 "Operators selected for mirroring:"
     for op in "${selected_ops[@]}"; do
       echo " - $op"
     done
