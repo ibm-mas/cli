@@ -7,10 +7,22 @@ on:
   push:
     branches: ["**"]
 
+# Ensure only one build at a time for any branch, cancelling any in-progress builds
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tekton-validation:
     runs-on: ubuntu-latest
     steps:
+      - name: Init tekton build system
+        id: init
+        run: |
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          $GITHUB_WORKSPACE/build/bin/initbuild.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+
       - name: Checkout repository
         uses: actions/checkout@v4
 

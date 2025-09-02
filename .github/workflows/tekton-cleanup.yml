@@ -5,6 +5,11 @@ on:
     branches: [ "master" ]
     types: [ "closed" ]
 
+# Ensure only one build at a time for any branch, cancelling any in-progress builds
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tekton-cleanup:
     runs-on: ubuntu-latest
