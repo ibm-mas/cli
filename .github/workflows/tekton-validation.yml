@@ -15,6 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create new PR branch
+        id: branch_creation
         run: |
           set +e
           BRANCH_NAME="tekton-1760"
@@ -28,11 +29,14 @@ jobs:
             git merge ${{ github.ref_name}}
             git push origin $BRANCH_NAME
           fi
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Login to OCP
+      - name: Tekton tests
+        id: tekton-tests
         env:
           OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
           OCP_SERVER: ${{ secrets.OCP_SERVER }}
+          BRANCH_NAME: ${{ steps.branch_creation.output.branch_name }}
         run: |
           set +e
           kubectl config set-cluster my-cluster --server=$OCP_SERVER
