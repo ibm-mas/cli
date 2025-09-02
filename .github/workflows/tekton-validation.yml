@@ -23,7 +23,7 @@ jobs:
         id: init
         run: |
           chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
-          $GITHUB_WORKSPACE/build/bin/initbuild.sh
+          chmod u+x $GITHUB_WORKSPACE/tekton/test.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
       - name: Create new PR branch
@@ -61,8 +61,15 @@ jobs:
             kubectl create namespace $BRANCH_NAME
           fi
           kubectl config set-context --current --namespace=$BRANCH_NAME
-          make tekton-test &>/dev/null
+          $GITHUB_WORKSPACE/build/bin/build-tekton.sh &>/dev/null
           rc=$?
           if [[ $rc -ne "0" ]]; then
+            echo "Fail to build Tekton files"
+            exit 1
+          fi
+          $GITHUB_WORKSPACE/tekton/test.sh
+          rc=$?
+          if [[ $rc -ne "0" ]]; then
+            echo "Test failed"
             exit 1
           fi
