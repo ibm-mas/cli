@@ -16,15 +16,15 @@ jobs:
   tekton-validation:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Init tekton build system
         id: init
         run: |
           chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Create new PR branch
         id: branch_creation
