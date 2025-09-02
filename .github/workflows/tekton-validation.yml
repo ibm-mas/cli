@@ -16,8 +16,6 @@ jobs:
 
       - name: Create new PR branch
         run: |
-          
-          # BRANCH_NAME="tekton"-$(echo "${{ github.event.pull_request.number }}")
           BRANCH_NAME="tekton-1760"
           git rev-parse --verify --quiet $BRANCH_NAME &>/dev/null
           if [[ $rc -ne "0" ]]; then
