@@ -15,8 +15,15 @@ jobs:
       - name: Create new PR branch
         run: |
           BRANCH_NAME="tekton"-$(echo "${{ github.event.pull_request.number }}")
-          git checkout -b $BRANCH_NAME
-          git push origin $BRANCH_NAME
+          git rev-parse --verify --quiet $BRANCH_NAME &>/dev/null
+          if [[ $rc -ne "0" ]]; then
+            git checkout -b $BRANCH_NAME
+            git push origin $BRANCH_NAME
+          else
+            git checkout $BRANCH_NAME
+            git merge $(github.ref_name)
+            git push origin $BRANCH_NAME
+          fi
 
       - name: Login to OCP
         env:
