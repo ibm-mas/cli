@@ -21,3 +21,4 @@ if [[ "$1" == "pipelines" ]] || [[ "$1" == "" ]]; then
     kubectl apply -f $FILE
   done
 fi
+
