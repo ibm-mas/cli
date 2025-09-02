@@ -244,11 +244,11 @@ class UpdateApp(BaseApp):
             "Select MAS Catalog",
             "  1) Sep 02 2025 Update (MAS 9.1.2, 9.0.14, 8.11.23, &amp; 8.10.28)",
             "  2) July 31 2025 Update (MAS 9.1.1, 9.0.13, 8.11.22, &amp; 8.10.27)",
-            "  3) Jun 05 2025 Update (MAS 9.1.0, 9.0.12, 8.11.21, &amp; 8.10.26)",
+            "  3) Jun 24 2025 Update (MAS 9.1.0, 9.0.12, 8.11.21, &amp; 8.10.26)",
         ])
 
         catalogOptions = [
-            "v9-250902-amd64", "v9-250731-amd64", "v9-250605-amd64",
+            "v9-250902-amd64", "v9-250731-amd64", "v9-250624-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
