@@ -38,7 +38,7 @@ jobs:
           else
             git pull
             git checkout $BRANCH_NAME
-            git merge ${{ github.ref_name}} --strategy-option=theirs --no-verify
+            git merge ${{ github.ref_name}} --strategy-option=theirs --no-verify --allow-unrelated-histories
             git push origin $BRANCH_NAME
           fi
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_ENV"
