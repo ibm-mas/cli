@@ -29,18 +29,19 @@ jobs:
             git merge ${{ github.ref_name}}
             git push origin $BRANCH_NAME
           fi
-          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_ENV"
 
       - name: Tekton tests
         id: tekton-tests
         env:
           OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
           OCP_SERVER: ${{ secrets.OCP_SERVER }}
-          BRANCH_NAME: ${{ steps.branch_creation.output.branch_name }}
+          BRANCH_NAME: ${{ env.branch_name }}
         run: |
           set +e
           kubectl config set-cluster my-cluster --server=$OCP_SERVER
           kubectl config set-credentials my-user --token=$OCP_TOKEN
+          echo "branch_name=$BRANCH_NAME"
           kubectl get namespace $BRANCH_NAME &>/dev/null
           rc=$?
           if [[ $rc -ne "O" ]]; then
