@@ -41,14 +41,14 @@ jobs:
           set +e
           kubectl config set-cluster my-cluster --server=$OCP_SERVER
           kubectl config set-credentials my-user --token=$OCP_TOKEN
-          echo "branch_name=$BRANCH_NAME"
+          kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=default
+          kubectl config use-context my-context
           kubectl get namespace $BRANCH_NAME &>/dev/null
           rc=$?
           if [[ $rc -ne "O" ]]; then
             kubectl create namespace $BRANCH_NAME
           fi
-          kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=$BRANCH_NAME
-          kubectl config use-context my-context
+          kubectl config set-context --current --namespace=$BRANCH_NAME
           make tekton-test &>/dev/null
           rc=$?
           if [[ $rc -ne "0" ]]; then
