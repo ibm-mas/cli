@@ -39,13 +39,13 @@ jobs:
           kubectl config set-credentials my-user --token=$OCP_TOKEN
           kubectl get namespace $BRANCH_NAME &>/dev/null
           rc=$?
-          if [ $rc -ne "O" ]; then
+          if [[ $rc -ne "O" ]]; then
             kubectl create namespace $BRANCH_NAME
           fi
           kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=$BRANCH_NAME
           kubectl config use-context my-context
           make tekton-test &>/dev/null
           rc=$?
-          if [ $rc -ne "0" ]; then
+          if [[ $rc -ne "0" ]]; then
             exit 1
           fi
