@@ -23,6 +23,7 @@ jobs:
             git checkout -b $BRANCH_NAME
             git push origin $BRANCH_NAME
           else
+            git pull
             git checkout $BRANCH_NAME
             git merge ${{ github.ref_name}}
             git push origin $BRANCH_NAME
