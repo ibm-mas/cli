@@ -16,8 +16,9 @@ jobs:
 
       - name: Create new PR branch
         run: |
+          set +e
           BRANCH_NAME="tekton-1760"
-          git rev-parse --verify --quiet $BRANCH_NAME
+          git rev-parse --verify --quiet $BRANCH_NAME &>/dev/null
           if [[ $rc -ne "0" ]]; then
             git checkout -b $BRANCH_NAME
             git push origin $BRANCH_NAME
@@ -32,16 +33,17 @@ jobs:
           OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
           OCP_SERVER: ${{ secrets.OCP_SERVER }}
         run: |
+          set +e
           kubectl config set-cluster my-cluster --server=$OCP_SERVER
           kubectl config set-credentials my-user --token=$OCP_TOKEN
-          kubectl get namespace $BRANCH_NAME
+          kubectl get namespace $BRANCH_NAME &>/dev/null
           rc=$?
           if [ $rc -ne "O" ]; then
             kubectl create namespace $BRANCH_NAME
           fi
           kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=$BRANCH_NAME
           kubectl config use-context my-context
-          make tekton-test
+          make tekton-test &>/dev/null
           rc=$?
           if [ $rc -ne "0" ]; then
             exit 1
