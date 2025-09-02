@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Aug 28 2025 - Maximo Application Suite CLI</title>
+    <title>IBM Maximo Operator Catalog v9 (250828) - Maximo Application Suite CLI</title>
 
     <!-- Pure CSS (https://pure-css.github.io/) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
@@ -237,7 +237,7 @@
 
         
           
-  <cds-side-nav-menu title="Operator Catalogs" active expanded>
+  <cds-side-nav-menu title="Operator Catalogs" >
     
       
   <cds-side-nav-menu-item href="../" >
@@ -246,8 +246,8 @@
 
     
       
-  <cds-side-nav-menu-item href="./" active expanded>
-    Aug 28 2025
+  <cds-side-nav-menu-item href="../v9-250902-amd64/" >
+    Sep 02 2025
   </cds-side-nav-menu-item>
 
     
@@ -303,7 +303,6 @@
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
-      <cds-breadcrumb-item>Operator Catalogs</cds-breadcrumb-item>
 
   <cds-breadcrumb-item aria-current="page">
     <cds-breadcrumb-link href="#ibm-maximo-operator-catalog-v9-250828">IBM Maximo Operator Catalog v9 (250828)</cds-breadcrumb-link>
@@ -372,6 +371,8 @@
 <ul>
 <li>Customers using <strong>Maximo Assist v8.7 or v8.8</strong> should not update and must instead contact IBM Support for guidance regarding the removal of IBM Watson Discovery and upgrading to Maximo Assist v9.0</li>
 <li>Customers running <strong>Maximo Manage v8.7</strong> with the Civil application in a disconnected environment are advised to skip this update due to a packaging error which will result in a failure to pull the <code>extension-civil</code> container image</li>
+<li>Customers are advised not to use the catalog <code>v9-250828</code> for AIService due to an issue with AIService <code>9.1.5</code>.
+  Please use the 2nd Sep catalog <code>v9-250902</code> with AIService <code>9.1.6</code>.</li>
 </ul>
 <h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link">¤</a></h2>
 <p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v9-250828-amd64.yaml</code></p>
@@ -4124,7 +4125,7 @@ spec:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-09-01 11:10:04.303064+00:00)
+      Built with mkdocs v1.6.1 (2025-09-02 14:42:32.300882+00:00)
     </div> -->
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body>
