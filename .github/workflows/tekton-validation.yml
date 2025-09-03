@@ -3,9 +3,6 @@ name: Tekton validation
 on:
   pull_request:
     branches: [ "master" ]
-    types: [ "opened", "reopened" ]
-  push:
-    branches: ["**"]
 
 # Ensure only one build at a time for any branch, cancelling any in-progress builds
 concurrency:
@@ -30,7 +27,7 @@ jobs:
         id: branch_creation
         run: |
           set +e
-          BRANCH_NAME="tekton-1760"
+          BRANCH_NAME="tekton"-$(echo "${{ github.event.pull_request.number }}")
           git rev-parse --verify --quiet $BRANCH_NAME &>/dev/null
           if [[ $rc -ne "0" ]]; then
             git checkout -b $BRANCH_NAME
