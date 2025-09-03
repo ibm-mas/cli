@@ -33,7 +33,8 @@ jobs:
             git checkout -b $BRANCH_NAME
             git push origin $BRANCH_NAME
           else
-            git push origin ${{ github.ref_name}}:$BRANCH_NAME --force
+            echo ${{ github.ref_name }}
+            git push origin ${{ github.ref_name }}:$BRANCH_NAME --force
           fi
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_ENV"
 
