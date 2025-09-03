@@ -17,15 +17,13 @@ jobs:
   tekton-cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: Get branch name
-        run: |
-          BRANCH_NAME="tekton"-$(echo "${{ github.event.pull_request.number }}")
-
       - name: Clean up namespace
         env:
           OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
           OCP_SERVER: ${{ secrets.OCP_SERVER }}
         run: |
+          BRANCH_NAME=$(echo "tekton-${{ github.event.pull_request.number }}")
+
           kubectl config set-cluster my-cluster --server=$OCP_SERVER
           kubectl config set-credentials my-user --token=$OCP_TOKEN
           kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=default

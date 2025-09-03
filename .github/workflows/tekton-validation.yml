@@ -27,7 +27,7 @@ jobs:
         id: branch_creation
         run: |
           set +e
-          BRANCH_NAME="tekton"-$(echo "${{ github.event.pull_request.number }}")
+          BRANCH_NAME=$(echo "tekton-${{ github.event.pull_request.number }}")
           git rev-parse --verify --quiet $BRANCH_NAME &>/dev/null
           if [[ $rc -ne "0" ]]; then
             git checkout -b $BRANCH_NAME
