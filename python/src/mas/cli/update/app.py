@@ -11,6 +11,7 @@
 
 import logging
 import logging.handlers
+from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
@@ -22,7 +23,7 @@ from .argParser import updateArgParser
 
 from mas.devops.ocp import createNamespace, getStorageClasses, getConsoleURL
 from mas.devops.mas import listMasInstances, getCurrentCatalog
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, launchAiServiceUpdatePipeline
 
 
 logger = logging.getLogger(__name__)
@@ -204,14 +205,20 @@ class UpdateApp(BaseApp):
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text="Submitting PipelineRun for MAS update", spinner=self.spinner) as h:
-                pipelineURL = launchUpdatePipeline(dynClient=self.dynamicClient, params=self.params)
-                if pipelineURL is not None:
-                    h.stop_and_persist(symbol=self.successIcon, text="PipelineRun for MAS update submitted")
-                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
-                else:
-                    h.stop_and_persist(symbol=self.failureIcon, text="Failed to submit PipelineRun for MAS update, see log file for details")
-                    print()
+            if self.isMasInstalled():
+                self.runPipeline('MAS', launchUpdatePipeline)
+            if self.isAiServiceInstalled():
+                self.runPipeline('AI Service', launchAiServiceUpdatePipeline)
+    
+    def runPipeline(self, name: str, pipeline: Callable) -> None:
+        with Halo(text=f"Submitting PipelineRun for {name} update", spinner=self.spinner) as h:
+            pipelineURL = pipeline(dynClient=self.dynamicClient, params=self.params)
+            if pipelineURL is not None:
+                h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {name} update submitted")
+                print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
+            else:
+                h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {name} update, see log file for details")
+                print()
 
     def reviewCurrentCatalog(self) -> None:
         catalogInfo = getCurrentCatalog(self.dynamicClient)
@@ -255,6 +262,26 @@ class UpdateApp(BaseApp):
     def validateCatalog(self) -> None:
         if self.installedCatalogId is not None and self.installedCatalogId > self.getParam("mas_catalog_version"):
             self.fatalError(f"Selected catalog is older than the currently installed catalog.  Unable to update catalog from {self.installedCatalogId} to {self.getParam('mas_catalog_version')}")
+
+    def isMasInstalled(self) -> bool:
+        try:
+            api = self.dynamicClient.resources.get(api_version="core.mas.ibm.com/v1", kind="Suite")
+            apps = api.get().to_dict()['items'] # TODO confirm this checks all namespaces
+            if len(apps) > 0:
+                return True
+            return False
+        except (ResourceNotFoundError, NotFoundError):
+            return False
+    
+    def isAiServiceInstalled(self) -> bool:
+        try:
+            api = self.dynamicClient.resources.get(api_version="aiservice.ibm.com/v1", kind="AIServiceApp")
+            apps = api.get().to_dict()['items'] # TODO confirm this checks all namespaces
+            if len(apps) > 0:
+                return True
+            return False
+        except (ResourceNotFoundError, NotFoundError):
+            return False
 
     def isWatsonDiscoveryInstalled(self) -> bool:
         try:
