@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [ "master" ]
     types: [ "closed" ]
+  workflow_run:
+    workflows: [ "Tekton validation" ]
+    types: [ "completed" ]
 
 # Ensure only one build at a time for any branch, cancelling any in-progress builds
 concurrency:
@@ -25,6 +28,8 @@ jobs:
         run: |
           kubectl config set-cluster my-cluster --server=$OCP_SERVER
           kubectl config set-credentials my-user --token=$OCP_TOKEN
+          kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=default
+          kubectl config use-context my-context
           kubectl get namespace $BRANCH_NAME &>/dev/null
           rc=$?
           if [ $rc -eq "0" ]; then
@@ -33,4 +38,4 @@ jobs:
 
       - name: Clean up branch
         run: |
-          git push origin --delete $BRANCH_NAME
+          git push origin --delete $BRANCH_NAME --force
