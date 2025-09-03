@@ -10,18 +10,17 @@
 # *****************************************************************************
 
 import logging
-from sys import exit
-from os import path, getenv
 import re
 import calendar
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from sys import exit
+from os import path, getenv
 from openshift.dynamic.exceptions import NotFoundError
-
 from prompt_toolkit import prompt, print_formatted_text, HTML
 from prompt_toolkit.completion import WordCompleter
-
 from tabulate import tabulate
-
 from halo import Halo
 
 from ...cli import BaseApp
@@ -43,7 +42,8 @@ from ...install.settings.additionalConfigs import AdditionalConfigsMixin
 
 from mas.cli.validators import (
     InstanceIDFormatValidator,
-    StorageClassValidator
+    StorageClassValidator,
+    BucketPrefixValidator
 )
 
 from mas.devops.ocp import createNamespace, getStorageClasses
@@ -80,42 +80,29 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
         applications = {
-            "Aibroker": "aiservice_version",
+            "AI Service": "aiservice_version",
         }
 
         self.catalogReleases = {}
         self.catalogTable = []
 
         # Dynamically fetch the channels from the chosen catalog
-        # based on mas core
-        for channel in self.chosenCatalog["mas_core_version"]:
-            # {"9.1-feature": "9.1.x-feature"}
+        for channel in self.chosenCatalog["aiservice_version"]:
             self.catalogReleases.update({channel.replace('.x', ''): channel})
 
         # Generate catalogTable
         for application, key in applications.items():
-            # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             tempChosenCatalog = self.chosenCatalog[key].copy()
             self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
 
-        if self.architecture == "s390x":
-            summary = [
-                "",
-                "<u>Catalog Details</u>",
-                f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
-                f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
-                f"MongoDb:               {self.catalogMongoDbVersion}",
-            ]
-        else:
-            summary = [
-                "",
-                "<u>Catalog Details</u>",
-                f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
-                f"Catalog Digest:        {self.catalogDigest}",
-                f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
-                f"MongoDb:               {self.catalogMongoDbVersion}",
-            ]
+        summary = [
+            "",
+            "<u>Catalog Details</u>",
+            f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
+            f"Catalog Digest:        {self.catalogDigest}",
+            f"AI Service Releases:   {', '.join(sorted(self.catalogReleases, reverse=True))}",
+            f"MongoDb:               {self.catalogMongoDbVersion}",
+        ]
 
         return summary
 
@@ -204,19 +191,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
             elif key == "install_minio_aiservice":
                 incompatibleWithMinioInstall = [
-                    # "aiservice_s3_provider",
                     "aiservice_s3_accesskey",
                     "aiservice_s3_secretkey",
                     "aiservice_s3_host",
                     "aiservice_s3_port",
                     "aiservice_s3_ssl",
                     "aiservice_s3_bucket_prefix",
-                    # "aiservice_s3_endpoint_url",
-                    "aiservice_s3_region",
-                    # "aiservice_tenant_s3_access_key",
-                    # "aiservice_tenant_s3_secret_key",
-                    # "aiservice_tenant_s3_endpoint_url",
-                    # "aiservice_tenant_s3_region"
+                    "aiservice_s3_region"
                 ]
                 if value is None:
                     for uKey in incompatibleWithMinioInstall:
@@ -241,25 +222,25 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
                     self.setParam("aiservice_s3_port", "9000")
                     self.setParam("aiservice_s3_ssl", "false")
-                    # self.setParam("aiservice_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
                     self.setParam("aiservice_s3_region", "none")
-                    self.setParam("aiservice_s3_bucket_prefix", "aiservice")
-
-                    # self.setParam("aiservice_tenant_s3_access_key", self.args.minio_root_user)
-                    # self.setParam("aiservice_tenant_s3_secret_key", self.args.minio_root_password)
-                    # self.setParam("aiservice_tenant_s3_endpoint_url", "http://minio-service.minio.svc.cluster.local:9000")
-                    # self.setParam("aiservice_tenant_s3_region", "none")
+                    self.setParam("aiservice_s3_bucket_prefix", "s3-")
                 else:
                     self.fatalError(f"Unsupported value for --install-minio: {value}")
+
+            elif key == "aiservice_s3_bucket_prefix":
+                if len(value) == 0 or len(value) > 4:
+                    self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
 
             elif key == "non_prod":
                 if not value:
                     self.operationalMode = 1
                     self.setParam("environment_type", "production")
+                    self.setParam("aiservice_odh_model_deployment_type", "raw")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
                     self.setParam("environment_type", "non-production")
+                    self.setParam("aiservice_odh_model_deployment_type", "serverless")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -383,14 +364,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "Note: Maximo AI Service 9.1 includes a limited-use license to watsonx.ai and incurs an additional AppPoint cost"
         ])
 
-        if not self.devMode:
-            self.printDescription([
-                "",
-                "<ForestGreen>Coming Soon!  We are busy putting the finishing touches on Maximo AI Service 9.1 ahead of a re-launch planned for the 28 August 2025 catalog update</ForestGreen>",
-                ""
-            ])
-            exit(1)
-
         # Set image_pull_policy of the CLI in interactive mode
         if args.image_pull_policy and args.image_pull_policy != "":
             self.setParam("image_pull_policy", args.image_pull_policy)
@@ -421,7 +394,14 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.isAirgap()
 
         # Configure the installOptions for the appropriate architecture
-        self.catalogOptions = supportedCatalogs[self.architecture]
+        # self.catalogOptions = supportedCatalogs[self.architecture]
+
+        # Once AI Service is supported by all supported catalogs we can remove this
+        # In the meantime we will need to update this as we go
+        self.catalogOptions = []
+        for option in supportedCatalogs[self.architecture]:
+            if option >= "v9-250828-amd64":
+                self.catalogOptions.append(option)
 
         # Basic settings before the user provides any input
         self.configICR()
@@ -546,69 +526,32 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         else:
             # Ask for external storage configuration
             self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
-            # s3_completer = WordCompleter(["aws", "minio"])
-            # s3_provider = self.promptForString("Storage provider", completer=s3_completer)
-            # self.setParam("aiservice_s3_provider", s3_provider)
             self.promptForString("Storage access key", "aiservice_s3_accesskey")
             self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
             self.promptForString("Storage host", "aiservice_s3_host")
             self.promptForString("Storage port", "aiservice_s3_port")
             self.promptForString("Storage ssl", "aiservice_s3_ssl")
             self.promptForString("Storage region", "aiservice_s3_region")
-            self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix")
+            self.printDescription([
+                "",
+                "Storage bucket prefix restrictions:",
+                " - Must be 1-4 characters long"
+            ])
+            self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
             self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
             self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
-        # S3 parameters are now auto-derived from storage configuration
-        # self._deriveS3ParametersFromStorage()
-
     def aiServiceTenantSettings(self) -> None:
         self.printH1("AI Service Tenant Settings")
-        self.promptForString("Tenant entitlement type", "tenant_entitlement_type")
-        self.promptForString("Tenant start date", "tenant_entitlement_start_date")
-        self.promptForString("Tenant end date", "tenant_entitlement_end_date")
+        self.printDescription([
+            "AI Service will reserve AppPoints for a fixed period of time based on the values you enter:"
+        ])
 
-    # def _deriveS3ParametersFromStorage(self) -> None:
-    #     """
-    #     Auto-derive S3 and tenant S3 parameters from the aiservice_s3_* parameters.
-    #     This reuses the values provided for kmodel object storage to avoid redundant prompts.
-    #     """
-    #     storage_provider = self.getParam("aiservice_s3_provider")
-    #     storage_host = self.getParam("aiservice_s3_host")
-    #     storage_port = self.getParam("aiservice_s3_port")
-    #     storage_ssl = self.getParam("aiservice_s3_ssl")
-    #     storage_region = self.getParam("aiservice_s3_region")
-    #     storage_bucket_prefix = self.getParam("aiservice_s3_bucket_prefix")
-    #     storage_accesskey = self.getParam("aiservice_s3_accesskey")
-    #     storage_secretkey = self.getParam("aiservice_s3_secretkey")
-
-    #     # Build endpoint URL from storage configuration
-    #     protocol = "https" if storage_ssl == "true" else "http"
-
-    #     if storage_provider == "minio":
-    #         endpoint_url = f"{protocol}://{storage_host}:{storage_port}"
-    #     elif storage_provider == "aws":
-    #         # For AWS S3, construct proper endpoint
-    #         if storage_region and storage_region != "none":
-    #             endpoint_url = f"{protocol}://s3.{storage_region}.amazonaws.com"
-    #         else:
-    #             endpoint_url = f"{protocol}://s3.amazonaws.com"
-    #     else:
-    #         # For other providers, construct basic endpoint
-    #         endpoint_url = f"{protocol}://{storage_host}:{storage_port}" if storage_port else f"{protocol}://{storage_host}"
-
-    #     # Set S3 parameters (reusing storage configuration)
-    #     if endpoint_url:
-    #         self.setParam("aiservice_s3_endpoint_url", endpoint_url)
-    #     self.setParam("aiservice_s3_region", storage_region if storage_region else "none")
-
-    #     # Set tenant S3 parameters (reusing same storage configuration)
-    #     self.setParam("aiservice_tenant_s3_bucket_prefix", "tenant")  # Default tenant prefix
-    #     self.setParam("aiservice_tenant_s3_access_key", storage_accesskey)
-    #     self.setParam("aiservice_tenant_s3_secret_key", storage_secretkey)
-    #     if endpoint_url:
-    #         self.setParam("aiservice_tenant_s3_endpoint_url", endpoint_url)
-    #     self.setParam("aiservice_tenant_s3_region", storage_region if storage_region else "none")
+        today = datetime.today()
+        oneyear = datetime.today() + relativedelta(years=1)
+        self.setParam("tenant_entitlement_type", "standard")
+        self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
+        self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
 
     def _setMinioStorageDefaults(self) -> None:
         """
@@ -622,7 +565,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.setParam("aiservice_s3_port", "9000")
         self.setParam("aiservice_s3_ssl", "false")
         self.setParam("aiservice_s3_region", "none")
-        self.setParam("aiservice_s3_bucket_prefix", "aiservice")
+        self.setParam("aiservice_s3_bucket_prefix", "s3-")
 
         # Set default bucket names
         self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
@@ -662,7 +605,10 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         ])
         self.promptForString("RSL url", "rsl_url")
         self.promptForString("ORG Id of RSL", "rsl_org_id")
-        self.promptForString("Token for RSL", "rsl_token", isPassword=True)
+        rslToken = self.promptForString("Token for RSL", isPassword=True)
+        if not rslToken.startswith("Bearer "):
+            rslToken = "Bearer " + rslToken
+        self.setParam("rsl_token", rslToken)
         if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
             self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
 
@@ -734,20 +680,13 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
             catalogSummary = self.processCatalogChoice()
             self.printDescription(catalogSummary)
-            self.printDescription([
-                "",
-                "Two types of release are available:",
-                " - GA releases of Maximo Application Suite are supported under IBM's standard 3+1+3 support lifecycle policy.",
-                " - 'Feature' releases allow early access to new features for evaluation in non-production environments and are only supported through to the next GA release.",
-                ""
-            ])
-
             print(tabulate(self.catalogTable, headers="keys", tablefmt="simple_grid"))
 
-            releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
-            releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
-
-            self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
+            # There's only one release channel, the user doesn't need to be prompted!!
+            # releaseCompleter = WordCompleter(sorted(self.catalogReleases, reverse=True))
+            # releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
+            # self.setParam("aiservice_channel", self.catalogReleases[releaseSelection])
+            self.setParam("aiservice_channel", "9.1.x")
 
     @logMethodCall
     def validateCatalogSource(self):
@@ -837,7 +776,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.printH1("Configure AppPoint Licensing")
         self.printDescription(
             [
-                "By default the MAS instance will be configured to use a cluster-shared License, this provides a shared pool of AppPoints available to all MAS instances on the cluster.",
+                "By default the AI Service instance will be configured to use a cluster-shared License, this provides a shared pool of AppPoints available to all MAS &amp; AI Service instances on the cluster.",
                 "",
             ]
         )
@@ -848,9 +787,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         if self.showAdvancedOptions:
             self.printDescription(
                 [
-                    "Alternatively you may choose to install using a dedicated license only available to this MAS instance.",
-                    "  1. Install MAS with Cluster-Shared License (AppPoints)",
-                    "  2. Install MAS with Dedicated License (AppPoints)",
+                    "Alternatively you may choose to install using a dedicated license only available to this AI Service instance.",
+                    "  1. Install AI Service with Cluster-Shared License (AppPoints)",
+                    "  2. Install AI Service with Dedicated License (AppPoints)",
                 ]
             )
             self.slsMode = self.promptForInt("SLS Mode", default=1)
@@ -897,5 +836,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.operationalMode = self.promptForInt("Operational Mode", default=1)
         if self.operationalMode == 1:
             self.setParam("environment_type", "production")
+            self.setParam("aiservice_odh_model_deployment_type", "raw")
         else:
             self.setParam("environment_type", "non-production")
+            self.setParam("aiservice_odh_model_deployment_type", "serverless")
