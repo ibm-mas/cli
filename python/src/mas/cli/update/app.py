@@ -22,7 +22,7 @@ from ..validators import StorageClassValidator
 from .argParser import updateArgParser
 
 from mas.devops.ocp import createNamespace, getStorageClasses, getConsoleURL
-from mas.devops.mas import listMasInstances, getCurrentCatalog
+from mas.devops.mas import listMasInstances, listAiServiceInstances, getCurrentCatalog
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, launchAiServiceUpdatePipeline
 
 
@@ -95,7 +95,10 @@ class UpdateApp(BaseApp):
         # deprecated MaximoApplicationSuite ImageContentSourcePolicy instead of the new ImageDigestMirrorSet
         self.isAirgap()
         self.reviewCurrentCatalog()
-        self.reviewMASInstance()
+        isMasInstalled = self.reviewMASInstance()
+        isAiServiceInstalled = self.reviewAiServiceInstance()
+        if not isMasInstalled and not isAiServiceInstalled:
+            self.fatalError(["No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details"])
 
         if self.args.mas_catalog_version is None:
             # Interactive mode
@@ -205,11 +208,11 @@ class UpdateApp(BaseApp):
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            if self.isMasInstalled():
+            if isMasInstalled:
                 self.runPipeline('MAS', launchUpdatePipeline)
-            if self.isAiServiceInstalled():
+            if isAiServiceInstalled:
                 self.runPipeline('AI Service', launchAiServiceUpdatePipeline)
-    
+
     def runPipeline(self, name: str, pipeline: Callable) -> None:
         with Halo(text=f"Submitting PipelineRun for {name} update", spinner=self.spinner) as h:
             pipelineURL = pipeline(dynClient=self.dynamicClient, params=self.params)
@@ -235,15 +238,29 @@ class UpdateApp(BaseApp):
                 f" <u>{catalogInfo['image']}</u>"
             ])
 
-    def reviewMASInstance(self) -> None:
+    def reviewMASInstance(self) -> bool:
         self.printH1("Review MAS Instances")
-        self.printDescription(["The following MAS intances are installed on the target cluster and will be affected by the catalog update:"])
         try:
             suites = listMasInstances(self.dynamicClient)
+            self.printDescription(["The following MAS instances are installed on the target cluster and will be affected by the catalog update:"])
             for suite in suites:
                 self.printDescription([f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"])
+            return True
         except ResourceNotFoundError:
-            self.fatalError("No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available).  See log file for details")
+            self.printDescription(["No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available)"])
+            return False
+
+    def reviewAiServiceInstance(self) -> bool:
+        self.printH1("Review AI Service Instances")
+        try:
+            instances = listAiServiceInstances(self.dynamicClient)
+            self.printDescription(["The following AI Service instances are installed on the target cluster and will be affected by the catalog update:"])
+            for instance in instances:
+                self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+            return True
+        except ResourceNotFoundError:
+            self.printDescription(["No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available)"])
+            return False
 
     def chooseCatalog(self) -> None:
         self.printH1("Select IBM Maximo Operator Catalog Version")
@@ -262,26 +279,6 @@ class UpdateApp(BaseApp):
     def validateCatalog(self) -> None:
         if self.installedCatalogId is not None and self.installedCatalogId > self.getParam("mas_catalog_version"):
             self.fatalError(f"Selected catalog is older than the currently installed catalog.  Unable to update catalog from {self.installedCatalogId} to {self.getParam('mas_catalog_version')}")
-
-    def isMasInstalled(self) -> bool:
-        try:
-            api = self.dynamicClient.resources.get(api_version="core.mas.ibm.com/v1", kind="Suite")
-            apps = api.get().to_dict()['items'] # TODO confirm this checks all namespaces
-            if len(apps) > 0:
-                return True
-            return False
-        except (ResourceNotFoundError, NotFoundError):
-            return False
-    
-    def isAiServiceInstalled(self) -> bool:
-        try:
-            api = self.dynamicClient.resources.get(api_version="aiservice.ibm.com/v1", kind="AIServiceApp")
-            apps = api.get().to_dict()['items'] # TODO confirm this checks all namespaces
-            if len(apps) > 0:
-                return True
-            return False
-        except (ResourceNotFoundError, NotFoundError):
-            return False
 
     def isWatsonDiscoveryInstalled(self) -> bool:
         try:
