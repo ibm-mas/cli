@@ -44,5 +44,5 @@ jobs:
           BRANCH_NAME: ${{ env.branch_name }}
         run: |
           git pull --quiet
-          git checkout $BRANCH_NAME --quiet
-          git push origin --delete $BRANCH_NAME --force
+          git checkout master --quiet
+          git push origin --delete $BRANCH_NAME
