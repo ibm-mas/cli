@@ -48,7 +48,7 @@ The `mas update` function is the primary tool for applying security updates and 
     Note that `mas update` will not update any other operator catalogs installed on the OpenShift cluster, including the Red Hat Operator Catalogs.
 
 ### Dependency Management
-In addition to it's primary role to update the IBM Maximo Operator Catalog (and verify the successfull rollout of updated operators) the update command will also perform updates to a number of MAS dependencies controlled outside of the IBM Operator Catalog.
+In addition to its primary role to update the IBM Maximo Operator Catalog (and verify the successfull rollout of updated operators) the update command will also perform updates to a number of MAS dependencies controlled outside of the IBM Operator Catalog.
 
 The update function will automatically search for and detect all of these dependencies and present a summary report that will describe the action it will take for the user to review before they launch the update (unless `--no-confirm` is set, in which case the update will start without prompt).
 
@@ -60,7 +60,7 @@ To this end `mas update` will perform updates to both the installed MongoCE Oper
 For Kafka things work pretty much the same; although the version of the operator is out of our control because it is determined by the version of the Red Hat Operator Catalogs that are installed on the cluster.  MAS update will however perform necessary updates to the Kafka operand to update the version of the Kafka instance at appropriate times.
 
 #### IBM Cloud Pak for Data
-Each version of the IBM Maximo Operator Catalog is certified compatible with a specific version of IBM Cloud Pak for Data (CP4D), it is not recommended to diverge from this captible version because CP4D versioning is very brittle and even a small patch update to one of it's services can create incompatibilities elsewhere.
+Each version of the IBM Maximo Operator Catalog is certified compatible with a specific version of IBM Cloud Pak for Data (CP4D), it is not recommended to diverge from this compatible version because CP4D versioning is very brittle and even a small patch update to one of its services can create incompatibilities elsewhere.
 
 
 ### Automatic Migrations
@@ -70,7 +70,7 @@ Sometimes MAS dependencies go out of support and there is a need to migrate to a
 In November 2023 it was announced that IBM User Data Services (UDS) was being sunset, to be replaced by IBM Data Reporter Operator (DRO).  MAS customers updating from a catalog older than **February 2024** will see UDS uninstalled, DRO installed, and all MAS instances in the cluster automatically migrated to use the new DRO instance.
 
 #### IBM Certificate Manager
-IBM Certificate-Manager is deprecated, it's replacement is Red Hat Certificate-Manager.  MAS customers updating from catalogs prior to **January 2024** will see IBM Certificate-Manager uninstalled, Red Hat Certificate-Manager installed, and all MAS instances automatically reconfigured to use the latter.
+IBM Certificate-Manager is deprecated, its replacement is Red Hat Certificate-Manager.  MAS customers updating from catalogs prior to **January 2024** will see IBM Certificate-Manager uninstalled, Red Hat Certificate-Manager installed, and all MAS instances automatically reconfigured to use the latter.
 
 #### Grafana Operator v4
 In December 2024 is was announced that support for the Grafana v4 Operator would cease later that month, MAS customers updating from a catalog older than **February 2024** will see their Grafana installation automatically migrated to the Grafana v5 Operator.
