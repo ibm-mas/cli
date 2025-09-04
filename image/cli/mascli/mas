@@ -92,8 +92,6 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_db2u
 . $CLI_DIR/functions/gitops_deprovision_odh
 . $CLI_DIR/functions/gitops_odh
-. $CLI_DIR/functions/gitops_kmodel
-. $CLI_DIR/functions/gitops_deprovision_kmodel
 . $CLI_DIR/functions/gitops_aiservice
 . $CLI_DIR/functions/gitops_aiservice_tenant
 . $CLI_DIR/functions/gitops_deprovision_aiservice_tenant
@@ -577,22 +575,6 @@ case $1 in
     echo
     reset_colors
     gitops_deprovision_odh "$@"
-    ;;
-    
-  gitops-kmodel)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_kmodel "$@"
-    ;;
-
-  gitops-deprovision-kmodel)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel deprovision Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
-    echo
-    reset_colors
-    gitops_deprovision_kmodel "$@"
     ;;
 
   gitops-aiservice)
