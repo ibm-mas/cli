@@ -28,13 +28,12 @@ jobs:
         run: |
           set +e
           BRANCH_NAME=$(echo "tekton-${{ github.event.pull_request.number }}")
-          git rev-parse --verify --quiet $BRANCH_NAME &>/dev/null
+          git pull --quiet
+          git checkout $BRANCH_NAME --quiet &>/dev/null
           if [[ $rc -ne "0" ]]; then
             git checkout -b $BRANCH_NAME
             git push origin $BRANCH_NAME
           else
-            git pull
-            git checkout $BRANCH_NAME
             git push origin origin/${{ github.head_ref }}:$BRANCH_NAME --force
           fi
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_ENV"

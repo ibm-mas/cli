@@ -39,6 +39,6 @@ jobs:
 
       - name: Clean up branch
         run: |
-          git pull
-          git checkout $BRANCH_NAME
+          git pull --quiet
+          git checkout $BRANCH_NAME --quiet
           git push origin --delete $BRANCH_NAME --force
