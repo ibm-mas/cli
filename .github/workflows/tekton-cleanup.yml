@@ -37,7 +37,11 @@ jobs:
             kubectl delete namespace $BRANCH_NAME
           fi
 
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_ENV"
+
       - name: Clean up branch
+        env:
+          BRANCH_NAME: ${{ env.branch_name }}
         run: |
           git pull --quiet
           git checkout $BRANCH_NAME --quiet
