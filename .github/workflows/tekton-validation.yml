@@ -35,7 +35,7 @@ jobs:
           else
             git pull
             git checkout $BRANCH_NAME
-            git push origin ${{ github.head_ref }}:$BRANCH_NAME --force
+            git push origin origin/${{ github.head_ref }}:$BRANCH_NAME --force
           fi
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_ENV"
 
