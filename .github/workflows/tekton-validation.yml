@@ -30,6 +30,7 @@ jobs:
           BRANCH_NAME=$(echo "tekton-${{ github.event.pull_request.number }}")
           git pull --quiet
           git checkout $BRANCH_NAME --quiet &>/dev/null
+          rc=$?
           if [[ $rc -ne "0" ]]; then
             git checkout -b $BRANCH_NAME
             git push origin $BRANCH_NAME
