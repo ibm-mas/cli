@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
+
       - name: Clean up namespace
         env:
           OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
@@ -40,4 +40,5 @@ jobs:
       - name: Clean up branch
         run: |
           git pull
+          git checkout $BRANCH_NAME
           git push origin --delete $BRANCH_NAME --force
