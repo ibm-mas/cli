@@ -11,6 +11,7 @@
 
 import logging
 import logging.handlers
+from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
@@ -21,8 +22,8 @@ from ..validators import StorageClassValidator
 from .argParser import updateArgParser
 
 from mas.devops.ocp import createNamespace, getStorageClasses, getConsoleURL
-from mas.devops.mas import listMasInstances, getCurrentCatalog
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
+from mas.devops.mas import listMasInstances, listAiServiceInstances, getCurrentCatalog
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, launchAiServiceUpdatePipeline
 
 
 logger = logging.getLogger(__name__)
@@ -94,7 +95,10 @@ class UpdateApp(BaseApp):
         # deprecated MaximoApplicationSuite ImageContentSourcePolicy instead of the new ImageDigestMirrorSet
         self.isAirgap()
         self.reviewCurrentCatalog()
-        self.reviewMASInstance()
+        isMasInstalled = self.reviewMASInstance()
+        isAiServiceInstalled = self.reviewAiServiceInstance()
+        if not isMasInstalled and not isAiServiceInstalled:
+            self.fatalError(["No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details"])
 
         if self.args.mas_catalog_version is None:
             # Interactive mode
@@ -204,14 +208,20 @@ class UpdateApp(BaseApp):
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            with Halo(text="Submitting PipelineRun for MAS update", spinner=self.spinner) as h:
-                pipelineURL = launchUpdatePipeline(dynClient=self.dynamicClient, params=self.params)
-                if pipelineURL is not None:
-                    h.stop_and_persist(symbol=self.successIcon, text="PipelineRun for MAS update submitted")
-                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
-                else:
-                    h.stop_and_persist(symbol=self.failureIcon, text="Failed to submit PipelineRun for MAS update, see log file for details")
-                    print()
+            if isMasInstalled:
+                self.runPipeline('MAS', launchUpdatePipeline)
+            if isAiServiceInstalled:
+                self.runPipeline('AI Service', launchAiServiceUpdatePipeline)
+
+    def runPipeline(self, name: str, pipeline: Callable) -> None:
+        with Halo(text=f"Submitting PipelineRun for {name} update", spinner=self.spinner) as h:
+            pipelineURL = pipeline(dynClient=self.dynamicClient, params=self.params)
+            if pipelineURL is not None:
+                h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {name} update submitted")
+                print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
+            else:
+                h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {name} update, see log file for details")
+                print()
 
     def reviewCurrentCatalog(self) -> None:
         catalogInfo = getCurrentCatalog(self.dynamicClient)
@@ -228,15 +238,29 @@ class UpdateApp(BaseApp):
                 f" <u>{catalogInfo['image']}</u>"
             ])
 
-    def reviewMASInstance(self) -> None:
+    def reviewMASInstance(self) -> bool:
         self.printH1("Review MAS Instances")
-        self.printDescription(["The following MAS intances are installed on the target cluster and will be affected by the catalog update:"])
         try:
             suites = listMasInstances(self.dynamicClient)
+            self.printDescription(["The following MAS instances are installed on the target cluster and will be affected by the catalog update:"])
             for suite in suites:
                 self.printDescription([f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"])
+            return True
         except ResourceNotFoundError:
-            self.fatalError("No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available).  See log file for details")
+            self.printDescription(["No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available)"])
+            return False
+
+    def reviewAiServiceInstance(self) -> bool:
+        self.printH1("Review AI Service Instances")
+        try:
+            instances = listAiServiceInstances(self.dynamicClient)
+            self.printDescription(["The following AI Service instances are installed on the target cluster and will be affected by the catalog update:"])
+            for instance in instances:
+                self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+            return True
+        except ResourceNotFoundError:
+            self.printDescription(["No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available)"])
+            return False
 
     def chooseCatalog(self) -> None:
         self.printH1("Select IBM Maximo Operator Catalog Version")
