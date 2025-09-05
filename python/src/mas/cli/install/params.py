@@ -67,13 +67,20 @@ optionalParams = [
     # SLS
     "sls_namespace",
     # DNS Providers
-    # TODO: Add CloudFlare and Route53 support
+    # TODO: Route53 support
     "dns_provider",
+    "mas_cluster_issuer",
+    "ocp_ingress",
+    # CIS
     "cis_email",
     "cis_apikey",
     "cis_crn",
     "cis_subdomain",
-    "mas_cluster_issuer",
+    # CloudFlare
+    "cloudflare_email",
+    "cloudflare_apitoken",
+    "cloudflare_zone",
+    "cloudflare_subdomain",
     # DRO
     "dro_namespace",
     # Db2

@@ -533,6 +533,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         # Use MAS default self-signed cluster issuer with a custom domain
                         self.setParam("dns_provider", "")
                         self.setParam("mas_cluster_issuer", "")
+
+                    if dnsProvider in [1, 2]:
+                        self.printDescription([
+                            "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
+                            "CloudFlare and CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration."
+                        ])
+                        self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
+
                 else:
                     # Use MAS default self-signed cluster issuer with the default domain
                     self.setParam("dns_provider", "")
