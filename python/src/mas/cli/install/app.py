@@ -503,6 +503,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
             if configureDomainAndCertMgmt:
                 configureDomain = self.yesOrNo('Configure custom domain')
+                self.printDescription([
+                    "The default domain is retrieved from config.openshift.io/Ingress.",
+                    "Overwrite the ingress domain, if your application uses non-standard DNS setup, i.e., a domain that does not match the one retrieve from Ingress.",
+                ])
                 if configureDomain:
                     self.promptForString("MAS top-level domain", "mas_domain")
                     if self.yesOrNo("Overwrite Ingress Domain"):
