@@ -42,8 +42,6 @@ spec:
       type: string
     - name: aiservice_storage_ssl
       type: string
-    - name: aiservice_storage_region
-      type: string
     - name: mas_aibroker_storage_pipelines_bucket
       type: string
     - name: mas_aibroker_storage_tenants_bucket
@@ -246,8 +244,6 @@ spec:
           value: $(params.environment_type)
         - name: aiservice_s3_endpoint_url
           value: $(params.aiservice_s3_endpoint_url)
-        - name: aiservice_storage_region
-          value: $(params.aiservice_storage_region)
         - name: aiservice_s3_bucket_prefix
           value: $(params.aiservice_s3_bucket_prefix)
         - name: sls_registration_key_secret
@@ -262,5 +258,3 @@ spec:
           value: $(params.aiservice_s3_tenants_bucket)
         - name: aiservice_s3_secret
           value: $(params.aiservice_s3_secret)
-        - name: aiservice_storage_ssl
-          value: $(params.aiservice_storage_ssl)
