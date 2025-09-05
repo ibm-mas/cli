@@ -4,8 +4,6 @@
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mobile-api-ic
-    - name: enable_perf_debug
-      value: "True"
   runAfter:
     - mobile-pytest-calibration
     - mobile-pytest-civil-defects
@@ -16,8 +14,6 @@
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mobile-api-ir
-    - name: enable_perf_debug
-      value: "True"
   runAfter:
     - mobile-pytest-calibration
     - mobile-pytest-civil-defects
@@ -28,8 +24,6 @@
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mobile-api-it
-    - name: enable_perf_debug
-      value: "True"
   runAfter:
     - mobile-pytest-calibration
     - mobile-pytest-civil-defects
