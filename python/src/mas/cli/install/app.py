@@ -503,14 +503,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
             if configureDomainAndCertMgmt:
                 configureDomain = self.yesOrNo('Configure custom domain')
-                self.printDescription([
-                    "The default domain is retrieved from config.openshift.io/Ingress.",
-                    "Overwrite the ingress domain, if your application uses non-standard DNS setup, i.e., a domain that does not match the one retrieve from Ingress.",
-                ])
                 if configureDomain:
                     self.promptForString("MAS top-level domain", "mas_domain")
-                    if self.yesOrNo("Overwrite Ingress Domain"):
-                        self.promptForString("Ingress Domain", "ocp_ingress")
                     self.printDescription([
                         "",
                         "DNS Integrations:",
@@ -532,6 +526,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         # Use MAS default self-signed cluster issuer with a custom domain
                         self.setParam("dns_provider", "")
                         self.setParam("mas_cluster_issuer", "")
+
+                    if dnsProvider in [1, 2]:
+                        self.printDescription([
+                            "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
+                            "CloudFlare and CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration."
+                        ])
+                        self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
+
                 else:
                     # Use MAS default self-signed cluster issuer with the default domain
                     self.setParam("dns_provider", "")
