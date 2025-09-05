@@ -10,7 +10,7 @@ PIPELINE_FILES=$DIR/target/pipelines/*.yaml
 if [[ "$1" == "tasks" ]] || [[ "$1" == "" ]]; then
   for FILE in $TASK_FILES; do
     echo " - Adding Task: $FILE"
-    oc apply -f $FILE
+    kubectl apply -f $FILE
   done
 fi
 
@@ -18,6 +18,7 @@ fi
 if [[ "$1" == "pipelines" ]] || [[ "$1" == "" ]]; then
   for FILE in $PIPELINE_FILES; do
     echo " - Adding Pipeline: $FILE"
-    oc apply -f $FILE
+    kubectl apply -f $FILE
   done
 fi
+
