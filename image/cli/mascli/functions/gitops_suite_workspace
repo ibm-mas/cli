@@ -126,13 +126,6 @@ function gitops_suite_workspace_noninteractive() {
 function gitops_suite_workspace() {
   # Take the first parameter off (it will be create-gitops)
   shift
-  
-  # Why are we deliberately unsetting these environment variables in this script (but not the other similar scripts)?
-  # NOTE: this is fine when used from the Tekton task since these are passed in as CLI args
-  # Leaving this be for now in case I missed something
-  unset MAS_INSTANCE_ID
-  unset MAS_WORKSPACE_NAME
-  unset MAS_WORKSPACE_ID
 
   if [[ $# -gt 0 ]]; then
     gitops_suite_workspace_noninteractive "$@"
