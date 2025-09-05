@@ -61,6 +61,7 @@ optionalParams = [
     "mas_appws_bindings_health_wsl_flag",
     "mas_domain",
     "mas_appws_upgrade_type",
+    "mas_app_cfg_retries",
     # IPV6
     "enable_ipv6",
     # SLS
