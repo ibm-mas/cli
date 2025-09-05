@@ -91,10 +91,7 @@ function gitops_license_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_license_help "ACCOUNT_ID is not set"
   [[ -z "$LICENSE_FILE" ]] && gitops_license_help "LICENSE_FILE is not set"
 
-#  ([[ -z "$ICN" ]] && [[ -z "$MAS_INSTANCE_ID" ]]) && gitops_license_help "One of IBM Customer Number or Cluster ID must be set"
-#  ([[ ! -z "$ICN" ]] && [[ ! -z "$MAS_INSTANCE_ID" ]]) && gitops_license_help "Cannot set both ICN and Instance ID"
   ([[ ! -z "$ICN" ]] && [[ -z "$SAAS_SUB_ID" ]]) && gitops_license_help "When ICN is set, SAAS_SUB_ID must also be set"
-#  ([[ ! -z "$CLUSTERID" ]] && [[ -z "$MAS_INSTANCE_ID" ]]) && gitops_license_help "When CLUSTERID is set, MAS_INSTANCE_ID must also be set"
 
 }
 
