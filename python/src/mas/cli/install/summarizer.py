@@ -58,13 +58,18 @@ class InstallSummarizerMixin():
             self.printParamSummary("DNS Provider", "dns_provider")
             self.printParamSummary("Certificate Issuer", "mas_cluster_issuer")
 
+            if self.getParam('ocp_ingress') != "":
+                self.printParamSummary("OCP Ingress", "ocp_ingress")
             if self.getParam('dns_provider') == "cloudflare":
                 self.printParamSummary("CloudFlare e-mail", "cloudflare_email")
                 self.printParamSummary("CloudFlare API token", "cloudflare_apitoken")
                 self.printParamSummary("CloudFlare zone", "cloudflare_zone")
                 self.printParamSummary("CloudFlare subdomain", "cloudflare_subdomain")
             elif self.getParam('dns_provider') == "cis":
-                pass
+                self.printParamSummary("CIS e-mail", "cis_email")
+                self.printParamSummary("CIS API Key", "cis_apikey")
+                self.printParamSummary("CIS CRN", "cis_crn")
+                self.printParamSummary("CIS subdomain", "cis_subdomain")
             elif self.getParam('dns_provider') == "route53":
                 pass
             elif self.getParam('dns_provider') == "":
