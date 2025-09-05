@@ -53,8 +53,6 @@ optionalParams = [
     "mas_app_settings_old_crypto_key",
     "mas_app_settings_old_cryptox_key",
     "mas_app_settings_override_encryption_secrets_flag",
-    "mas_app_settings_base_lang",
-    "mas_app_settings_secondary_langs",
     "mas_app_settings_server_timezone",
     "mas_appws_bindings_jdbc_manage",
     "mas_appws_components",
