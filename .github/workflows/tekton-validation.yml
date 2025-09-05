@@ -23,40 +23,24 @@ jobs:
           chmod u+x $GITHUB_WORKSPACE/tekton/test.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
-      - name: Create new PR branch
-        id: branch_creation
-        run: |
-          set +e
-          BRANCH_NAME=$(echo "tekton-${{ github.event.pull_request.number }}")
-          git pull --quiet
-          git checkout $BRANCH_NAME --quiet &>/dev/null
-          rc=$?
-          if [[ $rc -ne "0" ]]; then
-            git checkout -b $BRANCH_NAME
-            git push origin $BRANCH_NAME
-          else
-            git push origin origin/${{ github.head_ref }}:$BRANCH_NAME --force
-          fi
-          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_ENV"
-
       - name: Tekton tests
         id: tekton-tests
         env:
           OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
           OCP_SERVER: ${{ secrets.OCP_SERVER }}
-          BRANCH_NAME: ${{ env.branch_name }}
         run: |
           set +e
+          NAMESPACE=$(echo "cli-tekton-test-pr${{ github.event.pull_request.number }}")
           kubectl config set-cluster my-cluster --server=$OCP_SERVER
           kubectl config set-credentials my-user --token=$OCP_TOKEN
           kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=default
           kubectl config use-context my-context
-          kubectl get namespace $BRANCH_NAME &>/dev/null
+          kubectl get namespace $NAMESPACE &>/dev/null
           rc=$?
           if [[ $rc -ne "O" ]]; then
-            kubectl create namespace $BRANCH_NAME
+            kubectl create namespace $NAMESPACE
           fi
-          kubectl config set-context --current --namespace=$BRANCH_NAME
+          kubectl config set-context --current --namespace=$NAMESPACE
           $GITHUB_WORKSPACE/build/bin/build-tekton.sh &>/dev/null
           rc=$?
           if [[ $rc -ne "0" ]]; then

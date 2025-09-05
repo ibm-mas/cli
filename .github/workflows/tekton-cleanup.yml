@@ -25,25 +25,14 @@ jobs:
           OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
           OCP_SERVER: ${{ secrets.OCP_SERVER }}
         run: |
-          BRANCH_NAME=$(echo "tekton-${{ github.event.pull_request.number }}")
+          NAMESPACE=$(echo "cli-tekton-test-pr${{ github.event.pull_request.number }}")
 
           kubectl config set-cluster my-cluster --server=$OCP_SERVER
           kubectl config set-credentials my-user --token=$OCP_TOKEN
           kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=default
           kubectl config use-context my-context
-          kubectl get namespace $BRANCH_NAME &>/dev/null
+          kubectl get namespace $NAMESPACE &>/dev/null
           rc=$?
           if [ $rc -eq "0" ]; then
-            kubectl delete namespace $BRANCH_NAME
+            kubectl delete namespace $NAMESPACE
           fi
-
-          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_ENV"
-
-      - name: Clean up branch
-        env:
-          BRANCH_NAME: ${{ env.branch_name }}
-        run: |
-          set +e
-          git pull --quiet
-          git checkout master --quiet
-          git push origin --delete $BRANCH_NAME
