@@ -5,16 +5,6 @@ ibm_aiservice:
   aiservice_namespace: "{{ AISERVICE_NAMESPACE }}"
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
 
-  # MariaDB
-  mas_aibroker_db_host: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_HOST }}>"
-  aiservice_mariadb_secret: "{{ AISERVICE_MARIADB_SECRET }}"
-  mas_aibroker_db_port: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_PORT }}>"
-  mas_aibroker_db_user: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_USER }}>"
-  mas_aibroker_db_database: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_DATABASE }}>"
-  mas_aibroker_db_secret_name: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_SECRET_NAME }}>"
-  mas_aibroker_db_secret_value: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_SECRET_VALUE }}>"
-  
-
   #SLS
   slscfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SLSCFG_REGISTRATION_KEY }}>"
   aiservice_sls_registration_key_secret: "{{ SLS_REGISTRATION_KEY_SECRET }}"
@@ -38,11 +28,6 @@ ibm_aiservice:
 
   #km-s3-secret  
   aiservice_s3_ssl: "{{ AISERVICE_STORAGE_SSL }}"
-  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_ACCESSKEY }}>"
-  mas_aibroker_storage_secretkey: 
-  mas_aibroker_storage_host: 
-  mas_aibroker_storage_port: 
-
   aiservice_s3_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_ACCESSKEY }}>"
   aiservice_s3_secretkey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_SECRETKEY }}>"
   aiservice_s3_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_HOST }}>"
@@ -55,6 +40,8 @@ ibm_aiservice:
   jdbccfg_url: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_URL }}>"
   jdbccfg_sslenabled: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_SSLENABLED }}>"
   jdbccfg_ca: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_CA }}>"  
+  aiservice_jdbc_secret: "{{ JDBC_SECRET }}"
+  use_aws_db2: "{{ USE_AWS_DB2 }}"
 
   # MAS Entitlement
   entitlement_key: "<path:{{ SECRETS_PATH }}:{{ MAS_ENTITLEMENT_KEY }}>"
@@ -65,7 +52,7 @@ ibm_aiservice:
   artifactory_username: "{{ ARTIFACTORY_USERNAME }}"
   artifactory_token: "<path:{{ SECRETS_PATH }}:{{ ARTIFACTORY_TOKEN }}>"
   # Environment Variable:
-  aiservice_channel: "{{ AISERVICE_CHANNEL_CHANNEL }}"
+  aiservice_channel: "{{ AISERVICE_CHANNEL }}"
   # aiservice_channel: "9.1.x-dev"
   mas_catalog_source: "{{ MAS_CATALOG_SOURCE }}"
 

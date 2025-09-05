@@ -47,6 +47,8 @@ sls_dro_jdbc
       --cluster-domain ${TEXT_RESET}CLUSTER_DOMAIN${TEXT_RESET}
       --in-saas-env ${TEXT_RESET}IN_SAAS_ENV${TEXT_RESET}
       --is-external-route ${TEXT_RESET}IS_EXTERNAL_ROUTE${TEXT_RESET}  # A flag indicating to enable external route (default value is: false)
+      --jdbc-secret ${TEXT_RESET}JDBC_SECRET${TEXT_RESET}
+      --use-aws-db2 ${TEXT_RESET}USE_AWS_DB2${TEXT_RESET}  # A flag indicating to use aws hosted db2 (default value is: false)  
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
@@ -78,6 +80,8 @@ function gitops_aiservice_noninteractive() {
   export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"${AISERVICE_INSTANCE_ID}-aiservice"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export IS_EXTERNAL_ROUTE=${IS_EXTERNAL_ROUTE:-"false"}  # Default to "false", can be set to "true" if needed  
+  export JDBC_SECRET=${JDBC_SECRET:-"aiservice-jdbc-secret"}
+  export USE_AWS_DB2=${USE_AWS_DB2:-"false"}  # Default to "false", can be set to "true" if needed
   export MAS_ICR_CP=${MAS_ICR_CP:-"cp.icr.io/cp"}
   export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"icr.io/cpopen"}
   # -- SLS Defaults
@@ -145,6 +149,12 @@ function gitops_aiservice_noninteractive() {
         ;;
       --is-external-route)
           export IS_EXTERNAL_ROUTE=$1 && shift
+        ;;
+      --jdbc-secret)
+          export JDBC_SECRET=$1 && shift
+        ;;
+      --use-aws-db2)
+          export USE_AWS_DB2=$1 && shift 
         ;;
       --mas-icr-cp)
         export MAS_ICR_CP=$1 && shift
@@ -277,7 +287,8 @@ function gitops_aiservice_noninteractive() {
   [[ -z "$IN_SAAS_ENV" ]] && gitops_aiservice_help "IN_SAAS_ENV is not set. Please specify if this is in SaaS environment using --in-saas-env."
   [[ -z "$IS_EXTERNAL_ROUTE" ]] && gitops_aiservice_help "IS_EXTERNAL_ROUTE is not set. Please specify if this is an external route using --is-external-route."
   [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aiservice_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
-
+  [[ -z "$JDBC_SECRET" ]] && gitops_aiservice_help "JDBC_SECRET is not set. Please specify the JDBC secret name using --jdbc-secret."
+  [[ -z "$USE_AWS_DB2" ]] && gitops_aiservice_help "USE_AWS_DB2 is not set. Please specify if using AWS hosted DB2 using --use-aws-db2."
 
 }
 
@@ -364,6 +375,8 @@ function gitops_aiservice() {
   echo_reset_dim "Cluster Domain ......................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "In SaaS Environment .................... ${COLOR_MAGENTA}${IN_SAAS_ENV}"
   echo_reset_dim "Is External Route ...................... ${COLOR_MAGENTA}${IS_EXTERNAL_ROUTE}"
+  echo_reset_dim "JDBC Secret ............................ ${COLOR_MAGENTA}${JDBC_SECRET}"
+  echo_reset_dim "Use AWS DB2 ............................ ${COLOR_MAGENTA}${USE_AWS_DB2}"
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login

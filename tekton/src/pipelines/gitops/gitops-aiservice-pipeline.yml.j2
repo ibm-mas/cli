@@ -68,6 +68,10 @@ spec:
       type: string
     - name: is_external_route
       type: string
+    - name: jdbc_secret
+      type: string
+    - name: use_aws_db2
+      type: string
 
     # ODH-specific
     - name: odh_channel
@@ -258,3 +262,7 @@ spec:
           value: $(params.aiservice_s3_tenants_bucket)
         - name: aiservice_s3_secret
           value: $(params.aiservice_s3_secret)
+        - name: jdbc_secret
+          value: $(params.jdbc_secret)
+        - name: use_aws_db2
+          value: $(params.use_aws_db2)

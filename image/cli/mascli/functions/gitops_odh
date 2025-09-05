@@ -33,7 +33,7 @@ ODH Configuration:
       --pull-secret-name
       --opendatahub-name
       --opendatahub-operator-group
-      --opendatahub-installplan
+      --odh-install-plan
       --opendatahub-channel
       --opendatahub-source
       --opendatahub-source-namespace
@@ -132,7 +132,7 @@ function gitops_odh_noninteractive() {
   export OPENDATAHUB_OPERATORGROUP_NAME="${OPENDATAHUB_OPERATORGROUP_NAME:-"opendatahub-operator-group"}"
   export OPENDATAHUB_NAME="${OPENDATAHUB_NAME:-"opendatahub-operator"}"
   export OPENDATAHUB_NAMESPACE="${OPENDATAHUB_NAMESPACE:-"opendatahub"}"
-  export OPENDATAHUB_INSTALLPLAN_APPROVAL="${OPENDATAHUB_INSTALLPLAN_APPROVAL:-"Manual"}"
+  export ODH_INSTALL_PLAN="${ODH_INSTALL_PLAN:-"Automatic"}"
   export OPENDATAHUB_CHANNEL="${OPENDATAHUB_CHANNEL:-"fast"}"
   export OPENDATAHUB_SOURCE="${OPENDATAHUB_SOURCE:-"community-operators"}"
   export OPENDATAHUB_SOURCE_NAMESPACE="${OPENDATAHUB_SOURCE_NAMESPACE:-"openshift-marketplace"}"
@@ -141,7 +141,6 @@ function gitops_odh_noninteractive() {
   export AISERVICE_STORAGE_SSL="${AISERVICE_STORAGE_SSL:-"true"}"
   export AISERVICE_STORAGE_REGION="${AISERVICE_STORAGE_REGION:-""}"
   export PRIMARY_STORAGE_CLASS="${PRIMARY_STORAGE_CLASS:-"nfs-client"}"
-
 
 
 
@@ -218,8 +217,8 @@ function gitops_odh_noninteractive() {
       --opendatahub-operator-group)
         export OPENDATAHUB_OPERATORGROUP_NAME=$1 && shift
         ;;
-      --opendatahub-installplan)
-        export OPENDATAHUB_INSTALLPLAN_APPROVAL=$1 && shift
+      --odh-install-plan)
+        export ODH_INSTALL_PLAN=$1 && shift
         ;;
       --opendatahub-channel)
         export OPENDATAHUB_CHANNEL=$1 && shift

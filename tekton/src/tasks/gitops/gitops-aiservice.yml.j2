@@ -86,6 +86,11 @@ spec:
       type: string
     - name: aiservice_s3_secret
       type: string
+    - name: jdbc_secret
+      type: string
+    - name: use_aws_db2
+      type: string
+
   stepTemplate:
     name: gitops-aiservice
     env:
@@ -169,6 +174,10 @@ spec:
         value: $(params.aiservice_s3_tenants_bucket)
       - name: AISERVICE_S3_SECRET
         value: $(params.aiservice_s3_secret)
+      - name: JDBC_SECRET
+        value: $(params.jdbc_secret)
+      - name: USE_AWS_DB2
+        value: $(params.use_aws_db2)
         
     envFrom:
       - configMapRef:
