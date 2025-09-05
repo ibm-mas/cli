@@ -79,6 +79,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_process_mongo_user
 . $CLI_DIR/functions/gitops_aws_infrastructure
 . $CLI_DIR/functions/gitops_rosa
+. $CLI_DIR/functions/gitops_suite_license_service
 . $CLI_DIR/functions/gitops_deprovision_rosa
 . $CLI_DIR/functions/gitops_deprovision_cluster
 . $CLI_DIR/functions/gitops_deprovision_cp4d
@@ -86,6 +87,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_mongo
 . $CLI_DIR/functions/gitops_deprovision_efs
 . $CLI_DIR/functions/gitops_deprovision_kafka
+. $CLI_DIR/functions/gitops_deprovision_suite_license_service
 . $CLI_DIR/functions/gitops_mas_fvt_preparer
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
 . $CLI_DIR/functions/gitops_nvidia_gpu
@@ -475,6 +477,14 @@ case $1 in
     gitops_deprovision_kafka "$@"
     ;;
 
+  gitops-deprovision-suite-license-service)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_suite_license_service "$@"
+    ;;
+
   gitops-efs)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -613,6 +623,14 @@ case $1 in
     echo
     reset_colors
     gitops_deprovision_cp4d_service "$@"
+  ;;
+
+  gitops-suite-license-service)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_suite_license_service "$@"
     ;;
 
   *)
