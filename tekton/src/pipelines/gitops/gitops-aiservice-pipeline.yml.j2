@@ -14,7 +14,6 @@ spec:
       type: string
     - name: cluster_url
       type: string
-      default: ""
     - name: secrets_path
       type: string
     - name: avp_aws_secret_region
@@ -37,9 +36,7 @@ spec:
       type: string
     - name: aiservice_storage_provider
       type: string
-    - name: mas_aibroker_storage_secret
-      type: string
-    - name: mas_aibroker_storage_host
+    - name: aiservice_storage_secret
       type: string
     - name: mas_aibroker_storage_port
       type: string
@@ -53,7 +50,7 @@ spec:
       type: string
     - name: mas_aibroker_storage_templates_bucket
       type: string
-    - name: mas_aibroker_mariadb_secret
+    - name: aiservice_mariadb_secret
       type: string
     - name: primary_storage_class
       type: string
@@ -91,9 +88,26 @@ spec:
       type: string
     - name: aiservice_s3_endpoint_url
       type: string
-    - name: mas_aibroker_s3_region
+    - name: aiservice_storage_region
       type: string
     - name: aiservice_s3_bucket_prefix
+      type: string
+    - name: opendatahub_source 
+      type: string
+    - name: aiservice_odh_model_deployment_type
+      type: string
+      default: "raw"
+    - name: sls_registration_key_secret
+      type: string
+    - name: dro_token_secret
+      type: string
+    - name: dro_cacert_secret
+      type: string
+    - name: aiservice_s3_templates_bucket
+      type: string
+    - name: aiservice_s3_tenants_bucket
+      type: string
+    - name: aiservice_s3_secret
       type: string
 
   workspaces:
@@ -130,6 +144,8 @@ spec:
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: aiservice_namespace
+          value: $(params.aiservice_namespace)
         - name: odh_channel
           value: $(params.odh_channel)
         - name: odh_subscription_install_plan
@@ -146,6 +162,10 @@ spec:
           value: $(params.aiservice_storage_ssl)
         - name: aiservice_storage_region
           value: $(params.aiservice_storage_region)
+        - name: opendatahub_source 
+          value: $(params.opendatahub_source)
+        - name: aiservice_odh_model_deployment_type
+          value: $(params.aiservice_odh_model_deployment_type)
 
     # 3.gitops-aiservice
     # -------------------------------------------------------------------------
@@ -188,10 +208,8 @@ spec:
           value: $(params.pull_secret_name)
         - name: aiservice_storage_provider
           value: $(params.aiservice_storage_provider)
-        - name: mas_aibroker_storage_secret
-          value: $(params.mas_aibroker_storage_secret)
-        - name: mas_aibroker_storage_host
-          value: $(params.mas_aibroker_storage_host)
+        - name: aiservice_storage_secret
+          value: $(params.aiservice_storage_secret)
         - name: mas_aibroker_storage_port
           value: $(params.mas_aibroker_storage_port)
         - name: aiservice_storage_ssl
@@ -204,8 +222,8 @@ spec:
           value: $(params.mas_aibroker_storage_tenants_bucket)
         - name: mas_aibroker_storage_templates_bucket
           value: $(params.mas_aibroker_storage_templates_bucket)
-        - name: mas_aibroker_mariadb_secret
-          value: $(params.mas_aibroker_mariadb_secret)
+        - name: aiservice_mariadb_secret
+          value: $(params.aiservice_mariadb_secret)
         - name: primary_storage_class
           value: $(params.primary_storage_class)
         - name: artifactory_username
@@ -228,7 +246,21 @@ spec:
           value: $(params.environment_type)
         - name: aiservice_s3_endpoint_url
           value: $(params.aiservice_s3_endpoint_url)
-        - name: mas_aibroker_s3_region
-          value: $(params.mas_aibroker_s3_region)
+        - name: aiservice_storage_region
+          value: $(params.aiservice_storage_region)
         - name: aiservice_s3_bucket_prefix
           value: $(params.aiservice_s3_bucket_prefix)
+        - name: sls_registration_key_secret
+          value: $(params.sls_registration_key_secret)
+        - name: dro_token_secret
+          value: $(params.dro_token_secret)
+        - name: dro_cacert_secret
+          value: $(params.dro_cacert_secret)
+        - name: aiservice_s3_templates_bucket
+          value: $(params.aiservice_s3_templates_bucket)
+        - name: aiservice_s3_tenants_bucket
+          value: $(params.aiservice_s3_tenants_bucket)
+        - name: aiservice_s3_secret
+          value: $(params.aiservice_s3_secret)
+        - name: aiservice_storage_ssl
+          value: $(params.aiservice_storage_ssl)

@@ -21,13 +21,6 @@ ibm_odh:
   aiservice_namespace: {{ AISERVICE_NAMESPACE }}
   pull_secret_name: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IMAGE_PULL_SECRET_B64 }}>"
 
-  # ODH Pipeline operator
-  odh_pipeline_name: {{ ODH_PIPELINE_NAME }}
-  odh_pipeline_namespace: {{ ODH_PIPELINE_NAMESPACE }}
-  odh_pipeline_operatorName: {{ ODH_PIPELINE_OPERATOR_NAME }}
-  odh_pipeline_source: {{ ODH_PIPELINE_SOURCE }}
-  odh_pipeline_sourceNamespace: {{ ODH_PIPELINE_SOURCE_NAMESPACE }}
-
   # Serverless Operator
   serverless_namespace: {{ SERVERLESS_NAMESPACE }}
   serverless_operator_name: {{ SERVERLESS_OPERATOR_NAME }}
@@ -41,24 +34,7 @@ ibm_odh:
   opendatahub_installPlanApproval: {{ OPENDATAHUB_INSTALLPLAN_APPROVAL }}
   opendatahub_channel: {{ OPENDATAHUB_CHANNEL }}
   opendatahub_source: {{ OPENDATAHUB_SOURCE }}
-  opendatahub__sourceNamespace: {{ OPENDATAHUB_SOURCE_NAMESPACE }}
-
-  # Storage configuration
-  aiservice_storage_provider: {{ AISERVICE_STORAGE_PROVIDER }}
-  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_STORAGE_ACCESSKEY }}>"
-  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_STORAGE_SECRETKEY }}>"
-  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_STORAGE_HOST }}>"
-  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_STORAGE_PORT }}>"
-  aiservice_storage_ssl: {{ AISERVICE_STORAGE_SSL }}
-  aiservice_storage_region: "{{ AISERVICE_STORAGE_REGION }}"
-  mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_STORAGE_BUCKET_DEFAULT }}>"
-
-  # MariaDB configuration
-  mas_aibroker_db_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_HOST }}>"
-  mas_aibroker_db_port: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_PORT }}>"
-  mas_aibroker_db_user: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_USER }}>"
-  mas_aibroker_db_database: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_DATABASE }}>"
-  mas_aibroker_db_secret_name: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_SECRET_NAME }}>"
-  mas_aibroker_db_secret_value: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SM_MARIADB_SECRET_VALUE }}>"
+  opendatahub_sourceNamespace: {{ OPENDATAHUB_SOURCE_NAMESPACE }}
+  aiservice_odh_model_deployment_type: {{ AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE }}
 
   primary_storage_class: {{ PRIMARY_STORAGE_CLASS }}

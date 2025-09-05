@@ -66,7 +66,7 @@ spec:
       type: string
     - name: aiservice_s3_endpoint_url
       type: string
-    - name: mas_aibroker_s3_region
+    - name: aiservice_storage_region
       type: string
     - name: aiservice_s3_bucket_prefix
       type: string
@@ -151,8 +151,8 @@ spec:
           value: $(params.aiservice_storage_ssl)
         - name: aiservice_s3_endpoint_url
           value: $(params.aiservice_s3_endpoint_url)
-        - name: mas_aibroker_s3_region
-          value: $(params.mas_aibroker_s3_region)
+        - name: aiservice_storage_region
+          value: $(params.aiservice_storage_region)
         - name: aiservice_s3_bucket_prefix
           value: $(params.aiservice_s3_bucket_prefix)
         - name: rsl_url

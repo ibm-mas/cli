@@ -27,18 +27,16 @@ ibm aiservice(required):
 
 storage provider:
       --aiservice-storage-provider ${TEXT_RESET}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}
-      --mas-aibroker-storage-secret ${TEXT_RESET}MAS_AIBROKER_STORAGE_SECRET${TEXT_RESET}
-      --mas-aibroker-storage-host ${TEXT_RESET}MAS_AIBROKER_STORAGE_HOST${TEXT_RESET}
+      --aiservice-storage-secret ${TEXT_RESET}AISERVICE_STORAGE_SECRET${TEXT_RESET}
       --mas-aibroker-storage-port ${TEXT_RESET}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}
       --aiservice-storage_ssl ${TEXT_RESET}AISERVICE_STORAGE_SSL${TEXT_RESET}
       --aiservice-storage-region ${TEXT_RESET}AISERVICE_STORAGE_REGION${TEXT_RESET}
-      --mas-aibroker-s3-region ${TEXT_RESET}MAS_AIBROKER_S3_REGION${TEXT_RESET}
       --mas-aibroker-storage-pipelines-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}
       --mas-aibroker-storage-tenants-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_TENANTS_BUCKET${TEXT_RESET}
       --mas-aibroker-storage-templates-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET${TEXT_RESET}
 
 mariadb storage
-      --mas-aibroker-mariadb-secret ${TEXT_RESET}MAS_AIBROKER_MARIADB_SECRET${TEXT_RESET}
+      --aiservice-mariadb-secret ${TEXT_RESET}AISERVICE_MARIADB_SECRET${TEXT_RESET}
 
 sls_dro_jdbc
       --artifactory-username ${TEXT_RESET}ARTIFACTORY_USERNAME${TEXT_RESET}
@@ -77,7 +75,7 @@ function gitops_aiservice_noninteractive() {
    #only export below in whiel loop
 
   #adding default values 
-  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aiservice"}
+  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"${AISERVICE_INSTANCE_ID}-aiservice"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export IS_EXTERNAL_ROUTE=${IS_EXTERNAL_ROUTE:-"false"}  # Default to "false", can be set to "true" if needed  
   export MAS_ICR_CP=${MAS_ICR_CP:-"cp.icr.io/cp"}
@@ -90,15 +88,19 @@ function gitops_aiservice_noninteractive() {
   #Storage Defaults
   export AISERVICE_STORAGE_REGION=${AISERVICE_STORAGE_REGION:-""}
   export AISERVICE_STORAGE_SSL=${AISERVICE_STORAGE_SSL:-"true"}
-  export MAS_AIBROKER_STORAGE_SECRET=${MAS_AIBROKER_STORAGE_SECRET:-"${MAS_APP_ID}-miniocfg"}
+  export AISERVICE_STORAGE_SECRET=${AISERVICE_STORAGE_SECRET:-"${MAS_APP_ID}-miniocfg"}
   export MAS_CATALOG_SOURCE=${MAS_CATALOG_SOURCE:-"ibm-operator-catalog"}
   #-- mariadb defaults
-  export MAS_AIBROKER_MARIADB_SECRET=${MAS_AIBROKER_MARIADB_SECRET:-"${MAS_APP_ID}-mariadbcfge"}
+  export AISERVICE_MARIADB_SECRET=${AISERVICE_MARIADB_SECRET:-"${MAS_APP_ID}-mariadbcfge"}
 
   export AISERVICE_S3_BUCKET_PREFIX=${AISERVICE_S3_BUCKET_PREFIX:-"m"}
-  export MAS_AIBROKER_S3_REGION=${MAS_AIBROKER_S3_REGION:-""}
   export ENVIRONMENT_TYPE=${ENVIRONMENT_TYPE:-"PRODUCTION"}
-
+  export SLS_REGISTRATION_KEY_SECRET=${SLS_REGISTRATION_KEY_SECRET:-"sls-registration-key"}
+  export DRO_TOKEN_SECRET=${DRO_TOKEN_SECRET:-"dro-token"}
+  export DRO_CACERT_SECRET=${DRO_CACERT_SECRET:-"dro-certificates"}
+  export AISERVICE_S3_TEMPLATES_BUCKET=${AISERVICE_S3_TEMPLATES_BUCKET:-"km-templates"}
+  export AISERVICE_S3_TENANTS_BUCKET=${AISERVICE_S3_TENANTS_BUCKET:-"km-tenants"}
+  export AISERVICE_S3_SECRET=${AISERVICE_S3_SECRET:-"aiservice-s3cfg"}
 
   # Target the local (to ArgoCD) cluster
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
@@ -167,15 +169,15 @@ function gitops_aiservice_noninteractive() {
       --aiservice-storage_ssl)
         export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
-      --mas-aibroker-storage-secret)
-          export MAS_AIBROKER_STORAGE_SECRET=$1 && shift
+      --aiservice-storage-secret)
+          export AISERVICE_STORAGE_SECRET=$1 && shift
         ;;
       --mas-catalog-source)
           export MAS_CATALOG_SOURCE=$1 && shift
         ;;
 
-      --mas-aibroker-mariadb-secret)
-          export MAS_AIBROKER_MARIADB_SECRET=$1 && shift
+      --aiservice-mariadb-secret)
+          export AISERVICE_MARIADB_SECRET=$1 && shift
         ;;
       --environment-type)
         export ENVIRONMENT_TYPE=$1 && shift
@@ -185,14 +187,27 @@ function gitops_aiservice_noninteractive() {
         export AISERVICE_S3_ENDPOINT_URL=$1 && shift
         ;;
 
-      --mas-aibroker-s3-region)
-        export MAS_AIBROKER_S3_REGION=$1 && shift
-        ;;
-
       --aiservice-s3-bucket-prefix)
         export AISERVICE_S3_BUCKET_PREFIX=$1 && shift
         ;;
-
+      --sls-registration-key-secret)
+        export SLS_REGISTRATION_KEY_SECRET=$1 && shift
+        ;;
+      --dro-token-secret)
+        export DRO_TOKEN_SECRET=$1 && shift
+        ;;
+      --dro-cacert-secret)
+        export DRO_CACERT_SECRET=$1 && shift
+        ;;
+      --aiservice-s3-templates-bucket)
+        export AISERVICE_S3_TEMPLATES_BUCKET=$1 && shift
+        ;;
+      --aiservice-s3-tenants-bucket)
+        export AISERVICE_S3_TENANTS_BUCKET=$1 && shift
+        ;;
+      --aiservice-s3-secret)
+        export AISERVICE_S3_SECRET=$1 && shift
+        ;;
      # Target Cluster (Optional)
       --cluster-url)
         export CLUSTER_URL=$1 && shift
@@ -331,16 +346,14 @@ function gitops_aiservice() {
   echo_reset_dim "Pull Secret Name ...................... ${COLOR_MAGENTA}${PULL_SECRET_NAME}"
   # Storage variables
   echo_reset_dim "AI Broker Storage Provider ........ ${COLOR_MAGENTA}${AISERVICE_STORAGE_PROVIDER}"
-  echo_reset_dim "AI Broker Storage Secret .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SECRET}"
-  echo_reset_dim "AI Broker Storage Host ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_HOST}"
+  echo_reset_dim "AI Broker Storage Secret .......... ${COLOR_MAGENTA}${AISERVICE_STORAGE_SECRET}"
   echo_reset_dim "AI Broker Storage Port ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PORT}"
   echo_reset_dim "AI Broker Storage SSL ............. ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
   echo_reset_dim "AI Broker Storage Region .......... ${COLOR_MAGENTA}${AISERVICE_STORAGE_REGION}"
-  echo_reset_dim "AI Broker S3 Region ............... ${COLOR_MAGENTA}${MAS_AIBROKER_S3_REGION}"
   echo_reset_dim "AI Broker Pipelines Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
   echo_reset_dim "AI Broker Tenants Bucket .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
   echo_reset_dim "AI Broker Templates Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"
-  echo_reset_dim "AI Broker MariaDB Secret .......... ${COLOR_MAGENTA}${MAS_AIBROKER_MARIADB_SECRET}"
+  echo_reset_dim "AI Broker MariaDB Secret .......... ${COLOR_MAGENTA}${AISERVICE_MARIADB_SECRET}"
   
   echo_reset_dim "Primary Storage Class ................. ${COLOR_MAGENTA}${PRIMARY_STORAGE_CLASS}"
   echo_reset_dim "Artifactory Username ................... ${COLOR_MAGENTA}${ARTIFACTORY_USERNAME}"
@@ -362,10 +375,10 @@ function gitops_aiservice() {
   #storage
   # mas_aibroker_storage_accesskey
   export SECRET_KEY_STORAGE_ACCESSKEY=${SECRETS_PREFIX}storage#sm_storage_accesskey
-  export SECRET_KEY_STORAGE_SECRETKEY=${SECRETS_PREFIX}storage#sm_storage_secretkey
-  # mas_aibroker_storage_host
+  export SECRET_KEY_STORAGE_SECRETKEY=${SECRETS_PREFIX}storage#sm_storage_secretkey 
   export SECRET_KEY_STORAGE_HOST=${SECRETS_PREFIX}storage#sm_storage_host
   export SECRET_KEY_STORAGE_PORT=${SECRETS_PREFIX}storage#sm_storage_port
+  export SECRET_KEY_STORAGE_REGION=${SECRETS_PREFIX}storage#sm_s3_region
   # mas_aibroker_storage_templates_bucket
   export SM_STORAGE_BUCKET_TEMPLATES=${SECRETS_PREFIX}storage#sm_storage_bucket_templates
   # mas_aibroker_storage_tenants_bucket

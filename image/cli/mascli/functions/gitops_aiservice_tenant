@@ -91,18 +91,12 @@ function gitops_aiservice_tenant_noninteractive() {
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}
   export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local/cpopen"}
-  
-  
   export AISERVICE_S3_BUCKET_PREFIX=${AISERVICE_S3_BUCKET_PREFIX:-"m"}
-  export MAS_AIBROKER_S3_REGION=${MAS_AIBROKER_S3_REGION:-"us-east-2"}
   export TENANT_ENTITLEMENT_TYPE=${TENANT_ENTITLEMENT_TYPE:-"standard"}
   export TENANT_ENTITLEMENT_START_DATE=${TENANT_ENTITLEMENT_START_DATE:-"2025-06-11"}
   export TENANT_ENTITLEMENT_END_DATE=${TENANT_ENTITLEMENT_END_DATE:-"2049-11-11"}
-  
-
   # -- SLS Defaults
   export AISERVICE_SLS_SUBSCRIPTION_ID=${AISERVICE_SLS_SUBSCRIPTION_ID:-"001"}
-
   # -- STORAGE Defaults
   export AISERVICE_STORAGE_REGION=${AISERVICE_STORAGE_REGION:-""}
 
@@ -198,7 +192,7 @@ function gitops_aiservice_tenant_noninteractive() {
       --mas-aibroker-storage-port)
         export MAS_AIBROKER_STORAGE_PORT=$1 && shift
         ;;
-      --mas-aibroker-storage-region)
+      --aiservice-storage-region)
         export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
       --mas-aibroker-storage-pipelines-bucket)
@@ -218,9 +212,6 @@ function gitops_aiservice_tenant_noninteractive() {
         ;;
       --aiservice-s3-endpoint-url)
         export AISERVICE_S3_ENDPOINT_URL=$1 && shift
-        ;;
-      --mas-aibroker-s3-region)
-        export MAS_AIBROKER_S3_REGION=$1 && shift
         ;;
 
       --aiservice-s3-bucket-prefix)

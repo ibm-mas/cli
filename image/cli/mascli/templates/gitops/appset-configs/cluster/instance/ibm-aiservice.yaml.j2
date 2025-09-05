@@ -3,51 +3,51 @@ merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ AISERVICE_INSTANCE_ID }}"
 ibm_aiservice:
   aiservice_instance_id: "{{ AISERVICE_INSTANCE_ID }}"
   aiservice_namespace: "{{ AISERVICE_NAMESPACE }}"
-  aiservice_watsonx_secret: "{{ AISERVICE_WATSONX_SECRET }}"
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
-
-  aiservice_storage_provider: "{{ AISERVICE_STORAGE_PROVIDER }}"
-  aiservice_storage_ssl: "{{ AISERVICE_STORAGE_SSL }}"
-  aiservice_storage_region: "{{ AISERVICE_STORAGE_REGION }}"
-  mas_aibroker_storage_secret: "{{ MAS_AIBROKER_STORAGE_SECRET }}"
-
-  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_ACCESSKEY }}>"
-  mas_aibroker_storage_secretkey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_SECRETKEY }}>"
-  mas_aibroker_storage_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_HOST }}>"
-  mas_aibroker_storage_port: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_PORT }}>"
-
-  mas_aibroker_storage_pipelines_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_STORAGE_BUCKET_PIPELINES }}>"
-  mas_aibroker_storage_tenants_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_STORAGE_BUCKET_TENANTS }}>"
-  mas_aibroker_storage_templates_bucket: "<path:{{ SECRETS_PATH }}:{{ SM_STORAGE_BUCKET_TEMPLATES }}>"
-
-
 
   # MariaDB
   mas_aibroker_db_host: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_HOST }}>"
-  mas_aibroker_mariadb_secret: "{{ MAS_AIBROKER_MARIADB_SECRET }}"
+  aiservice_mariadb_secret: "{{ AISERVICE_MARIADB_SECRET }}"
   mas_aibroker_db_port: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_PORT }}>"
   mas_aibroker_db_user: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_USER }}>"
   mas_aibroker_db_database: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_DATABASE }}>"
   mas_aibroker_db_secret_name: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_SECRET_NAME }}>"
   mas_aibroker_db_secret_value: "<path:{{ SECRETS_PATH }}:{{ MAS_AIBROKER_DB_SECRET_VALUE }}>"
-  primary_storage_class: "{{ PRIMARY_STORAGE_CLASS }}"
+  
 
   #SLS
   slscfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SLSCFG_REGISTRATION_KEY }}>"
+  aiservice_sls_registration_key_secret: "{{ SLS_REGISTRATION_KEY_SECRET }}"
 
   #DRO
   drocfg_ca: "<path:{{ SECRETS_PATH }}:{{ DROCFG_CA }}>"
   drocfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ DROCFG_REGISTRATION_KEY }}>"
   drocfg_url: "<path:{{ SECRETS_PATH }}:{{ DROCFG_URL }}>"
   drocfg_ca_tenant: "<path:{{ SECRETS_PATH }}:{{ DROCFG_TENANT }}>"
-
+  aiservice_dro_token_secret: "{{ DRO_TOKEN_SECRET }}"
+  aiservice_dro_cacert_secret: "{{ DRO_CACERT_SECRET }}"
   
   environment_type: "{{ ENVIRONMENT_TYPE }}"
-  # S3 
+  
+  # S3  url added with port
   aiservice_s3_endpoint_url: "{{ AISERVICE_S3_ENDPOINT_URL }}"
-  mas_aibroker_s3_region: "{{ MAS_AIBROKER_S3_REGION }}"
   aiservice_s3_bucket_prefix: "{{ AISERVICE_S3_BUCKET_PREFIX }}"
-    
+  aiservice_s3_templates_bucket: "{{ AISERVICE_S3_TEMPLATES_BUCKET }}"
+  aiservice_s3_tenants_bucket: "{{ AISERVICE_S3_TENANTS_BUCKET }}"
+  aiservice_s3_secret: "{{ AISERVICE_S3_SECRET }}"
+
+  #km-s3-secret  
+  aiservice_s3_ssl: "{{ AISERVICE_STORAGE_SSL }}"
+  mas_aibroker_storage_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_ACCESSKEY }}>"
+  mas_aibroker_storage_secretkey: 
+  mas_aibroker_storage_host: 
+  mas_aibroker_storage_port: 
+
+  aiservice_s3_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_ACCESSKEY }}>"
+  aiservice_s3_secretkey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_SECRETKEY }}>"
+  aiservice_s3_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_HOST }}>"
+  aiservice_s3_port: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_PORT }}>"
+  aiservice_s3_region: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_REGION }}>"
 
   #JDBC
   jdbccfg_username: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_USERNAME }}>"
@@ -57,14 +57,16 @@ ibm_aiservice:
   jdbccfg_ca: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_CA }}>"  
 
   # MAS Entitlement
-  mas_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ MAS_ENTITLEMENT_KEY }}>"
-  
+  entitlement_key: "<path:{{ SECRETS_PATH }}:{{ MAS_ENTITLEMENT_KEY }}>"
+  mas_entitlement_username: ""
+  mas_entitlement_key: ""
+
   # Development Registry Entitlement
   artifactory_username: "{{ ARTIFACTORY_USERNAME }}"
   artifactory_token: "<path:{{ SECRETS_PATH }}:{{ ARTIFACTORY_TOKEN }}>"
   # Environment Variable:
   aiservice_channel: "{{ AISERVICE_CHANNEL_CHANNEL }}"
-  # mas_app_channel: "9.1.x-dev"
+  # aiservice_channel: "9.1.x-dev"
   mas_catalog_source: "{{ MAS_CATALOG_SOURCE }}"
 
   # Source container registry
@@ -73,6 +75,7 @@ ibm_aiservice:
   mas_icr_cp: "{{ MAS_ICR_CP }}"
   mas_icr_cpopen: "{{ MAS_ICR_CPOPEN }}"
 
-  cluster_domain: "{{ CLUSTER_DOMAIN }}"
+  aiservice_domain: "{{ CLUSTER_DOMAIN }}"
   in_saas_env: "{{ IN_SAAS_ENV }}"
-  is_external_route: "{{ IS_EXTERNAL_ROUTE }}"
+  aiservice_storage_class: "{{ PRIMARY_STORAGE_CLASS }}"
+  aiservice_operator_log_level: "0"

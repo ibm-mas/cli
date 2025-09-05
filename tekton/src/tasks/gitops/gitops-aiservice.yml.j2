@@ -34,9 +34,7 @@ spec:
       type: string
     - name: aiservice_storage_provider
       type: string
-    - name: mas_aibroker_storage_secret
-      type: string
-    - name: mas_aibroker_storage_host
+    - name: aiservice_storage_secret
       type: string
     - name: mas_aibroker_storage_port
       type: string
@@ -50,7 +48,7 @@ spec:
       type: string
     - name: mas_aibroker_storage_templates_bucket
       type: string
-    - name: mas_aibroker_mariadb_secret
+    - name: aiservice_mariadb_secret
       type: string
     - name: primary_storage_class
       type: string
@@ -74,11 +72,20 @@ spec:
       type: string
     - name: aiservice_s3_endpoint_url
       type: string
-    - name: mas_aibroker_s3_region
-      type: string
     - name: aiservice_s3_bucket_prefix
       type: string
-
+    - name: sls_registration_key_secret
+      type: string
+    - name: dro_token_secret
+      type: string
+    - name: dro_cacert_secret
+      type: string
+    - name: aiservice_s3_templates_bucket
+      type: string
+    - name: aiservice_s3_tenants_bucket
+      type: string
+    - name: aiservice_s3_secret
+      type: string
   stepTemplate:
     name: gitops-aiservice
     env:
@@ -110,10 +117,8 @@ spec:
         value: $(params.pull_secret_name)
       - name: AISERVICE_STORAGE_PROVIDER
         value: $(params.aiservice_storage_provider)
-      - name: MAS_AIBROKER_STORAGE_SECRET
-        value: $(params.mas_aibroker_storage_secret)
-      - name: MAS_AIBROKER_STORAGE_HOST
-        value: $(params.mas_aibroker_storage_host)
+      - name: AISERVICE_STORAGE_SECRET
+        value: $(params.aiservice_storage_secret)
       - name: MAS_AIBROKER_STORAGE_PORT
         value: $(params.mas_aibroker_storage_port)
       - name: AISERVICE_STORAGE_SSL
@@ -126,8 +131,8 @@ spec:
         value: $(params.mas_aibroker_storage_tenants_bucket)
       - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
         value: $(params.mas_aibroker_storage_templates_bucket)
-      - name: MAS_AIBROKER_MARIADB_SECRET
-        value: $(params.mas_aibroker_mariadb_secret)
+      - name: AISERVICE_MARIADB_SECRET
+        value: $(params.aiservice_mariadb_secret)
       - name: PRIMARY_STORAGE_CLASS
         value: $(params.primary_storage_class)
       - name: ARTIFACTORY_USERNAME
@@ -150,10 +155,21 @@ spec:
         value: $(params.environment_type)
       - name: AISERVICE_S3_ENDPOINT_URL
         value: $(params.aiservice_s3_endpoint_url)
-      - name: MAS_AIBROKER_S3_REGION
-        value: $(params.mas_aibroker_s3_region)
       - name: AISERVICE_S3_BUCKET_PREFIX
         value: $(params.aiservice_s3_bucket_prefix)
+      - name: SLS_REGISTRATION_KEY_SECRET
+        value: $(params.sls_registration_key_secret)
+      - name: DRO_TOKEN_SECRET
+        value: $(params.dro_token_secret)
+      - name: DRO_CACERT_SECRET
+        value: $(params.dro_cacert_secret)
+      - name: AISERVICE_S3_TEMPLATES_BUCKET
+        value: $(params.aiservice_s3_templates_bucket)
+      - name: AISERVICE_S3_TENANTS_BUCKET
+        value: $(params.aiservice_s3_tenants_bucket)
+      - name: AISERVICE_S3_SECRET
+        value: $(params.aiservice_s3_secret)
+        
     envFrom:
       - configMapRef:
           name: environment-properties

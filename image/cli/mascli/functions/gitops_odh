@@ -21,6 +21,10 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
+ibm aiservice(required):
+      --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
+      --aiservice-instance-id ${TEXT_RESET}AISERVICE_INSTANCE_ID${TEXT_RESET}
+
 ODH Configuration:
       --odh-channel
       --odh-catalog-source
@@ -33,7 +37,7 @@ ODH Configuration:
       --opendatahub-channel
       --opendatahub-source
       --opendatahub-source-namespace
-
+      --aiservice-odh-model-deployment-type
 Pipeline Configuration:
       --odh-pipeline-name
       --odh-pipeline-namespace
@@ -118,13 +122,7 @@ function gitops_odh_noninteractive() {
   export ODH_OPERATOR_VERSION="${ODH_OPERATOR_VERSION:-"opendatahub-operator.v2.19.0"}"
   export ODH_NAMESPACE="${ODH_NAMESPACE:-"opendatahub"}"
 
-  export AISERVICE_NAMESPACE="${AISERVICE_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aiservice"}"
-
-  export ODH_PIPELINE_NAME="${ODH_PIPELINE_NAME:-"openshift-pipelines-operator"}"
-  export ODH_PIPELINE_NAMESPACE="${ODH_PIPELINE_NAMESPACE:-"openshift-operators"}"
-  export ODH_PIPELINE_OPERATOR_NAME="${ODH_PIPELINE_OPERATOR_NAME:-"openshift-pipelines-operator-rh"}"
-  export ODH_PIPELINE_SOURCE="${ODH_PIPELINE_SOURCE:-"redhat-operators"}"
-  export ODH_PIPELINE_SOURCE_NAMESPACE="${ODH_PIPELINE_SOURCE_NAMESPACE:-"openshift-marketplace"}"
+  export AISERVICE_NAMESPACE="${AISERVICE_NAMESPACE:-"${AISERVICE_INSTANCE_ID}-aiservice"}"
 
   export SERVERLESS_NAMESPACE="${SERVERLESS_NAMESPACE:-"openshift-serverless"}"
   export SERVERLESS_OPERATOR_NAME="${SERVERLESS_OPERATOR_NAME:-"serverless-operator"}"
@@ -138,7 +136,7 @@ function gitops_odh_noninteractive() {
   export OPENDATAHUB_CHANNEL="${OPENDATAHUB_CHANNEL:-"fast"}"
   export OPENDATAHUB_SOURCE="${OPENDATAHUB_SOURCE:-"community-operators"}"
   export OPENDATAHUB_SOURCE_NAMESPACE="${OPENDATAHUB_SOURCE_NAMESPACE:-"openshift-marketplace"}"
-
+  export AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE="${AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE:-"raw"}"
   export AISERVICE_STORAGE_PROVIDER="${AISERVICE_STORAGE_PROVIDER:-"aws"}"
   export AISERVICE_STORAGE_SSL="${AISERVICE_STORAGE_SSL:-"true"}"
   export AISERVICE_STORAGE_REGION="${AISERVICE_STORAGE_REGION:-""}"
@@ -235,12 +233,6 @@ function gitops_odh_noninteractive() {
       --opendatahub-source-namespace)
         export OPENDATAHUB_SOURCE_NAMESPACE=$1 && shift
         ;;
-      --odh-pipeline-name)
-        export ODH_PIPELINE_NAME=$1 && shift
-        ;;
-      --odh-pipeline-namespace)
-        export ODH_PIPELINE_NAMESPACE=$1 && shift
-        ;;
       --odh-pipeline-operator-name)
         export ODH_PIPELINE_OPERATOR_NAME=$1 && shift
         ;;
@@ -306,9 +298,6 @@ function gitops_odh_noninteractive() {
       --storage-secretkey)
         export MAS_AIBROKER_STORAGE_SECRETKEY=$1 && shift
         ;;
-      --storage-host)
-        export MAS_AIBROKER_STORAGE_HOST=$1 && shift
-        ;;
       --storage-port)
         export MAS_AIBROKER_STORAGE_PORT=$1 && shift
         ;;
@@ -317,6 +306,9 @@ function gitops_odh_noninteractive() {
         ;;
       --storage-region)
         export AISERVICE_STORAGE_REGION=$1 && shift
+        ;;
+      --aiservice-odh-model-deployment-type)
+        export AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE=$1 && shift
         ;;
       --storage-pipelines-bucket)
         export MAS_AIBROKER_STORAGE_PIPELINES_BUCKET=$1 && shift
@@ -333,12 +325,6 @@ function gitops_odh_noninteractive() {
         ;;
       --db-database)
         export MAS_AIBROKER_DB_DATABASE=$1 && shift
-        ;;
-      --db-secret-name)
-        export MAS_AIBROKER_DB_SECRET_NAME=$1 && shift
-        ;;
-      --db-secret-value)
-        export MAS_AIBROKER_DB_SECRET_VALUE=$1 && shift
         ;;
 
       --primary-storage-class)
@@ -367,6 +353,8 @@ function gitops_odh_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_odh_help "Missing ACCOUNT_ID"
   [[ -z "$CLUSTER_ID" ]] && gitops_odh_help "Missing CLUSTER_ID"
   [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_odh_help "Missing AISERVICE_INSTANCE_ID"
+  [[ -z "$OPENDATAHUB_SOURCE" ]] && gitops_odh_help "Missing OPENDATAHUB_SOURCE"
+  [[ -z "$AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE" ]] && gitops_odh_help "Missing AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_odh_help "GITHUB_HOST is not set"
@@ -404,7 +392,8 @@ function gitops_odh() {
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "AI Broker Instance ID ................ ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
-
+  echo_reset_dim "OpenDataHub Source ................... ${COLOR_MAGENTA}${OPENDATAHUB_SOURCE}"
+  echo_reset_dim "AiService Model Deployment Type ...... ${COLOR_MAGENTA}${AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE}"
   echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
   reset_colors
 
@@ -432,10 +421,6 @@ function gitops_odh() {
   export SECRET_KEY_SM_MARIADB_PORT="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_port"
   export SECRET_KEY_SM_MARIADB_USER="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_user"
   export SECRET_KEY_SM_MARIADB_DATABASE="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_database"
-  export SECRET_KEY_SM_MARIADB_SECRET_NAME="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_secret_name"
-  export SECRET_KEY_SM_MARIADB_SECRET_VALUE="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_secret_value"
-
-
 
   export ODH_SECRET_FILE="$GITOPS_WORKING_DIR/odh-secret.json"
   if [ -z $GIT_SSH ]; then
@@ -494,6 +479,7 @@ function gitops_odh() {
   export MARIADB_SECRET_VALUE=$(jq -r .sm_mariadb_secret_value "$MARIA_SECRET_FILE")
 
   echo_h2 "ODH Secret Summary"
+  echo_reset_dim "AI Broker Namespace ................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
   echo_reset_dim "STORAGE_HOST ............................. ${COLOR_MAGENTA}${STORAGE_HOST}"
   echo_reset_dim "STORAGE_BUCKET ........................... ${COLOR_MAGENTA}${STORAGE_BUCKET}"
   echo_reset_dim "MARIADB_HOST ........................... ${COLOR_MAGENTA}${MARIADB_HOST}"
