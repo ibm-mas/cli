@@ -245,13 +245,12 @@ function gitops_suite_app_config_noninteractive() {
     fi
   fi
 
-  # We have to checkout the repo regardless of GITHUB_PUSH because we are modifying the existing ibm-mas-masapp-configs.yaml file here
-  # So these params are still required even if GITHUB_PUSH is false
-  [[ -z "${GITHUB_HOST}" ]] && gitops_suite_app_config_help "GITHUB_HOST is not set"
-  [[ -z "${GITHUB_ORG}" ]] && gitops_suite_app_config_help "GITHUB_ORG is not set"
-  [[ -z "${GITHUB_REPO}" ]] && gitops_suite_app_config_help "GITHUB_REPO is not set"
-  [[ -z "${GIT_BRANCH}" ]] && gitops_suite_app_config_help "GIT_BRANCH is not set"
-
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "${GITHUB_HOST}" ]] && gitops_suite_app_config_help "GITHUB_HOST is not set"
+    [[ -z "${GITHUB_ORG}" ]] && gitops_suite_app_config_help "GITHUB_ORG is not set"
+    [[ -z "${GITHUB_REPO}" ]] && gitops_suite_app_config_help "GITHUB_REPO is not set"
+    [[ -z "${GIT_BRANCH}" ]] && gitops_suite_app_config_help "GIT_BRANCH is not set"
+  fi
 }
 
 function gitops_suite_app_config() {
@@ -458,10 +457,6 @@ function gitops_suite_app_config() {
   if [ "$GITHUB_PUSH" == "true" ]; then
     # only create the lock branch if we plan to actually push changes to git
     clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
-  else
-    # even though we don't want to push anything to git,
-    # because this script modifies the existing suite-configs.yaml file, we still need to checkout the repo
-    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
