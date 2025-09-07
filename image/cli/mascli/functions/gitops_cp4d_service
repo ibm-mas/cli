@@ -386,5 +386,6 @@ function gitops_cp4d_service() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
 
+  rm -rf $TEMP_DIR
 
 }

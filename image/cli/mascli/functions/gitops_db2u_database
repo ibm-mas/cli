@@ -387,7 +387,9 @@ function gitops_db2u_database() {
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  rm -rf $GITOPS_WORKING_DIR/$GITHUB_REPO
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    rm -rf $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
   GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
   CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-db2u-databases.yaml"
 
@@ -777,5 +779,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
 
+  rm -rf $TEMP_DIR
 
 }

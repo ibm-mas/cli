@@ -198,5 +198,6 @@ function gitops_deprovision_db2u() {
   fi
 
   remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  rm -rf $TEMP_DIR
 
 }
