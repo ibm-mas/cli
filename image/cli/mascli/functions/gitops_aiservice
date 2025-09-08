@@ -387,26 +387,11 @@ function gitops_aiservice() {
 
   #storage
   # mas_aibroker_storage_accesskey
-  export SECRET_KEY_STORAGE_ACCESSKEY=${SECRETS_PREFIX}storage#sm_storage_accesskey
-  export SECRET_KEY_STORAGE_SECRETKEY=${SECRETS_PREFIX}storage#sm_storage_secretkey 
-  export SECRET_KEY_STORAGE_HOST=${SECRETS_PREFIX}storage#sm_storage_host
-  export SECRET_KEY_STORAGE_PORT=${SECRETS_PREFIX}storage#sm_storage_port
-  export SECRET_KEY_STORAGE_REGION=${SECRETS_PREFIX}storage#sm_s3_region
-  # mas_aibroker_storage_templates_bucket
-  export SM_STORAGE_BUCKET_TEMPLATES=${SECRETS_PREFIX}storage#sm_storage_bucket_templates
-  # mas_aibroker_storage_tenants_bucket
-  export SM_STORAGE_BUCKET_TENANTS=${SECRETS_PREFIX}storage#sm_storage_bucket_tenants
-  # mas_aibroker_storage_pipelines_bucket
-  export SM_STORAGE_BUCKET_PIPELINES=${SECRETS_PREFIX}storage#sm_storage_bucket_pipelines
-
-
-  #mariadb
-  export MAS_AIBROKER_DB_HOST=${SECRETS_PREFIX}mariadb#sm_mariadb_host
-  export MAS_AIBROKER_DB_PORT=${SECRETS_PREFIX}mariadb#sm_mariadb_port
-  export MAS_AIBROKER_DB_USER=${SECRETS_PREFIX}mariadb#sm_mariadb_user
-  export MAS_AIBROKER_DB_DATABASE=${SECRETS_PREFIX}mariadb#sm_mariadb_database
-  export MAS_AIBROKER_DB_SECRET_NAME=${SECRETS_PREFIX}mariadb#sm_mariadb_secret_name
-  export MAS_AIBROKER_DB_SECRET_VALUE=${SECRETS_PREFIX}mariadb#sm_mariadb_secret_value
+  export SECRET_KEY_STORAGE_ACCESSKEY=${SECRETS_PREFIX}s3#sm_s3_accesskey
+  export SECRET_KEY_STORAGE_SECRETKEY=${SECRETS_PREFIX}s3#sm_s3_secretkey 
+  export SECRET_KEY_STORAGE_HOST=${SECRETS_PREFIX}s3#sm_s3_host
+  export SECRET_KEY_STORAGE_PORT=${SECRETS_PREFIX}s3#sm_s3_port
+  export SECRET_KEY_STORAGE_REGION=${SECRETS_PREFIX}s3#sm_s3_region
 
   #sls
   export SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
@@ -428,11 +413,8 @@ function gitops_aiservice() {
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_ca,drocfg_registration_key,drocfg_url,drocfg_ca_tenant"
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_accesskey,sm_storage_secretkey,sm_storage_bucket_templates,sm_storage_bucket_tenants,sm_storage_bucket_pipelines"
+  sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_port,sm_s3_region"
   sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca"
-  sm_verify_secret_exists ${SECRETS_PREFIX}mariadb "sm_mariadb_host,sm_mariadb_port,sm_mariadb_user,sm_mariadb_database,sm_mariadb_secret_name,sm_mariadb_secret_value"
-
-  
 
     if [ -z $GIT_SSH ]; then
       export GIT_SSH=false
