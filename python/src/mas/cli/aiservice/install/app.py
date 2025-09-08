@@ -591,6 +591,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
         self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
         self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
+        self.promptForOptionalString("WatsonX Deployment ID (optional)", "aiservice_watsonxai_deployment_id")
+        self.promptForOptionalString("WatsonX Space ID (optional)", "aiservice_watsonxai_space_id")
 
         self.printH1("RSL Integration")
         self.printDescription([
