@@ -302,15 +302,15 @@ watsonxArgGroup.add_argument(
     help="Action to perform with WatsonX (install/remove)"
 )
 watsonxArgGroup.add_argument(
-    '--watsonxai-deployment-id', 
+    '--watsonxai-deployment-id',
     dest="aiservice-watsonxai-deployment-id",
-    required=False, 
+    required=False,
     help='WatsonX deployment ID'
 )
 watsonxArgGroup.add_argument(
-    '--watsonxai-space-id', 
+    '--watsonxai-space-id',
     dest="aiservice-watsonxai-space-id",
-    required=False, 
+    required=False,
     help='WatsonX space ID'
 )
 
