@@ -11,7 +11,6 @@
 
 import logging
 import logging.handlers
-from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
@@ -23,7 +22,7 @@ from .argParser import updateArgParser
 
 from mas.devops.ocp import createNamespace, getStorageClasses, getConsoleURL
 from mas.devops.mas import listMasInstances, listAiServiceInstances, getCurrentCatalog
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline, launchAiServiceUpdatePipeline
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
 
 
 logger = logging.getLogger(__name__)
@@ -208,20 +207,14 @@ class UpdateApp(BaseApp):
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            if isMasInstalled:
-                self.runPipeline('MAS', launchUpdatePipeline)
-            if isAiServiceInstalled:
-                self.runPipeline('AI Service', launchAiServiceUpdatePipeline)
-
-    def runPipeline(self, name: str, pipeline: Callable) -> None:
-        with Halo(text=f"Submitting PipelineRun for {name} update", spinner=self.spinner) as h:
-            pipelineURL = pipeline(dynClient=self.dynamicClient, params=self.params)
-            if pipelineURL is not None:
-                h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {name} update submitted")
-                print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
-            else:
-                h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {name} update, see log file for details")
-                print()
+            with Halo(text="Submitting PipelineRun for MAS update", spinner=self.spinner) as h:
+                pipelineURL = launchUpdatePipeline(dynClient=self.dynamicClient, params=self.params)
+                if pipelineURL is not None:
+                    h.stop_and_persist(symbol=self.successIcon, text="PipelineRun for MAS update submitted")
+                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
+                else:
+                    h.stop_and_persist(symbol=self.failureIcon, text="Failed to submit PipelineRun for MAS update, see log file for details")
+                    print()
 
     def reviewCurrentCatalog(self) -> None:
         catalogInfo = getCurrentCatalog(self.dynamicClient)
