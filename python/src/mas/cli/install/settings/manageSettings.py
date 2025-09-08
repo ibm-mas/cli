@@ -121,6 +121,8 @@ class ManageSettingsMixin():
                     self.params["mas_appws_components"] += ",workday=latest"
                 if self.yesOrNo(" - AIP"):
                     self.params["mas_appws_components"] += ",aip=latest"
+                if self.yesOrNo(" - Vegetation Management"):
+                    self.params["mas_appws_components"] += ",vegm=latest"
                 logger.debug(f"Generated mas_appws_components = {self.params['mas_appws_components']}")
 
                 if ",icd=" in self.params["mas_appws_components"]:
