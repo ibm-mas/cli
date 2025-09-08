@@ -205,7 +205,6 @@ function gitops_deprovision_odh() {
   #secrets path in aws 
 
   export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage
-  export SECRET_NAME_MARIADB_AUTH1=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb
   export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
 
   
@@ -227,8 +226,6 @@ function gitops_deprovision_odh() {
   #deleting secreats from aws
   #  echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
   #  sm_delete_secret $SECRET_NAME_STORAGE_AUTH
-  #  echo -e "Deleting mariadb secreat $SECRET_NAME_MARIADB_AUTH1"
-  #  sm_delete_secret $SECRET_NAME_MARIADB_AUTH1
   #  echo -e "Deleting image pull secreat $SECRET_KEY_IMAGE_PULL_SECRET_B64"
   #  sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
 

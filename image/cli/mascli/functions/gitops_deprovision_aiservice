@@ -200,7 +200,6 @@ function gitops_deprovision_aiservice() {
 
   export SECRET_IBM_ENTITLEMENT_AUTH=${SECRETS_PREFIX}ibm_entitlement
   export SECRET_STORAGE_AUTH=${SECRETS_PREFIX}storage
-  export SECRET_MARIADB_AUTH=${SECRETS_PREFIX}mariadb
   export SECRET_DRO_AUTH=${SECRETS_PREFIX}droai
   export SECRET_SLS_AUTH=${SECRETS_PREFIX}sls
   export SECRET_JDBC_AUTH=${SECRETS_PREFIX}jdbc
@@ -211,9 +210,6 @@ function gitops_deprovision_aiservice() {
 
 #    echo -e "Deleting storage secrets $SECRET_STORAGE_AUTH"
 #    sm_delete_secret $SECRET_STORAGE_AUTH
-
-#    echo -e "Deleting watsonx secrets $SECRET_MARIADB_AUTH"
-#    sm_delete_secret $SECRET_MARIADB_AUTH
 
 #    echo -e "Deleting dro secrets $SECRET_DRO_AUTH"
 #    sm_delete_secret $SECRET_DRO_AUTH
