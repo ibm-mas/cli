@@ -151,22 +151,22 @@ class JsonValidator(Validator):
             raise (ValidationError(message='Enter a valid JSON', cursor_position=len(inputJson)))
 
 
-class OutOfIndex(Validator):
-    def __init__(self, _to_validate_list):
+class LanguageValidator(Validator):
+    def __init__(self, _language_list):
         """
         This function was created to give context of the array that will
         be validated
         """
-        self._to_validate_list = _to_validate_list
+        self._language_list = _language_list
 
     def validate(self, document):
         """
         Validate if an input it's outside of an list
         """
-        choices = document.text
-        for choice in choices.split(","):
-            if int(choice) - 1 > len(self._to_validate_list) or int(choice) < 0:
-                raise (ValidationError(message='Option out of the list. Please select value(s) from the list', cursor_position=len(choices)))
+        languages = document.text
+        for language in languages.split(","):
+            if language.upper() not in self._language_list:
+                raise (ValidationError(message='Language not supported. Please select value(s) from the list', cursor_position=len(languages)))
 
 
 class BucketPrefixValidator(Validator):
