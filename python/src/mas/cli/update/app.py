@@ -11,6 +11,7 @@
 
 import logging
 import logging.handlers
+from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
@@ -232,27 +233,21 @@ class UpdateApp(BaseApp):
             ])
 
     def reviewMASInstance(self) -> bool:
-        self.printH1("Review MAS Instances")
-        try:
-            suites = listMasInstances(self.dynamicClient)
-            self.printDescription(["The following MAS instances are installed on the target cluster and will be affected by the catalog update:"])
-            for suite in suites:
-                self.printDescription([f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"])
-            return True
-        except ResourceNotFoundError:
-            self.printDescription(["No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available)"])
-            return False
+        return self.reviewInstances(listMasInstances, 'MAS', 'Suite.core.mas.ibm.com/v1')
 
     def reviewAiServiceInstance(self) -> bool:
-        self.printH1("Review AI Service Instances")
+        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1')
+
+    def reviewInstances(self, getInstances: Callable, name: str, kind: str) -> bool:
+        self.printH1(f"Review {name} Instances")
         try:
-            instances = listAiServiceInstances(self.dynamicClient)
-            self.printDescription(["The following AI Service instances are installed on the target cluster and will be affected by the catalog update:"])
+            instances = getInstances(self.dynamicClient)
+            self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
             for instance in instances:
                 self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
             return True
         except ResourceNotFoundError:
-            self.printDescription(["No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available)"])
+            self.printDescription([f"No {name} instances were detected on the cluster ({kind} API is not available)"])
             return False
 
     def chooseCatalog(self) -> None:
