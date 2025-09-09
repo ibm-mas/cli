@@ -402,7 +402,7 @@ function gitops_aiservice() {
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_ca,drocfg_registration_key,drocfg_url,drocfg_ca_tenant"
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_port,sm_s3_region"
+  sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_region"
   sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca"
 
     if [ -z $GIT_SSH ]; then
