@@ -24,7 +24,6 @@ ibm_aiservice_tenant(required):
       --drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                   URL of the DRO configuration service
       --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
       --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                         Endpoint URL for Watsonx.ai
-      --aiservice-watsonxai-project-id ${COLOR_YELLOW}AISERVICE_WATSONXAI_PROJECT_ID${TEXT_RESET}           Watsonx.ai project ID used by AI Broker
       --aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                           Full URL for Watsonx.ai including API key
 
 AiService :
@@ -49,7 +48,6 @@ SLS :
 
 Watsonx :
 --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                          Endpoint URL for Watsonx.ai
---aiservice-watsonxai-project-id ${COLOR_YELLOW}AISERVICE_WATSONXAI_PROJECT_ID${TEXT_RESET}            Watsonx.ai project ID used by AI Broker
 --aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                            Full URL for Watsonx.ai including API key
 --aiservice-watsonx-instance-id ${COLOR_YELLOW}AISERVICE_WATSONX_INSTANCE_ID${TEXT_RESET}              Watsonx.ai instance ID used by AI Broker
 --aiservice-watsonx-version ${COLOR_YELLOW}AISERVICE_WATSONX_VERSION${TEXT_RESET}                      Version of Watsonx.ai being used
@@ -187,9 +185,6 @@ function gitops_aiservice_tenant_noninteractive() {
       # -- Watsonx
       --aiservice-watsonxai-url)
         export AISERVICE_WATSONXAI_URL=$1 && shift
-        ;;
-      --aiservice-watsonxai-project-id)
-        export AISERVICE_WATSONXAI_PROJECT_ID=$1 && shift
         ;;
       --aiservice-watsonx-full)
         export AISERVICE_WATSONX_FULL=$1 && shift
@@ -393,7 +388,6 @@ function gitops_aiservice_tenant() {
 
   # -- Watsonx
   echo_reset_dim "Watsonx.ai URL ............................... ${COLOR_MAGENTA}${AISERVICE_WATSONXAI_URL}"
-  echo_reset_dim "Watsonx.ai project ID ........................ ${COLOR_MAGENTA}${AISERVICE_WATSONXAI_PROJECT_ID}"
   echo_reset_dim "Watsonx.ai full URL .......................... ${COLOR_MAGENTA}${AISERVICE_WATSONX_FULL}"
   echo_reset_dim "watsonx.ai instance ID ......................... ${COLOR_MAGENTA}${AISERVICE_WATSONX_INSTANCE_ID}"
   echo_reset_dim "watsonx.ai version ............................. ${COLOR_MAGENTA}${AISERVICE_WATSONX_VERSION}"

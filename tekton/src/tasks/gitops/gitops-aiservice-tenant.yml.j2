@@ -51,8 +51,6 @@ spec:
       type: string
     - name: aiservice_watsonxai_url
       type: string
-    - name: aiservice_watsonxai_project_id
-      type: string
     - name: aiservice_watsonx_full
       type: string
     - name: aiservice_watsonx_instance_id
@@ -130,13 +128,10 @@ spec:
         value: $(params.drocfg_url)
       - name: SLSCFG_URL
         value: $(params.slscfg_url)
-
       - name: AISERVICE_SLS_SUBSCRIPTION_ID
         value: $(params.aiservice_sls_subscription_id)
       - name: AISERVICE_WATSONXAI_URL
         value: $(params.aiservice_watsonxai_url)
-      - name: AISERVICE_WATSONXAI_PROJECT_ID
-        value: $(params.aiservice_watsonxai_project_id)
       - name: AISERVICE_WATSONX_FULL
         value: $(params.aiservice_watsonx_full)
       - name: AISERVICE_WATSONX_INSTANCE_ID
