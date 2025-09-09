@@ -23,20 +23,20 @@ ibm_aiservice_tenant(required):
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                           The domain name of the Kubernetes cluster (e.g., cluster.local)
       --drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                   URL of the DRO configuration service
       --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
-      --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                   Endpoint URL for Watsonx.ai
-      --mas_aibroker_watsonxai_project_id ${COLOR_YELLOW}MAS_AIBROKER_WATSONXAI_PROJECT_ID${TEXT_RESET}     Watsonx.ai project ID used by AI Broker
+      --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                         Endpoint URL for Watsonx.ai
+      --aiservice-watsonxai-project-id ${COLOR_YELLOW}AISERVICE_WATSONXAI_PROJECT_ID${TEXT_RESET}           Watsonx.ai project ID used by AI Broker
+      --aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                           Full URL for Watsonx.ai including API key
 
-
-AIBroker :
---aiservice-namespace ${COLOR_YELLOW}AISERVICE_NAMESPACE${TEXT_RESET}                                         The namespace where AI Broker is deployed
---aiservice-provision-tenant ${COLOR_YELLOW}AISERVICE_PROVISION_TENANT${TEXT_RESET}                   Whether to provision the AI Broker tenant
---aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                                     The AI Broker instance ID
+AiService :
+--aiservice-namespace ${COLOR_YELLOW}AISERVICE_NAMESPACE${TEXT_RESET}                                       The namespace where AI Broker is deployed
+--aiservice-provision-tenant ${COLOR_YELLOW}AISERVICE_PROVISION_TENANT${TEXT_RESET}                         Whether to provision the AI Broker tenant
+--aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                                   The AI Broker instance ID
 --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                              The tenant's Kubernetes namespace
 --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                           The tenant ID for the AI Broker instance
 --mas_aibroker_tenant_name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                             The name of the AI Broker tenant
 --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                 The domain name of the Kubernetes cluster (e.g., cluster.local)
 --in-saas-env ${COLOR_YELLOW}IN_SAAS_ENV${TEXT_RESET}                                                       Whether the environment is SaaS (true/false)
-
+--aiservice_operator_log_level ${COLOR_YELLOW}AISERVICE_OPERATOR_LOG_LEVEL${TEXT_RESET}                     Log level for the AI Broker operator (e.g., info, debug)
 --mas-icr-cp ${COLOR_YELLOW}MAS_ICR_CP${TEXT_RESET}                                                         IBM Cloud Pak container registry URL
 --mas-icr-cpopen ${COLOR_YELLOW}MAS_ICR_CPOPEN${TEXT_RESET}                                                 IBM Cloud Pak Open container registry URL
 
@@ -49,7 +49,11 @@ SLS :
 
 Watsonx :
 --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                          Endpoint URL for Watsonx.ai
---mas-aibroker-watsonxai-project-id ${COLOR_YELLOW}MAS_AIBROKER_WATSONXAI_PROJECT_ID${TEXT_RESET}            Watsonx.ai project ID used by AI Broker
+--aiservice-watsonxai-project-id ${COLOR_YELLOW}AISERVICE_WATSONXAI_PROJECT_ID${TEXT_RESET}            Watsonx.ai project ID used by AI Broker
+--aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                            Full URL for Watsonx.ai including API key
+--aiservice-watsonx-instance-id ${COLOR_YELLOW}AISERVICE_WATSONX_INSTANCE_ID${TEXT_RESET}              Watsonx.ai instance ID used by AI Broker
+--aiservice-watsonx-version ${COLOR_YELLOW}AISERVICE_WATSONX_VERSION${TEXT_RESET}                      Version of Watsonx.ai being used
+--aiservice-watsonx-username ${COLOR_YELLOW}AISERVICE_WATSONX_USERNAME${TEXT_RESET}                    Username for Watsonx.ai access
 
 Storage :
 --aiservice-storage-provider ${COLOR_YELLOW}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}                    The storage provider used by AI Broker (e.g., S3, MinIO)
@@ -184,10 +188,24 @@ function gitops_aiservice_tenant_noninteractive() {
       --aiservice-watsonxai-url)
         export AISERVICE_WATSONXAI_URL=$1 && shift
         ;;
-      --mas-aibroker-watsonxai-project-id)
-        export MAS_AIBROKER_WATSONXAI_PROJECT_ID=$1 && shift
+      --aiservice-watsonxai-project-id)
+        export AISERVICE_WATSONXAI_PROJECT_ID=$1 && shift
         ;;
-
+      --aiservice-watsonx-full)
+        export AISERVICE_WATSONX_FULL=$1 && shift
+        ;;
+      --aiservice-watsonx-instance-id)
+        export AISERVICE_WATSONX_INSTANCE_ID=$1 && shift
+        ;;
+      --aiservice-watsonx-version)
+        export AISERVICE_WATSONX_VERSION=$1 && shift
+        ;;
+      --aiservice-watsonx-username)
+        export AISERVICE_WATSONX_USERNAME=$1 && shift
+        ;;
+      --aiservice-operator-log-level)
+        export AISERVICE_OPERATOR_LOG_LEVEL=$1 && shift
+        ;;
       # -- STORAGE
       --mas-aibroker-storage-port)
         export MAS_AIBROKER_STORAGE_PORT=$1 && shift
@@ -290,7 +308,7 @@ function gitops_aiservice_tenant_noninteractive() {
 
   # -- Watsonx
   [[ -z "$AISERVICE_WATSONXAI_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --aiservice-watsonxai-url."
-  
+  [[ -z "$AISERVICE_WATSONX_FULL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONX_FULL is not set. Please specify the full Watsonx.ai URL using --aiservice-watsonx-full."
   [[ -z "$RSL_URL" ]] && gitops_aiservice_tenant_help "RSL_URL is not set. Please specify the RSL URL using --rsl-url."
   [[ -z "$AISERVICE_S3_ENDPOINT_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_S3_ENDPOINT_URL is not set. Please specify the S3 endpoint URL using --aiservice-s3-endpoint-url."
   
@@ -375,8 +393,12 @@ function gitops_aiservice_tenant() {
 
   # -- Watsonx
   echo_reset_dim "Watsonx.ai URL ............................... ${COLOR_MAGENTA}${AISERVICE_WATSONXAI_URL}"
-  echo_reset_dim "Watsonx.ai project ID ........................ ${COLOR_MAGENTA}${MAS_AIBROKER_WATSONXAI_PROJECT_ID}"
-
+  echo_reset_dim "Watsonx.ai project ID ........................ ${COLOR_MAGENTA}${AISERVICE_WATSONXAI_PROJECT_ID}"
+  echo_reset_dim "Watsonx.ai full URL .......................... ${COLOR_MAGENTA}${AISERVICE_WATSONX_FULL}"
+  echo_reset_dim "watsonx.ai instance ID ......................... ${COLOR_MAGENTA}${AISERVICE_WATSONX_INSTANCE_ID}"
+  echo_reset_dim "watsonx.ai version ............................. ${COLOR_MAGENTA}${AISERVICE_WATSONX_VERSION}"
+  echo_reset_dim "watsonx.ai username ........................... ${COLOR_MAGENTA}${AISERVICE_WATSONX_USERNAME}"
+  echo_reset_dim "Aiservice operator log level ................... ${COLOR_MAGENTA}${AISERVICE_OPERATOR_LOG_LEVEL}"
   # -- STORAGE
   echo_reset_dim "SSL enabled .................................. ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
   echo_reset_dim "Storage provider ............................. ${COLOR_MAGENTA}${AISERVICE_STORAGE_PROVIDER}"
@@ -398,12 +420,11 @@ function gitops_aiservice_tenant() {
 
   export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
   export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
+  export SECRET_KEY_RSL_CA_CRT=${SECRETS_PREFIX}rsl#rsl_ca_crt
   #watsonx
   export SECRET_KEY_WATSONXAI_APIKEY=${SECRETS_PREFIX}watsonx#watsonxai_apikey
-  export MAS_AIBROKER_WATSONXAI_PROJECT_ID=${SECRETS_PREFIX}watsonx#watsonxai_project_id
+  export AISERVICE_WATSONXAI_PROJECT_ID=${SECRETS_PREFIX}watsonx#watsonxai_project_id
   
-
-
   # STORAGE
   export SECRET_KEY_STORAGE_HOST=${SECRETS_PREFIX}storage#sm_storage_host
   export SECRET_KEY_STORAGE_PORT=${SECRETS_PREFIX}storage#sm_storage_port
@@ -420,7 +441,7 @@ function gitops_aiservice_tenant() {
  
   sm_verify_secret_exists ${SECRETS_PREFIX}storage "sm_storage_host,sm_storage_accesskey,sm_storage_secretkey"
 
-  sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
+  sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token,rsl_ca_crt"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   
   # finally push them into the git repo

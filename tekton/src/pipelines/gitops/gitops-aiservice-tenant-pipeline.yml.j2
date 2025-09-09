@@ -52,7 +52,17 @@ spec:
       type: string
     - name: aiservice_watsonxai_url
       type: string
-    - name: mas_aibroker_watsonxai_project_id
+    - name: aiservice_watsonxai_project_id
+      type: string
+    - name: aiservice_watsonx_full
+      type: string
+    - name: aiservice_watsonx_instance_id
+      type: string
+    - name: aiservice_watsonx_version
+      type: string
+    - name: aiservice_watsonx_username
+      type: string
+    - name: aiservice_operator_log_level
       type: string
     - name: mas_aibroker_storage_port
       type: string
@@ -135,8 +145,18 @@ spec:
           value: $(params.aiservice_sls_subscription_id)
         - name: aiservice_watsonxai_url
           value: $(params.aiservice_watsonxai_url)
-        - name: mas_aibroker_watsonxai_project_id
-          value: $(params.mas_aibroker_watsonxai_project_id)
+        - name: aiservice_watsonxai_project_id
+          value: $(params.aiservice_watsonxai_project_id)
+        - name: aiservice_watsonx_full
+          value: $(params.aiservice_watsonx_full)
+        - name: aiservice_watsonx_instance_id
+          value: $(params.aiservice_watsonx_instance_id)
+        - name: aiservice_watsonx_version
+          value: $(params.aiservice_watsonx_version)
+        - name: aiservice_watsonx_username
+          value: $(params.aiservice_watsonx_username)
+        - name: aiservice_operator_log_level
+          value: $(params.aiservice_operator_log_level)
         - name: mas_aibroker_storage_port
           value: $(params.mas_aibroker_storage_port)
         - name: aiservice_storage_region

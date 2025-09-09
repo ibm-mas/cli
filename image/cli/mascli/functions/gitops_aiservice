@@ -34,10 +34,6 @@ storage provider:
       --mas-aibroker-storage-pipelines-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}
       --mas-aibroker-storage-tenants-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_TENANTS_BUCKET${TEXT_RESET}
       --mas-aibroker-storage-templates-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET${TEXT_RESET}
-
-mariadb storage
-      --aiservice-mariadb-secret ${TEXT_RESET}AISERVICE_MARIADB_SECRET${TEXT_RESET}
-
 sls_dro_jdbc
       --artifactory-username ${TEXT_RESET}ARTIFACTORY_USERNAME${TEXT_RESET}
       --aiservice-channel ${TEXT_RESET}AISERVICE_CHANNEL${TEXT_RESET}
@@ -94,8 +90,6 @@ function gitops_aiservice_noninteractive() {
   export AISERVICE_STORAGE_SSL=${AISERVICE_STORAGE_SSL:-"true"}
   export AISERVICE_STORAGE_SECRET=${AISERVICE_STORAGE_SECRET:-"${MAS_APP_ID}-miniocfg"}
   export MAS_CATALOG_SOURCE=${MAS_CATALOG_SOURCE:-"ibm-operator-catalog"}
-  #-- mariadb defaults
-  export AISERVICE_MARIADB_SECRET=${AISERVICE_MARIADB_SECRET:-"${MAS_APP_ID}-mariadbcfge"}
 
   export AISERVICE_S3_BUCKET_PREFIX=${AISERVICE_S3_BUCKET_PREFIX:-"m"}
   export ENVIRONMENT_TYPE=${ENVIRONMENT_TYPE:-"PRODUCTION"}
@@ -184,10 +178,6 @@ function gitops_aiservice_noninteractive() {
         ;;
       --mas-catalog-source)
           export MAS_CATALOG_SOURCE=$1 && shift
-        ;;
-
-      --aiservice-mariadb-secret)
-          export AISERVICE_MARIADB_SECRET=$1 && shift
         ;;
       --environment-type)
         export ENVIRONMENT_TYPE=$1 && shift
@@ -364,8 +354,7 @@ function gitops_aiservice() {
   echo_reset_dim "AI Broker Pipelines Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
   echo_reset_dim "AI Broker Tenants Bucket .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
   echo_reset_dim "AI Broker Templates Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"
-  echo_reset_dim "AI Broker MariaDB Secret .......... ${COLOR_MAGENTA}${AISERVICE_MARIADB_SECRET}"
-  
+
   echo_reset_dim "Primary Storage Class ................. ${COLOR_MAGENTA}${PRIMARY_STORAGE_CLASS}"
   echo_reset_dim "Artifactory Username ................... ${COLOR_MAGENTA}${ARTIFACTORY_USERNAME}"
   echo_reset_dim "AiService Channel ...................... ${COLOR_MAGENTA}${AISERVICE_CHANNEL}"
