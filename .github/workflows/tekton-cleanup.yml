@@ -1,0 +1,38 @@
+name: Tekton Cleanup
+
+on:
+  pull_request:
+    branches: [ "master" ]
+    types: [ "closed" ]
+  workflow_run:
+    workflows: [ "Tekton validation" ]
+    types: [ "completed" ]
+
+# Ensure only one build at a time for any branch, cancelling any in-progress builds
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tekton-cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Clean up namespace
+        env:
+          OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
+          OCP_SERVER: ${{ secrets.OCP_SERVER }}
+        run: |
+          NAMESPACE=$(echo "cli-tekton-test-pr${{ github.event.pull_request.number }}")
+
+          kubectl config set-cluster my-cluster --server=$OCP_SERVER
+          kubectl config set-credentials my-user --token=$OCP_TOKEN
+          kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=default
+          kubectl config use-context my-context
+          kubectl get namespace $NAMESPACE &>/dev/null
+          rc=$?
+          if [ $rc -eq "0" ]; then
+            kubectl delete namespace $NAMESPACE
+          fi

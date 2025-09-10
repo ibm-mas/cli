@@ -1,0 +1,55 @@
+name: Tekton validation
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+# Ensure only one build at a time for any branch, cancelling any in-progress builds
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tekton-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Init tekton build system
+        id: init
+        run: |
+          chmod u+x $GITHUB_WORKSPACE/build/bin/*.sh
+          chmod u+x $GITHUB_WORKSPACE/tekton/test.sh
+          source $GITHUB_WORKSPACE/build/bin/.functions.sh
+
+      - name: Tekton tests
+        id: tekton-tests
+        env:
+          OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
+          OCP_SERVER: ${{ secrets.OCP_SERVER }}
+        run: |
+          set +e
+          NAMESPACE=$(echo "cli-tekton-test-pr${{ github.event.pull_request.number }}")
+          kubectl config set-cluster my-cluster --server=$OCP_SERVER
+          kubectl config set-credentials my-user --token=$OCP_TOKEN
+          kubectl config set-context my-context --cluster=my-cluster --user=my-user --namespace=default
+          kubectl config use-context my-context
+          kubectl get namespace $NAMESPACE &>/dev/null
+          rc=$?
+          if [[ $rc -ne "O" ]]; then
+            kubectl create namespace $NAMESPACE
+          fi
+          kubectl config set-context --current --namespace=$NAMESPACE
+          $GITHUB_WORKSPACE/build/bin/build-tekton.sh &>/dev/null
+          rc=$?
+          if [[ $rc -ne "0" ]]; then
+            echo "Fail to build Tekton files"
+            exit 1
+          fi
+          $GITHUB_WORKSPACE/tekton/test.sh
+          rc=$?
+          if [[ $rc -ne "0" ]]; then
+            echo "Test failed"
+            exit 1
+          fi
