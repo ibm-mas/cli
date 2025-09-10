@@ -92,6 +92,9 @@ IBM Maximo Application Suite:
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
+MAS CLI Image (Optional):
+      --mas-cli-image-repo ${COLOR_YELLOW}MAS_CLI_IMAGE_REPO{TEXT_RESET}               The repo that holds the MAS CLI image to be pulled in ArgoCD. Only needed if using a mirror registry, and not quay.io
+
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
@@ -319,6 +322,10 @@ function gitops_suite_noninteractive() {
         export OIDC_CONFIG=$1 && shift
         ;;
 
+      # MAS CLI
+      --mas-cli-image-repo)
+        export MAS_CLI_IMAGE_REPO=$1 && shift
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -538,7 +545,6 @@ function gitops_suite() {
     reset_colors
   fi
 
-
   echo "${TEXT_DIM}"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     echo_h4 "GitOps Target" "    "
@@ -554,6 +560,13 @@ function gitops_suite() {
     echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
   fi
   reset_colors
+
+  if [[ -n "$MAS_CLI_IMAGE_REPO" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "MAS CLI Image" "    "
+    echo_reset_dim "MAS CLI Image repo ........... ${COLOR_MAGENTA}${MAS_CLI_IMAGE_REPO}"
+    reset_colors
+  fi
 
   # Set up Suite secrets
   # ---------------------------------------------------------------------------
