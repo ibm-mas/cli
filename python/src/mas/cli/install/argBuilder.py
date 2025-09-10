@@ -98,16 +98,22 @@ class installArgBuilderMixin():
         if self.getParam('mas_manual_cert_mgmt') is True:
             command += f"  --manual-certificates \"{self.manualCertsDir}\"{newline}"
 
-        if self.getParam('mas_domain') is True:
+        if self.getParam('mas_domain') != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
-        if self.getParam('--dns-provider') == "cis":
+        if self.getParam('dns_provider') == "cis":
             command += f"  --dns-provider cis --cis-apikey \"{self.getParam('cis_apikey')}\""
             command += f" --cis-subdomain \"{self.getParam('cis_subdomain')}\""
             command += f" --cis-crn \"{self.getParam('cis_crn')}\""
             command += f" --cis-email \"{self.getParam('cis_email')}\"{newline}"
 
-        if self.getParam('--mas-cluster-issuer') != "":
+        if self.getParam('dns_provider') == "cloudflare":
+            command += f"  --dns-provider cloudflare --cloudflare-apitoken \"{self.getParam('cloudflare_apitoken')}\"{newline}"
+            command += f"  --cloudflare-email \"{self.getParam('cloudflare_email')}\"{newline}"
+            command += f"  --cloudflare-zone \"{self.getParam('cloudflare_zone')}\"{newline}"
+            command += f"  --cloudflare-subdomain \"{self.getParam('cloudflare_subdomain')}\"{newline}"
+
+        if self.getParam('mas_cluster_issuer') != "":
             command += f"  --mas-cluster-issuer \"{self.getParam('mas_cluster_issuer')}\"{newline}"
 
         if self.getParam('mas_enable_walkme') == "false":
@@ -152,6 +158,8 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('ocp_ingress_tls_secret_name') != "":
             command += f"  --ocp-ingress-tls-secret-name \"{self.getParam('ocp_ingress_tls_secret_name')}\"{newline}"
+        if self.getParam('ocp_ingress') != "":
+            command += f"  --ocp-ingress \"{self.getParam('ocp_ingress')}\"{newline}"
 
         # MAS Applications
         # -----------------------------------------------------------------------------

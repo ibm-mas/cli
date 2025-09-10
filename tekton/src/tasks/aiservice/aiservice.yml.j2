@@ -45,16 +45,6 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
-    # AI Broker actions
-    - name: aiservice_s3_action
-      type: string
-      description:
-      default: "This option is optional"
-    - name: aiservice_apikey_action
-      type: string
-      description:
-      default: "This option is optional"
-
     # WatsonX params
     - name: aiservice_watsonxai_apikey
       type: string
@@ -74,51 +64,40 @@ spec:
       default: "This option is mandatory"
 
     # AI Broker storage
-    - name: aiservice_storage_provider
+    - name: aiservice_s3_accesskey
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: aiservice_storage_accesskey
+    - name: aiservice_s3_secretkey
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: aiservice_storage_secretkey
+    - name: aiservice_s3_host
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: aiservice_storage_host
+    - name: aiservice_s3_port
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: aiservice_storage_port
+    - name: aiservice_s3_ssl
       type: string
       default: "This option is mandatory"
       default: ""
-    - name: aiservice_storage_ssl
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_region
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_pipelines_bucket
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_tenants_bucket
-      type: string
-      default: "This option is mandatory"
-      default: ""
-    - name: aiservice_storage_templates_bucket
+    - name: aiservice_s3_region
       type: string
       default: "This option is mandatory"
       default: ""
     - name: aiservice_s3_bucket_prefix
       type: string
       default: ""
-    - name: aiservice_s3_endpoint_url
+    - name: aiservice_s3_tenants_bucket
       type: string
+      default: "This option is mandatory"
+      default: ""
+    - name: aiservice_s3_templates_bucket
+      type: string
+      default: "This option is mandatory"
       default: ""
     - name: environment_type
       type: string
@@ -157,14 +136,6 @@ spec:
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
 
-      # AI Broker action for create/delete s3 secret
-      - name: AISERVICE_S3_ACTION
-        value: $(params.aiservice_s3_action)
-
-      # AI Broker action for create/delete api key
-      - name: AISERVICE_APIKEY_ACTION
-        value: $(params.aiservice_apikey_action)
-
       # Watsonx
       - name: AISERVICE_WATSONXAI_APIKEY
         value: $(params.aiservice_watsonxai_apikey)
@@ -176,30 +147,24 @@ spec:
         value: $(params.aiservice_watsonx_action)
 
       # Opendatahub storage details
-      - name: AISERVICE_STORAGE_PROVIDER
-        value: $(params.aiservice_storage_provider)
-      - name: AISERVICE_STORAGE_ACCESSKEY
-        value: $(params.aiservice_storage_accesskey)
-      - name: AISERVICE_STORAGE_SECRETKEY
-        value: $(params.aiservice_storage_secretkey)
-      - name: AISERVICE_STORAGE_HOST
-        value: $(params.aiservice_storage_host)
-      - name: AISERVICE_STORAGE_PORT
-        value: $(params.aiservice_storage_port)
-      - name: AISERVICE_STORAGE_SSL
-        value: $(params.aiservice_storage_ssl)
-      - name: AISERVICE_STORAGE_REGION
-        value: $(params.aiservice_storage_region)
-      - name: AISERVICE_STORAGE_PIPELINES_BUCKET
-        value: $(params.aiservice_storage_pipelines_bucket)
-      - name: AISERVICE_STORAGE_TENANTS_BUCKET
-        value: $(params.aiservice_storage_tenants_bucket)
-      - name: AISERVICE_STORAGE_TEMPLATES_BUCKET
-        value: $(params.aiservice_storage_templates_bucket)
+      - name: AISERVICE_S3_ACCESSKEY
+        value: $(params.aiservice_s3_accesskey)
+      - name: AISERVICE_S3_SECRETKEY
+        value: $(params.aiservice_s3_secretkey)
+      - name: AISERVICE_S3_HOST
+        value: $(params.aiservice_s3_host)
+      - name: AISERVICE_S3_PORT
+        value: $(params.aiservice_s3_port)
+      - name: AISERVICE_S3_SSL
+        value: $(params.aiservice_s3_ssl)
+      - name: AISERVICE_S3_REGION
+        value: $(params.aiservice_s3_region)
       - name: AISERVICE_S3_BUCKET_PREFIX
         value: $(params.aiservice_s3_bucket_prefix)
-      - name: AISERVICE_S3_ENDPOINT_URL
-        value: $(params.aiservice_s3_endpoint_url)
+      - name: AISERVICE_S3_TENANTS_BUCKET
+        value: $(params.aiservice_s3_tenants_bucket)
+      - name: AISERVICE_S3_TEMPLATES_BUCKET
+        value: $(params.aiservice_s3_templates_bucket)
 
       - name: ENVIRONMENT_TYPE
         value: $(params.environment_type)
