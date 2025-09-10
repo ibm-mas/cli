@@ -675,8 +675,8 @@ function mirror_to_registry() {
     mkdir -p $MIRROR_WORKING_DIR/logs/
   fi
 
-  export ARTIFACTORY_USERNAME=""
-  export ARTIFACTORY_TOKEN=""
+  #export ARTIFACTORY_USERNAME=""
+  #export ARTIFACTORY_TOKEN=""
 
   mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"     "$LOG_PREFIX-core.log"             mirror_core
   mirror_one_thing $MIRROR_MAS_ASSIST           "IBM Maximo Assist"                     "$LOG_PREFIX-assist.log"           mirror_add_assist
