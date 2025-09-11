@@ -67,6 +67,23 @@ spec:
         - input: "$(params.mas_app_channel_iot)"
           operator: notin
           values: [""]
+    
+    - name: kyverno-iot-dependencies
+      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
+        - name: product_id
+          value: ibm-mas-iot
+        - name: product_channel
+          value: $(params.mas_app_channel_iot)
+        - name: fvt_test_suite
+          value: kyverno-dependencies
+      when:
+        - input: "$(params.ivt_digest_core)"
+          operator: notin
+          values: [""]
+      runAfter:
+        - kyverno-iot
 
     - name: ivtcore-iot
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
@@ -86,7 +103,7 @@ spec:
           operator: notin
           values: [""]
       runAfter:
-        - kyverno-iot
+        - kyverno-iot-dependencies
       workspaces:
         - name: configs
           workspace: shared-configs
