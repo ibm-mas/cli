@@ -23,12 +23,12 @@ from prompt_toolkit.completion import WordCompleter
 from tabulate import tabulate
 from halo import Halo
 
-from ...cli import BaseApp
 from .argBuilder import aiServiceInstallArgBuilderMixin
 from .argParser import aiServiceinstallArgParser
 from .summarizer import aiServiceInstallSummarizerMixin
 from .params import requiredParams, optionalParams
 
+from ...install.app import InstallApp
 from ...install.catalogs import supportedCatalogs
 
 # AI Service relies on SLS, which in turn depends on MongoDB.
@@ -74,7 +74,7 @@ def logMethodCall(func):
     return wrapper
 
 
-class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin):
+class AiServiceInstallApp(InstallApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin):
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
