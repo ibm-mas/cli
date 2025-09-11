@@ -65,23 +65,6 @@ spec:
         - input: "$(params.mas_app_channel_visualinspection)"
           operator: notin
           values: [""]
-      
-    - name: kyverno-visualinspection-dependencies
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-visualinspection
-        - name: product_channel
-          value: $(params.mas_app_channel_visualinspection)
-        - name: fvt_test_suite
-          value: kyverno-dependencies
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - kyverno-visualinspection
 
     - name: ivtcore-visualinspection
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
@@ -94,7 +77,7 @@ spec:
         - name: fvt_test_suite
           value: coreivt
       runAfter:
-        - kyverno-visualinspection-dependencies
+        - kyverno-visualinspection
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin

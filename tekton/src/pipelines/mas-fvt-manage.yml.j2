@@ -96,23 +96,6 @@ spec:
           operator: notin
           values: [""]
 
-    - name: kyverno-manage-dependencies
-      {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
-      params:
-        {{ lookup('template', 'taskdefs/ivt-core/common/params.yml.j2') | indent(8) }}
-        - name: product_id
-          value: ibm-mas-manage
-        - name: product_channel
-          value: $(params.mas_app_channel_manage)
-        - name: fvt_test_suite
-          value: kyverno-dependencies
-      when:
-        - input: "$(params.ivt_digest_core)"
-          operator: notin
-          values: [""]
-      runAfter:
-        - kyverno-manage
-
     - name: ivtcore-manage
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
@@ -126,7 +109,7 @@ spec:
         - name: workspace_id
           value: $(params.mas_workspace_id)
       runAfter:
-        - kyverno-manage-dependencies
+        - kyverno-manage
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin

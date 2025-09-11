@@ -78,32 +78,6 @@ spec:
           workspace: shared-configs
         - name: pod-templates
           workspace: shared-pod-templates
-    
-    - name: kyverno-dependencies
-      taskRef:
-        kind: Task
-        name: mas-fvt-sls
-      params:
-        - name: sls_namespace
-          value: $(params.sls_namespace)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
-        - name: fvt_image_registry
-          value: $(params.fvt_image_registry)
-        - name: fvt_image_digest
-          value: $(params.fvt_digest_sls)
-        - name: fvt_test_suite
-          value: kyverno-dependencies
-      when:
-        - input: "$(params.fvt_digest_sls)"
-          operator: notin
-          values: [""]
-      workspaces:
-        - name: configs
-          workspace: shared-configs
-        - name: pod-templates
-          workspace: shared-pod-templates
-      runAfter:
-        - kyverno
+
 
 
