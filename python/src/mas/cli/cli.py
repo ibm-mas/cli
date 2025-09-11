@@ -430,3 +430,9 @@ class BaseApp(PrintMixin, PromptMixin):
         if enabled:
             logger.debug(f"Enabling approval workflow for {id} with {maxRetries} max retries on a {delay}s delay ({'ignoring failures' if ignoreFailure else 'abort on failure'})")
             cmAPI.create(body=configMap, namespace=namespace)
+
+    @logMethodCall
+    def selectLocalConfigDir(self) -> None:
+        if self.localConfigDir is None:
+            # You need to tell us where the configuration file can be found
+            self.localConfigDir = self.promptForDir("Select Local configuration directory")
