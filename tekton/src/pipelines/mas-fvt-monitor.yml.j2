@@ -99,8 +99,6 @@ spec:
           operator: notin
           values: [""]
 
-
-
     - name: imagescan-monitor
       {{ lookup('template', 'taskdefs/ivt-core/common/taskref.yml.j2') | indent(6) }}
       params:
