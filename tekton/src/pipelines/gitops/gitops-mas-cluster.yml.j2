@@ -244,7 +244,7 @@ spec:
     - name: provisioner_async_poll_max
       type: string
       default: ''
-    - name: csb_ca_certificate_file
+    - name: provisioner_csb_ca_certificate_file
       type: string
       default: ''
 
@@ -551,7 +551,7 @@ spec:
         - name: enable_pd_alert
           value: $(params.provisioner_enable_pd_alert)
         - name: csb_ca_certificate_file
-          value: $(params.csb_ca_certificate_file)
+          value: $(params.provisioner_csb_ca_certificate_file)
       taskRef:
         kind: Task
         name: gitops-mas-provisioner
