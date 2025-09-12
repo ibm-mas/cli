@@ -21,7 +21,8 @@ import json
 
 # Use of the openshift client rather than the kubernetes client allows us access to "apply"
 from kubernetes import config
-from kubernetes.client import api_client, Configuration
+from kubernetes.client.api_client import ApiClient
+from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
 from openshift.dynamic.exceptions import NotFoundError
 
@@ -337,11 +338,11 @@ class BaseApp(PrintMixin, PromptMixin):
             if "KUBERNETES_SERVICE_HOST" in environ:
                 config.load_incluster_config()
                 k8s_config = Configuration.get_default_copy()
-                self._apiClient = api_client.ApiClient(configuration=k8s_config)
+                self._apiClient = ApiClient(configuration=k8s_config)
                 self._dynClient = DynamicClient(self._apiClient)
             else:
                 config.load_kube_config()
-                self._apiClient = api_client.ApiClient()
+                self._apiClient = ApiClient()
                 self._dynClient = DynamicClient(self._apiClient)
             return self._dynClient
         except Exception as e:
