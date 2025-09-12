@@ -52,7 +52,7 @@
     - name: fvt_test_suite
       value: rsl-ui-strategylibrary
   when:
-    - input: "strategy"
+    - input: "strategize"
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
