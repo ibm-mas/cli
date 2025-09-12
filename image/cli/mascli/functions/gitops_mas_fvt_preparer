@@ -91,12 +91,14 @@ function gitops_mas_fvt_preparer() {
   
   #FVT pipeline to run
   export PIPELINE_NAME=$FVT_PIPELINE_NAME
-  ansible-playbook ibm.mas_fvt.setup_pipeline
+  export ROLE_NAME="setup_pipeline"
+  ansible-playbook ibm.mas_fvt.run_role
 
   rc=$?
   echo_reset_dim "setup_pipeline return code............... ${COLOR_MAGENTA}${rc}"
   [ $rc -ne 0 ] && exit $rc
-  ansible-playbook ibm.mas_fvt.start_pipeline
+  export ROLE_NAME="start_pipeline"
+  ansible-playbook ibm.mas_fvt.run_role
   rc=$?
   echo_reset_dim "start_pipeline return code............... ${COLOR_MAGENTA}${rc}"
   [ $rc -ne 0 ] && exit $rc
