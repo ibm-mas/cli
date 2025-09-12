@@ -570,8 +570,9 @@ function gitops_cluster() {
 
   export SECRET_NAME_SYSLOG_PULLSECRET=${ACCOUNT_ID}${SM_DELIM}syslog_pullsecret
   export SECRET_KEY_SYSLOG_PULLSECRET=${SECRET_NAME_SYSLOG_PULLSECRET}#pullsecret
-  export CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE})
 
+  export SECRET_NAME_LOG_FORWARDER_DLC_CERT=${ACCOUNT_ID}${SM_DELIM}dlc_cert
+  export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CERT}#ca_bundle
 
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
@@ -601,12 +602,6 @@ function gitops_cluster() {
     echo "- Update INSTANA_KEY secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_INSTANA "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
-  fi
-
-  if [ -n "$SYSLOG_PULLSECRET" ]; then
-    echo "- Update SYSLOG_PULLSECRET secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
-    sm_update_secret $SECRET_NAME_SYSLOG_PULLSECRET "{\"pullsecret\": \"${SYSLOG_PULLSECRET}\"}" "${TAGS}"
   fi
 
   if [ -z $GIT_SSH ]; then
@@ -726,7 +721,14 @@ function gitops_cluster() {
     sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
     if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
       echo "- Cluster Logging Operator Log Forwarder Setup"
-      sm_verify_secret_exists $SECRET_NAME_SYSLOG_PULLSECRET "pullsecret"
+      echo "- Update DLC_CERT secret"
+      CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_B64=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE} | base64 -w0)
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
+      sm_update_secret $SECRET_NAME_LOG_FORWARDER_DLC_CERT "{\"ca_bundle\": \"${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_B64}\"}" "${TAGS}"
+      
+      echo "- Update SYSLOG_PULLSECRET secret"
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
+      sm_update_secret $SECRET_NAME_SYSLOG_PULLSECRET "{\"pullsecret\": \"${SYSLOG_PULLSECRET}\"}" "${TAGS}"
     fi
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi

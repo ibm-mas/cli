@@ -12,22 +12,18 @@ mas_provisioner:
   base_branch: {{ BASE_BRANCH }}
   async_poll_interval: {{ ASYNC_POLL_INTERVAL }}
   async_poll_max: {{ ASYNC_POLL_MAX }}
-  instana_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_API }}>"
   enable_pd_alert: {{ ENABLE_PD_ALERT }}
   enable_ocm_alert: {{ ENABLE_OCM_ALERT }}
-  {% if SECRET_KEY_OCM_API is defined and SECRET_KEY_OCM_API != "" %}
+  github_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_GITHUB_TOKEN }}>"
+  {% if SECRET_KEY_INSTANA_API is defined and SECRET_KEY_INSTANA_API != "" %}
+  instana_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_API }}>"
+  {% endif %}
+  {% if ENABLE_OCM_ALERT %}
   ocm_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OCM_API }}>"
   {% endif %}
-  {% if SECRET_KEY_GITHUB_TOKEN is defined and SECRET_KEY_GITHUB_TOKEN != "" %}
-  github_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_GITHUB_TOKEN }}>"
-  {% endif %}
-  {% if SECRET_KEY_PAGERDUTY is defined and SECRET_KEY_PAGERDUTY != "" %}
+  {% if ENABLE_PD_ALERT %}
   pagerduty_integration: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_PAGERDUTY }}>"
   {% endif %}
   {% if ENABLE_MTLS %}
-  csb_client_ca:
-    crt: |
-      {% filter indent(width=4) -%}
-      {{ CSB_CA_CERT }}
-      {%- endfilter %}
+  csb_client_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CSB_CA_CERT }}>"
   {% endif %}

@@ -291,7 +291,9 @@ function gitops_mas_provisioner() {
   export SECRET_KEY_PAGERDUTY=${SECRET_NAME_PAGERDUTY}#key
   export SECRET_NAME_OCM_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocm
   export SECRET_KEY_OCM_API=${SECRET_NAME_OCM_API}#api
-  export CSB_CA_CERT=$(cat ${CSB_CA_CERTIFICATE_FILE})
+  export SECRET_NAME_CSB_CLIENT_CA=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}csb
+  export SECRET_KEY_CSB_CLIENT_CA=${SECRET_NAME_CSB_CLIENT_CA}#cert
+  
 
   echo "- Verify that IBM entitlement pull secret exists"
   sm_verify_secret_exists ${SECRET_NAME_IBM_ENTITLEMENT} "image_pull_secret_b64"
@@ -308,24 +310,25 @@ function gitops_mas_provisioner() {
     echo "- Update GITHUB_PAT secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret ${SECRET_NAME_GITHUB_TOKEN} "{\"token\": \"${GITHUB_PAT}\"}" "${TAGS}"
-  else
-    export SECRET_KEY_GITHUB_TOKEN=""
   fi
 
   if [ -n "$PAGERDUTY_KEY" ]; then
     echo "- Update PAGERDUTY_KEY secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret ${SECRET_NAME_PAGERDUTY} "{\"key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
-  else
-    export SECRET_KEY_PAGERDUTY=""
   fi
 
   if [ -n "$OCM_API_KEY" ]; then
     echo "- Update OCM_API_KEY secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret ${SECRET_NAME_OCM_API} "{\"api\": \"${OCM_API_KEY}\"}" "${TAGS}"
-  else
-    export SECRET_KEY_OCM_API=""
+  fi
+
+  if [ "$ENABLE_MTLS" == "true" ]; then 
+    CSB_CA_CERT_B64=$(cat ${CSB_CA_CERTIFICATE_FILE} | base64 -w0)
+    echo "- Update CSB_CA_CERT secret"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret ${SECRET_NAME_CSB_CLIENT_CA} "{\"cert\": \"${CSB_CA_CERT_B64}\"}" "${TAGS}"
   fi
 
   # Set and Validate App Names
