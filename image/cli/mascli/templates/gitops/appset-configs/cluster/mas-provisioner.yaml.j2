@@ -21,9 +21,13 @@ mas_provisioner:
   {% if SECRET_KEY_GITHUB_TOKEN is defined and SECRET_KEY_GITHUB_TOKEN != "" %}
   github_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_GITHUB_TOKEN }}>"
   {% endif %}
-  {% if SECRET_KEY_CSB_CLIENT_CA is defined and SECRET_KEY_CSB_CLIENT_CA != "" %}
-  csb_client_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CSB_CLIENT_CA }}>"
-  {% endif %}
   {% if SECRET_KEY_PAGERDUTY is defined and SECRET_KEY_PAGERDUTY != "" %}
   pagerduty_integration: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_PAGERDUTY }}>"
+  {% endif %}
+  {% if ENABLE_MTLS %}
+  csb_client_ca:
+    crt: |
+      {% filter indent(width=4) -%}
+      {{ CSB_CA_CERT }}
+      {%- endfilter %}
   {% endif %}

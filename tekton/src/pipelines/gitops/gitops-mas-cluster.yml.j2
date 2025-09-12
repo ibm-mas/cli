@@ -188,6 +188,9 @@ spec:
     - name: cluster_logging_operator_syslog_forwarder_version
       type: string
       default: "1.8-amd64"
+    - name: cluster_logging_operator_dlc_ca_bundle_file
+      type: string
+      default: ""
 
     - name: instana_agent_operator_install
       type: string
@@ -239,6 +242,9 @@ spec:
       type: string
       default: ''
     - name: provisioner_async_poll_max
+      type: string
+      default: ''
+    - name: csb_ca_certificate_file
       type: string
       default: ''
 
@@ -346,6 +352,8 @@ spec:
           value: $(params.cluster_logging_operator_setup_log_forwarding)
         - name: cluster_logging_operator_syslog_forwarder_version
           value: $(params.cluster_logging_operator_syslog_forwarder_version)
+        - name: cluster_logging_operator_dlc_ca_bundle_file
+          value: $(params.cluster_logging_operator_dlc_ca_bundle_file)
         
         - name: instana_agent_operator_install
           value: $(params.instana_agent_operator_install)
@@ -542,6 +550,8 @@ spec:
           value: $(params.provisioner_enable_ocm_alert)
         - name: enable_pd_alert
           value: $(params.provisioner_enable_pd_alert)
+        - name: csb_ca_certificate_file
+          value: $(params.csb_ca_certificate_file)
       taskRef:
         kind: Task
         name: gitops-mas-provisioner

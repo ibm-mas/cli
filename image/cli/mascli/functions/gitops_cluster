@@ -92,6 +92,7 @@ Cluster Logging Operator (Optional):
       --cluster-logging-operator-setup-log-forwarding ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING${TEXT_RESET}                 Flag to setup the deployment for syslog forwarder
       --cluster-logging-operator-log-forwarder-client-url ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL${TEXT_RESET}         The syslog forwarder client url that goes into the ConfigMap
       --cluster-logging-operator-syslog-forwarder-version ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION${TEXT_RESET}         Syslog forwarder image version
+      --cluster-logging-operator-dlc-ca-bundle-file ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE${TEXT_RESET}                     Location of file containing DLC CA Certificates
 Instana Agent Operator (Optional):
       --install-instana-agent-operator ${COLOR_YELLOW}INSTANA_AGENT_OPERATOR_INSTALL${TEXT_RESET}               Install the Instana Agent Operator
 
@@ -312,6 +313,8 @@ function gitops_cluster_noninteractive() {
       --cluster-logging-operator-syslog-forwarder-version)
         export CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION=$1 && shift
         ;;
+      --cluster-logging-operator-dlc-ca-bundle-file)
+        export CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE=$1 && shift
 
       # Instana Agent Operator
       --install-instana-agent-operator)
@@ -374,6 +377,10 @@ function gitops_cluster_noninteractive() {
   if [ -z $ICR_USERNAME ] || [ -z $ICR_PASSWORD ]; then
     echo 'Missing required environment variables, make sure to set ICR_USERNAME, ICR_PASSWORD'
     exit 1
+  fi
+
+  if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
+    [[ -z "$CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE" ]] && && gitops_cluster_help "CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE is not set"
   fi
 }
 
@@ -522,6 +529,7 @@ function gitops_cluster() {
   echo_reset_dim "Use Syslog Forwarder ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER:-false}"
   echo_reset_dim "Setup Log Forwarding ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING:-false}"
   echo_reset_dim "Operator Channel ............................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_CHANNEL}"
+  echo_reset_dim "DLC CA Bundle File ............................. ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -562,9 +570,7 @@ function gitops_cluster() {
 
   export SECRET_NAME_SYSLOG_PULLSECRET=${ACCOUNT_ID}${SM_DELIM}syslog_pullsecret
   export SECRET_KEY_SYSLOG_PULLSECRET=${SECRET_NAME_SYSLOG_PULLSECRET}#pullsecret
-
-  export SECRET_NAME_LOG_FORWARDER_DLC_CERT=${ACCOUNT_ID}${SM_DELIM}dlc_cert
-  export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CERT}#ca_bundle
+  export CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE})
 
 
   if [ -n "$DEVOPS_MONGO_URI" ];then
@@ -602,13 +608,6 @@ function gitops_cluster() {
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
     sm_update_secret $SECRET_NAME_SYSLOG_PULLSECRET "{\"pullsecret\": \"${SYSLOG_PULLSECRET}\"}" "${TAGS}"
   fi
-
-  if [ -n "$DLC_CERT" ]; then
-    echo "- Update DLC_CERT secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
-    sm_update_secret $SECRET_NAME_LOG_FORWARDER_DLC_CERT "{\"ca_bundle\": \"${DLC_CERT}\"}" "${TAGS}"
-  fi
-
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -728,7 +727,6 @@ function gitops_cluster() {
     if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
       echo "- Cluster Logging Operator Log Forwarder Setup"
       sm_verify_secret_exists $SECRET_NAME_SYSLOG_PULLSECRET "pullsecret"
-      sm_verify_secret_exists $SECRET_NAME_LOG_FORWARDER_DLC_CERT "ca_bundle"
     fi
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi
