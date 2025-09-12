@@ -315,7 +315,7 @@ function gitops_cluster_noninteractive() {
         ;;
       --cluster-logging-operator-dlc-ca-bundle-file)
         export CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE=$1 && shift
-
+        ;;
       # Instana Agent Operator
       --install-instana-agent-operator)
         export INSTANA_AGENT_OPERATOR_INSTALL=true
