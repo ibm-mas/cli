@@ -1,0 +1,189 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+{% if wait_for_provision == true %}
+  name: gitops-aiservice-deps-after-provision
+{% else %}
+  name: gitops-aiservice-deps
+{% endif %}
+spec:
+  description: MAS Cluster off-cluster dependencies
+  workspaces:
+    - name: configs
+  params:
+{% if wait_for_provision == true %}
+      # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "False"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+{% endif %}
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: aiservice_instance_id
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+    - name: github_pat
+      type: string
+
+    - name: vpc_ipv4_cidr
+      type: string
+    - name: mongo_provider
+      type: string
+      default: aws
+    - name: aws_docdb_instance_number
+      type: string
+      default: 3
+    - name: aws_docdb_engine_version
+      type: string
+      default: 4.0.0
+    - name: mongodb_action
+      type: string
+
+    - name: efs_action
+      type: string
+      description: efs action to be performed (provision or deprovision)
+      default: ""
+
+  tasks:
+{% if wait_for_provision == true %}
+    # 0. Wait for the provsion pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-provision
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: $(params.pipelinerun_name)
+        - name: delay
+          value: 120  # seconds between checking the status of the pipelinerun
+        - name: max_retries
+          value: 120  # attempts before giving up
+        - name: ignore_failure
+          value: $(params.ignore_failure)  # fails and exit once the first failure is detected
+{% endif %}
+
+    #1 Install AWS Elastic File Service (EFS)
+    - name: gitops-efs
+{% if wait_for_provision == true %}
+      runAfter:
+        - wait-for-provision
+{% endif %}
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: aibroker_instance_id
+          value: $(params.mas_instance_id)
+        - name: cloud_provider
+          value: $(params.cloud_provider)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: efs_action
+          value: $(params.efs_action)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-efs
+      when:
+        - input: "$(params.efs_action)"
+          operator: notin
+          values: [""]
+        - input: "$(params.efs_action)"
+          operator: in
+          values: ["provision"]
+
+
+
+
+    - name: gitops-provision-mongo
+      runAfter:
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: vpc_ipv4_cidr
+          value: $(params.vpc_ipv4_cidr)
+        - name: mongo_provider
+          value: $(params.mongo_provider)
+        - name: aws_docdb_instance_number
+          value: $(params.aws_docdb_instance_number)
+        - name: aws_docdb_engine_version
+          value: $(params.aws_docdb_engine_version)
+      taskRef:
+        kind: Task
+        name: gitops-mongo
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mongodb_action)"
+          operator: notin
+          values: [""]
+
+
+    # Install DB2 database
+    - name: gitops-provision-db2u
+      runAfter:
+        - gitops-provision-efs
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}        
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: REGION
+        value: $(params.region)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: MAS_INSTANCE_ID
+        value: $(params.aibroker_instance_id)
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+    workspaces:
+    - name: configs
+        workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u

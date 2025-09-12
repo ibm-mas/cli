@@ -1,0 +1,122 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+{% if wait_for_deprovision == true %}
+  name: gitops-deprovision-aiservice-deps-after-deprovision
+{% else %}
+  name: gitops-deprovision-aiservice-deps
+{% endif %}
+spec:
+  description: Deprovision docDb, kafka and COS
+  workspaces:
+    - name: configs
+  params:
+{% if wait_for_deprovision == true %}
+      # Name of the PipelineRun to wait for
+    - name: pipelinerun_name
+      type: string
+    - name: ignore_failure
+      type: string
+      default: "False"
+      description: Set to 'True' or 'False' (case-sensitive) to configure whether this pipeline continue if the pipeline we are waiting for has failed.
+{% endif %}
+    - name: cluster_name
+      type: string
+    - name: ocp_version
+      type: string
+    - name: avp_type
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: avp_aws_secret_key
+      type: string
+    - name: avp_aws_access_key
+      type: string
+
+    # 1. Gitops git Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
+    - name: github_url
+      type: string
+    - name: rosa_token
+      type: string
+    - name: account
+      type: string
+    - name: secrets_path
+      type: string
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: Name of an existing Resource Group in IBM Cloud account
+      default: "Default"
+    - name: ibmcloud_apikey
+      type: string
+      default: ""
+    - name: mas_instance_id
+      type: string
+
+  tasks:
+{% if wait_for_deprovision == true %}
+    # 0. Wait for the deprovsion mas pipeline to complete
+    # -------------------------------------------------------------------------
+    - name: wait-for-deprovision
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-tekton
+      params:
+        - name: type
+          value: pipelinerun
+        - name: name
+          value: $(params.pipelinerun_name)
+        - name: delay
+          value: 120  # seconds between checking the status of the pipelinerun
+        - name: max_retries
+          value: 120  # attempts before giving up
+        - name: ignore_failure
+          value: $(params.ignore_failure)  # fails and exit once the first failure is detected
+{% endif %}
+
+    # Deprovision DB2 Database
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-db2u-database
+{% if wait_for_deprovision == true %}
+      runAfter:
+        - wait-for-deprovision
+{% endif %}
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}        
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: REGION
+        value: $(params.region)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: IS_REPLICA_TASK
+        value: $(params.is_replica_task)      
+    workspaces:
+    - name: configs
+        workspace: configs
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u-database
