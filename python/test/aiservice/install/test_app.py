@@ -18,6 +18,10 @@ from openshift.dynamic.exceptions import NotFoundError
 from mas.cli.install.catalogs import supportedCatalogs
 from mas.cli.aiservice.install.app import AiServiceInstallApp
 
+# These tests do not cover all possible combinations of install parameters. They are a starting point.
+# Future improvements should look at generating all possible permutations of the install parameters
+# and passing to a set of parameterized tests to increase scenario coverage.
+
 
 def test_install_noninteractive(tmpdir):
     tmpdir.join('authorized_entitlement.lic').write('testLicense')
@@ -185,7 +189,6 @@ def test_install_interactive(tmpdir):
                                                     return 'nfs-client'
                                                 if re.match('.*ReadWriteMany (RWX) storage class.*', message):
                                                     return 'nfs-client'
-
                                             app_prompt.side_effect = set_app_prompt_input
                                             with mock.patch('mas.cli.aiservice.install.app.getStorageClasses') as get_storage_classes:
                                                 storage_class = MagicMock()
