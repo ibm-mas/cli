@@ -380,7 +380,7 @@ function gitops_cluster_noninteractive() {
   fi
 
   if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
-    [[ -z "$CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE" ]] && && gitops_cluster_help "CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE is not set"
+    [[ -z "$CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE" ]] && gitops_cluster_help "CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE is not set"
   fi
 }
 
