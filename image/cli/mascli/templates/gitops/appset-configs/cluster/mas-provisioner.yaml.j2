@@ -24,6 +24,6 @@ mas_provisioner:
   {% if SECRET_KEY_PAGERDUTY is defined and SECRET_KEY_PAGERDUTY != "" %}
   pagerduty_integration: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_PAGERDUTY }}>"
   {% endif %}
-  {% if SECRET_KEY_CSB_CA_CERT is defined and SECRET_KEY_CSB_CA_CERT != "" %}
+  {% if CSB_CA_CERTIFICATE_FILE is defined and CSB_CA_CERTIFICATE_FILE != "" %}
   csb_client_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CSB_CA_CERT }}>"
   {% endif %}

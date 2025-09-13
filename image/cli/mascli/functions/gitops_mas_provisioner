@@ -316,9 +316,9 @@ function gitops_mas_provisioner() {
       echo "- Update PAGERDUTY_KEY secret"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       sm_update_secret ${SECRET_NAME_PAGERDUTY} "{\"key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
-    else
-      export SECRET_KEY_PAGERDUTY=""
     fi
+  else
+    export SECRET_KEY_PAGERDUTY=""
   fi
 
   if [ "$ENABLE_OCM_ALERT" == "true" ]; then
@@ -326,18 +326,16 @@ function gitops_mas_provisioner() {
       echo "- Update OCM_API_KEY secret"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       sm_update_secret ${SECRET_NAME_OCM_API} "{\"api\": \"${OCM_API_KEY}\"}" "${TAGS}"
-    else
-      export SECRET_KEY_OCM_API=""
     fi
+  else
+    export SECRET_KEY_OCM_API=""
   fi
 
-  if [ "$ENABLE_MTLS" == "true" ]; then
+  if [ -n "$CSB_CA_CERTIFICATE_FILE" ]; then
     CSB_CA_CERT=$(cat ${CSB_CA_CERTIFICATE_FILE})
     echo "- Update csb ca certificate secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret ${SECRET_NAME_CSB_CLIENT_CA} "{\"cert\": \"${CSB_CA_CERT}\"}" "${TAGS}"
-  else
-    export SECRET_KEY_CSB_CLIENT_CA=""
   fi
 
   echo "- Verify that git secret exists"
