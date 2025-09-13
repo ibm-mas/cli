@@ -325,10 +325,10 @@ function gitops_mas_provisioner() {
   fi
 
   if [ "$ENABLE_MTLS" == "true" ]; then 
-    CSB_CA_CERT_B64=$(cat ${CSB_CA_CERTIFICATE_FILE} | base64 -w0)
+    CSB_CA_CERT=$(cat ${CSB_CA_CERTIFICATE_FILE})
     echo "- Update CSB_CA_CERT secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${SECRET_NAME_CSB_CLIENT_CA} "{\"cert\": \"${CSB_CA_CERT_B64}\"}" "${TAGS}"
+    sm_update_secret ${SECRET_NAME_CSB_CLIENT_CA} "{\"cert\": \"${CSB_CA_CERT}\"}" "${TAGS}"
   fi
 
   # Set and Validate App Names
