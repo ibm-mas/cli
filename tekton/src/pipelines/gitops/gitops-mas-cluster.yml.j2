@@ -372,6 +372,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: gitops-cluster-configs
+          workspace: gitops-cluster-configs
 
     - name: gitops-dro
       runAfter:
@@ -558,6 +560,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: gitops-cluster-configs
+          workspace: gitops-cluster-configs
       when:
         - input: "$(params.provisioner_status_repo_url)"
           operator: notin
