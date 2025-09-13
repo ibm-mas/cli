@@ -18,12 +18,12 @@ mas_provisioner:
   {% if SECRET_KEY_INSTANA_API is defined and SECRET_KEY_INSTANA_API != "" %}
   instana_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_API }}>"
   {% endif %}
-  {% if ENABLE_OCM_ALERT %}
+  {% if ENABLE_OCM_ALERT == true %}
   ocm_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OCM_API }}>"
   {% endif %}
-  {% if ENABLE_PD_ALERT %}
+  {% if ENABLE_PD_ALERT == true %}
   pagerduty_integration: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_PAGERDUTY }}>"
   {% endif %}
-  {% if ENABLE_MTLS %}
+  {% if ENABLE_MTLS == true %}
   csb_client_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CSB_CA_CERT }}>"
   {% endif %}
