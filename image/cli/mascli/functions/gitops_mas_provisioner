@@ -283,53 +283,57 @@ function gitops_mas_provisioner() {
 
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
-  export SECRET_NAME_INSTANA_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}instana
-  export SECRET_KEY_INSTANA_API=${SECRET_NAME_INSTANA_API}#key
-  export SECRET_NAME_GITHUB_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}git
-  export SECRET_KEY_GITHUB_TOKEN=${SECRET_NAME_GITHUB_TOKEN}#token
-  export SECRET_NAME_PAGERDUTY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}pd
-  export SECRET_KEY_PAGERDUTY=${SECRET_NAME_PAGERDUTY}#key
-  export SECRET_NAME_OCM_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocm
-  export SECRET_KEY_OCM_API=${SECRET_NAME_OCM_API}#api
-  export SECRET_NAME_CSB_CLIENT_CA=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}csb
-  export SECRET_KEY_CSB_CLIENT_CA=${SECRET_NAME_CSB_CLIENT_CA}#cert
-  
 
   echo "- Verify that IBM entitlement pull secret exists"
   sm_verify_secret_exists ${SECRET_NAME_IBM_ENTITLEMENT} "image_pull_secret_b64"
 
   if [ -n "$INSTANA_KEY" ]; then
+    export SECRET_NAME_INSTANA_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}instana
+    export SECRET_KEY_INSTANA_API=${SECRET_NAME_INSTANA_API}#key
     echo "- Update INSTANA_KEY secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret ${SECRET_NAME_INSTANA_API} "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
-  else
-    export SECRET_KEY_INSTANA_API=""
   fi
 
   if [ -n "$GITHUB_PAT" ]; then
+    export SECRET_NAME_GITHUB_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}git
+    export SECRET_KEY_GITHUB_TOKEN=${SECRET_NAME_GITHUB_TOKEN}#token
     echo "- Update GITHUB_PAT secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret ${SECRET_NAME_GITHUB_TOKEN} "{\"token\": \"${GITHUB_PAT}\"}" "${TAGS}"
   fi
 
-  if [ -n "$PAGERDUTY_KEY" ]; then
-    echo "- Update PAGERDUTY_KEY secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${SECRET_NAME_PAGERDUTY} "{\"key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
+  if [ "$ENABLE_PD_ALERT" == "true" ]; then
+    export SECRET_NAME_PAGERDUTY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}pd
+    export SECRET_KEY_PAGERDUTY=${SECRET_NAME_PAGERDUTY}#key
+    if [ -n "$PAGERDUTY_KEY" ]; then
+      echo "- Update PAGERDUTY_KEY secret"
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+      sm_update_secret ${SECRET_NAME_PAGERDUTY} "{\"key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
+    fi
   fi
 
-  if [ -n "$OCM_API_KEY" ]; then
-    echo "- Update OCM_API_KEY secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${SECRET_NAME_OCM_API} "{\"api\": \"${OCM_API_KEY}\"}" "${TAGS}"
+  if [ "$ENABLE_OCM_ALERT" == "true" ]; then
+    export SECRET_NAME_OCM_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocm
+    export SECRET_KEY_OCM_API=${SECRET_NAME_OCM_API}#api
+    if [ -n "$OCM_API_KEY" ]; then
+      echo "- Update OCM_API_KEY secret"
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+      sm_update_secret ${SECRET_NAME_OCM_API} "{\"api\": \"${OCM_API_KEY}\"}" "${TAGS}"
+    fi
   fi
 
-  if [ "$ENABLE_MTLS" == "true" ]; then 
+  if [ "$ENABLE_MTLS" == "true" ]; then
+    export SECRET_NAME_CSB_CLIENT_CA=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}csb
+    export SECRET_KEY_CSB_CLIENT_CA=${SECRET_NAME_CSB_CLIENT_CA}#cert
     CSB_CA_CERT=$(cat ${CSB_CA_CERTIFICATE_FILE})
-    echo "- Update CSB_CA_CERT secret"
+    echo "- Update csb ca certificate secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret ${SECRET_NAME_CSB_CLIENT_CA} "{\"cert\": \"${CSB_CA_CERT}\"}" "${TAGS}"
   fi
+
+  echo "- Verify that git secret exists"
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}git "token"
 
   # Set and Validate App Names
   # ---------------------------------------------------------------------------

@@ -568,12 +568,6 @@ function gitops_cluster() {
   export SECRET_NAME_INSTANA=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}instana
   export SECRET_KEY_INSTANA_KEY=${SECRET_NAME_INSTANA}#key
 
-  export SECRET_NAME_SYSLOG_PULLSECRET=${ACCOUNT_ID}${SM_DELIM}syslog_pullsecret
-  export SECRET_KEY_SYSLOG_PULLSECRET=${SECRET_NAME_SYSLOG_PULLSECRET}#pullsecret
-
-  export SECRET_NAME_LOG_FORWARDER_DLC_CERT=${ACCOUNT_ID}${SM_DELIM}dlc_cert
-  export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CERT}#ca_bundle
-
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
@@ -720,8 +714,12 @@ function gitops_cluster() {
     echo "- Cluster Logging Operator"
     sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
     if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
+      export SECRET_NAME_SYSLOG_PULLSECRET=${ACCOUNT_ID}${SM_DELIM}syslog_pullsecret
+      export SECRET_KEY_SYSLOG_PULLSECRET=${SECRET_NAME_SYSLOG_PULLSECRET}#pullsecret
+      export SECRET_NAME_LOG_FORWARDER_DLC_CERT=${ACCOUNT_ID}${SM_DELIM}dlc_cert
+      export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CERT}#ca_bundle
       echo "- Cluster Logging Operator Log Forwarder Setup"
-      echo "- Update DLC_CERT secret"
+      echo "- Update dlc ca certificate secret"
       CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE})
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
       sm_update_secret $SECRET_NAME_LOG_FORWARDER_DLC_CERT "{\"ca_bundle\": \"${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE}\"}" "${TAGS}"
