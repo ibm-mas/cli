@@ -721,7 +721,7 @@ function gitops_cluster() {
     if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
       echo "- Cluster Logging Operator Log Forwarder Setup"
       echo "- Update dlc ca certificate secret"
-      CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE})
+      CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE} | base64 -w0)
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
       sm_update_secret $SECRET_NAME_LOG_FORWARDER_DLC_CA_BUNDLE "{\"ca_bundle\": \"${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE}\"}" "${TAGS}"
       
