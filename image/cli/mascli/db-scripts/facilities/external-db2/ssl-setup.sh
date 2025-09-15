@@ -8,10 +8,13 @@
 # 
 
 
-INSTANCE=${1}
+INST_USER=${1}
+
+instHome=`perl -e "@user=getpwnam ${INST_USER};" -e "print @user[7];"`
+
 
 # Add gskit libraries in the PATH
-export PATH="/home/$INSTANCE/sqllib/gskit/bin:$PATH"
+export PATH="$instHome/sqllib/gskit/bin:$PATH"
 
 # Generate Key Database and Certificate:
 mkdir dbcerts
@@ -21,13 +24,13 @@ gsk8capicmd_64 -cert -create -db "mydbserver.kdb" -pw "purisaab" -label "myselfs
 gsk8capicmd_64 -cert -extract -db "mydbserver.kdb" -pw "purisaab" -label "myselfsigned" -target "mydbserver.arm" -format ascii -fips
 
 # Update DB2 settings
-db2 update dbm cfg using SSL_SVR_KEYDB /home/$INSTANCE/dbcerts/mydbserver.kdb
-db2 update dbm cfg using SSL_SVR_STASH /home/$INSTANCE/dbcerts/mydbserver.sth
+db2 update dbm cfg using SSL_SVR_KEYDB $instHome/dbcerts/mydbserver.kdb
+db2 update dbm cfg using SSL_SVR_STASH $instHome/dbcerts/mydbserver.sth
 db2 update dbm cfg using SSL_SVR_LABEL myselfsigned
-db2 update dbm cfg using SVCENAME 50001
-db2 update dbm cfg using SSL_SVCENAME 50000
+db2 update dbm cfg using SVCENAME 50000
+db2 update dbm cfg using SSL_SVCENAME 50001
 db2 update dbm cfg using SSL_VERSIONS TLSV12
-db2set -i $INSTANCE DB2COMM=SSL
+db2set -i $INST_USER DB2COMM=SSL
 
 # Check DB2 configuration
 db2 get dbm config | grep SSL
