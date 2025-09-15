@@ -37,6 +37,7 @@ Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
 
 SLS Configuration (if MAS_CONFIG_TYPE is "sls"):
   --mas-slscfg-pod-template-yaml ${COLOR_YELLOW}MAS_SLSCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
+  --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}               The certificate authority to use for provisoning certificates for SLS
 
 DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
   --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}             The email address to register with DRO
@@ -157,6 +158,9 @@ function gitops_mas_config_noninteractive() {
       # SLS
       --mas-slscfg-pod-template-yaml)
         export MAS_SLSCFG_POD_TEMPLATE_YAML=$1 && shift
+        ;;
+      --internal-cert-authority)
+        export INTERNAL_CERT_AUTHORITY=$1 && shift
         ;;
 
       # DRO
@@ -725,6 +729,13 @@ function gitops_mas_config() {
       if [[ -n "$MAS_SLSCFG_POD_TEMPLATE_YAML" && -s "$MAS_SLSCFG_POD_TEMPLATE_YAML" ]]; then
         export MAS_SLSCFG_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_SLSCFG_POD_TEMPLATE_YAML})
         echo -e "\n - MAS_SLSCFG_POD_TEMPLATE CONTENT .................. ${MAS_SLSCFG_POD_TEMPLATE}"
+      fi
+
+      # Set internal certificate authority
+      # ---------------------------------------------------------------------------
+      if [[ -n "$INTERNAL_CERT_AUTHORITY" && -s "$INTERNAL_CERT_AUTHORITY" ]]; then
+        export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
+        echo -e "\n - INTERNAL_CERTIFICATE_AUTHORITY .................. ${INTERNAL_CERTIFICATE_AUTHORITY}"
       fi
     fi
 
