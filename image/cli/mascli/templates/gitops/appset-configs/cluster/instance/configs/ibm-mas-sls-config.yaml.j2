@@ -17,7 +17,3 @@ url: "https://sls.mas-{{ MAS_INSTANCE_ID }}-sls.svc"
 ca:
   crt: |
     <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_CA_B64 }} | base64decode>
-
-{% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
-internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
-{% endif %}
