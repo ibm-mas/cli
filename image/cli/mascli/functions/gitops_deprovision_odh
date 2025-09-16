@@ -218,7 +218,7 @@ function gitops_deprovision_odh() {
   export OAUTH_ADMIN_USERNAME=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_USERNAME")
   export OAUTH_ADMIN_PWD=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_PWD")
   export OCP_DISABLE_TLS_VERIFY=$(sm_get_secret_value "$OCP_SECRET_NAME" "OCP_DISABLE_TLS_VERIFY")
-  echo "tls verify is : $OCP_DISABLE_TLS_VERIFY"
+  echo "TLS verification is : $OCP_DISABLE_TLS_VERIFY"
 
 
   #  echo "${TEXT_DIM}"
@@ -244,8 +244,8 @@ function gitops_deprovision_odh() {
   fi
 
 
-  # echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
-  # rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
+  echo "Deleting: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
+  rm -rf ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
   
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
@@ -255,14 +255,14 @@ function gitops_deprovision_odh() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
     echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
-    #sleep 900
+    sleep 900
   fi
 
 
   echo "PWD before login: $(pwd)"
   oc login $CLUSTER_URL -u $OAUTH_ADMIN_USERNAME -p $OAUTH_ADMIN_PWD --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
 
-  echo "logging...................."
+  echo "Successfully logged in to OpenShift."
 
   namespace="openshift-operators"
   subs_to_check=("authorino-operator" "servicemeshoperator")
@@ -284,14 +284,13 @@ function gitops_deprovision_odh() {
   # If any subscription is present, wait 5 minutes
   if [ "$subscriptions_exist" = true ]; then
     echo "subscription is present. Waiting 5 minutes before proceeding..."
-    #sleep 300  # 5 minutes
+    sleep 300  # 5 minutes
   fi
 
 
   if [ "$subscriptions_exist" = false ]; then
     echo "All subscriptions deleted. Proceeding to delete CSVs..."
-    #oc delete $(oc get csv -n "$namespace" -o name | grep -E 'authorino-operator|servicemeshoperator') \
-      -n "$namespace" --wait=true --timeout=5m 2>/dev/null
+   oc delete $(oc get csv -n "$namespace" -o name | grep -E 'authorino-operator|servicemeshoperator') \ -n "$namespace" --wait=true --timeout=5m 2>/dev/null
     echo "CSV cleanup completed."
   else
     echo "Subscriptions still present after waiting. Skipping CSV deletion."
