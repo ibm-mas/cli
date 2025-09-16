@@ -11,6 +11,7 @@
 
 import logging
 import logging.handlers
+from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
@@ -21,7 +22,7 @@ from ..validators import StorageClassValidator
 from .argParser import updateArgParser
 
 from mas.devops.ocp import createNamespace, getStorageClasses, getConsoleURL
-from mas.devops.mas import listMasInstances, getCurrentCatalog
+from mas.devops.mas import listMasInstances, listAiServiceInstances, getCurrentCatalog
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
 
 
@@ -94,7 +95,10 @@ class UpdateApp(BaseApp):
         # deprecated MaximoApplicationSuite ImageContentSourcePolicy instead of the new ImageDigestMirrorSet
         self.isAirgap()
         self.reviewCurrentCatalog()
-        self.reviewMASInstance()
+        isMasInstalled = self.reviewMASInstance()
+        isAiServiceInstalled = self.reviewAiServiceInstance()
+        if not isMasInstalled and not isAiServiceInstalled:
+            self.fatalError(["No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details"])
 
         if self.args.mas_catalog_version is None:
             # Interactive mode
@@ -228,15 +232,23 @@ class UpdateApp(BaseApp):
                 f" <u>{catalogInfo['image']}</u>"
             ])
 
-    def reviewMASInstance(self) -> None:
-        self.printH1("Review MAS Instances")
-        self.printDescription(["The following MAS intances are installed on the target cluster and will be affected by the catalog update:"])
+    def reviewMASInstance(self) -> bool:
+        return self.reviewInstances(listMasInstances, 'MAS', 'Suite.core.mas.ibm.com/v1')
+
+    def reviewAiServiceInstance(self) -> bool:
+        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1')
+
+    def reviewInstances(self, getInstances: Callable, name: str, kind: str) -> bool:
+        self.printH1(f"Review {name} Instances")
         try:
-            suites = listMasInstances(self.dynamicClient)
-            for suite in suites:
-                self.printDescription([f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"])
+            instances = getInstances(self.dynamicClient)
+            self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
+            for instance in instances:
+                self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+            return True
         except ResourceNotFoundError:
-            self.fatalError("No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available).  See log file for details")
+            self.printDescription([f"No {name} instances were detected on the cluster ({kind} API is not available)"])
+            return False
 
     def chooseCatalog(self) -> None:
         self.printH1("Select IBM Maximo Operator Catalog Version")
