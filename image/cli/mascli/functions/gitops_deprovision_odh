@@ -290,7 +290,7 @@ function gitops_deprovision_odh() {
 
   if [ "$subscriptions_exist" = false ]; then
     echo "All subscriptions deleted. Proceeding to delete CSVs..."
-   oc delete $(oc get csv -n "$namespace" -o name | grep -E 'authorino-operator|servicemeshoperator') \ -n "$namespace" --wait=true --timeout=5m 2>/dev/null
+    oc delete $(oc get csv -n "$namespace" -o name | grep -E 'authorino-operator|servicemeshoperator') -n "$namespace" --wait=true --timeout=5m 2>/dev/null
     echo "CSV cleanup completed."
   else
     echo "Subscriptions still present after waiting. Skipping CSV deletion."
