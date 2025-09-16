@@ -56,3 +56,4 @@ python/README.rst
 .env
 /.venv
 /site
+report/
