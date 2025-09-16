@@ -231,11 +231,6 @@ function gitops_deprovision_odh() {
   #  echo -e "Deleting image pull secreat $SECRET_KEY_IMAGE_PULL_SECRET_B64"
   #  sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
 
-  # echo -e "getting ocp cluster token"
-  # sm_get_secret $OCP_LOGIN_TOKEN  
-
-  # echo -e "getting ocp url"
-  #sm_get_secret $OCP_LOGIN_URL
   
    if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -266,7 +261,7 @@ function gitops_deprovision_odh() {
 
 
   echo "PWD before login: $(pwd)"
-  oc login $CLUSTER_URL -u $OAUTH_ADMIN_USERNAME -p $OAUTH_ADMIN_PWD --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
+  oc login $CLUSTER_URL -u $OAUTH_ADMIN_USERNAME -p $OAUTH_ADMIN_PWD --insecure-skip-tls-verify=true
 
   echo "logging...................."
 
@@ -296,7 +291,7 @@ function gitops_deprovision_odh() {
 
   if [ "$subscriptions_exist" = false ]; then
     echo "All subscriptions deleted. Proceeding to delete CSVs..."
-    oc delete $(oc get csv -n "$namespace" -o name | grep -E 'authorino-operator|servicemeshoperator') \
+    #oc delete $(oc get csv -n "$namespace" -o name | grep -E 'authorino-operator|servicemeshoperator') \
       -n "$namespace" --wait=true --timeout=5m 2>/dev/null
     echo "CSV cleanup completed."
   else
