@@ -224,7 +224,7 @@ function gitops_deprovision_odh() {
 
 
   #  echo "${TEXT_DIM}"
-  #   echo_h2 "Deleting odh related secrets"
+  #  echo_h2 "Deleting odh related secrets"
 
   #deleting secreats from aws
   #  echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
@@ -262,7 +262,7 @@ function gitops_deprovision_odh() {
 
 
   echo "PWD before login: $(pwd)"
-  oc login $CLUSTER_URL -u $OAUTH_ADMIN_USERNAME -p $OAUTH_ADMIN_PWD --insecure-skip-tls-verify=true
+  oc login $CLUSTER_URL -u $OAUTH_ADMIN_USERNAME -p $OAUTH_ADMIN_PWD --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
 
   echo "logging...................."
 
