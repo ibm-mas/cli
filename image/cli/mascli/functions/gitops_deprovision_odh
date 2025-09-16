@@ -207,7 +207,13 @@ function gitops_deprovision_odh() {
   export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage
   export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
 
-  
+
+  echo -e "login aws"
+
+  AVP_TYPE=aws
+  sm_login
+
+
   export OCP_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocp_login
   export OAUTH_ADMIN_USERNAME=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_USERNAME")
   export OAUTH_ADMIN_PWD=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_PWD")
@@ -216,11 +222,6 @@ function gitops_deprovision_odh() {
   echo "secreat user is $OAUTH_ADMIN_USERNAME"
   echo "secreat pwd is $OAUTH_ADMIN_PWD"
 
-
-  echo -e "login aws"
-
-  AVP_TYPE=aws
-  sm_login
 
   #  echo "${TEXT_DIM}"
   #   echo_h2 "Deleting odh related secrets"
