@@ -140,7 +140,7 @@ function gitops_odh_noninteractive() {
   export AISERVICE_STORAGE_SSL="${AISERVICE_STORAGE_SSL:-"true"}"
   export AISERVICE_STORAGE_REGION="${AISERVICE_STORAGE_REGION:-""}"
   export PRIMARY_STORAGE_CLASS="${PRIMARY_STORAGE_CLASS:-"nfs-client"}"
-
+  export AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE="${AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE:-"serverless"}"
 
 
   while [[ $# -gt 0 ]]; do
