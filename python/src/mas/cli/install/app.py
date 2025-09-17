@@ -326,12 +326,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
 
     @logMethodCall
-    def selectLocalConfigDir(self) -> None:
-        if self.localConfigDir is None:
-            # You need to tell us where the configuration file can be found
-            self.localConfigDir = self.promptForDir("Select Local configuration directory")
-
-    @logMethodCall
     def configGrafana(self) -> None:
         if self.architecture == "s390x" or self.architecture == "ppc64le":
             # We are not supporting Grafana on s390x /ppc64le at the moment
