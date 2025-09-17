@@ -410,7 +410,7 @@ function gitops_aiservice_tenant() {
 
   # sls
   export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
-  export SECRET_KEY_SLSCFG_CA_TENANT=${SECRETS_PREFIX}sls#slscfg_ca_tenant
+  export SECRET_KEY_SLSCFG_CA_B64ENC=${SECRETS_PREFIX}sls#slscfg_ca_b64enc
 
   export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
   export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
@@ -429,7 +429,7 @@ function gitops_aiservice_tenant() {
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_ca,drocfg_registration_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_tenant"
+  sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   
