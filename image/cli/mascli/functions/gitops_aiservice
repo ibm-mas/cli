@@ -395,15 +395,15 @@ function gitops_aiservice() {
   export JDBCCFG_URL=${SECRETS_PREFIX}jdbc#jdbccfg_url
   export JDBCCFG_SSLENABLED=${SECRETS_PREFIX}jdbc#jdbccfg_sslenabled
   export JDBCCFG_CA=${SECRETS_PREFIX}jdbc#jdbccfg_ca
-
+  export JDBCCFG_CA_B64ENC=${SECRETS_PREFIX}jdbc#jdbccfg_ca_b64enc
   export MAS_ENTITLEMENT_KEY=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
   export ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_ca,drocfg_registration_key,drocfg_url,drocfg_ca_tenant"
+  sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_ca,drocfg_registration_key,drocfg_url"
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_region"
-  sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca"
+  sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca,jdbccfg_ca_b64enc"
 
     if [ -z $GIT_SSH ]; then
       export GIT_SSH=false
