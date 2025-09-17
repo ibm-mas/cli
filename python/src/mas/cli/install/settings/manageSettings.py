@@ -8,6 +8,8 @@
 #
 # *****************************************************************************
 
+from prompt_toolkit.completion import WordCompleter
+from mas.cli.validators import LanguageValidator
 import logging
 logger = logging.getLogger(__name__)
 
@@ -226,15 +228,18 @@ class ManageSettingsMixin():
         self.printDescription([
             f"Define the base language for Maximo {self.manageAppName}"
         ])
-        self.promptForString("Base language", "mas_app_settings_base_lang", default="EN")
+        baseLanguage = self.promptForString("Base language", validator=LanguageValidator(self.supportedLanguages), completer=WordCompleter(self.supportedLanguages))
+
+        self.setParam("mas_app_settings_base_lang", baseLanguage.upper())
 
         self.printDescription([
-            f"Define the additional languages to be configured in Maximo {self.manageAppName}. provide a comma-separated list of supported languages codes, for example: 'JA,DE,AR'",
+            f"Define the additional languages to be configured in Maximo {self.manageAppName}. Provide a comma-separated list of the supported languages indexes, for example: 'DA,EN,ZH-TW'",
             "A complete list of available language codes is available online:",
             "    <Orange><u>https://www.ibm.com/docs/en/mas-cd/mhmpmh-and-p-u/continuous-delivery?topic=deploy-language-support</u></Orange>"
         ])
 
-        self.promptForString("Secondary languages", "mas_app_settings_secondary_langs")
+        secondaryLanguages = self.promptForString("Secondary language", validator=LanguageValidator(self.supportedLanguages), completer=WordCompleter(self.supportedLanguages))
+        self.setParam("mas_app_settings_secondary_langs", secondaryLanguages.upper())
 
     def manageSettingsCP4D(self) -> None:
         if self.getParam("mas_app_channel_manage") in ["8.7.x", "9.0.x"] and self.showAdvancedOptions:
@@ -250,6 +255,7 @@ class ManageSettingsMixin():
 
     def manageSettingsOther(self) -> None:
         self.printH2(f"Maximo {self.manageAppName} Settings - Other")
+        self.supportedLanguages = ["AR", "CS", "DA", "DE", "EN", "ES", "FI", "FR", "HE", "HR", "HU", "IT", "JA", "KO", "NL", "NO", "PL", "PT-BR", "RU", "SK", "SL", "SV", "TR", "UK", "ZH-CN", "ZH-TW"]
         if self.isManageFoundation:
             self.printDescription([
                 "Configure additional settings:",
