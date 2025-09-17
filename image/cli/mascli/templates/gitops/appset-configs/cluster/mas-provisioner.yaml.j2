@@ -12,18 +12,18 @@ mas_provisioner:
   base_branch: {{ BASE_BRANCH }}
   async_poll_interval: {{ ASYNC_POLL_INTERVAL }}
   async_poll_max: {{ ASYNC_POLL_MAX }}
-  instana_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_API }}>"
   enable_pd_alert: {{ ENABLE_PD_ALERT }}
   enable_ocm_alert: {{ ENABLE_OCM_ALERT }}
+  github_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_GITHUB_TOKEN }}>"
+  {% if SECRET_KEY_INSTANA_API is defined and SECRET_KEY_INSTANA_API != "" %}
+  instana_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_API }}>"
+  {% endif %}
   {% if SECRET_KEY_OCM_API is defined and SECRET_KEY_OCM_API != "" %}
   ocm_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OCM_API }}>"
   {% endif %}
-  {% if SECRET_KEY_GITHUB_TOKEN is defined and SECRET_KEY_GITHUB_TOKEN != "" %}
-  github_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_GITHUB_TOKEN }}>"
-  {% endif %}
-  {% if SECRET_KEY_CSB_CLIENT_CA is defined and SECRET_KEY_CSB_CLIENT_CA != "" %}
-  csb_client_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CSB_CLIENT_CA }}>"
-  {% endif %}
   {% if SECRET_KEY_PAGERDUTY is defined and SECRET_KEY_PAGERDUTY != "" %}
   pagerduty_integration: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_PAGERDUTY }}>"
+  {% endif %}
+  {% if CSB_CA_CERTIFICATE_FILE is defined and CSB_CA_CERTIFICATE_FILE != "" %}
+  csb_client_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CSB_CLIENT_CA }}>"
   {% endif %}
