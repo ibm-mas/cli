@@ -24,6 +24,7 @@ from tabulate import tabulate
 from halo import Halo
 
 from ...cli import BaseApp
+from ...gencfg import ConfigGeneratorMixin
 from .argBuilder import aiServiceInstallArgBuilderMixin
 from .argParser import aiServiceinstallArgParser
 from .summarizer import aiServiceInstallSummarizerMixin
@@ -74,7 +75,7 @@ def logMethodCall(func):
     return wrapper
 
 
-class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin):
+class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin, ConfigGeneratorMixin):
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
@@ -761,8 +762,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             for storageClass in getStorageClasses(self.dynamicClient):
                 print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
 
-            self.params["storage_class_rwo"] = prompt(HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
-            self.params["storage_class_rwx"] = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+            self.params["storage_class_rwo"] = prompt(message=HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+            self.params["storage_class_rwx"] = prompt(message=HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
 
         # Configure storage class for pipeline PVC
         # We prefer to use ReadWriteMany, but we can cope with ReadWriteOnce if necessary

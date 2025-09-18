@@ -151,6 +151,24 @@ class JsonValidator(Validator):
             raise (ValidationError(message='Enter a valid JSON', cursor_position=len(inputJson)))
 
 
+class LanguageValidator(Validator):
+    def __init__(self, _language_list):
+        """
+        This function was created to give context of the array that will
+        be validated
+        """
+        self._language_list = _language_list
+
+    def validate(self, document):
+        """
+        Validate if an input it's outside of an list
+        """
+        languages = document.text
+        for language in languages.split(","):
+            if language.upper() not in self._language_list:
+                raise (ValidationError(message='Language not supported. Please select value(s) from the list', cursor_position=len(languages)))
+
+
 class BucketPrefixValidator(Validator):
     def validate(self, document):
         """
