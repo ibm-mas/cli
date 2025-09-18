@@ -16,5 +16,7 @@ cluster_logging_operator:
   log_forwarder_client_url: "{{ CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL }}"
   syslog_forwarder_version: "{{ CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION }}"
   log_forwarder_pullsecret: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SYSLOG_PULLSECRET }}>"
-  log_forwarder_dlc_cert:  "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE }}>"
+  {% if CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE is defined and CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE != "" %}
+  log_forwarder_dlc_cert: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE }}>"
+  {% endif %}
   {% endif %}
