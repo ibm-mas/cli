@@ -386,7 +386,7 @@ function gitops_aiservice() {
   export SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
   #dro
   export DROCFG_CA=${SECRETS_PREFIX}droai#drocfg_ca
-  export DROCFG_TENANT=${SECRETS_PREFIX}droai#drocfg_ca_tenant
+  export DROCFG_CA_B64ENC=${SECRETS_PREFIX}droai#drocfg_ca_b64enc
   export DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}droai#drocfg_registration_key
   export DROCFG_URL=${SECRETS_PREFIX}droai#drocfg_url
   #jdbc
@@ -400,7 +400,7 @@ function gitops_aiservice() {
   export ARTIFACTORY_TOKEN=${SECRETS_PREFIX}ibm_entitlement#image_pull_secret_b64
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
-  sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_ca,drocfg_registration_key,drocfg_url"
+  sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_ca,drocfg_registration_key,drocfg_url,drocfg_ca_b64enc"
   sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}s3 "sm_s3_accesskey,sm_s3_secretkey,sm_s3_host,sm_s3_region"
   sm_verify_secret_exists ${SECRETS_PREFIX}jdbc "jdbccfg_username,jdbccfg_password,jdbccfg_url,jdbccfg_sslenabled,jdbccfg_ca,jdbccfg_ca_b64enc"
