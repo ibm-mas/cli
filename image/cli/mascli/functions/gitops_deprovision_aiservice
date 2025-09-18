@@ -17,10 +17,13 @@ Basic Configuration:
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  
-
+ 
 
 ibm_aiservice(required):
-  -i, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
+      --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
+      --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
+      --primary-storage-class ${TEXT_RESET}PRIMARY_STORAGE_CLASS${TEXT_RESET}
+
 
 
 Automatic GitHub Push (Optional):
@@ -44,6 +47,7 @@ function gitops_deprovision_aiservice_noninteractive() {
   GIT_COMMIT_MSG="gitops-aiservice-deprovision commit"
 
   # adding default values 
+  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"${AISERVICE_INSTANCE_ID}-aiservice"}
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   while [[ $# -gt 0 ]]
@@ -63,6 +67,9 @@ function gitops_deprovision_aiservice_noninteractive() {
         ;;
       --aiservice-instance-id)
         export AISERVICE_INSTANCE_ID=$1 && shift
+        ;;
+      --aiservice-namespace)
+          export AISERVICE_NAMESPACE=$1 && shift
         ;;
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
@@ -124,7 +131,6 @@ function gitops_deprovision_aiservice_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_aiservice_help "GIT_BRANCH is not set"
   fi
 
-  # add validation below like above  for those variable which have the value needed for further execution
   # -- aiservice
   [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_aiservice_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
 
@@ -193,7 +199,7 @@ function gitops_deprovision_aiservice() {
   
  echo -e "login aws"
 
- AVP_TYPE=aws  # Support for IBM will be added later
+  AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
@@ -203,6 +209,13 @@ function gitops_deprovision_aiservice() {
   export SECRET_DRO_AUTH=${SECRETS_PREFIX}droai
   export SECRET_SLS_AUTH=${SECRETS_PREFIX}sls
   export SECRET_JDBC_AUTH=${SECRETS_PREFIX}jdbc
+
+  export OCP_SECRET_NAME=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocp_login
+  export OAUTH_ADMIN_USERNAME=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_USERNAME")
+  export OAUTH_ADMIN_PWD=$(sm_get_secret_value "$OCP_SECRET_NAME" "OAUTH_ADMIN_PWD")
+  export OCP_DISABLE_TLS_VERIFY=$(sm_get_secret_value "$OCP_SECRET_NAME" "OCP_DISABLE_TLS_VERIFY")
+  echo "TLS verification is : $OCP_DISABLE_TLS_VERIFY"
+
 
 #   #deleting secrets from aws
 #    echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
@@ -244,11 +257,52 @@ function gitops_deprovision_aiservice() {
    
    rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aiservice-instance-base.yaml
    rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aiservice.yaml
-    if [ "$GITHUB_PUSH" == "true" ]; then
-      echo
-      echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-      save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
-      remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-    fi
 
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    
+    echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
+    sleep 900
+  fi
+
+
+  echo "PWD before login: $(pwd)"
+  oc login $CLUSTER_URL -u $OAUTH_ADMIN_USERNAME -p $OAUTH_ADMIN_PWD --insecure-skip-tls-verify=$OCP_DISABLE_TLS_VERIFY
+
+  echo "Successfully logged in to OpenShift."
+
+  namespace=$AISERVICE_NAMESPACE
+  subs_to_check=("ibm-truststore-mgr" "ibm-aiservice")
+
+  echo "Checking for Subscriptions in namespace '$namespace'..."
+
+  subscriptions_exist=false
+
+  # Initial check
+  for sub in "${subs_to_check[@]}"; do
+    if oc get subscription "$sub" -n "$namespace" &>/dev/null; then
+      echo "Subscription '$sub' is still present."
+      subscriptions_exist=true
+    else
+      echo "Subscription '$sub' is not present."
+    fi
+  done
+
+  # If any subscription is present, wait 5 minutes
+  if [ "$subscriptions_exist" = true ]; then
+    echo "subscription is present. Waiting 5 minutes before proceeding..."
+    sleep 300  # 5 minutes
+  fi
+
+
+  if [ "$subscriptions_exist" = false ]; then
+    echo "All subscriptions deleted. Proceeding to delete CSVs..."
+    oc delete $(oc get csv -n "$namespace" -o name | grep -E 'ibm-truststore-mgr|ibm-aiservice') -n "$namespace" --wait=true --timeout=5m 2>/dev/null
+    echo "CSV cleanup completed."
+  else
+    echo "Subscriptions still present after waiting. Skipping CSV deletion."
+  fi
 }
