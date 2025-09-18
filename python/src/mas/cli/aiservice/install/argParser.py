@@ -303,13 +303,13 @@ watsonxArgGroup.add_argument(
 )
 watsonxArgGroup.add_argument(
     '--watsonxai-deployment-id',
-    dest="aiservice-watsonxai-deployment-id",
+    dest="aiservice_watsonxai_deployment_id",
     required=False,
     help='WatsonX deployment ID'
 )
 watsonxArgGroup.add_argument(
     '--watsonxai-space-id',
-    dest="aiservice-watsonxai-space-id",
+    dest="aiservice_watsonxai_space_id",
     required=False,
     help='WatsonX space ID'
 )
