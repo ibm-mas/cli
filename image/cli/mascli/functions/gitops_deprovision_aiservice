@@ -20,7 +20,7 @@ Secrets Manager:
  
 
 ibm_aiservice(required):
-      --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
+      --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                              AI Service instance ID  
       --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
       --primary-storage-class ${TEXT_RESET}PRIMARY_STORAGE_CLASS${TEXT_RESET}
 
@@ -262,8 +262,9 @@ function gitops_deprovision_aiservice() {
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    cd /tmp || { echo "Failed to cd to /tmp"; exit 1; }
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-    
+
     echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
     sleep 900
   fi
@@ -275,7 +276,7 @@ function gitops_deprovision_aiservice() {
   echo "Successfully logged in to OpenShift."
 
   namespace=$AISERVICE_NAMESPACE
-  subs_to_check=("ibm-truststore-mgr" "ibm-aiservice")
+  subs_to_check=("ibm-aiservice")
 
   echo "Checking for Subscriptions in namespace '$namespace'..."
 
@@ -300,9 +301,10 @@ function gitops_deprovision_aiservice() {
 
   if [ "$subscriptions_exist" = false ]; then
     echo "All subscriptions deleted. Proceeding to delete CSVs..."
-    oc delete $(oc get csv -n "$namespace" -o name | grep -E 'ibm-truststore-mgr|ibm-aiservice') -n "$namespace" --wait=true --timeout=5m 2>/dev/null
+    oc delete $(oc get csv -n "$namespace" -o name | grep -E 'ibm-aiservice') -n "$namespace" --wait=true --timeout=5m 2>/dev/null
+    oc delete $(oc get subscription -n "$namespace" -o name | grep ibm-truststore-mgr) -n "$namespace" --ignore-not-found && oc delete $(oc get csv -n "$namespace" -o name | grep ibm-truststore-mgr) -n "$namespace" --ignore-not-found && oc delete truststores --all -n "$namespace" --ignore-not-found
     echo "CSV cleanup completed."
-  else
+    else
     echo "Subscriptions still present after waiting. Skipping CSV deletion."
   fi
 }
