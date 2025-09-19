@@ -47,7 +47,7 @@ function gitops_deprovision_aiservice_noninteractive() {
   GIT_COMMIT_MSG="gitops-aiservice-deprovision commit"
 
   # adding default values 
-  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"${AISERVICE_INSTANCE_ID}-aiservice"}
+  #export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"${AISERVICE_INSTANCE_ID}-aiservice"}
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   while [[ $# -gt 0 ]]
