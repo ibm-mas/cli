@@ -280,9 +280,12 @@ function gitops_deprovision_aiservice() {
 
   echo "Checking for Subscriptions in namespace '$namespace'..."
 
+  if oc get namespace "$namespace" &>/dev/null; then
+  echo "Namespace '$namespace' exists. Proceeding with subscription checks..."
+
+  echo "Checking for Subscriptions in namespace '$namespace'..."
   subscriptions_exist=false
 
-  # Initial check
   for sub in "${subs_to_check[@]}"; do
     if oc get subscription "$sub" -n "$namespace" &>/dev/null; then
       echo "Subscription '$sub' is still present."
@@ -291,6 +294,11 @@ function gitops_deprovision_aiservice() {
       echo "Subscription '$sub' is not present."
     fi
   done
+
+  else
+    echo "Namespace '$namespace' does not exist. Skipping subscription check."
+    exit 1 ;
+  fi
 
   # If any subscription is present, wait 5 minutes
   if [ "$subscriptions_exist" = true ]; then
