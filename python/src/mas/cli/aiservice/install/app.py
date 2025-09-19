@@ -178,6 +178,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.setDB2DefaultSettings()
 
+        if not hasattr(self.args, "aiservice_watsonxai_deployment_id") or self.args.aiservice_watsonxai_deployment_id is None:
+            self.setParam("aiservice_watsonxai_deployment_id", "default-deployment-id")
+        if not hasattr(self.args, "aiservice_watsonxai_space_id") or self.args.aiservice_watsonxai_space_id is None:
+            self.setParam("aiservice_watsonxai_space_id", "default-space-id")
+
         for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
             if key in requiredParams:
@@ -592,6 +597,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
         self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
         self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
+        self.promptForString("Watsonxai Deployment ID (optional)", "aiservice_watsonxai_deployment_id")
+        self.promptForString("Watsonxai Space ID (optional)", "aiservice_watsonxai_space_id")
 
         self.printH1("RSL Integration")
         self.printDescription([
