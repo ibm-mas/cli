@@ -82,6 +82,7 @@
       with_items:
         - deprovision-cluster
         - deprovision-mas-deps
+        - deprovision-aiservice-deps
         - deprovision-mas-instance
         - deprovision-mas-cluster
         - provision-bootstrap-cluster
@@ -90,6 +91,7 @@
         - gitops-mas-apps
         - gitops-mas-cluster
         - gitops-mas-deps
+        - gitops-aiservice-deps
         - gitops-mas-initiator
         - gitops-mas-aibroker
         - gitops-mas-aibroker-tenant

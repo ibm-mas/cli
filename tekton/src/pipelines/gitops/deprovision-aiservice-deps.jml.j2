@@ -56,6 +56,20 @@ spec:
     - name: mas_instance_id
       type: string
 
+    - name: jdbc_type_aiservice
+      type: string
+    - name: jdbc_instance_name_aiservice
+      type: string
+    - name: jdbc_connection_url_aiservice
+      type: string
+      default: ""
+    - name: jdbc_certificate_file_aiservice
+      type: string
+      default: ""
+    - name: jdbc_route_aiservice
+      type: string
+      default: ""
+
   tasks:
 {% if wait_for_deprovision == true %}
     # 0. Wait for the deprovsion mas pipeline to complete
@@ -78,45 +92,154 @@ spec:
           value: $(params.ignore_failure)  # fails and exit once the first failure is detected
 {% endif %}
 
-    # Deprovision DB2 Database
+    # Deprovision EFS
     # -------------------------------------------------------------------------
-    - name: gitops-deprovision-db2u-database
+    - name: gitops-deprovision-efs
 {% if wait_for_deprovision == true %}
       runAfter:
         - wait-for-deprovision
 {% endif %}
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cloud_provider
+          value: $(params.cloud_provider)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: efs_action
+          value: $(params.efs_action)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-efs
 
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}        
-      - name: CLUSTER_NAME
-        value: $(params.cluster_name)
-      - name: ACCOUNT
-        value: $(params.account)
-      - name: REGION
-        value: $(params.region)
-      - name: SECRET_PATH
-        value: $(params.secrets_path)
-      - name: MAS_INSTANCE_ID
-        value: $(params.mas_instance_id)
-      - name: MAS_APP_ID
-        value: $(params.mas_app_id)
-      - name: GIT_BRANCH
-        value: $(params.git_branch)
-      - name: GITHUB_ORG
-        value: $(params.github_org)
-      - name: GITHUB_HOST
-        value: $(params.github_host)
-      - name: GITHUB_REPO
-        value: $(params.github_repo)
-      - name: SM_AWS_REGION
-        value: $(params.avp_aws_secret_region)
-      - name: IS_REPLICA_TASK
-        value: $(params.is_replica_task)      
-    workspaces:
-    - name: configs
-        workspace: configs
+    # Deprovision Mongo
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-mongo
+      runAfter:
+        - gitops-deprovision-efs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: avp_aws_secret_key
+          value: $(params.avp_aws_secret_key)
+        - name: avp_aws_access_key
+          value: $(params.avp_aws_access_key)
+        - name: vpc_ipv4_cidr
+          value: $(params.vpc_ipv4_cidr)
+        - name: mongo_provider
+          value: $(params.mongo_provider)
+        - name: aws_docdb_instance_number
+          value: $(params.aws_docdb_instance_number)
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-mongo
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mongodb_action)"
+          operator: notin
+          values: [""]
+
+    # Deprovision DB2 Database
+    # -------------------------------------------------------------------------
+    - name: gitops-delete-jdbc-config-aiservice
+      runAfter:
+        - gitops-deprovision-mongo
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: aiservice
+        - name: mas_config_scope
+          value: system
+        - name: mas_workspace_id
+          value: $(params.mas_workspace_id)
+        - name: jdbc_type
+          value: $(params.jdbc_type_aiservice)
+        - name: jdbc_instance_name
+          value: $(params.jdbc_instance_name_aiservice)
+        - name: jdbc_connection_url
+          value: $(params.jdbc_connection_url_aiservice)
+        - name: jdbc_certificate_file
+          value: $(params.jdbc_certificate_file_aiservice)
+        - name: jdbc_route
+          value: $(params.jdbc_route_aiservice)
+      workspaces:
+        - name: configs
+          workspace: configs
+      taskRef:
+        kind: Task
+        name: gitops-delete-jdbc-config
+      when:
+        - input: "$(params.mas_app_channel_aiservice)"
+          operator: in
+          values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: [ "standard", "premium"]
+
+    - name: gitops-deprovision-db2u-database-aiservice
+      runAfter:
+        - gitops-delete-jdbc-config-aiservice
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: aiservice
 
       taskRef:
         kind: Task
         name: gitops-deprovision-db2u-database
+      workspaces:
+        - name: configs
+          workspace: configs
+      when:
+        - input: "$(params.mas_app_channel_aiservice)"
+          operator: in
+          values: [""]
+        - input: "$(params.mas_edition)"
+          operator: in
+          values: ["standard", "premium"]
+
+    # Deprovision DB2U Operator
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-db2u
+      runAfter:
+        - gitops-deprovision-db2u-database
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+      taskRef:
+        kind: Task
+        name: gitops-deprovision-db2u
+      workspaces:
+        - name: configs
+          workspace: configs

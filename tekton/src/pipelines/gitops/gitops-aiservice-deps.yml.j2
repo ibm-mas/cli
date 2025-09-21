@@ -11,6 +11,7 @@ spec:
   description: MAS Cluster off-cluster dependencies
   workspaces:
     - name: configs
+    - name: shared-gitops-configs
   params:
 {% if wait_for_provision == true %}
       # Name of the PipelineRun to wait for
@@ -57,6 +58,23 @@ spec:
       description: efs action to be performed (provision or deprovision)
       default: ""
 
+    - name: jdbc_type_aiservice
+      type: string
+    - name: jdbc_instance_name_aiservice
+      type: string
+    - name: jdbc_connection_url_aiservice
+      type: string
+      default: ""
+    - name: jdbc_certificate_file_aiservice
+      type: string
+      default: ""
+    - name: jdbc_route_aiservice
+      type: string
+      default: ""
+    - name: mas_app_channel_aiservice
+      type: string
+      default: ""
+
   tasks:
 {% if wait_for_provision == true %}
     # 0. Wait for the provsion pipeline to complete
@@ -89,8 +107,8 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
         - name: cluster_name
           value: $(params.cluster_name)
-        - name: aibroker_instance_id
-          value: $(params.mas_instance_id)
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
         - name: cloud_provider
           value: $(params.cloud_provider)
         - name: avp_aws_secret_key
@@ -112,9 +130,6 @@ spec:
         - input: "$(params.efs_action)"
           operator: in
           values: ["provision"]
-
-
-
 
     - name: gitops-provision-mongo
       runAfter:
@@ -150,7 +165,6 @@ spec:
           operator: notin
           values: [""]
 
-
     # Install DB2 database
     - name: gitops-provision-db2u
       runAfter:
@@ -159,31 +173,201 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}        
-      - name: CLUSTER_NAME
-        value: $(params.cluster_name)
-      - name: ACCOUNT
-        value: $(params.account)
-      - name: REGION
-        value: $(params.region)
-      - name: SECRET_PATH
-        value: $(params.secrets_path)
-      - name: MAS_INSTANCE_ID
-        value: $(params.aibroker_instance_id)
-      - name: MAS_APP_ID
-        value: $(params.mas_app_id)
-      - name: GIT_BRANCH
-        value: $(params.git_branch)
-      - name: GITHUB_ORG
-        value: $(params.github_org)
-      - name: GITHUB_HOST
-        value: $(params.github_host)
-      - name: GITHUB_REPO
-        value: $(params.github_repo)
-      - name: SM_AWS_REGION
-        value: $(params.avp_aws_secret_region)
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: db2_channel
+          value: $(params.db2_channel)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: db2_subscription_install_plan
+          value: $(params.db2_subscription_install_plan)
     workspaces:
     - name: configs
         workspace: configs
       taskRef:
         kind: Task
         name: gitops-db2u
+
+    # DB2 for AI Service
+    - name: gitops-db2u-database-aiservice
+      runAfter:
+        - gitops-provision-db2u
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: aiservice
+
+        - name: db2_meta_storage_class
+          value: $(params.db2_meta_storage_class_aiservice)
+        - name: db2_temp_storage_class
+          value: $(params.db2_temp_storage_class_aiservice)
+        - name: db2_logs_storage_class
+          value: $(params.db2_logs_storage_class_aiservice)
+        - name: db2_audit_logs_storage_class
+          value: $(params.db2_audit_logs_storage_class_aiservice)
+        - name: db2_data_storage_class
+          value: $(params.db2_data_storage_class_aiservice)
+        - name: db2_backup_storage_class
+          value: $(params.db2_backup_storage_class_aiservice)
+        - name: db2_archivelogs_storage_class
+          value: $(params.db2_archivelogs_storage_class_aiservice)
+
+        - name: db2_meta_storage_size
+          value: $(params.db2_meta_storage_size_aiservice)
+        - name: db2_temp_storage_size
+          value: $(params.db2_temp_storage_size_aiservice)
+        - name: db2_logs_storage_size
+          value: $(params.db2_logs_storage_size_aiservice)
+        - name: db2_audit_logs_storage_size
+          value: $(params.db2_audit_logs_storage_size_aiservice)
+        - name: db2_data_storage_size
+          value: $(params.db2_data_storage_size_aiservice)
+        - name: db2_backup_storage_size
+          value: $(params.db2_backup_storage_size_aiservice)
+        - name: db2_archivelogs_storage_size
+          value: $(params.db2_archivelogs_storage_size_aiservice)
+
+        - name: db2_version
+          value: $(params.db2_version_aiservice)
+        - name: db2_tls_version
+          value: $(params.db2_tls_version_aiservice)
+        - name: db2_instance_registry_yaml
+          value: $(params.db2_instance_registry_yaml_aiservice)
+        - name: db2_instance_dbm_config_yaml
+          value: $(params.db2_instance_dbm_config_yaml_aiservice)
+        - name: db2_database_db_config_yaml
+          value: $(params.db2_database_db_config_yaml_aiservice)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_aiservice)
+        - name: db2_table_org
+          value: $(params.db2_table_org_aiservice)
+        - name: db2_mln_count
+          value: $(params.db2_mln_count_aiservice)
+        - name: db2_num_pods
+          value: $(params.db2_num_pods_aiservice)
+        - name: db2_meta_storage_accessmode
+          value: $(params.db2_meta_storage_accessmode_aiservice)
+        - name: db2_data_storage_accessmode
+          value: $(params.db2_data_storage_accessmode_aiservice)
+        - name: db2_backup_storage_accessmode
+          value: $(params.db2_backup_storage_accessmode_aiservice)
+        - name: db2_logs_storage_accessmode
+          value: $(params.db2_logs_storage_accessmode_aiservice)
+        - name: db2_audit_logs_storage_accessmode
+          value: $(params.db2_audit_logs_storage_accessmode_aiservice)
+        - name: db2_temp_storage_accessmode
+          value: $(params.db2_temp_storage_accessmode_aiservice)
+        - name: db2_archivelogs_storage_accessmode
+          value: $(params.db2_archivelogs_storage_accessmode_aiservice)
+        - name: db2_cpu_requests
+          value: $(params.db2_cpu_requests_aiservice)
+        - name: db2_cpu_limits
+          value: $(params.db2_cpu_limits_aiservice)
+        - name: db2_memory_requests
+          value: $(params.db2_memory_requests_aiservice)
+        - name: db2_memory_limits
+          value: $(params.db2_memory_limits_aiservice)
+        - name: db2_affinity_key
+          value: $(params.db2_affinity_key_aiservice)
+        - name: db2_affinity_value
+          value: $(params.db2_affinity_value_aiservice)
+        - name: db2_tolerate_key
+          value: $(params.db2_tolerate_key_aiservice)
+        - name: db2_tolerate_value
+          value: $(params.db2_tolerate_value_aiservice)
+        - name: db2_tolerate_effect
+          value: $(params.db2_tolerate_effect_aiservice)
+        - name: jdbc_route
+          value: $(params.jdbc_route_aiservice)
+        - name: db2_timezone
+          value: $(params.db2_timezone_aiservice)
+        - name: db2_backup_notify_slack_url
+          value: $(params.db2_backup_notify_slack_url_aiservice)
+        - name: auto_backup
+          value: $(params.auto_backup_aiservice)
+        - name: allow_list
+          value: $(params.allow_list)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-db2u-database
+      when:
+        - input: "$(params.db2_action_aiservice)"
+          operator: notin
+          values: [""]
+        - input: "$(params.jdbc_type_aiservice)"
+          operator: in
+          values: ["incluster-db2"]
+        - input: "$(params.mas_app_channel_aiservice)"
+          operator: notin
+          values: [""]
+
+    - name: gitops-jdbc-config-aiservice
+      runAfter:
+        - gitops-db2u-database-aiservice
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: aiservice
+        - name: mas_config_scope
+          value: system
+        - name: jdbc_type
+          value: $(params.jdbc_type_aiservice)
+        - name: jdbc_instance_name
+          value: $(params.jdbc_instance_name_aiservice)
+        - name: jdbc_connection_url
+          value: $(params.jdbc_connection_url_aiservice)
+        - name: jdbc_certificate_file
+          value: $(params.jdbc_certificate_file_aiservice)
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+        kind: Task
+        name: gitops-jdbc-config
+      when:
+        - input: "$(params.jdbc_type_aiservice)"
+          operator: notin
+          values: [""]
+        - input: "$(params.mas_app_channel_aiservice)"
+          operator: notin
+          values: [""]
