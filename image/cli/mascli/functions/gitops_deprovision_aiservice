@@ -21,7 +21,7 @@ Secrets Manager:
 
 ibm_aiservice(required):
       --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                              AI Service instance ID  
-      --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
+      --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}                                    AI SERVICE NAMESAPCE
       --primary-storage-class ${TEXT_RESET}PRIMARY_STORAGE_CLASS${TEXT_RESET}
 
 
@@ -46,8 +46,8 @@ function gitops_deprovision_aiservice_noninteractive() {
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-aiservice-deprovision commit"
 
-  # adding default values 
-  #export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"${AISERVICE_INSTANCE_ID}-aiservice"}
+  # adding default values inst1-aiservice
+  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"aiservice-${AISERVICE_INSTANCE_ID}"}
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   while [[ $# -gt 0 ]]
@@ -134,6 +134,7 @@ function gitops_deprovision_aiservice_noninteractive() {
   # -- aiservice
   [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_aiservice_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
 
+
  }
 
 function gitops_deprovision_aiservice() {
@@ -192,8 +193,6 @@ function gitops_deprovision_aiservice() {
   fi
   reset_colors
 
-  # echo all the variables of gitops envs
-
   # -- aiservice
   echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   
@@ -205,7 +204,7 @@ function gitops_deprovision_aiservice() {
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
 
   export SECRET_IBM_ENTITLEMENT_AUTH=${SECRETS_PREFIX}ibm_entitlement
-  export SECRET_STORAGE_AUTH=${SECRETS_PREFIX}storage
+  export SECRET_S3_AUTH=${SECRETS_PREFIX}s3
   export SECRET_DRO_AUTH=${SECRETS_PREFIX}droai
   export SECRET_SLS_AUTH=${SECRETS_PREFIX}sls
   export SECRET_JDBC_AUTH=${SECRETS_PREFIX}jdbc
@@ -221,8 +220,8 @@ function gitops_deprovision_aiservice() {
 #    echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
 #    sm_delete_secret $SECRET_IBM_ENTITLEMENT_AUTH
 
-#    echo -e "Deleting storage secrets $SECRET_STORAGE_AUTH"
-#    sm_delete_secret $SECRET_STORAGE_AUTH
+#    echo -e "Deleting s3 secrets $SECRET_S3_AUTH"
+#    sm_delete_secret $SECRET_S3_AUTH
 
 #    echo -e "Deleting dro secrets $SECRET_DRO_AUTH"
 #    sm_delete_secret $SECRET_DRO_AUTH
@@ -265,8 +264,8 @@ function gitops_deprovision_aiservice() {
     cd /tmp || { echo "Failed to cd to /tmp"; exit 1; }
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
 
-    echo "Sleeping for 15 minutes to allow ArgoCD to sync and apply changes..."
-    sleep 900
+    echo "Sleeping for 10 minutes to allow ArgoCD to sync and apply changes..."
+    sleep 600
   fi
 
 

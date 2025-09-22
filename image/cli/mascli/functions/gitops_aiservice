@@ -73,7 +73,7 @@ function gitops_aiservice_noninteractive() {
    #only export below in whiel loop
 
   #adding default values 
-  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"${AISERVICE_INSTANCE_ID}-aiservice"}
+  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"aiservice-${AISERVICE_INSTANCE_ID}"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export IS_EXTERNAL_ROUTE=${IS_EXTERNAL_ROUTE:-"false"}  # Default to "false", can be set to "true" if needed  
   export JDBC_SECRET=${JDBC_SECRET:-"aiservice-jdbc-secret"}
