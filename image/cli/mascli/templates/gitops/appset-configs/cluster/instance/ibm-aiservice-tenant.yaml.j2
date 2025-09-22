@@ -14,6 +14,7 @@ ibm_aiservice_tenant:
   drocfg_url: "{{ DROCFG_URL }}"
   drocfg_ca: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DROCFG_CA }}>"
   drocfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DROCFG_REGISTRATION_KEY }}>"
+  drocfg_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ DROCFG_CA_B64ENC }}>"
 
   # sls
   slscfg_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_CA_B64ENC }}>"
@@ -26,7 +27,11 @@ ibm_aiservice_tenant:
   rsl_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_TOKEN }}>"
   rsl_ca_crt: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_RSL_CA_CRT }}>"
 
-  
+  #s3 for manage job
+  aiservice_s3_accesskey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_ACCESSKEY }}>"
+  aiservice_s3_secretkey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_SECRETKEY }}>"
+  aiservice_s3_region: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_STORAGE_REGION }}>"
+
   # watsonx
   aiservice_watsonxai_url: "{{ AISERVICE_WATSONXAI_URL }}"
   aiservice_watsonxai_project_id: "<path:{{ SECRETS_PATH }}:{{ AISERVICE_WATSONXAI_PROJECT_ID }}>"
