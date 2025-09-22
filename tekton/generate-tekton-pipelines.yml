@@ -93,6 +93,8 @@
         - gitops-mas-initiator
         - gitops-mas-aibroker
         - gitops-mas-aibroker-tenant
+        - gitops-suite-license-service
+        - deprovision-suite-license-service
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
