@@ -423,8 +423,8 @@ function gitops_aiservice_tenant() {
   # STORAGE
   export SECRET_KEY_STORAGE_HOST=${SECRETS_PREFIX}storage#sm_storage_host
   export SECRET_KEY_STORAGE_PORT=${SECRETS_PREFIX}storage#sm_storage_port
-  export SECRET_KEY_STORAGE_ACCESSKEY=${SECRETS_PREFIX}storage#sm_storage_accesskey
-  export SECRET_KEY_STORAGE_SECRETKEY=${SECRETS_PREFIX}storage#sm_storage_secretkey
+  export SECRET_KEY_STORAGE_ACCESSKEY=${SECRETS_PREFIX}s3#sm_s3_accesskey
+  export SECRET_KEY_STORAGE_SECRETKEY=${SECRETS_PREFIX}s3#sm_s3_secretkey
   export SECRET_KEY_STORAGE_REGION=${SECRETS_PREFIX}s3#sm_s3_region
 
   # check for those variables present into the aws sm 
