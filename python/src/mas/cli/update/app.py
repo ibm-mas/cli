@@ -49,6 +49,7 @@ class UpdateApp(BaseApp):
                 "mongodb_v5_upgrade",
                 "mongodb_v6_upgrade",
                 "mongodb_v7_upgrade",
+                "mongodb_v8_upgrade",
                 "kafka_namespace",
                 "kafka_provider",
                 "dro_migration",
