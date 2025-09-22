@@ -193,8 +193,7 @@ class InstallSummarizerMixin():
                 self.printParamSummary("+ Additional Languages", "mas_app_settings_secondary_langs")
 
                 print_formatted_text(HTML("  <SkyBlue>+ Database Settings</SkyBlue>"))
-                self.printParamSummary("  + Schema", "mas_app_settings_indexspace")
-                self.printParamSummary("  + Username", "mas_app_settings_db2_schema")
+                self.printParamSummary("  + Schema", "mas_app_settings_db2_schema")
                 self.printParamSummary("  + Tablespace", "mas_app_settings_tablespace")
                 self.printParamSummary("  + Indexspace", "mas_app_settings_indexspace")
         else:
