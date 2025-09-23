@@ -61,14 +61,16 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             suites = []
             suiteOptions = []
 
-            if not listMasInstances(self.dynamicClient):
+            if len(listMasInstances(self.dynamicClient)) == 0:
                 suites = listAiServiceInstances(self.dynamicClient)
             else:
                 suites = listMasInstances(self.dynamicClient)
 
-            if len(suites) == 0:
-                print_formatted_text(HTML("<Red>Error: No MAS instances detected on this cluster</Red>"))
-                sys.exit(1)
+            print(suites)
+
+            # if len(suites) == 0:
+            #     print_formatted_text(HTML("<Red>Error: No MAS instances detected on this cluster</Red>"))
+            #     sys.exit(1)
 
             for suite in suites:
                 print_formatted_text(HTML(f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"))
