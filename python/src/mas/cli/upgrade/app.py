@@ -23,7 +23,8 @@ from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, listAiServiceInstances, getMasChannel, getWorkspaceId, verifyAppInstance
+# from mas.devops.mas import listMasInstances, listAiServiceInstances, getMasChannel, getWorkspaceId, verifyAppInstance
+from mas.devops.mas import listAiServiceInstances, getMasChannel, getWorkspaceId, verifyAppInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 
 logger = logging.getLogger(__name__)
