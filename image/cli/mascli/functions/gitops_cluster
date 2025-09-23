@@ -354,6 +354,17 @@ function gitops_cluster_noninteractive() {
         export INSTANA_AGENT_OPERATOR_INSTALL=true
         ;;
 
+      # Image repository mirror
+      --image-repo-mirror)
+        export IMAGE_REPO_MIRROR=true
+        ;;
+      --image-repo-mirror-host)
+        export IMAGE_REPO_MIRROR_HOST=$1 && shift
+        ;;
+      --image-repo-mirror-prefix)
+        export IMAGE_REPO_MIRROR_PREFIX=$1 && shift
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_cluster_help
@@ -414,6 +425,11 @@ function gitops_cluster_noninteractive() {
 
   if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
     [[ -z "$CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE" ]] && gitops_cluster_help "CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE is not set"
+  fi
+
+  if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
+    [[ -z "$IMAGE_REPO_MIRROR_HOST" ]] && gitops_cluster_help "IMAGE_REPO_MIRROR_HOST is not set"
+    [[ -z "$IMAGE_REPO_MIRROR_PREFIX" ]] && gitops_cluster_help "IMAGE_REPO_MIRROR_PREFIX is not set"
   fi
 }
 
@@ -507,6 +523,7 @@ function gitops_cluster() {
     reset_colors
   fi
 
+
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Promotion" "    "
   echo_reset_dim "Cluster Promotion   ............. ${COLOR_MAGENTA}${CLUSTER_PROMOTION}"
@@ -581,10 +598,11 @@ function gitops_cluster() {
   echo_reset_dim "Install the Instana Agent Operator ........... ${COLOR_MAGENTA}${INSTANA_AGENT_OPERATOR_INSTALL}"
   reset_colors
 
-  if [[ -n "$MAS_CLI_IMAGE_REPO" ]]; then
+  if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
     echo "${TEXT_DIM}"
-    echo_h2 "MAS CLI Image" "    "
-    echo_reset_dim "MAS CLI Image repo ........... ${COLOR_MAGENTA}${MAS_CLI_IMAGE_REPO}"
+    echo_h2 "Image Repository Mirror" "    "
+    echo_reset_dim "Repository Host ........... ${COLOR_MAGENTA}${IMAGE_REPO_MIRROR_HOST}"
+    echo_reset_dim "Repository Prefix ......... ${COLOR_MAGENTA}${IMAGE_REPO_MIRROR_PREFIX}"
     reset_colors
   fi
 
@@ -625,6 +643,11 @@ function gitops_cluster() {
   export SECRET_NAME_LOG_FORWARDER_DLC_CA_BUNDLE=${ACCOUNT_ID}${SM_DELIM}dlc_cert
   export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CA_BUNDLE}#ca_bundle
 
+  export SECRET_NAME_AWS_ECR=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}/aws_ecr
+  export SECRET_KEY_AWS_ECR_ACCESS_KEY_ID=${SECRET_NAME_AWS_ECR}#ecr_aws_access_key_id
+  export SECRET_KEY_AWS_ECR_ACCESS_KEY_SECRET=${SECRET_NAME_AWS_ECR}#ecr_aws_secret_access_key
+
+
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
@@ -654,6 +677,11 @@ function gitops_cluster() {
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_INSTANA "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
   fi
+
+  if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
+    sm_verify_secret_exists $SECRET_NAME_AWS_ECR "ecr_aws_access_key_id,ecr_aws_secret_access_key"
+  fi
+
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -799,6 +827,13 @@ function gitops_cluster() {
     sm_verify_secret_exists $SECRET_NAME_INSTANA "key"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instana-agent-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/instana-agent-operator.yaml
   fi
+
+
+  if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
+    echo "- Image Repository Mirror"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/image-mirroring.yaml.j2 ${GITOPS_CLUSTER_DIR}/image-mirroring.yaml
+  fi
+
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
