@@ -58,19 +58,15 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             # Interactive mode
             self.printH1("Instance Selection")
             print_formatted_text(HTML("<LightSlateGrey>Select a MAS instance to upgrade from the list below:</LightSlateGrey>"))
-            suites = []
+            # suites = listMasInstances(self.dynamicClient)
+            suites = listAiServiceInstances(self.dynamicClient)
             suiteOptions = []
-
-            if len(listMasInstances(self.dynamicClient)) == 0:
-                suites = listAiServiceInstances(self.dynamicClient)
-            else:
-                suites = listMasInstances(self.dynamicClient)
 
             print(suites)
 
-            # if len(suites) == 0:
-            #     print_formatted_text(HTML("<Red>Error: No MAS instances detected on this cluster</Red>"))
-            #     sys.exit(1)
+            if len(suites) == 0:
+                print_formatted_text(HTML("<Red>Error: No MAS instances detected on this cluster</Red>"))
+                sys.exit(1)
 
             for suite in suites:
                 print_formatted_text(HTML(f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"))
