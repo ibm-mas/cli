@@ -98,6 +98,11 @@ spec:
       type: string
       default: ""
 
+    - name: is_post_92
+      type: string
+      default: "false"
+      description: "Set this to 'true' for MAS versions >= 9.2.0 to enable new task ordering"
+      
     - name: launchfvt_core
       type: string
       default: "true"
@@ -273,6 +278,8 @@ spec:
         value: $(params.fvt_blacklist_optimizer)
       - name: FVT_WHITELIST_OPTIMIZER
         value: $(params.fvt_whitelist_optimizer)
+      - name: IS_POST_92
+        value: $(params.is_post_92)
       - name: LAUNCHFVT_CORE
         value: $(params.launchfvt_core)
       - name: LAUNCHFVT_ASSIST
