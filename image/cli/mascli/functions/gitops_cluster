@@ -16,10 +16,11 @@ Basic Configuration (Required):
       --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}    Custom Labels definition in dict format
 
 AWS Secrets Manager Configuration (Required):
-      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
-      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
-      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}                Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}            Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}        Your AWS Secret Key
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                         Secrets Manager path
+      --skip-aws-secret-creation ${COLOR_YELLOW}SKIP_AWS_SECRET_CREATION${TEXT_RESET} If set, cluster AWS secret will be verified but not created. For use when cluster AWS secret is managed by some other configuration mechanism (e.g. Terraform).
 
 IBM Container Registry Entitlement (Required):
       --icr-username ${COLOR_YELLOW}ICR_USERNAME${TEXT_RESET}  Username to authenticate with IBM Container Registry (defaults to 'cp')
@@ -163,6 +164,9 @@ function gitops_cluster_noninteractive() {
         ;;
       --secrets-path)
         export SECRETS_PATH=$1 && shift
+        ;;
+      --skip-aws-secret-creation)
+        export SKIP_AWS_SECRET_CREATION=true
         ;;
 
       # IBM Container Registry Entitlement
@@ -475,10 +479,11 @@ function gitops_cluster() {
 
   echo "${TEXT_DIM}"
   echo_h2 "AWS Secrets Manager" "    "
-  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
-  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
-  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
-  echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  echo_reset_dim "Region ................................. ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ............................. ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ............................. ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_reset_dim "Secrets Path ........................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  echo_reset_dim "Skip creation of cluster AWS secret? ... ${COLOR_MAGENTA}${SKIP_AWS_SECRET_CREATION}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -702,11 +707,16 @@ function gitops_cluster() {
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
 
 
-  echo "- Generate AWS secret"
   # This is used by some of the ArgoCD sync hooks to make updates to AWS SM from within the cluster
   export SECRET_NAME_AWS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}aws
-  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-  sm_update_secret $SECRET_NAME_AWS "{\"sm_aws_access_key_id\": \"${SM_AWS_ACCESS_KEY_ID}\", \"sm_aws_secret_access_key\": \"${SM_AWS_SECRET_ACCESS_KEY}\"}" "${TAGS}"
+  if [[ "$SKIP_AWS_SECRET_CREATION" == "true" ]]; then
+    echo "- Verify AWS secret"
+    sm_verify_secret_exists $SECRET_NAME_AWS "sm_aws_access_key_id,sm_aws_secret_access_key"
+  else
+    echo "- Generate AWS secret"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_AWS "{\"sm_aws_access_key_id\": \"${SM_AWS_ACCESS_KEY_ID}\", \"sm_aws_secret_access_key\": \"${SM_AWS_SECRET_ACCESS_KEY}\"}" "${TAGS}"
+  fi
 
 
   # Generate ArgoApps
