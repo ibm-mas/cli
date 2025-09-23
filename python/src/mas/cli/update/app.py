@@ -11,6 +11,7 @@
 
 import logging
 import logging.handlers
+from typing import Callable
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
@@ -21,7 +22,7 @@ from ..validators import StorageClassValidator
 from .argParser import updateArgParser
 
 from mas.devops.ocp import createNamespace, getStorageClasses, getConsoleURL
-from mas.devops.mas import listMasInstances, getCurrentCatalog
+from mas.devops.mas import listMasInstances, listAiServiceInstances, getCurrentCatalog
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
 
 
@@ -94,7 +95,10 @@ class UpdateApp(BaseApp):
         # deprecated MaximoApplicationSuite ImageContentSourcePolicy instead of the new ImageDigestMirrorSet
         self.isAirgap()
         self.reviewCurrentCatalog()
-        self.reviewMASInstance()
+        isMasInstalled = self.reviewMASInstance()
+        isAiServiceInstalled = self.reviewAiServiceInstance()
+        if not isMasInstalled and not isAiServiceInstalled:
+            self.fatalError(["No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details"])
 
         if self.args.mas_catalog_version is None:
             # Interactive mode
@@ -228,27 +232,35 @@ class UpdateApp(BaseApp):
                 f" <u>{catalogInfo['image']}</u>"
             ])
 
-    def reviewMASInstance(self) -> None:
-        self.printH1("Review MAS Instances")
-        self.printDescription(["The following MAS intances are installed on the target cluster and will be affected by the catalog update:"])
+    def reviewMASInstance(self) -> bool:
+        return self.reviewInstances(listMasInstances, 'MAS', 'Suite.core.mas.ibm.com/v1')
+
+    def reviewAiServiceInstance(self) -> bool:
+        return self.reviewInstances(listAiServiceInstances, 'AI Service', 'AIServiceApp.aiservice.ibm.com/v1')
+
+    def reviewInstances(self, getInstances: Callable, name: str, kind: str) -> bool:
+        self.printH1(f"Review {name} Instances")
         try:
-            suites = listMasInstances(self.dynamicClient)
-            for suite in suites:
-                self.printDescription([f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"])
+            instances = getInstances(self.dynamicClient)
+            self.printDescription([f"The following {name} instances are installed on the target cluster and will be affected by the catalog update:"])
+            for instance in instances:
+                self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+            return True
         except ResourceNotFoundError:
-            self.fatalError("No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available).  See log file for details")
+            self.printDescription([f"No {name} instances were detected on the cluster ({kind} API is not available)"])
+            return False
 
     def chooseCatalog(self) -> None:
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Aug 28 2025 Update (MAS 9.1.2, 9.0.14, 8.11.23, &amp; 8.10.28)",
+            "  1) Sep 02 2025 Update (MAS 9.1.2, 9.0.14, 8.11.23, &amp; 8.10.28)",
             "  2) July 31 2025 Update (MAS 9.1.1, 9.0.13, 8.11.22, &amp; 8.10.27)",
-            "  3) Jun 05 2025 Update (MAS 9.1.0, 9.0.12, 8.11.21, &amp; 8.10.26)",
+            "  3) Jun 24 2025 Update (MAS 9.1.0, 9.0.12, 8.11.21, &amp; 8.10.26)",
         ])
 
         catalogOptions = [
-            "v9-250828-amd64", "v9-250731-amd64", "v9-250624-amd64",
+            "v9-250902-amd64", "v9-250731-amd64", "v9-250624-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -366,6 +378,7 @@ class UpdateApp(BaseApp):
                         "v9-250624-amd64": "7.0.12",
                         "v9-250731-amd64": "7.0.22",
                         "v9-250828-amd64": "7.0.22",
+                        "v9-250902-amd64": "7.0.22",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -504,6 +517,7 @@ class UpdateApp(BaseApp):
             "v9-250624-amd64": "5.1.3",
             "v9-250731-amd64": "5.1.3",
             "v9-250828-amd64": "5.1.3",
+            "v9-250902-amd64": "5.1.3",
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:

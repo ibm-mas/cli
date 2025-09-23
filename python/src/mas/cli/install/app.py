@@ -326,12 +326,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
 
     @logMethodCall
-    def selectLocalConfigDir(self) -> None:
-        if self.localConfigDir is None:
-            # You need to tell us where the configuration file can be found
-            self.localConfigDir = self.promptForDir("Select Local configuration directory")
-
-    @logMethodCall
     def configGrafana(self) -> None:
         if self.architecture == "s390x" or self.architecture == "ppc64le":
             # We are not supporting Grafana on s390x /ppc64le at the moment
@@ -526,6 +520,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         # Use MAS default self-signed cluster issuer with a custom domain
                         self.setParam("dns_provider", "")
                         self.setParam("mas_cluster_issuer", "")
+
+                    if dnsProvider in [1, 2]:
+                        self.printDescription([
+                            "By default, DNS CNAME records will be created pointing to the domain of the cluster ingress (ingress.config.openshift.io/cluster).",
+                            "CloudFlare and CIS DNS integrations support the ability to provide an alternative domain, which may be necessary if you are using OpenShift Container Platform in a non-standard networking configuration."
+                        ])
+                        self.promptForString("Cluster Ingress Domain Override", "ocp_ingress")
+
                 else:
                     # Use MAS default self-signed cluster issuer with the default domain
                     self.setParam("dns_provider", "")
@@ -1047,6 +1049,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam(key, value)
                     if value in ["jms", "snojms"]:
                         self.setParam("mas_app_settings_persistent_volumes_flag", "true")
+            elif key == "mas_app_settings_base_lang":
+                if value is not None and value != "":
+                    self.setParam(key, value.upper())
+            elif key == "mas_app_settings_secondary_langs":
+                if value is not None and value != "":
+                    self.setParam(key, value.upper())
 
             # MongoDB
             elif key == "mongodb_namespace":

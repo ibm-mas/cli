@@ -91,6 +91,8 @@
         - gitops-mas-cluster
         - gitops-mas-deps
         - gitops-mas-initiator
+        - gitops-suite-license-service
+        - deprovision-suite-license-service
         - gitops-aiservice-pipeline
         - gitops-aiservice-tenant-pipeline
         - gitops-deprovision-aiservice-pipeline

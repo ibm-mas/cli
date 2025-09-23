@@ -22,6 +22,9 @@ spec:
     - name: mas_workspace_id
       type: string
       default: ""
+    - name: ocp_ingress
+      type: string
+      default: ""
 
     # Cloudflare support
     - name: cloudflare_email
@@ -106,6 +109,8 @@ spec:
         value: $(params.custom_labels)
       - name: MAS_DOMAIN
         value: $(params.mas_domain)
+      - name: OCP_INGRESS
+        value: $(params.ocp_ingress)
 
       - name: CLOUDFLARE_EMAIL
         value: $(params.cloudflare_email)
