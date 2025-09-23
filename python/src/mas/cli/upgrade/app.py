@@ -23,7 +23,7 @@ from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, getMasChannel, getWorkspaceId, verifyAppInstance
+from mas.devops.mas import listMasInstances, listAiServiceInstances, getMasChannel, getWorkspaceId, verifyAppInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 
 logger = logging.getLogger(__name__)
@@ -58,8 +58,13 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             # Interactive mode
             self.printH1("Instance Selection")
             print_formatted_text(HTML("<LightSlateGrey>Select a MAS instance to upgrade from the list below:</LightSlateGrey>"))
-            suites = listMasInstances(self.dynamicClient)
+            suites = []
             suiteOptions = []
+
+            if not listMasInstances(self.dynamicClient):
+                suites = listAiServiceInstances(self.dynamicClient)
+            else:
+                suites = listMasInstances(self.dynamicClient)
 
             if len(suites) == 0:
                 print_formatted_text(HTML("<Red>Error: No MAS instances detected on this cluster</Red>"))
