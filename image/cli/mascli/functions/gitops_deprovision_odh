@@ -204,7 +204,7 @@ function gitops_deprovision_odh() {
 
   #secrets path in aws 
 
-  export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage
+  export SECRET_NAME_STORAGE_AUTH=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}s3
   export SECRET_KEY_IMAGE_PULL_SECRET_B64=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
 
 
@@ -221,14 +221,14 @@ function gitops_deprovision_odh() {
   echo "TLS verification is : $OCP_DISABLE_TLS_VERIFY"
 
 
-  #  echo "${TEXT_DIM}"
-  #  echo_h2 "Deleting odh related secrets"
+   echo "${TEXT_DIM}"
+   echo_h2 "Deleting odh related secrets"
 
-  #deleting secreats from aws
-  #  echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
-  #  sm_delete_secret $SECRET_NAME_STORAGE_AUTH
-  #  echo -e "Deleting image pull secreat $SECRET_KEY_IMAGE_PULL_SECRET_B64"
-  #  sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
+  deleting secreats from aws
+   echo -e "Deleting secreat $SECRET_NAME_STORAGE_AUTH"
+   sm_delete_secret $SECRET_NAME_STORAGE_AUTH
+   echo -e "Deleting image pull secreat $SECRET_KEY_IMAGE_PULL_SECRET_B64"
+   sm_delete_secret $SECRET_KEY_IMAGE_PULL_SECRET_B64
 
   
    if [ -z $GIT_SSH ]; then

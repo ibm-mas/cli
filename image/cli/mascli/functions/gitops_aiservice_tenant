@@ -88,7 +88,7 @@ function gitops_aiservice_tenant_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   #adding default values # -- aiservice Defaults
-  export AISERVICE_NAMESPACEE=${AISERVICE_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aiservice"}
+  export AISERVICE_NAMESPACE=${AISERVICE_NAMESPACE:-"aiservice-${AISERVICE_INSTANCE_ID}"}
   export AISERVICE_PROVISION_TENANT=${AISERVICE_PROVISION_TENANT:-"provision-tenant"}
   export IN_SAAS_ENV=${IN_SAAS_ENV:-"true"}
   export MAS_ICR_CP=${MAS_ICR_CP:-"docker-na-public.artifactory.swg-devops.com/wiotp-docker-local"}

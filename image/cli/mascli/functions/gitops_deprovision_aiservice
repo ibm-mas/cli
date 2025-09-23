@@ -216,21 +216,21 @@ function gitops_deprovision_aiservice() {
   echo "TLS verification is : $OCP_DISABLE_TLS_VERIFY"
 
 
-#   #deleting secrets from aws
-#    echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
-#    sm_delete_secret $SECRET_IBM_ENTITLEMENT_AUTH
+  #deleting secrets from aws
+   echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
+   sm_delete_secret $SECRET_IBM_ENTITLEMENT_AUTH
 
-#    echo -e "Deleting s3 secrets $SECRET_S3_AUTH"
-#    sm_delete_secret $SECRET_S3_AUTH
+   echo -e "Deleting s3 secrets $SECRET_S3_AUTH"
+   sm_delete_secret $SECRET_S3_AUTH
 
-#    echo -e "Deleting dro secrets $SECRET_DRO_AUTH"
-#    sm_delete_secret $SECRET_DRO_AUTH
+   echo -e "Deleting dro secrets $SECRET_DRO_AUTH"
+   sm_delete_secret $SECRET_DRO_AUTH
 
-#    echo -e "Deleting jdbc secrets $SECRET_JDBC_AUTH"
-#    sm_delete_secret $SECRET_JDBC_AUTH
+   echo -e "Deleting jdbc secrets $SECRET_JDBC_AUTH"
+   sm_delete_secret $SECRET_JDBC_AUTH
 
-#    echo -e "Deleting sls secrets $SECRET_SLS_AUTH"
-#    sm_delete_secret $SECRET_SLS_AUTH
+   echo -e "Deleting sls secrets $SECRET_SLS_AUTH"
+   sm_delete_secret $SECRET_SLS_AUTH
   
 
   # finally push them into the git repo
