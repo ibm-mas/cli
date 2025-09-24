@@ -111,7 +111,7 @@ Image Repository Mirror
       --image-repo-mirror          ${COLOR_YELLOW}IMAGE_REPO_MIRROR${TEXT_RESET}                 Setup an image repository mirror. Image pulls by digest from icr.io and cp.icr.io  will be redirected by OCP to a repository of your choosing (via an IDMS).
       --image-repo-mirror-host     ${COLOR_YELLOW}IMAGE_REPO_MIRROR_HOST${TEXT_RESET}            Host of image repository to direct pulls from icr.io and cp.icr.io to. E.g. ECR 012345678910.dkr.ecr.us-east-1.amazonaws.com
       --image-repo-mirror-prefix   ${COLOR_YELLOW}IMAGE_REPO_MIRROR_PREFIX${TEXT_RESET}          Prefix that will be added to the paths of any images referenced in the image repository mirror. E.g. "250701" will result in a pull of icr.io/myimage being redirected to IMAGE_REPO_MIRROR_HOST/250701/myimage.
-      
+
 Other Commands:
   -h, --help                              Show this help message
 EOM
@@ -648,7 +648,7 @@ function gitops_cluster() {
   export SECRET_NAME_LOG_FORWARDER_DLC_CA_BUNDLE=${ACCOUNT_ID}${SM_DELIM}dlc_cert
   export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CA_BUNDLE}#ca_bundle
 
-  export SECRET_NAME_AWS_ECR=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}/aws_ecr
+  export SECRET_NAME_AWS_ECR=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}aws_ecr
   export SECRET_KEY_AWS_ECR_ACCESS_KEY_ID=${SECRET_NAME_AWS_ECR}#ecr_aws_access_key_id
   export SECRET_KEY_AWS_ECR_ACCESS_KEY_SECRET=${SECRET_NAME_AWS_ECR}#ecr_aws_secret_access_key
 
