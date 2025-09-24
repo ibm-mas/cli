@@ -27,7 +27,7 @@ spec:
       type: string
       
   stepTemplate:
-    name: gitops-deprovision-aiservicee
+    name: gitops-deprovision-aiservice
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
@@ -62,7 +62,7 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mkdir -p /tmp/init-aiservicee
+        mkdir -p /tmp/init-aiservice
         
         mas gitops-deprovision-aiservice -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \

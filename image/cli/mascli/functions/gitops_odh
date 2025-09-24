@@ -15,7 +15,7 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
-  -m, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}  AI Broker Instance ID
+  -m, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}  AI Service Instance ID
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
@@ -281,15 +281,6 @@ function gitops_odh_noninteractive() {
       --storage-provider)
         export AISERVICE_STORAGE_PROVIDER=$1 && shift
         ;;
-      --storage-accesskey)
-        export MAS_AIBROKER_STORAGE_ACCESSKEY=$1 && shift
-        ;;
-      --storage-secretkey)
-        export MAS_AIBROKER_STORAGE_SECRETKEY=$1 && shift
-        ;;
-      --storage-port)
-        export MAS_AIBROKER_STORAGE_PORT=$1 && shift
-        ;;
       --storage-ssl)
         export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
@@ -299,23 +290,6 @@ function gitops_odh_noninteractive() {
       --aiservice-odh-model-deployment-type)
         export AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE=$1 && shift
         ;;
-      --storage-pipelines-bucket)
-        export MAS_AIBROKER_STORAGE_PIPELINES_BUCKET=$1 && shift
-        ;;
-
-      --db-host)
-        export MAS_AIBROKER_DB_HOST=$1 && shift
-        ;;
-      --db-port)
-        export MAS_AIBROKER_DB_PORT=$1 && shift
-        ;;
-      --db-user)
-        export MAS_AIBROKER_DB_USER=$1 && shift
-        ;;
-      --db-database)
-        export MAS_AIBROKER_DB_DATABASE=$1 && shift
-        ;;
-
       --primary-storage-class)
         export PRIMARY_STORAGE_CLASS=$1 && shift
         ;;
@@ -380,7 +354,7 @@ function gitops_odh() {
   echo_h2 "Target"
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "AI Broker Instance ID ................ ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
+  echo_reset_dim "AI Service Instance ID ................ ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   echo_reset_dim "OpenDataHub Source ................... ${COLOR_MAGENTA}${OPENDATAHUB_SOURCE}"
   echo_reset_dim "AiService Model Deployment Type ...... ${COLOR_MAGENTA}${AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE}"
   echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
@@ -403,12 +377,11 @@ function gitops_odh() {
   sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement "image_pull_secret_b64"
 
   echo_h2 "ODH Secret Summary"
-  echo_reset_dim "AI Broker Namespace ................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
+  echo_reset_dim "AI Service Namespace ................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
   echo_reset_dim "STORAGE_HOST ............................. ${COLOR_MAGENTA}${STORAGE_HOST}"
   echo_reset_dim "STORAGE_BUCKET ........................... ${COLOR_MAGENTA}${STORAGE_BUCKET}"
 
   echo_reset_dim "AISERVICE_STORAGE_SSL ................. ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
-  echo_reset_dim "MAS AI Broker Storage Region .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_REGION}"
   reset_colors
 
 

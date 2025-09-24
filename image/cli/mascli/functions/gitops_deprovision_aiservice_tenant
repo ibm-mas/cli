@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function gitops_deprovision_aiservicee_tenant_help() {
+function gitops_deprovision_aiservice_tenant_help() {
   [[ -n "$1" ]] && echo_warning "$1"
   reset_colors
   cat << EOM
@@ -21,8 +21,8 @@ Secrets Manager:
 
 
 ibm_aiservice_tenant(required):
-      --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                               The aiservice instance ID used by AI Broker
-      --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Broker instance
+      --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                               The aiservice instance ID used by AI Service
+      --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Service instance
 
 
 Automatic GitHub Push (Optional):
@@ -107,7 +107,7 @@ function gitops_deprovision_aiservice_tenant_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_deprovision_aiservicee_tenant_help
+        gitops_deprovision_aiservice_tenant_help
         ;;
       *)
         # unknown option
@@ -118,7 +118,7 @@ function gitops_deprovision_aiservice_tenant_noninteractive() {
       esac
   done
 
-  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_aiservicee_tenant_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_deprovision_aiservice_tenant_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_aiservice_tenant_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_aiservice_tenant_help "CLUSTER_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_deprovision_aiservice_tenant_help "REGION_ID or SM_AWS_REGION is not set"
@@ -126,13 +126,13 @@ function gitops_deprovision_aiservice_tenant_noninteractive() {
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_aiservice_tenant_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_aiservice_tenant_help "GITHUB_ORG is not set"
-    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_aiservicee_tenant_help "GITHUB_REPO is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_aiservice_tenant_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_aiservice_tenant_help "GIT_BRANCH is not set"
   fi
 
   # add validation below like above  for those variable which have the value needed for further execution
   # -- aiservice
-  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_aiservice_tenant_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_aiservice_tenant_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Service instance ID using --aiservice_instance_id."
   [[ -z "$TENANT_ID" ]] && gitops_deprovision_aiservice_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
 
  }
@@ -197,7 +197,7 @@ function gitops_deprovision_aiservice_tenant() {
 
   # -- aiservice
   
-  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
+  echo_reset_dim "AI Service Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
    
   echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
   
@@ -257,7 +257,7 @@ function gitops_deprovision_aiservice_tenant() {
     echo_h2 "Deleting application configuration files"
     echo "- Deleting aiservice tenant"
    
-   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aiservicee-tenant-base.yaml
+   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aiservice-tenant-base.yaml
    rm -rf ${GITOPS_CLUSTER_DIR}/ibm-aiservice-tenant.yaml
     if [ "$GITHUB_PUSH" == "true" ]; then
       echo

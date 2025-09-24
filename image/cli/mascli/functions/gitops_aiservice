@@ -14,7 +14,7 @@ When no options are specified on the command line, interactive-mode will be enab
 Basic Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                  Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                  Cluster ID
-  -i, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
+  -i, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                              AI Service instance ID  
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                                              Secrets Manager path
@@ -27,13 +27,9 @@ ibm aiservice(required):
 
 storage provider:
       --aiservice-storage-provider ${TEXT_RESET}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}
-      --aiservice-storage-secret ${TEXT_RESET}AISERVICE_STORAGE_SECRET${TEXT_RESET}
-      --mas-aibroker-storage-port ${TEXT_RESET}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}
       --aiservice-storage_ssl ${TEXT_RESET}AISERVICE_STORAGE_SSL${TEXT_RESET}
       --aiservice-storage-region ${TEXT_RESET}AISERVICE_STORAGE_REGION${TEXT_RESET}
-      --mas-aibroker-storage-pipelines-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}
-      --mas-aibroker-storage-tenants-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_TENANTS_BUCKET${TEXT_RESET}
-      --mas-aibroker-storage-templates-bucket ${TEXT_RESET}MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET${TEXT_RESET}
+      
 sls_dro_jdbc
       --artifactory-username ${TEXT_RESET}ARTIFACTORY_USERNAME${TEXT_RESET}
       --aiservice-channel ${TEXT_RESET}AISERVICE_CHANNEL${TEXT_RESET}
@@ -82,13 +78,12 @@ function gitops_aiservice_noninteractive() {
   export MAS_ICR_CPOPEN=${MAS_ICR_CPOPEN:-"icr.io/cpopen"}
   # -- SLS Defaults
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}} 
-  export MAS_APP_ID=${MAS_APP_ID:-"aiservice"}
-  export AISERVICE_WATSONX_SECRET=${AISERVICE_WATSONX_SECRET:-"${MAS_APP_ID}-watsonxcfg"}
+  export AISERVICE_APP_ID=${AISERVICE_APP_ID:-"aiservice"}
+  export AISERVICE_WATSONX_SECRET=${AISERVICE_WATSONX_SECRET:-"${AISERVICE_APP_ID}-watsonxcfg"}
   export AISERVICE_STORAGE_PROVIDER=${AISERVICE_STORAGE_PROVIDER:-"aws"}
   #Storage Defaults
   export AISERVICE_STORAGE_REGION=${AISERVICE_STORAGE_REGION:-""}
   export AISERVICE_STORAGE_SSL=${AISERVICE_STORAGE_SSL:-"true"}
-  export AISERVICE_STORAGE_SECRET=${AISERVICE_STORAGE_SECRET:-"${MAS_APP_ID}-miniocfg"}
   export MAS_CATALOG_SOURCE=${MAS_CATALOG_SOURCE:-"ibm-operator-catalog"}
 
   export AISERVICE_S3_BUCKET_PREFIX=${AISERVICE_S3_BUCKET_PREFIX:-"m"}
@@ -173,9 +168,6 @@ function gitops_aiservice_noninteractive() {
       --aiservice-storage_ssl)
         export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
-      --aiservice-storage-secret)
-          export AISERVICE_STORAGE_SECRET=$1 && shift
-        ;;
       --mas-catalog-source)
           export MAS_CATALOG_SOURCE=$1 && shift
         ;;
@@ -251,13 +243,13 @@ function gitops_aiservice_noninteractive() {
 
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_aiservice_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_aiservicee_help "ACCOUNT_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_aiservice_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_aiservice_help "CLUSTER_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_aiservice_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_suite_help "CLUSTER_URL is not set"
   
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_aiservicee_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_aiservice_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_aiservice_help "GITHUB_ORG is not set"
     [[ -z "$GITHUB_REPO" ]] && gitops_aiservice_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_aiservice_help "GIT_BRANCH is not set"
@@ -266,9 +258,9 @@ function gitops_aiservice_noninteractive() {
 
 # add validation below like above  for those variable which have the value needed for further execution
 # -- aiservice
-  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_aiservicee_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_aiservice_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Service instance ID using --aiservice_instance_id."
   [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_aiservice_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
-  [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aiservicee_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
+  [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aiservice_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
   [[ -z "$ARTIFACTORY_USERNAME" ]] && gitops_aiservice_help "ARTIFACTORY_USERNAME is not set. Please provide the artifactory username using --artifactory-username"
   [[ -z "$AISERVICE_CHANNEL" ]] && gitops_aiservice_help "AISERVICE_CHANNEL is not set. Please provide the mas app channel using --aiservice-channel"
   [[ -z "$MAS_CATALOG_SOURCE" ]] && gitops_aiservice_help "MAS_CATALOG_SOURCE is not set. Please provide the mas catalog source using --mas-catalog-source"
@@ -341,19 +333,14 @@ function gitops_aiservice() {
   # echo all the variables of gitops+envs
   export MAS_INSTANCE_ID="$AISERVICE_INSTANCE_ID"
   echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
-  echo_reset_dim "AI Broker Namespace ................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
+  echo_reset_dim "AI Service Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
+  echo_reset_dim "AI Service Namespace ................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
   echo_reset_dim "AI Service WatsonX Secret ............. ${COLOR_MAGENTA}${AISERVICE_WATSONX_SECRET}"
   echo_reset_dim "Pull Secret Name ...................... ${COLOR_MAGENTA}${PULL_SECRET_NAME}"
   # Storage variables
-  echo_reset_dim "AI Broker Storage Provider ........ ${COLOR_MAGENTA}${AISERVICE_STORAGE_PROVIDER}"
-  echo_reset_dim "AI Broker Storage Secret .......... ${COLOR_MAGENTA}${AISERVICE_STORAGE_SECRET}"
-  echo_reset_dim "AI Broker Storage Port ............ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PORT}"
-  echo_reset_dim "AI Broker Storage SSL ............. ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
-  echo_reset_dim "AI Broker Storage Region .......... ${COLOR_MAGENTA}${AISERVICE_STORAGE_REGION}"
-  echo_reset_dim "AI Broker Pipelines Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PIPELINES_BUCKET}"
-  echo_reset_dim "AI Broker Tenants Bucket .......... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TENANTS_BUCKET}"
-  echo_reset_dim "AI Broker Templates Bucket ........ ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET}"
+  echo_reset_dim "AI Service Storage Provider ........ ${COLOR_MAGENTA}${AISERVICE_STORAGE_PROVIDER}"
+  echo_reset_dim "AI Service Storage SSL ............. ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
+  echo_reset_dim "AI Service Storage Region .......... ${COLOR_MAGENTA}${AISERVICE_STORAGE_REGION}"
 
   echo_reset_dim "Primary Storage Class ................. ${COLOR_MAGENTA}${PRIMARY_STORAGE_CLASS}"
   echo_reset_dim "Artifactory Username ................... ${COLOR_MAGENTA}${ARTIFACTORY_USERNAME}"
@@ -375,7 +362,6 @@ function gitops_aiservice() {
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRETS_PREFIX}ibm_entitlement#entitlement_key
 
   #storage
-  # mas_aibroker_storage_accesskey
   export SECRET_KEY_STORAGE_ACCESSKEY=${SECRETS_PREFIX}s3#sm_s3_accesskey
   export SECRET_KEY_STORAGE_SECRETKEY=${SECRETS_PREFIX}s3#sm_s3_secretkey 
   export SECRET_KEY_STORAGE_HOST=${SECRETS_PREFIX}s3#sm_s3_host

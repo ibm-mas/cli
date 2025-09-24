@@ -588,7 +588,7 @@ case $1 in
     ;;
 
   gitops-aiservice)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aiservice Manager (v${VERSION})${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
@@ -596,7 +596,7 @@ case $1 in
     ;;
 
   gitops-aiservice-tenant)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aiservice tenant Manager (v${VERSION})${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Tenant Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
@@ -604,7 +604,7 @@ case $1 in
     ;;
     
   gitops-deprovision-aiservice-tenant)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aiservice tenant deprovision Manager (v${VERSION})${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Tenant deprovision Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
@@ -612,7 +612,7 @@ case $1 in
     ;;
 
    gitops-deprovision-aiservice)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aiservice tenant deprovision Manager (v${VERSION})${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService deprovision Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors

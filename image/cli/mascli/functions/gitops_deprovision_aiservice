@@ -125,14 +125,14 @@ function gitops_deprovision_aiservice_noninteractive() {
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_deprovision_aiservice_help "REGION_ID or SM_AWS_REGION is not set"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
-    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_aiservicee_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_aiservice_help "GITHUB_HOST is not set"
     [[ -z "$GITHUB_ORG" ]] && gitops_deprovision_aiservice_help "GITHUB_ORG is not set"
     [[ -z "$GITHUB_REPO" ]] && gitops_deprovision_aiservice_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_aiservice_help "GIT_BRANCH is not set"
   fi
 
   # -- aiservice
-  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_aiservice_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_aiservice_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Service instance ID using --aiservice_instance_id."
 
 
  }
@@ -194,7 +194,7 @@ function gitops_deprovision_aiservice() {
   reset_colors
 
   # -- aiservice
-  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
+  echo_reset_dim "AI Service Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   
  echo -e "login aws"
 

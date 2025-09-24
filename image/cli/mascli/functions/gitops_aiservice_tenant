@@ -16,10 +16,9 @@ Basic Configuration:
   -i, --Instance-id ${COLOR_YELLOW}INSTANCE_ID${TEXT_RESET}                                                 Instance ID
 
 ibm_aiservice_tenant(required):
-      --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                             The AIBROKER instance ID used by AI Broker
+      --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                             The AiService instance ID used by AI Service
       --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                        The tenant's Kubernetes namespace
-      --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Broker instance
-      --mas-aibroker-tenant-name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                       The name of the AI Broker tenant
+      --tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                     The tenant ID for the AI Service instance
       --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                           The domain name of the Kubernetes cluster (e.g., cluster.local)
       --drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                   URL of the DRO configuration service
       --slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                   URL of the SLS configuration service
@@ -27,15 +26,14 @@ ibm_aiservice_tenant(required):
       --aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                           Full URL for Watsonx.ai including API key
 
 AiService :
---aiservice-namespace ${COLOR_YELLOW}AISERVICE_NAMESPACE${TEXT_RESET}                                       The namespace where AI Broker is deployed
---aiservice-provision-tenant ${COLOR_YELLOW}AISERVICE_PROVISION_TENANT${TEXT_RESET}                         Whether to provision the AI Broker tenant
---aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                                   The AI Broker instance ID
+--aiservice-namespace ${COLOR_YELLOW}AISERVICE_NAMESPACE${TEXT_RESET}                                       The namespace where AI Service is deployed
+--aiservice-provision-tenant ${COLOR_YELLOW}AISERVICE_PROVISION_TENANT${TEXT_RESET}                         Whether to provision the AI Service tenant
+--aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                                   The AI Service instance ID
 --tenantNamespace ${COLOR_YELLOW}TENANT_NAMESPACE${TEXT_RESET}                                              The tenant's Kubernetes namespace
---tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                           The tenant ID for the AI Broker instance
---mas_aibroker_tenant_name ${COLOR_YELLOW}MAS_AIBROKER_TENANT_NAME${TEXT_RESET}                             The name of the AI Broker tenant
+--tenant-id ${COLOR_YELLOW}TENANT_ID${TEXT_RESET}                                                           The tenant ID for the AI Service instance
 --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                                 The domain name of the Kubernetes cluster (e.g., cluster.local)
 --in-saas-env ${COLOR_YELLOW}IN_SAAS_ENV${TEXT_RESET}                                                       Whether the environment is SaaS (true/false)
---aiservice_operator_log_level ${COLOR_YELLOW}AISERVICE_OPERATOR_LOG_LEVEL${TEXT_RESET}                     Log level for the AI Broker operator (e.g., info, debug)
+--aiservice_operator_log_level ${COLOR_YELLOW}AISERVICE_OPERATOR_LOG_LEVEL${TEXT_RESET}                     Log level for the AI Service operator (e.g., info, debug)
 --mas-icr-cp ${COLOR_YELLOW}MAS_ICR_CP${TEXT_RESET}                                                         IBM Cloud Pak container registry URL
 --mas-icr-cpopen ${COLOR_YELLOW}MAS_ICR_CPOPEN${TEXT_RESET}                                                 IBM Cloud Pak Open container registry URL
 
@@ -49,15 +47,13 @@ SLS :
 Watsonx :
 --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                          Endpoint URL for Watsonx.ai
 --aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                            Full URL for Watsonx.ai including API key
---aiservice-watsonx-instance-id ${COLOR_YELLOW}AISERVICE_WATSONX_INSTANCE_ID${TEXT_RESET}              Watsonx.ai instance ID used by AI Broker
+--aiservice-watsonx-instance-id ${COLOR_YELLOW}AISERVICE_WATSONX_INSTANCE_ID${TEXT_RESET}              Watsonx.ai instance ID used by AI Service
 --aiservice-watsonx-version ${COLOR_YELLOW}AISERVICE_WATSONX_VERSION${TEXT_RESET}                      Version of Watsonx.ai being used
 --aiservice-watsonx-username ${COLOR_YELLOW}AISERVICE_WATSONX_USERNAME${TEXT_RESET}                    Username for Watsonx.ai access
 
 Storage :
---aiservice-storage-provider ${COLOR_YELLOW}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}                    The storage provider used by AI Broker (e.g., S3, MinIO)
---mas-aibroker-storage-port ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PORT${TEXT_RESET}                            Port number STORAGE is exposed on
+--aiservice-storage-provider ${COLOR_YELLOW}AISERVICE_STORAGE_PROVIDER${TEXT_RESET}                    The storage provider used by AI Service (e.g., S3, MinIO)
 --aiservice-storage-region ${COLOR_YELLOW}AISERVICE_STORAGE_REGION${TEXT_RESET}                        Storage region used in STORAGE (if applicable)
---mas-aibroker-storage-pipelines-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}    The STORAGE bucket used to store pipeline assets
 --aiservice-storage_ssl ${COLOR_YELLOW}AISERVICE_STORAGE_SSL${TEXT_RESET}                              Whether STORAGE uses SSL (true/false)
 
 
@@ -152,9 +148,6 @@ function gitops_aiservice_tenant_noninteractive() {
       --tenant-id)
         export TENANT_ID=$1 && shift
         ;;
-      --mas-aibroker-tenant-name)
-        export MAS_AIBROKER_TENANT_NAME=$1 && shift
-        ;;
       --cluster-domain)
         export CLUSTER_DOMAIN=$1 && shift
         ;;
@@ -202,14 +195,8 @@ function gitops_aiservice_tenant_noninteractive() {
         export AISERVICE_OPERATOR_LOG_LEVEL=$1 && shift
         ;;
       # -- STORAGE
-      --mas-aibroker-storage-port)
-        export MAS_AIBROKER_STORAGE_PORT=$1 && shift
-        ;;
       --aiservice-storage-region)
         export AISERVICE_STORAGE_REGION=$1 && shift
-        ;;
-      --mas-aibroker-storage-pipelines-bucket)
-        export MAS_AIBROKER_STORAGE_PIPELINES_BUCKET=$1 && shift
         ;;
       --aiservice-storage_ssl)
         export AISERVICE_STORAGE_SSL=$1 && shift
@@ -278,7 +265,7 @@ function gitops_aiservice_tenant_noninteractive() {
   done
 
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_aiservice_tenant_help "GITOPS_WORKING_DIR is not set"
-  [[ -z "$ACCOUNT_ID" ]] && gitops_aiservicee_tenant_help "ACCOUNT_ID is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_aiservice_tenant_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_aiservice_tenant_help "CLUSTER_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_aiservice_tenant_help "REGION_ID or SM_AWS_REGION is not set"
 
@@ -290,8 +277,8 @@ function gitops_aiservice_tenant_noninteractive() {
   fi
 
   # add validation below like above  for those variable which have the value needed for further execution
-  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_aiservice_tenant_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aiservice_instance_id."
-  [[ -z "$TENANT_NAMESPACE" ]] && gitops_aiservicee_tenant_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_aiservice_tenant_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Service instance ID using --aiservice_instance_id."
+  [[ -z "$TENANT_NAMESPACE" ]] && gitops_aiservice_tenant_help "TENANT_NAMESPACE is not set. Please specify the tenant namespace using --tenantNamespace."
   [[ -z "$TENANT_ID" ]] && gitops_aiservice_tenant_help "TENANT_ID is not set. Please provide the tenant ID using --tenant-id."
   [[ -z "$CLUSTER_DOMAIN" ]] && gitops_aiservice_tenant_help "CLUSTER_DOMAIN is not set. Please provide the cluster domain using --cluster-domain."
   
@@ -376,7 +363,6 @@ function gitops_aiservice_tenant() {
   echo_reset_dim "AiService instance ID ......................... ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   echo_reset_dim "tenant namespace ............................. ${COLOR_MAGENTA}${TENANT_NAMESPACE}"
   echo_reset_dim "tenant ID .................................... ${COLOR_MAGENTA}${TENANT_ID}"
-  echo_reset_dim "mas aibroker tenant name ..................... ${COLOR_MAGENTA}${MAS_AIBROKER_TENANT_NAME}"
   echo_reset_dim "cluster domain ............................... ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   echo_reset_dim "in SaaS environment .......................... ${COLOR_MAGENTA}${IN_SAAS_ENV}"
 

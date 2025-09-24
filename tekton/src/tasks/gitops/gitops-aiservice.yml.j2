@@ -34,21 +34,9 @@ spec:
       type: string
     - name: aiservice_storage_provider
       type: string
-    - name: aiservice_storage_secret
-      type: string
-    - name: mas_aibroker_storage_port
-      type: string
     - name: aiservice_storage_ssl
       type: string
     - name: aiservice_storage_region
-      type: string
-    - name: mas_aibroker_storage_pipelines_bucket
-      type: string
-    - name: mas_aibroker_storage_tenants_bucket
-      type: string
-    - name: mas_aibroker_storage_templates_bucket
-      type: string
-    - name: aiservice_mariadb_secret
       type: string
     - name: primary_storage_class
       type: string
@@ -122,22 +110,10 @@ spec:
         value: $(params.pull_secret_name)
       - name: AISERVICE_STORAGE_PROVIDER
         value: $(params.aiservice_storage_provider)
-      - name: AISERVICE_STORAGE_SECRET
-        value: $(params.aiservice_storage_secret)
-      - name: MAS_AIBROKER_STORAGE_PORT
-        value: $(params.mas_aibroker_storage_port)
       - name: AISERVICE_STORAGE_SSL
         value: $(params.aiservice_storage_ssl)
       - name: AISERVICE_STORAGE_REGION
         value: $(params.aiservice_storage_region)
-      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
-        value: $(params.mas_aibroker_storage_pipelines_bucket)
-      - name: MAS_AIBROKER_STORAGE_TENANTS_BUCKET
-        value: $(params.mas_aibroker_storage_tenants_bucket)
-      - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
-        value: $(params.mas_aibroker_storage_templates_bucket)
-      - name: AISERVICE_MARIADB_SECRET
-        value: $(params.aiservice_mariadb_secret)
       - name: PRIMARY_STORAGE_CLASS
         value: $(params.primary_storage_class)
       - name: ARTIFACTORY_USERNAME

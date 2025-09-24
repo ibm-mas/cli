@@ -33,8 +33,6 @@ spec:
       type: string
     - name: tenant_id
       type: string
-    - name: mas_aibroker_tenant_name
-      type: string
     - name: cluster_domain
       type: string
     - name: in_saas_env
@@ -61,13 +59,9 @@ spec:
       type: string
     - name: aiservice_operator_log_level
       type: string
-    - name: mas_aibroker_storage_port
-      type: string
     - name: aiservice_storage_region
       type: string
     - name: aiservice_storage_provider
-      type: string
-    - name: mas_aibroker_storage_pipelines_bucket
       type: string
     - name: aiservice_storage_ssl
       type: string
@@ -114,8 +108,6 @@ spec:
         value: $(params.tenantNamespace)
       - name: TENANT_ID
         value: $(params.tenant_id)
-      - name: MAS_AIBROKER_TENANT_NAME
-        value: $(params.mas_aibroker_tenant_name)
       - name: CLUSTER_DOMAIN
         value: $(params.cluster_domain)
       - name: IN_SAAS_ENV
@@ -142,14 +134,10 @@ spec:
         value: $(params.aiservice_watsonx_username)
       - name: AISERVICE_OPERATOR_LOG_LEVEL
         value: $(params.aiservice_operator_log_level)
-      - name: MAS_AIBROKER_STORAGE_PORT
-        value: $(params.mas_aibroker_storage_port)
       - name: AISERVICE_STORAGE_REGION
         value: $(params.aiservice_storage_region)
       - name: AISERVICE_STORAGE_PROVIDER
         value: $(params.aiservice_storage_provider)
-      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
-        value: $(params.mas_aibroker_storage_pipelines_bucket)
       - name: AISERVICE_STORAGE_SSL
         value: $(params.aiservice_storage_ssl)
       - name: AISERVICE_S3_ENDPOINT_URL
