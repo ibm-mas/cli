@@ -603,6 +603,13 @@ function gitops_cluster() {
   echo_reset_dim "Install the Instana Agent Operator ........... ${COLOR_MAGENTA}${INSTANA_AGENT_OPERATOR_INSTALL}"
   reset_colors
 
+  if [[ -n "$MAS_CLI_IMAGE_REPO" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "MAS CLI Image" "    "
+    echo_reset_dim "MAS CLI Image repo ........... ${COLOR_MAGENTA}${MAS_CLI_IMAGE_REPO}"
+    reset_colors
+  fi
+
   if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
     echo "${TEXT_DIM}"
     echo_h2 "Image Repository Mirror" "    "
