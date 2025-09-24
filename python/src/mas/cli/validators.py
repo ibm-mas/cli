@@ -20,7 +20,7 @@ from kubernetes.client import api_client
 from prompt_toolkit.validation import Validator, ValidationError
 
 from mas.devops.ocp import getStorageClass
-from mas.devops.mas import verifyMasInstance
+from mas.devops.mas import verifyMasInstance, verifyAiServiceInstance
 
 import logging
 
@@ -71,7 +71,7 @@ class WorkspaceNameFormatValidator(Validator):
             raise ValidationError(message='Workspace name does not meet the requirements', cursor_position=len(instanceId))
 
 
-class InstanceIDValidator(Validator):
+class MasInstanceIDValidator(Validator):
     def validate(self, document):
         """
         Validate that a MAS instance ID exists on the target cluster
@@ -84,6 +84,18 @@ class InstanceIDValidator(Validator):
         if not verifyMasInstance(dynClient, instanceId):
             raise ValidationError(message='Not a valid MAS instance ID on this cluster', cursor_position=len(instanceId))
 
+class AiserviceInstanceIDValidator(Validator):
+    def validate(self, document):
+        """
+        Validate that a AI Service instance ID exists on the target cluster
+        """
+        instanceId = document.text
+
+        dynClient = dynamic.DynamicClient(
+            api_client.ApiClient(configuration=config.load_kube_config())
+        )
+        if not verifyAiServiceInstance(dynClient, instanceId):
+            raise ValidationError(message='Not a valid AI Service instance ID on this cluster', cursor_position=len(instanceId))
 
 class StorageClassValidator(Validator):
     def validate(self, document):

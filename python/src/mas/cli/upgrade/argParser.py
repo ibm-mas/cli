@@ -32,6 +32,12 @@ masArgGroup.add_argument(
     required=False,
     help="The MAS instance ID to be upgraded"
 )
+masArgGroup.add_argument(
+    '--aiservice-instance-id',
+    required=False,
+    help="The AI Service Instance ID to be upgraded"
+)
+
 otherArgGroup = upgradeArgParser.add_argument_group('More')
 otherArgGroup.add_argument(
     '--skip-pre-check',
