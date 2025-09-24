@@ -400,6 +400,7 @@ function gitops_odh() {
     export GIT_SSH=false
   fi
 
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement "image_pull_secret_b64"
 
   echo_h2 "ODH Secret Summary"
   echo_reset_dim "AI Broker Namespace ................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
