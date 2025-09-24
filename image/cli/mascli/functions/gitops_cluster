@@ -107,6 +107,11 @@ Instana Agent Operator (Optional):
 MAS CLI Image (Optional):
       --mas-cli-image-repo ${COLOR_YELLOW}MAS_CLI_IMAGE_REPO{TEXT_RESET}               The repo that holds the MAS CLI image to be pulled in ArgoCD. Only needed if using a mirror registry, and not quay.io
 
+Image Repository Mirror
+      --image-repo-mirror          ${COLOR_YELLOW}IMAGE_REPO_MIRROR${TEXT_RESET}                 Setup an image repository mirror. Image pulls by digest from icr.io and cp.icr.io  will be redirected by OCP to a repository of your choosing (via an IDMS).
+      --image-repo-mirror-host     ${COLOR_YELLOW}IMAGE_REPO_MIRROR_HOST${TEXT_RESET}            Host of image repository to direct pulls from icr.io and cp.icr.io to. E.g. ECR 012345678910.dkr.ecr.us-east-1.amazonaws.com
+      --image-repo-mirror-prefix   ${COLOR_YELLOW}IMAGE_REPO_MIRROR_PREFIX${TEXT_RESET}          Prefix that will be added to the paths of any images referenced in the image repository mirror. E.g. "250701" will result in a pull of icr.io/myimage being redirected to IMAGE_REPO_MIRROR_HOST/250701/myimage.
+      
 Other Commands:
   -h, --help                              Show this help message
 EOM
