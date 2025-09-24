@@ -124,7 +124,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                     self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentAiserviceChannel}")
                 nextAiserviceChannel = self.upgrade_path[currentAiserviceChannel]
 
-
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
             self.printDescription([
