@@ -457,6 +457,22 @@ function mustgather() {
 
       genericMustGather $AISERVICE_NAMESPACE pipelinerun   # Including model training logs
     fi
+
+    
+    AISERVICE_PIPELINE_NAMESPACE=aiservice-${AISERVICE_INSTANCE_ID}-pipelines
+    NAMESPACE_LOOKUP=$(oc get namespace $AISERVICE_PIPELINE_NAMESPACE --ignore-not-found)
+
+    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+      echo_h3 "Namespace: ${AISERVICE_PIPELINE_NAMESPACE}"
+      echo
+
+      # Reuse script from mas
+      $MG_SCRIPT_DIR/mg-summary-mas-pipelines $AISERVICE_PIPELINE_NAMESPACE &> ${OUTPUT_DIR}/${AISERVICE_PIPELINE_NAMESPACE}.txt
+      $MG_SCRIPT_DIR/mg-collect-mas-pipelines $AISERVICE_PIPELINE_NAMESPACE $OUTPUT_DIR
+      
+      genericMustGather $AISERVICE_PIPELINE_NAMESPACE
+    fi
+
     endTimer "${AISERVICE_INSTANCE_ID}"
   done
 
