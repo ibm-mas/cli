@@ -50,7 +50,6 @@
         src: "{{ task_src_dir }}/aiservice/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
-        - minio
         - aiservice
         - odh
         - aiservice-tenant
@@ -241,6 +240,10 @@
         - gitops-suite-workspace
         - gitops-suite
         - gitops-odh
-        - gitops-kmodel
-        - gitops-aibroker
-        - gitops-aibroker-tenant
+        - gitops-deprovision-odh
+
+        - gitops-aiservice
+        - gitops-aiservice-tenant
+        - gitops-deprovision-aiservice-tenant
+        - gitops-deprovision-aiservice
+
