@@ -624,18 +624,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
 
   if [[ $AUTO_BACKUP == 'true' && $IS_REPLICA_TASK == 'false' ]]; then
-    if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
-      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-      sm_update_secret ${SECRET_NAME_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
-    else
-      if [[ -z "$DB2_BACKUP_NOTIFY_SLACK_URL" ]]; then
-        echo -e "DB2 Auto Backup feature is enabled but Slack Url is not configured"
-      fi
-      if [[ -z "$ICD_AUTH_KEY" ]]; then
-        echo -e "DB2 Auto Backup feature is enabled but ICD_AUTH_KEY is not available as environment properties in the apps pipeline"
-      fi
-      exit 1
-    fi
+    echo
+    echo_h2 "Optional feature - DB2 automated backup is enabled"
+    
   else
     echo
     echo_h2 "Optional feature - DB2 automated backup is not enabled"
