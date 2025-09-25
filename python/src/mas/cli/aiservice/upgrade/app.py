@@ -96,7 +96,7 @@ class AiServiceUpgradeApp(BaseApp):
                 self.fatalError("You must accept the license terms with --accept-license when using the --no-confirm flag")
             else:
                 if not self.yesOrNo("Do you accept the license terms"):
-                    exit(1)    
+                    exit(1)
 
         self.printH1("Review Settings")
         print_formatted_text(HTML(f"<LightSlateGrey>AI Service Instance ID ..................... {aiserviceInstanceId}</LightSlateGrey>"))
@@ -118,7 +118,6 @@ class AiServiceUpgradeApp(BaseApp):
                 installOpenShiftPipelines(self.dynamicClient)
                 h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
 
-
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
@@ -127,7 +126,6 @@ class AiServiceUpgradeApp(BaseApp):
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-           
             with Halo(text='Submitting PipelineRun for {aiserviceInstanceId} upgrade', spinner=self.spinner) as h:
                 pipelineURL = launchAiServiceUpgradePipeline(self.dynamicClient, aiserviceInstanceId, self.skipPreCheck, params=self.params)
                 if pipelineURL is not None:
