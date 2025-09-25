@@ -10,7 +10,6 @@ ibm_aiservice:
   aiservice_sls_registration_key_secret: "{{ SLS_REGISTRATION_KEY_SECRET }}"
 
   #DRO
-  drocfg_ca: "<path:{{ SECRETS_PATH }}:{{ DROCFG_CA }}>"
   drocfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ DROCFG_REGISTRATION_KEY }}>"
   drocfg_url: "<path:{{ SECRETS_PATH }}:{{ DROCFG_URL }}>"
   drocfg_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ DROCFG_CA_B64ENC }}>"
@@ -38,8 +37,7 @@ ibm_aiservice:
   jdbccfg_username: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_USERNAME }}>"
   jdbccfg_password: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_PASSWORD }}>"
   jdbccfg_url: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_URL }}>"
-  jdbccfg_sslenabled: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_SSLENABLED }}>"
-  jdbccfg_ca: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_CA }}>"  
+  jdbccfg_sslenabled: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_SSLENABLED }}>" 
   jdbccfg_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ JDBCCFG_CA_B64ENC }}>"
   aiservice_jdbc_secret: "{{ JDBC_SECRET }}"
   use_aws_db2: {{ USE_AWS_DB2 }}
