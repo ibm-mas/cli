@@ -88,6 +88,8 @@ IBM Maximo Application Suite:
             --oidc-config '{"configtool": {"trusted_uri_prefixes": ["https://example.com:443", "https://otherexample.com:8443"]}}'
             
             "trusted_uri_prefixes" field is optional, defaults to ["http://localhost:3000", "http://localhost:3001", "http://localhost:3006"]
+      
+      --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  The certificate authority to use for provisoning certificates for MAS services
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
@@ -350,6 +352,10 @@ function gitops_suite_noninteractive() {
         export GIT_SSH=$1 && shift
         ;;
 
+      --internal-cert-authority)
+        export INTERNAL_CERT_AUTHORITY=$1 && shift
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_suite_help
@@ -521,6 +527,9 @@ function gitops_suite() {
   echo_reset_dim "Java or 3rd Party Code Extensions .......... ${COLOR_MAGENTA}${EXTENSIONS}"
   echo_reset_dim "Suite Spec Additional Properties ........... ${COLOR_MAGENTA}${SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML}"
   echo_reset_dim "Suite Spec Settings Additional Properties .. ${COLOR_MAGENTA}${SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES_YAML}"
+  if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+    echo_reset_dim "Internal Certificate Authority ............. ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
+  fi
   reset_colors
 
   if [[ -n "$DNS_PROVIDER" ]]; then
@@ -725,6 +734,13 @@ function gitops_suite() {
   if [[ -n "$SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES_YAML" && -s "$SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES_YAML" ]]; then
     export SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES=$(yq eval ${SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES_YAML})
     echo -e "\n - SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES CONTENT ............... ${SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES}"
+  fi
+
+  # Set internal certificate authority
+  # ---------------------------------------------------------------------------
+  if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+    export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
+    echo -e "\n - INTERNAL_CERTIFICATE_AUTHORITY .................. ${INTERNAL_CERTIFICATE_AUTHORITY}"
   fi
 
   # Generate ArgoApps

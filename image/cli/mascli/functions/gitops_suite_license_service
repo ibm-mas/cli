@@ -31,6 +31,7 @@ IBM Suite License Service:
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
       --sls-install-plan ${COLOR_YELLOW}SLS_INSTALL_PLAN${TEXT_RESET}  IBM Suite License Service Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
       --domain
+      --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority to use for provisoning internal certificates
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
@@ -163,6 +164,10 @@ function gitops_suite_license_service_noninteractive() {
         export GIT_SSH=$1 && shift
         ;;
 
+      --internal-certificate-authority)
+        export INTERNAL_CERT_AUTHORITY=$1 && shift
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_suite_help
@@ -249,6 +254,9 @@ function gitops_suite_license_service() {
   echo_h4 "IBM Suite License Service" "    "
   echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${SLS_CHANNEL}"
   echo_reset_dim "Subscription Install Plan ...... ${COLOR_MAGENTA}${SLS_INSTALL_PLAN}"
+  if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+    echo_reset_dim "Internal Certificate Authority ...... ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
+  fi
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -349,7 +357,10 @@ function gitops_suite_license_service() {
   ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
   sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}" "${TAGS}"
-  
+
+  if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+    export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
+  fi
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
