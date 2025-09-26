@@ -178,11 +178,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         self.setDB2DefaultSettings()
 
-        if not hasattr(self.args, "aiservice_watsonxai_deployment_id") or self.args.aiservice_watsonxai_deployment_id is None:
-            self.setParam("aiservice_watsonxai_deployment_id", "default-deployment-id")
-        if not hasattr(self.args, "aiservice_watsonxai_space_id") or self.args.aiservice_watsonxai_space_id is None:
-            self.setParam("aiservice_watsonxai_space_id", "default-space-id")
-
         for key, value in vars(self.args).items():
             # These fields we just pass straight through to the parameters and fail if they are not set
             if key in requiredParams:
