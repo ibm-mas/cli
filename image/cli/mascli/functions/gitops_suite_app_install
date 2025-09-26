@@ -426,7 +426,7 @@ function gitops_suite_app_install() {
     fi
   fi
 
-  if [[ -n "$INTERNAL_CERT_AUTHORITY" && -s "$INTERNAL_CERT_AUTHORITY" ]]; then
+  if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
     export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
     echo -e "\n - INTERNAL_CERTIFICATE_AUTHORITY .................. ${INTERNAL_CERTIFICATE_AUTHORITY}"
   fi

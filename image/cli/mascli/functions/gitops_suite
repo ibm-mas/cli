@@ -503,6 +503,9 @@ function gitops_suite() {
   echo_h4 "IBM Suite License Service" "    "
   echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${SLS_CHANNEL}"
   echo_reset_dim "Subscription Install Plan ...... ${COLOR_MAGENTA}${SLS_INSTALL_PLAN}"
+  if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+    echo_reset_dim "Internal Certificate Authority ...... ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
+  fi
   reset_colors
 
   echo "${TEXT_DIM}"

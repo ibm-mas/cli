@@ -164,7 +164,7 @@ function gitops_suite_license_service_noninteractive() {
         export GIT_SSH=$1 && shift
         ;;
 
-      --internal-certificate-authority)
+      --internal-cert-authority)
         export INTERNAL_CERT_AUTHORITY=$1 && shift
         ;;
 
