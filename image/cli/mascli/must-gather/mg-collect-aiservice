@@ -14,7 +14,7 @@ echo_h4 "Collect Reconcile Logs"
 $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-aiservice $OUTPUT_DIR
 
 # WS
-$DIR/mg-collect-reconcile-logs $NAMESPACE aiservice.ibm.com/appType: entitymgr-tenant-operator $OUTPUT_DIR
+$DIR/mg-collect-reconcile-logs $NAMESPACE aiservice.ibm.com/appType entitymgr-tenant-operator $OUTPUT_DIR
 
 #Truststore
 $DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR
