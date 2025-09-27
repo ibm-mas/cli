@@ -44,6 +44,8 @@ class InstallSummarizerMixin():
         self.printParamSummary("Instance ID", "mas_instance_id")
         self.printParamSummary("Workspace ID", "mas_workspace_id")
         self.printParamSummary("Workspace Name", "mas_workspace_name")
+        if self.getParam("mas_app_cfg_retries") != "":
+            self.printParamSummary("Maximum configuration Retries", "mas_app_cfg_retries")
 
         print()
         self.printSummary("Operational Mode", operationalModeNames[self.operationalMode])
