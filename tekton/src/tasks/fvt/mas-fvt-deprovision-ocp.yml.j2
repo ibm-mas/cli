@@ -103,3 +103,17 @@ spec:
               name: mas-fvt
               key: OCP_VERSION
               optional: true
+
+        - name: FVT_ARTIFACTORY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_ARTIFACTORY_USERNAME
+              optional: true
+                    
+        - name: FVT_ARTIFACTORY_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_ARTIFACTORY_TOKEN
+              optional: true
