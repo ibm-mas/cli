@@ -326,12 +326,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
 
     @logMethodCall
-    def selectLocalConfigDir(self) -> None:
-        if self.localConfigDir is None:
-            # You need to tell us where the configuration file can be found
-            self.localConfigDir = self.promptForDir("Select Local configuration directory")
-
-    @logMethodCall
     def configGrafana(self) -> None:
         if self.architecture == "s390x" or self.architecture == "ppc64le":
             # We are not supporting Grafana on s390x /ppc64le at the moment
@@ -1062,6 +1056,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam(key, value)
                     if value in ["jms", "snojms"]:
                         self.setParam("mas_app_settings_persistent_volumes_flag", "true")
+            elif key == "mas_app_settings_base_lang":
+                if value is not None and value != "":
+                    self.setParam(key, value.upper())
+            elif key == "mas_app_settings_secondary_langs":
+                if value is not None and value != "":
+                    self.setParam(key, value.upper())
 
             # MongoDB
             elif key == "mongodb_namespace":
@@ -1153,7 +1153,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.licensePrompt()
 
         # Version before 9.1 cannot have empty components
-        if (self.getParam("mas_channel").startswith("8.") or self.getParam("mas_channel").startswith("9.0")) and self.getParam("mas_appws_components") == "":
+        if (self.getParam("mas_channel").startswith("8.") or self.getParam("mas_channel").startswith("9.0")) and (self.getParam("mas_app_channel_manage") is not None and self.getParam("mas_app_channel_manage") != "") and self.getParam("mas_appws_components") == "":
             self.fatalError("--manage-components must be set for versions earlier than 9.1.0")
 
         #  An error should be raised if "health" is not specified when installing Predict.
