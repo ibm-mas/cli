@@ -513,6 +513,10 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [[ -z $AUTO_BACKUP ]]; then
     export AUTO_BACKUP=false
   fi
+  # Option to track icd and slack notifications, and if they need to be set in secret manager. The default behavior for commercial SaaS is true.
+  if [[ -z $SKIP_BACKUP_NOTIFICATION ]]; then
+    export SKIP_BACKUP_NOTIFICATION=false
+  fi
   if [[ -z $MANUALLY_SET_ENHANCED_HADR ]]; then
     export MANUALLY_SET_ENHANCED_HADR=false
   fi
@@ -613,6 +617,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "is-replica-task ............................... ${COLOR_MAGENTA}${IS_REPLICA_TASK}"
   echo_reset_dim "mas-annotations ............................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
   echo_reset_dim "auto-backup ................................... ${COLOR_MAGENTA}${AUTO_BACKUP}"
+  echo_reset_dim "skip-backup-notification ...................... ${COLOR_MAGENTA}${SKIP_BACKUP_NOTIFICATION}"
   echo_reset_dim "manually-set-enhanced-hadr .................... ${COLOR_MAGENTA}${MANUALLY_SET_ENHANCED_HADR}"
   echo_reset_dim "allow-list .................................... ${COLOR_MAGENTA}${ALLOW_LIST}"
   reset_colors
@@ -623,10 +628,19 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
 
-  if [[ $AUTO_BACKUP == 'true' && $IS_REPLICA_TASK == 'false' ]]; then
-    echo
-    echo_h2 "Optional feature - DB2 automated backup is enabled"
-    
+  if [[ $AUTO_BACKUP == 'true' && $IS_REPLICA_TASK == 'false' && $SKIP_BACKUP_NOTIFICATION == 'false' ]]; then
+    if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+      sm_update_secret ${SECRET_NAME_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
+    else
+      if [[ -z "$DB2_BACKUP_NOTIFY_SLACK_URL" ]]; then
+        echo -e "DB2 Auto Backup feature is enabled but Slack Url is not configured"
+      fi
+      if [[ -z "$ICD_AUTH_KEY" ]]; then
+        echo -e "DB2 Auto Backup feature is enabled but ICD_AUTH_KEY is not available as environment properties in the apps pipeline"
+      fi
+      exit 1
+    fi
   else
     echo
     echo_h2 "Optional feature - DB2 automated backup is not enabled"
@@ -660,10 +674,20 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   # Optional DB backup configs
   # ---------------------------------------------------------------------------
-  if [[ $AUTO_BACKUP == 'true' && $IS_REPLICA_TASK == 'false' ]]; then
+  if [[ $AUTO_BACKUP == 'true' && -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" && $IS_REPLICA_TASK == 'false' && $SKIP_BACKUP_NOTIFICATION == 'false' ]]; then
     echo
     echo_h2 "Optional DB backup configurations are provided"
     sm_verify_secret_exists $SECRET_NAME_ICD_AUTH_KEY "icd_auth_key"
+    sm_verify_secret_exists $SECRET_NAME_DB2_BACKUP "bucketName,accessKey,access_secret_key,endpointURL"
+    echo_h2 "Auto DB backup feature is enabled"
+    export BACKUP=true
+  fi
+
+  # DB backup configs when backup notifications are skipped
+  # ---------------------------------------------------------------------------
+  if [[ $AUTO_BACKUP == 'true' && $SKIP_BACKUP_NOTIFICATION == 'true' ]]; then
+    echo
+    echo_h2 "Backup notifications are skipped. Verifying backup secret exists."
     sm_verify_secret_exists $SECRET_NAME_DB2_BACKUP "bucketName,accessKey,access_secret_key,endpointURL"
     echo_h2 "Auto DB backup feature is enabled"
     export BACKUP=true
