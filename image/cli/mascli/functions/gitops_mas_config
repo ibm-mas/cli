@@ -680,6 +680,15 @@ function gitops_mas_config() {
         #enforce validation set to false for instance level check
         sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password" false
         sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+
+        #For AWS Docdb in govcloud set the corect authmechanism and configdb
+        export DOCDB_FEDERAL_INSTANCE_SECRET_FILE=$TEMP_DIR/docdb-federal-instance-secret.json
+        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}docdb $DOCDB_FEDERAL_INSTANCE_SECRET_FILE
+        DOCDB_FEDERAL_ACCESS_KEY=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+        if [[ -n ${DOCDB_FEDERAL_ACCESS_KEY} ]]; then
+          export DOCDB_AUTHMECHANISM="MONGODB-AWS"
+          export DOCDB_CONFIGDB="$$external"
+        fi
       fi
 
       jq -r .info $MONGO_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
