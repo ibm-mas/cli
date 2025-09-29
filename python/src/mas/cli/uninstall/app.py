@@ -18,7 +18,7 @@ from prompt_toolkit.completion import WordCompleter
 from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
-from ..validators import MasInstanceIDValidator
+from ..validators import InstanceIDValidator
 from .argParser import uninstallArgParser
 
 from mas.devops.ocp import createNamespace
@@ -85,7 +85,7 @@ class UninstallApp(BaseApp):
 
             suiteCompleter = WordCompleter(suiteOptions)
             print()
-            instanceId = self.promptForString("MAS instance ID", completer=suiteCompleter, validator=MasInstanceIDValidator())
+            instanceId = self.promptForString("MAS instance ID", completer=suiteCompleter, validator=InstanceIDValidator())
 
             self.printH1("Uninstall MAS Dependencies")
             self.printDescription([

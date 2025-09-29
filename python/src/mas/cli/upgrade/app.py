@@ -18,14 +18,14 @@ from prompt_toolkit.completion import WordCompleter
 from halo import Halo
 
 from ..cli import BaseApp
-from ..validators import MasInstanceIDValidator, AiserviceInstanceIDValidator
+from ..validators import InstanceIDValidator
 from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, listAiServiceInstances, getMasChannel, getAiserviceChannel, getWorkspaceId, verifyAppInstance
+from mas.devops.mas import listMasInstances, getMasChannel, getWorkspaceId, verifyAppInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
-from openshift.dynamic.exceptions import ResourceNotFoundError
+
 logger = logging.getLogger(__name__)
 
 
@@ -36,7 +36,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
         """
         args = upgradeArgParser.parse_args(args=argv)
         instanceId = args.mas_instance_id
-        aiserviceInstanceId = args.aiservice_instance_id
         self.noConfirm = args.no_confirm
         self.skipPreCheck = args.skip_pre_check
         self.licenseAccepted = args.accept_license
@@ -57,46 +56,22 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
 
         if instanceId is None:
             # Interactive mode
-            self.printH1("MAS Instance Selection")
+            self.printH1("Instance Selection")
             print_formatted_text(HTML("<LightSlateGrey>Select a MAS instance to upgrade from the list below:</LightSlateGrey>"))
-            try:
-                suites = listMasInstances(self.dynamicClient)
-            except ResourceNotFoundError:
-                suites = []
+            suites = listMasInstances(self.dynamicClient)
             suiteOptions = []
 
             if len(suites) == 0:
                 print_formatted_text(HTML("<Red>Error: No MAS instances detected on this cluster</Red>"))
-            else:
-                for suite in suites:
-                    print_formatted_text(HTML(f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"))
-                    suiteOptions.append(suite['metadata']['name'])
-
-                suiteCompleter = WordCompleter(suiteOptions)
-                print()
-                instanceId = prompt(HTML('<Yellow>Enter MAS instance ID: </Yellow>'), completer=suiteCompleter, validator=MasInstanceIDValidator(), validate_while_typing=False)
-
-        if aiserviceInstanceId is None:
-            # Interactive mode
-            self.printH1("AI Service Instance Selection")
-            print_formatted_text(HTML("<LightSlateGrey>Select a AI Service instance to upgrade from the list below:</LightSlateGrey>"))
-            try:
-                aiserviceInstances = listAiServiceInstances(self.dynamicClient)
-            except ResourceNotFoundError:
-                aiserviceInstances = []
-            aiserviceOptions = []
-
-            if len(aiserviceInstances) == 0:
-                print_formatted_text(HTML("<Red>Error: No AI Service instances detected on this cluster</Red>"))
                 sys.exit(1)
 
-            for aiservice in aiserviceInstances:
-                print_formatted_text(HTML(f"- <u>{aiservice['metadata']['name']}</u> v{aiservice['status']['versions']['reconciled']}"))
-                aiserviceOptions.append(aiservice['metadata']['name'])
+            for suite in suites:
+                print_formatted_text(HTML(f"- <u>{suite['metadata']['name']}</u> v{suite['status']['versions']['reconciled']}"))
+                suiteOptions.append(suite['metadata']['name'])
 
-            aiserviceCompleter = WordCompleter(aiserviceOptions)
+            suiteCompleter = WordCompleter(suiteOptions)
             print()
-            aiserviceInstanceId = prompt(HTML('<Yellow>Enter AI Service instance ID: </Yellow>'), completer=aiserviceCompleter, validator=AiserviceInstanceIDValidator(), validate_while_typing=False)
+            instanceId = prompt(HTML('<Yellow>Enter MAS instance ID: </Yellow>'), completer=suiteCompleter, validator=InstanceIDValidator(), validate_while_typing=False)
 
         currentChannel = getMasChannel(self.dynamicClient, instanceId)
         if currentChannel is not None:
@@ -113,16 +88,6 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             # queued up to run after install for instance
             currentChannel = "Unknown"
             nextChannel = "Unknown"
-
-        currentAiserviceChannel = getAiserviceChannel(self.dynamicClient, aiserviceInstanceId)
-        if currentAiserviceChannel is not None:
-            if self.devMode:
-                # this enables upgrade of custom channel for AI service
-                nextAiserviceChannel = prompt(HTML('<Yellow>Custom channel</Yellow> '))
-            else:
-                if currentAiserviceChannel not in self.upgrade_path:
-                    self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentAiserviceChannel}")
-                nextAiserviceChannel = self.upgrade_path[currentAiserviceChannel]
 
         if not self.licenseAccepted and not self.devMode:
             self.printH1("License Terms")
@@ -162,12 +127,9 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             self.configDb2(silentMode=True)
 
         self.printH1("Review Settings")
-        print_formatted_text(HTML(f"<LightSlateGrey>MAS Instance ID ..................... {instanceId}</LightSlateGrey>"))
+        print_formatted_text(HTML(f"<LightSlateGrey>Instance ID ..................... {instanceId}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Current MAS Channel ............. {currentChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Next MAS Channel ................ {nextChannel}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>AI Service Instance ID ..................... {aiserviceInstanceId}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Current AI Service Channel ............. {currentAiserviceChannel}</LightSlateGrey>"))
-        print_formatted_text(HTML(f"<LightSlateGrey>Next AI Service Channel ................ {nextAiserviceChannel}</LightSlateGrey>"))
         print_formatted_text(HTML(f"<LightSlateGrey>Skip Pre-Upgrade Checks ......... {self.skipPreCheck}</LightSlateGrey>"))
 
         if not self.noConfirm:
@@ -184,21 +146,19 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 installOpenShiftPipelines(self.dynamicClient)
                 h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
 
-            if instanceId is not None:
-                with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
-                    createNamespace(self.dynamicClient, pipelinesNamespace)
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
+            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+                createNamespace(self.dynamicClient, pipelinesNamespace)
+                h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
                 updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
-            if instanceId is not None:
-                with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:
-                    pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, params=self.params)
-                    if pipelineURL is not None:
-                        h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
-                        print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
-                    else:
-                        h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {instanceId} upgrade, see log file for details")
-                        print()
+            with Halo(text='Submitting PipelineRun for {instanceId} upgrade', spinner=self.spinner) as h:
+                pipelineURL = launchUpgradePipeline(self.dynamicClient, instanceId, self.skipPreCheck, params=self.params)
+                if pipelineURL is not None:
+                    h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {instanceId} upgrade submitted")
+                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
+                else:
+                    h.stop_and_persist(symbol=self.failureIcon, text=f"Failed to submit PipelineRun for {instanceId} upgrade, see log file for details")
+                    print()

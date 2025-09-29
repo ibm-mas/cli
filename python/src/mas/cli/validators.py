@@ -71,7 +71,7 @@ class WorkspaceNameFormatValidator(Validator):
             raise ValidationError(message='Workspace name does not meet the requirements', cursor_position=len(instanceId))
 
 
-class MasInstanceIDValidator(Validator):
+class InstanceIDValidator(Validator):
     def validate(self, document):
         """
         Validate that a MAS instance ID exists on the target cluster
