@@ -146,6 +146,9 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture = None
 
         self.compatibilityMatrix = {
+            "9.2.x-feature": {
+                "manage": ["9.1.x"],
+            },
             "9.1.x": {
                 "facilities": ["9.1.x"],
                 "assist": ["9.1.x", "9.0.x"],
