@@ -17,6 +17,7 @@ General Controls:
   --summary-only             Perform a much faster must-gather that only gathers high level summary information
   --no-logs                  Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
   --secret-data              Include secrets content in the must-gather
+  --user-sync                Include information that helps troubleshoot user synchronization issues
 
 MAS Content Controls:
   --mas-instance-ids         Limit must-gather to a list of MAS instance IDs (comma-seperated list)
@@ -114,6 +115,11 @@ function mustgather() {
     --no-logs|--no-pod-logs)
       POD_LOGS=false
       POD_LOGS_FLAG=""
+      ;;
+
+    # Include a txt file with information that helps troubleshoot user synchronization issues
+    --user-sync)
+      USER_SYNC_TROUBLESHOOTING=true
       ;;
 
     # Restict the gather to processing a specific list of MAS instance IDs, generally discouraged as problems in one MAS instance may be
@@ -214,6 +220,27 @@ function mustgather() {
   elif [ "$(oc get clusterrolebindings 2>&1 | grep forbidden)" != "" ] ; then 
     echo_warning "Your user does not appear to be a cluster administrator, you must be logged in to the server as a cluster administrator before running the must-gather command"
     exit 1
+  fi
+
+  # ---------------------------------------------------------------------------
+  # User synchronization troubleshooting
+  # ---------------------------------------------------------------------------
+  if [[ "$USER_SYNC_TROUBLESHOOTING" == "true" ]]; then
+    echo_h2 "User synchronization troubleshooting"
+    USER_SYNC_TROUBLESHOOTING_FOLDER_NAME=user-sync-troubleshooting
+    USER_SYNC_TROUBLESHOOTING_FOLDER_PATH=${OUTPUT_DIR}/${USER_SYNC_TROUBLESHOOTING_FOLDER_NAME}
+    mkdir -p $USER_SYNC_TROUBLESHOOTING_FOLDER_PATH
+    # Find MAS instances
+    # TODO: Remove this since MAS_INSTANCE_IDS will already be defined
+    MAS_INSTANCE_IDS=$(oc get suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
+    echo ""
+    for MAS_INSTANCE_ID in $MAS_INSTANCE_IDS
+    do
+      USER_SYNC_TROUBLESHOOTING_FILE_PATH=${USER_SYNC_TROUBLESHOOTING_FOLDER_PATH}/${MAS_INSTANCE_ID}.txt
+      echo_h2 "Maximo Application Suite: ${MAS_INSTANCE_ID}"
+      $MG_SCRIPT_DIR/mg-collect-user-sync-troubleshooting $MAS_INSTANCE_ID $USER_SYNC_TROUBLESHOOTING_FILE_PATH
+    done
+    exit 0
   fi
 
 
