@@ -662,7 +662,7 @@ function gitops_suite() {
     INSTANCE_MONGO_PASSWORD=$(jq -r .secret_access_key $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
     echo "gitops_suite : DOCDB_FEDERAL_ACCESS_KEY=${DOCDB_FEDERAL_ACCESS_KEY:0:8}<snip> is available in the docdb secret"
     export DOCDB_AUTHMECHANISM="MONGODB-AWS"
-    export DOCDB_CONFIGDB="$$external"
+    export DOCDB_CONFIGDB='$$external'
   fi
 
   ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}

@@ -687,7 +687,7 @@ function gitops_mas_config() {
         DOCDB_FEDERAL_ACCESS_KEY=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
         if [[ -n ${DOCDB_FEDERAL_ACCESS_KEY} ]]; then
           export DOCDB_AUTHMECHANISM="MONGODB-AWS"
-          export DOCDB_CONFIGDB="$$external"
+          export DOCDB_CONFIGDB='$$external'
         fi
       fi
 
