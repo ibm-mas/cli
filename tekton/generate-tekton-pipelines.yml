@@ -130,7 +130,9 @@
         - provision-bootstrap-cluster
         - deprovision-cluster
         - deprovision-mas-deps
+        - deprovision-aiservice-deps
       when: pipeline_name == ''
+        
 
     # 5. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
@@ -143,4 +145,8 @@
       with_items:
         - gitops-mas-deps
         - gitops-mas-initiator
+        - gitops-aiservice-deps
       when: pipeline_name == ''
+        
+
+        
