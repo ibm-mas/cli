@@ -64,6 +64,7 @@ IBM DB2U:
       --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                   Slack URL to notify DB2 backup failures
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                    Flag to know that this is ReplicaDB instance
       --is-replica-task ${COLOR_YELLOW}IS_REPLICA_TASK${TEXT_RESET}                                           To check if this is invoked by replica task
+      --skip-backup-notification ${COLOR_YELLOW}SKIP_BACKUP_NOTIFICATION${TEXT_RESET}                         Flag to track if slack and icd backup notifications are needed.
       --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}                                           MAS Annotations
       --auto-backup ${COLOR_YELLOW}AUTO_BACKUP${TEXT_RESET}                                                   Flag whether to install the Auto DB2 backup feature or not
       --manually-set-enhanced-hadr ${COLOR_YELLOW}MANUALLY_SET_ENHANCED_HADR${TEXT_RESET}                     Flag to indicate whether enhanced HADR was configured manually
@@ -295,6 +296,9 @@ function gitops_db2u_database_noninteractive() {
       --auto-backup)
         export AUTO_BACKUP=$1 && shift
         ;;
+      --skip-backup-notification)
+        export SKIP_BACKUP_NOTIFICATION=$1 && shift
+        ;;
       --manually-set-enhanced-hadr)
         export MANUALLY_SET_ENHANCED_HADR=$1 && shift
         ;;
@@ -513,7 +517,7 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [[ -z $AUTO_BACKUP ]]; then
     export AUTO_BACKUP=false
   fi
-  # Option to track icd and slack notifications, and if they need to be set in secret manager. The default behavior for commercial SaaS is true.
+  # Option to track icd and slack notifications, and if they need to be set in secret manager. The default behavior for commercial SaaS is false.
   if [[ -z $SKIP_BACKUP_NOTIFICATION ]]; then
     export SKIP_BACKUP_NOTIFICATION=false
   fi
