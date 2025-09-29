@@ -517,7 +517,7 @@ function mustgather() {
       echo_h3 "Namespace: ${AISERVICE_TENANT_ID}"
       echo
       
-      genericMustGather $AISERVICE_TENANT_ID
+      genericMustGather $AISERVICE_TENANT_ID InferenceService
     fi
     endTimer "${AISERVICE_TENANT_ID}"
   done
