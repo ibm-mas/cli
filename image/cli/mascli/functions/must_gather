@@ -433,6 +433,27 @@ function mustgather() {
 
 
   # ---------------------------------------------------------------------------
+  # AI Service Dependencies
+  # ---------------------------------------------------------------------------
+  echo_h2 "In-Cluster AI Service Dependencies"
+  if [[ "$DEPENDENCY_REPORT" == "true" ]]; then
+    startTimer
+    
+    echo_h3 "Open Data Hub"
+    ODH_NAMESPACE_LOOKUP=$(oc get namespace opendatahub --ignore-not-found)
+    if [[ "$ODH_NAMESPACE_LOOKUP" != "" ]]; then
+      $MG_SCRIPT_DIR/mg-summary-opendatahub &> ${OUTPUT_DIR}/opendatahub.txt
+      genericMustGather opendatahub Auth,DataScienceCluster,DataSciencePipelines,DataSciencePipelinesApplication,DSCInitialization,Kserve,ModelController
+    else
+      echo_highlight "Unable to find namespace for opendatahub"
+    fi
+
+    endTimer "in-cluster AI Service dependencies"
+  else
+    echo_warning "Maximo AI Service dependency must-gather disabled"
+  fi
+
+  # ---------------------------------------------------------------------------
   # AI Service Must-Gather
   # ---------------------------------------------------------------------------
   if [[ -z $AISERVICE_INSTANCE_IDS ]]; then
