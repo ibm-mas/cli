@@ -127,7 +127,7 @@ class AiServiceUpgradeApp(BaseApp):
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text='Submitting PipelineRun for {aiserviceInstanceId} upgrade', spinner=self.spinner) as h:
-                pipelineURL = launchAiServiceUpgradePipeline(self.dynamicClient, aiserviceInstanceId, self.skipPreCheck, aiserviceChannel=nextAiserviceChannel,  params=self.params)
+                pipelineURL = launchAiServiceUpgradePipeline(self.dynamicClient, aiserviceInstanceId, self.skipPreCheck, aiserviceChannel=nextAiserviceChannel, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {aiserviceInstanceId} upgrade submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
