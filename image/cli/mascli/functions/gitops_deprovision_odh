@@ -15,7 +15,11 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
-  -i, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                    AI Service instance ID  
+
+  -i, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                             AI Service instance ID  
+      --sm-aws-secret-region ${TEXT_RESET}SM_AWS_REGION${TEXT_RESET}                                         AWS Region
+      --sm-aws-access-key ${TEXT_RESET}SM_AWS_ACCESS_KEY${TEXT_RESET}                                        AWS Access key ID
+      --sm-aws-secret-key ${TEXT_RESET}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}                                 AWS Secreat Access key ID
 
 
 Secrets Manager:
@@ -68,7 +72,9 @@ function gitops_deprovision_odh_noninteractive() {
       --cluster-url)
         export CLUSTER_URL=$1 && shift
         ;;
-
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
         export SM_AWS_REGION=$1

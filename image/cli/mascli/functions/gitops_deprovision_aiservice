@@ -22,9 +22,10 @@ Secrets Manager:
 ibm_aiservice(required):
       --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                              AI Service instance ID  
       --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}                                    AI SERVICE NAMESAPCE
-      --primary-storage-class ${TEXT_RESET}PRIMARY_STORAGE_CLASS${TEXT_RESET}
-
-
+      --primary-storage-class ${TEXT_RESET}PRIMARY_STORAGE_CLASS${TEXT_RESET}                                Primary Storage Class
+      --sm-aws-secret-region ${TEXT_RESET}SM_AWS_REGION${TEXT_RESET}                                         AWS Region
+      --sm-aws-access-key ${TEXT_RESET}SM_AWS_ACCESS_KEY${TEXT_RESET}                                        AWS Access key ID
+      --sm-aws-secret-key ${TEXT_RESET}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}                                 AWS Secreat Access key ID
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                                                  Enable automatic push to GitHub
@@ -69,7 +70,10 @@ function gitops_deprovision_aiservice_noninteractive() {
         export AISERVICE_INSTANCE_ID=$1 && shift
         ;;
       --aiservice-namespace)
-          export AISERVICE_NAMESPACE=$1 && shift
+        export AISERVICE_NAMESPACE=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
         ;;
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
