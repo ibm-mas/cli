@@ -12,6 +12,9 @@ function sm_login() {
     echo "Logging into AWS SecretsManager ..."
     aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
     aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+    if [[ -n "${SM_AWS_SESSION_TOKEN}" ]]; then
+      aws configure set aws_session_token "${SM_AWS_SESSION_TOKEN}"
+    fi
     aws configure set default.region $SM_AWS_REGION
     export AWS_REGION=$SM_AWS_REGION
     aws configure list

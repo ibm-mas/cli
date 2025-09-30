@@ -92,6 +92,9 @@ IBM Maximo Application Suite:
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
+MAS CLI Image (Optional):
+      --mas-cli-image-repo ${COLOR_YELLOW}MAS_CLI_IMAGE_REPO{TEXT_RESET}               The repo that holds the MAS CLI image to be pulled in ArgoCD. Only needed if using a mirror registry, and not quay.io
+
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
@@ -178,11 +181,6 @@ function gitops_suite_noninteractive() {
       # MongoDb Provider Selection
       --mongo-provider)
         export MONGODB_PROVIDER=$1 && shift
-        ;;
-
-      # AWS MongoDb provider
-      --user-action)
-        export USER_ACTION=$1 && shift
         ;;
 
       # SLS
@@ -324,6 +322,10 @@ function gitops_suite_noninteractive() {
         export OIDC_CONFIG=$1 && shift
         ;;
 
+      # MAS CLI
+      --mas-cli-image-repo)
+        export MAS_CLI_IMAGE_REPO=$1 && shift
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -364,15 +366,6 @@ function gitops_suite_noninteractive() {
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_suite_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_suite_help "CLUSTER_URL is not set"
   [[ -z "$MONGODB_PROVIDER" ]] && gitops_suite_help "MONGODB_PROVIDER is not set"
-
-  if [ $MONGODB_PROVIDER == 'aws' ]; then
-    [[ -z "$USER_ACTION" ]] && gitops_suite_help "USER_ACTION is not set"
-    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_help "MAS_INSTANCE_ID is not set"
-    if [ -z $SM_AWS_ACCESS_KEY_ID ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_REGION ]; then
-      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region'
-      exit 1
-    fi
-  fi
 
   if [[ "${DNS_PROVIDER}" == "cis" ]]; then
     [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_help "MAS_INSTANCE_ID is not set"
@@ -552,7 +545,6 @@ function gitops_suite() {
     reset_colors
   fi
 
-
   echo "${TEXT_DIM}"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     echo_h4 "GitOps Target" "    "
@@ -568,6 +560,13 @@ function gitops_suite() {
     echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
   fi
   reset_colors
+
+  if [[ -n "$MAS_CLI_IMAGE_REPO" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "MAS CLI Image" "    "
+    echo_reset_dim "MAS CLI Image repo ........... ${COLOR_MAGENTA}${MAS_CLI_IMAGE_REPO}"
+    reset_colors
+  fi
 
   # Set up Suite secrets
   # ---------------------------------------------------------------------------
@@ -653,7 +652,18 @@ function gitops_suite() {
   INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
 
   # Setting mongo instance secret with info field copied from the cluster level secret, 
-  # Instance username and password will be created in presync hook 
+  # Instance username and password will be created in presync hook unless it is already set in the docdb secret created in federal env, this is due to the
+  # presync hook not running in a federal env due to the userid requirements.
+  export DOCDB_FEDERAL_INSTANCE_SECRET_FILE=$TEMP_DIR/docdb-federal-instance-secret.json
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}docdb $DOCDB_FEDERAL_INSTANCE_SECRET_FILE
+  DOCDB_FEDERAL_ACCESS_KEY=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+  if [[ -n ${DOCDB_FEDERAL_ACCESS_KEY} ]]; then
+    INSTANCE_MONGO_USERNAME=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+    INSTANCE_MONGO_PASSWORD=$(jq -r .secret_access_key $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+    echo "gitops_suite : DOCDB_FEDERAL_ACCESS_KEY=${DOCDB_FEDERAL_ACCESS_KEY:0:8}<snip> is available in the docdb secret"
+    export DOCDB_AUTHMECHANISM="MONGODB-AWS"
+    export DOCDB_CONFIGDB='$$external'
+  fi
 
   ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
   ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
@@ -752,5 +762,7 @@ function gitops_suite() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
+
+  rm -rf $TEMP_DIR
 
 }

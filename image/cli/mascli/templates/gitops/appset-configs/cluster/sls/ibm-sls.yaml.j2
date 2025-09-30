@@ -36,8 +36,8 @@ ibm_sls_standalone:
   sls_install_plan: {{ SLS_INSTALL_PLAN }}
   run_sync_hooks: true
   mongo_spec:
-    authMechanism: DEFAULT
-    configDb: admin
+    authMechanism: {{ DOCDB_AUTHMECHANISM | default("DEFAULT") }}
+    configDb: {{ DOCDB_CONFIGDB | default("admin") }}
     secretName: sls-mongo-credentials
 {%- if config.retryWrites is sameas false %}
     retryWrites: false
