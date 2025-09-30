@@ -147,7 +147,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self.compatibilityMatrix = {
             "9.2.x-feature": {
-                "manage": ["9.1.x"],
+                "manage": ["9.1.x-feature"],
             },
             "9.1.x": {
                 "facilities": ["9.1.x"],
@@ -213,7 +213,7 @@ class BaseApp(PrintMixin, PromptMixin):
         }
 
         self.upgrade_path = {
-            "9.1.x": "9.1.x",
+            "9.1.x": "9.2.x-feature",
             "9.1.x-feature": "9.1.x",
             "9.0.x": "9.1.x",
             "8.11.x": "9.0.x",
