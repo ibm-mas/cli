@@ -546,7 +546,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - approval-manage
+        - waitfor-manage
         - approval-iot
 
     - name: launchfvt-monitor
@@ -559,10 +559,6 @@ spec:
       taskRef:
         kind: Task
         name: mas-launchfvt-monitor
-      when:
-        - input: $(params.launchfvt_monitor)
-          operator: in
-          values: ["true", "True"]
       when:
         - input: $(params.launchfvt_monitor)
           operator: in
@@ -833,7 +829,6 @@ spec:
           values: ["true", "True"]
       runAfter:
         - approval-manage
-        - approval-monitor
         - launchfvt-mobile
 
     # Install Sync Point
