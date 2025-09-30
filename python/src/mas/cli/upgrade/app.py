@@ -84,7 +84,7 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                     self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")
                 nextChannel = self.upgrade_path[currentChannel]
 
-                # For the Feature Channels we do not allow upgrade when an installed  app is not onboarded yet
+                # For the Feature Channels we do not allow upgrade when an installed app is not onboarded yet
                 if nextChannel in self.compatibilityMatrix:
                     if "feature" in nextChannel:
                         unsupportedAppForFC = []
