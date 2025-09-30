@@ -70,13 +70,7 @@ spec:
         'devops_suite_name': 'post-upgrade-verify'
       }) | indent(4) }}
       runAfter:
-        # Phase 5 apps that don't have a phase 6 app following it
-        - app-assist-upgrade
-        - app-optimizer-upgrade
-        - app-visualinspection-upgrade
-        - app-predict-upgrade
-        # Phase 6 apps
-        - app-monitor-upgrade
+        - aiservice-upgrade
 
   finally:
     # Update synchronization configmap
