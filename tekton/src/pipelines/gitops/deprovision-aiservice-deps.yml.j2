@@ -55,7 +55,9 @@ spec:
       default: ""
     - name: mas_instance_id
       type: string
-
+    - name: aws_docdb_instance_number
+      type: string
+      default: 3
     - name: jdbc_type_aiservice
       type: string
     - name: jdbc_instance_name_aiservice
@@ -69,6 +71,40 @@ spec:
     - name: jdbc_route_aiservice
       type: string
       default: ""
+
+    # Setting Parameters
+    # -----------------------------------------------------------------------------
+    - name: cloud_provider
+      type: string
+      default: aws
+    - name: efs_action
+      type: string
+      description: efs action to be performed (provision or deprovision)
+      default: ""
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: mas_app_channel_aiservice
+      type: string
+      description: Subscription channel for AI Service application operator
+      default: ""
+    - name: mas_edition
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+    - name: mongo_provider
+      type: string
+      default: aws
+    - name: mongodb_action
+      type: string
+      description: Optional. Used to uninstall MongoDB
+      default: ""
+    - name: region
+      type: string
+    - name: vpc_ipv4_cidr
+      type: string
 
   tasks:
 {% if wait_for_deprovision == true %}
