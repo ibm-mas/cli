@@ -135,6 +135,8 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --watsonxai-project-id \"{self.getParam('aiservice_watsonxai_project_id')}\"{newline}"
         if self.getParam('aiservice_watsonx_action') != "":
             command += f"  --watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_ca_crt') != "":
+            command += f"  --watsonxai-ca-crt \"{self.getParam('aiservice_watsonxai_ca_crt')}\"{newline}"
 
         if self.getParam('minio_root_user') != "":
             command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"

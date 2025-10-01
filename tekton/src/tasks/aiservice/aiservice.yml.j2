@@ -62,6 +62,10 @@ spec:
       type: string
       description:
       default: "This option is mandatory"
+    - name: aiservice_watsonxai_ca_crt
+      type: string
+      description:
+      default: "This option is mandatory"
 
     # AI Broker storage
     - name: aiservice_s3_accesskey
@@ -145,6 +149,8 @@ spec:
         value: $(params.aiservice_watsonxai_project_id)
       - name: AISERVICE_WATSONX_ACTION
         value: $(params.aiservice_watsonx_action)
+      - name: AISERVICE_WATSONXAI_CA_CRT
+        value: $(params.aiservice_watsonxai_ca_crt)
 
       # Opendatahub storage details
       - name: AISERVICE_S3_ACCESSKEY

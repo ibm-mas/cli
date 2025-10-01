@@ -301,6 +301,12 @@ watsonxArgGroup.add_argument(
     required=False,
     help="Action to perform with WatsonX (install/remove)"
 )
+watsonxArgGroup.add_argument(
+    "--watsonxai-ca-crt",
+    dest="aiservice_watsonxai_ca_crt",
+    required=False,
+    help="CA certificate for WatsonX"
+)
 
 
 # AI Service
