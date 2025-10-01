@@ -226,9 +226,9 @@ spec:
 
     # Deprovision DB2U Operator
     # -------------------------------------------------------------------------
-    - name: gitops-deprovision-db2u
+    - name: gitops-deprovision-db2u-aiservice
       runAfter:
-        - gitops-deprovision-db2u-database
+        - gitops-deprovision-db2u-database-aiservice
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
