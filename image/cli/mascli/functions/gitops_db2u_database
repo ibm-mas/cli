@@ -69,6 +69,7 @@ IBM DB2U:
       --auto-backup ${COLOR_YELLOW}AUTO_BACKUP${TEXT_RESET}                                                   Flag whether to install the Auto DB2 backup feature or not
       --manually-set-enhanced-hadr ${COLOR_YELLOW}MANUALLY_SET_ENHANCED_HADR${TEXT_RESET}                     Flag to indicate whether enhanced HADR was configured manually
       --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                     List of IPs or CIDR range that will be whitelisted
+      --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                             Cluster domain if any tls route needs to be created. Only needed if redhat cert-manager is not installed.
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -305,7 +306,9 @@ function gitops_db2u_database_noninteractive() {
       --allow-list)
         export ALLOW_LIST=$1 && shift
         ;;
-
+      --cluster-domain)
+      export CLUSTER_DOMAIN=$1 && shift
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -624,13 +627,17 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "skip-backup-notification ...................... ${COLOR_MAGENTA}${SKIP_BACKUP_NOTIFICATION}"
   echo_reset_dim "manually-set-enhanced-hadr .................... ${COLOR_MAGENTA}${MANUALLY_SET_ENHANCED_HADR}"
   echo_reset_dim "allow-list .................................... ${COLOR_MAGENTA}${ALLOW_LIST}"
+  echo_reset_dim "Cluster Domain ................................ ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   reset_colors
 
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-  export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
+  if [[ -z "${CLUSTER_DOMAIN}" ]]; then
+    echo "CLUSTER_DOMAIN not specified, fetching from secrets manager"
+    export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
+  fi
 
   if [[ $AUTO_BACKUP == 'true' && $IS_REPLICA_TASK == 'false' && $SKIP_BACKUP_NOTIFICATION == 'false' ]]; then
     if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
