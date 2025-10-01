@@ -199,12 +199,12 @@ spec:
           value: $(params.avp_aws_secret_region)
         - name: db2_subscription_install_plan
           value: $(params.db2_subscription_install_plan)
-    workspaces:
-    - name: configs
-        workspace: configs
-      taskRef:
-        kind: Task
-        name: gitops-db2u
+      workspaces:
+      - name: configs
+          workspace: configs
+        taskRef:
+          kind: Task
+          name: gitops-db2u
 
     # DB2 for AI Service
     - name: gitops-db2u-database-aiservice
