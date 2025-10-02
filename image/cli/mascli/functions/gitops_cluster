@@ -381,6 +381,7 @@ function gitops_cluster_noninteractive() {
 
   if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
     [[ -z "$CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE" ]] && gitops_cluster_help "CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE is not set"
+    [[ -z "$CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL" ]] && gitops_cluster_help "CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL is not set"
   fi
 }
 
@@ -570,8 +571,6 @@ function gitops_cluster() {
 
   export SECRET_NAME_SYSLOG_PULLSECRET=${ACCOUNT_ID}${SM_DELIM}syslog_pullsecret
   export SECRET_KEY_SYSLOG_PULLSECRET=${SECRET_NAME_SYSLOG_PULLSECRET}#pullsecret
-  export SECRET_NAME_LOG_FORWARDER_DLC_CA_BUNDLE=${ACCOUNT_ID}${SM_DELIM}dlc_cert
-  export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CA_BUNDLE}#ca_bundle
 
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
@@ -722,13 +721,14 @@ function gitops_cluster() {
       echo "- Cluster Logging Operator Log Forwarder Setup"
       [ -s "$CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE" ] || { echo_warning "Required value 'CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE' is missing or empty"; exit 1;}
       export CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE} | base64 -w0)
-      
+
       if [[ -n "$SYSLOG_PULLSECRET" ]]; then
         echo "- Update SYSLOG_PULLSECRET secret"
         TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
         sm_update_secret $SECRET_NAME_SYSLOG_PULLSECRET "{\"pullsecret\": \"${SYSLOG_PULLSECRET}\"}" "${TAGS}"
       fi
       sm_verify_secret_exists $SECRET_NAME_SYSLOG_PULLSECRET "pullsecret"
+      [ -n "$CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL" ] || { echo_warning "Required value 'CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL' is missing"; exit 1;}   
     fi
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi
