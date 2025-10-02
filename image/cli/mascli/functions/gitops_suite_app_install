@@ -372,7 +372,7 @@ function gitops_suite_app_install() {
     export MAS_APP_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml | yq '.' --output-format yaml)
   fi
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
-    export MAS_APP_SPEC=$(echo "$MAS_APP_SPEC" | yq '.mas_app_spec.internal_certificate_authority = env(INTERNAL_CERT_AUTHORITY)' --output-format yaml)
+    export MAS_APP_SPEC=$(echo "$MAS_APP_SPEC" | yq '.mas_app_spec.internalCertificateAuthority = env(INTERNAL_CERT_AUTHORITY)' --output-format yaml)
   fi
   echo_reset_dim "MAS_APP_SPEC ............................ ${COLOR_MAGENTA}${MAS_APP_SPEC}"
   reset_colors
