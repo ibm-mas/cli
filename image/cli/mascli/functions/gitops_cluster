@@ -720,7 +720,7 @@ function gitops_cluster() {
     sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
     if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
       echo "- Cluster Logging Operator Log Forwarder Setup"
-      [ -s CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE] || { echo_warning "Required value 'CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE' is missing or empty"; exit 1;}
+      [ -s CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE ] || { echo_warning "Required value 'CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE' is missing or empty"; exit 1;}
       export CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE} | base64 -w0)
 
       echo "- Update SYSLOG_PULLSECRET secret"
