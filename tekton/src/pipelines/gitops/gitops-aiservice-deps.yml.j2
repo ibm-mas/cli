@@ -93,6 +93,87 @@ spec:
     # DB2 Parameters
     {{ lookup('template', params_src_dir ~ '/install-db2.yml.j2') | indent(4) }}
 
+    - name: db2_meta_storage_class
+      type: string
+    - name: db2_temp_storage_class
+      type: string
+    - name: db2_logs_storage_class
+      type: string
+    - name: db2_audit_logs_storage_class
+      type: string
+    - name: db2_archivelogs_storage_class
+      type: string
+    - name: db2_data_storage_class
+      type: string
+    - name: db2_backup_storage_class
+      type: string
+    - name: db2_meta_storage_size
+      type: string
+    - name: db2_temp_storage_size
+      type: string
+    - name: db2_logs_storage_size
+      type: string
+    - name: db2_audit_logs_storage_size
+      type: string
+    - name: db2_archivelogs_storage_size
+      type: string
+    - name: db2_data_storage_size
+      type: string
+    - name: db2_backup_storage_size
+      type: string
+    - name: db2_version
+      type: string
+    - name: db2_instance_registry_yaml
+      type: string
+    - name: db2_instance_dbm_config_yaml
+      type: string
+    - name: db2_addons_audit_config_yaml
+      type: string
+    - name: db2_database_db_config_yaml
+      type: string
+    - name: db2_table_org
+      type: string
+    - name: db2_mln_count
+      type: string
+    - name: db2_num_pods
+      type: string
+    - name: db2_meta_storage_accessmode
+      type: string
+    - name: db2_data_storage_accessmode
+      type: string
+    - name: db2_backup_storage_accessmode
+      type: string
+    - name: db2_logs_storage_accessmode
+      type: string
+    - name: db2_audit_logs_storage_accessmode
+      type: string
+    - name: db2_temp_storage_accessmode
+      type: string
+    - name: db2_archivelogs_storage_accessmode
+      type: string
+    - name: db2_cpu_requests
+      type: string
+    - name: db2_cpu_limits
+      type: string
+    - name: db2_memory_requests
+      type: string
+    - name: db2_memory_limits
+      type: string
+    - name: db2_affinity_key
+      type: string
+    - name: db2_affinity_value
+      type: string
+    - name: db2_tolerate_key
+      type: string
+    - name: db2_tolerate_value
+      type: string
+    - name: db2_tolerate_effect
+      type: string
+    - name: db2_timezone
+      type: string
+    - name: db2_tls_version
+      type: string
+
     # Gitops Parameters
     {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
 
