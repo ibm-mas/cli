@@ -45,7 +45,3 @@ ibm_suite_app_{{ MAS_APP_ID }}_install:
     {{STORAGE_CLASS_DEFINITIONS}}
     {%- endfilter %}
   {% endif %}
-
-  {% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
-  internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
-  {% endif %}
