@@ -17,7 +17,6 @@ General Controls:
   --summary-only             Perform a much faster must-gather that only gathers high level summary information
   --no-logs                  Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
   --secret-data              Include secrets content in the must-gather
-  --user-sync                Include information that helps troubleshoot user synchronization issues
 
 MAS Content Controls:
   --mas-instance-ids         Limit must-gather to a list of MAS instance IDs (comma-seperated list)
@@ -117,11 +116,6 @@ function mustgather() {
       POD_LOGS_FLAG=""
       ;;
 
-    # Include a txt file with information that helps troubleshoot user synchronization issues
-    --user-sync)
-      USER_SYNC_TROUBLESHOOTING=true
-      ;;
-
     # Restict the gather to processing a specific list of MAS instance IDs, generally discouraged as problems in one MAS instance may be
     # caused by anything on the cluster, including other MAS instances
     --mas-instance-ids)
@@ -198,6 +192,11 @@ function mustgather() {
   OUTPUT_DIR=${MG_DIR}/${TIMESTAMP}
   mkdir -p $OUTPUT_DIR
 
+  # Dir to save mas-quick-summary reports
+  MAS_QUICK_SUMMARY_DIR_NAME=mas-quick-summary
+  MAS_QUICK_SUMMARY_DIR_PATH=${OUTPUT_DIR}/${MAS_QUICK_SUMMARY_DIR_NAME}
+  mkdir -p $MAS_QUICK_SUMMARY_DIR_PATH
+
   if [[ "$?" != "0" ]]; then
     echo_warning "Unable to create must-gather output directory '${MG_DIR}/${TIMESTAMP}'"
     exit 1
@@ -221,28 +220,6 @@ function mustgather() {
     echo_warning "Your user does not appear to be a cluster administrator, you must be logged in to the server as a cluster administrator before running the must-gather command"
     exit 1
   fi
-
-  # ---------------------------------------------------------------------------
-  # User synchronization troubleshooting
-  # ---------------------------------------------------------------------------
-  if [[ "$USER_SYNC_TROUBLESHOOTING" == "true" ]]; then
-    echo_h2 "User synchronization troubleshooting"
-    USER_SYNC_TROUBLESHOOTING_FOLDER_NAME=user-sync-troubleshooting
-    USER_SYNC_TROUBLESHOOTING_FOLDER_PATH=${OUTPUT_DIR}/${USER_SYNC_TROUBLESHOOTING_FOLDER_NAME}
-    mkdir -p $USER_SYNC_TROUBLESHOOTING_FOLDER_PATH
-    # Find MAS instances
-    # TODO: Remove this since MAS_INSTANCE_IDS will already be defined
-    MAS_INSTANCE_IDS=$(oc get suite --all-namespaces --ignore-not-found -o jsonpath='{.items[*].metadata.name}')
-    echo ""
-    for MAS_INSTANCE_ID in $MAS_INSTANCE_IDS
-    do
-      USER_SYNC_TROUBLESHOOTING_FILE_PATH=${USER_SYNC_TROUBLESHOOTING_FOLDER_PATH}/${MAS_INSTANCE_ID}.txt
-      echo_h2 "Maximo Application Suite: ${MAS_INSTANCE_ID}"
-      $MG_SCRIPT_DIR/mg-collect-user-sync-troubleshooting $MAS_INSTANCE_ID $USER_SYNC_TROUBLESHOOTING_FILE_PATH
-    done
-    exit 0
-  fi
-
 
   # ---------------------------------------------------------------------------
   # Generate OCP Report
@@ -455,9 +432,17 @@ function mustgather() {
         genericMustGather $MAS_APP_NAMESPACE
       fi
     done
+
+    # Generate quick summary report that helps troubleshoot user synchronization problems
+    MAS_QUICK_SUMMARY_FILE_PATH=${MAS_QUICK_SUMMARY_DIR_PATH}/${MAS_INSTANCE_ID}.txt
+    echo_h3 "MAS quick summary: ${MAS_INSTANCE_ID}"
+    echo
+    $MG_SCRIPT_DIR/mg-quick-summary-mas $MAS_INSTANCE_ID $MAS_QUICK_SUMMARY_FILE_PATH
+    echo "MAS quick summary generated"
+    echo
+    
     endTimer "${MAS_INSTANCE_ID}:${MAS_APP_ID}"
   done
-
 
   # ---------------------------------------------------------------------------
   # AI Service Must-Gather
