@@ -305,7 +305,7 @@ watsonxArgGroup.add_argument(
     "--watsonxai-ca-crt",
     dest="aiservice_watsonxai_ca_crt",
     required=False,
-    help="CA certificate for WatsonX"
+    help="CA certificate for WatsonX AI (PEM format, optional, only if using self-signed certs)"
 )
 
 
