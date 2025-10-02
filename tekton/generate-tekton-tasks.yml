@@ -106,8 +106,6 @@
         - mas-launchfvt-manage
         - mas-launchfvt-manage-is
         - mas-launchfvt-mobile
-        - mas-launchfvt-mobile-upgrade-pre
-        - mas-launchfvt-mobile-upgrade-post
         - mas-launchfvt-monitor
         - mas-launchfvt-optimizer
         - mas-launchfvt-predict
