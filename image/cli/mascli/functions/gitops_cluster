@@ -90,7 +90,7 @@ Cluster Logging Operator (Optional):
       --cluster-logging-operator-install-plan ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN${TEXT_RESET}                                 Install plan for the subscription of the Cluster Logging Operator
       --cluster-logging-operator-channel ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_CHANNEL${TEXT_RESET}                                           Channel for the subscription of the Cluster Logging Operator
       --cluster-logging-operator-setup-log-forwarding ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING${TEXT_RESET}                 Flag to setup the deployment for syslog forwarder
-      --cluster-logging-operator-log-forwarder-client-url ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL${TEXT_RESET}         The syslog forwarder client url that goes into the ConfigMap
+      --cluster-logging-operator-log-forwarder-client-url ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL${TEXT_RESET}         The syslog forwarder client url for the DLC
       --cluster-logging-operator-syslog-forwarder-version ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION${TEXT_RESET}         Syslog forwarder image version
       --cluster-logging-operator-dlc-ca-bundle-file ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE${TEXT_RESET}                     Location of file containing DLC CA Certificates
 Instana Agent Operator (Optional):
@@ -528,9 +528,11 @@ function gitops_cluster() {
   echo_h2 "Cluster Logging Operator" "    "
   echo_reset_dim "Install the Cluster Logging Operator ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_INSTALL:-false}"
   echo_reset_dim "Use Syslog Forwarder ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER:-false}"
-  echo_reset_dim "Setup Log Forwarding ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING:-false}"
-  echo_reset_dim "Operator Channel ............................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_CHANNEL}"
-  echo_reset_dim "DLC CA Bundle File ............................. ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE}"
+  if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
+    echo_reset_dim "Setup Log Forwarding ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING:-false}"
+    echo_reset_dim "Operator Channel ............................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_CHANNEL}"
+    echo_reset_dim "DLC CA Bundle File ............................. ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE}"
+  fi
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -728,7 +730,6 @@ function gitops_cluster() {
         sm_update_secret $SECRET_NAME_SYSLOG_PULLSECRET "{\"pullsecret\": \"${SYSLOG_PULLSECRET}\"}" "${TAGS}"
       fi
       sm_verify_secret_exists $SECRET_NAME_SYSLOG_PULLSECRET "pullsecret"
-      [ -n "$CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL" ] || { echo_warning "Required value 'CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL' is missing"; exit 1;}   
     fi
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi
