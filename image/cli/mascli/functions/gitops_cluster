@@ -407,7 +407,10 @@ function gitops_cluster() {
   reset_colors
   echo_h2 "Review Settings"
 
-  # set default values 
+  # set default values
+  export CLUSTER_LOGGING_OPERATOR_INSTALL=${CLUSTER_LOGGING_OPERATOR_INSTALL:-"false"}
+  export CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER=${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER:-"false"}
+  export CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING=${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING:-"false"}
   export CLUSTER_LOGGING_OPERATOR_CHANNEL=${CLUSTER_LOGGING_OPERATOR_CHANNEL:-"stable-5.9"}
   export CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION=${CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION:-"1.8-amd64"}
 
@@ -526,10 +529,10 @@ function gitops_cluster() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Logging Operator" "    "
-  echo_reset_dim "Install the Cluster Logging Operator ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_INSTALL:-false}"
-  echo_reset_dim "Use Syslog Forwarder ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER:-false}"
+  echo_reset_dim "Install the Cluster Logging Operator ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_INSTALL}"
+  echo_reset_dim "Use Syslog Forwarder ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER}"
   if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
-    echo_reset_dim "Setup Log Forwarding ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING:-false}"
+    echo_reset_dim "Setup Log Forwarding ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING}"
     echo_reset_dim "Operator Channel ............................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_CHANNEL}"
     echo_reset_dim "DLC CA Bundle File ............................. ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE}"
   fi
