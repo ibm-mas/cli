@@ -74,6 +74,28 @@ spec:
     - name: mas_app_channel_aiservice
       type: string
       default: ""
+    ### Added on Parameters
+    - name: allow_list
+      type: string
+    - name: auto_backup_aiservice
+      type: string
+    - name: cloud_provider
+      type: string
+      default: aws
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: db2_action_aiservice
+      type: string
+      description: Set to 'install' to set up a Db2 instance for AI Service
+      default: "none"
+
+    # DB2 Parameters
+    {{ lookup('template', params_src_dir ~ '/install-db2.yml.j2') | indent(4) }}
+
+    # Gitops Parameters
+    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+
 
   tasks:
 {% if wait_for_provision == true %}
@@ -168,7 +190,7 @@ spec:
     # Install DB2 database
     - name: gitops-provision-db2u
       runAfter:
-        - gitops-provision-efs
+        - gitops-provision-mongo
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
 
