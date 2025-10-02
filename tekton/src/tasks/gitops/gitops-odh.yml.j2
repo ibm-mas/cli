@@ -8,7 +8,7 @@ spec:
       type: string
     - name: account
       type: string
-    - name: aibroker_instance_id
+    - name: aiservice_instance_id
       type: string
     - name: cluster_url
       type: string
@@ -22,6 +22,8 @@ spec:
     - name: github_host
       type: string
     - name: secrets_path
+      type: string
+    - name: aiservice_namespace
       type: string
     - name: avp_aws_secret_region
       type: string
@@ -38,11 +40,16 @@ spec:
       type: string
     - name: odh_operator_version
       type: string
-    - name: mas_aibroker_storage_ssl
+    - name: aiservice_storage_ssl
       type: string
       default: "true"
-    - name: mas_aibroker_storage_region
+    - name: aiservice_storage_region
       type: string
+    - name: opendatahub_source 
+      type: string
+    - name: aiservice_odh_model_deployment_type
+      type: string
+
   stepTemplate:
     name: gitops-odh
     env:
@@ -50,8 +57,8 @@ spec:
         value: $(params.cluster_name)
       - name: ACCOUNT
         value: $(params.account)
-      - name: AIBROKER_INSTANCE_ID
-        value: $(params.aibroker_instance_id)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
       - name: CLUSTER_URL
         value: $(params.cluster_url)
       - name: GITHUB_REPO
@@ -68,6 +75,8 @@ spec:
         value: $(params.github_repo)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
+      - name: AISERVICE_NAMESPACE
+        value: $(params.aiservice_namespace)
       - name: ODH_CHANNEL
         value: $(params.odh_channel)
       - name: ODH_INSTALL_PLAN
@@ -80,10 +89,14 @@ spec:
         value: $(params.opendatahub_namespace)
       - name: ODH_OPERATOR_VERSION
         value: $(params.odh_operator_version)
-      - name: MAS_AIBROKER_STORAGE_SSL
-        value: $(params.mas_aibroker_storage_ssl)
-      - name: MAS_AIBROKER_STORAGE_REGION
-        value: $(params.mas_aibroker_storage_region)
+      - name: AISERVICE_STORAGE_SSL
+        value: $(params.aiservice_storage_ssl)
+      - name: AISERVICE_STORAGE_REGION
+        value: $(params.aiservice_storage_region)
+      - name: OPENDATAHUB_SOURCE 
+        value: $(params.opendatahub_source)
+      - name: AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE
+        value: $(params.aiservice_odh_model_deployment_type)
     envFrom:
       - configMapRef:
           name: environment-properties
