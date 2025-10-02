@@ -91,8 +91,6 @@ spec:
       default: "none"
 
     # DB2 Parameters
-    {{ lookup('template', params_src_dir ~ '/install-db2.yml.j2') | indent(4) }}
-
     - name: db2_meta_storage_class
       type: string
     - name: db2_temp_storage_class
@@ -173,9 +171,94 @@ spec:
       type: string
     - name: db2_tls_version
       type: string
-
-    # Gitops Parameters
-    {{ lookup('template', params_src_dir ~ '/gitops-git.yml.j2') | indent(4) }}
+    - name: db2_addons_audit_config_yaml_aiservice
+      type: string
+    - name: db2_affinity_key_aiservice
+      type: string
+    - name: db2_affinity_value_aiservice
+      type: string
+    - name: db2_archivelogs_storage_accessmode_aiservice
+      type: string
+    - name: db2_archivelogs_storage_class_aiservice
+      type: string
+    - name: db2_archivelogs_storage_size_aiservice
+      type: string
+    - name: db2_audit_logs_storage_accessmode_aiservice
+      type: string
+    - name: db2_audit_logs_storage_class_aiservice
+      type: string
+    - name: db2_audit_logs_storage_size_aiservice
+      type: string
+    - name: db2_backup_notify_slack_url_aiservice
+      type: string
+    - name: db2_backup_storage_accessmode_aiservice
+      type: string
+    - name: db2_backup_storage_class_aiservice
+      type: string
+    - name: db2_backup_storage_size_aiservice
+      type: string
+    - name: db2_cpu_limits_aiservice
+      type: string
+    - name: db2_cpu_requests_aiservice
+      type: string
+    - name: db2_data_storage_accessmode_aiservice
+      type: string
+    - name: db2_data_storage_class_aiservice
+      type: string
+    - name: db2_data_storage_size_aiservice
+      type: string
+    - name: db2_database_db_config_yaml_aiservice
+      type: string
+    - name: db2_instance_dbm_config_yaml_aiservice
+      type: string
+    - name: db2_instance_registry_yaml_aiservice
+      type: string
+    - name: db2_logs_storage_accessmode_aiservice
+      type: string
+    - name: db2_logs_storage_class_aiservice
+      type: string
+    - name: db2_logs_storage_size_aiservice
+      type: string
+    - name: db2_memory_limits_aiservice
+      type: string
+    - name: db2_memory_requests_aiservice
+      type: string
+    - name: db2_meta_storage_accessmode_aiservice
+      type: string
+    - name: db2_meta_storage_class_aiservice
+      type: string
+    - name: db2_meta_storage_size_aiservice
+      type: string
+    - name: db2_mln_count_aiservice
+      type: string
+    - name: db2_num_pods_aiservice
+      type: string
+    - name: db2_subscription_install_plan
+      type: string
+    - name: db2_table_org_aiservice
+      type: string
+    - name: db2_temp_storage_accessmode_aiservice
+      type: string
+    - name: db2_temp_storage_class_aiservice
+      type: string
+    - name: db2_temp_storage_size_aiservice 
+      type: string
+    - name: db2_timezone_aiservice
+      type: string
+    - name: db2_tls_version_aiservice
+      type: string
+    - name: db2_tls_version_aiservice
+      type: string
+    - name: db2_tolerate_key_aiservice
+      type: string
+    - name: db2_tolerate_value_aiservice
+      type: string
+    - name: db2_version_aiservice
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: region
+      type: string
 
 
   tasks:
