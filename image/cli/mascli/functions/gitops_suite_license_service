@@ -351,7 +351,18 @@ function gitops_suite_license_service() {
   INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
 
   # Setting mongo instance secret with info field copied from the cluster level secret, 
-  # Instance username and password will be created in presync hook 
+  # Instance username and password will be created in presync hook unless it is already set in the docdb secret created in federal env, this is due to the
+  # presync hook not running in a federal env due to the userid requirements.
+  export DOCDB_FEDERAL_INSTANCE_SECRET_FILE=$TEMP_DIR/docdb-federal-instance-secret.json
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}docdb $DOCDB_FEDERAL_INSTANCE_SECRET_FILE
+  DOCDB_FEDERAL_ACCESS_KEY=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+  if [[ -n ${DOCDB_FEDERAL_ACCESS_KEY} ]]; then
+    INSTANCE_MONGO_USERNAME=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+    INSTANCE_MONGO_PASSWORD=$(jq -r .secret_access_key $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+    echo "gitops_suite : DOCDB_FEDERAL_ACCESS_KEY=${DOCDB_FEDERAL_ACCESS_KEY:0:8}<snip> is available in the docdb secret"
+    export DOCDB_AUTHMECHANISM="MONGODB-AWS"
+    export DOCDB_CONFIGDB='$$external'
+  fi
 
   ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
   ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
