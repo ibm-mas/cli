@@ -166,6 +166,8 @@ def test_install_interactive(tmpdir):
                                                 return 'rslToken'
                                             if re.match('.*Does the RSL API use a self-signed certificate.*', message):
                                                 return 'n'
+                                            if re.match('.*Does the Watsonxai AI use a self-signed certificate.*', message):
+                                                return 'n'
                                             if re.match('.*Create MongoDb cluster.*', message):
                                                 return 'n'
                                             if re.match('.*Select Local configuration directory.*', message):
