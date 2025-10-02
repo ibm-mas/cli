@@ -34,6 +34,7 @@ MAS PROVISIONER OPERATOR:
       --async-poll-max ${COLOR_YELLOW}ASYNC_POLL_MAX${TEXT_RESET}                    The maximum amount of time in seconds for MCSP to keep polling to check the status of an order. Default is 864000
       --enable-pd-alert ${COLOR_YELLOW}ENABLE_PD_ALERT${TEXT_RESET}                  Turn PagerDuty alerts on/off. Default is false
       --enable-ocm-alert ${COLOR_YELLOW}ENABLE_OCM_ALERT${TEXT_RESET}                Turn On Call Manager alerts on/off. Default is false
+      --recommend-cluster ${COLOR_YELLOW}RECOMMEND_CLUSTER${TEXT_RESET}              Turn cluster recommendation which uses Instana on/off. Default is false
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -131,6 +132,9 @@ function gitops_mas_provisioner_noninteractive() {
       --enable-ocm-alert)
         export ENABLE_OCM_ALERT=true
         ;;
+      --recommend-cluster)
+        export RECOMMEND_CLUSTER=true
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -218,6 +222,7 @@ function gitops_mas_provisioner() {
   export SERVICE_PORT=${SERVICE_PORT:-7329}
   export ASYNC_POLL_INTERVAL=${ASYNC_POLL_INTERVAL:-600}
   export ASYNC_POLL_MAX=${ASYNC_POLL_MAX:-864000}
+  export RECOMMEND_CLUSTER=${RECOMMEND_CLUSTER:-false}
 
   echo
   reset_colors
@@ -264,6 +269,7 @@ function gitops_mas_provisioner() {
   echo_reset_dim "CSB CA Cert File ........................ ${COLOR_MAGENTA}${CSB_CA_CERTIFICATE_FILE}"
   echo_reset_dim "Enable PD Alert ......................... ${COLOR_MAGENTA}${ENABLE_PD_ALERT}"
   echo_reset_dim "Enable OCM Alert ........................ ${COLOR_MAGENTA}${ENABLE_OCM_ALERT}"
+  echo_reset_dim "Recommend Cluster ....................... ${COLOR_MAGENTA}${RECOMMEND_CLUSTER}"
   reset_colors
 
   CURRENT_DIR=$PWD
@@ -289,12 +295,14 @@ function gitops_mas_provisioner() {
   echo "- Verify that IBM entitlement pull secret exists"
   sm_verify_secret_exists ${SECRET_NAME_IBM_ENTITLEMENT} "image_pull_secret_b64"
 
-  if [ -n "$INSTANA_KEY" ]; then
-    export SECRET_NAME_INSTANA_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}instana
-    export SECRET_KEY_INSTANA_API=${SECRET_NAME_INSTANA_API}#key
-    echo "- Update INSTANA_KEY secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${SECRET_NAME_INSTANA_API} "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
+  if [ "$RECOMMEND_CLUSTER" == "true" ]; then
+    if [ -n "$INSTANA_KEY" ]; then
+      export SECRET_NAME_INSTANA_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}instana
+      export SECRET_KEY_INSTANA_API=${SECRET_NAME_INSTANA_API}#key
+      echo "- Update INSTANA_KEY secret"
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+      sm_update_secret ${SECRET_NAME_INSTANA_API} "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
+    fi
   fi
 
   if [ -n "$GITHUB_PAT" ]; then

@@ -15,15 +15,15 @@ mas_provisioner:
   enable_pd_alert: {{ ENABLE_PD_ALERT }}
   enable_ocm_alert: {{ ENABLE_OCM_ALERT }}
   github_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_GITHUB_TOKEN }}>"
-  {% if ENABLE_MTLS == true or ENABLE_MTLS|string|lower == 'true' %}
+  {% if CSB_CA_CERT is defined and CSB_CA_CERT != "" %}
   csb_client_ca: {{ CSB_CA_CERT }}
   {% endif %}
   {% if SECRET_KEY_INSTANA_API is defined and SECRET_KEY_INSTANA_API != "" %}
   instana_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_API }}>"
   {% endif %}
-  {% if ENABLE_OCM_ALERT == true or ENABLE_OCM_ALERT|string|lower == 'true' %}
+  {% if SECRET_KEY_OCM_API is defined and SECRET_KEY_OCM_API != "" %}
   ocm_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OCM_API }}>"
   {% endif %}
-  {% if ENABLE_PD_ALERT == true or ENABLE_PD_ALERT|string|lower == 'true' %}
+  {% if SECRET_KEY_PAGERDUTY is defined and SECRET_KEY_PAGERDUTY != "" %}
   pagerduty_integration: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_PAGERDUTY }}>"
   {% endif %}
