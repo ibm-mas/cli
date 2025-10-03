@@ -259,7 +259,7 @@ elif [ "$COLLECT" = "true" ] || [ "$REMOVE" = "true" ]; then
         if [ "$CONTAINER" != "monitoragent" ] && [ "$CONTAINER" != "coreidp-init" ]
         then
           echo "removing all javacores in $CONTAINER in pod $SERVER_POD "
-          oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- find / -name "*javacore*.txt" 2> /dev/null | xargs rm >> $OUTPUT_DIR/cmd.txt
+          oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- find / -name "*javacore*.txt" -delete 2> /dev/null >> $OUTPUT_DIR/cmd.txt
 
         fi
       done
