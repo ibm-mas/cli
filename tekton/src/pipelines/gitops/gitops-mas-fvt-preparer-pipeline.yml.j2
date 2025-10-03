@@ -92,6 +92,11 @@ spec:
     - name: mas_appws_components
       type: string
 
+    - name: is_post_92
+      type: string
+      default: "false"
+      description: "Set this to 'true' for MAS versions >= 9.2.0 to enable new task ordering"
+      
     - name: launchfvt_core
       type: string
       default: "true"
@@ -262,6 +267,8 @@ spec:
         - name: mas_appws_components
           value: $(params.mas_appws_components)
 
+        - name: is_post_92
+          value: $(params.is_post_92)
         - name: launchfvt_core
           value: $(params.launchfvt_core)
         - name: launchfvt_assist
