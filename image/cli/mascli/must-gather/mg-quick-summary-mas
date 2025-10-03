@@ -177,7 +177,7 @@ if [[ "$MANAGE_CR_JSON" != "" ]]; then
 
   echo "# PodTemplates Configuration" >> ${OUTPUT_FILE} 2> /dev/null
   echo "Manage podTemplates configuration: " >> ${OUTPUT_FILE} 2> /dev/null
-  MANAGE_POD_TEMPLATES=$(echo "$MANAGE_CR_JSON" | jq -r '.items[0].spec.podTemplates')
+  MANAGE_POD_TEMPLATES=$(echo "$MANAGE_CR_JSON" | jq -r '.items[0].spec.podTemplates' || echo "")
   echo $MANAGE_POD_TEMPLATES >> ${OUTPUT_FILE} 2> /dev/null
   echo "" >> ${OUTPUT_FILE} 2> /dev/null
 
