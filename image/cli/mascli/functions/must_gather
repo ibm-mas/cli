@@ -433,6 +433,27 @@ function mustgather() {
 
 
   # ---------------------------------------------------------------------------
+  # AI Service Dependencies
+  # ---------------------------------------------------------------------------
+  echo_h2 "In-Cluster AI Service Dependencies"
+  if [[ "$DEPENDENCY_REPORT" == "true" ]]; then
+    startTimer
+    
+    echo_h3 "Open Data Hub"
+    ODH_NAMESPACE_LOOKUP=$(oc get namespace opendatahub --ignore-not-found)
+    if [[ "$ODH_NAMESPACE_LOOKUP" != "" ]]; then
+      $MG_SCRIPT_DIR/mg-summary-opendatahub &> ${OUTPUT_DIR}/opendatahub.txt
+      genericMustGather opendatahub Auth,DataScienceCluster,DataSciencePipelines,DataSciencePipelinesApplication,DSCInitialization,Kserve,ModelController
+    else
+      echo_highlight "Unable to find namespace for opendatahub"
+    fi
+
+    endTimer "in-cluster AI Service dependencies"
+  else
+    echo_warning "Maximo AI Service dependency must-gather disabled"
+  fi
+
+  # ---------------------------------------------------------------------------
   # AI Service Must-Gather
   # ---------------------------------------------------------------------------
   if [[ -z $AISERVICE_INSTANCE_IDS ]]; then
@@ -457,6 +478,22 @@ function mustgather() {
 
       genericMustGather $AISERVICE_NAMESPACE pipelinerun   # Including model training logs
     fi
+
+    
+    AISERVICE_PIPELINE_NAMESPACE=aiservice-${AISERVICE_INSTANCE_ID}-pipelines
+    NAMESPACE_LOOKUP=$(oc get namespace $AISERVICE_PIPELINE_NAMESPACE --ignore-not-found)
+
+    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+      echo_h3 "Namespace: ${AISERVICE_PIPELINE_NAMESPACE}"
+      echo
+
+      # Reuse script from mas
+      $MG_SCRIPT_DIR/mg-summary-mas-pipelines $AISERVICE_PIPELINE_NAMESPACE &> ${OUTPUT_DIR}/${AISERVICE_PIPELINE_NAMESPACE}.txt
+      $MG_SCRIPT_DIR/mg-collect-mas-pipelines $AISERVICE_PIPELINE_NAMESPACE $OUTPUT_DIR
+      
+      genericMustGather $AISERVICE_PIPELINE_NAMESPACE
+    fi
+
     endTimer "${AISERVICE_INSTANCE_ID}"
   done
 
@@ -480,7 +517,7 @@ function mustgather() {
       echo_h3 "Namespace: ${AISERVICE_TENANT_ID}"
       echo
       
-      genericMustGather $AISERVICE_TENANT_ID
+      genericMustGather $AISERVICE_TENANT_ID InferenceService
     fi
     endTimer "${AISERVICE_TENANT_ID}"
   done
