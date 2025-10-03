@@ -28,11 +28,11 @@ function debug() {
       ;;
 
     coredump)
-      $DEBUG_SCRIPT_DIR/manage_javadump "$@"
+      $DEBUG_SCRIPT_DIR/coredump "$@"
       ;;
 
     threaddump)
-      $DEBUG_SCRIPT_DIR/manage_threaddump "$@"
+      $DEBUG_SCRIPT_DIR/threaddump "$@"
       ;;
   esac
 
