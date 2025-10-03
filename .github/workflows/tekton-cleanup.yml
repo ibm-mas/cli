@@ -25,6 +25,7 @@ jobs:
           OCP_TOKEN: ${{ secrets.OCP_TOKEN }}
           OCP_SERVER: ${{ secrets.OCP_SERVER }}
         run: |
+          set +e
           NAMESPACE=$(echo "cli-tekton-test-pr${{ github.event.pull_request.number }}")
 
           kubectl config set-cluster my-cluster --server=$OCP_SERVER
@@ -33,6 +34,6 @@ jobs:
           kubectl config use-context my-context
           kubectl get namespace $NAMESPACE &>/dev/null
           rc=$?
-          if [ $rc -eq "0" ]; then
+          if [[ $rc -eq "0" ]]; then
             kubectl delete namespace $NAMESPACE
           fi
