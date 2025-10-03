@@ -85,6 +85,8 @@ def test_install_noninteractive(tmpdir):
                                                  '--watsonxai-apikey', 'test',
                                                  '--watsonxai-url', 'https://us-south.ml.cloud.ibm.com',
                                                  '--watsonxai-project-id', 'test',
+                                                 '--watsonxai-deployment-id', 'testDeploymentId',
+                                                 '--watsonxai-space-id', 'testSpaceId',
                                                  '--minio-root-user', 'test',
                                                  '--minio-root-password', 'test',
                                                  '--tenant-entitlement-type', 'standard',
