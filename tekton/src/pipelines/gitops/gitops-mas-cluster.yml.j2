@@ -248,6 +248,9 @@ spec:
     - name: provisioner_csb_ca_certificate_file
       type: string
       default: ''
+    - name: provisioner_recommend_cluster
+      type: string
+      default: 'false'
 
   tasks:
     - name: gitops-cluster
@@ -555,6 +558,8 @@ spec:
           value: $(params.provisioner_enable_pd_alert)
         - name: csb_ca_certificate_file
           value: $(params.provisioner_csb_ca_certificate_file)
+        - name: recommend_cluster
+          value: $(params.provisioner_recommend_cluster)
       taskRef:
         kind: Task
         name: gitops-mas-provisioner
