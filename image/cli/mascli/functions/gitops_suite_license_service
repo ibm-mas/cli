@@ -183,10 +183,9 @@ function gitops_suite_license_service_noninteractive() {
   [[ -z "$SAAS_SUB_ID" ]] && gitops_suite_license_service_help "SaaS Subscription ID must be set."
 
   if [ $MONGODB_PROVIDER == 'aws' ]; then
-    [[ -z "$USER_ACTION" ]] && gitops_suite_help "USER_ACTION is not set"
-    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_help "MAS_INSTANCE_ID is not set"
+    USER_ACTION="add"
     if [ -z $SM_AWS_ACCESS_KEY_ID ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_REGION ]; then
-      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region'
+      gitops_suite_license_service_help 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region'
       exit 1
     fi
   fi
@@ -274,6 +273,7 @@ function gitops_suite_license_service() {
   AVP_TYPE=aws
   sm_login
 
+  
 
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
