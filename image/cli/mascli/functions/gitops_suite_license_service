@@ -165,7 +165,7 @@ function gitops_suite_license_service_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_suite_help
+        gitops_suite_license_service_help
         ;;
       *)
         # unknown option
