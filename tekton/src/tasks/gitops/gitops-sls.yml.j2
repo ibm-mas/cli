@@ -34,8 +34,6 @@ spec:
     - name: icr_cp_open
       type: string
 
-    - name: github_push
-      type: string
     - name: git_branch
       type: string
     - name: github_org
@@ -83,8 +81,6 @@ spec:
       - name: ICR_CP_OPEN
         value: $(params.icr_cp_open)
 
-      - name: GITHUB_PUSH
-        value: $(params.github_push)
       - name: GIT_BRANCH
         value: $(params.git_branch)
       - name: GITHUB_ORG
@@ -117,7 +113,8 @@ spec:
         WORKING_DIR=/tmp
 
         mas gitops-suite-license-service -d $WORKING_DIR -a $ACCOUNT -c $CLUSTER_NAME --ibm-customer-number ${ICN} --subscription-id ${SAAS_SUB_ID} \
-        --secrets-path "${SECRETS_PATH}" --domain ${SLS_DOMAIN} --sls-channel ${SLS_CHANNEL} --sls-install-plan ${SLS_INSTALL_PLAN}  --cluster-url ${CLUSTER_URL}
+        --secrets-path "${SECRETS_PATH}" --domain ${SLS_DOMAIN} --sls-channel ${SLS_CHANNEL} --sls-install-plan ${SLS_INSTALL_PLAN} \
+        --cluster-url ${CLUSTER_URL} --github-push
         
       command:
         - /bin/sh
