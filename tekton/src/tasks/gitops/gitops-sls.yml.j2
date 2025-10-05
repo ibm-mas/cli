@@ -115,7 +115,6 @@ spec:
         mas gitops-suite-license-service -d $WORKING_DIR -a $ACCOUNT -c $CLUSTER_NAME --ibm-customer-number ${ICN} --subscription-id ${SAAS_SUB_ID} \
         --secrets-path "${SECRETS_PATH}" --domain ${SLS_DOMAIN} --sls-channel ${SLS_CHANNEL} --sls-install-plan ${SLS_INSTALL_PLAN}  --cluster-url ${CLUSTER_URL}
         
-        sleep 3000
       command:
         - /bin/sh
         - -c
