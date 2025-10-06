@@ -61,6 +61,14 @@ spec:
       type: string
       description:
       default: "This option is mandatory"
+    - name: aiservice_watsonxai_deployment_id
+      type: string
+      description: WatsonX deployment ID for IBM Maximo AI Service
+      default: ""
+    - name: aiservice_watsonxai_space_id
+      type: string
+      description: WatsonX space ID for IBM Maximo AI Service
+      default: ""
     - name: aiservice_watsonx_action
       type: string
       description:
@@ -124,6 +132,10 @@ spec:
         value: $(params.aiservice_watsonxai_url)
       - name: AISERVICE_WATSONXAI_PROJECT_ID
         value: $(params.aiservice_watsonxai_project_id)
+      - name: AISERVICE_WATSONXAI_DEPLOYMENT_ID
+        value: $(params.aiservice_watsonxai_deployment_id)
+      - name: AISERVICE_WATSONXAI_SPACE_ID
+        value: $(params.aiservice_watsonxai_space_id)
       - name: AISERVICE_WATSONX_ACTION
         value: $(params.aiservice_watsonx_action)
 
