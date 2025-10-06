@@ -46,7 +46,7 @@ spec:
       type: string
     - name: github_ssh
       type: string
-    - name: user_action
+    - name: docdb_user_action
       type: string
  
   stepTemplate:
@@ -94,7 +94,7 @@ spec:
       - name: GIT_SSH
         value: $(params.github_ssh)
       - name: USER_ACTION
-        value: add
+        value: $(params.docdb_user_action)
   
     envFrom:
       - configMapRef:
