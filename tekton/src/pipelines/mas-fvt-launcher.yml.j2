@@ -75,6 +75,10 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable launch of the Mobile FVT pipeline after app-cfg-manage completes"
+    - name: launchfvt_mobile_requests
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable execution of the Mobile FVT requests pipeline after the regular mobile pipeline completes"
     - name: launchfvt_monitor
       type: string
       default: "false"
@@ -573,8 +577,10 @@ spec:
           value: "$(params.mas_instance_id)-fvt-mobile-testng"
         - name: pipelinerun_name_pytest
           value: "$(params.mas_instance_id)-fvt-mobile-pytest"
-        - name: launchfvt_manage
-          value: "$(params.launchfvt_manage)"
+        - name: pipelinerun_name_requests
+          value: "$(params.mas_instance_id)-fvt-mobile-requests"
+        - name: launchfvt_mobile_requests
+          value: "$(params.launchfvt_mobile_requests)"
       taskRef:
         kind: Task
         name: mas-launchfvt-mobile
