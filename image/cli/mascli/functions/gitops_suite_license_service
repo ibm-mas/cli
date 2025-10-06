@@ -342,11 +342,11 @@ function gitops_suite_license_service() {
   INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
 
   if [[ -z "$INSTANCE_MONGO_USERNAME" ]] || [[  $INSTANCE_MONGO_USERNAME =~ ^null$ ]]; then
-     INSTANCE_MONGO_USERNAME = ${MASTER_MONGO_USERNAME}
+     INSTANCE_MONGO_USERNAME=${MASTER_MONGO_USERNAME}
   fi
 
   if [[ -z "$INSTANCE_MONGO_PASSWORD" ]] || [[  $INSTANCE_MONGO_PASSWORD =~ ^null$ ]]; then
-     INSTANCE_MONGO_PASSWORD = ${MASTER_MONGO_PASSWORD}
+     INSTANCE_MONGO_PASSWORD=${MASTER_MONGO_PASSWORD}
   fi
 
   # Setting mongo instance secret with info field copied from the cluster level secret, 

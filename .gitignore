@@ -3,6 +3,8 @@
 *.pyc
 
 image/cli/install/mas_cli.tar.gz
+image/cli/install/ibm-mas_devops.tar.gz
+image/cli/install/mas_devops.tar.gz
 image/cli/mascli/templates/ibm-mas-tekton.yaml
 
 target/
