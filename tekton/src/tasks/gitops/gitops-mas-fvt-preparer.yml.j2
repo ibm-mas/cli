@@ -96,13 +96,7 @@ spec:
       default: ""
     - name: mas_appws_components
       type: string
-      default: ""
-
-    - name: is_post_92
-      type: string
-      default: "false"
-      description: "Set this to 'true' for MAS versions >= 9.2.0 to enable new task ordering"
-      
+      default: ""      
     - name: launchfvt_core
       type: string
       default: "true"
@@ -278,8 +272,6 @@ spec:
         value: $(params.fvt_blacklist_optimizer)
       - name: FVT_WHITELIST_OPTIMIZER
         value: $(params.fvt_whitelist_optimizer)
-      - name: IS_POST_92
-        value: $(params.is_post_92)
       - name: LAUNCHFVT_CORE
         value: $(params.launchfvt_core)
       - name: LAUNCHFVT_ASSIST
@@ -347,7 +339,6 @@ spec:
 
         set -o pipefail
         trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium' ERR EXIT
-
 
 
         get_trailing_number() {

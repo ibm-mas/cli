@@ -1,5 +1,6 @@
 ---
 # There are various integration points in the install pipeline that we can hang FVT off
+# 0. config ..................... Performs configuration analysis and environment-specific settings
 # 1. suite-verify ............... Triggered after Core install and configuration is verified
 # 2. app-cfg-assist ............. Triggered after Assist is installed and configured
 # 3. app-cfg-iot ................ Triggered after IoT is installed and configured
@@ -7,7 +8,7 @@
 # 5. app-cfg-monitor ............ Triggered after Monitor is installed and configured
 # 6. app-cfg-optimizer .......... Triggered after Optimizer is installed and configured
 # 7. app-cfg-predict ............ Triggered after Predict is installed and configured
-# 8. app-cft-visualinspection ... Triggered after Visual Inspection is installed and configured
+# 8. app-cfg-visualinspection ... Triggered after Visual Inspection is installed and configured
 
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -21,10 +22,10 @@ spec:
     - name: mas_instance_id
       type: string
       
-    - name: is_post_92
+    - name: mas_channel
       type: string
-      default: "false"
-      description: "Set this to 'true' for MAS versions >= 9.2.0 to enable new task ordering"
+      default: ""
+      description: "MAS channel version (e.g., 9.2.0)"
 
     - name: sync_with_install
       type: string
@@ -131,6 +132,21 @@ spec:
       default: ""
 
   tasks:
+    # 0. Configuration
+    # -------------------------------------------------------------------------
+    # Performs configuration analysis and sets up environment-specific settings
+    # Currently determines if the MAS channel is >= 9.2.0 and sets the is-post-92 result
+    # This result is used to control the execution order of FVT tasks
+    - name: config
+      taskRef:
+        kind: Task
+        name: mas-config-helper
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_channel
+          value: $(params.mas_channel)
+          
     # 1. MAS Core FVT
     # -------------------------------------------------------------------------
     - name: waitfor-suite-verify
@@ -161,6 +177,8 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - config
 
     - name: launchfvt-sls
       timeout: "0"
@@ -194,7 +212,7 @@ spec:
           operator: in
           values: ["true", "True"]
         # Run in original position for pre-9.2 installations
-        - input: $(params.is_post_92)
+        - input: $(tasks.config.results.is-post-92)
           operator: in
           values: ["false", "False"]
       runAfter:
@@ -216,7 +234,7 @@ spec:
           operator: in
           values: ["true", "True"]
         # Run in new position for post-9.2 installations
-        - input: $(params.is_post_92)
+        - input: $(tasks.config.results.is-post-92)
           operator: in
           values: ["true", "True"]
       runAfter:
@@ -477,7 +495,7 @@ spec:
           operator: in
           values: ["true", "True"]
         # Run in original position for pre-9.2 installations
-        - input: $(params.is_post_92)
+        - input: $(tasks.config.results.is-post-92)
           operator: in
           values: ["false", "False"]
       runAfter:
@@ -499,7 +517,7 @@ spec:
           operator: in
           values: ["true", "True"]
         # Run in new position for post-9.2 installations
-        - input: $(params.is_post_92)
+        - input: $(tasks.config.results.is-post-92)
           operator: in
           values: ["true", "True"]
       runAfter:
