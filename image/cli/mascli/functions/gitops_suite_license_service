@@ -1,0 +1,408 @@
+#!/usr/bin/env bash
+
+function gitops_suite_license_service_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops_suite_license_service [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Basic Configuration:
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
+      --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}      Custom Labels definition in dict format
+  -i  --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}          IBM Customer Number
+  -s  --subscription-id ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}      Customer subscription id
+      --domain ${COLOR_YELLOW}SLS_DOMAIN${TEXT_RESET}                Domain for SLS to create route
+
+AWS Secrets Manager Configuration (Required):
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
+
+MongoDb Provider Selection (Required):
+      --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws' or 'yaml')
+
+IBM Suite License Service:
+      --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
+      --sls-install-plan ${COLOR_YELLOW}SLS_INSTALL_PLAN${TEXT_RESET}  IBM Suite License Service Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
+      --domain
+
+Target Cluster (Optional):
+      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+
+Automatic GitHub Push:
+  -P, --github-push                                                Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
+  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}         Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}          Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
+  -S , --github-ssh  ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}           Git ssh key path
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_suite_license_service_noninteractive() {
+  # Set defaults
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPARATOR="/"
+
+  GIT_COMMIT_MSG="gitops-suite-license-service commit"
+
+  export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+
+  export SLS_INSTALL_PLAN=${SLS_INSTALL_PLAN:-"Automatic"}
+  
+  # Target the local (to ArgoCD) cluster
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
+
+  # Target IBM Container Registry by default
+  export ICR_CP=${ICR_CP:-"cp.icr.io/cp"}
+  export ICR_CP_OPEN=${ICR_CP_OPEN:-"icr.io/cpopen"}
+        
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      -i|--ibm-customer-number)
+        export ICN=$1 && shift
+        ;;
+      -s|--subscription-id)
+        export SAAS_SUB_ID=$1 && shift
+        ;;
+      --custom-labels)
+        export CUSTOM_LABELS=$1 && shift
+        ;;
+      --domain)
+        export SLS_DOMAIN=$1 && shift
+        ;;
+
+      # AWS Secrets Manager Configuration
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
+        ;;
+      --sm-aws-access-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --sm-aws-secret-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+
+      # cert manager
+      --cert-manager-namespace)
+        export CERT_MANAGER_NAMESPACE=$1 && shift
+        ;;
+
+      # MongoDb Provider Selection
+      --mongo-provider)
+        export MONGODB_PROVIDER=$1 && shift
+        ;;
+
+      # AWS MongoDb provider
+      --user-action)
+        export USER_ACTION=$1 && shift
+        ;;
+
+      # SLS
+      --sls-channel)
+        export SLS_CHANNEL=$1 && shift
+        ;;
+      --sls-install-plan)
+        export SLS_INSTALL_PLAN=$1 && shift
+        ;;
+
+      # Target Cluster (Optional)
+      --cluster-url)
+        export CLUSTER_URL=$1 && shift
+        ;;
+
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_suite_license_service_help
+        ;;
+      *)
+        # unknown option
+        gitops_suite_license_service_help "Usage Error: Unsupported option \"${key}\" "
+        ;;
+      esac
+  done
+
+  [[ -z "$ACCOUNT_ID" ]] && gitops_suite_license_service_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_suite_license_service_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_suite_license_service_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$CLUSTER_URL" ]] && gitops_suite_license_service_help "CLUSTER_URL is not set"
+  [[ -z "$MONGODB_PROVIDER" ]] && gitops_suite_license_service_help "MONGODB_PROVIDER is not set"
+  [[ -z "$ICN" ]] && gitops_suite_license_service_help "IBM Customer ID must be set."
+  [[ -z "$SAAS_SUB_ID" ]] && gitops_suite_license_service_help "SaaS Subscription ID must be set."
+
+  if [ $MONGODB_PROVIDER == 'aws' ]; then
+    [[ -z "$USER_ACTION" ]] && gitops_suite_license_service_help "USER_ACTION is not set"
+    if [ -z $SM_AWS_ACCESS_KEY_ID ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_REGION ]; then
+      echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region'
+      exit 1
+    fi
+  fi
+
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_suite_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_suite_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_suite_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_suite_help "GIT_BRANCH is not set"
+  fi
+
+}
+
+function gitops_suite_license_service() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_suite_license_service_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_suite_license_service_interactive
+  fi
+
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+  
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/icn/${ICN}/${SAAS_SUB_ID}
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h4 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
+  echo_reset_dim "Customer Number ................ ${COLOR_MAGENTA}${ICN}"
+  echo_reset_dim "Subscription ID ................ ${COLOR_MAGENTA}${SAAS_SUB_ID}"
+  echo_reset_dim "SLS Service Config Directory ... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "Mongo" "    "
+  echo_reset_dim "Mongo Provider  ................ ${COLOR_MAGENTA}${MONGODB_PROVIDER}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h4 "IBM Suite License Service" "    "
+  echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${SLS_CHANNEL}"
+  echo_reset_dim "Subscription Install Plan ...... ${COLOR_MAGENTA}${SLS_INSTALL_PLAN}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h4 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ................. ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host ........................... ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization ................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ..................... ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ......................... ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h4 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ................. ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+
+  # Set up Suite secrets
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Configuring Suite License Service secrets"
+  AVP_TYPE=aws
+  sm_login
+
+
+  # Define cluster-level secrets used
+  # ---------------------------------------------------------------------------
+  # Note that this cluster-level secret is set up by gitops-cluster
+  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}ibm_entitlement#image_pull_secret_b64
+  
+  # The AWS secret is established by the gitops_cluster step
+  export SECRET_NAME_AWS_ACCESS=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}aws
+  export SECRET_KEY_AWS_ACCESS_KEY_ID=${SECRET_NAME_AWS_ACCESS}#sm_aws_access_key_id
+  export SECRET_KEY_AWS_SECRET_ACCESS_KEY=${SECRET_NAME_AWS_ACCESS}#sm_aws_secret_access_key
+  
+  # Instance-level secrets to use
+  # ---------------------------------------------------------------------------
+  # Note that these instance-level secrets are set up by gitops-license
+  export SECRET_KEY_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}license#license_file
+
+
+  # Get the cluster-level secrets used
+  # ---------------------------------------------------------------------------
+  # Note that this cluster-level secret is set up by gitops-mongo
+  export SECRET_NAME_MASTER_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo
+  export SECRET_NAME_CIS=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}cis
+
+  export SECRET_KEY_DOCDB_HOST=${SECRET_NAME_MASTER_MONGO}#docdb_host
+  export SECRET_KEY_DOCDB_PORT=${SECRET_NAME_MASTER_MONGO}#docdb_port
+  export SECRET_KEY_DOCDB_MASTER_USERNAME=${SECRET_NAME_MASTER_MONGO}#username
+  export SECRET_KEY_DOCDB_MASTER_PASSWORD=${SECRET_NAME_MASTER_MONGO}#password
+  export SECRET_KEY_DOCDB_MASTER_INFO=${SECRET_NAME_MASTER_MONGO}#info
+
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$CURRENT_DIR/tmp-suite
+  rm -rf TEMP_DIR
+  mkdir -p $TEMP_DIR
+
+  # by default yaml. pass aws, in case if configuring with DocDB
+  export MONGODB_PROVIDER=${MONGODB_PROVIDER:-"yaml"}
+
+  export MONGO_SECRET_FILE=$TEMP_DIR/mongo-secret.json
+  export MONGO_CONFIG_FILE=$TEMP_DIR/mongo-info.yaml
+
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo "username,password,info"
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}mongo $MONGO_SECRET_FILE
+
+  jq -r .info $MONGO_SECRET_FILE > $MONGO_CONFIG_FILE
+  MASTER_MONGO_USERNAME=$(jq -r .username $MONGO_SECRET_FILE)
+  MASTER_MONGO_PASSWORD=$(jq -r .password $MONGO_SECRET_FILE)
+  UNESCAPED_MONGO_INFO=$(jq -r .info $MONGO_SECRET_FILE)
+
+
+  # Instance-level secrets to use
+  # ---------------------------------------------------------------------------
+  # Note that these instance-level secrets are set up by gitops-license
+  export SECRET_NAME_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}license#license_file
+
+
+  # Instance-level secrets to create
+  # ---------------------------------------------------------------------------
+  export SECRET_NAME_MONGO=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}mongo
+  export SECRET_KEY_MONGO_USERNAME=${SECRET_NAME_MONGO}#username
+  export SECRET_KEY_MONGO_PASSWORD=${SECRET_NAME_MONGO}#password
+  export SECRET_KEY_MONGO_INFO=${SECRET_NAME_MONGO}#info
+
+  
+  export MONGO_INSTANCE_SECRET_FILE=$TEMP_DIR/mongo-instance-secret.json
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}mongo $MONGO_INSTANCE_SECRET_FILE
+  INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
+  INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
+
+  if [[ -z "$INSTANCE_MONGO_USERNAME" ]] || [[  $INSTANCE_MONGO_USERNAME =~ ^null$ ]]; then
+     INSTANCE_MONGO_USERNAME=${MASTER_MONGO_USERNAME}
+  fi
+
+  if [[ -z "$INSTANCE_MONGO_PASSWORD" ]] || [[  $INSTANCE_MONGO_PASSWORD =~ ^null$ ]]; then
+     INSTANCE_MONGO_PASSWORD=${MASTER_MONGO_PASSWORD}
+  fi
+
+  # Setting mongo instance secret with info field copied from the cluster level secret, 
+  # Instance username and password will be created in presync hook 
+
+  ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
+  ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
+  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+  sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}" "${TAGS}"
+  
+
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
+
+
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  CLUSTER_ROOT_APP="cluster.${CLUSTER_ID}"
+  SLS_APP_NAME="sls.${ICN}.${SAAS_SUB_ID}"
+
+  validate_app_name "${CLUSTER_ROOT_APP}"
+  validate_app_name "${SLS_APP_NAME}"
+
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_INSTANCE_DIR}
+
+  
+  # FIX THIS => SLS POD TEMPLATES?
+  # ---------------------------------------------------------------------------
+
+
+  # Generate ArgoApps
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Generating Argo Project and Applications"
+
+  echo "- IBM Suite License Service"
+  jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/sls/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
+
+
+  # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
+}

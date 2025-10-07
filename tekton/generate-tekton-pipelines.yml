@@ -43,6 +43,7 @@
         - mas-fvt-manage-is
         - mas-fvt-manage-regr
         - mas-fvt-mobile-pytest
+        - mas-fvt-mobile-requests
         - mas-fvt-mobile-testng
         - mas-fvt-monitor
         - mas-fvt-optimizer
@@ -91,8 +92,12 @@
         - gitops-mas-cluster
         - gitops-mas-deps
         - gitops-mas-initiator
-        - gitops-mas-aibroker
-        - gitops-mas-aibroker-tenant
+        - gitops-suite-license-service
+        - deprovision-suite-license-service
+        - gitops-aiservice-pipeline
+        - gitops-aiservice-tenant-pipeline
+        - gitops-deprovision-aiservice-pipeline
+        - gitops-deprovision-aiservice-tenant-pipeline
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
@@ -118,3 +123,5 @@
       with_items:
         - gitops-mas-deps
         - gitops-mas-initiator
+
+        

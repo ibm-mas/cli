@@ -79,7 +79,7 @@ def masPromptValue(message):
 
 class PromptMixin():
     def yesOrNo(self, message: str, param: str = None) -> bool:
-        response = prompt(masPromptYesOrNo(message), validator=YesNoValidator(), validate_while_typing=False)
+        response = prompt(message=masPromptYesOrNo(message), validator=YesNoValidator(), validate_while_typing=False)
         responseAsBool = response.lower() in ["y", "yes"]
 
         if param is not None:
@@ -92,9 +92,9 @@ class PromptMixin():
 
         if completer is not None:
             promptSession = PromptSession()
-            response = promptSession.prompt(masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False, pre_run=promptSession.default_buffer.start_completion)
+            response = promptSession.prompt(message=masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False, pre_run=promptSession.default_buffer.start_completion)
         else:
-            response = prompt(masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False)
+            response = prompt(message=masPromptValue(message), is_password=isPassword, default=default, completer=completer, validator=validator, validate_while_typing=False)
 
         if param is not None:
             self.params[param] = response
@@ -105,9 +105,9 @@ class PromptMixin():
             default = getenv(param.upper(), default=None)
 
         if default is None:
-            response = int(prompt(masPromptValue(message)))
+            response = int(prompt(message=masPromptValue(message)))
         else:
-            response = int(prompt(masPromptValue(message), default=str(default)))
+            response = int(prompt(message=masPromptValue(message), default=str(default)))
         if param is not None:
             self.params[param] = str(response)
         return response
@@ -121,12 +121,12 @@ class PromptMixin():
         if default == "" and envVar != "":
             default = getenv(envVar, "")
         if mustExist:
-            return prompt(masPromptValue(message), validator=FileExistsValidator(), validate_while_typing=False, default=default)
+            return prompt(message=masPromptValue(message), validator=FileExistsValidator(), validate_while_typing=False, default=default)
         else:
-            return prompt(masPromptValue(message), default=default)
+            return prompt(message=masPromptValue(message), default=default)
 
     def promptForDir(self, message: str, mustExist: bool = True, default: str = "") -> None:
         if mustExist:
-            return prompt(masPromptValue(message), validator=DirectoryExistsValidator(), validate_while_typing=False, default=default)
+            return prompt(message=masPromptValue(message), validator=DirectoryExistsValidator(), validate_while_typing=False, default=default)
         else:
-            return prompt(masPromptValue(message), default=default)
+            return prompt(message=masPromptValue(message), default=default)
