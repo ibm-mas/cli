@@ -10,7 +10,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
 
 
 ### Catalog Directory
-Note: The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, the support dates stated below refer to the EUS1 end dates.  For more details on the OCP support lifecycle see: https://access.redhat.com/support/policy/updates/openshift 
+Note: The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, the support dates stated below refer to the EUS1 end dates.  For more details on the OCP support lifecycle see: [https://access.redhat.com/support/policy/updates/openshift](https://access.redhat.com/support/policy/updates/openshift) 
 
 <cds-tabs trigger-content="Select an item" value="2025">
   <cds-tab id="tab-2025" target="panel-2025" value="2025">2025 Catalogs</cds-tab>
