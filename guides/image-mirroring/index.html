@@ -359,15 +359,15 @@ export REGISTRY_PASSWORD=xxx
 </code></pre>
 <p>If you do not have a single system with both access to the public source registries <strong>and</strong> your internal private registry then you will require a system with internet connectivity and another with access to your private network, along with a means to transfer data from one to the other (for example, a portable drive).</p>
 <p>In this scenario, we must also transfer the CLI image to your local registry:</p>
-<pre><code class="language-bash">oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:15.8.0 file://ibmmas/cli:15.8.0
+<pre><code class="language-bash">oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:15.8.0 file://ibmmas/cli:15.8.0 --filter-by-os='.*'
 </code></pre>
 <p>Transfer the content of <code>$LOCAL_DIR/cli</code> to your system within the private network and transfer the image to your mirror registry.</p>
 <pre><code class="language-bash">docker login $REGISTRY_HOST:$REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD
-oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:15.8.0 $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:15.8.0
+oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:15.8.0 $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:15.8.0 --filter-by-os='.*'
 </code></pre>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you want to mirror Single architecture images, include the variable as explained below depending on your environment. Available list of arch images include "amd64", "ppc64le", "s390x". </p>
+<p>For the next steps, if you want to mirror Single architecture images, include the variable as explained below depending on your environment. Available list of arch images include "amd64", "ppc64le", "s390x". </p>
 </div>
 <pre><code class="language-bash">    export MIRROR_SINGLE_ARCH=amd64
 </code></pre>
@@ -778,7 +778,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:15.8.0 $REGISTRY_HOST:$RE
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-10-07 15:35:27.495231+00:00)
+      Built with mkdocs v1.6.1 (2025-10-07 17:06:01.111498+00:00)
     </div> -->
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
