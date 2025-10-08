@@ -201,7 +201,7 @@ spec:
       runAfter:
         - waitfor-suite-verify
 
-    - name: launchfvt-core
+    - name: launchfvt-core-pre92
       timeout: "0"
       taskRef:
         kind: Task
@@ -263,6 +263,7 @@ spec:
 
       runAfter:
         - launchfvt-sls
+        - launchfvt-core-pre92
 
 
     # 2. Application FVT - Assist
@@ -484,7 +485,7 @@ spec:
       runAfter:
         - waitfor-manage
 
-    - name: launchfvt-manage
+    - name: launchfvt-manage-pre92
       timeout: "0"
       params:
         - name: image_pull_policy
@@ -543,6 +544,8 @@ spec:
           values: ["true", "True"]
       runAfter:
         - manage-setup
+        - launchfvt-core-pre92
+        - launchfvt-core-post92
 
     - name: approval-manage
       timeout: "0"
@@ -561,7 +564,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - launchfvt-manage
+        - launchfvt-manage-pre92
         - launchfvt-manage-post92
         - launchfvt-manage-is
 
