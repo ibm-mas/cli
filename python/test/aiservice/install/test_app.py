@@ -85,6 +85,7 @@ def test_install_noninteractive(tmpdir):
                                                  '--watsonxai-apikey', 'test',
                                                  '--watsonxai-url', 'https://us-south.ml.cloud.ibm.com',
                                                  '--watsonxai-project-id', 'test',
+                                                 '--watsonxai-ca-crt', 'testWxCaCrt',
                                                  '--watsonxai-deployment-id', 'testDeploymentId',
                                                  '--watsonxai-space-id', 'testSpaceId',
                                                  '--minio-root-user', 'test',
@@ -166,6 +167,8 @@ def test_install_interactive(tmpdir):
                                             if re.match('.*Token for RSL.*', message):
                                                 return 'rslToken'
                                             if re.match('.*Does the RSL API use a self-signed certificate.*', message):
+                                                return 'n'
+                                            if re.match('.*Does the Watsonxai AI use a self-signed certificate.*', message):
                                                 return 'n'
                                             if re.match('.*Create MongoDb cluster.*', message):
                                                 return 'n'
