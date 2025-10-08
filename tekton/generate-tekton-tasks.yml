@@ -50,6 +50,7 @@
         src: "{{ task_src_dir }}/aiservice/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - minio
         - aiservice
         - odh
         - aiservice-tenant

@@ -302,16 +302,22 @@ watsonxArgGroup.add_argument(
     help="Action to perform with WatsonX (install/remove)"
 )
 watsonxArgGroup.add_argument(
-    '--watsonxai-deployment-id',
-    dest="aiservice_watsonxai_deployment_id",
+    "--watsonxai-ca-crt",
+    dest="aiservice_watsonxai_ca_crt",
     required=False,
-    help='WatsonX deployment ID'
+    help="CA certificate for WatsonX AI (PEM format, optional, only if using self-signed certs)"
 )
 watsonxArgGroup.add_argument(
-    '--watsonxai-space-id',
+    "--watsonxai-deployment-id",
+    dest="aiservice_watsonxai_deployment_id",
+    required=False,
+    help="WatsonX deployment ID"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-space-id",
     dest="aiservice_watsonxai_space_id",
     required=False,
-    help='WatsonX space ID'
+    help="WatsonX space ID"
 )
 
 
