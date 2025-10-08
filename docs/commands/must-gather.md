@@ -193,6 +193,12 @@ mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --m
 mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst2" --mas-app-ids "core,manage"
 ```
 
+**Generate MAS quick summary report for specific MAS instance:**  By default, must-gather includes a MAS quick summary report in the `mas-quick-summary` folder, providing compiled information to help identify common issues in the environment. When used with the flags `--summary-only`, `--no-ocp`, `--no-dependencies`, `--no-sls`, and `--mas-instance-ids` to target a specific namespace or MAS application, must-gather focuses the collection for faster execution while still including the MAS quick summary.
+
+```bash
+mas must-gather -d /mnt/home/must-gather --summary-only --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst1" --mas-app-ids "core"
+```
+
 ### Execute the Must-Gather in non-interactive mode
 ```bash
 docker run --rm -v /~:/mnt/home:z quay.io/ibmmas/cli /bin/bash -c "oc login --token=sha256~XFnSk...fc8U --server=https://api.<openshift domain>:6443/ --insecure-skip-tls-verify; mas must-gather -d /mnt/home/must-gather"
