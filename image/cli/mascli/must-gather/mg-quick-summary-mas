@@ -256,7 +256,7 @@ if [[ "$MANAGE_CR_JSON" != "" ]]; then
       SYSTEM_INFO_RESPONSE=$((oc exec -n mas-$INSTANCE_ID-manage "$MANAGE_BUNDLE_POD_NAME" -- curl -vs -X GET "https://internalapi.mas-$INSTANCE_ID-core.svc/v1/authservice/systeminfo" --cert /etc/pki/tls/certs/internal-manage-tls/tls.crt --key /etc/pki/tls/certs/internal-manage-tls/tls.key --cacert /etc/pki/tls/certs/internal-manage-tls/ca.crt) 2>/dev/null || echo "")
       if [[ "$SYSTEM_INFO_RESPONSE" != "" ]]; then
         if echo "$SYSTEM_INFO_RESPONSE" | jq empty 2>/dev/null; then
-          echo "MAS internalapi endpoint access from Manage pod: successful" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "MAS internalapi endpoint access from Manage: successful" >> ${OUTPUT_FILE} 2> /dev/null
           echo "" >> ${OUTPUT_FILE} 2> /dev/null
           echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
           echo  🔐 Identity Provider Status >> ${OUTPUT_FILE} 2> /dev/null
