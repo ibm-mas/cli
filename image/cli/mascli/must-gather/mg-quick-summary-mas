@@ -211,7 +211,7 @@ if [[ "$MANAGE_CR_JSON" != "" ]]; then
           fi
         else
           echo "Manage endpoint access from MAS internalapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
-          echo "Details: Could not get a response from Manage /ping endpoint. " >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Details: Could not get a response from Manage /ping endpoint." >> ${OUTPUT_FILE} 2> /dev/null
         fi
       else
         echo "Manage endpoint access from MAS internalapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
@@ -238,7 +238,7 @@ if [[ "$MANAGE_CR_JSON" != "" ]]; then
           fi
         else
           echo "Manage endpoint access from MAS coreapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
-          echo "Details: Could not get a response from Manage /ping endpoint. " >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Details: Could not get a response from Manage /ping endpoint." >> ${OUTPUT_FILE} 2> /dev/null
         fi
       else
         echo "Manage endpoint access from MAS coreapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
@@ -286,7 +286,7 @@ if [[ "$MANAGE_CR_JSON" != "" ]]; then
         fi
       else
         echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
-        echo "Details: Could not get a response from Manage /v1/authservice/systeminfo endpoint. " >> ${OUTPUT_FILE} 2> /dev/null
+        echo "Details: Could not get a response from Manage /v1/authservice/systeminfo endpoint." >> ${OUTPUT_FILE} 2> /dev/null
       fi
     else
       echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
@@ -322,7 +322,7 @@ if [[ "$MANAGE_CR_JSON" != "" ]]; then
           fi
         else
           echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
-          echo "Details: Could not get a response from Manage /v1/idps endpoint. " >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Details: Could not get a response from Manage /v1/idps endpoint." >> ${OUTPUT_FILE} 2> /dev/null
         fi
       else
         echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null

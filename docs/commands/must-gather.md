@@ -26,6 +26,7 @@ Usage
 - `--no-ocp` Disable must-gather for the OCP cluster itself
 - `--no-dependencies` Disable must-gather for in-cluster dependencies (Db2, Cloud Pak for Data, Cloud Pak Foundational Services, Mongo)
 - `--no-sls` Disable must-gather for IBM Suite License Service
+- `--no-mas-quick-summary` Disable MAS quick summary reports (per MAS instance reports with information on MAS version, environment info, available IDPs, pod status, MAS-Manage connection, licensing info, etc)
 
 ### Additional Collectors:
 - `--extra-namespaces` Enable must-gather in custom namespaces (comma-seperated list)
@@ -41,6 +42,9 @@ Content
 ```
 /must-gather/
 ├── 20230423-204411
+│   ├── mas-quick-summary
+│   │   ├── inst1.txt
+│   │   └── inst2.txt
 │   ├── reconcile-logs
 │   │   └── mas-inst1-core
 │   │   |   ├── Suite
