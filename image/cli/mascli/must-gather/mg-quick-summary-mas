@@ -181,9 +181,9 @@ if [[ "$MANAGE_CR_JSON" != "" ]]; then
   echo $MANAGE_POD_TEMPLATES >> ${OUTPUT_FILE} 2> /dev/null
   echo "" >> ${OUTPUT_FILE} 2> /dev/null
 
-  echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
-  echo  📡 MAS-Manage Communication >> ${OUTPUT_FILE} 2> /dev/null
-  echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+  echo  ========================================== >> ${OUTPUT_FILE} 2> /dev/null
+  echo  📡 MAS-Manage and Manage-MAS Communication >> ${OUTPUT_FILE} 2> /dev/null
+  echo  ========================================== >> ${OUTPUT_FILE} 2> /dev/null
   echo "" >> ${OUTPUT_FILE} 2> /dev/null
 
   # If Manage is installed and we are in 9.1 All Manage to MAS and MAS to Manage tests can be performed
@@ -248,76 +248,90 @@ if [[ "$MANAGE_CR_JSON" != "" ]]; then
     fi
 
     # If Manage is installed but and we are in 9.1, request the /v1/authservice/systeminfo internal API from Manage pod
-    echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
-    echo  🔐 Identity Provider Status >> ${OUTPUT_FILE} 2> /dev/null
-    echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
-    echo "" >> ${OUTPUT_FILE} 2> /dev/null
-
     # Get the name of the Manage pod to be used for checking the connection between Manage and MAS 
+    echo "# MAS internalapi endpoint access from Manage" >> ${OUTPUT_FILE} 2> /dev/null
     MANAGE_BUNDLE_POD_NAME=$(oc get pods -n mas-$INSTANCE_ID-manage -o json | jq -r --arg appTypeName "$MANAGE_BUNDLE_NAME" '.items[] | select(.metadata.labels["mas.ibm.com/appTypeName"] == $appTypeName) | .metadata.name' | head -n 1 2>/dev/null || echo "")
     if [[ "$MANAGE_BUNDLE_POD_NAME" != "" ]]; then
       # Call the /systeminfo API in MAS from the Manage pod
       SYSTEM_INFO_RESPONSE=$((oc exec -n mas-$INSTANCE_ID-manage "$MANAGE_BUNDLE_POD_NAME" -- curl -vs -X GET "https://internalapi.mas-$INSTANCE_ID-core.svc/v1/authservice/systeminfo" --cert /etc/pki/tls/certs/internal-manage-tls/tls.crt --key /etc/pki/tls/certs/internal-manage-tls/tls.key --cacert /etc/pki/tls/certs/internal-manage-tls/ca.crt) 2>/dev/null || echo "")
-      if echo "$SYSTEM_INFO_RESPONSE" | jq empty 2>/dev/null; then
-        echo "# Identity Provider Status" >> ${OUTPUT_FILE} 2> /dev/null
-        echo "Identity Provider Status:" >> ${OUTPUT_FILE} 2> /dev/null
-        echo "$SYSTEM_INFO_RESPONSE" | jq -r '.availableIdps[] | "\(.name): status \"\(.status)\", isEnabled \(.isEnabled), isDefault \(.isDefault)"' >> ${OUTPUT_FILE} 2> /dev/null
-        echo "" >> ${OUTPUT_FILE} 2> /dev/null
-        echo "# Environment setup" >> ${OUTPUT_FILE} 2> /dev/null
-        echo "Environment setup:" >> ${OUTPUT_FILE} 2> /dev/null
-        echo "$SYSTEM_INFO_RESPONSE" | jq -r '.envSetup | "domain: \(.domain)\nisSaaS: \(.isSaaS)\nsuperUserId: \(.superUserId)"' >> ${OUTPUT_FILE} 2> /dev/null
-        echo "" >> ${OUTPUT_FILE} 2> /dev/null
+      if [[ "$SYSTEM_INFO_RESPONSE" != "" ]]; then
+        if echo "$SYSTEM_INFO_RESPONSE" | jq empty 2>/dev/null; then
+          echo "MAS internalapi endpoint access from Manage pod: successful" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
+          echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+          echo  🔐 Identity Provider Status >> ${OUTPUT_FILE} 2> /dev/null
+          echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "# Identity Provider Status" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Identity Provider Status:" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "$SYSTEM_INFO_RESPONSE" | jq -r '.availableIdps[] | "\(.name): status \"\(.status)\", isEnabled \(.isEnabled), isDefault \(.isDefault)"' >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "# Environment setup" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Environment setup:" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "$SYSTEM_INFO_RESPONSE" | jq -r '.envSetup | "domain: \(.domain)\nisSaaS: \(.isSaaS)\nsuperUserId: \(.superUserId)"' >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
 
-        echo  ======================== >> ${OUTPUT_FILE} 2> /dev/null
-        echo  📜 Licensing Information >> ${OUTPUT_FILE} 2> /dev/null
-        echo  ======================== >> ${OUTPUT_FILE} 2> /dev/null
-        echo "" >> ${OUTPUT_FILE} 2> /dev/null
+          echo  ======================== >> ${OUTPUT_FILE} 2> /dev/null
+          echo  📜 Licensing Information >> ${OUTPUT_FILE} 2> /dev/null
+          echo  ======================== >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
 
-        echo "# Licensing Products and Token Costs" >> ${OUTPUT_FILE} 2> /dev/null
-        echo "Licensing Products:" >> ${OUTPUT_FILE} 2> /dev/null
-        echo "$SYSTEM_INFO_RESPONSE" | jq -r '.licensingProducts[] | "\(.productId): \(.tokenCost) \(.tokenId)"' >> ${OUTPUT_FILE} 2> /dev/null
-        echo "" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "# Licensing Products and Token Costs" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Licensing Products:" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "$SYSTEM_INFO_RESPONSE" | jq -r '.licensingProducts[] | "\(.productId): \(.tokenCost) \(.tokenId)"' >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
+        else
+          echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Details: Invalid JSON response: $SYSTEM_INFO_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+        fi
       else
-        echo "Invalid JSON response: $SYSTEM_INFO_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+        echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+        echo "Details: Could not get a response from Manage /v1/authservice/systeminfo endpoint. " >> ${OUTPUT_FILE} 2> /dev/null
       fi
-      echo "" >> ${OUTPUT_FILE} 2> /dev/null
     else
-      echo "Manage pod could not be found for bundle $MANAGE_BUNDLE_NAME. MAS system info could not be retrieved. " >> ${OUTPUT_FILE} 2> /dev/null
-      echo "" >> ${OUTPUT_FILE} 2> /dev/null
+      echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+      echo "Details: Manage pod could not be found for bundle $MANAGE_BUNDLE_NAME." >> ${OUTPUT_FILE} 2> /dev/null
     fi
-
+    echo "" >> ${OUTPUT_FILE} 2> /dev/null
   else
     # If Manage is installed but we are in 8.11 or 9.0, only Manage to MAS communication test is performed
     # Request the /v1/idps MAS endpoint instead of the /v1/authservice/systeminfo from Manage pod
-    echo "Skipping MAS to Manage communication test. Installed MAS version is below 9.1, so /v1/authservice/systeminfo API is not available." >> ${OUTPUT_FILE} 2> /dev/null
+    echo "Skipping MAS to Manage communication test. Installed MAS version is below 9.1, so /maximo/api/ping API is not available in Manage." >> ${OUTPUT_FILE} 2> /dev/null
     echo "" >> ${OUTPUT_FILE} 2> /dev/null
     if [[ "$IS_AFTER_MAS811" == "true" ]]; then
-      echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
-      echo  🔐 Identity Provider Status >> ${OUTPUT_FILE} 2> /dev/null
-      echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
-      echo "" >> ${OUTPUT_FILE} 2> /dev/null
-
+      echo "# MAS internalapi endpoint access from Manage" >> ${OUTPUT_FILE} 2> /dev/null
       # Get the name of the Manage pod to be used for checking the connection between Manage and MAS 
       MANAGE_BUNDLE_POD_NAME=$(oc get pods -n mas-$INSTANCE_ID-manage -o json | jq -r --arg appTypeName "$MANAGE_BUNDLE_NAME" '.items[] | select(.metadata.labels["mas.ibm.com/appTypeName"] == $appTypeName) | .metadata.name' | head -n 1 2>/dev/null || echo "")
       if [[ "$MANAGE_BUNDLE_POD_NAME" != "" ]]; then
-        echo "# Installed IDPs" >> ${OUTPUT_FILE} 2> /dev/null
         # Call the /idps API in MAS from the Manage pod
         IDPS_API_RESPONSE=$((oc exec -n mas-$INSTANCE_ID-manage "$MANAGE_BUNDLE_POD_NAME" -- curl -vs -X GET "https://internalapi.mas-$INSTANCE_ID-core.svc/v1/idps" --cert /etc/pki/tls/certs/internal-manage-tls/tls.crt --key /etc/pki/tls/certs/internal-manage-tls/tls.key --cacert /etc/pki/tls/certs/internal-manage-tls/ca.crt) 2>/dev/null || echo "")
-        echo "Installed IDPs:" >> ${OUTPUT_FILE} 2> /dev/null
-        if echo "$IDPS_API_RESPONSE" | jq empty 2>/dev/null; then
-          echo "$IDPS_API_RESPONSE" | jq -r '.[] | "\(.name): status \"\(.status)\", isEnabled \(.isEnabled), isDefault \(.isDefault)"' >> ${OUTPUT_FILE} 2> /dev/null
+        if [[ "$IDPS_API_RESPONSE" != "" ]]; then
+          if echo "$IDPS_API_RESPONSE" | jq empty 2>/dev/null; then
+            echo "MAS internalapi endpoint access from Manage: successful" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "" >> ${OUTPUT_FILE} 2> /dev/null
+            echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+            echo  🔐 Identity Provider Status >> ${OUTPUT_FILE} 2> /dev/null
+            echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+            echo "" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "# Installed IDPs" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "Installed IDPs:" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "$IDPS_API_RESPONSE" | jq -r '.[] | "\(.name): status \"\(.status)\", isEnabled \(.isEnabled), isDefault \(.isDefault)"' >> ${OUTPUT_FILE} 2> /dev/null
+          else
+            echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "Details: Invalid JSON response: $IDPS_API_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+          fi
         else
-          echo "Invalid JSON response: $IDPS_API_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Details: Could not get a response from Manage /v1/idps endpoint. " >> ${OUTPUT_FILE} 2> /dev/null
         fi
-        echo "" >> ${OUTPUT_FILE} 2> /dev/null
       else
-        echo "Manage pod could not be found for bundle $MANAGE_BUNDLE_NAME." >> ${OUTPUT_FILE} 2> /dev/null
-        echo "" >> ${OUTPUT_FILE} 2> /dev/null
+        echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+        echo "Details: Manage pod could not be found for bundle $MANAGE_BUNDLE_NAME." >> ${OUTPUT_FILE} 2> /dev/null
       fi
     else
-      echo "Skipping MAS to Manage and Manage to MAS communication tests. MAS 8.10 is installed, so /v1/idps API is not available in MAS and /v1/authservice/systeminfo API is not avaliable in Manage." >> ${OUTPUT_FILE} 2> /dev/null
-      echo "" >> ${OUTPUT_FILE} 2> /dev/null
+      echo "Skipping Manage to MAS communication tests. MAS 8.10 is installed, so /v1/idps API is not available in MAS." >> ${OUTPUT_FILE} 2> /dev/null
     fi
+    echo "" >> ${OUTPUT_FILE} 2> /dev/null
   fi
 
 else
