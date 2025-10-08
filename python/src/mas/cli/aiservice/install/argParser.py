@@ -307,7 +307,7 @@ watsonxArgGroup.add_argument(
     required=False,
     help="CA certificate for WatsonX AI (PEM format, optional, only if using self-signed certs)"
 )
-watsonxArgGroup.add_argument(    
+watsonxArgGroup.add_argument(
     "--watsonxai-deployment-id",
     dest="aiservice_watsonxai_deployment_id",
     required=False,
