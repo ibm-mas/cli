@@ -39,6 +39,7 @@ ibm_aiservice_tenant:
   aiservice_watsonx_instance_id: "{{ AISERVICE_WATSONX_INSTANCE_ID }}"
   aiservice_watsonx_version: "{{ AISERVICE_WATSONX_VERSION }}"
   aiservice_watsonx_username: "{{ AISERVICE_WATSONX_USERNAME }}"
+  aiservice_watsonxai_ca_crt: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSONXAI_CA_CRT }}>"
 
   tenant_entitlement_type: "{{ TENANT_ENTITLEMENT_TYPE }}"
   tenant_entitlement_start_date: "{{ TENANT_ENTITLEMENT_START_DATE }}"
