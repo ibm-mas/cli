@@ -379,8 +379,8 @@ class UpdateApp(BaseApp):
                         "v9-250731-amd64": "7.0.22",
                         "v9-250828-amd64": "7.0.22",
                         "v9-250902-amd64": "7.0.22",
-                        "v9-250925-amd64": "7.0.22",
-                        "v9-251010-amd64": "7.0.22",
+                        "v9-250925-amd64": "7.0.23",
+                        "v9-251010-amd64": "7.0.23",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
