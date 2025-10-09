@@ -73,6 +73,10 @@ spec:
       type: string
       description:
       default: "This option is mandatory"
+    - name: aiservice_watsonxai_ca_crt
+      type: string
+      description:
+      default: "This option is mandatory"
 
     # Tenant Entitlement
     - name: tenant_entitlement_type
@@ -138,6 +142,8 @@ spec:
         value: $(params.aiservice_watsonxai_space_id)
       - name: AISERVICE_WATSONX_ACTION
         value: $(params.aiservice_watsonx_action)
+      - name: AISERVICE_WATSONXAI_CA_CRT
+        value: $(params.aiservice_watsonxai_ca_crt)
 
       # Tenant Entitlement
       - name: AISERVICE_TENANT_ENTITLEMENT_TYPE
