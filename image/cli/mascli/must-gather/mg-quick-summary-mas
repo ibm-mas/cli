@@ -323,7 +323,7 @@ if [[ "$MANAGE_CR_JSON" != "" ]]; then
           fi
         else
           echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
-          echo "Details: Could not get a response from Manage /v1/idps endpoint." >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Details: Could not get a response from MAS /v1/idps endpoint." >> ${OUTPUT_FILE} 2> /dev/null
         fi
       else
         echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
@@ -349,17 +349,27 @@ else
 
     echo "# Installed IDPs" >> ${OUTPUT_FILE} 2> /dev/null
     INTERNALAPI_POD_NAME=$(oc get pods -n mas-${INSTANCE_ID}-core --no-headers -o custom-columns=":metadata.name" | grep "^${INSTANCE_ID}-internalapi-" | head -n 1)
-    IDPS_API_RESPONSE=$((oc exec -n mas-${INSTANCE_ID}-core "$INTERNALAPI_POD_NAME" -- curl -s -X GET --header 'Content-Type: application/json'  https://internalapi.mas-${INSTANCE_ID}-core.svc/v1/idps --cert /etc/pki/tls/certs/mascore-cert/tls.crt --key /etc/pki/tls/certs/mascore-cert/tls.key --cacert /etc/pki/tls/certs/mascore-cert/ca.crt) 2>/dev/null || echo "")
-    
-    echo "Installed IDPs:" >> ${OUTPUT_FILE} 2> /dev/null
-    if echo "$IDPS_API_RESPONSE" | jq empty 2>/dev/null; then
-      echo "$IDPS_API_RESPONSE" | jq -r '.[] | "\(.name): status \"\(.status)\", isEnabled \(.isEnabled), isDefault \(.isDefault)"' >> ${OUTPUT_FILE} 2> /dev/null
+    if [[ "$INTERNALAPI_POD_NAME" != "" ]]; then
+      IDPS_API_RESPONSE=$((oc exec -n mas-${INSTANCE_ID}-core "$INTERNALAPI_POD_NAME" -- curl -s -X GET --header 'Content-Type: application/json'  https://internalapi.mas-${INSTANCE_ID}-core.svc/v1/idps --cert /etc/pki/tls/certs/mascore-cert/tls.crt --key /etc/pki/tls/certs/mascore-cert/tls.key --cacert /etc/pki/tls/certs/mascore-cert/ca.crt) 2>/dev/null || echo "")
+      if [[ "$IDPS_API_RESPONSE" != "" ]]; then
+        echo "Installed IDPs:" >> ${OUTPUT_FILE} 2> /dev/null
+        if echo "$IDPS_API_RESPONSE" | jq empty 2>/dev/null; then
+          echo "$IDPS_API_RESPONSE" | jq -r '.[] | "\(.name): status \"\(.status)\", isEnabled \(.isEnabled), isDefault \(.isDefault)"' >> ${OUTPUT_FILE} 2> /dev/null
+        else
+          echo "Could not retrieve identity provider status." >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Invalid JSON response: $IDPS_API_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+        fi
+      else
+        echo "Could not retrieve identity provider status." >> ${OUTPUT_FILE} 2> /dev/null
+        echo "Details: Could not get a response from MAS /v1/idps endpoint." >> ${OUTPUT_FILE} 2> /dev/null
+      fi
     else
-      echo "Invalid JSON response: $IDPS_API_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+      echo "Could not retrieve identity provider status." >> ${OUTPUT_FILE} 2> /dev/null
+      echo "Details: Internalapi pod could not be found." >> ${OUTPUT_FILE} 2> /dev/null
     fi
     echo "" >> ${OUTPUT_FILE} 2> /dev/null
   else
-    echo "Skipping identity provider check. MAS 8.10 is installed, /v1/idps API is not available." >> ${OUTPUT_FILE} 2> /dev/null
+    echo "Skipping identity provider check. MAS 8.10 is installed, MAS /v1/idps API is not available." >> ${OUTPUT_FILE} 2> /dev/null
     echo "" >> ${OUTPUT_FILE} 2> /dev/null
   fi
 
