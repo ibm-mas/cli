@@ -80,7 +80,7 @@ optionalParams = [
     "aiservice_watsonxai_instance_id",
     "aiservice_watsonxai_username",
     "aiservice_watsonxai_version",
-
+    "aiservice_instance_id",
     "minio_root_user",
     "minio_root_password",
 
