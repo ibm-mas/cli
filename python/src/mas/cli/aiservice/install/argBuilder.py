@@ -137,15 +137,15 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
         if self.getParam('aiservice_watsonxai_ca_crt') != "":
             command += f"  --watsonxai-ca-crt \"{self.getParam('aiservice_watsonxai_ca_crt')}\"{newline}"
-        if self.getParam('aiservice_watsonxai_deployment_id'):
+        if self.getParam('aiservice_watsonxai_deployment_id') != "":
             command += f" --watsonxai-deployment-id {self.getParam('aiservice_watsonxai_deployment_id')}\"{newline}"
-        if self.getParam('aiservice_watsonxai_space_id'):
+        if self.getParam('aiservice_watsonxai_space_id') != "":
             command += f" --watsonxai-space-id {self.getParam('aiservice_watsonxai_space_id')}\"{newline}"
-        if self.getParam('aiservice_watsonxai_instance_id'):
+        if self.getParam('aiservice_watsonxai_instance_id') != "":
             command += f" --watsonxai-instance-id {self.getParam('aiservice_watsonxai_instance_id')}\"{newline}"
-        if self.getParam('aiservice_watsonxai_username'):
+        if self.getParam('aiservice_watsonxai_username') != "":
             command += f" --watsonxai-username {self.getParam('aiservice_watsonxai_username')}\"{newline}"
-        if self.getParam('aiservice_watsonxai_version'):
+        if self.getParam('aiservice_watsonxai_version') != "":
             command += f" --watsonxai-version {self.getParam('aiservice_watsonxai_version')}\"{newline}"
 
         if self.getParam('minio_root_user') != "":
