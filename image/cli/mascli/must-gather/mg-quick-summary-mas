@@ -107,6 +107,7 @@ echo  🧩 Manage Application Details >> ${OUTPUT_FILE} 2> /dev/null
 echo  ============================= >> ${OUTPUT_FILE} 2> /dev/null
 echo "" >> ${OUTPUT_FILE} 2> /dev/null
 
+declare -A CR_JSON_MAP
 # Now extract the contents of the CRs of all installed APPs (Manage CR will be used many times in this script)
 echo "# Activated applications" >> ${OUTPUT_FILE} 2> /dev/null
 echo "Apps activated:" >> ${OUTPUT_FILE} 2> /dev/null
@@ -124,12 +125,12 @@ do
     echo "- $APP_ID" >> ${OUTPUT_FILE} 2> /dev/null
   fi
   # Store app CR json for future reference in this script (specially Manage CR)
-  APP_ID_UPPERCASE="${APP_ID^^}"
-  eval "${APP_ID_UPPERCASE}_CR_JSON='$CR_CONTENT'"
+  CR_JSON_MAP["${APP_ID}"]="$CR_CONTENT"
 done
 echo "" >> ${OUTPUT_FILE} 2> /dev/null
 
 # Steps below are only applicable if Manage is installed
+MANAGE_CR_JSON="${CR_JSON_MAP["manage"]}"
 if [[ "$MANAGE_CR_JSON" != "" ]]; then
 
   echo "# Manage App Version" >> ${OUTPUT_FILE} 2> /dev/null
