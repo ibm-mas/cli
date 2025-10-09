@@ -141,6 +141,12 @@ class aiServiceInstallArgBuilderMixin():
             command += f" --watsonxai-deployment-id {self.getParam('aiservice_watsonxai_deployment_id')}\"{newline}"
         if self.getParam('aiservice_watsonxai_space_id'):
             command += f" --watsonxai-space-id {self.getParam('aiservice_watsonxai_space_id')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_instance_id'):
+            command += f" --watsonxai-instance-id {self.getParam('aiservice_watsonxai_instance_id')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_username'):
+            command += f" --watsonxai-username {self.getParam('aiservice_watsonxai_username')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_version'):
+            command += f" --watsonxai-version {self.getParam('aiservice_watsonxai_version')}\"{newline}"
 
         if self.getParam('minio_root_user') != "":
             command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
