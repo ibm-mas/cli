@@ -268,7 +268,7 @@ if [[ "$MANAGE_CR_JSON" != "" ]]; then
           echo "" >> ${OUTPUT_FILE} 2> /dev/null
           echo "# Environment setup" >> ${OUTPUT_FILE} 2> /dev/null
           echo "Environment setup:" >> ${OUTPUT_FILE} 2> /dev/null
-          echo "$SYSTEM_INFO_RESPONSE" | jq -r '.envSetup | "domain: \(.domain)\nisSaaS: \(.isSaaS)\nsuperUserId: \(.superUserId)"' >> ${OUTPUT_FILE} 2> /dev/null
+          echo "$SYSTEM_INFO_RESPONSE" | jq -r '.envSetup | "domain: \(.domain)\nisSaaS: \(.isSaaS)"' >> ${OUTPUT_FILE} 2> /dev/null
           echo "" >> ${OUTPUT_FILE} 2> /dev/null
 
           echo  ======================== >> ${OUTPUT_FILE} 2> /dev/null
