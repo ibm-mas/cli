@@ -74,6 +74,9 @@ optionalParams = [
     "aiservice_watsonxai_url",
     "aiservice_watsonxai_project_id",
     "aiservice_watsonx_action",
+    "aiservice_watsonxai_ca_crt",
+    "aiservice_watsonxai_deployment_id",
+    "aiservice_watsonxai_space_id",
 
     "aiservice_instance_id",
 

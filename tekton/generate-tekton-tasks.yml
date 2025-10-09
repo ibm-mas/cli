@@ -50,6 +50,7 @@
         src: "{{ task_src_dir }}/aiservice/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - minio
         - aiservice
         - odh
         - aiservice-tenant
@@ -106,8 +107,6 @@
         - mas-launchfvt-manage
         - mas-launchfvt-manage-is
         - mas-launchfvt-mobile
-        - mas-launchfvt-mobile-upgrade-pre
-        - mas-launchfvt-mobile-upgrade-post
         - mas-launchfvt-monitor
         - mas-launchfvt-optimizer
         - mas-launchfvt-predict
