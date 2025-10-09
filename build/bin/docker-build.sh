@@ -22,6 +22,10 @@ do
         DOCKERFILE="$2"
         ;;
 
+        --scap-data-stream)
+        SCAP_DATA_STREAM="$2"
+        ;;
+
         --target-platform)
         TARGET_PLATFORM="$2"
         ;;
