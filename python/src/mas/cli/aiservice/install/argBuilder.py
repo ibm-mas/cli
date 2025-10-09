@@ -147,7 +147,6 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --watsonxai-username \"{self.getParam('aiservice_watsonxai_username')}\"{newline}"
         if self.getParam('aiservice_watsonxai_version') != "":
             command += f"  --watsonxai-version \"{self.getParam('aiservice_watsonxai_version')}\"{newline}"
-
         if self.getParam('minio_root_user') != "":
             command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
         if self.getParam('minio_root_password') != "":
