@@ -82,7 +82,7 @@ echo "" >> ${OUTPUT_FILE} 2> /dev/null
 
 # Create a temporary file with the output of oc get pods command to avoid having to run that command many times
 TEMP_PODS_LIST_FILE_PATH=/tmp/coreservicespods.txt
-oc get pods -n mas-${INSTANCE_ID}-core -o custom-columns="NAME:.metadata.name,STATUS:.status.phase" --no-headers >> $TEMP_PODS_LIST_FILE_PATH 2> /dev/null || true
+oc get pods -n mas-${INSTANCE_ID}-core -o json | jq -r '.items[] | . as $pod | $pod.status.containerStatuses[] | [$pod.metadata.name, (.state | keys[0]), (if .state.waiting? then .state.waiting.reason else "" end)] | @tsv' >> $TEMP_PODS_LIST_FILE_PATH 2> /dev/null || true
 echo "# Core services" >> ${OUTPUT_FILE} 2> /dev/null
 echo "Coreapi pods running states: " >> ${OUTPUT_FILE} 2> /dev/null
 cat $TEMP_PODS_LIST_FILE_PATH | grep "^.*-coreapi-" >> ${OUTPUT_FILE} 2> /dev/null || true
@@ -158,7 +158,7 @@ if [[ "$MANAGE_CR_JSON" != "" ]]; then
   if [[ "$WORKSPACE_ID" != "null" ]]; then
     # Create a temporary file with the output of oc get pods command to avoid having to run that command many times
     TEMP_PODS_LIST_FILE_PATH=/tmp/managepods.txt
-    oc get pods -n mas-${INSTANCE_ID}-manage -o custom-columns="NAME:.metadata.name,STATUS:.status.phase" --no-headers >> $TEMP_PODS_LIST_FILE_PATH 2> /dev/null || true
+    oc get pods -n mas-${INSTANCE_ID}-manage -o json | jq -r '.items[] | . as $pod | $pod.status.containerStatuses[] | [$pod.metadata.name, (.state | keys[0]), (if .state.waiting? then .state.waiting.reason else "" end)] | @tsv' >> $TEMP_PODS_LIST_FILE_PATH 2> /dev/null || true
     echo "# Manage Pods" >> ${OUTPUT_FILE} 2> /dev/null
     # Manage usersyncagent pod running state
     echo "Manage usersyncagent pod running state:" >> ${OUTPUT_FILE} 2> /dev/null
