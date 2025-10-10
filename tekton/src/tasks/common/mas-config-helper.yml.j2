@@ -1,0 +1,56 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-config-helper
+spec:
+  params:
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+    - name: mas_channel
+      type: string
+      description: "MAS channel version (e.g., 9.2.0)"
+  results:
+    - name: is-post-92
+      description: "True if MAS channel is >= 9.2.0, used for FVT task sequencing"
+    # Additional results can be added here in the future
+  steps:
+    - name: analyze-config
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "DEBUG: Starting mas-config-helper task"
+        echo "DEBUG: Input mas_channel: $(params.mas_channel)"
+        
+        # Default to false if mas_channel is not set
+        IS_POST_92="false"
+        echo "DEBUG: Initial IS_POST_92 value: $IS_POST_92"
+        
+        if [ -n "$(params.mas_channel)" ]; then
+          echo "DEBUG: mas_channel is not empty, parsing version"
+          # Extract major, minor, patch versions
+          MAJOR=$(echo "$(params.mas_channel)" | cut -d. -f1)
+          MINOR=$(echo "$(params.mas_channel)" | cut -d. -f2)
+          echo "DEBUG: Parsed version - MAJOR: $MAJOR, MINOR: $MINOR"
+          
+          # Check if version is >= 9.2
+          if [ "$MAJOR" -gt 9 ] || ([ "$MAJOR" -eq 9 ] && [ "$MINOR" -ge 2 ]); then
+            IS_POST_92="true"
+            echo "DEBUG: Version is >= 9.2, setting IS_POST_92 to true"
+          else
+            echo "DEBUG: Version is < 9.2, keeping IS_POST_92 as false"
+          fi
+        else
+          echo "DEBUG: mas_channel is empty, keeping IS_POST_92 as false"
+        fi
+        
+        # Output the result
+        echo "DEBUG: Final IS_POST_92 value: $IS_POST_92"
+        echo -n "$IS_POST_92" > $(results.is-post-92.path)
+        echo "DEBUG: Result written to $(results.is-post-92.path)"
+        
+        # Additional configuration analysis can be added here in the future
