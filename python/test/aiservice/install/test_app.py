@@ -91,7 +91,7 @@ def test_install_noninteractive(tmpdir):
                                                  '--watsonxai-instance-id', 'testWxInstanceId',
                                                  '--watsonxai-username', 'testWxUsername',
                                                  '--watsonxai-version', 'testWxVersion',
-                                                 '--watsonxai-full, testWxFull',
+                                                 '--watsonxai-full', 'testWxFull',
                                                  '--minio-root-user', 'test',
                                                  '--minio-root-password', 'test',
                                                  '--tenant-entitlement-type', 'standard',
