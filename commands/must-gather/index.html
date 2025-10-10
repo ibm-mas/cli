@@ -245,6 +245,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-251010-amd64/">
+    Oct 10 2025
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-250925-amd64/">
     Sep 25 2025
   </cds-side-nav-menu-item>
@@ -259,12 +265,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-250828-amd64/">
     Aug 28 2025
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-250731-amd64/">
-    Jul 31 2025
   </cds-side-nav-menu-item>
 
     
@@ -356,6 +356,7 @@
 <li><code>--no-ocp</code> Disable must-gather for the OCP cluster itself</li>
 <li><code>--no-dependencies</code> Disable must-gather for in-cluster dependencies (Db2, Cloud Pak for Data, Cloud Pak Foundational Services, Mongo)</li>
 <li><code>--no-sls</code> Disable must-gather for IBM Suite License Service</li>
+<li><code>--no-mas-quick-summary</code> Disable MAS quick summary reports (per MAS instance reports with information on MAS version, environment info, available IDPs, pod status, MAS-Manage connection, licensing info, etc)</li>
 </ul>
 <h3 id="additional-collectors">Additional Collectors:<a class="headerlink" href="#additional-collectors" title="Permanent link">¤</a></h3>
 <ul>
@@ -369,6 +370,9 @@
 <h2 id="content">Content<a class="headerlink" href="#content" title="Permanent link">¤</a></h2>
 <pre><code>/must-gather/
 ├── 20230423-204411
+│   ├── mas-quick-summary
+│   │   ├── inst1.txt
+│   │   └── inst2.txt
 │   ├── reconcile-logs
 │   │   └── mas-inst1-core
 │   │   |   ├── Suite
@@ -491,6 +495,9 @@ mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --m
 # Target Core + Manage in inst2
 mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst2" --mas-app-ids "core,manage"
 </code></pre>
+<p><strong>Generate MAS quick summary report for specific MAS instance:</strong>  By default, must-gather includes a MAS quick summary report in the <code>mas-quick-summary</code> folder, providing compiled information to help identify common issues in the environment. When used with the flags <code>--summary-only</code>, <code>--no-ocp</code>, <code>--no-dependencies</code>, <code>--no-sls</code>, and <code>--mas-instance-ids</code> to target a specific namespace or MAS application, must-gather focuses the collection for faster execution while still including the MAS quick summary.</p>
+<pre><code class="language-bash">mas must-gather -d /mnt/home/must-gather --summary-only --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst1" --mas-app-ids "core"
+</code></pre>
 <h3 id="execute-the-must-gather-in-non-interactive-mode">Execute the Must-Gather in non-interactive mode<a class="headerlink" href="#execute-the-must-gather-in-non-interactive-mode" title="Permanent link">¤</a></h3>
 <pre><code class="language-bash">docker run --rm -v /~:/mnt/home:z quay.io/ibmmas/cli /bin/bash -c "oc login --token=sha256~XFnSk...fc8U --server=https://api.&lt;openshift domain&gt;:6443/ --insecure-skip-tls-verify; mas must-gather -d /mnt/home/must-gather"
 </code></pre>
@@ -500,7 +507,7 @@ mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --m
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-10-07 17:06:01.085368+00:00)
+      Built with mkdocs v1.6.1 (2025-10-10 20:09:42.923091+00:00)
     </div> -->
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
