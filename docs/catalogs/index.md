@@ -57,10 +57,21 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td style="font-style: italic">OCP 4.18 EOS February 25, 2027</td>
         </tr>
         <tr>
+          <td>v9-251010</td>
+          <td><a href="v9-251010-amd64/">amd64</a></td>
+          <td>No s390x catalog</a></td>
+          <td><a href="v9-251010-ppc64le/">ppc64le</a></td>
+          <td>4.14 - 4.18</td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>latest</td>
+          <td>OCP 4.18 EOS February 25, 2027</td>
+        </tr>
+        <tr>
           <td>v9-250925</td>
           <td><a href="v9-250925-amd64/">amd64</a></td>
-          <td><a href="v9-250925-ppc64le/">ppc64le</a></td>
           <td>No s390x catalog</a></td>
+          <td><a href="v9-250925-ppc64le/">ppc64le</a></td>
           <td>4.14 - 4.18</td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
@@ -86,7 +97,7 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td>4.14 - 4.18</td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
-          <td>latest</td>
+          <td>15.2.0</td>
           <td>OCP 4.18 EOS February 25, 2027</td>
         </tr>
         <tr>
