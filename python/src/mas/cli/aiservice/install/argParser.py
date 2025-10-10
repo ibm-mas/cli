@@ -337,7 +337,12 @@ watsonxArgGroup.add_argument(
     required=False,
     help="WatsonX version"
 )
-
+watsonxArgGroup.add_argument(
+    "--watsonxai-full",
+    dest="aiservice_watsonxai_full",
+    required=False,
+    help="WatsonX version full/light"
+)
 
 # AI Service
 # -----------------------------------------------------------------------------
