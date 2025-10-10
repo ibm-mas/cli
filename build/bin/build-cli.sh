@@ -1,7 +1,6 @@
 #!/bin/bash
 set -e
 
-export ARTIFACTORY_GENERIC_RELEASE_URL=${ARTIFACTORY_GENERIC_RELEASE_URL:-https://na.artifactory.swg-devops.com/artifactory/wiotp-generic-release}
 
 if [ "$DEV_MODE" != "true" ]; then
   source ${GITHUB_WORKSPACE}/build/bin/.env.sh
