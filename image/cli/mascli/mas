@@ -230,6 +230,16 @@ case $1 in
     mas-cli aiservice-install "$@"
     ;;
 
+  aiservice-upgrade)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! aiservice-upgrade                                                         !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "aiservice-upgrade")
+    shift
+    # Run the new Python-based aiservice-upgrade
+    mas-cli aiservice-upgrade "$@"
+    ;;
+
   update)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! update                                                                    !!" >> $LOGFILE
