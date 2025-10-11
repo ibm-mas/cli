@@ -173,8 +173,17 @@
         - wait-for-configmap
         - wait-for-configmap-v2
         - wait-for-tekton
+        
+    # 9. Generate Tasks (Common)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (Common)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/common/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - mas-config-helper
 
-    # 9. Generate Tasks (GitOps)
+    # 10. Generate Tasks (GitOps)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (GitOps)
       ansible.builtin.template:
