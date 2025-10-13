@@ -24,6 +24,7 @@ from tabulate import tabulate
 from halo import Halo
 
 from ...cli import BaseApp
+from ...gencfg import ConfigGeneratorMixin
 from .argBuilder import aiServiceInstallArgBuilderMixin
 from .argParser import aiServiceinstallArgParser
 from .summarizer import aiServiceInstallSummarizerMixin
@@ -74,7 +75,7 @@ def logMethodCall(func):
     return wrapper
 
 
-class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin):
+class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceInstallSummarizerMixin, MongoDbSettingsMixin, Db2SettingsMixin, AdditionalConfigsMixin, ConfigGeneratorMixin):
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
@@ -587,10 +588,21 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "",
             "The project ID refers to your specific watsonx.ai project where your ML models and assets are stored.",
             "",
+            "Optional identifiers:",
+            " - DeploymentId: ID of the model deployment in a **dedicated watsonx runtime**",
+            "   (e.g., granite-3-2-8b-instruct deployed in your dedicated runtime).",
+            " - SpaceId: ID of the **watsonx deployment space** where deployments are managed.",
+            "Provide these only if you already have them; otherwise AI Service can proceed with defaults/workflows",
+            "that do not require pre-existing deployment/space identifiers.",
+            "",
         ])
         self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
         self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
         self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
+        if self.yesOrNo("Does the Watsonxai AI use a self-signed certificate?"):
+            self.promptForString("Watsonxai CA certificate (PEM format)", "aiservice_watsonxai_ca_crt")
+        self.promptForString("Watsonxai Deployment ID (optional)", "aiservice_watsonxai_deployment_id")
+        self.promptForString("Watsonxai Space ID (optional)", "aiservice_watsonxai_space_id")
 
         self.printH1("RSL Integration")
         self.printDescription([
@@ -759,8 +771,8 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             for storageClass in getStorageClasses(self.dynamicClient):
                 print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
 
-            self.params["storage_class_rwo"] = prompt(HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
-            self.params["storage_class_rwx"] = prompt(HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+            self.params["storage_class_rwo"] = prompt(message=HTML('<Yellow>ReadWriteOnce (RWO) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
+            self.params["storage_class_rwx"] = prompt(message=HTML('<Yellow>ReadWriteMany (RWX) storage class</Yellow> '), validator=StorageClassValidator(), validate_while_typing=False)
 
         # Configure storage class for pipeline PVC
         # We prefer to use ReadWriteMany, but we can cope with ReadWriteOnce if necessary

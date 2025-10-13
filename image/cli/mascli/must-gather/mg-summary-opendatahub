@@ -1,0 +1,45 @@
+#!/bin/bash
+
+echo "Open Data Hub - Auth"
+echo "--------------------------------------------------------------------------------"
+oc -n opendatahub get Auth
+echo ""
+
+echo ""
+echo "Open Data Hub - DataScienceCluster"
+echo "--------------------------------------------------------------------------------"
+oc -n opendatahub get DataScienceCluster
+echo ""
+
+echo ""
+echo "Open Data Hub - DataSciencePipelines"
+echo "--------------------------------------------------------------------------------"
+oc -n opendatahub get DataSciencePipelines
+echo ""
+
+echo ""
+echo "Open Data Hub - DataSciencePipelinesApplication"
+echo "--------------------------------------------------------------------------------"
+oc -n opendatahub get DataSciencePipelinesApplication
+echo ""
+
+echo ""
+echo "Open Data Hub - DSCInitialization"
+echo "--------------------------------------------------------------------------------"
+oc -n opendatahub get DSCInitialization
+echo ""
+
+echo ""
+echo "Open Data Hub - Kserve"
+echo "--------------------------------------------------------------------------------"
+oc -n opendatahub get Kserve
+echo ""
+
+echo ""
+echo "Open Data Hub - ModelController"
+echo "--------------------------------------------------------------------------------"
+oc -n opendatahub get ModelController
+echo ""
+
+
+exit 0
