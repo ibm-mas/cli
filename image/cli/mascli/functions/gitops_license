@@ -90,7 +90,7 @@ function gitops_license_noninteractive() {
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_license_help "ACCOUNT_ID is not set"
   [[ -z "$LICENSE_FILE" ]] && gitops_license_help "LICENSE_FILE is not set"
-  [[ -z "$ICN" ]] && gitops_license_help "ICN is not set"
+  ( [[ ! -z "$SAAS_SUB_ID" ]] && [[ -z "$ICN" ]] ) && gitops_license_help "ICN is not set"
 
 }
 
