@@ -105,7 +105,7 @@ if [[ "$TARGET_PLATFORM" == "amd64" ]]; then
     # Upload the results to Artifactory    
     artifactory_upload $OSCAP_DIR/$image_name-report.html $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/$image_name/$DOCKER_TAG/$image_name-report.html
     artifactory_upload $OSCAP_DIR/$image_name-results.xml $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/$image_name/$DOCKER_TAG/$image_name-results.xml
-    # To do: Getting permissions denied while uploading the $image_name-remediation.sh to artifactory since the file has readonly permissions to root user
+    # To do: Getting permissions denied while uploading the $image_name-remediation.sh to artifactory since the file has readonly permissions only to root user
     #artifactory_upload $OSCAP_DIR/$image_name-remediation.sh $ARTIFACTORY_GENERIC_RELEASE_URL/maximoappsuite/$image_name/$DOCKER_TAG/$image_name-remediation.sh
   fi
 else
