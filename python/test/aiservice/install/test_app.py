@@ -175,7 +175,7 @@ def test_install_interactive(tmpdir):
                                             if re.match('.*Does the Watsonxai AI use a self-signed certificate.*', message):
                                                 return 'n'
                                             if re.match('.*Does the Watsonxai AI use full engine.*', message):
-                                                return 'n'                                            
+                                                return 'n'
                                             if re.match('.*Create MongoDb cluster.*', message):
                                                 return 'n'
                                             if re.match('.*Select Local configuration directory.*', message):
