@@ -100,9 +100,9 @@ spec:
         - fvt-aiservice-mcc
         - fvt-aiservice-fmea
 
-    # 6. NL2OSLC test suite
+    # 6. NL2OSLC test suite for granite model
     # -----------------------------------------------------------------------------
-    - name: fvt-aiservice-nl2oslc
+    - name: fvt-aiservice-nl2oslc-granite
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
@@ -111,3 +111,18 @@ spec:
       runAfter:
         - fvt-aiservice-pcc
         - fvt-aiservice-similarity
+
+    # 7. NL2OSLC test suite for GPT-OSS model
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-nl2oslc-gpt-oss
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: nl2oslc
+        - name: nl2oslc_template_version
+          value: 1.0.3-pre.gpt_oss_120b
+      runAfter:
+        - fvt-aiservice-pcc
+        - fvt-aiservice-similarity
+
