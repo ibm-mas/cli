@@ -10,7 +10,7 @@ repos:
     hooks:
       - id: flake8
   - repo: https://github.com/ibm/detect-secrets
-    rev: 0.13.1+ibm.62.dss
+    rev: 0.13.1+ibm.64.dss
     hooks:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline, --use-all-plugins, --fail-on-unaudited]

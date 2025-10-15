@@ -1,0 +1,305 @@
+#!/usr/bin/env bash
+
+function gitops_db2rds_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas gitops_db2rds [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+GitOps Configuration:
+  -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}           Directory for GitOps repository
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
+  -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+
+IBM DB2RDS:
+      --db2_namespace ${COLOR_YELLOW}DB2_RDS_NAMESPACE${TEXT_RESET}                db2rds namespace
+      --db2_instance_name ${COLOR_YELLOW}DB2_INSTANCE_NAME${TEXT_RESET}            db2rds instance name
+      --mas_application_id ${COLOR_YELLOW}MAS_APPLICATION_ID${TEXT_RESET}          db2rds mas application id
+      --rds_admin_db_name ${COLOR_YELLOW}RDS_ADMIN_DB_NAME{TEXT_RESET}             db2rds admin db name
+      --host ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                               db2rds host
+      --port ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                               db2rds port
+      --dbname ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                             db2rds dbname
+      --user ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                               db2rds user
+      --password ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                           db2rds password
+
+Automatic GitHub Push:
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
+  -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}         Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}          Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
+  -S , --github-ssh  ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}           Git ssh key path
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_db2rds_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPERATOR="/"
+  GIT_COMMIT_MSG="gitops-DB2RDS commit"
+
+  # defaults for fvtsaas
+  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
+  export REGION=${REGION:-${SM_AWS_REGION}}
+
+  export DB2_INSTALL_PLAN=${DB2_INSTALL_PLAN:-"Automatic"}
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -g|--gitops-version)
+        echo "${COLOR_YELLOW}WARNING: the -g|--gitops-version parameter is deprecated; it has no effect and will be removed in a future release${COLOR_RESET}"
+        shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      -r|--region)
+        export REGION=$1 && shift
+        ;;
+
+      # Secrets Manager
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+      --secrets-key-seperator)
+        export SECRETS_KEY_SEPERATOR=$1 && shift
+        ;;
+
+      # DB2RDS
+      --db2_namespace)
+      export DB2_NAMESPACE=$1 && shift
+        ;;
+      --db2_instance_name)
+      export DB2_INSTANCE_NAME=$1 && shift
+        ;;
+      --mas_application_id)
+      export MAS_APPLICATION_ID=$1 && shift
+        ;;
+      --rds_admin_db_name)
+      export RDS_ADMIN_DB_NAME=$1 && shift
+        ;;
+      --host)
+      export HOST=$1 && shift
+        ;;
+      --port)
+      export PORT=$1 && shift
+        ;;
+      --dbname)
+      export DBNAME=$1 && shift
+        ;;
+      --user)
+      export USER=$1 && shift
+        ;;
+      --password)
+      export PASSWORD=$1 && shift
+        ;;
+
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+        
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_db2rds_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_db2rds_help  "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_db2rds_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_db2rds_help "ACCOUNT_ID is not set"
+  [[ -z "$REGION" ]] && gitops_db2rds_help "REGION is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_db2rds_help "CLUSTER_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_db2rds_help "MAS_INSTANCE_ID is not set"
+
+
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_db2rds_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_db2rds_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_db2rds_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_db2rds_help "GIT_BRANCH is not set"
+  fi
+
+}
+
+function gitops_db2rds() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_db2rds_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_db2rds_interactive
+  fi
+
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+
+  export DB2_NAMESPACE="DB2RDS-${MAS_INSTANCE_ID}"
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
+  echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "DB2RDS Namespace ........................ ${COLOR_MAGENTA}${DB2_NAMESPACE}"
+  echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Secrets Manager" "    "
+  echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host .................................. ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+
+
+
+  CURRENT_DIR=$PWD
+  TEMP_DIR=$CURRENT_DIR/tmp-DB2RDS
+  mkdir -p $TEMP_DIR
+
+  #adding default values # -- db2rds Defaults
+  export DB2_NAMESPACE=${DB2_NAMESPACE}
+  export DB2_INSTANCE_NAME=${DB2_INSTANCE_NAME}
+  export MAS_APP_ID=${MAS_APP_ID}
+  export RDS_ADMIN_DB_NAME=${RDS_ADMIN_DB_NAME}
+
+  # Define cluster-level secrets used
+  # ---------------------------------------------------------------------------
+  # Note that this cluster-level secret is set up by gitops-cluster
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}-${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}"
+  # db2rds
+  export HOST=${SECRETS_PREFIX}rds-db2-endpoint-config-GiAgxQ#db2_endpoint
+  export PORT=${SECRETS_PREFIX}rds-db2-endpoint-config-GiAgxQ#db2_port
+  export DBNAME=${SECRETS_PREFIX}rds-db2-endpoint-config-GiAgxQ#db2_name
+  export USER=${SECRETS_PREFIX}rds-db2-endpoint-config-GiAgxQ#username
+  export PASSWORD=${SECRETS_PREFIX}rds-db2-endpoint-config-GiAgxQ#password
+
+  echo "${TEXT_DIM}"
+  echo_h2 "DB2RDS Operator" "    "
+  echo_reset_dim "DB2_NAMESPACE  .......................... ${COLOR_MAGENTA}${DB2_NAMESPACE}"
+  reset_colors
+
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH=false
+  fi
+
+
+  # Set and Validate App Names
+  # ---------------------------------------------------------------------------
+  ROOT_APP_NAME="root.${ACCOUNT_ID}"
+  CLUSTER_APP_NAME="cluster.${CLUSTER_ID}"
+  DB2RDS_APP_NAME="DB2RDS.${CLUSTER_ID}.${MAS_INSTANCE_ID}"
+
+  validate_app_name "${ROOT_APP_NAME}"
+  validate_app_name "${CLUSTER_APP_NAME}"
+  validate_app_name "${DB2RDS_APP_NAME}"
+
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_INSTANCE_DIR}
+
+
+  # Generate ArgoApps
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Generating DB2RDS operator Applications"
+  echo "- DB2RDS operator"
+
+  export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
+
+  echo "Generating DB2RDS file ${GITOPS_INSTANCE_DIR}/ibm-dbs-rds-database.yaml"
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-dbs-rds-database.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-dbs-rds-database.yaml
+
+  # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
+}
