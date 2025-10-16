@@ -22,13 +22,13 @@ Secrets Manager:
 
 IBM DB2RDS:
       --db2_instance_name ${COLOR_YELLOW}DB2_INSTANCE_NAME${TEXT_RESET}            db2rds instance name
-      --MAS_APP_ID ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}          db2rds mas application id
+      --mas_app_id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                          db2rds mas application id
       --rds_admin_db_name ${COLOR_YELLOW}RDS_ADMIN_DB_NAME{TEXT_RESET}             db2rds admin db name
-      --host ${COLOR_YELLOW}HOST{TEXT_RESET}                               db2rds host
-      --port ${COLOR_YELLOW}PORT{TEXT_RESET}                               db2rds port
-      --dbname ${COLOR_YELLOW}DBNAME{TEXT_RESET}                             db2rds dbname
-      --user ${COLOR_YELLOW}USER{TEXT_RESET}                               db2rds user
-      --password ${COLOR_YELLOW}PASSWORD{TEXT_RESET}                           db2rds password
+      --host ${COLOR_YELLOW}HOST{TEXT_RESET}                                       db2rds host
+      --port ${COLOR_YELLOW}PORT{TEXT_RESET}                                       db2rds port
+      --dbname ${COLOR_YELLOW}DBNAME{TEXT_RESET}                                   db2rds dbname
+      --user ${COLOR_YELLOW}USER{TEXT_RESET}                                       db2rds user
+      --password ${COLOR_YELLOW}PASSWORD{TEXT_RESET}                               db2rds password
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -58,10 +58,6 @@ function gitops_db2rds_noninteractive() {
       # GitOps Configuration
       -d|--dir)
         export GITOPS_WORKING_DIR=$1 && shift
-        ;;
-      -g|--gitops-version)
-        echo "${COLOR_YELLOW}WARNING: the -g|--gitops-version parameter is deprecated; it has no effect and will be removed in a future release${COLOR_RESET}"
-        shift
         ;;
       -a|--account-id)
         export ACCOUNT_ID=$1 && shift
@@ -159,11 +155,6 @@ function gitops_db2rds_noninteractive() {
     [[ -z "$GITHUB_ORG" ]] && gitops_db2rds_help "GITHUB_ORG is not set"
     [[ -z "$GITHUB_REPO" ]] && gitops_db2rds_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_db2rds_help "GIT_BRANCH is not set"
-    [[ -z "$HOST" ]] && gitops_db2rds_help "HOST is not set"
-    [[ -z "$PORT" ]] && gitops_db2rds_help "PORT is not set"
-    [[ -z "$DBNAME" ]] && gitops_db2rds_help "DBNAME is not set"
-    [[ -z "$USER" ]] && gitops_db2rds_help "DB USER Name is not set"
-    [[ -z "$PASSWORD" ]] && gitops_db2rds_help "DB Password is not set"
   fi
 
 }
@@ -198,7 +189,7 @@ function gitops_db2rds() {
   echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "DB2RDS Namespace ........................ ${COLOR_MAGENTA}${DB2_NAMESPACE}"
+  echo_reset_dim "DB2RDS Namespace .......................${COLOR_MAGENTA}${DB2_NAMESPACE}"
   echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
   reset_colors
 
@@ -223,8 +214,6 @@ function gitops_db2rds() {
   fi
   reset_colors
 
-
-
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-DB2RDS
   mkdir -p $TEMP_DIR
@@ -232,7 +221,7 @@ function gitops_db2rds() {
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
   # Note that this cluster-level secret is set up by gitops-cluster
-  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}-${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}"
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}"
   # db2rds
   export HOST=${SECRETS_PREFIX}rds-db2-endpoint-config#db2_endpoint
   export PORT=${SECRETS_PREFIX}rds-db2-endpoint-config#db2_port
