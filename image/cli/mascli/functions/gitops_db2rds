@@ -21,15 +21,14 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 IBM DB2RDS:
-      --db2_namespace ${COLOR_YELLOW}DB2_RDS_NAMESPACE${TEXT_RESET}                db2rds namespace
       --db2_instance_name ${COLOR_YELLOW}DB2_INSTANCE_NAME${TEXT_RESET}            db2rds instance name
-      --mas_application_id ${COLOR_YELLOW}MAS_APPLICATION_ID${TEXT_RESET}          db2rds mas application id
+      --MAS_APP_ID ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}          db2rds mas application id
       --rds_admin_db_name ${COLOR_YELLOW}RDS_ADMIN_DB_NAME{TEXT_RESET}             db2rds admin db name
-      --host ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                               db2rds host
-      --port ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                               db2rds port
-      --dbname ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                             db2rds dbname
-      --user ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                               db2rds user
-      --password ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                           db2rds password
+      --host ${COLOR_YELLOW}HOST{TEXT_RESET}                               db2rds host
+      --port ${COLOR_YELLOW}PORT{TEXT_RESET}                               db2rds port
+      --dbname ${COLOR_YELLOW}DBNAME{TEXT_RESET}                             db2rds dbname
+      --user ${COLOR_YELLOW}USER{TEXT_RESET}                               db2rds user
+      --password ${COLOR_YELLOW}PASSWORD{TEXT_RESET}                           db2rds password
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -50,12 +49,6 @@ function gitops_db2rds_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-DB2RDS commit"
-
-  # defaults for fvtsaas
-  # TODO: will need to add explicit args to pipeline when we start using this code to deploy to MCSP
-  export REGION=${REGION:-${SM_AWS_REGION}}
-
-  export DB2_INSTALL_PLAN=${DB2_INSTALL_PLAN:-"Automatic"}
 
   while [[ $# -gt 0 ]]
   do
@@ -92,14 +85,11 @@ function gitops_db2rds_noninteractive() {
         ;;
 
       # DB2RDS
-      --db2_namespace)
-      export DB2_NAMESPACE=$1 && shift
-        ;;
       --db2_instance_name)
       export DB2_INSTANCE_NAME=$1 && shift
         ;;
-      --mas_application_id)
-      export MAS_APPLICATION_ID=$1 && shift
+      --MAS_APP_ID)
+      export MAS_APP_ID=$1 && shift
         ;;
       --rds_admin_db_name)
       export RDS_ADMIN_DB_NAME=$1 && shift
@@ -233,12 +223,6 @@ function gitops_db2rds() {
   CURRENT_DIR=$PWD
   TEMP_DIR=$CURRENT_DIR/tmp-DB2RDS
   mkdir -p $TEMP_DIR
-
-  #adding default values # -- db2rds Defaults
-  export DB2_NAMESPACE=${DB2_NAMESPACE}
-  export DB2_INSTANCE_NAME=${DB2_INSTANCE_NAME}
-  export MAS_APP_ID=${MAS_APP_ID}
-  export RDS_ADMIN_DB_NAME=${RDS_ADMIN_DB_NAME}
 
   # Define cluster-level secrets used
   # ---------------------------------------------------------------------------
