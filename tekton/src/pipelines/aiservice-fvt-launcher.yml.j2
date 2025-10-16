@@ -179,19 +179,9 @@ spec:
         # Pipeline Config
         - name: devops_suite_name
           value: "post-update"
-        - name: verify_cluster
-          value: {{ verify_cluster | default("True") }}
-        - name: verify_catalogsources
-          value: {{ verify_catalogsources | default("True") }}
-        - name: verify_subscriptions
-          value: {{ verify_subscriptions | default("True") }}
-        - name: verify_workloads
-          value: {{ verify_workloads | default("True") }}
-        - name: verify_ingress
-          value: {{ verify_ingress | default("True") }}
       when:
-        - input: "$(params.skip_pre_check)"
-          operator: notin
+        - input: "$(params.sync_with_update)"
+          operator: in
           values: ["True", "true"]
       runAfter:
         - waitfor-update
