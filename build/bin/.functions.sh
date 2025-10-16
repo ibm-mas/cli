@@ -65,7 +65,7 @@ function install_buildx() {
   docker buildx version || exit 1
   docker buildx inspect --bootstrap || exit 1
 
-  # sudo apt-get install -y openscap-scanner libopenscap25
+  sudo apt-get install -y openscap-scanner
 }
 
 # These should be loaded already, but just incase!
