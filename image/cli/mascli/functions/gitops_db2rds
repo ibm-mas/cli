@@ -159,6 +159,11 @@ function gitops_db2rds_noninteractive() {
     [[ -z "$GITHUB_ORG" ]] && gitops_db2rds_help "GITHUB_ORG is not set"
     [[ -z "$GITHUB_REPO" ]] && gitops_db2rds_help "GITHUB_REPO is not set"
     [[ -z "$GIT_BRANCH" ]] && gitops_db2rds_help "GIT_BRANCH is not set"
+    [[ -z "$HOST" ]] && gitops_db2rds_help "HOST is not set"
+    [[ -z "$PORT" ]] && gitops_db2rds_help "PORT is not set"
+    [[ -z "$DBNAME" ]] && gitops_db2rds_help "DBNAME is not set"
+    [[ -z "$USER" ]] && gitops_db2rds_help "DB USER Name is not set"
+    [[ -z "$PASSWORD" ]] && gitops_db2rds_help "DB Password is not set"
   fi
 
 }
@@ -229,11 +234,11 @@ function gitops_db2rds() {
   # Note that this cluster-level secret is set up by gitops-cluster
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}-${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}"
   # db2rds
-  export HOST=${SECRETS_PREFIX}rds-db2-endpoint-config-GiAgxQ#db2_endpoint
-  export PORT=${SECRETS_PREFIX}rds-db2-endpoint-config-GiAgxQ#db2_port
-  export DBNAME=${SECRETS_PREFIX}rds-db2-endpoint-config-GiAgxQ#db2_name
-  export USER=${SECRETS_PREFIX}rds-db2-endpoint-config-GiAgxQ#username
-  export PASSWORD=${SECRETS_PREFIX}rds-db2-endpoint-config-GiAgxQ#password
+  export HOST=${SECRETS_PREFIX}rds-db2-endpoint-config#db2_endpoint
+  export PORT=${SECRETS_PREFIX}rds-db2-endpoint-config#db2_port
+  export DBNAME=${SECRETS_PREFIX}rds-db2-endpoint-config#db2_name
+  export USER=${SECRETS_PREFIX}rds-db2-endpoint-config#username
+  export PASSWORD=${SECRETS_PREFIX}rds-db2-endpoint-config#password
 
   echo "${TEXT_DIM}"
   echo_h2 "DB2RDS Operator" "    "
@@ -271,8 +276,6 @@ function gitops_db2rds() {
   echo
   echo_h2 "Generating DB2RDS operator Applications"
   echo "- DB2RDS operator"
-
-  export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
 
   echo "Generating DB2RDS file ${GITOPS_INSTANCE_DIR}/ibm-dbs-rds-database.yaml"
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-dbs-rds-database.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-dbs-rds-database.yaml
