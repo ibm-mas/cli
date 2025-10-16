@@ -64,6 +64,8 @@ function install_buildx() {
   docker version || exit 1
   docker buildx version || exit 1
   docker buildx inspect --bootstrap || exit 1
+
+  # sudo apt-get install -y openscap-scanner libopenscap25
 }
 
 # These should be loaded already, but just incase!
@@ -94,8 +96,3 @@ function artifactory_upload() {
   curl -H "Authorization:Bearer $ARTIFACTORY_TOKEN"  -H "X-Checksum-Md5: $md5Value" -H "X-Checksum-Sha1: $sha1Value" -T $1 $2 || exit 1
 }
 
-# install oscap tools
-function install_oscap() {
-  sudo apt-get update
-  sudo apt-get install -y openscap-scanner libopenscap25
-}
