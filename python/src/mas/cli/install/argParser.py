@@ -178,6 +178,14 @@ masAdvancedArgGroup.add_argument(
     action="store_const",
     const="false"
 )
+masAdvancedArgGroup.add_argument(
+    "--disable-reporting",
+    dest="mas_report_adoption_metrics",
+    required=False,
+    help="Disable adoption metrics reporting",
+    action="store_const",
+    const="false"
+)
 
 masAdvancedArgGroup.add_argument(
     "--dns-provider",

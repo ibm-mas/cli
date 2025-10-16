@@ -357,6 +357,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "By default Maximo Application Suite will not allow special characters in usernames and userIDs, and this is the recommended setting.  However, legacy Maximo products allowed this, so for maximum compatibilty when migrating from EAM 7 you can choose to enable this support."
             ])
             self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
+    
+    @logMethodCall
+    def configReportAdoptionMetricsFlag(self):
+        if self.showAdvancedOptions:
+            self.printH1("Configure whether to opt out of sending Account Adoption Metrics to IBM.")
+            self.printDescription([
+                "This option lets users control whether MAS Account Adoption Metrics are sent to IBM. These metrics help measure MAS adoption and product usage but are fully optional.When the opt-out flag is enabled, no adoption data is sent."
+            ])
+            if not self.yesOrNo("Do you want to opt out of sending Account Adoption Metrics to IBM?"):
+                self.setParam("mas_report_adoption_metrics", "false")
 
     @logMethodCall
     def configCP4D(self):
@@ -445,6 +455,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configDNSAndCerts()
         self.configSSOProperties()
         self.configSpecialCharacters()
+        self.configReportAdoptionMetricsFlag()
         self.configGuidedTour()
 
     @logMethodCall

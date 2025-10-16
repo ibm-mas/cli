@@ -100,6 +100,9 @@ class InstallSummarizerMixin():
         self.printParamSummary("IBM Open Registry", "mas_icr_cpopen")
 
         print()
+        self.printParamSummary("Enable adoption metrics reporting", "mas_report_adoption_metrics")
+
+        print()
         self.printParamSummary("Trust Default Cert Authorities", "mas_trust_default_cas")
 
         print()
