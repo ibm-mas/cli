@@ -27,13 +27,13 @@ tekton:
 tekton-test: tekton
 	tekton/test.sh
 
-podman:
-	podman build -t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
+docker:
+	docker build -t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
 
-all: ansible-devops python tekton podman
+all: ansible-devops python tekton docker
 
 run:
-	podman run -ti quay.io/ibmmas/cli:100.0.0-pre.local
+	docker run -ti quay.io/ibmmas/cli:100.0.0-pre.local
 
 clean:
 	rm image/cli/install/ibm-mas_devops.tar.gz
