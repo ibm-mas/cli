@@ -6,7 +6,7 @@
 
 ansible-devops:
 	ansible-galaxy collection build --output-path image/cli/install ../ansible-devops/ibm/mas_devops --force
-	mv image/cli/install/ibm-mas_devops-100.0.0.tar.gz image/cli/install/ibm-mas_devops.tar.gz
+	mv image/cli/install/ibm-mas_devops-29.8.1-pre.MASCORE-9708.tar.gz image/cli/install/ibm-mas_devops.tar.gz
 
 # Tip: You can install this built collection using:
 # ansible-galaxy collection install image/cli/install/ibm-mas_devops.tar.gz --force --no-deps
@@ -27,13 +27,13 @@ tekton:
 tekton-test: tekton
 	tekton/test.sh
 
-docker:
-	docker build -t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
+podman:
+	podman build -t quay.io/ibmmas/cli:100.0.0-pre.local image/cli
 
-all: ansible-devops python tekton docker
+all: ansible-devops python tekton podman
 
 run:
-	docker run -ti quay.io/ibmmas/cli:100.0.0-pre.local
+	podman run -ti quay.io/ibmmas/cli:100.0.0-pre.local
 
 clean:
 	rm image/cli/install/ibm-mas_devops.tar.gz
