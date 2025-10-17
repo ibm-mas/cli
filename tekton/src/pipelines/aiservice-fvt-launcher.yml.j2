@@ -14,7 +14,22 @@ spec:
     - name: sync_with_install
       type: string
       default: "false"
-      description: "Set this to 'true' to enable synchronization with a running MAS install pipeline"
+      description: "Set this to 'true' to enable synchronization with a running AI Service install pipeline"
+
+    - name: sync_with_update
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running AI Service update pipeline"  
+
+    - name: sync_with_upgrade
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running MAS upgrade pipeline"
+      
+    - name: sync_with_uninstall
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable synchronization with a running MAS uninstall pipeline"
 
     # What to launch
     # -------------------------------------------------------------------------
@@ -133,7 +148,7 @@ spec:
     # mas-fvt-pre-update Task is not relevant for AI Service and we do not have any Pre-Update activity.
     # Hence starting update as soon as sync-install is approved.
 
-   - name: start-update
+    - name: start-update
       timeout: "0"
       taskRef:
         kind: Task
