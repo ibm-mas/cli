@@ -420,6 +420,7 @@ spec:
                 hs.status = "Healthy"
                 hs.message = "Bundle and DB both Ready"
                 return hs
+              end
             end
           end
           hs.status = "Progressing"
