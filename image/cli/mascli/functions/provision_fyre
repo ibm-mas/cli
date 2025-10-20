@@ -289,7 +289,7 @@ function provision_fyre_interactive() {
     FYRE_NFS_SETUP="true"
   elif [[ "$FYRE_STORAGE_PROVIDER_SELECTION" == "4" ]]; then
     FYRE_STORAGE_PROVIDER="odf"
-
+  fi
 }
 
 function provision_fyre() {
