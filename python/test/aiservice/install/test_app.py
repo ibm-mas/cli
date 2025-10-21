@@ -86,8 +86,12 @@ def test_install_noninteractive(tmpdir):
                                                  '--watsonxai-url', 'https://us-south.ml.cloud.ibm.com',
                                                  '--watsonxai-project-id', 'test',
                                                  '--watsonxai-ca-crt', 'testWxCaCrt',
-                                                 '--watsonxai-deployment-id', 'testDeploymentId',
-                                                 '--watsonxai-space-id', 'testSpaceId',
+                                                 '--watsonxai-deployment-id', 'testWxDeploymentId',
+                                                 '--watsonxai-space-id', 'testWxSpaceId',
+                                                 '--watsonxai-instance-id', 'testWxInstanceId',
+                                                 '--watsonxai-username', 'testWxUsername',
+                                                 '--watsonxai-version', 'testWxVersion',
+                                                 '--watsonxai-full', 'testWxFull',
                                                  '--minio-root-user', 'test',
                                                  '--minio-root-password', 'test',
                                                  '--tenant-entitlement-type', 'standard',
@@ -169,6 +173,8 @@ def test_install_interactive(tmpdir):
                                             if re.match('.*Does the RSL API use a self-signed certificate.*', message):
                                                 return 'n'
                                             if re.match('.*Does the Watsonxai AI use a self-signed certificate.*', message):
+                                                return 'n'
+                                            if re.match('.*Does the Watsonxai AI use full engine.*', message):
                                                 return 'n'
                                             if re.match('.*Create MongoDb cluster.*', message):
                                                 return 'n'
