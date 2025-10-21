@@ -380,14 +380,6 @@ function provision_fyre() {
 
   ansible-playbook ibm.mas_devops.ocp_fyre_provision || exit 1
 
-  if [[ "$FYRE_STORAGE_PROVIDER" == "longhorn" ]]; then
-    ROLE_NAME=longhorn ansible-playbook ibm.mas_devops.run_role || exit 1
-  elif [[ "$FYRE_STORAGE_PROVIDER" == "odf" ]]; then
-    ROLE_NAME=ocs ansible-playbook ibm.mas_devops.run_role || exit 1
-  fi
-
-  ansible-playbook ibm.mas_devops.ocp_fyre_provision || exit 1
-
   echo ""
   echo "IBM DevIT Fyre OCP cluster is ready to use"
   OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
