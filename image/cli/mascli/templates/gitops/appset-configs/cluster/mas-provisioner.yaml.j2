@@ -9,17 +9,22 @@ mas_provisioner:
   enable_mtls: {{ ENABLE_MTLS }}
   service_port: {{ SERVICE_PORT }}
   status_repo_url: {{ STATUS_REPO_URL }}
+  hyperscaler_lifecycle_repo_url: {{ HYPERSCALER_LIFECYCLE_REPO_URL }}
   base_branch: {{ BASE_BRANCH }}
   async_poll_interval: {{ ASYNC_POLL_INTERVAL }}
   async_poll_max: {{ ASYNC_POLL_MAX }}
   enable_pd_alert: {{ ENABLE_PD_ALERT }}
   enable_ocm_alert: {{ ENABLE_OCM_ALERT }}
   github_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_GITHUB_TOKEN }}>"
+  {% if GIT_ROOT_CA_CERTIFICATE is defined and GIT_ROOT_CA_CERTIFICATE != "" %}
+  git_root_ca: {{ GIT_ROOT_CA_CERTIFICATE }}
+  {% endif %}
   {% if CSB_CA_CERT is defined and CSB_CA_CERT != "" %}
   csb_client_ca: {{ CSB_CA_CERT }}
   {% endif %}
   {% if SECRET_KEY_INSTANA_API is defined and SECRET_KEY_INSTANA_API != "" %}
   instana_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_API }}>"
+  instana_url_prefix: {{ INSTANA_URL_PREFIX }}
   {% endif %}
   {% if SECRET_KEY_OCM_API is defined and SECRET_KEY_OCM_API != "" %}
   ocm_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_OCM_API }}>"
