@@ -1,5 +1,6 @@
 ---
 # There are various integration points in the install pipeline that we can hang FVT off
+# 0. config ..................... Performs configuration analysis and environment-specific settings
 # 1. suite-verify ............... Triggered after Core install and configuration is verified
 # 2. app-cfg-assist ............. Triggered after Assist is installed and configured
 # 3. app-cfg-iot ................ Triggered after IoT is installed and configured
@@ -7,7 +8,7 @@
 # 5. app-cfg-monitor ............ Triggered after Monitor is installed and configured
 # 6. app-cfg-optimizer .......... Triggered after Optimizer is installed and configured
 # 7. app-cfg-predict ............ Triggered after Predict is installed and configured
-# 8. app-cft-visualinspection ... Triggered after Visual Inspection is installed and configured
+# 8. app-cfg-visualinspection ... Triggered after Visual Inspection is installed and configured
 
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
@@ -20,6 +21,11 @@ spec:
 
     - name: mas_instance_id
       type: string
+      
+    - name: mas_channel
+      type: string
+      default: ""
+      description: "MAS channel version (e.g., 9.2.0)"
 
     - name: sync_with_install
       type: string
@@ -69,6 +75,10 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable launch of the Mobile FVT pipeline after app-cfg-manage completes"
+    - name: launchfvt_mobile_requests
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable execution of the Mobile FVT requests pipeline after the regular mobile pipeline completes"
     - name: launchfvt_monitor
       type: string
       default: "false"
@@ -126,6 +136,21 @@ spec:
       default: ""
 
   tasks:
+    # 0. Configuration
+    # -------------------------------------------------------------------------
+    # Performs configuration analysis and sets up environment-specific settings
+    # Currently determines if the MAS channel is >= 9.2.0 and sets the is-post-92 result
+    # This result is used to control the execution order of FVT tasks
+    - name: config
+      taskRef:
+        kind: Task
+        name: mas-config-helper
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: mas_channel
+          value: $(params.mas_channel)
+          
     # 1. MAS Core FVT
     # -------------------------------------------------------------------------
     - name: waitfor-suite-verify
@@ -156,6 +181,8 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - config
 
     - name: launchfvt-sls
       timeout: "0"
@@ -174,7 +201,7 @@ spec:
       runAfter:
         - waitfor-suite-verify
 
-    - name: launchfvt-core
+    - name: launchfvt-core-pre92
       timeout: "0"
       taskRef:
         kind: Task
@@ -188,8 +215,34 @@ spec:
         - input: $(params.launchfvt_core)
           operator: in
           values: ["true", "True"]
+        # Run in original position for pre-9.2 installations
+        - input: $(tasks.config.results.is-post-92)
+          operator: in
+          values: ["false", "False"]
       runAfter:
         - waitfor-suite-verify
+        
+    # Special case for post-9.2 installations - launchfvt-core runs after manage-setup and before launchfvt-manage
+    - name: launchfvt-core-post92
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-core
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-core"
+      when:
+        - input: $(params.launchfvt_core)
+          operator: in
+          values: ["true", "True"]
+        # Run in new position for post-9.2 installations
+        - input: $(tasks.config.results.is-post-92)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - manage-setup
 
     - name: approval-suite-verify
       timeout: "0"
@@ -209,8 +262,8 @@ spec:
           values: ["true", "True"]
 
       runAfter:
-        - launchfvt-core
         - launchfvt-sls
+        - launchfvt-core-pre92
 
 
     # 2. Application FVT - Assist
@@ -432,7 +485,7 @@ spec:
       runAfter:
         - waitfor-manage
 
-    - name: launchfvt-manage
+    - name: launchfvt-manage-pre92
       timeout: "0"
       params:
         - name: image_pull_policy
@@ -446,8 +499,34 @@ spec:
         - input: $(params.launchfvt_manage)
           operator: in
           values: ["true", "True"]
+        # Run in original position for pre-9.2 installations
+        - input: $(tasks.config.results.is-post-92)
+          operator: in
+          values: ["false", "False"]
       runAfter:
         - manage-setup
+        
+    # Special case for post-9.2 installations - launchfvt-manage runs after launchfvt-core-post92
+    - name: launchfvt-manage-post92
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-manage"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-manage
+      when:
+        - input: $(params.launchfvt_manage)
+          operator: in
+          values: ["true", "True"]
+        # Run in new position for post-9.2 installations
+        - input: $(tasks.config.results.is-post-92)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-core-post92
 
     - name: launchfvt-manage-is
       timeout: "0"
@@ -465,6 +544,8 @@ spec:
           values: ["true", "True"]
       runAfter:
         - manage-setup
+        - launchfvt-core-pre92
+        - launchfvt-core-post92
 
     - name: approval-manage
       timeout: "0"
@@ -483,7 +564,8 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - launchfvt-manage
+        - launchfvt-manage-pre92
+        - launchfvt-manage-post92
         - launchfvt-manage-is
 
     # 6. Application FVT - Mobile
@@ -498,8 +580,10 @@ spec:
           value: "$(params.mas_instance_id)-fvt-mobile-testng"
         - name: pipelinerun_name_pytest
           value: "$(params.mas_instance_id)-fvt-mobile-pytest"
-        - name: launchfvt_manage
-          value: "$(params.launchfvt_manage)"
+        - name: pipelinerun_name_requests
+          value: "$(params.mas_instance_id)-fvt-mobile-requests"
+        - name: launchfvt_mobile_requests
+          value: "$(params.launchfvt_mobile_requests)"
       taskRef:
         kind: Task
         name: mas-launchfvt-mobile

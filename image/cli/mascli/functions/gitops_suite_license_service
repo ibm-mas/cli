@@ -36,7 +36,7 @@ Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
 Automatic GitHub Push:
-  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
+  -P, --github-push                                                Enable automatic push to GitHub
   -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
   -O, --github-org  ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}         Github org for your GitOps repository
   -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
@@ -165,7 +165,7 @@ function gitops_suite_license_service_noninteractive() {
 
       # Other Commands
       -h|--help)
-        gitops_suite_help
+        gitops_suite_license_service_help
         ;;
       *)
         # unknown option
@@ -183,8 +183,7 @@ function gitops_suite_license_service_noninteractive() {
   [[ -z "$SAAS_SUB_ID" ]] && gitops_suite_license_service_help "SaaS Subscription ID must be set."
 
   if [ $MONGODB_PROVIDER == 'aws' ]; then
-    [[ -z "$USER_ACTION" ]] && gitops_suite_help "USER_ACTION is not set"
-    [[ -z "$MAS_INSTANCE_ID" ]] && gitops_suite_help "MAS_INSTANCE_ID is not set"
+    [[ -z "$USER_ACTION" ]] && gitops_suite_license_service_help "USER_ACTION is not set"
     if [ -z $SM_AWS_ACCESS_KEY_ID ] || [ -z $SM_AWS_SECRET_ACCESS_KEY ] || [ -z $SM_AWS_REGION ]; then
       echo 'Missing required params for AWS mongo provider, make sure to provide --aws-access-key, --aws-secret-key, --aws-region'
       exit 1
@@ -341,6 +340,14 @@ function gitops_suite_license_service() {
   sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}mongo $MONGO_INSTANCE_SECRET_FILE
   INSTANCE_MONGO_USERNAME=$(jq -r .username $MONGO_INSTANCE_SECRET_FILE)
   INSTANCE_MONGO_PASSWORD=$(jq -r .password $MONGO_INSTANCE_SECRET_FILE)
+
+  if [[ -z "$INSTANCE_MONGO_USERNAME" ]] || [[  $INSTANCE_MONGO_USERNAME =~ ^null$ ]]; then
+     INSTANCE_MONGO_USERNAME=${MASTER_MONGO_USERNAME}
+  fi
+
+  if [[ -z "$INSTANCE_MONGO_PASSWORD" ]] || [[  $INSTANCE_MONGO_PASSWORD =~ ^null$ ]]; then
+     INSTANCE_MONGO_PASSWORD=${MASTER_MONGO_PASSWORD}
+  fi
 
   # Setting mongo instance secret with info field copied from the cluster level secret, 
   # Instance username and password will be created in presync hook unless it is already set in the docdb secret created in federal env, this is due to the
