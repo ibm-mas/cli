@@ -19,7 +19,7 @@ spec:
         value: $(params.aiservice_instance_id)
   steps:
 
-    # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"
+    # If configmap/approval-aiservice exists then set STATUS=pending and wait for it to be changed to "approved"
     - name: app-cfg-post-verify
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
