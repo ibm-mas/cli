@@ -63,6 +63,8 @@
           - ""
           - "keycloak_admin_username ..... ********"
           - "keycloak_admin_password ..... ********"
+          - "keycloak_base_url ........... {{ keycloak_base_url }}"
+          - "keycloak_realm_name ......... {{ keycloak_realm_name }}"
 
     - name: "Start FVT-core pipeline"
       kubernetes.core.k8s:
