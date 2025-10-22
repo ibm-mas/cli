@@ -37,7 +37,7 @@ Worker Node Configuration (Optional, only takes effect when quota-type is set to
       --worker-additional-disks ${COLOR_YELLOW}FYRE_WORKER_ADDITIONAL_DISKS${TEXT_RESET}  Comma-seperated list of sizes for additional disks to attach (e.g. "200,200" to attach two 400gb additional disks)
 
 Storage Provisioner Configuration:
-      --storage ${COLOR_YELLOW}FYRE_STORAGE_PROVIDER${TEXT_RESET}                         Choose optional storage provider (nfs, odf, or longhorn)
+      --storage ${COLOR_YELLOW}OCP_STORAGE_PROVIDER${TEXT_RESET}                         Choose optional storage provider (nfs, odf, or longhorn)
       --nfs-image-registry-size ${COLOR_YELLOW}FYRE_NFS_IMAGE_REGISTRY_SIZE${TEXT_RESET}  Defines the image registry storage size when configured to use NFS (default 100gb). The size allocated cannot be superior of storage available in the Fyre Infrastructure node.
 
 Other Commands:
@@ -121,7 +121,7 @@ function provision_fyre_noninteractive() {
 
       # Storage Configuration
       --storage)
-        FYRE_STORAGE_PROVIDER=$1 && shift
+        OCP_STORAGE_PROVIDER=$1 && shift
         ;;
       --nfs-image-registry-size)
         IMAGE_REGISTRY_STORAGE_SIZE=$1 && shift
@@ -278,17 +278,17 @@ function provision_fyre_interactive() {
   echo "  2. Longhorn"
   echo "  3. NFS"
   echo "  4. ODF"
-  prompt_for_input "Select the storage provider to setup" FYRE_STORAGE_PROVIDER_SELECTION "1"
+  prompt_for_input "Select the storage provider to setup" OCP_STORAGE_PROVIDER_SELECTION "1"
 
-  if [[ "$FYRE_STORAGE_PROVIDER_SELECTION" == "1" ]]; then
-    FYRE_STORAGE_PROVIDER=""
-  elif [[ "$FYRE_STORAGE_PROVIDER_SELECTION" == "2" ]]; then
-    FYRE_STORAGE_PROVIDER="longhorn"
-  elif [[ "$FYRE_STORAGE_PROVIDER_SELECTION" == "3" ]]; then
-    FYRE_STORAGE_PROVIDER="nfs"
+  if [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "1" ]]; then
+    OCP_STORAGE_PROVIDER=""
+  elif [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "2" ]]; then
+    OCP_STORAGE_PROVIDER="longhorn"
+  elif [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "3" ]]; then
+    OCP_STORAGE_PROVIDER="nfs"
     FYRE_NFS_SETUP="true"
-  elif [[ "$FYRE_STORAGE_PROVIDER_SELECTION" == "4" ]]; then
-    FYRE_STORAGE_PROVIDER="odf"
+  elif [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "4" ]]; then
+    OCP_STORAGE_PROVIDER="odf"
   fi
 }
 
@@ -332,7 +332,7 @@ function provision_fyre() {
 
   export FYRE_CLUSTER_SIZE
 
-  export FYRE_STORAGE_PROVIDER
+  export OCP_STORAGE_PROVIDER
   export FYRE_NFS_SETUP
 
   echo
@@ -370,7 +370,7 @@ function provision_fyre() {
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Storage" "    "
-  echo_reset_dim "Storage Provider ............ ${COLOR_MAGENTA}${FYRE_STORAGE_PROVIDER}"
+  echo_reset_dim "Storage Provider ............ ${COLOR_MAGENTA}${OCP_STORAGE_PROVIDER}"
 
   echo
   reset_colors
