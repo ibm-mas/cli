@@ -13,4 +13,5 @@ repos:
     rev: 0.13.1+ibm.64.dss
     hooks:
       - id: detect-secrets
+        additional_dependencies: [boxsdk<4]
         args: [--baseline, .secrets.baseline, --use-all-plugins, --fail-on-unaudited]
