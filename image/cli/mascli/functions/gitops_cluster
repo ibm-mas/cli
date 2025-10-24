@@ -16,10 +16,11 @@ Basic Configuration (Required):
       --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}    Custom Labels definition in dict format
 
 AWS Secrets Manager Configuration (Required):
-      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
-      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
-      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}  Your AWS Secret Key
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
+      --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}                Region of the AWS Secrets Manager to use
+      --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}            Your AWS Access Key ID
+      --sm-aws-secret-key ${COLOR_YELLOW}SM_AWS_SECRET_ACCESS_KEY${TEXT_RESET}        Your AWS Secret Key
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                         Secrets Manager path
+      --skip-aws-secret-creation ${COLOR_YELLOW}SKIP_AWS_SECRET_CREATION${TEXT_RESET} If set, cluster AWS secret will be verified but not created. For use when cluster AWS secret is managed by some other configuration mechanism (e.g. Terraform).
 
 IBM Container Registry Entitlement (Required):
       --icr-username ${COLOR_YELLOW}ICR_USERNAME${TEXT_RESET}  Username to authenticate with IBM Container Registry (defaults to 'cp')
@@ -34,7 +35,14 @@ Operator Catalog (Optional):
       --catalog-action ${COLOR_YELLOW}MAS_CATALOG_ACTION${TEXT_RESET}     Action to take for IBM Maximo Operator Catalog ('install', 'update' or 'none'. Default is 'install')
 
 Redhat Cert Manager (Optional):
-      --redhat_cert_manager_install_plan ${COLOR_YELLOW}REDHAT_CERT_MANAGER_INSTALL_PLAN${TEXT_RESET}     Set Redhat Cert manager subscription install plan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --install-redhat-cert-manager ${COLOR_YELLOW}INSTALL_REDHAT_CERT_MANAGER${TEXT_RESET}                                      Install RedHat Cert Manager (default to true)  
+      --redhat-cert-manager-install-plan ${COLOR_YELLOW}REDHAT_CERT_MANAGER_INSTALL_PLAN${TEXT_RESET}                            Set Redhat Cert manager subscription install plan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --redhat-cert-manager-catalog-source ${COLOR_YELLOW}REDHAT_CERT_MANAGER_CATALOG_SOURCE${TEXT_RESET}                        Set Redhat Cert manager catalog source. Only required for mirroring.
+      --redhat_cert_manager_catalog_source_namespace ${COLOR_YELLOW}REDHAT_CERT_MANAGER_CATALOG_SOURCE_NAMESPACE${TEXT_RESET}    Set Redhat Cert manager catalog source namespace.  Only required for mirroring.
+
+Redhat Operators Catalog Mirror (Optional):
+      --redhat_operators_mirror_catalog_version ${COLOR_YELLOW}REDHAT_OPERATORS_MIRROR_CATALOG_VERSION${TEXT_RESET}              Set Redhat Operators Mirror Catalog Version. Only required for mirroring.
+      --redhat-operators-mirror-catalog-image ${COLOR_YELLOW}REDHAT_OPERATORS_MIRROR_CATALOG_IMAGE${TEXT_RESET}                  Set Redhat Operators Mirror Catalog Image. Only required for mirroring.
 
 IBM CIS Cert Manager:
       --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}                         DNS Provider, Currently supported CIS (Akamai support inprogress)
@@ -93,8 +101,17 @@ Cluster Logging Operator (Optional):
       --cluster-logging-operator-log-forwarder-client-url ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL${TEXT_RESET}         The syslog forwarder client url for the DLC
       --cluster-logging-operator-syslog-forwarder-version ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION${TEXT_RESET}         Syslog forwarder image version
       --cluster-logging-operator-dlc-ca-bundle-file ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE${TEXT_RESET}                     Location of file containing DLC CA Certificates
+
 Instana Agent Operator (Optional):
       --install-instana-agent-operator ${COLOR_YELLOW}INSTANA_AGENT_OPERATOR_INSTALL${TEXT_RESET}               Install the Instana Agent Operator
+
+MAS CLI Image (Optional):
+      --mas-cli-image-repo ${COLOR_YELLOW}MAS_CLI_IMAGE_REPO{TEXT_RESET}               The repo that holds the MAS CLI image to be pulled in ArgoCD. Only needed if using a mirror registry, and not quay.io
+
+Image Repository Mirror
+      --image-repo-mirror          ${COLOR_YELLOW}IMAGE_REPO_MIRROR${TEXT_RESET}                 Setup an image repository mirror. Image pulls by digest from icr.io and cp.icr.io  will be redirected by OCP to a repository of your choosing (via an IDMS).
+      --image-repo-mirror-host     ${COLOR_YELLOW}IMAGE_REPO_MIRROR_HOST${TEXT_RESET}            Host of image repository to direct pulls from icr.io and cp.icr.io to. E.g. ECR 012345678910.dkr.ecr.us-east-1.amazonaws.com
+      --image-repo-mirror-prefix   ${COLOR_YELLOW}IMAGE_REPO_MIRROR_PREFIX${TEXT_RESET}          Prefix that will be added to the paths of any images referenced in the image repository mirror. E.g. "250701" will result in a pull of icr.io/myimage being redirected to IMAGE_REPO_MIRROR_HOST/250701/myimage.
 
 Other Commands:
   -h, --help                              Show this help message
@@ -115,6 +132,7 @@ function gitops_cluster_noninteractive() {
   export ICR_USERNAME=cp
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
   export REDHAT_CERT_MANAGER_INSTALL_PLAN=${REDHAT_CERT_MANAGER_INSTALL_PLAN:-"Automatic"}
+  export INSTALL_REDHAT_CERT_MANAGER=${INSTALL_REDHAT_CERT_MANAGER:-"true"}
 
   # Target the local (to ArgoCD) cluster
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
@@ -154,6 +172,9 @@ function gitops_cluster_noninteractive() {
       --secrets-path)
         export SECRETS_PATH=$1 && shift
         ;;
+      --skip-aws-secret-creation)
+        export SKIP_AWS_SECRET_CREATION=true
+        ;;
 
       # IBM Container Registry Entitlement
       --icr-username)
@@ -177,8 +198,30 @@ function gitops_cluster_noninteractive() {
         ;;
 
       # Redhat Cert Manager
-      --redhat_cert_manager_install_plan)
+      --install-redhat-cert-manager)
+        export INSTALL_REDHAT_CERT_MANAGER=true
+        ;;
+      --redhat-cert-manager-install-plan)
         export REDHAT_CERT_MANAGER_INSTALL_PLAN=$1 && shift
+        ;;
+      --redhat-cert-manager-catalog-source) 
+        export REDHAT_CERT_MANAGER_CATALOG_SOURCE=$1 && shift
+        ;;
+      --redhat-cert-manager-catalog-source-namespace)
+        export REDHAT_CERT_MANAGER_CATALOG_SOURCE_NAMESPACE=$1 && shift
+        ;;
+
+      # Redhat Operators Mirror Catalog
+      --redhat-operators-mirror-catalog-version)
+        export REDHAT_OPERATORS_MIRROR_CATALOG_VERSION=$1 && shift
+        ;;
+      --redhat-operators-mirror-catalog-image)
+        export REDHAT_OPERATORS_MIRROR_CATALOG_IMAGE=$1 && shift
+        ;;
+
+      # MAS CLI
+      --mas-cli-image-repo)
+        export MAS_CLI_IMAGE_REPO=$1 && shift
         ;;
 
       # Automatic GitHub Push (Optional)
@@ -321,6 +364,17 @@ function gitops_cluster_noninteractive() {
         export INSTANA_AGENT_OPERATOR_INSTALL=true
         ;;
 
+      # Image repository mirror
+      --image-repo-mirror)
+        export IMAGE_REPO_MIRROR=true
+        ;;
+      --image-repo-mirror-host)
+        export IMAGE_REPO_MIRROR_HOST=$1 && shift
+        ;;
+      --image-repo-mirror-prefix)
+        export IMAGE_REPO_MIRROR_PREFIX=$1 && shift
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_cluster_help
@@ -382,6 +436,11 @@ function gitops_cluster_noninteractive() {
   if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
     [[ -z "$CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE" ]] && gitops_cluster_help "CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE is not set"
     [[ -z "$CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL" ]] && gitops_cluster_help "CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL is not set"
+  fi
+
+  if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
+    [[ -z "$IMAGE_REPO_MIRROR_HOST" ]] && gitops_cluster_help "IMAGE_REPO_MIRROR_HOST is not set"
+    [[ -z "$IMAGE_REPO_MIRROR_PREFIX" ]] && gitops_cluster_help "IMAGE_REPO_MIRROR_PREFIX is not set"
   fi
 }
 
@@ -450,10 +509,11 @@ function gitops_cluster() {
 
   echo "${TEXT_DIM}"
   echo_h2 "AWS Secrets Manager" "    "
-  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
-  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
-  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
-  echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  echo_reset_dim "Region ................................. ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ............................. ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ............................. ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>"
+  echo_reset_dim "Secrets Path ........................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  echo_reset_dim "Skip creation of cluster AWS secret? ... ${COLOR_MAGENTA}${SKIP_AWS_SECRET_CREATION}"
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -464,8 +524,22 @@ function gitops_cluster() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Redhat Certificate Manager" "    "
-  echo_reset_dim "Redhat Certificate Manager Subscription Install Plan Approval ................ ${COLOR_MAGENTA}${REDHAT_CERT_MANAGER_INSTALL_PLAN}"
+  echo_reset_dim "Install RedHat Cert Manager .................................................. ${COLOR_MAGENTA}${INSTALL_REDHAT_CERT_MANAGER}"
+  if [[ "$INSTALL_REDHAT_CERT_MANAGER" == "true" ]]; then
+    echo_reset_dim "Redhat Certificate Manager Subscription Install Plan Approval ................ ${COLOR_MAGENTA}${REDHAT_CERT_MANAGER_INSTALL_PLAN}"
+    echo_reset_dim "Redhat Certificate Manager Catalog Source .................................... ${COLOR_MAGENTA}${REDHAT_CERT_MANAGER_CATALOG_SOURCE}"
+    echo_reset_dim "Redhat Certificate Manager Catalog Source namespace .......................... ${COLOR_MAGENTA}${REDHAT_CERT_MANAGER_CATALOG_SOURCE_NAMESPACE}"
+  fi
   reset_colors
+
+  if [[ -n "$REDHAT_OPERATORS_MIRROR_CATALOG_IMAGE" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "RedHat Operators Mirror Catalog" "    "
+    echo_reset_dim "RedHat Operators Mirror Catalog Version ................................. ${COLOR_MAGENTA}${REDHAT_OPERATORS_MIRROR_CATALOG_VERSION}"
+    echo_reset_dim "RedHat Operators Mirror Catalog Image ................................... ${COLOR_MAGENTA}${REDHAT_OPERATORS_MIRROR_CATALOG_IMAGE}"
+    reset_colors
+  fi
+
 
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Promotion" "    "
@@ -543,6 +617,22 @@ function gitops_cluster() {
   echo_reset_dim "Install the Instana Agent Operator ........... ${COLOR_MAGENTA}${INSTANA_AGENT_OPERATOR_INSTALL}"
   reset_colors
 
+  if [[ -n "$MAS_CLI_IMAGE_REPO" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "MAS CLI Image" "    "
+    echo_reset_dim "MAS CLI Image repo ........... ${COLOR_MAGENTA}${MAS_CLI_IMAGE_REPO}"
+    reset_colors
+  fi
+
+  if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "Image Repository Mirror" "    "
+    echo_reset_dim "Repository Host ........... ${COLOR_MAGENTA}${IMAGE_REPO_MIRROR_HOST}"
+    echo_reset_dim "Repository Prefix ......... ${COLOR_MAGENTA}${IMAGE_REPO_MIRROR_PREFIX}"
+    reset_colors
+  fi
+
+  
   # Set up secrets
   # ---------------------------------------------------------------------------
   echo
@@ -577,6 +667,11 @@ function gitops_cluster() {
   export SECRET_NAME_SYSLOG_PULLSECRET=${ACCOUNT_ID}${SM_DELIM}syslog_pullsecret
   export SECRET_KEY_SYSLOG_PULLSECRET=${SECRET_NAME_SYSLOG_PULLSECRET}#pullsecret
 
+  export SECRET_NAME_AWS_ECR=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}aws_ecr
+  export SECRET_KEY_AWS_ECR_ACCESS_KEY_ID=${SECRET_NAME_AWS_ECR}#ecr_aws_access_key_id
+  export SECRET_KEY_AWS_ECR_ACCESS_KEY_SECRET=${SECRET_NAME_AWS_ECR}#ecr_aws_secret_access_key
+
+
   if [ -n "$DEVOPS_MONGO_URI" ];then
     echo "- Update DEVOPS_MONGO_URI secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
@@ -606,6 +701,11 @@ function gitops_cluster() {
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
     sm_update_secret $SECRET_NAME_INSTANA "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
   fi
+
+  if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
+    sm_verify_secret_exists $SECRET_NAME_AWS_ECR "ecr_aws_access_key_id,ecr_aws_secret_access_key"
+  fi
+
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -659,11 +759,16 @@ function gitops_cluster() {
   rm -rf ${GITOPS_CLUSTER_DIR}/ibm-entitlement-with-artifactory.json
 
 
-  echo "- Generate AWS secret"
   # This is used by some of the ArgoCD sync hooks to make updates to AWS SM from within the cluster
   export SECRET_NAME_AWS=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}aws
-  TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-  sm_update_secret $SECRET_NAME_AWS "{\"sm_aws_access_key_id\": \"${SM_AWS_ACCESS_KEY_ID}\", \"sm_aws_secret_access_key\": \"${SM_AWS_SECRET_ACCESS_KEY}\"}" "${TAGS}"
+  if [[ "$SKIP_AWS_SECRET_CREATION" == "true" ]]; then
+    echo "- Verify AWS secret"
+    sm_verify_secret_exists $SECRET_NAME_AWS "sm_aws_access_key_id,sm_aws_secret_access_key"
+  else
+    echo "- Generate AWS secret"
+    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+    sm_update_secret $SECRET_NAME_AWS "{\"sm_aws_access_key_id\": \"${SM_AWS_ACCESS_KEY_ID}\", \"sm_aws_secret_access_key\": \"${SM_AWS_SECRET_ACCESS_KEY}\"}" "${TAGS}"
+  fi
 
 
   # Generate ArgoApps
@@ -677,8 +782,15 @@ function gitops_cluster() {
   echo "- IBM Operator Catalog"
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/ibm-operator-catalog.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-operator-catalog.yaml
 
-  echo "- Redhat Cert Manager"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
+  if [[ "$INSTALL_REDHAT_CERT_MANAGER" == "true" ]]; then
+    echo "- Redhat Cert Manager"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-cert-manager.yaml.j2 ${GITOPS_CLUSTER_DIR}/redhat-cert-manager.yaml
+  fi
+
+  if [[ -n "$REDHAT_OPERATORS_MIRROR_CATALOG_IMAGE" ]]; then
+    echo "- RedHat Opertors Mirror Catalog"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-operators-mirror-catalog.yaml.j2 ${GITOPS_CLUSTER_DIR}/redhat-operators-mirror-catalog.yaml
+  fi
 
   if [[ "$INSTALL_SELENIUM_GRID" == "true" ]]; then
     echo "- Selenium Grid"
@@ -742,6 +854,13 @@ function gitops_cluster() {
     sm_verify_secret_exists $SECRET_NAME_INSTANA "key"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instana-agent-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/instana-agent-operator.yaml
   fi
+
+
+  if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
+    echo "- Image Repository Mirror"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/image-mirroring.yaml.j2 ${GITOPS_CLUSTER_DIR}/image-mirroring.yaml
+  fi
+
 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
