@@ -5,7 +5,7 @@
     # Image Pull Policy
     image_pull_policy: "{{ lookup('env', 'IMAGE_PULL_POLICY') }}"
     # MAS Details
-    mas_app_channel_predict: "{{ lookup('env', 'MAS_APP_CHANNEL_PREDICT') }}"
+    mas_app_channel_facilities: "{{ lookup('env', 'MAS_APP_CHANNEL_FACILITIES') }}"
     mas_instance_id: "{{ lookup('env', 'MAS_INSTANCE_ID') }}"
     mas_workspace_id: "{{ lookup('env', 'MAS_WORKSPACE_ID') }}"
     # FVT Configuration
@@ -26,7 +26,7 @@
           - "pipelinerun_name .................. {{ pipelinerun_name }}"
           - "pipelinerun_namespace ............. {{ pipelinerun_namespace }}"
           - ""
-          - "mas_app_channel_predict ........... {{ mas_app_channel_predict }}"
+          - "mas_app_channel_facilities ........... {{ mas_app_channel_facilities }}"
           - "mas_instance_id ................... {{ mas_instance_id }}"
           - "mas_workspace_id .................. {{ mas_workspace_id }}"
           - ""
