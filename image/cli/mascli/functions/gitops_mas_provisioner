@@ -37,7 +37,7 @@ MAS PROVISIONER OPERATOR:
       --recommend-cluster ${COLOR_YELLOW}RECOMMEND_CLUSTER${TEXT_RESET}                           Turn cluster recommendation which uses Instana on/off. Default is false
       --instana-url-prefix ${COLOR_YELLOW}INSTANA_URL_PREFIX${TEXT_RESET}                         The suffix "/api/infrastructure-monitoring/analyze/entities" is appended to the url prefix to make api calls to instana
       --git-root-ca-certificate-file ${COLOR_YELLOW}GIT_ROOT_CA_CERTIFICATE_FILE${TEXT_RESET}     Location of the file containing the root CA certs for private Git repos
-      --hyperscaler-lifecycle-repo-url ${COLOR_YELLOW}HYPERSCALER_LIFECYCLE_REPO_URL${TEXT_RESET} Git repo where the hyperscaler lifecycle of the instance can be managed. Defaults to the value of STATUS_REPO_URL
+      --mas-annotations-repo-url ${COLOR_YELLOW}MAS_ANNOTATIONS_REPO_URL${TEXT_RESET}             Git repo where the MAS annotations for hyperscaler lifecycle can be managed. Defaults to the value of STATUS_REPO_URL
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -144,8 +144,8 @@ function gitops_mas_provisioner_noninteractive() {
       --git-root-ca-certificate-file)
         export GIT_ROOT_CA_CERTIFICATE_FILE=$1 && shift
         ;;
-      --hyperscaler-lifecycle-repo-url)
-        export HYPERSCALER_LIFECYCLE_REPO_URL=$1 && shift
+      --mas-annotations-repo-url)
+        export MAS_ANNOTATIONS_REPO_URL=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -235,7 +235,7 @@ function gitops_mas_provisioner() {
   export ASYNC_POLL_INTERVAL=${ASYNC_POLL_INTERVAL:-600}
   export ASYNC_POLL_MAX=${ASYNC_POLL_MAX:-864000}
   export RECOMMEND_CLUSTER=${RECOMMEND_CLUSTER:-false}
-  export HYPERSCALER_LIFECYCLE_REPO_URL=${HYPERSCALER_LIFECYCLE_REPO_URL:-STATUS_REPO_URL}
+  export MAS_ANNOTATIONS_REPO_URL=${MAS_ANNOTATIONS_REPO_URL:-STATUS_REPO_URL}
 
   echo
   reset_colors
@@ -277,7 +277,7 @@ function gitops_mas_provisioner() {
   echo_reset_dim "Provisioner Version ..................... ${COLOR_MAGENTA}${PROVISIONER_VERSION}"
   echo_reset_dim "Provisioner Domain ...................... ${COLOR_MAGENTA}${PROVISIONER_DOMAIN}"
   echo_reset_dim "Status Repo URL ......................... ${COLOR_MAGENTA}${STATUS_REPO_URL}"
-  echo_reset_dim "Hyperscaler Lifecycle Repo URL .......... ${COLOR_MAGENTA}${HYPERSCALER_LIFECYCLE_REPO_URL}"
+  echo_reset_dim "MAS Annotations Repo URL ................ ${COLOR_MAGENTA}${MAS_ANNOTATIONS_REPO_URL}"
   echo_reset_dim "Base Branch ............................. ${COLOR_MAGENTA}${BASE_BRANCH}"
   echo_reset_dim "Enable MTLS ............................. ${COLOR_MAGENTA}${ENABLE_MTLS}"
   echo_reset_dim "CSB CA Cert File ........................ ${COLOR_MAGENTA}${CSB_CA_CERTIFICATE_FILE}"
