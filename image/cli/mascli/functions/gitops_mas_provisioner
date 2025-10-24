@@ -318,8 +318,9 @@ function gitops_mas_provisioner() {
       sm_update_secret ${SECRET_NAME_INSTANA_API} "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
     else
       echo_warning "'RECOMMEND_CLUSTER' has been set but 'INSTANA_KEY' was not provided"
+      exit 1
     fi
-    [ -n "$INSTANA_URL_PREFIX" ] || { echo_warning "'RECOMMEND_CLUSTER' has been set but 'INSTANA_URL_PREFIX' was not provided";}
+    [ -n "$INSTANA_URL_PREFIX" ] || { echo_warning "'RECOMMEND_CLUSTER' has been set but 'INSTANA_URL_PREFIX' was not provided"; exit 1;}
   fi
 
   if [ -n "$GITHUB_PAT" ]; then
@@ -337,6 +338,7 @@ function gitops_mas_provisioner() {
       sm_update_secret ${SECRET_NAME_PAGERDUTY} "{\"key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
     else
       echo_warning "'ENABLE_PD_ALERT' has been set but 'PAGERDUTY_KEY' was not provided"
+      exit 1
     fi
   fi
 
@@ -349,6 +351,7 @@ function gitops_mas_provisioner() {
       sm_update_secret ${SECRET_NAME_OCM_API} "{\"api\": \"${OCM_API_KEY}\"}" "${TAGS}"
     else
       echo_warning "'ENABLE_OCM_ALERT' has been set but 'OCM_API_KEY' was not provided"
+      exit 1
     fi
   fi
 
