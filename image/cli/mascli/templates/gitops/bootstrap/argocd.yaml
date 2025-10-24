@@ -1,4 +1,9 @@
 ---
+# !!! IMPORTANT !!!
+# Any changes to the healthchecks defined in this file (i.e. anything under spec.extraConfig.resource\.customizations)
+# must be synced to https://github.ibm.com/automation-paas-cd-pipeline/mas-extensions
+# Consult the README in that repo for instructions.
+
 apiVersion: argoproj.io/v1beta1
 kind: ArgoCD
 metadata:
@@ -150,7 +155,7 @@ spec:
           hs.message = ""
           return hs
 
-      apps.mas.ibm.com/AiBrokerWorkspace:
+      apps.mas.ibm.com/AIServiceTenant:
         health.lua: |
           hs = {}
           if obj.status ~= nil then
@@ -221,7 +226,7 @@ spec:
           hs.message = ""
           return hs  
 
-      apps.mas.ibm.com/AiBrokerApp:
+      apps.mas.ibm.com/AIServiceApp:
         health.lua: |
           hs = {}
           if obj.status ~= nil then
@@ -420,6 +425,7 @@ spec:
                 hs.status = "Healthy"
                 hs.message = "Bundle and DB both Ready"
                 return hs
+              end
             end
           end
           hs.status = "Progressing"

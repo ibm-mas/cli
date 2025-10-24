@@ -1,13 +1,13 @@
 #!/bin/bash
 
-echo "IBM Maximo Application Suite - Aibroker Application"
+echo "IBM Maximo AI Service Application"
 echo "--------------------------------------------------------------------------------"
-oc get aibrokerapp -n $1
+oc get aiserviceapp -n $1
 echo ""
 
-echo "IBM Maximo Application Suite - Aibroker Workspace Configuration"
+echo "IBM Maximo AI Service - AI Service Tenant Configuration"
 echo "--------------------------------------------------------------------------------"
-oc get aibrokerworkspace -n $1
+oc get aiservicetenant -n $1
 echo ""
 
 exit 0
