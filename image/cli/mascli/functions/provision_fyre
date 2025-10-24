@@ -37,8 +37,8 @@ Worker Node Configuration (Optional, only takes effect when quota-type is set to
       --worker-additional-disks ${COLOR_YELLOW}FYRE_WORKER_ADDITIONAL_DISKS${TEXT_RESET}  Comma-seperated list of sizes for additional disks to attach (e.g. "200,200" to attach two 400gb additional disks)
 
 Storage Provisioner Configuration:
+      --storage ${COLOR_YELLOW}OCP_STORAGE_PROVIDER${TEXT_RESET}                         Choose optional storage provider (nfs, odf, or longhorn)
       --nfs-image-registry-size ${COLOR_YELLOW}FYRE_NFS_IMAGE_REGISTRY_SIZE${TEXT_RESET}  Defines the image registry storage size when configured to use NFS (default 100gb). The size allocated cannot be superior of storage available in the Fyre Infrastructure node.
-      --no-storage                                            Disable setup of the nfs-client storage class
 
 Other Commands:
       --no-confirm        Provision the cluster without prompting for confirmation
@@ -52,9 +52,6 @@ function provision_fyre_noninteractive() {
   # Default to provisioning with NFS storage enabled on amd64
   if [[ -z "$CLUSTER_PLATFORM" ]]; then
     CLUSTER_PLATFORM=x
-  fi
-  if [[ -z "$FYRE_NFS_SETUP" ]]; then
-    FYRE_NFS_SETUP=true
   fi
 
   while [[ $# -gt 0 ]]
@@ -123,8 +120,8 @@ function provision_fyre_noninteractive() {
         ;;
 
       # Storage Configuration
-      --no-storage)
-        FYRE_NFS_SETUP=false
+      --storage)
+        OCP_STORAGE_PROVIDER=$1 && shift
         ;;
       --nfs-image-registry-size)
         IMAGE_REGISTRY_STORAGE_SIZE=$1 && shift
@@ -275,13 +272,23 @@ function provision_fyre_interactive() {
     fi
   fi
 
-  prompt_for_confirm_default_yes "Enable NFS storage class (nfs-client) in the cluster?" CONFIGURE_NFS
-  if [[ "$CONFIGURE_NFS" == "false" ]]; then
-    export FYRE_NFS_SETUP=false
-  else
-    prompt_for_input "Image Registry PVC Size" FYRE_IMAGE_REGISTRY_SIZE "100Gi"
-  fi
+  echo
+  echo "Storage Provider:"
+  echo "  1. None"
+  echo "  2. Longhorn"
+  echo "  3. NFS"
+  echo "  4. ODF"
+  prompt_for_input "Select the storage provider to setup" OCP_STORAGE_PROVIDER_SELECTION "1"
 
+  if [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "1" ]]; then
+    OCP_STORAGE_PROVIDER=""
+  elif [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "2" ]]; then
+    OCP_STORAGE_PROVIDER="longhorn"
+  elif [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "3" ]]; then
+    OCP_STORAGE_PROVIDER="nfs"
+  elif [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "4" ]]; then
+    OCP_STORAGE_PROVIDER="odf"
+  fi
 }
 
 function provision_fyre() {
@@ -324,8 +331,7 @@ function provision_fyre() {
 
   export FYRE_CLUSTER_SIZE
 
-  export FYRE_NFS_SETUP
-  export FYRE_IMAGE_REGISTRY_SIZE
+  export OCP_STORAGE_PROVIDER
 
   echo
   reset_colors
@@ -362,10 +368,7 @@ function provision_fyre() {
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Storage" "    "
-  echo_reset_dim "Enable NFS Storage Class .. ${COLOR_MAGENTA}${FYRE_NFS_SETUP}"
-  if [[ "${FYRE_NFS_SETUP}" == "true" ]]; then
-    echo_reset_dim "Image Registry Size ....... ${COLOR_MAGENTA}${FYRE_NFS_IMAGE_REGISTRY_SIZE:-Default}"
-  fi
+  echo_reset_dim "Storage Provider ............ ${COLOR_MAGENTA}${OCP_STORAGE_PROVIDER}"
 
   echo
   reset_colors
