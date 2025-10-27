@@ -36,6 +36,8 @@ Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
   --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. One of aws|yaml (defaults to yaml)
 
 SLS Configuration (if MAS_CONFIG_TYPE is "sls"):
+  -i, --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}                      IBM Customer Number
+  -s, --saas-subscription-id  ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}                    SaaS subscription id
   --mas-slscfg-pod-template-yaml ${COLOR_YELLOW}MAS_SLSCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
   --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority to use for provisoning internal certificates
 
@@ -157,6 +159,13 @@ function gitops_mas_config_noninteractive() {
         ;;
 
       # SLS
+      # Standalone Server configuration
+      -s|--saas-subscription-id)
+        export SAAS_SUB_ID=$1 && shift
+      ;;
+      -i|--ibm-customer-number)
+        export ICN=$1 && shift
+      ;;
       --mas-slscfg-pod-template-yaml)
         export MAS_SLSCFG_POD_TEMPLATE_YAML=$1 && shift
         ;;
@@ -330,6 +339,11 @@ function gitops_mas_config_noninteractive() {
   [[ -z "$REGION_ID" ]] && gitops_mas_config_help "REGION_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_mas_config_help "CLUSTER_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$SAAS_SUB_ID" ]] && gitops_mas_config_help "SAAS_SUB_ID is not set"
+  [[ -z "$ICN" ]] && gitops_mas_config_help "ICN is not set"
+
+  
+
   
   [[ -z "$CONFIG_ACTION" ]] && gitops_mas_config_help "CONFIG_ACTION is not set"
   if ! [[ "$CONFIG_ACTION" =~ ^(upsert|remove)$ ]]; then
@@ -732,10 +746,12 @@ function gitops_mas_config() {
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
-      export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
+     # export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
+      export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}sls
       export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
       export SECRET_KEY_SLS_CA_B64=${SECRET_NAME_SLS}#ca_b64
       
+
       # Set pod template yaml
       # ---------------------------------------------------------------------------
       if [[ -n "$MAS_SLSCFG_POD_TEMPLATE_YAML" && -s "$MAS_SLSCFG_POD_TEMPLATE_YAML" ]]; then
