@@ -579,7 +579,7 @@ function gitops_suite_app_config() {
       if [[ -n "$MAS_APPWS_SPEC" ]]; then
           i=0
           for MANAGE_STORAGE_CLASS_NAME in $(echo "${MAS_APPWS_SPEC}" | yq '.settings.deployment.persistentVolumes[].storageClassName // ""'); do 
-              STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${MANAGE_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main" "${STORAGE_CLASS_DEFINITIONS}" '"directoryPerms": "700", "gidRangeStart": "1000", "gidRangeEnd": "2000"') || exit 1
+              STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${MANAGE_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
               MANAGE_STORAGE_CLASS=$(generate_storage_class_name "${MANAGE_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main")
               MAS_APPWS_SPEC=$(echo "${MAS_APPWS_SPEC}" | yq '.settings.deployment.persistentVolumes['$i'].storageClassName = "'${MANAGE_STORAGE_CLASS}'"')
               i=$((i+1))
