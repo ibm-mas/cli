@@ -235,12 +235,8 @@ function gitops_suite_app_config_noninteractive() {
     exit 1
   fi
 
-  if [[ "${MAS_APP_ID}" == "manage" || "${MAS_APP_ID}" == "health" ]]; then
-    [[ -z "${DEFAULT_FILE_STORAGE_CLASS}" || "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_FILE_STORAGE_CLASS is not set"
-  fi
-
   if [[ -z "${MAS_APPWS_SPEC_YAML}" ]]; then
-    if [[ "${MAS_APP_ID}" == "manage" || "${MAS_APP_ID}" == "health" ]]; then
+    if [[ "${MAS_APP_ID}" == "facilities" ]]; then
       [[ -z "${DEFAULT_FILE_STORAGE_CLASS}" || "${DEFAULT_FILE_STORAGE_CLASS}" == "" ]] && gitops_suite_app_config_help "DEFAULT_FILE_STORAGE_CLASS is not set"
     fi
   fi
