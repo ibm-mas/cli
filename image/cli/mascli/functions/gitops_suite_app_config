@@ -573,6 +573,36 @@ function gitops_suite_app_config() {
   fi
 
 
+
+
+  # Look for generated(<type>) directives on storage class names
+  # These are specified in different places in appws spec yaml, so we need a special case for each
+  # ---------------------------------------------------------------------------
+  export STORAGE_CLASS_DEFINITIONS
+  if [[ "${MAS_APP_ID}" == "manage" ]]; then
+      if [[ -n "$MAS_APPWS_SPEC" ]]; then
+          i=0
+          for MANAGE_STORAGE_CLASS_NAME in $(echo "${MAS_APPWS_SPEC}" | yq '.settings.deployment.persistentVolumes[].storageClassName // ""'); do 
+              STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${MANAGE_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main" "${STORAGE_CLASS_DEFINITIONS}" '"directoryPerms": "700", "gidRangeStart": "1000", "gidRangeEnd": "2000"') || exit 1
+              MANAGE_STORAGE_CLASS=$(generate_storage_class_name "${MANAGE_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main")
+              MAS_APPWS_SPEC=$(echo "${MAS_APPWS_SPEC}" | yq '.settings.deployment.persistentVolumes['$i'].storageClassName = "'${MANAGE_STORAGE_CLASS}'"')
+              i=$((i+1))
+          done
+      fi
+  fi
+
+  if [[ "${MAS_APP_ID}" == "facilities" ]]; then
+      if [[ -n "$MAS_APPWS_SPEC" ]]; then
+          for FACILITIES_STORAGE_KEY in $(echo "${MAS_APPWS_SPEC}" | yq '.settings.storage | keys[] // ""'); do 
+              FACILITIES_STORAGE_CLASS_PATH='.settings.storage.'${FACILITIES_STORAGE_KEY}'.class'
+              FACILITIES_STORAGE_CLASS_NAME=$(echo "${MAS_APPWS_SPEC}" | yq "${FACILITIES_STORAGE_CLASS_PATH}")
+              STORAGE_CLASS_DEFINITIONS=$(generate_storage_class_def "${FACILITIES_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main" "${STORAGE_CLASS_DEFINITIONS}") || exit 1
+              FACILITIES_STORAGE_CLASS=$(generate_storage_class_name "${FACILITIES_STORAGE_CLASS_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}" ${MAS_APP_ID} "main")
+              MAS_APPWS_SPEC=$(echo "${MAS_APPWS_SPEC}" | yq ${FACILITIES_STORAGE_CLASS_PATH}' = "'${FACILITIES_STORAGE_CLASS}'"')
+          done
+      fi
+  fi
+
   # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
