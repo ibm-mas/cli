@@ -377,7 +377,7 @@ function provision_fyre() {
   fi
 
   ansible-playbook ibm.mas_devops.ocp_fyre_provision
-  result=$1
+  result=$?
 
   if [[ "$result" == "0" ]]; then
     echo ""
