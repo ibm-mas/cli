@@ -792,11 +792,6 @@ function gitops_cluster() {
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-operators-mirror-catalog.yaml.j2 ${GITOPS_CLUSTER_DIR}/redhat-operators-mirror-catalog.yaml
   fi
 
- if [[ -n "$REDHAT_OPERATORS_MIRROR_CATALOG_IMAGE" ]]; then
-    echo "- RedHat Opertors Mirror Catalog"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/redhat-operators-mirror-catalog.yaml.j2 ${GITOPS_CLUSTER_DIR}/redhat-operators-mirror-catalog.yaml
-  fi
-
   if [[ "$INSTALL_SELENIUM_GRID" == "true" ]]; then
     echo "- Selenium Grid"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/phase1/selenium-grid.yaml.j2 ${GITOPS_CLUSTER_DIR}/selenium-grid.yaml
