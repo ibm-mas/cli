@@ -97,7 +97,7 @@ Cluster Logging Operator (Optional):
       --cluster-logging-operator-install-plan ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN${TEXT_RESET}                                 Install plan for the subscription of the Cluster Logging Operator
       --cluster-logging-operator-channel ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_CHANNEL${TEXT_RESET}                                           Channel for the subscription of the Cluster Logging Operator
       --cluster-logging-operator-setup-log-forwarding ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING${TEXT_RESET}                 Flag to setup the deployment for syslog forwarder
-      --cluster-logging-operator-log-forwarder-client-url ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL${TEXT_RESET}         The syslog forwarder client url that goes into the ConfigMap
+      --cluster-logging-operator-log-forwarder-client-url ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL${TEXT_RESET}         The syslog forwarder client url for the DLC
       --cluster-logging-operator-syslog-forwarder-version ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION${TEXT_RESET}         Syslog forwarder image version
       --cluster-logging-operator-dlc-ca-bundle-file ${COLOR_YELLOW}CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE${TEXT_RESET}                     Location of file containing DLC CA Certificates
 
@@ -430,6 +430,7 @@ function gitops_cluster_noninteractive() {
 
   if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
     [[ -z "$CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE" ]] && gitops_cluster_help "CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE is not set"
+    [[ -z "$CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL" ]] && gitops_cluster_help "CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL is not set"
   fi
 
   if [[ "$IMAGE_REPO_MIRROR" == "true" ]]; then
@@ -460,7 +461,10 @@ function gitops_cluster() {
   reset_colors
   echo_h2 "Review Settings"
 
-  # set default values 
+  # set default values
+  export CLUSTER_LOGGING_OPERATOR_INSTALL=${CLUSTER_LOGGING_OPERATOR_INSTALL:-"false"}
+  export CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER=${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER:-"false"}
+  export CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING=${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING:-"false"}
   export CLUSTER_LOGGING_OPERATOR_CHANNEL=${CLUSTER_LOGGING_OPERATOR_CHANNEL:-"stable-5.9"}
   export CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION=${CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION:-"1.8-amd64"}
 
@@ -591,11 +595,13 @@ function gitops_cluster() {
 
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Logging Operator" "    "
-  echo_reset_dim "Install the Cluster Logging Operator ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_INSTALL:-false}"
-  echo_reset_dim "Use Syslog Forwarder ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER:-false}"
-  echo_reset_dim "Setup Log Forwarding ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING:-false}"
-  echo_reset_dim "Operator Channel ............................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_CHANNEL}"
-  echo_reset_dim "DLC CA Bundle File ............................. ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE}"
+  echo_reset_dim "Install the Cluster Logging Operator ........... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_INSTALL}"
+  echo_reset_dim "Use Syslog Forwarder ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER}"
+  if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
+    echo_reset_dim "Setup Log Forwarding ........................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING}"
+    echo_reset_dim "Operator Channel ............................... ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_CHANNEL}"
+    echo_reset_dim "DLC CA Bundle File ............................. ${COLOR_MAGENTA}${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE}"
+  fi
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -652,8 +658,6 @@ function gitops_cluster() {
 
   export SECRET_NAME_SYSLOG_PULLSECRET=${ACCOUNT_ID}${SM_DELIM}syslog_pullsecret
   export SECRET_KEY_SYSLOG_PULLSECRET=${SECRET_NAME_SYSLOG_PULLSECRET}#pullsecret
-  export SECRET_NAME_LOG_FORWARDER_DLC_CA_BUNDLE=${ACCOUNT_ID}${SM_DELIM}dlc_cert
-  export SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE=${SECRET_NAME_LOG_FORWARDER_DLC_CA_BUNDLE}#ca_bundle
 
   export SECRET_NAME_AWS_ECR=${ACCOUNT_ID}${SM_DELIM}${CLUSTER_ID}${SM_DELIM}aws_ecr
   export SECRET_KEY_AWS_ECR_ACCESS_KEY_ID=${SECRET_NAME_AWS_ECR}#ecr_aws_access_key_id
@@ -822,14 +826,15 @@ function gitops_cluster() {
     sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
     if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
       echo "- Cluster Logging Operator Log Forwarder Setup"
-      echo "- Update dlc ca certificate secret"
-      CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE} | base64 -w0)
-      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
-      sm_update_secret $SECRET_NAME_LOG_FORWARDER_DLC_CA_BUNDLE "{\"ca_bundle\": \"${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE}\"}" "${TAGS}"
-      
-      echo "- Update SYSLOG_PULLSECRET secret"
-      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
-      sm_update_secret $SECRET_NAME_SYSLOG_PULLSECRET "{\"pullsecret\": \"${SYSLOG_PULLSECRET}\"}" "${TAGS}"
+      [ -s "$CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE" ] || { echo_warning "Required value 'CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE' is missing or empty"; exit 1;}
+      export CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE=$(cat ${CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE} | base64 -w0)
+
+      if [[ -n "$SYSLOG_PULLSECRET" ]]; then
+        echo "- Update SYSLOG_PULLSECRET secret"
+        TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}]"
+        sm_update_secret $SECRET_NAME_SYSLOG_PULLSECRET "{\"pullsecret\": \"${SYSLOG_PULLSECRET}\"}" "${TAGS}"
+      fi
+      sm_verify_secret_exists $SECRET_NAME_SYSLOG_PULLSECRET "pullsecret"
     fi
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi
