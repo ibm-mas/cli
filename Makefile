@@ -6,7 +6,7 @@
 
 ansible-devops:
 	ansible-galaxy collection build --output-path image/cli/install ../ansible-devops/ibm/mas_devops --force
-	mv image/cli/install/ibm-mas_devops-29.8.1-pre.MASCORE-9708.tar.gz image/cli/install/ibm-mas_devops.tar.gz
+	mv image/cli/install/ibm-mas_devops-100.0.0.tar.gz image/cli/install/ibm-mas_devops.tar.gz
 
 # Tip: You can install this built collection using:
 # ansible-galaxy collection install image/cli/install/ibm-mas_devops.tar.gz --force --no-deps
