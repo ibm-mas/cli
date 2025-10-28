@@ -72,7 +72,7 @@ spec:
 
     - name: mas_report_adoption_metrics
       type: string
-      description: Flag to opt out of adoption metric reporting. Defaults to true (reporting enabled).
+      description: Optional flag to enable or disable adoption metrics reporting. Defaults to true (reporting enabled).
       default: "True"
 
     - name: ibm_entitlement_key
@@ -221,7 +221,7 @@ spec:
         - /opt/app-root/src/run-role.sh
         - suite_install
       image: quay.io/ibmmas/cli:latest
-      imagePullPolicy: Always
+      imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
 
   workspaces:

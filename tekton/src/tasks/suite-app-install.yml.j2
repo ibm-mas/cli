@@ -125,7 +125,7 @@ spec:
         - /opt/app-root/src/run-role.sh
         - suite_app_install
       image: quay.io/ibmmas/cli:latest
-      imagePullPolicy: Always
+      imagePullPolicy: $(params.image_pull_policy)
 
   workspaces:
     - name: pod-templates
