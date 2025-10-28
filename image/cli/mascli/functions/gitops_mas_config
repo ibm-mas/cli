@@ -333,7 +333,6 @@ function gitops_mas_config_noninteractive() {
   done
 
 
-
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_mas_config_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_mas_config_help "ACCOUNT_ID is not set"
   [[ -z "$REGION_ID" ]] && gitops_mas_config_help "REGION_ID is not set"
@@ -343,7 +342,6 @@ function gitops_mas_config_noninteractive() {
   [[ -z "$ICN" ]] && gitops_mas_config_help "ICN is not set"
 
   
-
   
   [[ -z "$CONFIG_ACTION" ]] && gitops_mas_config_help "CONFIG_ACTION is not set"
   if ! [[ "$CONFIG_ACTION" =~ ^(upsert|remove)$ ]]; then
@@ -746,8 +744,8 @@ function gitops_mas_config() {
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
-     # export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
-      export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}sls
+      #export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
+      export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}sls
       export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
       export SECRET_KEY_SLS_CA_B64=${SECRET_NAME_SLS}#ca_b64
       
