@@ -9,6 +9,7 @@
 # *****************************************************************************
 
 import logging
+import logging.handlers
 import urllib3
 
 from argparse import RawTextHelpFormatter
