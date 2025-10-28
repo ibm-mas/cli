@@ -318,6 +318,9 @@ function gitops_mas_provisioner() {
       echo "- Update PAGERDUTY_KEY secret"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       sm_update_secret ${SECRET_NAME_PAGERDUTY} "{\"key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
+    else
+      echo_warning "'ENABLE_PD_ALERT' has been set but 'PAGERDUTY_KEY' was not provided"
+      exit 1
     fi
   fi
 
@@ -328,6 +331,9 @@ function gitops_mas_provisioner() {
       echo "- Update OCM_API_KEY secret"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       sm_update_secret ${SECRET_NAME_OCM_API} "{\"api\": \"${OCM_API_KEY}\"}" "${TAGS}"
+    else
+      echo_warning "'ENABLE_OCM_ALERT' has been set but 'OCM_API_KEY' was not provided"
+      exit 1
     fi
   fi
 
