@@ -220,8 +220,8 @@ class Db2SettingsMixin():
             self.params["db2_cpu_requests"] = "300m"
 
         else:
-            self.setParam("db2_meta_storage_size", "20Gi")
-            self.setParam("db2_backup_storage_size", "100Gi")
-            self.setParam("db2_logs_storage_size", "100Gi")
-            self.setParam("db2_temp_storage_size", "100Gi")
-            self.setParam("db2_data_storage_size", "100Gi")
+            self.setParam("db2_meta_storage_size", "10Gi")
+            self.setParam("db2_backup_storage_size", "50Gi")
+            self.setParam("db2_logs_storage_size", "10Gi")
+            self.setParam("db2_temp_storage_size", "10Gi")
+            self.setParam("db2_data_storage_size", "50Gi")

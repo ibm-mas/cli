@@ -57,3 +57,4 @@ python/README.rst
 /.venv
 /site
 report/
+/python/.venv
