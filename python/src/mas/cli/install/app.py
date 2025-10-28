@@ -363,7 +363,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.showAdvancedOptions:
             self.printH1("Enable adoption metrics reporting")
             self.printDescription([
-                "By default, Maximo Application Suite is configured to enable adoption reporting. The flag allows users to control whether Account Adoption Metrics are sent to IBM.These metrics are designed to measure MAS adoption and successful product usage but are completely optional . When the adoption metrics reporting flag is disabled, no adoption data is sent to segments"
+                "By default, Maximo Application Suite enables adoption metrics reporting. This setting allows IBM to capture metrics that help measure feature adoption, user engagement, and product usage. If you disable adoption metrics reporting, no adoption data will be sent to IBM."
             ])
             if not self.yesOrNo("Do you want to enable adoption metrics reporting"):
                 self.setParam("mas_report_adoption_metrics", "false")
