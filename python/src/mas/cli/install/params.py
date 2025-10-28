@@ -158,6 +158,7 @@ optionalParams = [
     "mas_arcgis_channel",
     # Guided Tour
     "mas_enable_walkme",
+    "mas_report_adoption_metrics"
     # Facilities
     "mas_ws_facilities_size",
     "mas_ws_facilities_routes_timeout",
