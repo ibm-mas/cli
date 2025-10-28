@@ -338,8 +338,7 @@ function gitops_mas_config_noninteractive() {
   [[ -z "$REGION_ID" ]] && gitops_mas_config_help "REGION_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_mas_config_help "CLUSTER_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
-  [[ -z "$SAAS_SUB_ID" ]] && gitops_mas_config_help "SAAS_SUB_ID is not set"
-  [[ -z "$ICN" ]] && gitops_mas_config_help "ICN is not set"
+  ( [[ ! -z "$SAAS_SUB_ID" ]] && [[ -z "$ICN" ]] ) && gitops_license_help "ICN is not set"
 
   
   
@@ -743,12 +742,15 @@ function gitops_mas_config() {
       fi
     fi
 
-    if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
-      #export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
+
+     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
+       if [ ! -z "$SAAS_SUB_ID" ]; then
       export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}sls
+      else
+      export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
+      fi
       export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
       export SECRET_KEY_SLS_CA_B64=${SECRET_NAME_SLS}#ca_b64
-      
 
       # Set pod template yaml
       # ---------------------------------------------------------------------------
