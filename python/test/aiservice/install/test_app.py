@@ -213,19 +213,18 @@ def test_install_interactive(tmpdir):
                                             if re.match(".*Wait for PVCs to bind.*", message):
                                                 return 'n'
                                         mixins_prompt.side_effect = set_mixin_prompt_input
-                                        with mock.patch('mas.cli.aiservice.install.app.prompt') as app_prompt:
-                                            def set_app_prompt_input(**kwargs):
-                                                message = str(kwargs['message'])
-                                                if re.match('.*ReadWriteOnce (RWO) storage class.*', message):
-                                                    return 'nfs-client'
-                                                if re.match('.*ReadWriteMany (RWX) storage class.*', message):
-                                                    return 'nfs-client'
-                                                app_prompt.side_effect = set_app_prompt_input            
-                                            
-                                        with mock.patch('mas.cli.aiservice.install.app.getStorageClasses') as get_storage_classes:
-                                            storage_class = MagicMock()
-                                            get_storage_classes.return_value = [storage_class]
-                                            storage_class.metadata = MagicMock()
-                                            storage_class.metadata.name = 'nfs-client'
-                                            app = AiServiceInstallApp()
-                                            app.install(argv=[])
+
+                                        def set_app_prompt_input(**kwargs):
+                                            message = str(kwargs['message'])
+                                            if re.match('.*ReadWriteOnce (RWO) storage class.*', message):
+                                                return 'nfs-client'
+                                            if re.match('.*ReadWriteMany (RWX) storage class.*', message):
+                                                return 'nfs-client'
+                                        app_prompt.side_effect = set_app_prompt_input            
+                                        
+                                        storage_class = MagicMock()
+                                        get_storage_classes.return_value = [storage_class]
+                                        storage_class.metadata = MagicMock()
+                                        storage_class.metadata.name = 'nfs-client'
+                                        app = AiServiceInstallApp()
+                                        app.install(argv=[])
