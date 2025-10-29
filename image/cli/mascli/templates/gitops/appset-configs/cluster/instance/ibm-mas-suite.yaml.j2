@@ -4,6 +4,7 @@ ibm_mas_suite:
   cert_manager_namespace: "{{ CERT_MANAGER_NAMESPACE }}"
   ibm_entitlement_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>"
   domain: "{{ DOMAIN }}"
+  mas_report_adoption_metrics: "{{ MAS_REPORT_ADOPTION_METRICS }}"
 
 {%- if DNS_PROVIDER is defined and DNS_PROVIDER !='' %}
   # suite dns
