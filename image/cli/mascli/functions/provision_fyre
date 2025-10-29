@@ -376,10 +376,22 @@ function provision_fyre() {
     prompt_for_confirm "Proceed with these settings" || exit 0
   fi
 
-  ansible-playbook ibm.mas_devops.ocp_fyre_provision || exit 1
+  ansible-playbook ibm.mas_devops.ocp_fyre_provision
+  result=$?
 
-  echo ""
-  echo "IBM DevIT Fyre OCP cluster is ready to use"
-  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+  if [[ "$result" == "0" ]]; then
+    echo ""
+    echo "IBM DevIT Fyre OCP cluster is ready to use"
+    OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+    echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+
+    # Collect the information necessary for a Slack notification to be generated
+    curl -k -u "$FYRE_USERNAME:$FYRE_APIKEY" -H "Content-type: application/json" https://ocpapi.svl.ibm.com/v1/ocp/$CLUSTER_NAME > /tmp/fyre-$CLUSTER_NAME.json
+    export OCP_USERNAME=$(jq -r .clusters[0].ocp_username /tmp/fyre-$CLUSTER_NAME.json)
+    export OCP_PASSWORD=$(jq -r .clusters[0].kubeadmin_password /tmp/fyre-$CLUSTER_NAME.json)
+    export OCP_CONSOLE_URL="https://$OCP_CONSOLE_ROUTE"
+    rm /tmp/fyre-$CLUSTER_NAME.json
+  fi
+  mas-devops-notify-slack --action ocp-provision-fyre --rc $result
+  exit $result
 }
