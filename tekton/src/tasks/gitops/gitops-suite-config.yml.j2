@@ -47,10 +47,10 @@ spec:
     - name: smtp_config_ca_certificate_file
       type: string
       default: ""
-    - name: ibm_customer_number
+    - name: sls_license_icn
       type: string
       default: ""
-    - name: saas_subscription_id
+    - name: sls_subscription_id
       type: string
       default: ""
   stepTemplate:
@@ -95,9 +95,9 @@ spec:
       - name: SMTP_CONFIG_CA_CERTIFICATE_FILE
         value: $(params.smtp_config_ca_certificate_file)
       - name: ICN
-        value: $(params.ibm_customer_number)
+        value: $(params.sls_license_icn)
       - name: SAAS_SUB_ID
-        value: $(params.saas_subscription_id)
+        value: $(params.sls_subscription_id)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -142,8 +142,8 @@ spec:
         --github-org "$GITHUB_ORG" \
         --github-repo "$GITHUB_REPO" \
         --git-branch "$GIT_BRANCH" \
-        --ibm-customer-number "$ICN" \
-        --saas-subscription-id "$SAAS_SUB_ID" \
+        --sls_license_icn "$ICN" \
+        --sls_subscription_id "$SAAS_SUB_ID" \
         --config-action upsert \
         --mas-config-scope system \
         --mas-config-type sls \
