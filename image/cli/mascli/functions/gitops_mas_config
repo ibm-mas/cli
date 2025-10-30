@@ -338,7 +338,7 @@ function gitops_mas_config_noninteractive() {
   [[ -z "$REGION_ID" ]] && gitops_mas_config_help "REGION_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_mas_config_help "CLUSTER_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
-  ( [[ ! -z "$SAAS_SUB_ID" ]] && [[ -z "$ICN" ]] ) && gitops_license_help "ICN is not set"
+  ( [[ ! -z "$SAAS_SUB_ID" ]] && [[ -z "$ICN" ]] ) && gitops_mas_config_help "ICN is not set"
 
   
   
