@@ -1,0 +1,400 @@
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Debug - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body>
+    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/commands/debug.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+
+    </cds-header>
+
+    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
+      <cds-side-nav-items>
+        
+          
+  <cds-side-nav-menu title="Guides">
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-mirroring/">
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/facilities-external-db/">
+    MRE&amp;F External DB Setup
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Command Reference">
+    
+      
+  <cds-side-nav-menu-item href="../update/">
+    update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../upgrade/">
+    upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/">
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../must-gather/">
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configure-airgap/">
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../mirror-redhat-images/">
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../setup-registry/">
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../teardown-registry/">
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-fyre/">
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-roks/">
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../provision-rosa/">
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../configtool-oidc/">
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-251010-amd64/">
+    Oct 10 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-250925-amd64/">
+    Sep 25 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-250902-amd64/">
+    Sep 02 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-250828-amd64/">
+    Aug 28 2025
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+      </cds-side-nav-items>
+    </cds-side-nav>
+
+    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-breadcrumb-link href="#debug">Debug</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item>
+    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#usage">Usage</cds-select-item>
+    
+      <cds-select-item value="#usage_1">Usage</cds-select-item>
+    
+      <cds-select-item value="#examples">Examples</cds-select-item>
+    
+  </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+    </div>
+
+    <div id="main-content" class="rst-content">
+      
+      <h1 id="debug">Debug<a class="headerlink" href="#debug" title="Permanent link">¤</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
+<p><code>mas debug [command] [options]</code></p>
+<h3 id="commands">commands<a class="headerlink" href="#commands" title="Permanent link">¤</a></h3>
+<ul>
+<li><code>coredump</code> generate and collect a javacore and a system dump from a mas or manage pod running liberty server</li>
+<li><code>threaddump</code> generate and collect one or more threaddump / javacore from a mas or manage pod running liberty server</li>
+</ul>
+<h3 id="destination">Destination<a class="headerlink" href="#destination" title="Permanent link">¤</a></h3>
+<ul>
+<li><code>-d|--dir</code> Directory where the collected files will be saved, defaults to <code>/tmp</code></li>
+</ul>
+<h3 id="pod-selection">pod selection<a class="headerlink" href="#pod-selection" title="Permanent link">¤</a></h3>
+<p>define Liberty pod(s) where the files are generated:
+- <code>--namespace</code> Specify namespace where the liberty server is running
+- <code>-s|--pod-selector</code> Pod-selector can be serverBundle, <bundle name>, coreidp
+- <code>-p|--pod-name</code> Gives the pod where the java dump needs to be created, this overwrites -s if specified.</bundle></p>
+<h3 id="coredump-specific-actions">coredump specific actions<a class="headerlink" href="#coredump-specific-actions" title="Permanent link">¤</a></h3>
+<p>One of those three actions needs to be specified when using the coredump command
+- <code>-g|--generate</code> Generate a coredump for the liberty server according to the pod selector then copies it to the local machine where the script is running
+- <code>-c|--collect</code> Copy all the coredump files from the node to where the liberty server specified is running to the local machine where the script is running
+- <code>-r|--rm</code> Remove all the coredump files from the node where the liberty server specified is running
+                           This command will remove the content of /var/lib/systemd/coredump/ on the node  </p>
+<h3 id="threaddump-specific-parameters">threaddump specific parameters<a class="headerlink" href="#threaddump-specific-parameters" title="Permanent link">¤</a></h3>
+<ul>
+<li><code>-t</code> Time between collection of javacore (default is 10 seconds)</li>
+<li><code>-n</code> How many javacores will be collected (default is 1)</li>
+<li><code>-r|--rm</code> Remove all the javacores files present in the targeted pod</li>
+</ul>
+<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link">¤</a></h3>
+<ul>
+<li><code>-h|--help</code>    Show this help message</li>
+</ul>
+<h2 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link">¤</a></h2>
+<p>As with other CLI functions, the debug commands will run against the currently connected cluster, use <code>oc login</code> to connect to a cluster before running <code>mas must-gather</code>.</p>
+<pre><code class="language-bash"># Start the container in docker
+docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli
+# Login to the cluster and run the must-gather, which will be available in the home directory on the local system
+oc login --token=xxx --server=https://xxx:xxx
+mas debug threaddump  --namespace mas-test-manage -p test-testws-foundation-54956ff9d7-bzmgb -d /mnt/home -t 10 -n 5
+</code></pre>
+<pre><code class="language-bash"># Start the container in podman
+podman run -ti --rm -v /~:/mnt/home:z --pull always quay.io/ibmmas/cli
+# Login to the cluster and run the must-gather, which will be available in the home directory on the local system
+oc login --token=xxx --server=https://xxx:xxx
+mas debug threaddump  --namespace mas-test-manage -p test-testws-foundation-54956ff9d7-bzmgb -d /mnt/home -t 10 -n 5
+</code></pre>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¤</a></h2>
+<p><strong>Coredump for pod:</strong> Generate a coredump for a particular pod in the manage namespace:</p>
+<pre><code class="language-bash">mas debug coredump  --namespace mas-test-manage -p test-testws-foundation-54956ff9d7-bzmgb -g -d /mnt/home
+</code></pre>
+<p><strong>Coredump for server bundle:</strong> Generate a coredump for the ui server bundle, copies it localy and removes it from the node where it was generated:</p>
+<pre><code class="language-bash">mas debug coredump --namespace mas-test-manage -s ui -g -d /mnt/home
+</code></pre>
+<p><strong>Coredump collection only:</strong> Collect all the coredumps present on the node where ui server bundle is running:</p>
+<pre><code class="language-bash">mas debug coredump --namespace mas-test-manage -s ui -c
+</code></pre>
+<p><strong>Coredump deletion only:</strong> Remove all the coredumps present on the node where the ui server bundle is running:</p>
+<pre><code class="language-bash">mas debug coredump --namespace mas-test-manage -s ui -r
+</code></pre>
+<p><strong>Javacore creation for pod:</strong> Generate 5 javacore, 1 every 10 seconds for a particular pod in the manage namespace:</p>
+<pre><code class="language-bash">mas debug threaddump  --namespace mas-test-manage -p test-testws-foundation-54956ff9d7-bzmgb -d /mnt/home -t 10 -n 5
+</code></pre>
+<p><strong>Javacore creation for server bundle:</strong> Generate a coredump for the ui server bundle, copies it localy and removes it from the node where it was generated:</p>
+<pre><code class="language-bash">mas debug threaddump --namespace mas-test-manage -s ui -d /mnt/home -t 10 -n 5
+</code></pre>
+      
+    </div>
+    <!-- <div id="footer" class="rst-content">
+      Built with mkdocs v1.6.1 (2025-10-30 15:09:00.510511+00:00)
+    </div> -->
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>
