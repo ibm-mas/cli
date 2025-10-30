@@ -6,6 +6,8 @@ mas_application_id: {{ MAS_APP_ID }}
 mas_config_kind: "slscfgs"
 mas_config_api_version: "config.mas.ibm.com"
 use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
+ibm_customer_number: {{ ICN }}
+saas_subscription_id: {{ SAAS_SUB_ID }}
 
 {% if MAS_SLSCFG_POD_TEMPLATE is defined and MAS_SLSCFG_POD_TEMPLATE !='' %}
 mas_slscfg_pod_templates:
