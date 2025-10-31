@@ -93,3 +93,8 @@ function artifactory_upload() {
   echo "Uploading $1 to $2"
   curl -H "Authorization:Bearer $ARTIFACTORY_TOKEN"  -H "X-Checksum-Md5: $md5Value" -H "X-Checksum-Sha1: $sha1Value" -T $1 $2 || exit 1
 }
+
+# install oscap tools
+function install_oscap() {
+  sudo apt-get install -y openscap-scanner
+}

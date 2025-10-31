@@ -34,6 +34,7 @@ MAS PROVISIONER OPERATOR:
       --async-poll-max ${COLOR_YELLOW}ASYNC_POLL_MAX${TEXT_RESET}                    The maximum amount of time in seconds for MCSP to keep polling to check the status of an order. Default is 864000
       --enable-pd-alert ${COLOR_YELLOW}ENABLE_PD_ALERT${TEXT_RESET}                  Turn PagerDuty alerts on/off. Default is false
       --enable-ocm-alert ${COLOR_YELLOW}ENABLE_OCM_ALERT${TEXT_RESET}                Turn On Call Manager alerts on/off. Default is false
+      --recommend-cluster ${COLOR_YELLOW}RECOMMEND_CLUSTER${TEXT_RESET}              Turn cluster recommendation which uses Instana on/off. Default is false
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -131,6 +132,9 @@ function gitops_mas_provisioner_noninteractive() {
       --enable-ocm-alert)
         export ENABLE_OCM_ALERT=true
         ;;
+      --recommend-cluster)
+        export RECOMMEND_CLUSTER=true
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -218,6 +222,7 @@ function gitops_mas_provisioner() {
   export SERVICE_PORT=${SERVICE_PORT:-7329}
   export ASYNC_POLL_INTERVAL=${ASYNC_POLL_INTERVAL:-600}
   export ASYNC_POLL_MAX=${ASYNC_POLL_MAX:-864000}
+  export RECOMMEND_CLUSTER=${RECOMMEND_CLUSTER:-false}
 
   echo
   reset_colors
@@ -264,6 +269,7 @@ function gitops_mas_provisioner() {
   echo_reset_dim "CSB CA Cert File ........................ ${COLOR_MAGENTA}${CSB_CA_CERTIFICATE_FILE}"
   echo_reset_dim "Enable PD Alert ......................... ${COLOR_MAGENTA}${ENABLE_PD_ALERT}"
   echo_reset_dim "Enable OCM Alert ........................ ${COLOR_MAGENTA}${ENABLE_OCM_ALERT}"
+  echo_reset_dim "Recommend Cluster ....................... ${COLOR_MAGENTA}${RECOMMEND_CLUSTER}"
   reset_colors
 
   CURRENT_DIR=$PWD
@@ -283,26 +289,20 @@ function gitops_mas_provisioner() {
 
   export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
   export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
-  export SECRET_NAME_INSTANA_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}instana
-  export SECRET_KEY_INSTANA_API=${SECRET_NAME_INSTANA_API}#key
   export SECRET_NAME_GITHUB_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}git
   export SECRET_KEY_GITHUB_TOKEN=${SECRET_NAME_GITHUB_TOKEN}#token
-  export SECRET_NAME_PAGERDUTY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}pd
-  export SECRET_KEY_PAGERDUTY=${SECRET_NAME_PAGERDUTY}#key
-  export SECRET_NAME_OCM_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocm
-  export SECRET_KEY_OCM_API=${SECRET_NAME_OCM_API}#api
-  export SECRET_NAME_CSB_CLIENT_CA=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}csb
-  export SECRET_KEY_CSB_CLIENT_CA=${SECRET_NAME_CSB_CLIENT_CA}#cert
 
   echo "- Verify that IBM entitlement pull secret exists"
   sm_verify_secret_exists ${SECRET_NAME_IBM_ENTITLEMENT} "image_pull_secret_b64"
 
-  if [ -n "$INSTANA_KEY" ]; then
-    echo "- Update INSTANA_KEY secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${SECRET_NAME_INSTANA_API} "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
-  else
-    export SECRET_KEY_INSTANA_API=""
+  if [ "$RECOMMEND_CLUSTER" == "true" ]; then
+    if [ -n "$INSTANA_KEY" ]; then
+      export SECRET_NAME_INSTANA_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}instana
+      export SECRET_KEY_INSTANA_API=${SECRET_NAME_INSTANA_API}#key
+      echo "- Update INSTANA_KEY secret"
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+      sm_update_secret ${SECRET_NAME_INSTANA_API} "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
+    fi
   fi
 
   if [ -n "$GITHUB_PAT" ]; then
@@ -313,29 +313,37 @@ function gitops_mas_provisioner() {
 
   if [ "$ENABLE_PD_ALERT" == "true" ]; then
     if [ -n "$PAGERDUTY_KEY" ]; then
+      export SECRET_NAME_PAGERDUTY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}pd
+      export SECRET_KEY_PAGERDUTY=${SECRET_NAME_PAGERDUTY}#key
       echo "- Update PAGERDUTY_KEY secret"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       sm_update_secret ${SECRET_NAME_PAGERDUTY} "{\"key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
+    else
+      echo_warning "'ENABLE_PD_ALERT' has been set but 'PAGERDUTY_KEY' was not provided"
+      exit 1
     fi
-  else
-    export SECRET_KEY_PAGERDUTY=""
   fi
 
   if [ "$ENABLE_OCM_ALERT" == "true" ]; then
     if [ -n "$OCM_API_KEY" ]; then
+      export SECRET_NAME_OCM_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocm
+      export SECRET_KEY_OCM_API=${SECRET_NAME_OCM_API}#api
       echo "- Update OCM_API_KEY secret"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       sm_update_secret ${SECRET_NAME_OCM_API} "{\"api\": \"${OCM_API_KEY}\"}" "${TAGS}"
+    else
+      echo_warning "'ENABLE_OCM_ALERT' has been set but 'OCM_API_KEY' was not provided"
+      exit 1
     fi
-  else
-    export SECRET_KEY_OCM_API=""
   fi
 
-  if [ -n "$CSB_CA_CERTIFICATE_FILE" ]; then
-    CSB_CA_CERT=$(cat ${CSB_CA_CERTIFICATE_FILE} | base64 -w0)
-    echo "- Update csb ca certificate secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${SECRET_NAME_CSB_CLIENT_CA} "{\"cert\": \"${CSB_CA_CERT}\"}" "${TAGS}"
+  if [ "$ENABLE_MTLS" == "true" ]; then
+    if [ -s "$CSB_CA_CERTIFICATE_FILE" ]; then
+      export CSB_CA_CERT=$(cat ${CSB_CA_CERTIFICATE_FILE} | base64 -w0)
+    else
+      echo_warning "Required value for mtls 'CSB_CA_CERTIFICATE_FILE' is missing or empty"
+      exit 1
+    fi
   fi
 
   echo "- Verify that git secret exists"
@@ -379,5 +387,7 @@ function gitops_mas_provisioner() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
+
+  rm -rf $TEMP_DIR
 
 }
