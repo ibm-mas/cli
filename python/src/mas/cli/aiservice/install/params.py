@@ -77,7 +77,10 @@ optionalParams = [
     "aiservice_watsonxai_ca_crt",
     "aiservice_watsonxai_deployment_id",
     "aiservice_watsonxai_space_id",
-
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_username",
+    "aiservice_watsonxai_version",
+    "aiservice_watsonxai_full",
     "aiservice_instance_id",
 
     "minio_root_user",
