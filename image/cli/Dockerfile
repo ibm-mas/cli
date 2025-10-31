@@ -32,3 +32,5 @@ RUN umask 0002 && \
     ibmcloud config --check-version=false && \
     ln -s /opt/app-root/lib/python3.9/site-packages /mascli/site-packages && \
     rm -rf /tmp/install
+
+RUN chmod 777 /opt/app-root/src/.config
