@@ -44,6 +44,9 @@ spec:
     - name: fvt_digest_mobile_pytest
       type: string
       default: ""
+    - name: fvt_digest_mobile_testng
+      type: string
+      default: ""
     
     # FVT: Request Pipelines
     - name: launchfvt_mobile_requests
@@ -56,3 +59,4 @@ spec:
     # 2. Mobile FVT - Mobile Request tasks
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-mobile/requests/phase1-reqs.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/requests/phase2-testng.yml.j2') | indent(4) }}

@@ -21,6 +21,7 @@
 
     # FVT Configuration
     fvt_digest_mobile_pytest: "{{ lookup('env', 'FVT_DIGEST_MOBILE_PYTEST') }}"
+    fvt_digest_mobile_testng: "{{ lookup('env', 'FVT_DIGEST_MOBILE_TESTNG') }}"
     
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
@@ -45,6 +46,7 @@
           - "fvt_image_registry ....................... {{ fvt_image_registry }}"
           - "fvt_artifactory_token .................... {{ fvt_artifactory_token }}"
           - "fvt_digest_mobile_pytest ................. {{ fvt_digest_mobile_pytest }}"
+          - "fvt_digest_mobile_testng ................. {{ fvt_digest_mobile_testng }}"
           - ""
           - "fvt_blacklist ............................ {{ fvt_blacklist }}"
           - "fvt_whitelist ............................ {{ fvt_whitelist }}"
