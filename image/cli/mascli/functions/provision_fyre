@@ -40,6 +40,13 @@ Storage Provisioner Configuration:
       --storage ${COLOR_YELLOW}OCP_STORAGE_PROVIDER${TEXT_RESET}                         Choose optional storage provider (nfs, odf, or longhorn)
       --nfs-image-registry-size ${COLOR_YELLOW}FYRE_NFS_IMAGE_REGISTRY_SIZE${TEXT_RESET}  Defines the image registry storage size when configured to use NFS (default 100gb). The size allocated cannot be superior of storage available in the Fyre Infrastructure node.
 
+Turbonomic Integration:
+      --turbonomic-name ${COLOR_YELLOW}TURBONOMIC_TARGET_NAME${TEXT_RESET}   Name of the cluster in Turbonomic
+      --turbonomic-url ${COLOR_YELLOW}TURBONOMIC_SERVER_URL${TEXT_RESET}   Turbonomic server URL
+      --turbonomic-version ${COLOR_YELLOW}TURBONOMIC_SERVER_VERSION${TEXT_RESET}   Turbonomic server version
+      --turbonomic-username ${COLOR_YELLOW}TURBONOMIC_USERNAME${TEXT_RESET}   Turbonomic username
+      --turbonomic-password ${COLOR_YELLOW}TURBONOMIC_PASSWORD${TEXT_RESET}   Turbonomic password
+
 Other Commands:
       --no-confirm        Provision the cluster without prompting for confirmation
   -h, --help              Show this help message
@@ -125,6 +132,23 @@ function provision_fyre_noninteractive() {
         ;;
       --nfs-image-registry-size)
         IMAGE_REGISTRY_STORAGE_SIZE=$1 && shift
+        ;;
+
+      # Turbonomic
+      --turbonomic-name)
+        TURBONOMIC_TARGET_NAME=$1 && shift
+        ;;
+      --turbonomic-url)
+        TURBONOMIC_SERVER_URL=$1 && shift
+        ;;
+      --turbonomic-version)
+        TURBONOMIC_SERVER_VERSION=$1 && shift
+        ;;
+      --turbonomic-username)
+        TURBONOMIC_USERNAME=$1 && shift
+        ;;
+      --turbonomic-password)
+        TURBONOMIC_PASSWORD=$1 && shift
         ;;
 
       # Other options
@@ -324,6 +348,7 @@ function provision_fyre() {
   export OCP_VERSION
   export CLUSTER_PLATFORM
   export FYRE_CLUSTER_DESCRIPTION
+  export FYRE_CLUSTER_SIZE
   export FYRE_SITE
 
   export FYRE_WORKER_COUNT
@@ -333,23 +358,29 @@ function provision_fyre() {
   export OCP_FIPS_ENABLED
   export ENABLE_IPV6
 
-  export FYRE_CLUSTER_SIZE
-
   export OCP_STORAGE_PROVIDER
+
+  export TURBONOMIC_TARGET_NAME
+  export TURBONOMIC_SERVER_URL
+  export TURBONOMIC_SERVER_VERSION
+  export TURBONOMIC_USERNAME
+  export TURBONOMIC_PASSWORD
 
   echo
   reset_colors
   echo_h2 "Review Settings"
+
   echo "${TEXT_DIM}"
   echo_h2 "FYRE Authentication" "    "
   echo_reset_dim "Username .................. ${COLOR_MAGENTA}${FYRE_USERNAME}"
-  echo_reset_dim "API Key ................... ${COLOR_MAGENTA}${FYRE_APIKEY:0:8}<snip>"
+
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "FYRE Accounting" "    "
   echo_reset_dim "Product Group ID .......... ${COLOR_MAGENTA}${FYRE_PRODUCT_ID}"
   echo_reset_dim "Quota Type ................ ${COLOR_MAGENTA}${FYRE_QUOTA_TYPE}"
   echo_reset_dim "Site ...................... ${COLOR_MAGENTA}${FYRE_SITE}"
+
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Configuration" "    "
@@ -373,6 +404,15 @@ function provision_fyre() {
   echo "${TEXT_DIM}"
   echo_h2 "Storage" "    "
   echo_reset_dim "Storage Provider ............ ${COLOR_MAGENTA}${OCP_STORAGE_PROVIDER}"
+
+  if [[ "${TURBONOMIC_NAME}" != "" ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h2 "Turbonomic Integration" "    "
+    echo_reset_dim "Cluster Name ................ ${COLOR_MAGENTA}${TURBONOMIC_NAME}"
+    echo_reset_dim "Server URL .................. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_URL}"
+    echo_reset_dim "Server Version .............. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_VERSION}"
+  fi
 
   echo
   reset_colors
