@@ -81,6 +81,10 @@ docker buildx build --progress plain \
   --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
   --build-arg VCS_REF=$GITHUB_SHA \
   --build-arg VCS_URL=https://github.com/$GITHUB_REPOSITORY \
+  --secret id=ARTIFACTORY_TOKEN,env=ARTIFACTORY_TOKEN \
+  --secret id=ARTIFACTORY_GENERIC_RELEASE_URL,env=ARTIFACTORY_GENERIC_RELEASE_URL \
+  --secret id=GITHUB_REF_NAME,env=GITHUB_REF_NAME \
+  --secret id=GITHUB_REF_TYPE,env=GITHUB_REF_TYPE \
   -t $LOCAL_TAG $EXTRA_PARAMS -f $DOCKERFILE $BUILDPATH || exit 1
 
 # 5. Generate OSCAP(Security Content Automation Protocol) report
@@ -101,8 +105,8 @@ if [[ "$TARGET_PLATFORM" == "amd64" ]]; then
       sudo $DIR/oscap-docker.sh $REPOSITORY:$DOCKER_TAG-$TARGET_PLATFORM xccdf eval --report $OSCAP_DIR/$image_name-report.html --results $OSCAP_DIR/$image_name-results.xml --profile stig $CONFIG_DIR/oscap/${SCAP_DATA_STREAM}.xml
     fi
     sudo oscap xccdf generate fix --fix-type bash --output $OSCAP_DIR/$image_name-remediation.sh --result-id xccdf_org.open-scap_testresult_xccdf_org.ssgproject.content_profile_stig $OSCAP_DIR/$image_name-results.xml
-    
-    # Upload the results to Artifactory    
+
+    # Upload the results to Artifactory
     artifactory_upload $OSCAP_DIR/$image_name-report.html $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/$image_name/$DOCKER_TAG/$image_name-report.html
     artifactory_upload $OSCAP_DIR/$image_name-results.xml $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/$image_name/$DOCKER_TAG/$image_name-results.xml
   fi
