@@ -14,3 +14,4 @@ repos:
     hooks:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline, --use-all-plugins, --fail-on-unaudited]
+        additional_dependencies: [boxsdk<4]
