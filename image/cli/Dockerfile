@@ -4,6 +4,12 @@ ARG VERSION_LABEL
 # Auto-expire the image in quay.io after 3 weeks
 LABEL quay.expires-after=3w
 
+# Set up Artifactory secrets
+RUN --mount=type=secret,id=ARTIFACTORY_TOKEN,env=ARTIFACTORY_TOKEN
+RUN --mount=type=secret,id=ARTIFACTORY_GENERIC_RELEASE_URL,env=ARTIFACTORY_GENERIC_RELEASE_URL
+RUN --mount=type=secret,id=GITHUB_REF_NAME,env=GITHUB_REF_NAME
+RUN --mount=type=secret,id=GITHUB_REF_TYPE,env=GITHUB_REF_TYPE
+
 # 1. Copy basics
 COPY app-root/src/ /opt/app-root/src/
 COPY mascli/ /mascli/
