@@ -62,6 +62,8 @@ echo "VERSION_LABEL .... $DOCKER_TAG"
 echo "RELEASE_LABEL .... $GITHUB_RUN_ID"
 echo "VCS_REF .......... $GITHUB_SHA"
 echo "VCS_URL .......... https://github.com/$GITHUB_REPOSITORY"
+echo "GITHUB_REF_TYPE .. $GITHUB_REF_TYPE"
+echo "GITHUB_REF_NAME .. $GITHUB_REF_NAME"
 
 install_buildx
 
@@ -81,10 +83,10 @@ docker buildx build --progress plain \
   --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
   --build-arg VCS_REF=$GITHUB_SHA \
   --build-arg VCS_URL=https://github.com/$GITHUB_REPOSITORY \
-  --secret id=ARTIFACTORY_TOKEN,env=ARTIFACTORY_TOKEN \
-  --secret id=ARTIFACTORY_GENERIC_RELEASE_URL,env=ARTIFACTORY_GENERIC_RELEASE_URL \
-  --secret id=GITHUB_REF_NAME,env=GITHUB_REF_NAME \
-  --secret id=GITHUB_REF_TYPE,env=GITHUB_REF_TYPE \
+  --secret id=ARTIFACTORY_TOKEN \
+  --secret id=ARTIFACTORY_GENERIC_RELEASE_URL \
+  --secret id=GITHUB_REF_NAME \
+  --secret id=GITHUB_REF_TYPE \
   -t $LOCAL_TAG $EXTRA_PARAMS -f $DOCKERFILE $BUILDPATH || exit 1
 
 # 5. Generate OSCAP(Security Content Automation Protocol) report
