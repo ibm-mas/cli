@@ -30,6 +30,7 @@ Disable Collectors:
   --no-ocp                   Disable must-gather for the OCP cluster itself
   --no-dependencies          Disable must-gather for in-cluster dependencies (Db2, Cloud Pak for Data, Cloud Pak Foundational Services, Mongo)
   --no-sls                   Disable must-gather for IBM Suite License Service
+  --no-mas-quick-summary     Disable MAS quick summary reports
 
 Additional Collectors:
   --extra-namespaces         Enable must-gather in custom namespaces (comma-seperated list)
@@ -81,6 +82,7 @@ function mustgather() {
   OCP_REPORT=true
   DEPENDENCY_REPORT=true
   SLS_REPORT=true
+  MAS_QUICK_SUMMARY=true
   MAS_APP_IDS="core,add,assist,iot,monitor,manage,optimizer,predict,visualinspection,pipelines,facilities"
   EXTRA_NAMESPACES=""
 
@@ -159,6 +161,9 @@ function mustgather() {
     --no-sls)
       SLS_REPORT=false
       ;;
+    --no-mas-quick-summary)
+      MAS_QUICK_SUMMARY=false
+      ;;
 
     # Automatic upload of the must-gather to Artifactory (primarily used in MAS FVT)
     --artifactory-token)
@@ -192,6 +197,13 @@ function mustgather() {
   OUTPUT_DIR=${MG_DIR}/${TIMESTAMP}
   mkdir -p $OUTPUT_DIR
 
+  if [[ "$MAS_QUICK_SUMMARY" == "true" ]]; then
+    # Dir to save mas-quick-summary reports
+    MAS_QUICK_SUMMARY_DIR_NAME=mas-quick-summary
+    MAS_QUICK_SUMMARY_DIR_PATH=${OUTPUT_DIR}/${MAS_QUICK_SUMMARY_DIR_NAME}
+    mkdir -p $MAS_QUICK_SUMMARY_DIR_PATH
+  fi
+
   if [[ "$?" != "0" ]]; then
     echo_warning "Unable to create must-gather output directory '${MG_DIR}/${TIMESTAMP}'"
     exit 1
@@ -215,7 +227,6 @@ function mustgather() {
     echo_warning "Your user does not appear to be a cluster administrator, you must be logged in to the server as a cluster administrator before running the must-gather command"
     exit 1
   fi
-
 
   # ---------------------------------------------------------------------------
   # Generate OCP Report
@@ -428,9 +439,40 @@ function mustgather() {
         genericMustGather $MAS_APP_NAMESPACE
       fi
     done
+
+    if [[ "$MAS_QUICK_SUMMARY" == "true" ]]; then
+      # Generate quick summary report that helps troubleshoot user synchronization problems
+      MAS_QUICK_SUMMARY_FILE_PATH=${MAS_QUICK_SUMMARY_DIR_PATH}/${MAS_INSTANCE_ID}.txt
+      echo_h3 "MAS quick summary: ${MAS_INSTANCE_ID}"
+      echo
+      $MG_SCRIPT_DIR/mg-quick-summary-mas $MAS_INSTANCE_ID $MAS_QUICK_SUMMARY_FILE_PATH
+      echo "MAS quick summary generated"
+      echo
+    fi
+    
     endTimer "${MAS_INSTANCE_ID}:${MAS_APP_ID}"
   done
 
+  # ---------------------------------------------------------------------------
+  # AI Service Dependencies
+  # ---------------------------------------------------------------------------
+  echo_h2 "In-Cluster AI Service Dependencies"
+  if [[ "$DEPENDENCY_REPORT" == "true" ]]; then
+    startTimer
+    
+    echo_h3 "Open Data Hub"
+    ODH_NAMESPACE_LOOKUP=$(oc get namespace opendatahub --ignore-not-found)
+    if [[ "$ODH_NAMESPACE_LOOKUP" != "" ]]; then
+      $MG_SCRIPT_DIR/mg-summary-opendatahub &> ${OUTPUT_DIR}/opendatahub.txt
+      genericMustGather opendatahub Auth,DataScienceCluster,DataSciencePipelines,DataSciencePipelinesApplication,DSCInitialization,Kserve,ModelController
+    else
+      echo_highlight "Unable to find namespace for opendatahub"
+    fi
+
+    endTimer "in-cluster AI Service dependencies"
+  else
+    echo_warning "Maximo AI Service dependency must-gather disabled"
+  fi
 
   # ---------------------------------------------------------------------------
   # AI Service Must-Gather
@@ -457,6 +499,22 @@ function mustgather() {
 
       genericMustGather $AISERVICE_NAMESPACE pipelinerun   # Including model training logs
     fi
+
+    
+    AISERVICE_PIPELINE_NAMESPACE=aiservice-${AISERVICE_INSTANCE_ID}-pipelines
+    NAMESPACE_LOOKUP=$(oc get namespace $AISERVICE_PIPELINE_NAMESPACE --ignore-not-found)
+
+    if [[ "$NAMESPACE_LOOKUP" != "" ]]; then
+      echo_h3 "Namespace: ${AISERVICE_PIPELINE_NAMESPACE}"
+      echo
+
+      # Reuse script from mas
+      $MG_SCRIPT_DIR/mg-summary-mas-pipelines $AISERVICE_PIPELINE_NAMESPACE &> ${OUTPUT_DIR}/${AISERVICE_PIPELINE_NAMESPACE}.txt
+      $MG_SCRIPT_DIR/mg-collect-mas-pipelines $AISERVICE_PIPELINE_NAMESPACE $OUTPUT_DIR
+      
+      genericMustGather $AISERVICE_PIPELINE_NAMESPACE
+    fi
+
     endTimer "${AISERVICE_INSTANCE_ID}"
   done
 
@@ -480,7 +538,7 @@ function mustgather() {
       echo_h3 "Namespace: ${AISERVICE_TENANT_ID}"
       echo
       
-      genericMustGather $AISERVICE_TENANT_ID
+      genericMustGather $AISERVICE_TENANT_ID InferenceService
     fi
     endTimer "${AISERVICE_TENANT_ID}"
   done

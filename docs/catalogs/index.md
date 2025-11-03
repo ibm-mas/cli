@@ -10,7 +10,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
 
 
 ### Catalog Directory
-Note: The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, the support dates stated below refer to the EUS1 end dates.  For more details on the OCP support lifecycle see: https://access.redhat.com/support/policy/updates/openshift 
+Note: The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, the support dates stated below refer to the EUS1 end dates.  For more details on the OCP support lifecycle see: [https://access.redhat.com/support/policy/updates/openshift](https://access.redhat.com/support/policy/updates/openshift) 
 
 <cds-tabs trigger-content="Select an item" value="2025">
   <cds-tab id="tab-2025" target="panel-2025" value="2025">2025 Catalogs</cds-tab>
@@ -46,26 +46,37 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td style="font-style: italic">OCP 4.18 EOS February 25, 2027</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-251127</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.18 EOS February 25, 2027</td>
+          <td>v9-251030</td>
+          <td><a href="v9-251030-amd64/">amd64</a></td>
+          <td><a href="v9-251030-s390x/">s390x</a></td>
+          <td><a href="v9-251030-ppc64le/">ppc64le</a></td>
+          <td>4.14 - 4.18</td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>latest</td>
+          <td>OCP 4.18 EOS February 25, 2027</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-251030</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td style="font-style: italic">4.16 - 4.18 (TBC)</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.18 EOS February 25, 2027</td>
+          <td>v9-251010</td>
+          <td><a href="v9-251010-amd64/">amd64</a></td>
+          <td>No s390x catalog</a></td>
+          <td><a href="v9-251010-ppc64le/">ppc64le</a></td>
+          <td>4.14 - 4.18</td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>latest</td>
+          <td>OCP 4.18 EOS February 25, 2027</td>
+        </tr>
+        <tr>
+          <td>v9-250925</td>
+          <td><a href="v9-250925-amd64/">amd64</a></td>
+          <td>No s390x catalog</a></td>
+          <td><a href="v9-250925-ppc64le/">ppc64le</a></td>
+          <td>4.14 - 4.18</td>
+          <td>5.1.3</td>
+          <td>6.0 - 7.0</td>
+          <td>latest</td>
+          <td>OCP 4.18 EOS February 25, 2027</td>
         </tr>
         <tr>
           <td>v9-250902</td>
@@ -86,7 +97,7 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td>4.14 - 4.18</td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
-          <td>latest</td>
+          <td>15.2.0</td>
           <td>OCP 4.18 EOS February 25, 2027</td>
         </tr>
         <tr>
@@ -97,7 +108,7 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td>4.14 - 4.18</td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
-          <td>latest</td>
+          <td>15.1.0</td>
           <td>OCP 4.18 EOS February 25, 2027</td>
         </tr>
         <tr>

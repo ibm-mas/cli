@@ -49,6 +49,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/configtool_oidc
 # Must Gather
 . $CLI_DIR/functions/must_gather
+. $CLI_DIR/functions/debug
 # GitOps
 . $CLI_DIR/functions/gitops_utils
 . $CLI_DIR/functions/gitops_bootstrap
@@ -92,10 +93,12 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_db2u_database
 . $CLI_DIR/functions/gitops_nvidia_gpu
 . $CLI_DIR/functions/gitops_deprovision_db2u
+. $CLI_DIR/functions/gitops_deprovision_odh
 . $CLI_DIR/functions/gitops_odh
-. $CLI_DIR/functions/gitops_kmodel
-. $CLI_DIR/functions/gitops_aibroker
-. $CLI_DIR/functions/gitops_aibroker_tenant
+. $CLI_DIR/functions/gitops_aiservice
+. $CLI_DIR/functions/gitops_aiservice_tenant
+. $CLI_DIR/functions/gitops_deprovision_aiservice_tenant
+. $CLI_DIR/functions/gitops_deprovision_aiservice
 . $CLI_DIR/functions/gitops_mas_provisioner
 
 # TODO: The path from the CLI the installation of the Ansible collection should be configurable
@@ -228,6 +231,16 @@ case $1 in
     mas-cli aiservice-install "$@"
     ;;
 
+  aiservice-upgrade)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! aiservice-upgrade                                                         !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "aiservice-upgrade")
+    shift
+    # Run the new Python-based aiservice-upgrade
+    mas-cli aiservice-upgrade "$@"
+    ;;
+
   update)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! update                                                                    !!" >> $LOGFILE
@@ -269,6 +282,16 @@ case $1 in
     echo
     mustgather "$@"
     ;;
+
+  debug)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! debug                                                                     !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite debug Tool (v${VERSION})${TEXT_RESET}"
+    echo
+    debug "$@"
+    ;;
+
   gitops-bootstrap)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -577,30 +600,46 @@ case $1 in
     reset_colors
     gitops_deprovision_db2u "$@"
     ;;
-
-  gitops-kmodel)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite kmodel Manager (v${VERSION})${TEXT_RESET}"
+  gitops-deprovision-odh)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
-    gitops_kmodel "$@"
+    gitops_deprovision_odh "$@"
     ;;
 
-  gitops-aibroker)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker Manager (v${VERSION})${TEXT_RESET}"
+  gitops-aiservice)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
-    gitops_aibroker "$@"
+    gitops_aiservice "$@"
     ;;
 
-  gitops-aibroker-tenant)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite aibroker tenant Manager (v${VERSION})${TEXT_RESET}"
+  gitops-aiservice-tenant)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Tenant Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
-    gitops_aibroker_tenant "$@"
+    gitops_aiservice_tenant "$@"
     ;;
+    
+  gitops-deprovision-aiservice-tenant)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Tenant deprovision Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_aiservice_tenant "$@"
+    ;;
+
+   gitops-deprovision-aiservice)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService deprovision Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_deprovision_aiservice "$@"
+    ;;
+
   gitops-mas-provisioner)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"

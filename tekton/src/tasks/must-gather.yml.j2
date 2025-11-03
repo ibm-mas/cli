@@ -20,7 +20,7 @@ spec:
         - --directory
         - $(params.base_output_dir)
         - --extra-namespaces
-        - selenium
+        - selenium,kyverno
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       env:
