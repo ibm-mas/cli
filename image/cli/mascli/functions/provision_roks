@@ -211,7 +211,7 @@ function provision_roks_interactive() {
   fi
 
   echo
-  echo "Storage Provider:"
+  echo_h2 "Storage Provider:"
   echo "  1. IBMCloud"
   echo "  2. Longhorn"
   prompt_for_input "Select the storage provider to setup" OCP_STORAGE_PROVIDER_SELECTION "1"
@@ -220,6 +220,17 @@ function provision_roks_interactive() {
     OCP_STORAGE_PROVIDER=""
   elif [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "2" ]]; then
     OCP_STORAGE_PROVIDER="longhorn"
+  fi
+
+  echo
+  echo_h2 "Turbonomic Integration:"
+  echo "Leave name empty if you do not want to enable Turbonomic integration in this cluster"
+  prompt_for_input "Turbonomic Name" TURBONOMIC_NAME
+  if [[ "$TURBONOMIC_NAME" != "" ]]; then
+    prompt_for_input "Server URL" TURBONOMIC_SERVER_URL
+    prompt_for_input "Server Version" TURBONOMIC_SERVER_VERSION
+    prompt_for_input "Username" TURBONOMIC_USERNAME
+    prompt_for_secret "Password" TURBONOMIC_PASSWORD
   fi
 
   export UPGRADE_IMAGE_REGISTRY_STORAGE=false

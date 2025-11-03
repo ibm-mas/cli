@@ -193,11 +193,11 @@ function provision_fyre_interactive() {
     prompt_for_confirm_default_yes "Re-use saved authentication details for user '$FYRE_USERNAME'?" REUSE_FYRE_AUTH
     if [[ "$REUSE_FYRE_AUTH" == "false" ]]; then
       prompt_for_input "Fyre Username" FYRE_USERNAME
-      prompt_for_input "Fyre API Key" FYRE_APIKEY
+      prompt_for_secret "Fyre API Key" FYRE_APIKEY
     fi
   else
     prompt_for_input "Fyre Username" FYRE_USERNAME
-    prompt_for_input "Fyre API Key" FYRE_APIKEY
+    prompt_for_secret "Fyre API Key" FYRE_APIKEY
   fi
 
   if [[ ! -z "$1" ]]; then
@@ -301,7 +301,7 @@ function provision_fyre_interactive() {
   fi
 
   echo
-  echo "Storage Provider:"
+  echo_h2 "Storage Provider:"
   echo "  1. None"
   echo "  2. Longhorn"
   echo "  3. NFS"
@@ -317,6 +317,18 @@ function provision_fyre_interactive() {
   elif [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "4" ]]; then
     OCP_STORAGE_PROVIDER="odf"
   fi
+
+  echo
+  echo_h2 "Turbonomic Integration:"
+  echo "Leave name empty if you do not want to enable Turbonomic integration in this cluster"
+  prompt_for_input "Turbonomic Name" TURBONOMIC_NAME
+  if [[ "$TURBONOMIC_NAME" != "" ]]; then
+    prompt_for_input "Server URL" TURBONOMIC_SERVER_URL
+    prompt_for_input "Server Version" TURBONOMIC_SERVER_VERSION
+    prompt_for_input "Username" TURBONOMIC_USERNAME
+    prompt_for_secret "Password" TURBONOMIC_PASSWORD
+  fi
+
 }
 
 function provision_fyre() {
