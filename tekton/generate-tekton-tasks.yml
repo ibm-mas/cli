@@ -43,9 +43,9 @@
         - turbonomic
         - uds
 
-    # 3. Generate Tasks (AI Broker)
+    # 3. Generate Tasks (AI Service)
     # -------------------------------------------------------------------------
-    - name: Generate Tasks (AI Broker)
+    - name: Generate Tasks (AI Service)
       ansible.builtin.template:
         src: "{{ task_src_dir }}/aiservice/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
@@ -55,6 +55,7 @@
         - odh
         - aiservice-tenant
         - aiservice-post-verify
+        - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
@@ -107,8 +108,6 @@
         - mas-launchfvt-manage
         - mas-launchfvt-manage-is
         - mas-launchfvt-mobile
-        - mas-launchfvt-mobile-upgrade-pre
-        - mas-launchfvt-mobile-upgrade-post
         - mas-launchfvt-monitor
         - mas-launchfvt-optimizer
         - mas-launchfvt-predict
@@ -174,8 +173,17 @@
         - wait-for-configmap
         - wait-for-configmap-v2
         - wait-for-tekton
+        
+    # 9. Generate Tasks (Common)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (Common)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/common/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - mas-config-helper
 
-    # 9. Generate Tasks (GitOps)
+    # 10. Generate Tasks (GitOps)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (GitOps)
       ansible.builtin.template:
@@ -195,6 +203,7 @@
         - gitops-deprovision-app-config
         - gitops-deprovision-app-install
         - gitops-deprovision-cluster
+        - gitops-deprovision-customer-subscription
         - gitops-deprovision-cos
         - gitops-deprovision-cp4d
         - gitops-deprovision-cp4d-service
@@ -226,6 +235,7 @@
         - gitops-nvidia-gpu
         - gitops-process-mongo-user
         - gitops-rosa
+        - gitops-sls
         - gitops-suite-app-install
         - gitops-suite-app-config
         - gitops-suite-certs
@@ -239,6 +249,10 @@
         - gitops-suite-workspace
         - gitops-suite
         - gitops-odh
-        - gitops-kmodel
-        - gitops-aibroker
-        - gitops-aibroker-tenant
+        - gitops-deprovision-odh
+
+        - gitops-aiservice
+        - gitops-aiservice-tenant
+        - gitops-deprovision-aiservice-tenant
+        - gitops-deprovision-aiservice
+

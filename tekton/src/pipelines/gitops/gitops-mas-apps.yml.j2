@@ -58,6 +58,8 @@ spec:
 
     - name: jdbc_type_iot
       type: string
+    - name: jdbc_connection_url_additional_params_iot
+      type: string
     - name: jdbc_instance_name_iot
       type: string
     - name: jdbc_connection_url_iot
@@ -990,6 +992,8 @@ spec:
           value: system
         - name: jdbc_type
           value: $(params.jdbc_type_iot)
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_iot)
         - name: jdbc_instance_name
           value: $(params.jdbc_instance_name_iot)
         - name: jdbc_connection_url
@@ -2614,6 +2618,8 @@ spec:
           value: $(params.mas_workspace_id)
         - name: jdbc_type
           value: $(params.jdbc_type_iot)
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_iot)
         - name: jdbc_instance_name
           value: $(params.jdbc_instance_name_iot)
         - name: jdbc_connection_url

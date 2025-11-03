@@ -21,18 +21,20 @@ Secrets Manager:
 
 MAS PROVISIONER OPERATOR:
       --status-repo-url ${COLOR_YELLOW}STATUS_REPO_URL${TEXT_RESET}              GitHub repo where the status of the operation will be recorded
-      --provisioner-domain ${COLOR_YELLOW}PROVISIONER_DOMAIN${TEXT_RESET}          The domain to setup route and service for the MAS Provisioner
+      --provisioner-domain ${COLOR_YELLOW}PROVISIONER_DOMAIN${TEXT_RESET}        The domain to setup route and service for the MAS Provisioner
     (Optional)
-      --provisioner-namespace ${COLOR_YELLOW}PROVISIONER_NAMESPACE${TEXT_RESET}  Namespace for the mas provisioner
-      --account-alias ${COLOR_YELLOW}ACCOUNT_ALIAS${TEXT_RESET}                  Enables customization for the account id to use in the status repo. Default is fetched from the order payload received
-      --provisioner-version ${COLOR_YELLOW}PROVISIONER_VERSION${TEXT_RESET}      The version tag for MAS Provisioner. Default is latest
-      --enable-mtls ${COLOR_YELLOW}ENABLE_MTLS${TEXT_RESET}                      Enables mutual tls which requires ca certs to be exchanged with the client. Default is false
-      --service-port ${COLOR_YELLOW}SERVICE_PORT${TEXT_RESET}                    Service port. Defaults to 7329
-      --base-branch ${COLOR_YELLOW}BASE_BRANCH${TEXT_RESET}                      The reference branch that will be cloned during processing of the order in case the master branch is not used. Default is master
-      --async-poll-interval ${COLOR_YELLOW}ASYNC_POLL_INTERVAL${TEXT_RESET}      The intervals in seconds between each poll from MCSP to check the status of the orders. Default is 600
-      --async-poll-max ${COLOR_YELLOW}ASYNC_POLL_MAX${TEXT_RESET}                The maximum amount of time in seconds for MCSP to keep polling to check the status of an order. Default is 864000
-      --enable-pd-alert ${COLOR_YELLOW}ENABLE_PD_ALERT${TEXT_RESET}              Turn PagerDuty alerts on/off. Default is false
-      --enable-ocm-alert ${COLOR_YELLOW}ENABLE_OCM_ALERT${TEXT_RESET}            Turn On Call Manager alerts on/off. Default is false
+      --provisioner-namespace ${COLOR_YELLOW}PROVISIONER_NAMESPACE${TEXT_RESET}      Namespace for the mas provisioner
+      --account-alias ${COLOR_YELLOW}ACCOUNT_ALIAS${TEXT_RESET}                      Enables customization for the account id to use in the status repo. Default is fetched from the order payload received
+      --provisioner-version ${COLOR_YELLOW}PROVISIONER_VERSION${TEXT_RESET}          The version tag for MAS Provisioner. Default is latest
+      --enable-mtls ${COLOR_YELLOW}ENABLE_MTLS${TEXT_RESET}                          Enables mutual tls which requires ca certs to be exchanged with the client. Default is false
+      --csb-ca-certificate-file ${COLOR_YELLOW}CSB_CA_CERTIFICATE_FILE${TEXT_RESET}  Location of the file containing the CA certificate from MCSP CSB. Required when enable-mtls is true
+      --service-port ${COLOR_YELLOW}SERVICE_PORT${TEXT_RESET}                        Service port. Defaults to 7329
+      --base-branch ${COLOR_YELLOW}BASE_BRANCH${TEXT_RESET}                          The reference branch that will be cloned during processing of the order in case the master branch is not used. Default is master
+      --async-poll-interval ${COLOR_YELLOW}ASYNC_POLL_INTERVAL${TEXT_RESET}          The intervals in seconds between each poll from MCSP to check the status of the orders. Default is 600
+      --async-poll-max ${COLOR_YELLOW}ASYNC_POLL_MAX${TEXT_RESET}                    The maximum amount of time in seconds for MCSP to keep polling to check the status of an order. Default is 864000
+      --enable-pd-alert ${COLOR_YELLOW}ENABLE_PD_ALERT${TEXT_RESET}                  Turn PagerDuty alerts on/off. Default is false
+      --enable-ocm-alert ${COLOR_YELLOW}ENABLE_OCM_ALERT${TEXT_RESET}                Turn On Call Manager alerts on/off. Default is false
+      --recommend-cluster ${COLOR_YELLOW}RECOMMEND_CLUSTER${TEXT_RESET}              Turn cluster recommendation which uses Instana on/off. Default is false
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -103,6 +105,9 @@ function gitops_mas_provisioner_noninteractive() {
       --enable-mtls)
         export ENABLE_MTLS=true
         ;;
+      --csb-ca-certificate-file)
+        export CSB_CA_CERTIFICATE_FILE=$1 && shift
+        ;;
       --service-port)
         export SERVICE_PORT=$1 && shift
         ;;
@@ -126,6 +131,9 @@ function gitops_mas_provisioner_noninteractive() {
         ;;
       --enable-ocm-alert)
         export ENABLE_OCM_ALERT=true
+        ;;
+      --recommend-cluster)
+        export RECOMMEND_CLUSTER=true
         ;;
 
       # Automatic GitHub Push
@@ -180,6 +188,10 @@ function gitops_mas_provisioner_noninteractive() {
   [[ -z "$STATUS_REPO_URL" ]] && gitops_mas_provisioner_help "STATUS_REPO_URL is not set"
   [[ -z "$PROVISIONER_DOMAIN" ]] && gitops_mas_provisioner_help "PROVISIONER_DOMAIN is not set"
 
+  if [[ "$ENABLE_MTLS" == "true" ]]; then
+    [[ -z "$CSB_CA_CERTIFICATE_FILE" ]] && gitops_mas_provisioner_help "CSB_CA_CERTIFICATE_FILE is not set"
+  fi
+
 }
 
 function gitops_mas_provisioner() {
@@ -210,6 +222,7 @@ function gitops_mas_provisioner() {
   export SERVICE_PORT=${SERVICE_PORT:-7329}
   export ASYNC_POLL_INTERVAL=${ASYNC_POLL_INTERVAL:-600}
   export ASYNC_POLL_MAX=${ASYNC_POLL_MAX:-864000}
+  export RECOMMEND_CLUSTER=${RECOMMEND_CLUSTER:-false}
 
   echo
   reset_colors
@@ -253,8 +266,10 @@ function gitops_mas_provisioner() {
   echo_reset_dim "Status Repo URL ......................... ${COLOR_MAGENTA}${STATUS_REPO_URL}"
   echo_reset_dim "Base Branch ............................. ${COLOR_MAGENTA}${BASE_BRANCH}"
   echo_reset_dim "Enable MTLS ............................. ${COLOR_MAGENTA}${ENABLE_MTLS}"
+  echo_reset_dim "CSB CA Cert File ........................ ${COLOR_MAGENTA}${CSB_CA_CERTIFICATE_FILE}"
   echo_reset_dim "Enable PD Alert ......................... ${COLOR_MAGENTA}${ENABLE_PD_ALERT}"
   echo_reset_dim "Enable OCM Alert ........................ ${COLOR_MAGENTA}${ENABLE_OCM_ALERT}"
+  echo_reset_dim "Recommend Cluster ....................... ${COLOR_MAGENTA}${RECOMMEND_CLUSTER}"
   reset_colors
 
   CURRENT_DIR=$PWD
@@ -272,44 +287,67 @@ function gitops_mas_provisioner() {
   AVP_TYPE=aws
   sm_login
 
-  export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
-  export SECRET_KEY_INSTANA_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}instana#key
-  export SECRET_KEY_GITHUB_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}git#token
-  export SECRET_KEY_PAGERDUTY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}pd#key
-  export SECRET_KEY_OCM_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocm#api
-  export SECRET_KEY_CSB_CLIENT_CA=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}csb#cert
+  export SECRET_NAME_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement
+  export SECRET_KEY_IBM_ENTITLEMENT=${SECRET_NAME_IBM_ENTITLEMENT}#image_pull_secret_b64
+  export SECRET_NAME_GITHUB_TOKEN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}git
+  export SECRET_KEY_GITHUB_TOKEN=${SECRET_NAME_GITHUB_TOKEN}#token
+
+  echo "- Verify that IBM entitlement pull secret exists"
+  sm_verify_secret_exists ${SECRET_NAME_IBM_ENTITLEMENT} "image_pull_secret_b64"
+
+  if [ "$RECOMMEND_CLUSTER" == "true" ]; then
+    if [ -n "$INSTANA_KEY" ]; then
+      export SECRET_NAME_INSTANA_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}instana
+      export SECRET_KEY_INSTANA_API=${SECRET_NAME_INSTANA_API}#key
+      echo "- Update INSTANA_KEY secret"
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+      sm_update_secret ${SECRET_NAME_INSTANA_API} "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
+    fi
+  fi
 
   if [ -n "$GITHUB_PAT" ]; then
     echo "- Update GITHUB_PAT secret"
     TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}git "{\"token\": \"${GITHUB_PAT}\"}" "${TAGS}"
-  else
-    export SECRET_KEY_GITHUB_TOKEN=""
+    sm_update_secret ${SECRET_NAME_GITHUB_TOKEN} "{\"token\": \"${GITHUB_PAT}\"}" "${TAGS}"
   fi
 
-  if [ -n "$PAGERDUTY_KEY" ]; then
-    echo "- Update PAGERDUTY_KEY secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}pd "{\"key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
-  else
-    export SECRET_KEY_PAGERDUTY=""
+  if [ "$ENABLE_PD_ALERT" == "true" ]; then
+    if [ -n "$PAGERDUTY_KEY" ]; then
+      export SECRET_NAME_PAGERDUTY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}pd
+      export SECRET_KEY_PAGERDUTY=${SECRET_NAME_PAGERDUTY}#key
+      echo "- Update PAGERDUTY_KEY secret"
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+      sm_update_secret ${SECRET_NAME_PAGERDUTY} "{\"key\": \"${PAGERDUTY_KEY}\"}" "${TAGS}"
+    else
+      echo_warning "'ENABLE_PD_ALERT' has been set but 'PAGERDUTY_KEY' was not provided"
+      exit 1
+    fi
   fi
 
-  if [ -n "$OCM_API_KEY" ]; then
-    echo "- Update OCM_API_KEY secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocm "{\"api\": \"${OCM_API_KEY}\"}" "${TAGS}"
-  else
-    export SECRET_KEY_OCM_API=""
+  if [ "$ENABLE_OCM_ALERT" == "true" ]; then
+    if [ -n "$OCM_API_KEY" ]; then
+      export SECRET_NAME_OCM_API=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ocm
+      export SECRET_KEY_OCM_API=${SECRET_NAME_OCM_API}#api
+      echo "- Update OCM_API_KEY secret"
+      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
+      sm_update_secret ${SECRET_NAME_OCM_API} "{\"api\": \"${OCM_API_KEY}\"}" "${TAGS}"
+    else
+      echo_warning "'ENABLE_OCM_ALERT' has been set but 'OCM_API_KEY' was not provided"
+      exit 1
+    fi
   fi
-  
-  if [ -n "$CSB_CA_CERT" ]; then
-    echo "- Update CSB_CA_CERT secret"
-    TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_provisioner\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-    sm_update_secret ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}csb "{\"cert\": \"${CSB_CA_CERT}\"}" "${TAGS}"
-  else
-    export SECRET_KEY_CSB_CLIENT_CA=""
+
+  if [ "$ENABLE_MTLS" == "true" ]; then
+    if [ -s "$CSB_CA_CERTIFICATE_FILE" ]; then
+      export CSB_CA_CERT=$(cat ${CSB_CA_CERTIFICATE_FILE} | base64 -w0)
+    else
+      echo_warning "Required value for mtls 'CSB_CA_CERTIFICATE_FILE' is missing or empty"
+      exit 1
+    fi
   fi
+
+  echo "- Verify that git secret exists"
+  sm_verify_secret_exists ${SECRET_NAME_GITHUB_TOKEN} "token"
 
   # Set and Validate App Names
   # ---------------------------------------------------------------------------
@@ -349,5 +387,7 @@ function gitops_mas_provisioner() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
+
+  rm -rf $TEMP_DIR
 
 }

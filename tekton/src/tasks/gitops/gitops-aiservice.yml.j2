@@ -1,0 +1,191 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-aiservice
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: aiservice_instance_id
+      type: string
+    - name: aiservice_namespace
+      type: string
+    - name: aiservice_watsonx_secret
+      type: string
+    - name: pull_secret_name
+      type: string
+    - name: aiservice_storage_provider
+      type: string
+    - name: aiservice_storage_ssl
+      type: string
+    - name: aiservice_storage_region
+      type: string
+    - name: primary_storage_class
+      type: string
+    - name: artifactory_username
+      type: string
+    - name: aiservice_channel
+      type: string
+    - name: mas_catalog_source
+      type: string
+    - name: mas_icr_cp
+      type: string
+    - name: mas_icr_cpopen
+      type: string
+    - name: cluster_domain
+      type: string
+    - name: in_saas_env
+      type: string
+    - name: is_external_route
+      type: string
+    - name: environment_type
+      type: string
+    - name: aiservice_s3_endpoint_url
+      type: string
+    - name: aiservice_s3_bucket_prefix
+      type: string
+    - name: sls_registration_key_secret
+      type: string
+    - name: dro_token_secret
+      type: string
+    - name: dro_cacert_secret
+      type: string
+    - name: aiservice_s3_templates_bucket
+      type: string
+    - name: aiservice_s3_tenants_bucket
+      type: string
+    - name: aiservice_s3_secret
+      type: string
+    - name: jdbc_secret
+      type: string
+    - name: use_aws_db2
+      type: string
+
+  stepTemplate:
+    name: gitops-aiservice
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
+      - name: AISERVICE_NAMESPACE
+        value: $(params.aiservice_namespace)
+      - name: AISERVICE_WATSONX_SECRET
+        value: $(params.aiservice_watsonx_secret)
+      - name: PULL_SECRET_NAME
+        value: $(params.pull_secret_name)
+      - name: AISERVICE_STORAGE_PROVIDER
+        value: $(params.aiservice_storage_provider)
+      - name: AISERVICE_STORAGE_SSL
+        value: $(params.aiservice_storage_ssl)
+      - name: AISERVICE_STORAGE_REGION
+        value: $(params.aiservice_storage_region)
+      - name: PRIMARY_STORAGE_CLASS
+        value: $(params.primary_storage_class)
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: AISERVICE_CHANNEL
+        value: $(params.aiservice_channel)
+      - name: MAS_CATALOG_SOURCE
+        value: $(params.mas_catalog_source)
+      - name: MAS_ICR_CP
+        value: $(params.mas_icr_cp)
+      - name: MAS_ICR_CPOPEN
+        value: $(params.mas_icr_cpopen)
+      - name: CLUSTER_DOMAIN
+        value: $(params.cluster_domain)
+      - name: IN_SAAS_ENV
+        value: $(params.in_saas_env)
+      - name: IS_EXTERNAL_ROUTE
+        value: $(params.is_external_route)
+      - name: ENVIRONMENT_TYPE
+        value: $(params.environment_type)
+      - name: AISERVICE_S3_ENDPOINT_URL
+        value: $(params.aiservice_s3_endpoint_url)
+      - name: AISERVICE_S3_BUCKET_PREFIX
+        value: $(params.aiservice_s3_bucket_prefix)
+      - name: SLS_REGISTRATION_KEY_SECRET
+        value: $(params.sls_registration_key_secret)
+      - name: DRO_TOKEN_SECRET
+        value: $(params.dro_token_secret)
+      - name: DRO_CACERT_SECRET
+        value: $(params.dro_cacert_secret)
+      - name: AISERVICE_S3_TEMPLATES_BUCKET
+        value: $(params.aiservice_s3_templates_bucket)
+      - name: AISERVICE_S3_TENANTS_BUCKET
+        value: $(params.aiservice_s3_tenants_bucket)
+      - name: AISERVICE_S3_SECRET
+        value: $(params.aiservice_s3_secret)
+      - name: JDBC_SECRET
+        value: $(params.jdbc_secret)
+      - name: USE_AWS_DB2
+        value: $(params.use_aws_db2)
+        
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  
+  
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        mkdir -p /tmp/init-aiservice
+        mas gitops-aiservice -a $ACCOUNT -c $CLUSTER_NAME \
+        --secrets-path $SECRET_PATH \
+        --dir /tmp/init-aiservice \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-aiservice
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs

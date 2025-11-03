@@ -7,6 +7,7 @@ spec:
   description: MAS Cluster scope
   workspaces:
     - name: configs
+    - name: gitops-cluster-configs
   params:
     - name: cluster_name
       type: string
@@ -188,6 +189,9 @@ spec:
     - name: cluster_logging_operator_syslog_forwarder_version
       type: string
       default: "1.8-amd64"
+    - name: cluster_logging_operator_dlc_ca_bundle_file
+      type: string
+      default: ""
 
     - name: instana_agent_operator_install
       type: string
@@ -241,6 +245,12 @@ spec:
     - name: provisioner_async_poll_max
       type: string
       default: ''
+    - name: provisioner_csb_ca_certificate_file
+      type: string
+      default: ''
+    - name: provisioner_recommend_cluster
+      type: string
+      default: 'false'
 
   tasks:
     - name: gitops-cluster
@@ -346,6 +356,8 @@ spec:
           value: $(params.cluster_logging_operator_setup_log_forwarding)
         - name: cluster_logging_operator_syslog_forwarder_version
           value: $(params.cluster_logging_operator_syslog_forwarder_version)
+        - name: cluster_logging_operator_dlc_ca_bundle_file
+          value: $(params.cluster_logging_operator_dlc_ca_bundle_file)
         
         - name: instana_agent_operator_install
           value: $(params.instana_agent_operator_install)
@@ -364,6 +376,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: gitops-cluster-configs
+          workspace: gitops-cluster-configs
 
     - name: gitops-dro
       runAfter:
@@ -542,12 +556,18 @@ spec:
           value: $(params.provisioner_enable_ocm_alert)
         - name: enable_pd_alert
           value: $(params.provisioner_enable_pd_alert)
+        - name: csb_ca_certificate_file
+          value: $(params.provisioner_csb_ca_certificate_file)
+        - name: recommend_cluster
+          value: $(params.provisioner_recommend_cluster)
       taskRef:
         kind: Task
         name: gitops-mas-provisioner
       workspaces:
         - name: configs
           workspace: configs
+        - name: gitops-cluster-configs
+          workspace: gitops-cluster-configs
       when:
         - input: "$(params.provisioner_status_repo_url)"
           operator: notin
