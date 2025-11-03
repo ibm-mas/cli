@@ -1600,7 +1600,7 @@ spec:
     sidecarContainers:
       - command:
           - /var/run/argocd/argocd-cmp-server
-        image: 'quay.io/ibmmas/cli:latest'
+        image: 'quay.io/ibmmas/cli:{{ CLI_VERSION }}'
         imagePullPolicy: Always
         name: avp
         resources: {}
