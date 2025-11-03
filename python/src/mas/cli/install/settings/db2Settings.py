@@ -157,6 +157,8 @@ class Db2SettingsMixin():
                     f"Note that the same settings are applied to both the IoT and {self.manageAppName} Db2 instances",
                     "Use existing node labels and taints to control scheduling of the Db2 workload in your cluster",
                     "For more information refer to the Red Hat documentation:",
+                    " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-node-affinity</u></Orange>",
+                    " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-taints-tolerations</u></Orange>",
                     " - <Orange><u>https://docs.openshift.com/container-platform/4.18/nodes/scheduling/nodes-scheduler-node-affinity.html</u></Orange>",
                     " - <Orange><u>https://docs.openshift.com/container-platform/4.18/nodes/scheduling/nodes-scheduler-taints-tolerations.html</u></Orange>",
                     " - <Orange><u>https://docs.openshift.com/container-platform/4.17/nodes/scheduling/nodes-scheduler-node-affinity.html</u></Orange>",
@@ -220,8 +222,8 @@ class Db2SettingsMixin():
             self.params["db2_cpu_requests"] = "300m"
 
         else:
-            self.setParam("db2_meta_storage_size", "20Gi")
-            self.setParam("db2_backup_storage_size", "100Gi")
-            self.setParam("db2_logs_storage_size", "100Gi")
-            self.setParam("db2_temp_storage_size", "100Gi")
-            self.setParam("db2_data_storage_size", "100Gi")
+            self.setParam("db2_meta_storage_size", "10Gi")
+            self.setParam("db2_backup_storage_size", "50Gi")
+            self.setParam("db2_logs_storage_size", "10Gi")
+            self.setParam("db2_temp_storage_size", "10Gi")
+            self.setParam("db2_data_storage_size", "50Gi")

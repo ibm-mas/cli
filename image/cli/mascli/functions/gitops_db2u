@@ -21,7 +21,7 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 IBM DB2U:
-      --db2-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}        DB2 Channel, defaults to default channel in catalog
+      --db2-channel ${COLOR_YELLOW}DB2_CHANNEL${TEXT_RESET}                        DB2 Channel, defaults to default channel in catalog if redhat cert-manager is installed
       --db2-subscription-install-plan ${COLOR_YELLOW}DB2_INSTALL_PLAN${TEXT_RESET} DB2 subscription install plan approval('Automatic' or 'Manual'. Default is 'Automatic')
 
 Automatic GitHub Push:
@@ -213,7 +213,7 @@ function gitops_db2u() {
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#image_pull_secret_b64
   
 
-  # If DB2_CHANNEL has not been specified, fetch the default set in secrets manager by the postsync job on ibm-common-services
+  # If DB2_CHANNEL has not been specified, fetch the default set in secrets manager by the postsync job on redhat-cert-manager
   if [[ -z "${DB2_CHANNEL}" ]]; then
     echo "DB2_CHANNEL not specified, fetching from secrets manager"
     export SECRET_KEY_DB2_DEFAULT_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}db2_default_channel#db2_default_channel
@@ -272,5 +272,7 @@ function gitops_db2u() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
+
+  rm -rf $TEMP_DIR
 
 }
