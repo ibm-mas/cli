@@ -51,17 +51,17 @@ If you do not have a single system with both access to the public source registr
 In this scenario, we must also transfer the CLI image to your local registry:
 
 ```bash
-oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ file://ibmmas/cli:@@CLI_LATEST_VERSION@@
+oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ file://ibmmas/cli:@@CLI_LATEST_VERSION@@ --filter-by-os='.*'
 ```
 
 Transfer the content of `$LOCAL_DIR/cli` to your system within the private network and transfer the image to your mirror registry.
 
 ```bash
 docker login $REGISTRY_HOST:$REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD
-oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:@@CLI_LATEST_VERSION@@ $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:@@CLI_LATEST_VERSION@@
+oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:@@CLI_LATEST_VERSION@@ $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:@@CLI_LATEST_VERSION@@ --filter-by-os='.*'
 ```
 !!! note
-    If you want to mirror Single architecture images, include the variable as explained below depending on your environment. Available list of arch images include "amd64", "ppc64le", "s390x". 
+    For the next steps, if you want to mirror Single architecture images, include the variable as explained below depending on your environment. Available list of arch images include "amd64", "ppc64le", "s390x". 
 ```bash
     export MIRROR_SINGLE_ARCH=amd64
 ```

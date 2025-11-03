@@ -196,8 +196,11 @@ class UpdateApp(BaseApp):
             pipelinesNamespace = "mas-pipelines"
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
-                installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+                if installOpenShiftPipelines(self.dynamicClient):
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
+                    self.fatalError("Installation failed")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
@@ -254,13 +257,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Sep 25 2025 Update (MAS 9.1.4, 9.0.15, 8.11.24, &amp; 8.10.29)",
-            "  2) Sep 02 2025 Update (MAS 9.1.2, 9.0.14, 8.11.23, &amp; 8.10.28)",
-            "  3) July 31 2025 Update (MAS 9.1.1, 9.0.13, 8.11.22, &amp; 8.10.27)",
+            "  1) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
+            "  2) Oct 10 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
+            "  3) Sep 25 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
         ])
 
         catalogOptions = [
-            "v9-250925-amd64", "v9-250902-amd64", "v9-250731-amd64",
+            "v9-251030-amd64", "v9-251010-amd64", "v9-250925-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -379,7 +382,9 @@ class UpdateApp(BaseApp):
                         "v9-250731-amd64": "7.0.22",
                         "v9-250828-amd64": "7.0.22",
                         "v9-250902-amd64": "7.0.22",
-                        "v9-250925-amd64": "7.0.22",
+                        "v9-250925-amd64": "7.0.23",
+                        "v9-251010-amd64": "7.0.23",
+                        "v9-251030-amd64": "7.0.23",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -520,6 +525,8 @@ class UpdateApp(BaseApp):
             "v9-250828-amd64": "5.1.3",
             "v9-250902-amd64": "5.1.3",
             "v9-250925-amd64": "5.1.3",
+            "v9-251010-amd64": "5.1.3",
+            "v9-251030-amd64": "5.1.3",
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:

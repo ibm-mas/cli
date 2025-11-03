@@ -48,6 +48,8 @@ spec:
       type: string
     - name: github_ssh
       type: string
+    - name: mas_slscfg_pod_template_yaml
+      type: string
 
   stepTemplate:
     name: gitops-sls
@@ -95,6 +97,8 @@ spec:
         value: $(params.git_commit_msg)
       - name: GIT_SSH
         value: $(params.github_ssh)
+      - name: POD_TEMPLATE
+        value: $(params.mas_slscfg_pod_template_yaml)
 
     envFrom:
       - configMapRef:
@@ -124,4 +128,6 @@ spec:
       image: quay.io/ibmmas/cli:latest
   workspaces:
     - name: shared-entitlement
+    - name: configs
+    - name: shared-gitops-configs
 

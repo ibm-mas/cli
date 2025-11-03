@@ -454,8 +454,11 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 wait = False
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
-                installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+                if installOpenShiftPipelines(self.dynamicClient):
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
+                    self.fatalError("Installation failed")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
@@ -599,8 +602,15 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
         self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
         self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
+        if self.yesOrNo("Does the Watsonxai AI use a self-signed certificate"):
+            self.promptForString("Watsonxai CA certificate (PEM format)", "aiservice_watsonxai_ca_crt")
         self.promptForString("Watsonxai Deployment ID (optional)", "aiservice_watsonxai_deployment_id")
         self.promptForString("Watsonxai Space ID (optional)", "aiservice_watsonxai_space_id")
+        if self.yesOrNo("Does the Watsonxai AI use full engine"):
+            self.setParam("aiservice_watsonxai_full", "true")
+        self.promptForString("Watsonxai Instance ID (optional)", "aiservice_watsonxai_instance_id")
+        self.promptForString("Watsonxai Username (optional)", "aiservice_watsonxai_username")
+        self.promptForString("Watsonxai Version (optional)", "aiservice_watsonxai_version")
 
         self.printH1("RSL Integration")
         self.printDescription([

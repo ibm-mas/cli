@@ -21,7 +21,8 @@ dynClient = dynamic.DynamicClient(
 )
 
 # Install OpenShift Pipelines Operator
-installOpenShiftPipelines(dynamicClient)
+success = installOpenShiftPipelines(dynamicClient)
+assert success is True
 
 # Create the pipelines namespace and install the MAS tekton definitions
 createNamespace(dynamicClient, pipelinesNamespace)

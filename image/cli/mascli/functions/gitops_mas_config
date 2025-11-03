@@ -37,6 +37,7 @@ Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
 
 SLS Configuration (if MAS_CONFIG_TYPE is "sls"):
   --mas-slscfg-pod-template-yaml ${COLOR_YELLOW}MAS_SLSCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
+  --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority to use for provisoning internal certificates
 
 DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
   --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}             The email address to register with DRO
@@ -59,6 +60,7 @@ JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):
   --jdbc-type ${COLOR_YELLOW}JDBC_TYPE${TEXT_RESET}                           Set to 'incluster-db2' when wanting to use the gitops configured, via gitops-db2u-database, db2u cluster (defaults to incluster-db2)
   --jdbc-instance-name ${COLOR_YELLOW}JDBC_INSTANCE_NAME${TEXT_RESET}         The JDBC instance name to use. Required for all JDBC_TYPE's
   --jdbc-connection-url ${COLOR_YELLOW}JDBC_CONNECTION_URL${TEXT_RESET}       The JDBC connection URL. Required when JDBC_TYPE is not incluster-db2
+  --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
   --jdbc-certificate-file ${COLOR_YELLOW}JDBC_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for JDBC server. Required when JDBC_TYPE is not incluster-db2
   --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                         By default routes are not exposed to public. To expose route, set this to public.
 
@@ -158,6 +160,9 @@ function gitops_mas_config_noninteractive() {
       --mas-slscfg-pod-template-yaml)
         export MAS_SLSCFG_POD_TEMPLATE_YAML=$1 && shift
         ;;
+      --internal-cert-authority)
+        export INTERNAL_CERT_AUTHORITY=$1 && shift
+        ;;    
 
       # DRO
       --dro-contact-email)
@@ -211,6 +216,9 @@ function gitops_mas_config_noninteractive() {
         ;;
       --jdbc-connection-url)
         export JDBC_CONNECTION_URL=$1 && shift
+        ;;
+      --jdbc-connection-url-additional-params)
+        export JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1 && shift
         ;;
       --jdbc-certificate-file)
         export JDBC_CERTIFICATE_FILE=$1 && shift
@@ -574,6 +582,9 @@ function gitops_mas_config() {
       echo "${TEXT_DIM}"
       echo_reset_dim "SLS URL  ....................... ${COLOR_MAGENTA}https://sls.mas-${MAS_INSTANCE_ID}-sls.svc"
       echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_SLSCFG_POD_TEMPLATE_YAML}"
+      if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+        echo_reset_dim "Internal Certificate Authority ...... ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
+      fi
       reset_colors
     fi
 
@@ -646,10 +657,6 @@ function gitops_mas_config() {
   if [ "$GITHUB_PUSH" == "true" ]; then
     # only create the lock branch if we plan to actually push changes to git
     clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
-  else
-    # even though we don't want to push anything to git,
-    # because this script modifies the existing suite-configs.yaml file, we still need to checkout the repo
-    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
@@ -684,6 +691,15 @@ function gitops_mas_config() {
         #enforce validation set to false for instance level check
         sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password" false
         sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+
+        #For AWS Docdb in govcloud set the corect authmechanism and configdb
+        export DOCDB_FEDERAL_INSTANCE_SECRET_FILE=$TEMP_DIR/docdb-federal-instance-secret.json
+        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}docdb $DOCDB_FEDERAL_INSTANCE_SECRET_FILE
+        DOCDB_FEDERAL_ACCESS_KEY=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+        if [[ -n ${DOCDB_FEDERAL_ACCESS_KEY} ]]; then
+          export DOCDB_AUTHMECHANISM="MONGODB-AWS"
+          export DOCDB_CONFIGDB='$$external'
+        fi
       fi
 
       jq -r .info $MONGO_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
@@ -725,6 +741,12 @@ function gitops_mas_config() {
       if [[ -n "$MAS_SLSCFG_POD_TEMPLATE_YAML" && -s "$MAS_SLSCFG_POD_TEMPLATE_YAML" ]]; then
         export MAS_SLSCFG_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_SLSCFG_POD_TEMPLATE_YAML})
         echo -e "\n - MAS_SLSCFG_POD_TEMPLATE CONTENT .................. ${MAS_SLSCFG_POD_TEMPLATE}"
+      fi
+
+      # Set internal certificate authority
+      # ---------------------------------------------------------------------------
+      if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+        export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
       fi
     fi
 
@@ -946,8 +968,9 @@ function gitops_mas_config() {
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}"
-  else
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
+
+  rm -rf $TEMP_DIR
 
 }
