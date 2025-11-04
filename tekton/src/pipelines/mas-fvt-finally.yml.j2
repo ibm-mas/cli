@@ -24,6 +24,22 @@ spec:
       description: "Determines whether to run final tasks or just the data collection task"
 
   tasks:
+    # Delete IBM Cloud services
+    # -------------------------------------------------------------------------
+    # COS
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-cos.yml.j2') | indent(4) }}
+      when:
+        - input: $(params.deprovision)
+          operator: in
+          values: ["true", "True"]
+
+    # Event Streams
+    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-kafka.yml.j2') | indent(4) }}
+      when:
+        - input: $(params.deprovision)
+          operator: in
+          values: ["true", "True"]
+    
     # Collect must-gather
     # -------------------------------------------------------------------------
     - name: must-gather
@@ -41,6 +57,9 @@ spec:
         - input: $(params.set_finished)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - kafka-deprovision
+        - cos-deprovision
 
     # Finalize the record in the FVT database
     # -------------------------------------------------------------------------
@@ -59,26 +78,6 @@ spec:
           operator: in
           values: ["true", "True"]
 
-    # Delete IBM Cloud services
-    # -------------------------------------------------------------------------
-    # COS
-    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-cos.yml.j2') | indent(4) }}
-      when:
-        - input: $(params.deprovision)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - finalize
-
-    # Event Streams
-    {{ lookup('template', 'taskdefs/dependencies/fvt-deprovision-kafka.yml.j2') | indent(4) }}
-      when:
-        - input: $(params.deprovision)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - finalize
-
     # Delete the named cluster
     # -------------------------------------------------------------------------
     - name: deprovision-cluster
@@ -91,8 +90,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - cos-deprovision
-        - kafka-deprovision
+        - finalize
 
   workspaces:
     # Shared storage to hold mustgather output for tasks

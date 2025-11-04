@@ -12,8 +12,11 @@ spec:
 
     - name: pipelinerun_name_testng
       type: string
-    
     - name: pipelinerun_name_pytest
+      type: string
+    - name: pipelinerun_name_requests
+      type: string
+    - name: launchfvt_mobile_requests
       type: string
 
   steps:
@@ -247,3 +250,118 @@ spec:
           value: "50"
         - name: IGNORE_FAILURE
           value: "True"
+    
+    - name: start-requests-pipelinerun
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - ansible-playbook
+        - /masfvt/fvt-mobile-requests.yml
+      env:
+        - name: IMAGE_PULL_POLICY
+          value: $(params.image_pull_policy)
+        - name: PIPELINERUN_NAME
+          value: $(params.pipelinerun_name_requests)
+        - name: PIPELINERUN_NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: LAUNCHFVT_MOBILE_REQUESTS
+          value: $(params.launchfvt_mobile_requests)
+
+        # Lookups from mas-devops
+        # -----------------------------------------------------------------------
+        - name: DEVOPS_BUILD_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
+        - name: MAS_INSTANCE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: MAS_INSTANCE_ID
+              optional: false
+
+        # Lookups from mas-fvt
+        # -----------------------------------------------------------------------
+        - name: FVT_IMAGE_REGISTRY
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_IMAGE_REGISTRY
+              optional: false
+        - name: FVT_ARTIFACTORY_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_ARTIFACTORY_USERNAME
+              optional: false
+        - name: FVT_ARTIFACTORY_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt
+              key: FVT_ARTIFACTORY_TOKEN
+              optional: false
+
+        # Lookups from mas-fvt-mobile
+        # -----------------------------------------------------------------------
+        # Framework Information
+        - name: MAS_CHANNEL
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-mobile
+              key: MAS_CHANNEL
+              optional: false
+        - name: MAS_APP_CHANNEL_MANAGE
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-mobile
+              key: MAS_APP_CHANNEL_MANAGE
+              optional: false
+        - name: MAS_WORKSPACE_ID
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-mobile
+              key: MAS_WORKSPACE_ID
+              optional: false
+        
+        # Digests
+        - name: FVT_DIGEST_MOBILE_PYTEST
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-mobile
+              key: FVT_DIGEST_MOBILE_PYTEST
+              optional: false
+        - name: FVT_DIGEST_MOBILE_TESTNG
+          valueFrom:
+            secretKeyRef:
+              name: mas-fvt-mobile
+              key: FVT_DIGEST_MOBILE_TESTNG
+              optional: false
+    
+    - name: wait-for-requests-pipelinerun
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      # 50 retries at 10 minute intervals = just over 8 hours
+      command:
+        - /opt/app-root/src/wait-for-tekton.sh
+      env:
+        - name: TYPE
+          value: pipelinerun
+        - name: NAME
+          value: $(params.pipelinerun_name_requests)
+        - name: SUFFIX
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: DELAY
+          value: "600"
+        - name: MAX_RETRIES
+          value: "50"
+        - name: IGNORE_FAILURE
+          value: "True"
+        

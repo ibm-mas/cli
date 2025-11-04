@@ -24,6 +24,8 @@ spec:
       type: string
     - name: app_revision
       type: string
+    - name: cli_version
+      type: string
   stepTemplate:
     name: gitops-bootstrap
     env:
@@ -45,6 +47,8 @@ spec:
         value: $(params.github_pat)
       - name: APP_REVISION
         value: $(params.app_revision)
+      - name: CLI_VERSION
+        value: $(params.cli_version)
   steps:
     - args:
       - |-
@@ -85,7 +89,8 @@ spec:
         --github-url $GITHUB_URL \
         --github-pat $GITHUB_PAT \
         --github-revision $GITHUB_REVISION \
-        --app-revision $APP_REVISION
+        --app-revision $APP_REVISION \
+        --cli-version $CLI_VERSION
 
         exit $?
       command:

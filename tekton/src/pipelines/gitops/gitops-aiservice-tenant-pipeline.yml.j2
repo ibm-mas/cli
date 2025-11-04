@@ -1,0 +1,172 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: gitops-aiservice-tenant-pipeline
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_id
+      type: string
+    - name: cluster_url
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: aiservice_namespace
+      type: string
+    - name: aiservice_provision_tenant
+      type: string
+    - name: aiservice_instance_id
+      type: string
+    - name: tenantNamespace
+      type: string
+    - name: tenant_id
+      type: string
+    - name: cluster_domain
+      type: string
+    - name: in_saas_env
+      type: string
+    - name: mas_icr_cp
+      type: string
+    - name: mas_icr_cpopen
+      type: string
+    - name: drocfg_url
+      type: string
+    - name: slscfg_url
+      type: string
+    - name: aiservice_sls_subscription_id
+      type: string
+    - name: aiservice_watsonxai_url
+      type: string
+    - name: aiservice_watsonxai_instance_id
+      type: string
+    - name: aiservice_watsonxai_version
+      type: string
+    - name: aiservice_watsonxai_username
+      type: string
+    - name: aiservice_watsonxai_ca_crt
+      type: string
+    - name: aiservice_watsonxai_full
+      type: string
+
+    - name: aiservice_operator_log_level
+      type: string
+
+    - name: aiservice_storage_region
+      type: string
+    - name: aiservice_storage_provider
+      type: string
+    - name: aiservice_storage_ssl
+      type: string
+    - name: aiservice_s3_endpoint_url
+      type: string
+    - name: aiservice_s3_bucket_prefix
+      type: string
+    - name: rsl_url
+      type: string
+    - name: tenant_entitlement_type
+      type: string
+    - name: tenant_entitlement_start_date
+      type: string
+    - name: tenant_entitlement_end_date
+      type: string
+
+  workspaces:
+    - name: configs
+  tasks:
+    - name: run-gitops-aiservice-tenant
+      taskRef:
+        name: gitops-aiservice-tenant
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: cluster_id
+          value: $(params.cluster_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: aiservice_namespace
+          value: $(params.aiservice_namespace)
+        - name: aiservice_provision_tenant
+          value: $(params.aiservice_provision_tenant)
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
+        - name: tenantNamespace
+          value: $(params.tenantNamespace)
+        - name: tenant_id
+          value: $(params.tenant_id)
+        - name: cluster_domain
+          value: $(params.cluster_domain)
+        - name: in_saas_env
+          value: $(params.in_saas_env)
+        - name: mas_icr_cp
+          value: $(params.mas_icr_cp)
+        - name: mas_icr_cpopen
+          value: $(params.mas_icr_cpopen)
+        - name: drocfg_url
+          value: $(params.drocfg_url)
+        - name: slscfg_url
+          value: $(params.slscfg_url)
+        - name: aiservice_sls_subscription_id
+          value: $(params.aiservice_sls_subscription_id)
+        - name: aiservice_watsonxai_url
+          value: $(params.aiservice_watsonxai_url)
+        - name: aiservice_watsonxai_instance_id
+          value: $(params.aiservice_watsonxai_instance_id)
+        - name: aiservice_watsonxai_version
+          value: $(params.aiservice_watsonxai_version)
+        - name: aiservice_watsonxai_username
+          value: $(params.aiservice_watsonxai_username)
+        - name: aiservice_watsonxai_full
+          value: $(params.aiservice_watsonxai_full)
+        - name: aiservice_watsonxai_ca_crt
+          value: $(params.aiservice_watsonxai_ca_crt)
+        - name: aiservice_operator_log_level
+          value: $(params.aiservice_operator_log_level)
+        - name: aiservice_storage_region
+          value: $(params.aiservice_storage_region)
+        - name: aiservice_storage_provider
+          value: $(params.aiservice_storage_provider)
+        - name: aiservice_storage_ssl
+          value: $(params.aiservice_storage_ssl)
+        - name: aiservice_s3_endpoint_url
+          value: $(params.aiservice_s3_endpoint_url)
+        - name: aiservice_s3_bucket_prefix
+          value: $(params.aiservice_s3_bucket_prefix)
+        - name: rsl_url
+          value: $(params.rsl_url)
+        - name: tenant_entitlement_type
+          value: $(params.tenant_entitlement_type)
+        - name: tenant_entitlement_start_date
+          value: $(params.tenant_entitlement_start_date)
+        - name: tenant_entitlement_end_date
+          value: $(params.tenant_entitlement_end_date)
+        
