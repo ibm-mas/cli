@@ -44,6 +44,27 @@ spec:
       description: IVT Digest - Core
       default: ""
 
+    # Templates
+    - name: nl2oslc_template_version
+      type: string
+      default: ""
+    
+    - name: pcc_template_version
+      type: string
+      default: ""
+
+    - name: mcc_template_version
+      type: string
+      default: ""
+
+    - name: similarity_template_version
+      type: string
+      default: ""
+
+    - name: fmea_template_version
+      type: string
+      default: ""
+
   tasks:
     # 1. Base test suite
     # -----------------------------------------------------------------------------
@@ -108,6 +129,8 @@ spec:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
           value: nl2oslc
+        - name: nl2oslc_template_version
+          value: 1.0.2
       runAfter:
         - fvt-aiservice-pcc
         - fvt-aiservice-similarity
