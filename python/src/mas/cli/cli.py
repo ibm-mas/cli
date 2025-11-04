@@ -279,7 +279,7 @@ class BaseApp(PrintMixin, PromptMixin):
             with open(self.tektonDefsWithDigestPath, 'w') as file:
                 file.write(tektonDefsWithDigest)
 
-            self.tektonDefsPath = self.tektonDefsWithDigestPath
+        self.tektonDefsPath = self.tektonDefsWithDigestPath
 
     @logMethodCall
     def getCompatibleVersions(self, coreChannel: str, appId: str) -> list:
