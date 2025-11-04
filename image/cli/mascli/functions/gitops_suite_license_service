@@ -31,6 +31,7 @@ IBM Suite License Service:
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
       --sls-install-plan ${COLOR_YELLOW}SLS_INSTALL_PLAN${TEXT_RESET}  IBM Suite License Service Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
       --domain
+      --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority to use for provisoning internal certificates
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
@@ -163,6 +164,10 @@ function gitops_suite_license_service_noninteractive() {
         export GIT_SSH=$1 && shift
         ;;
 
+      --internal-cert-authority)
+        export INTERNAL_CERT_AUTHORITY=$1 && shift
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_suite_license_service_help
@@ -248,6 +253,9 @@ function gitops_suite_license_service() {
   echo_h4 "IBM Suite License Service" "    "
   echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${SLS_CHANNEL}"
   echo_reset_dim "Subscription Install Plan ...... ${COLOR_MAGENTA}${SLS_INSTALL_PLAN}"
+  if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+    echo_reset_dim "Internal Certificate Authority ...... ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
+  fi
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -350,13 +358,27 @@ function gitops_suite_license_service() {
   fi
 
   # Setting mongo instance secret with info field copied from the cluster level secret, 
-  # Instance username and password will be created in presync hook 
+  # Instance username and password will be created in presync hook unless it is already set in the docdb secret created in federal env, this is due to the
+  # presync hook not running in a federal env due to the userid requirements.
+  export DOCDB_FEDERAL_INSTANCE_SECRET_FILE=$TEMP_DIR/docdb-federal-instance-secret.json
+  sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}docdb $DOCDB_FEDERAL_INSTANCE_SECRET_FILE
+  DOCDB_FEDERAL_ACCESS_KEY=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+  if [[ -n ${DOCDB_FEDERAL_ACCESS_KEY} ]]; then
+    INSTANCE_MONGO_USERNAME=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+    INSTANCE_MONGO_PASSWORD=$(jq -r .secret_access_key $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+    echo "gitops_suite : DOCDB_FEDERAL_ACCESS_KEY=${DOCDB_FEDERAL_ACCESS_KEY:0:8}<snip> is available in the docdb secret"
+    export DOCDB_AUTHMECHANISM="MONGODB-AWS"
+    export DOCDB_CONFIGDB='$$external'
+  fi
 
   ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
   ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
   sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}" "${TAGS}"
-  
+
+  if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+    export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
+  fi
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"

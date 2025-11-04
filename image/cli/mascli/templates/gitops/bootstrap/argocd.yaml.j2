@@ -1,4 +1,9 @@
 ---
+# !!! IMPORTANT !!!
+# Any changes to the healthchecks defined in this file (i.e. anything under spec.extraConfig.resource\.customizations)
+# must be synced to https://github.ibm.com/automation-paas-cd-pipeline/mas-extensions
+# Consult the README in that repo for instructions.
+
 apiVersion: argoproj.io/v1beta1
 kind: ArgoCD
 metadata:
@@ -420,6 +425,7 @@ spec:
                 hs.status = "Healthy"
                 hs.message = "Bundle and DB both Ready"
                 return hs
+              end
             end
           end
           hs.status = "Progressing"
@@ -1594,7 +1600,7 @@ spec:
     sidecarContainers:
       - command:
           - /var/run/argocd/argocd-cmp-server
-        image: 'quay.io/ibmmas/cli:latest'
+        image: 'quay.io/ibmmas/cli:{{ CLI_VERSION }}'
         imagePullPolicy: Always
         name: avp
         resources: {}
