@@ -271,9 +271,9 @@ function provision_fyre_interactive() {
   prompt_for_confirm "Use Product Group Quota?" USE_PRODUCT_GROUP_QUOTA
   if [[ "$USE_PRODUCT_GROUP_QUOTA" == "true" ]]; then
     FYRE_QUOTA_TYPE="product_group"
-    prompt_for_number "Number of Worker Nodes" FYRE_WORKER_COUNT "2"
+    prompt_for_number "Number of Worker Nodes" FYRE_WORKER_COUNT "3"
     prompt_for_number "Worker Node CPU (max 16)" FYRE_WORKER_CPU "8"
-    prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY "32"
+    prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY "16"
     prompt_for_input "Worker Additional Disk Sizes (GB, comma-seperated list)" FYRE_WORKER_ADDITIONAL_DISKS
     prompt_for_confirm "Enable FIPS? " OCP_FIPS_ENABLED
     prompt_for_confirm "Enable IPV6? " ENABLE_IPV6
