@@ -317,20 +317,20 @@ slsArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 droArgGroup = installArgParser.add_argument_group("IBM Data Reporting Operator (DRO)")
 droArgGroup.add_argument(
-    "--uds-email",
-    dest="uds_contact_email",
+    "--dro-email",
+    dest="dro_contact_email",
     required=False,
     help="Contact e-mail address"
 )
 droArgGroup.add_argument(
-    "--uds-firstname",
-    dest="uds_contact_firstname",
+    "--dro-firstname",
+    dest="dro_contact_firstname",
     required=False,
     help="Contact first name"
 )
 droArgGroup.add_argument(
-    "--uds-lastname",
-    dest="uds_contact_lastname",
+    "--dro-lastname",
+    dest="dro_contact_lastname",
     required=False,
     help="Contact last name"
 )

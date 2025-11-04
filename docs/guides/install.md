@@ -200,9 +200,9 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
     \
     --ibm-entitlement-key '${IBM_ENTITLEMENT_KEY}' \
     --license-file /mnt/home/entitlement.lic \
-    --uds-email myemail@email.com \
-    --uds-firstname John \
-    --uds-lastname Barnes \
+    --contact-email myemail@email.com \
+    --contact-firstname John \
+    --contact-lastname Barnes \
     \
     --storage-rwo ibmc-block-gold \
     --storage-rwx ibmc-file-gold-gid \

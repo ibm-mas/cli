@@ -143,9 +143,9 @@ class installArgBuilderMixin():
 
         # IBM Data Reporting Operator (DRO)
         # -----------------------------------------------------------------------------
-        command += f"  --uds-email \"{self.getParam('uds_contact_email')}\""
-        command += f" --uds-firstname \"{self.getParam('uds_contact_firstname')}\""
-        command += f" --uds-lastname \"{self.getParam('uds_contact_lastname')}\"{newline}"
+        command += f"  --dro-email \"{self.getParam('dro_contact_email')}\""
+        command += f" --dro-firstname \"{self.getParam('dro_contact_firstname')}\""
+        command += f" --dro-lastname \"{self.getParam('dro_contact_lastname')}\"{newline}"
         if self.getParam('dro_namespace') != "":
             command += f"  --dro-namespace \"{self.getParam('dro_namespace')}\"{newline}"
 

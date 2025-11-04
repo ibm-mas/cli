@@ -116,24 +116,6 @@ spec:
       default: "strimzi"
       description: kafka provider such as 'redhat' or 'strimzi'
 
-    # UDS/DRO Migration
-    # -------------------------------------------------------------------------
-    - name: dro_migration
-      default: ""
-      type: string
-      description: Set to 'true' to Migration UDS to DRO
-    - name: uds_storage_class
-      default: ""
-      type: string
-      description: Set custom storageclass for UDS/DRO
-    - name: uds_action
-      default: "install-dro"
-      type: string
-      description: set UDS_ACTION, default is install-dro'
-    - name: dro_namespace
-      default: "redhat-marketplace"
-      type: string
-
     # Grafana operator update
     # -------------------------------------------------------------------------
     - name: grafana_v5_upgrade
@@ -362,38 +344,12 @@ spec:
         - name: kafka_provider
           value: $(params.kafka_provider)
 
-    # UDS/DRO Migration
-    - name: update-uds
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-devops-uds
-      when:
-        - input: "$(params.dro_migration)"
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - update-common-services
-      params:
-        - name: dro_migration
-          value: $(params.dro_migration)
-        - name: uds_storage_class
-          value: $(params.uds_storage_class)
-        - name: uds_action
-          value: $(params.uds_action)
-        - name: dro_namespace
-          value: $(params.dro_namespace)
-        - name: devops_suite_name
-          value: update-uds
-
-
     # 5 Update Cloud Pak for Data
     # -------------------------------------------------------------------------
     # 5.1 Cloud Pak for Data Platform
     {{ lookup('template', 'taskdefs/cp4d/cp4d-platform-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cert-manager # CP4D requires cert-manager
-        {# - update-uds # UDS must be upgraded prior CPD, because CPD v4.8 will disable CPFS v3 which is required for UDS #}
 
     # 5.2 Watson Studio
     {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl-update.yml.j2') | indent(4) }}
@@ -431,7 +387,6 @@ spec:
         - update-db2
         - update-mongodb
         - update-kafka
-        - update-uds
         - update-grafana
         - update-watson-studio
         - update-watson-machine-learning
