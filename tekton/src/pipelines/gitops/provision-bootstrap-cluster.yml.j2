@@ -58,6 +58,8 @@ spec:
       type: string
     - name: rosa_compute_machine_type
       type: string
+    - name: cli_version
+      type: string
 
   tasks:
 {% if wait_for_deprovision == true %}
@@ -134,6 +136,8 @@ spec:
           value: $(params.github_pat)
         - name: app_revision
           value: $(params.app_revision)
+        - name: cli_version
+          value: $(params.cli_version)
       taskRef:
         kind: Task
         name: gitops-bootstrap
