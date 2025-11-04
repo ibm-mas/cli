@@ -38,14 +38,14 @@ Worker Node Configuration (Optional, only takes effect when quota-type is set to
 
 Storage Provisioner Configuration:
       --storage ${COLOR_YELLOW}OCP_STORAGE_PROVIDER${TEXT_RESET}                         Choose optional storage provider (nfs, odf, or longhorn)
-      --nfs-image-registry-size ${COLOR_YELLOW}FYRE_NFS_IMAGE_REGISTRY_SIZE${TEXT_RESET}  Defines the image registry storage size when configured to use NFS (default 100gb). The size allocated cannot be superior of storage available in the Fyre Infrastructure node.
+      --nfs-image-registry-size ${COLOR_YELLOW}FYRE_NFS_IMAGE_REGISTRY_SIZE${TEXT_RESET} Defines the image registry storage size when configured to use NFS (default 100gb). The size allocated cannot be superior of storage available in the Fyre Infrastructure node.
 
 Turbonomic Integration:
-      --turbonomic-name ${COLOR_YELLOW}TURBONOMIC_TARGET_NAME${TEXT_RESET}   Name of the cluster in Turbonomic
-      --turbonomic-url ${COLOR_YELLOW}TURBONOMIC_SERVER_URL${TEXT_RESET}   Turbonomic server URL
-      --turbonomic-version ${COLOR_YELLOW}TURBONOMIC_SERVER_VERSION${TEXT_RESET}   Turbonomic server version
-      --turbonomic-username ${COLOR_YELLOW}TURBONOMIC_USERNAME${TEXT_RESET}   Turbonomic username
-      --turbonomic-password ${COLOR_YELLOW}TURBONOMIC_PASSWORD${TEXT_RESET}   Turbonomic password
+      --turbonomic-name ${COLOR_YELLOW}TURBONOMIC_TARGET_NAME${TEXT_RESET}               Target name in Turbonomic
+      --turbonomic-url ${COLOR_YELLOW}TURBONOMIC_SERVER_URL${TEXT_RESET}                 Turbonomic server URL
+      --turbonomic-version ${COLOR_YELLOW}TURBONOMIC_SERVER_VERSION${TEXT_RESET}         Turbonomic server version
+      --turbonomic-username ${COLOR_YELLOW}TURBONOMIC_USERNAME${TEXT_RESET}              Turbonomic username
+      --turbonomic-password ${COLOR_YELLOW}TURBONOMIC_PASSWORD${TEXT_RESET}              Turbonomic password
 
 Other Commands:
       --no-confirm        Provision the cluster without prompting for confirmation
@@ -321,8 +321,8 @@ function provision_fyre_interactive() {
   echo
   echo_h2 "Turbonomic Integration:"
   echo "Leave name empty if you do not want to enable Turbonomic integration in this cluster"
-  prompt_for_input "Turbonomic Name" TURBONOMIC_NAME
-  if [[ "$TURBONOMIC_NAME" != "" ]]; then
+  prompt_for_input "Turbonomic Name" TURBONOMIC_TARGET_NAME
+  if [[ "$TURBONOMIC_TARGET_NAME" != "" ]]; then
     prompt_for_input "Server URL" TURBONOMIC_SERVER_URL
     prompt_for_input "Server Version" TURBONOMIC_SERVER_VERSION
     prompt_for_input "Username" TURBONOMIC_USERNAME
@@ -417,11 +417,11 @@ function provision_fyre() {
   echo_h2 "Storage" "    "
   echo_reset_dim "Storage Provider ............ ${COLOR_MAGENTA}${OCP_STORAGE_PROVIDER}"
 
-  if [[ "${TURBONOMIC_NAME}" != "" ]]; then
+  if [[ "${TURBONOMIC_TARGET_NAME}" != "" ]]; then
     reset_colors
     echo "${TEXT_DIM}"
     echo_h2 "Turbonomic Integration" "    "
-    echo_reset_dim "Cluster Name ................ ${COLOR_MAGENTA}${TURBONOMIC_NAME}"
+    echo_reset_dim "Target Name ................. ${COLOR_MAGENTA}${TURBONOMIC_TARGET_NAME}"
     echo_reset_dim "Server URL .................. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_URL}"
     echo_reset_dim "Server Version .............. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_VERSION}"
   fi
