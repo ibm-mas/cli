@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/cli-base:1.8.3-pre.testoscap
+FROM quay.io/ibmmas/cli-base:1.8.3-pre.remediation
 ARG VERSION_LABEL
 
 # Auto-expire the image in quay.io after 3 weeks
