@@ -15,6 +15,7 @@ Options:
       --app-revision ${COLOR_YELLOW}APP_REVISION${TEXT_RESET}            Revision (branch or tag) of ibm-mas/gitops to use
       --argoapp-namespace ${COLOR_YELLOW}ARGOAPP_NAMESPACE${TEXT_RESET}  Namespace in the ArgoCD worker cluster to create ArgoCD Application and ApplicationSet resources (defaults to 'openshift-gitops)
       --auto-delete ${COLOR_YELLOW}AUTO_DELETE${TEXT_RESET}                  If set (or AUTO_DELETE set to exactly "true"), ArgoCD will be permitted to automatically delete resources based on config / helm chart changes. Only recommended for use in development environments.
+      --cli-version ${COLOR_YELLOW}CLI_VERSION${TEXT_RESET}              CLI Version to be used to run avp container
 
 AWS Secrets Manager Configuration:
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -37,6 +38,7 @@ function gitops_bootstrap_noninteractive() {
   AVP_TYPE=aws
 
   export ARGOAPP_NAMESPACE=${ARGOAPP_NAMESPACE:-"openshift-gitops"}
+  export CLI_VERSION=${CLI_VERSION:-"latest"}
 
   while [[ $# -gt 0 ]]
   do
@@ -56,6 +58,9 @@ function gitops_bootstrap_noninteractive() {
       
       --auto-delete)
         export AUTO_DELETE="true"
+        ;;
+      --cli-version)
+        export CLI_VERSION=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration
@@ -129,6 +134,7 @@ function gitops_bootstrap() {
   else
     echo_reset_dim "Auto Delete .................... ${COLOR_RED}disabled"
   fi
+  echo_reset_dim "CLI Version .................... ${COLOR_MAGENTA}${CLI_VERSION}"
   reset_colors
 
   echo ""
@@ -194,7 +200,7 @@ function gitops_bootstrap() {
   oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops --timeout=30m
   oc wait --for=jsonpath='{.status.repo}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
   oc wait --for=jsonpath='{.status.applicationController}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
-  oc apply  -f ${CLI_DIR}/templates/gitops/bootstrap/argocd.yaml
+  jinjanate_commmon ${CLI_DIR}/templates/gitops/bootstrap/argocd.yaml.j2 | oc apply -f -
 
   sleep 30
 
