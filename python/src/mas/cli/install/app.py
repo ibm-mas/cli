@@ -484,7 +484,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             ])
             routingModeInt = self.promptForInt("Routing Mode:")
             routingModeOptions = ["path", "subdomain"]
-            self.setParam("mas_cluster_issuer", routingModeOptions[routingModeInt - 1])
+            self.setParam("mas_routing_mode", routingModeOptions[routingModeInt - 1])
 
     @logMethodCall
     def configAnnotations(self):
@@ -866,7 +866,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Configure whether to trust well-known certificate authorities by default (defaults to enabled)",
             " - Configure whether the Guided Tour feature is enabled (defaults to enabled)",
             " - Configure whether special characters are allowed in usernames and userids (defaults to disabled)",
-            " - Configure a custom domain, DNS integrations, and manual certificates",
+            " - Configure a custom domain, DNS integrations, routing mode and manual certificates",
             " - Customize Maximo Manage database settings (schema, tablespace, indexspace)",
             " - Customize Maximo Manage server bundle configuration (defaults to \"all\" configuration)",
             " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
