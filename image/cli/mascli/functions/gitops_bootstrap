@@ -200,7 +200,7 @@ function gitops_bootstrap() {
   oc wait --for=jsonpath='{.status.phase}'=Available argocd/openshift-gitops -n openshift-gitops --timeout=30m
   oc wait --for=jsonpath='{.status.repo}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
   oc wait --for=jsonpath='{.status.applicationController}'=Running argocd/openshift-gitops -n openshift-gitops --timeout=30m
-  jinjanate_commmon ${CLI_DIR}/templates/gitops/bootstrap/argocd.yaml.j2 | oc apply -f
+  jinjanate_commmon ${CLI_DIR}/templates/gitops/bootstrap/argocd.yaml.j2 | oc apply -f -
 
   sleep 30
 
