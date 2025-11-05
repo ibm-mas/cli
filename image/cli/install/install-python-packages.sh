@@ -12,9 +12,9 @@ if [[ -e /tmp/install/mas_devops.tar.gz ]]; then
     python3 -m pip install /tmp/install/mas_devops.tar.gz
 elif [[ "$GITHUB_REF_NAME" != "master" ]] && [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
     # Otherwise, if this is a non-master branch build, try to install from a matching branch of python-devops
-    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/ibm-mas/python-devops/branches/$GITHUB_REF_NAME)
+    RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/ibm-mas/python-devops/branches/${GITHUB_REF_NAME}")
 
-    if [ $RESPONSE -eq 200 ]; then
+    if [[ "${RESPONSE}" == "200" ]]; then
         echo "Installing development build of python-devops from GitHub branch ${$GITHUB_REF_NAME}"
         python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${$GITHUB_REF_NAME}"
     fi
