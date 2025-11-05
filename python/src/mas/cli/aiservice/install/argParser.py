@@ -319,7 +319,30 @@ watsonxArgGroup.add_argument(
     required=False,
     help="WatsonX space ID"
 )
-
+watsonxArgGroup.add_argument(
+    "--watsonxai-instance-id",
+    dest="aiservice_watsonxai_instance_id",
+    required=False,
+    help="WatsonX instance ID"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-username",
+    dest="aiservice_watsonxai_username",
+    required=False,
+    help="WatsonX username"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-version",
+    dest="aiservice_watsonxai_version",
+    required=False,
+    help="WatsonX version"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-full",
+    dest="aiservice_watsonxai_full",
+    required=False,
+    help="WatsonX engine version full/light"
+)
 
 # AI Service
 # -----------------------------------------------------------------------------
