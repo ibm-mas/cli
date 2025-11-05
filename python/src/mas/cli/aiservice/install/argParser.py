@@ -152,11 +152,6 @@ droArgGroup.add_argument(
 droArgGroup.add_argument(
     "--dro-namespace",
     required=False,
-    help=""
-)
-droArgGroup.add_argument(
-    "--dro-namespace",
-    required=False,
     help="Namespace for the Data Reporting Operator"
 )
 
