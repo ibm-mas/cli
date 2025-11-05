@@ -160,6 +160,13 @@ masAdvancedArgGroup.add_argument(
     const="false"
 )
 masAdvancedArgGroup.add_argument(
+    "--routing",
+    dest="mas_routing_mode",
+    required=False,
+    help="Configure MAS with a flat or subdomain routing",
+    choices=["path", "subdomain"]
+)
+masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
     help="Path to directory containing the certificates to be applied"

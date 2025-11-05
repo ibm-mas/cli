@@ -441,6 +441,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("sls_namespace", f"mas-{self.getParam('mas_instance_id')}-sls")
 
         self.configOperationMode()
+        self.configRoutingMode()
         self.configCATrust()
         self.configDNSAndCerts()
         self.configSSOProperties()
@@ -470,6 +471,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  2. Non-Production"
         ])
         self.operationalMode = self.promptForInt("Operational Mode", default=1)
+
+    @logMethodCall
+    def configRoutingMode(self):
+        if self.showAdvancedOptions:
+            self.printH1("Configure Routing Mode")
+            self.printDescription([
+                "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
+                "",
+                "  1. Path (single domain)",
+                "  2. Subdomain (multi-domain)"
+            ])
+            routingModeInt = self.promptForInt("Routing Mode:")
+            routingModeOptions = ["path", "subdomain"]
+            self.setParam("mas_cluster_issuer", routingModeOptions[routingModeInt - 1])  
 
     @logMethodCall
     def configAnnotations(self):
