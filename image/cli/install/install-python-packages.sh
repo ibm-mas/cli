@@ -15,7 +15,7 @@ elif [[ "$GITHUB_REF_NAME" != "master" ]] && [[ "$GITHUB_REF_TYPE" == "branch" ]
     RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/ibm-mas/python-devops/branches/${GITHUB_REF_NAME}")
 
     if [[ "${RESPONSE}" == "200" ]]; then
-        echo "Installing development build of python-devops from GitHub branch ${$GITHUB_REF_NAME}"
-        python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${$GITHUB_REF_NAME}"
+        echo "Installing development build of python-devops from GitHub branch ${GITHUB_REF_NAME}"
+        python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${GITHUB_REF_NAME}"
     fi
 fi
