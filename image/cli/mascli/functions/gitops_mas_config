@@ -15,11 +15,13 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                     Working directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                      Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
+  -i, --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}                      IBM Customer Number
+  -s, --saas-subscription-id  ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}                    SaaS subscription id
   --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
   --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
   --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
   --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}  Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion. !!! PostDelete hooks should never be used when ArgoCD version < 2.10 !!! 
-
+  
 IBM Maximo Application Suite:
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}         IBM Suite Maximo Application Suite Instance ID
   --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                       MAS Application scope for this configuration (required if MAS_CONFIG_SCOPE is app or wsapp)     
@@ -36,8 +38,6 @@ Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
   --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install. One of aws|yaml (defaults to yaml)
 
 SLS Configuration (if MAS_CONFIG_TYPE is "sls"):
-  -i, --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}                      IBM Customer Number
-  -s, --saas-subscription-id  ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}                    SaaS subscription id
   --mas-slscfg-pod-template-yaml ${COLOR_YELLOW}MAS_SLSCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
   --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority to use for provisoning internal certificates
 
