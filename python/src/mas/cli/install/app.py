@@ -484,7 +484,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             ])
             routingModeInt = self.promptForInt("Routing Mode:")
             routingModeOptions = ["path", "subdomain"]
-            self.setParam("mas_cluster_issuer", routingModeOptions[routingModeInt - 1])  
+            self.setParam("mas_cluster_issuer", routingModeOptions[routingModeInt - 1])
 
     @logMethodCall
     def configAnnotations(self):
