@@ -299,7 +299,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "  2. Install MAS with Dedicated License (AppPoints)",
                 ]
             )
-            self.slsMode = self.promptForInt("SLS Mode", default=1)
+            self.slsMode = self.promptForInt("SLS Mode", default=1, min=1, max=2)
 
             if self.slsMode not in [1, 2]:
                 self.fatalError(f"Invalid selection: {self.slsMode}")
@@ -470,7 +470,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  1. Production",
             "  2. Non-Production"
         ])
-        self.operationalMode = self.promptForInt("Operational Mode", default=1)
+        self.operationalMode = self.promptForInt("Operational Mode", default=1, min=1, max=2)
 
     @logMethodCall
     def configRoutingMode(self):
@@ -482,7 +482,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "  1. Path (single domain)",
                 "  2. Subdomain (multi-domain)"
             ])
-            routingModeInt = self.promptForInt("Routing Mode:")
+            routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
             routingModeOptions = ["path", "subdomain"]
             self.setParam("mas_routing_mode", routingModeOptions[routingModeInt - 1])
 
@@ -523,7 +523,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         "  4. None (I will set up DNS myself)"
                     ])
 
-                    dnsProvider = self.promptForInt("DNS Provider")
+                    dnsProvider = self.promptForInt("DNS Provider", min=1, max=4)
 
                     if dnsProvider == 1:
                         self.configDNSAndCertsCloudflare()
@@ -570,7 +570,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  2. LetsEncrypt (Staging)",
             "  3. Self-Signed"
         ])
-        certIssuer = self.promptForInt("Certificate issuer")
+        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
         certIssuerOptions = [
             f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
             f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
@@ -592,7 +592,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  2. LetsEncrypt (Staging)",
             "  3. Self-Signed"
         ])
-        certIssuer = self.promptForInt("Certificate issuer")
+        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
         certIssuerOptions = [
             f"{self.getParam('mas_instance_id')}-cis-le-prod",
             f"{self.getParam('mas_instance_id')}-cis-le-stg",
