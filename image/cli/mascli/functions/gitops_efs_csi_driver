@@ -136,7 +136,6 @@ function gitops_efs_csi_driver() {
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
   reset_colors
 
-=
   echo "${TEXT_DIM}"
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     echo_h2 "GitOps Target" "    "
