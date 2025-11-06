@@ -480,7 +480,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
                 "",
                 "  1. Path (single domain)",
-                "  2. Subdomain (multi-domain)"
+                "  2. Subdomain (multi domain)"
             ])
             routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
             routingModeOptions = ["path", "subdomain"]
