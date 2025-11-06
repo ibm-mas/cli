@@ -1,0 +1,70 @@
+
+account:
+  id: {{ ACCOUNT_ID }}
+
+cluster:
+  id: {{ CLUSTER_ID }}
+  url: {{ CLUSTER_URL }}
+region:
+  id: {{ REGION_ID }}
+
+sm:
+  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/aws#sm_aws_access_key_id>"
+  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/aws#sm_aws_secret_access_key>"
+
+ibm_sls_standalone:
+  sls_channel: {{ SLS_CHANNEL }}
+  sls_entitlement_file: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSE_FILE }}>
+  ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
+  sls_domain: {{ SLS_DOMAIN }}
+  ibm_customer_number: "{{ ICN }}"
+  subscription_id: "{{ SAAS_SUB_ID }}"
+
+  # aws docdb
+  mongodb_provider: "{{ MONGODB_PROVIDER }}"
+  user_action: "{{ USER_ACTION }}"
+  docdb_host: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_HOST }}>"
+  docdb_port: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_PORT }}>"
+  docdb_master_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_MASTER_USERNAME }}>"
+  docdb_master_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_MASTER_PASSWORD }}>"
+  docdb_master_info: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DOCDB_MASTER_INFO }}>"
+  sls_mongo_username: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_USERNAME }}>"
+  sls_mongo_password: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_MONGO_PASSWORD }}>"
+
+  sls_mongo_secret_name: sls-mongo-credentials
+  icr_cp_open: {{ ICR_CP_OPEN }}
+  sls_install_plan: {{ SLS_INSTALL_PLAN }}
+  run_sync_hooks: true
+  mongo_spec:
+    authMechanism: {{ DOCDB_AUTHMECHANISM | default("DEFAULT") }}
+    configDb: {{ DOCDB_CONFIGDB | default("admin") }}
+    secretName: sls-mongo-credentials
+{%- if config.retryWrites is sameas false %}
+    retryWrites: false
+{%- endif %}
+    nodes:
+{%- for mongo_host in config.hosts %}
+      - host: {{ mongo_host.host }}
+        port: {{ mongo_host.port }}
+{%- endfor %}
+    certificates:
+{%- if config.certificate %}
+{%- for mongo_certificate in config.certificate %}
+      - alias: {{ mongo_certificate.alias }}
+        crt: |
+          {% filter indent(width=10) -%}
+          {{ mongo_certificate.crt }}
+          {%- endfilter %}
+{%- endfor %}
+{%- elif certificates %}
+{%- for mongo_certificate in certificates %}
+      - alias: {{ mongo_certificate.alias }}
+        crt: |
+          {% filter indent(width=10) -%}
+          {{ mongo_certificate.crt }}
+          {%- endfilter %}
+{%- endfor -%}
+{%- endif -%}
+{% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
+  internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
+{% endif %}

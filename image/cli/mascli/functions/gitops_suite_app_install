@@ -26,6 +26,7 @@ Maximo Application Suite:
   --mas-manual-cert-mgmt ${COLOR_YELLOW}MAS_MANUAL_CERT_MGMT${TEXT_RESET}          MAS Manual Cert Management
   --mas-edition ${COLOR_YELLOW}MAS_EDITION${TEXT_RESET}                            MAS EDITION
   --mas-manual-certs-yaml ${COLOR_YELLOW}MAS_MANUAL_CERTS_YAML${TEXT_RESET}        YAML file location containing combined MAS Manual Certs of core and all other apps
+  --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}    The certificate authority to use for provisoning certificates for all the apps
 
   Below is a sample yaml file template representing manual_certs dictionary ( key: << value base64 encoded content of cert file >>) 
   where key is <<app>>_<<filename . replaced by _>> name and value will be base64 encoded of the respective ca/tls file, 
@@ -169,6 +170,10 @@ function gitops_suite_app_install_noninteractive() {
         ;;
       -S|--github-ssh)
         export GIT_SSH=$1 && shift
+        ;;
+
+      --internal-cert-authority)
+        export INTERNAL_CERT_AUTHORITY=$1 && shift
         ;;
 
       # Other Commands
@@ -366,6 +371,9 @@ function gitops_suite_app_install() {
     jinjanate_commmon $CLI_DIR/templates/gitops/app-spec-defaults/${MAS_APP_ID}.yaml.j2 ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml
     export MAS_APP_SPEC=$(cat ${TEMP_DIR}/${MAS_APP_ID}-app-spec.yaml | yq '.' --output-format yaml)
   fi
+  if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+    export MAS_APP_SPEC=$(echo "$MAS_APP_SPEC" | yq '.mas_app_spec.internalCertificateAuthority = env(INTERNAL_CERT_AUTHORITY)' --output-format yaml)
+  fi
   echo_reset_dim "MAS_APP_SPEC ............................ ${COLOR_MAGENTA}${MAS_APP_SPEC}"
   reset_colors
 
@@ -444,5 +452,7 @@ function gitops_suite_app_install() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
+
+  rm -rf $TEMP_DIR
 
 }

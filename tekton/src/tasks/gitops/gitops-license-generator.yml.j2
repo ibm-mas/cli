@@ -22,7 +22,9 @@ spec:
       type: string
     - name: country
       type: string
-    - name: icn
+    - name: sls_license_icn
+      type: string
+    - name: sls_subscription_id
       type: string
   stepTemplate:
     name: gitops-license-generator
@@ -45,7 +47,9 @@ spec:
       - name: COUNTRY
         value: $(params.country)
       - name: ICN
-        value: $(params.icn)
+        value: $(params.sls_license_icn)
+      - name: SAAS_SUB_ID
+        value: $(params.sls_subscription_id)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -55,13 +59,25 @@ spec:
   steps:
     - args:
       - |-
-        ansible-playbook ibm.mas_saas.generate_saas_license_file || exit 1
-
-        mas gitops-license \
-          -a $ACCOUNT \
-          -c $CLUSTER_NAME \
-          -m $MAS_INSTANCE_ID \
-          --license-file /tmp/authorized_entitlement_saas.lic
+        if [[ -z "${MAS_INSTANCE_ID}" ]]; then
+          MAS_INSTANCE_ID=${SAAS_SUB_ID}
+          ansible-playbook ibm.mas_saas.generate_saas_license_file || exit 1
+          mas gitops-license \
+            -a ${ACCOUNT} \
+            -i ${ICN} \
+            -s ${SAAS_SUB_ID} \
+            --license-file /tmp/authorized_entitlement_saas.lic
+          exit $?
+        else
+          ansible-playbook ibm.mas_saas.generate_saas_license_file || exit 1
+          mas gitops-license \
+            -a ${ACCOUNT} \
+            -c ${CLUSTER_NAME} \
+            -i ${ICN} \
+            -m ${MAS_INSTANCE_ID} \
+            --license-file /tmp/authorized_entitlement_saas.lic
+          exit $?
+        fi
 
         exit $?
       command:
