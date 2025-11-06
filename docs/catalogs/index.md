@@ -97,7 +97,7 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td>4.14 - 4.18</td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
-          <td>latest</td>
+          <td>15.3.0</td>
           <td>OCP 4.18 EOS February 25, 2027</td>
         </tr>
         <tr>
