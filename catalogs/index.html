@@ -318,10 +318,6 @@
     
       <cds-select-item value="#catalog-directory">Catalog Directory</cds-select-item>
     
-      <cds-select-item value="#faq">FAQ</cds-select-item>
-    
-      <cds-select-item value="#dynamic-catalog">Dynamic Catalog</cds-select-item>
-    
   </cds-select>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
@@ -338,15 +334,40 @@
 <h3 id="catalog-directory">Catalog Directory<a class="headerlink" href="#catalog-directory" title="Permanent link">¤</a></h3>
 <p>Note: The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, the support dates stated below refer to the EUS1 end dates.  For more details on the OCP support lifecycle see: <a href="https://access.redhat.com/support/policy/updates/openshift">https://access.redhat.com/support/policy/updates/openshift</a> </p>
 <p><cds-tabs trigger-content="Select an item" value="2025">
+  <cds-tab id="tab-2026" target="panel-2026" value="2026">2026 Catalogs</cds-tab>
   <cds-tab id="tab-2025" target="panel-2025" value="2025">2025 Catalogs</cds-tab>
   <cds-tab id="tab-2024" target="panel-2024" value="2024">2024 Catalogs</cds-tab>
   <cds-tab id="tab-2023" target="panel-2023" value="2023">2023 Catalogs</cds-tab>
   <cds-tab id="tab-2022" target="panel-2022" value="2022">2022 Catalogs</cds-tab>
 </cds-tabs></p>
 <div class="tab-panel">
+  <div id="panel-2026" role="tabpanel" aria-labelledby="tab-2026" hidden>
+    <div id="panel-2025" role="tabpanel" aria-labelledby="tab-2025" hidden>
+    </div><table>
+      <thead>
+        <tr>
+          <th colspan="4">Catalog</th>
+          <th>OCP Support</th>
+          <th>CPD Support</th>
+          <th>MongoDB Support (CE or EE)</th>
+          <th>Recommended CLI</th>
+          <th>Support Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+          <td style="font-style: italic">v9-260129</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
 
-  <div id="panel-2025" role="tabpanel" aria-labelledby="tab-2025" hidden>
-    <table>
+  </tbody></table><table>
       <thead>
         <tr>
           <th colspan="4">Catalog</th>
@@ -789,29 +810,36 @@
   </div>
 </div>
 
-<h3 id="faq">FAQ<a class="headerlink" href="#faq" title="Permanent link">¤</a></h3>
-<h4 id="user-controlled-updates">User-Controlled Updates<a class="headerlink" href="#user-controlled-updates" title="Permanent link">¤</a></h4>
-<blockquote>
-<p>I want to control when updates are introduced into my cluster</p>
-</blockquote>
-<p>The packages available in the Maximo Operator Catalog are fixed. Multiple installations at different times will always result in exactly the same version of all IBM-provided operators being installed.  To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.  When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. <code>v9-251010-amd64</code> to <code>v9-251030-amd64</code>.</p>
-<p>We <strong>strongly discourage the use of manual update approval strategy for operator subscriptions</strong> and all IBM-provided automation is designed to work with the automatic update approval strategy only.  In our experience the use of manual subscription approvals leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. We promote a model of <strong>controling when updates are introduced to a cluster at the catalog level</strong>.</p>
-<p>Updating the operators is only one aspect of keeping a system up to date, when using the MAS CLI <a href="../commands/update/">update</a> function many other additional actions will be performed autoamtically, if you are not using the MAS CLI to drive updates then you should implement your own processes for the non-operator update actions that are part of the MAS update pipeline.</p>
-<h4 id="repeatable-install">Repeatable Install<a class="headerlink" href="#repeatable-install" title="Permanent link">¤</a></h4>
-<blockquote>
-<p>I want repeatable installs across multiple OpenShift clusters, for instance in a development, staging, production setup</p>
-</blockquote>
-<p>The packages available in these catalogs are fixed. Multiple installations at different times will always result in exactly the same version of all operators being installed.  By choosing the same version of the catalog across multiple clusters the user is guaranteed that their installations are identical, right down to the patch level of the operators installed.  Updates can be rolled out in a controlled manner, and the upgrade path between two catalog versions will always be identical regardless of how much time passes between upgrades in different clusters.</p>
-<h4 id="disconnected-install">Disconnected Install<a class="headerlink" href="#disconnected-install" title="Permanent link">¤</a></h4>
-<blockquote>
-<p>I want to run a disconnected environment using a private mirror registry</p>
-</blockquote>
-<p>The MAS CLI <a href="../guides/image-mirroring/">mirror-images</a> function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the <a href="../commands/configure-airgap/">configure-airgap</a> function to add the IBM Maximo Application Suite <strong>ImageDigestMirrorset</strong> to your cluster before starting the installation.</p>
-<h3 id="dynamic-catalog">Dynamic Catalog<a class="headerlink" href="#dynamic-catalog" title="Permanent link">¤</a></h3>
-<p>The legacy dynamic operator catalog is only supported for Maximo Application Suite v8 releases, if you use the dynamic catalog you will always have access to the latest operator updates without updating the <strong>CatalogSource</strong> on your OpenShift cluster.</p>
-<h4 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link">¤</a></h4>
-<p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-amd64.yaml</code></p>
-<h4 id="source">Source<a class="headerlink" href="#source" title="Permanent link">¤</a></h4>
+
+### FAQ
+#### User-Controlled Updates
+&gt; I want to control when updates are introduced into my cluster
+
+The packages available in the Maximo Operator Catalog are fixed. Multiple installations at different times will always result in exactly the same version of all IBM-provided operators being installed.  To receive security updates and bug fixes you must periodically update the version of the static catalog that you have installed in the cluster.  Once you do this all operators that you have installed from the catalog will automatically update to the newer version.  We aim to release a catalog update monthly.  When you are ready to apply updates you simply modify the CatalogSource installed in your cluster, changing it from e.g. `v9-251010-amd64` to `v9-251030-amd64`.
+
+We **strongly discourage the use of manual update approval strategy for operator subscriptions** and all IBM-provided automation is designed to work with the automatic update approval strategy only.  In our experience the use of manual subscription approvals leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. We promote a model of **controling when updates are introduced to a cluster at the catalog level**.
+
+Updating the operators is only one aspect of keeping a system up to date, when using the MAS CLI [update](../commands/update.md) function many other additional actions will be performed autoamtically, if you are not using the MAS CLI to drive updates then you should implement your own processes for the non-operator update actions that are part of the MAS update pipeline.
+
+#### Repeatable Install
+&gt; I want repeatable installs across multiple OpenShift clusters, for instance in a development, staging, production setup
+
+The packages available in these catalogs are fixed. Multiple installations at different times will always result in exactly the same version of all operators being installed.  By choosing the same version of the catalog across multiple clusters the user is guaranteed that their installations are identical, right down to the patch level of the operators installed.  Updates can be rolled out in a controlled manner, and the upgrade path between two catalog versions will always be identical regardless of how much time passes between upgrades in different clusters.
+
+#### Disconnected Install
+&gt; I want to run a disconnected environment using a private mirror registry
+
+The MAS CLI [mirror-images](../guides/image-mirroring.md) function is the easiest way to mirror the content from a specific version of the Maximo Operator Catalog.  Once the images are mirrored simply run the [configure-airgap](../commands/configure-airgap.md) function to add the IBM Maximo Application Suite **ImageDigestMirrorset** to your cluster before starting the installation.
+
+
+### Dynamic Catalog
+The legacy dynamic operator catalog is only supported for Maximo Application Suite v8 releases, if you use the dynamic catalog you will always have access to the latest operator updates without updating the **CatalogSource** on your OpenShift cluster.
+
+#### Manual Installation
+`oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-amd64.yaml`
+
+#### Source
+
 <pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
 kind: CatalogSource
 metadata:
@@ -828,7 +856,7 @@ spec:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-11-06 07:07:59.208606+00:00)
+      Built with mkdocs v1.6.1 (2025-11-06 10:45:59.586435+00:00)
     </div> -->
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
