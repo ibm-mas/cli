@@ -163,7 +163,7 @@ masAdvancedArgGroup.add_argument(
     "--routing",
     dest="mas_routing_mode",
     required=False,
-    help="Configure MAS with a flat or subdomain routing",
+    help="Configure MAS with path or subdomain routing",
     choices=["path", "subdomain"]
 )
 masAdvancedArgGroup.add_argument(

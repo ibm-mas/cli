@@ -474,7 +474,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configRoutingMode(self):
-        if self.showAdvancedOptions:
+        if self.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.2.x-feature':
             self.printH1("Configure Routing Mode")
             self.printDescription([
                 "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
