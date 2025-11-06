@@ -96,7 +96,6 @@ function gitops_suite_license_service_noninteractive() {
       --domain)
         export SLS_DOMAIN=$1 && shift
         ;;
-
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
         export SM_AWS_REGION=$1
