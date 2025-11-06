@@ -166,6 +166,9 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td style="font-style: italic">N/A</td>
           <td style="font-style: italic">OCP 4.19 EOS N/A</td>
         </tr>
+        </tbody>
+    </table>
+  </div>
 
   <div id="panel-2025" role="tabpanel" aria-labelledby="tab-2025" hidden>
     <table>
