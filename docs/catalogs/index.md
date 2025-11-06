@@ -13,6 +13,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
 Note: The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, the support dates stated below refer to the EUS1 end dates.  For more details on the OCP support lifecycle see: [https://access.redhat.com/support/policy/updates/openshift](https://access.redhat.com/support/policy/updates/openshift) 
 
 <cds-tabs trigger-content="Select an item" value="2025">
+  <cds-tab id="tab-2026" target="panel-2026" value="2026">2026 Catalogs</cds-tab>
   <cds-tab id="tab-2025" target="panel-2025" value="2025">2025 Catalogs</cds-tab>
   <cds-tab id="tab-2024" target="panel-2024" value="2024">2024 Catalogs</cds-tab>
   <cds-tab id="tab-2023" target="panel-2023" value="2023">2023 Catalogs</cds-tab>
@@ -20,6 +21,154 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
 </cds-tabs>
 
 <div class="tab-panel">
+  <div id="panel-2026" role="tabpanel" aria-labelledby="tab-2026" hidden>
+    <table>
+      <thead>
+        <tr>
+          <th colspan="4">Catalog</th>
+          <th>OCP Support</th>
+          <th>CPD Support</th>
+          <th>MongoDB Support (CE or EE)</th>
+          <th>Recommended CLI</th>
+          <th>Support Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+          <td style="font-style: italic">v9-261224</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+      <tr>
+          <td style="font-style: italic">v9-261126</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-261029</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260924</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260827</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260730</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260625</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260528</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260423</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260326</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260226</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+        <tr>
+          <td style="font-style: italic">v9-260129</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
+          <td style="font-style: italic">TBD</td>
+          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
+          <td style="font-style: italic">N/A</td>
+          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+        </tr>
+        </tbody>
+    </table>
+  </div>
 
   <div id="panel-2025" role="tabpanel" aria-labelledby="tab-2025" hidden>
     <table>
