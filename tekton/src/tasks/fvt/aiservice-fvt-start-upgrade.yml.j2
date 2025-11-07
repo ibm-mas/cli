@@ -1,0 +1,30 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: aiservice-fvt-start-upgrade
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+    - name: aiservice_instance_id
+      type: string
+      description: AI Service Instance ID
+
+  steps:
+    - name: start-upgrade
+      script: |
+        #!/usr/bin/env bash
+        mas aiservice-upgrade --aiservice-instance-id $AISERVICE_INSTANCE_ID --no-confirm --accept-license
+        RESULT=$1
+        echo 'MAS LOG'
+        echo '--------------------------------------------------------------------------------'
+        cat mas.log
+        echo '--------------------------------------------------------------------------------'
+        exit $RESULT
+      timeout: "0"
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      env:
+        {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(8) }}
+        - name: AISERVICE_INSTANCE_ID
+          value: $(params.aiservice_instance_id)

@@ -201,6 +201,44 @@ spec:
       runAfter:
         - waitfor-update
 
+    # Upgrade Sync Point
+    # -------------------------------------------------------------------------
+    - name: start-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: aiservice-fvt-start-upgrade
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
+      when:
+        - input: $(params.sync_with_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - post-update
+
+    - name: waitfor-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap-v2
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-upgrade
+        - name: configmap_target_value
+          value: Completed,Succeeded,Failed
+      when:
+        - input: $(params.sync_with_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - start-upgrade
+
   # Finally
   # ---------------------------------------------------------------------------
   finally:
