@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+
+function gitops_iac_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+
+
+Usage:
+  mas gitops-iac [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Basic Configuration:
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                                                  Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                                                  Cluster ID
+
+Target Cluster (Optional):
+      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+
+Automatic GitHub Push (Optional):
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}        GitHub Hostname for your GitOps repository
+  -O, --github-org ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}          Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}        Github repo for your GitOps repository
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}          Git branch to commit to of your GitOps repository
+  -T, --github-token ${COLOR_YELLOW}GITHUB_TOKEN${TEXT_RESET}      Git PAT Token
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}  Git commit message to use when committing to of your GitOps repository
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_iac_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPERATOR="/"
+  GIT_COMMIT_MSG="gitops-iac commit"
+
+   #adding default values # all generic values should to put here # check with ansible playbook/gitops anvs 
+   #only export below in whiel loop
+
+  # Target the local (to ArgoCD) cluster
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+
+     # Target Cluster (Optional)
+      --cluster-url)
+        export CLUSTER_URL=$1 && shift
+        ;;
+        
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -T|--git-token)
+        export GITHUB_TOKEN=$1 && shift
+        ;;        
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_iac_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_iac_help  "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_iac_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_iac_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_iac_help "CLUSTER_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_iac_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$CLUSTER_URL" ]] && gitops_suite_help "CLUSTER_URL is not set"
+  
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_iac_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_iac_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_iac_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_iac_help "GIT_BRANCH is not set"
+    
+  fi
+
+}
+
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AISERVICE_INSTANCE_ID}
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
+  echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host .................................. ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ........................ ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory ..................... ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+
+    # Clone github target repo
+    # Call it this way git_auto_pr_single_threaded $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITHUB_TOKEN $GITOPS_WORKING_DIR
+    # ---------------------------------------------------------------------------
+  function gitops_iac() {
+  echo
+  echo "GITOPS_WORKING_DIR  ${GITOPS_WORKING_DIR}"
+  echo "GITOPS_CLUSTER_DIR  ${GITOPS_CLUSTER_DIR}"
+  echo_h2 "Creating single threaded PR for: $GITHUB_ORG $GITHUB_REPO"
+  git_auto_pr_single_threaded $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITHUB_TOKEN $GITOPS_WORKING_DIR
+
+
+    # # Commit and push to github target repo
+    # # ---------------------------------------------------------------------------
+    # if [ "$GITHUB_PUSH" == "true" ]; then
+    #   echo
+    #   echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    #   save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    #   remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    # fi
+
+    rm -rf $TEMP_DIR
+
+  exit 0 
+}

@@ -714,6 +714,79 @@ function save_and_unlock_target_git_repo {
 
 }
 
+# This func first checks whether any open PR already exists in the target repository — if yes, it lists them and exits without creating a new one.
+# If no open PRs are found, it automatically creates a new PR from the specified branch to the main branch.
+# It uses curl for API calls and jq for parsing JSON responses.
+# Call it this way git_auto_pr_single_threaded $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITHUB_TOKEN $GITOPS_WORKING_DIR
+function git_auto_pr_single_threaded() {
+  GITHUB_HOST=$1
+  GITHUB_ORG=$2
+  GITHUB_REPO=$3
+  GIT_BRANCH=$4
+  GITHUB_TOKEN=$5
+  LOCAL_DIR=$6
+  cd $LOCAL_DIR
+
+  #GITHUB_HOST="https://api.github.ibm.com"
+
+  # === Derived URLs ===
+  REPO_URL="$GITHUB_HOST/repos/${GITHUB_ORG}/${GITHUB_REPO}"
+  PR_LIST_URL="${REPO_URL}/pulls?state=open"
+  CREATE_PR_URL="${REPO_URL}/pulls"
+
+  # === Common headers ===
+  AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
+  ACCEPT_HEADER="Accept: application/vnd.github+json"
+
+  # === 1 Check for ANY existing open PRs ===
+  echo "Checking for existing open PRs..."
+
+  PR_LIST_RESP=$(curl -s -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" "$PR_LIST_URL")
+
+  # Validate response
+  if [[ $? -ne 0 ]]; then
+    echo "Failed to fetch PR list."
+    exit 1
+  fi
+
+  # Count open PRs
+  OPEN_COUNT=$(echo "$PR_LIST_RESP" | jq '. | length')
+
+  if [[ "$OPEN_COUNT" -gt 0 ]]; then
+    echo "There is already at least one open PR in the repository. Skipping creation."
+    echo "Existing open PRs:"
+    echo "$PR_LIST_RESP" | jq -r '.[] | "\(.title) — \(.html_url)"'
+    exit 0
+  fi
+
+  # === 2 Create new PR ===
+  echo "Creating a new PR for branch '${GIT_BRANCH}'..."
+
+  PR_PAYLOAD=$(jq -n \
+    --arg title "Auto PR from ${GIT_BRANCH}" \
+    --arg head "${GIT_BRANCH}" \
+    --arg base "main" \
+    --arg body "This PR was created automatically from branch \`${GIT_BRANCH}\`." \
+    '{title: $title, head: $head, base: $base, body: $body}')
+
+  CREATE_RESP=$(curl -s -w "%{http_code}" -o /tmp/create_pr_response.json \
+    -X POST \
+    -H "$AUTH_HEADER" \
+    -H "$ACCEPT_HEADER" \
+    -d "$PR_PAYLOAD" \
+    "$CREATE_PR_URL")
+
+  if [[ "$CREATE_RESP" == "201" ]]; then
+    PR_URL=$(jq -r '.html_url' /tmp/create_pr_response.json)
+    echo "PR created successfully: $PR_URL"
+  else
+    echo "Failed to create PR (HTTP $CREATE_RESP)"
+    cat /tmp/create_pr_response.json
+    exit 1
+  fi
+
+}
+
 
 function argocd_login() {
   retries=${1:-20}
