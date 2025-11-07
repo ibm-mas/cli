@@ -98,6 +98,9 @@ class installArgBuilderMixin():
         if self.getParam('mas_manual_cert_mgmt') is True:
             command += f"  --manual-certificates \"{self.manualCertsDir}\"{newline}"
 
+        if self.getParam('mas_routing_mode') != "":
+            command += f"  --routing \"{self.getParam('mas_routing_mode')}\"{newline}"
+
         if self.getParam('mas_domain') != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
