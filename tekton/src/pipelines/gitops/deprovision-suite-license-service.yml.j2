@@ -13,7 +13,7 @@ spec:
       type: string
     - name: sls_license_subscription_id
       type: string
-    - name: cluster_id
+    - name: cluster_name
       type: string
     - name: account
       type: string
@@ -39,8 +39,8 @@ spec:
           value: $(params.sls_license_icn)
         - name: sls_license_subscription_id
           value: $(params.sls_license_subscription_id)
-        - name: cluster_id
-          value: $(params.cluster_id)
+        - name: cluster_name
+          value: $(params.cluster_name)
         - name: account
           value: $(params.account)
         - name: git_branch
