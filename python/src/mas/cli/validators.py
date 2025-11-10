@@ -20,7 +20,7 @@ from kubernetes.client import api_client
 from prompt_toolkit.validation import Validator, ValidationError
 
 from mas.devops.ocp import getStorageClass
-from mas.devops.mas import verifyMasInstance
+from mas.devops.mas import verifyMasInstance, verifyAiServiceInstance
 
 import logging
 
@@ -85,6 +85,20 @@ class InstanceIDValidator(Validator):
             raise ValidationError(message='Not a valid MAS instance ID on this cluster', cursor_position=len(instanceId))
 
 
+class AiserviceInstanceIDValidator(Validator):
+    def validate(self, document):
+        """
+        Validate that a AI Service instance ID exists on the target cluster
+        """
+        instanceId = document.text
+
+        dynClient = dynamic.DynamicClient(
+            api_client.ApiClient(configuration=config.load_kube_config())
+        )
+        if not verifyAiServiceInstance(dynClient, instanceId):
+            raise ValidationError(message='Not a valid AI Service instance ID on this cluster', cursor_position=len(instanceId))
+
+
 class StorageClassValidator(Validator):
     def validate(self, document):
         """
@@ -107,6 +121,26 @@ class YesNoValidator(Validator):
         response = document.text
         if response.lower() not in ["y", "n", "yes", "no"]:
             raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
+
+
+class IntValidator(Validator):
+    def __init__(self, min, max):
+        self.min = min
+        self.max = max
+
+    def validate(self, document):
+        """
+        Validate that a response is understandable as a yes/no response
+        """
+        response = document.text
+        if not str.isdigit(response):
+            raise ValidationError(message='Enter a valid number', cursor_position=len(response))
+
+        if self.min and int(response) < self.min:
+            raise ValidationError(message=f'Enter a number not less than {self.min}', cursor_position=len(response))
+
+        if self.max and int(response) > self.max:
+            raise ValidationError(message=f'Enter a number not more than {self.max}', cursor_position=len(response))
 
 
 class FileExistsValidator(Validator):

@@ -49,6 +49,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/configtool_oidc
 # Must Gather
 . $CLI_DIR/functions/must_gather
+. $CLI_DIR/functions/debug
 # GitOps
 . $CLI_DIR/functions/gitops_utils
 . $CLI_DIR/functions/gitops_bootstrap
@@ -73,6 +74,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_suite
 . $CLI_DIR/functions/gitops_deprovision_suite_workspace
 . $CLI_DIR/functions/gitops_efs
+. $CLI_DIR/functions/gitops_efs_csi_driver
 . $CLI_DIR/functions/gitops_dro
 . $CLI_DIR/functions/gitops_db2u
 . $CLI_DIR/functions/gitops_db2u_database
@@ -230,6 +232,16 @@ case $1 in
     mas-cli aiservice-install "$@"
     ;;
 
+  aiservice-upgrade)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! aiservice-upgrade                                                         !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    # Take the first parameter off (it will be "aiservice-upgrade")
+    shift
+    # Run the new Python-based aiservice-upgrade
+    mas-cli aiservice-upgrade "$@"
+    ;;
+
   update)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! update                                                                    !!" >> $LOGFILE
@@ -271,6 +283,16 @@ case $1 in
     echo
     mustgather "$@"
     ;;
+
+  debug)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! debug                                                                     !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite debug Tool (v${VERSION})${TEXT_RESET}"
+    echo
+    debug "$@"
+    ;;
+
   gitops-bootstrap)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
@@ -493,6 +515,14 @@ case $1 in
     echo
     reset_colors
     gitops_efs "$@"
+    ;;
+
+  gitops-efs-csi-driver)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_efs_csi_driver "$@"
     ;;
 
   gitops-dro)

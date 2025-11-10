@@ -15,7 +15,9 @@ Basic Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -i  --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}          IBM Customer Number
   -s  --subscription-id ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}      Customer subscription id
-
+  -c  --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}              Cluster name
+  -r  --region ${COLOR_YELLOW}REGION${TEXT_RESET}                  Region where the cluster is deployed
+  -n  --namespace ${COLOR_YELLOW}NAMESPACE${TEXT_RESET}              Namespace where the license service is deployed
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
       --sm-aws-access-key ${COLOR_YELLOW}SM_AWS_ACCESS_KEY_ID${TEXT_RESET}      Your AWS Access Key ID
@@ -64,7 +66,9 @@ function gitops_deprovision_suite_license_service_noninteractive() {
       -s|--subscription-id)
         export SAAS_SUB_ID=$1 && shift
         ;;
-
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
       # Secrets Manager
       --secrets-path)
         export SECRETS_PATH=$1 && shift
@@ -114,6 +118,7 @@ function gitops_deprovision_suite_license_service_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_deprovision_suite_license_service_help "ACCOUNT_ID is not set"
   [[ -z "$ICN" ]] && gitops_deprovision_suite_license_service_help "ICN is not set"
   [[ -z "$SAAS_SUB_ID" ]] && gitops_deprovision_suite_license_service_help "SAAS_SUB_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_deprovision_suite_license_service_help "CLUSTER_ID is not set" 
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_deprovision_suite_license_service_help "GITHUB_HOST is not set"
@@ -141,8 +146,8 @@ function gitops_deprovision_suite_license_service() {
 
   mkdir -p ${GITOPS_WORKING_DIR}
 
-  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/icn/${ICN}/${SAAS_SUB_ID}
-  GITOPS_CUSTOMER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/icn/${ICN}
+  GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/icn/${CLUSTER_ID}/${ICN}/${SAAS_SUB_ID}
+  GITOPS_CUSTOMER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/icn/${CLUSTER_ID}/${ICN}
 
   echo
   reset_colors

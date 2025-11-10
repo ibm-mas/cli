@@ -9,6 +9,7 @@
 # *****************************************************************************
 
 import logging
+import logging.handlers
 import urllib3
 
 from argparse import RawTextHelpFormatter
@@ -241,6 +242,7 @@ class BaseApp(PrintMixin, PromptMixin):
     def createTektonFileWithDigest(self) -> None:
         if path.exists(self.tektonDefsWithDigestPath):
             logger.debug(f"We have already generated {self.tektonDefsWithDigestPath}")
+            self.tektonDefsPath = self.tektonDefsWithDigestPath
         elif isAirgapInstall(self.dynamicClient):
             # We need to modify the tekton definitions to
             imageWithoutDigest = f"quay.io/ibmmas/cli:{self.version}"

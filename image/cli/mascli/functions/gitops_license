@@ -90,8 +90,7 @@ function gitops_license_noninteractive() {
 
   [[ -z "$ACCOUNT_ID" ]] && gitops_license_help "ACCOUNT_ID is not set"
   [[ -z "$LICENSE_FILE" ]] && gitops_license_help "LICENSE_FILE is not set"
-
-  ([[ ! -z "$ICN" ]] && [[ -z "$SAAS_SUB_ID" ]]) && gitops_license_help "When ICN is set, SAAS_SUB_ID must also be set"
+  ( [[ ! -z "$SAAS_SUB_ID" ]] && [[ -z "$ICN" ]] ) && gitops_license_help "ICN is not set"
 
 }
 
@@ -141,7 +140,7 @@ function gitops_license() {
   AVP_TYPE=aws
   sm_login
 
-  if [ ! -z "$ICN" ]; then
+  if [ ! -z "$SAAS_SUB_ID" ]; then
      export SECRET_NAME_LICENSE_FILE=${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${ICN}${SECRETS_KEY_SEPARATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPARATOR}license
      TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_license\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"subscription_id\", \"Value\": \"${SAAS_SUB_ID}\"}]"
   else
