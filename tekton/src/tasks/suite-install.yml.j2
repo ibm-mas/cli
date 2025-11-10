@@ -74,6 +74,11 @@ spec:
       type: string
       default: ""
 
+    - name: mas_report_adoption_metrics
+      type: string
+      description: Optional flag to enable or disable adoption metrics reporting. Defaults to true (reporting enabled).
+      default: "True"
+
     - name: ibm_entitlement_key
       type: string
 
@@ -180,6 +185,9 @@ spec:
         value: $(params.mas_icr_cp)
       - name: MAS_ICR_CPOPEN
         value: $(params.mas_icr_cpopen)
+
+      - name: MAS_REPORT_ADOPTION_METRICS
+        value: $(params.mas_report_adoption_metrics)
 
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)
