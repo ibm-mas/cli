@@ -91,6 +91,10 @@ spec:
       type: string
       default: "false"
       description: "Set this to 'true' to enable launch of the Predict FVT pipeline after app-cfg-predict completes"
+    - name: launchfvt_facilities
+      type: string
+      default: "false"
+      description: "Set this to 'true' to enable launch of the Facilities FVT pipeline after app-cfg-facilities completes"  
     - name: launchfvt_visualinspection
       type: string
       default: "false"
@@ -862,6 +866,84 @@ spec:
       runAfter:
         - approval-suite-verify
         - approval-manage
+
+    # 11. Application FVT - Facilities
+    # -------------------------------------------------------------------------
+    # We only start the Facilities part of the FVT launcher after the Monitor part has completed
+    - name: waitfor-facilities
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: namespace
+          value: $(context.taskRun.namespace)
+        - name: configmap_name
+          value: approval-app-cfg-facilities
+        - name: configmap_target_value
+          value: pending
+        # Escape route
+        - name: escape_configmap_name
+          value: sync-install
+        # 25 retries at 5 minute intervals = 2 hours
+        - name: delay
+          value: "300"
+        - name: max_retries
+          value: "25"
+        - name: ignore_failure
+          value: "False"
+      when:
+        - input: $(params.launchfvt_facilities)
+          operator: in
+          values: ["true", "True"]
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - approval-monitor
+        - approval-manage
+
+    - name: launchfvt-facilities
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-facilities"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-facilities
+      when:
+        - input: $(params.launchfvt_facilities)
+          operator: in
+          values: ["true", "True"]
+      when:
+        - input: $(params.launchfvt_facilities)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-facilities
+
+    - name: approval-facilities
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-app-cfg-facilities
+        - name: configmap_value
+          value: approved
+      when:
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-facilities
 
     - name: launchfvt-visualinspection
       timeout: "0"
