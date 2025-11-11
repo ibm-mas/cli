@@ -66,6 +66,7 @@ spec:
             -a ${ACCOUNT} \
             -i ${ICN} \
             -s ${SAAS_SUB_ID} \
+            -c ${CLUSTER_NAME} \
             --license-file /tmp/authorized_entitlement_saas.lic
           exit $?
         else
@@ -73,6 +74,7 @@ spec:
           mas gitops-license \
             -a ${ACCOUNT} \
             -c ${CLUSTER_NAME} \
+            -i ${ICN} \
             -m ${MAS_INSTANCE_ID} \
             --license-file /tmp/authorized_entitlement_saas.lic
           exit $?
