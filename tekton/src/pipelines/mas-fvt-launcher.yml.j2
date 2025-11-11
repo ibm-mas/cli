@@ -919,10 +919,6 @@ spec:
         - input: $(params.launchfvt_facilities)
           operator: in
           values: ["true", "True"]
-      when:
-        - input: $(params.launchfvt_facilities)
-          operator: in
-          values: ["true", "True"]
       runAfter:
         - waitfor-facilities
 
