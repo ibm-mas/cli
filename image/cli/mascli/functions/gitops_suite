@@ -15,6 +15,8 @@ Basic Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
       --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}      Custom Labels definition in dict format
+  -i  --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}          IBM Customer Number
+
 
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -136,6 +138,9 @@ function gitops_suite_noninteractive() {
 
   # cert-manager namespace, in case redhat default value is cert-manager
   export CERT_MANAGER_NAMESPACE=${CERT_MANAGER_NAMESPACE:-"cert-manager"}
+
+  export ICN=${ICN:-""}
+
         
   while [[ $# -gt 0 ]]
   do
@@ -157,6 +162,9 @@ function gitops_suite_noninteractive() {
         ;;
       --custom-labels)
         export CUSTOM_LABELS=$1 && shift
+        ;;
+      -i|--ibm-customer-number)
+        export ICN=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration
@@ -483,6 +491,9 @@ function gitops_suite() {
   echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Instance Config Directory ...... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+  echo_reset_dim "IBM Customer Number.............${COLOR_MAGENTA}${ICN}"
+
+
   reset_colors
 
   echo "${TEXT_DIM}"
