@@ -90,6 +90,10 @@ spec:
       type: string
       description:
       default: "This option is mandatory"
+    - name: aiservice_watsonxai_verify
+      type: string
+      description:
+      default: "This option is mandatory"
 
     # AI Broker storage
     - name: aiservice_s3_accesskey
@@ -187,6 +191,8 @@ spec:
         value: $(params.aiservice_watsonxai_instance_id)
       - name: AISERVICE_WATSONXAI_FULL
         value: $(params.aiservice_watsonxai_full)
+      - name: AISERVICE_WATSONXAI_VERIFY
+        value: $(params.aiservice_watsonxai_verify)
 
       # Opendatahub storage details
       - name: AISERVICE_S3_ACCESSKEY
