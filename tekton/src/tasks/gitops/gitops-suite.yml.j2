@@ -142,6 +142,9 @@ spec:
     - name: extensions
       type: string
       default: "false"
+    - name: sls_license_icn
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
@@ -253,6 +256,8 @@ spec:
         value: $(params.is_non_shared_cluster)
       - name: EXTENSIONS
         value: $(params.extensions)
+      - name: ICN
+        value: $(params.sls_license_icn)
 
     envFrom:
       - configMapRef:
@@ -322,6 +327,7 @@ spec:
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH \
+        --ibm-customer-number "$ICN" \
         --mas-wipe-mongo-data "$MAS_WIPE_MONGO_DATA" \
 
         exit $?
