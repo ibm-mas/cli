@@ -39,6 +39,33 @@ spec:
       type: string
       description: Instance ID of the target test environment
 
+    # Template Versions
+    # -------------------------------------------------------------------------
+    - name: fmea_template_version
+      type: string
+      description: Template vesion for fmea model
+      default: ""
+
+    - name: mcc_template_version
+      type: string
+      description: Template vesion for mcc model
+      default: ""
+    
+    - name: pcc_template_version
+      type: string
+      description: Template vesion for pcc model
+      default: ""
+
+    - name: similarity_template_version
+      type: string
+      description: Template vesion for similarity model
+      default: ""
+
+    - name: nl2oslc_template_version
+      type: string
+      description: Template vesion for nl2oslc gpt oss model
+      default: ""
+
   stepTemplate:
     name: 'fvt-aiservice'
     env:
@@ -87,6 +114,21 @@ spec:
       # Set the logging level to debug if this is set to true
       - name: FVT_ENABLE_DEBUG
         value: "$(params.fvt_enable_debug)"
+
+      - name: NL2OSLC_TEMPLATE_VERSION
+        value: "$(params.nl2oslc_template_version)"
+      
+      - name: PCC_TEMPLATE_VERSION
+        value: "$(params.pcc_template_version)"
+
+      - name: MCC_TEMPLATE_VERSION
+        value: "$(params.mcc_template_version)"
+
+      - name: SIMILARITY_TEMPLATE_VERSION
+        value: "$(params.similarity_template_version)"
+
+      - name: FMEA_TEMPLATE_VERSION
+        value: "$(params.fmea_template_version)"
 
   steps:
     - image: '$(params.fvt_image_registry)/fvt-aibroker/fvt-ibm-mas-aibroker@$(params.fvt_image_digest)'
