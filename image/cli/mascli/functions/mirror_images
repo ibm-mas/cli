@@ -531,7 +531,7 @@ function mirror_to_registry() {
     mirror_to_registry_interactive
   fi
 
-  # Ensure all environment variables are available to ansible-playbook
+  # #Ensure all environment variables are available to ansible-playbook
 
   # General Config
   export MIRROR_MODE
