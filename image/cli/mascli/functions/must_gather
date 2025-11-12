@@ -197,13 +197,6 @@ function mustgather() {
   OUTPUT_DIR=${MG_DIR}/${TIMESTAMP}
   mkdir -p $OUTPUT_DIR
 
-  if [[ "$MAS_QUICK_SUMMARY" == "true" ]]; then
-    # Dir to save mas-quick-summary reports
-    MAS_QUICK_SUMMARY_DIR_NAME=mas-quick-summary
-    MAS_QUICK_SUMMARY_DIR_PATH=${OUTPUT_DIR}/${MAS_QUICK_SUMMARY_DIR_NAME}
-    mkdir -p $MAS_QUICK_SUMMARY_DIR_PATH
-  fi
-
   if [[ "$?" != "0" ]]; then
     echo_warning "Unable to create must-gather output directory '${MG_DIR}/${TIMESTAMP}'"
     exit 1
@@ -441,6 +434,10 @@ function mustgather() {
     done
 
     if [[ "$MAS_QUICK_SUMMARY" == "true" ]]; then
+
+      MAS_QUICK_SUMMARY_DIR_PATH=${OUTPUT_DIR}/mas-quick-summary
+      mkdir -p $MAS_QUICK_SUMMARY_DIR_PATH
+
       # Generate quick summary report that helps troubleshoot user synchronization problems
       MAS_QUICK_SUMMARY_FILE_PATH=${MAS_QUICK_SUMMARY_DIR_PATH}/${MAS_INSTANCE_ID}.txt
       echo_h3 "MAS quick summary: ${MAS_INSTANCE_ID}"
