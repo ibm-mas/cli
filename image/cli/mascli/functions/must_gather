@@ -468,6 +468,14 @@ function mustgather() {
       echo_highlight "Unable to find namespace for opendatahub"
     fi
 
+    echo_h3 "Minio"
+    MINIO_DEPLOYMENT_LOOKUP=$(oc get deployment -A | grep minio)
+    if [[ "$MINIO_DEPLOYMENT_LOOKUP" != "" ]]; then
+      genericMustGather minio
+    else
+      echo_highlight "Unable to find deployment for minio"
+    fi
+
     endTimer "in-cluster AI Service dependencies"
   else
     echo_warning "Maximo AI Service dependency must-gather disabled"
