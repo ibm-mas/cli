@@ -258,13 +258,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
-            "  2) Oct 10 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
-            "  3) Sep 25 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
+            "  1) Nov 27 2025 Update (MAS 9.1.6, 9.0.17, 8.11.28, &amp; 8.10.31)",
+            "  2) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
+            "  3) Oct 10 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
         ])
 
         catalogOptions = [
-            "v9-251030-amd64", "v9-251010-amd64", "v9-250925-amd64",
+             "v9-251127-amd64", "v9-251030-amd64", "v9-251010-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -386,6 +386,7 @@ class UpdateApp(BaseApp):
                         "v9-250925-amd64": "7.0.23",
                         "v9-251010-amd64": "7.0.23",
                         "v9-251030-amd64": "7.0.23",
+                        "v9-251127-amd64": "8.0.13",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
