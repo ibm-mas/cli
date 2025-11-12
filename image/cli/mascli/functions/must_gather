@@ -212,6 +212,8 @@ function mustgather() {
   echo "Command executed: $MG_COMMAND"
   echo "Must gather generated with mas cli version: $VERSION"
   echo "Must gather will be saved to: $OUTPUT_FILE"
+  echo "For help reviewing the content of the must gather refer to:"
+  echo "https://www.ibm.com/support/pages/how-review-maximo-application-suite-must-gather"
 
   if [ "$(oc whoami 2>/dev/null)" == "" ] ; then 
     echo_warning "You must be logged in to the server as a cluster administrator before running the must-gather command"
