@@ -72,6 +72,14 @@ depsArgGroup.add_argument(
 )
 
 depsArgGroup.add_argument(
+    '--mongodb-v8-upgrade',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Required to confirm a major version update for MongoDb to version 8",
+)
+
+depsArgGroup.add_argument(
     '--kafka-namespace',
     required=False,
     help="Namespace where Kafka operator and instances will be updated",
