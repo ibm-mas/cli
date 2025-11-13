@@ -103,7 +103,8 @@ spec:
           workspace: shared-configs
         - name: pod-templates
           workspace: shared-pod-templates
-    # 2. Prepare data for Python and Desktop suites
+
+    # 2. Prepare data 
     # -----------------------------------------------------------------------------
     - name: fvt-facilities
       params:
@@ -120,7 +121,7 @@ spec:
         - name: fvt_image_digest
           value: $(params.fvt_digest_facilities)
         - name: fvt_test_suite
-          value: facilities_fvt # pytest_marker
+          value: facilities_fvt 
         - name: product_channel
           value: $(params.mas_app_channel_facilities)
         - name: product_id
@@ -156,7 +157,7 @@ spec:
         - name: product_channel
           value: $(params.mas_app_channel_facilities)
         - name: fvt_test_suite
-          value: contentverification
+          value: facilities_fvt
       when:
         - input: "$(params.ivt_digest_core)"
           operator: notin
