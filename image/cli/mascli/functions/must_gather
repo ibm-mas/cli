@@ -197,13 +197,6 @@ function mustgather() {
   OUTPUT_DIR=${MG_DIR}/${TIMESTAMP}
   mkdir -p $OUTPUT_DIR
 
-  if [[ "$MAS_QUICK_SUMMARY" == "true" ]]; then
-    # Dir to save mas-quick-summary reports
-    MAS_QUICK_SUMMARY_DIR_NAME=mas-quick-summary
-    MAS_QUICK_SUMMARY_DIR_PATH=${OUTPUT_DIR}/${MAS_QUICK_SUMMARY_DIR_NAME}
-    mkdir -p $MAS_QUICK_SUMMARY_DIR_PATH
-  fi
-
   if [[ "$?" != "0" ]]; then
     echo_warning "Unable to create must-gather output directory '${MG_DIR}/${TIMESTAMP}'"
     exit 1
@@ -219,6 +212,8 @@ function mustgather() {
   echo "Command executed: $MG_COMMAND"
   echo "Must gather generated with mas cli version: $VERSION"
   echo "Must gather will be saved to: $OUTPUT_FILE"
+  echo "For help reviewing the content of the must gather refer to:"
+  echo "https://www.ibm.com/support/pages/how-review-maximo-application-suite-must-gather"
 
   if [ "$(oc whoami 2>/dev/null)" == "" ] ; then 
     echo_warning "You must be logged in to the server as a cluster administrator before running the must-gather command"
@@ -441,6 +436,10 @@ function mustgather() {
     done
 
     if [[ "$MAS_QUICK_SUMMARY" == "true" ]]; then
+
+      MAS_QUICK_SUMMARY_DIR_PATH=${OUTPUT_DIR}/mas-quick-summary
+      mkdir -p $MAS_QUICK_SUMMARY_DIR_PATH
+
       # Generate quick summary report that helps troubleshoot user synchronization problems
       MAS_QUICK_SUMMARY_FILE_PATH=${MAS_QUICK_SUMMARY_DIR_PATH}/${MAS_INSTANCE_ID}.txt
       echo_h3 "MAS quick summary: ${MAS_INSTANCE_ID}"
@@ -467,6 +466,14 @@ function mustgather() {
       genericMustGather opendatahub Auth,DataScienceCluster,DataSciencePipelines,DataSciencePipelinesApplication,DSCInitialization,Kserve,ModelController
     else
       echo_highlight "Unable to find namespace for opendatahub"
+    fi
+
+    echo_h3 "Minio"
+    MINIO_DEPLOYMENT_LOOKUP=$(oc get deployment -A | grep minio)
+    if [[ "$MINIO_DEPLOYMENT_LOOKUP" != "" ]]; then
+      genericMustGather minio
+    else
+      echo_highlight "Unable to find deployment for minio"
     fi
 
     endTimer "in-cluster AI Service dependencies"
