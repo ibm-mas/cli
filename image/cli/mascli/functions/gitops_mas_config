@@ -17,6 +17,7 @@ GitOps Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
   -i, --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}                      IBM Customer Number
   -s, --saas-subscription-id  ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}                    SaaS subscription id
+  -s ,--sls-sls-service      ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}        STANDALONE_SLS_SERVICE        
   --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
   --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
   --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
@@ -165,6 +166,9 @@ function gitops_mas_config_noninteractive() {
       ;;
       -i|--ibm-customer-number)
         export ICN=$1 && shift
+      ;;
+      -s|--sls-sls-service)
+        export STANDALONE_SLS_SERVICE=$1 shift
       ;;
       --mas-slscfg-pod-template-yaml)
         export MAS_SLSCFG_POD_TEMPLATE_YAML=$1 && shift
@@ -744,7 +748,12 @@ function gitops_mas_config() {
 
 
      if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
-       if [ ! -z "$SAAS_SUB_ID" ]; then
+       if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
+        CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
+        IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+        ICN="${PARTS[3]}"
+        SAAS_SUB_ID="${PARTS[4]}"
+        
       export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}sls
       else
       export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls

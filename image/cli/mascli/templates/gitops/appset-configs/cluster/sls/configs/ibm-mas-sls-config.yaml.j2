@@ -8,6 +8,7 @@ mas_config_api_version: "config.mas.ibm.com"
 use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
 ibm_customer_number: "{{ ICN }}"
 saas_subscription_id: "{{ SAAS_SUB_ID }}"
+sls_sls_service: "{{ STANDALONE_SLS_SERVICE }}"
 
 {% if MAS_SLSCFG_POD_TEMPLATE is defined and MAS_SLSCFG_POD_TEMPLATE !='' %}
 mas_slscfg_pod_templates:
