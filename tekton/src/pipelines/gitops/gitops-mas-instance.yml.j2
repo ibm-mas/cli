@@ -230,6 +230,10 @@ spec:
     - name: additional_vpn
       type: string
 
+   # standalone sls
+    - name : sls_sls_service
+      type : string
+      default: ""
   tasks:
 
     # 0. Per-instance DB2U Operator
@@ -444,8 +448,8 @@ spec:
           value: $(params.additional_vpn)
         - name: extensions
           value: $(params.extensions)
-        - name: sls_license_icn
-          value: $(params.sls_license_icn)
+        - name : sls_sls_service
+          value: $(params.sls_sls_service)
       taskRef:
         kind: Task
         name: gitops-suite
@@ -500,10 +504,8 @@ spec:
           value: $(params.mas_bascfg_pod_template_yaml)
         - name: mas_slscfg_pod_template_yaml
           value: $(params.mas_slscfg_pod_template_yaml)
-        - name: sls_license_icn
-          value: $(params.sls_license_icn)
-        - name: sls_subscription_id
-          value: $(params.sls_subscription_id)
+        - name : sls_sls_service
+          value: $(params.sls_sls_service)
       workspaces:
         - name: configs
           workspace: configs
