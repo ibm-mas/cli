@@ -76,7 +76,18 @@ spec:
       runAfter:
         - fvt-aiservice-tenant-entitlement
 
-    # 4. PCC test suite
+    # 4. INSIGHTSGENERATOR test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-insightsgenerator
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: insightsgenerator
+      runAfter:
+        - fvt-aiservice-tenant-entitlement
+    
+    # 5. PCC test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-pcc
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -87,8 +98,9 @@ spec:
       runAfter:
         - fvt-aiservice-mcc
         - fvt-aiservice-fmea
+        - fvt-aiservice-insightsgenerator
 
-    # 5. Similarity test suite
+    # 6. Similarity test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-similarity
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
@@ -99,8 +111,9 @@ spec:
       runAfter:
         - fvt-aiservice-mcc
         - fvt-aiservice-fmea
+        - fvt-aiservice-insightsgenerator
 
-    # 6. NL2OSLC test suite
+    # 7. NL2OSLC test suite
     # -----------------------------------------------------------------------------
     - name: fvt-aiservice-nl2oslc
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
