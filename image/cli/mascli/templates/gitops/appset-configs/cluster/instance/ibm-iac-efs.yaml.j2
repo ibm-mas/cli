@@ -1,0 +1,21 @@
+module "efs" {
+  source         = "{{EFS_SOURCE}}"
+  vpc_id         = "{{EFS_VPC_ID}}"
+  creation_token = "{{EFS_CREATION_TOKEN}}"
+
+  performance_mode = "{{EFS_PERFORMANCE_MODE}}"
+  efs_mount_count  = "{{EFS_MOUNT_COUNT}}"
+
+  lifecycle_policy = {
+    transition_to_ia                    = "{{EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA}}"
+    transition_to_primary_storage_class = "{{EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS}}"
+  }
+  # encrypted
+  # kms_key_arn
+
+  # provisioned_throughput_in_mibps
+  throughput_mode              = "{{EFS_THROUGHPUT_MODE}}"
+  efs_mount_ingress_subnet_ids = "{{EFS_MOUNT_INGRERSS_SUBNET_IDS}}"
+  efs_mount_egress_subnet_ids  = "{{EFS_MOUNT_EGRERSS_SUBNET_IDS}}"
+  efs_worker_subnet_id_list    = "{{EFS_WORKER_SUBNET_ID_LIST}}"
+}

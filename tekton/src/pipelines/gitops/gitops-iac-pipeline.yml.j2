@@ -1,0 +1,114 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: gitops-iac-pipeline
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: cluster_id
+      type: string
+    - name: account
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: cluster_url
+      type: string
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+
+
+    # iac-efs-specific
+    - name: efs_vpc_id
+      type: string
+    - name: efs_source
+      type: string
+    - name: efs_creation_token
+      type: string
+    - name: efs_performance_mode
+      type: string
+    - name: efs_mount_count
+      type: string
+    - name: efs_lifecycle_policy_transition_to_ia
+      type: string
+    - name: efs_lifecycle_policy_transition_to_primary_storage_class
+      type: string
+    - name: efs_throughput_mode
+      type: string
+    - name: efs_mount_ingress_subnet_ids
+      type: string
+    - name: efs_mount_egress_subnet_ids
+      type: string
+    - name: efs_worker_subnet_id_list
+      type: string
+    - name: efs_encrypted
+      type: string
+
+  workspaces:
+    - name: configs
+
+  tasks:
+
+    # 2.gitops-iac-efs
+    # -------------------------------------------------------------------------
+    - name: iac-efs
+      taskRef:
+        name: gitops-iac-efs
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: efs_vpc_id
+          value: $(params.efs_vpc_id)
+        - name: efs_source
+          value: $(params.efs_source)
+        - name: efs_creation_token
+          value: ${params.efs_creation_token}
+        - name: efs_performance_mode
+          value: $(params.efs_performance_mode)
+        - name: efs_mount_count
+          value: $(params.efs_mount_count)
+        - name: efs_lifecycle_policy_transition_to_ia
+          value: $(params.efs_lifecycle_policy_transition_to_ia)
+        - name: efs_lifecycle_policy_transition_to_primary_storage_class
+          value: $(params.efs_lifecycle_policy_transition_to_primary_storage_class)
+        - name: efs_throughput_mode
+          value: $(params.efs_throughput_mode)
+        - name: efs_mount_ingress_subnet_ids
+          value: $(params.efs_mount_ingress_subnet_ids)
+        - name: efs_mount_egress_subnet_ids
+          value: $(params.efs_mount_egress_subnet_ids)
+        - name: efs_worker_subnet_id_list
+          value: $(params.efs_worker_subnet_id_list)
+        - name: efs_encrypted
+          value: $(params.efs_encrypted)

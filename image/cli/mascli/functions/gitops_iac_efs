@@ -1,0 +1,324 @@
+#!/usr/bin/env bash
+
+function gitops_iac_help() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+
+
+Usage:
+  mas gitops-iac [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Basic Configuration:
+  -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                    Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                    Cluster ID
+  -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}          MAS Instance ID
+
+Secrets Manager:
+      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                Secrets Manager path
+      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}
+
+EFS Configuration (required):
+      --efs-vpc-id ${COLOR_YELLOW}EFS_VPC_ID${TEXT_RESET}                    VPC ID for EFS
+      --efs-performance-mode ${COLOR_YELLOW}EFS_PERFORMANCE_MODE${TEXT_RESET}  Performance mode (generalPurpose or maxIO)
+      --efs-mount-count ${COLOR_YELLOW}EFS_MOUNT_COUNT${TEXT_RESET}          Number of mount targets
+      --efs-lifecycle-policy-transition-to-ia ${COLOR_YELLOW}EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA${TEXT_RESET}
+      --efs-lifecycle-policy-transition-to-primary-storage-class ${COLOR_YELLOW}EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS${TEXT_RESET}
+      --efs-throughput-mode ${COLOR_YELLOW}EFS_THROUGHPUT_MODE${TEXT_RESET}  Throughput mode (bursting or provisioned)
+      --efs-mount-ingress-subnet-ids ${COLOR_YELLOW}EFS_MOUNT_INGRESS_SUBNET_IDS${TEXT_RESET}
+      --efs-mount-egress-subnet-ids ${COLOR_YELLOW}EFS_MOUNT_EGRESS_SUBNET_IDS${TEXT_RESET}
+      --efs-worker-subnet-id-list ${COLOR_YELLOW}EFS_WORKER_SUBNET_ID_LIST${TEXT_RESET}
+      --efs-encrypted ${COLOR_YELLOW}EFS_ENCRYPTED${TEXT_RESET}              Enable encryption (true/false)
+
+Target Cluster (Optional):
+      --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}                  Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
+
+Automatic GitHub Push (Optional):
+  -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}                  Enable automatic push to GitHub
+  -H, --github-host ${COLOR_YELLOW}GITHUB_HOST${TEXT_RESET}                  GitHub Hostname for your GitOps repository
+  -O, --github-org ${COLOR_YELLOW}GITHUB_ORG${TEXT_RESET}                    Github org for your GitOps repository
+  -R, --github-repo ${COLOR_YELLOW}GITHUB_REPO${TEXT_RESET}                  Github repo for your GitOps repository
+  -S, --github-ssh ${COLOR_YELLOW}GIT_SSH${TEXT_RESET}                       Git ssh key path
+  -B, --git-branch ${COLOR_YELLOW}GIT_BRANCH${TEXT_RESET}                    Git branch to commit to of your GitOps repository
+  -M, --git-commit-msg ${COLOR_YELLOW}GIT_COMMIT_MSG${TEXT_RESET}            Git commit message to use when committing to of your GitOps repository
+
+Other Commands:
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function gitops_iac_noninteractive() {
+  GITOPS_WORKING_DIR=$PWD/working-dir
+  SECRETS_KEY_SEPERATOR="/"
+  GIT_COMMIT_MSG="gitops-iac commit"
+
+  # Set default values
+  export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
+  export EFS_PERFORMANCE_MODE=${EFS_PERFORMANCE_MODE:-"generalPurpose"}
+  export EFS_THROUGHPUT_MODE=${EFS_THROUGHPUT_MODE:-"bursting"}
+  export EFS_ENCRYPTED=${EFS_ENCRYPTED:-"true"}
+  export EFS_MOUNT_COUNT=${EFS_MOUNT_COUNT:-"3"}
+  export EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA=${EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA:-"AFTER_30_DAYS"}
+  export EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS=${EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS:-"AFTER_1_ACCESS"}
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # GitOps Configuration
+      -d|--dir)
+        export GITOPS_WORKING_DIR=$1 && shift
+        ;;
+      -a|--account-id)
+        export ACCOUNT_ID=$1 && shift
+        ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        ;;
+      -m|--mas-instance-id)
+        export MAS_INSTANCE_ID=$1 && shift
+        ;;
+
+      # AWS Secrets Manager Configuration
+      --sm-aws-secret-region)
+        export SM_AWS_REGION=$1
+        export REGION_ID=$1
+        shift
+        ;;
+      --sm-aws-access-key)
+        export SM_AWS_ACCESS_KEY_ID=$1 && shift
+        ;;
+      --sm-aws-secret-key)
+        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
+        ;;
+      --secrets-path)
+        export SECRETS_PATH=$1 && shift
+        ;;
+
+      # EFS Configuration
+      --efs-vpc-id)
+        export EFS_VPC_ID=$1 && shift
+        ;;
+      --efs-source)
+        export EFS_SOURCE=$1 && shift
+        ;;
+      --efs-creation_token)
+        export EFS_CREATION_TOKEN=$1 && shift
+        ;;
+      --efs-performance-mode)
+        export EFS_PERFORMANCE_MODE=$1 && shift
+        ;;
+      --efs-mount-count)
+        export EFS_MOUNT_COUNT=$1 && shift
+        ;;
+      --efs-lifecycle-policy-transition-to-ia)
+        export EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA=$1 && shift
+        ;;
+      --efs-lifecycle-policy-transition-to-primary-storage-class)
+        export EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS=$1 && shift
+        ;;
+      --efs-throughput-mode)
+        export EFS_THROUGHPUT_MODE=$1 && shift
+        ;;
+      --efs-mount-ingress-subnet-ids)
+        export EFS_MOUNT_INGRESS_SUBNET_IDS=$1 && shift
+        ;;
+      --efs-mount-egress-subnet-ids)
+        export EFS_MOUNT_EGRESS_SUBNET_IDS=$1 && shift
+        ;;
+      --efs-worker-subnet-id-list)
+        export EFS_WORKER_SUBNET_ID_LIST=$1 && shift
+        ;;
+      --efs-encrypted)
+        export EFS_ENCRYPTED=$1 && shift
+        ;;
+
+      # Target Cluster (Optional)
+      --cluster-url)
+        export CLUSTER_URL=$1 && shift
+        ;;
+
+      # Automatic GitHub Push
+      -P|--github-push)
+        export GITHUB_PUSH=true
+        ;;
+      -H|--github-host)
+        export GITHUB_HOST=$1 && shift
+        ;;
+      -O|--github-org)
+        export GITHUB_ORG=$1 && shift
+        ;;
+      -R|--github-repo)
+        export GITHUB_REPO=$1 && shift
+        ;;
+      -S|--github-ssh)
+        export GIT_SSH=$1 && shift
+        ;;
+      -B|--git-branch)
+        export GIT_BRANCH=$1 && shift
+        ;;
+      -M|--git-commit-msg)
+        export GIT_COMMIT_MSG=$1 && shift
+        ;;
+
+      # Other Commands
+      -h|--help)
+        gitops_iac_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${COLOR_RESET}\n"
+        gitops_iac_help "Usage Error: Unsupported option \"${key}\" "
+        exit 1
+        ;;
+      esac
+  done
+
+  # Validate required parameters
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_iac_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$ACCOUNT_ID" ]] && gitops_iac_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_iac_help "CLUSTER_ID is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_iac_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_iac_help "REGION_ID or SM_AWS_REGION is not set"
+  [[ -z "$CLUSTER_URL" ]] && gitops_iac_help "CLUSTER_URL is not set"
+
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    [[ -z "$GITHUB_HOST" ]] && gitops_iac_help "GITHUB_HOST is not set"
+    [[ -z "$GITHUB_ORG" ]] && gitops_iac_help "GITHUB_ORG is not set"
+    [[ -z "$GITHUB_REPO" ]] && gitops_iac_help "GITHUB_REPO is not set"
+    [[ -z "$GIT_BRANCH" ]] && gitops_iac_help "GIT_BRANCH is not set"
+  fi
+
+  # Validate EFS-specific required parameters
+  [[ -z "$EFS_VPC_ID" ]] && gitops_iac_help "EFS_VPC_ID is not set. Please provide the VPC ID using --efs-vpc-id"
+  [[ -z "$EFS_MOUNT_INGRESS_SUBNET_IDS" ]] && gitops_iac_help "EFS_MOUNT_INGRESS_SUBNET_IDS is not set. Please provide ingress subnet IDs using --efs-mount-ingress-subnet-ids"
+  [[ -z "$EFS_MOUNT_EGRESS_SUBNET_IDS" ]] && gitops_iac_help "EFS_MOUNT_EGRESS_SUBNET_IDS is not set. Please provide egress subnet IDs using --efs-mount-egress-subnet-ids"
+  [[ -z "$EFS_WORKER_SUBNET_ID_LIST" ]] && gitops_iac_help "EFS_WORKER_SUBNET_ID_LIST is not set. Please provide worker subnet ID list using --efs-worker-subnet-id-list"
+}
+
+function gitops_iac() {
+  # Take the first parameter off (it will be create-gitops)
+  shift
+  if [[ $# -gt 0 ]]; then
+    gitops_iac_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+    gitops_iac_interactive
+  fi
+
+  # catch errors
+  set -o pipefail
+  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
+
+  mkdir -p ${GITOPS_WORKING_DIR}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  echo "${TEXT_DIM}"
+  echo_h2 "Target" "    "
+  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
+  echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
+  echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
+  echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
+  echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "AWS Secrets Manager" "    "
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
+  echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>" # pragma: allowlist secret
+  echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  if [[ "$GITHUB_PUSH" == "true" ]]; then
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ................. ${COLOR_GREEN}Enabled"
+    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+    echo_reset_dim "Host ........................... ${COLOR_MAGENTA}${GITHUB_HOST}"
+    echo_reset_dim "Organization ................... ${COLOR_MAGENTA}${GITHUB_ORG}"
+    echo_reset_dim "Repository ..................... ${COLOR_MAGENTA}${GITHUB_REPO}"
+    echo_reset_dim "Branch ......................... ${COLOR_MAGENTA}${GIT_BRANCH}"
+  else
+    echo_h2 "GitOps Target" "    "
+    echo_reset_dim "Automatic Push ................. ${COLOR_RED}Disabled"
+    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
+  fi
+  reset_colors
+
+  echo "${TEXT_DIM}"
+  echo_h2 "EFS Configuration" "    "
+  echo_reset_dim "SOURCE ......................... ${COLOR_MAGENTA}${EFS_SOURCE}"
+  echo_reset_dim "VPC ID ......................... ${COLOR_MAGENTA}${EFS_VPC_ID}"
+  echo_reset_dim "CREATION TOKEN ......................... ${COLOR_MAGENTA}${EFS_CREATION_TOKEN}"
+  echo_reset_dim "Performance Mode ............... ${COLOR_MAGENTA}${EFS_PERFORMANCE_MODE}"
+  echo_reset_dim "Mount Count .................... ${COLOR_MAGENTA}${EFS_MOUNT_COUNT}"
+  echo_reset_dim "Lifecycle Policy (IA) .......... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA}"
+  echo_reset_dim "Lifecycle Policy (Primary) ..... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS}"
+  echo_reset_dim "Throughput Mode ................ ${COLOR_MAGENTA}${EFS_THROUGHPUT_MODE}"
+  echo_reset_dim "Mount Ingress Subnet IDs ....... ${COLOR_MAGENTA}${EFS_MOUNT_INGRESS_SUBNET_IDS}"
+  echo_reset_dim "Mount Egress Subnet IDs ........ ${COLOR_MAGENTA}${EFS_MOUNT_EGRESS_SUBNET_IDS}"
+  echo_reset_dim "Worker Subnet ID List .......... ${COLOR_MAGENTA}${EFS_WORKER_SUBNET_ID_LIST}"
+  echo_reset_dim "Encrypted ...................... ${COLOR_MAGENTA}${EFS_ENCRYPTED}"
+  reset_colors
+
+  AVP_TYPE=aws  # Support for IBM will be added later
+  sm_login
+
+  # Build secrets prefix
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
+
+  # Define secret keys for EFS/IAC (adjust based on your actual secret structure)
+  export SECRET_KEY_AWS_ACCESS_KEY=${SECRETS_PREFIX}aws#aws_access_key_id
+  export SECRET_KEY_AWS_SECRET_KEY=${SECRETS_PREFIX}aws#aws_secret_access_key
+
+  # Verify secrets exist
+  sm_verify_secret_exists ${SECRETS_PREFIX}aws "aws_access_key_id,aws_secret_access_key"
+
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH=false
+  fi
+
+  # Clone github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo "GITOPS_WORKING_DIR  ${GITOPS_WORKING_DIR}"
+    echo "GITOPS_CLUSTER_DIR  ${GITOPS_CLUSTER_DIR}"
+    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
+    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  fi
+  mkdir -p ${GITOPS_CLUSTER_DIR}
+
+  # Generate ArgoApps
+  # ---------------------------------------------------------------------------
+  echo
+  echo_h2 "Generating IAC/EFS Configuration"
+  echo "- IAC Base Config"
+
+  echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/ibm-iac-efs.yaml"
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-iac-efs.yaml
+
+  # Commit and push to github target repo
+  # ---------------------------------------------------------------------------
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+      git_auto_pr_single_threaded $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITHUB_TOKEN $GITOPS_WORKING_DIR
+    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+  fi
+
+  rm -rf $TEMP_DIR
+
+  exit 0
+}
