@@ -58,6 +58,10 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 7 if needed
       default: ""
+    - name: mongodb_v8_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 8 if needed
+      default: ""
 
     # Dependencies - IBM Cloud MongoDb
     # -------------------------------------------------------------------------
@@ -121,6 +125,8 @@ spec:
         value: $(params.mongodb_v6_upgrade)
       - name: MONGODB_V7_UPGRADE
         value: $(params.mongodb_v7_upgrade)
+      - name: MONGODB_V8_UPGRADE
+        value: $(params.mongodb_v8_upgrade)
 
       # Dependencies - IBM Cloud MongoDb
       - name: IBM_MONGO_NAME
