@@ -102,7 +102,19 @@ spec:
 
     # 6. NL2OSLC test suite
     # -----------------------------------------------------------------------------
-    - name: fvt-aiservice-nl2oslc
+    - name: fvt-aiservice-nl2oslc-granite
+      {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
+      params:
+        {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
+        - name: fvt_test_suite
+          value: nl2oslc
+      runAfter:
+        - fvt-aiservice-pcc
+        - fvt-aiservice-similarity
+
+    # 6. NL2OSLC test suite
+    # -----------------------------------------------------------------------------
+    - name: fvt-aiservice-nl2oslc-gpt-oss
       {{ lookup('template', 'taskdefs/fvt-aiservice/common/taskref.yml.j2') | indent(6) }}
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
