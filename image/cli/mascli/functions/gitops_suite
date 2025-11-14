@@ -15,8 +15,6 @@ Basic Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}  IBM Suite Maximo Application Suite Instance ID
       --custom-labels ${COLOR_YELLOW}CUSTOM_LABELS${TEXT_RESET}      Custom Labels definition in dict format
-  -i  --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}          IBM Customer Number
-
 
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -28,6 +26,8 @@ MongoDb Provider Selection (Required):
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws' or 'yaml')
 
 IBM Suite License Service:
+  -s, --sls-sls-service      ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}        STANDALONE_SLS_SERVICE        
+
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
       --sls-install-plan ${COLOR_YELLOW}SLS_INSTALL_PLAN${TEXT_RESET}  IBM Suite License Service Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
 
@@ -139,9 +139,12 @@ function gitops_suite_noninteractive() {
   # cert-manager namespace, in case redhat default value is cert-manager
   export CERT_MANAGER_NAMESPACE=${CERT_MANAGER_NAMESPACE:-"cert-manager"}
 
-  export ICN=${ICN:-""}
+  if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
+        CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
+        IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+        ICN="${PARTS[3]}"
+  fi    
 
-        
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -491,7 +494,6 @@ function gitops_suite() {
   echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Instance Config Directory ...... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
-  echo_reset_dim "IBM Customer Number.............${COLOR_MAGENTA}${ICN}"
 
 
   reset_colors
@@ -514,6 +516,8 @@ function gitops_suite() {
   echo_h4 "IBM Suite License Service" "    "
   echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${SLS_CHANNEL}"
   echo_reset_dim "Subscription Install Plan ...... ${COLOR_MAGENTA}${SLS_INSTALL_PLAN}"
+  echo_reset_dim "ibm customer number  ........ ${COLOR_MAGENTA}${ICN}"
+
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
     echo_reset_dim "Internal Certificate Authority ...... ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
   fi
@@ -691,7 +695,7 @@ function gitops_suite() {
   ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
   ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-  sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}" "${TAGS}"
+  #sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}" "${TAGS}"
   
 
   if [ -z $GIT_SSH ]; then

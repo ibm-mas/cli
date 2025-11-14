@@ -142,7 +142,7 @@ spec:
     - name: extensions
       type: string
       default: "false"
-    - name: sls_license_icn
+    - name: sls_sls_service
       type: string
       default: ""
   stepTemplate:
@@ -256,8 +256,8 @@ spec:
         value: $(params.is_non_shared_cluster)
       - name: EXTENSIONS
         value: $(params.extensions)
-      - name: ICN
-        value: $(params.sls_license_icn)
+      - name: STANDALONE_SLS_SERVICE
+        value: $(params.sls_sls_service)
 
     envFrom:
       - configMapRef:
@@ -327,7 +327,6 @@ spec:
         --github-org  $GITHUB_ORG \
         --github-repo $GITHUB_REPO \
         --git-branch $GIT_BRANCH \
-        --ibm-customer-number "$ICN" \
         --mas-wipe-mongo-data "$MAS_WIPE_MONGO_DATA" \
 
         exit $?
