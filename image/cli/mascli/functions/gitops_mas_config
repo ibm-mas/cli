@@ -15,8 +15,6 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                     Working directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                      Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
-  -i, --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}                      IBM Customer Number
-  -s, --saas-subscription-id  ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}                    SaaS subscription id
   -s ,--sls-sls-service      ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}        STANDALONE_SLS_SERVICE        
   --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
   --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
@@ -161,12 +159,6 @@ function gitops_mas_config_noninteractive() {
 
       # SLS
       # Standalone Server configuration
-      -s|--saas-subscription-id)
-        export SAAS_SUB_ID=$1 && shift
-      ;;
-      -i|--ibm-customer-number)
-        export ICN=$1 && shift
-      ;;
       -s|--sls-sls-service)
         export STANDALONE_SLS_SERVICE=$1 shift
       ;;
@@ -342,7 +334,6 @@ function gitops_mas_config_noninteractive() {
   [[ -z "$REGION_ID" ]] && gitops_mas_config_help "REGION_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_mas_config_help "CLUSTER_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
-  ( [[ ! -z "$SAAS_SUB_ID" ]] && [[ -z "$ICN" ]] ) && gitops_mas_config_help "ICN is not set"
 
   
   
@@ -351,7 +342,7 @@ function gitops_mas_config_noninteractive() {
     gitops_mas_config_help "Invalid CONFIG_ACTION \"${CONFIG_ACTION}\"; must be one of 'upsert' or 'remove'"
   fi
 
-  [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_CONFIG_TYPE is not set"
   if ! [[ "$MAS_CONFIG_TYPE" =~ ^(bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
     gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
   fi
@@ -521,6 +512,7 @@ function gitops_mas_config() {
   echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "System Config Directory ........ ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
+
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -597,6 +589,8 @@ function gitops_mas_config() {
       echo "${TEXT_DIM}"
       echo_reset_dim "SLS URL  ....................... ${COLOR_MAGENTA}https://sls.mas-${MAS_INSTANCE_ID}-sls.svc"
       echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_SLSCFG_POD_TEMPLATE_YAML}"
+      echo_reset_dim "sls service  ........ ${COLOR_MAGENTA}${STANDALONE_SLS_SERVICE}"
+
       if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
         echo_reset_dim "Internal Certificate Authority ...... ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
       fi
