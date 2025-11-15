@@ -26,7 +26,7 @@ oc -n $NAMESPACE get slscfg
 echo ""
 
 echo ""
-echo "IBM Maximo Application Suite - BAS (UDS) Configurations"
+echo "IBM Maximo Application Suite - DRO Configurations"
 echo "--------------------------------------------------------------------------------"
 oc -n $NAMESPACE get bascfg
 echo ""

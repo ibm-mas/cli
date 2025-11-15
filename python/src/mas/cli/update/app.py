@@ -18,10 +18,9 @@ from prompt_toolkit import print_formatted_text, HTML
 from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
-from ..validators import StorageClassValidator
 from .argParser import updateArgParser
 
-from mas.devops.ocp import createNamespace, getStorageClasses, getConsoleURL
+from mas.devops.ocp import createNamespace, getConsoleURL
 from mas.devops.mas import listMasInstances, listAiServiceInstances, getCurrentCatalog
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
 
@@ -52,7 +51,6 @@ class UpdateApp(BaseApp):
                 "mongodb_v8_upgrade",
                 "kafka_namespace",
                 "kafka_provider",
-                "dro_migration",
                 "dro_storage_class",
                 "dro_namespace",
                 "skip_pre_check",
@@ -138,7 +136,6 @@ class UpdateApp(BaseApp):
             else:
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is not installed")
 
-        self.detectUDS()
         self.detectGrafana4()
         self.detectMongoDb()
         self.detectDb2uOrKafka("db2")
@@ -180,7 +177,6 @@ class UpdateApp(BaseApp):
 
         self.printH2("Required Migrations")
         self.printSummary("IBM Certificate-Manager", "Migrate to Red Hat Certificate-Manager" if self.getParam("cert_manager_action") != "" else "No action required")
-        self.printSummary("IBM User Data Services", "Migrate to IBM Data Reporter Operator" if self.getParam("dro_migration") != "" else "No action required")
         self.printSummary("Grafana v4 Operator", "Migrate to Grafana v5 Operator" if self.getParam("grafana_v5_upgrade") != "" else "No action required")
 
         if not self.noConfirm:
@@ -441,67 +437,6 @@ class UpdateApp(BaseApp):
             "  <u>https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=suite-backing-up-mongodb-maximo-application</u>",
             ""
         ])
-
-    def showUDSUpdateNotice(self) -> None:
-        self.printHighlight([
-            "",
-            "<u>Dependency Update Notice</u>",
-            "IBM User Data Services (UDS) is currently installed and will be replaced by IBM Data Reporter Operator (DRO)",
-            "UDS will be uninstalled and <u>all MAS instances</u> will be re-configured to use DRO",
-            ""
-        ])
-
-    def selectDROStorageclass(self):
-        self.printDescription([
-            "",
-            "Select the storage class for DRO to use from the list below:"
-        ])
-        for storageClass in getStorageClasses(self.dynamicClient):
-            print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-        self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
-
-    def detectUDS(self) -> None:
-        with Halo(text='Checking for IBM User Data Services', spinner=self.spinner) as h:
-            try:
-                analyticsProxyAPI = self.dynamicClient.resources.get(api_version="uds.ibm.com/v1", kind="AnalyticsProxy")
-                analyticsProxies = analyticsProxyAPI.get(namespace="ibm-common-services").to_dict()['items']
-
-                # Useful for testing: comment out the two lines above and set analyticsProxies to a
-                # simple list to trigger to UDS migration logic.
-                # analyticsProxies = ["foo"]
-                if len(analyticsProxies) == 0:
-                    logger.debug("UDS is not currently installed on this cluster")
-                    h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services is not installed")
-                else:
-                    h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services must be migrated to IBM Data Reporter Operator")
-
-                    if self.noConfirm and self.getParam("dro_migration") != "true":
-                        # The user has chosen not to provide confirmation but has not provided the flag to pre-approve the migration
-                        h.stop_and_persist(symbol=self.failureIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
-                        self.showUDSUpdateNotice()
-                        self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm the migration to DRO using '--dro-migration' when using '--no-confirm'")
-                    elif self.noConfirm and self.getParam("dro_storage_class") is None:
-                        # The user has not provided the storage class to use for DRO, but has disabled confirmations/interactive prompts
-                        h.stop_and_persist(symbol=self.failureIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
-                        self.showUDSUpdateNotice()
-                        self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must provide the storage class to use for the migration to DRO using '--dro-storage-class' when using '--no-confirm'")
-                    else:
-                        self.showUDSUpdateNotice()
-                        if self.getParam("dro_migration") != "true":
-                            if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
-                                # If the user did not approve the update, abort
-                                exit(1)
-
-                        if self.getParam("dro_storage_class") is None or self.getParam("dro_storage_class") == "":
-                            self.selectDROStorageclass()
-
-                if self.getParam("dro_migration") == "true":
-                    self.setParam("uds_action", "install-dro")
-
-            except (ResourceNotFoundError, NotFoundError):
-                # UDS has never been installed on this cluster
-                logger.debug("UDS has not been installed on this cluster before")
-                h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services is not installed")
 
     def detectCP4D(self) -> bool:
         # Important:

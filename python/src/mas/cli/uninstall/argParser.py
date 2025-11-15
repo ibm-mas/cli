@@ -92,7 +92,7 @@ depsArgGroup.add_argument(
     help="Uninstall IBM Suite License Service from the target cluster",
 )
 depsArgGroup.add_argument(
-    '--uninstall-uds',
+    '--uninstall-dro',
     required=False,
     action='store_true',
     default=False,

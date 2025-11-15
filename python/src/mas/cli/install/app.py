@@ -318,9 +318,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configDRO(self) -> None:
-        self.promptForString("Contact e-mail address", "uds_contact_email")
-        self.promptForString("Contact first name", "uds_contact_firstname")
-        self.promptForString("Contact last name", "uds_contact_lastname")
+        self.promptForString("Contact e-mail address", "dro_contact_email")
+        self.promptForString("Contact first name", "dro_contact_firstname")
+        self.promptForString("Contact last name", "dro_contact_lastname")
 
         if self.showAdvancedOptions:
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
@@ -1223,8 +1223,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configCertManager()  # TODO: I think this is redundant, we should look to remove this and the appropriate params in the install pipeline
         self.deployCP4D = False
 
-        # UDS install has not been supported since the January 2024 catalog update
-        self.setParam("uds_action", "install-dro")
+        self.setParam("dro_action", "install")
 
         # User must either provide the configuration via numerous command line arguments, or the interactive prompts
         if instanceId is None:

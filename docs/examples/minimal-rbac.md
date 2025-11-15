@@ -59,7 +59,7 @@ docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:@@CLI_LATEST
     --storage-class-rwo "ibmc-block-gold" --storage-class-rwx "ibmc-file-gold-gid" \
     --storage-pipeline "ibmc-file-gold-gid" --storage-accessmode "ReadWriteMany" \
     --license-file "/mnt/home/entitlement.lic" \
-    --uds-email "parkerda@uk.ibm.com" --uds-firstname "David" --uds-lastname "Parker" \
+    --contact-email "parkerda@uk.ibm.com" --contact-firstname "David" --contact-lastname "Parker" \
     --mongodb-namespace "mongoce" \
     --accept-license --no-confirm --service-account mas-${MAS_INSTANCE_ID}-install-pipeline
   "
