@@ -148,6 +148,7 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self.compatibilityMatrix = {
             "9.2.x-feature": {
+                "aibroker": ["9.2.x-feature", "9.1.x"],
                 "manage": ["9.2.x-feature", "9.1.x"],
                 "optimizer": ["9.2.x-feature", "9.1.x"],
             },

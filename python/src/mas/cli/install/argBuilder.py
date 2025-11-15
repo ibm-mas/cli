@@ -62,7 +62,7 @@ class installArgBuilderMixin():
         command += f" --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"
 
         if self.getParam('mas_special_characters') == "true":
-            command += f" --allow-special-chars \"{self.getParam('mas_special_characters')}\"{newline}"
+            command += f" --allow-special-chars \"{newline}"
 
         # ECK Integration
         # -----------------------------------------------------------------------------
@@ -97,6 +97,9 @@ class installArgBuilderMixin():
 
         if self.getParam('mas_manual_cert_mgmt') is True:
             command += f"  --manual-certificates \"{self.manualCertsDir}\"{newline}"
+
+        if self.getParam('mas_routing_mode') != "":
+            command += f"  --routing \"{self.getParam('mas_routing_mode')}\"{newline}"
 
         if self.getParam('mas_domain') != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
@@ -325,7 +328,7 @@ class installArgBuilderMixin():
             if self.getParam('db2_affinity_key') != "":
                 command += f"  --db2-affinity-key \"{self.getParam('db2_affinity_key')}\"{newline}"
             if self.getParam('db2_affinity_value') != "":
-                command += f"  --db2-affinity_value \"{self.getParam('db2_affinity_value')}\"{newline}"
+                command += f"  --db2-affinity-value \"{self.getParam('db2_affinity_value')}\"{newline}"
 
             if self.getParam('db2_tolerate_key') != "":
                 command += f"  --db2-tolerate-key \"{self.getParam('db2_tolerate_key')}\"{newline}"

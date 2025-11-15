@@ -76,6 +76,9 @@ class InstallSummarizerMixin():
                 pass
 
         print()
+        self.printParamSummary("Network Routing Mode", "mas_routing_mode")
+
+        print()
         self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
 
         if self.getParam("mas_manual_cert_mgmt") != "":

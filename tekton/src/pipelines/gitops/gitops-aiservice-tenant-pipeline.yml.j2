@@ -60,6 +60,8 @@ spec:
       type: string
     - name: aiservice_watsonxai_full
       type: string
+    - name: aiservice_watsonxai_verify
+      type: string
 
     - name: aiservice_operator_log_level
       type: string
@@ -147,6 +149,8 @@ spec:
           value: $(params.aiservice_watsonxai_username)
         - name: aiservice_watsonxai_full
           value: $(params.aiservice_watsonxai_full)
+        - name: aiservice_watsonxai_verify
+          value: $(params.aiservice_watsonxai_verify)
         - name: aiservice_watsonxai_ca_crt
           value: $(params.aiservice_watsonxai_ca_crt)
         - name: aiservice_operator_log_level

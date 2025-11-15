@@ -100,6 +100,10 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 7 if needed
       default: ""
+    - name: mongodb_v8_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 8 if needed
+      default: ""
 
     # kafka update
     # -------------------------------------------------------------------------
@@ -324,6 +328,8 @@ spec:
           value: $(params.mongodb_v6_upgrade)
         - name: mongodb_v7_upgrade
           value: $(params.mongodb_v7_upgrade)
+        - name: mongodb_v8_upgrade
+          value: $(params.mongodb_v8_upgrade)
         - name: mongodb_replicas
           value: $(params.mongodb_replicas)
 
