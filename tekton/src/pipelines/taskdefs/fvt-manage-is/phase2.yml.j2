@@ -6,7 +6,6 @@
 # - fvt-manage-hse-ui              # HSE
 # - fvt-manage-serviceprovider-api # Service Provider
 # - fvt-manage-serviceprovider-ui  # Service Provider
-# - fvt-manage-vegm-api            # VEGM
 # - fvt-manage-vegm-ui             # VEGM
 # -----------------------------------------------------------------------------
 
@@ -123,21 +122,6 @@
 
 # VEGM
 # -----------------------------------------------------------------------------
-# VEGM - API Tests
-- name: fvt-manage-vegm-api
-  {{ lookup('template', 'taskdefs/fvt-manage/api/taskref.yml.j2') | indent(2) }}
-  params:
-    {{ lookup('template', 'taskdefs/fvt-manage/api/params.yml.j2') | indent(4) }}
-    - name: fvt_test_suite
-      value: vegm-api
-  when:
-    - input: "vegm"
-      operator: in
-      values: ["$(tasks.fvt-component.results.component_names[*])"]
-  runAfter:
-    - fvt-health-testng-desktop
-    - fvt-health-python
-
 # VEGM - UI
 - name: fvt-manage-vegm-ui
   {{ lookup('template', 'taskdefs/fvt-manage/ui/taskref.yml.j2') | indent(2) }}
