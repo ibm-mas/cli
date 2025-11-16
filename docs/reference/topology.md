@@ -10,7 +10,7 @@
 - Multiple `Kafka` clusters will be created using either Strimzi or Red Hat AMQ Streams operators, one for each MAS instance.
     - The instance will be named `mas-{instanceId}-system`
 - A single SLS `LicenseService` instance will be created, all MAS instances in the cluster will share the same pool of AppPoints from a single license file loaded into SLS. Each MAS instance is registered to SLS independently, uniquely identifying it to SLS. Alternatively, a dedicated SLS per MAS instance can be installed on the cluster.
-- A single UDS `AnalyticsProxy` instance will be created, all MAS instaled in the cluster will be configured to report to this instance using a shared API key.
+- A single DRO instance will be created, all MAS installed in the cluster will be configured to report to this same instance.
 
 ## High-Level View
 Multiple instances of IBM Maximo Application Suite can be installed into a single OpenShift Cluster.  The diagram below details the reference topology that will be created using the MAS CLI.
