@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -359,6 +359,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.yesOrNo("Allow special characters for user IDs and usernames", "mas_special_characters")
 
     @logMethodCall
+    def configReportAdoptionMetricsFlag(self):
+        if self.showAdvancedOptions:
+            self.printH1("Adoption Metrics Reporting")
+            self.printDescription([
+                "Adoption Metrics are used by IBM to measure feature adoption, user engagement, and the success of product initiatives. When this option is enabled (y), you permit IBM to capture and analyze adoption metrics to help improve the Maximo Application Suite experience. When disabled (n), you are opting out of sending adoption metrics to IBM"
+            ])
+            if not self.yesOrNo("Do you want to enable adoption metrics reporting"):
+                self.setParam("mas_report_adoption_metrics", "false")
+
+    @logMethodCall
     def configCP4D(self):
         if self.getParam("mas_catalog_version") in self.catalogOptions:
             # Note: this will override any version provided by the user (which is intentional!)
@@ -446,6 +456,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configDNSAndCerts()
         self.configSSOProperties()
         self.configSpecialCharacters()
+        self.configReportAdoptionMetricsFlag()
         self.configGuidedTour()
 
     @logMethodCall
