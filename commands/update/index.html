@@ -329,8 +329,8 @@
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
 <p>Usage information can be obtained using <code>mas update --help</code></p>
 <pre><code>usage: mas update [-c MAS_CATALOG_VERSION] [--db2-namespace DB2_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade] [--mongodb-v6-upgrade] [--mongodb-v7-upgrade]
-                  [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {redhat,strimzi}] [--dro-migration DRO_MIGRATION]
-                  [--dro-storage-class DRO_STORAGE_CLASS] [--dro-namespace DRO_NAMESPACE] [--no-confirm] [--skip-pre-check] [-h]
+                  [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {redhat,strimzi}]
+                  [--no-confirm] [--skip-pre-check] [-h]
 
 IBM Maximo Application Suite Admin CLI v100.0.0
 Update the IBM Maximo Operator Catalog, and related MAS dependencies by configuring and launching the MAS Update Tekton Pipeline.
@@ -350,11 +350,6 @@ Update Dependencies:
   --mongodb-v7-upgrade                            Required to confirm a major version update for MongoDb to version 7
   --kafka-namespace KAFKA_NAMESPACE               Namespace where Kafka operator and instances will be updated
   --kafka-provider {redhat,strimzi}               The type of Kakfa operator installed in the target namespace for updte
-
-UDS to DRO Migration:
-  --dro-migration DRO_MIGRATION                   Required to confirm the migration from IBM User Data Services (UDS) to IBM Data Reporter Operator (DRO)
-  --dro-storage-class DRO_STORAGE_CLASS           Set Custom RWO Storage Class name for DRO as part of the update
-  --dro-namespace DRO_NAMESPACE                   Set Custom Namespace for DRO(Default: redhat-marketplace)
 
 More:
   --no-confirm                                    Launch the upgrade without prompting for confirmation
@@ -378,8 +373,6 @@ More:
 <p>Each version of the IBM Maximo Operator Catalog is certified compatible with a specific version of IBM Cloud Pak for Data (CP4D), it is not recommended to diverge from this compatible version because CP4D versioning is very brittle and even a small patch update to one of its services can create incompatibilities elsewhere.</p>
 <h3 id="automatic-migrations">Automatic Migrations<a class="headerlink" href="#automatic-migrations" title="Permanent link">¤</a></h3>
 <p>Sometimes MAS dependencies go out of support and there is a need to migrate to an alternative, the MAS update function is designed to handle these migrations automatically, giving customers the benefit of a fully automated, well-testing, migration path that they can rely on because it's the same migration path used by IBM internally and all other MAS customers.</p>
-<h4 id="uds-to-dro-migration">UDS to DRO Migration<a class="headerlink" href="#uds-to-dro-migration" title="Permanent link">¤</a></h4>
-<p>In November 2023 it was announced that IBM User Data Services (UDS) was being sunset, to be replaced by IBM Data Reporter Operator (DRO).  MAS customers updating from a catalog older than <strong>February 2024</strong> will see UDS uninstalled, DRO installed, and all MAS instances in the cluster automatically migrated to use the new DRO instance.</p>
 <h4 id="ibm-certificate-manager">IBM Certificate Manager<a class="headerlink" href="#ibm-certificate-manager" title="Permanent link">¤</a></h4>
 <p>IBM Certificate-Manager is deprecated, its replacement is Red Hat Certificate-Manager.  MAS customers updating from catalogs prior to <strong>January 2024</strong> will see IBM Certificate-Manager uninstalled, Red Hat Certificate-Manager installed, and all MAS instances automatically reconfigured to use the latter.</p>
 <h4 id="grafana-operator-v4">Grafana Operator v4<a class="headerlink" href="#grafana-operator-v4" title="Permanent link">¤</a></h4>
@@ -394,7 +387,7 @@ More:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-11-12 15:23:38.061948+00:00)
+      Built with mkdocs v1.6.1 (2025-11-16 19:47:12.490551+00:00)
     </div> -->
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
