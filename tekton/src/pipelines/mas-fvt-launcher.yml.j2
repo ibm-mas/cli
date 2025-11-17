@@ -866,6 +866,41 @@ spec:
       runAfter:
         - approval-suite-verify
         - approval-manage
+        - name: launchfvt-visualinspection
+      timeout: "0"
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipelinerun_name
+          value: "$(params.mas_instance_id)-fvt-visualinspection"
+      taskRef:
+        kind: Task
+        name: mas-launchfvt-visualinspection
+      when:
+        - input: $(params.launchfvt_visualinspection)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - waitfor-visualinspection
+
+    - name: approval-visualinspection
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: approval-app-cfg-visualinspection
+        - name: configmap_value
+          value: approved
+      when:
+        - input: $(params.sync_with_install)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - launchfvt-visualinspection
 
     # 11. Application FVT - Facilities
     # -------------------------------------------------------------------------
@@ -887,7 +922,7 @@ spec:
         # Escape route
         - name: escape_configmap_name
           value: sync-install
-        # 25 retries at 5 minute intervals = 2 hours
+        # 100 retries at 5 minute intervals = 2 hours
         - name: delay
           value: "300"
         - name: max_retries
@@ -940,42 +975,6 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-facilities
-
-    - name: launchfvt-visualinspection
-      timeout: "0"
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipelinerun_name
-          value: "$(params.mas_instance_id)-fvt-visualinspection"
-      taskRef:
-        kind: Task
-        name: mas-launchfvt-visualinspection
-      when:
-        - input: $(params.launchfvt_visualinspection)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - waitfor-visualinspection
-
-    - name: approval-visualinspection
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-devops-update-configmap
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: configmap_name
-          value: approval-app-cfg-visualinspection
-        - name: configmap_value
-          value: approved
-      when:
-        - input: $(params.sync_with_install)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - launchfvt-visualinspection
 
     # 11. IVT
     # -------------------------------------------------------------------------
@@ -1032,6 +1031,7 @@ spec:
         - approval-predict # Infers Manage, Monitor and IoT completed
         - approval-visualinspection
         - launchivt-manage
+        - approval-facilities
 
     # Day 2 activity FVT
     # -------------------------------------------------------------------------
