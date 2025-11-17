@@ -77,9 +77,9 @@ spec:
       - name: EFS_VPC_ID
         value: $(params.efs_vpc_id)
       - name: EFS_SOURCE
-        value: ${params.efs_source}
+        value: $(params.efs_source)
       - name: EFS_CREATION_TOKEN
-        value: ${params.efs_creation_token}
+        value: $(params.efs_creation_token)
       - name: EFS_PERFORMANCE_MODE
         value: $(params.efs_performance_mode)
       - name: EFS_MOUNT_COUNT
