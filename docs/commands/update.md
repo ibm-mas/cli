@@ -30,11 +30,6 @@ Update Dependencies:
   --kafka-namespace KAFKA_NAMESPACE               Namespace where Kafka operator and instances will be updated
   --kafka-provider {redhat,strimzi}               The type of Kakfa operator installed in the target namespace for updte
 
-UDS to DRO Migration:
-  --dro-migration DRO_MIGRATION                   Required to confirm the migration from IBM User Data Services (UDS) to IBM Data Reporter Operator (DRO)
-  --dro-storage-class DRO_STORAGE_CLASS           Set Custom RWO Storage Class name for DRO as part of the update
-  --dro-namespace DRO_NAMESPACE                   Set Custom Namespace for DRO(Default: redhat-marketplace)
-
 More:
   --no-confirm                                    Launch the upgrade without prompting for confirmation
   --skip-pre-check                                Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline
@@ -63,12 +58,8 @@ For Kafka things work pretty much the same; although the version of the operator
 #### IBM Cloud Pak for Data
 Each version of the IBM Maximo Operator Catalog is certified compatible with a specific version of IBM Cloud Pak for Data (CP4D), it is not recommended to diverge from this compatible version because CP4D versioning is very brittle and even a small patch update to one of its services can create incompatibilities elsewhere.
 
-
 ### Automatic Migrations
 Sometimes MAS dependencies go out of support and there is a need to migrate to an alternative, the MAS update function is designed to handle these migrations automatically, giving customers the benefit of a fully automated, well-testing, migration path that they can rely on because it's the same migration path used by IBM internally and all other MAS customers.
-
-#### UDS to DRO Migration
-In November 2023 it was announced that IBM User Data Services (UDS) was being sunset, to be replaced by IBM Data Reporter Operator (DRO).  MAS customers updating from a catalog older than **February 2024** will see UDS uninstalled, DRO installed, and all MAS instances in the cluster automatically migrated to use the new DRO instance.
 
 #### IBM Certificate Manager
 IBM Certificate-Manager is deprecated, its replacement is Red Hat Certificate-Manager.  MAS customers updating from catalogs prior to **January 2024** will see IBM Certificate-Manager uninstalled, Red Hat Certificate-Manager installed, and all MAS instances automatically reconfigured to use the latter.
