@@ -13,6 +13,7 @@ When no options are specified on the command line, interactive-mode will be enab
 
 Basic Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                    Account name that the cluster belongs to
+  -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                    Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}          MAS Instance ID
 
 Secrets Manager:
@@ -75,6 +76,10 @@ function gitops_iac_noninteractive() {
       -a|--account-id)
         export ACCOUNT_ID=$1 && shift
         ;;
+      -c|--cluster-id)
+        export CLUSTER_ID=$1 && shift
+        export CLUSTER_NAME=$1  # For backward compatibility
+        ;;
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
@@ -102,7 +107,7 @@ function gitops_iac_noninteractive() {
       --efs-source)
         export EFS_SOURCE=$1 && shift
         ;;
-      --efs-creation_token)
+      --efs-creation-token)
         export EFS_CREATION_TOKEN=$1 && shift
         ;;
       --efs-performance-mode)
@@ -177,6 +182,7 @@ function gitops_iac_noninteractive() {
   # Validate required parameters
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_iac_help "GITOPS_WORKING_DIR is not set"
   [[ -z "$ACCOUNT_ID" ]] && gitops_iac_help "ACCOUNT_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_iac_help "CLUSTER_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_iac_help "MAS_INSTANCE_ID is not set"
   [[ -z "$REGION_ID" && -z "$SM_AWS_REGION" ]] && gitops_iac_help "REGION_ID or SM_AWS_REGION is not set"
   [[ -z "$CLUSTER_URL" ]] && gitops_iac_help "CLUSTER_URL is not set"
@@ -221,6 +227,7 @@ function gitops_iac() {
   echo_h2 "Target" "    "
   echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Region ID ...................... ${COLOR_MAGENTA}${REGION_ID}"
+  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
@@ -270,7 +277,7 @@ function gitops_iac() {
   sm_login
 
   # Build secrets prefix
-  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_NAME}${SECRETS_KEY_SEPERATOR}"
+  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
 
   # Define secret keys for EFS/IAC (adjust based on your actual secret structure)
   export SECRET_KEY_AWS_ACCESS_KEY=${SECRETS_PREFIX}aws#aws_access_key_id

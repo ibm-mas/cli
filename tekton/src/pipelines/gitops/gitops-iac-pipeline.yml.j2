@@ -88,10 +88,12 @@ spec:
           value: $(params.avp_aws_secret_region)
         - name: efs_vpc_id
           value: $(params.efs_vpc_id)
+{% raw %}
         - name: efs_source
           value: $(params.efs_source)
         - name: efs_creation_token
           value: $(params.efs_creation_token)
+{% endraw %}
         - name: efs_performance_mode
           value: $(params.efs_performance_mode)
         - name: efs_mount_count
