@@ -302,7 +302,7 @@ function gitops_iac_efs() {
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-      git_auto_pr_single_threaded $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITHUB_TOKEN $GITOPS_WORKING_DIR
+      git_auto_pr_single_threaded $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
 
