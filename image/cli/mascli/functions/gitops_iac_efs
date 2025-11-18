@@ -7,7 +7,7 @@ function gitops_iac_help() {
 
 
 Usage:
-  mas gitops-iac [options]
+  mas gitops-iac-efs [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
@@ -50,7 +50,7 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_iac_noninteractive() {
+function gitops_iac_efs_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-iac commit"
@@ -108,7 +108,7 @@ function gitops_iac_noninteractive() {
         export EFS_SOURCE=$1 && shift
         ;;
       --efs-creation-token)
-        export EFS_CREATION_TOKEN=$1 && shift
+        export gitops_iac_efs_help=$1 && shift
         ;;
       --efs-performance-mode)
         export EFS_PERFORMANCE_MODE=$1 && shift
@@ -201,15 +201,15 @@ function gitops_iac_noninteractive() {
   [[ -z "$EFS_WORKER_SUBNET_ID_LIST" ]] && gitops_iac_help "EFS_WORKER_SUBNET_ID_LIST is not set. Please provide worker subnet ID list using --efs-worker-subnet-id-list"
 }
 
-function gitops_iac() {
+function gitops_iac_efs() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_iac_noninteractive "$@"
+    gitops_iac_efs_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
-    gitops_iac_interactive
+    gitops_iac_efs_interactive
   fi
 
   # catch errors
@@ -261,7 +261,7 @@ function gitops_iac() {
   echo_h2 "EFS Configuration" "    "
   echo_reset_dim "SOURCE ......................... ${COLOR_MAGENTA}${EFS_SOURCE}"
   echo_reset_dim "VPC ID ......................... ${COLOR_MAGENTA}${EFS_VPC_ID}"
-  echo_reset_dim "CREATION TOKEN ......................... ${COLOR_MAGENTA}${EFS_CREATION_TOKEN}"
+  echo_reset_dim "CREATION TOKEN ......................... ${COLOR_MAGENTA}${gitops_iac_efs_help}"
   echo_reset_dim "Performance Mode ............... ${COLOR_MAGENTA}${EFS_PERFORMANCE_MODE}"
   echo_reset_dim "Mount Count .................... ${COLOR_MAGENTA}${EFS_MOUNT_COUNT}"
   echo_reset_dim "Lifecycle Policy (IA) .......... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA}"
