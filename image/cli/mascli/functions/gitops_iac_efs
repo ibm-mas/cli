@@ -108,7 +108,7 @@ function gitops_iac_efs_noninteractive() {
         export EFS_SOURCE=$1 && shift
         ;;
       --efs-creation-token)
-        export gitops_iac_efs_help=$1 && shift
+        export EFS_CREATION_TOKEN=$1 && shift
         ;;
       --efs-performance-mode)
         export EFS_PERFORMANCE_MODE=$1 && shift
@@ -261,7 +261,7 @@ function gitops_iac_efs() {
   echo_h2 "EFS Configuration" "    "
   echo_reset_dim "SOURCE ......................... ${COLOR_MAGENTA}${EFS_SOURCE}"
   echo_reset_dim "VPC ID ......................... ${COLOR_MAGENTA}${EFS_VPC_ID}"
-  echo_reset_dim "CREATION TOKEN ......................... ${COLOR_MAGENTA}${gitops_iac_efs_help}"
+  echo_reset_dim "CREATION TOKEN ......................... ${COLOR_MAGENTA}${EFS_CREATION_TOKEN}"
   echo_reset_dim "Performance Mode ............... ${COLOR_MAGENTA}${EFS_PERFORMANCE_MODE}"
   echo_reset_dim "Mount Count .................... ${COLOR_MAGENTA}${EFS_MOUNT_COUNT}"
   echo_reset_dim "Lifecycle Policy (IA) .......... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA}"
@@ -272,19 +272,6 @@ function gitops_iac_efs() {
   echo_reset_dim "Worker Subnet ID List .......... ${COLOR_MAGENTA}${EFS_WORKER_SUBNET_ID_LIST}"
   echo_reset_dim "Encrypted ...................... ${COLOR_MAGENTA}${EFS_ENCRYPTED}"
   reset_colors
-
-  AVP_TYPE=aws  # Support for IBM will be added later
-  sm_login
-
-  # Build secrets prefix
-  SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
-
-  # Define secret keys for EFS/IAC (adjust based on your actual secret structure)
-  export SECRET_KEY_AWS_ACCESS_KEY=${SECRETS_PREFIX}aws#aws_access_key_id
-  export SECRET_KEY_AWS_SECRET_KEY=${SECRETS_PREFIX}aws#aws_secret_access_key
-
-  # Verify secrets exist
-  sm_verify_secret_exists ${SECRETS_PREFIX}aws "aws_access_key_id,aws_secret_access_key"
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
