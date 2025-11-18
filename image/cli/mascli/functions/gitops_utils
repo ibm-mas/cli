@@ -755,7 +755,7 @@ function git_auto_pr_single_threaded() {
       exit 1
   fi
 
-  save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $LOCAL_DIR $GIT_COMMIT_MSG}
+  save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $LOCAL_DIR $GIT_COMMIT_MSG
 
 
 #  # === Common headers ===
