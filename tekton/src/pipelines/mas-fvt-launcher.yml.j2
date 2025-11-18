@@ -866,7 +866,8 @@ spec:
       runAfter:
         - approval-suite-verify
         - approval-manage
-        - name: launchfvt-visualinspection
+
+    - name: launchfvt-visualinspection
       timeout: "0"
       params:
         - name: image_pull_policy
@@ -901,6 +902,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - launchfvt-visualinspection
+
 
     # 11. Application FVT - Facilities
     # -------------------------------------------------------------------------
