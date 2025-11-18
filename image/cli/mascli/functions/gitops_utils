@@ -728,20 +728,27 @@ function git_auto_pr_single_threaded() {
   cd $LOCAL_DIR
 
   #GITHUB_HOST="https://api.github.ibm.com"
-
+  echo "In Create single threaded PR method "
   # === Derived URLs ===
   REPO_URL="$GITHUB_HOST/repos/${GITHUB_ORG}/${GITHUB_REPO}"
   PR_LIST_URL="${REPO_URL}/pulls?state=open"
   CREATE_PR_URL="${REPO_URL}/pulls"
+  echo "Repo URL "${REPO_URL}
+  echo "PR_LIST_URL "${PR_LIST_URL}
+  echo "CREATE_PR_URL "${CREATE_PR_URL}
+
 
   # === Common headers ===
   AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
   ACCEPT_HEADER="Accept: application/vnd.github+json"
 
+
   # === 1 Check for ANY existing open PRs ===
   echo "Checking for existing open PRs..."
 
   PR_LIST_RESP=$(curl -s -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" "$PR_LIST_URL")
+
+  echo "PR_LIST_RESP "${PR_LIST_RESP}
 
   # Validate response
   if [[ $? -ne 0 ]]; then
@@ -751,6 +758,8 @@ function git_auto_pr_single_threaded() {
 
   # Count open PRs
   OPEN_COUNT=$(echo "$PR_LIST_RESP" | jq '. | length')
+
+  echo "OPEN_COUNT "${OPEN_COUNT}
 
   if [[ "$OPEN_COUNT" -gt 0 ]]; then
     echo "There is already at least one open PR in the repository. Skipping creation."
