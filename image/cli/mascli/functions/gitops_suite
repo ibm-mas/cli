@@ -26,8 +26,7 @@ MongoDb Provider Selection (Required):
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws' or 'yaml')
 
 IBM Suite License Service:
-  -s, --sls-sls-service      ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}        STANDALONE_SLS_SERVICE        
-  -i, --ibm-customer-number     ${COLOR_YELLOW}ICN${TEXT_RESET}                         IBM CUSTOMER NUMBER
+  -s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}        STANDALONE_SLS_SERVICE        
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
       --sls-install-plan ${COLOR_YELLOW}SLS_INSTALL_PLAN${TEXT_RESET}  IBM Suite License Service Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
 
@@ -143,9 +142,11 @@ function gitops_suite_noninteractive() {
         CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
         IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
         ICN="${PARTS[3]}"
+        SAAS_SUB_ID="${PARTS[4]}"
   fi    
    
   export ICN=${ICN:-""}
+  export SAAS_SUB_ID=${SAAS_SUB_ID:-""}
 
 
   while [[ $# -gt 0 ]]
@@ -169,10 +170,6 @@ function gitops_suite_noninteractive() {
       --custom-labels)
         export CUSTOM_LABELS=$1 && shift
         ;;
-      -i|--ibm-customer-number)
-        export ICN=$1 && shift
-        ;;
-
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
         export SM_AWS_REGION=$1
