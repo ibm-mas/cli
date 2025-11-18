@@ -308,5 +308,6 @@ function gitops_iac_efs() {
 
   rm -rf $TEMP_DIR
 
+
   exit 0
 }
