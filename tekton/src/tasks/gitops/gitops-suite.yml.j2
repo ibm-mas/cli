@@ -142,7 +142,7 @@ spec:
     - name: extensions
       type: string
       default: "false"
-    - name: sls_sls_service
+    - name: sls_service
       type: string
       default: ""
   stepTemplate:
@@ -257,7 +257,7 @@ spec:
       - name: EXTENSIONS
         value: $(params.extensions)
       - name: STANDALONE_SLS_SERVICE
-        value: $(params.sls_sls_service)
+        value: $(params.sls_service)
 
     envFrom:
       - configMapRef:

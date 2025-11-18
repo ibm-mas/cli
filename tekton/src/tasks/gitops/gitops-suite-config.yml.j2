@@ -47,7 +47,7 @@ spec:
     - name: smtp_config_ca_certificate_file
       type: string
       default: ""
-    - name: sls_sls_service
+    - name: sls_service
       type: string
       default: ""
   stepTemplate:
@@ -92,7 +92,7 @@ spec:
       - name: SMTP_CONFIG_CA_CERTIFICATE_FILE
         value: $(params.smtp_config_ca_certificate_file)
       - name: STANDALONE_SLS_SERVICE
-        value: $(params.sls_sls_service)
+        value: $(params.sls_service)
     envFrom:
       - configMapRef:
           name: environment-properties
