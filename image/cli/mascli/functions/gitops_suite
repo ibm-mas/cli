@@ -137,7 +137,7 @@ function gitops_suite_noninteractive() {
 
   # cert-manager namespace, in case redhat default value is cert-manager
   export CERT_MANAGER_NAMESPACE=${CERT_MANAGER_NAMESPACE:-"cert-manager"}
-  
+
   if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
         CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
         IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
@@ -170,6 +170,7 @@ function gitops_suite_noninteractive() {
       --custom-labels)
         export CUSTOM_LABELS=$1 && shift
         ;;
+
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
         export SM_AWS_REGION=$1
@@ -494,8 +495,6 @@ function gitops_suite() {
   echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
   echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "Instance Config Directory ...... ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
-
-
   reset_colors
 
   echo "${TEXT_DIM}"
