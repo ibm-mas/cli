@@ -171,6 +171,8 @@ def test_install_interactive(tmpdir):
                     return f'{tmpdir}/authorized_entitlement.lic'
                 if re.match('.*Operational Mode.*', message):
                     return '1'
+                if re.match('.*Use the auto-detected storage classes.*', message):
+                    return 'y'
                 if re.match('.*Install Minio.*', message):
                     return 'y'
                 if re.match('.*RSL url.*', message):
