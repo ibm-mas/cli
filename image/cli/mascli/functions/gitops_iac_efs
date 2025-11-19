@@ -217,7 +217,7 @@ function gitops_iac_efs() {
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${SM_AWS_REGION}/instances/${MAS_INSTANCE_ID}
 
   echo
   reset_colors
@@ -295,7 +295,7 @@ function gitops_iac_efs() {
   echo "- IAC Base Config"
 
   echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/ibm-iac-efs.yaml"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-iac-efs.yaml
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
 
   # Commit and push to github target repo with PR creation
   # ---------------------------------------------------------------------------
