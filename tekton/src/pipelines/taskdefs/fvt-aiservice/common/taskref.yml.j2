@@ -9,6 +9,9 @@ when:
   - input: "$(params.aiservice_channel)"
     operator: notin
     values: [""]
+  - input: "$(params.aiservice_model_versions)"
+    operator: notin
+    values: [""]
 workspaces:
   - name: configs
     workspace: shared-configs
