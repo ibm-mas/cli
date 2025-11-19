@@ -31,10 +31,6 @@ spec:
       type: string
       description: Optional. Used to uninstall Cert Manager
       default: "none"
-    - name: common_services_action
-      type: string
-      description: Optional. Used to uninstall IBM Common Services
-      default: "none"
     - name: ibm_catalogs_action
       type: string
       description: Optional. Used to uninstall IBM Catalogs
@@ -311,7 +307,7 @@ spec:
         - uninstall-mongodb
 
 
-    # 6. Uninstall IBM Cert Manager
+    # 6. Uninstall Cert Manager
     # -------------------------------------------------------------------------
     - name: uninstall-cert-manager
       timeout: "0"
@@ -335,29 +331,7 @@ spec:
         - uninstall-dro
 
 
-    # 7. Uninstall IBM Common Services
-    # -------------------------------------------------------------------------
-    - name: uninstall-common-services
-      timeout: "0"
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: common_services_action
-          value: $(params.common_services_action)
-        - name: devops_suite_name
-          value: dependencies-common-services-uninstall
-      taskRef:
-        kind: Task
-        name: mas-devops-common-services
-      when:
-        - input: "$(params.common_services_action)"
-          operator: in
-          values: ["uninstall"]
-      runAfter:
-        - uninstall-cert-manager
-
-
-    # 8. Uninstall IBM Catalogs
+    # 7. Uninstall IBM Catalogs
     # -------------------------------------------------------------------------
     - name: uninstall-ibm-catalogs
       timeout: "0"
@@ -376,10 +350,10 @@ spec:
           operator: in
           values: ["uninstall"]
       runAfter:
-        - uninstall-common-services
+        - uninstall-cert-manager
 
 
-    # 9. Uninstall Grafana
+    # 8. Uninstall Grafana
     # -------------------------------------------------------------------------
     - name: uninstall-grafana
       timeout: "0"
