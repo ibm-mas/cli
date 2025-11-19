@@ -26,7 +26,7 @@
           - "pipelinerun_name .................. {{ pipelinerun_name }}"
           - "pipelinerun_namespace ............. {{ pipelinerun_namespace }}"
           - ""
-          - "mas_app_channel_facilities ........... {{ mas_app_channel_facilities }}"
+          - "mas_app_channel_facilities ........ {{ mas_app_channel_facilities }}"
           - "mas_instance_id ................... {{ mas_instance_id }}"
           - "mas_workspace_id .................. {{ mas_workspace_id }}"
           - ""

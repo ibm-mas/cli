@@ -939,8 +939,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - approval-monitor
-        - approval-manage
+        - approval-suite-verify
 
     - name: launchfvt-facilities
       timeout: "0"
