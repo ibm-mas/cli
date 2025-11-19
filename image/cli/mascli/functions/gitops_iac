@@ -306,7 +306,7 @@ function gitops_iac() {
 
     echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/ibm-iac-efs.yaml"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
-    GIT_COMMIT_MSG ="$GIT_COMMIT_MSG-efs"
+    GIT_COMMIT_MSG="$(GIT_COMMIT_MSG)-efs"
   fi
 
   # Commit and push to github target repo with PR creation
