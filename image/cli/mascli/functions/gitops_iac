@@ -201,7 +201,7 @@ function gitops_iac_efs_noninteractive() {
   [[ -z "$EFS_WORKER_SUBNET_ID_LIST" ]] && gitops_iac_help "EFS_WORKER_SUBNET_ID_LIST is not set. Please provide worker subnet ID list using --efs-worker-subnet-id-list"
 }
 
-function gitops_iac_efs() {
+function gitops_iac() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
@@ -288,7 +288,6 @@ function gitops_iac_efs() {
   fi
   mkdir -p ${GITOPS_CLUSTER_DIR}
 
-  # Generate ArgoApps
   # ---------------------------------------------------------------------------
   echo
   echo_h2 "Generating IAC/EFS Configuration"

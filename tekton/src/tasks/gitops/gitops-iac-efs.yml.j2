@@ -115,7 +115,7 @@ spec:
         git config --global user.password $GITHUB_PAT
 
         mkdir -p /tmp/init-iac
-        mas gitops-iac-efs -a $ACCOUNT -c $CLUSTER_NAME \
+        mas gitops-iac -a $ACCOUNT -c $CLUSTER_NAME \
         --secrets-path $SECRET_PATH \
         --dir /tmp/init-iac \
         --github-push \
@@ -128,7 +128,7 @@ spec:
       command:
         - /bin/sh
         - -c
-      name: gitops-iac-efs
+      name: gitops-iac
       imagePullPolicy: IfNotPresent
       image: quay.io/ibmmas/cli:latest
   workspaces:
