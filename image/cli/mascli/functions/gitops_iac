@@ -50,7 +50,7 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-function gitops_iac_efs_noninteractive() {
+function gitops_iac_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-iac commit"
@@ -205,7 +205,7 @@ function gitops_iac() {
   # Take the first parameter off (it will be create-gitops)
   shift
   if [[ $# -gt 0 ]]; then
-    gitops_iac_efs_noninteractive "$@"
+    gitops_iac_noninteractive "$@"
   else
     echo "Not supported yet"
     exit 1
