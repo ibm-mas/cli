@@ -714,203 +714,77 @@ function save_and_unlock_target_git_repo {
 
 }
 
-# Commits changes to a new branch and creates a PR using GitHub API
-# Uses GITHUB_PAT for authentication (consistent with other git operations)
-# Only creates PR if no open PRs exist in the repository
-# 
-# Parameters:
-#   $1 - GITHUB_HOST (e.g., "github.com")
-#   $2 - GITHUB_ORG
-#   $3 - GITHUB_REPO
-#   $4 - BASE_BRANCH (e.g., "main")
-#   $5 - LOCAL_DIR (path to local repo clone)
-#   $6 - COMMIT_MSG
-#   $7 - PR_BRANCH_PREFIX (optional, default: "gitops-update")
-#
-# Example usage:
-#   git_commit_and_create_pr_if_none_exist \
-#     "github.com" \
-#     "ibm-mas" \
-#     "gitops-config" \
-#     "main" \
-#     "/tmp/working-dir/gitops-config" \
-#     "Update IAC EFS configuration" \
-#     "iac-efs-update"
-function git_commit_and_create_pr_if_none_exist() {
+# This func first checks whether any open PR already exists in the target repository — if yes, it lists them and exits without creating a new one.
+# If no open PRs are found, it automatically creates a new PR from the specified branch to the main branch.
+# It uses curl for API calls and jq for parsing JSON responses.
+# Call it this way git_auto_pr_single_threaded $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITHUB_TOKEN $GITOPS_WORKING_DIR
+function git_auto_pr_single_threaded() {
   GITHUB_HOST=$1
   GITHUB_ORG=$2
   GITHUB_REPO=$3
-  BASE_BRANCH=$4
-  LOCAL_DIR="$5"
-  COMMIT_MSG="$6"
-  PR_BRANCH_PREFIX=${7:-"gitops-update"}
+  GIT_BRANCH=$4
+  GITHUB_TOKEN=$5
+  LOCAL_DIR=$6
+  cd $LOCAL_DIR
 
-  CURRENT_DIR=$PWD
+  #GITHUB_HOST="https://api.github.ibm.com"
 
-  echo ""
-  echo "$(logts) git_commit_and_create_pr_if_none_exist"
-  echo "================================================="
-  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}"
-  echo "Base Branch: ${BASE_BRANCH}"
-  echo "Local Directory: ${LOCAL_DIR}"
-  echo "Commit Message: ${COMMIT_MSG}"
+  # === Derived URLs ===
+  REPO_URL="$GITHUB_HOST/repos/${GITHUB_ORG}/${GITHUB_REPO}"
+  PR_LIST_URL="${REPO_URL}/pulls?state=open"
+  CREATE_PR_URL="${REPO_URL}/pulls"
 
-  cd "$LOCAL_DIR" || exit 1
+  # === Common headers ===
+  AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
+  ACCEPT_HEADER="Accept: application/vnd.github+json"
 
-  # Step 1: Check for existing open PRs using GitHub API
-  echo ""
-  echo "$(logts) Checking for existing open PRs..."
-  echo "-------------------------------------------------"
-  
-  if [[ -z "${GITHUB_PAT}" ]]; then
-    echo "❌ Error: GITHUB_PAT environment variable is not set"
-    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token"
+  # === 1 Check for ANY existing open PRs ===
+  echo "Checking for existing open PRs..."
+
+  PR_LIST_RESP=$(curl -s -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" "$PR_LIST_URL")
+
+  # Validate response
+  if [[ $? -ne 0 ]]; then
+    echo "Failed to fetch PR list."
     exit 1
   fi
 
-  # Use GitHub API to list open PRs
-  API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls?state=open"
-  
-  set +o pipefail
-  OPEN_PRS=$(curl -s -H "Authorization: token ${GITHUB_PAT}" \
-    -H "Accept: application/vnd.github.v3+json" \
-    "${API_URL}")
-  CURL_RC=$?
-  set -o pipefail
+  # Count open PRs
+  OPEN_COUNT=$(echo "$PR_LIST_RESP" | jq '. | length')
 
-  if [[ $CURL_RC -ne 0 ]]; then
-    echo "❌ Error: Failed to check for existing PRs (curl returned ${CURL_RC})"
+  if [[ "$OPEN_COUNT" -gt 0 ]]; then
+    echo "There is already at least one open PR in the repository. Skipping creation."
+    echo "Existing open PRs:"
+    echo "$PR_LIST_RESP" | jq -r '.[] | "\(.title) — \(.html_url)"'
+    exit 0
+  fi
+
+  # === 2 Create new PR ===
+  echo "Creating a new PR for branch '${GIT_BRANCH}'..."
+
+  PR_PAYLOAD=$(jq -n \
+    --arg title "Auto PR from ${GIT_BRANCH}" \
+    --arg head "${GIT_BRANCH}" \
+    --arg base "main" \
+    --arg body "This PR was created automatically from branch \`${GIT_BRANCH}\`." \
+    '{title: $title, head: $head, base: $base, body: $body}')
+
+  CREATE_RESP=$(curl -s -w "%{http_code}" -o /tmp/create_pr_response.json \
+    -X POST \
+    -H "$AUTH_HEADER" \
+    -H "$ACCEPT_HEADER" \
+    -d "$PR_PAYLOAD" \
+    "$CREATE_PR_URL")
+
+  if [[ "$CREATE_RESP" == "201" ]]; then
+    PR_URL=$(jq -r '.html_url' /tmp/create_pr_response.json)
+    echo "PR created successfully: $PR_URL"
+  else
+    echo "Failed to create PR (HTTP $CREATE_RESP)"
+    cat /tmp/create_pr_response.json
     exit 1
   fi
-
-  OPEN_PR_COUNT=$(echo "${OPEN_PRS}" | jq '. | length' 2>/dev/null)
-  
-  if [[ -z "${OPEN_PR_COUNT}" || "${OPEN_PR_COUNT}" == "null" ]]; then
-    echo "❌ Error: Failed to parse PR list from GitHub API"
-    echo "Response: ${OPEN_PRS}"
-    exit 1
-  fi
-
-  if [[ "$OPEN_PR_COUNT" -gt 0 ]]; then
-    echo "⚠️  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}"
-    echo "Existing PRs:"
-    echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"'
-    echo ""
-    echo "❌ Skipping PR creation to avoid conflicts."
-    echo "Please merge or close existing PRs first."
-    cd "$CURRENT_DIR"
-    exit 1
-  fi
-
-  echo "✓ No open PRs found, proceeding with changes..."
-
-  # Step 2: Add all changes
-  echo ""
-  echo "$(logts) git add -v ."
-  echo "-------------------------------------------------"
-  FILES_ADDED_OUTPUT="$(git add -v .)"
-  return_code=$?
-  if [ $return_code -ne 0 ]; then
-    echo "❌ git: Add files failed with error: $return_code"
-    exit $return_code
-  fi
-  
-  FILES_ADDED=$(echo "$FILES_ADDED_OUTPUT" | awk NF | wc -l | xargs)
-  echo "git: Added ${FILES_ADDED} files"
-
-  if [ "$FILES_ADDED" == "0" ]; then
-    echo "ℹ️  No changes found, nothing to commit"
-    cd "$CURRENT_DIR"
-    return 0
-  fi
-
-  # Step 3: Create a new branch with timestamp
-  TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-  PR_BRANCH="${PR_BRANCH_PREFIX}-${TIMESTAMP}"
-  
-  echo ""
-  echo "$(logts) git checkout -b ${PR_BRANCH}"
-  echo "-------------------------------------------------"
-  git checkout -b "${PR_BRANCH}" || exit 1
-
-  # Step 4: Commit changes
-  echo ""
-  echo "$(logts) git commit -m \"${COMMIT_MSG}\""
-  echo "-------------------------------------------------"
-  git commit -m "${COMMIT_MSG}" || exit 1
-
-  # Step 5: Push the new branch
-  echo ""
-  echo "$(logts) git push -u origin ${PR_BRANCH}"
-  echo "-------------------------------------------------"
-  git push -u origin "${PR_BRANCH}" || exit 1
-
-  # Step 6: Create PR using GitHub API
-  echo ""
-  echo "$(logts) Creating Pull Request..."
-  echo "-------------------------------------------------"
-  
-  PR_TITLE="GitOps: ${COMMIT_MSG}"
-  PR_BODY="This PR was created automatically by the GitOps IAC workflow.
-
-**Changes:**
-- ${COMMIT_MSG}
-
-**Branch:** \`${PR_BRANCH}\`
-**Target:** \`${BASE_BRANCH}\`
-**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
-Please review and merge when ready."
-
-  # Create PR using GitHub API
-  PR_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls"
-  
-  PR_DATA=$(jq -n \
-    --arg title "${PR_TITLE}" \
-    --arg body "${PR_BODY}" \
-    --arg head "${PR_BRANCH}" \
-    --arg base "${BASE_BRANCH}" \
-    '{title: $title, body: $body, head: $head, base: $base}')
-
-  set +o pipefail
-  PR_RESPONSE=$(curl -s -X POST \
-    -H "Authorization: token ${GITHUB_PAT}" \
-    -H "Accept: application/vnd.github.v3+json" \
-    -H "Content-Type: application/json" \
-    -d "${PR_DATA}" \
-    "${PR_API_URL}")
-  CURL_RC=$?
-  set -o pipefail
-
-  if [[ $CURL_RC -ne 0 ]]; then
-    echo "❌ Failed to create Pull Request (curl returned ${CURL_RC})"
-    exit 1
-  fi
-
-  PR_URL=$(echo "${PR_RESPONSE}" | jq -r '.html_url' 2>/dev/null)
-  PR_NUMBER=$(echo "${PR_RESPONSE}" | jq -r '.number' 2>/dev/null)
-
-  if [[ -z "${PR_URL}" || "${PR_URL}" == "null" ]]; then
-    echo "❌ Failed to create Pull Request"
-    echo "Response: ${PR_RESPONSE}"
-    exit 1
-  fi
-
-  echo ""
-  echo "✅ Pull Request #${PR_NUMBER} created successfully!"
-  echo "URL: ${PR_URL}"
-
-  cd "$CURRENT_DIR"
-  
-  echo ""
-  echo "$(logts) git_commit_and_create_pr_if_none_exist: success"
-  echo "================================================="
 }
-
-
-
-
-
 
 function argocd_login() {
   retries=${1:-20}
