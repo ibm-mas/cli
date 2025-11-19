@@ -1,0 +1,49 @@
+# This block is only created if EFS is enabled
+{% if IS_EFS %}
+data "aws_subnets" "external_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+  filter {
+    name   = "cidr-block"
+    values = "{{CLUSTER_CIDR_WORKLOAD_EXTERNAL}}" // These value should be same as cluster.cidr.workload_external
+  }
+}
+
+data "aws_subnets" "internal_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+  filter {
+    name   = "cidr-block"
+    values = "{{CLUSTER_CIDR_WORKLOAD_INTERNAL}}" // These value should be same as cluster.cidr.workload_internal
+  }
+}
+
+data "aws_subnets" "workload_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+  filter {
+    name   = "cidr-block"
+    values = "{{VPC_CIDR_WORKLOAD_INTERNAL}}"  // These value will be fetched after workload subnets are created under vpc/workload
+  }
+}
+
+ multiple-efs = {
+    efs1 = {
+      name = join("-", ["efs", var.cluster_name, var.instance_name, "manage-db2"])
+    }
+}
+locals {
+    cluster = {
+        "external_subnet_ids" : data.aws_subnets.external_subnets.ids
+        "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
+        worker_subnet_ids = data.aws_subnets.workload_subnets.ids
+    }
+}
+
+{% endif %}
