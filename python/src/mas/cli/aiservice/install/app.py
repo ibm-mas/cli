@@ -847,7 +847,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             else:
                 for storageClass in getStorageClasses(self.dynamicClient):
                     print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-                self.promptForString("Select storage class for DRO PVC:", "dro_storage_class", validator=StorageClassValidator(), validate_while_typing=False)
+                self.params['dro_storage_class'] = prompt("Select storage class for DRO PVC:", validator=StorageClassValidator(), validate_while_typing=False)
 
     @logMethodCall
     def configAppChannel(self, appId):
