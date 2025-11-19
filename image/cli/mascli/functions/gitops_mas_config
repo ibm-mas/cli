@@ -511,7 +511,6 @@ function gitops_mas_config() {
   echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
   echo_reset_dim "System Config Directory ........ ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
-
   reset_colors
 
   echo "${TEXT_DIM}"
