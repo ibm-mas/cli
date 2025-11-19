@@ -101,10 +101,10 @@ function provision_fyre_noninteractive() {
 
       # Cluster Definition - optional
       --enable-fips)
-        OCP_FIPS_ENABLED=true && shift
+        OCP_FIPS_ENABLED=true
         ;;
       --enable-ipv6)
-        ENABLE_IPV6=true && shift
+        ENABLE_IPV6=true
         ;;
 
       # Worker configuration
