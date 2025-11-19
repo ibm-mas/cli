@@ -110,7 +110,7 @@ spec:
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: nl2oslc
+          value: nl2oslc-granite
       runAfter:
         - fvt-aiservice-pcc
         - fvt-aiservice-similarity
@@ -122,7 +122,7 @@ spec:
       params:
         {{ lookup('template', 'taskdefs/fvt-aiservice/common/params.yml.j2') | indent(8) }}
         - name: fvt_test_suite
-          value: nl2oslc
+          value: nl2oslc-gpt-oss
       runAfter:
         - fvt-aiservice-pcc
         - fvt-aiservice-similarity
