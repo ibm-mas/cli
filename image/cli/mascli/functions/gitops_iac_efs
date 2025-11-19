@@ -261,7 +261,7 @@ function gitops_iac_efs() {
   echo_h2 "EFS Configuration" "    "
   echo_reset_dim "SOURCE ......................... ${COLOR_MAGENTA}${EFS_SOURCE}"
   echo_reset_dim "VPC ID ......................... ${COLOR_MAGENTA}${EFS_VPC_ID}"
-  echo_reset_dim "CREATION TOKEN ......................... ${COLOR_MAGENTA}${EFS_CREATION_TOKEN}"
+  echo_reset_dim "CREATION TOKEN ................. ${COLOR_MAGENTA}${EFS_CREATION_TOKEN}"
   echo_reset_dim "Performance Mode ............... ${COLOR_MAGENTA}${EFS_PERFORMANCE_MODE}"
   echo_reset_dim "Mount Count .................... ${COLOR_MAGENTA}${EFS_MOUNT_COUNT}"
   echo_reset_dim "Lifecycle Policy (IA) .......... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA}"
@@ -297,17 +297,30 @@ function gitops_iac_efs() {
   echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/ibm-iac-efs.yaml"
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-iac-efs.yaml
 
-  # Commit and push to github target repo
+  # Commit and push to github target repo with PR creation
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
     echo
-    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-      git_auto_pr_single_threaded $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    echo_h2 "Creating Pull Request for changes in $GITHUB_ORG/$GITHUB_REPO"
+    
+    # Use the new function that checks for existing PRs and creates a new one
+    git_commit_and_create_pr_if_none_exist \
+      "$GITHUB_HOST" \
+      "$GITHUB_ORG" \
+      "$GITHUB_REPO" \
+      "$GIT_BRANCH" \
+      "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" \
+      "${GIT_COMMIT_MSG}" \
+      "iac-efs-update"
+    
+    # Clean up
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
 
   rm -rf $TEMP_DIR
 
+  echo
+  echo_h2 "✅ GitOps IAC EFS Configuration Complete"
 
   exit 0
 }
