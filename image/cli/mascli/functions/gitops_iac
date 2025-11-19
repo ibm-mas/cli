@@ -298,6 +298,12 @@ function gitops_iac() {
   fi
   mkdir -p ${GITOPS_CLUSTER_DIR}
 
+
+  # ---------------------------------------------------------------------------
+  echo "Checking and creating common files if not already present"
+  create_common_files ${GITOPS_CLUSTER_DIR}
+
+
   # ---------------------------------------------------------------------------
   if [[ "$IS_EFS"  == "true" ]]; then
     echo

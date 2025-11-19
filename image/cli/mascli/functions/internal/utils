@@ -361,3 +361,42 @@ function jinjanate_commmon() {
   fi
   jinjanate --quiet --undefined $filter_params $template_path $output_opts
 }
+
+# Go to GITOPS_CLUSTER_DIR
+# check
+# if backend.tf is there or not if not then create
+# if terraform.tfvars is there or not if not then create
+# if variables.tf is there or not if not then create
+# if main.tf is there or not if not then create
+# if provider.tf is there or not if not then create
+function create_common_files() {
+  local cluster_dir=$1
+  
+  if [[ -z "$cluster_dir" ]]; then
+    echo_warning "create_common_files: cluster directory path is required"
+    return 1
+  fi
+  
+  if [[ ! -d "$cluster_dir" ]]; then
+    echo_warning "create_common_files: directory does not exist: $cluster_dir"
+    return 1
+  fi
+  
+  # Change to the cluster directory
+  cd "$cluster_dir" || return 1
+  
+  # List of Terraform files to create if they don't exist
+  local tf_files=("backend.tf" "terraform.tfvars" "variables.tf" "main.tf" "provider.tf")
+  
+  for file in "${tf_files[@]}"; do
+    if [[ ! -f "$file" ]]; then
+      echo "  Creating empty file: $file"
+      touch "$file"
+    else
+      echo "  File already exists: $file"
+    fi
+  done
+  
+  # Return to previous directory
+  cd - > /dev/null || return 1
+}
