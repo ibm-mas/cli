@@ -50,20 +50,25 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
+export IS_EFS=${IS_EFS:-"true"}
+export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"iac update"}
+
 function gitops_iac_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
-  GIT_COMMIT_MSG="gitops-iac commit"
 
   # Set default values
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
-  export EFS_PERFORMANCE_MODE=${EFS_PERFORMANCE_MODE:-"generalPurpose"}
-  export EFS_THROUGHPUT_MODE=${EFS_THROUGHPUT_MODE:-"bursting"}
-  export EFS_ENCRYPTED=${EFS_ENCRYPTED:-"true"}
-  export EFS_MOUNT_COUNT=${EFS_MOUNT_COUNT:-"3"}
-  export EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA=${EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA:-"AFTER_30_DAYS"}
-  export EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS=${EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS:-"AFTER_1_ACCESS"}
 
+  if [[ "$IS_EFS"  == "true" ]]; then
+    export EFS_PERFORMANCE_MODE=${EFS_PERFORMANCE_MODE:-"generalPurpose"}
+    export EFS_THROUGHPUT_MODE=${EFS_THROUGHPUT_MODE:-"bursting"}
+    export EFS_ENCRYPTED=${EFS_ENCRYPTED:-"true"}
+    export EFS_MOUNT_COUNT=${EFS_MOUNT_COUNT:-"3"}
+    export EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA=${EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA:-"AFTER_30_DAYS"}
+    export EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS=${EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS:-"AFTER_1_ACCESS"}
+  fi
+  
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -194,11 +199,14 @@ function gitops_iac_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_iac_help "GIT_BRANCH is not set"
   fi
 
-  # Validate EFS-specific required parameters
-  [[ -z "$EFS_VPC_ID" ]] && gitops_iac_help "EFS_VPC_ID is not set. Please provide the VPC ID using --efs-vpc-id"
-  [[ -z "$EFS_MOUNT_INGRESS_SUBNET_IDS" ]] && gitops_iac_help "EFS_MOUNT_INGRESS_SUBNET_IDS is not set. Please provide ingress subnet IDs using --efs-mount-ingress-subnet-ids"
-  [[ -z "$EFS_MOUNT_EGRESS_SUBNET_IDS" ]] && gitops_iac_help "EFS_MOUNT_EGRESS_SUBNET_IDS is not set. Please provide egress subnet IDs using --efs-mount-egress-subnet-ids"
-  [[ -z "$EFS_WORKER_SUBNET_ID_LIST" ]] && gitops_iac_help "EFS_WORKER_SUBNET_ID_LIST is not set. Please provide worker subnet ID list using --efs-worker-subnet-id-list"
+
+  if [[ "$IS_EFS"  == "true" ]]; then
+    # Validate EFS-specific required parameters
+    [[ -z "$EFS_VPC_ID" ]] && gitops_iac_help "EFS_VPC_ID is not set. Please provide the VPC ID using --efs-vpc-id"
+    [[ -z "$EFS_MOUNT_INGRESS_SUBNET_IDS" ]] && gitops_iac_help "EFS_MOUNT_INGRESS_SUBNET_IDS is not set. Please provide ingress subnet IDs using --efs-mount-ingress-subnet-ids"
+    [[ -z "$EFS_MOUNT_EGRESS_SUBNET_IDS" ]] && gitops_iac_help "EFS_MOUNT_EGRESS_SUBNET_IDS is not set. Please provide egress subnet IDs using --efs-mount-egress-subnet-ids"
+    [[ -z "$EFS_WORKER_SUBNET_ID_LIST" ]] && gitops_iac_help "EFS_WORKER_SUBNET_ID_LIST is not set. Please provide worker subnet ID list using --efs-worker-subnet-id-list"
+  fi
 }
 
 function gitops_iac() {
@@ -257,21 +265,23 @@ function gitops_iac() {
   fi
   reset_colors
 
-  echo "${TEXT_DIM}"
-  echo_h2 "EFS Configuration" "    "
-  echo_reset_dim "SOURCE ......................... ${COLOR_MAGENTA}${EFS_SOURCE}"
-  echo_reset_dim "VPC ID ......................... ${COLOR_MAGENTA}${EFS_VPC_ID}"
-  echo_reset_dim "CREATION TOKEN ................. ${COLOR_MAGENTA}${EFS_CREATION_TOKEN}"
-  echo_reset_dim "Performance Mode ............... ${COLOR_MAGENTA}${EFS_PERFORMANCE_MODE}"
-  echo_reset_dim "Mount Count .................... ${COLOR_MAGENTA}${EFS_MOUNT_COUNT}"
-  echo_reset_dim "Lifecycle Policy (IA) .......... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA}"
-  echo_reset_dim "Lifecycle Policy (Primary) ..... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS}"
-  echo_reset_dim "Throughput Mode ................ ${COLOR_MAGENTA}${EFS_THROUGHPUT_MODE}"
-  echo_reset_dim "Mount Ingress Subnet IDs ....... ${COLOR_MAGENTA}${EFS_MOUNT_INGRESS_SUBNET_IDS}"
-  echo_reset_dim "Mount Egress Subnet IDs ........ ${COLOR_MAGENTA}${EFS_MOUNT_EGRESS_SUBNET_IDS}"
-  echo_reset_dim "Worker Subnet ID List .......... ${COLOR_MAGENTA}${EFS_WORKER_SUBNET_ID_LIST}"
-  echo_reset_dim "Encrypted ...................... ${COLOR_MAGENTA}${EFS_ENCRYPTED}"
-  reset_colors
+  if [[ "$IS_EFS"  == "true" ]]; then
+    echo "${TEXT_DIM}"
+    echo_h2 "EFS Configuration" "    "
+    echo_reset_dim "SOURCE ......................... ${COLOR_MAGENTA}${EFS_SOURCE}"
+    echo_reset_dim "VPC ID ......................... ${COLOR_MAGENTA}${EFS_VPC_ID}"
+    echo_reset_dim "CREATION TOKEN ................. ${COLOR_MAGENTA}${EFS_CREATION_TOKEN}"
+    echo_reset_dim "Performance Mode ............... ${COLOR_MAGENTA}${EFS_PERFORMANCE_MODE}"
+    echo_reset_dim "Mount Count .................... ${COLOR_MAGENTA}${EFS_MOUNT_COUNT}"
+    echo_reset_dim "Lifecycle Policy (IA) .......... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA}"
+    echo_reset_dim "Lifecycle Policy (Primary) ..... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS}"
+    echo_reset_dim "Throughput Mode ................ ${COLOR_MAGENTA}${EFS_THROUGHPUT_MODE}"
+    echo_reset_dim "Mount Ingress Subnet IDs ....... ${COLOR_MAGENTA}${EFS_MOUNT_INGRESS_SUBNET_IDS}"
+    echo_reset_dim "Mount Egress Subnet IDs ........ ${COLOR_MAGENTA}${EFS_MOUNT_EGRESS_SUBNET_IDS}"
+    echo_reset_dim "Worker Subnet ID List .......... ${COLOR_MAGENTA}${EFS_WORKER_SUBNET_ID_LIST}"
+    echo_reset_dim "Encrypted ...................... ${COLOR_MAGENTA}${EFS_ENCRYPTED}"
+    reset_colors
+  fi
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
@@ -289,12 +299,15 @@ function gitops_iac() {
   mkdir -p ${GITOPS_CLUSTER_DIR}
 
   # ---------------------------------------------------------------------------
-  echo
-  echo_h2 "Generating IAC/EFS Configuration"
-  echo "- IAC Base Config"
+  if [[ "$IS_EFS"  == "true" ]]; then
+    echo
+    echo_h2 "Generating IAC/EFS Configuration"
+    echo "- IAC Base Config"
 
-  echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/ibm-iac-efs.yaml"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
+    echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/ibm-iac-efs.yaml"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
+    GIT_COMMIT_MSG ="$GIT_COMMIT_MSG-efs"
+  fi
 
   # Commit and push to github target repo with PR creation
   # ---------------------------------------------------------------------------
@@ -309,14 +322,11 @@ function gitops_iac() {
       "$GITHUB_REPO" \
       "$GIT_BRANCH" \
       "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" \
-      "${GIT_COMMIT_MSG}" \
-      "iac-efs-update"
+      "${GIT_COMMIT_MSG}"
     
     # Clean up
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
-
-  rm -rf $TEMP_DIR
 
   echo
   echo_h2 "✅ GitOps IAC EFS Configuration Complete"

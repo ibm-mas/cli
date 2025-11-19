@@ -816,7 +816,7 @@ function git_commit_and_create_pr_if_none_exist() {
   BASE_BRANCH=$4
   LOCAL_DIR="$5"
   COMMIT_MSG="$6"
-  PR_BRANCH_PREFIX=${7:-"gitops-update"}
+  PR_BRANCH_PREFIX=${7:-"gitops-iac-update"}
 
   CURRENT_DIR=$PWD
 
