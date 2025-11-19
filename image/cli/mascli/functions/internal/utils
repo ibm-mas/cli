@@ -382,21 +382,31 @@ function create_common_files() {
     return 1
   fi
   
-  # Change to the cluster directory
-  cd "$cluster_dir" || return 1
+  # Handle backend.tf with template
+  if [[ ! -f "$cluster_dir/backend.tf" ]]; then
+    echo "  Creating backend.tf from template"
+    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-backendTF.yaml.j2" "$cluster_dir/backend.tf"
+  else
+    echo "  File already exists: backend.tf"
+  fi
   
-  # List of Terraform files to create if they don't exist
-  local tf_files=("backend.tf" "terraform.tfvars" "variables.tf" "main.tf" "provider.tf")
+  # Handle provider.tf with template
+  if [[ ! -f "$cluster_dir/provider.tf" ]]; then
+    echo "  Creating provider.tf from template"
+    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-providerTF.yaml.j2" "$cluster_dir/provider.tf"
+  else
+    echo "  File already exists: provider.tf"
+  fi
   
-  for file in "${tf_files[@]}"; do
-    if [[ ! -f "$file" ]]; then
+  # Create other empty files if they don't exist
+  local empty_tf_files=("terraform.tfvars" "variables.tf" "main.tf")
+  
+  for file in "${empty_tf_files[@]}"; do
+    if [[ ! -f "$cluster_dir/$file" ]]; then
       echo "  Creating empty file: $file"
-      touch "$file"
+      touch "$cluster_dir/$file"
     else
       echo "  File already exists: $file"
     fi
   done
-  
-  # Return to previous directory
-  cd - > /dev/null || return 1
 }
