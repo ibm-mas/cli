@@ -85,6 +85,7 @@ class aiServiceInstallSummarizerMixin():
         self.printParamSummary("First name", "dro_contact_firstname")
         self.printParamSummary("Last name", "dro_contact_lastname")
         self.printParamSummary("Install Namespace", "dro_namespace")
+        self.printParamSummary("Storage Class", "dro_storage_class")
 
     def slsSummary(self) -> None:
         self.printH2("IBM Suite License Service")
