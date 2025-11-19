@@ -313,12 +313,18 @@ function gitops_iac() {
     export CLUSTER_CIDR_WORKLOAD_EXTERNAL='["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]'
     export CLUSTER_CIDR_WORKLOAD_INTERNAL='["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]'
     export VPC_CIDR_WORKLOAD_INTERNAL='["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]'
+    export CLUSTER_NAME='mas-cluster-4'
+    export INSTANCE_NAME='inst4'
+    export VPC_NAME='mas-mcsp-7'
 
     echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-mainTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
 
     echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/efs.tf"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
+
+    echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
 
     echo $GIT_COMMIT_MSG
     GIT_COMMIT_MSG="${GIT_COMMIT_MSG}-efs"
