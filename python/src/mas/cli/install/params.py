@@ -21,9 +21,9 @@ requiredParams = [
     # Entitlement
     "ibm_entitlement_key",
     # DRO
-    "uds_contact_email",
-    "uds_contact_firstname",
-    "uds_contact_lastname"
+    "dro_contact_email",
+    "dro_contact_firstname",
+    "dro_contact_lastname"
 ]
 
 optionalParams = [
@@ -37,6 +37,7 @@ optionalParams = [
     "mas_superuser_username",
     "mas_superuser_password",
     "mas_trust_default_cas",
+    "mas_routing_mode",
     "mas_app_settings_server_bundles_size",
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",

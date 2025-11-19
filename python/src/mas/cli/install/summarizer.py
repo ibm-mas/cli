@@ -76,6 +76,9 @@ class InstallSummarizerMixin():
                 pass
 
         print()
+        self.printParamSummary("Network Routing Mode", "mas_routing_mode")
+
+        print()
         self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
 
         if self.getParam("mas_manual_cert_mgmt") != "":
@@ -273,9 +276,9 @@ class InstallSummarizerMixin():
 
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")
-        self.printParamSummary("Contact e-mail", "uds_contact_email")
-        self.printParamSummary("First name", "uds_contact_firstname")
-        self.printParamSummary("Last name", "uds_contact_lastname")
+        self.printParamSummary("Contact e-mail", "dro_contact_email")
+        self.printParamSummary("First name", "dro_contact_firstname")
+        self.printParamSummary("Last name", "dro_contact_lastname")
         self.printParamSummary("Install Namespace", "dro_namespace")
 
     def slsSummary(self) -> None:

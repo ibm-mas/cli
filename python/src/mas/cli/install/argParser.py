@@ -160,6 +160,13 @@ masAdvancedArgGroup.add_argument(
     const="false"
 )
 masAdvancedArgGroup.add_argument(
+    "--routing",
+    dest="mas_routing_mode",
+    required=False,
+    help="Configure MAS with path or subdomain routing",
+    choices=["path", "subdomain"]
+)
+masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
     help="Path to directory containing the certificates to be applied"
@@ -317,20 +324,23 @@ slsArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 droArgGroup = installArgParser.add_argument_group("IBM Data Reporting Operator (DRO)")
 droArgGroup.add_argument(
+    "--contact-email",
     "--uds-email",
-    dest="uds_contact_email",
+    dest="dro_contact_email",
     required=False,
     help="Contact e-mail address"
 )
 droArgGroup.add_argument(
+    "--contact-firstname",
     "--uds-firstname",
-    dest="uds_contact_firstname",
+    dest="dro_contact_firstname",
     required=False,
     help="Contact first name"
 )
 droArgGroup.add_argument(
+    "--contact-lastname",
     "--uds-lastname",
-    dest="uds_contact_lastname",
+    dest="dro_contact_lastname",
     required=False,
     help="Contact last name"
 )
