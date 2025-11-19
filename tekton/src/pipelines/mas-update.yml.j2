@@ -131,10 +131,6 @@ spec:
       type: string
       default: ""
       description: Flag that determines if Analytics Engine must be upgraded
-    - name: cp4d_update_spss
-      type: string
-      default: ""
-      description: Flag that determines if SPSS Modeler must be upgraded
     - name: cp4d_update_cognos
       type: string
       default: ""
@@ -304,12 +300,7 @@ spec:
       runAfter:
         - update-cp4d
 
-    # 5.5 SPSS Statistics
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-spss-update.yml.j2') | indent(4) }}
-      runAfter:
-        - update-cp4d
-
-    # 5.6 Cognos Analytics
+    # 5.5 Cognos Analytics
     {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cp4d
@@ -329,7 +320,6 @@ spec:
         - update-watson-studio
         - update-watson-machine-learning
         - update-analytics-engine
-        - update-spss
         - update-cognos
 
   finally:

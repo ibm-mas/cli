@@ -533,8 +533,6 @@ class UpdateApp(BaseApp):
                         self.detectCpdService('WS', 'ws.cpd.ibm.com/v1beta1', 'Watson Studio', "cp4d_update_ws")
                         self.detectCpdService('WmlBase', 'wml.cpd.ibm.com/v1beta1', 'Watson Machine Learning', "cp4d_update_wml")
                         self.detectCpdService('AnalyticsEngine', 'ae.cpd.ibm.com/v1', 'Analytics Engine', "cp4d_update_spark")
-                        self.detectCpdService('WOService', 'wos.cpd.ibm.com/v1', 'Watson Openscale', "cp4d_update_wos")
-                        self.detectCpdService('Spss', 'spssmodeler.cpd.ibm.com/v1', 'SPSS Modeler', "cp4d_update_spss")
                         self.detectCpdService('CAService', 'ca.cpd.ibm.com/v1', 'Cognos Analytics', "cp4d_update_cognos")
                     else:
                         h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) is already installed at version {cpdTargetVersion}")

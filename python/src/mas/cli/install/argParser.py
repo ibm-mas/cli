@@ -713,14 +713,6 @@ cpdAppsArgGroup.add_argument(
     help="Product version of CP4D to use"
 )
 cpdAppsArgGroup.add_argument(
-    "--cp4d-install-spss",
-    dest="cpd_install_spss",
-    required=False,
-    help="Add SPSS Modeler as part of Cloud Pak for Data",
-    action="store_const",
-    const="install"
-)
-cpdAppsArgGroup.add_argument(
     "--cp4d-install-cognos",
     dest="cpd_install_cognos",
     required=False,
