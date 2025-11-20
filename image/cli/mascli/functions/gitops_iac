@@ -15,6 +15,7 @@ Basic Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                    Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                    Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}          MAS Instance ID
+  -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}                      Region ID
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                Secrets Manager path
@@ -91,7 +92,7 @@ function gitops_iac_noninteractive() {
         export MAS_INSTANCE_ID=$1 && shift
         ;;
       
-      --region-id)
+      -r|--region-id)
         export REGION_ID=$1 && shift
         ;;
 
@@ -228,8 +229,6 @@ function gitops_iac() {
   # catch errors
   set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
-
-  export REGION_ID=$REGION_NAME
 
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_ID}/instances/${MAS_INSTANCE_ID}

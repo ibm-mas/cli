@@ -16,7 +16,7 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: region_name
+    - name: region_id
       type: string
     - name: git_branch
       type: string
@@ -66,8 +66,8 @@ spec:
         value: $(params.secrets_path)
       - name: SM_AWS_REGION
         value: $(params.avp_aws_secret_region)
-      - name: REGION_NAME
-        value: $(params.region_name)
+      - name: REGION_ID
+        value: $(params.region_id)
       - name: GIT_BRANCH
         value: $(params.git_branch)
       - name: GITHUB_ORG
