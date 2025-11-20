@@ -27,6 +27,8 @@
       value: $(params.ibm_entitlement_key)
     - name: dro_namespace
       value: $(params.dro_namespace)
+    - name: dro_storage_class
+      value: $(params.storage_class_rwo)
   when:
     - input: "$(params.dro_action)"
       operator: in
