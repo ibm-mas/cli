@@ -311,8 +311,6 @@ function gitops_iac() {
     echo_h2 "Generating IAC/EFS Configuration"
     echo "- IAC Base Config"
 
-    export VPC_CIDR_WORKLOAD_INTERNAL='["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]'
-
     echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-mainTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
 
