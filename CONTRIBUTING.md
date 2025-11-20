@@ -84,7 +84,7 @@ docker run -ti --rm --pull always quay.io/ibmmas/cli:x.y.z-pre.mybranch
 oc login --token=xxxx --server=https://myocpserver
 export STUFF
 ansible localhost -m include_role -a name=ibm.mas_devops.ocp_verify
-ansible-playbook ibm.mas_devops.oneclick_core
+ansible-playbook ibm.mas_devops.mas_install_core
 mas install
 ```
 
