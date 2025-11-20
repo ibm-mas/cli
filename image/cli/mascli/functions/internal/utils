@@ -372,7 +372,7 @@ function jinjanate_commmon() {
 function get_tf_value() {
   local file_path=$1
   local dot_path=$2
-  
+  echo "in get_tf_value function"
   if [[ -z "$file_path" ]]; then
     echo_warning "get_tf_value: file path is required"
     return 1
