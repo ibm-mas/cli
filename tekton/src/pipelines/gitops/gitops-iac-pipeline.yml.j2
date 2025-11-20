@@ -16,7 +16,7 @@ spec:
       type: string
     - name: avp_aws_secret_region
       type: string
-    - name: region_id
+    - name: region_name
       type: string
     - name: git_branch
       type: string
@@ -88,8 +88,8 @@ spec:
           value: $(params.secrets_path)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
-        - name: region_id
-          value: $(params.region_id)
+        - name: region_name
+          value: $(params.region_name)
         - name: efs_vpc_id
           value: $(params.efs_vpc_id)
         - name: efs_source
