@@ -325,10 +325,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 print(f"Unknown option: {key} {value}")
                 self.fatalError(f"Unknown option: {key} {value}")
 
-        # DRO
-        if self.getParam("dro_storage_class") is None or self.getParam("dro_storage_class") == "":
-            self.setParam("dro_storage_class", self.getParam("storage_class_rwo"))
-
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
 
@@ -837,17 +833,9 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.promptForString("Contact e-mail address", "dro_contact_email")
         self.promptForString("Contact first name", "dro_contact_firstname")
         self.promptForString("Contact last name", "dro_contact_lastname")
-        self.setParam("dro_storage_class", self.getParam("storage_class_rwo"))
 
         if self.showAdvancedOptions:
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {self.getParam('storage_class_rwo')}</LightSlateGrey>"))
-            if self.yesOrNo("Use the auto-detected storage classes"):
-                self.setParam("dro_storage_class", self.getParam("storage_class_rwo"))
-            else:
-                for storageClass in getStorageClasses(self.dynamicClient):
-                    print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-                self.params['dro_storage_class'] = prompt("Select storage class for DRO PVC:", validator=StorageClassValidator(), validate_while_typing=False)
 
     @logMethodCall
     def configAppChannel(self, appId):

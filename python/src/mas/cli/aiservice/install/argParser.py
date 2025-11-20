@@ -154,11 +154,7 @@ droArgGroup.add_argument(
     required=False,
     help="Namespace for the Data Reporting Operator"
 )
-droArgGroup.add_argument(
-    "--dro-storage-class",
-    required=False,
-    help="Define DRO storage class"
-)
+
 # MongoDb Community Operator
 # -----------------------------------------------------------------------------
 mongoArgGroup = aiServiceinstallArgParser.add_argument_group("MongoDb Community Operator")

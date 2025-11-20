@@ -349,10 +349,6 @@ droArgGroup.add_argument(
     required=False,
     help="Namespace for DRO"
 )
-droArgGroup.add_argument(
-    "--dro-storage-class",
-    help="The storage class to be used for the DRO"
-)
 
 # MongoDb Community Operator
 # -----------------------------------------------------------------------------

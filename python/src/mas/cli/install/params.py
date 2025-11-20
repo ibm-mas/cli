@@ -81,7 +81,6 @@ optionalParams = [
     "cloudflare_subdomain",
     # DRO
     "dro_namespace",
-    "dro_storage_class",
     # Db2
     "db2_action_system",
     "db2_action_manage",

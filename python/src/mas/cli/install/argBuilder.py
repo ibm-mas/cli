@@ -151,8 +151,6 @@ class installArgBuilderMixin():
         command += f" --contact-lastname \"{self.getParam('dro_contact_lastname')}\"{newline}"
         if self.getParam('dro_namespace') != "":
             command += f"  --dro-namespace \"{self.getParam('dro_namespace')}\"{newline}"
-        if self.getParam('dro_storage_class') != "":
-            command += f"  --dro-storage-class \"{self.getParam('dro_storage_class')}\"{newline}"
 
         # MongoDb Community Operator
         # -----------------------------------------------------------------------------

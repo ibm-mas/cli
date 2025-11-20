@@ -280,8 +280,6 @@ class InstallSummarizerMixin():
         self.printParamSummary("First name", "dro_contact_firstname")
         self.printParamSummary("Last name", "dro_contact_lastname")
         self.printParamSummary("Install Namespace", "dro_namespace")
-        if self.getParam("dro_storage_class") != "":
-            self.printParamSummary("DRO Storage Class", "dro_storage_class")
 
     def slsSummary(self) -> None:
         self.printH2("IBM Suite License Service")

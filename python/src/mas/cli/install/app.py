@@ -321,17 +321,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("Contact e-mail address", "dro_contact_email")
         self.promptForString("Contact first name", "dro_contact_firstname")
         self.promptForString("Contact last name", "dro_contact_lastname")
-        self.setParam("dro_storage_class", self.getParam("storage_class_rwo"))
 
         if self.showAdvancedOptions:
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
-            print_formatted_text(HTML(f"<LightSlateGrey>  - Storage class (ReadWriteOnce): {self.getParam('storage_class_rwo')}</LightSlateGrey>"))
-            if self.yesOrNo("Use the auto-detected storage classes"):
-                self.setParam("dro_storage_class", self.getParam("storage_class_rwo"))
-            else:
-                for storageClass in getStorageClasses(self.dynamicClient):
-                    print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-                self.params['dro_storage_class'] = prompt("Select storage class for DRO PVC:", validator=StorageClassValidator(), validate_while_typing=False)
 
     @logMethodCall
     def configGrafana(self) -> None:
@@ -1152,10 +1144,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 facilitiesConfigsPath = path.join(self.localConfigDir, "facilities-configs.yaml")
                 self.generateFacilitiesCfg(destination=facilitiesConfigsPath)
                 self.setParam("mas_ws_facilities_config_map_name", "facilities-config")
-
-        # DRO
-        if self.getParam("dro_storage_class") is None or self.getParam("dro_storage_class") == "":
-            self.setParam("dro_storage_class", self.getParam("storage_class_rwo"))
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
