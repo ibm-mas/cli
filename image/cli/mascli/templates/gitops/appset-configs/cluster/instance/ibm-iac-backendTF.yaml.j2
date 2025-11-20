@@ -3,8 +3,8 @@
     "backend": {
       "s3": {
         "bucket": "mas-aws-build",
-        "key": "mas-instance/inst5/terraform.tfstate",
-        "region": "us-east-1",
+        "key": "mas-instance/{{MAS_INSTANCE_ID}}/terraform.tfstate",
+        "region": "{{REGION_ID}}",
         "use_lockfile": true
       }
     }

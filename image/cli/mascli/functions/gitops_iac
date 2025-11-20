@@ -86,14 +86,18 @@ function gitops_iac_noninteractive() {
         export CLUSTER_ID=$1 && shift
         export CLUSTER_NAME=$1  # For backward compatibility
         ;;
+      
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
+        ;;
+      
+      --region-id)
+        export REGION_ID=$1 && shift
         ;;
 
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
         export SM_AWS_REGION=$1
-        export REGION_ID=$1
         shift
         ;;
       --sm-aws-access-key)
@@ -225,8 +229,10 @@ function gitops_iac() {
   set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
+  export REGION_ID=$REGION_NAME
+
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${SM_AWS_REGION}/instances/${MAS_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_ID}/instances/${MAS_INSTANCE_ID}
 
   echo
   reset_colors
@@ -244,7 +250,7 @@ function gitops_iac() {
 
   echo "${TEXT_DIM}"
   echo_h2 "AWS Secrets Manager" "    "
-  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${SM_AWS_REGION}"
+  echo_reset_dim "Region ......................... ${COLOR_MAGENTA}${REGION_ID}"
   echo_reset_dim "Secret Key ..................... ${COLOR_MAGENTA}${SM_AWS_ACCESS_KEY_ID:0:4}<snip>"
   echo_reset_dim "Access Key ..................... ${COLOR_MAGENTA}${SM_AWS_SECRET_ACCESS_KEY:0:4}<snip>" # pragma: allowlist secret
   echo_reset_dim "Secrets Path ................... ${COLOR_MAGENTA}${SECRETS_PATH}"
@@ -318,13 +324,13 @@ function gitops_iac() {
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
 
     echo "generating path for CLUSTER_CIDR_WORKLOAD_EXTERNAL"
-    CLUSTER_CIDR_WORKLOAD_FILE_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${SM_AWS_REGION}/clusters/${CLUSTER_ID}/main.tf
+    CLUSTER_CIDR_WORKLOAD_FILE_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_ID}/clusters/${CLUSTER_ID}/main.tf
     CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH="locals.cluster.cidrs.workload_external"
     VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH="locals.cluster.cidrs.workload_internal"
     export CLUSTER_CIDR_WORKLOAD_EXTERNAL=get_tf_value CLUSTER_CIDR_WORKLOAD_FILE_PATH CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH
     export CLUSTER_CIDR_WORKLOAD_INTERNAL=get_tf_value CLUSTER_CIDR_WORKLOAD_FILE_PATH VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH
 
-    VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${SM_AWS_REGION}/vpcs/${VPC_NAME}/main.tf
+    VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_ID}/vpcs/${VPC_NAME}/main.tf
     EFS_CIDR_REF_NAME=${CLUSTER_ID}-${MAS_INSTANCE_ID}-efs
     VPC_CIDR_WORKLOAD_DOT_PATH="locals.workloads.${EFS_CIDR_REF_NAME}.cidrs"
 

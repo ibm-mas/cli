@@ -42,7 +42,7 @@ locals {
     cluster = {
         "external_subnet_ids" : data.aws_subnets.external_subnets.ids
         "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
-        worker_subnet_ids = data.aws_subnets.workload_subnets.ids
+        "worker_subnet_ids" = data.aws_subnets.workload_subnets.ids
     }
 }
 
