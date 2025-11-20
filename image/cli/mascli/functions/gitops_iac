@@ -16,7 +16,7 @@ Basic Configuration:
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                    Cluster ID
   -m, --mas-instance-id ${COLOR_YELLOW}MAS_INSTANCE_ID${TEXT_RESET}          MAS Instance ID
   -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}                      Region ID
-  -r, --region-id ${COLOR_YELLOW}REGION_NAME${TEXT_RESET}                    Region Name
+  --region-name ${COLOR_YELLOW}REGION_NAME${TEXT_RESET}                      Region Name
 
 
 Secrets Manager:
