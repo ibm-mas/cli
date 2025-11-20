@@ -77,6 +77,26 @@ spec:
       type: string
       description:
       default: "This option is mandatory"
+    - name: aiservice_watsonxai_instance_id
+      type: string
+      description:
+      default: "This option is mandatory"
+    - name: aiservice_watsonxai_username
+      type: string
+      description:
+      default: "This option is mandatory"
+    - name: aiservice_watsonxai_version
+      type: string
+      description:
+      default: "This option is mandatory"
+    - name: aiservice_watsonxai_full
+      type: string
+      description:
+      default: "This option is mandatory"
+    - name: aiservice_watsonxai_verify
+      type: string
+      description:
+      default: "This option is mandatory"
 
     # Tenant Entitlement
     - name: tenant_entitlement_type
@@ -144,6 +164,17 @@ spec:
         value: $(params.aiservice_watsonx_action)
       - name: AISERVICE_WATSONXAI_CA_CRT
         value: $(params.aiservice_watsonxai_ca_crt)
+      - name: AISERVICE_WATSONXAI_USERNAME
+        value: $(params.aiservice_watsonxai_username)
+      - name: AISERVICE_WATSONXAI_VERSION
+        value: $(params.aiservice_watsonxai_version)
+      - name: AISERVICE_WATSONXAI_INSTANCE_ID
+        value: $(params.aiservice_watsonxai_instance_id)
+      - name: AISERVICE_WATSONXAI_FULL
+        value: $(params.aiservice_watsonxai_full)
+      - name: AISERVICE_WATSONXAI_VERIFY
+        value: $(params.aiservice_watsonxai_verify)
+
 
       # Tenant Entitlement
       - name: AISERVICE_TENANT_ENTITLEMENT_TYPE

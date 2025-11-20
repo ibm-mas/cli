@@ -104,6 +104,7 @@ function mirror_everything() {
     MIRROR_MONGOCE_V5=true
     MIRROR_MONGOCE_V6=true
     MIRROR_MONGOCE_V7=true
+    MIRROR_MONGOCE_V8=true
 
     MIRROR_DB2U=true
     MIRROR_APPCONNECT=true
@@ -140,6 +141,7 @@ function mirror_to_registry_noninteractive() {
   MIRROR_MONGOCE_V5=false
   MIRROR_MONGOCE_V6=false
   MIRROR_MONGOCE_V7=false
+  MIRROR_MONGOCE_V8=false
   MIRROR_DB2U=false
   MIRROR_CP4D=false
   MIRROR_WSL=false
@@ -269,6 +271,9 @@ function mirror_to_registry_noninteractive() {
         ;;
       --mirror-mongo-v7)
         MIRROR_MONGOCE_V7=true
+        ;;
+      --mirror-mongo-v8)
+        MIRROR_MONGOCE_V8=true
         ;;
       --mirror-db2)
         MIRROR_DB2U=true
@@ -526,7 +531,7 @@ function mirror_to_registry() {
     mirror_to_registry_interactive
   fi
 
-  # Ensure all environment variables are available to ansible-playbook
+  # #Ensure all environment variables are available to ansible-playbook
 
   # General Config
   export MIRROR_MODE
@@ -553,6 +558,7 @@ function mirror_to_registry() {
   export MIRROR_MONGOCE_V5
   export MIRROR_MONGOCE_V6
   export MIRROR_MONGOCE_V7
+  export MIRROR_MONGOCE_V8
   export MIRROR_DB2U
   export MIRROR_CP4D
   export MIRROR_WML
@@ -578,6 +584,7 @@ function mirror_to_registry() {
     "$MIRROR_MONGOCE_V5" == true ||
     "$MIRROR_MONGOCE_V6" == true ||
     "$MIRROR_MONGOCE_V7" == true ||
+    "$MIRROR_MONGOCE_V8" == true ||
     "$MIRROR_DB2U" == true ||
     "$MIRROR_APPCONNECT" == true ||
     "$MIRROR_ODF" == true ||
@@ -657,6 +664,7 @@ function mirror_to_registry() {
   show_mirror_status "+ Version 5 ........................." $MIRROR_MONGOCE_V5
   show_mirror_status "+ Version 6 ........................." $MIRROR_MONGOCE_V6
   show_mirror_status "+ Version 7 ........................." $MIRROR_MONGOCE_V7
+  show_mirror_status "+ Version 8 ........................." $MIRROR_MONGOCE_V8
   show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
   show_mirror_status "IBM AppConnect ......................" $MIRROR_APPCONNECT
   show_mirror_status "RedHat ODF .........................." $MIRROR_ODF
