@@ -748,6 +748,8 @@ function gitops_mas_config() {
       else
         export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
       fi
+        
+        export SECRET_KEY_SLS_URL=${SECRET_NAME_SLS}#sls_url
         export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
         export SECRET_KEY_SLS_CA_B64=${SECRET_NAME_SLS}#ca_b64
 
