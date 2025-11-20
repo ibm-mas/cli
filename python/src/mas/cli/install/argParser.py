@@ -347,7 +347,7 @@ droArgGroup.add_argument(
 droArgGroup.add_argument(
     "--dro-namespace",
     required=False,
-    help=""
+    help="Namespace for DRO"
 )
 
 # MongoDb Community Operator
