@@ -7,7 +7,7 @@ data "aws_subnets" "external_subnets" {
   }
   filter {
     name   = "cidr-block"
-    values = "{{CLUSTER_CIDR_WORKLOAD_EXTERNAL}}" // These value should be same as cluster.cidr.workload_external
+    values = "{{CLUSTER_CIDR_WORKLOAD_EXTERNAL}}" // These value should be same as locals.cluster.cidr.workload_external
   }
 }
 

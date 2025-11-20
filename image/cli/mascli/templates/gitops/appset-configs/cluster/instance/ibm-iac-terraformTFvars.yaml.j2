@@ -1,7 +1,7 @@
 # This block is only created if EFS is enabled
 {% if IS_EFS %}
-cluster_name         = "{{ CLUSTER_NAME}}"
-instance_name        = "{{ INSTANCE_NAME }}"
+cluster_name         = "{{ CLUSTER_ID}}"
+instance_name        = "{{ MAS_INSTANCE_ID }}"
 vpc_id               = "{{ EFS_VPC_ID}}"
 vpc_name             = "{{ VPC_NAME }}"
 {% endif %}

@@ -50,7 +50,8 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-export IS_EFS=${IS_EFS:-"true"}
+export IS_EFS=${IS_EFS:-"true"} #TODO Need to take input
+export VPC_NAME=${VPC_NAME:-"mas-mcsp-9"} #TODO Need to take input
 export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"iac update"}
 
 function gitops_iac_noninteractive() {
@@ -310,21 +311,30 @@ function gitops_iac() {
     echo_h2 "Generating IAC/EFS Configuration"
     echo "- IAC Base Config"
 
-    export CLUSTER_CIDR_WORKLOAD_EXTERNAL='["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]'
-    export CLUSTER_CIDR_WORKLOAD_INTERNAL='["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]'
     export VPC_CIDR_WORKLOAD_INTERNAL='["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]'
-    export CLUSTER_NAME='mas-cluster-4'
-    export INSTANCE_NAME='inst4'
-    export VPC_NAME='mas-mcsp-7'
 
     echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-mainTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
 
+    echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
+
+    echo "generating path for CLUSTER_CIDR_WORKLOAD_EXTERNAL"
+    CLUSTER_CIDR_WORKLOAD_FILE_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${SM_AWS_REGION}/clusters/${CLUSTER_ID}/main.tf
+    CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH="locals.cluster.cidrs.workload_external"
+    VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH="locals.cluster.cidrs.workload_internal"
+    export CLUSTER_CIDR_WORKLOAD_EXTERNAL=get_tf_value CLUSTER_CIDR_WORKLOAD_FILE_PATH CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH
+    export CLUSTER_CIDR_WORKLOAD_INTERNAL=get_tf_value CLUSTER_CIDR_WORKLOAD_FILE_PATH VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH
+
+    VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${SM_AWS_REGION}/vpcs/${VPC_NAME}/main.tf
+    EFS_CIDR_REF_NAME=${CLUSTER_ID}-${MAS_INSTANCE_ID}-efs-subnet
+    VPC_CIDR_WORKLOAD_DOT_PATH="locals.workloads.${EFS_CIDR_REF_NAME}.cidrs"
+
+    export VPC_CIDR_WORKLOAD_INTERNAL=get_tf_value VPC_CIDR_PATH VPC_CIDR_WORKLOAD_DOT_PATH
+
     echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/efs.tf"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
 
-    echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
 
     echo $GIT_COMMIT_MSG
     GIT_COMMIT_MSG="${GIT_COMMIT_MSG}-efs"
