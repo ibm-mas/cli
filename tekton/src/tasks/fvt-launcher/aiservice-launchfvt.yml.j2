@@ -85,6 +85,12 @@ spec:
               name: aiservice-fvt
               key: IVT_DIGEST_CORE
               optional: false
+        - name: AISERVICE_MODEL_VERSIONS
+          valueFrom:
+            secretKeyRef:
+              name: aiservice-fvt
+              key: AISERVICE_MODEL_VERSIONS
+              optional: true
 
     - name: wait-for-pipelinerun
       image: quay.io/ibmmas/cli:latest
