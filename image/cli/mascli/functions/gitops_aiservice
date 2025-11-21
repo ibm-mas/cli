@@ -88,7 +88,7 @@ function gitops_aiservice_noninteractive() {
 
   export AISERVICE_S3_BUCKET_PREFIX=${AISERVICE_S3_BUCKET_PREFIX:-"m"}
   export ENVIRONMENT_TYPE=${ENVIRONMENT_TYPE:-"PRODUCTION"}
-  # export SLS_REGISTRATION_KEY_SECRET=${SLS_REGISTRATION_KEY_SECRET:-"sls-registration-key"}
+  export SLS_REGISTRATION_KEY_SECRET=${SLS_REGISTRATION_KEY_SECRET:-"sls-registration-key"}
   export DRO_TOKEN_SECRET=${DRO_TOKEN_SECRET:-"dro-token"}
   export DRO_CACERT_SECRET=${DRO_CACERT_SECRET:-"dro-certificates"}
   export AISERVICE_S3_TEMPLATES_BUCKET=${AISERVICE_S3_TEMPLATES_BUCKET:-"km-templates"}
