@@ -135,7 +135,12 @@
   when:
     - input: "$(params.db2_action_{{ suffix }})"
       operator: in
-      values: ["install"]
+      values: ["install"]    
+    - input: "$(params.standalone_aiservice)-$(params.suffix)"
+      operator: notin
+      values:
+        - "true-manage"
+        - "true-system"
   taskRef:
     name: mas-devops-db2
     kind: Task
