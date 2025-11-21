@@ -565,8 +565,8 @@ function get_tf_value() {
         return 1
     fi
 
-    echo "$FILE"
-    echo "$DOTPATH"
+    echo "$FILE" >&2
+    echo "$DOTPATH" >&2
     # Use the same python interpreter everywhere
     local PYTHON_BIN
     PYTHON_BIN=$(command -v python3)

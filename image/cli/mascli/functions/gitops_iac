@@ -332,7 +332,7 @@ function gitops_iac() {
 
     VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/vpcs/${VPC_NAME}/main.tf
     EFS_CIDR_REF_NAME=${CLUSTER_ID}-${MAS_INSTANCE_ID}-efs
-    VPC_CIDR_WORKLOAD_DOT_PATH="locals.workloads[${EFS_CIDR_REF_NAME}].cidrs"
+    VPC_CIDR_WORKLOAD_DOT_PATH="locals.workloads[\"${EFS_CIDR_REF_NAME}\"].cidrs"
 
     export VPC_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${VPC_CIDR_PATH}" "${VPC_CIDR_WORKLOAD_DOT_PATH}")
 
