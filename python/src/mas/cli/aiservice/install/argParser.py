@@ -129,20 +129,23 @@ slsArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 droArgGroup = aiServiceinstallArgParser.add_argument_group("IBM Data Reporting Operator (DRO)")
 droArgGroup.add_argument(
+    "--contact-email",
     "--uds-email",
-    dest="uds_contact_email",
+    dest="dro_contact_email",
     required=False,
     help="Contact e-mail address"
 )
 droArgGroup.add_argument(
+    "--contact-firstname",
     "--uds-firstname",
-    dest="uds_contact_firstname",
+    dest="dro_contact_firstname",
     required=False,
     help="Contact first name"
 )
 droArgGroup.add_argument(
+    "--contact-lastname",
     "--uds-lastname",
-    dest="uds_contact_lastname",
+    dest="dro_contact_lastname",
     required=False,
     help="Contact last name"
 )
@@ -319,7 +322,30 @@ watsonxArgGroup.add_argument(
     required=False,
     help="WatsonX space ID"
 )
-
+watsonxArgGroup.add_argument(
+    "--watsonxai-instance-id",
+    dest="aiservice_watsonxai_instance_id",
+    required=False,
+    help="WatsonX instance ID"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-username",
+    dest="aiservice_watsonxai_username",
+    required=False,
+    help="WatsonX username"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-version",
+    dest="aiservice_watsonxai_version",
+    required=False,
+    help="WatsonX version"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-full",
+    dest="aiservice_watsonxai_full",
+    required=False,
+    help="WatsonX engine version full/light"
+)
 
 # AI Service
 # -----------------------------------------------------------------------------

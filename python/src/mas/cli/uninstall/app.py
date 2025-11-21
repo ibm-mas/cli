@@ -44,7 +44,7 @@ class UninstallApp(BaseApp):
             uninstallIBMCatalog = True
             uninstallCommonServices = True
             uninstallCertManager = True
-            uninstallUDS = True
+            uninstallDRO = True
             uninstallMongoDb = True
             uninstallSLS = True
         else:
@@ -52,7 +52,7 @@ class UninstallApp(BaseApp):
             uninstallIBMCatalog = args.uninstall_ibm_catalog
             uninstallCommonServices = args.uninstall_common_services
             uninstallCertManager = args.uninstall_cert_manager
-            uninstallUDS = args.uninstall_uds
+            uninstallDRO = args.uninstall_dro
             uninstallMongoDb = args.uninstall_mongodb
             uninstallSLS = args.uninstall_sls
 
@@ -98,7 +98,7 @@ class UninstallApp(BaseApp):
                 uninstallGrafana = True
                 uninstallIBMCatalog = True
                 uninstallCommonServices = True
-                uninstallUDS = True
+                uninstallDRO = True
                 uninstallMongoDb = True
                 uninstallSLS = True
             else:
@@ -116,11 +116,11 @@ class UninstallApp(BaseApp):
                 if uninstallIBMCatalog:
                     # If you choose to uninstall IBM Operator Catalog, everything from the catalog will be uninstalled
                     uninstallCommonServices = True
-                    uninstallUDS = True
+                    uninstallDRO = True
                     uninstallSLS = True
                 else:
                     uninstallCommonServices = self.yesOrNo("Uninstall IBM Common Services")
-                    uninstallUDS = self.yesOrNo("Uninstall IBM User Data Services")
+                    uninstallDRO = self.yesOrNo("Uninstall IBM Data Reporter Operator")
 
         else:
             # Non-interactive mode
@@ -149,7 +149,7 @@ class UninstallApp(BaseApp):
         self.printSummary("Uninstall Grafana", uninstallGrafana)
         self.printSummary("Uninstall IBM Operator Catalog", uninstallIBMCatalog)
         self.printSummary("Uninstall IBM Common Services", uninstallCommonServices)
-        self.printSummary("Uninstall UDS", uninstallUDS)
+        self.printSummary("Uninstall DRO", uninstallDRO)
         self.printSummary("Uninstall MongoDb", uninstallMongoDb)
         self.printSummary("Uninstall SLS", uninstallSLS)
 
@@ -164,8 +164,11 @@ class UninstallApp(BaseApp):
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
-                installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+                if installOpenShiftPipelines(self.dynamicClient):
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
+                    self.fatalError("Installation failed")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
@@ -179,12 +182,10 @@ class UninstallApp(BaseApp):
                 pipelineURL = launchUninstallPipeline(
                     dynClient=self.dynamicClient,
                     instanceId=instanceId,
-                    certManagerProvider="redhat",
                     uninstallCertManager=uninstallCertManager,
                     uninstallGrafana=uninstallGrafana,
                     uninstallCatalog=uninstallCommonServices,
-                    uninstallCommonServices=uninstallCommonServices,
-                    uninstallUDS=uninstallUDS,
+                    uninstallDRO=uninstallDRO,
                     uninstallMongoDb=uninstallMongoDb,
                     uninstallSLS=uninstallSLS,
                     droNamespace=droNamespace

@@ -96,8 +96,7 @@ spec:
       default: ""
     - name: mas_appws_components
       type: string
-      default: ""
-
+      default: ""      
     - name: launchfvt_core
       type: string
       default: "true"
@@ -339,8 +338,7 @@ spec:
       - |-
 
         set -o pipefail
-        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium' ERR EXIT
-
+        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium,mas-${MAS_INSTANCE_ID}-syncres' ERR EXIT
 
 
         get_trailing_number() {

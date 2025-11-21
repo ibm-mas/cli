@@ -25,12 +25,12 @@
         - arcgis
         - appconnect
         - cert-manager
-        - common-services
         - cos
         - cp4d-service
         - cp4d-service-update
         - cp4d
         - db2
+        - dro
         - eck
         - grafana
         - ibm-catalogs
@@ -41,11 +41,10 @@
         - sls-registry-update
         - sls
         - turbonomic
-        - uds
 
-    # 3. Generate Tasks (AI Broker)
+    # 3. Generate Tasks (AI Service)
     # -------------------------------------------------------------------------
-    - name: Generate Tasks (AI Broker)
+    - name: Generate Tasks (AI Service)
       ansible.builtin.template:
         src: "{{ task_src_dir }}/aiservice/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
@@ -55,6 +54,7 @@
         - odh
         - aiservice-tenant
         - aiservice-post-verify
+        - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
@@ -173,7 +173,16 @@
         - wait-for-configmap-v2
         - wait-for-tekton
 
-    # 9. Generate Tasks (GitOps)
+    # 9. Generate Tasks (Common)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (Common)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/common/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - mas-config-helper
+
+    # 10. Generate Tasks (GitOps)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (GitOps)
       ansible.builtin.template:

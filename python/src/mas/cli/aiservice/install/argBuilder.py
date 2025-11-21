@@ -65,9 +65,9 @@ class aiServiceInstallArgBuilderMixin():
 
         # IBM Data Reporting Operator (DRO)
         # -----------------------------------------------------------------------------
-        command += f"  --uds-email \"{self.getParam('uds_contact_email')}\""
-        command += f" --uds-firstname \"{self.getParam('uds_contact_firstname')}\""
-        command += f" --uds-lastname \"{self.getParam('uds_contact_lastname')}\"{newline}"
+        command += f"  --contact-email \"{self.getParam('dro_contact_email')}\""
+        command += f" --contact-firstname \"{self.getParam('dro_contact_firstname')}\""
+        command += f" --contact-lastname \"{self.getParam('dro_contact_lastname')}\"{newline}"
         if self.getParam('dro_namespace') != "":
             command += f"  --dro-namespace \"{self.getParam('dro_namespace')}\"{newline}"
 
@@ -137,10 +137,18 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
         if self.getParam('aiservice_watsonxai_ca_crt') != "":
             command += f"  --watsonxai-ca-crt \"{self.getParam('aiservice_watsonxai_ca_crt')}\"{newline}"
-        if self.getParam('aiservice_watsonxai_deployment_id'):
-            command += f" --watsonxai-deployment-id {self.getParam('aiservice_watsonxai_deployment_id')}\"{newline}"
-        if self.getParam('aiservice_watsonxai_space_id'):
-            command += f" --watsonxai-space-id {self.getParam('aiservice_watsonxai_space_id')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_deployment_id') != "":
+            command += f"  --watsonxai-deployment-id \"{self.getParam('aiservice_watsonxai_deployment_id')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_space_id') != "":
+            command += f"  --watsonxai-space-id \"{self.getParam('aiservice_watsonxai_space_id')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_instance_id') != "":
+            command += f"  --watsonxai-instance-id \"{self.getParam('aiservice_watsonxai_instance_id')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_username') != "":
+            command += f"  --watsonxai-username \"{self.getParam('aiservice_watsonxai_username')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_version') != "":
+            command += f"  --watsonxai-version \"{self.getParam('aiservice_watsonxai_version')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_full') != "":
+            command += f"  --watsonxai-full \"{self.getParam('aiservice_watsonxai_full')}\"{newline}"
 
         if self.getParam('minio_root_user') != "":
             command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"

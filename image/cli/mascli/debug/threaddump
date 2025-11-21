@@ -1,0 +1,158 @@
+#!/bin/bash
+
+POD_SELECTOR=""
+MAS_INSTANCE_ID=""
+SERVER_PATH="/opt/ibm/wlp/bin/server"
+REMOVE=false
+OUTPUT_DIR=/tmp
+FREQUENCY=1
+INTERVAL=10
+
+function threaddump_help() {
+  cat << EOM
+Usage:
+  mas debug threaddump [options]
+define Liberty pod where the coredump is generated:
+  --namespace            : specify which namespace the java application server runs in
+  --liberty-server-path :path to the server file, default is /opt/ibm/wlp/bin/server
+  -s, --pod-selector     : pod-selector can be serverBundle, <bundle name>, coreidp
+  -p, --pod-name         : gives the pod where the java dump needs to be created, this overwrites -s if specified.
+Other Options:
+  -d, --dir              : folder where the file is copied locally
+  -h, --help    Show this help message
+  -t                     : interval at chich the javacores are collected (default is 10 seconds)
+  -n                     : how many javacores will be collected (default is 1)
+  -r, --rm               : remove the javacore files from the pod when collection completes
+Examples:
+  generate 5 javacore, 1 every 10 seconds for a particular pod in the manage namespace:
+  mas debug threaddump  --namespace mas-test-manage -p test-testws-foundation-54956ff9d7-bzmgb -d /tmp -t 10 -n 5
+  generate a coredump for the ui server bundle, copies it localy and removes it from the node where it was generated:
+  mas debug threaddump --namespace mas-test-manage -s ui -d /mnt/home -t 10 -n 5 --rm
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+    --namespace)
+      NAMESPACE=$1; shift
+      ;;
+
+    --liberty-server-path)
+      SERVER_PATH=$1; shift
+      ;;
+
+    -d|--dir)
+      OUTPUT_DIR=$1; shift
+      ;;
+
+    -s|--pod-selector)
+      # pod-selector can be "serverBundle, <bundle name>, coreidp"
+      POD_SELECTOR=$1; shift
+      ;;
+
+    -p|--pod-name)
+      # pod-selector can be "serverBundle, <bundle name>, coreidp"
+      POD_NAME=$1; shift
+      ;;
+
+    -t)
+      INTERVAL=$1; shift
+      ;;
+
+    -n)
+      FREQUENCY=$1; shift
+      ;;
+
+    -r|--rm)
+      REMOVE=true
+      ;;
+
+    -h|--help)
+      threaddump_help
+      exit 0
+  esac
+done
+
+
+COMMAND="$SERVER_PATH javadump defaultServer"
+
+if [ "$NAMESPACE" != "" ]; then 
+  MAS_INSTANCE_ID=$(oc get pods -n $NAMESPACE --show-labels | grep -o mas.ibm.com/instanceId=[^,]* | cut -d "=" -f 2 | uniq)
+else
+  echo "you need to specify --namespace"
+  exit 1
+fi
+
+DEBUG_NAMESPACE="mas-${MAS_INSTANCE_ID}-debug"
+
+mkdir -p $OUTPUT_DIR
+
+LOG_FILE=${OUTPUT_DIR}/mas-debug.log
+exec > >(tee ${LOG_FILE}) 2>&1
+
+# using pod labels mas.ibm.com/appType and mas.ibm.com/appTypeName
+if [ "$POD_NAME" != "" ]; then
+  echo "command specified pod: $POD_NAME"
+  SERVER_POD_NAMES="pod/$POD_NAME"
+elif [ "$POD_SELECTOR" = "serverBundle" ]; then
+  echo "select all server bundle pods"
+  SERVER_POD_NAMES=$(oc get pods -n $NAMESPACE -l "mas.ibm.com/appType=$POD_SELECTOR" -oname)
+elif [ "$POD_SELECTOR" = "coreidp" ]; then
+  echo "select coreidp pod"
+  SERVER_POD_NAMES=$(oc get pods -n $NAMESPACE -l "mas.ibm.com/provider-core-coreidp=true" -oname)
+  COMMAND="/opt/was/liberty/wlp/bin/server javadump default"
+else
+  echo "select $POD_SELECTOR pods"
+  SERVER_POD_NAMES=$(oc get pods -n $NAMESPACE -l "mas.ibm.com/appTypeName=$POD_SELECTOR" -oname)
+fi
+
+echo $COMMAND
+echo $SERVER_POD_NAMES
+
+for SERVER_POD in ${SERVER_POD_NAMES}
+do
+  JAVACORE_FILE=""
+
+
+  ## Generate and collect the javacore
+  for CONTAINER in $(oc get $SERVER_POD -n $NAMESPACE -o jsonpath='{.spec.containers[*].name}')
+  do 
+    if [ "$CONTAINER" != "monitoragent" ] && [ "$CONTAINER" != "coreidp-init" ]
+    then
+
+      # loop to create the javacores as specified with -t and -n parameters.
+      for i in $(seq 1 $FREQUENCY); do
+        echo "generate the thread dump for container $CONTAINER in pod $SERVER_POD "
+        echo "oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- $COMMAND" > $OUTPUT_DIR/cmd.txt
+        # generate a javacore
+        oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- $COMMAND >> $OUTPUT_DIR/cmd.txt
+        sleep $INTERVAL
+      done
+
+      # copy all javacores from the pod to the output directory
+      for JAVACORE_FILE in $(oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- find / -name "*javacore*" 2> /dev/null); do
+        oc rsync $SERVER_POD:$JAVACORE_FILE $OUTPUT_DIR/. -n $NAMESPACE -c $CONTAINER
+      done
+
+    fi
+  done
+done
+
+if [ $REMOVE ]; then
+  ## remove the javacore files
+  for CONTAINER in $(oc get $SERVER_POD -n $NAMESPACE -o jsonpath='{.spec.containers[*].name}')
+  do 
+    if [ "$CONTAINER" != "monitoragent" ] && [ "$CONTAINER" != "coreidp-init" ]
+    then
+      echo "removing all javacores in $CONTAINER in pod $SERVER_POD "
+      oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- find / -name "*javacore*.txt" -delete 2> /dev/null >> $OUTPUT_DIR/cmd.txt
+
+    fi
+  done
+fi
+
+exit 0

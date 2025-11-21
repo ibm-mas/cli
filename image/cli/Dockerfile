@@ -24,7 +24,11 @@ ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible
 # 5. Disable ibmcloud cli's new version check
 # 6. Set file permissions to be developer (hack) friendly
 COPY install /tmp/install
-RUN umask 0002 && \
+RUN --mount=type=secret,id=ARTIFACTORY_TOKEN,env=ARTIFACTORY_TOKEN \
+    --mount=type=secret,id=ARTIFACTORY_GENERIC_RELEASE_URL,env=ARTIFACTORY_GENERIC_RELEASE_URL \
+    --mount=type=secret,id=GITHUB_REF_NAME,env=GITHUB_REF_NAME \
+    --mount=type=secret,id=GITHUB_REF_TYPE,env=GITHUB_REF_TYPE \
+    umask 0002 && \
     ls /tmp/install && \
     bash /tmp/install/install-python-packages.sh && \
     bash /tmp/install/install-ansible-collections.sh && \

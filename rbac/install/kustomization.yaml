@@ -19,7 +19,6 @@ resources:
   - pipeline/clusterrole-mongoce.yaml
   - pipeline/eck.yaml
   - pipeline/grafana5.yaml
-  - pipeline/ibm-common-services.yaml
   - pipeline/ibm-sls.yaml
   - pipeline/mas-x-core.yaml
   - pipeline/mas-x-pipelines.yaml

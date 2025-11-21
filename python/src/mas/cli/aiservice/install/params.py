@@ -17,9 +17,9 @@ requiredParams = [
     # Entitlement
     "ibm_entitlement_key",
     # DRO
-    "uds_contact_email",
-    "uds_contact_firstname",
-    "uds_contact_lastname"
+    "dro_contact_email",
+    "dro_contact_firstname",
+    "dro_contact_lastname"
 ]
 
 optionalParams = [
@@ -77,8 +77,13 @@ optionalParams = [
     "aiservice_watsonxai_ca_crt",
     "aiservice_watsonxai_deployment_id",
     "aiservice_watsonxai_space_id",
-
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_username",
+    "aiservice_watsonxai_version",
+    "aiservice_watsonxai_full",
     "aiservice_instance_id",
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_verify",
 
     "minio_root_user",
     "minio_root_password",

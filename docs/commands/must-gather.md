@@ -26,6 +26,7 @@ Usage
 - `--no-ocp` Disable must-gather for the OCP cluster itself
 - `--no-dependencies` Disable must-gather for in-cluster dependencies (Db2, Cloud Pak for Data, Cloud Pak Foundational Services, Mongo)
 - `--no-sls` Disable must-gather for IBM Suite License Service
+- `--no-mas-quick-summary` Disable MAS quick summary reports (per MAS instance reports with information on MAS version, environment info, available IDPs, pod status, MAS-Manage connection, licensing info, etc)
 
 ### Additional Collectors:
 - `--extra-namespaces` Enable must-gather in custom namespaces (comma-seperated list)
@@ -41,6 +42,9 @@ Content
 ```
 /must-gather/
 ├── 20230423-204411
+│   ├── mas-quick-summary
+│   │   ├── inst1.txt
+│   │   └── inst2.txt
 │   ├── reconcile-logs
 │   │   └── mas-inst1-core
 │   │   |   ├── Suite
@@ -187,6 +191,12 @@ mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --m
 
 # Target Core + Manage in inst2
 mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst2" --mas-app-ids "core,manage"
+```
+
+**Generate MAS quick summary report for specific MAS instance:**  By default, must-gather includes a MAS quick summary report in the `mas-quick-summary` folder, providing compiled information to help identify common issues in the environment. When used with the flags `--summary-only`, `--no-ocp`, `--no-dependencies`, `--no-sls`, and `--mas-instance-ids` to target a specific namespace or MAS application, must-gather focuses the collection for faster execution while still including the MAS quick summary.
+
+```bash
+mas must-gather -d /mnt/home/must-gather --summary-only --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst1" --mas-app-ids "core"
 ```
 
 ### Execute the Must-Gather in non-interactive mode
