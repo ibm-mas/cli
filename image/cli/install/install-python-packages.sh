@@ -10,3 +10,6 @@ python3 -m pip install /tmp/install/mas_cli.tar.gz
 if [[ -e /tmp/install/mas_devops.tar.gz ]]; then
   python3 -m pip install /tmp/install/mas_devops.tar.gz
 fi
+
+# Install python-hcl2 for parsing HCL/Terraform files
+python3 -m pip install python-hcl2
