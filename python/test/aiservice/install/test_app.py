@@ -52,13 +52,11 @@ def test_install_noninteractive(tmpdir):
             mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
             mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
             mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
-            mock.patch('mas.cli.aiservice.install.app.launchAiServiceInstallPipeline') as launch_ai_service_install_pipeline
         ):
             dynamic_client_class.return_value = dynamic_client
             get_nodes.return_value = [{'status': {'nodeInfo': {'architecture': 'amd64'}}}]
             is_airgap_install.return_value = False
             get_current_catalog.return_value = {'catalogId': supportedCatalogs['amd64'][1]}
-            launch_ai_service_install_pipeline.return_value = 'https://pipeline.test.maximo.ibm.com'
             with mock.patch('mas.cli.cli.isSNO') as is_sno:
                 is_sno.return_value = False
                 app = AiServiceInstallApp()
@@ -142,7 +140,6 @@ def test_install_interactive(tmpdir):
             mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
             mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
             mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
-            mock.patch('mas.cli.aiservice.install.app.launchAiServiceInstallPipeline') as launch_ai_service_install_pipeline,
             mock.patch('mas.cli.cli.isSNO') as is_sno,
             mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
             mock.patch('mas.cli.aiservice.install.app.prompt') as app_prompt,
@@ -152,7 +149,6 @@ def test_install_interactive(tmpdir):
             get_nodes.return_value = [{'status': {'nodeInfo': {'architecture': 'amd64'}}}]
             is_airgap_install.return_value = False
             get_current_catalog.return_value = {'catalogId': supportedCatalogs['amd64'][1]}
-            launch_ai_service_install_pipeline.return_value = 'https://pipeline.test.maximo.ibm.com'
             is_sno.return_value = False
 
             def set_mixin_prompt_input(**kwargs):
