@@ -182,11 +182,9 @@ class UninstallApp(BaseApp):
                 pipelineURL = launchUninstallPipeline(
                     dynClient=self.dynamicClient,
                     instanceId=instanceId,
-                    certManagerProvider="redhat",
                     uninstallCertManager=uninstallCertManager,
                     uninstallGrafana=uninstallGrafana,
                     uninstallCatalog=uninstallCommonServices,
-                    uninstallCommonServices=uninstallCommonServices,
                     uninstallDRO=uninstallDRO,
                     uninstallMongoDb=uninstallMongoDb,
                     uninstallSLS=uninstallSLS,
