@@ -47,6 +47,9 @@ spec:
     - name: smtp_config_ca_certificate_file
       type: string
       default: ""
+    - name: sls_service
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite-config
     env:
@@ -88,6 +91,8 @@ spec:
         value: $(params.mas_bascfg_pod_template_yaml)
       - name: SMTP_CONFIG_CA_CERTIFICATE_FILE
         value: $(params.smtp_config_ca_certificate_file)
+      - name: STANDALONE_SLS_SERVICE
+        value: $(params.sls_service)
     envFrom:
       - configMapRef:
           name: environment-properties
