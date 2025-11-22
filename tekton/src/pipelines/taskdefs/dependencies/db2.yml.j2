@@ -11,6 +11,8 @@
 {% else %}
       value: $(params.mas_instance_id)
 {% endif %}
+    - name: standalone_aiservice_install
+      value: $(params.standalone_aiservice_install)
 
     # Entitlement
     - name: ibm_entitlement_key
@@ -136,7 +138,7 @@
     - input: "$(params.db2_action_{{ suffix }})"
       operator: in
       values: ["install"]    
-    - input: "$(params.standalone_aiservice)-$(params.suffix)"
+    - input: "$(params.standalone_aiservice_install)-$(params.suffix)"
       operator: notin
       values:
         - "true-manage"
