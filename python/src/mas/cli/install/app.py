@@ -82,7 +82,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def validateCatalogSource(self):
         # Check supported OCP versions
-        ocpVersion = getClusterVersion()
+        ocpVersion = getClusterVersion(self.dynamicClient)
         supportedReleases = self.chosenCatalog.get("ocp_compatibility", None)
         if supportedReleases is not None and not isClusterVersionInRange(ocpVersion, supportedReleases):
             self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {', '.join(supportedReleases)}")
