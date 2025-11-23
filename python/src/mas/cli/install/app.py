@@ -83,9 +83,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def validateCatalogSource(self):
         # Check supported OCP versions
         ocpVersion = getClusterVersion(self.dynamicClient)
-        supportedReleases = self.chosenCatalog.get("ocp_compatibility", None)
-        if supportedReleases is not None and not isClusterVersionInRange(ocpVersion, supportedReleases):
-            self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {', '.join(supportedReleases)}")
+        supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
+        if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
+            self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}")
 
         # Compare with any existing installed catalog
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
