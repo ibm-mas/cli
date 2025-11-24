@@ -107,8 +107,16 @@ jobs:
           pip install .[dev]
 
           if [[ -e $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz ]]; then
-            echo "Found local Python package ($GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz) in this PR."
+            echo "Found local Python package ($GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz) on this branch."
             python -m pip install $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz
+          elif [[ "$GITHUB_REF_NAME" != "master" ]] && [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
+              # Otherwise, if this is a non-master branch build, try to install from a matching branch of python-devops
+              RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/ibm-mas/python-devops/branches/${GITHUB_REF_NAME}")
+
+              if [[ "${RESPONSE}" == "200" ]]; then
+                  echo "Installing development build of python-devops from GitHub branch ${GITHUB_REF_NAME}"
+                  python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${GITHUB_REF_NAME}"
+              fi
           fi
 
       - name: Lint

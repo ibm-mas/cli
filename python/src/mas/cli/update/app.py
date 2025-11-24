@@ -19,8 +19,8 @@ from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import updateArgParser
-
-from mas.devops.ocp import createNamespace, getConsoleURL
+from mas.devops.data import getCatalog
+from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, listAiServiceInstances, getCurrentCatalog
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
 
@@ -265,6 +265,14 @@ class UpdateApp(BaseApp):
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
     def validateCatalog(self) -> None:
+        # Check supported OCP versions
+        ocpVersion = getClusterVersion(self.dynamicClient)
+        # Load the catalog information
+        self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+        supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
+        if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
+            self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}")
+
         if self.installedCatalogId is not None and self.installedCatalogId > self.getParam("mas_catalog_version"):
             self.fatalError(f"Selected catalog is older than the currently installed catalog.  Unable to update catalog from {self.installedCatalogId} to {self.getParam('mas_catalog_version')}")
 
