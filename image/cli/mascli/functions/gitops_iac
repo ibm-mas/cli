@@ -355,19 +355,20 @@ function gitops_iac() {
       # Monitor the PR status (checks every 60 seconds by default)
       # You can customize the check interval and max checks:
       # monitor_pr_status "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" <check_interval> <max_checks>
-      monitor_pr_status "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+      PR_STATUS=$(monitor_pr_status "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER")
       
       MONITOR_RC=$?
       
-      if [[ $MONITOR_RC -eq 0 ]]; then
-        echo
-        echo_h2 "✅ GitOps IAC EFS Configuration Complete - PR Merged Successfully"
+      if [[ "${PR_STATUS}" == "merged" ]]; then
+        # ✅ Pipeline SUCCESS - exit 0
+        echo "✅ GitOps IAC EFS Configuration Complete - PR Merged Successfully"
         exit 0
       else
-        echo
-        echo_h2 "❌ GitOps IAC EFS Configuration Failed - PR Closed Without Merging"
+        # ❌ Pipeline FAILED - exit 1
+        echo "❌ GitOps IAC EFS Configuration Failed - PR Status: ${PR_STATUS}"
         exit 1
       fi
+
     else
       echo
       echo_h2 "⚠️  No PR number returned, skipping PR monitoring"

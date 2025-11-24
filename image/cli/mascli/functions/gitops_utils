@@ -1080,6 +1080,7 @@ function monitor_pr_status() {
       echo "✅ SUCCESS: PR #${PR_NUMBER} has been merged!" >&2
       echo "$(logts) Pipeline marked as SUCCESS" >&2
       echo "=================================================" >&2
+      echo "merged"
       return 0
     fi
     
@@ -1089,7 +1090,8 @@ function monitor_pr_status() {
       echo "❌ FAILED: PR #${PR_NUMBER} was closed without merging" >&2
       echo "$(logts) Pipeline marked as FAILED" >&2
       echo "=================================================" >&2
-      return 1
+      echo "closed"
+      return 0
     fi
     
     # Check if PR is still open
