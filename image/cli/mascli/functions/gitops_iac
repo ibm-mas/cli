@@ -334,16 +334,44 @@ function gitops_iac() {
     echo_h2 "Creating Pull Request for changes in $GITHUB_ORG/$GITHUB_REPO"
     
     # Use the new function that checks for existing PRs and creates a new one
-    git_commit_and_create_pr_if_none_exist \
+    # Capture the PR number returned by the function
+    PR_NUMBER=$(git_commit_and_create_pr_if_none_exist \
       "$GITHUB_HOST" \
       "$GITHUB_ORG" \
       "$GITHUB_REPO" \
       "$GIT_BRANCH" \
       "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" \
-      "${GIT_COMMIT_MSG}"
-    
+      "${GIT_COMMIT_MSG}")
+
+    echo "Created PR #${PR_NUMBER}"
     # Clean up
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    
+    # Monitor PR status if PR was created
+    if [[ -n "${PR_NUMBER}" && "${PR_NUMBER}" != "null" ]]; then
+      echo
+      echo_h2 "Monitoring PR #${PR_NUMBER} Status"
+      
+      # Monitor the PR status (checks every 60 seconds by default)
+      # You can customize the check interval and max checks:
+      # monitor_pr_status "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" <check_interval> <max_checks>
+      monitor_pr_status "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+      
+      MONITOR_RC=$?
+      
+      if [[ $MONITOR_RC -eq 0 ]]; then
+        echo
+        echo_h2 "✅ GitOps IAC EFS Configuration Complete - PR Merged Successfully"
+        exit 0
+      else
+        echo
+        echo_h2 "❌ GitOps IAC EFS Configuration Failed - PR Closed Without Merging"
+        exit 1
+      fi
+    else
+      echo
+      echo_h2 "⚠️  No PR number returned, skipping PR monitoring"
+    fi
   fi
 
   echo

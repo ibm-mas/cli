@@ -821,23 +821,23 @@ function git_commit_and_create_pr_if_none_exist() {
   CURRENT_DIR=$PWD
 
   echo ""
-  echo "$(logts) git_commit_and_create_pr_if_none_exist"
-  echo "================================================="
-  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}"
-  echo "Base Branch: ${BASE_BRANCH}"
-  echo "Local Directory: ${LOCAL_DIR}"
-  echo "Commit Message: ${COMMIT_MSG}"
+  echo "$(logts) git_commit_and_create_pr_if_none_exist" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "Base Branch: ${BASE_BRANCH}" >&2
+  echo "Local Directory: ${LOCAL_DIR}" >&2
+  echo "Commit Message: ${COMMIT_MSG}">&2
 
   cd "$LOCAL_DIR" || exit 1
 
   # Step 1: Check for existing open PRs using GitHub API
-  echo ""
-  echo "$(logts) Checking for existing open PRs..."
-  echo "-------------------------------------------------"
+  echo "" >&2
+  echo "$(logts) Checking for existing open PRs..." >&2
+  echo "-------------------------------------------------" >&2
 
   if [[ -z "${GITHUB_PAT}" ]]; then
-    echo "❌ Error: GITHUB_PAT environment variable is not set"
-    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token"
+    echo "❌ Error: GITHUB_PAT environment variable is not set" >&2
+    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
     exit 1
   fi
 
@@ -852,47 +852,47 @@ function git_commit_and_create_pr_if_none_exist() {
   set -o pipefail
 
   if [[ $CURL_RC -ne 0 ]]; then
-    echo "❌ Error: Failed to check for existing PRs (curl returned ${CURL_RC})"
+    echo "❌ Error: Failed to check for existing PRs (curl returned ${CURL_RC})" >&2
     exit 1
   fi
 
   OPEN_PR_COUNT=$(echo "${OPEN_PRS}" | jq '. | length' 2>/dev/null)
 
   if [[ -z "${OPEN_PR_COUNT}" || "${OPEN_PR_COUNT}" == "null" ]]; then
-    echo "❌ Error: Failed to parse PR list from GitHub API"
-    echo "Response: ${OPEN_PRS}"
+    echo "❌ Error: Failed to parse PR list from GitHub API" >&2
+    echo "Response: ${OPEN_PRS}" >&2
     exit 1
   fi
 
   if [[ "$OPEN_PR_COUNT" -gt 0 ]]; then
-    echo "⚠️  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}"
-    echo "Existing PRs:"
-    echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"'
-    echo ""
-    echo "❌ Skipping PR creation to avoid conflicts."
-    echo "Please merge or close existing PRs first."
+    echo "⚠️  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+    echo "Existing PRs:" >&2
+    echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"' >&2
+    echo "" >&2
+    echo "❌ Skipping PR creation to avoid conflicts." >&2
+    echo "Please merge or close existing PRs first." >&2
     cd "$CURRENT_DIR"
     exit 1
   fi
 
-  echo "✓ No open PRs found, proceeding with changes..."
+  echo "✓ No open PRs found, proceeding with changes..." >&2
 
   # Step 2: Add all changes
-  echo ""
-  echo "$(logts) git add -v ."
-  echo "-------------------------------------------------"
+  echo "" >&2
+  echo "$(logts) git add -v ." >&2
+  echo "-------------------------------------------------" >&2
   FILES_ADDED_OUTPUT="$(git add -v .)"
   return_code=$?
   if [ $return_code -ne 0 ]; then
-    echo "❌ git: Add files failed with error: $return_code"
+    echo "❌ git: Add files failed with error: $return_code" >&2
     exit $return_code
   fi
 
   FILES_ADDED=$(echo "$FILES_ADDED_OUTPUT" | awk NF | wc -l | xargs)
-  echo "git: Added ${FILES_ADDED} files"
+  echo "git: Added ${FILES_ADDED} files" >&2
 
   if [ "$FILES_ADDED" == "0" ]; then
-    echo "ℹ️  No changes found, nothing to commit"
+    echo "ℹ️  No changes found, nothing to commit" >&2
     cd "$CURRENT_DIR"
     return 0
   fi
@@ -901,27 +901,27 @@ function git_commit_and_create_pr_if_none_exist() {
   TIMESTAMP=$(date +%Y%m%d-%H%M%S)
   PR_BRANCH="${PR_BRANCH_PREFIX}-${TIMESTAMP}"
 
-  echo ""
-  echo "$(logts) git checkout -b ${PR_BRANCH}"
-  echo "-------------------------------------------------"
+  echo "" >&2
+  echo "$(logts) git checkout -b ${PR_BRANCH}" >&2
+  echo "-------------------------------------------------" >&2
   git checkout -b "${PR_BRANCH}" || exit 1
 
   # Step 4: Commit changes
-  echo ""
-  echo "$(logts) git commit -m \"${COMMIT_MSG}\""
-  echo "-------------------------------------------------"
+  echo "" >&2
+  echo "$(logts) git commit -m \"${COMMIT_MSG}\"" >&2
+  echo "-------------------------------------------------" >&2
   git commit -m "${COMMIT_MSG}" || exit 1
 
   # Step 5: Push the new branch
-  echo ""
-  echo "$(logts) git push -u origin ${PR_BRANCH}"
-  echo "-------------------------------------------------"
+  echo "" >&2
+  echo "$(logts) git push -u origin ${PR_BRANCH}" >&2
+  echo "-------------------------------------------------" >&2
   git push -u origin "${PR_BRANCH}" || exit 1
 
   # Step 6: Create PR using GitHub API
-  echo ""
-  echo "$(logts) Creating Pull Request..."
-  echo "-------------------------------------------------"
+  echo "" >&2
+  echo "$(logts) Creating Pull Request..." >&2
+  echo "-------------------------------------------------" >&2
 
   PR_TITLE="GitOps: ${COMMIT_MSG}"
   PR_BODY="This PR was created automatically by the GitOps IAC workflow.
@@ -956,7 +956,7 @@ Please review and merge when ready."
   set -o pipefail
 
   if [[ $CURL_RC -ne 0 ]]; then
-    echo "❌ Failed to create Pull Request (curl returned ${CURL_RC})"
+    echo "❌ Failed to create Pull Request (curl returned ${CURL_RC})" >&2
     exit 1
   fi
 
@@ -964,20 +964,158 @@ Please review and merge when ready."
   PR_NUMBER=$(echo "${PR_RESPONSE}" | jq -r '.number' 2>/dev/null)
 
   if [[ -z "${PR_URL}" || "${PR_URL}" == "null" ]]; then
-    echo "❌ Failed to create Pull Request"
-    echo "Response: ${PR_RESPONSE}"
+    echo "❌ Failed to create Pull Request" >&2
+    echo "Response: ${PR_RESPONSE}" >&2
     exit 1
   fi
 
-  echo ""
-  echo "✅ Pull Request #${PR_NUMBER} created successfully!"
-  echo "URL: ${PR_URL}"
+  echo "" >&2
+  echo "✅ Pull Request #${PR_NUMBER} created successfully!" >&2
+  echo "URL: ${PR_URL}" >&2
 
   cd "$CURRENT_DIR"
 
-  echo ""
-  echo "$(logts) git_commit_and_create_pr_if_none_exist: success"
-  echo "================================================="
+  echo "" >&2
+  echo "$(logts) git_commit_and_create_pr_if_none_exist: success" >&2
+  echo "=================================================" >&2
+  
+  # Return the PR number
+  echo "${PR_NUMBER}"
+}
+
+
+# Monitors a GitHub Pull Request status and waits for it to be merged or closed
+# Checks the PR status every minute until it's merged (success) or closed (failure)
+#
+# Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.com")
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - PR_NUMBER
+#   $5 - CHECK_INTERVAL (optional, default: 60 seconds)
+#   $6 - MAX_CHECKS (optional, default: unlimited/0)
+#
+# Returns:
+#   0 - PR was merged successfully
+#   1 - PR was closed without merging or error occurred
+#
+# Example usage:
+#   monitor_pr_status "github.com" "ibm-mas" "gitops-config" "123"
+#   if [[ $? -eq 0 ]]; then
+#     echo "Pipeline SUCCESS: PR was merged"
+#   else
+#     echo "Pipeline FAILED: PR was closed or error occurred"
+#   fi
+function monitor_pr_status() {
+  GITHUB_HOST=$1
+  GITHUB_ORG=$2
+  GITHUB_REPO=$3
+  PR_NUMBER=$4
+  CHECK_INTERVAL=${5:-60}
+  MAX_CHECKS=${6:-0}
+  
+  echo "" >&2
+  echo "$(logts) monitor_pr_status" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "PR Number: #${PR_NUMBER}" >&2
+  echo "Check Interval: ${CHECK_INTERVAL} seconds" >&2
+  if [[ ${MAX_CHECKS} -gt 0 ]]; then
+    echo "Max Checks: ${MAX_CHECKS}" >&2
+  else
+    echo "Max Checks: Unlimited" >&2
+  fi
+  echo "=================================================" >&2
+  
+  if [[ -z "${GITHUB_PAT}" ]]; then
+    echo "❌ Error: GITHUB_PAT environment variable is not set" >&2
+    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
+    return 1
+  fi
+  
+  # GitHub API URL for the specific PR
+  PR_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls/${PR_NUMBER}"
+  
+  CHECK_COUNT=0
+  
+  while true; do
+    ((CHECK_COUNT++))
+    
+    echo "" >&2
+    echo "$(logts) Check #${CHECK_COUNT}: Checking PR #${PR_NUMBER} status..." >&2
+    echo "-------------------------------------------------" >&2
+    
+    # Fetch PR details from GitHub API
+    set +o pipefail
+    PR_RESPONSE=$(curl -s -H "Authorization: token ${GITHUB_PAT}" \
+      -H "Accept: application/vnd.github.v3+json" \
+      "${PR_API_URL}")
+    CURL_RC=$?
+    set -o pipefail
+    
+    if [[ $CURL_RC -ne 0 ]]; then
+      echo "❌ Error: Failed to fetch PR status (curl returned ${CURL_RC})" >&2
+      return 1
+    fi
+    
+    # Extract PR state and merged status
+    PR_STATE=$(echo "${PR_RESPONSE}" | jq -r '.state' 2>/dev/null)
+    PR_MERGED=$(echo "${PR_RESPONSE}" | jq -r '.merged' 2>/dev/null)
+    PR_MERGEABLE=$(echo "${PR_RESPONSE}" | jq -r '.mergeable' 2>/dev/null)
+    PR_TITLE=$(echo "${PR_RESPONSE}" | jq -r '.title' 2>/dev/null)
+    
+    if [[ -z "${PR_STATE}" || "${PR_STATE}" == "null" ]]; then
+      echo "❌ Error: Failed to parse PR status from GitHub API" >&2
+      echo "Response: ${PR_RESPONSE}" >&2
+      return 1
+    fi
+    
+    echo "PR State: ${PR_STATE}" >&2
+    echo "PR Merged: ${PR_MERGED}" >&2
+    echo "PR Mergeable: ${PR_MERGEABLE}" >&2
+    echo "PR Title: ${PR_TITLE}" >&2
+    
+    # Check if PR is merged
+    if [[ "${PR_MERGED}" == "true" ]]; then
+      echo "" >&2
+      echo "✅ SUCCESS: PR #${PR_NUMBER} has been merged!" >&2
+      echo "$(logts) Pipeline marked as SUCCESS" >&2
+      echo "=================================================" >&2
+      return 0
+    fi
+    
+    # Check if PR is closed (but not merged)
+    if [[ "${PR_STATE}" == "closed" && "${PR_MERGED}" != "true" ]]; then
+      echo "" >&2
+      echo "❌ FAILED: PR #${PR_NUMBER} was closed without merging" >&2
+      echo "$(logts) Pipeline marked as FAILED" >&2
+      echo "=================================================" >&2
+      return 1
+    fi
+    
+    # Check if PR is still open
+    if [[ "${PR_STATE}" == "open" ]]; then
+      echo "ℹ️  PR #${PR_NUMBER} is still open, waiting for merge..." >&2
+      
+      # Check if we've reached max checks
+      if [[ ${MAX_CHECKS} -gt 0 && ${CHECK_COUNT} -ge ${MAX_CHECKS} ]]; then
+        echo "" >&2
+        echo "⚠️  WARNING: Reached maximum number of checks (${MAX_CHECKS})" >&2
+        echo "PR #${PR_NUMBER} is still open but monitoring timeout reached" >&2
+        echo "$(logts) Pipeline marked as FAILED due to timeout" >&2
+        echo "=================================================" >&2
+        return 1
+      fi
+      
+      echo "Waiting ${CHECK_INTERVAL} seconds before next check..." >&2
+      sleep ${CHECK_INTERVAL}
+      continue
+    fi
+    
+    # Unknown state
+    echo "❌ Error: Unknown PR state: ${PR_STATE}" >&2
+    return 1
+  done
 }
 
 
