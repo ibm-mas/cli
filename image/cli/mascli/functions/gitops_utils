@@ -820,7 +820,7 @@ function git_commit_and_create_pr_if_none_exist() {
 
   CURRENT_DIR=$PWD
 
-  echo ""
+  echo "" >&2
   echo "$(logts) git_commit_and_create_pr_if_none_exist" >&2
   echo "=================================================" >&2
   echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
@@ -869,7 +869,6 @@ function git_commit_and_create_pr_if_none_exist() {
     echo "Existing PRs:" >&2
     echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"' >&2
     echo "" >&2
-    echo "❌ Skipping PR creation to avoid conflicts." >&2
     echo "Please merge or close existing PRs first." >&2
     cd "$CURRENT_DIR"
     exit 1
@@ -910,13 +909,13 @@ function git_commit_and_create_pr_if_none_exist() {
   echo "" >&2
   echo "$(logts) git commit -m \"${COMMIT_MSG}\"" >&2
   echo "-------------------------------------------------" >&2
-  git commit -m "${COMMIT_MSG}" || exit 1
+  git commit -m "${COMMIT_MSG}" >&2 || exit 1
 
   # Step 5: Push the new branch
   echo "" >&2
   echo "$(logts) git push -u origin ${PR_BRANCH}" >&2
   echo "-------------------------------------------------" >&2
-  git push -u origin "${PR_BRANCH}" || exit 1
+  git push -u origin "${PR_BRANCH}" >&2 || exit 1
 
   # Step 6: Create PR using GitHub API
   echo "" >&2
