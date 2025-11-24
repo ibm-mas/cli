@@ -1,11 +1,3 @@
-# Dependencies - DB2
-# -----------------------------------------------------------------------------
-{{ lookup('template', params_src_dir ~ '/install-db2.yml.j2') }}
-- name: db2_action_aiservice
-  type: string
-  description: Set to 'install' to set up a Db2 instance for AI Service
-  default: "none"
-
 # MAS Application Configuration - IBM Maximo AI Service
 # -----------------------------------------------------------------------------
 - name: standalone_aiservice_install

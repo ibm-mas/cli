@@ -53,7 +53,6 @@
         - mas-fvt-launcher
         - mas-ivt-manage
         # AI Service Pipelines
-        - aiservice-install
         - aiservice-upgrade
         # AI Service FVT Pipelines
         - aiservice-fvt-launcher
