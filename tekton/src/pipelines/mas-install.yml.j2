@@ -133,7 +133,7 @@ spec:
           values: [""]
       
     # 2.4.1 IBM SLS for AI Service ( if standalone AI Service install - only getting executed when mas_instance_id is empty )
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2') | template_vars={'application': 'aiservice'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - mongodb
       when:
