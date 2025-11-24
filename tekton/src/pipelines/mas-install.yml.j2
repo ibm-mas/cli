@@ -111,7 +111,7 @@ spec:
         - mongodb
 
     # 2.5 DRO
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/uds.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/dro.yml.j2') | indent(4) }}
       runAfter:
         - ibm-catalogs
 
@@ -139,17 +139,12 @@ spec:
       runAfter:
         - cp4d
 
-    # 3.5 SPSS Statistics
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-spss.yml.j2') | indent(4) }}
-      runAfter:
-        - cp4d
-
-    # 3.6 Cognos Analytics
+    # 3.5 Cognos Analytics
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cp4d/cp4d-cognos.yml.j2') | indent(4) }}
       runAfter:
         - cp4d
 
-    # 3.7 Configure Watson Studio in MAS
+    # 3.6 Configure Watson Studio in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-wsl.yml.j2') | indent(4) }}
       runAfter:
         - suite-verify
@@ -195,7 +190,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-install.yml.j2') | indent(4) }}
       runAfter:
         - sls
-        - uds
+        - dro
         - gencfg-workspace
         - suite-certs
 
@@ -289,7 +284,6 @@ spec:
         - suite-config-watson-studio
         - watson-machine-learning
         - analytics-service
-        - spss
 
     # 9.2 Configure Predict workspace
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/predict-workspace.yml.j2') | indent(4) }}
