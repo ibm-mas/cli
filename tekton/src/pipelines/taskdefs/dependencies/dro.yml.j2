@@ -1,9 +1,9 @@
-- name: uds
+- name: dro
   timeout: "0"
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
-    - name: uds_action
-      value: "$(params.uds_action)"
+    - name: dro_action
+      value: "$(params.dro_action)"
 
     - name: mas_instance_id
 {% if application is defined and application == "aiservice" %}
@@ -17,32 +17,25 @@
     - name: ocp_ingress_tls_secret_name
       value: $(params.ocp_ingress_tls_secret_name)
 
-    # Used by UDS and DRO
-    - name: uds_contact_email
-      value: "$(params.uds_contact_email)"
-    - name: uds_contact_firstname
-      value: "$(params.uds_contact_firstname)"
-    - name: uds_contact_lastname
-      value: "$(params.uds_contact_lastname)"
-    # Only used by UDS
-    - name: uds_event_scheduler_frequency
-      value: "$(params.uds_event_scheduler_frequency)"
-    - name: uds_storage_class
-      value: $(params.storage_class_rwo)
-    - name: mas_segment_key
-      value: $(params.mas_segment_key)
-    # Only used by DRO
+    - name: dro_contact_email
+      value: "$(params.dro_contact_email)"
+    - name: dro_contact_firstname
+      value: "$(params.dro_contact_firstname)"
+    - name: dro_contact_lastname
+      value: "$(params.dro_contact_lastname)"
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
     - name: dro_namespace
       value: $(params.dro_namespace)
+    - name: dro_storage_class
+      value: $(params.storage_class_rwo)
   when:
-    - input: "$(params.uds_action)"
+    - input: "$(params.dro_action)"
       operator: in
-      values: ["install", "install-dro"]
+      values: ["install"]
   taskRef:
     kind: Task
-    name: mas-devops-uds
+    name: mas-devops-dro
   workspaces:
     - name: configs
       workspace: shared-configs
