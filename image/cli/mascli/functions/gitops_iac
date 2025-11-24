@@ -24,15 +24,11 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}
 
 EFS Configuration (required):
-      --efs-vpc-id ${COLOR_YELLOW}EFS_VPC_ID${TEXT_RESET}                    VPC ID for EFS
       --efs-performance-mode ${COLOR_YELLOW}EFS_PERFORMANCE_MODE${TEXT_RESET}  Performance mode (generalPurpose or maxIO)
       --efs-mount-count ${COLOR_YELLOW}EFS_MOUNT_COUNT${TEXT_RESET}          Number of mount targets
       --efs-lifecycle-policy-transition-to-ia ${COLOR_YELLOW}EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA${TEXT_RESET}
       --efs-lifecycle-policy-transition-to-primary-storage-class ${COLOR_YELLOW}EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS${TEXT_RESET}
       --efs-throughput-mode ${COLOR_YELLOW}EFS_THROUGHPUT_MODE${TEXT_RESET}  Throughput mode (bursting or provisioned)
-      --efs-mount-ingress-subnet-ids ${COLOR_YELLOW}EFS_MOUNT_INGRESS_SUBNET_IDS${TEXT_RESET}
-      --efs-mount-egress-subnet-ids ${COLOR_YELLOW}EFS_MOUNT_EGRESS_SUBNET_IDS${TEXT_RESET}
-      --efs-worker-subnet-id-list ${COLOR_YELLOW}EFS_WORKER_SUBNET_ID_LIST${TEXT_RESET}
       --efs-encrypted ${COLOR_YELLOW}EFS_ENCRYPTED${TEXT_RESET}              Enable encryption (true/false)
 
 Target Cluster (Optional):
@@ -53,8 +49,6 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-export IS_EFS=${IS_EFS:-"true"} #TODO Need to take input
-export VPC_NAME=${VPC_NAME:-"mas-mcsp-9"} #TODO Need to take input
 export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"iac update"}
 
 function gitops_iac_noninteractive() {
@@ -117,8 +111,8 @@ function gitops_iac_noninteractive() {
         ;;
 
       # EFS Configuration
-      --efs-vpc-id)
-        export EFS_VPC_ID=$1 && shift
+      --is_efs)
+        export IS_EFS=$1 && shift
         ;;
       --efs-source)
         export EFS_SOURCE=$1 && shift
@@ -140,15 +134,6 @@ function gitops_iac_noninteractive() {
         ;;
       --efs-throughput-mode)
         export EFS_THROUGHPUT_MODE=$1 && shift
-        ;;
-      --efs-mount-ingress-subnet-ids)
-        export EFS_MOUNT_INGRESS_SUBNET_IDS=$1 && shift
-        ;;
-      --efs-mount-egress-subnet-ids)
-        export EFS_MOUNT_EGRESS_SUBNET_IDS=$1 && shift
-        ;;
-      --efs-worker-subnet-id-list)
-        export EFS_WORKER_SUBNET_ID_LIST=$1 && shift
         ;;
       --efs-encrypted)
         export EFS_ENCRYPTED=$1 && shift
@@ -211,14 +196,6 @@ function gitops_iac_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_iac_help "GIT_BRANCH is not set"
   fi
 
-
-  if [[ "$IS_EFS"  == "true" ]]; then
-    # Validate EFS-specific required parameters
-    [[ -z "$EFS_VPC_ID" ]] && gitops_iac_help "EFS_VPC_ID is not set. Please provide the VPC ID using --efs-vpc-id"
-    [[ -z "$EFS_MOUNT_INGRESS_SUBNET_IDS" ]] && gitops_iac_help "EFS_MOUNT_INGRESS_SUBNET_IDS is not set. Please provide ingress subnet IDs using --efs-mount-ingress-subnet-ids"
-    [[ -z "$EFS_MOUNT_EGRESS_SUBNET_IDS" ]] && gitops_iac_help "EFS_MOUNT_EGRESS_SUBNET_IDS is not set. Please provide egress subnet IDs using --efs-mount-egress-subnet-ids"
-    [[ -z "$EFS_WORKER_SUBNET_ID_LIST" ]] && gitops_iac_help "EFS_WORKER_SUBNET_ID_LIST is not set. Please provide worker subnet ID list using --efs-worker-subnet-id-list"
-  fi
 }
 
 function gitops_iac() {
@@ -268,21 +245,17 @@ function gitops_iac() {
     echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
   fi
   reset_colors
-
+   echo_reset_dim "IS EFS  ......................... ${COLOR_MAGENTA}${IS_EFS}"
   if [[ "$IS_EFS"  == "true" ]]; then
     echo "${TEXT_DIM}"
     echo_h2 "EFS Configuration" "    "
     echo_reset_dim "SOURCE ......................... ${COLOR_MAGENTA}${EFS_SOURCE}"
-    echo_reset_dim "VPC ID ......................... ${COLOR_MAGENTA}${EFS_VPC_ID}"
     echo_reset_dim "CREATION TOKEN ................. ${COLOR_MAGENTA}${EFS_CREATION_TOKEN}"
     echo_reset_dim "Performance Mode ............... ${COLOR_MAGENTA}${EFS_PERFORMANCE_MODE}"
     echo_reset_dim "Mount Count .................... ${COLOR_MAGENTA}${EFS_MOUNT_COUNT}"
     echo_reset_dim "Lifecycle Policy (IA) .......... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA}"
     echo_reset_dim "Lifecycle Policy (Primary) ..... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS}"
     echo_reset_dim "Throughput Mode ................ ${COLOR_MAGENTA}${EFS_THROUGHPUT_MODE}"
-    echo_reset_dim "Mount Ingress Subnet IDs ....... ${COLOR_MAGENTA}${EFS_MOUNT_INGRESS_SUBNET_IDS}"
-    echo_reset_dim "Mount Egress Subnet IDs ........ ${COLOR_MAGENTA}${EFS_MOUNT_EGRESS_SUBNET_IDS}"
-    echo_reset_dim "Worker Subnet ID List .......... ${COLOR_MAGENTA}${EFS_WORKER_SUBNET_ID_LIST}"
     echo_reset_dim "Encrypted ...................... ${COLOR_MAGENTA}${EFS_ENCRYPTED}"
     reset_colors
   fi
@@ -324,13 +297,14 @@ function gitops_iac() {
     VPC_NAME_DOT_PATH="vpc_name"
     CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH="locals.cluster.cidrs.workload_external"
     VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH="locals.cluster.cidrs.workload_internal"
+
     export CLUSTER_CIDR_WORKLOAD_EXTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "${CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH}")
     export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "${VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH}")
 
     export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_ID_DOT_PATH}")
     export VPC_NAME_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_NAME_DOT_PATH}")
 
-    VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/vpcs/${VPC_NAME}/main.tf
+    VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/vpcs/${VPC_NAME_VALUE}/main.tf
     EFS_CIDR_REF_NAME=${CLUSTER_ID}-${MAS_INSTANCE_ID}-efs
     VPC_CIDR_WORKLOAD_DOT_PATH="locals.workloads[\"${EFS_CIDR_REF_NAME}\"].cidrs"
 

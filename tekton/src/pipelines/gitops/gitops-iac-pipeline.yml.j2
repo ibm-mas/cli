@@ -29,7 +29,7 @@ spec:
 
 
     # iac-efs-specific
-    - name: efs_vpc_id
+    - name: is_efs
       type: string
     - name: efs_source
       type: string
@@ -44,12 +44,6 @@ spec:
     - name: efs_lifecycle_policy_transition_to_primary_storage_class
       type: string
     - name: efs_throughput_mode
-      type: string
-    - name: efs_mount_ingress_subnet_ids
-      type: string
-    - name: efs_mount_egress_subnet_ids
-      type: string
-    - name: efs_worker_subnet_id_list
       type: string
     - name: efs_encrypted
       type: string
@@ -90,12 +84,10 @@ spec:
           value: $(params.avp_aws_secret_region)
         - name: region_name
           value: $(params.region_name)
-        - name: efs_vpc_id
-          value: $(params.efs_vpc_id)
+        - name: is_efs
+          value: $(params.is_efs)
         - name: efs_source
           value: $(params.efs_source)
-
-
         - name: efs_creation_token
           value: $(params.efs_creation_token)
         - name: efs_performance_mode

@@ -28,7 +28,8 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: efs_vpc_id
+
+    - name: is_efs
       type: string
     - name: efs_source
       type: string
@@ -43,12 +44,6 @@ spec:
     - name: efs_lifecycle_policy_transition_to_primary_storage_class
       type: string
     - name: efs_throughput_mode
-      type: string
-    - name: efs_mount_ingress_subnet_ids
-      type: string
-    - name: efs_mount_egress_subnet_ids
-      type: string
-    - name: efs_worker_subnet_id_list
       type: string
     - name: efs_encrypted
       type: string
@@ -78,8 +73,8 @@ spec:
         value: $(params.github_repo)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: EFS_VPC_ID
-        value: $(params.efs_vpc_id)
+      - name: IS_EFS
+        value: $(params.is_efs)
       - name: EFS_SOURCE
         value: $(params.efs_source)
       - name: EFS_CREATION_TOKEN
@@ -94,12 +89,6 @@ spec:
         value: $(params.efs_lifecycle_policy_transition_to_primary_storage_class)
       - name: EFS_THROUGHPUT_MODE
         value: $(params.efs_throughput_mode)
-      - name: EFS_MOUNT_INGRESS_SUBNET_IDS
-        value: $(params.efs_mount_ingress_subnet_ids)
-      - name: EFS_MOUNT_EGRESS_SUBNET_IDS
-        value: $(params.efs_mount_egress_subnet_ids)
-      - name: EFS_WORKER_SUBNET_ID_LIST
-        value: $(params.efs_worker_subnet_id_list)
       - name: EFS_ENCRYPTED
         value: $(params.efs_encrypted)
         
