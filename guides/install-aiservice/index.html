@@ -387,7 +387,7 @@ For installation of Aiservice 9.0.x have to use <code>mas install</code> command
 <h2 id="interactive-install">Interactive Install<a class="headerlink" href="#interactive-install" title="Permanent link">¤</a></h2>
 <p>Regardless of whether you are running a connected or disconnected installation, simply run the <code>mas aiservice-install</code> command and follow the prompts, the basic structure of the interactive flow is described below.</p>
 <p>We will need the <code>entitlement.lic</code> file to perform the installation so we will mount your home directory into the running container.  When prompted you will be able to set license file to <code>/mnt/home/entitlement.lic</code> - <b> This is a prerequisite step, required only when <code>sls</code> has not been installed previously. </b></p>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:17.0.0 mas aiservice-install
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:17.1.0 mas aiservice-install
 </code></pre>
 <p>The interactive install will guide you through a series of questioned designed to help you arrive at the best configuration for your scenario, it can be broken down as below:</p>
 <div>
@@ -433,7 +433,7 @@ For installation of Aiservice 9.0.x have to use <code>mas install</code> command
 <p>The following command will launch the MAS CLI container image, login to your OpenShift Cluster and start the install of MAS without triggering any prompts.  This is how we install MAS in development hundreds of times every single week.</p>
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=xxx
 
-docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:17.0.0  bash -c "
+docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:17.1.0  bash -c "
   oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
   mas aiservice-install \
     --mas-catalog-version v9-251030-amd64 \
@@ -482,7 +482,7 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-11-23 23:00:20.452229+00:00)
+      Built with mkdocs v1.6.1 (2025-11-25 14:59:18.104273+00:00)
     </div> -->
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
