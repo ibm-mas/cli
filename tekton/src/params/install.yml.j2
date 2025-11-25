@@ -692,6 +692,13 @@
   description: Configure install plan of Optimizer application (full or limited)
   default: full
 
+# MAS Application Configuration - AI Service
+# -----------------------------------------------------------------------------
+- name: standalone_aiservice_install
+  type: string
+  description: Set to 'true' to install IBM Maximo AI Service as a standalone application
+  default: "false"
+
 # MAS Application Configuration - Predict
 # -----------------------------------------------------------------------------
 - name: predict_deployment_size

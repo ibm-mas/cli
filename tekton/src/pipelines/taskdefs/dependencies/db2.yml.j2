@@ -136,13 +136,11 @@
     - input: "$(params.db2_action_{{ suffix }})"
       operator: in
       values: ["install"]    
-{% if params.standalone_aiservice_install is defined %}
     - input: "$(params.standalone_aiservice_install)-{{ suffix }}"
       operator: notin
       values:
         - "true-manage"
         - "true-system"
-{% endif %}
   taskRef:
     name: mas-devops-db2
     kind: Task
