@@ -805,5 +805,3 @@ function gitops_suite() {
   rm -rf $TEMP_DIR
 
 }
-
-
