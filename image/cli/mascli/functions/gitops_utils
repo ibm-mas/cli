@@ -1012,7 +1012,8 @@ function monitor_pr_status() {
   PR_NUMBER=$4
   CHECK_INTERVAL=${5:-60}
   MAX_CHECKS=${6:-0}
-  
+  local timeout_seconds="${7:-600}"
+
   echo "" >&2
   echo "$(logts) monitor_pr_status" >&2
   echo "=================================================" >&2
@@ -1034,7 +1035,33 @@ function monitor_pr_status() {
   
   # GitHub API URL for the specific PR
   PR_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls/${PR_NUMBER}"
+  PR_COMMENT_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls/${PR_NUMBER}/comments"
   
+  echo "Monitoring PR #${pr_number} for Atlantis plan summary..."
+  local end_time=$(( $(date +%s) + timeout_seconds ))
+
+  while [ "$(date +%s)" -lt "$end_time" ]; do
+
+    comments_json=$(curl -s \
+      -H "Authorization: token ${github_token}" \
+      -H "Accept: application/vnd.github.v3+json" \
+      "${PR_COMMENT_URL}"
+    )
+
+    comment_bodies=$(echo "$comments_json" | jq -r '.[].body')
+
+    echo "[monitor_pr_status] Checking comments for Atlantis plan summary..."
+
+    # Look for the 2-line plan summary block
+    if echo "$comment_bodies" | grep -qE "Plan Summary"; then
+      if echo "$comment_bodies" | grep -qE "[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed"; then
+        echo "Found Atlantis plan summary — returning success."
+        return 0
+      fi
+    fi
+    sleep "$poll_interval"
+  done
+
   CHECK_COUNT=0
   
   while true; do
