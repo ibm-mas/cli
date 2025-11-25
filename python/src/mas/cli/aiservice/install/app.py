@@ -609,7 +609,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Watsonxai Instance ID (optional)", "aiservice_watsonxai_instance_id")
             self.promptForString("Watsonxai Username (optional)", "aiservice_watsonxai_username")
             self.promptForString("Watsonxai Version (optional)", "aiservice_watsonxai_version")
-        
         self.printH1("RSL Integration")
         self.printDescription([
             "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
