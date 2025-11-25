@@ -6,7 +6,7 @@
 import os
 import xml.etree.ElementTree as ET
 import sys
-from datetime import datetime
+from datetime import datetime, UTC
 from pymongo import MongoClient
 from xmljson import Yahoo
 import glob
@@ -94,7 +94,7 @@ if __name__ == "__main__":
         resultDoc["_id"] = resultId
         resultDoc["build"] = build
         resultDoc["suite"] = suite
-        resultDoc["timestamp"] = datetime.now(datetime.UTC)
+        resultDoc["timestamp"] = datetime.now(UTC)
         resultDoc["target"] = {
             "instanceId": instanceId,
             "build": build,
@@ -124,7 +124,7 @@ if __name__ == "__main__":
             {
                 '$setOnInsert': {
                     "_id": runId,
-                    "timestamp": datetime.now(datetime.UTC),
+                    "timestamp": datetime.now(UTC),
                     "target": {
                         "instanceId": instanceId,
                         "buildId": build,

@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, UTC
 from pymongo import MongoClient
 from kubernetes import client, config
 from kubernetes.client import Configuration
@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
     setObject = {}
     if setFinished.lower() == "true":
-        setObject["timestampFinished"] = datetime.now(datetime.UTC)
+        setObject["timestampFinished"] = datetime.now(UTC)
 
     # Set CLI and ansible-devops version
     # -------------------------------------------------------------------------
