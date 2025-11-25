@@ -209,6 +209,11 @@ function gitops_suite_noninteractive() {
         export SLS_INSTALL_PLAN=$1 && shift
         ;;
 
+      # Standalone Server configuration
+      -s|--sls-service)
+        export STANDALONE_SLS_SERVICE=$1 && shift
+        ;;
+
       # MAS
       --mas-annotations)
         export MAS_ANNOTATIONS=$1 && shift
