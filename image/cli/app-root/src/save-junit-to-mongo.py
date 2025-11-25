@@ -94,7 +94,7 @@ if __name__ == "__main__":
         resultDoc["_id"] = resultId
         resultDoc["build"] = build
         resultDoc["suite"] = suite
-        resultDoc["timestamp"] = datetime.utcnow()
+        resultDoc["timestamp"] = datetime.now(datetime.UTC)
         resultDoc["target"] = {
             "instanceId": instanceId,
             "build": build,
@@ -124,7 +124,7 @@ if __name__ == "__main__":
             {
                 '$setOnInsert': {
                     "_id": runId,
-                    "timestamp": datetime.utcnow(),
+                    "timestamp": datetime.now(datetime.UTC),
                     "target": {
                         "instanceId": instanceId,
                         "buildId": build,

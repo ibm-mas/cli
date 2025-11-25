@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
     setObject = {}
     if setFinished.lower() == "true":
-        setObject["timestampFinished"] = datetime.utcnow()
+        setObject["timestampFinished"] = datetime.now(datetime.UTC)
 
     # Set CLI and ansible-devops version
     # -------------------------------------------------------------------------

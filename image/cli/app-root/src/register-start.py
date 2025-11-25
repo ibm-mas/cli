@@ -62,7 +62,7 @@ if __name__ == "__main__":
         "skipped": 0,
         "time": -1,
         "failures": 0,
-        "startTime": datetime.utcnow()
+        "startTime": datetime.now(datetime.UTC)
     }
 
     # Connect to mongoDb
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         {
             '$setOnInsert': {
                 "_id": runId,
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(datetime.UTC),
                 "target": {
                     "instanceId": instanceId,
                     "buildId": build,
