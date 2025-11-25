@@ -179,6 +179,8 @@ def test_install_interactive(tmpdir):
                     return 'rslOrgId'
                 if re.match('.*Token for RSL.*', message):
                     return 'rslToken'
+                if re.match('.*Watsonxai machine learning url.*', message):
+                    return 'watsonxUrl'
                 if re.match('.*Does the RSL API use a self-signed certificate.*', message):
                     return 'n'
                 if re.match('.*Does the Watsonxai AI use a self-signed certificate.*', message):
