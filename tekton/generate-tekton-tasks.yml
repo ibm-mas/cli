@@ -25,7 +25,6 @@
         - arcgis
         - appconnect
         - cert-manager
-        - common-services
         - cos
         - cp4d-service
         - cp4d-service-update

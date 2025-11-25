@@ -14,7 +14,7 @@ Usage:
   mas debug coredump [options]
 define Liberty pod where the coredump is generated:
   --namespace            : specify which namespace the java application server runs in (required)
-  -p, --liberty-server-path :path to the server file, default is /opt/ibm/wlp/bin/server
+  --liberty-server-path :path to the server file, default is /opt/ibm/wlp/bin/server
   -s, --pod-selector     : pod-selector can be serverBundle, <bundle name>, coreidp
   -p, --pod-name         : gives the pod where the java dump needs to be created, this overwrites -s if specified.
 actions:
@@ -48,7 +48,7 @@ while [[ $# -gt 0 ]]
       NAMESPACE=$1; shift
       ;;
 
-    -p|--liberty-server-path)
+    --liberty-server-path)
       SERVER_PATH=$1; shift
       ;;
 
