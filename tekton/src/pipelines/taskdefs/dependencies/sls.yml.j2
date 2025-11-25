@@ -1,4 +1,8 @@
+{% if application is defined and application == "aiservice" %}
+- name: sls-aiservice
+{% else %}
 - name: sls
+{% endif %}
   timeout: "0"
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
