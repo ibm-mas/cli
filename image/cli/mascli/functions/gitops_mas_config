@@ -15,7 +15,7 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                     Working directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                      Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
-  -s ,--sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}         SLS service parameter file Path.
+  -s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}         for ibm internal use only.
   --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
   --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
   --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
@@ -753,14 +753,12 @@ function gitops_mas_config() {
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
-
-    if [ -z "$STANDALONE_SLS_SERVICE" ]; then
+      if [ -z "$STANDALONE_SLS_SERVICE" ]; then
         export SECRET_NAME_SLS="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls"
       else
         export SECRET_NAME_SLS="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}sls"
-    fi
-
-        
+      fi
+       
         export SECRET_KEY_SLS_URL=${SECRET_NAME_SLS}#sls_url
         export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
         export SECRET_KEY_SLS_CA_B64=${SECRET_NAME_SLS}#ca_b64
