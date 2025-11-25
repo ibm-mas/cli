@@ -94,7 +94,7 @@ def test_install_noninteractive(tmpdir):
                              '--watsonxai-instance-id', 'testWxInstanceId',
                              '--watsonxai-username', 'testWxUsername',
                              '--watsonxai-version', 'testWxVersion',
-                             '--watsonxai-full', 'testWxFull',
+                             '--watsonxai-onprem', 'testWxonprem',
                              '--minio-root-user', 'test',
                              '--minio-root-password', 'test',
                              '--tenant-entitlement-type', 'standard',
@@ -182,8 +182,6 @@ def test_install_interactive(tmpdir):
                 if re.match('.*Does the RSL API use a self-signed certificate.*', message):
                     return 'n'
                 if re.match('.*Does the Watsonxai AI use a self-signed certificate.*', message):
-                    return 'n'
-                if re.match('.*Does the Watsonxai AI use full engine.*', message):
                     return 'n'
                 if re.match('.*Create MongoDb cluster.*', message):
                     return 'n'
