@@ -1307,6 +1307,8 @@ function check_argo_app_healthy() {
   done
 }
 
+
+
 function validate_app_name(){
   APPLICATION=$1
 
