@@ -1059,7 +1059,7 @@ function monitor_pr_status() {
         return 0
       fi
     fi
-    sleep "$poll_interval"
+    sleep "$CHECK_INTERVAL"
   done
 
   CHECK_COUNT=0
