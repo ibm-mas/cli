@@ -1484,7 +1484,7 @@ function read_and_validate_pr_comments() {
   echo "Comment Type: ${COMMENT_TYPE}" >&2
   echo "Timeout: ${TIMEOUT_SECONDS} seconds" >&2
   echo "Poll Interval: ${POLL_INTERVAL} seconds" >&2
-  echo "================================================="
+  echo "=================================================" >&2
   if [[ -z "${GITHUB_PAT}" ]]; then
     echo "❌ Error: GITHUB_PAT environment variable is not set" >&2
     echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
@@ -1534,11 +1534,23 @@ function read_and_validate_pr_comments() {
         continue
       fi
       echo "Found Atlantis plan summary line: $PLAN_SUMMARY" >&2
-      [[ "$PLAN_SUMMARY" =~ ^([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed$ ]]
-      PROJECTS="${BASH_REMATCH[1]}"
-      WITH_CHANGES="${BASH_REMATCH[2]}"
-      NO_CHANGES="${BASH_REMATCH[3]}"
-      FAILED="${BASH_REMATCH[4]}"
+      # [[ "$PLAN_SUMMARY" =~ ^([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed$ ]]
+      # PROJECTS="${BASH_REMATCH[1]}"
+      # WITH_CHANGES="${BASH_REMATCH[2]}"
+      # NO_CHANGES="${BASH_REMATCH[3]}"
+      # FAILED="${BASH_REMATCH[4]}"
+
+      if [[ "$PLAN_SUMMARY" =~ ^([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed$ ]]; then
+        PROJECTS="${BASH_REMATCH[1]}"
+        WITH_CHANGES="${BASH_REMATCH[2]}"
+        NO_CHANGES="${BASH_REMATCH[3]}"
+        FAILED="${BASH_REMATCH[4]}"
+      else
+        echo "Regex match failed unexpectedly" >&2
+        echo "Failed"
+        return 0
+      fi
+
       echo "" >&2
       echo "Parsed Plan Summary:" >&2
       echo "  Total Projects: ${PROJECTS}" >&2
