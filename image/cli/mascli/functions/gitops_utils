@@ -1529,8 +1529,9 @@ function read_and_validate_pr_comments() {
       PLAN_SUMMARY=$(echo "$COMMENT_BODIES" | grep -E "^[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed")
       if [[ -z "$PLAN_SUMMARY" ]]; then
         echo "⚠️  Warning: Atlantis plan summary not found in PR comments" >&2
-        echo "Failed"
-        return 1
+        # echo "Failed"
+        sleep "$POLL_INTERVAL"
+        continue
       fi
       echo "Found Atlantis plan summary line: $PLAN_SUMMARY" >&2
       [[ "$PLAN_SUMMARY" =~ ^([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed$ ]]
@@ -1574,8 +1575,9 @@ function read_and_validate_pr_comments() {
 
       if [[ -z "$APPLY_SUMMARY" ]]; then
         echo "⚠️  Warning: Atlantis apply summary not found in PR comments" >&2
-        echo "Failed"
-        return 1
+        # echo "Failed"
+        sleep "$POLL_INTERVAL"
+        continue
       fi
       
       echo "Found Atlantis Apply summary line: $APPLY_SUMMARY" >&2
