@@ -1527,29 +1527,21 @@ function read_and_validate_pr_comments() {
 
     # Look for the appropriate summary in comments
     if [[ "${COMMENT_TYPE}" == "plan" ]]; then
-      PLAN_SUMMARY=$(echo "$COMMENT_BODIES" | grep -E "^[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed")
+      # PLAN_SUMMARY=$(echo "$COMMENT_BODIES" | grep -E "^[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed")
+      PLAN_SUMMARY=$(grep -E "^[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed" <<< "$COMMENT_BODIES")
+
+      echo "PLAN_SUMMARY: "$PLAN_SUMMARY >&2
       if [[ -z "$PLAN_SUMMARY" ]]; then
         echo "⚠️  Warning: Atlantis plan summary not found in PR comments" >&2
         sleep "$POLL_INTERVAL"
         continue
       fi
       echo "Found Atlantis plan summary line: $PLAN_SUMMARY" >&2
-      # [[ "$PLAN_SUMMARY" =~ ^([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed$ ]]
-      # PROJECTS="${BASH_REMATCH[1]}"
-      # WITH_CHANGES="${BASH_REMATCH[2]}"
-      # NO_CHANGES="${BASH_REMATCH[3]}"
-      # FAILED="${BASH_REMATCH[4]}"
-
-      if [[ "$PLAN_SUMMARY" =~ ^([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed$ ]]; then
-        PROJECTS="${BASH_REMATCH[1]}"
-        WITH_CHANGES="${BASH_REMATCH[2]}"
-        NO_CHANGES="${BASH_REMATCH[3]}"
-        FAILED="${BASH_REMATCH[4]}"
-      else
-        echo "Regex match failed unexpectedly" >&2
-        echo "Failed"
-        return 0
-      fi
+      [[ "$PLAN_SUMMARY" =~ ^([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed$ ]]
+      PROJECTS="${BASH_REMATCH[1]}"
+      WITH_CHANGES="${BASH_REMATCH[2]}"
+      NO_CHANGES="${BASH_REMATCH[3]}"
+      FAILED="${BASH_REMATCH[4]}"
 
       echo "" >&2
       echo "Parsed Plan Summary:" >&2
