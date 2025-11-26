@@ -19,7 +19,6 @@ supportedCatalogs = {
         "v9-251030-s390x",
         "v9-251010-amd64",
         # No "v9-250925-s390x" catalog for the s390x
-        "v9-250902-s390x",
     ],
     "ppc64le": [
         "v9-251127-ppc64le",
