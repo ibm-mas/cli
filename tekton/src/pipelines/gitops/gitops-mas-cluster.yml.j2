@@ -245,7 +245,7 @@ spec:
     - name: provisioner_async_poll_max
       type: string
       default: ''
-    - name: provisioner_csb_ca_certificate_file
+    - name: provisioner_csb_client_ca_cert_file
       type: string
       default: ''
     - name: provisioner_recommend_cluster
@@ -567,8 +567,8 @@ spec:
           value: $(params.provisioner_enable_ocm_alert)
         - name: enable_pd_alert
           value: $(params.provisioner_enable_pd_alert)
-        - name: csb_ca_certificate_file
-          value: $(params.provisioner_csb_ca_certificate_file)
+        - name: csb_client_ca_certificate_file
+          value: $(params.provisioner_csb_client_ca_cert_file)
         - name: recommend_cluster
           value: $(params.provisioner_recommend_cluster)
         - name: provisioner_storage_class

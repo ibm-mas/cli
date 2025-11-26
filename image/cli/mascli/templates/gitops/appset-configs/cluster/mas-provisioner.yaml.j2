@@ -20,8 +20,8 @@ mas_provisioner:
   {% if GIT_ROOT_CA_CERTIFICATE is defined and GIT_ROOT_CA_CERTIFICATE != "" %}
   git_root_ca: {{ GIT_ROOT_CA_CERTIFICATE }}
   {% endif %}
-  {% if CSB_CA_CERT is defined and CSB_CA_CERT != "" %}
-  csb_client_ca: {{ CSB_CA_CERT }}
+  {% if CSB_CLIENT_CA_CERT is defined and CSB_CLIENT_CA_CERT != "" %}
+  csb_client_ca: {{ CSB_CLIENT_CA_CERT }}
   {% endif %}
   {% if SECRET_KEY_INSTANA_API is defined and SECRET_KEY_INSTANA_API != "" %}
   instana_api_token: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_INSTANA_API }}>"

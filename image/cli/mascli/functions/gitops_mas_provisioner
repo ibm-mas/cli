@@ -28,7 +28,7 @@ MAS PROVISIONER OPERATOR:
       --account-alias ${COLOR_YELLOW}ACCOUNT_ALIAS${TEXT_RESET}                                   Enables customization for the account id to use in the status repo. Default is fetched from the order payload received
       --provisioner-version ${COLOR_YELLOW}PROVISIONER_VERSION${TEXT_RESET}                       The version tag for MAS Provisioner. Default is latest
       --enable-mtls ${COLOR_YELLOW}ENABLE_MTLS${TEXT_RESET}                                       Enables mutual tls which requires ca certs to be exchanged with the client. Default is false
-      --csb-ca-certificate-file ${COLOR_YELLOW}CSB_CA_CERTIFICATE_FILE${TEXT_RESET}               Location of the file containing the CA certificate from MCSP CSB. Required when enable-mtls is true
+      --csb-client-ca-certificate-file ${COLOR_YELLOW}CSB_CLIENT_CA_CERTIFICATE_FILE${TEXT_RESET} Location of the file containing the CA certificate from MCSP CSB. Can provide when ENABLE_MTLS is set or a client auth cert would be provided in the cluster for use in test cases.
       --service-port ${COLOR_YELLOW}SERVICE_PORT${TEXT_RESET}                                     Service port. Defaults to 7329
       --base-branch ${COLOR_YELLOW}BASE_BRANCH${TEXT_RESET}                                       The reference branch that will be cloned during processing of the order in case the master branch is not used. Default is master
       --async-poll-interval ${COLOR_YELLOW}ASYNC_POLL_INTERVAL${TEXT_RESET}                       The intervals in seconds between each poll from MCSP to check the status of the orders. Default is 600
@@ -112,8 +112,8 @@ function gitops_mas_provisioner_noninteractive() {
       --enable-mtls)
         export ENABLE_MTLS=true
         ;;
-      --csb-ca-certificate-file)
-        export CSB_CA_CERTIFICATE_FILE=$1 && shift
+      --csb-client-ca-certificate-file)
+        export CSB_CLIENT_CA_CERTIFICATE_FILE=$1 && shift
         ;;
       --service-port)
         export SERVICE_PORT=$1 && shift
@@ -204,10 +204,6 @@ function gitops_mas_provisioner_noninteractive() {
   [[ -z "$STATUS_REPO_URL" ]] && gitops_mas_provisioner_help "STATUS_REPO_URL is not set"
   [[ -z "$PROVISIONER_DOMAIN" ]] && gitops_mas_provisioner_help "PROVISIONER_DOMAIN is not set"
 
-  if [[ "$ENABLE_MTLS" == "true" ]]; then
-    [[ -z "$CSB_CA_CERTIFICATE_FILE" ]] && gitops_mas_provisioner_help "CSB_CA_CERTIFICATE_FILE is not set"
-  fi
-
 }
 
 function gitops_mas_provisioner() {
@@ -285,7 +281,6 @@ function gitops_mas_provisioner() {
   echo_reset_dim "MAS Annotations Repo URL ................ ${COLOR_MAGENTA}${MAS_ANNOTATIONS_REPO_URL}"
   echo_reset_dim "Base Branch ............................. ${COLOR_MAGENTA}${BASE_BRANCH}"
   echo_reset_dim "Enable MTLS ............................. ${COLOR_MAGENTA}${ENABLE_MTLS}"
-  echo_reset_dim "CSB CA Cert File ........................ ${COLOR_MAGENTA}${CSB_CA_CERTIFICATE_FILE}"
   echo_reset_dim "Enable PD Alert ......................... ${COLOR_MAGENTA}${ENABLE_PD_ALERT}"
   echo_reset_dim "Enable OCM Alert ........................ ${COLOR_MAGENTA}${ENABLE_OCM_ALERT}"
   echo_reset_dim "Recommend Cluster ....................... ${COLOR_MAGENTA}${RECOMMEND_CLUSTER}"
@@ -361,11 +356,10 @@ function gitops_mas_provisioner() {
   fi
 
   if [ "$ENABLE_MTLS" == "true" ]; then
-    if [ -s "$CSB_CA_CERTIFICATE_FILE" ]; then
-      export CSB_CA_CERT=$(cat ${CSB_CA_CERTIFICATE_FILE} | base64 -w0)
+    if [ -s "$CSB_CLIENT_CA_CERTIFICATE_FILE" ]; then
+      export CSB_CLIENT_CA_CERT=$(cat ${CSB_CLIENT_CA_CERTIFICATE_FILE} | base64 -w0)
     else
-      echo_warning "Required value for MTLS 'CSB_CA_CERTIFICATE_FILE' is missing or empty"
-      exit 1
+      echo "Since MTLS is enabled but 'CSB_CLIENT_CA_CERTIFICATE_FILE' is missing or empty. A client auth secret 'mas-provisioner-client-tls' will be created in the cluster for Client Auth purposes and to allow MTLS."
     fi
   fi
 
