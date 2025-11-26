@@ -236,6 +236,7 @@ function gitops_mas_provisioner() {
   export ASYNC_POLL_INTERVAL=${ASYNC_POLL_INTERVAL:-600}
   export ASYNC_POLL_MAX=${ASYNC_POLL_MAX:-864000}
   export RECOMMEND_CLUSTER=${RECOMMEND_CLUSTER:-false}
+  export INSTANA_URL_PREFIX=${INSTANA_URL_PREFIX:-"https://maximonp-ibmaiapps.instana.io"}
   export MAS_ANNOTATIONS_REPO_URL=${MAS_ANNOTATIONS_REPO_URL:-$STATUS_REPO_URL}
 
   echo
@@ -320,7 +321,6 @@ function gitops_mas_provisioner() {
       echo_warning "'RECOMMEND_CLUSTER' has been set but 'INSTANA_KEY' was not provided"
       exit 1
     fi
-    [ -n "$INSTANA_URL_PREFIX" ] || { echo_warning "'RECOMMEND_CLUSTER' has been set but 'INSTANA_URL_PREFIX' was not provided"; exit 1;}
   fi
 
   if [ -n "$GITHUB_PAT" ]; then
