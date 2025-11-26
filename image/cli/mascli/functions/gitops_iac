@@ -352,6 +352,7 @@ function gitops_iac() {
       
       echo_h2 "Monitoring PR #${PR_NUMBER} Status"
       PR_PLAN_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER")
+      echo "PR_PLAN_COMMENT: "$PR_PLAN_COMMENT
       
       if [[ "$PR_PLAN_COMMENT" == "Passed" ]]; then
 
