@@ -23,8 +23,6 @@ Secrets Manager:
 IBM DB2RDS:
       --instance_name ${COLOR_YELLOW}INSTANCE_NAME${TEXT_RESET}                    db2rds instance name
       --connection_string ${COLOR_YELLOW}CONNECTION_STRING{TEXT_RESET}             db2rds connection string
-      --user ${COLOR_YELLOW}USER{TEXT_RESET}                                       db2rds user
-      --password ${COLOR_YELLOW}PASSWORD{TEXT_RESET}                               db2rds password
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -82,12 +80,6 @@ function gitops_db2rds_noninteractive() {
         ;;
       --connection_string)
       export CONNECTION_STRING=$1 && shift
-        ;;
-      --user)
-      export USER=$1 && shift
-        ;;
-      --password)
-      export PASSWORD=$1 && shift
         ;;
 
       # Automatic GitHub Push
