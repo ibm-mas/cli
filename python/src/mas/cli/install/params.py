@@ -173,5 +173,42 @@ optionalParams = [
     "mas_ws_facilities_dwfagents",
     "mas_ws_facilities_db_maxconnpoolsize",
     # Special chars
-    "mas_special_characters"
+    "mas_special_characters",
+    # ODH
+    "aiservice_odh_model_deployment_type",
+    # AI Service
+    "aiservice_s3_accesskey",
+    "aiservice_s3_secretkey",
+    "aiservice_s3_host",
+    "aiservice_s3_port",
+    "aiservice_s3_ssl",
+    "aiservice_s3_region",
+    "aiservice_s3_bucket_prefix",
+    "aiservice_s3_tenants_bucket",
+    "aiservice_s3_templates_bucket",
+
+    "aiservice_watsonxai_apikey",
+    "aiservice_watsonxai_url",
+    "aiservice_watsonxai_project_id",
+    "aiservice_watsonx_action",
+    "aiservice_watsonxai_ca_crt",
+    "aiservice_watsonxai_deployment_id",
+    "aiservice_watsonxai_space_id",
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_username",
+    "aiservice_watsonxai_version",
+    "aiservice_watsonxai_full",
+    "aiservice_instance_id",
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_verify",
+
+    "tenant_entitlement_type",
+    "tenant_entitlement_start_date",
+    "tenant_entitlement_end_date",
+
+    "rsl_url",
+    "rsl_org_id",
+    "rsl_token",
+    "rsl_ca_crt",
+    "environment_type"
 ]
