@@ -42,7 +42,6 @@ class UninstallApp(BaseApp):
         if args.uninstall_all_deps:
             uninstallGrafana = True
             uninstallIBMCatalog = True
-            uninstallCommonServices = True
             uninstallCertManager = True
             uninstallDRO = True
             uninstallMongoDb = True
@@ -50,7 +49,6 @@ class UninstallApp(BaseApp):
         else:
             uninstallGrafana = args.uninstall_grafana
             uninstallIBMCatalog = args.uninstall_ibm_catalog
-            uninstallCommonServices = args.uninstall_common_services
             uninstallCertManager = args.uninstall_cert_manager
             uninstallDRO = args.uninstall_dro
             uninstallMongoDb = args.uninstall_mongodb
@@ -97,7 +95,6 @@ class UninstallApp(BaseApp):
                 # If you choose to uninstall Cert-Manager, everything will be uninstalled
                 uninstallGrafana = True
                 uninstallIBMCatalog = True
-                uninstallCommonServices = True
                 uninstallDRO = True
                 uninstallMongoDb = True
                 uninstallSLS = True
@@ -115,11 +112,9 @@ class UninstallApp(BaseApp):
                 uninstallIBMCatalog = self.yesOrNo("Uninstall IBM operator Catalog")
                 if uninstallIBMCatalog:
                     # If you choose to uninstall IBM Operator Catalog, everything from the catalog will be uninstalled
-                    uninstallCommonServices = True
                     uninstallDRO = True
                     uninstallSLS = True
                 else:
-                    uninstallCommonServices = self.yesOrNo("Uninstall IBM Common Services")
                     uninstallDRO = self.yesOrNo("Uninstall IBM Data Reporter Operator")
 
         else:
@@ -148,7 +143,6 @@ class UninstallApp(BaseApp):
         self.printSummary("Uninstall Cert-Manager", f"{uninstallCertManager} ({certManagerProvider})")
         self.printSummary("Uninstall Grafana", uninstallGrafana)
         self.printSummary("Uninstall IBM Operator Catalog", uninstallIBMCatalog)
-        self.printSummary("Uninstall IBM Common Services", uninstallCommonServices)
         self.printSummary("Uninstall DRO", uninstallDRO)
         self.printSummary("Uninstall MongoDb", uninstallMongoDb)
         self.printSummary("Uninstall SLS", uninstallSLS)
@@ -182,11 +176,9 @@ class UninstallApp(BaseApp):
                 pipelineURL = launchUninstallPipeline(
                     dynClient=self.dynamicClient,
                     instanceId=instanceId,
-                    certManagerProvider="redhat",
                     uninstallCertManager=uninstallCertManager,
                     uninstallGrafana=uninstallGrafana,
-                    uninstallCatalog=uninstallCommonServices,
-                    uninstallCommonServices=uninstallCommonServices,
+                    uninstallCatalog=uninstallIBMCatalog,
                     uninstallDRO=uninstallDRO,
                     uninstallMongoDb=uninstallMongoDb,
                     uninstallSLS=uninstallSLS,

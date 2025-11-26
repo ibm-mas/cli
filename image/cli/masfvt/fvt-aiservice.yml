@@ -7,6 +7,7 @@
     # AI Service Details
     aiservice_instance_id: "{{ lookup('env', 'AISERVICE_INSTANCE_ID') }}"
     aiservice_channel: "{{ lookup('env', 'AISERVICE_CHANNEL') }}"
+    aiservice_model_versions: "{{ lookup('env', 'AISERVICE_MODEL_VERSIONS') }}"
 
     # FVT Configuration
     fvt_image_registry: "{{ lookup('env', 'FVT_IMAGE_REGISTRY') }}"
@@ -33,6 +34,7 @@
           - "fvt_artifactory_token ............. {{ fvt_artifactory_token }}"
           - "fvt_digest_aiservice .............. {{ fvt_digest_aiservice }}"
           - "ivt_digest_core ................... {{ ivt_digest_core }}"
+          - "aiservice_model_versions .......... {{ aiservice_model_versions }}"
 
     - name: "Start fvt-aiservice pipeline"
       kubernetes.core.k8s:
