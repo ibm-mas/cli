@@ -21,12 +21,8 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 IBM DB2RDS:
-      --db2_instance_name ${COLOR_YELLOW}DB2_INSTANCE_NAME${TEXT_RESET}            db2rds instance name
-      --mas_app_id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                          db2rds mas application id
-      --rds_admin_db_name ${COLOR_YELLOW}RDS_ADMIN_DB_NAME{TEXT_RESET}             db2rds admin db name
-      --host ${COLOR_YELLOW}HOST{TEXT_RESET}                                       db2rds host
-      --port ${COLOR_YELLOW}PORT{TEXT_RESET}                                       db2rds port
-      --dbname ${COLOR_YELLOW}DBNAME{TEXT_RESET}                                   db2rds dbname
+      --instance_name ${COLOR_YELLOW}INSTANCE_NAME${TEXT_RESET}                    db2rds instance name
+      --connection_string ${COLOR_YELLOW}CONNECTION_STRING{TEXT_RESET}             db2rds connection string
       --user ${COLOR_YELLOW}USER{TEXT_RESET}                                       db2rds user
       --password ${COLOR_YELLOW}PASSWORD{TEXT_RESET}                               db2rds password
 
@@ -81,23 +77,11 @@ function gitops_db2rds_noninteractive() {
         ;;
 
       # DB2RDS
-      --db2_instance_name)
-      export DB2_INSTANCE_NAME=$1 && shift
+      --instance_name)
+      export INSTANCE_NAME=$1 && shift
         ;;
-      --MAS_APP_ID)
-      export MAS_APP_ID=$1 && shift
-        ;;
-      --rds_admin_db_name)
-      export RDS_ADMIN_DB_NAME=$1 && shift
-        ;;
-      --host)
-      export HOST=$1 && shift
-        ;;
-      --port)
-      export PORT=$1 && shift
-        ;;
-      --dbname)
-      export DBNAME=$1 && shift
+      --connection_string)
+      export CONNECTION_STRING=$1 && shift
         ;;
       --user)
       export USER=$1 && shift
@@ -189,10 +173,8 @@ function gitops_db2rds() {
   echo_reset_dim "Region ................................ ${COLOR_MAGENTA}${REGION}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
   echo_reset_dim "MAS Instance ID ....................... ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "DB2RDS Namespace .......................${COLOR_MAGENTA}${DB2_NAMESPACE}"
-  echo_reset_dim "DBNAME .................................${COLOR_MAGENTA}${DBNAME}"
-  echo_reset_dim "HOST ...................................${COLOR_MAGENTA}${HOST}"
-  echo_reset_dim "PORT .................................. ${COLOR_MAGENTA}${PORT}"
+  echo_reset_dim "Instance name ..........................${COLOR_MAGENTA}${INSTANCE_NAME}"
+  echo_reset_dim "Connection String ......................${COLOR_MAGENTA}${CONNECTION_STRING}"
   echo_reset_dim "USER .................................. ${COLOR_MAGENTA}${USER}"
   echo_reset_dim "PASSWORD ...............................${COLOR_MAGENTA}${PASSWORD}"
   echo_reset_dim "Instance Config Directory ............. ${COLOR_MAGENTA}${GITOPS_INSTANCE_DIR}"
@@ -228,9 +210,6 @@ function gitops_db2rds() {
   # Note that this cluster-level secret is set up by gitops-cluster
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPARATOR}${CLUSTER_ID}${SECRETS_KEY_SEPARATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPARATOR}"
   # db2rds
-  export HOST=${SECRETS_PREFIX}rds-db2-endpoint-config#db2_endpoint
-  export PORT=${SECRETS_PREFIX}rds-db2-endpoint-config#db2_port
-  export DBNAME=${SECRETS_PREFIX}rds-db2-endpoint-config#db2_name
   export USER=${SECRETS_PREFIX}rds-db2-endpoint-config#username
   export PASSWORD=${SECRETS_PREFIX}rds-db2-endpoint-config#password
 

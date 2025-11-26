@@ -1,11 +1,6 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 ibm_dbs_rds_databases:
-  - db2_namespace: {{DB2_NAMESPACE}}
-    db2_instance_name: {{DB2_INSTANCE_NAME}}
-    mas_application_id: {{MAS_APP_ID}}
-    rds_admin_db_name: {{RDS_ADMIN_DB_NAME}}
-    host: <path:{{ SECRETS_PATH }}:{{ HOST }}>
-    port: <path:{{ SECRETS_PATH }}:{{ PORT }}>
-    dbname: <path:{{ SECRETS_PATH }}:{{ DBNAME }}>
+  - instance_name: {{INSTANCE_NAME}}
+    connection_string: {{CONNECTION_STRING}}
     user: <path:{{ SECRETS_PATH }}:{{ USER }}>
     password: <path:{{ SECRETS_PATH }}:{{ PASSWORD }}>
