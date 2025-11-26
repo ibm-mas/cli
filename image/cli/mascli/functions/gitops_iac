@@ -349,29 +349,44 @@ function gitops_iac() {
     
     # Monitor PR status if PR was created
     if [[ -n "${PR_NUMBER}" && "${PR_NUMBER}" != "null" ]]; then
-      echo
+      
       echo_h2 "Monitoring PR #${PR_NUMBER} Status"
+      PR_PLAN_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER")
       
-      # Monitor the PR status (checks every 60 seconds by default)
-      # You can customize the check interval and max checks:
-      # monitor_pr_status "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" <check_interval> <max_checks>
-      PR_STATUS=$(monitor_pr_status "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER")
-      
-      MONITOR_RC=$?
-      
-      if [[ "${PR_STATUS}" == "merged" ]]; then
-        # ✅ Pipeline SUCCESS - exit 0
-        echo "✅ GitOps IAC EFS Configuration Complete - PR Merged Successfully"
-        exit 0
+      if [[ "$PR_PLAN_COMMENT" == "Passed" ]]; then
+
+        COMMENT_BODY="atlantis apply"
+        ATLANTIS_APPLY_COMMENT=$(comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$COMMENT_BODY")
+        if [["$ATLANTIS_APPLY_COMMENT" == "true"]]; then
+          
+          PR_APPLY_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "apply")
+          
+          if [[ "$PR_APPLY_COMMENT" == "Passed" ]]; then
+            MARGE_PR_STATUS=$(merge_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "Merge PR")
+            if [["$MARGE_PR_STATUS" != "true"]]; then
+              echo_h2 "⚠️  Atlantis apply succeeded. Failed to merge PR. Please check the PR: 'https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}'"
+              # close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+              exit 1
+            fi
+          else
+            echo_h2 "⚠️  Atlantis Apply Failed. Pipeline Failed. Closign PR."
+            close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+            exit 1
+          fi
+        else
+          echo_h2 "⚠️  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
+          close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+          exit 1
+        fi
       else
-        # ❌ Pipeline FAILED - exit 1
-        echo "❌ GitOps IAC EFS Configuration Failed - PR Status: ${PR_STATUS}"
+        echo_h2 "⚠️  Atlantis Plan Failed. Closing PR. Pipeline Failed."
+        close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
         exit 1
       fi
-
     else
       echo
-      echo_h2 "⚠️  No PR number returned, skipping PR monitoring"
+      echo_h2 "⚠️  No PR number returned, pipeline failed."
+      exit 1
     fi
   fi
 
