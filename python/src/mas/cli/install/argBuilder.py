@@ -62,7 +62,7 @@ class installArgBuilderMixin():
         command += f" --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"
 
         if self.getParam('mas_special_characters') == "true":
-            command += f" --allow-special-chars \"{self.getParam('mas_special_characters')}\"{newline}"
+            command += f" --allow-special-chars \"{newline}"
 
         # ECK Integration
         # -----------------------------------------------------------------------------
@@ -97,6 +97,9 @@ class installArgBuilderMixin():
 
         if self.getParam('mas_manual_cert_mgmt') is True:
             command += f"  --manual-certificates \"{self.manualCertsDir}\"{newline}"
+
+        if self.getParam('mas_routing_mode') != "":
+            command += f"  --routing \"{self.getParam('mas_routing_mode')}\"{newline}"
 
         if self.getParam('mas_domain') != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
@@ -143,9 +146,9 @@ class installArgBuilderMixin():
 
         # IBM Data Reporting Operator (DRO)
         # -----------------------------------------------------------------------------
-        command += f"  --uds-email \"{self.getParam('uds_contact_email')}\""
-        command += f" --uds-firstname \"{self.getParam('uds_contact_firstname')}\""
-        command += f" --uds-lastname \"{self.getParam('uds_contact_lastname')}\"{newline}"
+        command += f"  --contact-email \"{self.getParam('dro_contact_email')}\""
+        command += f" --contact-firstname \"{self.getParam('dro_contact_firstname')}\""
+        command += f" --contact-lastname \"{self.getParam('dro_contact_lastname')}\"{newline}"
         if self.getParam('dro_namespace') != "":
             command += f"  --dro-namespace \"{self.getParam('dro_namespace')}\"{newline}"
 
@@ -290,8 +293,6 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.getParam('cpd_product_version') != "":
             command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
-            if self.getParam('cpd_install_spss') == "true":
-                command += " --cp4d-install-spss"
             if self.getParam('cpd_install_cognos') == "true":
                 command += " --cp4d-install-cognos"
             if self.getParam('cpd_install_ws') == "true":
@@ -325,7 +326,7 @@ class installArgBuilderMixin():
             if self.getParam('db2_affinity_key') != "":
                 command += f"  --db2-affinity-key \"{self.getParam('db2_affinity_key')}\"{newline}"
             if self.getParam('db2_affinity_value') != "":
-                command += f"  --db2-affinity_value \"{self.getParam('db2_affinity_value')}\"{newline}"
+                command += f"  --db2-affinity-value \"{self.getParam('db2_affinity_value')}\"{newline}"
 
             if self.getParam('db2_tolerate_key') != "":
                 command += f"  --db2-tolerate-key \"{self.getParam('db2_tolerate_key')}\"{newline}"

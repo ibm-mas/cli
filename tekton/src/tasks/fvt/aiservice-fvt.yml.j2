@@ -39,6 +39,11 @@ spec:
       type: string
       description: Instance ID of the target test environment
 
+    - name: aiservice_model_versions
+      type: string
+      description: "Comma-separated list of AI service model versions with key=value pair"
+      default: ""
+
   stepTemplate:
     name: 'fvt-aiservice'
     env:
@@ -83,6 +88,8 @@ spec:
       # The name of the test suite inside the container we will execute (/opt/ibm/test/suites/{TEST_SUITE})
       - name: TEST_SUITE
         value: $(params.fvt_test_suite)
+      - name: AISERVICE_MODEL_VERSIONS
+        value: $(params.aiservice_model_versions)
 
       # Set the logging level to debug if this is set to true
       - name: FVT_ENABLE_DEBUG

@@ -123,6 +123,26 @@ class YesNoValidator(Validator):
             raise ValidationError(message='Enter a valid response: y(es), n(o)', cursor_position=len(response))
 
 
+class IntValidator(Validator):
+    def __init__(self, min, max):
+        self.min = min
+        self.max = max
+
+    def validate(self, document):
+        """
+        Validate that a response is understandable as a yes/no response
+        """
+        response = document.text
+        if not str.isdigit(response):
+            raise ValidationError(message='Enter a valid number', cursor_position=len(response))
+
+        if self.min and int(response) < self.min:
+            raise ValidationError(message=f'Enter a number not less than {self.min}', cursor_position=len(response))
+
+        if self.max and int(response) > self.max:
+            raise ValidationError(message=f'Enter a number not more than {self.max}', cursor_position=len(response))
+
+
 class FileExistsValidator(Validator):
     def validate(self, document):
         """

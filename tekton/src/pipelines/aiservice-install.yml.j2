@@ -62,7 +62,7 @@ spec:
         - mongodb
 
     # 2.3 DRO
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/uds.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/dro.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - ibm-catalogs
 
@@ -93,7 +93,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - sls
-        - uds
+        - dro
         - db2-aiservice
         - aiservice-odh
 
