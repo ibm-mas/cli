@@ -1528,7 +1528,7 @@ function read_and_validate_pr_comments() {
     # Look for the appropriate summary in comments
     if [[ "${COMMENT_TYPE}" == "plan" ]]; then
       # PLAN_SUMMARY=$(echo "$COMMENT_BODIES" | grep -E "^[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed")
-      PLAN_SUMMARY=$(grep -E "^[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed" <<< "$COMMENT_BODIES")
+      PLAN_SUMMARY=$(grep -E "[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed" <<< "$COMMENT_BODIES" | head -n 1)
 
       echo "PLAN_SUMMARY: "$PLAN_SUMMARY >&2
       if [[ -z "$PLAN_SUMMARY" ]]; then
@@ -1537,7 +1537,9 @@ function read_and_validate_pr_comments() {
         continue
       fi
       echo "Found Atlantis plan summary line: $PLAN_SUMMARY" >&2
-      [[ "$PLAN_SUMMARY" =~ ^([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed$ ]]
+      # Trim whitespace and match the pattern
+      PLAN_SUMMARY=$(echo "$PLAN_SUMMARY" | xargs)
+      [[ "$PLAN_SUMMARY" =~ ([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed ]]
       PROJECTS="${BASH_REMATCH[1]}"
       WITH_CHANGES="${BASH_REMATCH[2]}"
       NO_CHANGES="${BASH_REMATCH[3]}"
