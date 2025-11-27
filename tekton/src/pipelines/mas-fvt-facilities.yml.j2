@@ -43,12 +43,6 @@ spec:
     - name: fvt_digest_facilities
       type: string
       default: ""
-    # - name: fvt_digest_facilities_pytest
-    #   type: string
-    #   default: ""
-    # - name: fvt_digest_facilities_cypress
-    #   type: string
-    #   default: ""
 
     - name: ivt_digest_core
       type: string
@@ -121,7 +115,7 @@ spec:
         - name: fvt_image_digest
           value: $(params.fvt_digest_facilities)
         - name: fvt_test_suite
-          value: facilities_fvt 
+          value: facilities_fvt
         - name: product_channel
           value: $(params.mas_app_channel_facilities)
         - name: product_id
