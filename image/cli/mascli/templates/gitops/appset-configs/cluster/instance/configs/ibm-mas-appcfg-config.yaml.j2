@@ -1,0 +1,22 @@
+mas_config_name: "{{ MAS_CONFIG_NAME }}"
+mas_config_chart: ibm-mas-app-config
+mas_config_scope: {{ MAS_CONFIG_SCOPE }}
+mas_workspace_id: {{ MAS_WORKSPACE_ID }}
+mas_application_id: {{ MAS_APP_ID }}
+mas_config_kind: "AppCfg"
+mas_config_api_version: "config.mas.ibm.com"
+use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
+
+system_appcfg_labels:
+    mas.ibm.com/configScope: system
+    mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
+
+persistentVolume:
+  name: app-config
+  size: 2Gi
+  storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
+
+{% if MAS_APPCFG_POD_TEMPLATE is defined and MAS_APPCFG_POD_TEMPLATE !='' %}
+mas_appcfg_pod_templates:
+  {{ MAS_APPCFG_POD_TEMPLATE | indent(2) }}
+{% endif %}

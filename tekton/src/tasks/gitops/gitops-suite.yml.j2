@@ -142,6 +142,9 @@ spec:
     - name: extensions
       type: string
       default: "false"
+    - name: application_configuration
+      type: string
+      default: "true"
   stepTemplate:
     name: gitops-suite
     env:
@@ -253,6 +256,8 @@ spec:
         value: $(params.is_non_shared_cluster)
       - name: EXTENSIONS
         value: $(params.extensions)
+      - name: APPLICATION_CONFIGURATION
+        value: $(params.application_configuration)
 
     envFrom:
       - configMapRef:

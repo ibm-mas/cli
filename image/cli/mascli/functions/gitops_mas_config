@@ -16,7 +16,7 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                      Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
   --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
-  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
+  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
   --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
   --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}  Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion. !!! PostDelete hooks should never be used when ArgoCD version < 2.10 !!! 
 
@@ -46,6 +46,11 @@ DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
   --dro-ca-certificate-file ${COLOR_YELLOW}DRO_CA_CERTIFICATE_FILE${TEXT_RESET} The location of a file containing the DRO CA certificate
   --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                 The segment key for authentication for Segment
   --mas-bascfg-pod-template-yaml ${COLOR_YELLOW}MAS_BASCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
+
+MAF Configuration (required if MAS_CONFIG_TYPE is "appcfg"):
+  --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                         Enable MAF for the application configuration (true|false)
+  --maf-storageClassName ${COLOR_YELLOW}MAF_STORAGE_CLASSNAME${TEXT_RESET}   Storage class name to use for MAF persistent storage
+  --mas-appcfg-pod-template-yaml ${COLOR_YELLOW}MAS_APPCFG_POD_TEMPLATE_YAML${TEXT_RESET}   
 
 IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
   --idpcfg-display-name ${COLOR_YELLOW}IDPCFG_DISPLAY_NAME${TEXT_RESET}       Display name for IDPCfg resource
@@ -183,7 +188,15 @@ function gitops_mas_config_noninteractive() {
       --mas-bascfg-pod-template-yaml)
         export MAS_BASCFG_POD_TEMPLATE_YAML=$1 && shift
         ;;
-
+      --mas-appcfg-pod-template-yaml)
+        export MAS_APPCFG_POD_TEMPLATE_YAML=$1 && shift
+        ;;
+      --maf-enabled)
+        export MAF_ENABLED=$1 && shift
+        ;; 
+      --maf-storageClassName)
+        export MAF_STORAGE_CLASSNAME=$1 && shift
+        ;;
       # LDAP
       --idpcfg-display-name)
         export IDPCFG_DISPLAY_NAME=$1 && shift
@@ -337,8 +350,8 @@ function gitops_mas_config_noninteractive() {
   fi
 
   [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
-  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
-    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
+  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
+    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
   fi
 
   [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_mas_config_help "MAS_CONFIG_SCOPE is not set"
@@ -374,6 +387,11 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$DRO_CA_CERTIFICATE_FILE" ]] && gitops_mas_config_help "DRO_CA_CERTIFICATE_FILE is not set"
     fi
 
+    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+      [[ -z "$MAF_ENABLED" ]] && gitops_mas_config_help "MAF_ENABLED is not set"
+      # [[ -z "$MAS_APPCFG_POD_TEMPLATE_YAML" ]] && gitops_mas_config_help "MAS_APPCFG_POD_TEMPLATE_YAML is not set"
+      [[ -z "$MAF_STORAGE_CLASSNAME" ]] && gitops_mas_config_help "MAF_STORAGE_CLASSNAME is not set"
+    fi
     # if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
       # No specific parameters required for sls at present; they are all fetched from SM
     # fi
@@ -577,7 +595,13 @@ function gitops_mas_config() {
       echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_BASCFG_POD_TEMPLATE_YAML}"
       reset_colors
     fi
-
+    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+      echo "${TEXT_DIM}"
+      echo_reset_dim "MAF Enabled  ................... ${COLOR_MAGENTA}${MAF_ENABLED}"
+      echo_reset_dim "MAF Storage Class Name  ........ ${COLOR_MAGENTA}${MAF_STORAGE_CLASSNAME}"
+      echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_APPCFG_POD_TEMPLATE_YAML}"
+      reset_colors
+    fi
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
       echo "${TEXT_DIM}"
       echo_reset_dim "SLS URL  ....................... ${COLOR_MAGENTA}https://sls.mas-${MAS_INSTANCE_ID}-sls.svc"
@@ -729,6 +753,17 @@ function gitops_mas_config() {
         TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_mas_config\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
         sm_update_secret $SECRET_NAME_MAS_SEGMENT_KEY "{\"mas_segment_key\": \"$MAS_SEGMENT_KEY\"}" "${TAGS}"
       fi
+    fi
+
+    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+
+      # Set pod template yaml
+      # ---------------------------------------------------------------------------
+      if [[ -n "$MAS_APPCFG_POD_TEMPLATE_YAML" && -s "$MAS_APPCFG_POD_TEMPLATE_YAML" ]]; then
+        export MAS_APPCFG_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_APPCFG_POD_TEMPLATE_YAML})
+        echo -e "\n - MAS_APPCFG_POD_TEMPLATE CONTENT .................. ${MAS_APPCFG_POD_TEMPLATE}"
+      fi
+
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
