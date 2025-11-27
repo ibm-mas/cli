@@ -226,6 +226,39 @@ class InstallSummarizerMixin():
         else:
             self.printSummary("Facilities", "Do Not Install")
 
+    def aiServiceSummary(self) -> None:
+        if self.installAIService:
+            self.printH2("AI Service")
+            self.printParamSummary("Release", "aiservice_channel")
+            self.printParamSummary("Instance ID", "aiservice_instance_id")
+            self.printParamSummary("Environment Type", "environment_type")
+
+            self.printH2("AI Service Tenant Entitlement")
+            self.printParamSummary("Entitlement Type", "tenant_entitlement_type")
+            self.printParamSummary("Start Date", "tenant_entitlement_start_date")
+            self.printParamSummary("End Date", "tenant_entitlement_end_date")
+
+            self.printH2("S3 Configuration")
+            # self.printParamSummary("Storage provider", "aiservice_s3_provider")
+            if self.getParam("minio_root_user") is not None and self.getParam("minio_root_user") != "":
+                self.printParamSummary("Minio Root Username", "minio_root_user")
+            print()
+            self.printParamSummary("Host", "aiservice_s3_host")
+            self.printParamSummary("Port", "aiservice_s3_port")
+            self.printParamSummary("SSL Enabled", "aiservice_s3_ssl")
+            self.printParamSummary("Region", "aiservice_s3_region")
+            self.printParamSummary("Bucket Prefix", "aiservice_s3_bucket_prefix")
+            self.printParamSummary("Templates Bucket Name", "aiservice_s3_templates_bucket")
+            self.printParamSummary("Tenants Bucket Name", "aiservice_s3_tenants_bucket")
+
+            self.printH2("IBM WatsonX")
+            self.printParamSummary("URL", "aiservice_watsonxai_url")
+            self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
+
+            self.printH2("RSL")
+            self.printParamSummary("URL", "rsl_url")
+            self.printParamSummary("Organization ID", "rsl_org_id")
+
     def db2Summary(self) -> None:
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
             self.printH2("IBM Db2 Univeral Operator Configuration")
@@ -391,6 +424,7 @@ class InstallSummarizerMixin():
         self.assistSummary()
         self.inspectionSummary()
         self.facilitiesSummary()
+        self.aiServiceSummary()
 
         # Application Dependencies
         self.mongoSummary()

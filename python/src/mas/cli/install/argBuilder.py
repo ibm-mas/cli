@@ -183,6 +183,8 @@ class installArgBuilderMixin():
             command += f"  --visualinspection-channel \"{self.getParam('mas_app_channel_visualinspection')}\"{newline}"
         if self.installFacilities:
             command += f"  --facilities-channel \"{self.getParam('mas_app_channel_facilities')}\"{newline}"
+        if self.installAIService:
+            command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
 
         # Arcgis
         # -----------------------------------------------------------------------------
@@ -288,6 +290,79 @@ class installArgBuilderMixin():
                 command += f"  --facilities-userfiles-storage-mode \"{self.getParam('mas_ws_facilities_storage_userfiles_mode')}\"{newline}"
             if self.getParam('mas_ws_facilities_storage_userfiles_size') != "":
                 command += f"  --facilities-userfiles-storage-size \"{self.getParam('mas_ws_facilities_storage_userfiles_size')}\"{newline}"
+
+        # AI Service Advanced Settings
+        # -----------------------------------------------------------------------------
+        if self.installAIService:
+            if self.getParam('aiservice_instance_id') != "":
+                command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
+            if self.getParam('aiservice_channel') != "":
+                command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
+            if self.getParam('aiservice_s3_accesskey') != "":
+                command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
+            if self.getParam('aiservice_s3_secretkey') != "":
+                command += f"  --s3-secretkey \"{self.getParam('aiservice_s3_secretkey')}\"{newline}"
+            if self.getParam('aiservice_s3_host') != "":
+                command += f"  --s3-host \"{self.getParam('aiservice_s3_host')}\"{newline}"
+            if self.getParam('aiservice_s3_port') != "":
+                command += f"  --s3-port \"{self.getParam('aiservice_s3_port')}\"{newline}"
+            if self.getParam('aiservice_s3_ssl') != "":
+                command += f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
+            if self.getParam('aiservice_s3_region') != "":
+                command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
+            if self.getParam('aiservice_s3_bucket_prefix') != "":
+                command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
+            if self.getParam('aiservice_s3_tenants_bucket') != "":
+                command += f"  --s3-tenants-bucket \"{self.getParam('aiservice_s3_tenants_bucket')}\"{newline}"
+            if self.getParam('aiservice_s3_templates_bucket') != "":
+                command += f"  --s3-templates-bucket \"{self.getParam('aiservice_s3_templates_bucket')}\"{newline}"
+
+            if self.getParam('aiservice_odh_model_deployment_type') != "":
+                command += f"  --odh-model-deployment-type \"{self.getParam('aiservice_odh_model_deployment_type')}\"{newline}"
+
+            if self.getParam('aiservice_watsonxai_apikey') != "":
+                command += f"  --watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_url') != "":
+                command += f"  --watsonxai-url \"{self.getParam('aiservice_watsonxai_url')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_project_id') != "":
+                command += f"  --watsonxai-project-id \"{self.getParam('aiservice_watsonxai_project_id')}\"{newline}"
+            if self.getParam('aiservice_watsonx_action') != "":
+                command += f"  --watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_ca_crt') != "":
+                command += f"  --watsonxai-ca-crt \"{self.getParam('aiservice_watsonxai_ca_crt')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_deployment_id') != "":
+                command += f"  --watsonxai-deployment-id \"{self.getParam('aiservice_watsonxai_deployment_id')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_space_id') != "":
+                command += f"  --watsonxai-space-id \"{self.getParam('aiservice_watsonxai_space_id')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_instance_id') != "":
+                command += f"  --watsonxai-instance-id \"{self.getParam('aiservice_watsonxai_instance_id')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_username') != "":
+                command += f"  --watsonxai-username \"{self.getParam('aiservice_watsonxai_username')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_version') != "":
+                command += f"  --watsonxai-version \"{self.getParam('aiservice_watsonxai_version')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_full') != "":
+                command += f"  --watsonxai-full \"{self.getParam('aiservice_watsonxai_full')}\"{newline}"
+
+            if self.getParam('minio_root_user') != "":
+                command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
+            if self.getParam('minio_root_password') != "":
+                command += f"  --minio-root-password \"{self.getParam('minio_root_password')}\"{newline}"
+
+            if self.getParam('tenant_entitlement_type') != "":
+                command += f"  --tenant-entitlement-type \"{self.getParam('tenant_entitlement_type')}\"{newline}"
+            if self.getParam('tenant_entitlement_start_date') != "":
+                command += f"  --tenant-entitlement-start-date \"{self.getParam('tenant_entitlement_start_date')}\"{newline}"
+            if self.getParam('tenant_entitlement_end_date') != "":
+                command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
+
+            if self.getParam('rsl_url') != "":
+                command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
+            if self.getParam('rsl_org_id') != "":
+                command += f"  --rsl-org-id \"{self.getParam('rsl_org_id')}\"{newline}"
+            if self.getParam('rsl_token') != "":
+                command += f"  --rsl-token \"{self.getParam('rsl_token')}\"{newline}"
+            if self.getParam('rsl_ca_crt') != "":
+                command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
 
         # IBM Cloud Pak for Data
         # -----------------------------------------------------------------------------
@@ -454,6 +529,8 @@ class installArgBuilderMixin():
             command += f"  --approval-visualinspection \"{self.getParam('approval_visualinspection')}\"{newline}"
         if self.getParam('approval_facilities') != "":
             command += f"  --approval-facilities \"{self.getParam('approval_facilities')}\"{newline}"
+        if self.getParam('approval_aiservice') != "":
+            command += f"  --approval-aiservice \"{self.getParam('approval_aiservice')}\"{newline}"
 
         # More Options
         # -----------------------------------------------------------------------------

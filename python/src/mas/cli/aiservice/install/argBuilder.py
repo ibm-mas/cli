@@ -35,7 +35,7 @@ class aiServiceInstallArgBuilderMixin():
 
         command += f" --ibm-entitlement-key $IBM_ENTITLEMENT_KEY{newline}"
 
-        # Aibroker Instance Id
+        # AI Service Instance Id
         command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
 
         # MAS Advanced Configuration
@@ -87,8 +87,8 @@ class aiServiceInstallArgBuilderMixin():
 
         # Approvals
         # -----------------------------------------------------------------------------
-        if self.getParam('approval_aibroker') != "":
-            command += f"  --approval-aibroker \"{self.getParam('approval_aibroker')}\"{newline}"
+        if self.getParam('approval_aiservice') != "":
+            command += f"  --approval-aiservice \"{self.getParam('approval_aiservice')}\"{newline}"
 
         # More Options
         # -----------------------------------------------------------------------------
