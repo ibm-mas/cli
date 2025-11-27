@@ -51,8 +51,6 @@ spec:
       type: string
     - name: aiservice_watsonxai_ca_crt
       type: string
-    - name: aiservice_watsonx_full
-      type: string
     - name: aiservice_watsonxai_instance_id
       type: string
     - name: aiservice_watsonxai_version
@@ -130,6 +128,8 @@ spec:
         value: $(params.aiservice_sls_subscription_id)
       - name: AISERVICE_WATSONXAI_URL
         value: $(params.aiservice_watsonxai_url)
+      - name: AISERVICE_WATSONX_FULL
+        value: $(params.aiservice_watsonxai_full)
       - name: AISERVICE_WATSONXAI_CA_CRT
         value: $(params.aiservice_watsonxai_ca_crt)
       - name: AISERVICE_WATSONXAI_INSTANCE_ID
