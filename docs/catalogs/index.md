@@ -201,7 +201,7 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td><a href="v9-251127-ppc64le/">ppc64le</a></td>
           <td>4.16 - 4.19</td>
           <td>5.1.3</td>
-          <td>6.0 - 8.0</td>
+          <td>7.0 - 8.0</td>
           <td>latest</td>
           <td>OCP 4.19 EOS N/A</td>
         </tr>
