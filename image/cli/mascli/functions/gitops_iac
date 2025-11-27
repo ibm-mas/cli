@@ -351,7 +351,7 @@ function gitops_iac() {
     if [[ -n "${PR_NUMBER}" && "${PR_NUMBER}" != "null" ]]; then
       
       echo_h2 "Monitoring PR #${PR_NUMBER} Status"
-      ATLANTIS_CLOSE_COMMENT_BODY="atlantis close"
+      ATLANTIS_UNLOCK_COMMENT_BODY="atlantis unlock"
       PR_PLAN_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER")
       echo "PR_PLAN_COMMENT: "$PR_PLAN_COMMENT
       
@@ -372,19 +372,19 @@ function gitops_iac() {
             fi
           else
             echo_h2 "⚠️  Atlantis Apply Failed. Pipeline Failed."
-            comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_CLOSE_COMMENT_BODY"
+            comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
             close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
             exit 1
           fi
         else
           echo_h2 "⚠️  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
-          comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_CLOSE_COMMENT_BODY"
+          comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
           close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
           exit 1
         fi
       else
         echo_h2 "⚠️  Atlantis Plan Failed. Closing PR. Pipeline Failed."
-        comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_CLOSE_COMMENT_BODY"
+        comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
         close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
         exit 1
       fi
