@@ -893,6 +893,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Must start with a lowercase letter",
             " - Must end with a lowercase letter or a number"
         ])
+
+        # Install Db2 for AI Service
+        self.setParam("db2_action_aiservice", "install")
+        
         self.promptForString("Instance ID", "aiservice_instance_id", validator=InstanceIDFormatValidator())
         self.params["aiservice_channel"] = prompt(HTML('<Yellow>Custom channel for AI Service</Yellow> '))
 
@@ -1234,6 +1238,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "aiservice_channel":
                 if value is not None and value != "":
                     self.setParam("aiservice_channel", value)
+                    # Install Db2 for AI Service
+                    self.setParam("db2_action_aiservice", "install")
                     self.installAIService = True
 
             # Manage advanced settings that need extra processing
