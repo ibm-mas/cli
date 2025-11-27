@@ -245,6 +245,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-251127-amd64/">
+    Nov 27 2025
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-251030-amd64/">
     Oct 30 2025
   </cds-side-nav-menu-item>
@@ -259,12 +265,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-250925-amd64/">
     Sep 25 2025
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-250902-amd64/">
-    Sep 02 2025
   </cds-side-nav-menu-item>
 
     
@@ -328,9 +328,9 @@
       <h1 id="update">Update<a class="headerlink" href="#update" title="Permanent link">¤</a></h1>
 <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
 <p>Usage information can be obtained using <code>mas update --help</code></p>
-<pre><code>usage: mas update [-c MAS_CATALOG_VERSION] [--db2-namespace DB2_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade] [--mongodb-v6-upgrade] [--mongodb-v7-upgrade]
-                  [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {redhat,strimzi}]
-                  [--no-confirm] [--skip-pre-check] [-h]
+<pre><code>usage: mas update [-c MAS_CATALOG_VERSION] [--db2-namespace DB2_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade] [--mongodb-v6-upgrade] [--mongodb-v7-upgrade] [--mongodb-v8-upgrade]
+                  [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {redhat,strimzi}] [--dro-migration DRO_MIGRATION]
+                  [--dro-storage-class DRO_STORAGE_CLASS] [--dro-namespace DRO_NAMESPACE] [--no-confirm] [--skip-pre-check] [-h]
 
 IBM Maximo Application Suite Admin CLI v100.0.0
 Update the IBM Maximo Operator Catalog, and related MAS dependencies by configuring and launching the MAS Update Tekton Pipeline.
@@ -348,6 +348,7 @@ Update Dependencies:
   --mongodb-v5-upgrade                            Required to confirm a major version update for MongoDb to version 5
   --mongodb-v6-upgrade                            Required to confirm a major version update for MongoDb to version 6
   --mongodb-v7-upgrade                            Required to confirm a major version update for MongoDb to version 7
+  --mongodb-v8-upgrade                            Required to confirm a major version update for MongoDb to version 8
   --kafka-namespace KAFKA_NAMESPACE               Namespace where Kafka operator and instances will be updated
   --kafka-provider {redhat,strimzi}               The type of Kakfa operator installed in the target namespace for updte
 
@@ -387,7 +388,7 @@ More:
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-11-27 09:04:18.543240+00:00)
+      Built with mkdocs v1.6.1 (2025-11-27 10:12:50.691334+00:00)
     </div> -->
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
