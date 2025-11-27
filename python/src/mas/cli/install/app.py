@@ -896,7 +896,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Install Db2 for AI Service
         self.setParam("db2_action_aiservice", "install")
-        
+
         self.promptForString("Instance ID", "aiservice_instance_id", validator=InstanceIDFormatValidator())
         self.params["aiservice_channel"] = prompt(HTML('<Yellow>Custom channel for AI Service</Yellow> '))
 
