@@ -124,15 +124,8 @@ class UpdateApp(BaseApp):
 
         with Halo(text='Checking for IBM Certificate-Manager', spinner=self.spinner) as h:
             if self.isIBMCertManagerInstalled():
-                h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager will be replaced by Red Hat Certificate-Manager")
-                self.setParam("cert_manager_action", "install")
-                self.setParam("cert_manager_provider", "redhat")
-                self.printHighlight([
-                    "<u>Migration Notice</u>",
-                    "IBM Certificate-Manager is currently running in the ${CERT_MANAGER_NAMESPACE} namespace",
-                    "This will be uninstalled and replaced by Red Hat Certificate-Manager as part of this update",
-                    ""
-                ])
+                h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is installed")
+                self.fatalError("IBM Certificate-Manager is currently installed and automatic migration of IBM Certificate-Manager is no longer supported. Please contact IBM support for assistance.")
             else:
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is not installed")
 
@@ -176,7 +169,6 @@ class UpdateApp(BaseApp):
             self.printSummary("IBM Cloud Pak for Data", "No action required")
 
         self.printH2("Required Migrations")
-        self.printSummary("IBM Certificate-Manager", "Migrate to Red Hat Certificate-Manager" if self.getParam("cert_manager_action") != "" else "No action required")
         self.printSummary("Grafana v4 Operator", "Migrate to Grafana v5 Operator" if self.getParam("grafana_v5_upgrade") != "" else "No action required")
 
         if not self.noConfirm:
@@ -299,11 +291,6 @@ class UpdateApp(BaseApp):
             return False
 
     def isIBMCertManagerInstalled(self) -> bool:
-        """
-        Check whether the deprecated IBM Certificate-Manager is installed, if it is then we will
-        automatically migrate to Red Hat Certificate-Manager
-        """
-
         try:
             # Check if 'ibm-common-services' namespace exist, this will throw NotFoundError exception when not found
             namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
