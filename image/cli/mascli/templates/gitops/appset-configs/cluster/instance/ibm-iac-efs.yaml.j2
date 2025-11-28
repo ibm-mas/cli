@@ -8,13 +8,17 @@ module "efs" {
   efs_mount_count  = "{{EFS_MOUNT_COUNT}}"
 
   lifecycle_policy = {
+    {% if EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA is defined and EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA
+     | trim != '' %}
     transition_to_ia                    = "{{EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA}}"
-    transition_to_primary_storage_class = "{{EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS}}"
-  }
-    # encrypted
-    # kms_key_arn
+    {% endif %}
 
-    # provisioned_throughput_in_mibps
+    {% if EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS is defined and
+    EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS | trim != '' %}
+    transition_to_primary_storage_class = "{{EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS}}"
+    {% endif %}
+  }
+
     throughput_mode              = "{{EFS_THROUGHPUT_MODE}}"
     efs_mount_ingress_subnet_ids = local.cluster.internal_subnet_ids
     efs_mount_egress_subnet_ids  = local.cluster.external_subnet_ids

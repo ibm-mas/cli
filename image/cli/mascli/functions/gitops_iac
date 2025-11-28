@@ -282,6 +282,7 @@ function gitops_iac() {
 
 
   # ---------------------------------------------------------------------------
+  #  creating files for efs.tf only
   if [[ "$IS_EFS"  == "true" ]]; then
     echo
     echo_h2 "Generating IAC/EFS Configuration"
@@ -289,37 +290,39 @@ function gitops_iac() {
 
     echo "generating path for CLUSTER_CIDR_WORKLOAD_EXTERNAL"
 
-
+    #Creating file path for extracting parameter value from cluster & vpc
     CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
     MAIN_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/main.tf
     TERRAFORMTF_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/terraform.tfvars
+    VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/vpcs/${VPC_NAME_VALUE}/main.tf
+
+    #Creating value path for extracting parameter value from .tf file
     VPC_ID_DOT_PATH="vpc_id"
     VPC_NAME_DOT_PATH="vpc_name"
     CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH="locals.cluster.cidrs.workload_external"
     VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH="locals.cluster.cidrs.workload_internal"
-
-    export CLUSTER_CIDR_WORKLOAD_EXTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "${CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH}")
-    export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "${VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH}")
-
-    export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_ID_DOT_PATH}")
-    export VPC_NAME_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_NAME_DOT_PATH}")
-
-    VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/vpcs/${VPC_NAME_VALUE}/main.tf
     EFS_CIDR_REF_NAME=${CLUSTER_ID}-${MAS_INSTANCE_ID}-efs
     VPC_CIDR_WORKLOAD_DOT_PATH="locals.workloads[\"${EFS_CIDR_REF_NAME}\"].cidrs"
 
+    #Extracting values from .tf file
+    export CLUSTER_CIDR_WORKLOAD_EXTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "${CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH}")
+    export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "${VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH}")
+    export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_ID_DOT_PATH}")
+    export VPC_NAME_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_NAME_DOT_PATH}")
     export VPC_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${VPC_CIDR_PATH}" "${VPC_CIDR_WORKLOAD_DOT_PATH}")
 
     echo "CLUSTER_CIDR_WORKLOAD_EXTERNAL  ${CLUSTER_CIDR_WORKLOAD_EXTERNAL}"
     echo "CLUSTER_CIDR_WORKLOAD_INTERNAL  ${CLUSTER_CIDR_WORKLOAD_INTERNAL}"
     echo "VPC_CIDR_WORKLOAD_INTERNAL  ${VPC_CIDR_WORKLOAD_INTERNAL}"
-    echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/efs.tf"
 
+    #Generating .tf files using templates
     echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-mainTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
 
     echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
+
+    echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/efs.tf"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
 
 
