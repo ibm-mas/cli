@@ -1334,6 +1334,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         if vars(self.args)[rKey] is None:
                             self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
 
+                    # Extra validation: minio_root_password must be at least 8 characters
+                    minio_pass = vars(self.args)["minio_root_password"]
+                    if len(minio_pass) < 8:
+                        self.fatalError("minio_root_password must be at least 8 characters long")
+
                     # self.setParam("aiservice_s3_provider", "minio")
 
                     self.setParam("aiservice_s3_accesskey", self.args.minio_root_user)
