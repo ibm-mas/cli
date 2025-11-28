@@ -202,6 +202,9 @@ optionalParams = [
     "aiservice_watsonxai_instance_id",
     "aiservice_watsonxai_verify",
 
+    "minio_root_user",
+    "minio_root_password",
+
     "tenant_entitlement_type",
     "tenant_entitlement_start_date",
     "tenant_entitlement_end_date",

@@ -729,6 +729,14 @@ odhArgGroup.add_argument(
 # S3 - General
 # -----------------------------------------------------------------------------
 s3ArgGroup = installArgParser.add_argument_group("S3 Storage")
+s3ArgGroup.add_argument(
+    "--install-minio",
+    dest="install_minio_aiservice",
+    required=False,
+    help="Install Minio and configure it as the S3 provider for AI Service",
+    action="store_const",
+    const="true"
+)
 
 # S3 - Minio
 # -----------------------------------------------------------------------------

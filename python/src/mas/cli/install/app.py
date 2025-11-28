@@ -1311,7 +1311,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "enable_ipv6":
                 self.setParam("enable_ipv6", True)
 
-            elif key == "minio_root_user" or key == "minio_root_password":
+            elif key == "install_minio_aiservice":
                 incompatibleWithMinioInstall = [
                     "aiservice_s3_accesskey",
                     "aiservice_s3_secretkey",
@@ -1321,14 +1321,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "aiservice_s3_bucket_prefix",
                     "aiservice_s3_region"
                 ]
-                if value is not None:
+                if value is None:
+                    for uKey in incompatibleWithMinioInstall:
+                        if vars(self.args)[uKey] is None:
+                            self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
+                elif value is not None and value == "true":
                     # If user is installing Minio in-cluster then we know how to connect to it already
                     for uKey in incompatibleWithMinioInstall:
                         if vars(self.args)[uKey] is not None:
-                            self.fatalError(f"Unsupported parameter for minio Installation: {uKey} cannot be set when --minio-root-user or --minio-root-password is set")
+                            self.fatalError(f"Unsupported parameter for --install-minio: {uKey}")
                     for rKey in ["minio_root_user", "minio_root_password"]:
                         if vars(self.args)[rKey] is None:
-                            self.fatalError(f"Missing required parameter for install minio: {rKey}")
+                            self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
 
                     # self.setParam("aiservice_s3_provider", "minio")
 
@@ -1342,6 +1346,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("aiservice_s3_ssl", "false")
                     self.setParam("aiservice_s3_region", "none")
                     self.setParam("aiservice_s3_bucket_prefix", "s3-")
+                else:
+                    self.fatalError(f"Unsupported value for --install-minio: {value}")
 
             elif key == "aiservice_s3_bucket_prefix":
                 if len(value) == 0 or len(value) > 4:
