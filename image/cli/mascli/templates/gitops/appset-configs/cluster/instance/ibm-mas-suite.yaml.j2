@@ -99,5 +99,5 @@ ibm_mas_suite:
 
 {% if WELCOME_MESSAGE is defined and WELCOME_MESSAGE != '' %}
   welcome_message: |
-    {{ WELCOME_MESSAGE }}
+    {{ WELCOME_MESSAGE | indent(4) }}
 {% endif %}
