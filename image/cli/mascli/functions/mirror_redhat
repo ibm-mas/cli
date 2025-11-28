@@ -152,8 +152,6 @@ function mirror_redhat_interactive() {
   echo "  2) 4.18"
   echo "  3) 4.17"
   echo "  4) 4.16"
-  echo "  5) 4.15"
-  echo "  6) 4.14"
   reset_colors
 
   echo
@@ -171,12 +169,6 @@ function mirror_redhat_interactive() {
       ;;
     4)
       OCP_RELEASE=4.16
-      ;;
-    5)
-      OCP_RELEASE=4.15
-      ;;
-    6)
-      OCP_RELEASE=4.14
       ;;
     *)
       echo_warning "Invalid selection"

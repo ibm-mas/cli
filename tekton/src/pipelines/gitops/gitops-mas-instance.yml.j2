@@ -244,6 +244,10 @@ spec:
       type: string
       default: ""
 
+   # standalone sls
+    - name: sls_service
+      type: string
+      default: ""
   tasks:
 
     # 0. Per-instance DB2U Operator
@@ -460,6 +464,8 @@ spec:
           value: $(params.application_configuration)
         - name: extensions
           value: $(params.extensions)
+        - name: sls_service
+          value: $(params.sls_service)
       taskRef:
         kind: Task
         name: gitops-suite
@@ -514,6 +520,8 @@ spec:
           value: $(params.mas_bascfg_pod_template_yaml)
         - name: mas_slscfg_pod_template_yaml
           value: $(params.mas_slscfg_pod_template_yaml)
+        - name: sls_service
+          value: $(params.sls_service)
       workspaces:
         - name: configs
           workspace: configs

@@ -145,6 +145,9 @@ spec:
     - name: application_configuration
       type: string
       default: "true"
+    - name: sls_service
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-suite
     env:
@@ -258,6 +261,8 @@ spec:
         value: $(params.extensions)
       - name: APPLICATION_CONFIGURATION
         value: $(params.application_configuration)
+      - name: STANDALONE_SLS_SERVICE
+        value: $(params.sls_service)
 
     envFrom:
       - configMapRef:
