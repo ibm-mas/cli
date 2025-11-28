@@ -894,7 +894,7 @@ spec:
 
     # 3. Deprovision app config
     # -------------------------------------------------------------------------
-    - name: gitops-delete-App-config
+    - name: gitops-deprovision-app-config
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
