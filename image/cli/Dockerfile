@@ -1,4 +1,4 @@
-FROM quay.io/ibmmas/cli-base:2.0.0-pre.py311
+FROM quay.io/ibmmas/cli-base:latest
 ARG VERSION_LABEL
 
 # Auto-expire the image in quay.io after 3 weeks
