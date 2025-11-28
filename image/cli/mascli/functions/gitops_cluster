@@ -795,7 +795,7 @@ function gitops_cluster() {
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/falcon-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/falcon-operator.yaml
   fi
 
-  if [[ -n "$CLUSTER_LOGGING_OPERATOR_INSTALL" ]]; then
+  if [[ "$CLUSTER_LOGGING_OPERATOR_INSTALL" == "true" ]]; then
     echo "- Cluster Logging Operator"
     sm_verify_secret_exists $SECRET_NAME_CLOUDWATCH "aws_access_key_id,aws_secret_access_key"
     if [[ "$CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING" == "true" ]]; then
@@ -813,7 +813,7 @@ function gitops_cluster() {
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/cluster-logging-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/cluster-logging-operator.yaml
   fi
 
-  if [[ -n "$INSTANA_AGENT_OPERATOR_INSTALL" ]]; then
+  if [[ "$INSTANA_AGENT_OPERATOR_INSTALL" == "true" ]]; then
     echo "- Instana Agent Operator"
     sm_verify_secret_exists $SECRET_NAME_INSTANA "key"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instana-agent-operator.yaml.j2 ${GITOPS_CLUSTER_DIR}/instana-agent-operator.yaml

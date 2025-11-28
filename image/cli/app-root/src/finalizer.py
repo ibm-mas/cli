@@ -1,6 +1,6 @@
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, UTC
 from pymongo import MongoClient
 from kubernetes import client, config
 from kubernetes.client import Configuration
@@ -159,19 +159,7 @@ def getcp4dCompsVersions():
     except Exception as e:
         print(f"Unable to determine WML version: {e}")
 
-    # Get  SPSS Modeler Version
-    # -------------------------------------------------------------------------
-    try:
-        crs = dynClient.resources.get(api_version="spssmodeler.cpd.ibm.com/v1", kind="Spss")
-        cr = crs.get(name="spssmodeler", namespace="ibm-cpd")
-        if cr.status and cr.status.version:
-            setObject["target.SpssVersion"] = cr.status.version
-        else:
-            print("Unable to determine SPSS Modeler version: status.version unavailable")
-    except Exception as e:
-        print(f"Unable to determine SPSS Modeler version: {e}")
-
-    # Get  Cognos Analytics Version
+    # Get Cognos Analytics Version
     # -------------------------------------------------------------------------
     try:
         crs = dynClient.resources.get(api_version="ca.cpd.ibm.com/v1", kind="CAService")
@@ -235,7 +223,7 @@ if __name__ == "__main__":
 
     setObject = {}
     if setFinished.lower() == "true":
-        setObject["timestampFinished"] = datetime.utcnow()
+        setObject["timestampFinished"] = datetime.now(UTC)
 
     # Set CLI and ansible-devops version
     # -------------------------------------------------------------------------

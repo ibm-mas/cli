@@ -347,7 +347,7 @@ droArgGroup.add_argument(
 droArgGroup.add_argument(
     "--dro-namespace",
     required=False,
-    help=""
+    help="Namespace for DRO"
 )
 
 # MongoDb Community Operator
@@ -711,14 +711,6 @@ cpdAppsArgGroup.add_argument(
     dest="cpd_product_version",
     required=False,
     help="Product version of CP4D to use"
-)
-cpdAppsArgGroup.add_argument(
-    "--cp4d-install-spss",
-    dest="cpd_install_spss",
-    required=False,
-    help="Add SPSS Modeler as part of Cloud Pak for Data",
-    action="store_const",
-    const="install"
 )
 cpdAppsArgGroup.add_argument(
     "--cp4d-install-cognos",

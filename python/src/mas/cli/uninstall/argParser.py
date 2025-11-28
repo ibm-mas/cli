@@ -56,13 +56,7 @@ depsArgGroup.add_argument(
     default=False,
     help="Uninstall Certificate Manager from the target cluster",
 )
-depsArgGroup.add_argument(
-    '--uninstall-common-services',
-    required=False,
-    action='store_true',
-    default=False,
-    help="Uninstall IBM Common Services from the target cluster",
-)
+
 depsArgGroup.add_argument(
     '--uninstall-grafana',
     required=False,

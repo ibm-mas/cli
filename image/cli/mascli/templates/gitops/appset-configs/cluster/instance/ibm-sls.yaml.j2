@@ -1,10 +1,14 @@
 merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}"
 
 ibm_sls:
+{%- if ICN %}
+  ibm_customer_number: "{{ ICN }}"
+  subscription_id: "{{ SAAS_SUB_ID }}"
+{%- else %}
   sls_channel: {{ SLS_CHANNEL }}
   sls_entitlement_file: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LICENSE_FILE }}>
   ibm_entitlement_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_IBM_ENTITLEMENT }}>
-
+  
   # aws docdb
   mongodb_provider: "{{ MONGODB_PROVIDER }}"
   user_action: "{{ USER_ACTION }}"
@@ -52,4 +56,6 @@ ibm_sls:
 {%- endif -%}
 {% if INTERNAL_CERTIFICATE_AUTHORITY is defined and INTERNAL_CERTIFICATE_AUTHORITY != '' %}
   internal_certificate_authority: {{ INTERNAL_CERTIFICATE_AUTHORITY }}
+{% endif %}
+
 {% endif %}
