@@ -20,21 +20,25 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
 
 MAS PROVISIONER OPERATOR:
-      --status-repo-url ${COLOR_YELLOW}STATUS_REPO_URL${TEXT_RESET}              GitHub repo where the status of the operation will be recorded
-      --provisioner-domain ${COLOR_YELLOW}PROVISIONER_DOMAIN${TEXT_RESET}        The domain to setup route and service for the MAS Provisioner
+      --status-repo-url ${COLOR_YELLOW}STATUS_REPO_URL${TEXT_RESET}                       Git repo where the order status of the operation will be recorded
+      --provisioner-domain ${COLOR_YELLOW}PROVISIONER_DOMAIN${TEXT_RESET}                 The domain to setup route and service for the MAS Provisioner
     (Optional)
-      --provisioner-namespace ${COLOR_YELLOW}PROVISIONER_NAMESPACE${TEXT_RESET}      Namespace for the mas provisioner
-      --account-alias ${COLOR_YELLOW}ACCOUNT_ALIAS${TEXT_RESET}                      Enables customization for the account id to use in the status repo. Default is fetched from the order payload received
-      --provisioner-version ${COLOR_YELLOW}PROVISIONER_VERSION${TEXT_RESET}          The version tag for MAS Provisioner. Default is latest
-      --enable-mtls ${COLOR_YELLOW}ENABLE_MTLS${TEXT_RESET}                          Enables mutual tls which requires ca certs to be exchanged with the client. Default is false
-      --csb-ca-certificate-file ${COLOR_YELLOW}CSB_CA_CERTIFICATE_FILE${TEXT_RESET}  Location of the file containing the CA certificate from MCSP CSB. Required when enable-mtls is true
-      --service-port ${COLOR_YELLOW}SERVICE_PORT${TEXT_RESET}                        Service port. Defaults to 7329
-      --base-branch ${COLOR_YELLOW}BASE_BRANCH${TEXT_RESET}                          The reference branch that will be cloned during processing of the order in case the master branch is not used. Default is master
-      --async-poll-interval ${COLOR_YELLOW}ASYNC_POLL_INTERVAL${TEXT_RESET}          The intervals in seconds between each poll from MCSP to check the status of the orders. Default is 600
-      --async-poll-max ${COLOR_YELLOW}ASYNC_POLL_MAX${TEXT_RESET}                    The maximum amount of time in seconds for MCSP to keep polling to check the status of an order. Default is 864000
-      --enable-pd-alert ${COLOR_YELLOW}ENABLE_PD_ALERT${TEXT_RESET}                  Turn PagerDuty alerts on/off. Default is false
-      --enable-ocm-alert ${COLOR_YELLOW}ENABLE_OCM_ALERT${TEXT_RESET}                Turn On Call Manager alerts on/off. Default is false
-      --recommend-cluster ${COLOR_YELLOW}RECOMMEND_CLUSTER${TEXT_RESET}              Turn cluster recommendation which uses Instana on/off. Default is false
+      --provisioner-storage-class ${COLOR_YELLOW}PROVISIONER_STORAGE_CLASS${TEXT_RESET}           The storage class for the logs PVC. Default is ocs-storagecluster-cephfs
+      --provisioner-namespace ${COLOR_YELLOW}PROVISIONER_NAMESPACE${TEXT_RESET}                   Namespace for the mas provisioner
+      --account-alias ${COLOR_YELLOW}ACCOUNT_ALIAS${TEXT_RESET}                                   Enables customization for the account id to use in the status repo. Default is fetched from the order payload received
+      --provisioner-version ${COLOR_YELLOW}PROVISIONER_VERSION${TEXT_RESET}                       The version tag for MAS Provisioner. Default is latest
+      --enable-mtls ${COLOR_YELLOW}ENABLE_MTLS${TEXT_RESET}                                       Enables mutual tls which requires ca certs to be exchanged with the client. Default is false
+      --csb-client-ca-certificate-file ${COLOR_YELLOW}CSB_CLIENT_CA_CERTIFICATE_FILE${TEXT_RESET} Location of the file containing the CA certificate from MCSP CSB. Can provide when ENABLE_MTLS is set or a client auth cert would be provided in the cluster for use in test cases.
+      --service-port ${COLOR_YELLOW}SERVICE_PORT${TEXT_RESET}                                     Service port. Defaults to 7329
+      --base-branch ${COLOR_YELLOW}BASE_BRANCH${TEXT_RESET}                                       The reference branch that will be cloned during processing of the order in case the master branch is not used. Default is master
+      --async-poll-interval ${COLOR_YELLOW}ASYNC_POLL_INTERVAL${TEXT_RESET}                       The intervals in seconds between each poll from MCSP to check the status of the orders. Default is 600
+      --async-poll-max ${COLOR_YELLOW}ASYNC_POLL_MAX${TEXT_RESET}                                 The maximum amount of time in seconds for MCSP to keep polling to check the status of an order. Default is 864000
+      --enable-pd-alert ${COLOR_YELLOW}ENABLE_PD_ALERT${TEXT_RESET}                               Turn PagerDuty alerts on/off. Default is false
+      --enable-ocm-alert ${COLOR_YELLOW}ENABLE_OCM_ALERT${TEXT_RESET}                             Turn On Call Manager alerts on/off. Default is false
+      --recommend-cluster ${COLOR_YELLOW}RECOMMEND_CLUSTER${TEXT_RESET}                           Turn cluster recommendation which uses Instana on/off. Default is false
+      --instana-url-prefix ${COLOR_YELLOW}INSTANA_URL_PREFIX${TEXT_RESET}                         The suffix "/api/infrastructure-monitoring/analyze/entities" is appended to the url prefix to make api calls to instana
+      --git-root-ca-certificate-file ${COLOR_YELLOW}GIT_ROOT_CA_CERTIFICATE_FILE${TEXT_RESET}     Location of the file containing the root CA certs for private Git repos
+      --mas-annotations-repo-url ${COLOR_YELLOW}MAS_ANNOTATIONS_REPO_URL${TEXT_RESET}             Git repo where the MAS annotations for hyperscaler lifecycle can be managed. Defaults to the value of STATUS_REPO_URL
 
 Automatic GitHub Push:
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -93,6 +97,9 @@ function gitops_mas_provisioner_noninteractive() {
         ;;
 
       # MAS PROVISIONER OPERATOR
+      --provisioner-storage-class)
+        export PROVISIONER_STORAGE_CLASS=$1 && shift
+        ;;
       --account-alias)
         export ACCOUNT_ALIAS=$1 && shift
         ;;
@@ -105,8 +112,8 @@ function gitops_mas_provisioner_noninteractive() {
       --enable-mtls)
         export ENABLE_MTLS=true
         ;;
-      --csb-ca-certificate-file)
-        export CSB_CA_CERTIFICATE_FILE=$1 && shift
+      --csb-client-ca-certificate-file)
+        export CSB_CLIENT_CA_CERTIFICATE_FILE=$1 && shift
         ;;
       --service-port)
         export SERVICE_PORT=$1 && shift
@@ -134,6 +141,15 @@ function gitops_mas_provisioner_noninteractive() {
         ;;
       --recommend-cluster)
         export RECOMMEND_CLUSTER=true
+        ;;
+      --instana-url-prefix)
+        export INSTANA_URL_PREFIX=$1 && shift
+        ;;
+      --git-root-ca-certificate-file)
+        export GIT_ROOT_CA_CERTIFICATE_FILE=$1 && shift
+        ;;
+      --mas-annotations-repo-url)
+        export MAS_ANNOTATIONS_REPO_URL=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -188,10 +204,6 @@ function gitops_mas_provisioner_noninteractive() {
   [[ -z "$STATUS_REPO_URL" ]] && gitops_mas_provisioner_help "STATUS_REPO_URL is not set"
   [[ -z "$PROVISIONER_DOMAIN" ]] && gitops_mas_provisioner_help "PROVISIONER_DOMAIN is not set"
 
-  if [[ "$ENABLE_MTLS" == "true" ]]; then
-    [[ -z "$CSB_CA_CERTIFICATE_FILE" ]] && gitops_mas_provisioner_help "CSB_CA_CERTIFICATE_FILE is not set"
-  fi
-
 }
 
 function gitops_mas_provisioner() {
@@ -213,6 +225,7 @@ function gitops_mas_provisioner() {
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
 
   # set default values of envs if not provided
+  export PROVISIONER_STORAGE_CLASS=${PROVISIONER_STORAGE_CLASS:-"ocs-storagecluster-cephfs"}
   export ENABLE_MTLS=${ENABLE_MTLS:-false}
   export ENABLE_OCM_ALERT=${ENABLE_OCM_ALERT:-false}
   export ENABLE_PD_ALERT=${ENABLE_PD_ALERT:-false}
@@ -223,6 +236,8 @@ function gitops_mas_provisioner() {
   export ASYNC_POLL_INTERVAL=${ASYNC_POLL_INTERVAL:-600}
   export ASYNC_POLL_MAX=${ASYNC_POLL_MAX:-864000}
   export RECOMMEND_CLUSTER=${RECOMMEND_CLUSTER:-false}
+  export INSTANA_URL_PREFIX=${INSTANA_URL_PREFIX:-"https://maximonp-ibmaiapps.instana.io"}
+  export MAS_ANNOTATIONS_REPO_URL=${MAS_ANNOTATIONS_REPO_URL:-$STATUS_REPO_URL}
 
   echo
   reset_colors
@@ -264,9 +279,9 @@ function gitops_mas_provisioner() {
   echo_reset_dim "Provisioner Version ..................... ${COLOR_MAGENTA}${PROVISIONER_VERSION}"
   echo_reset_dim "Provisioner Domain ...................... ${COLOR_MAGENTA}${PROVISIONER_DOMAIN}"
   echo_reset_dim "Status Repo URL ......................... ${COLOR_MAGENTA}${STATUS_REPO_URL}"
+  echo_reset_dim "MAS Annotations Repo URL ................ ${COLOR_MAGENTA}${MAS_ANNOTATIONS_REPO_URL}"
   echo_reset_dim "Base Branch ............................. ${COLOR_MAGENTA}${BASE_BRANCH}"
   echo_reset_dim "Enable MTLS ............................. ${COLOR_MAGENTA}${ENABLE_MTLS}"
-  echo_reset_dim "CSB CA Cert File ........................ ${COLOR_MAGENTA}${CSB_CA_CERTIFICATE_FILE}"
   echo_reset_dim "Enable PD Alert ......................... ${COLOR_MAGENTA}${ENABLE_PD_ALERT}"
   echo_reset_dim "Enable OCM Alert ........................ ${COLOR_MAGENTA}${ENABLE_OCM_ALERT}"
   echo_reset_dim "Recommend Cluster ....................... ${COLOR_MAGENTA}${RECOMMEND_CLUSTER}"
@@ -302,6 +317,9 @@ function gitops_mas_provisioner() {
       echo "- Update INSTANA_KEY secret"
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_cluster\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       sm_update_secret ${SECRET_NAME_INSTANA_API} "{\"key\": \"${INSTANA_KEY}\"}" "${TAGS}"
+    else
+      echo_warning "'RECOMMEND_CLUSTER' has been set but 'INSTANA_KEY' was not provided"
+      exit 1
     fi
   fi
 
@@ -338,12 +356,15 @@ function gitops_mas_provisioner() {
   fi
 
   if [ "$ENABLE_MTLS" == "true" ]; then
-    if [ -s "$CSB_CA_CERTIFICATE_FILE" ]; then
-      export CSB_CA_CERT=$(cat ${CSB_CA_CERTIFICATE_FILE} | base64 -w0)
+    if [ -s "$CSB_CLIENT_CA_CERTIFICATE_FILE" ]; then
+      export CSB_CLIENT_CA_CERT=$(cat ${CSB_CLIENT_CA_CERTIFICATE_FILE} | base64 -w0)
     else
-      echo_warning "Required value for mtls 'CSB_CA_CERTIFICATE_FILE' is missing or empty"
-      exit 1
+      echo "Since MTLS is enabled but 'CSB_CLIENT_CA_CERTIFICATE_FILE' is missing or empty. A client auth secret 'mas-provisioner-client-tls' will be created in the cluster for Client Auth purposes and to allow MTLS."
     fi
+  fi
+
+  if [ -s "$GIT_ROOT_CA_CERTIFICATE_FILE" ]; then
+    export GIT_ROOT_CA_CERTIFICATE=$(cat ${GIT_ROOT_CA_CERTIFICATE_FILE} | base64 -w0)
   fi
 
   echo "- Verify that git secret exists"

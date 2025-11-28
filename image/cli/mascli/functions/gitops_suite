@@ -26,6 +26,7 @@ MongoDb Provider Selection (Required):
       --mongo-provider ${COLOR_YELLOW}MONGODB_PROVIDER${TEXT_RESET}  The mongodb provider to install ('aws' or 'yaml')
 
 IBM Suite License Service:
+  -s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}         for ibm internal use only.
       --sls-channel ${COLOR_YELLOW}SLS_CHANNEL${TEXT_RESET}  IBM Suite License Service Subscription Channel
       --sls-install-plan ${COLOR_YELLOW}SLS_INSTALL_PLAN${TEXT_RESET}  IBM Suite License Service Subscription Install Plan ('Automatic' or 'Manual'. Default is 'Automatic')
 
@@ -136,7 +137,22 @@ function gitops_suite_noninteractive() {
 
   # cert-manager namespace, in case redhat default value is cert-manager
   export CERT_MANAGER_NAMESPACE=${CERT_MANAGER_NAMESPACE:-"cert-manager"}
-        
+
+  if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
+      CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
+      IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+      if [ ${#PARTS[@]} -lt 6 ]; then
+          echo "Error: Invalid SLS service parameter file Path $STANDALONE_SLS_SERVICE format." >&2
+          exit 1
+      fi
+      ICN="${PARTS[3]}"
+      SAAS_SUB_ID="${PARTS[4]}"
+  fi
+   
+  export ICN=${ICN:-""}
+  export SAAS_SUB_ID=${SAAS_SUB_ID:-""}
+
+
   while [[ $# -gt 0 ]]
   do
     key="$1"
@@ -191,6 +207,11 @@ function gitops_suite_noninteractive() {
         ;;
       --sls-install-plan)
         export SLS_INSTALL_PLAN=$1 && shift
+        ;;
+
+      # Standalone Server configuration
+      -s|--sls-service)
+        export STANDALONE_SLS_SERVICE=$1 && shift
         ;;
 
       # MAS
@@ -503,6 +524,10 @@ function gitops_suite() {
   echo_h4 "IBM Suite License Service" "    "
   echo_reset_dim "Subscription Channel ........... ${COLOR_MAGENTA}${SLS_CHANNEL}"
   echo_reset_dim "Subscription Install Plan ...... ${COLOR_MAGENTA}${SLS_INSTALL_PLAN}"
+  echo_reset_dim "Ibm Customer Number  ........... ${COLOR_MAGENTA}${ICN}"
+  echo_reset_dim "Subscription Id   .............. ${COLOR_MAGENTA}${SAAS_SUB_ID}"
+
+
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
     echo_reset_dim "Internal Certificate Authority ...... ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
   fi
