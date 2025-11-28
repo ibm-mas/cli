@@ -70,7 +70,6 @@ spec:
           --cluster-id "$CLUSTER_ID" \
           --mas-instance-id "$MAS_INSTANCE_ID" \
           --mas-workspace-id "$MAS_WORKSPACE_ID" \
-          --mas-app-id "$MAS_APP_ID" \
           --secrets-path "$SECRETS_PATH" \
           --github-push \
           --github-host "$GITHUB_HOST" \
@@ -81,7 +80,7 @@ spec:
           --mas-config-scope system \
           --mas-config-type appcfg \
           --dir /tmp/init-app-config
-          
+
         exit $?
       command:
         - /bin/sh
