@@ -6,9 +6,9 @@ Usage
 Usage information can be obtained using `mas update --help`
 
 ```
-usage: mas update [-c MAS_CATALOG_VERSION] [--db2-namespace DB2_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade] [--mongodb-v6-upgrade] [--mongodb-v7-upgrade]
-                  [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {redhat,strimzi}]
-                  [--no-confirm] [--skip-pre-check] [-h]
+usage: mas update [-c MAS_CATALOG_VERSION] [--db2-namespace DB2_NAMESPACE] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-v5-upgrade] [--mongodb-v6-upgrade] [--mongodb-v7-upgrade] [--mongodb-v8-upgrade]
+                  [--kafka-namespace KAFKA_NAMESPACE] [--kafka-provider {redhat,strimzi}] [--dro-migration DRO_MIGRATION]
+                  [--dro-storage-class DRO_STORAGE_CLASS] [--dro-namespace DRO_NAMESPACE] [--no-confirm] [--skip-pre-check] [-h]
 
 IBM Maximo Application Suite Admin CLI v100.0.0
 Update the IBM Maximo Operator Catalog, and related MAS dependencies by configuring and launching the MAS Update Tekton Pipeline.
@@ -26,6 +26,7 @@ Update Dependencies:
   --mongodb-v5-upgrade                            Required to confirm a major version update for MongoDb to version 5
   --mongodb-v6-upgrade                            Required to confirm a major version update for MongoDb to version 6
   --mongodb-v7-upgrade                            Required to confirm a major version update for MongoDb to version 7
+  --mongodb-v8-upgrade                            Required to confirm a major version update for MongoDb to version 8
   --kafka-namespace KAFKA_NAMESPACE               Namespace where Kafka operator and instances will be updated
   --kafka-provider {redhat,strimzi}               The type of Kakfa operator installed in the target namespace for updte
 

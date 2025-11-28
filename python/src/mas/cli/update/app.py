@@ -124,15 +124,8 @@ class UpdateApp(BaseApp):
 
         with Halo(text='Checking for IBM Certificate-Manager', spinner=self.spinner) as h:
             if self.isIBMCertManagerInstalled():
-                h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager will be replaced by Red Hat Certificate-Manager")
-                self.setParam("cert_manager_action", "install")
-                self.setParam("cert_manager_provider", "redhat")
-                self.printHighlight([
-                    "<u>Migration Notice</u>",
-                    "IBM Certificate-Manager is currently running in the ${CERT_MANAGER_NAMESPACE} namespace",
-                    "This will be uninstalled and replaced by Red Hat Certificate-Manager as part of this update",
-                    ""
-                ])
+                h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is installed")
+                self.fatalError("IBM Certificate-Manager is currently installed and automatic migration of IBM Certificate-Manager is no longer supported. Please contact IBM support for assistance.")
             else:
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is not installed")
 
@@ -176,7 +169,6 @@ class UpdateApp(BaseApp):
             self.printSummary("IBM Cloud Pak for Data", "No action required")
 
         self.printH2("Required Migrations")
-        self.printSummary("IBM Certificate-Manager", "Migrate to Red Hat Certificate-Manager" if self.getParam("cert_manager_action") != "" else "No action required")
         self.printSummary("Grafana v4 Operator", "Migrate to Grafana v5 Operator" if self.getParam("grafana_v5_upgrade") != "" else "No action required")
 
         if not self.noConfirm:
@@ -254,13 +246,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
-            "  2) Oct 10 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
-            "  3) Sep 25 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
+            "  1) Nov 27 2025 Update (MAS 9.1.6, 9.0.17, 8.11.28, &amp; 8.10.31)",
+            "  2) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
+            "  3) Oct 10 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
         ])
 
         catalogOptions = [
-            "v9-251030-amd64", "v9-251010-amd64", "v9-250925-amd64",
+            "v9-251127-amd64", "v9-251030-amd64", "v9-251010-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -299,11 +291,6 @@ class UpdateApp(BaseApp):
             return False
 
     def isIBMCertManagerInstalled(self) -> bool:
-        """
-        Check whether the deprecated IBM Certificate-Manager is installed, if it is then we will
-        automatically migrate to Red Hat Certificate-Manager
-        """
-
         try:
             # Check if 'ibm-common-services' namespace exist, this will throw NotFoundError exception when not found
             namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
@@ -370,7 +357,7 @@ class UpdateApp(BaseApp):
                     # the case bundles in there anymore
                     # Longer term we will centralise this information inside the mas-devops python collection,
                     # where it can be made available to both the ansible collection and this python package.
-                    defaultMongoVersion = "7.0.22"
+                    defaultMongoVersion = "8.0.13"
                     mongoVersions = {
                         "v9-240625-amd64": "6.0.12",
                         "v9-240730-amd64": "6.0.12",
@@ -390,6 +377,7 @@ class UpdateApp(BaseApp):
                         "v9-250925-amd64": "7.0.23",
                         "v9-251010-amd64": "7.0.23",
                         "v9-251030-amd64": "7.0.23",
+                        "v9-251127-amd64": "8.0.13",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -471,6 +459,7 @@ class UpdateApp(BaseApp):
             "v9-250925-amd64": "5.1.3",
             "v9-251010-amd64": "5.1.3",
             "v9-251030-amd64": "5.1.3",
+            "v9-251127-amd64": "5.1.3",
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
