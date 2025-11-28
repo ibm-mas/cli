@@ -185,7 +185,8 @@
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-lbs-utilities-ui
-# LBS - Run "cypress/manage/spatial-ui-maps/spatialMaps.cy.js"
+
+# LBS - Run "cypress/manage/spatial-ui-maps/indoorsValidation.cy.js"
 - name: fvt-manage-spatial-maps
   {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
   params:
