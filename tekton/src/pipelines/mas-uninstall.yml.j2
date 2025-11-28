@@ -31,10 +31,6 @@ spec:
       type: string
       description: Optional. Used to uninstall Cert Manager
       default: "none"
-    - name: common_services_action
-      type: string
-      description: Optional. Used to uninstall IBM Common Services
-      default: "none"
     - name: ibm_catalogs_action
       type: string
       description: Optional. Used to uninstall IBM Catalogs
@@ -51,9 +47,9 @@ spec:
       type: string
       description: Optional. Used to uninstall SLS
       default: "none"
-    - name: uds_action
+    - name: dro_action
       type: string
-      description: Optional. Used to uninstall UDS or DRO
+      description: Optional. Used to uninstall DRO
       default: "none"
     - name: dro_namespace
       default: "redhat-marketplace"
@@ -200,7 +196,7 @@ spec:
           value: iot
         - name: devops_suite_name
           value: app-iot-uninstall
-    
+
     # 1.8 Uninstall Facilities
     - name: app-uninstall-facilities
       timeout: "0"
@@ -287,31 +283,31 @@ spec:
         - uninstall-sls
 
 
-    # 5. Uninstall IBM User Data Services (or DRO)
+    # 5. Uninstall DRO
     # -------------------------------------------------------------------------
-    - name: uninstall-uds
+    - name: uninstall-dro
       timeout: "0"
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
-        - name: uds_action
-          value: $(params.uds_action)
+        - name: dro_action
+          value: $(params.dro_action)
         - name: dro_namespace
           value: $(params.dro_namespace)
         - name: devops_suite_name
-          value: dependencies-uds-uninstall
+          value: dependencies-dro-uninstall
       taskRef:
         kind: Task
-        name: mas-devops-uds
+        name: mas-devops-dro
       when:
-        - input: "$(params.uds_action)"
+        - input: "$(params.dro_action)"
           operator: in
           values: ["uninstall"]
       runAfter:
         - uninstall-mongodb
 
 
-    # 6. Uninstall IBM Cert Manager
+    # 6. Uninstall Cert Manager
     # -------------------------------------------------------------------------
     - name: uninstall-cert-manager
       timeout: "0"
@@ -332,32 +328,10 @@ spec:
           operator: in
           values: ["uninstall"]
       runAfter:
-        - uninstall-uds
+        - uninstall-dro
 
 
-    # 7. Uninstall IBM Common Services
-    # -------------------------------------------------------------------------
-    - name: uninstall-common-services
-      timeout: "0"
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: common_services_action
-          value: $(params.common_services_action)
-        - name: devops_suite_name
-          value: dependencies-common-services-uninstall
-      taskRef:
-        kind: Task
-        name: mas-devops-common-services
-      when:
-        - input: "$(params.common_services_action)"
-          operator: in
-          values: ["uninstall"]
-      runAfter:
-        - uninstall-cert-manager
-
-
-    # 8. Uninstall IBM Catalogs
+    # 7. Uninstall IBM Catalogs
     # -------------------------------------------------------------------------
     - name: uninstall-ibm-catalogs
       timeout: "0"
@@ -376,10 +350,10 @@ spec:
           operator: in
           values: ["uninstall"]
       runAfter:
-        - uninstall-common-services
+        - uninstall-cert-manager
 
 
-    # 9. Uninstall Grafana
+    # 8. Uninstall Grafana
     # -------------------------------------------------------------------------
     - name: uninstall-grafana
       timeout: "0"

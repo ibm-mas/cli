@@ -44,7 +44,12 @@ from mas.cli.validators import (
     OptimizerInstallPlanValidator
 )
 
-from mas.devops.ocp import createNamespace, getStorageClasses
+from mas.devops.ocp import (
+    createNamespace,
+    getStorageClasses,
+    getClusterVersion,
+    isClusterVersionInRange
+)
 from mas.devops.mas import (
     getCurrentCatalog,
     getDefaultStorageClasses,
@@ -76,6 +81,13 @@ def logMethodCall(func):
 class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
     @logMethodCall
     def validateCatalogSource(self):
+        # Check supported OCP versions
+        ocpVersion = getClusterVersion(self.dynamicClient)
+        supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
+        if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
+            self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}")
+
+        # Compare with any existing installed catalog
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         try:
             catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
@@ -299,7 +311,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "  2. Install MAS with Dedicated License (AppPoints)",
                 ]
             )
-            self.slsMode = self.promptForInt("SLS Mode", default=1)
+            self.slsMode = self.promptForInt("SLS Mode", default=1, min=1, max=2)
 
             if self.slsMode not in [1, 2]:
                 self.fatalError(f"Invalid selection: {self.slsMode}")
@@ -318,9 +330,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configDRO(self) -> None:
-        self.promptForString("Contact e-mail address", "uds_contact_email")
-        self.promptForString("Contact first name", "uds_contact_firstname")
-        self.promptForString("Contact last name", "uds_contact_lastname")
+        self.promptForString("Contact e-mail address", "dro_contact_email")
+        self.promptForString("Contact first name", "dro_contact_firstname")
+        self.promptForString("Contact last name", "dro_contact_lastname")
 
         if self.showAdvancedOptions:
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
@@ -441,6 +453,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("sls_namespace", f"mas-{self.getParam('mas_instance_id')}-sls")
 
         self.configOperationMode()
+        self.configRoutingMode()
         self.configCATrust()
         self.configDNSAndCerts()
         self.configSSOProperties()
@@ -469,7 +482,21 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  1. Production",
             "  2. Non-Production"
         ])
-        self.operationalMode = self.promptForInt("Operational Mode", default=1)
+        self.operationalMode = self.promptForInt("Operational Mode", default=1, min=1, max=2)
+
+    @logMethodCall
+    def configRoutingMode(self):
+        if self.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.2.x-feature':
+            self.printH1("Configure Routing Mode")
+            self.printDescription([
+                "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
+                "",
+                "  1. Path (single domain)",
+                "  2. Subdomain (multi domain)"
+            ])
+            routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
+            routingModeOptions = ["path", "subdomain"]
+            self.setParam("mas_routing_mode", routingModeOptions[routingModeInt - 1])
 
     @logMethodCall
     def configAnnotations(self):
@@ -508,7 +535,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         "  4. None (I will set up DNS myself)"
                     ])
 
-                    dnsProvider = self.promptForInt("DNS Provider")
+                    dnsProvider = self.promptForInt("DNS Provider", min=1, max=4)
 
                     if dnsProvider == 1:
                         self.configDNSAndCertsCloudflare()
@@ -555,7 +582,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  2. LetsEncrypt (Staging)",
             "  3. Self-Signed"
         ])
-        certIssuer = self.promptForInt("Certificate issuer")
+        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
         certIssuerOptions = [
             f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
             f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
@@ -577,7 +604,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  2. LetsEncrypt (Staging)",
             "  3. Self-Signed"
         ])
-        certIssuer = self.promptForInt("Certificate issuer")
+        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
         certIssuerOptions = [
             f"{self.getParam('mas_instance_id')}-cis-le-prod",
             f"{self.getParam('mas_instance_id')}-cis-le-stg",
@@ -745,22 +772,22 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def predictSettings(self) -> None:
         if self.showAdvancedOptions and self.installPredict:
             self.printH1("Configure Maximo Predict")
-            self.printDescription([
-                "Predict application supports integration with IBM SPSS which is an optional service installed on top of IBM Cloud Pak for Data",
-                "Unless requested these will not be installed"
-            ])
             self.configCP4D()
-            self.yesOrNo("Install IBM SPSS Statistics", "cpd_install_spss")
 
     @logMethodCall
     def assistSettings(self) -> None:
         if self.installAssist:
             self.printH1("Configure Maximo Assist")
             self.printDescription([
-                "Assist requires access to Cloud Object Storage (COS), this install supports automatic setup using either IBMCloud COS or in-cluster COS via OpenShift Container Storage/OpenShift Data Foundation (OCS/ODF)"
+                "Assist requires access to Cloud Object Storage (COS), this install supports automatic setup using either IBMCloud COS or in-cluster COS via OpenShift Data Foundation (ODF)"
             ])
             self.configCP4D()
-            self.promptForString("COS Provider [ibm/ocs]", "cos_type")
+            self.promptForString("COS Provider [ibm/odf]", "cos_type")
+
+            # We still use the old name for ODF (OCS)
+            if self.getParam("cos_type") == "odf":
+                self.setParam("cos_type") == "ocs"
+
             if self.getParam("cos_type") == "ibm":
                 self.promptForString("IBM Cloud API Key", "cos_apikey", isPassword=True)
                 self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
@@ -851,11 +878,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Configure whether to trust well-known certificate authorities by default (defaults to enabled)",
             " - Configure whether the Guided Tour feature is enabled (defaults to enabled)",
             " - Configure whether special characters are allowed in usernames and userids (defaults to disabled)",
-            " - Configure a custom domain, DNS integrations, and manual certificates",
+            " - Configure a custom domain, DNS integrations, routing mode and manual certificates",
             " - Customize Maximo Manage database settings (schema, tablespace, indexspace)",
             " - Customize Maximo Manage server bundle configuration (defaults to \"all\" configuration)",
             " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
-            " - Enable optional Maximo Predict integration with SPSS",
             " - Enable optional IBM Turbonomic integration",
             " - Enable optional Real Estate and Facilities configurations",
             " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
@@ -1208,8 +1234,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configCertManager()  # TODO: I think this is redundant, we should look to remove this and the appropriate params in the install pipeline
         self.deployCP4D = False
 
-        # UDS install has not been supported since the January 2024 catalog update
-        self.setParam("uds_action", "install-dro")
+        self.setParam("dro_action", "install")
 
         # User must either provide the configuration via numerous command line arguments, or the interactive prompts
         if instanceId is None:

@@ -5,7 +5,7 @@
 #
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, UTC
 from pymongo import MongoClient
 
 if __name__ == "__main__":
@@ -62,7 +62,7 @@ if __name__ == "__main__":
         "skipped": 0,
         "time": -1,
         "failures": 0,
-        "startTime": datetime.utcnow()
+        "startTime": datetime.now(UTC)
     }
 
     # Connect to mongoDb
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         {
             '$setOnInsert': {
                 "_id": runId,
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(UTC),
                 "target": {
                     "instanceId": instanceId,
                     "buildId": build,

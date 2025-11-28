@@ -25,12 +25,12 @@
         - arcgis
         - appconnect
         - cert-manager
-        - common-services
         - cos
         - cp4d-service
         - cp4d-service-update
         - cp4d
         - db2
+        - dro
         - eck
         - grafana
         - ibm-catalogs
@@ -41,7 +41,6 @@
         - sls-registry-update
         - sls
         - turbonomic
-        - uds
 
     # 3. Generate Tasks (AI Service)
     # -------------------------------------------------------------------------
@@ -173,7 +172,7 @@
         - wait-for-configmap
         - wait-for-configmap-v2
         - wait-for-tekton
-        
+
     # 9. Generate Tasks (Common)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (Common)
