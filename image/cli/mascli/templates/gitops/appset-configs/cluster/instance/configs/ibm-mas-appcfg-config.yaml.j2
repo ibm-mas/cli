@@ -11,10 +11,12 @@ system_appcfg_labels:
     mas.ibm.com/configScope: system
     mas.ibm.com/instanceId: "{{ MAS_INSTANCE_ID }}"
 
+maf_enabled: {{ MAF_ENABLED }}
+
 persistentVolume:
   name: app-config
   size: 2Gi
-  storageClassName: {{ DEFAULT_FILE_STORAGE_CLASS }}
+  storageClassName: {{ MAF_STORAGE_CLASSNAME }}
 
 {% if MAS_APPCFG_POD_TEMPLATE is defined and MAS_APPCFG_POD_TEMPLATE !='' %}
 mas_appcfg_pod_templates:
