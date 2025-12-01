@@ -340,8 +340,8 @@ class installArgBuilderMixin():
                 command += f"  --watsonxai-username \"{self.getParam('aiservice_watsonxai_username')}\"{newline}"
             if self.getParam('aiservice_watsonxai_version') != "":
                 command += f"  --watsonxai-version \"{self.getParam('aiservice_watsonxai_version')}\"{newline}"
-            if self.getParam('aiservice_watsonxai_full') != "":
-                command += f"  --watsonxai-full \"{self.getParam('aiservice_watsonxai_full')}\"{newline}"
+        if self.getParam('aiservice_watsonxai_on_prem') != "":
+            command += f"  --watsonxai-onprem \"{self.getParam('aiservice_watsonxai_on_prem')}\"{newline}"
 
             if self.getParam('minio_root_user') != "":
                 command += f"  --install-minio {newline}"

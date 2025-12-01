@@ -880,10 +880,10 @@ watsonxArgGroup.add_argument(
     help="WatsonX version"
 )
 watsonxArgGroup.add_argument(
-    "--watsonxai-full",
-    dest="aiservice_watsonxai_full",
+    "--watsonxai-onprem",
+    dest="aiservice_watsonxai_on_prem",
     required=False,
-    help="WatsonX engine version full/light"
+    help="WatsonX deployed on prem"
 )
 
 # AI Service
