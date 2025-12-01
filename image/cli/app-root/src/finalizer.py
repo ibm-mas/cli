@@ -5,7 +5,7 @@ from pymongo import MongoClient
 from kubernetes import client, config
 from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
-from slackclient import SlackClient
+# from slackclient import SlackClient
 from subprocess import PIPE, Popen, TimeoutExpired
 from mobilever import MobVer
 import threading
@@ -54,10 +54,10 @@ def runCmd(cmdArray, timeout=630):
 def postMessage(channelName, messageBlocks, threadId=None):
     if threadId is None:
         print(f"Posting {len(messageBlocks)} block message to {channelName} in Slack")
-        response = sc.api_call("chat.postMessage", channel=channelName, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True)
+        # response = sc.api_call("chat.postMessage", channel=channelName, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True)
     else:
         print(f"Posting {len(messageBlocks)} block message to {channelName} on thread {threadId} in Slack")
-        response = sc.api_call("chat.postMessage", channel=channelName, thread_ts=threadId, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True)
+        # response = sc.api_call("chat.postMessage", channel=channelName, thread_ts=threadId, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True)
 
     if not response['ok']:
         print(response)
@@ -567,7 +567,7 @@ if __name__ == "__main__":
         print("FVT_JIRA_TOKEN is not set")
         sys.exit(0)
 
-    sc = SlackClient(FVT_SLACK_TOKEN)
+    # sc = SlackClient(FVT_SLACK_TOKEN)
     jira = JIRA(server="https://jsw.ibm.com", token_auth=FVT_JIRA_TOKEN)
 
     # Lookup test results
