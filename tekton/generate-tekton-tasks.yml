@@ -113,7 +113,9 @@
         - mas-launchfvt-visualinspection
         - mas-launchfvt-upgrade-post
         - mas-launchfvt-upgrade-pre
+        - mas-launchfvt-facilities
         - mas-launchivt-manage
+
 
     # 5. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
