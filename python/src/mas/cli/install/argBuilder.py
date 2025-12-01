@@ -298,19 +298,19 @@ class installArgBuilderMixin():
                 command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
             if self.getParam('aiservice_channel') != "":
                 command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
-            if self.getParam('aiservice_s3_accesskey') != "":
+            if self.getParam('aiservice_s3_accesskey') != "" and self.getParam('minio_root_user') == "":
                 command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
-            if self.getParam('aiservice_s3_secretkey') != "":
+            if self.getParam('aiservice_s3_secretkey') != "" and self.getParam('minio_root_user') == "":
                 command += f"  --s3-secretkey \"{self.getParam('aiservice_s3_secretkey')}\"{newline}"
-            if self.getParam('aiservice_s3_host') != "":
+            if self.getParam('aiservice_s3_host') != "" and self.getParam('minio_root_user') == "":
                 command += f"  --s3-host \"{self.getParam('aiservice_s3_host')}\"{newline}"
-            if self.getParam('aiservice_s3_port') != "":
+            if self.getParam('aiservice_s3_port') != "" and self.getParam('minio_root_user') == "":
                 command += f"  --s3-port \"{self.getParam('aiservice_s3_port')}\"{newline}"
-            if self.getParam('aiservice_s3_ssl') != "":
+            if self.getParam('aiservice_s3_ssl') != "" and self.getParam('minio_root_user') == "":
                 command += f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
-            if self.getParam('aiservice_s3_region') != "":
+            if self.getParam('aiservice_s3_region') != "" and self.getParam('minio_root_user') == "":
                 command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
-            if self.getParam('aiservice_s3_bucket_prefix') != "":
+            if self.getParam('aiservice_s3_bucket_prefix') != "" and self.getParam('minio_root_user') == "":
                 command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
             if self.getParam('aiservice_s3_tenants_bucket') != "":
                 command += f"  --s3-tenants-bucket \"{self.getParam('aiservice_s3_tenants_bucket')}\"{newline}"
@@ -344,6 +344,7 @@ class installArgBuilderMixin():
                 command += f"  --watsonxai-full \"{self.getParam('aiservice_watsonxai_full')}\"{newline}"
 
             if self.getParam('minio_root_user') != "":
+                command += f"  --install-minio {newline}"
                 command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
             if self.getParam('minio_root_password') != "":
                 command += f"  --minio-root-password \"{self.getParam('minio_root_password')}\"{newline}"
