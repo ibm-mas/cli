@@ -1,0 +1,193 @@
+function mirror_one_thing() {
+    MOT_RUNMIRROR=$1
+    MOT_NAME=$2
+    MOT_LOGFILE=$3
+    MOT_PLAYBOOK=$4
+    if [[ "$MOT_RUNMIRROR" == "true" ]]; then
+    echo -en "\033[s" # Save cursor position
+    echo -n "Mirroring ${MOT_NAME} ... ${MOT_LOGFILE}"
+    ansible-playbook ibm.mas_devops.${MOT_PLAYBOOK} &> ${MOT_LOGFILE}
+    mirror_result=$?
+    echo -en "\033[1K" # Clear current line
+    echo -en "\033[u" # Restore cursor position
+    if [[ $mirror_result == "0" ]];
+    then echo -e "${COLOR_GREEN}[SUCCESS] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+    else
+      echo -e "${COLOR_RED}[FAILURE] ${MOT_NAME}: ${MOT_LOGFILE}${TEXT_RESET}"
+      echo
+      cat "$MOT_LOGFILE"
+    fi
+  else
+    echo -e "${COLOR_MAGENTA}[SKIPPED] ${MOT_NAME}${TEXT_RESET}"
+  fi
+}
+
+function show_mirror_status() {
+  if [[ "$2" == "true" ]]
+  then echo_reset_dim "$1 ${COLOR_GREEN}Mirror"
+  else echo_reset_dim "$1 ${COLOR_RED}Skip"
+  fi
+}
+
+function mirror_to_registry_help_header() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas mirror-images [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Mirror Mode (Required):
+  -m, --mode ${COLOR_YELLOW}MIRROR_MODE${TEXT_RESET}                         Operation mode (direct, to-filesystem, from-filesystem)
+  -d, --dir ${COLOR_YELLOW}MIRROR_WORKING_DIR${TEXT_RESET}                   Working directory for the mirror process
+
+Registry Details (Required):
+  -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
+  -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
+  -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
+  -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
+
+Registry Prefix (Optional):
+  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}                    Prefix for the mirror image
+
+AWS Elastic Container Registry (Optional):
+  -r, --aws-ecr-region ${COLOR_YELLOW}REGISTRY_ECR_AWS_REGION${TEXT_RESET}    The AWS region if the target registry is Elastic Container Registry
+  -e, --target-is-ecr                                                         Indicate that the target registry is Elastic Container Registry
+
+Source Registry Entitlements (Required based on what content you choose to mirror):
+      --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
+      --artifactory-username ${COLOR_YELLOW}ARTIFACTORY_USERNAME${TEXT_RESET} Artifactory Username
+      --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}       Artifactory Token
+
+Maximo Operator Catalog Selection (Optional):
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v9-240625-amd64)
+  -C, --channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                       Maximo Application Suite Channel to mirror (e.g. 9.1.x)
+EOM
+}
+
+function mirror_to_registry_interactive_common() {
+  load_config
+  echo
+  echo_h2 "Configure Catalog Version (see https://ibm-mas.github.io/cli/catalogs/ for details on catalogs)"
+  prompt_for_input "MAS Catalog Version" MAS_CATALOG_VERSION
+  prompt_for_input "MAS Channel" MAS_CHANNEL
+
+  # Provide a default prefix - For future consideration
+  # DEFAULT_REGISTRY_PREFIX=${MAS_CATALOG_VERSION#*-}  # removes the "v9-" prefix
+  # DEFAULT_REGISTRY_PREFIX="mas-${DEFAULT_REGISTRY_PREFIX%%-*}"  # removes the -arch suffix
+
+  echo
+  echo_h2 "Configure Mirror Mode"
+  prompt_for_input "Working Directory" MIRROR_WORKING_DIR
+
+  echo -e "${COLOR_YELLOW}Mirror Mode:"
+  echo "  1. Direct"
+  echo "  2. To filesystem"
+  echo "  3. From filesystem"
+  prompt_for_input "Select Mirror Mode" MIRROR_MODE_SELECTION "1"
+
+  case $MIRROR_MODE_SELECTION in
+    1|direct)
+      MIRROR_MODE=direct
+      ;;
+    2|t|to|to-filesystem)
+      MIRROR_MODE=to-filesystem
+      ;;
+    3|f|from|from-filesystem)
+      MIRROR_MODE=from-filesystem
+      ;;
+    *)
+      echo_warning "Invalid selection"
+      exit 1
+      ;;
+  esac
+
+  echo
+  echo_h2 "Configure Target Mirror"
+  prompt_for_input "Mirror Registry Host" REGISTRY_PUBLIC_HOST
+  prompt_for_input "Mirror Registry Port" REGISTRY_PUBLIC_PORT
+  prompt_for_input "Mirror Registry Prefix" REGISTRY_PREFIX
+
+  if [[ $MIRROR_MODE != "to-filesystem" ]]; then
+    echo
+    echo_h2 "Configure Authentication"
+    prompt_for_input "Mirror Registry Username" REGISTRY_USERNAME
+    prompt_for_secret "Mirror Registry Password" REGISTRY_PASSWORD "Re-use saved registry password?"
+  fi
+
+  echo
+  echo_h2 "Configure Images to Mirror"
+}
+
+function mirror_to_registry_common() {
+  # Ensure all environment variables are available to ansible-playbook
+
+  # General Config
+  export MIRROR_MODE
+  export MIRROR_WORKING_DIR
+  export MAS_CATALOG_VERSION
+  export MAS_CHANNEL
+
+  export REGISTRY_PUBLIC_HOST
+  export REGISTRY_PUBLIC_PORT
+  export REGISTRY_PREFIX
+  export REGISTRY_USERNAME
+  export REGISTRY_PASSWORD
+
+  export REGISTRY_IS_ECR
+  export REGISTRY_ECR_AWS_REGION
+
+  # Dependency control
+  export MIRROR_CATALOG
+
+  export MIRROR_EVERYTHING
+
+  # Authentication
+  export IBM_ENTITLEMENT_KEY
+  export ARTIFACTORY_USERNAME
+  export ARTIFACTORY_TOKEN
+
+  echo
+  reset_colors
+  echo_h2 "Review Settings"
+
+  REGISTRY_URL=$REGISTRY_PUBLIC_HOST
+  if [[ "$REGISTRY_PUBLIC_PORT" != "" ]]; then
+    REGISTRY_URL+=":$REGISTRY_PUBLIC_PORT"
+  fi
+  if [[ "$REGISTRY_PREFIX" != "" ]]; then
+    REGISTRY_URL+="/$REGISTRY_PREFIX"
+  fi
+
+  echo
+  echo_h4 "Settings" "    "
+  echo_reset_dim "Mirror Mode ......................... ${COLOR_MAGENTA}${MIRROR_MODE}"
+  echo_reset_dim "Working Directory ................... ${COLOR_MAGENTA}${MIRROR_WORKING_DIR}"
+  echo_reset_dim "Target Registry ..................... ${COLOR_MAGENTA}${REGISTRY_URL}"
+
+  echo
+  reset_colors
+  echo_h4 "IBM Operator Catalog" "    "
+  echo_reset_dim "Catalog Version ..................... ${COLOR_MAGENTA}${MAS_CATALOG_VERSION}"
+  echo_reset_dim "MAS Update Channel .................. ${COLOR_MAGENTA}${MAS_CHANNEL}"
+}
+
+function confirm_mirror() {
+  echo
+  reset_colors
+  if [[ "$NO_CONFIRM" != "true" ]]; then
+    prompt_for_confirm "Proceed with these settings" || exit 0
+  fi
+
+  echo
+  echo_h2 "Run Mirror Process"
+  TIMESTAMP=$(date "+%Y%m%d-%H%M%S")
+  LOG_PREFIX="$MIRROR_WORKING_DIR/logs/mirror-$TIMESTAMP"
+  if [ ! -d $MIRROR_WORKING_DIR/logs/ ]; then
+    mkdir -p $MIRROR_WORKING_DIR/logs/
+  fi
+
+  export ARTIFACTORY_USERNAME=""
+  export ARTIFACTORY_TOKEN=""
+}
