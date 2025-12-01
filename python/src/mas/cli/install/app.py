@@ -44,7 +44,12 @@ from mas.cli.validators import (
     OptimizerInstallPlanValidator
 )
 
-from mas.devops.ocp import createNamespace, getStorageClasses
+from mas.devops.ocp import (
+    createNamespace,
+    getStorageClasses,
+    getClusterVersion,
+    isClusterVersionInRange
+)
 from mas.devops.mas import (
     getCurrentCatalog,
     getDefaultStorageClasses,
@@ -76,6 +81,13 @@ def logMethodCall(func):
 class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
     @logMethodCall
     def validateCatalogSource(self):
+        # Check supported OCP versions
+        ocpVersion = getClusterVersion(self.dynamicClient)
+        supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
+        if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
+            self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}")
+
+        # Compare with any existing installed catalog
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         try:
             catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")

@@ -157,8 +157,6 @@ function provision_aws_interactive() {
   echo "  2. 4.18 (MAS 8.10-9.1)"
   echo "  3. 4.17 (MAS 8.10-9.1)"
   echo "  4. 4.16 (MAS 8.10-9.1)"
-  echo "  5. 4.15 (MAS 8.10-9.1)"
-  echo "  6. 4.14 (MAS 8.10-9.1)"
   prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
 
   case $OCP_VERSION_SELECTION in
@@ -173,12 +171,6 @@ function provision_aws_interactive() {
       ;;
     4|4.16)
       export OCP_VERSION=latest-4.16
-      ;;
-    5|4.15)
-      export OCP_VERSION=latest-4.15
-      ;;
-    6|4.14)
-      export OCP_VERSION=latest-4.14
       ;;
     *)
       export OCP_VERSION=$OCP_VERSION_SELECTION

@@ -12,7 +12,7 @@ COPY usr/bin/ /usr/bin/
 
 # 2. Set up Environment
 # VIRTUAL_ENV_DISABLE_PROMPT will stop built-in PS1 munging, we already set it to what we want
-ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.9/site-packages/ansible_collections \
+ENV ANSIBLE_COLLECTIONS_PATH=/opt/app-root/lib64/python3.12/site-packages/ansible_collections \
     ANSIBLE_CONFIG=/opt/app-root/src/ansible.cfg \
     PATH="/mascli:${PATH}" \
     VERSION=${VERSION_LABEL:-x.y.z} \
@@ -34,5 +34,5 @@ RUN --mount=type=secret,id=ARTIFACTORY_TOKEN,env=ARTIFACTORY_TOKEN \
     bash /tmp/install/install-ansible-collections.sh && \
     bash /tmp/install/permissions-updates.sh && \
     ibmcloud config --check-version=false && \
-    ln -s /opt/app-root/lib/python3.9/site-packages /mascli/site-packages && \
+    ln -s /opt/app-root/lib/python3.12/site-packages /mascli/site-packages && \
     rm -rf /tmp/install
