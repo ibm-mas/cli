@@ -786,7 +786,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             # We still use the old name for ODF (OCS)
             if self.getParam("cos_type") == "odf":
-                self.setParam("cos_type") == "ocs"
+                self.setParam("cos_type", "ocs")
 
             if self.getParam("cos_type") == "ibm":
                 self.promptForString("IBM Cloud API Key", "cos_apikey", isPassword=True)
