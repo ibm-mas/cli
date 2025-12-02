@@ -327,6 +327,10 @@ function gitops_iac() {
     echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/efs.tf"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
 
+    echo "Generating IAC Variables file ${GITOPS_CLUSTER_DIR}/variables.tf"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variablesTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
+
+
 
     echo $GIT_COMMIT_MSG
     GIT_COMMIT_MSG="${GIT_COMMIT_MSG}-efs"

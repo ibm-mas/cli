@@ -7,7 +7,7 @@ data "aws_subnets" "external_subnets" {
   }
   filter {
     name   = "cidr-block"
-    values = "{{CLUSTER_CIDR_WORKLOAD_EXTERNAL}}"
+    values = {{CLUSTER_CIDR_WORKLOAD_EXTERNAL}}
   }
 }
 
@@ -18,7 +18,7 @@ data "aws_subnets" "internal_subnets" {
   }
   filter {
     name   = "cidr-block"
-    values = "{{CLUSTER_CIDR_WORKLOAD_INTERNAL}}"
+    values = {{CLUSTER_CIDR_WORKLOAD_INTERNAL}}
   }
 }
 
@@ -29,7 +29,7 @@ data "aws_subnets" "workload_subnets" {
   }
   filter {
     name   = "cidr-block"
-    values = "{{VPC_CIDR_WORKLOAD_INTERNAL}}"
+    values = {{VPC_CIDR_WORKLOAD_INTERNAL}}
   }
 }
 
@@ -38,8 +38,9 @@ locals {
   cluster = {
       "external_subnet_ids" : data.aws_subnets.external_subnets.ids
       "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
-      "worker_subnet_ids" : data.aws_subnets.workload_subnets.ids
   }
+
+  worker_subnet_ids = data.aws_subnets.workload_subnets.ids
 
   multiple-efs = {
     efs1 = {
