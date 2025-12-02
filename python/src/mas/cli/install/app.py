@@ -218,7 +218,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             if key in self.chosenCatalog:
                 tempChosenCatalog = self.chosenCatalog[key].copy()
-                if '9.1.x-feature' not in tempChosenCatalog:
+                if '9.1.x-feature' not in tempChosenCatalog and '9.0.x' in tempChosenCatalog:
                     tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
 
                 self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
