@@ -33,17 +33,19 @@ data "aws_subnets" "workload_subnets" {
   }
 }
 
- multiple-efs = {
+
+locals {
+  cluster = {
+      "external_subnet_ids" : data.aws_subnets.external_subnets.ids
+      "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
+      "worker_subnet_ids" : data.aws_subnets.workload_subnets.ids
+  }
+
+  multiple-efs = {
     efs1 = {
       name = join("-", ["efs", var.cluster_name, var.instance_name, "manage-db2"])
     }
-}
-locals {
-    cluster = {
-        "external_subnet_ids" : data.aws_subnets.external_subnets.ids
-        "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
-        "worker_subnet_ids" : data.aws_subnets.workload_subnets.ids
-    }
+  }
 }
 
 {% endif %}
