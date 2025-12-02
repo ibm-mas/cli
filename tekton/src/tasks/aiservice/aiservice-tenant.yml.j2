@@ -175,7 +175,6 @@ spec:
       - name: AISERVICE_WATSONXAI_VERIFY
         value: $(params.aiservice_watsonxai_verify)
 
-
       # Tenant Entitlement
       - name: AISERVICE_TENANT_ENTITLEMENT_TYPE
         value: $(params.tenant_entitlement_type)
@@ -200,6 +199,40 @@ spec:
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
+
+    # If configmap/approval-aiservice exists then set STATUS=pending and wait for it to be changed to "approved"
+    - name: app-cfg-post-verify
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/wait-for-configmap.sh
+      env:
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: CONFIGMAP_NAME
+          value: approval-aiservice
+        - name: CONFIGMAP_INITIAL_VALUE
+          value: pending
+        - name: CONFIGMAP_TARGET_VALUE
+          value: approved
+        - name: DELAY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-aiservice
+              key: DELAY
+              optional: true
+        - name: MAX_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: approval-aiservice
+              key: MAX_RETRIES
+              optional: true
+        - name: IGNORE_FAILURE
+          valueFrom:
+            configMapKeyRef:
+              name: approval-aiservice
+              key: IGNORE_FAILURE
+              optional: true
 
   workspaces:
     - name: configs
