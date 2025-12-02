@@ -623,7 +623,10 @@ data = unwrap_singleton_lists(load_hcl(file_path))
 
 try:
     result = resolve_path(data, dot_path)
-    print(json.dumps(result))
+    if isinstance(result, (list, dict)):
+        print(json.dumps(result))
+    else:
+        print(result)
 except Exception as e:
     print(f"Error: {e}", file=sys.stderr)
     sys.exit(1)
