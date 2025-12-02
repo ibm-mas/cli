@@ -587,6 +587,7 @@ function get_tf_value() {
 import hcl2
 import re
 import sys
+import json
 
 file_path = """$FILE"""
 dot_path = """$DOTPATH"""   # <- triple-quoted to avoid ANY shell quoting issues
@@ -622,7 +623,7 @@ data = unwrap_singleton_lists(load_hcl(file_path))
 
 try:
     result = resolve_path(data, dot_path)
-    print(result)
+    print(json.dumps(result))
 except Exception as e:
     print(f"Error: {e}", file=sys.stderr)
     sys.exit(1)
