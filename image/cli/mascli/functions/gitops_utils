@@ -1527,94 +1527,135 @@ function read_and_validate_pr_comments() {
 
     # Look for the appropriate summary in comments
     if [[ "${COMMENT_TYPE}" == "plan" ]]; then
-      # PLAN_SUMMARY=$(echo "$COMMENT_BODIES" | grep -E "^[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed")
-      PLAN_SUMMARY=$(grep -E "[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed" <<< "$COMMENT_BODIES" | head -n 1)
-
-      echo "PLAN_SUMMARY: "$PLAN_SUMMARY >&2
-      if [[ -z "$PLAN_SUMMARY" ]]; then
-        echo "⚠️  Warning: Atlantis plan summary not found in PR comments" >&2
-        sleep "$POLL_INTERVAL"
-        continue
-      fi
-      echo "Found Atlantis plan summary line: $PLAN_SUMMARY" >&2
-      # Trim whitespace and match the pattern
-      PLAN_SUMMARY=$(echo "$PLAN_SUMMARY" | xargs)
-      [[ "$PLAN_SUMMARY" =~ ([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed ]]
-      PROJECTS="${BASH_REMATCH[1]}"
-      WITH_CHANGES="${BASH_REMATCH[2]}"
-      NO_CHANGES="${BASH_REMATCH[3]}"
-      FAILED="${BASH_REMATCH[4]}"
-
-      echo "" >&2
-      echo "Parsed Plan Summary:" >&2
-      echo "  Total Projects: ${PROJECTS}" >&2
-      echo "  With Changes: ${WITH_CHANGES}" >&2
-      echo "  No Changes: ${NO_CHANGES}" >&2
-      echo "  Failed: ${FAILED}" >&2
-      echo "" >&2
-
-      # Validation: failed should be 0 and (with_changes + no_changes) should equal total_projects
-      local SUCCESSFUL=$(( WITH_CHANGES + NO_CHANGES ))
-
-      if [[ "${FAILED}" -eq 0 && "${SUCCESSFUL}" -eq "${PROJECTS}" ]]; then
-        echo "✅ SUCCESS: Atlantis plan validation passed!" >&2
-        echo "  - All ${PROJECTS} projects succeeded" >&2
-        echo "  - 0 failures detected" >&2
-        echo "=================================================" >&2
-        echo "Passed"
-        return 0
-      else
-        echo "❌ FAILED: Atlantis plan validation failed!" >&2
-        echo "  - Expected: ${PROJECTS} successful projects, 0 failures" >&2
-        echo "  - Actual: ${SUCCESSFUL} successful projects, ${FAILED} failures" >&2
+      # Check for Plan Error first
+      if echo "$COMMENT_BODIES" | grep -qE "Plan Error"; then
+        echo "❌ FAILED: Found 'Plan Error' in PR comments" >&2
         echo "=================================================" >&2
         echo "Failed"
         return 0
-      fi      
+      fi
+
+      # Check for individual plan details (Plan: X to add, Y to change, Z to destroy)
+      MATCH=$(echo "$COMMENT_BODIES" | grep -oE "Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy")
+
+      if [[ -n "$MATCH" ]]; then
+        echo "✅ SUCCESS: Found individual plan details in comments" >&2
+        echo "  Matched Plan: $MATCH" >&2
+        echo "=================================================" >&2
+        echo "Passed"
+        return 0
+      fi
+
+      # Check for plan summary line
+      PLAN_SUMMARY=$(grep -E "[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed" <<< "$COMMENT_BODIES" | head -n 1)
+
+      if [[ -n "$PLAN_SUMMARY" ]]; then
+        echo "PLAN_SUMMARY: "$PLAN_SUMMARY >&2
+        echo "Found Atlantis plan summary line: $PLAN_SUMMARY" >&2
+        # Trim whitespace and match the pattern
+        PLAN_SUMMARY=$(echo "$PLAN_SUMMARY" | xargs)
+        [[ "$PLAN_SUMMARY" =~ ([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed ]]
+        PROJECTS="${BASH_REMATCH[1]}"
+        WITH_CHANGES="${BASH_REMATCH[2]}"
+        NO_CHANGES="${BASH_REMATCH[3]}"
+        FAILED="${BASH_REMATCH[4]}"
+
+        echo "" >&2
+        echo "Parsed Plan Summary:" >&2
+        echo "  Total Projects: ${PROJECTS}" >&2
+        echo "  With Changes: ${WITH_CHANGES}" >&2
+        echo "  No Changes: ${NO_CHANGES}" >&2
+        echo "  Failed: ${FAILED}" >&2
+        echo "" >&2
+
+        # Validation: failed should be 0 and (with_changes + no_changes) should equal total_projects
+        local SUCCESSFUL=$(( WITH_CHANGES + NO_CHANGES ))
+
+        if [[ "${FAILED}" -eq 0 && "${SUCCESSFUL}" -eq "${PROJECTS}" ]]; then
+          echo "✅ SUCCESS: Atlantis plan validation passed!" >&2
+          echo "  - All ${PROJECTS} projects succeeded" >&2
+          echo "  - 0 failures detected" >&2
+          echo "=================================================" >&2
+          echo "Passed"
+          return 0
+        else
+          echo "❌ FAILED: Atlantis plan validation failed!" >&2
+          echo "  - Expected: ${PROJECTS} successful projects, 0 failures" >&2
+          echo "  - Actual: ${SUCCESSFUL} successful projects, ${FAILED} failures" >&2
+          echo "=================================================" >&2
+          echo "Failed"
+          return 0
+        fi
+      fi
+
+      # If none of the patterns found, wait and continue
+      echo "⚠️  Warning: No Atlantis plan indicators found in PR comments yet" >&2
+      sleep "$POLL_INTERVAL"
+      continue
     else
       # Apply Summary
+      # Check for Apply Error first
+      if echo "$COMMENT_BODIES" | grep -qE "Apply Error"; then
+        echo "❌ FAILED: Found 'Apply Error' in PR comments" >&2
+        echo "=================================================" >&2
+        echo "Failed"
+        return 0
+      fi
+
+      # Check for individual apply completion details
+      APPLY_MATCH=$(echo "$COMMENT_BODIES" | grep -oE "Apply complete! Resources: [0-9]+ added, [0-9]+ changed, [0-9]+ destroyed")
+      if echo "$COMMENT_BODIES" | grep -qE "Apply complete! Resources: [0-9]+ added, [0-9]+ changed, [0-9]+ destroyed"; then
+        echo "✅ SUCCESS: Found individual apply completion details in comments" >&2
+       echo "  Matched Apply: $APPLY_MATCH" >&2
+        echo "=================================================" >&2
+        echo "Passed"
+        return 0
+      fi
+
       # Extract the apply summary line
       # Format: "X projects, Y successful, Z failed, W errored"
       APPLY_SUMMARY=$(echo "$COMMENT_BODIES" | grep -E "[0-9]+ projects, [0-9]+ successful, [0-9]+ failed, [0-9]+ errored")
-      # local SUMMARY_LINE=$(echo "$COMMENT_BODIES" | grep -E "[0-9]+ projects, [0-9]+ successful,
-      # [0-9]+ failed, [0-9]+ errored")
 
-      if [[ -z "$APPLY_SUMMARY" ]]; then
-        echo "⚠️  Warning: Atlantis apply summary not found in PR comments" >&2
-        # echo "Failed"
-        sleep "$POLL_INTERVAL"
-        continue
+      if [[ -n "$APPLY_SUMMARY" ]]; then
+        echo "Found Atlantis Apply summary line: $APPLY_SUMMARY" >&2
+        # Trim whitespace and match the pattern
+        APPLY_SUMMARY=$(echo "$APPLY_SUMMARY" | xargs)
+        [[ "$APPLY_SUMMARY" =~ ([0-9]+)\ projects,\ ([0-9]+)\ successful,\ ([0-9]+)\ failed,\ ([0-9]+)\ errored ]]
+        PROJECTS="${BASH_REMATCH[1]}"
+        SUCCESSFUL="${BASH_REMATCH[2]}"
+        FAILED="${BASH_REMATCH[3]}"
+        ERRORED="${BASH_REMATCH[4]}"
+
+        echo "" >&2
+        echo "Parsed Apply Summary:" >&2
+        echo "  Total Projects: ${PROJECTS}" >&2
+        echo "  Successful: ${SUCCESSFUL}" >&2
+        echo "  Failed: ${FAILED}" >&2
+        echo "  Errored: ${ERRORED}" >&2
+        echo "" >&2
+
+        if [[ "${FAILED}" -eq 0 && "${ERRORED}" -eq 0 && "${SUCCESSFUL}" -eq "${PROJECTS}" ]]; then
+          echo "✅ SUCCESS: Atlantis apply validation passed!" >&2
+          echo "  - All ${PROJECTS} projects succeeded" >&2
+          echo "  - 0 failures detected" >&2
+          echo "  - 0 errors detected" >&2
+          echo "=================================================" >&2
+          echo "Passed"
+          return 0
+        else
+          echo "❌ FAILED: Atlantis apply validation failed!" >&2
+          echo "  - Expected: ${PROJECTS} successful projects, 0 failures, 0 errors" >&2
+          echo "  - Actual: ${SUCCESSFUL} successful, ${FAILED} failed, ${ERRORED} errored" >&2
+          echo "=================================================" >&2
+          echo "Failed"
+          return 0
+        fi
       fi
-      
-      echo "Found Atlantis Apply summary line: $APPLY_SUMMARY" >&2
-      [[ "$APPLY_SUMMARY" =~ ^([0-9]+)\ projects,\ ([0-9]+)\ successful,\ ([0-9]+)\ failed,\ ([0-9]+)\ errored$ ]]
-      PROJECTS="${BASH_REMATCH[1]}"
-      SUCCESSFUL="${BASH_REMATCH[2]}"
-      FAILED="${BASH_REMATCH[3]}"
-      ERRORED="${BASH_REMATCH[4]}"
-      echo "" >&2
-      echo "Parsed Apply Summary:" >&2
-      echo "  Total Projects: ${PROJECTS}" >&2
-      echo "  Successful: ${SUCCESSFUL}" >&2
-      echo "  failed: ${FAILED}" >&2
-      echo "  errored: ${ERRORED}" >&2
-      echo "" >&2
-      if [[ "${FAILED}" -eq 0 && "${ERRORED}" -eq 0 && "${SUCCESSFUL}" -eq "${PROJECTS}" ]]; then
-        echo "✅ SUCCESS: Atlantis apply validation passed!" >&2
-        echo "  - All ${PROJECTS} projects succeeded" >&2
-        echo "  - 0 failures detected" >&2
-        echo "  - 0 errors detected" >&2
-        echo "=================================================" >&2
-        echo "Passed"
-        return 0
-      else
-        echo "❌ FAILED: Atlantis apply validation failed!" >&2
-        echo "  - Expected: ${PROJECTS} successful projects, 0 failures, 0 errors" >&2
-        echo "  - Actual: ${SUCCESSFUL} successful, ${FAILED} failed, ${ERRORED} errored" >&2
-        echo "=================================================" >&2
-        echo "Failed"
-        return 0
-      fi
+
+      # If none of the patterns found, wait and continue
+      echo "⚠️  Warning: No Atlantis apply indicators found in PR comments yet" >&2
+      sleep "$POLL_INTERVAL"
+      continue
     fi
 
     echo "ℹ️  Atlantis ${COMMENT_TYPE} summary not found yet, waiting ${POLL_INTERVAL} seconds..." >&2
