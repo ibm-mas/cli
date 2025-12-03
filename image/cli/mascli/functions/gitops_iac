@@ -393,6 +393,9 @@ function gitops_iac() {
     echo "Generating IAC Variables file ${GITOPS_CLUSTER_DIR}/variables.tf"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variablesTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
 
+    echo "Generating IAC S3 AccessPoints file ${GITOPS_CLUSTER_DIR}/s3accesspoints.tf"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3accesspoints.tf
+
   fi
 
 
