@@ -373,6 +373,7 @@ function gitops_iac() {
           PR_APPLY_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "apply")
           
           if [[ "$PR_APPLY_COMMENT" == "Passed" ]]; then
+            sleep 120
             MARGE_PR_STATUS=$(merge_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "Merge PR")
             if [[ "$MARGE_PR_STATUS" != "true" ]]; then
               echo_h2 "⚠️  Atlantis apply succeeded. Failed to merge PR. Please check the PR: 'https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}'"
