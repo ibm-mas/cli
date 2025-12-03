@@ -1,13 +1,15 @@
-# This block is only created if EFS is enabled
-{% if IS_EFS %}
+{%- if (IS_EFS | lower == 'true') or (IS_S3 | lower == 'true') %}
 cluster_name         = "{{ CLUSTER_ID}}"
 instance_name        = "{{ MAS_INSTANCE_ID }}"
+{%- endif %}
+
+{%- if IS_EFS | lower == 'true' %}
 vpc_id               = "{{ VPC_ID_VALUE}}"
 vpc_name             = "{{ VPC_NAME_VALUE }}"
-{% endif %}
+{%- endif %}
 
-# This block is only created if IAM is enabled
-{% if IS_IAM %}
+
+{%- if IS_IAM | lower == 'true'  %}
 name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 create_s3_iam_group     = false
 create_s3_iam_policy    = false
@@ -26,4 +28,23 @@ s3_iam_users_list = {
 		iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-log-ro"
 	}
 }
-{% endif %}
+{%- endif %}
+
+{%- if IS_S3 | lower == 'true' %}
+common_tags = {
+  "source"      = "terraform", # hardcode
+  "environment" = "stag",   # will figureout from saas-envs-starter
+  "owner"       = "sustsw", # input?
+  "contact"     = "mas.saas.stag@ibm.com",
+  "cost-center" = "73746167" # input?
+}
+s3bucket_name_prefix    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"
+name_prefix             = "{{ NAME_PREFIX_VALUE }}"
+create_bucket        = true #always true
+iam_user_arn_prefix  = "arn:aws:iam::435377327995:user/massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid" # need this -> 435377327995
+s3_encryption_algorithm = "AES256" # input or hardcode?
+location = {
+  region             = "{{REGION_NAME}}"
+  availability_zones = ["{{REGION_NAME}}a", "{{REGION_NAME}}b", "{{REGION_NAME}}c"] #wb az?
+}
+{%- endif %}

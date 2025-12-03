@@ -1,5 +1,5 @@
-# This block is only created if EFS is enabled
-{% if IS_EFS %}
+
+{%- if IS_EFS | lower == 'true' -%}
 data "aws_subnets" "external_subnets" {
   filter {
     name   = "vpc-id"
@@ -32,14 +32,123 @@ data "aws_subnets" "workload_subnets" {
     values = {{VPC_CIDR_WORKLOAD_INTERNAL}}
   }
 }
-
+{%- endif %}
 
 locals {
-  cluster = {
-      "external_subnet_ids" : data.aws_subnets.external_subnets.ids
-      "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
+{%- if IS_S3 | lower == 'true' %}
+  iam_user_arns = {
+    custfiles = "${var.iam_user_arn_prefix}-custfiles-${var.access_level_rw}"
+    doclinks  = "${var.iam_user_arn_prefix}-doclinks-${var.access_level_rw}"
+    logs_rw   = "${var.iam_user_arn_prefix}-log-${var.access_level_rw}"
+    logs_ro   = "${var.iam_user_arn_prefix}-log-${var.access_level_ro}"
   }
 
+  s3_iam_users_list = {
+    doclinks = {
+      bucket_name   = "${var.s3bucket_name_prefix}-doclinks"
+      iam_user_name = "${var.iam_user_name_prefix}-doclinks-${var.access_level_ro}"
+      access_level  = var.access_level_rw
+    },
+    custfiles = {
+      bucket_name   = "${var.s3bucket_name_prefix}-custfiles"
+      iam_user_name = "${var.iam_user_name_prefix}-custfiles-${var.access_level_rw}"
+      access_level  = var.access_level_rw
+    },
+    logs_rw = {
+      bucket_name   = "${var.s3bucket_name_prefix}-log"
+      iam_user_name = "${var.iam_user_name_prefix}-log-${var.access_level_rw}"
+      access_level  = var.access_level_rw
+    },
+    logs_ro = {
+      bucket_name   = "${var.s3bucket_name_prefix}-log"
+      iam_user_name = "${var.iam_user_name_prefix}-log-${var.access_level_ro}"
+      access_level  = var.access_level_ro
+    }
+  }
+
+  s3_actions = {
+    ro = ["s3:GetObject", "s3:ListBucket"]
+    rw = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
+  }
+
+  iam_users_by_bucket = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list :
+      local.iam_user_arns[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+
+  bucket_user_names = {
+    custfiles = "${var.iam_user_name_prefix}-custfiles-${var.access_level_rw}"
+    doclinks  = "${var.iam_user_name_prefix}-doclinks-${var.access_level_rw}"
+    logs_rw   = "${var.iam_user_name_prefix}-log-${var.access_level_rw}"
+    logs_ro   = "${var.iam_user_name_prefix}-log-${var.access_level_ro}"
+  }
+
+  bucket_user_name_map = {
+    for key, value in local.s3_iam_users_list :
+    key => lookup(local.bucket_user_names, key, null)
+  }
+  environment = var.environment
+
+  location = var.location
+  {%- endif %}
+  cluster = {
+  {%- if IS_EFS | lower == 'true' %}
+    "external_subnet_ids" : data.aws_subnets.external_subnets.ids
+    "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
+  {%- endif %}
+  {%- if IS_S3 | lower == 'true' %}
+    instance = {
+      name = var.instance_name
+      s3buckets = {
+        doclinks = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket // override bucket name
+          name                 = "${var.s3bucket_name_prefix}-doclinks"
+          id                   = "${var.s3bucket_name_prefix}-doclinks"
+          access_level         = "rw"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix}-doclinks"
+          secret_suffix        = "manage_attachments/cos-attachments"
+          cos_secret_format    = false
+          manage_secret_format = true
+          expiration           = null
+        },
+        custfiles = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket // override bucket name
+          name                 = "${var.s3bucket_name_prefix}-custfiles"
+          id                   = "${var.s3bucket_name_prefix}-custfiles"
+          access_level         = "rw"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix}-custfiles"
+          secret_suffix        = "manage_custfiles/cos-custfiles"
+          cos_secret_format    = false
+          manage_secret_format = true
+          expiration = {
+            days = 366 // how long to keep logs
+          }
+        },
+        logs = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket // override bucket name
+          name                 = "${var.s3bucket_name_prefix}-log"
+          id                   = "${var.s3bucket_name_prefix}-log"
+          access_level         = "ro"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix}-log"
+          secret_suffix        = "manage_logging/cos-logging"
+          cos_secret_format    = false
+          manage_secret_format = true
+          expiration           = null
+        }
+      }
+    }
+    name = var.cluster_name
+{%- endif %}
+
+  }
+{%- if IS_EFS | lower == 'true' %}
   worker_subnet_ids = data.aws_subnets.workload_subnets.ids
 
   multiple-efs = {
@@ -47,6 +156,5 @@ locals {
       name = join("-", ["efs", var.cluster_name, var.instance_name, "manage-db2"])
     }
   }
+{%- endif %}
 }
-
-{% endif %}
