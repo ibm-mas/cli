@@ -55,7 +55,7 @@ spec:
     # 1.2 Red Hat Certificate Manager
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/cert-manager.yml.j2') | indent(4) }}
       runAfter:
-        - ibm-catalogs
+        - pre-install-check
 
     # 1.3 Configure Grafana
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/grafana.yml.j2') | indent(4) }}
@@ -64,7 +64,7 @@ spec:
           operator: in
           values: ["install"]
       runAfter:
-        - ibm-catalogs
+        - pre-install-check
 
     # 1.4 Configure ECK
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/eck.yml.j2') | indent(4) }}
@@ -99,6 +99,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | indent(4) }}
       runAfter:
         - cert-manager
+        - ibm-catalogs
 
     # 2.3.2 Dedicated Manage Db2
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | indent(4) }}
@@ -109,11 +110,12 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2') | indent(4) }}
       runAfter:
         - mongodb
+        - ibm-catalogs
 
     # 2.5 DRO
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/dro.yml.j2') | indent(4) }}
       runAfter:
-        - ibm-catalogs
+        - pre-install-check
 
 
     # 3. Cloud Pak for Data
