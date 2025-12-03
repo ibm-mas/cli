@@ -19,7 +19,8 @@ class Db2SettingsMixin():
         if not silentMode:
             self.printH1("Configure Databases")
         # The channel used for Db2 used has not changed since the January 2024 catalog update
-        self.params["db2_channel"] = "v110509.0"
+        if self.getParam("db2_channel") in (None, "", False):
+            self.params["db2_channel"] = "v110509.0"
 
         # If neither Iot, Manage or Facilities is being installed, we have nothing to do
         if not self.installIoT and not self.installManage and not self.installFacilities:

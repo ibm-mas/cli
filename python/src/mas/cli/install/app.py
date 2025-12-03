@@ -33,6 +33,7 @@ from .settings import InstallSettingsMixin
 from .summarizer import InstallSummarizerMixin
 from .params import requiredParams, optionalParams
 from .catalogs import supportedCatalogs
+from .db2channels import db2VersionsMap
 
 from mas.cli.validators import (
     InstanceIDFormatValidator,
@@ -289,6 +290,34 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             releaseSelection = self.promptForString("Select release", completer=releaseCompleter)
 
             self.setParam("mas_channel", self.catalogReleases[releaseSelection])
+
+    @logMethodCall
+    def configDb2Version(self):
+        self.printH1("Db2 Version Selection")
+
+        # Build list of channel options from your map
+        db2_channel_options = list(db2VersionsMap.keys())
+        db2_channel_completer = WordCompleter(db2_channel_options)
+
+        # Print the DB2 channels 
+        self.printDescription(["Available Db2 Channels:"])
+        for ch in db2_channel_options:
+            print_formatted_text(HTML(f"<green>{ch}</green>"))
+        print()  # Blank line
+
+        # Prompt user to select
+        selected_channel = self.promptForString(
+            "Select Db2 channel",
+            completer=db2_channel_completer
+        )
+
+        self.setParam("db2_channel", selected_channel)
+        self.setParam("db2_version", db2VersionsMap[selected_channel])
+
+        self.printDescription([
+            f"Selected Db2 Channel: {selected_channel}",
+            f"Db2 Engine Version: {db2VersionsMap[selected_channel]}"
+        ])
 
     @logMethodCall
     def configSLS(self) -> None:
@@ -933,6 +962,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Dependencies
         self.configMongoDb()
+        self.configDb2Version()
         self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
 
