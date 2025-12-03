@@ -1,10 +1,10 @@
 - name: app-install-facilities
   timeout: "0"
+  taskRef:
+    name: mas-devops-suite-app-install
+    kind: Task
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(4) }}
-    - name: devops_suite_name
-      value: app-facilities-install
-
     - name: artifactory_username
       value: $(params.artifactory_username)
     - name: artifactory_token
@@ -21,13 +21,38 @@
     - name: custom_labels
       value: $(params.custom_labels)
 
-  taskRef:
-    name: mas-devops-suite-app-install
-    kind: Task
+    # Workspace
+    - name: mas_workspace_id
+      value: "$(params.mas_workspace_id)"
+
+    # Application Workspace - Operand
+    - name: mas_appws_bindings_jdbc
+      value: $(params.mas_appws_bindings_jdbc)
+    - name: mas_ws_facilities_size
+      value: $(params.mas_ws_facilities_size)
+    - name: mas_ws_facilities_routes_timeout
+      value: $(params.mas_ws_facilities_routes_timeout)
+    - name: mas_ws_facilities_liberty_extension_XML
+      value: $(params.mas_ws_facilities_liberty_extension_XML)
+    - name: mas_ws_facilities_vault_secret
+      value: $(params.mas_ws_facilities_vault_secret)
+    - name: mas_ws_facilities_pull_policy
+      value: $(params.mas_ws_facilities_pull_policy)
+    - name: mas_ws_facilities_storage_log_class
+      value: $(params.mas_ws_facilities_storage_log_class)
+    - name: mas_ws_facilities_storage_log_mode
+      value: $(params.mas_ws_facilities_storage_log_mode)
+    - name: mas_ws_facilities_storage_userfiles_class
+      value: $(params.mas_ws_facilities_storage_userfiles_class)
+    - name: mas_ws_facilities_storage_userfiles_mode
+      value: $(params.mas_ws_facilities_storage_userfiles_mode)
+    - name: mas_ws_facilities_config_map_name
+      value: $(params.mas_ws_facilities_config_map_name)
   workspaces:
+    - name: configs
+      workspace: shared-configs
     - name: pod-templates
       workspace: shared-pod-templates
-  # Only install facilities if a channel has been chosen
   when:
     - input: "$(params.mas_app_channel_facilities)"
       operator: notin

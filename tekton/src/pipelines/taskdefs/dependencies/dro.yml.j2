@@ -29,10 +29,6 @@
       value: $(params.dro_namespace)
     - name: dro_storage_class
       value: $(params.storage_class_rwo)
-  when:
-    - input: "$(params.dro_action)"
-      operator: in
-      values: ["install"]
   taskRef:
     kind: Task
     name: mas-devops-dro

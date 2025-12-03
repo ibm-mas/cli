@@ -13,7 +13,7 @@ spec:
     # 1. Common Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
-    
+
     # 2. Installation (only needed if Manage Foundation is going to be installed)
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
@@ -29,7 +29,7 @@ spec:
     - name: should_install_manage_foundation
       type: string
       description: Set to true if Manage Foundation is supposed to be installed (when upgrading to 9.1 from a 9.0 MAS without Manage)
-      default: "false"      
+      default: "false"
 
   tasks:
     # 1. Wait for approval & verify health of the cluster before we change anything
@@ -89,96 +89,80 @@ spec:
     # 3. Install Universal Dependencies (Phase 2)
     # 3.1 Db2
     # 3.1.1 System Db2
-    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | from_yaml %}
-    {% set task = tasks[0] %}
-    {% set merged_when = (task.when | default([])) + [{
+    {%- set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'system'}) | from_yaml %}
+    {%- set task = tasks[0] %}
+    {%- set merged_when = (task.when | default([])) + [{
       'input': '$(params.should_install_manage_foundation)',
       'operator': 'in',
       'values': ['true']
     }] %}
-    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['core-verify']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
-{# Add 4 spaces to every line, including the first #}
-{{ task_yaml | regex_replace('(?m)^', '    ') }}
+    {%- set updated_task = task | combine({'when': merged_when, 'runAfter': ['core-verify']}, recursive=True) %}
+    {%- set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 
+    {{ task_yaml | indent(4, false) }}
     # 3.1.2 Dedicated Manage Db2
-    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | from_yaml %}
-    {% set task = tasks[0] %}
-    {% set merged_when = (task.when | default([])) + [{
+    {%- set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'manage'}) | from_yaml %}
+    {%- set task = tasks[0] %}
+    {%- set merged_when = (task.when | default([])) + [{
       'input': '$(params.should_install_manage_foundation)',
       'operator': 'in',
       'values': ['true']
     }] %}
-    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['db2-system']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
-{# Add 4 spaces to every line, including the first #}
-{{ task_yaml | regex_replace('(?m)^', '    ') }}
+    {%- set updated_task = task | combine({'when': merged_when, 'runAfter': ['db2-system']}, recursive=True) %}
+    {%- set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 
+    {{ task_yaml | indent(4, false) }}
     # 3.1.3 Configure Db2 in MAS
-    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | from_yaml %}
-    {% set task = tasks[0] %}
-    {% set merged_when = (task.when | default([])) + [{
+    {%- set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | from_yaml %}
+    {%- set task = tasks[0] %}
+    {%- set merged_when = (task.when | default([])) + [{
       'input': '$(params.should_install_manage_foundation)',
       'operator': 'in',
       'values': ['true']
     }] %}
-    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['db2-manage']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
-{# Add 4 spaces to every line, including the first #}
-{{ task_yaml | regex_replace('(?m)^', '    ') }}
+    {%- set updated_task = task | combine({'when': merged_when, 'runAfter': ['db2-manage']}, recursive=True) %}
+    {%- set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
+
+    {{ task_yaml | indent(4, false) }}
 
     # 4. Install & Configure Manage (Phase 3)
     # -------------------------------------------------------------------------
-    # 4.1. Prepare database for Maxinst
-    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-system.yml.j2') | from_yaml %}
-    {% set task = tasks[0] %}
-    {% set merged_when = (task.when | default([])) + [{
+    # 4.1 Prepare database for Maxinst (system)
+    {%- set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-system.yml.j2') | from_yaml %}
+    {%- set task = tasks[0] %}
+    {%- set merged_when = (task.when | default([])) + [{
       'input': '$(params.should_install_manage_foundation)',
       'operator': 'in',
       'values': ['true']
     }] %}
-    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-config-db2']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
-{# Add 4 spaces to every line, including the first #}
-{{ task_yaml | regex_replace('(?m)^', '    ') }}
+    {%- set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-config-db2']}, recursive=True) %}
+    {%- set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 
-    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-manage.yml.j2') | from_yaml %}
-    {% set task = tasks[0] %}
-    {% set merged_when = (task.when | default([])) + [{
+    {{ task_yaml | indent(4, false) }}
+    # 4.2 Prepare database for Maxinst (manage)
+    {%- set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/db2-setup-manage.yml.j2') | from_yaml %}
+    {%- set task = tasks[0] %}
+    {%- set merged_when = (task.when | default([])) + [{
       'input': '$(params.should_install_manage_foundation)',
       'operator': 'in',
       'values': ['true']
     }] %}
-    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-config-db2']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
-{# Add 4 spaces to every line, including the first #}
-{{ task_yaml | regex_replace('(?m)^', '    ') }}
+    {%- set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-config-db2']}, recursive=True) %}
+    {%- set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 
-    # 4.2 Manage Install
-    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-app.yml.j2') | from_yaml %}
-    {% set task = tasks[0] %}
-    {% set merged_when = (task.when | default([])) + [{
+    {{ task_yaml | indent(4, false) }}
+    # 4.3 Manage Install
+    {%- set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-app.yml.j2') | from_yaml %}
+    {%- set task = tasks[0] %}
+    {%- set merged_when = (task.when | default([])) + [{
       'input': '$(params.should_install_manage_foundation)',
       'operator': 'in',
       'values': ['true']
     }] %}
-    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-db2-setup-system', 'suite-db2-setup-manage']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
-{# Add 4 spaces to every line, including the first #}
-{{ task_yaml | regex_replace('(?m)^', '    ') }}
+    {%- set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-db2-setup-system', 'suite-db2-setup-manage']}, recursive=True) %}
+    {%- set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 
-    # 4.3 Configure Manage workspace
-    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | from_yaml %}
-    {% set task = tasks[0] %}
-    {% set merged_when = (task.when | default([])) + [{
-      'input': '$(params.should_install_manage_foundation)',
-      'operator': 'in',
-      'values': ['true']
-    }] %}
-    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['app-install-manage']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
-{# Add 4 spaces to every line, including the first #}
-{{ task_yaml | regex_replace('(?m)^', '    ') }}
+    {{ task_yaml | indent(4, false) }}
 
     # 5. Manage Upgrade (Phase 4)
     # -------------------------------------------------------------------------
@@ -199,7 +183,7 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - app-cfg-manage
+        - app-install-manage
       when:
         - input: "$(params.should_install_manage_foundation)"
           operator: notin

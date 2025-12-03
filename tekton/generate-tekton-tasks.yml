@@ -135,7 +135,6 @@
       with_items:
         - gencfg-workspace
         - must-gather
-        - suite-app-config
         - suite-app-install
         - suite-app-uninstall
         - suite-app-upgrade
