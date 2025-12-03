@@ -221,6 +221,8 @@ spec:
         - input: $(params.grafana_v5_upgrade)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - post-update-verify
       params:
         - name: grafana_action
           value: update
@@ -232,6 +234,8 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-db2
+      runAfter:
+        - post-update-verify
       params:
         - name: devops_suite_name
           value: update-db2
@@ -245,6 +249,8 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-mongodb
+      runAfter:
+        - post-update-verify
       params:
         - name: devops_suite_name
           value: update-mongodb
@@ -270,6 +276,8 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-kafka
+      runAfter:
+        - post-update-verify
       params:
         - name: devops_suite_name
           value: update-kafka
@@ -284,6 +292,8 @@ spec:
     # -------------------------------------------------------------------------
     # 5.1 Cloud Pak for Data Platform
     {{ lookup('template', 'taskdefs/cp4d/cp4d-platform-update.yml.j2') | indent(4) }}
+      runAfter:
+        - post-update-verify
 
     # 5.2 Watson Studio
     {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl-update.yml.j2') | indent(4) }}
@@ -313,6 +323,7 @@ spec:
         'devops_suite_name': 'post-deps-update-verify'
       }) | indent(4) }}
       runAfter:
+        - update-ocs
         - update-db2
         - update-mongodb
         - update-kafka
