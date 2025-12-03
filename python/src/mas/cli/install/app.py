@@ -299,7 +299,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         db2_channel_options = list(db2VersionsMap.keys())
         db2_channel_completer = WordCompleter(db2_channel_options)
 
-        # Print the DB2 channels 
+        # Print the DB2 channels
         self.printDescription(["Available Db2 Channels:"])
         for ch in db2_channel_options:
             print_formatted_text(HTML(f"<green>{ch}</green>"))
