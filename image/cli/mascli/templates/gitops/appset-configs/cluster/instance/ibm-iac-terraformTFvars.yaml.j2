@@ -5,3 +5,25 @@ instance_name        = "{{ MAS_INSTANCE_ID }}"
 vpc_id               = "{{ VPC_ID_VALUE}}"
 vpc_name             = "{{ VPC_NAME_VALUE }}"
 {% endif %}
+
+# This block is only created if IAM is enabled
+{% if IS_IAM %}
+name_prefix             = "{{ NAME_PREFIX_VALUE }}"
+create_s3_iam_group     = false
+create_s3_iam_policy    = false
+create_efs_policy       = false
+s3_iam_users_list = {
+	doclinks = {
+		iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-doclinks-rw"
+	},
+	custfiles = {
+		iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-custfiles-rw"
+	},
+	logs_rw = {
+		iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-log-rw"
+	},
+	logs_ro = {
+		iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-log-ro"
+	}
+}
+{% endif %}

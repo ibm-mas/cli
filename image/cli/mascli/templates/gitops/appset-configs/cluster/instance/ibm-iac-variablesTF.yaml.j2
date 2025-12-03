@@ -1,3 +1,4 @@
+{% if IS_EFS %}
 variable "vpc_id" {
   type        = string
   description = "ID of VPC"
@@ -12,3 +13,29 @@ variable "cluster_name" {
   type        = string
   description = "Name of Cluster"
 }
+{% endif %}
+
+{% if IS_IAM %}
+variable "name_prefix" {
+	type        = string
+	description = "name_prefix"
+}
+variable "create_s3_iam_group" {
+	type        = bool
+	description = "Whether to create s3 iam group or not"
+}
+variable "create_s3_iam_policy" {
+	type        = bool
+	description = "Whether to create s3 iam group or not"
+}
+variable "create_efs_policy" {
+	type        = bool
+	description = "Whether to create efs policy or not"
+}
+variable "s3_iam_users_list" {
+	description = "s3 user list"
+		type = map(object({
+		iam_user_name = string
+	}))
+}
+{% endif %}

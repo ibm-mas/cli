@@ -336,6 +336,38 @@ function gitops_iac() {
     GIT_COMMIT_MSG="${GIT_COMMIT_MSG}-efs"
   fi
 
+  if [[ "$IS_IAM"  == "true" ]]; then
+    echo
+    echo_h2 "Generating IAM Policy Configuration"
+    echo "- IAM Policy"
+
+    echo "generating path for "
+
+    #Creating file path for extracting parameter value from cluster & vpc
+    CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
+    MAIN_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/main.tf
+    TERRAFORMTF_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/terraform.tfvars
+
+    #Creating value path for extracting parameter value from .tf file
+    NAME_PREFIX="name_prefix"
+
+    #Extracting values from .tf file
+    export NAME_PREFIX_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${NAME_PREFIX}")
+
+    echo "NAME_PREFIX_VALUE  ${NAME_PREFIX_VALUE}"
+
+    #Generating .tf files using templates
+    echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/ibm-iac-iampolicy.tf "
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicyTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy.tf
+
+    echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
+
+    echo "Generating IAC Variables file ${GITOPS_CLUSTER_DIR}/variables.tf"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variablesTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
+
+  fi
+
   # Commit and push to github target repo with PR creation
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
