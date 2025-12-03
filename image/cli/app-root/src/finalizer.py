@@ -1,11 +1,11 @@
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, UTC
 from pymongo import MongoClient
 from kubernetes import client, config
 from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
-from slackclient import SlackClient
+from mas.devops.slack import SlackUtil
 from subprocess import PIPE, Popen, TimeoutExpired
 from mobilever import MobVer
 import threading
@@ -54,57 +54,20 @@ def runCmd(cmdArray, timeout=630):
 def postMessage(channelName, messageBlocks, threadId=None):
     if threadId is None:
         print(f"Posting {len(messageBlocks)} block message to {channelName} in Slack")
-        response = sc.api_call("chat.postMessage", channel=channelName, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True)
+        response = SlackUtil.postMessageBlocks(channelName, messageBlocks)
     else:
         print(f"Posting {len(messageBlocks)} block message to {channelName} on thread {threadId} in Slack")
-        response = sc.api_call("chat.postMessage", channel=channelName, thread_ts=threadId, blocks=messageBlocks, mrkdwn=True, parse="none", as_user=True)
+        response = SlackUtil.postMessageBlocks(channelName, messageBlocks, threadId=threadId)
 
     if not response['ok']:
         print(response)
         print("Failed to call Slack API")
     return response
 
-
-# Build header block for Slack message
-# -----------------------------------------------------------------------------
-def buildHeader(title):
-    return {
-        "type": "header",
-        "text": {
-            "type": "plain_text",
-                "text": title,
-                "emoji": True
-        }
-    }
-
-
-# Build section block for Slack message
-# -----------------------------------------------------------------------------
-def buildSection(text):
-    return {
-        "type": "section",
-        "text": {
-            "type": "mrkdwn",
-            "text": text
-        }
-    }
-
-
-# Build context block for Slack message
-# -----------------------------------------------------------------------------
-def buildContext(texts):
-    elements = []
-    for text in texts:
-        elements.append({"type": "mrkdwn", "text": text})
-
-    return {
-        "type": "context",
-        "elements": elements
-    }
-
-
 # Get Kafka Provider and Version
 # -------------------------------------------------------------------------
+
+
 def getKafkaVersion(namespace):
     try:
         crs = dynClient.resources.get(api_version="kafka.strimzi.io/v1beta2", kind="Kafka")
@@ -223,7 +186,7 @@ if __name__ == "__main__":
 
     setObject = {}
     if setFinished.lower() == "true":
-        setObject["timestampFinished"] = datetime.utcnow()
+        setObject["timestampFinished"] = datetime.now(UTC)
 
     # Set CLI and ansible-devops version
     # -------------------------------------------------------------------------
@@ -547,9 +510,9 @@ if __name__ == "__main__":
 
     # Check pre-reqs for Slack integration
     # -------------------------------------------------------------------------
-    FVT_SLACK_TOKEN = os.getenv("FVT_SLACK_TOKEN")
-    if FVT_SLACK_TOKEN is None or FVT_SLACK_TOKEN == "":
-        print("FVT_SLACK_TOKEN is not set")
+    SLACK_TOKEN = os.getenv("SLACK_TOKEN")
+    if SLACK_TOKEN is None or SLACK_TOKEN == "":
+        print("SLACK_TOKEN is not set")
         sys.exit(0)
 
     if setFinished.lower() == "false":
@@ -567,7 +530,6 @@ if __name__ == "__main__":
         print("FVT_JIRA_TOKEN is not set")
         sys.exit(0)
 
-    sc = SlackClient(FVT_SLACK_TOKEN)
     jira = JIRA(server="https://jsw.ibm.com", token_auth=FVT_JIRA_TOKEN)
 
     # Lookup test results
@@ -576,9 +538,9 @@ if __name__ == "__main__":
 
     # Generate main message
     # -------------------------------------------------------------------------
-    messageBlocks = []
-    messageBlocks.append(buildHeader(f"FVT Report: {instanceId} #{build}"))
-    messageBlocks.append(buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+    message = []
+    message.append(SlackUtil.buildHeader(f"FVT Report: {instanceId} #{build}"))
+    message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
     for product in sorted(result["products"]):
 
@@ -622,10 +584,10 @@ if __name__ == "__main__":
         if failures > 0:
             context.append(f"*{failures}* failures")
 
-        messageBlocks.append(buildContext(context))
+        message.append(SlackUtil.buildContext(context))
 
-    messageBlocks.append(buildSection(f"Download Must Gather from <https://na.artifactory.swg-devops.com/ui/repos/tree/General/wiotp-generic-logs/mas-fvt/{instanceId}/{build}|Artifactory> (may not be available yet), see thread for more information ..."))
-    response = postMessage(FVT_SLACK_CHANNEL, messageBlocks)
+    message.append(SlackUtil.buildSection(f"Download Must Gather from <https://na.artifactory.swg-devops.com/ui/repos/tree/General/wiotp-generic-logs/mas-fvt/{instanceId}/{build}|Artifactory> (may not be available yet), see thread for more information ..."))
+    response = postMessage(FVT_SLACK_CHANNEL, message)
     if response["ok"]:
         threadId = response["ts"]
     else:
@@ -635,12 +597,12 @@ if __name__ == "__main__":
     # Generate threaded messages with failure details
     # -------------------------------------------------------------------------
     for product in result["products"]:
-        messageBlocks = []
-        messageBlocks.append(buildHeader(f"{product}"))
+        message = []
+        message.append(SlackUtil.buildHeader(f"{product}"))
         if (product in productFocal):
-            messageBlocks.append(buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            message.append(SlackUtil.buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
         else:
-            messageBlocks.append(buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            message.append(SlackUtil.buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
         if "results" in result["products"][product]:
             for suite in result["products"][product]["results"]:
@@ -704,18 +666,18 @@ if __name__ == "__main__":
                         f"*{errors}* errors",
                         f"*{failures}* failures"
                     ]
-                    messageBlocks.append(buildContext(context))
+                    message.append(SlackUtil.buildContext(context))
                     if len(openIssues) > 0:
-                        messageBlocks.append(buildContext(["\n".join(openIssues)]))
+                        message.append(SlackUtil.buildContext(["\n".join(openIssues)]))
                     else:
-                        messageBlocks.append(buildContext(["• No open issues - <https://jsw.ibm.com/secure/CreateIssue!default.jspa|create one>"]))
+                        message.append(SlackUtil.buildContext(["• No open issues - <https://jsw.ibm.com/secure/CreateIssue!default.jspa|create one>"]))
 
-        if len(messageBlocks) > 2 and len(messageBlocks) <= 50:
-            postMessage(FVT_SLACK_CHANNEL, messageBlocks, threadId)
+        if len(message) > 2 and len(message) <= 50:
+            postMessage(FVT_SLACK_CHANNEL, message, threadId)
 
-        if len(messageBlocks) > 50:
-            messageBlocks = []
-            messageBlocks.append(buildHeader(f"{product}"))
-            messageBlocks.append(buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
-            messageBlocks.append(buildSection("Sorry.  The build is so bad it can't even be summarized within the size limit of a Slack message!"))
-            postMessage(FVT_SLACK_CHANNEL, messageBlocks, threadId)
+        if len(message) > 50:
+            message = []
+            message.append(SlackUtil.buildHeader(f"{product}"))
+            message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            message.append(SlackUtil.buildSection("Sorry.  The build is so bad it can't even be summarized within the size limit of a Slack message!"))
+            postMessage(FVT_SLACK_CHANNEL, message, threadId)
