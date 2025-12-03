@@ -52,6 +52,7 @@
         - mas-fvt-visualinspection
         - mas-fvt-launcher
         - mas-ivt-manage
+        - mas-fvt-facilities
         # AI Service Pipelines
         - aiservice-install
         - aiservice-upgrade
