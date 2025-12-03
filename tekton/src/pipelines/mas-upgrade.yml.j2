@@ -13,7 +13,7 @@ spec:
     # 1. Common Parameters
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
-    
+
     # 2. Installation (only needed if Manage Foundation is going to be installed)
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
@@ -29,7 +29,7 @@ spec:
     - name: should_install_manage_foundation
       type: string
       description: Set to true if Manage Foundation is supposed to be installed (when upgrading to 9.1 from a 9.0 MAS without Manage)
-      default: "false"      
+      default: "false"
 
   tasks:
     # 1. Wait for approval & verify health of the cluster before we change anything
@@ -97,7 +97,7 @@ spec:
       'values': ['true']
     }] %}
     {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['core-verify']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 {# Add 4 spaces to every line, including the first #}
 {{ task_yaml | regex_replace('(?m)^', '    ') }}
 
@@ -110,7 +110,7 @@ spec:
       'values': ['true']
     }] %}
     {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['db2-system']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 {# Add 4 spaces to every line, including the first #}
 {{ task_yaml | regex_replace('(?m)^', '    ') }}
 
@@ -123,7 +123,7 @@ spec:
       'values': ['true']
     }] %}
     {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['db2-manage']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 {# Add 4 spaces to every line, including the first #}
 {{ task_yaml | regex_replace('(?m)^', '    ') }}
 
@@ -138,7 +138,7 @@ spec:
       'values': ['true']
     }] %}
     {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-config-db2']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 {# Add 4 spaces to every line, including the first #}
 {{ task_yaml | regex_replace('(?m)^', '    ') }}
 
@@ -150,7 +150,7 @@ spec:
       'values': ['true']
     }] %}
     {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-config-db2']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 {# Add 4 spaces to every line, including the first #}
 {{ task_yaml | regex_replace('(?m)^', '    ') }}
 
@@ -163,22 +163,10 @@ spec:
       'values': ['true']
     }] %}
     {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['suite-db2-setup-system', 'suite-db2-setup-manage']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
+    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}
 {# Add 4 spaces to every line, including the first #}
 {{ task_yaml | regex_replace('(?m)^', '    ') }}
 
-    # 4.3 Configure Manage workspace
-    {% set tasks = lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | from_yaml %}
-    {% set task = tasks[0] %}
-    {% set merged_when = (task.when | default([])) + [{
-      'input': '$(params.should_install_manage_foundation)',
-      'operator': 'in',
-      'values': ['true']
-    }] %}
-    {% set updated_task = task | combine({'when': merged_when, 'runAfter': ['app-install-manage']}, recursive=True) %}
-    {% set task_yaml = [updated_task] | to_nice_yaml(indent=2) %}    
-{# Add 4 spaces to every line, including the first #}
-{{ task_yaml | regex_replace('(?m)^', '    ') }}
 
     # 5. Manage Upgrade (Phase 4)
     # -------------------------------------------------------------------------
@@ -199,7 +187,7 @@ spec:
         kind: Task
         name: mas-devops-suite-app-upgrade
       runAfter:
-        - app-cfg-manage
+        - app-install-manage
       when:
         - input: "$(params.should_install_manage_foundation)"
           operator: notin
