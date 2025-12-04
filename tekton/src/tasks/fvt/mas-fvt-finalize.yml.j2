@@ -26,11 +26,11 @@ spec:
           value: $(params.set_finished)
 
         # The following optional environment variables enable reporting of FVT results via Slack
-        - name: FVT_SLACK_TOKEN
+        - name: SLACK_TOKEN
           valueFrom:
             secretKeyRef:
               name: mas-fvt
-              key: FVT_SLACK_TOKEN
+              key: SLACK_TOKEN
               optional: true
         - name: FVT_SLACK_CHANNEL
           valueFrom:
