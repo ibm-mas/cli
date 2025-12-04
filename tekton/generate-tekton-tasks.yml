@@ -256,4 +256,10 @@
         - gitops-deprovision-aiservice-tenant
         - gitops-deprovision-aiservice
         - gitops-iac-efs
+        - gitops-iac-efs-sequential
+        - gitops-iac-finalize
+        - gitops-iac-iam-sequential
+        - gitops-iac-init
+        - gitops-iac-s3-sequential
+        - gitops-iac-combined
 

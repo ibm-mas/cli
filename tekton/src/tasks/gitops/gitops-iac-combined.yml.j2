@@ -1,0 +1,205 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-combined
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+
+    # EFS parameters
+    - name: is_efs
+      type: string
+      default: "false"
+    - name: efs_source
+      type: string
+      default: ""
+    - name: efs_creation_token
+      type: string
+      default: ""
+    - name: efs_performance_mode
+      type: string
+      default: ""
+    - name: efs_mount_count
+      type: string
+      default: ""
+    - name: efs_lifecycle_policy_transition_to_ia
+      type: string
+      default: ""
+    - name: efs_lifecycle_policy_transition_to_primary_storage_class
+      type: string
+      default: ""
+    - name: efs_throughput_mode
+      type: string
+      default: ""
+    - name: efs_encrypted
+      type: string
+      default: ""
+
+    # S3 parameters
+    - name: is_s3
+      type: string
+      default: "false"
+    - name: s3_bucket_instance_source
+      type: string
+      default: ""
+    - name: s3_buckets_access_point_source
+      type: string
+      default: ""
+
+    # IAM parameters
+    - name: is_iam
+      type: string
+      default: "false"
+    - name: iam_account_policy_source
+      type: string
+      default: ""
+
+  stepTemplate:
+    name: gitops-iac-combined
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      
+      # EFS environment variables
+      - name: IS_EFS
+        value: $(params.is_efs)
+      - name: EFS_SOURCE
+        value: $(params.efs_source)
+      - name: EFS_CREATION_TOKEN
+        value: $(params.efs_creation_token)
+      - name: EFS_PERFORMANCE_MODE
+        value: $(params.efs_performance_mode)
+      - name: EFS_MOUNT_COUNT
+        value: $(params.efs_mount_count)
+      - name: EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA
+        value: $(params.efs_lifecycle_policy_transition_to_ia)
+      - name: EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS
+        value: $(params.efs_lifecycle_policy_transition_to_primary_storage_class)
+      - name: EFS_THROUGHPUT_MODE
+        value: $(params.efs_throughput_mode)
+      - name: EFS_ENCRYPTED
+        value: $(params.efs_encrypted)
+      
+      # S3 environment variables
+      - name: IS_S3
+        value: $(params.is_s3)
+      - name: S3_BUCKET_INSTANCE_SOURCE
+        value: $(params.s3_bucket_instance_source)
+      - name: S3_BUCKETS_ACCESS_POINT_SOURCE
+        value: $(params.s3_buckets_access_point_source)
+      
+      # IAM environment variables
+      - name: IS_IAM
+        value: $(params.is_iam)
+      - name: IAM_ACCOUNT_POLICY_SOURCE
+        value: $(params.iam_account_policy_source)
+        
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+  
+  
+  steps:
+    - args:
+      - |-
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+
+        mkdir -p /tmp/init-iac
+        
+        # Build the command with all parameters
+        CMD="mas gitops-iac -a $ACCOUNT -c $CLUSTER_NAME \
+        --secrets-path $SECRET_PATH \
+        --dir /tmp/init-iac \
+        --github-push \
+        --github-host $GITHUB_HOST \
+        --github-org  $GITHUB_ORG \
+        --github-repo $GITHUB_REPO \
+        --git-branch $GIT_BRANCH \
+        --region-name $REGION_NAME"
+        
+        # Add EFS parameters if enabled
+        if [ "$IS_EFS" = "true" ]; then
+          CMD="$CMD --is_efs $IS_EFS"
+          [ -n "$EFS_SOURCE" ] && CMD="$CMD --efs-source $EFS_SOURCE"
+          [ -n "$EFS_CREATION_TOKEN" ] && CMD="$CMD --efs-creation-token $EFS_CREATION_TOKEN"
+          [ -n "$EFS_PERFORMANCE_MODE" ] && CMD="$CMD --efs-performance-mode $EFS_PERFORMANCE_MODE"
+          [ -n "$EFS_MOUNT_COUNT" ] && CMD="$CMD --efs-mount-count $EFS_MOUNT_COUNT"
+          [ -n "$EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA" ] && CMD="$CMD --efs-lifecycle-policy-transition-to-ia $EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA"
+          [ -n "$EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS" ] && CMD="$CMD --efs-lifecycle-policy-transition-to-primary-storage-class $EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS"
+          [ -n "$EFS_THROUGHPUT_MODE" ] && CMD="$CMD --efs-throughput-mode $EFS_THROUGHPUT_MODE"
+          [ -n "$EFS_ENCRYPTED" ] && CMD="$CMD --efs-encrypted $EFS_ENCRYPTED"
+        fi
+        
+        # Add S3 parameters if enabled
+        if [ "$IS_S3" = "true" ]; then
+          CMD="$CMD --is_s3 $IS_S3"
+          [ -n "$S3_BUCKET_INSTANCE_SOURCE" ] && CMD="$CMD --s3-bucket-instance-source $S3_BUCKET_INSTANCE_SOURCE"
+          [ -n "$S3_BUCKETS_ACCESS_POINT_SOURCE" ] && CMD="$CMD --s3-buckets-access-point-source $S3_BUCKETS_ACCESS_POINT_SOURCE"
+        fi
+        
+        # Add IAM parameters if enabled
+        if [ "$IS_IAM" = "true" ]; then
+          CMD="$CMD --is_iam $IS_IAM"
+          [ -n "$IAM_ACCOUNT_POLICY_SOURCE" ] && CMD="$CMD --iam-account-policy-source $IAM_ACCOUNT_POLICY_SOURCE"
+        fi
+        
+        echo "Executing command: $CMD"
+        eval $CMD
+
+        exit $?
+      command:
+        - /bin/sh
+        - -c
+      name: gitops-iac-combined
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+  workspaces:
+    - name: configs
