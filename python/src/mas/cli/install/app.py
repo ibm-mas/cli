@@ -936,16 +936,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def aiServiceTenantSettings(self) -> None:
-        self.printH1("AI Service Tenant Settings")
-        self.printDescription([
-            "AI Service will reserve AppPoints for a fixed period of time based on the values you enter:"
-        ])
+        if self.installAIService:
+            self.printH1("AI Service Tenant Settings")
+            self.printDescription([
+                "AI Service will reserve AppPoints for a fixed period of time based on the values you enter:"
+            ])
 
-        today = datetime.today()
-        oneyear = datetime.today() + relativedelta(years=1)
-        self.setParam("tenant_entitlement_type", "standard")
-        self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
-        self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
+            today = datetime.today()
+            oneyear = datetime.today() + relativedelta(years=1)
+            self.setParam("tenant_entitlement_type", "standard")
+            self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
+            self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
 
     @logMethodCall
     def _setMinioStorageDefaults(self) -> None:
@@ -968,60 +969,61 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def aiServiceIntegrations(self) -> None:
-        self.printH1("WatsonX Integration")
-        self.printDescription([
-            "This CLI section configures the integration between the AI Service and IBM watsonx.ai. AI Service",
-            "uses watsonx for model deployment and inferencing.",
-            "",
-            "The WatsonX API key must be a **platform API key** associated with a user that has at least:",
-            "- **Editor permission** for the project",
-            "- **Viewer permission** for the space",
-            "You can generate this key by following IBM's documentation: https://www.ibm.com/docs/en/watsonx/w-and-w/2.2.0?topic=tutorials-generating-api-keys#api-keys__platform__title__1",
-            "",
-            "The endpoint URL is your WatsonX Machine Learning service URL. It can be found in the watsonx.ai",
-            "documentation: https://cloud.ibm.com/apidocs/watsonx-ai-cp/watsonx-ai-cp-2.2.0#endpoint-url",
-            "",
-            "The project ID refers to your specific watsonx.ai project where your ML models and assets are stored.",
-            "",
-            "Optional identifiers:",
-            " - DeploymentId: ID of the model deployment in a **dedicated watsonx runtime**",
-            "   (e.g., granite-3-2-8b-instruct deployed in your dedicated runtime).",
-            " - SpaceId: ID of the **watsonx deployment space** where deployments are managed.",
-            "Provide these only if you already have them; otherwise AI Service can proceed with defaults/workflows",
-            "that do not require pre-existing deployment/space identifiers.",
-            "",
-        ])
-        self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
-        watsonxUrl = self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
-        self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
-        if self.yesOrNo("Does the Watsonxai AI use a self-signed certificate"):
-            self.promptForString("Watsonxai CA certificate (PEM format)", "aiservice_watsonxai_ca_crt")
-        self.promptForString("Watsonxai Deployment ID (optional)", "aiservice_watsonxai_deployment_id")
-        self.promptForString("Watsonxai Space ID (optional)", "aiservice_watsonxai_space_id")
-        if ".ibm.com" not in watsonxUrl:
-            self.promptForString("Watsonxai Instance ID (optional)", "aiservice_watsonxai_instance_id")
-            self.promptForString("Watsonxai Username (optional)", "aiservice_watsonxai_username")
-            self.promptForString("Watsonxai Version (optional)", "aiservice_watsonxai_version")
+        if self.installAIService:
+            self.printH1("WatsonX Integration")
+            self.printDescription([
+                "This CLI section configures the integration between the AI Service and IBM watsonx.ai. AI Service",
+                "uses watsonx for model deployment and inferencing.",
+                "",
+                "The WatsonX API key must be a **platform API key** associated with a user that has at least:",
+                "- **Editor permission** for the project",
+                "- **Viewer permission** for the space",
+                "You can generate this key by following IBM's documentation: https://www.ibm.com/docs/en/watsonx/w-and-w/2.2.0?topic=tutorials-generating-api-keys#api-keys__platform__title__1",
+                "",
+                "The endpoint URL is your WatsonX Machine Learning service URL. It can be found in the watsonx.ai",
+                "documentation: https://cloud.ibm.com/apidocs/watsonx-ai-cp/watsonx-ai-cp-2.2.0#endpoint-url",
+                "",
+                "The project ID refers to your specific watsonx.ai project where your ML models and assets are stored.",
+                "",
+                "Optional identifiers:",
+                " - DeploymentId: ID of the model deployment in a **dedicated watsonx runtime**",
+                "   (e.g., granite-3-2-8b-instruct deployed in your dedicated runtime).",
+                " - SpaceId: ID of the **watsonx deployment space** where deployments are managed.",
+                "Provide these only if you already have them; otherwise AI Service can proceed with defaults/workflows",
+                "that do not require pre-existing deployment/space identifiers.",
+                "",
+            ])
+            self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
+            watsonxUrl = self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
+            self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
+            if self.yesOrNo("Does the Watsonxai AI use a self-signed certificate"):
+                self.promptForString("Watsonxai CA certificate (PEM format)", "aiservice_watsonxai_ca_crt")
+            self.promptForString("Watsonxai Deployment ID (optional)", "aiservice_watsonxai_deployment_id")
+            self.promptForString("Watsonxai Space ID (optional)", "aiservice_watsonxai_space_id")
+            if ".ibm.com" not in watsonxUrl:
+                self.promptForString("Watsonxai Instance ID (optional)", "aiservice_watsonxai_instance_id")
+                self.promptForString("Watsonxai Username (optional)", "aiservice_watsonxai_username")
+                self.promptForString("Watsonxai Version (optional)", "aiservice_watsonxai_version")
 
-        self.printH1("RSL Integration")
-        self.printDescription([
-            "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
-            "",
-            "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
-            "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
-            "Token: Use your IBM entitlement key (same as MAS installation)",
-            "",
-            "Note: Future versions will auto-configure these from MAS Manage.",
-            ""
-        ])
-        self.promptForString("RSL url", "rsl_url")
-        self.promptForString("ORG Id of RSL", "rsl_org_id")
-        rslToken = self.promptForString("Token for RSL", isPassword=True)
-        if not rslToken.startswith("Bearer "):
-            rslToken = "Bearer " + rslToken
-        self.setParam("rsl_token", rslToken)
-        if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
-            self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
+            self.printH1("RSL Integration")
+            self.printDescription([
+                "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
+                "",
+                "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
+                "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
+                "Token: Use your IBM entitlement key (same as MAS installation)",
+                "",
+                "Note: Future versions will auto-configure these from MAS Manage.",
+                ""
+            ])
+            self.promptForString("RSL url", "rsl_url")
+            self.promptForString("ORG Id of RSL", "rsl_org_id")
+            rslToken = self.promptForString("Token for RSL", isPassword=True)
+            if not rslToken.startswith("Bearer "):
+                rslToken = "Bearer " + rslToken
+            self.setParam("rsl_token", rslToken)
+            if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
+                self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
 
     @logMethodCall
     def chooseInstallFlavour(self) -> None:
