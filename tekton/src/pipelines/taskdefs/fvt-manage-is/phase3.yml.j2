@@ -185,3 +185,25 @@
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-lbs-utilities-ui
+
+# LBS - Run "cypress/manage/spatial-ui-maps/indoorsValidation.cy.js"
+- name: fvt-manage-spatial-maps
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: spatial-ui-maps
+    - name: fvt_config_file
+      value: configs/lbs-cypress.config.js
+  when:
+    - input: "$(params.fvt_digest_manage_cypress)"
+      operator: notin
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)"
+      operator: notin
+      values: [""]
+    - input: "spatial"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-lbs-linear-ui
