@@ -1,0 +1,125 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-init
+spec:
+  description: Initialize GitOps IAC pipeline - clone repo and prepare for changes
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: init-gitops-repo
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: IfNotPresent
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "=== Initializing GitOps IAC Pipeline ==="
+        
+        # Configure git
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        git config --global user.password $GITHUB_PAT
+        
+        # Set working directory
+        GITOPS_WORKING_DIR=/workspace/shared-data/gitops
+        mkdir -p ${GITOPS_WORKING_DIR}
+        
+        # Clone the repository
+        echo "Cloning repository: ${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}"
+        cd ${GITOPS_WORKING_DIR}
+        
+        if [ -n "$GIT_SSH" ] && [ "$GIT_SSH" != "false" ]; then
+          git clone git@${GITHUB_HOST}:${GITHUB_ORG}/${GITHUB_REPO}.git
+        else
+          git clone https://${GITHUB_PAT}@${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}.git
+        fi
+        
+        cd ${GITHUB_REPO}
+        git checkout ${GIT_BRANCH} || git checkout -b ${GIT_BRANCH}
+        
+        # Create instance directory
+        INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
+        mkdir -p ${INSTANCE_DIR}
+        
+        # Create common files directory for shared template generation
+        COMMON_FILES_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
+        mkdir -p ${COMMON_FILES_DIR}
+        
+        # Store metadata for subsequent tasks
+        echo "${GITOPS_WORKING_DIR}" > /workspace/shared-data/working_dir
+        echo "${INSTANCE_DIR}" > /workspace/shared-data/instance_dir
+        echo "new" > /workspace/shared-data/pr_status
+        
+        # Initialize resource flags file (will be updated by each task)
+        echo "# Resource flags for template generation" > /workspace/shared-data/resource_flags.env
+        echo "export IS_EFS=false" >> /workspace/shared-data/resource_flags.env
+        echo "export IS_S3=false" >> /workspace/shared-data/resource_flags.env
+        echo "export IS_IAM=false" >> /workspace/shared-data/resource_flags.env
+        
+        # Initialize resource variables file (will be populated by each task)
+        echo "# Resource-specific variables for common file generation" > /workspace/shared-data/resource_vars.env
+        
+        echo "✅ Initialization complete"
+        echo "Working Directory: ${GITOPS_WORKING_DIR}"
+        echo "Instance Directory: ${INSTANCE_DIR}"
+
+  workspaces:
+    - name: configs
+    - name: shared-data
+      description: Shared workspace for PR coordination

@@ -1,0 +1,133 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-s3-sequential
+spec:
+  description: Generate S3 configuration and add to existing PR
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: s3_bucket_instance_source
+      type: string
+    - name: s3_buckets_access_point_source
+      type: string
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: S3_BUCKET_INSTANCE_SOURCE
+        value: $(params.s3_bucket_instance_source)
+      - name: S3_BUCKETS_ACCESS_POINT_SOURCE
+        value: $(params.s3_buckets_access_point_source)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: generate-s3-config
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: IfNotPresent
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "=== Generating S3 Configuration ==="
+        
+        # Load shared data
+        GITOPS_WORKING_DIR=$(cat /workspace/shared-data/working_dir)
+        INSTANCE_DIR=$(cat /workspace/shared-data/instance_dir)
+        
+        # Update resource flags for final common file generation
+        sed -i 's/export IS_S3=.*/export IS_S3=true/' /workspace/shared-data/resource_flags.env
+        
+        cd ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+        
+        # Extract required values from cluster config
+        CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_NAME}
+        TERRAFORMTF_FILE_PATH=${CLUSTER_DIR}/terraform.tfvars
+        
+        # Extract values
+        export NAME_PREFIX_VALUE=$(mas gitops-utils get-tf-value "${TERRAFORMTF_FILE_PATH}" "name_prefix")
+        export COST_CENTER_VALUE=$(mas gitops-utils get-tf-value "${TERRAFORMTF_FILE_PATH}" "common_tags.cost-center")
+        export CONTACT_VALUE=$(mas gitops-utils get-tf-value "${TERRAFORMTF_FILE_PATH}" "common_tags.contact")
+        export ENVIRONMENT_VALUE=$(mas gitops-utils get-tf-value "${TERRAFORMTF_FILE_PATH}" "common_tags.environment")
+        export OWNER_VALUE=$(mas gitops-utils get-tf-value "${TERRAFORMTF_FILE_PATH}" "common_tags.owner")
+        IAM_USER_ARN_VALUE=$(mas gitops-utils get-tf-value "${TERRAFORMTF_FILE_PATH}" "iam_user_arn_prefix")
+        
+        export ACCOUNT_ID=$(echo "${IAM_USER_ARN_VALUE}" | cut -d':' -f5)
+        
+        echo "NAME_PREFIX_VALUE: ${NAME_PREFIX_VALUE}"
+        echo "COST_CENTER_VALUE: ${COST_CENTER_VALUE}"
+        echo "CONTACT_VALUE: ${CONTACT_VALUE}"
+        echo "ENVIRONMENT_VALUE: ${ENVIRONMENT_VALUE}"
+        echo "OWNER_VALUE: ${OWNER_VALUE}"
+        echo "ACCOUNT_ID: ${ACCOUNT_ID}"
+        
+        # Store S3-specific variables for common file generation
+        echo "export NAME_PREFIX_VALUE=\"${NAME_PREFIX_VALUE}\"" >> /workspace/shared-data/resource_vars.env
+        echo "export COST_CENTER_VALUE=\"${COST_CENTER_VALUE}\"" >> /workspace/shared-data/resource_vars.env
+        echo "export CONTACT_VALUE=\"${CONTACT_VALUE}\"" >> /workspace/shared-data/resource_vars.env
+        echo "export ENVIRONMENT_VALUE=\"${ENVIRONMENT_VALUE}\"" >> /workspace/shared-data/resource_vars.env
+        echo "export OWNER_VALUE=\"${OWNER_VALUE}\"" >> /workspace/shared-data/resource_vars.env
+        echo "export ACCOUNT_ID=\"${ACCOUNT_ID}\"" >> /workspace/shared-data/resource_vars.env
+        
+        # Generate ONLY S3-specific files (common files will be generated at the end)
+        echo "Generating S3-specific files (s3-instance.tf, s3accesspoints.tf)..."
+        export IS_S3=true
+        mas gitops-utils jinjanate ${CLI_DIR}/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance.yaml.j2 ${INSTANCE_DIR}/s3-instance.tf
+        mas gitops-utils jinjanate ${CLI_DIR}/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.yaml.j2 ${INSTANCE_DIR}/s3accesspoints.tf
+        
+        # Update commit message parts
+        echo "iac-s3" >> /workspace/shared-data/commit_parts
+        
+        echo "✅ S3 configuration generated"
+
+  workspaces:
+    - name: configs
+    - name: shared-data

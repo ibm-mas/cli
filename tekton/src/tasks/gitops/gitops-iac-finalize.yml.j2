@@ -1,0 +1,234 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-finalize
+spec:
+  description: Finalize IAC changes - commit, create PR, and monitor
+  params:
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: git_branch
+      type: string
+
+  stepTemplate:
+    env:
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: generate-common-files
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: IfNotPresent
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "=== Generating Common Files ==="
+        
+        # Load shared data
+        GITOPS_WORKING_DIR=$(cat /workspace/shared-data/working_dir)
+        INSTANCE_DIR=$(cat /workspace/shared-data/instance_dir)
+        
+        # Check if any resources were processed
+        if [ ! -f /workspace/shared-data/commit_parts ]; then
+          echo "⚠️  No resources processed. Skipping common file generation."
+          exit 0
+        fi
+        
+        cd ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+        
+        # Load all resource flags and variables
+        echo "Loading resource flags and variables..."
+        source /workspace/shared-data/resource_flags.env
+        source /workspace/shared-data/resource_vars.env
+        
+        echo "Resource Flags:"
+        echo "  IS_EFS: ${IS_EFS}"
+        echo "  IS_S3: ${IS_S3}"
+        echo "  IS_IAM: ${IS_IAM}"
+        
+        # Now generate common files with ALL resource flags and variables available
+        echo "Generating common files (main.tf, terraform.tfvars, variables.tf)..."
+        echo "These files will include variables for ALL enabled resources"
+        
+        mas gitops-utils jinjanate ${CLI_DIR}/templates/gitops/appset-configs/cluster/instance/ibm-iac-mainTF.yaml.j2 ${INSTANCE_DIR}/main.tf
+        mas gitops-utils jinjanate ${CLI_DIR}/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${INSTANCE_DIR}/terraform.tfvars
+        mas gitops-utils jinjanate ${CLI_DIR}/templates/gitops/appset-configs/cluster/instance/ibm-iac-variablesTF.yaml.j2 ${INSTANCE_DIR}/variables.tf
+        
+        echo "✅ Common files generated successfully with all resource variables"
+
+    - name: commit-and-create-pr
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: IfNotPresent
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "=== Creating Pull Request ==="
+        
+        # Load shared data
+        GITOPS_WORKING_DIR=$(cat /workspace/shared-data/working_dir)
+        INSTANCE_DIR=$(cat /workspace/shared-data/instance_dir)
+        
+        cd ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+        
+        # Build commit message from parts
+        COMMIT_PARTS=""
+        if [ -f /workspace/shared-data/commit_parts ]; then
+          COMMIT_PARTS=$(cat /workspace/shared-data/commit_parts | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+        fi
+        
+        if [ -z "$COMMIT_PARTS" ]; then
+          echo "⚠️  No changes detected. Skipping PR creation."
+          exit 0
+        fi
+        
+        GIT_COMMIT_MSG="IAC update: ${COMMIT_PARTS}"
+        echo "Commit message: ${GIT_COMMIT_MSG}"
+        
+        # Stage all files (resource-specific + common files)
+        git add ${INSTANCE_DIR}/*
+        
+        # Configure git
+        git config --global user.name "MAS Automation"
+        git config --global user.email "you@example.com"
+        
+        # Check if there are changes to commit
+        if git diff --cached --quiet; then
+          echo "⚠️  No staged changes detected. Skipping PR creation."
+          exit 0
+        fi
+        
+        # Commit changes
+        git commit -m "${GIT_COMMIT_MSG}"
+        
+        # Push to branch
+        git push origin ${GIT_BRANCH}
+        
+        # Create or update PR using GitHub API
+        echo "Creating/updating Pull Request..."
+        
+        # Check if PR already exists
+        EXISTING_PR=$(curl -s -H "Authorization: token ${GITHUB_PAT}" \
+          "https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls?state=open&head=${GITHUB_ORG}:${GIT_BRANCH}" \
+          | jq -r '.[0].number // empty')
+        
+        if [ -n "$EXISTING_PR" ]; then
+          echo "PR #${EXISTING_PR} already exists. Changes pushed to existing PR."
+          PR_NUMBER=$EXISTING_PR
+        else
+          # Create new PR
+          PR_RESPONSE=$(curl -s -X POST \
+            -H "Authorization: token ${GITHUB_PAT}" \
+            -H "Content-Type: application/json" \
+            "https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls" \
+            -d "{
+              \"title\": \"${GIT_COMMIT_MSG}\",
+              \"head\": \"${GIT_BRANCH}\",
+              \"base\": \"main\",
+              \"body\": \"Automated IAC configuration update\"
+            }")
+          
+          PR_NUMBER=$(echo "$PR_RESPONSE" | jq -r '.number')
+          echo "Created PR #${PR_NUMBER}"
+        fi
+        
+        # Store PR number for monitoring
+        echo "${PR_NUMBER}" > /workspace/shared-data/pr_number
+        
+        echo "✅ PR created/updated successfully"
+
+    - name: monitor-pr
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: IfNotPresent
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "=== Monitoring PR Status ==="
+        
+        # Check if PR was created
+        if [ ! -f /workspace/shared-data/pr_number ]; then
+          echo "No PR to monitor. Exiting."
+          exit 0
+        fi
+        
+        PR_NUMBER=$(cat /workspace/shared-data/pr_number)
+        
+        if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
+          echo "⚠️  No valid PR number. Exiting."
+          exit 1
+        fi
+        
+        echo "Monitoring PR #${PR_NUMBER}"
+        
+        # Wait for Atlantis plan
+        echo "Waiting for Atlantis plan..."
+        ATLANTIS_UNLOCK_COMMENT_BODY="atlantis unlock"
+        
+        # Use mas CLI function to read and validate PR comments
+        PR_PLAN_COMMENT=$(mas gitops-utils read-pr-comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER")
+        echo "PR Plan Comment: $PR_PLAN_COMMENT"
+        
+        if [[ "$PR_PLAN_COMMENT" == "Passed" ]]; then
+          echo "✅ Atlantis plan passed"
+          
+          # Trigger Atlantis apply
+          COMMENT_BODY="atlantis apply"
+          echo "Triggering Atlantis apply..."
+          mas gitops-utils comment-on-pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$COMMENT_BODY"
+          
+          # Wait for apply to complete
+          PR_APPLY_COMMENT=$(mas gitops-utils read-pr-comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "apply")
+          
+          if [[ "$PR_APPLY_COMMENT" == "Passed" ]]; then
+            echo "✅ Atlantis apply passed"
+            
+            # Wait before merging
+            sleep 120
+            
+            # Merge PR
+            echo "Merging PR..."
+            MERGE_STATUS=$(mas gitops-utils merge-pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "Merge PR")
+            
+            if [[ "$MERGE_STATUS" == "true" ]]; then
+              echo "✅ PR merged successfully"
+            else
+              echo "⚠️  Failed to merge PR. Please check: https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}"
+              exit 1
+            fi
+          else
+            echo "❌ Atlantis apply failed"
+            mas gitops-utils comment-on-pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
+            mas gitops-utils close-pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+            exit 1
+          fi
+        else
+          echo "❌ Atlantis plan failed"
+          mas gitops-utils comment-on-pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
+          mas gitops-utils close-pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+          exit 1
+        fi
+        
+        echo "✅ IAC Pipeline completed successfully"
+
+  workspaces:
+    - name: configs
+    - name: shared-data

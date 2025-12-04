@@ -1,0 +1,155 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-efs-sequential
+spec:
+  description: Generate EFS configuration and add to existing PR
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: efs_source
+      type: string
+    - name: efs_creation_token
+      type: string
+    - name: efs_performance_mode
+      type: string
+    - name: efs_mount_count
+      type: string
+    - name: efs_lifecycle_policy_transition_to_ia
+      type: string
+      default: ""
+    - name: efs_lifecycle_policy_transition_to_primary_storage_class
+      type: string
+      default: ""
+    - name: efs_throughput_mode
+      type: string
+    - name: efs_encrypted
+      type: string
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: EFS_SOURCE
+        value: $(params.efs_source)
+      - name: EFS_CREATION_TOKEN
+        value: $(params.efs_creation_token)
+      - name: EFS_PERFORMANCE_MODE
+        value: $(params.efs_performance_mode)
+      - name: EFS_MOUNT_COUNT
+        value: $(params.efs_mount_count)
+      - name: EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA
+        value: $(params.efs_lifecycle_policy_transition_to_ia)
+      - name: EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS
+        value: $(params.efs_lifecycle_policy_transition_to_primary_storage_class)
+      - name: EFS_THROUGHPUT_MODE
+        value: $(params.efs_throughput_mode)
+      - name: EFS_ENCRYPTED
+        value: $(params.efs_encrypted)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: generate-efs-config
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: IfNotPresent
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "=== Generating EFS Configuration ==="
+        
+        # Load shared data
+        GITOPS_WORKING_DIR=$(cat /workspace/shared-data/working_dir)
+        INSTANCE_DIR=$(cat /workspace/shared-data/instance_dir)
+        
+        # Update resource flags for final common file generation
+        sed -i 's/export IS_EFS=.*/export IS_EFS=true/' /workspace/shared-data/resource_flags.env
+        
+        cd ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+        
+        # Extract required values from cluster config
+        CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_NAME}
+        MAIN_FILE_PATH=${CLUSTER_DIR}/main.tf
+        TERRAFORMTF_FILE_PATH=${CLUSTER_DIR}/terraform.tfvars
+        
+        # Extract values
+        export CLUSTER_CIDR_WORKLOAD_EXTERNAL=$(mas gitops-utils get-tf-value "${MAIN_FILE_PATH}" "locals.cluster.cidrs.workload_external")
+        export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(mas gitops-utils get-tf-value "${MAIN_FILE_PATH}" "locals.cluster.cidrs.workload_internal")
+        export VPC_ID_VALUE=$(mas gitops-utils get-tf-value "${TERRAFORMTF_FILE_PATH}" "vpc_id")
+        export VPC_NAME_VALUE=$(mas gitops-utils get-tf-value "${TERRAFORMTF_FILE_PATH}" "vpc_name")
+        
+        VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/vpcs/${VPC_NAME_VALUE}/main.tf
+        EFS_CIDR_REF_NAME=${CLUSTER_NAME}-${MAS_INSTANCE_ID}-efs
+        export VPC_CIDR_WORKLOAD_INTERNAL=$(mas gitops-utils get-tf-value "${VPC_CIDR_PATH}" "locals.workloads[\"${EFS_CIDR_REF_NAME}\"].cidrs")
+        
+        echo "CLUSTER_CIDR_WORKLOAD_EXTERNAL: ${CLUSTER_CIDR_WORKLOAD_EXTERNAL}"
+        echo "CLUSTER_CIDR_WORKLOAD_INTERNAL: ${CLUSTER_CIDR_WORKLOAD_INTERNAL}"
+        echo "VPC_CIDR_WORKLOAD_INTERNAL: ${VPC_CIDR_WORKLOAD_INTERNAL}"
+        
+        # Store EFS-specific variables for common file generation
+        echo "export CLUSTER_CIDR_WORKLOAD_EXTERNAL=\"${CLUSTER_CIDR_WORKLOAD_EXTERNAL}\"" >> /workspace/shared-data/resource_vars.env
+        echo "export CLUSTER_CIDR_WORKLOAD_INTERNAL=\"${CLUSTER_CIDR_WORKLOAD_INTERNAL}\"" >> /workspace/shared-data/resource_vars.env
+        echo "export VPC_ID_VALUE=\"${VPC_ID_VALUE}\"" >> /workspace/shared-data/resource_vars.env
+        echo "export VPC_NAME_VALUE=\"${VPC_NAME_VALUE}\"" >> /workspace/shared-data/resource_vars.env
+        echo "export VPC_CIDR_WORKLOAD_INTERNAL=\"${VPC_CIDR_WORKLOAD_INTERNAL}\"" >> /workspace/shared-data/resource_vars.env
+        
+        # Generate ONLY EFS-specific file (common files will be generated at the end)
+        echo "Generating EFS-specific file (efs.tf)..."
+        export IS_EFS=true
+        mas gitops-utils jinjanate ${CLI_DIR}/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${INSTANCE_DIR}/efs.tf
+        
+        # Update commit message parts
+        echo "iac-efs" >> /workspace/shared-data/commit_parts
+        
+        echo "✅ EFS configuration generated"
+
+  workspaces:
+    - name: configs
+    - name: shared-data

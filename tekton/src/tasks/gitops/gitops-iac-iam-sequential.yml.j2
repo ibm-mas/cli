@@ -1,0 +1,112 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-iam-sequential
+spec:
+  description: Generate IAM configuration and add to existing PR
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: iam_account_policy_source
+      type: string
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: IAM_ACCOUNT_POLICY_SOURCE
+        value: $(params.iam_account_policy_source)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: generate-iam-config
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: IfNotPresent
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "=== Generating IAM Configuration ==="
+        
+        # Load shared data
+        GITOPS_WORKING_DIR=$(cat /workspace/shared-data/working_dir)
+        INSTANCE_DIR=$(cat /workspace/shared-data/instance_dir)
+        
+        # Update resource flags for final common file generation
+        sed -i 's/export IS_IAM=.*/export IS_IAM=true/' /workspace/shared-data/resource_flags.env
+        
+        cd ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+        
+        # Extract required values from cluster config
+        CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_NAME}
+        TERRAFORMTF_FILE_PATH=${CLUSTER_DIR}/terraform.tfvars
+        
+        # Extract values
+        export NAME_PREFIX_VALUE=$(mas gitops-utils get-tf-value "${TERRAFORMTF_FILE_PATH}" "name_prefix")
+        
+        echo "NAME_PREFIX_VALUE: ${NAME_PREFIX_VALUE}"
+        
+        # Store IAM-specific variables for common file generation
+        # Note: NAME_PREFIX_VALUE might already be stored by S3 task, but that's okay
+        echo "export NAME_PREFIX_VALUE=\"${NAME_PREFIX_VALUE}\"" >> /workspace/shared-data/resource_vars.env
+        
+        # Generate ONLY IAM-specific file (common files will be generated at the end)
+        echo "Generating IAM-specific file (iampolicy.tf)..."
+        export IS_IAM=true
+        mas gitops-utils jinjanate ${CLI_DIR}/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicyTF.yaml.j2 ${INSTANCE_DIR}/iampolicy.tf
+        
+        # Update commit message parts
+        echo "iac-iam" >> /workspace/shared-data/commit_parts
+        
+        echo "✅ IAM configuration generated"
+
+  workspaces:
+    - name: configs
+    - name: shared-data
