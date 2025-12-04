@@ -75,12 +75,12 @@ spec:
         
         echo "=== Generating IAM Configuration ==="
         
-        # Load shared data
-        GITOPS_WORKING_DIR=$(cat /workspace/shared-data/working_dir)
-        INSTANCE_DIR=$(cat /workspace/shared-data/instance_dir)
+        # Load shared data from pod's local filesystem
+        GITOPS_WORKING_DIR=$(cat /tmp/working_dir)
+        INSTANCE_DIR=$(cat /tmp/instance_dir)
         
         # Update resource flags for final common file generation
-        sed -i 's/export IS_IAM=.*/export IS_IAM=true/' /workspace/shared-data/resource_flags.env
+        sed -i 's/export IS_IAM=.*/export IS_IAM=true/' /tmp/resource_flags.env
         
         cd ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
         
@@ -95,7 +95,7 @@ spec:
         
         # Store IAM-specific variables for common file generation
         # Note: NAME_PREFIX_VALUE might already be stored by S3 task, but that's okay
-        echo "export NAME_PREFIX_VALUE=\"${NAME_PREFIX_VALUE}\"" >> /workspace/shared-data/resource_vars.env
+        echo "export NAME_PREFIX_VALUE=\"${NAME_PREFIX_VALUE}\"" >> /tmp/resource_vars.env
         
         # Generate ONLY IAM-specific file (common files will be generated at the end)
         echo "Generating IAM-specific file (iampolicy.tf)..."
@@ -103,10 +103,9 @@ spec:
         mas gitops-utils jinjanate ${CLI_DIR}/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicyTF.yaml.j2 ${INSTANCE_DIR}/iampolicy.tf
         
         # Update commit message parts
-        echo "iac-iam" >> /workspace/shared-data/commit_parts
+        echo "iac-iam" >> /tmp/commit_parts
         
         echo "✅ IAM configuration generated"
 
   workspaces:
     - name: configs
-    - name: shared-data

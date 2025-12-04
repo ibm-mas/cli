@@ -76,8 +76,8 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
         
-        # Set working directory
-        GITOPS_WORKING_DIR=/workspace/shared-data/gitops
+        # Set working directory in pod's local filesystem
+        GITOPS_WORKING_DIR=/tmp/gitops
         mkdir -p ${GITOPS_WORKING_DIR}
         
         # Clone the repository
@@ -97,23 +97,19 @@ spec:
         INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
         mkdir -p ${INSTANCE_DIR}
         
-        # Create common files directory for shared template generation
-        COMMON_FILES_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
-        mkdir -p ${COMMON_FILES_DIR}
+        # Store metadata in pod's local filesystem for subsequent steps
+        echo "${GITOPS_WORKING_DIR}" > /tmp/working_dir
+        echo "${INSTANCE_DIR}" > /tmp/instance_dir
+        echo "new" > /tmp/pr_status
         
-        # Store metadata for subsequent tasks
-        echo "${GITOPS_WORKING_DIR}" > /workspace/shared-data/working_dir
-        echo "${INSTANCE_DIR}" > /workspace/shared-data/instance_dir
-        echo "new" > /workspace/shared-data/pr_status
+        # Initialize resource flags file (will be updated by each step)
+        echo "# Resource flags for template generation" > /tmp/resource_flags.env
+        echo "export IS_EFS=false" >> /tmp/resource_flags.env
+        echo "export IS_S3=false" >> /tmp/resource_flags.env
+        echo "export IS_IAM=false" >> /tmp/resource_flags.env
         
-        # Initialize resource flags file (will be updated by each task)
-        echo "# Resource flags for template generation" > /workspace/shared-data/resource_flags.env
-        echo "export IS_EFS=false" >> /workspace/shared-data/resource_flags.env
-        echo "export IS_S3=false" >> /workspace/shared-data/resource_flags.env
-        echo "export IS_IAM=false" >> /workspace/shared-data/resource_flags.env
-        
-        # Initialize resource variables file (will be populated by each task)
-        echo "# Resource-specific variables for common file generation" > /workspace/shared-data/resource_vars.env
+        # Initialize resource variables file (will be populated by each step)
+        echo "# Resource-specific variables for common file generation" > /tmp/resource_vars.env
         
         echo "✅ Initialization complete"
         echo "Working Directory: ${GITOPS_WORKING_DIR}"
@@ -121,5 +117,3 @@ spec:
 
   workspaces:
     - name: configs
-    - name: shared-data
-      description: Shared workspace for PR coordination

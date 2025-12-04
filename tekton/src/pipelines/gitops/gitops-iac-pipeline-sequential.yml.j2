@@ -79,7 +79,6 @@ spec:
 
   workspaces:
     - name: configs
-    - name: shared-data  # Shared workspace for PR coordination
 
   tasks:
 
@@ -91,8 +90,6 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
-        - name: shared-data
-          workspace: shared-data
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -131,8 +128,6 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
-        - name: shared-data
-          workspace: shared-data
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -187,8 +182,6 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
-        - name: shared-data
-          workspace: shared-data
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -231,8 +224,6 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
-        - name: shared-data
-          workspace: shared-data
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -269,8 +260,6 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
-        - name: shared-data
-          workspace: shared-data
       params:
         - name: github_org
           value: $(params.github_org)

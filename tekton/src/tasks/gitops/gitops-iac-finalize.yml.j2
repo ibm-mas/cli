@@ -43,11 +43,11 @@ spec:
         echo "=== Generating Common Files ==="
         
         # Load shared data
-        GITOPS_WORKING_DIR=$(cat /workspace/shared-data/working_dir)
-        INSTANCE_DIR=$(cat /workspace/shared-data/instance_dir)
+        GITOPS_WORKING_DIR=$(cat /tmp/working_dir)
+        INSTANCE_DIR=$(cat /tmp/instance_dir)
         
         # Check if any resources were processed
-        if [ ! -f /workspace/shared-data/commit_parts ]; then
+        if [ ! -f /tmp/commit_parts ]; then
           echo "⚠️  No resources processed. Skipping common file generation."
           exit 0
         fi
@@ -56,8 +56,8 @@ spec:
         
         # Load all resource flags and variables
         echo "Loading resource flags and variables..."
-        source /workspace/shared-data/resource_flags.env
-        source /workspace/shared-data/resource_vars.env
+        source /tmp/resource_flags.env
+        source /tmp/resource_vars.env
         
         echo "Resource Flags:"
         echo "  IS_EFS: ${IS_EFS}"
@@ -84,15 +84,15 @@ spec:
         echo "=== Creating Pull Request ==="
         
         # Load shared data
-        GITOPS_WORKING_DIR=$(cat /workspace/shared-data/working_dir)
-        INSTANCE_DIR=$(cat /workspace/shared-data/instance_dir)
+        GITOPS_WORKING_DIR=$(cat /tmp/working_dir)
+        INSTANCE_DIR=$(cat /tmp/instance_dir)
         
         cd ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
         
         # Build commit message from parts
         COMMIT_PARTS=""
-        if [ -f /workspace/shared-data/commit_parts ]; then
-          COMMIT_PARTS=$(cat /workspace/shared-data/commit_parts | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+        if [ -f /tmp/commit_parts ]; then
+          COMMIT_PARTS=$(cat /tmp/commit_parts | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
         fi
         
         if [ -z "$COMMIT_PARTS" ]; then
@@ -151,7 +151,7 @@ spec:
         fi
         
         # Store PR number for monitoring
-        echo "${PR_NUMBER}" > /workspace/shared-data/pr_number
+        echo "${PR_NUMBER}" > /tmp/pr_number
         
         echo "✅ PR created/updated successfully"
 
@@ -165,12 +165,12 @@ spec:
         echo "=== Monitoring PR Status ==="
         
         # Check if PR was created
-        if [ ! -f /workspace/shared-data/pr_number ]; then
+        if [ ! -f /tmp/pr_number ]; then
           echo "No PR to monitor. Exiting."
           exit 0
         fi
         
-        PR_NUMBER=$(cat /workspace/shared-data/pr_number)
+        PR_NUMBER=$(cat /tmp/pr_number)
         
         if [ -z "$PR_NUMBER" ] || [ "$PR_NUMBER" = "null" ]; then
           echo "⚠️  No valid PR number. Exiting."
@@ -231,4 +231,3 @@ spec:
 
   workspaces:
     - name: configs
-    - name: shared-data

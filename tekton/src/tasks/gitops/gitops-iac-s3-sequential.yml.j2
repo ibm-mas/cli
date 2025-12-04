@@ -79,12 +79,12 @@ spec:
         
         echo "=== Generating S3 Configuration ==="
         
-        # Load shared data
-        GITOPS_WORKING_DIR=$(cat /workspace/shared-data/working_dir)
-        INSTANCE_DIR=$(cat /workspace/shared-data/instance_dir)
+        # Load shared data from pod's local filesystem
+        GITOPS_WORKING_DIR=$(cat /tmp/working_dir)
+        INSTANCE_DIR=$(cat /tmp/instance_dir)
         
         # Update resource flags for final common file generation
-        sed -i 's/export IS_S3=.*/export IS_S3=true/' /workspace/shared-data/resource_flags.env
+        sed -i 's/export IS_S3=.*/export IS_S3=true/' /tmp/resource_flags.env
         
         cd ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
         
@@ -110,12 +110,12 @@ spec:
         echo "ACCOUNT_ID: ${ACCOUNT_ID}"
         
         # Store S3-specific variables for common file generation
-        echo "export NAME_PREFIX_VALUE=\"${NAME_PREFIX_VALUE}\"" >> /workspace/shared-data/resource_vars.env
-        echo "export COST_CENTER_VALUE=\"${COST_CENTER_VALUE}\"" >> /workspace/shared-data/resource_vars.env
-        echo "export CONTACT_VALUE=\"${CONTACT_VALUE}\"" >> /workspace/shared-data/resource_vars.env
-        echo "export ENVIRONMENT_VALUE=\"${ENVIRONMENT_VALUE}\"" >> /workspace/shared-data/resource_vars.env
-        echo "export OWNER_VALUE=\"${OWNER_VALUE}\"" >> /workspace/shared-data/resource_vars.env
-        echo "export ACCOUNT_ID=\"${ACCOUNT_ID}\"" >> /workspace/shared-data/resource_vars.env
+        echo "export NAME_PREFIX_VALUE=\"${NAME_PREFIX_VALUE}\"" >> /tmp/resource_vars.env
+        echo "export COST_CENTER_VALUE=\"${COST_CENTER_VALUE}\"" >> /tmp/resource_vars.env
+        echo "export CONTACT_VALUE=\"${CONTACT_VALUE}\"" >> /tmp/resource_vars.env
+        echo "export ENVIRONMENT_VALUE=\"${ENVIRONMENT_VALUE}\"" >> /tmp/resource_vars.env
+        echo "export OWNER_VALUE=\"${OWNER_VALUE}\"" >> /tmp/resource_vars.env
+        echo "export ACCOUNT_ID=\"${ACCOUNT_ID}\"" >> /tmp/resource_vars.env
         
         # Generate ONLY S3-specific files (common files will be generated at the end)
         echo "Generating S3-specific files (s3-instance.tf, s3accesspoints.tf)..."
@@ -124,10 +124,9 @@ spec:
         mas gitops-utils jinjanate ${CLI_DIR}/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.yaml.j2 ${INSTANCE_DIR}/s3accesspoints.tf
         
         # Update commit message parts
-        echo "iac-s3" >> /workspace/shared-data/commit_parts
+        echo "iac-s3" >> /tmp/commit_parts
         
         echo "✅ S3 configuration generated"
 
   workspaces:
     - name: configs
-    - name: shared-data
