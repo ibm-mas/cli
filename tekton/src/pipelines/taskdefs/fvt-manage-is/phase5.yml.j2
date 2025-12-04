@@ -57,3 +57,16 @@
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
     - fvt-manage-setup-is
+
+- name: fvt-base-ui-scheduler-scheduling
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-ui-scheduler-scheduling
+  when:
+    - input: "scheduler"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-api-scheduler-scheduling
