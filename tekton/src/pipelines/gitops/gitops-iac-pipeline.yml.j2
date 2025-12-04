@@ -31,14 +31,19 @@ spec:
     # iac-efs-specific
     - name: is_efs
       type: string
+      default: "false"
     - name: efs_source
       type: string
+      default: ""
     - name: efs_creation_token
       type: string
+      default: ""
     - name: efs_performance_mode
       type: string
+      default: ""
     - name: efs_mount_count
       type: string
+      default: ""
     - name: efs_lifecycle_policy_transition_to_ia
       type: string
       default: ""
@@ -47,19 +52,41 @@ spec:
       default: ""
     - name: efs_throughput_mode
       type: string
+      default: ""
     - name: efs_encrypted
       type: string
+      default: ""
+
+    # iac-s3-specific parameters
+    - name: is_s3
+      type: string
+      default: "false"
+    - name: s3_bucket_instance_source
+      type: string
+      default: ""
+    - name: s3_buckets_access_point_source
+      type: string
+      default: ""
+
+    # iac-iam specific parameters
+    - name: is_iam
+      type: string
+      default: "false"
+    - name: iam_account_policy_source
+      type: string
+      default: ""
+
 
   workspaces:
     - name: configs
 
   tasks:
 
-    # 2.gitops-iac-efs
+    # Combined IAC Task (EFS + S3 + IAM)
     # -------------------------------------------------------------------------
-    - name: gitops-iac-efs
+    - name: gitops-iac-combined
       taskRef:
-        name: gitops-iac-efs
+        name: gitops-iac-combined
       workspaces:
         - name: configs
           workspace: configs
@@ -86,6 +113,8 @@ spec:
           value: $(params.avp_aws_secret_region)
         - name: region_name
           value: $(params.region_name)
+
+        # EFS parameters
         - name: is_efs
           value: $(params.is_efs)
         - name: efs_source
@@ -104,3 +133,17 @@ spec:
           value: $(params.efs_throughput_mode)
         - name: efs_encrypted
           value: $(params.efs_encrypted)
+
+        # S3 parameters
+        - name: is_s3
+          value: $(params.is_s3)
+        - name: s3_bucket_instance_source
+          value: $(params.s3_bucket_instance_source)
+        - name: s3_buckets_access_point_source
+          value: $(params.s3_buckets_access_point_source)
+
+        # IAM parameters
+        - name: is_iam
+          value: $(params.is_iam)
+        - name: iam_account_policy_source
+          value: $(params.iam_account_policy_source)
