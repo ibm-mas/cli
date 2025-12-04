@@ -33,15 +33,15 @@ s3_iam_users_list = {
 {%- if IS_S3 | lower == 'true' %}
 common_tags = {
   "source"      = "terraform", # hardcode
-  "environment" = "stag",   # will figureout from saas-envs-starter
-  "owner"       = "sustsw", # input?
-  "contact"     = "mas.saas.stag@ibm.com",
-  "cost-center" = "73746167" # input?
+  "environment" = "{{ENVIRONMENT_VALUE}}",   # will figureout from saas-envs-starter
+  "owner"       = "{{OWNER_VALUE}}", # input?
+  "contact"     = "{{CONTACT_VALUE}}",
+  "cost-center" = "{{COST_CENTER_VALUE}}" # input?
 }
 s3bucket_name_prefix    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"
 name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 create_bucket        = true #always true
-iam_user_arn_prefix  = "arn:aws:iam::435377327995:user/massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid" # need this -> 435377327995
+iam_user_arn_prefix  = "arn:aws:iam::{{ACCOUNT_ID}}:user/massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid" #need this -> 435377327995
 s3_encryption_algorithm = "AES256" # input or hardcode?
 location = {
   region             = "{{REGION_NAME}}"

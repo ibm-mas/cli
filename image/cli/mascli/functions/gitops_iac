@@ -57,7 +57,8 @@ function gitops_iac_noninteractive() {
 
   # Set default values
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
-
+  export IS_IAM=${IS_IAM:-"true"}
+  export IS_S3=${IS_S3:-"true"}
   if [[ "$IS_EFS"  == "true" ]]; then
     export EFS_PERFORMANCE_MODE=${EFS_PERFORMANCE_MODE:-"generalPurpose"}
     export EFS_THROUGHPUT_MODE=${EFS_THROUGHPUT_MODE:-"bursting"}
@@ -370,18 +371,40 @@ function gitops_iac() {
     echo
     echo "Generating S3 config files"
 
+    #Creating file path for extracting parameter value from cluster & vpc
     CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
     TERRAFORMTF_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/terraform.tfvars
 
+    #Creating value path for extracting parameter value from .tf file
     NAME_PREFIX="name_prefix"
+    COST_CENTER_DOT_PATH="common_tags.cost-center"
+    CONTACT_DOT_PATH="common_tags.contact"
+    ENVIRONMENT_DOT_PATH="common_tags.environment"
+    IAM_USER_ARN_DOT_PATH="iam_user_arn_prefix"
+    OWNER_DOT_PATH="common_tags.owner"
+
 
     #Extracting values from .tf file
     export NAME_PREFIX_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${NAME_PREFIX}")
+    export COST_CENTER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${COST_CENTER_DOT_PATH}")
+    export CONTACT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${CONTACT_DOT_PATH}")
+    export ENVIRONMENT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${ENVIRONMENT_DOT_PATH}")
+    export OWNER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${OWNER_DOT_PATH}")
+    IAM_USER_ARN_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${IAM_USER_ARN_DOT_PATH}")
 
     echo "NAME_PREFIX_VALUE  ${NAME_PREFIX_VALUE}"
+    echo "COST_CENTER_VALUE  ${COST_CENTER_VALUE}"
+    echo "CONTACT_VALUE      ${CONTACT_VALUE}"
+    echo "ENVIRONMENT_VALUE  ${ENVIRONMENT_VALUE}"
+    echo "IAM_USER_ARN_VALUE ${IAM_USER_ARN_VALUE}"
+
+    export ACCOUNT_ID=$(get_field "${IAM_USER_ARN_VALUE}" ":" 5)
+
+    echo "ACCOUNT_ID         ${ACCOUNT_ID}"
+
 
     #Generating .tf files using templates
-    echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/s3-instance.tf "
+    echo "Generating s3-instance.tf file ${GITOPS_CLUSTER_DIR}/s3-instance.tf "
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance.tf
 
     echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
@@ -390,10 +413,10 @@ function gitops_iac() {
     echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-mainTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
 
-    echo "Generating IAC Variables file ${GITOPS_CLUSTER_DIR}/variables.tf"
+    echo "Generating variables.tf file ${GITOPS_CLUSTER_DIR}/variables.tf"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variablesTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
 
-    echo "Generating IAC S3 AccessPoints file ${GITOPS_CLUSTER_DIR}/s3accesspoints.tf"
+    echo "Generating s3accesspoints.tf file ${GITOPS_CLUSTER_DIR}/s3accesspoints.tf"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3accesspoints.tf
 
   fi
