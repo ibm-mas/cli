@@ -28,27 +28,79 @@ spec:
       type: string
 
 
-    # iac-efs-specific
+    # iac-efs-common
     - name: is_efs
       type: string
+      default: 'false'
     - name: efs_source
       type: string
-    - name: efs_creation_token
+      default: ''
+
+    # iac-efs manage_db2 params
+    - name: efs_manage_db2_performance_mode
       type: string
-    - name: efs_performance_mode
+      default: ''
+    - name: efs_manage_db2_mount_count
       type: string
-    - name: efs_mount_count
+      default: ''
+    - name: efs_manage_db2_throughput_mode
       type: string
-    - name: efs_lifecycle_policy_transition_to_ia
+      default: ''
+
+    # iac-efs manage_main params
+    - name: efs_manage_main_performance_mode
       type: string
-      default: ""
-    - name: efs_lifecycle_policy_transition_to_primary_storage_class
+      default: ''
+    - name: efs_manage_main_mount_count
       type: string
-      default: ""
-    - name: efs_throughput_mode
+      default: ''
+    - name: efs_manage_main_throughput_mode
       type: string
-    - name: efs_encrypted
+      default: ''
+
+    # iac-efs iot_db2 params
+    - name: efs_iot_db2_performance_mode
       type: string
+      default: ''
+    - name: efs_iot_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_iot_db2_throughput_mode
+      type: string
+      default: ''
+
+    # iac-efs facilities-db2 params
+    - name: efs_facilities_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_facilities_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_facilities_db2_throughput_mode
+      type: string
+      default: ''
+
+    # iac-efs facilities-main params
+    - name: efs_facilities_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_facilities_main_mount_count
+      type: string
+      default: ''
+    - name: efs_facilities_main_throughput_mode
+      type: string
+      default: ''
+
+    # iac-efs visualinspection-main params
+    - name: efs_visualinspection_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_mount_count
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_throughput_mode
+      type: string
+      default: ''
 
   workspaces:
     - name: configs
@@ -86,21 +138,56 @@ spec:
           value: $(params.avp_aws_secret_region)
         - name: region_name
           value: $(params.region_name)
+         # iac-efs common params
         - name: is_efs
           value: $(params.is_efs)
         - name: efs_source
-          value: $(params.efs_source)
-        - name: efs_creation_token
-          value: $(params.efs_creation_token)
-        - name: efs_performance_mode
-          value: $(params.efs_performance_mode)
-        - name: efs_mount_count
-          value: $(params.efs_mount_count)
-        - name: efs_lifecycle_policy_transition_to_ia
-          value: $(params.efs_lifecycle_policy_transition_to_ia)
-        - name: efs_lifecycle_policy_transition_to_primary_storage_class
-          value: $(params.efs_lifecycle_policy_transition_to_primary_storage_class)
-        - name: efs_throughput_mode
-          value: $(params.efs_throughput_mode)
-        - name: efs_encrypted
-          value: $(params.efs_encrypted)
+          value: $(params.efs_source)`
+
+        # iac-efs manage_db2 params
+        - name: efs_manage_db2_performance_mode
+          value: $(params.efs_manage_db2_performance_mode)
+        - name: efs_manage_db2_mount_count
+          value: $(params.efs_manage_db2_mount_count)
+        - name: efs_manage_db2_throughput_mode
+          value: $(params.efs_manage_db2_throughput_mode)
+
+        # iac-efs manage_main params
+        - name: efs_manage_main_performance_mode
+          value: $(params.efs_manage_main_performance_mode)
+        - name: efs_manage_main_mount_count
+          value: $(params.efs_manage_main_mount_count)
+        - name: efs_manage_main_throughput_mode
+          value: $(params.efs_manage_main_throughput_mode)
+
+        # iac-efs iot_db2 params
+        - name: efs_iot_db2_performance_mode
+          value: $(params.efs_iot_db2_performance_mode)
+        - name: efs_iot_db2_mount_count
+          value: $(params.efs_iot_db2_mount_count)
+        - name: efs_iot_db2_throughput_mode
+          value: $(params.efs_iot_db2_throughput_mode)
+
+        # iac-efs facilities-db2 params
+        - name: efs_facilities_db2_performance_mode
+          value: $(params.efs_facilities_db2_performance_mode)
+        - name: efs_facilities_db2_mount_count
+          value: $(params.efs_facilities_db2_mount_count)
+        - name: efs_facilities_db2_throughput_mode
+          value: $(params.efs_facilities_db2_throughput_mode)
+
+        # iac-efs facilities-main params
+        - name: efs_facilities_main_performance_mode
+          value: $(params.efs_facilities_main_performance_mode)
+        - name: efs_facilities_main_mount_count
+          value: $(params.efs_facilities_main_mount_count)
+        - name: efs_facilities_main_throughput_mode
+          value: $(params.efs_facilities_main_throughput_mode)
+
+        # iac-efs visualinspection-main params
+        - name: efs_visualinspection_main_performance_mode
+          value: $(params.efs_visualinspection_main_performance_mode)
+        - name: efs_visualinspection_main_mount_count
+          value: $(params.efs_visualinspection_main_mount_count)
+        - name: efs_visualinspection_main_throughput_mode
+          value: $(params.efs_visualinspection_main_throughput_mode)
