@@ -213,6 +213,10 @@
   type: string
   description: Set to 'install' to set up a Db2 instance for Real Estate and Facilities
   default: "none"
+- name: db2_action_aiservice
+  type: string
+  description: Set to 'install' to set up a Db2 instance for AI Service
+  default: "none"
 
 # Dependencies - CP4D
 # -----------------------------------------------------------------------------
@@ -684,6 +688,13 @@
   type: string
   description: Configure install plan of Optimizer application (full or limited)
   default: full
+
+# MAS Application Configuration - AI Service
+# -----------------------------------------------------------------------------
+- name: standalone_aiservice_install
+  type: string
+  description: Set to 'true' to install IBM Maximo AI Service as a standalone application
+  default: "false"
 
 # MAS Application Configuration - Predict
 # -----------------------------------------------------------------------------
