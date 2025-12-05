@@ -864,7 +864,7 @@ function git_commit_and_create_pr_if_none_exist() {
     exit 1
   fi
 
-  if [[ "$OPEN_PR_COUNT" -gt 1 ]]; then #nedd to make this 0
+  if [[ "$OPEN_PR_COUNT" -gt 0 ]]; then
     echo "⚠️  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}" >&2
     echo "Existing PRs:" >&2
     echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"' >&2
