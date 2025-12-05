@@ -15,36 +15,36 @@ create_s3_iam_group     = false
 create_s3_iam_policy    = false
 create_efs_policy       = false
 s3_iam_users_list = {
-	doclinks = {
-		iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-doclinks-rw"
-	},
-	custfiles = {
-		iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-custfiles-rw"
-	},
-	logs_rw = {
-		iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-log-rw"
-	},
-	logs_ro = {
-		iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-log-ro"
-	}
+    doclinks = {
+        iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-doclinks-rw"
+    },
+    custfiles = {
+        iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-custfiles-rw"
+    },
+    logs_rw = {
+        iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-log-rw"
+    },
+    logs_ro = {
+        iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-log-ro"
+    }
 }
 {%- endif %}
 
 {%- if IS_S3 | lower == 'true' %}
 common_tags = {
-  "source"      = "terraform", # hardcode
-  "environment" = "{{ENVIRONMENT_VALUE}}",   # will figureout from saas-envs-starter
-  "owner"       = "{{OWNER_VALUE}}", # input?
-  "contact"     = "{{CONTACT_VALUE}}",
-  "cost-center" = "{{COST_CENTER_VALUE}}" # input?
+    "source"      = "terraform",
+    "environment" = "{{ENVIRONMENT_VALUE}}",
+    "owner"       = "{{OWNER_VALUE}}",
+    "contact"     = "{{CONTACT_VALUE}}",
+    "cost-center" = "{{COST_CENTER_VALUE}}"
 }
 s3bucket_name_prefix    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"
 name_prefix             = "{{ NAME_PREFIX_VALUE }}"
-create_bucket        = true #always true
-iam_user_arn_prefix  = "arn:aws:iam::{{ACCOUNT_ID}}:user/massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid" #need this -> 435377327995
-s3_encryption_algorithm = "AES256" # input or hardcode?
+create_bucket        = true
+iam_user_arn_prefix  = "arn:aws:iam::{{ACCOUNT_ID}}:user/massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
+s3_encryption_algorithm = "AES256"
 location = {
-  region             = "{{REGION_NAME}}"
-  availability_zones = ["{{REGION_NAME}}a", "{{REGION_NAME}}b", "{{REGION_NAME}}c"] #wb az?
+    region             = "{{REGION_NAME}}"
+    availability_zones = ["{{REGION_NAME}}a", "{{REGION_NAME}}b", "{{REGION_NAME}}c"]
 }
 {%- endif %}

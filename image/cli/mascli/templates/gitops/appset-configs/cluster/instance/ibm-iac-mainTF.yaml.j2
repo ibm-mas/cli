@@ -106,7 +106,7 @@ locals {
       s3buckets = {
         doclinks = {
           name_prefix          = var.name_prefix
-          create               = var.create_bucket // override bucket name
+          create               = var.create_bucket
           name                 = "${var.s3bucket_name_prefix}-doclinks"
           id                   = "${var.s3bucket_name_prefix}-doclinks"
           access_level         = "rw"
@@ -118,7 +118,7 @@ locals {
         },
         custfiles = {
           name_prefix          = var.name_prefix
-          create               = var.create_bucket // override bucket name
+          create               = var.create_bucket
           name                 = "${var.s3bucket_name_prefix}-custfiles"
           id                   = "${var.s3bucket_name_prefix}-custfiles"
           access_level         = "rw"
@@ -132,7 +132,7 @@ locals {
         },
         logs = {
           name_prefix          = var.name_prefix
-          create               = var.create_bucket // override bucket name
+          create               = var.create_bucket
           name                 = "${var.s3bucket_name_prefix}-log"
           id                   = "${var.s3bucket_name_prefix}-log"
           access_level         = "ro"

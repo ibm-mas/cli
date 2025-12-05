@@ -1,5 +1,5 @@
 module "s3buckets_instance" {
-  source = "{{ S3_SOURCE }}"
+  source = "{{ S3_BUCKET_INSTANCE_SOURCE }}"
 
   depends_on = [module.account_policy]
 
