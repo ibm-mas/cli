@@ -138,6 +138,25 @@ function gitops_iac_noninteractive() {
         export EFS_ENCRYPTED=$1 && shift
         ;;
 
+      # S3 Configuration
+      --is_s3)
+        export IS_S3=$1 && shift
+        ;;
+      --s3-bucket-instance-source)
+        export S3_BUCKET_INSTANCE_SOURCE=$1 && shift
+        ;;
+      --s3-buckets-access-point-source)
+        export S3_BUCKETS_ACCESS_POINT_SOURCE=$1 && shift
+        ;;
+
+      # IAM Configuration
+      --is_iam)
+        export IS_IAM=$1 && shift
+        ;;
+      --iam-account-policy-source)
+        export IAM_ACCOUNT_POLICY_SOURCE=$1 && shift
+        ;;
+
       # Target Cluster (Optional)
       --cluster-url)
         export CLUSTER_URL=$1 && shift
