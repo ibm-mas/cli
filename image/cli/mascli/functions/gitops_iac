@@ -396,11 +396,11 @@ function gitops_iac() {
 
     #Creating value path for extracting parameter value from .tf file
     NAME_PREFIX="name_prefix"
-    COST_CENTER_DOT_PATH="common_tags.cost-center"
-    CONTACT_DOT_PATH="common_tags.contact"
-    ENVIRONMENT_DOT_PATH="common_tags.environment"
+    COST_CENTER_DOT_PATH='common_tags["cost-center"]'
+    CONTACT_DOT_PATH='common_tags["contact"]'
+    ENVIRONMENT_DOT_PATH='common_tags["environment"]'
     IAM_USER_ARN_DOT_PATH="iam_user_arn_prefix"
-    OWNER_DOT_PATH="common_tags.owner"
+    OWNER_DOT_PATH='common_tags["owner"]'
 
 
     #Extracting values from .tf file
