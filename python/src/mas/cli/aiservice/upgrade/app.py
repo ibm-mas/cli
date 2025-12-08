@@ -22,7 +22,7 @@ from ...validators import AiserviceInstanceIDValidator
 from .argParser import upgradeArgParser
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listAiServiceInstances, getAiserviceChannel
+from mas.devops.aiservice import listAiServiceInstances, getAiserviceChannel
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchAiServiceUpgradePipeline
 from openshift.dynamic.exceptions import ResourceNotFoundError
 logger = logging.getLogger(__name__)
