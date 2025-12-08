@@ -20,7 +20,8 @@ from kubernetes.client import api_client
 from prompt_toolkit.validation import Validator, ValidationError
 
 from mas.devops.ocp import getStorageClass
-from mas.devops.mas import verifyMasInstance, verifyAiServiceInstance
+from mas.devops.mas import verifyMasInstance
+from mas.devops.aiservice import verifyAiServiceInstance
 
 import logging
 
