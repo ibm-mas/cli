@@ -431,6 +431,7 @@ function gitops_iac() {
         echo "Going to approve PR: "${PR_NUMBER}
         echo "IAC DEV PAT TOKEN: "${IAC_DEV_GITHUB_PAT}
         APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")
+        echo "PR approved ${APPROVED_PR}"
         if [[ "$APPROVED_PR" == "true" ]]; then
           sleep 120
           COMMENT_BODY="atlantis apply"
@@ -459,7 +460,7 @@ function gitops_iac() {
             exit 1
           fi
         else
-          echo_h2 "⚠️  Atlantis Plan Failed. Closing PR. Pipeline Failed."
+          echo_h2 "⚠️  Failed to approve PR. Closing PR. Pipeline Failed."
           comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
           close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
           exit 1

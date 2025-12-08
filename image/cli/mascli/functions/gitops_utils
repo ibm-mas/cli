@@ -1916,8 +1916,8 @@ function merge_pr() {
 #   1 - Failed to approve PR after all retries
 #
 # Example usage:
-#   approve_pr "github.com" "ibm-mas" "gitops-config" "123" "token"
-#   approve_pr "github.com" "ibm-mas" "gitops-config" "123" "token" 5 60
+#   approve_pr "github.com" "ibm-mas" "gitops-config" "123"
+#   approve_pr "github.com" "ibm-mas" "gitops-config" "123" 5 60
 function approve_pr() {
   local GITHUB_HOST=$1
   local GITHUB_ORG=$2
@@ -1944,8 +1944,6 @@ function approve_pr() {
 
   # GitHub API URL for PR reviews
   local REVIEW_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls/${PR_NUMBER}/reviews"
-  echo "Review api url ${REVIEW_API_URL}"
-
   # Create approval payload
   local APPROVAL_DATA=$(jq -n \
     --arg event "APPROVE" \
