@@ -1,0 +1,246 @@
+#!/bin/bash
+
+function mirror_aiservice_to_registry_help() {
+  mirror_to_registry_help_header
+  cat << EOM
+
+Content Selection (Core Platform):
+      --mirror-catalog                            Mirror the IBM Maximo Operator Catalog
+      --mirror-aiservice                          Mirror images for IBM Maximo Application Suite AI Service
+
+Content Selection (Dependencies):
+      --mirror-minio                              Mirror images for minio 
+      --mirror-db2                                Mirror images for IBM Db2
+      --mirror-mariadb                            Mirror images for mariadb
+      --mirror-opendatahub                        Mirror images for opendatahub
+      --mirror-odf                                Mirror images for ODF
+
+Content Selection (All images included):
+      --mirror-everything                         Mirror all ai-service related images (including dependencies)
+
+Other Commands:
+      --no-confirm                                Mirror images without prompting for confirmation
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+function mirror_aiservice_everything() {
+    # Core
+    MIRROR_CATALOG=true
+
+    # Apps
+    MIRROR_MAS_AISERVICE=true
+
+    # Dependencies (Other)
+    MIRROR_DB2U=true
+    MIRROR_ODF=true
+    MIRROR_MINIO=true
+    MIRROR_MARIADB=true
+    MIRROR_OPENDATAHUB=true
+}
+
+function mirror_aiservice_to_registry_noninteractive() {
+  # Main content
+  MIRROR_MAS_AISERVICE=false
+
+  # Dependencies
+  MIRROR_CATALOG=false
+  MIRROR_DB2U=false
+  MIRROR_ODF=false
+  MIRROR_MINIO=false
+  MIRROR_MARIADB=false
+  MIRROR_OPENDATAHUB=false
+
+  while [[ $# -gt 0 ]]
+  do
+    key="$1"
+    shift
+    case $key in
+      # Mirror Mode
+      -m|--mode)
+        MIRROR_MODE=$1 && shift
+        ;;
+      -d|--dir)
+        MIRROR_WORKING_DIR=$1 && shift
+        ;;
+
+      # Registry Details
+      -H|--host)
+        REGISTRY_PUBLIC_HOST=$1 && shift
+        ;;
+      -P|--port)
+        REGISTRY_PUBLIC_PORT=$1 && shift
+        ;;
+      -x| --prefix)
+        REGISTRY_PREFIX=$1 && shift
+        ;;
+      -u|--username)
+        REGISTRY_USERNAME=$1 && shift
+        ;;
+      -p|--password)
+        REGISTRY_PASSWORD=$1 && shift
+        ;;
+
+      # AWS Elastic Container Registry
+      -e|--target-is-ecr)
+        REGISTRY_IS_ECR=true
+        ;;
+      -r|--aws-ecr-region)
+        REGISTRY_ECR_AWS_REGION=$1 && shift
+        ;;
+
+      # Source Registry Entitlements
+      --ibm-entitlement)
+        IBM_ENTITLEMENT_KEY=$1 && shift
+        ;;
+      --artifactory-username)
+        ARTIFACTORY_USERNAME=$1 && shift
+        ;;
+      --artifactory-apikey)
+        ARTIFACTORY_TOKEN=$1 && shift
+        ;;
+
+      # Maximo Operator Catalog Selection
+      -c|--catalog)
+        MAS_CATALOG_VERSION=$1 && shift
+        ;;
+      -C|--channel)
+        MAS_CHANNEL=$1 && shift
+        ;;
+
+      # Content Selection (Core Platform)
+      --mirror-catalog)
+        MIRROR_CATALOG=true
+        ;;
+
+      # Content Selection (Applications):
+      --mirror-aiservice)
+        MIRROR_MAS_AISERVICE=true
+        ;;
+
+      # Content Selection (Other Dependencies)
+      --mirror-minio)
+        MIRROR_MINIO=true
+        ;;
+      --mirror-db2)
+        MIRROR_DB2U=true
+        ;;
+      --mirror-mariadb)
+        MIRROR_MARIADB=true
+        ;;
+      --mirror-odf)
+        MIRROR_ODF=true
+        ;;
+      --mirror-opendatahub)
+        MIRROR_OPENDATAHUB=true
+        ;;
+ 
+      --no-confirm)
+        NO_CONFIRM=true
+        ;;
+      -h|--help)
+        mirror_aiservice_to_registry_help
+        ;;
+      *)
+        # unknown option
+        echo -e "${COLOR_RED}Usage Error: Unsupported option \"${key}\"${TEXT_RESET}\n"
+        mirror_aiservice_to_registry_help
+        exit 1
+        ;;
+      esac
+  done
+
+  # Check all args have been set
+  [[ -z "$MIRROR_MODE" ]] && mirror_aiservice_to_registry_help "MIRROR_MODE is not set"
+  [[ -z "$MIRROR_WORKING_DIR" ]] && mirror_aiservice_to_registry_help "MIRROR_WORKING_DIR is not set"
+
+  [[ -z "$MAS_CATALOG_VERSION" ]] && mirror_aiservice_to_registry_help "MAS_CATALOG_VERSION is not set"
+  [[ -z "$MAS_CHANNEL" ]] && mirror_aiservice_to_registry_help "MAS_CHANNEL is not set"
+  [[ -z "$IBM_ENTITLEMENT_KEY" ]] && mirror_aiservice_to_registry_help "IBM_ENTITLEMENT_KEY is not set"
+
+  [[ -z "$REGISTRY_PUBLIC_HOST" ]] && mirror_aiservice_to_registry_help "REGISTRY_PUBLIC_HOST is not set"
+
+  if [[ $MIRROR_MODE != "to-filesystem" ]]; then
+    [[ -z "$REGISTRY_USERNAME" ]] && mirror_aiservice_to_registry_help "REGISTRY_USERNAME is not set"
+    [[ -z "$REGISTRY_PASSWORD" ]] && mirror_aiservice_to_registry_help "REGISTRY_PASSWORD is not set"
+  fi
+
+  if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
+    mirror_aiservice_everything
+  fi
+}
+
+function mirror_aiservice_to_registry_interactive() {
+  mirror_to_registry_interactive_common
+  prompt_for_confirm "Mirror all ai-service images (with dependencies)" MIRROR_EVERYTHING
+
+  if [[ "$MIRROR_EVERYTHING" == "true" ]]; then
+    mirror_aiservice_everything
+  else
+    prompt_for_confirm_default_yes "IBM Maximo Operator Catalog" MIRROR_CATALOG
+    prompt_for_confirm "IBM Maximo Application Suite - AI Service" MIRROR_MAS_AISERVICE
+
+    prompt_for_confirm_default_yes "IBM Db2" MIRROR_DB2U
+    prompt_for_confirm "Minio" MIRROR_MINIO
+    prompt_for_confirm "Red Hat ODF" MIRROR_ODF
+    prompt_for_confirm "MariaDB" MIRROR_MARIADB
+    prompt_for_confirm "OpenDataHub" MIRROR_OPENDATAHUB
+  fi
+
+  echo
+  echo_h2 "Configure Authentication"
+  prompt_for_secret "IBM Entitlement Key" IBM_ENTITLEMENT_KEY "Re-use saved IBM Entitlement Key?"
+
+}
+
+
+function mirror_aiservice_to_registry() {
+  # Take the first parameter off (it will be mirror-images)
+  shift
+  if [[ $# -gt 0 ]]; then
+    mirror_aiservice_to_registry_noninteractive "$@"
+  else
+    mirror_aiservice_to_registry_interactive
+  fi
+
+export MIRROR_MINIO
+  export MIRROR_DB2U
+  export MIRROR_MARIADB
+  
+  export MIRROR_OPENDATAHUB
+  export MIRROR_ODF
+  
+  if [[ "$MIRROR_CATALOG" == true ||
+    "$MIRROR_MINIO" == true ||
+    "$MIRROR_DB2U" == true ||
+    "$MIRROR_ODF" == true ||
+    "$MIRROR_OPENDATAHUB" == true ||
+    "$MIRROR_MARIADB" == true ]]
+  then
+    MIRROR_DEPS=true
+  else
+    MIRROR_DEPS=false
+  fi
+  mirror_to_registry_common
+  # Core
+  echo
+  reset_colors
+  echo_h4 "Content Selection (Core Platform)" "    "
+  show_mirror_status "IBM Maximo Operator Catalog ........." $MIRROR_CATALOG
+  show_mirror_status "IBM Maximo AI Service ..............." $MIRROR_MAS_AISERVICE
+
+  echo
+  reset_colors
+  echo_h4 "Content Selection (Dependencies)" "    "
+  show_mirror_status "IBM Db2 ............................." $MIRROR_DB2U
+  show_mirror_status "RedHat ODF .........................." $MIRROR_ODF
+  show_mirror_status "Minio ..............................." $MIRROR_MINIO
+  show_mirror_status "MariaDb ............................." $MIRROR_MARIADB
+  show_mirror_status "OpenDataHub ........................." $MIRROR_OPENDATAHUB
+
+  confirm_mirror
+
+  mirror_one_thing $MIRROR_MAS_AISERVICE        "IBM Maximo AI Service"                 "$LOG_PREFIX-aiservice.log"        mirror_add_aiservice
+  mirror_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
+}
