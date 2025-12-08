@@ -311,6 +311,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/manage-workspace.yml.j2') | indent(4) }}
       runAfter:
         - app-install-manage
+        - aiservice-tenant
 
     # 6.4 Configure IBM Maximo Location Services for ESRI
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/arcgis.yml.j2') | indent(4) }}
