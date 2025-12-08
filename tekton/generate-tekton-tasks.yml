@@ -140,7 +140,6 @@
         - suite-app-uninstall
         - suite-app-upgrade
         - suite-app-rollback
-        - suite-app-verify
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage

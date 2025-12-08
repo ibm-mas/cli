@@ -349,11 +349,6 @@ spec:
       runAfter:
         - app-install-facilities
 
-    # 13.4 Verify Facilities Installation
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/facilities-verify.yml.j2') | indent(4) }}
-      runAfter:
-        - app-cfg-facilities
-
 
     # 14. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
@@ -364,7 +359,7 @@ spec:
         - app-cfg-predict # infers Manage completed
         - app-cfg-monitor # infers IoT completed
         - app-cfg-visualinspection
-        - app-verify-facilities
+        - app-cfg-facilities
         - arcgis
         - eck
         - turbonomic
