@@ -62,7 +62,7 @@ spec:
         - mongodb
 
     # 2.3 DRO
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/uds.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/dro.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - ibm-catalogs
 
@@ -93,7 +93,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - sls
-        - uds
+        - dro
         - db2-aiservice
         - aiservice-odh
 
@@ -105,12 +105,11 @@ spec:
         - aiservice
 
 
-    # 8. AI Service Post Verification
+    # 8. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice-post-verify.yml.j2') | indent(4) }}
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'post-install-verify', 'devops_suite_name': 'post-install-verify'}) | indent(4) }}
       runAfter:
         - aiservice-tenant
-
 
   finally:
     # Update synchronization configmap

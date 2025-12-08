@@ -324,27 +324,30 @@ slsArgGroup.add_argument(
 # -----------------------------------------------------------------------------
 droArgGroup = installArgParser.add_argument_group("IBM Data Reporting Operator (DRO)")
 droArgGroup.add_argument(
+    "--contact-email",
     "--uds-email",
-    dest="uds_contact_email",
+    dest="dro_contact_email",
     required=False,
     help="Contact e-mail address"
 )
 droArgGroup.add_argument(
+    "--contact-firstname",
     "--uds-firstname",
-    dest="uds_contact_firstname",
+    dest="dro_contact_firstname",
     required=False,
     help="Contact first name"
 )
 droArgGroup.add_argument(
+    "--contact-lastname",
     "--uds-lastname",
-    dest="uds_contact_lastname",
+    dest="dro_contact_lastname",
     required=False,
     help="Contact last name"
 )
 droArgGroup.add_argument(
     "--dro-namespace",
     required=False,
-    help=""
+    help="Namespace for DRO"
 )
 
 # MongoDb Community Operator
@@ -708,14 +711,6 @@ cpdAppsArgGroup.add_argument(
     dest="cpd_product_version",
     required=False,
     help="Product version of CP4D to use"
-)
-cpdAppsArgGroup.add_argument(
-    "--cp4d-install-spss",
-    dest="cpd_install_spss",
-    required=False,
-    help="Add SPSS Modeler as part of Cloud Pak for Data",
-    action="store_const",
-    const="install"
 )
 cpdAppsArgGroup.add_argument(
     "--cp4d-install-cognos",

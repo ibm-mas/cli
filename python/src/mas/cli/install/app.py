@@ -44,7 +44,12 @@ from mas.cli.validators import (
     OptimizerInstallPlanValidator
 )
 
-from mas.devops.ocp import createNamespace, getStorageClasses
+from mas.devops.ocp import (
+    createNamespace,
+    getStorageClasses,
+    getClusterVersion,
+    isClusterVersionInRange
+)
 from mas.devops.mas import (
     getCurrentCatalog,
     getDefaultStorageClasses,
@@ -76,6 +81,13 @@ def logMethodCall(func):
 class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
     @logMethodCall
     def validateCatalogSource(self):
+        # Check supported OCP versions
+        ocpVersion = getClusterVersion(self.dynamicClient)
+        supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
+        if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
+            self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}")
+
+        # Compare with any existing installed catalog
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         try:
             catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
@@ -318,9 +330,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configDRO(self) -> None:
-        self.promptForString("Contact e-mail address", "uds_contact_email")
-        self.promptForString("Contact first name", "uds_contact_firstname")
-        self.promptForString("Contact last name", "uds_contact_lastname")
+        self.promptForString("Contact e-mail address", "dro_contact_email")
+        self.promptForString("Contact first name", "dro_contact_firstname")
+        self.promptForString("Contact last name", "dro_contact_lastname")
 
         if self.showAdvancedOptions:
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
@@ -760,22 +772,22 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def predictSettings(self) -> None:
         if self.showAdvancedOptions and self.installPredict:
             self.printH1("Configure Maximo Predict")
-            self.printDescription([
-                "Predict application supports integration with IBM SPSS which is an optional service installed on top of IBM Cloud Pak for Data",
-                "Unless requested these will not be installed"
-            ])
             self.configCP4D()
-            self.yesOrNo("Install IBM SPSS Statistics", "cpd_install_spss")
 
     @logMethodCall
     def assistSettings(self) -> None:
         if self.installAssist:
             self.printH1("Configure Maximo Assist")
             self.printDescription([
-                "Assist requires access to Cloud Object Storage (COS), this install supports automatic setup using either IBMCloud COS or in-cluster COS via OpenShift Container Storage/OpenShift Data Foundation (OCS/ODF)"
+                "Assist requires access to Cloud Object Storage (COS), this install supports automatic setup using either IBMCloud COS or in-cluster COS via OpenShift Data Foundation (ODF)"
             ])
             self.configCP4D()
-            self.promptForString("COS Provider [ibm/ocs]", "cos_type")
+            self.promptForString("COS Provider [ibm/odf]", "cos_type")
+
+            # We still use the old name for ODF (OCS)
+            if self.getParam("cos_type") == "odf":
+                self.setParam("cos_type") == "ocs"
+
             if self.getParam("cos_type") == "ibm":
                 self.promptForString("IBM Cloud API Key", "cos_apikey", isPassword=True)
                 self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
@@ -870,7 +882,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Customize Maximo Manage database settings (schema, tablespace, indexspace)",
             " - Customize Maximo Manage server bundle configuration (defaults to \"all\" configuration)",
             " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
-            " - Enable optional Maximo Predict integration with SPSS",
             " - Enable optional IBM Turbonomic integration",
             " - Enable optional Real Estate and Facilities configurations",
             " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
@@ -1223,8 +1234,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configCertManager()  # TODO: I think this is redundant, we should look to remove this and the appropriate params in the install pipeline
         self.deployCP4D = False
 
-        # UDS install has not been supported since the January 2024 catalog update
-        self.setParam("uds_action", "install-dro")
+        self.setParam("dro_action", "install")
 
         # User must either provide the configuration via numerous command line arguments, or the interactive prompts
         if instanceId is None:

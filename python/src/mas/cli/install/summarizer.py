@@ -271,14 +271,13 @@ class InstallSummarizerMixin():
                 self.printSummary("Watson Machine Learning", "Install" if self.getParam("cpd_install_wml") == "true" else "Do Not Install")
                 self.printSummary("Analytics Engine", "Install" if self.getParam("cpd_install_ae") == "true" else "Do Not Install")
 
-            self.printSummary("SPSS Modeler", "Install" if self.getParam("cpd_install_spss") == "true" else "Do Not Install")
             self.printSummary("Cognos Analytics", "Install" if self.getParam("cpd_install_cognos") == "true" else "Do Not Install")
 
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")
-        self.printParamSummary("Contact e-mail", "uds_contact_email")
-        self.printParamSummary("First name", "uds_contact_firstname")
-        self.printParamSummary("Last name", "uds_contact_lastname")
+        self.printParamSummary("Contact e-mail", "dro_contact_email")
+        self.printParamSummary("First name", "dro_contact_firstname")
+        self.printParamSummary("Last name", "dro_contact_lastname")
         self.printParamSummary("Install Namespace", "dro_namespace")
 
     def slsSummary(self) -> None:

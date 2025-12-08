@@ -197,9 +197,9 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
   --manage-components base=latest \
   --additional-configs /mnt/home/mas9demo \
   --license-file /mnt/home/mas9demo/entitlement.lic \
-  --uds-email parkerda@uk.ibm.com \
-  --uds-firstname David \
-  --uds-lastname Parker \
+  --contact-email parkerda@uk.ibm.com \
+  --contact-firstname David \
+  --contact-lastname Parker \
   --storage-class-rwo ibmc-block-gold \
   --storage-class-rwx ibmc-file-gold-gid \
   --storage-pipeline ibmc-file-gold-gid \
@@ -247,9 +247,9 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
   --manage-components base=latest \
   --additional-configs /mnt/home/mas9demo \
   --license-file /mnt/home/mas9demo/entitlement.lic \
-  --uds-email parkerda@uk.ibm.com \
-  --uds-firstname David \
-  --uds-lastname Parker \
+  --contact-email parkerda@uk.ibm.com \
+  --contact-firstname David \
+  --contact-lastname Parker \
   --storage-class-rwo ibmc-block-gold \
   --storage-class-rwx ibmc-file-gold-gid \
   --storage-pipeline ibmc-file-gold-gid \
