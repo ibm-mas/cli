@@ -21,7 +21,8 @@ from ..cli import BaseApp
 from .argParser import updateArgParser
 from mas.devops.data import getCatalog
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
-from mas.devops.mas import listMasInstances, listAiServiceInstances, getCurrentCatalog
+from mas.devops.mas import listMasInstances, getCurrentCatalog
+from mas.devops.aiservice import listAiServiceInstances
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
 
 

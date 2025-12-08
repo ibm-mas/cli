@@ -53,7 +53,6 @@
         - aiservice
         - odh
         - aiservice-tenant
-        - aiservice-post-verify
         - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
@@ -141,7 +140,6 @@
         - suite-app-uninstall
         - suite-app-upgrade
         - suite-app-rollback
-        - suite-app-verify
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
