@@ -428,28 +428,36 @@ function gitops_iac() {
       echo "PR_PLAN_COMMENT: "$PR_PLAN_COMMENT
       
       if [[ "$PR_PLAN_COMMENT" == "Passed" ]]; then
-        sleep 120
-        COMMENT_BODY="atlantis apply"
-        ATLANTIS_APPLY_COMMENT=$(comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$COMMENT_BODY")
-        if [[ "$ATLANTIS_APPLY_COMMENT" == "true" ]]; then
-          
-          PR_APPLY_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "apply")
-          
-          if [[ "$PR_APPLY_COMMENT" == "Passed" ]]; then
-            MARGE_PR_STATUS=$(merge_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "Merge PR")
-            if [[ "$MARGE_PR_STATUS" != "true" ]]; then
-              echo_h2 "⚠️  Atlantis apply succeeded. Failed to merge PR. Please check the PR: 'https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}'"
-              # close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+        APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")
+        if [[ "$APPROVED_PR" == "true" ]]; then
+          sleep 120
+          COMMENT_BODY="atlantis apply"
+          ATLANTIS_APPLY_COMMENT=$(comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$COMMENT_BODY")
+          if [[ "$ATLANTIS_APPLY_COMMENT" == "true" ]]; then
+
+            PR_APPLY_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "apply")
+
+            if [[ "$PR_APPLY_COMMENT" == "Passed" ]]; then
+              MARGE_PR_STATUS=$(merge_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "Merge PR")
+              if [[ "$MARGE_PR_STATUS" != "true" ]]; then
+                echo_h2 "⚠️  Atlantis apply succeeded. Failed to merge PR. Please check the PR: 'https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}'"
+                # close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+                exit 1
+              fi
+            else
+              echo_h2 "⚠️  Atlantis Apply Failed. Pipeline Failed."
+              comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
+              close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
               exit 1
             fi
           else
-            echo_h2 "⚠️  Atlantis Apply Failed. Pipeline Failed."
+            echo_h2 "⚠️  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
             comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
             close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
             exit 1
           fi
         else
-          echo_h2 "⚠️  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
+          echo_h2 "⚠️  Atlantis Plan Failed. Closing PR. Pipeline Failed."
           comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
           close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
           exit 1
