@@ -851,7 +851,7 @@ function git_commit_and_create_pr_if_none_exist() {
   CURL_RC=$?
   set -o pipefail
 
-  if [[ $CURL_RC -ne 1 ]]; then #need to change later to 0
+  if [[ $CURL_RC -ne 0 ]]; then
     echo "❌ Error: Failed to check for existing PRs (curl returned ${CURL_RC})" >&2
     exit 1
   fi
@@ -864,7 +864,7 @@ function git_commit_and_create_pr_if_none_exist() {
     exit 1
   fi
 
-  if [[ "$OPEN_PR_COUNT" -gt 0 ]]; then
+  if [[ "$OPEN_PR_COUNT" -gt 1 ]]; then #need to change later to 0
     echo "⚠️  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}" >&2
     echo "Existing PRs:" >&2
     echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"' >&2
