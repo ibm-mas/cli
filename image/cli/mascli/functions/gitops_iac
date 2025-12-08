@@ -428,6 +428,8 @@ function gitops_iac() {
       echo "PR_PLAN_COMMENT: "$PR_PLAN_COMMENT
       
       if [[ "$PR_PLAN_COMMENT" == "Passed" ]]; then
+        echo "Going to approve PR: "${PR_NUMBER}
+        echo "IAC DEV PAT TOKEN: "${IAC_DEV_GITHUB_PAT}
         APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")
         if [[ "$APPROVED_PR" == "true" ]]; then
           sleep 120
