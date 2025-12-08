@@ -362,6 +362,7 @@ function jinjanate_commmon() {
   jinjanate --quiet --undefined $filter_params $template_path $output_opts
 }
 
+
 function get_tf_value() {
     local FILE="$1"
     local DOTPATH="$2"
