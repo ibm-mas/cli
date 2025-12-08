@@ -377,10 +377,10 @@ spec:
         - name: MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_CLASS
           value: $(params.mas_app_settings_visualinspection_storage_class)
 
-    - name: app-cfg
+    - name: app-config
       command:
         - /opt/app-root/src/run-role.sh
-        - suite_app_cfg
+        - suite_app_config
       env:
         - name: DEVOPS_SUITE_NAME
           value: app-$(params.mas_app_id)-cfg
