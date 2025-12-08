@@ -1944,6 +1944,7 @@ function approve_pr() {
 
   # GitHub API URL for PR reviews
   local REVIEW_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls/${PR_NUMBER}/reviews"
+  echo "Review api url ${REVIEW_API_URL}"
 
   # Create approval payload
   local APPROVAL_DATA=$(jq -n \
