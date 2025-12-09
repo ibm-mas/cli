@@ -7,6 +7,26 @@ spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
+    # General
+    # -------------------------------------------------------------------------
+    # MAS Instance
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+
+    # Application ID
+    - name: mas_app_id
+      type: string
+      description: Maximo Applicaiton Suite Application Id
+
+    # Custom Label Support
+    - name: custom_labels
+      type: string
+      description: Optional MAS custom labels, comma separated list of key=value pairs
+      default: ""
+
+    # Install Step
+    # -------------------------------------------------------------------------
     # Pre-Release Support
     - name: artifactory_username
       default: ''
@@ -21,16 +41,6 @@ spec:
     - name: ibm_entitlement_key
       type: string
 
-    # MAS Details
-    - name: mas_instance_id
-      type: string
-      description: Instance ID
-
-    # Application - Identifier
-    - name: mas_app_id
-      type: string
-      description: Maximo Applicaiton Suite Application Id
-
     # Application - Operator
     - name: mas_app_channel
       type: string
@@ -44,7 +54,7 @@ spec:
       type: string
       description: Application installation plan
       default: ""
-    
+
     # Application - IoT
     - name: mas_app_settings_iot_deployment_size
       type: string
@@ -65,25 +75,254 @@ spec:
       description: defines storage class for visual inspection application
       default: ""
 
-    # Custom Label Support
-    - name: custom_labels
+
+    # Config Step
+    # -------------------------------------------------------------------------
+    # CPD Version
+    - name: cpd_product_version
       type: string
-      description: Optional MAS custom labels, comma separated list of key=value pairs
+      description: The version of Cloud Pak for Data installed in the cluster, used to determine the version of WSL or WML for Health or Predict.
+      default: ""
+
+    # Application Workspace - identifier
+    - name: mas_workspace_id
+      type: string
+      description: Maximo Application Suite Workspace ID
+
+    # Application Workspace - Operand
+    - name: mas_appws_components
+      type: string
+      description: Components to configure in the workspace
+      default: ""
+    - name: mas_appws_bindings_jdbc
+      type: string
+      description: Components to configure in the workspace
+      default: ""
+
+    # Application Workspace - Operand (Manage)
+    - name: mas_appws_bindings_health_wsl_flag
+      type: string
+      description: Boolean value indicating if Watson Studio must installed and bound to Manage/Health.
+      default: ""
+    - name: mas_app_settings_aio_flag
+      type: string
+      description: Flag indicating if Asset Investment Optimization (AIO) resource must be loaded or not. It can be loaded only when Optimizer application is installed.
+      default: ""
+    - name: mas_app_settings_demodata
+      type: string
+      description: Flag indicating if manage demodata should be loaded or not
+      default: ""
+    - name: mas_app_settings_base_lang
+      type: string
+      description: Defines Manage application base language
+      default: "EN"
+    - name: mas_app_settings_secondary_langs
+      type: string
+      description: Defines Manage application list of secondary languages
+      default: ""
+    - name: mas_app_settings_server_timezone
+      type: string
+      description: Defines Manage server timezone
+      default: ""
+    - name: mas_app_settings_persistent_volumes_flag
+      type: string
+      description: Flag indicating if persistent volumes should be configured by default during Manage Workspace activation. There are two defaulted File Storage Persistent Volumes Claim resources that will be created out of the box for Manage if this flag is set to true.
+      default: ""
+    - name: mas_app_settings_jms_queue_pvc_storage_class
+      type: string
+      description: Storage Class for Manage JMS queues.
+      default: ""
+    - name: mas_app_settings_jms_queue_pvc_accessmode
+      type: string
+      description: Storage Access Mode for Manage JMS queues.
+      default: ""
+    - name: mas_app_settings_bim_pvc_storage_class
+      type: string
+      description: Storage Class for Manage BIM.
+      default: ""
+    - name: mas_app_settings_bim_pvc_accessmode
+      type: string
+      description: Storage Access Mode for Manage BIM.
+      default: ""
+    - name: mas_app_settings_doclinks_pvc_storage_class
+      type: string
+      description: Storage Class for Manage Doclinks.
+      default: ""
+    - name: mas_app_settings_doclinks_pvc_accessmode
+      type: string
+      description: Storage Access Mode for Manage Doclinks.
+      default: ""
+    - name: mas_app_settings_server_bundles_size
+      type: string
+      description: Provides different flavors of server bundle configuration to handle workload for Manage application.
+      default: ""
+    - name: mas_app_settings_tablespace
+      type: string
+      description: Name of the Manage database tablespace
+      default: ""
+    - name: mas_app_settings_indexspace
+      type: string
+      description: Name of the Manage database indexspace
+      default: ""
+    - name: mas_app_settings_db2_schema
+      type: string
+      description: Name of the Manage database schema
+      default: ""
+    - name: mas_app_settings_customization_archive_url
+      type: string
+      description: URL of the Manage archive
+      default: ""
+    - name: mas_app_settings_customization_archive_name
+      type: string
+      description: Name of the Manage archive
+      default: ""
+    - name: mas_app_settings_customization_archive_username
+      type: string
+      description: Username to authenticate into Manage custom archive url (if required)
+      default: ""
+    - name: mas_app_settings_customization_archive_password
+      type: string
+      description: Password to authenticate into Manage custom archive url (if required)
+      default: ""
+    - name: mas_app_settings_crypto_key
+      type: string
+      description: Manage database encryption key for MXE_SECURITY_CRYPTO_KEY
+      default: ""
+    - name: mas_app_settings_cryptox_key
+      type: string
+      description: Manage database encryption key for MXE_SECURITY_CRYPTOX_KEY
+      default: ""
+    - name: mas_app_settings_old_crypto_key
+      type: string
+      description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTO_KEY
+      default: ""
+    - name: mas_app_settings_old_cryptox_key
+      type: string
+      description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTOX_KEY
+      default: ""
+    - name: mas_app_settings_override_encryption_secrets_flag
+      type: string
+      description: Defines if Manage database encryption secret should be overriden with new values provided
+      default: ""
+    - name: mas_app_settings_default_jms
+      type: string
+      description: Set true if you want to configure JMS queues. It is false by default.
+      default: "" # default is handled by ansible-devops
+    - name: mas_manage_attachment_configuration_mode
+      type: string
+      description: Manage attachment configuration mode (cr or db)
+      default: ""
+    - name: mas_manage_attachments_provider
+      type: string
+      description: Manage attachment provider (filestorage, ibm, aws)
+      default: ""
+    - name: db2_namespace
+      type: string
+      description: Namespace to create Db2uCluster instances
+      default: ""
+    - name: ibmcloud_resourcegroup
+      type: string
+      description: IBM Cloud Resource Group (for when attachments is configured via ibm provider)
+      default: ""
+    - name: ibmcloud_apikey
+      type: string
+      description: API Key used by Manage attachments settings
+      default: ""
+    - name: cos_resourcegroup
+      type: string
+      description: IBM Cloud Resource Group where COS is installed (for when attachments is configured via ibm provider)
+      default: ""
+    - name: cos_apikey
+      type: string
+      description: API Key used to configure COS and buckets in IBM Cloud (used by Manage attachments settings)
+      default: ""
+    - name: cos_instance_name # cos_instance_name in attachments devops role
+      type: string
+      description: Name of COS instance in IBM Cloud account
+      default: ""
+    - name: cos_bucket_name # cos_bucket_name in attachments devops role
+      type: string
+      description: COS Bucket optionally used to hold attachments in Manage
+      default: ""
+    - name: mas_appws_upgrade_type
+      type: string
+      description: Manage upgrade type
+      default: ""
+
+    # Application Workspace - Operand (Predict)
+    - name: predict_deployment_size
+      type: string
+      description: Optional. Controls the workload size of predict containers. Available options are developer, small, medium, and small
+      default: ""
+
+    # Application Workspace - Operand (Watson Studio Local - Predict only)
+    - name: cpd_wsl_project_id
+      type: string
+      description: Analytics Project Id
+      default: ""
+    - name: cpd_wsl_project_name
+      type: string
+      description: Analytics Project Name
+      default: ""
+
+    # Application Workspace - Operand (Watson Machine Learning - Predict only)
+    - name: cpd_wml_instance_id
+      type: string
+      description: Optional. Identifier of wml instance to be configured in Predict
+      default: ""
+    - name: cpd_wml_url
+      type: string
+      description: Optional. Url to access WML service (same as Cloud Pak for Data url)
+      default: ""
+
+    # Application Workspace - Operand (Real Estate and Facilities)
+    # TODO: Fix type for storage sizes and max conn pool size
+    - name: mas_ws_facilities_size
+      type: string
+      description: Size of the Facilities Deployment
+      default: ""
+    - name: mas_ws_facilities_routes_timeout
+      type: string
+      description: Optional. Connection timeout of the route.
+      default: ""
+    - name: mas_ws_facilities_liberty_extension_XML
+      type: string
+      description: Optional. Secret name containing XML extension for server.xml
+      default: ""
+    - name: mas_ws_facilities_vault_secret
+      type: string
+      description: Optional. Secret name containing AES encryption secret.
+      default: ""
+    - name: mas_ws_facilities_pull_policy
+      type: string
+      description: Optional. Pull Policy
+      default: ""
+    - name: mas_ws_facilities_storage_log_class
+      type: string
+      description: Define storage class for log
+      default: ""
+    - name: mas_ws_facilities_storage_log_mode
+      type: string
+      description: Define storage mode for log
+      default: ""
+    - name: mas_ws_facilities_storage_userfiles_class
+      type: string
+      description: Define storage class for userfiles
+      default: ""
+    - name: mas_ws_facilities_storage_userfiles_mode
+      type: string
+      description: Define storage mode for userfiles
+      default: ""
+    - name: mas_ws_facilities_config_map_name
+      type: string
+      description: ConfigMap with configurations not supported by Tekton
       default: ""
 
   stepTemplate:
+    image: quay.io/ibmmas/cli:latest
+    imagePullPolicy: $(params.image_pull_policy)
     env:
-      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
-
-      # Pre-Release Support
-      - name: ARTIFACTORY_USERNAME
-        value: $(params.artifactory_username)
-      - name: ARTIFACTORY_TOKEN
-        value: $(params.artifactory_token)
-
-      # Entitlement
-      - name: IBM_ENTITLEMENT_KEY
-        value: $(params.ibm_entitlement_key)
+      {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuitename.yml.j2') | indent(6) }}
 
       # MAS Details
       - name: MAS_INSTANCE_ID
@@ -93,40 +332,226 @@ spec:
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
 
-      # Application - Operator
-      - name: MAS_APP_CHANNEL
-        value: $(params.mas_app_channel)
-
-      # Application - Operand
-      - name: MAS_APP_PLAN
-        value: $(params.mas_app_plan)
-
       # Custom Label Support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
-      
-      # Application - IoT
-      - name: MAS_APP_SETTINGS_IOT_DEPLOYMENT_SIZE
-        value: $(params.mas_app_settings_iot_deployment_size)
-      - name: MAS_APP_SETTINGS_IOT_MQTTBROKER_PVC_STORAGE_CLASS
-        value: $(params.mas_app_settings_iot_mqttbroker_pvc_storage_class)
-      - name: MAS_APP_SETTINGS_IOT_FPL_PVC_STORAGE_CLASS
-        value: $(params.mas_app_settings_iot_fpl_pvc_storage_class)
-      - name: MAS_POD_TEMPLATES_DIR
-        value: /workspace/pod-templates
-
-      # Application - Visual Inspection
-      - name: MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_CLASS
-        value: $(params.mas_app_settings_visualinspection_storage_class)
 
   steps:
-    - name: suite-app-install
+    - name: app-install
       command:
         - /opt/app-root/src/run-role.sh
         - suite_app_install
-      image: quay.io/ibmmas/cli:latest
-      imagePullPolicy: $(params.image_pull_policy)
+      env:
+        - name: DEVOPS_SUITE_NAME
+          value: app-$(params.mas_app_id)-install
+
+        # Pre-Release Support
+        - name: ARTIFACTORY_USERNAME
+          value: $(params.artifactory_username)
+        - name: ARTIFACTORY_TOKEN
+          value: $(params.artifactory_token)
+
+        # Entitlement
+        - name: IBM_ENTITLEMENT_KEY
+          value: $(params.ibm_entitlement_key)
+
+        # Application - Operator
+        - name: MAS_APP_CHANNEL
+          value: $(params.mas_app_channel)
+
+        # Application - Operand
+        - name: MAS_APP_PLAN
+          value: $(params.mas_app_plan)
+
+        # Application - IoT
+        - name: MAS_APP_SETTINGS_IOT_DEPLOYMENT_SIZE
+          value: $(params.mas_app_settings_iot_deployment_size)
+        - name: MAS_APP_SETTINGS_IOT_MQTTBROKER_PVC_STORAGE_CLASS
+          value: $(params.mas_app_settings_iot_mqttbroker_pvc_storage_class)
+        - name: MAS_APP_SETTINGS_IOT_FPL_PVC_STORAGE_CLASS
+          value: $(params.mas_app_settings_iot_fpl_pvc_storage_class)
+        - name: MAS_POD_TEMPLATES_DIR
+          value: /workspace/pod-templates
+
+        # Application - Visual Inspection
+        - name: MAS_APP_SETTINGS_VISUALINSPECTION_STORAGE_CLASS
+          value: $(params.mas_app_settings_visualinspection_storage_class)
+
+    - name: app-config
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_app_config
+      env:
+        - name: DEVOPS_SUITE_NAME
+          value: app-$(params.mas_app_id)-cfg
+        # MAS Details
+        - name: MAS_CONFIG_DIR
+          value: /workspace/configs
+
+        # CPD Version
+        - name: CPD_PRODUCT_VERSION
+          value: $(params.cpd_product_version)
+
+        # Application Workspace - Identifer
+        - name: MAS_WORKSPACE_ID
+          value: $(params.mas_workspace_id)
+
+        # Application Workspace - Operand
+        - name: MAS_APPWS_BINDINGS_JDBC
+          value: $(params.mas_appws_bindings_jdbc)
+        - name: MAS_APPWS_COMPONENTS
+          value: $(params.mas_appws_components)
+
+        # Application Workspace - Operand (Manage)
+        - name: MAS_APPWS_BINDINGS_HEALTH_WSL_FLAG
+          value: $(params.mas_appws_bindings_health_wsl_flag)
+        - name: MAS_APP_SETTINGS_AIO_FLAG
+          value: $(params.mas_app_settings_aio_flag)
+        - name: MAS_APP_SETTINGS_DEMODATA
+          value: $(params.mas_app_settings_demodata)
+        - name: MAS_APP_SETTINGS_BASE_LANG
+          value: $(params.mas_app_settings_base_lang)
+        - name: MAS_APP_SETTINGS_SECONDARY_LANGS
+          value: $(params.mas_app_settings_secondary_langs)
+        - name: MAS_APP_SETTINGS_SERVER_TIMEZONE
+          value: $(params.mas_app_settings_server_timezone)
+        - name: MAS_APP_SETTINGS_PERSISTENT_VOLUMES_FLAG
+          value: $(params.mas_app_settings_persistent_volumes_flag)
+        - name: MAS_APP_SETTINGS_JMS_QUEUE_PVC_STORAGE_CLASS
+          value: $(params.mas_app_settings_jms_queue_pvc_storage_class)
+        - name: MAS_APP_SETTINGS_JMS_QUEUE_PVC_ACCESSMODE
+          value: $(params.mas_app_settings_jms_queue_pvc_accessmode)
+        - name: MAS_APP_SETTINGS_BIM_PVC_STORAGE_CLASS
+          value: $(params.mas_app_settings_bim_pvc_storage_class)
+        - name: MAS_APP_SETTINGS_BIM_PVC_ACCESSMODE
+          value: $(params.mas_app_settings_bim_pvc_accessmode)
+        - name: MAS_APP_SETTINGS_DOCLINKS_PVC_STORAGE_CLASS
+          value: $(params.mas_app_settings_doclinks_pvc_storage_class)
+        - name: MAS_APP_SETTINGS_DOCLINKS_PVC_ACCESSMODE
+          value: $(params.mas_app_settings_doclinks_pvc_accessmode)
+        - name: MAS_APP_SETTINGS_SERVER_BUNDLES_SIZE
+          value: $(params.mas_app_settings_server_bundles_size)
+        - name: MAS_APP_SETTINGS_TABLESPACE
+          value: $(params.mas_app_settings_tablespace)
+        - name: MAS_APP_SETTINGS_INDEXSPACE
+          value: $(params.mas_app_settings_indexspace)
+        - name: MAS_APP_SETTINGS_DB2_SCHEMA
+          value: $(params.mas_app_settings_db2_schema)
+        - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_URL
+          value: $(params.mas_app_settings_customization_archive_url)
+        - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_NAME
+          value: $(params.mas_app_settings_customization_archive_name)
+        - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_USERNAME
+          value: $(params.mas_app_settings_customization_archive_username)
+        - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
+          value: $(params.mas_app_settings_customization_archive_password)
+        - name: MAS_APP_SETTINGS_CRYPTO_KEY
+          value: $(params.mas_app_settings_crypto_key)
+        - name: MAS_APP_SETTINGS_CRYPTOX_KEY
+          value: $(params.mas_app_settings_cryptox_key)
+        - name: MAS_APP_SETTINGS_OLD_CRYPTO_KEY
+          value: $(params.mas_app_settings_old_crypto_key)
+        - name: MAS_APP_SETTINGS_OLD_CRYPTOX_KEY
+          value: $(params.mas_app_settings_old_cryptox_key)
+        - name: MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG
+          value: $(params.mas_app_settings_override_encryption_secrets_flag)
+        - name: MAS_APP_SETTINGS_DEFAULT_JMS
+          value: $(params.mas_app_settings_default_jms)
+        - name: MAS_POD_TEMPLATES_DIR
+          value: /workspace/pod-templates
+        - name: MAS_MANAGE_ATTACHMENT_CONFIGURATION_MODE
+          value: $(params.mas_manage_attachment_configuration_mode)
+        - name: MAS_MANAGE_ATTACHMENTS_PROVIDER
+          value: $(params.mas_manage_attachments_provider)
+        - name: DB2_NAMESPACE
+          value: $(params.db2_namespace)
+        - name: IBMCLOUD_RESOURCEGROUP
+          value: $(params.ibmcloud_resourcegroup)
+        - name: IBMCLOUD_APIKEY
+          value: $(params.ibmcloud_apikey)
+        - name: COS_RESOURCEGROUP
+          value: $(params.cos_resourcegroup)
+        - name: COS_APIKEY
+          value: $(params.cos_apikey)
+        - name: COS_INSTANCE_NAME
+          value: $(params.cos_instance_name)
+        - name: COS_BUCKET_NAME
+          value: $(params.cos_bucket_name)
+        - name: MAS_APPWS_UPGRADE_TYPE
+          value: $(params.mas_appws_upgrade_type)
+
+        # Application Workspace - Operand (Predict)
+        - name: PREDICT_DEPLOYMENT_SIZE
+          value: $(params.predict_deployment_size)
+
+        # Application Workspace - Operand (WSL)
+        - name: CPD_WSL_PROJECT_ID
+          value: $(params.cpd_wsl_project_id)
+        - name: CPD_WSL_PROJECT_NAME
+          value: $(params.cpd_wsl_project_name)
+
+        # Application Workspace - Operand (WML)
+        - name: CPD_WML_INSTANCE_ID
+          value: $(params.cpd_wml_instance_id)
+        - name: CPD_WML_URL
+          value: $(params.cpd_wml_url)
+
+        # Application Workspace - Operand (Real Estate and Facilities)
+        # TODO: Fix type for storage sizes and max conn pool size
+        - name: MAS_FACILITIES_SIZE
+          value: $(params.mas_ws_facilities_size)
+        - name: MAS_FACILITIES_ROUTES_TIMEOUT
+          value: $(params.mas_ws_facilities_routes_timeout)
+        - name: MAS_FACILITIES_LIBERTY_EXTENSION_XML_SECRET_NAME
+          value: $(params.mas_ws_facilities_liberty_extension_XML)
+        - name: MAS_FACILITIES_VAULT_SECRET_NAME
+          value: $(params.mas_ws_facilities_vault_secret)
+        - name: MAS_FACILITIES_PULL_POLICY
+          value: $(params.mas_ws_facilities_pull_policy)
+        - name: MAS_FACILITIES_STORAGE_LOG_CLASS
+          value: $(params.mas_ws_facilities_storage_log_class)
+        - name: MAS_FACILITIES_STORAGE_LOG_MODE
+          value: $(params.mas_ws_facilities_storage_log_mode)
+        - name: MAS_FACILITIES_STORAGE_USERFILES_CLASS
+          value: $(params.mas_ws_facilities_storage_userfiles_class)
+        - name: MAS_FACILITIES_STORAGE_USERFILES_MODE
+          value: $(params.mas_ws_facilities_storage_userfiles_mode)
+        - name: MAS_FACILITIES_CONFIG_MAP_NAME
+          value: $(params.mas_ws_facilities_config_map_name)
+
+    - name: app-wait-for-approval
+      # If configmap/approval-app-cfg-$(params.mas_app_id) exists then set STATUS=pending and wait for it to be changed to "approved"
+      command:
+        - /opt/app-root/src/wait-for-configmap.sh
+      env:
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: CONFIGMAP_NAME
+          value: approval-app-cfg-$(params.mas_app_id)
+        - name: CONFIGMAP_INITIAL_VALUE
+          value: pending
+        - name: CONFIGMAP_TARGET_VALUE
+          value: approved
+        - name: DELAY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: DELAY
+              optional: true
+        - name: MAX_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: MAX_RETRIES
+              optional: true
+        - name: IGNORE_FAILURE
+          valueFrom:
+            configMapKeyRef:
+              name: approval-app-cfg-$(params.mas_app_id)
+              key: IGNORE_FAILURE
+              optional: true
 
   workspaces:
+    - name: configs
     - name: pod-templates
       optional: true
