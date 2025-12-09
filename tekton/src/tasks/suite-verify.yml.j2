@@ -29,7 +29,7 @@ spec:
       imagePullPolicy: $(params.image_pull_policy)
 
     # If configmap/approval-suite-verify exists then set STATUS=pending and wait for it to be changed to "approved"
-    - name: suite-post-verify
+    - name: suite-wait-for-approval
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       command:

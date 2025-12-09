@@ -25,12 +25,12 @@
         - arcgis
         - appconnect
         - cert-manager
-        - common-services
         - cos
         - cp4d-service
         - cp4d-service-update
         - cp4d
         - db2
+        - dro
         - eck
         - grafana
         - ibm-catalogs
@@ -41,7 +41,6 @@
         - sls-registry-update
         - sls
         - turbonomic
-        - uds
 
     # 3. Generate Tasks (AI Service)
     # -------------------------------------------------------------------------
@@ -54,7 +53,6 @@
         - aiservice
         - odh
         - aiservice-tenant
-        - aiservice-post-verify
         - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
@@ -114,7 +112,9 @@
         - mas-launchfvt-visualinspection
         - mas-launchfvt-upgrade-post
         - mas-launchfvt-upgrade-pre
+        - mas-launchfvt-facilities
         - mas-launchivt-manage
+
 
     # 5. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -135,12 +135,10 @@
       with_items:
         - gencfg-workspace
         - must-gather
-        - suite-app-config
         - suite-app-install
         - suite-app-uninstall
         - suite-app-upgrade
         - suite-app-rollback
-        - suite-app-verify
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
@@ -173,7 +171,7 @@
         - wait-for-configmap
         - wait-for-configmap-v2
         - wait-for-tekton
-        
+
     # 9. Generate Tasks (Common)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (Common)

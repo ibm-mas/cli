@@ -70,9 +70,9 @@ def test_install_noninteractive(tmpdir):
                              '--storage-pipeline', 'nfs-client',
                              '--storage-accessmode', 'ReadWriteMany',
                              '--license-file', f'{tmpdir}/authorized_entitlement.lic',
-                             '--uds-email', 'maximo@ibm.com',
-                             '--uds-firstname', 'Test',
-                             '--uds-lastname', 'Test',
+                             '--contact-email', 'maximo@ibm.com',
+                             '--contact-firstname', 'Test',
+                             '--contact-lastname', 'Test',
                              '--dro-namespace', 'redhat-marketplace',
                              '--mongodb-namespace', 'mongoce',
                              '--aiservice-channel', '9.1.x',
@@ -94,7 +94,7 @@ def test_install_noninteractive(tmpdir):
                              '--watsonxai-instance-id', 'testWxInstanceId',
                              '--watsonxai-username', 'testWxUsername',
                              '--watsonxai-version', 'testWxVersion',
-                             '--watsonxai-full', 'testWxFull',
+                             '--watsonxai-onprem', 'testWxonprem',
                              '--minio-root-user', 'test',
                              '--minio-root-password', 'test',
                              '--tenant-entitlement-type', 'standard',
@@ -179,11 +179,11 @@ def test_install_interactive(tmpdir):
                     return 'rslOrgId'
                 if re.match('.*Token for RSL.*', message):
                     return 'rslToken'
+                if re.match('.*Watsonxai machine learning url.*', message):
+                    return 'watsonxUrl'
                 if re.match('.*Does the RSL API use a self-signed certificate.*', message):
                     return 'n'
                 if re.match('.*Does the Watsonxai AI use a self-signed certificate.*', message):
-                    return 'n'
-                if re.match('.*Does the Watsonxai AI use full engine.*', message):
                     return 'n'
                 if re.match('.*Create MongoDb cluster.*', message):
                     return 'n'

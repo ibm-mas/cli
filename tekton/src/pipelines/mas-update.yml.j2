@@ -37,24 +37,6 @@ spec:
       default: "upgrade"
       description: Set to 'upgrade' to update ocs/odf
 
-    # common services action
-    # -------------------------------------------------------------------------
-    - name: common_services_action
-      type: string
-      default: "upgrade"
-      description: Set to 'upgrade' to update common_services
-
-    # cert-manager update
-    # -------------------------------------------------------------------------
-    - name: cert_manager_action
-      type: string
-      default: ""
-      description: Set to 'install' to update to red hat certificate manager
-    - name: cert_manager_provider
-      type: string
-      default: ""
-      description: Certificate manager provider (ibm or redhat)
-
     # db2 update
     # -------------------------------------------------------------------------
     - name: db2_action
@@ -100,6 +82,10 @@ spec:
       type: string
       description: Approves the MongoDb upgrade to version 7 if needed
       default: ""
+    - name: mongodb_v8_upgrade
+      type: string
+      description: Approves the MongoDb upgrade to version 8 if needed
+      default: ""
 
     # kafka update
     # -------------------------------------------------------------------------
@@ -115,24 +101,6 @@ spec:
       type: string
       default: "strimzi"
       description: kafka provider such as 'redhat' or 'strimzi'
-
-    # UDS/DRO Migration
-    # -------------------------------------------------------------------------
-    - name: dro_migration
-      default: ""
-      type: string
-      description: Set to 'true' to Migration UDS to DRO
-    - name: uds_storage_class
-      default: ""
-      type: string
-      description: Set custom storageclass for UDS/DRO
-    - name: uds_action
-      default: "install-dro"
-      type: string
-      description: set UDS_ACTION, default is install-dro'
-    - name: dro_namespace
-      default: "redhat-marketplace"
-      type: string
 
     # Grafana operator update
     # -------------------------------------------------------------------------
@@ -163,10 +131,6 @@ spec:
       type: string
       default: ""
       description: Flag that determines if Analytics Engine must be upgraded
-    - name: cp4d_update_spss
-      type: string
-      default: ""
-      description: Flag that determines if SPSS Modeler must be upgraded
     - name: cp4d_update_cognos
       type: string
       default: ""
@@ -248,46 +212,6 @@ spec:
         - name: ocs_action
           value: $(params.ocs_action)
 
-    - name: update-common-services
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-devops-common-services
-      runAfter:
-        - update-ocs
-      params:
-        - name: devops_suite_name
-          value: update-common-services
-        - name: common_services_action
-          value: $(params.common_services_action)
-      when:
-      - input: "$(params.cpd_product_version)"
-        operator: in
-        values: ["","4.5.0", "4.5.3", "4.6.0", "4.6.3", "4.6.4", "4.6.6"]
-
-    # Only migrate to Red Hat Certificate Manager if identified that IBM Cloud Pak Foundational Services Certificate Manager is running
-    - name: update-cert-manager
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-devops-cert-manager
-      runAfter:
-        - update-common-services
-      params:
-        - name: devops_suite_name
-          value: update-cert-manager
-        - name: cert_manager_action
-          value: $(params.cert_manager_action)
-        - name: cert_manager_provider
-          value: $(params.cert_manager_provider)
-      when:
-        - input: "$(params.cert_manager_action)"
-          operator: in
-          values: ["install"]
-        - input: "$(params.cert_manager_provider)"
-          operator: in
-          values: ["redhat"]
-
     - name: update-grafana
       timeout: "0"
       taskRef:
@@ -297,13 +221,13 @@ spec:
         - input: $(params.grafana_v5_upgrade)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - post-update-verify
       params:
         - name: grafana_action
           value: update
         - name: devops_suite_name
           value: dependencies-grafana-update
-      runAfter:
-        - update-common-services
 
     - name: update-db2
       timeout: "0"
@@ -311,7 +235,7 @@ spec:
         kind: Task
         name: mas-devops-db2
       runAfter:
-        - update-common-services
+        - post-update-verify
       params:
         - name: devops_suite_name
           value: update-db2
@@ -326,7 +250,7 @@ spec:
         kind: Task
         name: mas-devops-mongodb
       runAfter:
-        - update-common-services
+        - post-update-verify
       params:
         - name: devops_suite_name
           value: update-mongodb
@@ -342,6 +266,8 @@ spec:
           value: $(params.mongodb_v6_upgrade)
         - name: mongodb_v7_upgrade
           value: $(params.mongodb_v7_upgrade)
+        - name: mongodb_v8_upgrade
+          value: $(params.mongodb_v8_upgrade)
         - name: mongodb_replicas
           value: $(params.mongodb_replicas)
 
@@ -351,7 +277,7 @@ spec:
         kind: Task
         name: mas-devops-kafka
       runAfter:
-        - update-common-services
+        - post-update-verify
       params:
         - name: devops_suite_name
           value: update-kafka
@@ -362,38 +288,12 @@ spec:
         - name: kafka_provider
           value: $(params.kafka_provider)
 
-    # UDS/DRO Migration
-    - name: update-uds
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-devops-uds
-      when:
-        - input: "$(params.dro_migration)"
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - update-common-services
-      params:
-        - name: dro_migration
-          value: $(params.dro_migration)
-        - name: uds_storage_class
-          value: $(params.uds_storage_class)
-        - name: uds_action
-          value: $(params.uds_action)
-        - name: dro_namespace
-          value: $(params.dro_namespace)
-        - name: devops_suite_name
-          value: update-uds
-
-
     # 5 Update Cloud Pak for Data
     # -------------------------------------------------------------------------
     # 5.1 Cloud Pak for Data Platform
     {{ lookup('template', 'taskdefs/cp4d/cp4d-platform-update.yml.j2') | indent(4) }}
       runAfter:
-        - update-cert-manager # CP4D requires cert-manager
-        {# - update-uds # UDS must be upgraded prior CPD, because CPD v4.8 will disable CPFS v3 which is required for UDS #}
+        - post-update-verify
 
     # 5.2 Watson Studio
     {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl-update.yml.j2') | indent(4) }}
@@ -410,12 +310,7 @@ spec:
       runAfter:
         - update-cp4d
 
-    # 5.5 SPSS Statistics
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-spss-update.yml.j2') | indent(4) }}
-      runAfter:
-        - update-cp4d
-
-    # 5.6 Cognos Analytics
+    # 5.5 Cognos Analytics
     {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos-update.yml.j2') | indent(4) }}
       runAfter:
         - update-cp4d
@@ -428,15 +323,14 @@ spec:
         'devops_suite_name': 'post-deps-update-verify'
       }) | indent(4) }}
       runAfter:
+        - update-ocs
         - update-db2
         - update-mongodb
         - update-kafka
-        - update-uds
         - update-grafana
         - update-watson-studio
         - update-watson-machine-learning
         - update-analytics-engine
-        - update-spss
         - update-cognos
 
   finally:

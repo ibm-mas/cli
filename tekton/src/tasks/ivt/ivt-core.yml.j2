@@ -78,7 +78,7 @@ spec:
             optional: true
 
       # IBM Cloud API Key & Github Token are required to run the image vulnerability scan testsuite
-      - name : FVT_ENABLE_IMAGE_SCAN
+      - name: FVT_ENABLE_IMAGE_SCAN
         valueFrom:
           secretKeyRef:
             name: mas-fvt-core

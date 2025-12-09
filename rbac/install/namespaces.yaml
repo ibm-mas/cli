@@ -27,11 +27,6 @@ metadata:
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: ibm-common-services
----
-apiVersion: v1
-kind: Namespace
-metadata:
   name: ibm-sls
 ---
 apiVersion: v1

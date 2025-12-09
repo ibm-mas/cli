@@ -304,11 +304,6 @@ spec:
 
           # Remove manual-certs folder
           rm -rf $TARGET_LOCAL_DIR/manual-certs
-          
-          echo "gitops-mas-initiator: setting dns.cis.proxy enhanced_security and waf to false"
-          yq -i '.dns.cis.proxy = false' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
-          yq -i '.dns.cis.enhanced_security = false' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
-          yq -i '.dns.cis.waf = false' $TARGET_LOCAL_DIR/$TARGET_GITHUB_REPO/gitops/$ACCOUNT/$REGION/$CLUSTER_NAME/$MAS_INSTANCE_ID/mas-instance-params.yaml
 
         fi
 
