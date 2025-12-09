@@ -184,7 +184,7 @@ spec:
           CMD="$CMD --is_s3 $IS_S3"
           [ -n "$S3_SOURCE" ] && CMD="$CMD --s3_source $S3_SOURCE"
           [ -n "$S3_SOURCE_IAMPOLICY" ] && CMD="$CMD --s3_source_iampolicy $S3_SOURCE_IAMPOLICY"
-          [ -n "$S3_SOURCE_S3ACCESSPOINT" ] && CMD="$CMD --s3-buckets-access-point-source $S3_SOURCE_S3ACCESSPOINT"
+          [ -n "$S3_SOURCE_S3ACCESSPOINT" ] && CMD="$CMD --s3_source_s3accesspoint $S3_SOURCE_S3ACCESSPOINT"
         fi
 
         echo "Executing command: $CMD"
