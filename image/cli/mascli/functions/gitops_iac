@@ -23,13 +23,6 @@ Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}
 
-EFS Configuration (required):
-      --efs-performance-mode ${COLOR_YELLOW}EFS_PERFORMANCE_MODE${TEXT_RESET}  Performance mode (generalPurpose or maxIO)
-      --efs-mount-count ${COLOR_YELLOW}EFS_MOUNT_COUNT${TEXT_RESET}          Number of mount targets
-      --efs-lifecycle-policy-transition-to-ia ${COLOR_YELLOW}EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA${TEXT_RESET}
-      --efs-lifecycle-policy-transition-to-primary-storage-class ${COLOR_YELLOW}EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS${TEXT_RESET}
-      --efs-throughput-mode ${COLOR_YELLOW}EFS_THROUGHPUT_MODE${TEXT_RESET}  Throughput mode (bursting or provisioned)
-      --efs-encrypted ${COLOR_YELLOW}EFS_ENCRYPTED${TEXT_RESET}              Enable encryption (true/false)
 
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}                  Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
@@ -57,14 +50,6 @@ function gitops_iac_noninteractive() {
 
   # Set default values
   export CLUSTER_URL=${CLUSTER_URL:-"https://kubernetes.default.svc"}
-  export IS_IAM=${IS_IAM:-"true"}
-  export IS_S3=${IS_S3:-"true"}
-  if [[ "$IS_EFS"  == "true" ]]; then
-    export EFS_PERFORMANCE_MODE=${EFS_PERFORMANCE_MODE:-"generalPurpose"}
-    export EFS_THROUGHPUT_MODE=${EFS_THROUGHPUT_MODE:-"bursting"}
-    export EFS_ENCRYPTED=${EFS_ENCRYPTED:-"true"}
-    export EFS_MOUNT_COUNT=${EFS_MOUNT_COUNT:-"3"}
-  fi
   
   while [[ $# -gt 0 ]]
   do
@@ -116,26 +101,76 @@ function gitops_iac_noninteractive() {
       --efs-source)
         export EFS_SOURCE=$1 && shift
         ;;
-      --efs-creation-token)
-        export EFS_CREATION_TOKEN=$1 && shift
+      --efs_manage_db2_performance_mode)
+        export EFS_MANAGE_DB2_PERFORMANCE_MODE=$1 && shift
         ;;
-      --efs-performance-mode)
-        export EFS_PERFORMANCE_MODE=$1 && shift
+
+      --efs_manage_db2_mount_count)
+        export EFS_MANAGE_DB2_MOUNT_COUNT=$1 && shift
         ;;
-      --efs-mount-count)
-        export EFS_MOUNT_COUNT=$1 && shift
+
+      --efs_manage_db2_throughput_mode)
+        export EFS_MANAGE_DB2_THROUGHPUT_MODE=$1 && shift
         ;;
-      --efs-lifecycle-policy-transition-to-ia)
-        export EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA=$1 && shift
+
+      --efs_manage_main_performance_mode)
+        export EFS_MANAGE_MAIN_PERFORMANCE_MODE=$1 && shift
         ;;
-      --efs-lifecycle-policy-transition-to-primary-storage-class)
-        export EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS=$1 && shift
+
+      --efs_manage_main_mount_count)
+        export EFS_MANAGE_MAIN_MOUNT_COUNT=$1 && shift
         ;;
-      --efs-throughput-mode)
-        export EFS_THROUGHPUT_MODE=$1 && shift
+
+      --efs_manage_main_throughput_mode)
+        export EFS_MANAGE_MAIN_THROUGHPUT_MODE=$1 && shift
         ;;
-      --efs-encrypted)
-        export EFS_ENCRYPTED=$1 && shift
+
+      --efs_iot_db2_performance_mode)
+        export EFS_IOT_DB2_PERFORMANCE_MODE=$1 && shift
+        ;;
+
+      --efs_iot_db2_mount_count)
+        export EFS_IOT_DB2_MOUNT_COUNT=$1 && shift
+        ;;
+
+      --efs_iot_db2_throughput_mode)
+        export EFS_IOT_DB2_THROUGHPUT_MODE=$1 && shift
+        ;;
+
+      --efs_facilities_db2_performance_mode)
+        export EFS_FACILITIES_DB2_PERFORMANCE_MODE=$1 && shift
+        ;;
+
+      --efs_facilities_db2_mount_count)
+        export EFS_FACILITIES_DB2_MOUNT_COUNT=$1 && shift
+        ;;
+
+      --efs_facilities_db2_throughput_mode)
+        export EFS_FACILITIES_DB2_THROUGHPUT_MODE=$1 && shift
+        ;;
+
+      --efs_facilities_main_performance_mode)
+        export EFS_FACILITIES_MAIN_PERFORMANCE_MODE=$1 && shift
+        ;;
+
+      --efs_facilities_main_mount_count)
+        export EFS_FACILITIES_MAIN_MOUNT_COUNT=$1 && shift
+        ;;
+
+      --efs_facilities_main_throughput_mode)
+        export EFS_FACILITIES_MAIN_THROUGHPUT_MODE=$1 && shift
+        ;;
+
+      --efs_visualinspection_main_performance_mode)
+        export EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE=$1 && shift
+        ;;
+
+      --efs_visualinspection_main_mount_count)
+        export EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT=$1 && shift
+        ;;
+
+      --efs_visualinspection_main_throughput_mode)
+        export EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE=$1 && shift
         ;;
 
       # S3 Configuration
@@ -156,7 +191,6 @@ function gitops_iac_noninteractive() {
       --iam-account-policy-source)
         export IAM_ACCOUNT_POLICY_SOURCE=$1 && shift
         ;;
-
       # Target Cluster (Optional)
       --cluster-url)
         export CLUSTER_URL=$1 && shift
@@ -330,12 +364,42 @@ function gitops_iac() {
     VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/vpcs/${VPC_NAME_VALUE}/main.tf
     export VPC_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${VPC_CIDR_PATH}" "${VPC_CIDR_WORKLOAD_DOT_PATH}")
 
-    
-
-
     echo "CLUSTER_CIDR_WORKLOAD_EXTERNAL  ${CLUSTER_CIDR_WORKLOAD_EXTERNAL}"
     echo "CLUSTER_CIDR_WORKLOAD_INTERNAL  ${CLUSTER_CIDR_WORKLOAD_INTERNAL}"
     echo "VPC_CIDR_WORKLOAD_INTERNAL  ${VPC_CIDR_WORKLOAD_INTERNAL}"
+
+    # Check if EFS parameters are set and export flags for template usage
+    # Check for manage (db2 and main)
+    if [[ -n "$EFS_MANAGE_DB2_PERFORMANCE_MODE" && -n "$EFS_MANAGE_DB2_MOUNT_COUNT" && -n "$EFS_MANAGE_DB2_THROUGHPUT_MODE" ]]; then
+      export EFS_MANAGE=true
+      echo "EFS_MANAGE set to true"
+    else
+      export EFS_MANAGE=false
+    fi
+
+    # Check for iot_db2
+    if [[ -n "$EFS_IOT_DB2_PERFORMANCE_MODE" && -n "$EFS_IOT_DB2_MOUNT_COUNT" && -n "$EFS_IOT_DB2_THROUGHPUT_MODE" ]]; then
+      export EFS_IOT=true
+      echo "EFS_IOT set to true"
+    else
+      export EFS_IOT=false
+    fi
+
+    # Check for facilities (db2 and main)
+    if [[ -n "$EFS_FACILITIES_DB2_PERFORMANCE_MODE" && -n "$EFS_FACILITIES_DB2_MOUNT_COUNT" && -n "$EFS_FACILITIES_DB2_THROUGHPUT_MODE" ]]; then
+      export EFS_FACILITIES=true
+      echo "EFS_FACILITIES set to true"
+    else
+      export EFS_FACILITIES=false
+    fi
+
+    # Check for visualinspection_main
+    if [[ -n "$EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE" && -n "$EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT" && -n "$EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE" ]]; then
+      export EFS_VISUALINSPECTION=true
+      echo "EFS_VISUALINSPECTION set to true"
+    else
+      export EFS_VISUALINSPECTION=false
+    fi
 
     #Generating .tf files using templates
     echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
@@ -471,29 +535,39 @@ function gitops_iac() {
       echo "PR_PLAN_COMMENT: "$PR_PLAN_COMMENT
       
       if [[ "$PR_PLAN_COMMENT" == "Passed" ]]; then
+        echo "Going to approve PR: "${PR_NUMBER}
+        echo "IAC DEV PAT TOKEN: "${IAC_DEV_GITHUB_PAT}
+        APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")
+        echo "PR approved ${APPROVED_PR}"
+        if [[ "$APPROVED_PR" == "true" ]]; then
+          sleep 120
+          COMMENT_BODY="atlantis apply"
+          ATLANTIS_APPLY_COMMENT=$(comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$COMMENT_BODY")
+          if [[ "$ATLANTIS_APPLY_COMMENT" == "true" ]]; then
 
-        COMMENT_BODY="atlantis apply"
-        ATLANTIS_APPLY_COMMENT=$(comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$COMMENT_BODY")
-        if [[ "$ATLANTIS_APPLY_COMMENT" == "true" ]]; then
-          
-          PR_APPLY_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "apply")
-          
-          if [[ "$PR_APPLY_COMMENT" == "Passed" ]]; then
-            sleep 120
-            MARGE_PR_STATUS=$(merge_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "Merge PR")
-            if [[ "$MARGE_PR_STATUS" != "true" ]]; then
-              echo_h2 "⚠️  Atlantis apply succeeded. Failed to merge PR. Please check the PR: 'https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}'"
-              # close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+            PR_APPLY_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "apply")
+
+            if [[ "$PR_APPLY_COMMENT" == "Passed" ]]; then
+              MARGE_PR_STATUS=$(merge_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "Merge PR")
+              if [[ "$MARGE_PR_STATUS" != "true" ]]; then
+                echo_h2 "⚠️  Atlantis apply succeeded. Failed to merge PR. Please check the PR: 'https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}'"
+                # close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
+                exit 1
+              fi
+            else
+              echo_h2 "⚠️  Atlantis Apply Failed. Pipeline Failed."
+              comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
+              close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
               exit 1
             fi
           else
-            echo_h2 "⚠️  Atlantis Apply Failed. Pipeline Failed."
+            echo_h2 "⚠️  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
             comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
             close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
             exit 1
           fi
         else
-          echo_h2 "⚠️  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
+          echo_h2 "⚠️  Failed to approve PR. Closing PR. Pipeline Failed."
           comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
           close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
           exit 1

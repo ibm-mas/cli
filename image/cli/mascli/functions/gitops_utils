@@ -864,7 +864,7 @@ function git_commit_and_create_pr_if_none_exist() {
     exit 1
   fi
 
-  if [[ "$OPEN_PR_COUNT" -gt 0 ]]; then
+  if [[ "$OPEN_PR_COUNT" -gt 1 ]]; then #need to change later to 0
     echo "⚠️  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}" >&2
     echo "Existing PRs:" >&2
     echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"' >&2
@@ -1896,6 +1896,118 @@ function merge_pr() {
   done
 
   return 0
+}
+
+# Approves a GitHub Pull Request
+# Uses APPROVAL_TOKEN  variable for authentication
+# Includes retry mechanism with configurable wait between attempts
+#
+# Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.com")
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - PR_NUMBER
+#   $5 - APPROVAL_TOKEN
+#   $6 - MAX_RETRIES (optional, default: 3)
+#   $7 - RETRY_DELAY (optional, default: 60 seconds)
+#
+# Returns:
+#   0 - PR approved successfully
+#   1 - Failed to approve PR after all retries
+#
+# Example usage:
+#   approve_pr "github.com" "ibm-mas" "gitops-config" "123"
+#   approve_pr "github.com" "ibm-mas" "gitops-config" "123" 5 60
+function approve_pr() {
+  local GITHUB_HOST=$1
+  local GITHUB_ORG=$2
+  local GITHUB_REPO=$3
+  local PR_NUMBER=$4
+  local APPROVAL_TOKEN=$5
+  local MAX_RETRIES=${6:-3}
+  local RETRY_DELAY=${7:-60}
+
+  echo "" >&2
+  echo "$(logts) approve_pr" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "PR Number: #${PR_NUMBER}" >&2
+  echo "Max Retries: ${MAX_RETRIES}" >&2
+  echo "Retry Delay: ${RETRY_DELAY} seconds" >&2
+  echo "=================================================" >&2
+
+  if [[ -z "${APPROVAL_TOKEN}" ]]; then
+    echo "❌ Error: APPROVAL_TOKEN environment variable is not set" >&2
+    echo "Please set APPROVAL_TOKEN with a valid GitHub Personal Access Token" >&2
+    return 0
+  fi
+
+  # GitHub API URL for PR reviews
+  local REVIEW_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls/${PR_NUMBER}/reviews"
+  # Create approval payload
+  local APPROVAL_DATA=$(jq -n \
+    --arg event "APPROVE" \
+    --arg body "Approved via automation" \
+    '{event: $event, body: $body}')
+
+  # Retry loop
+  for (( attempt=1; attempt<=${MAX_RETRIES}; attempt++ )); do
+    echo "" >&2
+    echo "$(logts) Attempt ${attempt} of ${MAX_RETRIES}: Approving PR #${PR_NUMBER}..." >&2
+    echo "-------------------------------------------------" >&2
+
+    # Attempt to approve the PR
+    set +o pipefail
+    local APPROVAL_RESPONSE=$(curl -s -X POST \
+      -H "Authorization: token ${APPROVAL_TOKEN}" \
+      -H "Accept: application/vnd.github.v3+json" \
+      -H "Content-Type: application/json" \
+      -d "${APPROVAL_DATA}" \
+      "${REVIEW_API_URL}")
+    local CURL_RC=$?
+    set -o pipefail
+
+    if [[ $CURL_RC -ne 0 ]]; then
+      echo "❌ Error: curl failed with return code ${CURL_RC}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo "❌ Failed to approve PR after ${MAX_RETRIES} attempts" >&2
+        return 1
+      fi
+    fi
+
+    local REVIEW_STATE=$(echo "${APPROVAL_RESPONSE}" | jq -r '.state' 2>/dev/null)
+    local REVIEW_ID=$(echo "${APPROVAL_RESPONSE}" | jq -r '.id' 2>/dev/null)
+    local ERROR_MESSAGE=$(echo "${APPROVAL_RESPONSE}" | jq -r '.message' 2>/dev/null)
+
+    if [[ "${REVIEW_STATE}" == "APPROVED" ]]; then
+      echo "" >&2
+      echo "✅ PR #${PR_NUMBER} approved successfully!" >&2
+      echo "Review ID: ${REVIEW_ID}" >&2
+      echo "=================================================" >&2
+      echo "true"
+      return 0
+    else
+      echo "❌ Error: Failed to approve PR" >&2
+      if [[ -n "${ERROR_MESSAGE}" && "${ERROR_MESSAGE}" != "null" ]]; then
+        echo "Error Message: ${ERROR_MESSAGE}" >&2
+      fi
+      echo "Response: ${APPROVAL_RESPONSE}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo "❌ Failed to approve PR after ${MAX_RETRIES} attempts" >&2
+        return 1
+      fi
+    fi
+  done
+
+  return 1
 }
 
 # Closes a GitHub Pull Request without merging
