@@ -19,6 +19,11 @@ spec:
       type: string
       description: Maximo Applicaiton Suite Application Id
 
+    # AI Service Details
+    - name: aiservice_instance_id
+      type: string
+      description: AI Service Instance ID
+
     # Custom Label Support
     - name: custom_labels
       type: string
@@ -331,6 +336,10 @@ spec:
       # Application - Identifier
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
+
+      # AI Service Details
+      - name: AISERVICE_INSTANCE_ID
+        value: $(params.aiservice_instance_id)
 
       # Custom Label Support
       - name: CUSTOM_LABELS
