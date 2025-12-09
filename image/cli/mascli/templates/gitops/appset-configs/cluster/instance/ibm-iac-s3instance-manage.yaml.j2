@@ -1,15 +1,15 @@
 module "s3buckets_instance" {
-  source = "{{ S3_BUCKET_INSTANCE_SOURCE }}"
+  source = "{{ S3_SOURCE }}"
 
   depends_on = [module.account_policy]
 
   tags                    = var.common_tags
   name_prefix             = var.name_prefix
-  s3buckets               = local.cluster.instance.s3buckets
-  iam_user_arns           = local.iam_user_arns
-  bucket_user_name_map    = local.bucket_user_name_map
-  iam_users_by_bucket     = local.iam_users_by_bucket
-  s3_iam_users_list       = local.s3_iam_users_list
+  s3buckets               = local.cluster.instance.manage.s3buckets
+  iam_user_arns           = local.iam_user_arns_manage
+  bucket_user_name_map    = local.bucket_user_name_map_manage
+  iam_users_by_bucket     = local.iam_users_by_bucket_manage
+  s3_iam_users_list       = local.s3_iam_users_list_manage
   s3_actions              = local.s3_actions
   s3_encryption           = true
   s3_encryption_algorithm = var.s3_encryption_algorithm

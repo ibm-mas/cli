@@ -58,22 +58,23 @@ spec:
       type: string
       default: ""
 
-    # S3 parameters
+    # iac-s3 params
     - name: is_s3
       type: string
       default: "false"
-    - name: s3_bucket_instance_source
+    - name: s3_source
       type: string
       default: ""
-    - name: s3_buckets_access_point_source
+    - name: s3_source_iampolicy
       type: string
       default: ""
-
-    # IAM parameters
-    - name: is_iam
+    - name: s3_source_s3accesspoint
       type: string
-      default: "false"
-    - name: iam_account_policy_source
+      default: ""
+    - name: s3_manage
+      type: string
+      default: ""
+    - name: s3_mvi
       type: string
       default: ""
 
@@ -123,19 +124,19 @@ spec:
       - name: EFS_ENCRYPTED
         value: $(params.efs_encrypted)
 
-      # S3 environment variables
+      # iac-s3
       - name: IS_S3
         value: $(params.is_s3)
-      - name: S3_BUCKET_INSTANCE_SOURCE
-        value: $(params.s3_bucket_instance_source)
-      - name: S3_BUCKETS_ACCESS_POINT_SOURCE
-        value: $(params.s3_buckets_access_point_source)
-
-      # IAM environment variables
-      - name: IS_IAM
-        value: $(params.is_iam)
-      - name: IAM_ACCOUNT_POLICY_SOURCE
-        value: $(params.iam_account_policy_source)
+      - name: S3_SOURCE
+        value: $(params.s3_source)
+      - name: S3_SOURCE_IAMPOLICY
+        value: $(params.s3_source_iampolicy)
+      - name: S3_SOURCE_S3ACCESSPOINT
+        value: $(params.s3_source_s3accesspoint)
+      - name: S3_MANAGE
+        value: $(params.s3_manage)
+      - name: S3_MVI
+        value: $(params.s3_mvi)
 
     envFrom:
       - configMapRef:
@@ -181,14 +182,9 @@ spec:
         # Add S3 parameters if enabled
         if [ "$IS_S3" = "true" ]; then
           CMD="$CMD --is_s3 $IS_S3"
-          [ -n "$S3_BUCKET_INSTANCE_SOURCE" ] && CMD="$CMD --s3-bucket-instance-source $S3_BUCKET_INSTANCE_SOURCE"
-          [ -n "$S3_BUCKETS_ACCESS_POINT_SOURCE" ] && CMD="$CMD --s3-buckets-access-point-source $S3_BUCKETS_ACCESS_POINT_SOURCE"
-        fi
-
-        # Add IAM parameters if enabled
-        if [ "$IS_IAM" = "true" ]; then
-          CMD="$CMD --is_iam $IS_IAM"
-          [ -n "$IAM_ACCOUNT_POLICY_SOURCE" ] && CMD="$CMD --iam-account-policy-source $IAM_ACCOUNT_POLICY_SOURCE"
+          [ -n "$S3_SOURCE" ] && CMD="$CMD --s3_source $S3_SOURCE"
+          [ -n "$S3_SOURCE_IAMPOLICY" ] && CMD="$CMD --s3_source_iampolicy $S3_SOURCE_IAMPOLICY"
+          [ -n "$S3_SOURCE_S3ACCESSPOINT" ] && CMD="$CMD --s3-buckets-access-point-source $S3_SOURCE_S3ACCESSPOINT"
         fi
 
         echo "Executing command: $CMD"

@@ -1,7 +1,7 @@
 module "s3buckets_access_point" {
-  source = "{{ S3_BUCKETS_ACCESS_POINT_SOURCE }}"
+  source = "{{ S3_SOURCE_S3ACCESSPOINT }}"
   for_each = {
-    for k, v in local.cluster.instance.s3buckets :
+    for k, v in local.cluster.instance.manage.s3buckets :
     k => v if can(regex("log", v.name)) || can(regex("doclinks", v.name))
   }
 

@@ -177,20 +177,23 @@ function gitops_iac_noninteractive() {
       --is_s3)
         export IS_S3=$1 && shift
         ;;
-      --s3-bucket-instance-source)
-        export S3_BUCKET_INSTANCE_SOURCE=$1 && shift
+      --s3_source)
+        export S3_SOURCE=$1 && shift
         ;;
-      --s3-buckets-access-point-source)
-        export S3_BUCKETS_ACCESS_POINT_SOURCE=$1 && shift
+      --s3_source_iampolicy)
+        export S3_SOURCE_IAMPOLICY=$1 && shift
         ;;
 
-      # IAM Configuration
-      --is_iam)
-        export IS_IAM=$1 && shift
+      --s3_source_s3accesspoint)
+        export S3_SOURCE_S3ACCESSPOINT=$1 && shift
         ;;
-      --iam-account-policy-source)
-        export IAM_ACCOUNT_POLICY_SOURCE=$1 && shift
+      --s3_manage)
+        export S3_MANAGE=$1 && shift
         ;;
+      --s3_mvi)
+        export S3_MVI=$1 && shift
+        ;;
+
       # Target Cluster (Optional)
       --cluster-url)
         export CLUSTER_URL=$1 && shift
@@ -298,19 +301,6 @@ function gitops_iac() {
   fi
   reset_colors
    echo_reset_dim "IS EFS  ......................... ${COLOR_MAGENTA}${IS_EFS}"
-  if [[ "$IS_EFS"  == "true" ]]; then
-    echo "${TEXT_DIM}"
-    echo_h2 "EFS Configuration" "    "
-    echo_reset_dim "SOURCE ......................... ${COLOR_MAGENTA}${EFS_SOURCE}"
-    echo_reset_dim "CREATION TOKEN ................. ${COLOR_MAGENTA}${EFS_CREATION_TOKEN}"
-    echo_reset_dim "Performance Mode ............... ${COLOR_MAGENTA}${EFS_PERFORMANCE_MODE}"
-    echo_reset_dim "Mount Count .................... ${COLOR_MAGENTA}${EFS_MOUNT_COUNT}"
-    echo_reset_dim "Lifecycle Policy (IA) .......... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_IA}"
-    echo_reset_dim "Lifecycle Policy (Primary) ..... ${COLOR_MAGENTA}${EFS_LIFECYCLE_POLICY_TRANSITION_TO_PRIMARY_STORAGE_CLASS}"
-    echo_reset_dim "Throughput Mode ................ ${COLOR_MAGENTA}${EFS_THROUGHPUT_MODE}"
-    echo_reset_dim "Encrypted ...................... ${COLOR_MAGENTA}${EFS_ENCRYPTED}"
-    reset_colors
-  fi
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
@@ -418,44 +408,12 @@ function gitops_iac() {
     GIT_COMMIT_MSG="${GIT_COMMIT_MSG}-efs"
   fi
 
-  if [[ "$IS_IAM"  == "true" ]]; then
-    echo
-    echo_h2 "Generating IAM Policy Configuration"
-    echo "- IAM Policy"
+  if [[ "$IS_S3"  == "true" ]]; then
 
-    echo "generating path for "
 
     #Creating file path for extracting parameter value from cluster & vpc
     CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
     MAIN_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/main.tf
-    TERRAFORMTF_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/terraform.tfvars
-
-    #Creating value path for extracting parameter value from .tf file
-    NAME_PREFIX="name_prefix"
-
-    #Extracting values from .tf file
-    export NAME_PREFIX_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${NAME_PREFIX}")
-
-    echo "NAME_PREFIX_VALUE  ${NAME_PREFIX_VALUE}"
-
-    #Generating .tf files using templates
-    echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/ibm-iac-iampolicy.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicyTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy.tf
-
-    echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
-
-    echo "Generating IAC Variables file ${GITOPS_CLUSTER_DIR}/variables.tf"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variablesTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
-
-  fi
-
-  if [[ "$IS_S3" == "true" ]]; then
-    echo
-    echo "Generating S3 config files"
-
-    #Creating file path for extracting parameter value from cluster & vpc
-    CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
     TERRAFORMTF_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/terraform.tfvars
 
     #Creating value path for extracting parameter value from .tf file
@@ -485,10 +443,17 @@ function gitops_iac() {
 
     echo "ACCOUNT_ID         ${ACCOUNT_ID}"
 
-
+    if [[ "$S3_MANAGE"  == "true" ]]; then
     #Generating .tf files using templates
-    echo "Generating s3-instance.tf file ${GITOPS_CLUSTER_DIR}/s3-instance.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance.tf
+      echo "Generating s3-instance-manage.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf "
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf
+      #Generating .tf files using templates
+      echo "Generating ibm-iac-iampolicy-manage.tf file ${GITOPS_CLUSTER_DIR}/ibm-iac-iampolicy-manage.tf "
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf
+      Generating .tf files using templates
+      echo "Generating s3accesspoints-manage.tf file ${GITOPS_CLUSTER_DIR}/s3accesspoints-manage.tf"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3accesspoints-manage.tf
+    fi
 
     echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
@@ -499,11 +464,7 @@ function gitops_iac() {
     echo "Generating variables.tf file ${GITOPS_CLUSTER_DIR}/variables.tf"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variablesTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
 
-    echo "Generating s3accesspoints.tf file ${GITOPS_CLUSTER_DIR}/s3accesspoints.tf"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3accesspoints.tf
-
   fi
-
 
 
   # Commit and push to github target repo with PR creation

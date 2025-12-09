@@ -9,12 +9,30 @@ vpc_name             = "{{ VPC_NAME_VALUE }}"
 {%- endif %}
 
 
-{%- if IS_IAM | lower == 'true'  %}
+{%- if IS_S3 | lower == 'true'  %}
 name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 create_s3_iam_group     = false
 create_s3_iam_policy    = false
 create_efs_policy       = false
-s3_iam_users_list = {
+common_tags = {
+    "source"      = "terraform",
+    "environment" = "{{ENVIRONMENT_VALUE}}",
+    "owner"       = "{{OWNER_VALUE}}",
+    "contact"     = "{{CONTACT_VALUE}}",
+    "cost-center" = "{{COST_CENTER_VALUE}}"
+}
+name_prefix             = "{{ NAME_PREFIX_VALUE }}"
+create_bucket        = true
+s3_encryption_algorithm = "AES256"
+location = {
+    region             = "{{REGION_NAME}}"
+    availability_zones = ["{{REGION_NAME}}a", "{{REGION_NAME}}b", "{{REGION_NAME}}c"]
+}
+{%- if S3_MANAGE | lower == 'true'  %}
+s3bucket_name_prefix_manage    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"
+iam_user_name_prefix_manage = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
+iam_user_arn_prefix_manage  = "arn:aws:iam::{{ACCOUNT_ID}}:user/massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
+s3_iam_users_list_manage = {
     doclinks = {
         iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-doclinks-rw"
     },
@@ -29,22 +47,4 @@ s3_iam_users_list = {
     }
 }
 {%- endif %}
-
-{%- if IS_S3 | lower == 'true' %}
-common_tags = {
-    "source"      = "terraform",
-    "environment" = "{{ENVIRONMENT_VALUE}}",
-    "owner"       = "{{OWNER_VALUE}}",
-    "contact"     = "{{CONTACT_VALUE}}",
-    "cost-center" = "{{COST_CENTER_VALUE}}"
-}
-s3bucket_name_prefix    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"
-name_prefix             = "{{ NAME_PREFIX_VALUE }}"
-create_bucket        = true
-iam_user_arn_prefix  = "arn:aws:iam::{{ACCOUNT_ID}}:user/massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
-s3_encryption_algorithm = "AES256"
-location = {
-    region             = "{{REGION_NAME}}"
-    availability_zones = ["{{REGION_NAME}}a", "{{REGION_NAME}}b", "{{REGION_NAME}}c"]
-}
 {%- endif %}

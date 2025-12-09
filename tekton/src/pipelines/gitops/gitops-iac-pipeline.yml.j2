@@ -102,6 +102,26 @@ spec:
       type: string
       default: ''
 
+    # iac-s3 params
+    - name: is_s3
+      type: string
+      default: 'false'
+    - name: s3_source
+      type: string
+      default: ''
+    - name: s3_source_iampolicy
+      type: string
+      default: ''
+    - name: s3_source_s3accesspoint
+      type: string
+      default: ''
+    - name: s3_manage
+      type: string
+      default: ''
+    - name: s3_mvi
+      type: string
+      default: ''
+
   workspaces:
     - name: configs
 
@@ -192,16 +212,16 @@ spec:
         - name: efs_visualinspection_main_throughput_mode
           value: $(params.efs_visualinspection_main_throughput_mode)
 
-        # S3 parameters
+        # iac-s3
         - name: is_s3
           value: $(params.is_s3)
-        - name: s3_bucket_instance_source
-          value: $(params.s3_bucket_instance_source)
-        - name: s3_buckets_access_point_source
-          value: $(params.s3_buckets_access_point_source)
-
-        # IAM parameters
-        - name: is_iam
-          value: $(params.is_iam)
-        - name: iam_account_policy_source
-          value: $(params.iam_account_policy_source)
+        - name: s3_source
+          value: $(params.s3_source)
+        - name: s3_source_iampolicy
+          value: $(params.s3_source_iampolicy)
+        - name: s3_source_s3accesspoint
+          value: $(params.s3_source_s3accesspoint)
+        - name: s3_manage
+          value: $(params.s3_manage)
+        - name: s3_mvi
+          value: $(params.s3_mvi)
