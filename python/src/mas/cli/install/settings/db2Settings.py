@@ -18,8 +18,17 @@ class Db2SettingsMixin():
     def configDb2(self, silentMode=False) -> None:
         if not silentMode:
             self.printH1("Configure Databases")
-        # The channel used for Db2 used has not changed since the January 2024 catalog update
-        self.params["db2_channel"] = "v110509.0"
+
+        # Get user-specified value (may be None or empty string)
+        user_channel = self.getParam("db2_channel")
+
+        # When in dev mode AND user has provided a non-empty db2_channel , then override
+        if self.devMode and user_channel:
+            self.params["db2_channel"] = user_channel
+        else:
+            # Default DB2 channel    
+            # The channel used for Db2 used has not changed since the January 2024 catalog update
+            self.params["db2_channel"] = "v110509.0"
 
         # If neither Iot, Manage or Facilities is being installed, we have nothing to do
         if not self.installIoT and not self.installManage and not self.installFacilities:
