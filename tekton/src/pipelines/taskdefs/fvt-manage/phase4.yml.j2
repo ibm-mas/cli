@@ -135,7 +135,7 @@
 
 
 # Scheduling Dashboard Cypress test
-- name: fvt-base-ui-scheduler-scheduling
+- name: fvt-manage-base-ui-scheduler-scheduling
   {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
@@ -158,7 +158,7 @@
 
 
 # Dispatching Dashboard Cypress test
-- name: fvt-base-ui-scheduler-dispatching
+- name: fvt-manage-base-ui-scheduler-dispatching
   {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
@@ -180,7 +180,7 @@
     - fvt-manage-base-api-scheduler-scheduling
 
 # Planning Dashboard Cypress test
-- name: fvt-base-ui-scheduler-planning
+- name: fvt-manage-base-ui-scheduler-planning
   {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
