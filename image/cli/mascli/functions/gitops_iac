@@ -450,7 +450,7 @@ function gitops_iac() {
       #Generating .tf files using templates
       echo "Generating ibm-iac-iampolicy-manage.tf file ${GITOPS_CLUSTER_DIR}/ibm-iac-iampolicy-manage.tf "
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf
-      Generating .tf files using templates
+
       echo "Generating s3accesspoints-manage.tf file ${GITOPS_CLUSTER_DIR}/s3accesspoints-manage.tf"
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3accesspoints-manage.tf
     fi
