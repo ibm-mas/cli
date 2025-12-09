@@ -5,6 +5,9 @@
 # - fvt-manage-base-ui-user-crud (selenium)
 # - fvt-manage-base-ui-user-consumption (selenium)
 # - fvt-manage-base-ui-communication-temp (selenium)
+# - fvt-manage-base-ui-scheduler-scheduling (cypress)
+# - fvt-manage-base-ui-scheduler-dispatching (cypress)
+# - fvt-manage-base-ui-scheduler-planning (cypress)
 # -------------------------------------------------------------
 
 # Manage FVT Escalation
@@ -117,6 +120,74 @@
       value: communication-temp
   when:
     - input: "base"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-ui-classification
+    - fvt-manage-base-ui-helplinks
+    - fvt-manage-base-ui-wo-basic
+    - fvt-manage-base-ui-requestreport-pages
+    - fvt-manage-base-api-scheduler-qualification
+    - fvt-manage-base-api-scheduler-apars
+    - fvt-manage-base-api-scheduler-planning
+    - fvt-manage-base-api-scheduler-dispatching
+    - fvt-manage-base-api-scheduler-scheduling
+
+
+# Scheduling Dashboard Cypress test
+- name: fvt-base-ui-scheduler-scheduling
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-ui-scheduler-scheduling
+  when:
+    - input: "scheduler"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-ui-classification
+    - fvt-manage-base-ui-helplinks
+    - fvt-manage-base-ui-wo-basic
+    - fvt-manage-base-ui-requestreport-pages
+    - fvt-manage-base-api-scheduler-qualification
+    - fvt-manage-base-api-scheduler-apars
+    - fvt-manage-base-api-scheduler-planning
+    - fvt-manage-base-api-scheduler-dispatching
+    - fvt-manage-base-api-scheduler-scheduling
+
+
+# Dispatching Dashboard Cypress test
+- name: fvt-base-ui-scheduler-dispatching
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-ui-scheduler-dispatching
+  when:
+    - input: "scheduler"
+      operator: in
+      values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-manage-base-ui-classification
+    - fvt-manage-base-ui-helplinks
+    - fvt-manage-base-ui-wo-basic
+    - fvt-manage-base-ui-requestreport-pages
+    - fvt-manage-base-api-scheduler-qualification
+    - fvt-manage-base-api-scheduler-apars
+    - fvt-manage-base-api-scheduler-planning
+    - fvt-manage-base-api-scheduler-dispatching
+    - fvt-manage-base-api-scheduler-scheduling
+
+# Planning Dashboard Cypress test
+- name: fvt-base-ui-scheduler-planning
+  {{ lookup('template', 'taskdefs/fvt-manage/ui-cypress/taskref.yml.j2') | indent(2) }}
+  params:
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/fvt-manage/ui-cypress/params.yml.j2') | indent(4) }}
+    - name: fvt_test_suite
+      value: base-ui-scheduler-planning
+  when:
+    - input: "scheduler"
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
   runAfter:
