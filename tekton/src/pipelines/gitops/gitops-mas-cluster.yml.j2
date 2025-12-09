@@ -45,6 +45,9 @@ spec:
     - name: mas_catalog_image
       type: string
 
+    - name: efs_role_arn
+      type: string
+
     - name: dro_namespace
       type: string
       default: "ibm-software-central"
@@ -390,9 +393,37 @@ spec:
         - name: gitops-cluster-configs
           workspace: gitops-cluster-configs
 
-    - name: gitops-dro
+    - name: gitops-efs-csi-driver
       runAfter:
         - gitops-cluster
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: efs_role_arn
+          value: $(params.efs_role_arn)
+      taskRef:
+        kind: Task
+        name: gitops-efs-csi-driver
+      workspaces:
+        - name: configs
+          workspace: configs
+
+
+    - name: gitops-dro
+      runAfter:
+        - gitops-efs-csi-driver
       params:
         - name: cluster_name
           value: $(params.cluster_name)
