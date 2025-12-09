@@ -18,10 +18,9 @@ from prompt_toolkit import print_formatted_text, HTML
 from openshift.dynamic.exceptions import NotFoundError, ResourceNotFoundError
 
 from ..cli import BaseApp
-from ..validators import StorageClassValidator
 from .argParser import updateArgParser
-
-from mas.devops.ocp import createNamespace, getStorageClasses, getConsoleURL
+from mas.devops.data import getCatalog
+from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
 from mas.devops.mas import listMasInstances, listAiServiceInstances, getCurrentCatalog
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
 
@@ -52,7 +51,6 @@ class UpdateApp(BaseApp):
                 "mongodb_v8_upgrade",
                 "kafka_namespace",
                 "kafka_provider",
-                "dro_migration",
                 "dro_storage_class",
                 "dro_namespace",
                 "skip_pre_check",
@@ -126,19 +124,11 @@ class UpdateApp(BaseApp):
 
         with Halo(text='Checking for IBM Certificate-Manager', spinner=self.spinner) as h:
             if self.isIBMCertManagerInstalled():
-                h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager will be replaced by Red Hat Certificate-Manager")
-                self.setParam("cert_manager_action", "install")
-                self.setParam("cert_manager_provider", "redhat")
-                self.printHighlight([
-                    "<u>Migration Notice</u>",
-                    "IBM Certificate-Manager is currently running in the ${CERT_MANAGER_NAMESPACE} namespace",
-                    "This will be uninstalled and replaced by Red Hat Certificate-Manager as part of this update",
-                    ""
-                ])
+                h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is installed")
+                self.fatalError("IBM Certificate-Manager is currently installed and automatic migration of IBM Certificate-Manager is no longer supported. Please contact IBM support for assistance.")
             else:
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is not installed")
 
-        self.detectUDS()
         self.detectGrafana4()
         self.detectMongoDb()
         self.detectDb2uOrKafka("db2")
@@ -179,8 +169,6 @@ class UpdateApp(BaseApp):
             self.printSummary("IBM Cloud Pak for Data", "No action required")
 
         self.printH2("Required Migrations")
-        self.printSummary("IBM Certificate-Manager", "Migrate to Red Hat Certificate-Manager" if self.getParam("cert_manager_action") != "" else "No action required")
-        self.printSummary("IBM User Data Services", "Migrate to IBM Data Reporter Operator" if self.getParam("dro_migration") != "" else "No action required")
         self.printSummary("Grafana v4 Operator", "Migrate to Grafana v5 Operator" if self.getParam("grafana_v5_upgrade") != "" else "No action required")
 
         if not self.noConfirm:
@@ -258,17 +246,25 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
-            "  2) Oct 10 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
-            "  3) Sep 25 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
+            "  1) Nov 27 2025 Update (MAS 9.1.6, 9.0.17, 8.11.28, &amp; 8.10.31)",
+            "  2) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
+            "  3) Oct 10 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
         ])
 
         catalogOptions = [
-            "v9-251030-amd64", "v9-251010-amd64", "v9-250925-amd64",
+            "v9-251127-amd64", "v9-251030-amd64", "v9-251010-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
     def validateCatalog(self) -> None:
+        # Check supported OCP versions
+        ocpVersion = getClusterVersion(self.dynamicClient)
+        # Load the catalog information
+        self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+        supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
+        if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
+            self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}")
+
         if self.installedCatalogId is not None and self.installedCatalogId > self.getParam("mas_catalog_version"):
             self.fatalError(f"Selected catalog is older than the currently installed catalog.  Unable to update catalog from {self.installedCatalogId} to {self.getParam('mas_catalog_version')}")
 
@@ -295,11 +291,6 @@ class UpdateApp(BaseApp):
             return False
 
     def isIBMCertManagerInstalled(self) -> bool:
-        """
-        Check whether the deprecated IBM Certificate-Manager is installed, if it is then we will
-        automatically migrate to Red Hat Certificate-Manager
-        """
-
         try:
             # Check if 'ibm-common-services' namespace exist, this will throw NotFoundError exception when not found
             namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
@@ -366,7 +357,7 @@ class UpdateApp(BaseApp):
                     # the case bundles in there anymore
                     # Longer term we will centralise this information inside the mas-devops python collection,
                     # where it can be made available to both the ansible collection and this python package.
-                    defaultMongoVersion = "7.0.22"
+                    defaultMongoVersion = "8.0.13"
                     mongoVersions = {
                         "v9-240625-amd64": "6.0.12",
                         "v9-240730-amd64": "6.0.12",
@@ -386,6 +377,7 @@ class UpdateApp(BaseApp):
                         "v9-250925-amd64": "7.0.23",
                         "v9-251010-amd64": "7.0.23",
                         "v9-251030-amd64": "7.0.23",
+                        "v9-251127-amd64": "8.0.13",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -442,67 +434,6 @@ class UpdateApp(BaseApp):
             ""
         ])
 
-    def showUDSUpdateNotice(self) -> None:
-        self.printHighlight([
-            "",
-            "<u>Dependency Update Notice</u>",
-            "IBM User Data Services (UDS) is currently installed and will be replaced by IBM Data Reporter Operator (DRO)",
-            "UDS will be uninstalled and <u>all MAS instances</u> will be re-configured to use DRO",
-            ""
-        ])
-
-    def selectDROStorageclass(self):
-        self.printDescription([
-            "",
-            "Select the storage class for DRO to use from the list below:"
-        ])
-        for storageClass in getStorageClasses(self.dynamicClient):
-            print_formatted_text(HTML(f"<LightSlateGrey>  - {storageClass.metadata.name}</LightSlateGrey>"))
-        self.promptForString("DRO storage class", "dro_storage_class", validator=StorageClassValidator())
-
-    def detectUDS(self) -> None:
-        with Halo(text='Checking for IBM User Data Services', spinner=self.spinner) as h:
-            try:
-                analyticsProxyAPI = self.dynamicClient.resources.get(api_version="uds.ibm.com/v1", kind="AnalyticsProxy")
-                analyticsProxies = analyticsProxyAPI.get(namespace="ibm-common-services").to_dict()['items']
-
-                # Useful for testing: comment out the two lines above and set analyticsProxies to a
-                # simple list to trigger to UDS migration logic.
-                # analyticsProxies = ["foo"]
-                if len(analyticsProxies) == 0:
-                    logger.debug("UDS is not currently installed on this cluster")
-                    h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services is not installed")
-                else:
-                    h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services must be migrated to IBM Data Reporter Operator")
-
-                    if self.noConfirm and self.getParam("dro_migration") != "true":
-                        # The user has chosen not to provide confirmation but has not provided the flag to pre-approve the migration
-                        h.stop_and_persist(symbol=self.failureIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
-                        self.showUDSUpdateNotice()
-                        self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must confirm the migration to DRO using '--dro-migration' when using '--no-confirm'")
-                    elif self.noConfirm and self.getParam("dro_storage_class") is None:
-                        # The user has not provided the storage class to use for DRO, but has disabled confirmations/interactive prompts
-                        h.stop_and_persist(symbol=self.failureIcon, text="IBM User Data Services needs to be migrated to IBM Data Reporter Operator")
-                        self.showUDSUpdateNotice()
-                        self.fatalError(f"By choosing {self.getParam('mas_catalog_version')} you must provide the storage class to use for the migration to DRO using '--dro-storage-class' when using '--no-confirm'")
-                    else:
-                        self.showUDSUpdateNotice()
-                        if self.getParam("dro_migration") != "true":
-                            if not self.yesOrNo("Confirm migration from UDS to DRO", "dro_migration"):
-                                # If the user did not approve the update, abort
-                                exit(1)
-
-                        if self.getParam("dro_storage_class") is None or self.getParam("dro_storage_class") == "":
-                            self.selectDROStorageclass()
-
-                if self.getParam("dro_migration") == "true":
-                    self.setParam("uds_action", "install-dro")
-
-            except (ResourceNotFoundError, NotFoundError):
-                # UDS has never been installed on this cluster
-                logger.debug("UDS has not been installed on this cluster before")
-                h.stop_and_persist(symbol=self.successIcon, text="IBM User Data Services is not installed")
-
     def detectCP4D(self) -> bool:
         # Important:
         # This CLI can run independent of the ibm.mas_devops collection, so we cannot reference
@@ -528,6 +459,7 @@ class UpdateApp(BaseApp):
             "v9-250925-amd64": "5.1.3",
             "v9-251010-amd64": "5.1.3",
             "v9-251030-amd64": "5.1.3",
+            "v9-251127-amd64": "5.1.3",
         }
 
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
@@ -598,8 +530,6 @@ class UpdateApp(BaseApp):
                         self.detectCpdService('WS', 'ws.cpd.ibm.com/v1beta1', 'Watson Studio', "cp4d_update_ws")
                         self.detectCpdService('WmlBase', 'wml.cpd.ibm.com/v1beta1', 'Watson Machine Learning', "cp4d_update_wml")
                         self.detectCpdService('AnalyticsEngine', 'ae.cpd.ibm.com/v1', 'Analytics Engine', "cp4d_update_spark")
-                        self.detectCpdService('WOService', 'wos.cpd.ibm.com/v1', 'Watson Openscale', "cp4d_update_wos")
-                        self.detectCpdService('Spss', 'spssmodeler.cpd.ibm.com/v1', 'SPSS Modeler', "cp4d_update_spss")
                         self.detectCpdService('CAService', 'ca.cpd.ibm.com/v1', 'Cognos Analytics', "cp4d_update_cognos")
                     else:
                         h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) is already installed at version {cpdTargetVersion}")
