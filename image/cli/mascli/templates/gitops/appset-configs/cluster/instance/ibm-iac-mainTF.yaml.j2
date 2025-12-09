@@ -27,31 +27,31 @@ locals {
 {%- if IS_S3 | lower == 'true' %}
 {%- if S3_MANAGE | lower == 'true'  %}
   iam_user_arns_manage = {
-    custfiles = "${var.iam_user_arn_prefix}-custfiles-${var.access_level_rw}"
-    doclinks  = "${var.iam_user_arn_prefix}-doclinks-${var.access_level_rw}"
-    logs_rw   = "${var.iam_user_arn_prefix}-log-${var.access_level_rw}"
-    logs_ro   = "${var.iam_user_arn_prefix}-log-${var.access_level_ro}"
+    custfiles = "${var.iam_user_arn_prefix_manage}-custfiles-${var.access_level_rw}"
+    doclinks  = "${var.iam_user_arn_prefix_manage}-doclinks-${var.access_level_rw}"
+    logs_rw   = "${var.iam_user_arn_prefix_manage}-log-${var.access_level_rw}"
+    logs_ro   = "${var.iam_user_arn_prefix_manage}-log-${var.access_level_ro}"
   }
 
   s3_iam_users_list_manage = {
     doclinks = {
-      bucket_name   = "${var.s3bucket_name_prefix}-doclinks"
-      iam_user_name = "${var.iam_user_name_prefix}-doclinks-${var.access_level_ro}"
+      bucket_name   = "${var.s3bucket_name_prefix_manage}-doclinks"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-doclinks-${var.access_level_ro}"
       access_level  = var.access_level_rw
     },
     custfiles = {
-      bucket_name   = "${var.s3bucket_name_prefix}-custfiles"
-      iam_user_name = "${var.iam_user_name_prefix}-custfiles-${var.access_level_rw}"
+      bucket_name   = "${var.s3bucket_name_prefix_manage}-custfiles"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-custfiles-${var.access_level_rw}"
       access_level  = var.access_level_rw
     },
     logs_rw = {
-      bucket_name   = "${var.s3bucket_name_prefix}-log"
-      iam_user_name = "${var.iam_user_name_prefix}-log-${var.access_level_rw}"
+      bucket_name   = "${var.s3bucket_name_prefix_manage}-log"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_rw}"
       access_level  = var.access_level_rw
     },
     logs_ro = {
-      bucket_name   = "${var.s3bucket_name_prefix}-log"
-      iam_user_name = "${var.iam_user_name_prefix}-log-${var.access_level_ro}"
+      bucket_name   = "${var.s3bucket_name_prefix_manage}-log"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_ro}"
       access_level  = var.access_level_ro
     }
   }
@@ -66,10 +66,10 @@ locals {
   }
 
   bucket_user_names_manage = {
-    custfiles = "${var.iam_user_name_prefix}-custfiles-${var.access_level_rw}"
-    doclinks  = "${var.iam_user_name_prefix}-doclinks-${var.access_level_rw}"
-    logs_rw   = "${var.iam_user_name_prefix}-log-${var.access_level_rw}"
-    logs_ro   = "${var.iam_user_name_prefix}-log-${var.access_level_ro}"
+    custfiles = "${var.iam_user_name_prefix_manage}-custfiles-${var.access_level_rw}"
+    doclinks  = "${var.iam_user_name_prefix_manage}-doclinks-${var.access_level_rw}"
+    logs_rw   = "${var.iam_user_name_prefix_manage}-log-${var.access_level_rw}"
+    logs_ro   = "${var.iam_user_name_prefix_manage}-log-${var.access_level_ro}"
   }
 
   bucket_user_name_map_manage = {
@@ -96,10 +96,10 @@ locals {
             doclinks = {
               name_prefix          = var.name_prefix
               create               = var.create_bucket
-              name                 = "${var.s3bucket_name_prefix}-doclinks"
-              id                   = "${var.s3bucket_name_prefix}-doclinks"
+              name                 = "${var.s3bucket_name_prefix_manage}-doclinks"
+              id                   = "${var.s3bucket_name_prefix_manage}-doclinks"
               access_level         = "rw"
-              s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix}-doclinks"
+              s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_manage}-doclinks"
               secret_suffix        = "manage_attachments/cos-attachments"
               cos_secret_format    = false
               manage_secret_format = true
@@ -108,10 +108,10 @@ locals {
             custfiles = {
               name_prefix          = var.name_prefix
               create               = var.create_bucket
-              name                 = "${var.s3bucket_name_prefix}-custfiles"
-              id                   = "${var.s3bucket_name_prefix}-custfiles"
+              name                 = "${var.s3bucket_name_prefix_manage}-custfiles"
+              id                   = "${var.s3bucket_name_prefix_manage}-custfiles"
               access_level         = "rw"
-              s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix}-custfiles"
+              s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_manage}-custfiles"
               secret_suffix        = "manage_custfiles/cos-custfiles"
               cos_secret_format    = false
               manage_secret_format = true
@@ -122,10 +122,10 @@ locals {
             logs = {
               name_prefix          = var.name_prefix
               create               = var.create_bucket
-              name                 = "${var.s3bucket_name_prefix}-log"
-              id                   = "${var.s3bucket_name_prefix}-log"
+              name                 = "${var.s3bucket_name_prefix_manage}-log"
+              id                   = "${var.s3bucket_name_prefix_manage}-log"
               access_level         = "ro"
-              s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix}-log"
+              s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_manage}-log"
               secret_suffix        = "manage_logging/cos-logging"
               cos_secret_format    = false
               manage_secret_format = true
