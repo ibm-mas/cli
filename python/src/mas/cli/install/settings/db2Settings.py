@@ -26,7 +26,7 @@ class Db2SettingsMixin():
         if self.devMode and user_channel:
             self.params["db2_channel"] = user_channel
         else:
-            # Default DB2 channel    
+            # Default DB2 channel
             # The channel used for Db2 used has not changed since the January 2024 catalog update
             self.params["db2_channel"] = "v110509.0"
 
