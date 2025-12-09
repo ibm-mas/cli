@@ -25,6 +25,7 @@
       value: $(params.dro_namespace)
     - name: dro_storage_class
       value: $(params.storage_class_rwo)
+  when:
     - input: "$(params.mas_instance_id)"
       operator: notin
       values: [""]
