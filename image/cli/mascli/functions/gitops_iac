@@ -423,6 +423,7 @@ function gitops_iac() {
     ENVIRONMENT_DOT_PATH='common_tags["environment"]'
     IAM_USER_ARN_DOT_PATH="iam_user_arn_prefix"
     OWNER_DOT_PATH='common_tags["owner"]'
+    ACCOUNT_ID_DOT_PATH='account_id'
 
 
     #Extracting values from .tf file
@@ -431,6 +432,7 @@ function gitops_iac() {
     export CONTACT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${CONTACT_DOT_PATH}")
     export ENVIRONMENT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${ENVIRONMENT_DOT_PATH}")
     export OWNER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${OWNER_DOT_PATH}")
+    export ACCOUNT_ID=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${ACCOUNT_ID_DOT_PATH}")
     IAM_USER_ARN_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${IAM_USER_ARN_DOT_PATH}")
 
     echo "NAME_PREFIX_VALUE  ${NAME_PREFIX_VALUE}"
@@ -439,7 +441,7 @@ function gitops_iac() {
     echo "ENVIRONMENT_VALUE  ${ENVIRONMENT_VALUE}"
     echo "IAM_USER_ARN_VALUE ${IAM_USER_ARN_VALUE}"
 
-    export ACCOUNT_ID=$(get_field "${IAM_USER_ARN_VALUE}" ":" 5)
+    # export ACCOUNT_ID=$(get_field "${IAM_USER_ARN_VALUE}" ":" 5)
 
     echo "ACCOUNT_ID         ${ACCOUNT_ID}"
 

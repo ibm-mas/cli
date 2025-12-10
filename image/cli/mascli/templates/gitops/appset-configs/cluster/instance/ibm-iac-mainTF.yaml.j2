@@ -82,7 +82,6 @@ locals {
     ro = ["s3:GetObject", "s3:ListBucket"]
     rw = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
   }
-  environment = var.environment
 
   location = var.location
 {%- endif %}

@@ -26,6 +26,11 @@ variable "name_prefix" {
     description = "name_prefix"
 }
 
+variable "account_id" {
+    type        = string
+    description = "account id"
+}
+
 variable "create_s3_iam_group" {
     type        = bool
     description = "Whether to create s3 iam group or not"
