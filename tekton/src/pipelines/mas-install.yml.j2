@@ -305,7 +305,7 @@ spec:
         - suite-db2-setup-manage
         - suite-config-watson-studio
         - suite-config-cos
-        - aiservice-tenant
+        - aiservice
 
     # 6.3 Configure IBM Maximo Location Services for ESRI
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/arcgis.yml.j2') | indent(4) }}
