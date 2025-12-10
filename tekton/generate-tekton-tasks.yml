@@ -52,7 +52,6 @@
         - minio
         - aiservice
         - odh
-        - aiservice-tenant
         - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
