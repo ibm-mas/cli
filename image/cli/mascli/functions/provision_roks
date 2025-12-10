@@ -191,7 +191,7 @@ function provision_roks_interactive() {
   echo ""
   echo_h2 "Bare Metal GPU Worker Support"
   echo "GPU worker nodes with flavour, mg4c.32x384.2xp100, can be added to the cluster"
-  echo "for applications that require complex mathematical computations.  If you intnd"
+  echo "for applications that require complex mathematical computations.  If you intend"
   echo "to install the IBM Visual Inspection application you should answer 'yes' at"
   echo "the prompt below."
   echo ""
@@ -319,10 +319,19 @@ function provision_roks() {
     prompt_for_confirm "Proceed with these settings" || exit 0
   fi
 
-  ansible-playbook ibm.mas_devops.ocp_roks_provision || exit 1
+  ansible-playbook ibm.mas_devops.ocp_roks_provision
+  result=$?
 
-  echo ""
-  echo "IBM Cloud ROKS cluster is ready to use"
-  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+  if [[ "$result" == "0" ]]; then
+    echo ""
+    echo "IBM Cloud ROKS cluster is ready to use"
+    OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+    echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+  fi
+  if [[ -n $ADD_DETAILS ]]; then
+    mas-devops-notify-slack --action ocp-provision-roks --rc $result --add-details $ADD_DETAILS
+  else
+    mas-devops-notify-slack --action ocp-provision-roks --rc $result
+  fi
+  exit $result
 }
