@@ -8,6 +8,10 @@ variable "cluster_name" {
     type        = string
     description = "Name of Cluster"
 }
+variable "vpc_name" {
+    type        = string
+    description = "Name of VPC"
+}
 {%- endif %}
 {%- if IS_EFS | lower == 'true'%}
 variable "vpc_id" {
@@ -83,14 +87,14 @@ variable "s3_encryption_algorithm" {
     description = "s3 encryption algorithm"
 }
 
-variable "environment" {
-    type        = string
-    description = "Environment name"
-}
 {%- if S3_MANAGE | lower == 'true'%}
 variable "s3bucket_name_prefix_manage" {
     type        = string
     description = "s3 bucket name prefix"
+}
+variable "iam_user_name_prefix_manage" {
+    type        = string
+    description = "iam user name prefix"
 }
 variable "iam_user_arn_prefix_manage" {
     type        = string
