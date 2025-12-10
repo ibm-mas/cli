@@ -922,17 +922,24 @@ function git_commit_and_create_pr_if_none_exist() {
   echo "$(logts) Creating Pull Request..." >&2
   echo "-------------------------------------------------" >&2
 
+  IFS='-' read -ra PARTS <<< "$COMMIT_MSG"
+  # Initialize output
+  CHANGE_LINES=""
+
+  # Loop starting from index 1 to skip the first element
+  for ((i=1; i<${#PARTS[@]}; i++)); do
+      CHANGE_LINES+="- ${PARTS[i]} provisioned\n"
+  done
+
   PR_TITLE="GitOps: ${COMMIT_MSG}"
   PR_BODY="This PR was created automatically by the GitOps IAC workflow.
 
 **Changes:**
-- ${COMMIT_MSG}
+${CHANGE_LINES}
 
 **Branch:** \`${PR_BRANCH}\`
 **Target:** \`${BASE_BRANCH}\`
-**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
-Please review and merge when ready."
+**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
   # Create PR using GitHub API
   PR_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls"

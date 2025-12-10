@@ -42,7 +42,7 @@ EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
 
-export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"iac update"}
+export GIT_COMMIT_MSG=${GIT_COMMIT_MSG:-"iac provision"}
 
 function gitops_iac_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
@@ -465,6 +465,9 @@ function gitops_iac() {
 
     echo "Generating variables.tf file ${GITOPS_CLUSTER_DIR}/variables.tf"
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variablesTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
+
+    echo $GIT_COMMIT_MSG
+    GIT_COMMIT_MSG="${GIT_COMMIT_MSG}-s3"
 
   fi
 
