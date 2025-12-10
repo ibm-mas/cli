@@ -932,14 +932,24 @@ function git_commit_and_create_pr_if_none_exist() {
   done
 
   PR_TITLE="GitOps: ${COMMIT_MSG}"
-  PR_BODY="This PR was created automatically by the GitOps IAC workflow.
 
-**Changes:**
-${CHANGE_LINES}
+  IFS='-' read -ra PARTS <<< "$COMMIT_MSG"
+  CHANGE_LINES=""
+  for ((i=1; i<${#PARTS[@]}; i++)); do
+    CHANGE_LINES+="- ${PARTS[i]} provisioned\n"
+  done
 
-**Branch:** \`${PR_BRANCH}\`
-**Target:** \`${BASE_BRANCH}\`
-**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+  PR_BODY=$(printf "This PR was created automatically by the GitOps IAC workflow.\n\n**Changes:**\n%b\n**Branch:** \`${PR_BRANCH}\`\n**Target:** \`${BASE_BRANCH}\`\n**Timestamp:** %s" "$CHANGE_LINES" "$(date -u +"%Y-%m-%d %H:%M:%S UTC")")
+
+
+#   PR_BODY="This PR was created automatically by the GitOps IAC workflow.
+
+# **Changes:**
+# ${CHANGE_LINES}
+
+# **Branch:** \`${PR_BRANCH}\`
+# **Target:** \`${BASE_BRANCH}\`
+# **Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
 
   # Create PR using GitHub API
   PR_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls"
