@@ -5,7 +5,7 @@ module "s3buckets_instance" {
 
   tags                    = var.common_tags
   name_prefix             = var.name_prefix
-  s3buckets               = local.cluster.instance.manage.s3buckets
+  s3buckets               = local.cluster.instance.manage_s3buckets
   iam_user_arns           = local.iam_user_arns_manage
   bucket_user_name_map    = local.bucket_user_name_map_manage
   iam_users_by_bucket     = local.iam_users_by_bucket_manage

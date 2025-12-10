@@ -453,8 +453,8 @@ function gitops_iac() {
       echo "Generating ibm-iac-iampolicy-manage.tf file ${GITOPS_CLUSTER_DIR}/ibm-iac-iampolicy-manage.tf "
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf
 
-      echo "Generating s3accesspoints-manage.tf file ${GITOPS_CLUSTER_DIR}/s3accesspoints-manage.tf"
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3accesspoints-manage.tf
+      echo "Generating s3-accesspoints-manage.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf
     fi
 
     echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
