@@ -165,7 +165,10 @@ class UpdateApp(BaseApp):
             self.printSummary("Apache Kafka", "No action required")
 
         if self.getParam("cp4d_update") != "":
-            self.printSummary("IBM Cloud Pak for Data", "Platform and services in ibm-cpd")
+            if self.getParam("cp4d_namespace") != "":
+                self.printSummary("IBM Cloud Pak for Data", "Platform and services in {self.getParam('cp4d_namespace')}")
+            else:
+                self.printSummary("IBM Cloud Pak for Data", "Platform and services in ibm-cpd")
         else:
             self.printSummary("IBM Cloud Pak for Data", "No action required")
 
