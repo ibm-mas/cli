@@ -503,8 +503,8 @@ function gitops_iac() {
       if [[ "$PR_PLAN_COMMENT" == "Passed" ]]; then
         echo "Going to approve PR: "${PR_NUMBER}
         echo "IAC DEV PAT TOKEN: "${IAC_DEV_GITHUB_PAT}
-        APPROVED_PR="false" #temp changes
-#        APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")
+#        APPROVED_PR="false" #temp changes
+        APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")
         echo "PR approved ${APPROVED_PR}"
         if [[ "$APPROVED_PR" == "true" ]]; then
           sleep 120
