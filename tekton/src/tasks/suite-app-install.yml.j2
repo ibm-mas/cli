@@ -216,6 +216,10 @@ spec:
       type: string
       description: Manage attachment provider (filestorage, ibm, aws)
       default: ""
+    - name: mas_manage_imagestitching_storage_class
+      type: string
+      description: Manage stitching storage class
+      default: ""
     - name: db2_namespace
       type: string
       description: Namespace to create Db2uCluster instances
@@ -463,6 +467,8 @@ spec:
           value: $(params.mas_manage_attachment_configuration_mode)
         - name: MAS_MANAGE_ATTACHMENTS_PROVIDER
           value: $(params.mas_manage_attachments_provider)
+        - name: IMAGESTITCHING_STORAGE_CLASS
+          value: $(params.mas_manage_imagestitching_storage_class)  
         - name: DB2_NAMESPACE
           value: $(params.db2_namespace)
         - name: IBMCLOUD_RESOURCEGROUP
