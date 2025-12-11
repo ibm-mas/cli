@@ -56,6 +56,7 @@ function gitops_deprovision_cp4d_service_noninteractive() {
   export CPD_WS_INSTALL_PLAN=${CPD_WS_INSTALL_PLAN:-"Automatic"}
   export RABBITMQ_INSTALL_PLAN=${RABBITMQ_INSTALL_PLAN:-"Automatic"}
   export ELASTICSEARCH_INSTALL_PLAN=${ELASTICSEARCH_INSTALL_PLAN:-"Automatic"}
+  export OPENSEARCH_INSTALL_PLAN=${OPENSEARCH_INSTALL_PLAN:-"Automatic"}
   export CANVASBASE_INSTALL_PLAN=${CANVASBASE_INSTALL_PLAN:-"Automatic"}
 
 
