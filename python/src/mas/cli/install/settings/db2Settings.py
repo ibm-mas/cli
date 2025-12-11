@@ -23,15 +23,15 @@ class Db2SettingsMixin():
         user_channel = self.getParam("db2_channel")
 
         if not self.devMode:
-            # case 1. Non-dev mode: always use default
+            # Case 1. Non-dev mode: always use default
             self.params["db2_channel"] = "v110509.0"
 
         elif not user_channel:
-            # case 2. Dev mode but no user input: default
+            # Case 2. Dev mode but no user input: default
             self.params["db2_channel"] = "v110509.0"
 
         else:
-            # case 3. Dev mode + user input: use provided value
+            # Case 3. Dev mode + user input: use provided value
             self.params["db2_channel"] = user_channel
 
         # If neither Iot, Manage or Facilities is being installed, we have nothing to do
