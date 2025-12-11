@@ -38,8 +38,9 @@ class UpdateApp(BaseApp):
         self.args = updateArgParser.parse_args(args=argv)
         self.noConfirm = self.args.no_confirm
         self.devMode = self.args.dev_mode
-
+        print(self.args)
         if self.args.mas_catalog_version:
+            print("Non interactive")
             # Non-interactive mode
             logger.debug("Maximo Operator Catalog version is set, so we assume already connected to the desired OCP")
             requiredParams = ["mas_catalog_version"]
@@ -56,6 +57,7 @@ class UpdateApp(BaseApp):
                 "dro_namespace",
                 "skip_pre_check",
                 "dev_mode",
+                "cp4d_namespace",
                 "cpd_product_version",
                 # Dev Mode
                 "artifactory_username",
