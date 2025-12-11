@@ -437,9 +437,9 @@ spec:
         # Escape route
         - name: escape_configmap_name
           value: sync-install
-        # 100 retries at 5 minute intervals = 8 hours
+        # 100 retries at 10 minute intervals = 16 (!!) hours
         - name: delay
-          value: "300"
+          value: "600"
         - name: max_retries
           value: "100"
         - name: ignore_failure

@@ -63,6 +63,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - aiservice-fvt
+        - aiservice-fvt-start-upgrade
         - mas-fvt-assist-desktop
         - mas-fvt-assist
         - mas-fvt-core
@@ -135,12 +136,10 @@
       with_items:
         - gencfg-workspace
         - must-gather
-        - suite-app-config
         - suite-app-install
         - suite-app-uninstall
         - suite-app-upgrade
         - suite-app-rollback
-        - suite-app-verify
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
