@@ -343,6 +343,13 @@ function gitops_iac_provision_efs() {
     export GIT_SSH=false
   fi
   
+  # Remove any existing clone first
+  if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
+    echo
+    echo_h2 "Removing existing repository clone"
+    remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+  fi
+  
   echo
   echo_h2 "Cloning working branch ${WORKING_BRANCH} to get latest changes"
   clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
@@ -476,6 +483,13 @@ function gitops_iac_provision_s3() {
     export GIT_SSH=false
   fi
   
+  # Remove any existing clone first
+  if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
+    echo
+    echo_h2 "Removing existing repository clone"
+    remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+  fi
+  
   echo
   echo_h2 "Cloning working branch ${WORKING_BRANCH} to get latest changes"
   clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
@@ -589,6 +603,13 @@ function gitops_iac_generate_common_files() {
   # Clone the working branch to get latest changes from other tasks
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
+  fi
+  
+  # Remove any existing clone first
+  if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
+    echo
+    echo_h2 "Removing existing repository clone"
+    remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
   fi
   
   echo
