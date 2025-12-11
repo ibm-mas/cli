@@ -94,13 +94,6 @@ spec:
         - cert-manager
         - grafana
 
-    # 2.1.1 MongoDb for AI Service ( if standalone AI Service install - only getting executed when mas_instance_id is empty )
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/mongo-aiservice.yml.j2') | indent(4) }}
-      runAfter:
-        - cert-manager
-        - grafana
-
-
     # 2.2 Kafka
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/kafka.yml.j2') | indent(4) }}
       runAfter:
@@ -127,30 +120,11 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2') | indent(4) }}
       runAfter:
         - mongodb
-      when:
-        - input: "$(params.mas_instance_id)"
-          operator: notin
-          values: [""]
-      
-    # 2.4.1 IBM SLS for AI Service ( if standalone AI Service install - only getting executed when mas_instance_id is empty )
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls-aiservice.yml.j2') | indent(4) }}
-      runAfter:
-        - mongodb-aiservice
-      when:
-        - input: "$(params.mas_instance_id)"
-          operator: in
-          values: [""]
 
     # 2.5 DRO
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/dro.yml.j2') | indent(4) }}
       runAfter:
         - ibm-catalogs
-
-    # 2.5.1 DRO for AI Service ( if standalone AI Service install - only getting executed when mas_instance_id is empty )
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/dro-aiservice.yml.j2') | indent(4) }}
-      runAfter:
-        - ibm-catalogs
-
 
     # 3. Cloud Pak for Data
     # -------------------------------------------------------------------------
@@ -385,9 +359,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
       runAfter:
         - sls
-        - sls-aiservice
         - dro
-        - dro-aiservice
         - db2-aiservice
         - aiservice-odh
 
