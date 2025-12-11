@@ -62,6 +62,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - aiservice-fvt
+        - aiservice-fvt-start-upgrade
         - mas-fvt-assist-desktop
         - mas-fvt-assist
         - mas-fvt-core
