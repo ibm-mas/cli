@@ -327,6 +327,7 @@ function provision_roks() {
     echo "IBM Cloud ROKS cluster is ready to use"
     export OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
     echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+    export OCP_CONSOLE_URL="https://$OCP_CONSOLE_ROUTE"
   fi
   if [[ -n $ADD_DETAILS ]]; then
     mas-devops-notify-slack --action ocp-provision-roks --rc $result --add-details $ADD_DETAILS
