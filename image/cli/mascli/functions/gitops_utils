@@ -2027,6 +2027,144 @@ function approve_pr() {
   return 1
 }
 
+# Creates a Pull Request from an existing branch if none of the PR already exists
+# It assumes the branch already exists with commits and just creates a PR from it
+#
+# Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.com")
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - HEAD_BRANCH (existing branch with commits)
+#   $5 - BASE_BRANCH (target branch for PR, e.g., "main")
+#   $6 - PR_TITLE
+#   $7 - PR_BODY
+#
+# Returns:
+#   PR_NUMBER - The number of the created PR (echoed to stdout)
+#   Exits with 1 if PR creation fails or if open PRs already exist
+#
+# Example usage:
+#   PR_NUMBER=$(create_pr_from_existing_branch \
+#     "github.com" \
+#     "ibm-mas" \
+#     "gitops-config" \
+#     "gitops-iac-account1-cluster1-inst1-20250112-193000" \
+#     "main" \
+#     "GitOps IAC: EFS and S3 configuration" \
+#     "This PR contains infrastructure changes")
+#
+#   if [[ $? -eq 0 ]]; then
+#     echo "Created PR #${PR_NUMBER}"
+#   fi
+function create_pr_from_existing_branch() {
+  local GITHUB_HOST=$1
+  local GITHUB_ORG=$2
+  local GITHUB_REPO=$3
+  local HEAD_BRANCH=$4
+  local BASE_BRANCH=$5
+  local PR_TITLE="$6"
+  local PR_BODY="$7"
+
+  echo "" >&2
+  echo "$(logts) create_pr_from_existing_branch" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "Head Branch: ${HEAD_BRANCH}" >&2
+  echo "Base Branch: ${BASE_BRANCH}" >&2
+  echo "PR Title: ${PR_TITLE}" >&2
+  echo "=================================================" >&2
+
+  if [[ -z "${GITHUB_PAT}" ]]; then
+    echo "❌ Error: GITHUB_PAT environment variable is not set" >&2
+    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
+    exit 1
+  fi
+
+  # Step 1: Check for existing open PRs
+  echo "" >&2
+  echo "$(logts) Checking for existing open PRs..." >&2
+  echo "-------------------------------------------------" >&2
+
+  local API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls?state=open"
+
+  set +o pipefail
+  local OPEN_PRS=$(curl -s -H "Authorization: token ${GITHUB_PAT}" \
+    -H "Accept: application/vnd.github.v3+json" \
+    "${API_URL}")
+  local CURL_RC=$?
+  set -o pipefail
+
+  if [[ $CURL_RC -ne 0 ]]; then
+    echo "❌ Error: Failed to check for existing PRs (curl returned ${CURL_RC})" >&2
+    exit 1
+  fi
+
+  local OPEN_PR_COUNT=$(echo "${OPEN_PRS}" | jq '. | length' 2>/dev/null)
+
+  if [[ -z "${OPEN_PR_COUNT}" || "${OPEN_PR_COUNT}" == "null" ]]; then
+    echo "❌ Error: Failed to parse PR list from GitHub API" >&2
+    echo "Response: ${OPEN_PRS}" >&2
+    exit 1
+  fi
+
+  if [[ "$OPEN_PR_COUNT" -gt 0 ]]; then
+    echo "⚠️  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+    echo "Existing PRs:" >&2
+    echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"' >&2
+    echo "" >&2
+    echo "Please merge or close existing PRs first." >&2
+    exit 1
+  fi
+
+  echo "✓ No open PRs found, proceeding with PR creation..." >&2
+
+  # Step 2: Create PR from existing branch
+  echo "" >&2
+  echo "$(logts) Creating Pull Request..." >&2
+  echo "-------------------------------------------------" >&2
+
+  local PR_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls"
+
+  local PR_DATA=$(jq -n \
+    --arg title "${PR_TITLE}" \
+    --arg body "${PR_BODY}" \
+    --arg head "${HEAD_BRANCH}" \
+    --arg base "${BASE_BRANCH}" \
+    '{title: $title, body: $body, head: $head, base: $base}')
+
+  set +o pipefail
+  local PR_RESPONSE=$(curl -s -X POST \
+    -H "Authorization: token ${GITHUB_PAT}" \
+    -H "Accept: application/vnd.github.v3+json" \
+    -H "Content-Type: application/json" \
+    -d "${PR_DATA}" \
+    "${PR_API_URL}")
+  CURL_RC=$?
+  set -o pipefail
+
+  if [[ $CURL_RC -ne 0 ]]; then
+    echo "❌ Failed to create Pull Request (curl returned ${CURL_RC})" >&2
+    exit 1
+  fi
+
+  local PR_URL=$(echo "${PR_RESPONSE}" | jq -r '.html_url' 2>/dev/null)
+  local PR_NUMBER=$(echo "${PR_RESPONSE}" | jq -r '.number' 2>/dev/null)
+
+  if [[ -z "${PR_URL}" || "${PR_URL}" == "null" ]]; then
+    echo "❌ Failed to create Pull Request" >&2
+    echo "Response: ${PR_RESPONSE}" >&2
+    exit 1
+  fi
+
+  echo "" >&2
+  echo "✅ Pull Request #${PR_NUMBER} created successfully!" >&2
+  echo "URL: ${PR_URL}" >&2
+  echo "=================================================" >&2
+
+  # Return the PR number
+  echo "${PR_NUMBER}"
+}
+
 # Closes a GitHub Pull Request without merging
 # Includes retry mechanism with 60-second wait between attempts
 #

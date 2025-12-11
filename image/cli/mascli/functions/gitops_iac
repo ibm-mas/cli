@@ -362,12 +362,11 @@ function gitops_iac_provision_efs() {
   export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "${VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH}")
   export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_ID_DOT_PATH}")
   export VPC_NAME_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_NAME_DOT_PATH}")
-  VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/vpcs/${VPC_NAME_VALUE}/main.tf
-  export VPC_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${VPC_CIDR_PATH}" "${VPC_CIDR_WORKLOAD_DOT_PATH}")
+
   
   echo "CLUSTER_CIDR_WORKLOAD_EXTERNAL  ${CLUSTER_CIDR_WORKLOAD_EXTERNAL}"
   echo "CLUSTER_CIDR_WORKLOAD_INTERNAL  ${CLUSTER_CIDR_WORKLOAD_INTERNAL}"
-  echo "VPC_CIDR_WORKLOAD_INTERNAL  ${VPC_CIDR_WORKLOAD_INTERNAL}"
+
   
   # Check if EFS parameters are set and export flags for template usage
   if [[ -n "$EFS_MANAGE_DB2_PERFORMANCE_MODE" && -n "$EFS_MANAGE_DB2_MOUNT_COUNT" && -n "$EFS_MANAGE_DB2_THROUGHPUT_MODE" ]]; then
@@ -408,6 +407,9 @@ function gitops_iac_provision_efs() {
   echo "${EFS_IOT}" > ${GITOPS_WORKING_DIR}/efs_vars_EFS_IOT.txt
   echo "${EFS_FACILITIES}" > ${GITOPS_WORKING_DIR}/efs_vars_EFS_FACILITIES.txt
   echo "${EFS_VISUALINSPECTION}" > ${GITOPS_WORKING_DIR}/efs_vars_EFS_VISUALINSPECTION.txt
+  
+  # Mark that EFS was provisioned (for PR message generation)
+  echo "true" > ${GITOPS_WORKING_DIR}/provisioned_EFS.txt
   
   # Generate EFS-specific file only
   echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/efs.tf"
@@ -495,12 +497,15 @@ function gitops_iac_provision_s3() {
   echo "${OWNER_VALUE}" > ${GITOPS_WORKING_DIR}/s3_vars_OWNER_VALUE.txt
   echo "${ACCOUNT_ID}" > ${GITOPS_WORKING_DIR}/s3_vars_ACCOUNT_ID.txt
   
+  # Mark that S3 was provisioned (for PR message generation)
+  echo "true" > ${GITOPS_WORKING_DIR}/provisioned_S3.txt
+  
   # Generate S3-specific files only
   if [[ "$S3_MANAGE"  == "true" ]]; then
     echo "Generating s3-instance-manage.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf "
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf
     
-    echo "Generating ibm-iac-iampolicy-manage.tf file ${GITOPS_CLUSTER_DIR}/ibm-iac-iampolicy-manage.tf "
+    echo "Generating iampolicy-manage.tf file ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf "
     jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf
     
     echo "Generating s3-accesspoints-manage.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf"
@@ -540,6 +545,8 @@ function gitops_iac_generate_common_files() {
   [[ -z "$CLUSTER_URL" ]] && gitops_iac_help "CLUSTER_URL is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_iac_help "MAS_INSTANCE_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_iac_help "CLUSTER_ID is not set"
+  [[ -z "$IS_EFS" ]] && gitops_iac_help "IS_EFS is not set (required for templates)"
+  [[ -z "$IS_S3" ]] && gitops_iac_help "IS_S3 is not set (required for templates)"
   [[ -z "$GITHUB_PUSH" ]] && export GITHUB_PUSH=true
   
   # Read the working branch name created by first task
@@ -635,24 +642,71 @@ function gitops_iac_manage_pr() {
     exit 1
   fi
   
-  GIT_COMMIT_MSG="IAC provision: EFS and S3 configuration"
-  
   echo
   echo_h2 "Creating Pull Request from ${WORKING_BRANCH} to ${TARGET_BRANCH}"
   
-  # Create PR from working branch to target branch
-  PR_NUMBER=$(git_commit_and_create_pr_if_none_exist \
+  # Build dynamic PR title and body based on what was provisioned
+  PROVISIONED_COMPONENTS=()
+  
+  # Check if EFS was provisioned
+  if [ -f "${GITOPS_WORKING_DIR}/provisioned_EFS.txt" ]; then
+    PROVISIONED_COMPONENTS+=("EFS")
+  fi
+  
+  # Check if S3 was provisioned
+  if [ -f "${GITOPS_WORKING_DIR}/provisioned_S3.txt" ]; then
+    PROVISIONED_COMPONENTS+=("S3")
+  fi
+  
+  # Build component list for title and body
+  if [ ${#PROVISIONED_COMPONENTS[@]} -eq 0 ]; then
+    echo "❌ Error: No components were provisioned"
+    exit 1
+  fi
+  
+  # Join components with " and " for title
+  COMPONENTS_STR=$(IFS=" and "; echo "${PROVISIONED_COMPONENTS[*]}")
+  
+  # Build PR title
+  PR_TITLE="GitOps IAC: ${COMPONENTS_STR} Configuration"
+  
+  # Build PR body with component details
+  PR_BODY="This PR was created automatically by the GitOps IAC workflow.
+
+**Provisioned Components:**"
+  
+  for component in "${PROVISIONED_COMPONENTS[@]}"; do
+    PR_BODY="${PR_BODY}
+- ${component} infrastructure resources"
+  done
+  
+  PR_BODY="${PR_BODY}
+
+**Branch:** \`${WORKING_BRANCH}\`
+**Target:** \`${TARGET_BRANCH}\`
+**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+  
+  echo "PR Title: ${PR_TITLE}"
+  echo "Provisioned: ${COMPONENTS_STR}"
+  
+  # Create PR from existing working branch to target branch
+  PR_NUMBER=$(create_pr_from_existing_branch \
     "$GITHUB_HOST" \
     "$GITHUB_ORG" \
     "$GITHUB_REPO" \
+    "$WORKING_BRANCH" \
     "$TARGET_BRANCH" \
-    "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" \
-    "${GIT_COMMIT_MSG}" \
-    "gitops-iac-update")
+    "$PR_TITLE" \
+    "$PR_BODY")
+  
+  if [[ $? -ne 0 ]]; then
+    echo "❌ Failed to create Pull Request"
+    exit 1
+  fi
   
   echo "Created PR #${PR_NUMBER}"
   
-  # Clean up
+  # Clean up local clone
   remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   
   # Monitor PR status if PR was created
