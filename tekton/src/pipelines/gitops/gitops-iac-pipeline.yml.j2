@@ -308,6 +308,10 @@ spec:
           value: $(params.avp_aws_secret_region)
         - name: region_name
           value: $(params.region_name)
+        - name: is_efs
+          value: $(params.is_efs)
+        - name: is_s3
+          value: $(params.is_s3)
 
     # Task 5: Manage PR (Always runs last)
     # -------------------------------------------------------------------------
