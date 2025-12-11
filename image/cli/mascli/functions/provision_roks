@@ -325,7 +325,7 @@ function provision_roks() {
   if [[ "$result" == "0" ]]; then
     echo ""
     echo "IBM Cloud ROKS cluster is ready to use"
-    OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+    export OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
     echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
   fi
   if [[ -n $ADD_DETAILS ]]; then
