@@ -52,9 +52,9 @@ from mas.devops.ocp import (
 )
 from mas.devops.mas import (
     getCurrentCatalog,
-    getDefaultStorageClasses,
-    isVersionEqualOrAfter
+    getDefaultStorageClasses
 )
+from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog
 from mas.devops.tekton import (
