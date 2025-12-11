@@ -674,7 +674,8 @@ function gitops_iac_manage_pr() {
   PR_BODY="This PR was created automatically by the GitOps IAC workflow.
 
 **Provisioned Components:**"
-  
+
+
   for component in "${PROVISIONED_COMPONENTS[@]}"; do
     PR_BODY="${PR_BODY}
 - ${component} infrastructure resources"
