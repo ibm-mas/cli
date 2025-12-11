@@ -117,6 +117,11 @@ otherArgGroup.add_argument(
     help="Configure installation for development mode",
 )
 otherArgGroup.add_argument(
+    '--cp4d-namespace',
+    required=False,
+    help="Namespace where cp4d operator and instances will be updated",
+)
+otherArgGroup.add_argument(
     "--cp4d-version",
     dest="cpd_product_version",
     required=False,
