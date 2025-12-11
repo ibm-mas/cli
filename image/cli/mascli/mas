@@ -75,6 +75,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_suite_workspace
 . $CLI_DIR/functions/gitops_efs
 . $CLI_DIR/functions/gitops_efs_csi_driver
+. $CLI_DIR/functions/gitops_efs_csi_driver_operator
 . $CLI_DIR/functions/gitops_dro
 . $CLI_DIR/functions/gitops_db2u
 . $CLI_DIR/functions/gitops_db2u_database

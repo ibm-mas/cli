@@ -412,7 +412,7 @@ spec:
         - name: git_commit_msg
           value: $(params.git_commit_msg)
         - name: efs_role_arn
-          value: $(params.efs_role_arn)
+          value: $(params.role_arn)
       taskRef:
         kind: Task
         name: gitops-efs-csi-driver
