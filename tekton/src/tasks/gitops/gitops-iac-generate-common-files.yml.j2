@@ -1,0 +1,93 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-generate-common-files
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: secrets_path
+      type: string
+    - name: avp_aws_secret_region
+      type: string
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: SECRET_PATH
+        value: $(params.secrets_path)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: generate-common-files
+      args:
+        - |-
+          git config --global user.name "MAS Automation"
+          git config --global user.email "you@example.com"
+          git config --global user.password $GITHUB_PAT
+
+          mas gitops-iac-generate-common-files \
+            -a $ACCOUNT \
+            -c $CLUSTER_NAME \
+            -m $MAS_INSTANCE_ID \
+            --secrets-path $SECRET_PATH \
+            --dir /workspace/gitops-iac \
+            --github-push \
+            --github-host $GITHUB_HOST \
+            --github-org $GITHUB_ORG \
+            --github-repo $GITHUB_REPO \
+            --git-branch $GIT_BRANCH \
+            --region-name $REGION_NAME
+
+          exit $?
+      command:
+        - /bin/sh
+        - -c
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+
+  workspaces:
+    - name: configs
+      mountPath: /workspace/gitops-iac

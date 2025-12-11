@@ -27,7 +27,6 @@ spec:
     - name: github_host
       type: string
 
-
     # iac-efs-common
     - name: is_efs
       type: string
@@ -127,11 +126,41 @@ spec:
 
   tasks:
 
-    # Combined IAC Task (EFS + S3 + IAM)
+    # Task 1: Create Branch (Always runs first)
     # -------------------------------------------------------------------------
-    - name: gitops-iac-combined
+    - name: gitops-iac-create-branch
       taskRef:
-        name: gitops-iac-combined
+        name: gitops-iac-create-branch
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+
+    # Task 2: Provision EFS (Conditional - runs if is_efs=true)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-provision-efs
+      when:
+        - input: "$(params.is_efs)"
+          operator: in
+          values: ["true"]
+      runAfter:
+        - gitops-iac-create-branch
+      taskRef:
+        name: gitops-iac-provision-efs
       workspaces:
         - name: configs
           workspace: configs
@@ -158,53 +187,38 @@ spec:
           value: $(params.avp_aws_secret_region)
         - name: region_name
           value: $(params.region_name)
-         # iac-efs common params
-        - name: is_efs
-          value: $(params.is_efs)
         - name: efs_source
           value: $(params.efs_source)
-
-        # iac-efs manage_db2 params
         - name: efs_manage_db2_performance_mode
           value: $(params.efs_manage_db2_performance_mode)
         - name: efs_manage_db2_mount_count
           value: $(params.efs_manage_db2_mount_count)
         - name: efs_manage_db2_throughput_mode
           value: $(params.efs_manage_db2_throughput_mode)
-
-        # iac-efs manage_main params
         - name: efs_manage_main_performance_mode
           value: $(params.efs_manage_main_performance_mode)
         - name: efs_manage_main_mount_count
           value: $(params.efs_manage_main_mount_count)
         - name: efs_manage_main_throughput_mode
           value: $(params.efs_manage_main_throughput_mode)
-
-        # iac-efs iot_db2 params
         - name: efs_iot_db2_performance_mode
           value: $(params.efs_iot_db2_performance_mode)
         - name: efs_iot_db2_mount_count
           value: $(params.efs_iot_db2_mount_count)
         - name: efs_iot_db2_throughput_mode
           value: $(params.efs_iot_db2_throughput_mode)
-
-        # iac-efs facilities-db2 params
         - name: efs_facilities_db2_performance_mode
           value: $(params.efs_facilities_db2_performance_mode)
         - name: efs_facilities_db2_mount_count
           value: $(params.efs_facilities_db2_mount_count)
         - name: efs_facilities_db2_throughput_mode
           value: $(params.efs_facilities_db2_throughput_mode)
-
-        # iac-efs facilities-main params
         - name: efs_facilities_main_performance_mode
           value: $(params.efs_facilities_main_performance_mode)
         - name: efs_facilities_main_mount_count
           value: $(params.efs_facilities_main_mount_count)
         - name: efs_facilities_main_throughput_mode
           value: $(params.efs_facilities_main_throughput_mode)
-
-        # iac-efs visualinspection-main params
         - name: efs_visualinspection_main_performance_mode
           value: $(params.efs_visualinspection_main_performance_mode)
         - name: efs_visualinspection_main_mount_count
@@ -212,9 +226,43 @@ spec:
         - name: efs_visualinspection_main_throughput_mode
           value: $(params.efs_visualinspection_main_throughput_mode)
 
-        # iac-s3
-        - name: is_s3
-          value: $(params.is_s3)
+    # Task 3: Provision S3 (Conditional - runs if is_s3=true)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-provision-s3
+      when:
+        - input: "$(params.is_s3)"
+          operator: in
+          values: ["true"]
+      runAfter:
+        - gitops-iac-create-branch
+      taskRef:
+        name: gitops-iac-provision-s3
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: region_name
+          value: $(params.region_name)
         - name: s3_source
           value: $(params.s3_source)
         - name: s3_source_iampolicy
@@ -225,3 +273,64 @@ spec:
           value: $(params.s3_manage)
         - name: s3_mvi
           value: $(params.s3_mvi)
+
+    # Task 4: Generate Common Files (Always runs after EFS/S3 tasks complete)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-generate-common-files
+      runAfter:
+        - gitops-iac-provision-efs
+        - gitops-iac-provision-s3
+      taskRef:
+        name: gitops-iac-generate-common-files
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: region_name
+          value: $(params.region_name)
+
+    # Task 5: Manage PR (Always runs last)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-manage-pr
+      runAfter:
+        - gitops-iac-generate-common-files
+      taskRef:
+        name: gitops-iac-manage-pr
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)

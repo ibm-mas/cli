@@ -642,6 +642,46 @@ case $1 in
     gitops_iac "$@"
     ;;
 
+  gitops-iac-create-branch)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Create Branch (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_create_branch_cmd "$@"
+    ;;
+
+  gitops-iac-provision-efs)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Provision EFS (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_provision_efs_cmd "$@"
+    ;;
+
+  gitops-iac-provision-s3)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Provision S3 (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_provision_s3_cmd "$@"
+    ;;
+
+  gitops-iac-generate-common-files)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Generate Common Files (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_generate_common_files_cmd "$@"
+    ;;
+
+  gitops-iac-manage-pr)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Manage PR (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_manage_pr_cmd "$@"
+    ;;
+
     
   gitops-deprovision-aiservice-tenant)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Tenant deprovision Manager (v${VERSION})${TEXT_RESET}"
