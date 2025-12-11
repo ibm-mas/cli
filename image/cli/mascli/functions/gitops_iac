@@ -319,7 +319,7 @@ function gitops_iac_create_branch() {
 # Requires: Branch name from gitops_iac_create_branch
 function gitops_iac_provision_efs() {
   echo
-  echo_h2 "Provisioning EFS Resources"
+  echo_h2 "Provisioning EFS Resourcesssss"
   
   # Validate required parameters
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_iac_help "GITOPS_WORKING_DIR is not set"
