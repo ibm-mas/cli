@@ -1313,47 +1313,48 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("enable_ipv6", True)
 
             elif key == "install_minio_aiservice":
-                incompatibleWithMinioInstall = [
-                    "aiservice_s3_accesskey",
-                    "aiservice_s3_secretkey",
-                    "aiservice_s3_host",
-                    "aiservice_s3_port",
-                    "aiservice_s3_ssl",
-                    "aiservice_s3_bucket_prefix",
-                    "aiservice_s3_region"
-                ]
-                if value is None:
-                    for uKey in incompatibleWithMinioInstall:
-                        if vars(self.args)[uKey] is None:
-                            self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
-                elif value is not None and value == "true":
-                    # If user is installing Minio in-cluster then we know how to connect to it already
-                    for uKey in incompatibleWithMinioInstall:
-                        if vars(self.args)[uKey] is not None:
-                            self.fatalError(f"Unsupported parameter for --install-minio: {uKey}")
-                    for rKey in ["minio_root_user", "minio_root_password"]:
-                        if vars(self.args)[rKey] is None:
-                            self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
+                if vars(self.args)["aiservice_channel"] is not None and vars(self.args)["aiservice_channel"] != "":
+                    incompatibleWithMinioInstall = [
+                        "aiservice_s3_accesskey",
+                        "aiservice_s3_secretkey",
+                        "aiservice_s3_host",
+                        "aiservice_s3_port",
+                        "aiservice_s3_ssl",
+                        "aiservice_s3_bucket_prefix",
+                        "aiservice_s3_region"
+                    ]
+                    if value is None:
+                        for uKey in incompatibleWithMinioInstall:
+                            if vars(self.args)[uKey] is None:
+                                self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
+                    elif value is not None and value == "true":
+                        # If user is installing Minio in-cluster then we know how to connect to it already
+                        for uKey in incompatibleWithMinioInstall:
+                            if vars(self.args)[uKey] is not None:
+                                self.fatalError(f"Unsupported parameter for --install-minio: {uKey}")
+                        for rKey in ["minio_root_user", "minio_root_password"]:
+                            if vars(self.args)[rKey] is None:
+                                self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
 
-                    # Extra validation: minio_root_password must be at least 8 characters
-                    minio_pass = vars(self.args)["minio_root_password"]
-                    if len(minio_pass) < 8:
-                        self.fatalError("minio_root_password must be at least 8 characters long")
+                        # Extra validation: minio_root_password must be at least 8 characters
+                        minio_pass = vars(self.args)["minio_root_password"]
+                        if len(minio_pass) < 8:
+                            self.fatalError("minio_root_password must be at least 8 characters long")
 
-                    # self.setParam("aiservice_s3_provider", "minio")
+                        # self.setParam("aiservice_s3_provider", "minio")
 
-                    self.setParam("aiservice_s3_accesskey", self.args.minio_root_user)
-                    self.setParam("aiservice_s3_secretkey", self.args.minio_root_password)
+                        self.setParam("aiservice_s3_accesskey", self.args.minio_root_user)
+                        self.setParam("aiservice_s3_secretkey", self.args.minio_root_password)
 
-                    # TODO: Duplication -- we already have the URL, why do we need all the individual parts,
-                    # especially when we don't need them for the tenant?
-                    self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
-                    self.setParam("aiservice_s3_port", "9000")
-                    self.setParam("aiservice_s3_ssl", "false")
-                    self.setParam("aiservice_s3_region", "none")
-                    self.setParam("aiservice_s3_bucket_prefix", "s3-")
-                else:
-                    self.fatalError(f"Unsupported value for --install-minio: {value}")
+                        # TODO: Duplication -- we already have the URL, why do we need all the individual parts,
+                        # especially when we don't need them for the tenant?
+                        self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
+                        self.setParam("aiservice_s3_port", "9000")
+                        self.setParam("aiservice_s3_ssl", "false")
+                        self.setParam("aiservice_s3_region", "none")
+                        self.setParam("aiservice_s3_bucket_prefix", "s3-")
+                    else:
+                        self.fatalError(f"Unsupported value for --install-minio: {value}")
 
             elif key == "aiservice_s3_bucket_prefix":
                 if len(value) == 0 or len(value) > 4:
