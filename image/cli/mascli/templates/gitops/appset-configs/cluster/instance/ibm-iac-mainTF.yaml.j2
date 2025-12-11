@@ -26,7 +26,7 @@ data "aws_subnets" "internal_subnets" {
 locals {
 {%- if IS_S3 | lower == 'true' %}
 {%- if S3_MANAGE | lower == 'true'  %}
-  # Manage related params for S3
+  #----Manage related params for S3 starts----
   iam_user_arns_manage = {
     custfiles = "${var.iam_user_arn_prefix_manage}-custfiles-${var.access_level_rw}"
     doclinks  = "${var.iam_user_arn_prefix_manage}-doclinks-${var.access_level_rw}"
@@ -77,21 +77,24 @@ locals {
     for key, value in local.s3_iam_users_list_manage :
     key => lookup(local.bucket_user_names_manage, key, null)
   }
+  #----Manage related params for S3 ends----
 {%- endif %}
-  # Common S3 params
+
+  #----Common S3 params starts----
   s3_actions = {
     ro = ["s3:GetObject", "s3:ListBucket"]
     rw = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
   }
 
   location = var.location
+  #----Common S3 params ends----
 {%- endif %}
   cluster = {
   {%- if IS_S3 | lower == 'true' %}
     instance = {
       name = var.instance_name
       {%- if S3_MANAGE | lower == 'true'  %}
-      # Manage specific S3 buckets
+    #----Manage specific S3 buckets starts----
       manage_s3buckets = {
         doclinks = {
           name_prefix          = var.name_prefix
@@ -132,18 +135,21 @@ locals {
           expiration           = null
         }
       }
+    #----Manage specific S3 buckets ends----
     {%- endif %}
     }
     name = var.cluster_name
   {%- if IS_EFS | lower == 'true' %}
-    # EFS related params
+    #----EFS related params starts----
     "external_subnet_ids" : data.aws_subnets.external_subnets.ids
     "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
+    #----EFS related params ends----
   {%- endif %}
   }
 {%- endif %}
 
  {%- if IS_EFS | lower == 'true' %}
+  #----EFS config related params starts----
   multiple-efs = {
 {%- if EFS_MANAGE == "true" %}
     manage-db2 = {
@@ -190,5 +196,6 @@ locals {
     }
 {%- endif %}
   }
+  #----EFS config related params ends----
 {%- endif %}
 }
