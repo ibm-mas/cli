@@ -338,6 +338,15 @@ function gitops_iac_provision_efs() {
     exit 1
   fi
   
+  # Clone the working branch to get latest changes from other tasks
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH=false
+  fi
+  
+  echo
+  echo_h2 "Cloning working branch ${WORKING_BRANCH} to get latest changes"
+  clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
   mkdir -p ${GITOPS_CLUSTER_DIR}
   
@@ -426,6 +435,11 @@ function gitops_iac_provision_efs() {
   echo
   echo_h2 "✅ EFS Resources Provisioned and Committed"
   
+  # Clean up cloned repository
+  echo
+  echo_h2 "Cleaning up local repository clone"
+  remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+  
   exit 0
 }
 
@@ -456,6 +470,15 @@ function gitops_iac_provision_s3() {
     echo "ERROR: Branch name file not found. Run gitops_iac_create_branch first."
     exit 1
   fi
+  
+  # Clone the working branch to get latest changes from other tasks
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH=false
+  fi
+  
+  echo
+  echo_h2 "Cloning working branch ${WORKING_BRANCH} to get latest changes"
+  clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
   mkdir -p ${GITOPS_CLUSTER_DIR}
@@ -523,6 +546,11 @@ function gitops_iac_provision_s3() {
   echo
   echo_h2 "✅ S3 Resources Provisioned and Committed"
   
+  # Clean up cloned repository
+  echo
+  echo_h2 "Cleaning up local repository clone"
+  remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+  
   exit 0
 }
 
@@ -557,6 +585,15 @@ function gitops_iac_generate_common_files() {
     echo "ERROR: Branch name file not found. Run gitops_iac_create_branch first."
     exit 1
   fi
+  
+  # Clone the working branch to get latest changes from other tasks
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH=false
+  fi
+  
+  echo
+  echo_h2 "Cloning working branch ${WORKING_BRANCH} to get latest changes"
+  clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
   mkdir -p ${GITOPS_CLUSTER_DIR}
@@ -610,6 +647,11 @@ function gitops_iac_generate_common_files() {
   echo
   echo_h2 "✅ Common IAC Files Generated and Committed"
   echo "Directory: ${GITOPS_CLUSTER_DIR}"
+  
+  # Clean up cloned repository
+  echo
+  echo_h2 "Cleaning up local repository clone"
+  remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
   
   exit 0
 }
