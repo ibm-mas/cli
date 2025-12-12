@@ -442,14 +442,24 @@ class UpdateApp(BaseApp):
                 cpds = cpdAPI.get().to_dict()["items"]
 
                 # For testing, comment out the lines above and set cpds to a simple list
-                # cpds = [{
-                #     "metadata": {"namespace": "ibm-cpd" },
-                #     "spec": {
-                #         "version": "4.6.6",
-                #         "storageClass": "default",
-                #         "zenCoreMetadbStorageClass": "default"
+                # cpds = [
+                #     {
+                #         "metadata": {"namespace": "ibm-cpd1" },
+                #         "spec": {
+                #             "version": "5.0.0",
+                #             "storageClass": "default",
+                #             "zenCoreMetadbStorageClass": "default"
+                #         }
+                #     # },
+                #     # {
+                #     #     "metadata": {"namespace": "ibm-cpd2" },
+                #     #     "spec": {
+                #     #         "version": "5.0.0",
+                #     #         "storageClass": "default",
+                #     #         "zenCoreMetadbStorageClass": "default"
+                #     #     }
                 #     }
-                # }]
+                # ]
 
                 if len(cpds) > 1:
                     cpdNamespaces = []
@@ -465,11 +475,20 @@ class UpdateApp(BaseApp):
                     ])
                     return
                 elif len(cpds) == 1:
+                    cpdUpgradePath = {
+                        "5.1.3": "5.2.0",
+                        "5.0.0": "5.1.3",
+                    }
                     cpdInstanceNamespace = cpds[0]["metadata"]["namespace"]
                     cpdInstanceVersion = cpds[0]["spec"]["version"]
 
+                    if self.args.cpd_product_version:
+                        cpdTargetVersion = self.getParam("cpd_product_version")
+                    else:
+                        cpdTargetVersion = self.chosenCatalog["cpd_product_version_default"]
+
                     if cpdInstanceNamespace != "ibm-cpd":
-                        h.stop_and_persist(symbol=self.successIcon, text=f"Standalone Cloud Pak for Data {cpdInstanceVersion} in namespace {cpdInstanceNamespace}) will NOT be updated")
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Standalone Cloud Pak for Data {cpdInstanceVersion} in namespace {cpdInstanceNamespace} will NOT be updated")
                         self.printDescription([
                             "<u>Standalone Cloud Pak for Data</u>",
                             "The MAS install, update, and upgrade functions are designed to work together and support the Maximo reference deployment topology.",
@@ -479,10 +498,16 @@ class UpdateApp(BaseApp):
                         ])
                         return
 
-                    if self.args.cpd_product_version:
-                        cpdTargetVersion = self.getParam("cpd_product_version")
-                    else:
-                        cpdTargetVersion = self.chosenCatalog["cpd_product_version_default"]
+                    if cpdInstanceVersion not in cpdUpgradePath:
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) is too old to update to this catalog")
+                        self.fatalError(
+                            "Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nContact IBM support for assistance"
+                        )
+                    elif cpdUpgradePath[cpdInstanceVersion] != cpdTargetVersion:
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) can not be updated to {cpdTargetVersion} directly")
+                        self.fatalError(
+                            f"Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nRefer to the catalog documentation and first update to any catalog that carries Cloud Pak for data v{cpdUpgradePath[cpdInstanceVersion]}:\n- https://ibm-mas.github.io/cli/catalogs"
+                        )
 
                     currentCpdVersionMajorMinor = f"{cpdInstanceVersion.split('.')[0]}.{cpdInstanceVersion.split('.')[1]}"
                     targetCpdVersionMajorMinor = f"{cpdTargetVersion.split('.')[0]}.{cpdTargetVersion.split('.')[1]}"
