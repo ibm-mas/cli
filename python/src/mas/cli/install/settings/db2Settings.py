@@ -34,7 +34,7 @@ class Db2SettingsMixin():
         #     # Case 3. Dev mode + user input: use provided value
         #     self.params["db2_channel"] = user_channel
 
-        # Set the default db2-channel
+        # Set the default db2-Channel
         default_db2_channel = "v110509.0"
         # Get user-specified value
         user_channel = self.getParam("db2_channel")
