@@ -25,7 +25,6 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
     {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
-    {{ lookup('template', params_src_dir ~ '/install-aiservice.yml.j2') | indent(4) }}
 
   tasks:
     # Content
@@ -65,9 +64,9 @@ spec:
         - input: "$(params.grafana_action)"
           operator: in
           values: ["install"]
-        - input: "$(params.standalone_aiservice_install)"
+        - input: "$(params.mas_instance_id)"
           operator: notin
-          values: ["true", "True"]
+          values: [""]
       runAfter:
         - ibm-catalogs
 
@@ -197,27 +196,27 @@ spec:
       runAfter:
         - ibm-catalogs
       when: 
-        - input: "$(params.standalone_aiservice_install)"
+        - input: "$(params.mas_instance_id)"
           operator: notin
-          values: ["true", "True"]
+          values: [""]
 
     # 5.2 DNS Setup
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-dns.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
       when: 
-        - input: "$(params.standalone_aiservice_install)"
+        - input: "$(params.mas_instance_id)"
           operator: notin
-          values: ["true", "True"]
+          values: [""]
 
     # 5.3 Manual Certificates
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-certs.yml.j2') | indent(4) }}
       runAfter:
         - suite-dns
       when: 
-        - input: "$(params.standalone_aiservice_install)"
+        - input: "$(params.mas_instance_id)"
           operator: notin
-          values: ["true", "True"]
+          values: [""]
 
     # 5.4 Suite Installation
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-install.yml.j2') | indent(4) }}
@@ -227,9 +226,9 @@ spec:
         - gencfg-workspace
         - suite-certs
       when: 
-        - input: "$(params.standalone_aiservice_install)"
+        - input: "$(params.mas_instance_id)"
           operator: notin
-          values: ["true", "True"]
+          values: [""]
 
     # 5.5 Suite Configuration
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config.yml.j2') | indent(4) }}
@@ -237,18 +236,18 @@ spec:
         - suite-install
         - aiservice
       when: 
-        - input: "$(params.standalone_aiservice_install)"
+        - input: "$(params.mas_instance_id)"
           operator: notin
-          values: ["true", "True"]
+          values: [""]
 
     # 5.6 Suite Verification
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2') | indent(4) }}
       runAfter:
         - suite-config
       when: 
-        - input: "$(params.standalone_aiservice_install)"
+        - input: "$(params.mas_instance_id)"
           operator: notin
-          values: ["true", "True"]
+          values: [""]
 
     # 5.7 Configure Db2 in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}

@@ -347,8 +347,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         # We use the presence of --mas-instance-id to determine whether
         # the CLI is being started in interactive mode or not
         instanceId = args.aiservice_instance_id
-        # Set "standalone_aiservice_install" flag as this is a standalone AI Service install
-        self.setParam("standalone_aiservice_install", "true")
         # Properties for arguments that control the behavior of the CLI
         self.noConfirm = args.no_confirm
         self.waitForPVC = not args.no_wait_for_pvc
@@ -492,7 +490,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
 
             with Halo(text=f"Submitting PipelineRun for {self.getParam('aiservice_instance_id')} install", spinner=self.spinner) as h:
-                pipelineURL = launchInstallPipeline(dynClient=self.dynamicClient, params=self.params, standalone_aiservice_install="true")
+                pipelineURL = launchInstallPipeline(dynClient=self.dynamicClient, params=self.params)
                 if pipelineURL is not None:
                     h.stop_and_persist(symbol=self.successIcon, text=f"PipelineRun for {self.getParam('aiservice_instance_id')} install submitted")
                     print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
