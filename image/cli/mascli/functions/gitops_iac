@@ -7,7 +7,7 @@ function gitops_iac_help() {
 
 
 Usage:
-  mas gitops-iac-efs [options]
+  mas gitops-iac [options]
 Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
 When no options are specified on the command line, interactive-mode will be enabled by default.
 
