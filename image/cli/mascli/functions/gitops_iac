@@ -216,9 +216,6 @@ function gitops_iac_noninteractive() {
   [[ -z "$ACCOUNT_ID" ]] && gitops_iac_help "ACCOUNT_ID is not set"
   [[ -z "$CLUSTER_ID" ]] && gitops_iac_help "CLUSTER_ID is not set"
   [[ -z "$MAS_INSTANCE_ID" ]] && gitops_iac_help "MAS_INSTANCE_ID is not set"
-  
-  # Note: REGION_ID/SM_AWS_REGION, REGION_NAME, and CLUSTER_URL are validated
-  # by individual functions that need them, not here
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_iac_help "GITHUB_HOST is not set"
@@ -243,7 +240,6 @@ function compute_efs_variables() {
   local MAS_INSTANCE_ID=$5
   
   echo "Computing EFS variables..."
-  
   # Extract values from cluster files
   CLUSTER_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
   MAIN_FILE_PATH=$CLUSTER_PATH/main.tf
@@ -298,7 +294,7 @@ function compute_efs_variables() {
     export EFS_VISUALINSPECTION=false
     echo "  EFS_VISUALINSPECTION: false"
   fi
-  
+
   echo " EFS variables computed successfully"
 }
 
@@ -332,9 +328,7 @@ function compute_s3_variables() {
   echo "  ACCOUNT_ID: ${ACCOUNT_ID}"
   echo "  S3_MANAGE: ${S3_MANAGE}"
   echo "  S3_MVI: ${S3_MVI}"
-  
-  # Note: S3_MANAGE and S3_MVI are already set from command-line parameters
-  
+
   echo " S3 variables computed successfully"
 }
 
@@ -405,7 +399,7 @@ function gitops_iac_create_branch() {
 # Requires: Branch name from gitops_iac_create_branch
 function gitops_iac_provision_efs() {
   echo
-  echo_h2 "Provisioning EFS Resourcesssss"
+  echo_h2 "Creating EFS Resources terraform files"
   
   # Validate required parameters
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_iac_help "GITOPS_WORKING_DIR is not set"
@@ -430,7 +424,7 @@ function gitops_iac_provision_efs() {
   fi
   
   # Use a unique subdirectory for this task to avoid conflicts with parallel tasks
-  TASK_WORKING_DIR="${GITOPS_WORKING_DIR}/common-task"
+  TASK_WORKING_DIR="${GITOPS_WORKING_DIR}/efs-task"
   mkdir -p ${TASK_WORKING_DIR}
   
   # Remove any existing clone first with force
@@ -451,9 +445,7 @@ function gitops_iac_provision_efs() {
   
   echo
   echo_h2 "Generating IAC/EFS Configuration"
-  
 
-  
   # Generate EFS-specific file only
   echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/efs.tf"
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
@@ -467,7 +459,7 @@ function gitops_iac_provision_efs() {
   fi
   
   echo
-  echo_h2 " EFS Resources Provisioned and Committed"
+  echo_h2 " EFS Resources terraform files are Committed"
   
   # Clean up cloned repository
   echo
@@ -487,7 +479,7 @@ function gitops_iac_provision_efs() {
 # Requires: Branch name from gitops_iac_create_branch
 function gitops_iac_provision_s3() {
   echo
-  echo_h2 "Provisioning S3 Resources"
+  echo_h2 "Creating S3 Resources terraform files"
   
   # Validate required parameters
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_iac_help "GITOPS_WORKING_DIR is not set"
@@ -562,7 +554,7 @@ function gitops_iac_provision_s3() {
   fi
   
   echo
-  echo_h2 " S3 Resources Provisioned and Committed"
+  echo_h2 " S3 Resources terraform files are Committed"
   
   # Clean up cloned repository
   echo
@@ -583,7 +575,7 @@ function gitops_iac_provision_s3() {
 # Requires: Branch name and exported variables from previous tasks
 function gitops_iac_generate_common_files() {
   echo
-  echo_h2 "Generating Common IAC Files"
+  echo_h2 "Generating Common terraform Files"
   
   # Validate required parameters
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_iac_help "GITOPS_WORKING_DIR is not set"
@@ -742,7 +734,6 @@ function gitops_iac_manage_pr() {
 
 **Provisioned Components:**"
 
-
   for component in "${PROVISIONED_COMPONENTS[@]}"; do
     PR_BODY="${PR_BODY}
 - ${component} infrastructure resources"
@@ -781,7 +772,6 @@ function gitops_iac_manage_pr() {
   if [[ -n "${PR_NUMBER}" && "${PR_NUMBER}" != "null" ]]; then
     
     echo_h2 "Monitoring PR #${PR_NUMBER} Status"
-    ATLANTIS_UNLOCK_COMMENT_BODY="atlantis unlock"
     PR_PLAN_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER")
     echo "PR_PLAN_COMMENT: "$PR_PLAN_COMMENT
     
@@ -790,8 +780,8 @@ function gitops_iac_manage_pr() {
       APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")
       echo "PR approved ${APPROVED_PR}"
       if [[ "$APPROVED_PR" == "true" ]]; then
-        COMMENT_BODY="atlantis apply"
-        ATLANTIS_APPLY_COMMENT=$(comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$COMMENT_BODY")
+        sleep 60
+        ATLANTIS_APPLY_COMMENT=$(comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis apply")
         if [[ "$ATLANTIS_APPLY_COMMENT" == "true" ]]; then
           
           PR_APPLY_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "apply")
@@ -804,25 +794,25 @@ function gitops_iac_manage_pr() {
             fi
           else
             echo_h2 "  Atlantis Apply Failed. Pipeline Failed."
-            comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
+            comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
             close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
             exit 1
           fi
         else
           echo_h2 "  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
-          comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
+          comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
           close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
           exit 1
         fi
       else
         echo_h2 "  Failed to approve PR. Closing PR. Pipeline Failed."
-        comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
+        comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
         close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
         exit 1
       fi
     else
       echo_h2 "  Atlantis Plan Failed. Closing PR. Pipeline Failed."
-      comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
+      comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis unlock"
       close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
       exit 1
     fi
@@ -834,7 +824,6 @@ function gitops_iac_manage_pr() {
   
   echo
   echo_h2 " Pull Request Lifecycle Complete - Merged to ${TARGET_BRANCH}"
-  
   exit 0
 }
 

@@ -440,8 +440,6 @@ except Exception as e:
 EOF
 }
 
-
-
 # Create Terraform related common files
 function create_common_files() {
   local cluster_dir=$1
