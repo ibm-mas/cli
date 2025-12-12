@@ -106,6 +106,10 @@ mas_annotations:
 {%- endif %}
 jdbc_route: {{JDBC_ROUTE}}
 
+{%- if JDBC_CONNECTION_URL_ADDITIONAL_PARAMS is defined and JDBC_CONNECTION_URL_ADDITIONAL_PARAMS !='' %}
+jdbc_connection_url_additional_params: {{ JDBC_CONNECTION_URL_ADDITIONAL_PARAMS }}
+{%- endif %}
+
 db2_timezone: {{DB2_TIMEZONE}}
 
 {% if STORAGE_CLASS_DEFINITIONS and IS_REPLICA_TASK != 'true' %}
