@@ -53,7 +53,6 @@
         - aiservice
         - odh
         - aiservice-tenant
-        - aiservice-post-verify
         - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
@@ -64,6 +63,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - aiservice-fvt
+        - aiservice-fvt-start-upgrade
         - mas-fvt-assist-desktop
         - mas-fvt-assist
         - mas-fvt-core
@@ -113,7 +113,9 @@
         - mas-launchfvt-visualinspection
         - mas-launchfvt-upgrade-post
         - mas-launchfvt-upgrade-pre
+        - mas-launchfvt-facilities
         - mas-launchivt-manage
+
 
     # 5. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -134,12 +136,10 @@
       with_items:
         - gencfg-workspace
         - must-gather
-        - suite-app-config
         - suite-app-install
         - suite-app-uninstall
         - suite-app-upgrade
         - suite-app-rollback
-        - suite-app-verify
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage

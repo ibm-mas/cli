@@ -93,6 +93,7 @@ IBM Maximo Application Suite:
       
       --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  The certificate authority to use for provisoning certificates for MAS services
 
+      --welcome-message ${COLOR_YELLOW}WELCOME_MESSAGE${TEXT_RESET} Default welcome message (displayed on login screen) to be configured (optional). NOTE: only use with MAS 9.1.7 or later.
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}       Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
@@ -138,6 +139,12 @@ function gitops_suite_noninteractive() {
 
   # cert-manager namespace, in case redhat default value is cert-manager
   export CERT_MANAGER_NAMESPACE=${CERT_MANAGER_NAMESPACE:-"cert-manager"}
+
+  #GenericAddon default
+  export EXTENSIONS=${EXTENSIONS:-"false"}
+  export ADDITIONAL_VPN=${ADDITIONAL_VPN:-"false"}
+  export ENHANCED_DR=${ENHANCED_DR:-"false"}
+
 
   if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
       CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
@@ -381,6 +388,10 @@ function gitops_suite_noninteractive() {
         export INTERNAL_CERT_AUTHORITY=$1 && shift
         ;;
 
+      --welcome-message)
+        export WELCOME_MESSAGE=$1 && shift
+        ;;
+
       # Other Commands
       -h|--help)
         gitops_suite_help
@@ -563,6 +574,7 @@ function gitops_suite() {
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
     echo_reset_dim "Internal Certificate Authority ............. ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
   fi
+  echo_reset_dim "Default welcome message .................... ${COLOR_MAGENTA}${WELCOME_MESSAGE}"
   reset_colors
 
   if [[ -n "$DNS_PROVIDER" ]]; then
