@@ -481,6 +481,8 @@ class UpdateApp(BaseApp):
                 if len(cpds) > 0:
                     cpdInstanceNamespace = cpds[0]["metadata"]["namespace"]
                     cpdInstanceVersion = cpds[0]["spec"]["version"]
+                    if cpdInstanceNamespace != "ibm-cpd":
+                        self.fatalError("Error: CLI is not used for installing CP4D in this instance, so you can't use the CLI to update or upgrade, because they are all connected")
                     if self.args.cpd_product_version:
                         cpdTargetVersion = self.getParam("cpd_product_version")
                     else:
