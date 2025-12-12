@@ -1117,6 +1117,8 @@ spec:
           value: $(params.db2_tolerate_value_manage)
         - name: db2_tolerate_effect
           value: $(params.db2_tolerate_effect_manage)
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_manage)
         - name: jdbc_route
           value: $(params.jdbc_route_manage)
         - name: db2_timezone
@@ -1170,8 +1172,6 @@ spec:
           value: $(params.mas_workspace_id)
         - name: jdbc_type
           value: $(params.jdbc_type_manage)
-        - name: jdbc_connection_url_additional_params
-          value: $(params.jdbc_connection_url_additional_params_manage)
         - name: jdbc_instance_name
           value: $(params.jdbc_instance_name_manage)
         - name: jdbc_connection_url
@@ -1420,6 +1420,8 @@ spec:
           value: $(params.db2_tolerate_value_facilities)
         - name: db2_tolerate_effect
           value: $(params.db2_tolerate_effect_facilities)
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_facilities)
         - name: jdbc_route
           value: $(params.jdbc_route_facilities)
         - name: db2_timezone
@@ -1471,8 +1473,6 @@ spec:
           value: $(params.mas_workspace_id)
         - name: jdbc_type
           value: $(params.jdbc_type_facilities)
-        - name: jdbc_connection_url_additional_params
-          value: $(params.jdbc_connection_url_additional_params_facilities)
         - name: jdbc_instance_name
           value: $(params.jdbc_instance_name_facilities)
         - name: jdbc_connection_url
