@@ -312,6 +312,48 @@ spec:
           value: $(params.is_efs)
         - name: is_s3
           value: $(params.is_s3)
+        # EFS parameters (needed for variable computation)
+        - name: efs_manage_db2_performance_mode
+          value: $(params.efs_manage_db2_performance_mode)
+        - name: efs_manage_db2_mount_count
+          value: $(params.efs_manage_db2_mount_count)
+        - name: efs_manage_db2_throughput_mode
+          value: $(params.efs_manage_db2_throughput_mode)
+        - name: efs_manage_main_performance_mode
+          value: $(params.efs_manage_main_performance_mode)
+        - name: efs_manage_main_mount_count
+          value: $(params.efs_manage_main_mount_count)
+        - name: efs_manage_main_throughput_mode
+          value: $(params.efs_manage_main_throughput_mode)
+        - name: efs_iot_db2_performance_mode
+          value: $(params.efs_iot_db2_performance_mode)
+        - name: efs_iot_db2_mount_count
+          value: $(params.efs_iot_db2_mount_count)
+        - name: efs_iot_db2_throughput_mode
+          value: $(params.efs_iot_db2_throughput_mode)
+        - name: efs_facilities_db2_performance_mode
+          value: $(params.efs_facilities_db2_performance_mode)
+        - name: efs_facilities_db2_mount_count
+          value: $(params.efs_facilities_db2_mount_count)
+        - name: efs_facilities_db2_throughput_mode
+          value: $(params.efs_facilities_db2_throughput_mode)
+        - name: efs_facilities_main_performance_mode
+          value: $(params.efs_facilities_main_performance_mode)
+        - name: efs_facilities_main_mount_count
+          value: $(params.efs_facilities_main_mount_count)
+        - name: efs_facilities_main_throughput_mode
+          value: $(params.efs_facilities_main_throughput_mode)
+        - name: efs_visualinspection_main_performance_mode
+          value: $(params.efs_visualinspection_main_performance_mode)
+        - name: efs_visualinspection_main_mount_count
+          value: $(params.efs_visualinspection_main_mount_count)
+        - name: efs_visualinspection_main_throughput_mode
+          value: $(params.efs_visualinspection_main_throughput_mode)
+        # S3 parameters (needed for variable computation)
+        - name: s3_manage
+          value: $(params.s3_manage)
+        - name: s3_mvi
+          value: $(params.s3_mvi)
 
     # Task 5: Manage PR (Always runs last)
     # -------------------------------------------------------------------------

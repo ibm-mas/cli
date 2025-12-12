@@ -34,6 +34,68 @@ spec:
     - name: is_s3
       type: string
       default: 'false'
+    # EFS parameters
+    - name: efs_manage_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_manage_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_manage_db2_throughput_mode
+      type: string
+      default: ''
+    - name: efs_manage_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_manage_main_mount_count
+      type: string
+      default: ''
+    - name: efs_manage_main_throughput_mode
+      type: string
+      default: ''
+    - name: efs_iot_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_iot_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_iot_db2_throughput_mode
+      type: string
+      default: ''
+    - name: efs_facilities_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_facilities_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_facilities_db2_throughput_mode
+      type: string
+      default: ''
+    - name: efs_facilities_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_facilities_main_mount_count
+      type: string
+      default: ''
+    - name: efs_facilities_main_throughput_mode
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_mount_count
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_throughput_mode
+      type: string
+      default: ''
+    # S3 parameters
+    - name: s3_manage
+      type: string
+      default: ''
+    - name: s3_mvi
+      type: string
+      default: ''
 
   stepTemplate:
     env:
@@ -63,6 +125,46 @@ spec:
         value: $(params.is_efs)
       - name: IS_S3
         value: $(params.is_s3)
+      - name: EFS_MANAGE_DB2_PERFORMANCE_MODE
+        value: $(params.efs_manage_db2_performance_mode)
+      - name: EFS_MANAGE_DB2_MOUNT_COUNT
+        value: $(params.efs_manage_db2_mount_count)
+      - name: EFS_MANAGE_DB2_THROUGHPUT_MODE
+        value: $(params.efs_manage_db2_throughput_mode)
+      - name: EFS_MANAGE_MAIN_PERFORMANCE_MODE
+        value: $(params.efs_manage_main_performance_mode)
+      - name: EFS_MANAGE_MAIN_MOUNT_COUNT
+        value: $(params.efs_manage_main_mount_count)
+      - name: EFS_MANAGE_MAIN_THROUGHPUT_MODE
+        value: $(params.efs_manage_main_throughput_mode)
+      - name: EFS_IOT_DB2_PERFORMANCE_MODE
+        value: $(params.efs_iot_db2_performance_mode)
+      - name: EFS_IOT_DB2_MOUNT_COUNT
+        value: $(params.efs_iot_db2_mount_count)
+      - name: EFS_IOT_DB2_THROUGHPUT_MODE
+        value: $(params.efs_iot_db2_throughput_mode)
+      - name: EFS_FACILITIES_DB2_PERFORMANCE_MODE
+        value: $(params.efs_facilities_db2_performance_mode)
+      - name: EFS_FACILITIES_DB2_MOUNT_COUNT
+        value: $(params.efs_facilities_db2_mount_count)
+      - name: EFS_FACILITIES_DB2_THROUGHPUT_MODE
+        value: $(params.efs_facilities_db2_throughput_mode)
+      - name: EFS_FACILITIES_MAIN_PERFORMANCE_MODE
+        value: $(params.efs_facilities_main_performance_mode)
+      - name: EFS_FACILITIES_MAIN_MOUNT_COUNT
+        value: $(params.efs_facilities_main_mount_count)
+      - name: EFS_FACILITIES_MAIN_THROUGHPUT_MODE
+        value: $(params.efs_facilities_main_throughput_mode)
+      - name: EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE
+        value: $(params.efs_visualinspection_main_performance_mode)
+      - name: EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT
+        value: $(params.efs_visualinspection_main_mount_count)
+      - name: EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE
+        value: $(params.efs_visualinspection_main_throughput_mode)
+      - name: S3_MANAGE
+        value: $(params.s3_manage)
+      - name: S3_MVI
+        value: $(params.s3_mvi)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -92,7 +194,27 @@ spec:
             --region-name $REGION_NAME \
             --cluster-url $CLUSTER_URL \
             --is_efs $IS_EFS \
-            --is_s3 $IS_S3
+            --is_s3 $IS_S3 \
+            --efs_manage_db2_performance_mode "$EFS_MANAGE_DB2_PERFORMANCE_MODE" \
+            --efs_manage_db2_mount_count "$EFS_MANAGE_DB2_MOUNT_COUNT" \
+            --efs_manage_db2_throughput_mode "$EFS_MANAGE_DB2_THROUGHPUT_MODE" \
+            --efs_manage_main_performance_mode "$EFS_MANAGE_MAIN_PERFORMANCE_MODE" \
+            --efs_manage_main_mount_count "$EFS_MANAGE_MAIN_MOUNT_COUNT" \
+            --efs_manage_main_throughput_mode "$EFS_MANAGE_MAIN_THROUGHPUT_MODE" \
+            --efs_iot_db2_performance_mode "$EFS_IOT_DB2_PERFORMANCE_MODE" \
+            --efs_iot_db2_mount_count "$EFS_IOT_DB2_MOUNT_COUNT" \
+            --efs_iot_db2_throughput_mode "$EFS_IOT_DB2_THROUGHPUT_MODE" \
+            --efs_facilities_db2_performance_mode "$EFS_FACILITIES_DB2_PERFORMANCE_MODE" \
+            --efs_facilities_db2_mount_count "$EFS_FACILITIES_DB2_MOUNT_COUNT" \
+            --efs_facilities_db2_throughput_mode "$EFS_FACILITIES_DB2_THROUGHPUT_MODE" \
+            --efs_facilities_main_performance_mode "$EFS_FACILITIES_MAIN_PERFORMANCE_MODE" \
+            --efs_facilities_main_mount_count "$EFS_FACILITIES_MAIN_MOUNT_COUNT" \
+            --efs_facilities_main_throughput_mode "$EFS_FACILITIES_MAIN_THROUGHPUT_MODE" \
+            --efs_visualinspection_main_performance_mode "$EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE" \
+            --efs_visualinspection_main_mount_count "$EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT" \
+            --efs_visualinspection_main_throughput_mode "$EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE" \
+            --s3_manage "$S3_MANAGE" \
+            --s3_mvi "$S3_MVI"
 
           exit $?
       command:

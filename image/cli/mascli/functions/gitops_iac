@@ -253,6 +253,116 @@ function gitops_iac_noninteractive() {
 }
 
 # ============================================================================
+# Utility Functions for Variable Computation
+# ============================================================================
+
+# Compute EFS-related variables from cluster configuration files
+# This function extracts values from existing Terraform files and computes
+# EFS flags based on provided parameters
+function compute_efs_variables() {
+  local TASK_WORKING_DIR=$1
+  local GITHUB_REPO=$2
+  local REGION_NAME=$3
+  local CLUSTER_ID=$4
+  local MAS_INSTANCE_ID=$5
+  
+  echo "Computing EFS variables..."
+  
+  # Extract values from cluster files
+  CLUSTER_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
+  MAIN_FILE_PATH=$CLUSTER_PATH/main.tf
+  TERRAFORMTF_FILE_PATH=$CLUSTER_PATH/terraform.tfvars
+  
+  # Compute EFS variables from Terraform files
+  export CLUSTER_CIDR_WORKLOAD_EXTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.cidrs.workload_external")
+  export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.cidrs.workload_internal")
+  export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_id")
+  export VPC_NAME_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_name")
+  
+  # Compute VPC CIDR from VPC configuration
+  VPC_CIDR_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/vpcs/${VPC_NAME_VALUE}/main.tf
+  EFS_CIDR_REF_NAME=${CLUSTER_ID}-${MAS_INSTANCE_ID}-efs
+  export VPC_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${VPC_CIDR_PATH}" "locals.workloads[\"${EFS_CIDR_REF_NAME}\"].cidrs")
+  
+  echo "  CLUSTER_CIDR_WORKLOAD_EXTERNAL: ${CLUSTER_CIDR_WORKLOAD_EXTERNAL}"
+  echo "  CLUSTER_CIDR_WORKLOAD_INTERNAL: ${CLUSTER_CIDR_WORKLOAD_INTERNAL}"
+  echo "  VPC_CIDR_WORKLOAD_INTERNAL: ${VPC_CIDR_WORKLOAD_INTERNAL}"
+  echo "  VPC_ID_VALUE: ${VPC_ID_VALUE}"
+  echo "  VPC_NAME_VALUE: ${VPC_NAME_VALUE}"
+  
+  # Compute EFS flags based on parameters
+  if [[ -n "$EFS_MANAGE_DB2_PERFORMANCE_MODE" && -n "$EFS_MANAGE_DB2_MOUNT_COUNT" && -n "$EFS_MANAGE_DB2_THROUGHPUT_MODE" ]]; then
+    export EFS_MANAGE=true
+    echo "  EFS_MANAGE: true"
+  else
+    export EFS_MANAGE=false
+    echo "  EFS_MANAGE: false"
+  fi
+  
+  if [[ -n "$EFS_IOT_DB2_PERFORMANCE_MODE" && -n "$EFS_IOT_DB2_MOUNT_COUNT" && -n "$EFS_IOT_DB2_THROUGHPUT_MODE" ]]; then
+    export EFS_IOT=true
+    echo "  EFS_IOT: true"
+  else
+    export EFS_IOT=false
+    echo "  EFS_IOT: false"
+  fi
+  
+  if [[ -n "$EFS_FACILITIES_DB2_PERFORMANCE_MODE" && -n "$EFS_FACILITIES_DB2_MOUNT_COUNT" && -n "$EFS_FACILITIES_DB2_THROUGHPUT_MODE" ]]; then
+    export EFS_FACILITIES=true
+    echo "  EFS_FACILITIES: true"
+  else
+    export EFS_FACILITIES=false
+    echo "  EFS_FACILITIES: false"
+  fi
+  
+  if [[ -n "$EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE" && -n "$EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT" && -n "$EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE" ]]; then
+    export EFS_VISUALINSPECTION=true
+    echo "  EFS_VISUALINSPECTION: true"
+  else
+    export EFS_VISUALINSPECTION=false
+    echo "  EFS_VISUALINSPECTION: false"
+  fi
+  
+  echo "✅ EFS variables computed successfully"
+}
+
+# Compute S3-related variables from cluster configuration files
+# This function extracts values from existing Terraform files
+function compute_s3_variables() {
+  local TASK_WORKING_DIR=$1
+  local GITHUB_REPO=$2
+  local REGION_NAME=$3
+  local CLUSTER_ID=$4
+  
+  echo "Computing S3 variables..."
+  
+  # Extract values from cluster files
+  CLUSTER_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
+  TERRAFORMTF_FILE_PATH=$CLUSTER_PATH/terraform.tfvars
+  
+  # Compute S3 variables from Terraform files
+  export NAME_PREFIX_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "name_prefix")
+  export COST_CENTER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["cost-center"]')
+  export CONTACT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["contact"]')
+  export ENVIRONMENT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["environment"]')
+  export OWNER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["owner"]')
+  export ACCOUNT_ID=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'account_id')
+  
+  echo "  NAME_PREFIX_VALUE: ${NAME_PREFIX_VALUE}"
+  echo "  COST_CENTER_VALUE: ${COST_CENTER_VALUE}"
+  echo "  CONTACT_VALUE: ${CONTACT_VALUE}"
+  echo "  ENVIRONMENT_VALUE: ${ENVIRONMENT_VALUE}"
+  echo "  OWNER_VALUE: ${OWNER_VALUE}"
+  echo "  ACCOUNT_ID: ${ACCOUNT_ID}"
+  echo "  S3_MANAGE: ${S3_MANAGE}"
+  echo "  S3_MVI: ${S3_MVI}"
+  
+  # Note: S3_MANAGE and S3_MVI are already set from command-line parameters
+  
+  echo "✅ S3 variables computed successfully"
+}
+
+# ============================================================================
 # Function 1: Create New Branch from Target Branch
 # ============================================================================
 # Clones the target branch (GIT_BRANCH) and creates a NEW working branch from it
@@ -366,69 +476,7 @@ function gitops_iac_provision_efs() {
   echo
   echo_h2 "Generating IAC/EFS Configuration"
   
-  #Creating file path for extracting parameter value from cluster & vpc
-  CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
-  MAIN_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/main.tf
-  TERRAFORMTF_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/terraform.tfvars
-  
-  #Creating value path for extracting parameter value from .tf file
-  VPC_ID_DOT_PATH="vpc_id"
-  VPC_NAME_DOT_PATH="vpc_name"
-  CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH="locals.cluster.cidrs.workload_external"
-  VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH="locals.cluster.cidrs.workload_internal"
-  EFS_CIDR_REF_NAME=${CLUSTER_ID}-${MAS_INSTANCE_ID}-efs
-  VPC_CIDR_WORKLOAD_DOT_PATH="locals.workloads[\"${EFS_CIDR_REF_NAME}\"].cidrs"
-  
-  #Extracting values from .tf file
-  export CLUSTER_CIDR_WORKLOAD_EXTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "${CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH}")
-  export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "${VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH}")
-  export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_ID_DOT_PATH}")
-  export VPC_NAME_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_NAME_DOT_PATH}")
-
-  
-  echo "CLUSTER_CIDR_WORKLOAD_EXTERNAL  ${CLUSTER_CIDR_WORKLOAD_EXTERNAL}"
-  echo "CLUSTER_CIDR_WORKLOAD_INTERNAL  ${CLUSTER_CIDR_WORKLOAD_INTERNAL}"
-
-  
-  # Check if EFS parameters are set and export flags for template usage
-  if [[ -n "$EFS_MANAGE_DB2_PERFORMANCE_MODE" && -n "$EFS_MANAGE_DB2_MOUNT_COUNT" && -n "$EFS_MANAGE_DB2_THROUGHPUT_MODE" ]]; then
-    export EFS_MANAGE=true
-    echo "EFS_MANAGE set to true"
-  else
-    export EFS_MANAGE=false
-  fi
-  
-  if [[ -n "$EFS_IOT_DB2_PERFORMANCE_MODE" && -n "$EFS_IOT_DB2_MOUNT_COUNT" && -n "$EFS_IOT_DB2_THROUGHPUT_MODE" ]]; then
-    export EFS_IOT=true
-    echo "EFS_IOT set to true"
-  else
-    export EFS_IOT=false
-  fi
-  
-  if [[ -n "$EFS_FACILITIES_DB2_PERFORMANCE_MODE" && -n "$EFS_FACILITIES_DB2_MOUNT_COUNT" && -n "$EFS_FACILITIES_DB2_THROUGHPUT_MODE" ]]; then
-    export EFS_FACILITIES=true
-    echo "EFS_FACILITIES set to true"
-  else
-    export EFS_FACILITIES=false
-  fi
-  
-  if [[ -n "$EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE" && -n "$EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT" && -n "$EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE" ]]; then
-    export EFS_VISUALINSPECTION=true
-    echo "EFS_VISUALINSPECTION set to true"
-  else
-    export EFS_VISUALINSPECTION=false
-  fi
-  
-  # Save EFS variables for common files generation
-  echo "${CLUSTER_CIDR_WORKLOAD_EXTERNAL}" > ${GITOPS_WORKING_DIR}/efs_vars_CLUSTER_CIDR_WORKLOAD_EXTERNAL.txt
-  echo "${CLUSTER_CIDR_WORKLOAD_INTERNAL}" > ${GITOPS_WORKING_DIR}/efs_vars_CLUSTER_CIDR_WORKLOAD_INTERNAL.txt
-  echo "${VPC_CIDR_WORKLOAD_INTERNAL}" > ${GITOPS_WORKING_DIR}/efs_vars_VPC_CIDR_WORKLOAD_INTERNAL.txt
-  echo "${VPC_ID_VALUE}" > ${GITOPS_WORKING_DIR}/efs_vars_VPC_ID_VALUE.txt
-  echo "${VPC_NAME_VALUE}" > ${GITOPS_WORKING_DIR}/efs_vars_VPC_NAME_VALUE.txt
-  echo "${EFS_MANAGE}" > ${GITOPS_WORKING_DIR}/efs_vars_EFS_MANAGE.txt
-  echo "${EFS_IOT}" > ${GITOPS_WORKING_DIR}/efs_vars_EFS_IOT.txt
-  echo "${EFS_FACILITIES}" > ${GITOPS_WORKING_DIR}/efs_vars_EFS_FACILITIES.txt
-  echo "${EFS_VISUALINSPECTION}" > ${GITOPS_WORKING_DIR}/efs_vars_EFS_VISUALINSPECTION.txt
+  # Compute EFS flags based on parameters (needed for efs.tf generation)
   
   # Mark that EFS was provisioned (for PR message generation)
   echo "true" > ${GITOPS_WORKING_DIR}/provisioned_EFS.txt
@@ -513,41 +561,9 @@ function gitops_iac_provision_s3() {
   echo
   echo_h2 "Generating IAC/S3 Configuration"
   
-  #Creating file path for extracting parameter value from cluster
-  CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
-  TERRAFORMTF_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/terraform.tfvars
-  
-  #Creating value path for extracting parameter value from .tf file
-  NAME_PREFIX="name_prefix"
-  COST_CENTER_DOT_PATH='common_tags["cost-center"]'
-  CONTACT_DOT_PATH='common_tags["contact"]'
-  ENVIRONMENT_DOT_PATH='common_tags["environment"]'
-  OWNER_DOT_PATH='common_tags["owner"]'
-  ACCOUNT_ID_DOT_PATH='account_id'
-  
-  #Extracting values from .tf file
-  export NAME_PREFIX_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${NAME_PREFIX}")
-  export COST_CENTER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${COST_CENTER_DOT_PATH}")
-  export CONTACT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${CONTACT_DOT_PATH}")
-  export ENVIRONMENT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${ENVIRONMENT_DOT_PATH}")
-  export OWNER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${OWNER_DOT_PATH}")
-  export ACCOUNT_ID=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${ACCOUNT_ID_DOT_PATH}")
-  
-  echo "NAME_PREFIX_VALUE  ${NAME_PREFIX_VALUE}"
-  echo "COST_CENTER_VALUE  ${COST_CENTER_VALUE}"
-  echo "CONTACT_VALUE      ${CONTACT_VALUE}"
-  echo "ENVIRONMENT_VALUE  ${ENVIRONMENT_VALUE}"
-  echo "ACCOUNT_ID         ${ACCOUNT_ID}"
-  
-  # Save S3 variables for common files generation
-  echo "${NAME_PREFIX_VALUE}" > ${GITOPS_WORKING_DIR}/s3_vars_NAME_PREFIX_VALUE.txt
-  echo "${COST_CENTER_VALUE}" > ${GITOPS_WORKING_DIR}/s3_vars_COST_CENTER_VALUE.txt
-  echo "${CONTACT_VALUE}" > ${GITOPS_WORKING_DIR}/s3_vars_CONTACT_VALUE.txt
-  echo "${ENVIRONMENT_VALUE}" > ${GITOPS_WORKING_DIR}/s3_vars_ENVIRONMENT_VALUE.txt
-  echo "${OWNER_VALUE}" > ${GITOPS_WORKING_DIR}/s3_vars_OWNER_VALUE.txt
-  echo "${ACCOUNT_ID}" > ${GITOPS_WORKING_DIR}/s3_vars_ACCOUNT_ID.txt
-  echo "${S3_MANAGE}" > ${GITOPS_WORKING_DIR}/s3_vars_S3_MANAGE.txt
-  echo "${S3_MVI}" > ${GITOPS_WORKING_DIR}/s3_vars_S3_MVI.txt
+  # S3_MANAGE and S3_MVI are already set from command-line parameters
+  echo "S3_MANAGE: ${S3_MANAGE}"
+  echo "S3_MVI: ${S3_MVI}"
   
   # Mark that S3 was provisioned (for PR message generation)
   echo "true" > ${GITOPS_WORKING_DIR}/provisioned_S3.txt
@@ -622,7 +638,7 @@ function gitops_iac_generate_common_files() {
   fi
   
   # Use a unique subdirectory for this task to avoid conflicts with parallel tasks
-  TASK_WORKING_DIR="${GITOPS_WORKING_DIR}/efs-task"
+  TASK_WORKING_DIR="${GITOPS_WORKING_DIR}/common-task"
   mkdir -p ${TASK_WORKING_DIR}
   
   # Remove any existing clone first with force
@@ -641,31 +657,17 @@ function gitops_iac_generate_common_files() {
   GITOPS_CLUSTER_DIR=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
   mkdir -p ${GITOPS_CLUSTER_DIR}
   
-  # Load exported variables from EFS task (if exists)
-  if [ -f "${GITOPS_WORKING_DIR}/efs_vars_CLUSTER_CIDR_WORKLOAD_EXTERNAL.txt" ]; then
-    export CLUSTER_CIDR_WORKLOAD_EXTERNAL=$(cat ${GITOPS_WORKING_DIR}/efs_vars_CLUSTER_CIDR_WORKLOAD_EXTERNAL.txt)
-    export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(cat ${GITOPS_WORKING_DIR}/efs_vars_CLUSTER_CIDR_WORKLOAD_INTERNAL.txt)
-    export VPC_CIDR_WORKLOAD_INTERNAL=$(cat ${GITOPS_WORKING_DIR}/efs_vars_VPC_CIDR_WORKLOAD_INTERNAL.txt)
-    export VPC_ID_VALUE=$(cat ${GITOPS_WORKING_DIR}/efs_vars_VPC_ID_VALUE.txt)
-    export VPC_NAME_VALUE=$(cat ${GITOPS_WORKING_DIR}/efs_vars_VPC_NAME_VALUE.txt)
-    export EFS_MANAGE=$(cat ${GITOPS_WORKING_DIR}/efs_vars_EFS_MANAGE.txt)
-    export EFS_IOT=$(cat ${GITOPS_WORKING_DIR}/efs_vars_EFS_IOT.txt)
-    export EFS_FACILITIES=$(cat ${GITOPS_WORKING_DIR}/efs_vars_EFS_FACILITIES.txt)
-    export EFS_VISUALINSPECTION=$(cat ${GITOPS_WORKING_DIR}/efs_vars_EFS_VISUALINSPECTION.txt)
-    echo "Loaded EFS variables"
+  # Compute variables based on what's enabled
+  if [[ "$IS_EFS" == "true" ]]; then
+    echo
+    echo_h2 "Computing EFS Variables"
+    compute_efs_variables "${TASK_WORKING_DIR}" "${GITHUB_REPO}" "${REGION_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}"
   fi
   
-  # Load exported variables from S3 task (if exists)
-  if [ -f "${GITOPS_WORKING_DIR}/s3_vars_NAME_PREFIX_VALUE.txt" ]; then
-    export NAME_PREFIX_VALUE=$(cat ${GITOPS_WORKING_DIR}/s3_vars_NAME_PREFIX_VALUE.txt)
-    export COST_CENTER_VALUE=$(cat ${GITOPS_WORKING_DIR}/s3_vars_COST_CENTER_VALUE.txt)
-    export CONTACT_VALUE=$(cat ${GITOPS_WORKING_DIR}/s3_vars_CONTACT_VALUE.txt)
-    export ENVIRONMENT_VALUE=$(cat ${GITOPS_WORKING_DIR}/s3_vars_ENVIRONMENT_VALUE.txt)
-    export OWNER_VALUE=$(cat ${GITOPS_WORKING_DIR}/s3_vars_OWNER_VALUE.txt)
-    export ACCOUNT_ID=$(cat ${GITOPS_WORKING_DIR}/s3_vars_ACCOUNT_ID.txt)
-    export S3_MANAGE=$(cat ${GITOPS_WORKING_DIR}/s3_vars_S3_MANAGE.txt)
-    export S3_MVI=$(cat ${GITOPS_WORKING_DIR}/s3_vars_S3_MVI.txt)
-    echo "Loaded S3 variables"
+  if [[ "$IS_S3" == "true" ]]; then
+    echo
+    echo_h2 "Computing S3 Variables"
+    compute_s3_variables "${TASK_WORKING_DIR}" "${GITHUB_REPO}" "${REGION_NAME}" "${CLUSTER_ID}"
   fi
   
   echo "Checking and creating common files"
