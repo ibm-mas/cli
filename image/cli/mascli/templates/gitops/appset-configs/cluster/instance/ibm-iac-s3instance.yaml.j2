@@ -5,11 +5,11 @@ module "s3buckets_instance" {
 
   tags                    = var.common_tags
   name_prefix             = var.name_prefix
-  s3buckets               = local.cluster.instance.manage_s3buckets
-  iam_user_arns           = local.iam_user_arns_manage
-  bucket_user_name_map    = local.bucket_user_name_map_manage
-  iam_users_by_bucket     = local.iam_users_by_bucket_manage
-  s3_iam_users_list       = local.s3_iam_users_list_manage
+  s3buckets               = local.cluster.instance.{{APP_NAME}}_s3buckets
+  iam_user_arns           = local.iam_user_arns_{{APP_NAME}}
+  bucket_user_name_map    = local.bucket_user_name_map_{{APP_NAME}}
+  iam_users_by_bucket     = local.iam_users_by_bucket_{{APP_NAME}}
+  s3_iam_users_list       = local.s3_iam_users_list_{{APP_NAME}}
   s3_actions              = local.s3_actions
   s3_encryption           = true
   s3_encryption_algorithm = var.s3_encryption_algorithm

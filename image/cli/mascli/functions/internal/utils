@@ -362,8 +362,7 @@ function jinjanate_commmon() {
   jinjanate --quiet --undefined $filter_params $template_path $output_opts
 }
 
-#!/usr/bin/env bash
-
+#Get value from FILE at given DOTPATH
 function get_tf_value() {
     local FILE="$1"
     local DOTPATH="$2"
@@ -443,13 +442,7 @@ EOF
 
 
 
-# Go to GITOPS_CLUSTER_DIR
-# check
-# if backend.tf is there or not if not then create
-# if terraform.tfvars is there or not if not then create
-# if variables.tf is there or not if not then create
-# if main.tf is there or not if not then create
-# if provider.tf is there or not if not then create
+# Create Terraform related common files
 function create_common_files() {
   local cluster_dir=$1
   
@@ -466,7 +459,7 @@ function create_common_files() {
   # Handle backend.tf with template
   if [[ ! -f "$cluster_dir/backend.tf" ]]; then
     echo "  Creating backend.tf from template"
-    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-backendTF.yaml.j2" "$cluster_dir/backend.tf.json"
+    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-backend.yaml.j2" "$cluster_dir/backend.tf.json"
   else
     echo "  File already exists: backend.tf"
   fi
@@ -474,7 +467,7 @@ function create_common_files() {
   # Handle provider.tf with template
   if [[ ! -f "$cluster_dir/provider.tf" ]]; then
     echo "  Creating provider.tf from template"
-    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-providerTF.yaml.j2" "$cluster_dir/provider.tf"
+    jinjanate_commmon "$CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-provider.yaml.j2" "$cluster_dir/provider.tf"
   else
     echo "  File already exists: provider.tf"
   fi

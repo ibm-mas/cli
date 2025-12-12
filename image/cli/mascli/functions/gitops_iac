@@ -18,12 +18,6 @@ Basic Configuration:
   -r, --region-id ${COLOR_YELLOW}REGION_ID${TEXT_RESET}                      Region ID
   --region-name ${COLOR_YELLOW}REGION_NAME${TEXT_RESET}                      Region Name
 
-
-Secrets Manager:
-      --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                Secrets Manager path
-      --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}
-
-
 Target Cluster (Optional):
       --cluster-url ${COLOR_YELLOW}CLUSTER_URL${TEXT_RESET}                  Set to target a remote Kubernetes cluster (defaults to 'https://kubernetes.default.svc')
 
@@ -71,27 +65,9 @@ function gitops_iac_noninteractive() {
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
         ;;
-      
-      -r|--region-id)
-        export REGION_ID=$1 && shift
-        ;;
 
-      # AWS Secrets Manager Configuration
-      --sm-aws-secret-region)
-        export SM_AWS_REGION=$1
-        shift
-        ;;
      --region-name)
         export REGION_NAME=$1 && shift
-        ;;
-      --sm-aws-access-key)
-        export SM_AWS_ACCESS_KEY_ID=$1 && shift
-        ;;
-      --sm-aws-secret-key)
-        export SM_AWS_SECRET_ACCESS_KEY=$1 && shift
-        ;;
-      --secrets-path)
-        export SECRETS_PATH=$1 && shift
         ;;
 
       # EFS Configuration
@@ -323,7 +299,7 @@ function compute_efs_variables() {
     echo "  EFS_VISUALINSPECTION: false"
   fi
   
-  echo "✅ EFS variables computed successfully"
+  echo " EFS variables computed successfully"
 }
 
 # Compute S3-related variables from cluster configuration files
@@ -359,7 +335,7 @@ function compute_s3_variables() {
   
   # Note: S3_MANAGE and S3_MVI are already set from command-line parameters
   
-  echo "✅ S3 variables computed successfully"
+  echo " S3 variables computed successfully"
 }
 
 # ============================================================================
@@ -412,7 +388,7 @@ function gitops_iac_create_branch() {
   echo "${GIT_BRANCH}" > ${GITOPS_WORKING_DIR}/target_branch_name.txt
   
   echo
-  echo_h2 "✅ Working Branch Created Successfully"
+  echo_h2 " Working Branch Created Successfully"
   echo "Target Branch (for PR): ${GIT_BRANCH}"
   echo "New Working Branch: ${NEW_BRANCH}"
   echo "Branch names saved to: ${GITOPS_WORKING_DIR}/"
@@ -491,7 +467,7 @@ function gitops_iac_provision_efs() {
   fi
   
   echo
-  echo_h2 "✅ EFS Resources Provisioned and Committed"
+  echo_h2 " EFS Resources Provisioned and Committed"
   
   # Clean up cloned repository
   echo
@@ -561,17 +537,20 @@ function gitops_iac_provision_s3() {
   # S3_MANAGE and S3_MVI are already set from command-line parameters
   echo "S3_MANAGE: ${S3_MANAGE}"
   echo "S3_MVI: ${S3_MVI}"
+
+  export APP_NAME=""
   
   # Generate S3-specific files only
   if [[ "$S3_MANAGE"  == "true" ]]; then
-    echo "Generating s3-instance-manage.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf
+    export APP_NAME="manage"
+    echo "Generating s3-instance.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf "
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf
     
-    echo "Generating iampolicy-manage.tf file ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf
+    echo "Generating iampolicy.tf file ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf "
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf
     
-    echo "Generating s3-accesspoints-manage.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf
+    echo "Generating s3-accesspoints.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf
   fi
   
   # Commit changes to working branch
@@ -583,7 +562,7 @@ function gitops_iac_provision_s3() {
   fi
   
   echo
-  echo_h2 "✅ S3 Resources Provisioned and Committed"
+  echo_h2 " S3 Resources Provisioned and Committed"
   
   # Clean up cloned repository
   echo
@@ -669,13 +648,13 @@ function gitops_iac_generate_common_files() {
   
   # Generate common terraform files using variables exported by EFS/S3 tasks
   echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-mainTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-main.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
   
   echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformtfvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
   
   echo "Generating variables.tf file ${GITOPS_CLUSTER_DIR}/variables.tf"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variablesTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variables.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
   
   # Commit changes to working branch
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -686,7 +665,7 @@ function gitops_iac_generate_common_files() {
   fi
   
   echo
-  echo_h2 "✅ Common IAC Files Generated and Committed"
+  echo_h2 " Common IAC Files Generated and Committed"
   echo "Directory: ${GITOPS_CLUSTER_DIR}"
   
   # Clean up cloned repository
@@ -748,7 +727,7 @@ function gitops_iac_manage_pr() {
   
   # Build component list for title and body
   if [ ${#PROVISIONED_COMPONENTS[@]} -eq 0 ]; then
-    echo "❌ Error: No components were provisioned"
+    echo " Error: No components were provisioned"
     exit 1
   fi
   
@@ -779,7 +758,7 @@ function gitops_iac_manage_pr() {
   echo "Provisioned: ${COMPONENTS_STR}"
   
   # Create PR from existing working branch to target branch
-  PR_NUMBER=$(create_pr_from_existing_branch \
+  PR_NUMBER=$(create_single_threaded_pr \
     "$GITHUB_HOST" \
     "$GITHUB_ORG" \
     "$GITHUB_REPO" \
@@ -789,7 +768,7 @@ function gitops_iac_manage_pr() {
     "$PR_BODY")
   
   if [[ $? -ne 0 ]]; then
-    echo "❌ Failed to create Pull Request"
+    echo " Failed to create Pull Request"
     exit 1
   fi
   
@@ -811,7 +790,6 @@ function gitops_iac_manage_pr() {
       APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")
       echo "PR approved ${APPROVED_PR}"
       if [[ "$APPROVED_PR" == "true" ]]; then
-        sleep 120
         COMMENT_BODY="atlantis apply"
         ATLANTIS_APPLY_COMMENT=$(comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$COMMENT_BODY")
         if [[ "$ATLANTIS_APPLY_COMMENT" == "true" ]]; then
@@ -821,41 +799,41 @@ function gitops_iac_manage_pr() {
           if [[ "$PR_APPLY_COMMENT" == "Passed" ]]; then
             MERGE_PR_STATUS=$(merge_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "Merge PR")
             if [[ "$MERGE_PR_STATUS" != "true" ]]; then
-              echo_h2 "⚠️  Atlantis apply succeeded. Failed to merge PR. Please check the PR: 'https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}'"
+              echo_h2 "  Atlantis apply succeeded. Failed to merge PR. Please check the PR: 'https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}'"
               exit 1
             fi
           else
-            echo_h2 "⚠️  Atlantis Apply Failed. Pipeline Failed."
+            echo_h2 "  Atlantis Apply Failed. Pipeline Failed."
             comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
             close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
             exit 1
           fi
         else
-          echo_h2 "⚠️  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
+          echo_h2 "  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
           comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
           close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
           exit 1
         fi
       else
-        echo_h2 "⚠️  Failed to approve PR. Closing PR. Pipeline Failed."
+        echo_h2 "  Failed to approve PR. Closing PR. Pipeline Failed."
         comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
         close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
         exit 1
       fi
     else
-      echo_h2 "⚠️  Atlantis Plan Failed. Closing PR. Pipeline Failed."
+      echo_h2 "  Atlantis Plan Failed. Closing PR. Pipeline Failed."
       comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
       close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
       exit 1
     fi
   else
     echo
-    echo_h2 "⚠️  No PR number returned, pipeline failed."
+    echo_h2 "  No PR number returned, pipeline failed."
     exit 1
   fi
   
   echo
-  echo_h2 "✅ Pull Request Lifecycle Complete - Merged to ${TARGET_BRANCH}"
+  echo_h2 " Pull Request Lifecycle Complete - Merged to ${TARGET_BRANCH}"
   
   exit 0
 }
@@ -932,312 +910,6 @@ function gitops_iac_manage_pr_cmd() {
   
   # Call the actual function
   gitops_iac_manage_pr
-}
-
-
-function gitops_iac() {
-  # Take the first parameter off (it will be create-gitops)
-  shift
-  if [[ $# -gt 0 ]]; then
-    gitops_iac_noninteractive "$@"
-  else
-    echo "Not supported yet"
-    exit 1
-    gitops_iac_efs_interactive
-  fi
-
-  # catch errors
-  set -o pipefail
-  trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
-
-  mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
-
-  echo
-  reset_colors
-  echo_h2 "Review Settings"
-
-  echo "${TEXT_DIM}"
-  echo_h2 "Target" "    "
-  echo_reset_dim "Account ID ..................... ${COLOR_MAGENTA}${ACCOUNT_ID}"
-  echo_reset_dim "Region Name .................... ${COLOR_MAGENTA}${REGION_NAME}"
-  echo_reset_dim "Cluster ID ..................... ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "MAS Instance ID ................ ${COLOR_MAGENTA}${MAS_INSTANCE_ID}"
-  echo_reset_dim "Cluster URL .................... ${COLOR_MAGENTA}${CLUSTER_URL}"
-  echo_reset_dim "Cluster Config Directory ....... ${COLOR_MAGENTA}${GITOPS_CLUSTER_DIR}"
-  reset_colors
-
-  echo "${TEXT_DIM}"
-  if [[ "$GITHUB_PUSH" == "true" ]]; then
-    echo_h2 "GitOps Target" "    "
-    echo_reset_dim "Automatic Push ................. ${COLOR_GREEN}Enabled"
-    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
-    echo_reset_dim "Host ........................... ${COLOR_MAGENTA}${GITHUB_HOST}"
-    echo_reset_dim "Organization ................... ${COLOR_MAGENTA}${GITHUB_ORG}"
-    echo_reset_dim "Repository ..................... ${COLOR_MAGENTA}${GITHUB_REPO}"
-    echo_reset_dim "Branch ......................... ${COLOR_MAGENTA}${GIT_BRANCH}"
-  else
-    echo_h2 "GitOps Target" "    "
-    echo_reset_dim "Automatic Push ................. ${COLOR_RED}Disabled"
-    echo_reset_dim "Working Directory .............. ${COLOR_MAGENTA}${GITOPS_WORKING_DIR}"
-  fi
-  reset_colors
-   echo_reset_dim "IS EFS  ......................... ${COLOR_MAGENTA}${IS_EFS}"
-
-  if [ -z $GIT_SSH ]; then
-    export GIT_SSH=false
-  fi
-
-  # Clone github target repo
-  # ---------------------------------------------------------------------------
-  if [ "$GITHUB_PUSH" == "true" ]; then
-    echo
-    echo "GITOPS_WORKING_DIR  ${GITOPS_WORKING_DIR}"
-    echo "GITOPS_CLUSTER_DIR  ${GITOPS_CLUSTER_DIR}"
-    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
-  fi
-  mkdir -p ${GITOPS_CLUSTER_DIR}
-
-
-  # ---------------------------------------------------------------------------
-  echo "Checking and creating common files if not already present"
-  create_common_files ${GITOPS_CLUSTER_DIR}
-
-
-  # ---------------------------------------------------------------------------
-  #  creating files for efs.tf only
-  if [[ "$IS_EFS"  == "true" ]]; then
-    echo
-    echo_h2 "Generating IAC/EFS Configuration"
-    echo "- IAC Base Config"
-
-    echo "generating path for CLUSTER_CIDR_WORKLOAD_EXTERNAL"
-
-    #Creating file path for extracting parameter value from cluster & vpc
-    CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
-    MAIN_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/main.tf
-    TERRAFORMTF_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/terraform.tfvars
-    # VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/vpcs/${VPC_NAME_VALUE}/main.tf
-
-    #Creating value path for extracting parameter value from .tf file
-    VPC_ID_DOT_PATH="vpc_id"
-    VPC_NAME_DOT_PATH="vpc_name"
-    CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH="locals.cluster.cidrs.workload_external"
-    VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH="locals.cluster.cidrs.workload_internal"
-    EFS_CIDR_REF_NAME=${CLUSTER_ID}-${MAS_INSTANCE_ID}-efs
-    VPC_CIDR_WORKLOAD_DOT_PATH="locals.workloads[\"${EFS_CIDR_REF_NAME}\"].cidrs"
-
-    #Extracting values from .tf file
-    export CLUSTER_CIDR_WORKLOAD_EXTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "${CLUSTER_CIDR_WORKLOAD_EXTERNAL_DOT_PATH}")
-    export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "${VPC_CIDR_WORKLOAD_INTERNAL_DOT_PATH}")
-    export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_ID_DOT_PATH}")
-    export VPC_NAME_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${VPC_NAME_DOT_PATH}")
-    VPC_CIDR_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/vpcs/${VPC_NAME_VALUE}/main.tf
-    export VPC_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${VPC_CIDR_PATH}" "${VPC_CIDR_WORKLOAD_DOT_PATH}")
-
-    echo "CLUSTER_CIDR_WORKLOAD_EXTERNAL  ${CLUSTER_CIDR_WORKLOAD_EXTERNAL}"
-    echo "CLUSTER_CIDR_WORKLOAD_INTERNAL  ${CLUSTER_CIDR_WORKLOAD_INTERNAL}"
-    echo "VPC_CIDR_WORKLOAD_INTERNAL  ${VPC_CIDR_WORKLOAD_INTERNAL}"
-
-    # Check if EFS parameters are set and export flags for template usage
-    # Check for manage (db2 and main)
-    if [[ -n "$EFS_MANAGE_DB2_PERFORMANCE_MODE" && -n "$EFS_MANAGE_DB2_MOUNT_COUNT" && -n "$EFS_MANAGE_DB2_THROUGHPUT_MODE" ]]; then
-      export EFS_MANAGE=true
-      echo "EFS_MANAGE set to true"
-    else
-      export EFS_MANAGE=false
-    fi
-
-    # Check for iot_db2
-    if [[ -n "$EFS_IOT_DB2_PERFORMANCE_MODE" && -n "$EFS_IOT_DB2_MOUNT_COUNT" && -n "$EFS_IOT_DB2_THROUGHPUT_MODE" ]]; then
-      export EFS_IOT=true
-      echo "EFS_IOT set to true"
-    else
-      export EFS_IOT=false
-    fi
-
-    # Check for facilities (db2 and main)
-    if [[ -n "$EFS_FACILITIES_DB2_PERFORMANCE_MODE" && -n "$EFS_FACILITIES_DB2_MOUNT_COUNT" && -n "$EFS_FACILITIES_DB2_THROUGHPUT_MODE" ]]; then
-      export EFS_FACILITIES=true
-      echo "EFS_FACILITIES set to true"
-    else
-      export EFS_FACILITIES=false
-    fi
-
-    # Check for visualinspection_main
-    if [[ -n "$EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE" && -n "$EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT" && -n "$EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE" ]]; then
-      export EFS_VISUALINSPECTION=true
-      echo "EFS_VISUALINSPECTION set to true"
-    else
-      export EFS_VISUALINSPECTION=false
-    fi
-
-    #Generating .tf files using templates
-    echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-mainTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
-
-    echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
-
-    echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/efs.tf"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
-
-    echo "Generating IAC Variables file ${GITOPS_CLUSTER_DIR}/variables.tf"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variablesTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
-
-    echo $GIT_COMMIT_MSG
-    GIT_COMMIT_MSG="${GIT_COMMIT_MSG}-efs"
-  fi
-
-  if [[ "$IS_S3"  == "true" ]]; then
-
-
-    #Creating file path for extracting parameter value from cluster & vpc
-    CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
-    MAIN_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/main.tf
-    TERRAFORMTF_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/terraform.tfvars
-
-    #Creating value path for extracting parameter value from .tf file
-    NAME_PREFIX="name_prefix"
-    COST_CENTER_DOT_PATH='common_tags["cost-center"]'
-    CONTACT_DOT_PATH='common_tags["contact"]'
-    ENVIRONMENT_DOT_PATH='common_tags["environment"]'
-    IAM_USER_ARN_DOT_PATH="iam_user_arn_prefix"
-    OWNER_DOT_PATH='common_tags["owner"]'
-    ACCOUNT_ID_DOT_PATH='account_id'
-
-
-    #Extracting values from .tf file
-    export NAME_PREFIX_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${NAME_PREFIX}")
-    export COST_CENTER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${COST_CENTER_DOT_PATH}")
-    export CONTACT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${CONTACT_DOT_PATH}")
-    export ENVIRONMENT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${ENVIRONMENT_DOT_PATH}")
-    export OWNER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${OWNER_DOT_PATH}")
-    export ACCOUNT_ID=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${ACCOUNT_ID_DOT_PATH}")
-#    IAM_USER_ARN_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "${IAM_USER_ARN_DOT_PATH}")
-
-    echo "NAME_PREFIX_VALUE  ${NAME_PREFIX_VALUE}"
-    echo "COST_CENTER_VALUE  ${COST_CENTER_VALUE}"
-    echo "CONTACT_VALUE      ${CONTACT_VALUE}"
-    echo "ENVIRONMENT_VALUE  ${ENVIRONMENT_VALUE}"
-#    echo "IAM_USER_ARN_VALUE ${IAM_USER_ARN_VALUE}"
-
-    # export ACCOUNT_ID=$(get_field "${IAM_USER_ARN_VALUE}" ":" 5)
-
-    echo "ACCOUNT_ID         ${ACCOUNT_ID}"
-
-    if [[ "$S3_MANAGE"  == "true" ]]; then
-    #Generating .tf files using templates
-      echo "Generating s3-instance-manage.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf
-      #Generating .tf files using templates
-      echo "Generating ibm-iac-iampolicy-manage.tf file ${GITOPS_CLUSTER_DIR}/ibm-iac-iampolicy-manage.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf
-
-      echo "Generating s3-accesspoints-manage.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf"
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-manage.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf
-    fi
-
-    echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformTFvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
-
-    echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-mainTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
-
-    echo "Generating variables.tf file ${GITOPS_CLUSTER_DIR}/variables.tf"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variablesTF.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
-
-    echo $GIT_COMMIT_MSG
-    GIT_COMMIT_MSG="${GIT_COMMIT_MSG}-s3"
-
-  fi
-
-
-  # Commit and push to github target repo with PR creation
-  # ---------------------------------------------------------------------------
-  if [ "$GITHUB_PUSH" == "true" ]; then
-    echo
-    echo_h2 "Creating Pull Request for changes in $GITHUB_ORG/$GITHUB_REPO"
-    
-    # Use the new function that checks for existing PRs and creates a new one
-    # Capture the PR number returned by the function
-    PR_NUMBER=$(git_commit_and_create_pr_if_none_exist \
-      "$GITHUB_HOST" \
-      "$GITHUB_ORG" \
-      "$GITHUB_REPO" \
-      "$GIT_BRANCH" \
-      "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" \
-      "${GIT_COMMIT_MSG}")
-
-    echo "Created PR #${PR_NUMBER}"
-    # Clean up
-    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-    
-    # Monitor PR status if PR was created
-    if [[ -n "${PR_NUMBER}" && "${PR_NUMBER}" != "null" ]]; then
-      
-      echo_h2 "Monitoring PR #${PR_NUMBER} Status"
-      ATLANTIS_UNLOCK_COMMENT_BODY="atlantis unlock"
-      PR_PLAN_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER")
-      echo "PR_PLAN_COMMENT: "$PR_PLAN_COMMENT
-      
-      if [[ "$PR_PLAN_COMMENT" == "Passed" ]]; then
-        echo "Going to approve PR: "${PR_NUMBER}
-        echo "IAC DEV PAT TOKEN: "${IAC_DEV_GITHUB_PAT}
-#        APPROVED_PR="false" #temp changes
-        APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")
-        echo "PR approved ${APPROVED_PR}"
-        if [[ "$APPROVED_PR" == "true" ]]; then
-          sleep 120
-          COMMENT_BODY="atlantis apply"
-          ATLANTIS_APPLY_COMMENT=$(comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$COMMENT_BODY")
-          if [[ "$ATLANTIS_APPLY_COMMENT" == "true" ]]; then
-
-            PR_APPLY_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "apply")
-
-            if [[ "$PR_APPLY_COMMENT" == "Passed" ]]; then
-              MARGE_PR_STATUS=$(merge_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "Merge PR")
-              if [[ "$MARGE_PR_STATUS" != "true" ]]; then
-                echo_h2 "⚠️  Atlantis apply succeeded. Failed to merge PR. Please check the PR: 'https://${GITHUB_HOST}/${GITHUB_ORG}/${GITHUB_REPO}/pull/${PR_NUMBER}'"
-                # close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
-                exit 1
-              fi
-            else
-              echo_h2 "⚠️  Atlantis Apply Failed. Pipeline Failed."
-              comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
-              close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
-              exit 1
-            fi
-          else
-            echo_h2 "⚠️  Failed to add 'Atlantis Apply' on PR. PIPELINE FAILED. CLOSING PR."
-            comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
-            close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
-            exit 1
-          fi
-        else
-          echo_h2 "⚠️  Failed to approve PR. Closing PR. Pipeline Failed."
-          comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
-          close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
-          exit 1
-        fi
-      else
-        echo_h2 "⚠️  Atlantis Plan Failed. Closing PR. Pipeline Failed."
-        comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$ATLANTIS_UNLOCK_COMMENT_BODY"
-        close_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER"
-        exit 1
-      fi
-    else
-      echo
-      echo_h2 "⚠️  No PR number returned, pipeline failed."
-      exit 1
-    fi
-  fi
-
-  echo
-  echo_h2 "✅ GitOps IAC EFS Configuration Complete"
-
-  exit 0
 }
 
 

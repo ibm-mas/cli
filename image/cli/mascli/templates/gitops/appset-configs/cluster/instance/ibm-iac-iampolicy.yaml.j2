@@ -4,5 +4,5 @@ module "account_policy" {
   create_s3_iam_group  = var.create_s3_iam_group
   create_s3_iam_policy = var.create_s3_iam_policy
   efs_csi_policy       = var.create_efs_policy
-  iam_users_list       = var.s3_iam_users_list_manage
+  iam_users_list       = var.s3_iam_users_list_{{APP_NAME}}
 }

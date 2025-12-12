@@ -1504,7 +1504,7 @@ function read_and_validate_pr_comments() {
   echo "Poll Interval: ${POLL_INTERVAL} seconds" >&2
   echo "=================================================" >&2
   if [[ -z "${GITHUB_PAT}" ]]; then
-    echo "❌ Error: GITHUB_PAT environment variable is not set" >&2
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
     echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
     echo "Failed"
     return 0
@@ -1535,7 +1535,7 @@ function read_and_validate_pr_comments() {
     set -o pipefail
 
     if [[ $CURL_RC -ne 0 ]]; then
-      echo "❌ Error: Failed to fetch comments (curl returned ${CURL_RC})" >&2
+      echo " Error: Failed to fetch comments (curl returned ${CURL_RC})" >&2
       echo "Failed"
       return 0
     fi
@@ -1547,7 +1547,7 @@ function read_and_validate_pr_comments() {
     if [[ "${COMMENT_TYPE}" == "plan" ]]; then
       # Check for Plan Error first
       if echo "$COMMENT_BODIES" | grep -qE "Plan Error"; then
-        echo "❌ FAILED: Found 'Plan Error' in PR comments" >&2
+        echo " FAILED: Found 'Plan Error' in PR comments" >&2
         echo "=================================================" >&2
         echo "Failed"
         return 0
@@ -1557,7 +1557,7 @@ function read_and_validate_pr_comments() {
       MATCH=$(echo "$COMMENT_BODIES" | grep -oE "Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy")
 
       if [[ -n "$MATCH" ]]; then
-        echo "✅ SUCCESS: Found individual plan details in comments" >&2
+        echo " SUCCESS: Found individual plan details in comments" >&2
         echo "  Matched Plan: $MATCH" >&2
         echo "=================================================" >&2
         echo "Passed"
@@ -1590,14 +1590,14 @@ function read_and_validate_pr_comments() {
         local SUCCESSFUL=$(( WITH_CHANGES + NO_CHANGES ))
 
         if [[ "${FAILED}" -eq 0 && "${SUCCESSFUL}" -eq "${PROJECTS}" ]]; then
-          echo "✅ SUCCESS: Atlantis plan validation passed!" >&2
+          echo "  SUCCESS: Atlantis plan validation passed!" >&2
           echo "  - All ${PROJECTS} projects succeeded" >&2
           echo "  - 0 failures detected" >&2
           echo "=================================================" >&2
           echo "Passed"
           return 0
         else
-          echo "❌ FAILED: Atlantis plan validation failed!" >&2
+          echo "  FAILED: Atlantis plan validation failed!" >&2
           echo "  - Expected: ${PROJECTS} successful projects, 0 failures" >&2
           echo "  - Actual: ${SUCCESSFUL} successful projects, ${FAILED} failures" >&2
           echo "=================================================" >&2
@@ -1607,14 +1607,14 @@ function read_and_validate_pr_comments() {
       fi
 
       # If none of the patterns found, wait and continue
-      echo "⚠️  Warning: No Atlantis plan indicators found in PR comments yet" >&2
+      echo "  Warning: No Atlantis plan indicators found in PR comments yet" >&2
       sleep "$POLL_INTERVAL"
       continue
     else
       # Apply Summary
       # Check for Apply Error first
       if echo "$COMMENT_BODIES" | grep -qE "Apply Error"; then
-        echo "❌ FAILED: Found 'Apply Error' in PR comments" >&2
+        echo " FAILED: Found 'Apply Error' in PR comments" >&2
         echo "=================================================" >&2
         echo "Failed"
         return 0
@@ -1623,7 +1623,7 @@ function read_and_validate_pr_comments() {
       # Check for individual apply completion details
       APPLY_MATCH=$(echo "$COMMENT_BODIES" | grep -oE "Apply complete! Resources: [0-9]+ added, [0-9]+ changed, [0-9]+ destroyed")
       if echo "$COMMENT_BODIES" | grep -qE "Apply complete! Resources: [0-9]+ added, [0-9]+ changed, [0-9]+ destroyed"; then
-        echo "✅ SUCCESS: Found individual apply completion details in comments" >&2
+        echo " SUCCESS: Found individual apply completion details in comments" >&2
        echo "  Matched Apply: $APPLY_MATCH" >&2
         echo "=================================================" >&2
         echo "Passed"
@@ -1653,7 +1653,7 @@ function read_and_validate_pr_comments() {
         echo "" >&2
 
         if [[ "${FAILED}" -eq 0 && "${ERRORED}" -eq 0 && "${SUCCESSFUL}" -eq "${PROJECTS}" ]]; then
-          echo "✅ SUCCESS: Atlantis apply validation passed!" >&2
+          echo " SUCCESS: Atlantis apply validation passed!" >&2
           echo "  - All ${PROJECTS} projects succeeded" >&2
           echo "  - 0 failures detected" >&2
           echo "  - 0 errors detected" >&2
@@ -1661,7 +1661,7 @@ function read_and_validate_pr_comments() {
           echo "Passed"
           return 0
         else
-          echo "❌ FAILED: Atlantis apply validation failed!" >&2
+          echo " FAILED: Atlantis apply validation failed!" >&2
           echo "  - Expected: ${PROJECTS} successful projects, 0 failures, 0 errors" >&2
           echo "  - Actual: ${SUCCESSFUL} successful, ${FAILED} failed, ${ERRORED} errored" >&2
           echo "=================================================" >&2
@@ -1671,17 +1671,17 @@ function read_and_validate_pr_comments() {
       fi
 
       # If none of the patterns found, wait and continue
-      echo "⚠️  Warning: No Atlantis apply indicators found in PR comments yet" >&2
+      echo "  Warning: No Atlantis apply indicators found in PR comments yet" >&2
       sleep "$POLL_INTERVAL"
       continue
     fi
 
-    echo "ℹ️  Atlantis ${COMMENT_TYPE} summary not found yet, waiting ${POLL_INTERVAL} seconds..." >&2
+    echo "  Atlantis ${COMMENT_TYPE} summary not found yet, waiting ${POLL_INTERVAL} seconds..." >&2
     sleep "$POLL_INTERVAL"
   done
 
   echo "" >&2
-  echo "❌ TIMEOUT: Atlantis ${COMMENT_TYPE} summary not found within ${TIMEOUT_SECONDS} seconds" >&2
+  echo " TIMEOUT: Atlantis ${COMMENT_TYPE} summary not found within ${TIMEOUT_SECONDS} seconds" >&2
   echo "=================================================" >&2
   echo "Failed"
   return 0
@@ -1734,7 +1734,7 @@ function comment_on_pr() {
   echo "=================================================" >&2
 
   if [[ -z "${GITHUB_PAT}" ]]; then
-    echo "❌ Error: GITHUB_PAT environment variable is not set" >&2
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
     echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
     return 0
   fi
@@ -1757,19 +1757,19 @@ function comment_on_pr() {
   set -o pipefail
 
   if [[ $CURL_RC -ne 0 ]]; then
-    echo "❌ Error: Failed to post comment (curl returned ${CURL_RC})" >&2
+    echo " Error: Failed to post comment (curl returned ${CURL_RC})" >&2
     return 0
   fi
 
   local COMMENT_ID=$(echo "${COMMENT_RESPONSE}" | jq -r '.id' 2>/dev/null)
 
   if [[ -z "${COMMENT_ID}" || "${COMMENT_ID}" == "null" ]]; then
-    echo "❌ Error: Failed to post comment" >&2
+    echo " Error: Failed to post comment" >&2
     echo "Response: ${COMMENT_RESPONSE}" >&2
     return 0
   fi
 
-  echo "✅ Comment posted successfully (ID: ${COMMENT_ID})" >&2
+  echo " Comment posted successfully (ID: ${COMMENT_ID})" >&2
   echo "true"
   return 0
 }
@@ -1824,14 +1824,14 @@ function merge_pr() {
   echo "=================================================" >&2
 
   if [[ -z "${GITHUB_PAT}" ]]; then
-    echo "❌ Error: GITHUB_PAT environment variable is not set" >&2
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
     echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
     return 0
   fi
 
   # Validate merge method
   if [[ "${MERGE_METHOD}" != "merge" && "${MERGE_METHOD}" != "squash" && "${MERGE_METHOD}" != "rebase" ]]; then
-    echo "❌ Error: Invalid MERGE_METHOD '${MERGE_METHOD}'. Must be 'merge', 'squash', or 'rebase'" >&2
+    echo " Error: Invalid MERGE_METHOD '${MERGE_METHOD}'. Must be 'merge', 'squash', or 'rebase'" >&2
     return 0
   fi
 
@@ -1875,13 +1875,13 @@ function merge_pr() {
     set -o pipefail
 
     if [[ $CURL_RC -ne 0 ]]; then
-      echo "❌ Error: curl failed with return code ${CURL_RC}" >&2
+      echo " Error: curl failed with return code ${CURL_RC}" >&2
       if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
         echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
         sleep ${RETRY_DELAY}
         continue
       else
-        echo "❌ Failed to merge PR after ${MAX_RETRIES} attempts" >&2
+        echo " Failed to merge PR after ${MAX_RETRIES} attempts" >&2
         return 0
       fi
     fi
@@ -1892,14 +1892,14 @@ function merge_pr() {
 
     if [[ "${MERGED}" == "true" ]]; then
       echo "" >&2
-      echo "✅ PR #${PR_NUMBER} merged successfully!" >&2
+      echo " PR #${PR_NUMBER} merged successfully!" >&2
       echo "Merge SHA: ${SHA}" >&2
       echo "Message: ${MESSAGE}" >&2
       echo "=================================================" >&2
       echo "true"
       return 0
     else
-      echo "❌ Error: Failed to merge PR" >&2
+      echo " Error: Failed to merge PR" >&2
       echo "Message: ${MESSAGE}" >&2
       echo "Response: ${MERGE_RESPONSE}" >&2
       if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
@@ -1907,7 +1907,7 @@ function merge_pr() {
         sleep ${RETRY_DELAY}
         continue
       else
-        echo "❌ Failed to merge PR after ${MAX_RETRIES} attempts" >&2
+        echo " Failed to merge PR after ${MAX_RETRIES} attempts" >&2
         return 0
       fi
     fi
@@ -1955,7 +1955,7 @@ function approve_pr() {
   echo "=================================================" >&2
 
   if [[ -z "${APPROVAL_TOKEN}" ]]; then
-    echo "❌ Error: APPROVAL_TOKEN environment variable is not set" >&2
+    echo " Error: APPROVAL_TOKEN environment variable is not set" >&2
     echo "Please set APPROVAL_TOKEN with a valid GitHub Personal Access Token" >&2
     return 0
   fi
@@ -1986,13 +1986,13 @@ function approve_pr() {
     set -o pipefail
 
     if [[ $CURL_RC -ne 0 ]]; then
-      echo "❌ Error: curl failed with return code ${CURL_RC}" >&2
+      echo " Error: curl failed with return code ${CURL_RC}" >&2
       if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
         echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
         sleep ${RETRY_DELAY}
         continue
       else
-        echo "❌ Failed to approve PR after ${MAX_RETRIES} attempts" >&2
+        echo " Failed to approve PR after ${MAX_RETRIES} attempts" >&2
         return 1
       fi
     fi
@@ -2003,23 +2003,23 @@ function approve_pr() {
 
     if [[ "${REVIEW_STATE}" == "APPROVED" ]]; then
       echo "" >&2
-      echo "✅ PR #${PR_NUMBER} approved successfully!" >&2
+      echo " PR #${PR_NUMBER} approved successfully!" >&2
       echo "Review ID: ${REVIEW_ID}" >&2
       echo "=================================================" >&2
       echo "true"
       return 0
     else
-      echo "❌ Error: Failed to approve PR" >&2
+      echo " Error: Failed to approve PR" >&2
       if [[ -n "${ERROR_MESSAGE}" && "${ERROR_MESSAGE}" != "null" ]]; then
         echo "Error Message: ${ERROR_MESSAGE}" >&2
       fi
       echo "Response: ${APPROVAL_RESPONSE}" >&2
       if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
-        echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
         sleep ${RETRY_DELAY}
         continue
       else
-        echo "❌ Failed to approve PR after ${MAX_RETRIES} attempts" >&2
+        echo " Failed to approve PR after ${MAX_RETRIES} attempts" >&2
         return 1
       fi
     fi
@@ -2045,7 +2045,7 @@ function approve_pr() {
 #   Exits with 1 if PR creation fails or if open PRs already exist
 #
 # Example usage:
-#   PR_NUMBER=$(create_pr_from_existing_branch \
+#   PR_NUMBER=$(create_single_threaded_pr \
 #     "github.com" \
 #     "ibm-mas" \
 #     "gitops-config" \
@@ -2057,7 +2057,7 @@ function approve_pr() {
 #   if [[ $? -eq 0 ]]; then
 #     echo "Created PR #${PR_NUMBER}"
 #   fi
-function create_pr_from_existing_branch() {
+function create_single_threaded_pr() {
   local GITHUB_HOST=$1
   local GITHUB_ORG=$2
   local GITHUB_REPO=$3
@@ -2067,7 +2067,7 @@ function create_pr_from_existing_branch() {
   local PR_BODY="$7"
 
   echo "" >&2
-  echo "$(logts) create_pr_from_existing_branch" >&2
+  echo "$(logts) create_single_threaded_pr" >&2
   echo "=================================================" >&2
   echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
   echo "Head Branch: ${HEAD_BRANCH}" >&2
@@ -2076,7 +2076,7 @@ function create_pr_from_existing_branch() {
   echo "=================================================" >&2
 
   if [[ -z "${GITHUB_PAT}" ]]; then
-    echo "❌ Error: GITHUB_PAT environment variable is not set" >&2
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
     echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
     exit 1
   fi
@@ -2096,20 +2096,20 @@ function create_pr_from_existing_branch() {
   set -o pipefail
 
   if [[ $CURL_RC -ne 0 ]]; then
-    echo "❌ Error: Failed to check for existing PRs (curl returned ${CURL_RC})" >&2
+    echo " Error: Failed to check for existing PRs (curl returned ${CURL_RC})" >&2
     exit 1
   fi
 
   local OPEN_PR_COUNT=$(echo "${OPEN_PRS}" | jq '. | length' 2>/dev/null)
 
   if [[ -z "${OPEN_PR_COUNT}" || "${OPEN_PR_COUNT}" == "null" ]]; then
-    echo "❌ Error: Failed to parse PR list from GitHub API" >&2
+    echo " Error: Failed to parse PR list from GitHub API" >&2
     echo "Response: ${OPEN_PRS}" >&2
     exit 1
   fi
 
   if [[ "$OPEN_PR_COUNT" -gt 0 ]]; then
-    echo "⚠️  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+    echo "  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}" >&2
     echo "Existing PRs:" >&2
     echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"' >&2
     echo "" >&2
@@ -2144,7 +2144,7 @@ function create_pr_from_existing_branch() {
   set -o pipefail
 
   if [[ $CURL_RC -ne 0 ]]; then
-    echo "❌ Failed to create Pull Request (curl returned ${CURL_RC})" >&2
+    echo " Failed to create Pull Request (curl returned ${CURL_RC})" >&2
     exit 1
   fi
 
@@ -2152,13 +2152,13 @@ function create_pr_from_existing_branch() {
   local PR_NUMBER=$(echo "${PR_RESPONSE}" | jq -r '.number' 2>/dev/null)
 
   if [[ -z "${PR_URL}" || "${PR_URL}" == "null" ]]; then
-    echo "❌ Failed to create Pull Request" >&2
+    echo " Failed to create Pull Request" >&2
     echo "Response: ${PR_RESPONSE}" >&2
     exit 1
   fi
 
   echo "" >&2
-  echo "✅ Pull Request #${PR_NUMBER} created successfully!" >&2
+  echo " Pull Request #${PR_NUMBER} created successfully!" >&2
   echo "URL: ${PR_URL}" >&2
   echo "=================================================" >&2
 
@@ -2202,7 +2202,7 @@ function close_pr() {
   echo "=================================================" >&2
 
   if [[ -z "${GITHUB_PAT}" ]]; then
-    echo "❌ Error: GITHUB_PAT environment variable is not set" >&2
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
     echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
     return 0
   fi
@@ -2231,13 +2231,13 @@ function close_pr() {
     set -o pipefail
 
     if [[ $CURL_RC -ne 0 ]]; then
-      echo "❌ Error: curl failed with return code ${CURL_RC}" >&2
+      echo " Error: curl failed with return code ${CURL_RC}" >&2
       if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
         echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
         sleep ${RETRY_DELAY}
         continue
       else
-        echo "❌ Failed to close PR after ${MAX_RETRIES} attempts" >&2
+        echo " Failed to close PR after ${MAX_RETRIES} attempts" >&2
         return 0
       fi
     fi
@@ -2246,32 +2246,32 @@ function close_pr() {
     local PR_URL=$(echo "${CLOSE_RESPONSE}" | jq -r '.html_url' 2>/dev/null)
 
     if [[ -z "${PR_STATE}" || "${PR_STATE}" == "null" ]]; then
-      echo "❌ Error: Failed to parse response" >&2
+      echo " Error: Failed to parse response" >&2
       echo "Response: ${CLOSE_RESPONSE}" >&2
       if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
         echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
         sleep ${RETRY_DELAY}
         continue
       else
-        echo "❌ Failed to close PR after ${MAX_RETRIES} attempts" >&2
+        echo " Failed to close PR after ${MAX_RETRIES} attempts" >&2
         return 0
       fi
     fi
 
     if [[ "${PR_STATE}" == "closed" ]]; then
       echo "" >&2
-      echo "✅ PR #${PR_NUMBER} closed successfully!" >&2
+      echo " PR #${PR_NUMBER} closed successfully!" >&2
       echo "URL: ${PR_URL}" >&2
       echo "=================================================" >&2
       return 0
     else
-      echo "❌ Error: PR state is '${PR_STATE}', expected 'closed'" >&2
+      echo " Error: PR state is '${PR_STATE}', expected 'closed'" >&2
       if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
         echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
         sleep ${RETRY_DELAY}
         continue
       else
-        echo "❌ Failed to close PR after ${MAX_RETRIES} attempts" >&2
+        echo " Failed to close PR after ${MAX_RETRIES} attempts" >&2
         return 0
       fi
     fi

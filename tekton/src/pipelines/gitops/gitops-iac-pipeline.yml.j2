@@ -12,10 +12,6 @@ spec:
       type: string
     - name: cluster_url
       type: string
-    - name: secrets_path
-      type: string
-    - name: avp_aws_secret_region
-      type: string
     - name: region_name
       type: string
     - name: git_branch
@@ -181,10 +177,6 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
         - name: region_name
           value: $(params.region_name)
         - name: efs_source
@@ -257,10 +249,6 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
         - name: region_name
           value: $(params.region_name)
         - name: s3_source
@@ -302,10 +290,6 @@ spec:
           value: $(params.github_repo)
         - name: github_host
           value: $(params.github_host)
-        - name: secrets_path
-          value: $(params.secrets_path)
-        - name: avp_aws_secret_region
-          value: $(params.avp_aws_secret_region)
         - name: region_name
           value: $(params.region_name)
         - name: is_efs

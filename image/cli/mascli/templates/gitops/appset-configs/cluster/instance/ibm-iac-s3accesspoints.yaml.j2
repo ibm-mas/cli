@@ -1,7 +1,7 @@
 module "s3buckets_access_point" {
   source = "{{ S3_SOURCE_S3ACCESSPOINT }}"
   for_each = {
-    for k, v in local.cluster.instance.manage_s3buckets :
+    for k, v in local.cluster.instance.{{APP_NAME}}_s3buckets :
     k => v if can(regex("log", v.name)) || can(regex("doclinks", v.name))
   }
 
@@ -14,13 +14,13 @@ module "s3buckets_access_point" {
   s3_access_point_policy_actions = local.s3_actions[each.value.access_level]
   configure_antivirus            = false
 
-  # ✅ Dynamically select correct IAM user based on bucket name
+  #  Dynamically select correct IAM user based on bucket name
   s3_access_point_user = (
     can(regex("log", each.value.name)) ? (
-      can(local.iam_user_arns_manage["logs_rw"]) ? local.iam_user_arns_manage["logs_rw"] :
-      local.iam_user_arns_manage["logs_ro"]
+      can(local.iam_user_arns_{{APP_NAME}}["logs_rw"]) ? local.iam_user_arns_{{APP_NAME}}["logs_rw"] :
+      local.iam_user_arns_{{APP_NAME}}["logs_ro"]
     ) :
-    can(regex("doclinks", each.value.name)) ? local.iam_user_arns_manage["doclinks"] :
+    can(regex("doclinks", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["doclinks"] :
     null
   )
 
