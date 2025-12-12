@@ -158,7 +158,7 @@ spec:
           operator: in
           values: ["true"]
       runAfter:
-        - gitops-iac-create-branch
+        - gitops-iac-config
       taskRef:
         name: gitops-iac-provision-efs
       workspaces:
@@ -234,7 +234,7 @@ spec:
           operator: in
           values: ["true"]
       runAfter:
-        - gitops-iac-create-branch
+        - gitops-iac-config
       taskRef:
         name: gitops-iac-provision-s3
       workspaces:
