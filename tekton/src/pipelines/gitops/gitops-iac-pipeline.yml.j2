@@ -128,9 +128,9 @@ spec:
 
     # Task 1: Create Branch (Always runs first)
     # -------------------------------------------------------------------------
-    - name: gitops-iac-create-branch
+    - name: gitops-iac-config
       taskRef:
-        name: gitops-iac-create-branch
+        name: gitops-iac-config
       workspaces:
         - name: configs
           workspace: configs

@@ -19,6 +19,3 @@ elif [[ "$GITHUB_REF_NAME" != "master" ]] && [[ "$GITHUB_REF_TYPE" == "branch" ]
         python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${GITHUB_REF_NAME}"
     fi
 fi
-
-# Install python-hcl2 for parsing HCL/Terraform files
-python3 -m pip install python-hcl2

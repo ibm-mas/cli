@@ -546,6 +546,8 @@ function gitops_iac_provision_s3() {
   echo "${ENVIRONMENT_VALUE}" > ${GITOPS_WORKING_DIR}/s3_vars_ENVIRONMENT_VALUE.txt
   echo "${OWNER_VALUE}" > ${GITOPS_WORKING_DIR}/s3_vars_OWNER_VALUE.txt
   echo "${ACCOUNT_ID}" > ${GITOPS_WORKING_DIR}/s3_vars_ACCOUNT_ID.txt
+  echo "${S3_MANAGE}" > ${GITOPS_WORKING_DIR}/s3_vars_S3_MANAGE.txt
+  echo "${S3_MVI}" > ${GITOPS_WORKING_DIR}/s3_vars_S3_MVI.txt
   
   # Mark that S3 was provisioned (for PR message generation)
   echo "true" > ${GITOPS_WORKING_DIR}/provisioned_S3.txt
@@ -661,6 +663,8 @@ function gitops_iac_generate_common_files() {
     export ENVIRONMENT_VALUE=$(cat ${GITOPS_WORKING_DIR}/s3_vars_ENVIRONMENT_VALUE.txt)
     export OWNER_VALUE=$(cat ${GITOPS_WORKING_DIR}/s3_vars_OWNER_VALUE.txt)
     export ACCOUNT_ID=$(cat ${GITOPS_WORKING_DIR}/s3_vars_ACCOUNT_ID.txt)
+    export S3_MANAGE=$(cat ${GITOPS_WORKING_DIR}/s3_vars_S3_MANAGE.txt)
+    export S3_MVI=$(cat ${GITOPS_WORKING_DIR}/s3_vars_S3_MVI.txt)
     echo "Loaded S3 variables"
   fi
   
