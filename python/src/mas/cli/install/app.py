@@ -1313,7 +1313,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("enable_ipv6", True)
 
             elif key == "install_minio_aiservice":
-                if vars(self.args)["aiservice_channel"] is not None and vars(self.args)["aiservice_channel"] != "":
+                if vars(self.args).get("aiservice_instance_id"):
                     incompatibleWithMinioInstall = [
                         "aiservice_s3_accesskey",
                         "aiservice_s3_secretkey",
