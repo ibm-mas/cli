@@ -35,6 +35,14 @@ allow_list: {{ ALLOW_LIST }}
 additional_vpn: {{ ADDITIONAL_VPN }}
 {% endif %}
 
+{% if ADDITIONAL_INFRASTRUCTURE is defined and ADDITIONAL_INFRASTRUCTURE != '' %}
+additional_infrastructure: "{{ ADDITIONAL_INFRASTRUCTURE }}"
+instance_name: "{{ INSTANCE_NAME }}"
+instance_reason_Code: "{{ INSTANCE_REASON_CODE }}"
+instance_cost: {{ INSTANCE_COST }}
+
+{% endif %}
+
 {% if EXTENSIONS is defined and EXTENSIONS != '' %}
 extensions: {{ EXTENSIONS }}
 {% endif %}

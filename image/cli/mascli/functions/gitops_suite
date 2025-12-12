@@ -42,6 +42,10 @@ IBM Maximo Application Suite:
       --mas-pod-template-yaml ${COLOR_YELLOW}MAS_POD_TEMPLATE_YAML${TEXT_RESET}                                           The location of a file containing the POD template
       --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                                 List of IPs or CIDR range to whitelist
       --additional-vpn ${COLOR_YELLOW}ADDITIONAL_VPN{TEXT_RESET}                                                          Manage additional client VPN
+      --additional-infrastructure ${COLOR_YELLOW}ADDITIONAL_INFRASTRUCTURE${TEXT_RESET}                                   additional infrastucture
+      --instance-name ${COLOR_YELLOW}INSTANCE_NAME${TEXT_RESET}                                                           Instance Name
+      --instance-cost ${COLOR_YELLOW}INSTANCE_COST${TEXT_RESET}                                                           Instance cost
+      --instance-reason-code ${COLOR_YELLOW}INSTANCE_REASON_CODE${TEXT_RESET}                                             Instance reasonCode
       --extensions ${COLOR_YELLOW}EXTENSIONS${TEXT_RESET}                                                                 To enable JAVA or 3rd party code extensions
       --enhanced-dr ${COLOR_YELLOW}ENHANCED_DR${TEXT_RESET}                                                               To enable Enhanced Disaster Recovery
       --is-non-shared-cluster ${COLOR_YELLOW}IS_NON_SHARED_CLUSTER${TEXT_RESET}                                           To enable Non shared cluster
@@ -277,7 +281,18 @@ function gitops_suite_noninteractive() {
       --is-non-shared-cluster)
         export IS_NON_SHARED_CLUSTER=$1 && shift
         ;;
-
+      --additional-infrastructure)
+        export ADDITIONAL_INFRASTRUCTURE=$1 && shift
+        ;;
+      --instance-name)
+        export INSTANCE_NAME=$1 && shift
+        ;;
+      --instance-cost)
+        export INSTANCE_COST=$1 && shift
+        ;;
+      --instance-reason-code)
+        export INSTANCE_REASON_CODE=$1 && shift
+        ;;
       # Target Cluster (Optional)
       --cluster-url)
         export CLUSTER_URL=$1 && shift
@@ -561,6 +576,10 @@ function gitops_suite() {
   echo_reset_dim "OIDC Config ................................ ${COLOR_MAGENTA}${OIDC_CONFIG}"
   echo_reset_dim "Allow List ................................. ${COLOR_MAGENTA}${ALLOW_LIST}"
   echo_reset_dim "Additional VPN ............................. ${COLOR_MAGENTA}${ADDITIONAL_VPN}"
+  echo_reset_dim "Additional INFRASTRUCTURE ............................. ${COLOR_MAGENTA}${ADDITIONAL_INFRASTRUCTURE}"
+  echo_reset_dim "INSTANCE NAME ............................. ${COLOR_MAGENTA}${INSTANCE_NAME}"
+  echo_reset_dim "INSTANCE COST ............................. ${COLOR_MAGENTA}${INSTANCE_COST}"
+  echo_reset_dim "INSTANCE REASON CODE ............................. ${COLOR_MAGENTA}${INSTANCE_REASON_CODE}"
   echo_reset_dim "Enhanced Disaster Recovery ................. ${COLOR_MAGENTA}${ENHANCED_DR}"
   echo_reset_dim "Non shared cluster ......................... ${COLOR_MAGENTA}${IS_NON_SHARED_CLUSTER}"
   echo_reset_dim "Java or 3rd Party Code Extensions .......... ${COLOR_MAGENTA}${EXTENSIONS}"
