@@ -18,7 +18,6 @@ spec:
     # -------------------------------------------------------------------------
     {{ lookup('template', params_src_dir ~ '/install-common.yml.j2') | indent(4)  }}
     {{ lookup('template', params_src_dir ~ '/install.yml.j2') | indent(4) }}
-    {{ lookup('template', params_src_dir ~ '/install-aiservice.yml.j2') | indent(4) }}
 
     # 3. Upgrade
     # -------------------------------------------------------------------------
