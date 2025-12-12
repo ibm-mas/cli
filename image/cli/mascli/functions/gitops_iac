@@ -343,32 +343,31 @@ function gitops_iac_provision_efs() {
     export GIT_SSH=false
   fi
   
-  # Remove any existing clone first with verification
-  if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
+  # Use a unique subdirectory for this task to avoid conflicts with parallel tasks
+  TASK_WORKING_DIR="${GITOPS_WORKING_DIR}/common-task"
+  mkdir -p ${TASK_WORKING_DIR}
+  
+  # Remove any existing clone first with force
+  if [ -d "${TASK_WORKING_DIR}/${GITHUB_REPO}" ]; then
     echo
     echo_h2 "Removing existing repository clone"
-    remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
-    
-    # Verify removal was successful
-    if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
-      echo "Warning: Directory still exists after removal, forcing cleanup"
-      rm -rf ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
-      sleep 2
-    fi
+    chmod -R +w ${TASK_WORKING_DIR}/${GITHUB_REPO} 2>/dev/null || true
+    rm -rf ${TASK_WORKING_DIR}/${GITHUB_REPO}
+    sleep 1
   fi
   
   echo
   echo_h2 "Cloning working branch ${WORKING_BRANCH} to get latest changes"
-  clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $TASK_WORKING_DIR $GIT_SSH
   
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
   mkdir -p ${GITOPS_CLUSTER_DIR}
   
   echo
   echo_h2 "Generating IAC/EFS Configuration"
   
   #Creating file path for extracting parameter value from cluster & vpc
-  CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
+  CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
   MAIN_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/main.tf
   TERRAFORMTF_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/terraform.tfvars
   
@@ -443,7 +442,7 @@ function gitops_iac_provision_efs() {
     echo
     echo_h2 "Committing EFS changes to branch ${WORKING_BRANCH}"
     GIT_COMMIT_MSG="Add EFS configuration"
-    save_to_target_git_repo "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH" "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH" "${TASK_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
   fi
   
   echo
@@ -452,7 +451,8 @@ function gitops_iac_provision_efs() {
   # Clean up cloned repository
   echo
   echo_h2 "Cleaning up local repository clone"
-  remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+  chmod -R +w ${TASK_WORKING_DIR}/${GITHUB_REPO} 2>/dev/null || true
+  rm -rf ${TASK_WORKING_DIR}/${GITHUB_REPO}
   
   exit 0
 }
@@ -490,32 +490,31 @@ function gitops_iac_provision_s3() {
     export GIT_SSH=false
   fi
   
-  # Remove any existing clone first with verification
-  if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
+  # Use a unique subdirectory for this task to avoid conflicts with parallel tasks
+  TASK_WORKING_DIR="${GITOPS_WORKING_DIR}/s3-task"
+  mkdir -p ${TASK_WORKING_DIR}
+  
+  # Remove any existing clone first with force
+  if [ -d "${TASK_WORKING_DIR}/${GITHUB_REPO}" ]; then
     echo
     echo_h2 "Removing existing repository clone"
-    remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
-    
-    # Verify removal was successful
-    if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
-      echo "Warning: Directory still exists after removal, forcing cleanup"
-      rm -rf ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
-      sleep 2
-    fi
+    chmod -R +w ${TASK_WORKING_DIR}/${GITHUB_REPO} 2>/dev/null || true
+    rm -rf ${TASK_WORKING_DIR}/${GITHUB_REPO}
+    sleep 1
   fi
   
   echo
   echo_h2 "Cloning working branch ${WORKING_BRANCH} to get latest changes"
-  clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $TASK_WORKING_DIR $GIT_SSH
   
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
   mkdir -p ${GITOPS_CLUSTER_DIR}
   
   echo
   echo_h2 "Generating IAC/S3 Configuration"
   
   #Creating file path for extracting parameter value from cluster
-  CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
+  CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
   TERRAFORMTF_FILE_PATH=$CLUSTER_CIDR_WORKLOAD_CLUSTER_PATH/terraform.tfvars
   
   #Creating value path for extracting parameter value from .tf file
@@ -568,7 +567,7 @@ function gitops_iac_provision_s3() {
     echo
     echo_h2 "Committing S3 changes to branch ${WORKING_BRANCH}"
     GIT_COMMIT_MSG="Add S3 configuration"
-    save_to_target_git_repo "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH" "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH" "${TASK_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
   fi
   
   echo
@@ -577,7 +576,8 @@ function gitops_iac_provision_s3() {
   # Clean up cloned repository
   echo
   echo_h2 "Cleaning up local repository clone"
-  remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+  chmod -R +w ${TASK_WORKING_DIR}/${GITHUB_REPO} 2>/dev/null || true
+  rm -rf ${TASK_WORKING_DIR}/${GITHUB_REPO}
   
   exit 0
 }
@@ -619,25 +619,24 @@ function gitops_iac_generate_common_files() {
     export GIT_SSH=false
   fi
   
-  # Remove any existing clone first with verification
-  if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
+  # Use a unique subdirectory for this task to avoid conflicts with parallel tasks
+  TASK_WORKING_DIR="${GITOPS_WORKING_DIR}/efs-task"
+  mkdir -p ${TASK_WORKING_DIR}
+  
+  # Remove any existing clone first with force
+  if [ -d "${TASK_WORKING_DIR}/${GITHUB_REPO}" ]; then
     echo
     echo_h2 "Removing existing repository clone"
-    remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
-    
-    # Verify removal was successful
-    if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
-      echo "Warning: Directory still exists after removal, forcing cleanup"
-      rm -rf ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
-      sleep 2
-    fi
+    chmod -R +w ${TASK_WORKING_DIR}/${GITHUB_REPO} 2>/dev/null || true
+    rm -rf ${TASK_WORKING_DIR}/${GITHUB_REPO}
+    sleep 1
   fi
   
   echo
   echo_h2 "Cloning working branch ${WORKING_BRANCH} to get latest changes"
-  clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
+  clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $TASK_WORKING_DIR $GIT_SSH
   
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
   mkdir -p ${GITOPS_CLUSTER_DIR}
   
   # Load exported variables from EFS task (if exists)
@@ -683,7 +682,7 @@ function gitops_iac_generate_common_files() {
     echo
     echo_h2 "Committing common files to branch ${WORKING_BRANCH}"
     GIT_COMMIT_MSG="Add common Terraform configuration files"
-    save_to_target_git_repo "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH" "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+    save_to_target_git_repo "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH" "${TASK_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
   fi
   
   echo
@@ -693,7 +692,8 @@ function gitops_iac_generate_common_files() {
   # Clean up cloned repository
   echo
   echo_h2 "Cleaning up local repository clone"
-  remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+  chmod -R +w ${TASK_WORKING_DIR}/${GITHUB_REPO} 2>/dev/null || true
+  rm -rf ${TASK_WORKING_DIR}/${GITHUB_REPO}
   
   exit 0
 }
