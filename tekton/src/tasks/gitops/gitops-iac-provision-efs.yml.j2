@@ -155,7 +155,7 @@ spec:
           git config --global user.email "you@example.com"
           git config --global user.password $GITHUB_PAT
 
-          CMD="mas gitops-iac-provision-efs -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --secrets-path $SECRET_PATH --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
+          CMD="mas gitops-iac-provision-efs -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
 
           [ -n "$EFS_SOURCE" ] && CMD="$CMD --efs-source $EFS_SOURCE"
           [ -n "$EFS_MANAGE_DB2_PERFORMANCE_MODE" ] && CMD="$CMD --efs_manage_db2_performance_mode $EFS_MANAGE_DB2_PERFORMANCE_MODE"
