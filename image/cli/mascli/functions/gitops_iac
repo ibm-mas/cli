@@ -343,11 +343,18 @@ function gitops_iac_provision_efs() {
     export GIT_SSH=false
   fi
   
-  # Remove any existing clone first
+  # Remove any existing clone first with verification
   if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
     echo
     echo_h2 "Removing existing repository clone"
     remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+    
+    # Verify removal was successful
+    if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
+      echo "Warning: Directory still exists after removal, forcing cleanup"
+      rm -rf ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+      sleep 2
+    fi
   fi
   
   echo
@@ -483,11 +490,18 @@ function gitops_iac_provision_s3() {
     export GIT_SSH=false
   fi
   
-  # Remove any existing clone first
+  # Remove any existing clone first with verification
   if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
     echo
     echo_h2 "Removing existing repository clone"
     remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+    
+    # Verify removal was successful
+    if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
+      echo "Warning: Directory still exists after removal, forcing cleanup"
+      rm -rf ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+      sleep 2
+    fi
   fi
   
   echo
@@ -605,11 +619,18 @@ function gitops_iac_generate_common_files() {
     export GIT_SSH=false
   fi
   
-  # Remove any existing clone first
+  # Remove any existing clone first with verification
   if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
     echo
     echo_h2 "Removing existing repository clone"
     remove_git_repo_clone ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+    
+    # Verify removal was successful
+    if [ -d "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" ]; then
+      echo "Warning: Directory still exists after removal, forcing cleanup"
+      rm -rf ${GITOPS_WORKING_DIR}/${GITHUB_REPO}
+      sleep 2
+    fi
   fi
   
   echo
