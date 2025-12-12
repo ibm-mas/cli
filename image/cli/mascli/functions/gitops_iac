@@ -476,10 +476,7 @@ function gitops_iac_provision_efs() {
   echo
   echo_h2 "Generating IAC/EFS Configuration"
   
-  # Compute EFS flags based on parameters (needed for efs.tf generation)
-  
-  # Mark that EFS was provisioned (for PR message generation)
-  echo "true" > ${GITOPS_WORKING_DIR}/provisioned_EFS.txt
+
   
   # Generate EFS-specific file only
   echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/efs.tf"
@@ -564,9 +561,6 @@ function gitops_iac_provision_s3() {
   # S3_MANAGE and S3_MVI are already set from command-line parameters
   echo "S3_MANAGE: ${S3_MANAGE}"
   echo "S3_MVI: ${S3_MVI}"
-  
-  # Mark that S3 was provisioned (for PR message generation)
-  echo "true" > ${GITOPS_WORKING_DIR}/provisioned_S3.txt
   
   # Generate S3-specific files only
   if [[ "$S3_MANAGE"  == "true" ]]; then
@@ -720,6 +714,8 @@ function gitops_iac_manage_pr() {
   [[ -z "$GITHUB_ORG" ]] && gitops_iac_help "GITHUB_ORG is not set"
   [[ -z "$GITHUB_REPO" ]] && gitops_iac_help "GITHUB_REPO is not set"
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_iac_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$IS_EFS" ]] && gitops_iac_help "IS_EFS is not set"
+  [[ -z "$IS_S3" ]] && gitops_iac_help "IS_S3 is not set"
   
   # Read the working branch and target branch names
   if [ -f "${GITOPS_WORKING_DIR}/new_branch_name.txt" ]; then
@@ -738,13 +734,13 @@ function gitops_iac_manage_pr() {
   # Build dynamic PR title and body based on what was provisioned
   PROVISIONED_COMPONENTS=()
   
-  # Check if EFS was provisioned
-  if [ -f "${GITOPS_WORKING_DIR}/provisioned_EFS.txt" ]; then
+  # Check if EFS was provisioned using IS_EFS parameter
+  if [[ "$IS_EFS" == "true" ]]; then
     PROVISIONED_COMPONENTS+=("EFS")
   fi
   
-  # Check if S3 was provisioned
-  if [ -f "${GITOPS_WORKING_DIR}/provisioned_S3.txt" ]; then
+  # Check if S3 was provisioned using IS_S3 parameter
+  if [[ "$IS_S3" == "true" ]]; then
     PROVISIONED_COMPONENTS+=("S3")
   fi
   
