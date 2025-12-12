@@ -329,8 +329,8 @@ function provision_roks() {
     echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
     export OCP_CONSOLE_URL="https://$OCP_CONSOLE_ROUTE"
   fi
-  if [[ -n $ADD_DETAILS ]]; then
-    mas-devops-notify-slack --action ocp-provision-roks --rc $result --add-details $ADD_DETAILS
+  if [[ -n $MSG ]]; then
+    mas-devops-notify-slack --action ocp-provision-roks --rc $result --msg $MSG
   else
     mas-devops-notify-slack --action ocp-provision-roks --rc $result
   fi
