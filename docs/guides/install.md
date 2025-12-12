@@ -99,6 +99,12 @@ Interactive Install
 -------------------------------------------------------------------------------
 Regardless of whether you are running a connected or disconnected installation, simply run the `mas install` command and follow the prompts, the basic structure of the interactive flow is described below.  We will need the `entitlement.lic` file to perform the installation so we will mount your home directory into the running container.  When prompted you will be able to set license file to `/mnt/home/entitlement.lic`
 
+!!! note "NEW: AI Service Installation Options"
+    **NEW UPDATE:** AI Service can now be installed in two ways:
+    
+    - **Integrated Installation**: AI Service is now available as an option during the MAS installation process using the `mas install` command. You can select AI Service along with other MAS applications during the interactive application selection step or you can run non-interactive command as well.
+    - **Standalone Installation**: For standalone AI Service installation, use the dedicated `mas aiservice-install` command to install AI Service independently of the main MAS installation.
+
 ```bash
 docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ mas install
 ```
@@ -155,6 +161,7 @@ The interactive install will guide you through a series of questioned designed t
         <li>Monitor is only available for install if IoT is selected</li>
         <li>Assist and Predict are only available for install if Monitor is selected</li>
         <li>From MAS 9.1 onwards, Assist will be rebranded as Collaborate in the MAS UI. It will still appear as Assist in the MAS CLI and within the OpenShift Cluster, but from the MAS UI it will appear as Collaborate.</li>
+        <li><strong>NEW UPDATE:</strong> AI Service is now available as an installation option during the application selection step.</li>
       </ul>
     </cds-accordion-item>
     <cds-accordion-item title="Application Configuration">
