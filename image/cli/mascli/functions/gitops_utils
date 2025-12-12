@@ -282,7 +282,6 @@ function clone_target_git_repo() {
   cd $PWD
 }
 
-
 function save_to_target_git_repo() {
   GITHUB_HOST=$1
   GITHUB_ORG=$2
@@ -715,455 +714,6 @@ function save_and_unlock_target_git_repo {
 
 }
 
-# This func first checks whether any open PR already exists in the target repository — if yes, it lists them and exits without creating a new one.
-# If no open PRs are found, it automatically creates a new PR from the specified branch to the main branch.
-# It uses curl for API calls and jq for parsing JSON responses.
-# Call it this way git_auto_pr_single_threaded $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITHUB_TOKEN $GITOPS_WORKING_DIR
-function git_auto_pr_single_threaded() {
-  GITHUB_HOST=$1
-  GITHUB_ORG=$2
-  GITHUB_REPO=$3
-  GIT_BRANCH=$4
-  GITHUB_TOKEN=$5
-  LOCAL_DIR=$6
-  cd $LOCAL_DIR
-
-  #GITHUB_HOST="https://api.github.ibm.com"
-
-  # === Derived URLs ===
-  REPO_URL="$GITHUB_HOST/repos/${GITHUB_ORG}/${GITHUB_REPO}"
-  PR_LIST_URL="${REPO_URL}/pulls?state=open"
-  CREATE_PR_URL="${REPO_URL}/pulls"
-
-  # === Common headers ===
-  AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
-  ACCEPT_HEADER="Accept: application/vnd.github+json"
-
-  # === 1 Check for ANY existing open PRs ===
-  echo "Checking for existing open PRs..."
-
-  PR_LIST_RESP=$(curl -s -H "$AUTH_HEADER" -H "$ACCEPT_HEADER" "$PR_LIST_URL")
-
-  # Validate response
-  if [[ $? -ne 0 ]]; then
-    echo "Failed to fetch PR list."
-    exit 1
-  fi
-
-  # Count open PRs
-  OPEN_COUNT=$(echo "$PR_LIST_RESP" | jq '. | length')
-
-  if [[ "$OPEN_COUNT" -gt 0 ]]; then
-    echo "There is already at least one open PR in the repository. Skipping creation."
-    echo "Existing open PRs:"
-    echo "$PR_LIST_RESP" | jq -r '.[] | "\(.title) — \(.html_url)"'
-    exit 0
-  fi
-
-  # === 2 Create new PR ===
-  echo "Creating a new PR for branch '${GIT_BRANCH}'..."
-
-  PR_PAYLOAD=$(jq -n \
-    --arg title "Auto PR from ${GIT_BRANCH}" \
-    --arg head "${GIT_BRANCH}" \
-    --arg base "main" \
-    --arg body "This PR was created automatically from branch \`${GIT_BRANCH}\`." \
-    '{title: $title, head: $head, base: $base, body: $body}')
-
-  CREATE_RESP=$(curl -s -w "%{http_code}" -o /tmp/create_pr_response.json \
-    -X POST \
-    -H "$AUTH_HEADER" \
-    -H "$ACCEPT_HEADER" \
-    -d "$PR_PAYLOAD" \
-    "$CREATE_PR_URL")
-
-  if [[ "$CREATE_RESP" == "201" ]]; then
-    PR_URL=$(jq -r '.html_url' /tmp/create_pr_response.json)
-    echo "PR created successfully: $PR_URL"
-  else
-    echo "Failed to create PR (HTTP $CREATE_RESP)"
-    cat /tmp/create_pr_response.json
-    exit 1
-  fi
-}
-
-
-# Commits changes to a new branch and creates a PR using GitHub API
-# Uses GITHUB_PAT for authentication (consistent with other git operations)
-# Only creates PR if no open PRs exist in the repository
-#
-# Parameters:
-#   $1 - GITHUB_HOST (e.g., "github.com")
-#   $2 - GITHUB_ORG
-#   $3 - GITHUB_REPO
-#   $4 - BASE_BRANCH (e.g., "main")
-#   $5 - LOCAL_DIR (path to local repo clone)
-#   $6 - COMMIT_MSG
-#   $7 - PR_BRANCH_PREFIX (optional, default: "gitops-update")
-#
-# Example usage:
-#   git_commit_and_create_pr_if_none_exist \
-#     "github.com" \
-#     "ibm-mas" \
-#     "gitops-config" \
-#     "main" \
-#     "/tmp/working-dir/gitops-config" \
-#     "Update IAC EFS configuration" \
-#     "iac-efs-update"
-function git_commit_and_create_pr_if_none_exist() {
-  GITHUB_HOST=$1
-  GITHUB_ORG=$2
-  GITHUB_REPO=$3
-  BASE_BRANCH=$4
-  LOCAL_DIR="$5"
-  COMMIT_MSG="$6"
-  PR_BRANCH_PREFIX=${7:-"gitops-iac-update"}
-
-  CURRENT_DIR=$PWD
-
-  echo "" >&2
-  echo "$(logts) git_commit_and_create_pr_if_none_exist" >&2
-  echo "=================================================" >&2
-  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
-  echo "Base Branch: ${BASE_BRANCH}" >&2
-  echo "Local Directory: ${LOCAL_DIR}" >&2
-  echo "Commit Message: ${COMMIT_MSG}">&2
-
-  cd "$LOCAL_DIR" || exit 1
-
-  # Step 1: Check for existing open PRs using GitHub API
-  echo "" >&2
-  echo "$(logts) Checking for existing open PRs..." >&2
-  echo "-------------------------------------------------" >&2
-
-  if [[ -z "${GITHUB_PAT}" ]]; then
-    echo "❌ Error: GITHUB_PAT environment variable is not set" >&2
-    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
-    exit 1
-  fi
-
-  # Use GitHub API to list open PRs
-  API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls?state=open"
-
-  set +o pipefail
-  OPEN_PRS=$(curl -s -H "Authorization: token ${GITHUB_PAT}" \
-    -H "Accept: application/vnd.github.v3+json" \
-    "${API_URL}")
-  CURL_RC=$?
-  set -o pipefail
-
-  if [[ $CURL_RC -ne 0 ]]; then
-    echo "❌ Error: Failed to check for existing PRs (curl returned ${CURL_RC})" >&2
-    exit 1
-  fi
-
-  OPEN_PR_COUNT=$(echo "${OPEN_PRS}" | jq '. | length' 2>/dev/null)
-
-  if [[ -z "${OPEN_PR_COUNT}" || "${OPEN_PR_COUNT}" == "null" ]]; then
-    echo "❌ Error: Failed to parse PR list from GitHub API" >&2
-    echo "Response: ${OPEN_PRS}" >&2
-    exit 1
-  fi
-
-  if [[ "$OPEN_PR_COUNT" -gt 1 ]]; then #need to change later to 0
-    echo "⚠️  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}" >&2
-    echo "Existing PRs:" >&2
-    echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"' >&2
-    echo "" >&2
-    echo "Please merge or close existing PRs first." >&2
-    cd "$CURRENT_DIR"
-    exit 1
-  fi
-
-  echo "✓ No open PRs found, proceeding with changes..." >&2
-
-  # Step 2: Add all changes
-  echo "" >&2
-  echo "$(logts) git add -v ." >&2
-  echo "-------------------------------------------------" >&2
-  FILES_ADDED_OUTPUT="$(git add -v .)"
-  return_code=$?
-  if [ $return_code -ne 0 ]; then
-    echo "❌ git: Add files failed with error: $return_code" >&2
-    exit $return_code
-  fi
-
-  FILES_ADDED=$(echo "$FILES_ADDED_OUTPUT" | awk NF | wc -l | xargs)
-  echo "git: Added ${FILES_ADDED} files" >&2
-
-  if [ "$FILES_ADDED" == "0" ]; then
-    echo "ℹ️  No changes found, nothing to commit" >&2
-    cd "$CURRENT_DIR"
-    return 0
-  fi
-
-  # Step 3: Create a new branch with timestamp
-  TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-  PR_BRANCH="${PR_BRANCH_PREFIX}-${TIMESTAMP}"
-
-  echo "" >&2
-  echo "$(logts) git checkout -b ${PR_BRANCH}" >&2
-  echo "-------------------------------------------------" >&2
-  git checkout -b "${PR_BRANCH}" || exit 1
-
-  # Step 4: Commit changes
-  echo "" >&2
-  echo "$(logts) git commit -m \"${COMMIT_MSG}\"" >&2
-  echo "-------------------------------------------------" >&2
-  git commit -m "${COMMIT_MSG}" >&2 || exit 1
-
-  # Step 5: Push the new branch
-  echo "" >&2
-  echo "$(logts) git push -u origin ${PR_BRANCH}" >&2
-  echo "-------------------------------------------------" >&2
-  git push -u origin "${PR_BRANCH}" >&2 || exit 1
-
-  # Step 6: Create PR using GitHub API
-  echo "" >&2
-  echo "$(logts) Creating Pull Request..." >&2
-  echo "-------------------------------------------------" >&2
-
-  IFS='-' read -ra PARTS <<< "$COMMIT_MSG"
-  # Initialize output
-  CHANGE_LINES=""
-
-  # Loop starting from index 1 to skip the first element
-  for ((i=1; i<${#PARTS[@]}; i++)); do
-      CHANGE_LINES+="- ${PARTS[i]} provisioned\n"
-  done
-
-  PR_TITLE="GitOps: ${COMMIT_MSG}"
-
-  IFS='-' read -ra PARTS <<< "$COMMIT_MSG"
-  CHANGE_LINES=""
-  for ((i=1; i<${#PARTS[@]}; i++)); do
-    CHANGE_LINES+="- ${PARTS[i]} provisioned\n"
-  done
-
-  PR_BODY=$(printf "This PR was created automatically by the GitOps IAC workflow.\n\n**Changes:**\n%b\n**Branch:** \`${PR_BRANCH}\`\n**Target:** \`${BASE_BRANCH}\`\n**Timestamp:** %s" "$CHANGE_LINES" "$(date -u +"%Y-%m-%d %H:%M:%S UTC")")
-
-
-#   PR_BODY="This PR was created automatically by the GitOps IAC workflow.
-
-# **Changes:**
-# ${CHANGE_LINES}
-
-# **Branch:** \`${PR_BRANCH}\`
-# **Target:** \`${BASE_BRANCH}\`
-# **Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
-
-  # Create PR using GitHub API
-  PR_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls"
-
-  PR_DATA=$(jq -n \
-    --arg title "${PR_TITLE}" \
-    --arg body "${PR_BODY}" \
-    --arg head "${PR_BRANCH}" \
-    --arg base "${BASE_BRANCH}" \
-    '{title: $title, body: $body, head: $head, base: $base}')
-
-  set +o pipefail
-  PR_RESPONSE=$(curl -s -X POST \
-    -H "Authorization: token ${GITHUB_PAT}" \
-    -H "Accept: application/vnd.github.v3+json" \
-    -H "Content-Type: application/json" \
-    -d "${PR_DATA}" \
-    "${PR_API_URL}")
-  CURL_RC=$?
-  set -o pipefail
-
-  if [[ $CURL_RC -ne 0 ]]; then
-    echo "❌ Failed to create Pull Request (curl returned ${CURL_RC})" >&2
-    exit 1
-  fi
-
-  PR_URL=$(echo "${PR_RESPONSE}" | jq -r '.html_url' 2>/dev/null)
-  PR_NUMBER=$(echo "${PR_RESPONSE}" | jq -r '.number' 2>/dev/null)
-
-  if [[ -z "${PR_URL}" || "${PR_URL}" == "null" ]]; then
-    echo "❌ Failed to create Pull Request" >&2
-    echo "Response: ${PR_RESPONSE}" >&2
-    exit 1
-  fi
-
-  echo "" >&2
-  echo "✅ Pull Request #${PR_NUMBER} created successfully!" >&2
-  echo "URL: ${PR_URL}" >&2
-
-  cd "$CURRENT_DIR"
-
-  echo "" >&2
-  echo "$(logts) git_commit_and_create_pr_if_none_exist: success" >&2
-  echo "=================================================" >&2
-  
-  # Return the PR number
-  echo "${PR_NUMBER}"
-}
-
-
-# Monitors a GitHub Pull Request status and waits for it to be merged or closed
-# Checks the PR status every minute until it's merged (success) or closed (failure)
-#
-# Parameters:
-#   $1 - GITHUB_HOST (e.g., "github.com")
-#   $2 - GITHUB_ORG
-#   $3 - GITHUB_REPO
-#   $4 - PR_NUMBER
-#   $5 - CHECK_INTERVAL (optional, default: 60 seconds)
-#   $6 - MAX_CHECKS (optional, default: unlimited/0)
-#
-# Returns:
-#   0 - PR was merged successfully
-#   1 - PR was closed without merging or error occurred
-#
-# Example usage:
-#   monitor_pr_status "github.com" "ibm-mas" "gitops-config" "123"
-#   if [[ $? -eq 0 ]]; then
-#     echo "Pipeline SUCCESS: PR was merged"
-#   else
-#     echo "Pipeline FAILED: PR was closed or error occurred"
-#   fi
-function monitor_pr_status() {
-  GITHUB_HOST=$1
-  GITHUB_ORG=$2
-  GITHUB_REPO=$3
-  PR_NUMBER=$4
-  CHECK_INTERVAL=${5:-60}
-  MAX_CHECKS=${6:-0}
-  TIMEOUT_SECONDS="${7:-600}"
-
-  echo "" >&2
-  echo "$(logts) monitor_pr_status" >&2
-  echo "=================================================" >&2
-  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
-  echo "PR Number: #${PR_NUMBER}" >&2
-  echo "Check Interval: ${CHECK_INTERVAL} seconds" >&2
-  if [[ ${MAX_CHECKS} -gt 0 ]]; then
-    echo "Max Checks: ${MAX_CHECKS}" >&2
-  else
-    echo "Max Checks: Unlimited" >&2
-  fi
-  echo "=================================================" >&2
-  
-  if [[ -z "${GITHUB_PAT}" ]]; then
-    echo "❌ Error: GITHUB_PAT environment variable is not set" >&2
-    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
-    return 1
-  fi
-  
-  # GitHub API URL for the specific PR
-  PR_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls/${PR_NUMBER}"
-  PR_COMMENT_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls/${PR_NUMBER}/comments"
-  
-  echo "Monitoring PR #${PR_NUMBER} for Atlantis plan summary..."
-  local END_TIME=$(( $(date +%s) + TIMEOUT_SECONDS ))
-
-  while [ "$(date +%s)" -lt "$END_TIME" ]; do
-
-    COMMENTS_JSON=$(curl -s \
-      -H "Authorization: token ${GITHUB_PAT}" \
-      -H "Accept: application/vnd.github.v3+json" \
-      "${PR_COMMENT_URL}"
-    )
-
-    COMMENT_BODIES=$(echo "$COMMENTS_JSON" | jq -r '.[].body')
-
-    echo "[monitor_pr_status] Checking comments for Atlantis plan summary..."
-
-    # Look for the 2-line plan summary block
-    if echo "$COMMENT_BODIES" | grep -qE "Plan Summary"; then
-      if echo "$COMMENT_BODIES" | grep -qE "[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed"; then
-        echo "Found Atlantis plan summary — returning success."
-        return 0
-      fi
-    fi
-    sleep "$CHECK_INTERVAL"
-  done
-
-  CHECK_COUNT=0
-  
-  while true; do
-    ((CHECK_COUNT++))
-    
-    echo "" >&2
-    echo "$(logts) Check #${CHECK_COUNT}: Checking PR #${PR_NUMBER} status..." >&2
-    echo "-------------------------------------------------" >&2
-    
-    # Fetch PR details from GitHub API
-    set +o pipefail
-    PR_RESPONSE=$(curl -s -H "Authorization: token ${GITHUB_PAT}" \
-      -H "Accept: application/vnd.github.v3+json" \
-      "${PR_API_URL}")
-    CURL_RC=$?
-    set -o pipefail
-    
-    if [[ $CURL_RC -ne 0 ]]; then
-      echo "❌ Error: Failed to fetch PR status (curl returned ${CURL_RC})" >&2
-      return 1
-    fi
-    
-    # Extract PR state and merged status
-    PR_STATE=$(echo "${PR_RESPONSE}" | jq -r '.state' 2>/dev/null)
-    PR_MERGED=$(echo "${PR_RESPONSE}" | jq -r '.merged' 2>/dev/null)
-    PR_MERGEABLE=$(echo "${PR_RESPONSE}" | jq -r '.mergeable' 2>/dev/null)
-    PR_TITLE=$(echo "${PR_RESPONSE}" | jq -r '.title' 2>/dev/null)
-    
-    if [[ -z "${PR_STATE}" || "${PR_STATE}" == "null" ]]; then
-      echo "❌ Error: Failed to parse PR status from GitHub API" >&2
-      echo "Response: ${PR_RESPONSE}" >&2
-      return 1
-    fi
-    
-    echo "PR State: ${PR_STATE}" >&2
-    echo "PR Merged: ${PR_MERGED}" >&2
-    echo "PR Mergeable: ${PR_MERGEABLE}" >&2
-    echo "PR Title: ${PR_TITLE}" >&2
-    
-    # Check if PR is merged
-    if [[ "${PR_MERGED}" == "true" ]]; then
-      echo "" >&2
-      echo "✅ SUCCESS: PR #${PR_NUMBER} has been merged!" >&2
-      echo "$(logts) Pipeline marked as SUCCESS" >&2
-      echo "=================================================" >&2
-      echo "merged"
-      return 0
-    fi
-    
-    # Check if PR is closed (but not merged)
-    if [[ "${PR_STATE}" == "closed" && "${PR_MERGED}" != "true" ]]; then
-      echo "" >&2
-      echo "❌ FAILED: PR #${PR_NUMBER} was closed without merging" >&2
-      echo "$(logts) Pipeline marked as FAILED" >&2
-      echo "=================================================" >&2
-      echo "closed"
-      return 0
-    fi
-    
-    # Check if PR is still open
-    if [[ "${PR_STATE}" == "open" ]]; then
-      echo "ℹ️  PR #${PR_NUMBER} is still open, waiting for merge..." >&2
-      
-      # Check if we've reached max checks
-      if [[ ${MAX_CHECKS} -gt 0 && ${CHECK_COUNT} -ge ${MAX_CHECKS} ]]; then
-        echo "" >&2
-        echo "⚠️  WARNING: Reached maximum number of checks (${MAX_CHECKS})" >&2
-        echo "PR #${PR_NUMBER} is still open but monitoring timeout reached" >&2
-        echo "$(logts) Pipeline marked as FAILED due to timeout" >&2
-        echo "=================================================" >&2
-        return 1
-      fi
-      
-      echo "Waiting ${CHECK_INTERVAL} seconds before next check..." >&2
-      sleep ${CHECK_INTERVAL}
-      continue
-    fi
-    
-    # Unknown state
-    echo "❌ Error: Unknown PR state: ${PR_STATE}" >&2
-    return 1
-  done
-}
-
 
 function argocd_login() {
   retries=${1:-20}
@@ -1459,8 +1009,8 @@ function generate_storage_class_def() {
 
 # Reads comments from a GitHub Pull Request and validates Atlantis summary
 # Supports two comment types:
-#   1. "Plan Summary" - Format: "X projects, Y with changes, Z with no changes, W failed"
-#   2. "Apply Summary" - Format: "X projects, Y successful, Z failed, W errored"
+#   1. "Plan"
+#   2. "Apply"
 #
 # Parameters:
 #   $1 - GITHUB_HOST (e.g., "github.com")
@@ -1491,7 +1041,7 @@ function read_and_validate_pr_comments() {
   local GITHUB_REPO=$3
   local PR_NUMBER=$4
   local COMMENT_TYPE=${5:-"plan"}
-  local TIMEOUT_SECONDS=${6:-1200}
+  local TIMEOUT_SECONDS=${6:-3600}
   local POLL_INTERVAL=${7:-30}
 
   echo "" >&2
@@ -1687,7 +1237,6 @@ function read_and_validate_pr_comments() {
   return 0
 }
 
-
 #  Posts a comment to a GitHub Pull Request
 #
 #  Parameters:
@@ -1773,7 +1322,6 @@ function comment_on_pr() {
   echo "true"
   return 0
 }
-
 
 # Merges a GitHub Pull Request
 # Includes retry mechanism with 60-second wait between attempts
@@ -1956,8 +1504,8 @@ function approve_pr() {
 
   if [[ -z "${APPROVAL_TOKEN}" ]]; then
     echo " Error: APPROVAL_TOKEN environment variable is not set" >&2
-    echo "Please set APPROVAL_TOKEN with a valid GitHub Personal Access Token" >&2
-    return 0
+    echo "Please provide APPROVAL_TOKEN with a valid GitHub Personal Access Token" >&2
+    return 1
   fi
 
   # GitHub API URL for PR reviews
@@ -2233,7 +1781,7 @@ function close_pr() {
     if [[ $CURL_RC -ne 0 ]]; then
       echo " Error: curl failed with return code ${CURL_RC}" >&2
       if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
-        echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
         sleep ${RETRY_DELAY}
         continue
       else
@@ -2249,7 +1797,7 @@ function close_pr() {
       echo " Error: Failed to parse response" >&2
       echo "Response: ${CLOSE_RESPONSE}" >&2
       if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
-        echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
         sleep ${RETRY_DELAY}
         continue
       else
@@ -2267,7 +1815,7 @@ function close_pr() {
     else
       echo " Error: PR state is '${PR_STATE}', expected 'closed'" >&2
       if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
-        echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
         sleep ${RETRY_DELAY}
         continue
       else
