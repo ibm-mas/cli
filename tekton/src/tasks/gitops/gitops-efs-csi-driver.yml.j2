@@ -17,7 +17,7 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: efs_role_arn
+    - name: role_arn
       type: string
     - name: efs_install_plan
       type: string
@@ -38,7 +38,7 @@ spec:
       - name: GITHUB_REPO
         value: $(params.github_repo)
       - name: EFS_CSI_DRIVER_ROLE_ARN
-        value: $(params.efs_role_arn)
+        value: $(params.role_arn)
       - name: EFS_INSTALL_PLAN
         value: $(params.efs_install_plan)
     envFrom:

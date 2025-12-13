@@ -45,7 +45,7 @@ spec:
     - name: mas_catalog_image
       type: string
 
-    - name: efs_role_arn
+    - name: role_arn
       type: string
 
     - name: dro_namespace
@@ -411,7 +411,7 @@ spec:
           value: $(params.github_host)
         - name: git_commit_msg
           value: $(params.git_commit_msg)
-        - name: efs_role_arn
+        - name: role_arn
           value: $(params.role_arn)
       taskRef:
         kind: Task
