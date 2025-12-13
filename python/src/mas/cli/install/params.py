@@ -138,12 +138,6 @@ optionalParams = [
     "eck_remote_es_hosts",
     "eck_remote_es_username",
     "eck_remote_es_password",
-    # Turbonomic
-    "turbonomic_target_name",
-    "turbonomic_server_url",
-    "turbonomic_server_version",
-    "turbonomic_username",
-    "turbonomic_password",
     # Cloud Providers
     "ibmcloud_apikey",
     "aws_region",
