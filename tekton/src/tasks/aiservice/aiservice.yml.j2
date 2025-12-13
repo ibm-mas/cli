@@ -95,7 +95,7 @@ spec:
       description:
       default: "This option is mandatory"
 
-    # AI Broker storage
+    # AI Service storage
     - name: aiservice_s3_accesskey
       type: string
       default: "This option is mandatory"
@@ -134,7 +134,23 @@ spec:
     - name: environment_type
       type: string
       description: Environment type
-      default: ""
+      default: ""    
+    
+    # Tenant Entitlement
+    - name: tenant_entitlement_type
+      type: string
+    - name: tenant_entitlement_start_date
+      type: string
+    - name: tenant_entitlement_end_date
+      type: string
+
+    # RSL
+    - name: rsl_url
+      type: string
+    - name: rsl_org_id
+      type: string
+    - name: rsl_token
+      type: string
 
   stepTemplate:
     env:
@@ -217,6 +233,22 @@ spec:
       - name: ENVIRONMENT_TYPE
         value: $(params.environment_type)
 
+      # Tenant Entitlement
+      - name: AISERVICE_TENANT_ENTITLEMENT_TYPE
+        value: $(params.tenant_entitlement_type)
+      - name: AISERVICE_TENANT_ENTITLEMENT_START_DATE
+        value: $(params.tenant_entitlement_start_date)
+      - name: AISERVICE_TENANT_ENTITLEMENT_END_DATE
+        value: $(params.tenant_entitlement_end_date)
+
+      # RSL
+      - name: RSL_URL
+        value: $(params.rsl_url)
+      - name: RSL_ORG_ID
+        value: $(params.rsl_org_id)
+      - name: RSL_TOKEN
+        value: $(params.rsl_token)
+
   steps:
     - name: aiservice
       command:
@@ -225,6 +257,48 @@ spec:
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
+
+    - name: aiservice-tenant
+      command:
+        - /opt/app-root/src/run-role.sh
+        - aiservice_tenant
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+
+    # If configmap/approval-aiservice exists then set STATUS=pending and wait for it to be changed to "approved"
+    - name: app-cfg-post-verify
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      command:
+        - /opt/app-root/src/wait-for-configmap.sh
+      env:
+        - name: NAMESPACE
+          value: $(context.taskRun.namespace)
+        - name: CONFIGMAP_NAME
+          value: approval-aiservice
+        - name: CONFIGMAP_INITIAL_VALUE
+          value: pending
+        - name: CONFIGMAP_TARGET_VALUE
+          value: approved
+        - name: DELAY
+          valueFrom:
+            configMapKeyRef:
+              name: approval-aiservice
+              key: DELAY
+              optional: true
+        - name: MAX_RETRIES
+          valueFrom:
+            configMapKeyRef:
+              name: approval-aiservice
+              key: MAX_RETRIES
+              optional: true
+        - name: IGNORE_FAILURE
+          valueFrom:
+            configMapKeyRef:
+              name: approval-aiservice
+              key: IGNORE_FAILURE
+              optional: true
 
   workspaces:
     - name: configs

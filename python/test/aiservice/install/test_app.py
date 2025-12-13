@@ -52,7 +52,7 @@ def test_install_noninteractive(tmpdir):
             mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
             mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
             mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
-            mock.patch('mas.cli.aiservice.install.app.launchAiServiceInstallPipeline') as launch_ai_service_install_pipeline
+            mock.patch('mas.cli.aiservice.install.app.launchInstallPipeline') as launch_ai_service_install_pipeline
         ):
             dynamic_client_class.return_value = dynamic_client
             get_nodes.return_value = [{'status': {'nodeInfo': {'architecture': 'amd64'}}}]
@@ -142,7 +142,7 @@ def test_install_interactive(tmpdir):
             mock.patch('mas.cli.aiservice.install.app.getCurrentCatalog') as get_current_catalog,
             mock.patch('mas.cli.aiservice.install.app.installOpenShiftPipelines'),
             mock.patch('mas.cli.aiservice.install.app.updateTektonDefinitions'),
-            mock.patch('mas.cli.aiservice.install.app.launchAiServiceInstallPipeline') as launch_ai_service_install_pipeline,
+            mock.patch('mas.cli.aiservice.install.app.launchInstallPipeline') as launch_ai_service_install_pipeline,
             mock.patch('mas.cli.cli.isSNO') as is_sno,
             mock.patch('mas.cli.displayMixins.prompt') as mixins_prompt,
             mock.patch('mas.cli.aiservice.install.app.prompt') as app_prompt,
