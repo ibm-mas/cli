@@ -29,7 +29,7 @@ spec:
   tasks:
     # Content
     # -------
-    # 1. Setup Cluster-wide Dependencies inc. Grafana, ECK, and Turbonomic
+    # 1. Setup Cluster-wide Dependencies inc. Grafana, ECK
     # 2. Install Universal Dependencies
     # 3. Cloud Pak for Data
     # 4. Other Dependecies
@@ -76,11 +76,6 @@ spec:
         - input: "$(params.eck_action)"
           operator: in
           values: ["install"]
-      runAfter:
-        - ibm-catalogs
-
-    # 1.5 Configure Turbonomic
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/turbonomic.yml.j2') | indent(4) }}
       runAfter:
         - ibm-catalogs
 
@@ -371,7 +366,6 @@ spec:
         - app-install-facilities
         - arcgis
         - eck
-        - turbonomic
         - cognos
         - aiservice
 
