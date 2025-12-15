@@ -39,9 +39,10 @@ spec:
     # 8. Install & Configure Manage
     # 9. Install & Configure Predict
     # 10. Install & Configure Optimizer
-    # 12. Install & Configure Assist
-    # 13. Install & Configure Visual Inspection
-    # 14. Install & Configure Facilities
+    # 11. Install & Configure Assist
+    # 12. Install & Configure Visual Inspection
+    # 13. Install & Configure Facilities
+    # 14. Install & Configure AI Service with Default Tenant
 
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
 
@@ -63,6 +64,9 @@ spec:
         - input: "$(params.grafana_action)"
           operator: in
           values: ["install"]
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
       runAfter:
         - ibm-catalogs
 
@@ -100,6 +104,12 @@ spec:
       runAfter:
         - db2-system
 
+    # 2.3.3 Install Dedicated Db2 for AI Service
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/db2.yml.j2', template_vars={'suffix': 'aiservice'}) | indent(4) }}
+      runAfter:
+        - cert-manager
+
     # 2.4 IBM SLS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/sls.yml.j2') | indent(4) }}
       runAfter:
@@ -109,7 +119,6 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/dro.yml.j2') | indent(4) }}
       runAfter:
         - ibm-catalogs
-
 
     # 3. Cloud Pak for Data
     # -------------------------------------------------------------------------
@@ -163,6 +172,17 @@ spec:
       runAfter:
         - ibm-catalogs
 
+    # 4.4 Install Minio ( for AI Service )
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/minio.yml.j2') | indent(4) }}
+      runAfter:
+        - ibm-catalogs
+
+    # 4.5 Opendatahub ( for AI Service )
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/odh.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
+      runAfter:
+        - cert-manager
 
     # 5. Install & Configure IBM MAS
     # -------------------------------------------------------------------------
@@ -170,16 +190,28 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
       runAfter:
         - ibm-catalogs
+      when: 
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
 
     # 5.2 DNS Setup
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-dns.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
+      when: 
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
 
     # 5.3 Manual Certificates
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-certs.yml.j2') | indent(4) }}
       runAfter:
         - suite-dns
+      when: 
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
 
     # 5.4 Suite Installation
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-install.yml.j2') | indent(4) }}
@@ -188,16 +220,28 @@ spec:
         - dro
         - gencfg-workspace
         - suite-certs
+      when: 
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
 
     # 5.5 Suite Configuration
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config.yml.j2') | indent(4) }}
       runAfter:
         - suite-install
+      when: 
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
 
     # 5.6 Suite Verification
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2') | indent(4) }}
       runAfter:
         - suite-config
+      when: 
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
 
     # 5.7 Configure Db2 in MAS
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config-db2.yml.j2') | indent(4) }}
@@ -299,8 +343,19 @@ spec:
       runAfter:
         - suite-config-db2
 
+    # 14. Install and configure AI Service
+    # -------------------------------------------------------------------------
 
-    # 14. Verify health of the cluster before we consider the install complete
+    # 14.1 Install AI Service
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/aiservice/aiservice.yml.j2', template_vars={'application': 'aiservice'}) | indent(4) }}
+      runAfter:
+        - sls
+        - dro
+        - db2-aiservice
+        - aiservice-odh
+
+    # 15. Verify health of the cluster before we consider the install complete
     # -------------------------------------------------------------------------
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'post-install-verify', 'devops_suite_name': 'post-install-verify'}) | indent(4) }}
       runAfter:
@@ -312,6 +367,7 @@ spec:
         - arcgis
         - eck
         - cognos
+        - aiservice
 
   finally:
     # Update synchronization configmap
