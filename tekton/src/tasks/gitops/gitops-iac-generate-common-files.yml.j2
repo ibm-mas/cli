@@ -173,19 +173,19 @@ spec:
           git config --global user.password $GITHUB_PAT
 
           mas gitops-iac-generate-common-files \
-            -a $ACCOUNT \
-            -c $CLUSTER_NAME \
-            -m $MAS_INSTANCE_ID \
+            -a "$ACCOUNT" \
+            -c "$CLUSTER_NAME" \
+            -m "$MAS_INSTANCE_ID" \
             --dir /workspace/gitops-iac \
             --github-push \
-            --github-host $GITHUB_HOST \
-            --github-org $GITHUB_ORG \
-            --github-repo $GITHUB_REPO \
-            --git-branch $GIT_BRANCH \
-            --region-name $REGION_NAME \
-            --cluster-url $CLUSTER_URL \
-            --is_efs $IS_EFS \
-            --is_s3 $IS_S3 \
+            --github-host "$GITHUB_HOST" \
+            --github-org "$GITHUB_ORG" \
+            --github-repo "$GITHUB_REPO" \
+            --git-branch "$GIT_BRANCH" \
+            --region-name "$REGION_NAME" \
+            --cluster-url "$CLUSTER_URL" \
+            --is_efs "$IS_EFS" \
+            --is_s3 "$IS_S3" \
             --efs_manage_db2_performance_mode "$EFS_MANAGE_DB2_PERFORMANCE_MODE" \
             --efs_manage_db2_mount_count "$EFS_MANAGE_DB2_MOUNT_COUNT" \
             --efs_manage_db2_throughput_mode "$EFS_MANAGE_DB2_THROUGHPUT_MODE" \
