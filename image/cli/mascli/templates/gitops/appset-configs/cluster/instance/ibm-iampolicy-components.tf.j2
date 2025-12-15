@@ -1,0 +1,10 @@
+{%- import 's3-macros.j2' as s3 -%}
+{%- if IS_S3 | lower == 'true' %}
+{%- for component_name, component_config in S3_COMPONENTS.items() %}
+{%- if component_config.enabled | lower == 'true' %}
+
+{{ s3.generate_iam_policy_module(component_name) }}
+
+{%- endif %}
+{%- endfor %}
+{%- endif %}

@@ -1,0 +1,14 @@
+{%- import 's3-macros.j2' as s3 -%}
+{%- if IS_S3 | lower == 'true' %}
+{%- for component_name, component_config in S3_COMPONENTS.items() %}
+{%- if component_config.enabled | lower == 'true' %}
+{%- for bucket_name, bucket_config in component_config.buckets.items() %}
+{%- if bucket_config.access_point.enabled %}
+
+{{ s3.generate_s3_access_point(component_name, bucket_name, bucket_config) }}
+
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+{%- endfor %}
+{%- endif %}

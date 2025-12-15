@@ -1,0 +1,178 @@
+{# 
+  S3 Component Macros
+  Reusable Jinja2 macros for generating S3 bucket configurations
+  These macros are component-agnostic and can be used for any MAS component
+#}
+
+{# Macro to generate IAM user ARNs for a component #}
+{%- macro generate_iam_user_arns(component_name, iam_users, account_id, name_prefix) -%}
+  iam_user_arns_{{ component_name }} = {
+  {%- for user_name, user_config in iam_users.items() %}
+    {{ user_name }} = "arn:aws:iam::{{ account_id }}:user/${var.name_prefix}-{{ component_name }}-{{ user_name }}-{{ user_config.access_level }}"
+  {%- endfor %}
+  }
+{%- endmacro -%}
+
+{# Macro to generate S3 IAM users list for a component #}
+{%- macro generate_s3_iam_users_list(component_name, iam_users, buckets, name_prefix) -%}
+  s3_iam_users_list_{{ component_name }} = {
+  {%- for user_name, user_config in iam_users.items() %}
+    {{ user_name }} = {
+      bucket_name   = "${var.s3bucket_name_prefix_{{ component_name }}}-{{ user_config.buckets[0] }}"
+      iam_user_name = "${var.iam_user_name_prefix_{{ component_name }}}-{{ user_name }}-{{ user_config.access_level }}"
+      access_level  = "{{ user_config.access_level }}"
+    }
+  {%- endfor %}
+  }
+{%- endmacro -%}
+
+{# Macro to generate IAM users by bucket mapping #}
+{%- macro generate_iam_users_by_bucket(component_name) -%}
+  iam_users_by_bucket_{{ component_name }} = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_{{ component_name }} : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_{{ component_name }} :
+      local.iam_user_arns_{{ component_name }}[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+{%- endmacro -%}
+
+{# Macro to generate bucket user names #}
+{%- macro generate_bucket_user_names(component_name, iam_users) -%}
+  bucket_user_names_{{ component_name }} = {
+  {%- for user_name, user_config in iam_users.items() %}
+    {{ user_name }} = "${var.iam_user_name_prefix_{{ component_name }}}-{{ user_name }}-{{ user_config.access_level }}"
+  {%- endfor %}
+  }
+{%- endmacro -%}
+
+{# Macro to generate bucket user name map #}
+{%- macro generate_bucket_user_name_map(component_name) -%}
+  bucket_user_name_map_{{ component_name }} = {
+    for key, value in local.s3_iam_users_list_{{ component_name }} :
+    key => lookup(local.bucket_user_names_{{ component_name }}, key, null)
+  }
+{%- endmacro -%}
+
+{# Macro to generate S3 bucket definitions #}
+{%- macro generate_s3_buckets(component_name, buckets, name_prefix) -%}
+  {{ component_name }}_s3buckets = {
+  {%- for bucket_name, bucket_config in buckets.items() %}
+    {{ bucket_name }} = {
+      name_prefix          = var.name_prefix
+      create               = var.create_bucket
+      name                 = "${var.s3bucket_name_prefix_{{ component_name }}}-{{ bucket_name }}"
+      id                   = "${var.s3bucket_name_prefix_{{ component_name }}}-{{ bucket_name }}"
+      access_level         = "{{ bucket_config.access_level }}"
+      s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_{{ component_name }}}-{{ bucket_name }}"
+      secret_suffix        = "{{ bucket_config.secret_suffix }}"
+      cos_secret_format    = false
+      manage_secret_format = true
+      expiration           = {{ bucket_config.expiration | tojson }}
+    }
+  {%- endfor %}
+  }
+{%- endmacro -%}
+
+{# Macro to generate S3 module call for a component #}
+{%- macro generate_s3_module(component_name) -%}
+# S3 Buckets for {{ component_name | upper }} component
+module "s3buckets_{{ component_name }}" {
+  source = "git@github.ibm.com:maximoappsuite/mas-iac-aws-s3.git//module?ref=2.0.8"
+
+  depends_on = [module.account_policy_{{ component_name }}]
+
+  tags                    = var.common_tags
+  name_prefix             = var.name_prefix
+  s3buckets               = local.cluster.instance.{{ component_name }}_s3buckets
+  iam_user_arns           = local.iam_user_arns_{{ component_name }}
+  bucket_user_name_map    = local.bucket_user_name_map_{{ component_name }}
+  iam_users_by_bucket     = local.iam_users_by_bucket_{{ component_name }}
+  s3_iam_users_list       = local.s3_iam_users_list_{{ component_name }}
+  s3_actions              = local.s3_actions
+  s3_encryption           = true
+  s3_encryption_algorithm = var.s3_encryption_algorithm
+  force_bucket_destroy    = true
+  mas_cluster_id          = local.cluster.name
+  mas_instance_id         = local.cluster.instance.name
+  secret_recovery_days    = 0
+  s3_bucket_region        = local.location.region
+}
+{%- endmacro -%}
+
+{# Macro to generate S3 access point module for a bucket #}
+{%- macro generate_s3_access_point(component_name, bucket_name, bucket_config) -%}
+# S3 Access Point for {{ component_name | upper }}.{{ bucket_name }}
+module "s3_access_point_{{ component_name }}_{{ bucket_name }}" {
+  source = "git@github.ibm.com:maximoappsuite/mas-iac-aws-s3-access-point.git//module?ref=2.1.1"
+
+  depends_on = [module.s3buckets_{{ component_name }}, module.account_policy_{{ component_name }}]
+
+  name_prefix                    = var.name_prefix
+  s3_access_point_bucket_id      = local.cluster.instance.{{ component_name }}_s3buckets.{{ bucket_name }}.id
+  s3_bucket_arn                  = local.cluster.instance.{{ component_name }}_s3buckets.{{ bucket_name }}.s3_bucket_arn
+  s3_access_point_name           = join("-", [var.cluster_name, var.instance_name, "{{ bucket_config.access_point.name }}"])
+  s3_access_point_policy_actions = local.s3_actions["{{ bucket_config.access_level }}"]
+  configure_antivirus            = false
+  s3_access_point_user           = local.iam_user_arns_{{ component_name }}["{{ bucket_config.access_point.user }}"]
+  account_id                     = var.account_id
+  antivirus_lamda_function_arn   = ""
+  vpc_id                         = var.vpc_id
+}
+{%- endmacro -%}
+
+{# Macro to generate IAM policy module for a component #}
+{%- macro generate_iam_policy_module(component_name) -%}
+# IAM Policy for {{ component_name | upper }} component
+module "account_policy_{{ component_name }}" {
+  source               = "git@github.ibm.com:maximoappsuite/mas-iac-aws-account-policy.git//module?ref=2.1.1"
+  name_prefix          = var.name_prefix
+  create_s3_iam_group  = var.create_s3_iam_group
+  create_s3_iam_policy = var.create_s3_iam_policy
+  efs_csi_policy       = false
+  iam_users_list       = var.s3_iam_users_list_{{ component_name }}
+}
+{%- endmacro -%}
+
+{# Macro to generate component variables #}
+{%- macro generate_component_variables(component_name) -%}
+# {{ component_name | upper }} S3 Variables
+variable "s3_iam_users_list_{{ component_name }}" {
+  description = "{{ component_name }} s3 user list"
+  type = map(object({
+    iam_user_name = string
+  }))
+}
+
+variable "s3bucket_name_prefix_{{ component_name }}" {
+  type        = string
+  description = "{{ component_name }} s3 bucket name prefix"
+}
+
+variable "iam_user_name_prefix_{{ component_name }}" {
+  type        = string
+  description = "{{ component_name }} iam user name prefix"
+}
+
+variable "iam_user_arn_prefix_{{ component_name }}" {
+  type        = string
+  description = "{{ component_name }} iam user arn"
+}
+{%- endmacro -%}
+
+{# Macro to generate component tfvars #}
+{%- macro generate_component_tfvars(component_name, component_config, account_id, cluster_id, instance_id) -%}
+#----S3 {{ component_name | upper }} Configuration----
+s3bucket_name_prefix_{{ component_name }}    = "massaas-cos-{{ instance_id }}-{{ cluster_id }}-{{ component_name }}"
+iam_user_name_prefix_{{ component_name }}    = "massaas-cos-{{ instance_id }}-{{ cluster_id }}-{{ component_name }}-sid"
+iam_user_arn_prefix_{{ component_name }}     = "arn:aws:iam::{{ account_id }}:user/massaas-cos-{{ instance_id }}-{{ cluster_id }}-{{ component_name }}-sid"
+
+s3_iam_users_list_{{ component_name }} = {
+{%- for user_name, user_config in component_config.iam_users.items() %}
+  {{ user_name }} = {
+    iam_user_name = "massaas-cos-{{ instance_id }}-{{ cluster_id }}-{{ component_name }}-sid-{{ user_name }}-{{ user_config.access_level }}"
+  }
+{%- endfor %}
+}
+{%- endmacro -%}

@@ -1,3 +1,4 @@
+{%- import 's3-macros.j2' as s3 -%}
 {%- if IS_EFS | lower == 'true' -%}
 data "aws_subnets" "external_subnets" {
   filter {
@@ -25,125 +26,52 @@ data "aws_subnets" "internal_subnets" {
 
 locals {
 {%- if IS_S3 | lower == 'true' %}
-{%- if S3_MANAGE | lower == 'true'  %}
-  #----Manage related params for S3 starts----
-  iam_user_arns_manage = {
-    custfiles = "${var.iam_user_arn_prefix_manage}-custfiles-${var.access_level_rw}"
-    doclinks  = "${var.iam_user_arn_prefix_manage}-doclinks-${var.access_level_rw}"
-    logs_rw   = "${var.iam_user_arn_prefix_manage}-log-${var.access_level_rw}"
-    logs_ro   = "${var.iam_user_arn_prefix_manage}-log-${var.access_level_ro}"
-  }
-
-  s3_iam_users_list_manage = {
-    doclinks = {
-      bucket_name   = "${var.s3bucket_name_prefix_manage}-doclinks"
-      iam_user_name = "${var.iam_user_name_prefix_manage}-doclinks-${var.access_level_ro}"
-      access_level  = var.access_level_rw
-    },
-    custfiles = {
-      bucket_name   = "${var.s3bucket_name_prefix_manage}-custfiles"
-      iam_user_name = "${var.iam_user_name_prefix_manage}-custfiles-${var.access_level_rw}"
-      access_level  = var.access_level_rw
-    },
-    logs_rw = {
-      bucket_name   = "${var.s3bucket_name_prefix_manage}-log"
-      iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_rw}"
-      access_level  = var.access_level_rw
-    },
-    logs_ro = {
-      bucket_name   = "${var.s3bucket_name_prefix_manage}-log"
-      iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_ro}"
-      access_level  = var.access_level_ro
-    }
-  }
-
-  iam_users_by_bucket_manage = {
-    for bucket_name in distinct([for u in local.s3_iam_users_list_manage : u.bucket_name]) :
-    bucket_name => [
-      for u_key, u_info in local.s3_iam_users_list_manage :
-      local.iam_user_arns_manage[u_key]
-      if u_info.bucket_name == bucket_name
-    ]
-  }
-
-  bucket_user_names_manage = {
-    custfiles = "${var.iam_user_name_prefix_manage}-custfiles-${var.access_level_rw}"
-    doclinks  = "${var.iam_user_name_prefix_manage}-doclinks-${var.access_level_rw}"
-    logs_rw   = "${var.iam_user_name_prefix_manage}-log-${var.access_level_rw}"
-    logs_ro   = "${var.iam_user_name_prefix_manage}-log-${var.access_level_ro}"
-  }
-
-  bucket_user_name_map_manage = {
-    for key, value in local.s3_iam_users_list_manage :
-    key => lookup(local.bucket_user_names_manage, key, null)
-  }
-  #----Manage related params for S3 ends----
-{%- endif %}
-
-  #----Common S3 params starts----
+  
+  #----Common S3 params----
   s3_actions = {
     ro = ["s3:GetObject", "s3:ListBucket"]
     rw = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
   }
-
+  
   location = var.location
-  #----Common S3 params ends----
+  
+  {%- for component_name, component_config in S3_COMPONENTS.items() %}
+  {%- if component_config.enabled | lower == 'true' %}
+  
+  #----{{ component_name | upper }} S3 Configuration----
+  {{ s3.generate_iam_user_arns(component_name, component_config.iam_users, ACCOUNT_ID, 'var.name_prefix') }}
+  
+  {{ s3.generate_s3_iam_users_list(component_name, component_config.iam_users, component_config.buckets, 'var.name_prefix') }}
+  
+  {{ s3.generate_iam_users_by_bucket(component_name) }}
+  
+  {{ s3.generate_bucket_user_names(component_name, component_config.iam_users) }}
+  
+  {{ s3.generate_bucket_user_name_map(component_name) }}
+  
+  {%- endif %}
+  {%- endfor %}
 {%- endif %}
+
   cluster = {
   {%- if IS_S3 | lower == 'true' %}
     instance = {
       name = var.instance_name
-      {%- if S3_MANAGE | lower == 'true'  %}
-    #----Manage specific S3 buckets starts----
-      manage_s3buckets = {
-        doclinks = {
-          name_prefix          = var.name_prefix
-          create               = var.create_bucket
-          name                 = "${var.s3bucket_name_prefix_manage}-doclinks"
-          id                   = "${var.s3bucket_name_prefix_manage}-doclinks"
-          access_level         = "rw"
-          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_manage}-doclinks"
-          secret_suffix        = "manage_attachments/cos-attachments"
-          cos_secret_format    = false
-          manage_secret_format = true
-          expiration           = null
-        },
-        custfiles = {
-          name_prefix          = var.name_prefix
-          create               = var.create_bucket
-          name                 = "${var.s3bucket_name_prefix_manage}-custfiles"
-          id                   = "${var.s3bucket_name_prefix_manage}-custfiles"
-          access_level         = "rw"
-          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_manage}-custfiles"
-          secret_suffix        = "manage_custfiles/cos-custfiles"
-          cos_secret_format    = false
-          manage_secret_format = true
-          expiration = {
-            days = 366 // how long to keep logs
-          }
-        },
-        logs = {
-          name_prefix          = var.name_prefix
-          create               = var.create_bucket
-          name                 = "${var.s3bucket_name_prefix_manage}-log"
-          id                   = "${var.s3bucket_name_prefix_manage}-log"
-          access_level         = "ro"
-          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_manage}-log"
-          secret_suffix        = "manage_logging/cos-logging"
-          cos_secret_format    = false
-          manage_secret_format = true
-          expiration           = null
-        }
-      }
-    #----Manage specific S3 buckets ends----
-    {%- endif %}
+      
+      {%- for component_name, component_config in S3_COMPONENTS.items() %}
+      {%- if component_config.enabled | lower == 'true' %}
+      
+      #----{{ component_name | upper }} S3 Buckets----
+      {{ s3.generate_s3_buckets(component_name, component_config.buckets, 'var.name_prefix') }}
+      
+      {%- endif %}
+      {%- endfor %}
     }
     name = var.cluster_name
   {%- if IS_EFS | lower == 'true' %}
-    #----EFS related params starts----
+    #----EFS related params----
     "external_subnet_ids" : data.aws_subnets.external_subnets.ids
     "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
-    #----EFS related params ends----
   {%- endif %}
   }
 {%- endif %}
