@@ -102,7 +102,7 @@ Regardless of whether you are running a connected or disconnected installation, 
 !!! note "NEW: AI Service Installation Options"
     **NEW UPDATE:** AI Service can now be installed in two ways:
     
-    - **Integrated Installation**: AI Service is now available as an option during the MAS installation process using the `mas install` command. You can select AI Service along with other MAS applications during the interactive application selection step or you can run non-interactive command as well.
+    - **Integrated Installation**: AI Service is now available as an option during the MAS installation process using the `mas install` command. You can select AI Service along with other MAS applications during the interactive application selection step or you can run Non-interactive command as well.
     - **Standalone Installation**: For standalone AI Service installation, use the dedicated `mas aiservice-install` command to install AI Service independently of the main MAS installation.
 
 ```bash
