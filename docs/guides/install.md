@@ -171,7 +171,7 @@ The interactive install will guide you through a series of questioned designed t
       <p>The install supports the automatic provision of in-cluster MongoDb and Db2 databases for use with Maximo Application Suite, you may also choose to bring your own (BYO) by providing the necessary configuration files (which the installer will also help you create).</p>
     </cds-accordion-item>
     <cds-accordion-item title="Configure Integrations & Additional Configuration">
-      <p>The install supports the abilty to install and configure Turbonomic's Kubeturbo operator and the Grafana Community Operator.  Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.</p>
+      <p>The install supports the abilty to install and configure the Grafana Community Operator.  Additional resource definitions can be applied to the OpenShift Cluster during the MAS configuration step, here you will be asked whether you wish to provide any additional configurations and if you do in what directory they reside.</p>
       <p>If you provided one or more configurations for BYO databases then additional configurations will already be enabled and pointing at the directory you chose earlier.</p>
     </cds-accordion-item>
     <cds-accordion-item title="Pod Templates">
@@ -247,7 +247,6 @@ The engine that performs all tasks is written in Ansible, you can directly use t
         - [Analytics Engine (Apache Spark)](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=services-analytics-engine-powered-by-apache-spark)
         - Cognos Analytics
     - Grafana
-    - Turbonomic Kubernetes Agent
 - Suite core services installation
 - Suite application installation
 
