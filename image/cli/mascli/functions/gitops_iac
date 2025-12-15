@@ -78,75 +78,147 @@ function gitops_iac_noninteractive() {
         export EFS_SOURCE=$1 && shift
         ;;
       --efs_manage_db2_performance_mode)
-        export EFS_MANAGE_DB2_PERFORMANCE_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MANAGE_DB2_PERFORMANCE_MODE=$1 && shift
+        else
+          export EFS_MANAGE_DB2_PERFORMANCE_MODE=""
+        fi
         ;;
 
       --efs_manage_db2_mount_count)
-        export EFS_MANAGE_DB2_MOUNT_COUNT=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MANAGE_DB2_MOUNT_COUNT=$1 && shift
+        else
+          export EFS_MANAGE_DB2_MOUNT_COUNT=""
+        fi
         ;;
 
       --efs_manage_db2_throughput_mode)
-        export EFS_MANAGE_DB2_THROUGHPUT_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MANAGE_DB2_THROUGHPUT_MODE=$1 && shift
+        else
+          export EFS_MANAGE_DB2_THROUGHPUT_MODE=""
+        fi
         ;;
 
       --efs_manage_main_performance_mode)
-        export EFS_MANAGE_MAIN_PERFORMANCE_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MANAGE_MAIN_PERFORMANCE_MODE=$1 && shift
+        else
+          export EFS_MANAGE_MAIN_PERFORMANCE_MODE=""
+        fi
         ;;
 
       --efs_manage_main_mount_count)
-        export EFS_MANAGE_MAIN_MOUNT_COUNT=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MANAGE_MAIN_MOUNT_COUNT=$1 && shift
+        else
+          export EFS_MANAGE_MAIN_MOUNT_COUNT=""
+        fi
         ;;
 
       --efs_manage_main_throughput_mode)
-        export EFS_MANAGE_MAIN_THROUGHPUT_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_MANAGE_MAIN_THROUGHPUT_MODE=$1 && shift
+        else
+          export EFS_MANAGE_MAIN_THROUGHPUT_MODE=""
+        fi
         ;;
 
       --efs_iot_db2_performance_mode)
-        export EFS_IOT_DB2_PERFORMANCE_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_IOT_DB2_PERFORMANCE_MODE=$1 && shift
+        else
+          export EFS_IOT_DB2_PERFORMANCE_MODE=""
+        fi
         ;;
 
       --efs_iot_db2_mount_count)
-        export EFS_IOT_DB2_MOUNT_COUNT=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_IOT_DB2_MOUNT_COUNT=$1 && shift
+        else
+          export EFS_IOT_DB2_MOUNT_COUNT=""
+        fi
         ;;
 
       --efs_iot_db2_throughput_mode)
-        export EFS_IOT_DB2_THROUGHPUT_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_IOT_DB2_THROUGHPUT_MODE=$1 && shift
+        else
+          export EFS_IOT_DB2_THROUGHPUT_MODE=""
+        fi
         ;;
 
       --efs_facilities_db2_performance_mode)
-        export EFS_FACILITIES_DB2_PERFORMANCE_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_FACILITIES_DB2_PERFORMANCE_MODE=$1 && shift
+        else
+          export EFS_FACILITIES_DB2_PERFORMANCE_MODE=""
+        fi
         ;;
 
       --efs_facilities_db2_mount_count)
-        export EFS_FACILITIES_DB2_MOUNT_COUNT=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_FACILITIES_DB2_MOUNT_COUNT=$1 && shift
+        else
+          export EFS_FACILITIES_DB2_MOUNT_COUNT=""
+        fi
         ;;
 
       --efs_facilities_db2_throughput_mode)
-        export EFS_FACILITIES_DB2_THROUGHPUT_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_FACILITIES_DB2_THROUGHPUT_MODE=$1 && shift
+        else
+          export EFS_FACILITIES_DB2_THROUGHPUT_MODE=""
+        fi
         ;;
 
       --efs_facilities_main_performance_mode)
-        export EFS_FACILITIES_MAIN_PERFORMANCE_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_FACILITIES_MAIN_PERFORMANCE_MODE=$1 && shift
+        else
+          export EFS_FACILITIES_MAIN_PERFORMANCE_MODE=""
+        fi
         ;;
 
       --efs_facilities_main_mount_count)
-        export EFS_FACILITIES_MAIN_MOUNT_COUNT=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_FACILITIES_MAIN_MOUNT_COUNT=$1 && shift
+        else
+          export EFS_FACILITIES_MAIN_MOUNT_COUNT=""
+        fi
         ;;
 
       --efs_facilities_main_throughput_mode)
-        export EFS_FACILITIES_MAIN_THROUGHPUT_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_FACILITIES_MAIN_THROUGHPUT_MODE=$1 && shift
+        else
+          export EFS_FACILITIES_MAIN_THROUGHPUT_MODE=""
+        fi
         ;;
 
       --efs_visualinspection_main_performance_mode)
-        export EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE=$1 && shift
+        else
+          export EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE=""
+        fi
         ;;
 
       --efs_visualinspection_main_mount_count)
-        export EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT=$1 && shift
+        else
+          export EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT=""
+        fi
         ;;
 
       --efs_visualinspection_main_throughput_mode)
-        export EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE=$1 && shift
+        else
+          export EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE=""
+        fi
         ;;
 
       # S3 Configuration
@@ -164,10 +236,18 @@ function gitops_iac_noninteractive() {
         export S3_SOURCE_S3ACCESSPOINT=$1 && shift
         ;;
       --s3_manage)
-        export S3_MANAGE=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export S3_MANAGE=$1 && shift
+        else
+          export S3_MANAGE=""
+        fi
         ;;
       --s3_mvi)
-        export S3_MVI=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export S3_MVI=$1 && shift
+        else
+          export S3_MVI=""
+        fi
         ;;
 
       # Target Cluster (Optional)
