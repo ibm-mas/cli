@@ -298,6 +298,122 @@ function compute_efs_variables() {
   echo " EFS variables computed successfully"
 }
 
+# Build EFS component configuration as JSON for Jinja2 template
+# This function creates a structured configuration for all EFS components
+function build_efs_components_config() {
+  echo "Building EFS components configuration..."
+  
+  # Start building JSON structure
+  local efs_config='{'
+  local first_component=true
+  
+  # Add MANAGE component if enabled
+  if [[ "$EFS_MANAGE" == "true" ]]; then
+    if [ "$first_component" = false ]; then
+      efs_config+=','
+    fi
+    efs_config+='"manage":{"enabled":"true","volumes":{'
+    efs_config+='"db2":{"performance_mode":"'${EFS_MANAGE_DB2_PERFORMANCE_MODE}'","throughput_mode":"'${EFS_MANAGE_DB2_THROUGHPUT_MODE}'","mount_count":'${EFS_MANAGE_DB2_MOUNT_COUNT}'}'
+    efs_config+=',"main":{"performance_mode":"'${EFS_MANAGE_MAIN_PERFORMANCE_MODE}'","throughput_mode":"'${EFS_MANAGE_MAIN_THROUGHPUT_MODE}'","mount_count":'${EFS_MANAGE_MAIN_MOUNT_COUNT}'}'
+    efs_config+='}}'
+    first_component=false
+  fi
+  
+  # Add IOT component if enabled
+  if [[ "$EFS_IOT" == "true" ]]; then
+    if [ "$first_component" = false ]; then
+      efs_config+=','
+    fi
+    efs_config+='"iot":{"enabled":"true","volumes":{'
+    efs_config+='"db2":{"performance_mode":"'${EFS_IOT_DB2_PERFORMANCE_MODE}'","throughput_mode":"'${EFS_IOT_DB2_THROUGHPUT_MODE}'","mount_count":'${EFS_IOT_DB2_MOUNT_COUNT}'}'
+    efs_config+='}}'
+    first_component=false
+  fi
+  
+  # Add VISUALINSPECTION component if enabled
+  if [[ "$EFS_VISUALINSPECTION" == "true" ]]; then
+    if [ "$first_component" = false ]; then
+      efs_config+=','
+    fi
+    efs_config+='"visualinspection":{"enabled":"true","volumes":{'
+    efs_config+='"main":{"performance_mode":"'${EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE}'","throughput_mode":"'${EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE}'","mount_count":'${EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT}'}'
+    efs_config+='}}'
+    first_component=false
+  fi
+  
+  # Add FACILITIES component if enabled
+  if [[ "$EFS_FACILITIES" == "true" ]]; then
+    if [ "$first_component" = false ]; then
+      efs_config+=','
+    fi
+    efs_config+='"facilities":{"enabled":"true","volumes":{'
+    efs_config+='"db2":{"performance_mode":"'${EFS_FACILITIES_DB2_PERFORMANCE_MODE}'","throughput_mode":"'${EFS_FACILITIES_DB2_THROUGHPUT_MODE}'","mount_count":'${EFS_FACILITIES_DB2_MOUNT_COUNT}'}'
+    efs_config+=',"main":{"performance_mode":"'${EFS_FACILITIES_MAIN_PERFORMANCE_MODE}'","throughput_mode":"'${EFS_FACILITIES_MAIN_THROUGHPUT_MODE}'","mount_count":'${EFS_FACILITIES_MAIN_MOUNT_COUNT}'}'
+    efs_config+='}}'
+    first_component=false
+  fi
+  
+  efs_config+='}'
+  
+  # Export as environment variable for Jinja2
+  export EFS_COMPONENTS="$efs_config"
+  echo "EFS_COMPONENTS configuration built"
+  echo "$EFS_COMPONENTS" | python3 -m json.tool 2>/dev/null || echo "$EFS_COMPONENTS"
+}
+
+# Build S3 component configuration as JSON for Jinja2 template
+# This function creates a structured configuration for all S3 components
+function build_s3_components_config() {
+  echo "Building S3 components configuration..."
+  
+  # Start building JSON structure
+  local s3_config='{'
+  local first_component=true
+  
+  # Add MANAGE component if enabled
+  if [[ "$S3_MANAGE" == "true" ]]; then
+    if [ "$first_component" = false ]; then
+      s3_config+=','
+    fi
+    s3_config+='"manage":{"enabled":"true",'
+    s3_config+='"buckets":{'
+    s3_config+='"attachments":{"access_level":"rw","secret_suffix":"manage-attachments","expiration":null},'
+    s3_config+='"doclinks":{"access_level":"rw","secret_suffix":"manage-doclinks","expiration":null},'
+    s3_config+='"bucket":{"access_level":"rw","secret_suffix":"manage-bucket","expiration":null}'
+    s3_config+='},'
+    s3_config+='"iam_users":{'
+    s3_config+='"attachments":{"access_level":"rw","buckets":["attachments"]},'
+    s3_config+='"doclinks":{"access_level":"rw","buckets":["doclinks"]},'
+    s3_config+='"bucket":{"access_level":"rw","buckets":["bucket"]}'
+    s3_config+='}}'
+    first_component=false
+  fi
+  
+  # Add MVI component if enabled
+  if [[ "$S3_MVI" == "true" ]]; then
+    if [ "$first_component" = false ]; then
+      s3_config+=','
+    fi
+    s3_config+='"mvi":{"enabled":"true",'
+    s3_config+='"buckets":{'
+    s3_config+='"datasets":{"access_level":"rw","secret_suffix":"mvi-datasets","expiration":null},'
+    s3_config+='"models":{"access_level":"rw","secret_suffix":"mvi-models","expiration":null}'
+    s3_config+='},'
+    s3_config+='"iam_users":{'
+    s3_config+='"datasets":{"access_level":"rw","buckets":["datasets"]},'
+    s3_config+='"models":{"access_level":"rw","buckets":["models"]}'
+    s3_config+='}}'
+    first_component=false
+  fi
+  
+  s3_config+='}'
+  
+  # Export as environment variable for Jinja2
+  export S3_COMPONENTS="$s3_config"
+  echo "S3_COMPONENTS configuration built"
+  echo "$S3_COMPONENTS" | python3 -m json.tool 2>/dev/null || echo "$S3_COMPONENTS"
+}
+
 # Compute S3-related variables from cluster configuration files
 # This function extracts values from existing Terraform files
 function compute_s3_variables() {
@@ -627,12 +743,20 @@ function gitops_iac_generate_common_files() {
     echo
     echo_h2 "Computing EFS Variables"
     compute_efs_variables "${TASK_WORKING_DIR}" "${GITHUB_REPO}" "${REGION_NAME}" "${CLUSTER_ID}" "${MAS_INSTANCE_ID}"
+    
+    echo
+    echo_h2 "Building EFS Components Configuration"
+    build_efs_components_config
   fi
   
   if [[ "$IS_S3" == "true" ]]; then
     echo
     echo_h2 "Computing S3 Variables"
     compute_s3_variables "${TASK_WORKING_DIR}" "${GITHUB_REPO}" "${REGION_NAME}" "${CLUSTER_ID}"
+    
+    echo
+    echo_h2 "Building S3 Components Configuration"
+    build_s3_components_config
   fi
   
   echo "Checking and creating common files"

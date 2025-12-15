@@ -1,0 +1,28 @@
+{# 
+  EFS Component Macros
+  Reusable Jinja2 macros for generating EFS configurations
+  These macros are component-agnostic and can be used for any MAS component
+#}
+
+{# Macro to generate EFS volume configurations for a component #}
+{%- macro generate_efs_volumes(component_name, volumes) -%}
+{%- for volume_name, volume_config in volumes.items() %}
+    {{ component_name }}-{{ volume_name }} = {
+      name = join("-", ["efs", var.cluster_name, var.instance_name, "{{ component_name }}-{{ volume_name }}"])
+      performance_mode = "{{ volume_config.performance_mode }}"
+      throughput_mode = "{{ volume_config.throughput_mode }}"
+      efs_mount_count = {{ volume_config.mount_count }}
+    }
+{%- endfor %}
+{%- endmacro -%}
+
+{# Macro to generate all EFS volumes from EFS_COMPONENTS configuration #}
+{%- macro generate_all_efs_volumes(efs_components) -%}
+  multiple-efs = {
+{%- for component_name, component_config in efs_components.items() %}
+{%- if component_config.enabled | lower == 'true' %}
+{{ generate_efs_volumes(component_name, component_config.volumes) }}
+{%- endif %}
+{%- endfor %}
+  }
+{%- endmacro -%}
