@@ -72,7 +72,11 @@ function gitops_iac_noninteractive() {
 
       # EFS Configuration
       --is_efs)
-        export IS_EFS=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export IS_EFS=$1 && shift
+        else
+          export IS_EFS="false"
+        fi
         ;;
       --efs-source)
         export EFS_SOURCE=$1 && shift
@@ -223,7 +227,11 @@ function gitops_iac_noninteractive() {
 
       # S3 Configuration
       --is_s3)
-        export IS_S3=$1 && shift
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export IS_S3=$1 && shift
+        else
+          export IS_S3="false"
+        fi
         ;;
       --s3_source)
         export S3_SOURCE=$1 && shift
