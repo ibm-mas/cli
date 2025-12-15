@@ -262,9 +262,13 @@ spec:
         - name: s3_mvi
           value: $(params.s3_mvi)
 
-    # Task 4: Generate Common Files (Always runs after EFS/S3 tasks complete)
+    # Task 4: Generate Common Files (Runs only if at least one of EFS or S3 tasks executed)
     # -------------------------------------------------------------------------
     - name: gitops-iac-generate-common-files
+      when:
+        - input: "$(params.is_efs)-$(params.is_s3)"
+          operator: in
+          values: ["true-true", "true-false", "false-true"]
       runAfter:
         - gitops-iac-provision-efs
         - gitops-iac-provision-s3
