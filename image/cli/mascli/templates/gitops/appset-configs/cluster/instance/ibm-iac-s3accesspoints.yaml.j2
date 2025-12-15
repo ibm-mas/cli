@@ -1,11 +1,11 @@
-module "s3buckets_access_point" {
+module "s3buckets_access_point_{{ COMPONENT_NAME }}" {
   source = "{{ S3_SOURCE_S3ACCESSPOINT }}"
   for_each = {
-    for k, v in local.cluster.instance.{{APP_NAME}}_s3buckets :
+    for k, v in local.cluster.instance.{{ COMPONENT_NAME }}_s3buckets :
     k => v if can(regex("log", v.name)) || can(regex("doclinks", v.name))
   }
 
-  depends_on = [module.s3buckets_instance, module.account_policy]
+  depends_on = [module.s3buckets_instance_{{ COMPONENT_NAME }}, module.account_policy_{{ COMPONENT_NAME }}]
 
   name_prefix                    = each.value.name_prefix
   s3_access_point_bucket_id      = each.value.id
@@ -17,10 +17,10 @@ module "s3buckets_access_point" {
   #  Dynamically select correct IAM user based on bucket name
   s3_access_point_user = (
     can(regex("log", each.value.name)) ? (
-      can(local.iam_user_arns_{{APP_NAME}}["logs_rw"]) ? local.iam_user_arns_{{APP_NAME}}["logs_rw"] :
-      local.iam_user_arns_{{APP_NAME}}["logs_ro"]
+      can(local.iam_user_arns_{{ COMPONENT_NAME }}["logs_rw"]) ? local.iam_user_arns_{{ COMPONENT_NAME }}["logs_rw"] :
+      local.iam_user_arns_{{ COMPONENT_NAME }}["logs_ro"]
     ) :
-    can(regex("doclinks", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["doclinks"] :
+    can(regex("doclinks", each.value.name)) ? local.iam_user_arns_{{ COMPONENT_NAME }}["doclinks"] :
     null
   )
 

@@ -39,6 +39,9 @@ spec:
     - name: s3_mvi
       type: string
       default: ""
+    - name: s3_components
+      type: string
+      default: ""
 
   stepTemplate:
     env:
@@ -70,6 +73,8 @@ spec:
         value: $(params.s3_manage)
       - name: S3_MVI
         value: $(params.s3_mvi)
+      - name: S3_COMPONENTS
+        value: $(params.s3_components)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -90,6 +95,7 @@ spec:
           [ -n "$S3_SOURCE" ] && CMD="$CMD --s3_source $S3_SOURCE"
           [ -n "$S3_SOURCE_IAMPOLICY" ] && CMD="$CMD --s3_source_iampolicy $S3_SOURCE_IAMPOLICY"
           [ -n "$S3_SOURCE_S3ACCESSPOINT" ] && CMD="$CMD --s3_source_s3accesspoint $S3_SOURCE_S3ACCESSPOINT"
+          [ -n "$S3_COMPONENTS" ] && CMD="$CMD --s3_components $S3_COMPONENTS"
           [ -n "$S3_MANAGE" ] && CMD="$CMD --s3_manage $S3_MANAGE"
           [ -n "$S3_MVI" ] && CMD="$CMD --s3_mvi $S3_MVI"
 

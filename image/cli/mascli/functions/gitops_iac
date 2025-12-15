@@ -169,6 +169,9 @@ function gitops_iac_noninteractive() {
       --s3_mvi)
         export S3_MVI=$1 && shift
         ;;
+      --s3_components)
+        export S3_COMPONENTS=$1 && shift
+        ;;
 
       # Target Cluster (Optional)
       --cluster-url)
@@ -526,24 +529,66 @@ function gitops_iac_provision_s3() {
   echo
   echo_h2 "Generating IAC/S3 Configuration"
   
-  # S3_MANAGE and S3_MVI are already set from command-line parameters
-  echo "S3_MANAGE: ${S3_MANAGE}"
-  echo "S3_MVI: ${S3_MVI}"
-
-  export APP_NAME=""
+  # Check if S3 bucket configuration file exists
+  S3_CONFIG_FILE="${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}/s3-buckets-config.yaml"
   
-  # Generate S3-specific files only
-  if [[ "$S3_MANAGE"  == "true" ]]; then
-    export APP_NAME="manage"
-    echo "Generating s3-instance.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf
+  if [[ -f "$S3_CONFIG_FILE" ]]; then
+    echo "Found S3 bucket configuration file: ${S3_CONFIG_FILE}"
+    echo "Loading S3 bucket configuration from YAML..."
     
-    echo "Generating iampolicy.tf file ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf
+    # Export the S3 configuration file path for templates to use
+    export S3_BUCKET_CONFIG_FILE="$S3_CONFIG_FILE"
     
-    echo "Generating s3-accesspoints.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf
+    # Parse YAML to get component list using yq or python
+    if command -v yq &> /dev/null; then
+      # Use yq if available
+      COMPONENTS=($(yq eval 'keys | .[]' "$S3_CONFIG_FILE"))
+    elif command -v python3 &> /dev/null; then
+      # Fallback to python if yq not available
+      COMPONENTS=($(python3 -c "import yaml; import sys; data=yaml.safe_load(open('$S3_CONFIG_FILE')); print(' '.join(data.keys()))"))
+    else
+      echo "ERROR: Neither yq nor python3 found. Cannot parse S3 configuration YAML."
+      exit 1
+    fi
+    
+    echo "Components found in configuration: ${COMPONENTS[@]}"
+    
+    # Load the entire S3 configuration as JSON for Jinja2 templates
+    if command -v yq &> /dev/null; then
+      export S3_BUCKET_CONFIG=$(yq eval -o=json "$S3_CONFIG_FILE")
+    elif command -v python3 &> /dev/null; then
+      export S3_BUCKET_CONFIG=$(python3 -c "import yaml; import json; print(json.dumps(yaml.safe_load(open('$S3_CONFIG_FILE'))))")
+    fi
+    
+    echo "S3_BUCKET_CONFIG loaded successfully"
+    
+  elif [[ -n "$S3_COMPONENTS" ]]; then
+    # Support legacy component list approach
+    echo "Using S3_COMPONENTS: ${S3_COMPONENTS}"
+    IFS=',' read -ra COMPONENTS <<< "$S3_COMPONENTS"
+  else
+    # Legacy support: build component list from individual flags
+    COMPONENTS=()
+    [[ "$S3_MANAGE" == "true" ]] && COMPONENTS+=("manage")
+    [[ "$S3_MVI" == "true" ]] && COMPONENTS+=("mvi")
+    echo "Using legacy flags - Components: ${COMPONENTS[@]}"
   fi
+  
+  # Generate S3-specific files for each component
+  for COMPONENT in "${COMPONENTS[@]}"; do
+    export COMPONENT_NAME="$COMPONENT"
+    echo
+    echo_h2 "Generating S3 files for component: ${COMPONENT_NAME}"
+    
+    echo "Generating s3-instance-${COMPONENT_NAME}.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-${COMPONENT_NAME}.tf"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-${COMPONENT_NAME}.tf
+    
+    echo "Generating iampolicy-${COMPONENT_NAME}.tf file ${GITOPS_CLUSTER_DIR}/iampolicy-${COMPONENT_NAME}.tf"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-${COMPONENT_NAME}.tf
+    
+    echo "Generating s3-accesspoints-${COMPONENT_NAME}.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-${COMPONENT_NAME}.tf"
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-${COMPONENT_NAME}.tf
+  done
   
   # Commit changes to working branch
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -638,8 +683,23 @@ function gitops_iac_generate_common_files() {
   echo "Checking and creating common files"
   create_common_files ${GITOPS_CLUSTER_DIR}
   
+  # Load S3 bucket configuration if it exists
+  S3_CONFIG_FILE="${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}/s3-buckets-config.yaml"
+  if [[ -f "$S3_CONFIG_FILE" ]]; then
+    echo "Loading S3 bucket configuration from: ${S3_CONFIG_FILE}"
+    # Load the entire S3 configuration as JSON for Jinja2 templates
+    if command -v yq &> /dev/null; then
+      export S3_BUCKET_CONFIG=$(yq eval -o=json "$S3_CONFIG_FILE")
+    elif command -v python3 &> /dev/null; then
+      export S3_BUCKET_CONFIG=$(python3 -c "import yaml; import json; print(json.dumps(yaml.safe_load(open('$S3_CONFIG_FILE'))))")
+    fi
+    echo "S3_BUCKET_CONFIG loaded for main.tf generation"
+  fi
+  
   # Generate common terraform files using variables exported by EFS/S3 tasks
   echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
+  # Export S3_COMPONENTS for the template if it exists
+  [[ -n "$S3_COMPONENTS" ]] && export S3_COMPONENTS
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-main.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
   
   echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
