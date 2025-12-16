@@ -2,6 +2,7 @@
 #----Common params starts----
 cluster_name         = "{{ CLUSTER_ID}}"
 instance_name        = "{{ MAS_INSTANCE_ID }}"
+vpc_id               = "{{ VPC_ID_VALUE}}"
 #----Common params ends----
 {%- endif %}
 
@@ -9,7 +10,6 @@ instance_name        = "{{ MAS_INSTANCE_ID }}"
 {%- if IS_EFS | lower == 'true' %}
 
 #----EFS related params starts----
-vpc_id               = "{{ VPC_ID_VALUE}}"
 vpc_name             = "{{ VPC_NAME_VALUE }}"
 #----EFS related params ends----
 {%- endif %}

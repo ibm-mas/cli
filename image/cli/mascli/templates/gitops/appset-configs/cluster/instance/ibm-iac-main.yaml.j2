@@ -46,12 +46,12 @@ locals {
       access_level  = var.access_level_rw
     },
     logs_rw = {
-      bucket_name   = "${var.s3bucket_name_prefix_manage}-logs"
+      bucket_name   = "${var.s3bucket_name_prefix_manage}-log"
       iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_rw}"
       access_level  = var.access_level_rw
     },
     logs_ro = {
-      bucket_name   = "${var.s3bucket_name_prefix_manage}-logs"
+      bucket_name   = "${var.s3bucket_name_prefix_manage}-log"
       iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_ro}"
       access_level  = var.access_level_ro
     }
@@ -125,10 +125,10 @@ locals {
         logs = {
           name_prefix          = var.name_prefix
           create               = var.create_bucket
-          name                 = "${var.s3bucket_name_prefix_manage}-logs"
-          id                   = "${var.s3bucket_name_prefix_manage}-logs"
+          name                 = "${var.s3bucket_name_prefix_manage}-log"
+          id                   = "${var.s3bucket_name_prefix_manage}-log"
           access_level         = "ro"
-          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_manage}-logs"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_manage}-log"
           secret_suffix        = "manage_logging/cos-logging"
           cos_secret_format    = false
           manage_secret_format = true
@@ -139,6 +139,7 @@ locals {
     {%- endif %}
     }
     name = var.cluster_name
+    {%- endif %}
   {%- if IS_EFS | lower == 'true' %}
     #----EFS related params starts----
     "external_subnet_ids" : data.aws_subnets.external_subnets.ids
@@ -146,7 +147,7 @@ locals {
     #----EFS related params ends----
   {%- endif %}
   }
-{%- endif %}
+
 
  {%- if IS_EFS | lower == 'true' %}
   #----EFS config related params starts----
