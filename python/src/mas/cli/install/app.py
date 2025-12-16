@@ -52,9 +52,9 @@ from mas.devops.ocp import (
 )
 from mas.devops.mas import (
     getCurrentCatalog,
-    getDefaultStorageClasses,
-    isVersionEqualOrAfter
+    getDefaultStorageClasses
 )
+from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.sls import findSLSByNamespace
 from mas.devops.data import getCatalog
 from mas.devops.tekton import (
@@ -882,7 +882,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Customize Maximo Manage database settings (schema, tablespace, indexspace)",
             " - Customize Maximo Manage server bundle configuration (defaults to \"all\" configuration)",
             " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
-            " - Enable optional IBM Turbonomic integration",
             " - Enable optional Real Estate and Facilities configurations",
             " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
             " - Choose alternative Apache Kafka providers (default to Strimzi)",
@@ -937,7 +936,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configKafka()  # Will only do anything if IoT has been selected for install
 
         self.configGrafana()
-        self.configTurbonomic()
 
         # TODO: Support ECK integration via the interactive install mode
         # TODO: Support MAS superuser username/password via the interactive install mode

@@ -231,8 +231,8 @@ spec:
       type: string
 
    # standalone sls
-    - name : sls_service
-      type : string
+    - name: sls_service
+      type: string
       default: ""
   tasks:
 
@@ -448,7 +448,7 @@ spec:
           value: $(params.additional_vpn)
         - name: extensions
           value: $(params.extensions)
-        - name : sls_service
+        - name: sls_service
           value: $(params.sls_service)
       taskRef:
         kind: Task
@@ -504,7 +504,7 @@ spec:
           value: $(params.mas_bascfg_pod_template_yaml)
         - name: mas_slscfg_pod_template_yaml
           value: $(params.mas_slscfg_pod_template_yaml)
-        - name : sls_service
+        - name: sls_service
           value: $(params.sls_service)
       workspaces:
         - name: configs

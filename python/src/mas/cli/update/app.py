@@ -21,7 +21,8 @@ from ..cli import BaseApp
 from .argParser import updateArgParser
 from mas.devops.data import getCatalog
 from mas.devops.ocp import createNamespace, getConsoleURL, getClusterVersion, isClusterVersionInRange
-from mas.devops.mas import listMasInstances, listAiServiceInstances, getCurrentCatalog
+from mas.devops.mas import listMasInstances, getCurrentCatalog
+from mas.devops.aiservice import listAiServiceInstances
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchUpdatePipeline
 
 
@@ -124,15 +125,8 @@ class UpdateApp(BaseApp):
 
         with Halo(text='Checking for IBM Certificate-Manager', spinner=self.spinner) as h:
             if self.isIBMCertManagerInstalled():
-                h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager will be replaced by Red Hat Certificate-Manager")
-                self.setParam("cert_manager_action", "install")
-                self.setParam("cert_manager_provider", "redhat")
-                self.printHighlight([
-                    "<u>Migration Notice</u>",
-                    "IBM Certificate-Manager is currently running in the ${CERT_MANAGER_NAMESPACE} namespace",
-                    "This will be uninstalled and replaced by Red Hat Certificate-Manager as part of this update",
-                    ""
-                ])
+                h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is installed")
+                self.fatalError("IBM Certificate-Manager is currently installed and automatic migration of IBM Certificate-Manager is no longer supported. Please contact IBM support for assistance.")
             else:
                 h.stop_and_persist(symbol=self.successIcon, text="IBM Certificate-Manager is not installed")
 
@@ -176,7 +170,6 @@ class UpdateApp(BaseApp):
             self.printSummary("IBM Cloud Pak for Data", "No action required")
 
         self.printH2("Required Migrations")
-        self.printSummary("IBM Certificate-Manager", "Migrate to Red Hat Certificate-Manager" if self.getParam("cert_manager_action") != "" else "No action required")
         self.printSummary("Grafana v4 Operator", "Migrate to Grafana v5 Operator" if self.getParam("grafana_v5_upgrade") != "" else "No action required")
 
         if not self.noConfirm:
@@ -254,13 +247,13 @@ class UpdateApp(BaseApp):
         self.printH1("Select IBM Maximo Operator Catalog Version")
         self.printDescription([
             "Select MAS Catalog",
-            "  1) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
-            "  2) Oct 10 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
-            "  3) Sep 25 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
+            "  1) Nov 27 2025 Update (MAS 9.1.6, 9.0.17, 8.11.28, &amp; 8.10.31)",
+            "  2) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
+            "  3) Oct 10 2025 Update (MAS 9.1.4, 9.0.15, 8.11.26, &amp; 8.10.29)",
         ])
 
         catalogOptions = [
-            "v9-251030-amd64", "v9-251010-amd64", "v9-250925-amd64",
+            "v9-251127-amd64", "v9-251030-amd64", "v9-251010-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
@@ -299,11 +292,6 @@ class UpdateApp(BaseApp):
             return False
 
     def isIBMCertManagerInstalled(self) -> bool:
-        """
-        Check whether the deprecated IBM Certificate-Manager is installed, if it is then we will
-        automatically migrate to Red Hat Certificate-Manager
-        """
-
         try:
             # Check if 'ibm-common-services' namespace exist, this will throw NotFoundError exception when not found
             namespaceAPI = self.dynamicClient.resources.get(api_version="v1", kind="Namespace")
@@ -370,7 +358,7 @@ class UpdateApp(BaseApp):
                     # the case bundles in there anymore
                     # Longer term we will centralise this information inside the mas-devops python collection,
                     # where it can be made available to both the ansible collection and this python package.
-                    defaultMongoVersion = "7.0.22"
+                    defaultMongoVersion = "8.0.13"
                     mongoVersions = {
                         "v9-240625-amd64": "6.0.12",
                         "v9-240730-amd64": "6.0.12",
@@ -390,6 +378,7 @@ class UpdateApp(BaseApp):
                         "v9-250925-amd64": "7.0.23",
                         "v9-251010-amd64": "7.0.23",
                         "v9-251030-amd64": "7.0.23",
+                        "v9-251127-amd64": "8.0.13",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
@@ -446,55 +435,79 @@ class UpdateApp(BaseApp):
             ""
         ])
 
-    def detectCP4D(self) -> bool:
-        # Important:
-        # This CLI can run independent of the ibm.mas_devops collection, so we cannot reference
-        # the case bundles in there anymore
-        # Longer term we will centralise this information inside the mas-devops python collection,
-        # where it can be made available to both the ansible collection and this python package.
-        cp4dVersions = {
-            "v9-240625-amd64": "4.8.0",
-            "v9-240730-amd64": "4.8.0",
-            "v9-240827-amd64": "4.8.0",
-            "v9-241003-amd64": "4.8.0",
-            "v9-241107-amd64": "4.8.0",
-            "v9-241205-amd64": "5.0.0",
-            "v9-250109-amd64": "5.0.0",
-            "v9-250206-amd64": "5.0.0",
-            "v9-250306-amd64": "5.0.0",
-            "v9-250403-amd64": "5.0.0",
-            "v9-250501-amd64": "5.0.0",
-            "v9-250624-amd64": "5.1.3",
-            "v9-250731-amd64": "5.1.3",
-            "v9-250828-amd64": "5.1.3",
-            "v9-250902-amd64": "5.1.3",
-            "v9-250925-amd64": "5.1.3",
-            "v9-251010-amd64": "5.1.3",
-            "v9-251030-amd64": "5.1.3",
-        }
-
+    def detectCP4D(self) -> None:
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
             try:
                 cpdAPI = self.dynamicClient.resources.get(api_version="cpd.ibm.com/v1", kind="Ibmcpd")
                 cpds = cpdAPI.get().to_dict()["items"]
 
                 # For testing, comment out the lines above and set cpds to a simple list
-                # cpds = [{
-                #     "metadata": {"namespace": "ibm-cpd" },
-                #     "spec": {
-                #         "version": "4.6.6",
-                #         "storageClass": "default",
-                #         "zenCoreMetadbStorageClass": "default"
+                # cpds = [
+                #     {
+                #         "metadata": {"namespace": "ibm-cpd1" },
+                #         "spec": {
+                #             "version": "5.0.0",
+                #             "storageClass": "default",
+                #             "zenCoreMetadbStorageClass": "default"
+                #         }
+                #     # },
+                #     # {
+                #     #     "metadata": {"namespace": "ibm-cpd2" },
+                #     #     "spec": {
+                #     #         "version": "5.0.0",
+                #     #         "storageClass": "default",
+                #     #         "zenCoreMetadbStorageClass": "default"
+                #     #     }
                 #     }
-                # }]
+                # ]
 
-                if len(cpds) > 0:
+                if len(cpds) > 1:
+                    cpdNamespaces = []
+                    for cpd in cpds:
+                        cpdNamespaces.append(cpd["metadata"]["namespace"])
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Detected multiple instances of Cloud Pak for Data in the cluster, these will NOT be updated: {', '.join(cpdNamespaces)}")
+                    self.printDescription([
+                        "<u>Multiple Cloud Pak for Data Instances</u>",
+                        "The MAS install, update, and upgrade functions are designed to work together and support the Maximo reference deployment topology.",
+                        "Multiple instances of Cloud Pak for Data have been detected on the target cluster, so none will be modified:",
+                        "- If you used the Maximo Ansible collection to install CP4D, see: https://ibm-mas.github.io/ansible-devops/",
+                        "- If you used the Cloud Pak for Data CLI to install CP4D, see: https://github.com/IBM/cpd-cli"
+                    ])
+                    return
+                elif len(cpds) == 1:
+                    cpdUpgradePath = {
+                        "5.1.3": "5.2.0",
+                        "5.0.0": "5.1.3",
+                    }
                     cpdInstanceNamespace = cpds[0]["metadata"]["namespace"]
                     cpdInstanceVersion = cpds[0]["spec"]["version"]
+
                     if self.args.cpd_product_version:
                         cpdTargetVersion = self.getParam("cpd_product_version")
                     else:
-                        cpdTargetVersion = cp4dVersions[self.getParam("mas_catalog_version")]
+                        cpdTargetVersion = self.chosenCatalog["cpd_product_version_default"]
+
+                    if cpdInstanceNamespace != "ibm-cpd":
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Standalone Cloud Pak for Data {cpdInstanceVersion} in namespace {cpdInstanceNamespace} will NOT be updated")
+                        self.printDescription([
+                            "<u>Standalone Cloud Pak for Data</u>",
+                            "The MAS install, update, and upgrade functions are designed to work together and support the Maximo reference deployment topology.",
+                            "This instance of Cloud Pak for Data appears to have been created outside of this, so will not be modified:",
+                            "- If you used the Maximo Ansible collection to install CP4D, see: https://ibm-mas.github.io/ansible-devops/",
+                            "- If you used the Cloud Pak for Data CLI to install CP4D, see: https://github.com/IBM/cpd-cli"
+                        ])
+                        return
+
+                    if cpdInstanceVersion not in cpdUpgradePath:
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) is too old to update to this catalog")
+                        self.fatalError(
+                            "Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nContact IBM support for assistance"
+                        )
+                    elif cpdUpgradePath[cpdInstanceVersion] != cpdTargetVersion:
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) can not be updated to {cpdTargetVersion} directly")
+                        self.fatalError(
+                            f"Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nRefer to the catalog documentation and first update to any catalog that carries Cloud Pak for data v{cpdUpgradePath[cpdInstanceVersion]}:\n- https://ibm-mas.github.io/cli/catalogs"
+                        )
 
                     currentCpdVersionMajorMinor = f"{cpdInstanceVersion.split('.')[0]}.{cpdInstanceVersion.split('.')[1]}"
                     targetCpdVersionMajorMinor = f"{cpdTargetVersion.split('.')[0]}.{cpdTargetVersion.split('.')[1]}"
@@ -514,7 +527,7 @@ class UpdateApp(BaseApp):
                             ])
 
                         # Lookup the storage classes already used by CP4D
-                        # Note: this should be done by the Ansible role, but isn't
+                        # TODO: this should be done by the Ansible role, but isn't
                         if "storageClass" in cpds[0]["spec"]:
                             cpdFileStorage = cpds[0]["spec"]["storageClass"]
                         elif "fileStorageClass" in cpds[0]["spec"]:

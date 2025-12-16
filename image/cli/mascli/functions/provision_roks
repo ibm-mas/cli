@@ -161,8 +161,6 @@ function provision_roks_interactive() {
   echo "  2. 4.18"
   echo "  3. 4.17"
   echo "  4. 4.16"
-  echo "  5. 4.15"
-  echo "  6. 4.14"
   prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
 
   case $OCP_VERSION_SELECTION in
@@ -177,12 +175,6 @@ function provision_roks_interactive() {
       ;;
     4|4.16)
       export OCP_VERSION=4.16_openshift
-      ;;
-    5|4.15)
-      export OCP_VERSION=4.15_openshift
-      ;;
-    6|4.14)
-      export OCP_VERSION=4.14_openshift
       ;;
 
     *)
@@ -199,7 +191,7 @@ function provision_roks_interactive() {
   echo ""
   echo_h2 "Bare Metal GPU Worker Support"
   echo "GPU worker nodes with flavour, mg4c.32x384.2xp100, can be added to the cluster"
-  echo "for applications that require complex mathematical computations.  If you intnd"
+  echo "for applications that require complex mathematical computations.  If you intend"
   echo "to install the IBM Visual Inspection application you should answer 'yes' at"
   echo "the prompt below."
   echo ""
@@ -327,10 +319,21 @@ function provision_roks() {
     prompt_for_confirm "Proceed with these settings" || exit 0
   fi
 
-  ansible-playbook ibm.mas_devops.ocp_roks_provision || exit 1
+  ansible-playbook ibm.mas_devops.ocp_roks_provision
+  result=$?
 
-  echo ""
-  echo "IBM Cloud ROKS cluster is ready to use"
-  OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
-  echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+  if [[ "$result" == "0" ]]; then
+    echo ""
+    echo "IBM Cloud ROKS cluster is ready to use"
+    export OCP_CONSOLE_ROUTE=$(oc -n openshift-console get route console -o=jsonpath='{.spec.host}')
+    echo "Connected to OCP cluster: https://$OCP_CONSOLE_ROUTE"
+    export OCP_CONSOLE_URL="https://$OCP_CONSOLE_ROUTE"
+  fi
+  if [[ -n "$NOTIFY_SLACK_MSG" ]]; then
+    mas-devops-notify-slack --action ocp-provision-roks --rc $result --msg $NOTIFY_SLACK_MSG
+  else
+    mas-devops-notify-slack --action ocp-provision-roks --rc $result
+  fi
+
+  exit $result
 }
