@@ -17,10 +17,6 @@
 # -----------------------------------------------------------------------------
 {{ lookup('template', params_src_dir ~ '/install-eck.yml.j2') }}
 
-# Dependencies - Turbonomic
-# -----------------------------------------------------------------------------
-{{ lookup('template', params_src_dir ~ '/install-turbonomic.yml.j2') }}
-
 # Dependencies - SLS
 # -----------------------------------------------------------------------------
 - name: sls_namespace
@@ -212,6 +208,10 @@
 - name: db2_action_facilities
   type: string
   description: Set to 'install' to set up a Db2 instance for Real Estate and Facilities
+  default: "none"
+- name: db2_action_aiservice
+  type: string
+  description: Set to 'install' to set up a Db2 instance for AI Service
   default: "none"
 
 # Dependencies - CP4D
@@ -735,3 +735,7 @@
   description: ConfigMap with configurations not supported by Tekton
   type: string
   default: ""
+
+#  AI Service Configuration
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-aiservice.yml.j2') }}

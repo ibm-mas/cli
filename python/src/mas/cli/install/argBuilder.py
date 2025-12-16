@@ -408,15 +408,6 @@ class installArgBuilderMixin():
                 command += f" --cos-bucket-name \"{self.getParam('cos_bucket_name')}\"{newline}"
             command += newline
 
-        # Turbonomic Integration
-        # -----------------------------------------------------------------------------
-        if self.getParam('turbonomic_target_name') != "":
-            command += f"  --turbonomic-name \"{self.getParam('turbonomic_target_name')}\""
-            command += f"  --turbonomic-url \"{self.getParam('turbonomic_server_url')}\""
-            command += f"  --turbonomic-version \"{self.getParam('turbonomic_server_version')}\""
-            command += f"  --turbonomic-username \"{self.getParam('turbonomic_username')}\""
-            command += f"  --turbonomic-password \"{self.getParam('turbonomic_password')}\"{newline}"
-
         # Cloud Providers
         # -----------------------------------------------------------------------------
         if self.getParam('ibmcloud_apikey') != "":

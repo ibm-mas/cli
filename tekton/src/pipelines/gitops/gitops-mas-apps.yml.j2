@@ -951,6 +951,8 @@ spec:
           value: $(params.db2_tolerate_value_iot)
         - name: db2_tolerate_effect
           value: $(params.db2_tolerate_effect_iot)
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_iot)
         - name: jdbc_route
           value: $(params.jdbc_route_iot)
         - name: db2_timezone
@@ -999,8 +1001,6 @@ spec:
           value: system
         - name: jdbc_type
           value: $(params.jdbc_type_iot)
-        - name: jdbc_connection_url_additional_params
-          value: $(params.jdbc_connection_url_additional_params_iot)
         - name: jdbc_instance_name
           value: $(params.jdbc_instance_name_iot)
         - name: jdbc_connection_url
