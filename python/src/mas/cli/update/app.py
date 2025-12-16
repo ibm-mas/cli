@@ -248,8 +248,8 @@ class UpdateApp(BaseApp):
         self.printDescription([
             "Select MAS Catalog",
             "  1) Dec 24 2025 Update (MAS 9.1.7, 9.0.18, 8.11.29, &amp; 8.10.32)",
-            "  1) Nov 27 2025 Update (MAS 9.1.6, 9.0.17, 8.11.28, &amp; 8.10.31)",
-            "  2) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
+            "  2) Nov 27 2025 Update (MAS 9.1.6, 9.0.17, 8.11.28, &amp; 8.10.31)",
+            "  3) Oct 30 2025 Update (MAS 9.1.5, 9.0.16, 8.11.27, &amp; 8.10.30)",
         ])
 
         catalogOptions = [
