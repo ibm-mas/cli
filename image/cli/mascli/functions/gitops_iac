@@ -452,6 +452,7 @@ function compute_s3_variables() {
   export ENVIRONMENT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["environment"]')
   export OWNER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["owner"]')
   export ACCOUNT_ID=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'account_id')
+  export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_id")
   
   echo "  NAME_PREFIX_VALUE: ${NAME_PREFIX_VALUE}"
   echo "  COST_CENTER_VALUE: ${COST_CENTER_VALUE}"
@@ -461,6 +462,7 @@ function compute_s3_variables() {
   echo "  ACCOUNT_ID: ${ACCOUNT_ID}"
   echo "  S3_MANAGE: ${S3_MANAGE}"
   echo "  S3_MVI: ${S3_MVI}"
+  echo "  VPC_ID: ${VPC_ID_VALUE}"s
 
   echo " S3 variables computed successfully"
 }
