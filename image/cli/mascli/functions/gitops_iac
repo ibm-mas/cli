@@ -1012,7 +1012,6 @@ function gitops_iac_provision_s3_cmd() {
 function gitops_iac_generate_common_files_cmd() {
   shift  # Remove command name
   if [[ $# -gt 0 ]]; then
-  echo "hello"
     gitops_iac_noninteractive "$@"
   else
     echo "Not supported yet"
