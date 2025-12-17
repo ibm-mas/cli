@@ -21,6 +21,10 @@ elif [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
 
     if [[ "${RESPONSE}" == "200" ]]; then
         echo "Installing development build of python-devops from GitHub branch ${PYTHON_BRANCH_NAME}"
-        python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${PYTHON_BRANCH_NAME}"
+    else
+        echo "Branch ${PYTHON_BRANCH_NAME} not found, defaulting to stable"
+        PYTHON_BRANCH_NAME=stable
     fi
+
+    python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${PYTHON_BRANCH_NAME}"
 fi
