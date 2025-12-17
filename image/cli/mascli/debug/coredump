@@ -145,8 +145,10 @@ if [ "$GENERATE" = "true" ]; then
     ## create a debug pod
     oc debug node/$NODE_NAME --to-namespace="$DEBUG_NAMESPACE" -- sleep 3600 &
 
-    ## wait for the pod to be ready
     OLD_NUM_POD=0
+    NEW_NUM_POD=0
+    ITERATION=0
+        
     while [[ $OLD_NUM_POD -eq $NEW_NUM_POD ]] && [[ $ITERATION -lt 20 ]]
     do
       sleep 2
@@ -195,6 +197,7 @@ if [ "$GENERATE" = "true" ]; then
     oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- rm /host/var/lib/systemd/coredump/${COREDUMP_FILE}
 
     oc delete project $DEBUG_NAMESPACE
+
   done
 
 elif [ "$COLLECT" = "true" ] || [ "$REMOVE" = "true" ]; then
