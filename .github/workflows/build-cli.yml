@@ -451,8 +451,8 @@ jobs:
             echo "Publishing quay.io/ibmmas/cli:latest alias"
             docker buildx imagetools create -t quay.io/ibmmas/cli:latest quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
           else
-            echo "Publishing quay.io/ibmmas/cli:${{ env.GITHUB_REF_NAME }} alias"
-            docker buildx imagetools create -t quay.io/ibmmas/cli:${{ env.GITHUB_REF_NAME }} quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+            echo "Publishing quay.io/ibmmas/cli:$GITHUB_REF_NAME alias"
+            docker buildx imagetools create -t quay.io/ibmmas/cli:$GITHUB_REF_NAME quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
           fi
 
 
