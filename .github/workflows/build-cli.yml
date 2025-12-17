@@ -436,19 +436,22 @@ jobs:
       - name: Publish the manifest
         run: |
           echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
           echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
 
           # Login to quay.io
-          docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
+          echo "${{ secrets.QUAYIO_PASSWORD }}" | docker login quay.io --username "${{ secrets.QUAYIO_USERNAME }}" --password-stdin
 
           # Publish the manifest
           $GITHUB_WORKSPACE/build/bin/docker-manifest.sh -r quay.io/ibmmas/cli --target-platforms amd64,s390x,arm64,ppc64le
 
-          # Re-issue the manifest under an alias where needed
+          # Re-issue the manifest under an alias
           # https://github.com/docker/buildx/issues/1744#issuecomment-1896645786
           if [[ "$GITHUB_EVENT_NAME" == "release" ]]; then
+            echo "Publishing quay.io/ibmmas/cli:latest alias"
             docker buildx imagetools create -t quay.io/ibmmas/cli:latest quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
           else
+            echo "Publishing quay.io/ibmmas/cli:${{ env.GITHUB_REF_NAME }} alias"
             docker buildx imagetools create -t quay.io/ibmmas/cli:${{ env.GITHUB_REF_NAME }} quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
           fi
 
