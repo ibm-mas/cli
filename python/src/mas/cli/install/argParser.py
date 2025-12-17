@@ -1011,39 +1011,6 @@ cosArgGroup.add_argument(
     help="When using IBM COS, set COS bucket name to be used/created"
 )
 
-# Turbonomic Integration
-# -----------------------------------------------------------------------------
-turboArgGroup = installArgParser.add_argument_group("Turbonomic Integration")
-turboArgGroup.add_argument(
-    "--turbonomic-name",
-    dest="turbonomic_target_name",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-url",
-    dest="turbonomic_server_url",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-version",
-    dest="turbonomic_server_version",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-username",
-    dest="turbonomic_username",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-password",
-    dest="turbonomic_password",
-    required=False,
-    help=""
-)
 
 # Cloud Providers
 # -----------------------------------------------------------------------------
