@@ -15,7 +15,8 @@ createFolder () {
      if [[ "$APP" == "$INSTANCE_ID" ]]; then
        APP=$(echo ${POD%-*}) #removing 2nd ID
      fi
-  mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files"
+  mkdir -p "$OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/$POD"
+  
 }
 
 # Getting route_manager.log from EntityMgr-WS Pod
@@ -28,7 +29,7 @@ if [[ "$POD" != "" ]]; then
   if [[ "$FILE" != "" ]]; then
     createFolder
     oc -n $NAMESPACE exec -i $POD -- cp /tmp/route_manager.log /opt/ansible/route_manager.log
-    oc cp $NAMESPACE/$POD:route_manager.log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files/route_manager.log --retries 20 
+    oc cp $NAMESPACE/$POD:route_manager.log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/$POD/route_manager.log --retries 20 
     oc -n $NAMESPACE exec -i $POD -- rm -rf /opt/ansible/route_manager.log
   else
     echo_warning "route_manager.log not available on $POD pod"
@@ -44,7 +45,7 @@ POD=$(oc -n $NAMESPACE get pods -l "mas.ibm.com/appType= maxinstudb" -o jsonpath
 
 if [[ "$POD" != "" ]]; then
   createFolder 
-  oc cp $NAMESPACE/$POD:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20
+  oc cp $NAMESPACE/$POD:log $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/$POD --retries 20
 else
   echo_warning "Maxinst pod was not found"
 fi
@@ -60,7 +61,7 @@ echo "- ${COLOR_BLUE} Getting db2u Pod Files${TEXT_RESET}"
         createFolder
         FILES=$(oc -n db2u exec -i $POD -- /bin/sh -c "find tmp -type f -not -name 'ks*' -not -name 'tmp*'")
         for FILE in ${FILES[@]}; do
-          oc cp $NAMESPACE/$POD:$FILE $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files/$FILE --retries 20 > /dev/null 2>&1
+          oc cp $NAMESPACE/$POD:$FILE $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/$POD/$FILE --retries 20 > /dev/null 2>&1
         done
       done
     else
@@ -79,7 +80,8 @@ if [[ "$POD_NAME" != "" ]]; then
   for POD in ${POD_NAME[@]}; do
     createFolder
     oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "cp -R ./logs ./tmp/bundle" > /dev/null 2>&1
-    oc cp $NAMESPACE/$POD:tmp/bundle $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/files --retries 20 > /dev/null 2>&1
+    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "cp -R /opt/ibm/wlp/output/defaultServer/logs ./tmp/bundle" > /dev/null 2>&1
+    oc cp $NAMESPACE/$POD:tmp/bundle $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/$POD --retries 20 > /dev/null 2>&1
     oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "rm -rf ./tmp/bundle" > /dev/null 2>&1
   done
 else
