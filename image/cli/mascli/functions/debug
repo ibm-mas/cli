@@ -35,8 +35,8 @@ function debug() {
     threaddump)
       $DEBUG_SCRIPT_DIR/threaddump "$@"
       ;;
-    haroxy-logging)
-      $DEBUG_SCRIPT_DIR/haroxy-logging "$@"
+    haproxy-logging)
+      $DEBUG_SCRIPT_DIR/haproxy-logging "$@"
       ;;
   esac
 
