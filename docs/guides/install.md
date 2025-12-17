@@ -166,6 +166,13 @@ The interactive install will guide you through a series of questioned designed t
     </cds-accordion-item>
     <cds-accordion-item title="Application Configuration">
       <p>Some Maximo applications support additional configuration, you will be taken through the configuration options for each application that you chose to install.</p>
+      <h4>NEW UPDATE: Maximo Manage - AI Service Binding</h4>
+      <p><strong>NEW UPDATE:</strong> When installing Maximo Manage, you can optionally bind it to an AI Service Tenant. This integration enables AI capabilities within Manage through the AI Config Application.</p>
+      <ul>
+        <li><strong>Installing AI Service with Manage:</strong> If you select AI Service during the application selection step, a default tenant ID "user" will be automatically created and bound to Manage. The AI Service instance being installed will be used for the binding.</li>
+        <li><strong>Using Existing AI Service:</strong> If AI Service is already installed in your cluster, you will be prompted to select from available AI Service Tenants to bind with Manage.</li>
+      </ul>
+      <p>In interactive mode, you will be guided through selecting the appropriate AI Service instance and tenant. In non-interactive mode, use the <code>--manage-aiservice-instance-id</code> and <code>--manage-aiservice-tenant-id</code> parameters.</p>
     </cds-accordion-item>
     <cds-accordion-item title="Configure Databases">
       <p>The install supports the automatic provision of in-cluster MongoDb and Db2 databases for use with Maximo Application Suite, you may also choose to bring your own (BYO) by providing the necessary configuration files (which the installer will also help you create).</p>

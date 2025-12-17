@@ -324,11 +324,11 @@ class ManageSettingsMixin():
             # Show all available tenants from cluster
             aiserviceTenantOptions = []
             for aiserviceTenant in aiserviceTenantInstances:
-                print_formatted_text(HTML(f"- <u>{aiserviceTenant['metadata']['name']}</u> v{aiserviceTenant['status']['versions']['reconciled']}"))
+                print_formatted_text(HTML(f"- <u>{aiserviceTenant['metadata']['name'].split('-')[-1]}</u>"))
                 aiserviceTenantOptions.append(aiserviceTenant['metadata']['name'].split('-')[-1])
 
         aiserviceTenantCompleter = WordCompleter(aiserviceTenantOptions)
         print()
 
-        aiserviceTenantInstanceId = prompt(HTML('<Yellow>Enter AI Service Tenant ID to bind with Manage: </Yellow>'), completer=aiserviceTenantCompleter, validator=AiserviceTeanantIDValidator(self.getParam("manage_bind_aiservice_instance_id"), self.installAIService), validate_while_typing=False)
+        aiserviceTenantInstanceId = self.promptForString('Enter AI Service Tenant ID to bind with Manage: ', completer=aiserviceTenantCompleter, validator=AiserviceTeanantIDValidator(self.getParam("manage_bind_aiservice_instance_id"), self.installAIService))
         self.setParam("manage_bind_aiservice_tenant_id", aiserviceTenantInstanceId)
