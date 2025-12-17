@@ -52,7 +52,6 @@
         - minio
         - aiservice
         - odh
-        - aiservice-tenant
         - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
@@ -63,6 +62,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - aiservice-fvt
+        - aiservice-fvt-start-upgrade
         - mas-fvt-assist-desktop
         - mas-fvt-assist
         - mas-fvt-core

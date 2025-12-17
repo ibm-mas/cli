@@ -28,8 +28,6 @@ spec:
     - name: jdbc_type_iot
       type: string
       default: "incluster-db2"
-    - name: jdbc_connection_url_additional_params_iot
-      type: string
     - name: jdbc_instance_name_iot
       type: string
       default: ""
@@ -70,8 +68,6 @@ spec:
         value: $(params.avp_aws_secret_region)
       - name: JDBC_TYPE_IOT
         value: $(params.jdbc_type_iot)
-      - name: JDBC_CONNECTION_URL_ADDITIONAL_PARAMS_IOT
-        value: $(params.jdbc_connection_url_additional_params_iot)
       - name: JDBC_INSTANCE_NAME_IOT
         value: $(params.jdbc_instance_name_iot)
       - name: JDBC_ROUTE_IOT
@@ -119,7 +115,6 @@ spec:
         --mas-app-id "iot" \
         --dir /tmp/deprovision-suite-config-iotdb \
         --jdbc-type "$JDBC_TYPE_IOT" \
-        --jdbc-connection-url-additional-params "$JDBC_CONNECTION_URL_ADDITIONAL_PARAMS_IOT" \
         --jdbc-route "$JDBC_ROUTE_IOT" \
         --jdbc-instance-name "$JDBC_INSTANCE_NAME_IOT" \
         || exit 1

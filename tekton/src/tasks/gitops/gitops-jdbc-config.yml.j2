@@ -36,9 +36,6 @@ spec:
     - name: jdbc_type
       type: string
       default: incluster-db2
-    - name: jdbc_connection_url_additional_params
-      type: string
-      default: ""
     - name: jdbc_instance_name
       type: string
     - name: jdbc_connection_url
@@ -83,8 +80,6 @@ spec:
         value: $(params.mas_workspace_id)
       - name: JDBC_TYPE
         value: $(params.jdbc_type)
-      - name: JDBC_CONNECTION_URL_ADDITIONAL_PARAMS
-        value: $(params.jdbc_connection_url_additional_params)
       - name: JDBC_INSTANCE_NAME
         value: $(params.jdbc_instance_name)
       - name: JDBC_CONNECTION_URL

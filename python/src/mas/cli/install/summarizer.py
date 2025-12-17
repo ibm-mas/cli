@@ -308,18 +308,6 @@ class InstallSummarizerMixin():
         else:
             self.printSummary("ECK Integration", "Disabled")
 
-    def turbonomicSummary(self) -> None:
-        self.printH2("Turbonomic")
-        if self.getParam("turbonomic_server_url") != "":
-            self.printSummary("Turbonomic Integration", "Enabled")
-            self.printParamSummary("Server URL", "turbonomic_server_url")
-            self.printParamSummary("Server version", "turbonomic_server_version")
-            self.printParamSummary("Target name", "turbonomic_target_name")
-            self.printParamSummary("Username", "turbonomic_username")
-            self.printSummary("Password", f"{self.getParam('turbonomic_password')[0:8]}&lt;snip&gt;")
-        else:
-            self.printSummary("Turbonomic Integration", "Disabled")
-
     def mongoSummary(self) -> None:
         self.printH2("MongoDb")
         if self.getParam("mongodb_action") == "install":
@@ -399,7 +387,6 @@ class InstallSummarizerMixin():
         self.kafkaSummary()
         self.cp4dSummary()
         self.grafanaSummary()
-        self.turbonomicSummary()
 
         # Install options
         self.installSummary()

@@ -139,6 +139,12 @@ function gitops_suite_noninteractive() {
   # cert-manager namespace, in case redhat default value is cert-manager
   export CERT_MANAGER_NAMESPACE=${CERT_MANAGER_NAMESPACE:-"cert-manager"}
 
+  #GenericAddon default
+  export EXTENSIONS=${EXTENSIONS:-"false"}
+  export ADDITIONAL_VPN=${ADDITIONAL_VPN:-"false"}
+  export ENHANCED_DR=${ENHANCED_DR:-"false"}
+
+
   if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
       CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
       IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
