@@ -15,6 +15,8 @@ Commands:
     
     threaddump: generates and collects javacore (thread dumps) from a liberty server.
                 refer to mas debug threaddmp --help for futher information
+
+    haproxy-logging: enables and disables logging for the ocp ha proxy and collects correspoding logs.
 EOM
   [[ -n "$1" ]] && exit 1 || exit 0
 }
@@ -30,9 +32,11 @@ function debug() {
     coredump)
       $DEBUG_SCRIPT_DIR/coredump "$@"
       ;;
-
     threaddump)
       $DEBUG_SCRIPT_DIR/threaddump "$@"
+      ;;
+    haroxy-logging)
+      $DEBUG_SCRIPT_DIR/haroxy-logging "$@"
       ;;
   esac
 
