@@ -8,11 +8,12 @@
 #
 # *****************************************************************************
 
-from prompt_toolkit.completion import WordCompleter, prompt, print_formatted_text, HTML
+from prompt_toolkit.completion import WordCompleter
 from mas.cli.validators import LanguageValidator
 from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
 from openshift.dynamic.exceptions import ResourceNotFoundError
 from ...validators import AiserviceTeanantIDValidator
+from prompt_toolkit import prompt, print_formatted_text, HTML
 
 import logging
 logger = logging.getLogger(__name__)
