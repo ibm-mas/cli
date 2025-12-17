@@ -81,6 +81,7 @@ if [[ "$POD_NAME" != "" ]]; then
     createFolder
     oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "cp -R ./logs ./tmp/bundle" > /dev/null 2>&1
     oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "cp -R /opt/ibm/wlp/output/defaultServer/logs ./tmp/bundle" > /dev/null 2>&1
+    oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "cp -R /opt/ibm/wlp/output/defaultServer/maximo ./tmp/bundle" > /dev/null 2>&1
     oc cp $NAMESPACE/$POD:tmp/bundle $OUTPUT_DIR/resources/$NAMESPACE/pods_files/$APP/$POD --retries 20 > /dev/null 2>&1
     oc -n $NAMESPACE exec -i $POD -- /bin/sh -c "rm -rf ./tmp/bundle" > /dev/null 2>&1
   done
