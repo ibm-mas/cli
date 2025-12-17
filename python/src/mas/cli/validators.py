@@ -107,17 +107,17 @@ class AiserviceTeanantIDValidator(Validator):
         """
         self.manage_bind_aiservice_instance_id = manage_bind_aiservice_instance_id
         self.install_aiservice = install_aiservice
-    
+
     def validate(self, document):
         """
         Validate that a AI Service tenant ID exists on the target cluster
         """
         tenantId = document.text
-        
+
         # If AI Service is being installed and tenant is 'user', skip cluster verification
         if self.install_aiservice and tenantId == "user":
             return
-        
+
         dynClient = dynamic.DynamicClient(
             api_client.ApiClient(configuration=config.load_kube_config())
         )

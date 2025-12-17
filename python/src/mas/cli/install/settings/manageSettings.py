@@ -8,7 +8,7 @@
 #
 # *****************************************************************************
 
-from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.completion import WordCompleter, prompt, print_formatted_text, HTML
 from mas.cli.validators import LanguageValidator
 from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
 from openshift.dynamic.exceptions import ResourceNotFoundError
@@ -292,7 +292,7 @@ class ManageSettingsMixin():
         except ResourceNotFoundError:
             aiserviceTenantInstances = []
             aiserviceInstances = []
-        
+
         if self.installAIService:
             # if aiservice is being installed along with manage, add default tenant instance
             aiserviceTenantInstances.append("user")
@@ -304,7 +304,7 @@ class ManageSettingsMixin():
         else:
             # Set aiservice instance id from the first instance fetched from cluster
             self.setParam("manage_bind_aiservice_instance_id", aiserviceInstances[0]['metadata']['name'])
-        
+
         self.printH2(f"Maximo {self.manageAppName} Settings - AI Service Tenant Configuration")
 
         self.printDescription([
@@ -318,14 +318,14 @@ class ManageSettingsMixin():
             ])
             # Show only default 'user' tenant when AI Service is being installed
             aiserviceTenantOptions = ["user"]
-            print_formatted_text(HTML(f"- <u>user</u> (default)"))
+            print_formatted_text(HTML("- <u>user</u> (default)"))
         else:
             # Show all available tenants from cluster
             aiserviceTenantOptions = []
             for aiserviceTenant in aiserviceTenantInstances:
                 print_formatted_text(HTML(f"- <u>{aiserviceTenant['metadata']['name']}</u> v{aiserviceTenant['status']['versions']['reconciled']}"))
                 aiserviceTenantOptions.append(aiserviceTenant['metadata']['name'].split('-')[-1])
-        
+
         aiserviceTenantCompleter = WordCompleter(aiserviceTenantOptions)
         print()
 
