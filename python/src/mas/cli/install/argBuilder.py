@@ -252,6 +252,11 @@ class installArgBuilderMixin():
             if self.getParam('mas_appws_upgrade_type') == "true":
                 command += f"  --manage-upgrade-type \"{self.getParam('mas_appws_upgrade_type')}\"{newline}"
 
+            if self.getParam('manage_bind_aiservice_instance_id') != "":
+                command += f"  --manage-aiservice-instance-id \"{self.getParam('manage_bind_aiservice_instance_id')}\"{newline}"
+            if self.getParam('manage_bind_aiservice_tenant_id') != "":
+                command += f"  --manage-aiservice-tenant-id \"{self.getParam('manage_bind_aiservice_tenant_id')}\"{newline}"
+
         # Facilities Advanced Settings
         # -----------------------------------------------------------------------------
         # TODO: Fix type for storage sizes and max conn pool size

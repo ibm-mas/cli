@@ -199,6 +199,10 @@ class InstallSummarizerMixin():
                 self.printParamSummary("  + Schema", "mas_app_settings_db2_schema")
                 self.printParamSummary("  + Tablespace", "mas_app_settings_tablespace")
                 self.printParamSummary("  + Indexspace", "mas_app_settings_indexspace")
+
+                print_formatted_text(HTML("  <SkyBlue>+ AI Service Binding (for Manage)</SkyBlue>"))
+                self.printParamSummary("  + Bound AI Service Instance ID", "manage_bind_aiservice_instance_id")
+                self.printParamSummary("  + Bound AI Service Tenant ID", "manage_bind_aiservice_tenant_id")
         else:
             self.printSummary("Manage", "Do Not Install")
 

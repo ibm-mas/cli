@@ -627,6 +627,19 @@ manageArgGroup.add_argument(
     choices=["cr", "db"]
 )
 
+manageArgGroup.add_argument(
+    "--manage-aiservice-instance-id",
+    dest="manage_bind_aiservice_instance_id",
+    required=False,
+    help="AI Service Instance ID to bind with Manage"
+)
+manageArgGroup.add_argument(
+    "--manage-aiservice-tenant-id",
+    dest="manage_bind_aiservice_tenant_id",
+    required=False,
+    help="AI Service Tenant ID to bind with Manage"
+)
+
 # Facilities Advanced Settings
 # TODO: Fix type for storage sizes and max conn pool size
 facilitiesArgGroup = installArgParser.add_argument_group("Facilities Advanced Configuration")

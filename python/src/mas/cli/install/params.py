@@ -195,6 +195,8 @@ optionalParams = [
     "aiservice_instance_id",
     "aiservice_watsonxai_instance_id",
     "aiservice_watsonxai_verify",
+    "manage_bind_aiservice_instance_id",
+    "manage_bind_aiservice_tenant_id",
 
     "minio_root_user",
     "minio_root_password",

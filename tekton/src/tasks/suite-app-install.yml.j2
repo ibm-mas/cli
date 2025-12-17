@@ -18,11 +18,15 @@ spec:
     - name: mas_app_id
       type: string
       description: Maximo Applicaiton Suite Application Id
-
-    # AI Service Details
-    - name: aiservice_instance_id
+    
+    - name: manage_bind_aiservice_instance_id
       type: string
-      description: AI Service Instance ID
+      description: AI Service Instance ID to bind with Manage
+      default: ""
+    
+    - name: manage_bind_aiservice_tenant_id
+      type: string
+      description: AI Service Tenant ID to bind with Manage
       default: ""
 
     # Custom Label Support
@@ -342,10 +346,6 @@ spec:
       - name: MAS_APP_ID
         value: $(params.mas_app_id)
 
-      # AI Service Details
-      - name: AISERVICE_INSTANCE_ID
-        value: $(params.aiservice_instance_id)
-
       # Custom Label Support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
@@ -401,6 +401,12 @@ spec:
         # MAS Details
         - name: MAS_CONFIG_DIR
           value: /workspace/configs
+
+        # AI Service Details for Manage binding
+        - name: AISERVICE_INSTANCE_ID
+          value: $(params.manage_bind_aiservice_instance_id)
+        - name: AISERVICE_TENANT_ID
+          value: $(params.manage_bind_aiservice_tenant_id)
 
         # CPD Version
         - name: CPD_PRODUCT_VERSION
