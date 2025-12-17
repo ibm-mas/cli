@@ -429,7 +429,7 @@ function mustgather() {
     echo_h2 "Maximo Application Suite: ${MAS_INSTANCE_ID}"
     startTimer
     for MAS_APP_ID in $(echo $MAS_APP_IDS | tr "," " ")
-    do
+    
       MAS_APP_NAMESPACE=mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}
       NAMESPACE_LOOKUP=$(oc get namespace $MAS_APP_NAMESPACE --ignore-not-found)
 
@@ -438,7 +438,7 @@ function mustgather() {
         echo
         # MAS-specific must-gather
         $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE &> ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
-        $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
+        $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR $PODS_ONLY
 
         genericMustGather $MAS_APP_NAMESPACE
       fi
