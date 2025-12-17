@@ -404,6 +404,8 @@ function gitops_aiservice_tenant() {
   #watsonx
   export SECRET_KEY_WATSONXAI_APIKEY=${SECRETS_PREFIX}watsonx#watsonxai_apikey
   export AISERVICE_WATSONXAI_PROJECT_ID=${SECRETS_PREFIX}watsonx#watsonxai_project_id
+  export AISERVICE_WATSONXAI_DEPLOYMENT_ID=${SECRETS_PREFIX}watsonx#watsonxai_deployment_id
+  export AISERVICE_WATSONXAI_SPACE_ID=${SECRETS_PREFIX}watsonx#watsonxai_space_id
   
   # STORAGE
   export SECRET_KEY_STORAGE_HOST=${SECRETS_PREFIX}storage#sm_storage_host
@@ -418,7 +420,7 @@ function gitops_aiservice_tenant() {
   sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_registration_key,drocfg_ca_b64enc"
   sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
-  sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
+  sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id,watsonxai_deployment_id,watsonxai_space_id"
   
   # finally push them into the git repo
 
