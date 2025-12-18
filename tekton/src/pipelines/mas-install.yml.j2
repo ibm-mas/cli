@@ -229,7 +229,6 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config.yml.j2') | indent(4) }}
       runAfter:
         - suite-install
-        - aiservice
       when: 
         - input: "$(params.mas_instance_id)"
           operator: notin
