@@ -1245,11 +1245,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("manage_bind_aiservice_tenant_id", "user")
             elif key == "manage_bind_aiservice_instance_id":
                 # only set if AI Service not being installed
-                if not vars(self.args).get("aiservice_instance_id"):
+                if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
                     self.setParam("manage_bind_aiservice_instance_id", value)
             elif key == "manage_bind_aiservice_tenant_id":
                 # only set if AI Service not being installed
-                if not vars(self.args).get("aiservice_instance_id"):
+                if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
                     self.setParam("manage_bind_aiservice_tenant_id", value)
 
             # Manage advanced settings that need extra processing
