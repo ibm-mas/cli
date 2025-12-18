@@ -141,14 +141,8 @@ spec:
       default: ""
     - name: additional_infrastructure
       type: string
-      default: ""
-    - name: instance_name
-      type: string
-      default: ""
-    - name: instance_reason_code
-      type: string
-      default: ""
-    - name: instance_cost
+      default: "false"
+    - name: additional_infrastructure_instances
       type: string
       default: ""
     - name: extensions
@@ -266,12 +260,8 @@ spec:
         value: $(params.additional_vpn)
       - name: ADDITIONAL_INFRASTRUCTURE
         value: $(params.additional_infrastructure)
-      - name: INSTANCE_NAME
-        value: $(params.instance_name)
-      - name: INSTANCE_REASON_CODE
-        value: $(params.instance_reason_code)
-      - name: INSTANCE_COST
-        value: $(params.instance_cost)
+      - name: ADDITIONAL_INFRASTRUCTURE_INSTANCES
+        value: $(params.additional_infrastructure_instances)
       - name: IS_NON_SHARED_CLUSTER
         value: $(params.is_non_shared_cluster)
       - name: EXTENSIONS

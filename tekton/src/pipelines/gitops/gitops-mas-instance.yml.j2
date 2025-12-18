@@ -231,12 +231,10 @@ spec:
       type: string
     - name: additional_infrastructure
       type: string
-    - name: instance_name
+      default: "false"
+    - name: additional_infrastructure_instances
       type: string
-    - name: instance_reason_code
-      type: string
-    - name: instance_cost
-      type: string
+      default: ""
 
    # standalone sls
     - name: sls_service
@@ -456,12 +454,8 @@ spec:
           value: $(params.additional_vpn)
         - name: additional_infrastructure
           value: $(params.additional_infrastructure)
-        - name: instance_name
-          value: $(params.instance_name)
-        - name: instance_reason_code
-          value: $(params.instance_reason_code)
-        - name: instance_cost
-          value: $(params.instance_cost)
+        - name: additional_infrastructure_instances
+          value: $(params.additional_infrastructure_instances)
         - name: extensions
           value: $(params.extensions)
         - name: sls_service
