@@ -164,7 +164,7 @@ class InstallSummarizerMixin():
     def manageSummary(self) -> None:
         if self.installManage:
             self.printSummary(f"{'Manage foundation' if self.getParam('mas_appws_components') == '' else 'Manage'}", self.params["mas_app_channel_manage"])
-            if self.getParam("mas_appws_components") == "":
+            if self.getParam("mas_appws_components") != "":
                 print_formatted_text(HTML("  <SkyBlue>+ Components</SkyBlue>"))
                 self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
@@ -200,6 +200,7 @@ class InstallSummarizerMixin():
                 self.printParamSummary("  + Tablespace", "mas_app_settings_tablespace")
                 self.printParamSummary("  + Indexspace", "mas_app_settings_indexspace")
 
+            if self.getParam("manage_bind_aiservice_tenant_id") != "":
                 print_formatted_text(HTML("  <SkyBlue>+ AI Service Binding (for Manage)</SkyBlue>"))
                 self.printParamSummary("  + Bound AI Service Instance ID", "manage_bind_aiservice_instance_id")
                 self.printParamSummary("  + Bound AI Service Tenant ID", "manage_bind_aiservice_tenant_id")
