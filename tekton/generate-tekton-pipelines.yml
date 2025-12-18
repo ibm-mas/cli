@@ -54,7 +54,6 @@
         - mas-ivt-manage
         - mas-fvt-facilities
         # AI Service Pipelines
-        - aiservice-install
         - aiservice-upgrade
         # AI Service FVT Pipelines
         - aiservice-fvt-launcher
@@ -100,6 +99,7 @@
         - gitops-aiservice-tenant-pipeline
         - gitops-deprovision-aiservice-pipeline
         - gitops-deprovision-aiservice-tenant-pipeline
+        - gitops-iac-pipeline
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
