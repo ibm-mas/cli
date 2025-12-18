@@ -246,7 +246,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("IBM Maximo Operator Catalog Selection")
         if self.devMode:
             self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
-            self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
+            self.promptForString("Select channel", "mas_channel", default="9.2.x-dev")
         else:
             catalogInfo = getCurrentCatalog(self.dynamicClient)
 
@@ -712,7 +712,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def configAppChannel(self, appId):
         versions = self.getCompatibleVersions(self.params["mas_channel"], appId)
         if len(versions) == 0:
-            self.params[f"mas_app_channel_{appId}"] = prompt(HTML('<Yellow>Custom channel</Yellow> '))
+            self.params[f"mas_app_channel_{appId}"] = prompt(HTML(f"<Yellow>Custom {appId.title()} channel</Yellow> "))
         else:
             self.params[f"mas_app_channel_{appId}"] = versions[0]
 
