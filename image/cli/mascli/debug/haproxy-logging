@@ -60,10 +60,11 @@ if [[ "$ENABLE" = true ]]; then
     # backup ingresscontroller yaml 
 
     echo "backup ingresscontroller yaml to $(pwd)"
-    oc get ingresscontroller/default -o yaml -n openshift-ingress-operator > ingresscontroller-default.yaml
+    oc get ingresscontroller default -o yaml -n openshift-ingress-operator > ingresscontroller-default.yaml
     # enable haproxy logging
 
-    oc patch ingresscontroller/default --type='merge' -p '{"spec":{"logging":{"access":{"destination":{"type": "Container"},"httpLogFormat": "log_source=\"haproxy-default\" log_type=\"http\" c_ip=\"%ci\" c_port=\"%cp\" req_date=\"%tr\" fe_name_transport=\"%ft\" be_name=\"%b\" server_name=\"%s\" res_time=\"%TR\" tot_wait_q=\"%Tw\" Tc=\"%Tc\" Tr=\"%Tr\" Ta=\"%Ta\" status_code=\"%ST\" bytes_read=\"%B\" bytes_uploaded=\"%U\" captrd_req_cookie=\"%CC\" captrd_res_cookie=\"%CS\" term_state=\"%tsc\" actconn=\"%ac\" feconn=\"%fc\" beconn=\"%bc\" srv_conn=\"%sc\" retries=\"%rc\" srv_queue=\"%sq\" backend_queue=\"%bq\" captrd_req_headers=\"%hr\" captrd_res_headers=\"%hs\" http_request=\"%r\""}}}}'
+    echo "patching ingresscontroller/default"
+    oc patch ingresscontroller/default -n openshift-ingress-operator --type='merge' -p '{"spec":{"logging":{"access":{"destination":{"type": "Container"},"httpLogFormat": "log_source=\"haproxy-default\" log_type=\"http\" c_ip=\"%ci\" c_port=\"%cp\" req_date=\"%tr\" fe_name_transport=\"%ft\" be_name=\"%b\" server_name=\"%s\" res_time=\"%TR\" tot_wait_q=\"%Tw\" Tc=\"%Tc\" Tr=\"%Tr\" Ta=\"%Ta\" status_code=\"%ST\" bytes_read=\"%B\" bytes_uploaded=\"%U\" captrd_req_cookie=\"%CC\" captrd_res_cookie=\"%CS\" term_state=\"%tsc\" actconn=\"%ac\" feconn=\"%fc\" beconn=\"%bc\" srv_conn=\"%sc\" retries=\"%rc\" srv_queue=\"%sq\" backend_queue=\"%bq\" captrd_req_headers=\"%hr\" captrd_res_headers=\"%hs\" http_request=\"%r\""}}}}'
 
     for (( i=20; i > 0; --i)); do
         sleep 30
@@ -99,7 +100,7 @@ fi
 # disable haproxy logging
 if [[ "$DISABLE" = true ]]; then
 
-    oc patch ingresscontroller/default --type='json' -p '[{"op": "remove", "path": "/spec/logging"}]'
+    oc patch ingresscontroller/default -n openshift-ingress-operator --type='json' -p '[{"op": "remove", "path": "/spec/logging"}]'
 
     for (( i=20; i > 0; --i)); do
         sleep 30
