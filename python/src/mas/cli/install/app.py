@@ -1240,6 +1240,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     # Install Db2 for AI Service
                     self.setParam("db2_action_aiservice", "install")
                     self.installAIService = True
+                    # Set manage - bind - AI Service params same as provided AI Service's params
+                    self.setParam("manage_bind_aiservice_instance_id", vars(self.args).get("aiservice_instance_id"))
+                    self.setParam("manage_bind_aiservice_tenant_id", "user")
+            elif key == "manage_bind_aiservice_instance_id":
+                # only set if AI Service not being installed
+                if not vars(self.args).get("aiservice_instance_id"):
+                    self.setParam("manage_bind_aiservice_instance_id", value)
+            elif key == "manage_bind_aiservice_tenant_id":
+                # only set if AI Service not being installed
+                if not vars(self.args).get("aiservice_instance_id"):
+                    self.setParam("manage_bind_aiservice_tenant_id", value)
 
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":

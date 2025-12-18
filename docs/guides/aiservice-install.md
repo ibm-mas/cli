@@ -289,8 +289,16 @@ After installing AI Service, you can bind it to Maximo Manage to enable AI capab
 
 **During Manage Installation:**
 
-- **Interactive Mode**: You will be guided through selecting the appropriate AI Service instance and tenant during the installation process
-- **Non-Interactive Mode**: Use `mas install` with `--manage-aiservice-instance-id` and `--manage-aiservice-tenant-id` parameters
+When installing Manage alongside AI Service using `mas install`:
+
+- **Installing AI Service with Manage** (using `--aiservice-channel`):
+  - The binding is configured automatically with default "user" tenant
+  - No additional parameters needed
+  - Any `--manage-aiservice-instance-id` or `--manage-aiservice-tenant-id` parameters will be ignored
+
+- **Using Existing AI Service** (not using `--aiservice-channel`):
+  - **Interactive Mode**: You will be prompted to select the AI Service instance and tenant
+  - **Non-Interactive Mode**: Use `--manage-aiservice-instance-id` and `--manage-aiservice-tenant-id` parameters
 
 **Post-Installation:**
 
