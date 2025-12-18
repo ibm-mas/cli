@@ -134,14 +134,22 @@ class installArgBuilderMixin():
 
         # IBM Suite License Service
         # -----------------------------------------------------------------------------
-        if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls":
-            if self.getParam("mas_instance_id") and self.getParam("sls_namespace") == f"mas-{self.getParam('mas_instance_id')}-sls":
-                command += "  --dedicated-sls"
+        addedSLSCmd = False
+        if self.getParam("sls_namespace") != "ibm-sls":
+            if self.getParam("mas_instance_id") != "":
+                if self.getParam("sls_namespace") == f"mas-{self.getParam('mas_instance_id')}-sls":
+                    command += "  --dedicated-sls"
+                    addedSLSCmd = True
             else:
                 command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\""
+                addedSLSCmd = True
+        if self.getParam("sls_channel") != "":
+                command += f"  --sls-channel \"{self.getParam('sls_channel')}\""
+                addedSLSCmd = True
         if self.slsLicenseFileLocal:
             command += f"  --license-file \"{self.slsLicenseFileLocal}\""
-        if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls" or self.slsLicenseFileLocal:
+            addedSLSCmd = True
+        if addedSLSCmd == True:
             command += newline
 
         # IBM Data Reporting Operator (DRO)
