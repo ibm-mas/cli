@@ -35,19 +35,14 @@ fi
 TARGET_URL="${ARTIFACTORY_GENERIC_RELEASE_URL}/${GITHUB_REPOSITORY}/${VERSION}/${FILE_NAME}-${VERSION}.${FILE_EXT}"
 artifactory_upload $FILE_PATH $TARGET_URL
 
-TARGET_URL_BRANCH_NAME="${ARTIFACTORY_GENERIC_RELEASE_URL}/${GITHUB_REPOSITORY}/${GITHUB_REF_NAME}/${FILE_NAME}-${GITHUB_REF_NAME}.${FILE_EXT}"
-artifactory_upload $FILE_PATH $TARGET_URL_BRANCH_NAME
-
-# Also update "master" alias when we build on master branch
-if [ "${GITHUB_REF_NAME}" == "master" ]; then
-  MASTER_URL="${ARTIFACTORY_GENERIC_RELEASE_URL}/${GITHUB_REPOSITORY}/master/${FILE_NAME}-master.${FILE_EXT}"
-  artifactory_upload $FILE_PATH $MASTER_URL
-fi
 
 # Also update "latest" alias when we publish a release
 if [ "${GITHUB_REF_TYPE}" == "tag" ]; then
   LATEST_URL="${ARTIFACTORY_GENERIC_RELEASE_URL}/${GITHUB_REPOSITORY}/latest/${FILE_NAME}-latest.${FILE_EXT}"
   artifactory_upload $FILE_PATH $LATEST_URL
+else
+  TARGET_URL_BRANCH_NAME="${ARTIFACTORY_GENERIC_RELEASE_URL}/${GITHUB_REPOSITORY}/${GITHUB_REF_NAME}/${FILE_NAME}-${GITHUB_REF_NAME}.${FILE_EXT}"
+  artifactory_upload $FILE_PATH $TARGET_URL_BRANCH_NAME
 fi
 
 exit 0
