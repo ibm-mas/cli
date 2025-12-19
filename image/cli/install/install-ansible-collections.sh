@@ -19,6 +19,7 @@ elif [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
     BRANCH_TARGET_URL="${ARTIFACTORY_GENERIC_RELEASE_URL}/ibm-mas/ansible-devops/branches/ibm-mas_devops-${GITHUB_REF_NAME}.tar.gz"
     curl -H "Authorization:Bearer $ARTIFACTORY_TOKEN" $BRANCH_TARGET_URL -o /tmp/install/ibm-mas_devops.tar.gz
     tar -tzf /tmp/install/ibm-mas_devops.tar.gz > /dev/null
+
     if [[ "$?" == "0" ]]; then
         echo "Installing matching branch build (${GITHUB_REF_NAME}) of ansible-devops from Artifactory"
         ansible-galaxy collection install /tmp/install/ibm-mas_devops.tar.gz -p $ANSIBLE_COLLECTIONS_PATH
