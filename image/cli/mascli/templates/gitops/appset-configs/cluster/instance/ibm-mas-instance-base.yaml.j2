@@ -35,11 +35,14 @@ allow_list: {{ ALLOW_LIST }}
 additional_vpn: {{ ADDITIONAL_VPN }}
 {% endif %}
 
-{% if ADDITIONAL_INFRASTRUCTURE is defined and ADDITIONAL_INFRASTRUCTURE != '' %}
-additional_infrastructure: {{ ADDITIONAL_INFRASTRUCTURE }}
+{% if ADDITIONAL_INFRASTRUCTURE_INSTALL is defined and ADDITIONAL_INFRASTRUCTURE_INSTALL != '' %}
+additional_infrastructure: 
+  install: {{ ADDITIONAL_INFRASTRUCTURE_INSTALL }}
 {% if ADDITIONAL_INFRASTRUCTURE_INSTANCES is defined and ADDITIONAL_INFRASTRUCTURE_INSTANCES != '' %}
-additional_infrastructure_instances:
-{{ ADDITIONAL_INFRASTRUCTURE_INSTANCES | indent(2) }}
+  instances: 
+{% filter indent(width=4) -%}
+{{ ADDITIONAL_INFRASTRUCTURE_INSTANCES }}
+{%- endfilter %}
 {% endif %}
 {% endif %}
 

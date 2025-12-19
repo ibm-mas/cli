@@ -139,7 +139,7 @@ spec:
     - name: additional_vpn
       type: string
       default: ""
-    - name: additional_infrastructure
+    - name: additional_infrastructure_install
       type: string
       default: "false"
     - name: additional_infrastructure_instances
@@ -259,8 +259,8 @@ spec:
       - name: ADDITIONAL_VPN
         value: $(params.additional_vpn)
       - name: ADDITIONAL_INFRASTRUCTURE
-        value: $(params.additional_infrastructure)
-      - name: ADDITIONAL_INFRASTRUCTURE_INSTANCES
+        value: $(params.additional_infrastructure_install)
+      - name: ADDITIONAL_INFRASTRUCTURE_INSTANCES_INSTALL
         value: $(params.additional_infrastructure_instances)
       - name: IS_NON_SHARED_CLUSTER
         value: $(params.is_non_shared_cluster)

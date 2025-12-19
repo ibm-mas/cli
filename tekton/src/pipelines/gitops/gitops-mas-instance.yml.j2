@@ -229,7 +229,7 @@ spec:
       type: string
     - name: additional_vpn
       type: string
-    - name: additional_infrastructure
+    - name: additional_infrastructure_install
       type: string
       default: "false"
     - name: additional_infrastructure_instances
@@ -452,8 +452,8 @@ spec:
           value: $(params.enhanced_dr)
         - name: additional_vpn
           value: $(params.additional_vpn)
-        - name: additional_infrastructure
-          value: $(params.additional_infrastructure)
+        - name: additional_infrastructure_install
+          value: $(params.additional_infrastructure_install)
         - name: additional_infrastructure_instances
           value: $(params.additional_infrastructure_instances)
         - name: extensions
