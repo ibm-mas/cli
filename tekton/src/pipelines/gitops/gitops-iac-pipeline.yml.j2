@@ -117,6 +117,57 @@ spec:
       type: string
       default: ''
 
+   # iac-msk common params
+    - name: is_msk
+      type: string
+      default: 'false'
+
+    - name: msk_source
+      type: string
+      default: ''
+
+    # iac-msk iot params
+    - name: iot_msk_kafka_version
+      type: string
+      default: ''
+
+    - name: iot_msk_instance_type
+      type: string
+      default: ''
+
+    - name: iot_msk_cluster_username
+      type: string
+      default: ''
+
+    - name: iot_broker_volume_size
+      type: string
+      default: ''
+
+    - name: iot_number_of_broker_nodes
+      type: string
+      default: ''
+
+    # iac-msk monitor params
+    - name: monitor_msk_kafka_version
+      type: string
+      default: ''
+
+    - name: monitor_msk_instance_type
+      type: string
+      default: ''
+
+    - name: monitor_msk_cluster_username
+      type: string
+      default: ''
+
+    - name: monitor_broker_volume_size
+      type: string
+      default: ''
+
+    - name: monitor_number_of_broker_nodes
+      type: string
+      default: ''
+
   workspaces:
     - name: configs
 
@@ -262,12 +313,74 @@ spec:
         - name: s3_mvi
           value: $(params.s3_mvi)
 
-    # Task 4: Generate Common Files (Runs after EFS/S3 tasks complete/skip)
+    # Task 3: Provision MSK (Conditional - runs if is_msk=true)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-provision-msk
+      when:
+        - input: "$(params.is_msk)"
+          operator: in
+          values: ["true"]
+      runAfter:
+        - gitops-iac-config
+      taskRef:
+        name: gitops-iac-provision-msk
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: region_name
+          value: $(params.region_name)
+
+        - name: msk_source
+          value: $(params.msk_source)
+
+        # iac-msk iot params
+        - name: iot_msk_kafka_version
+          value: $(params.iot_msk_kafka_version)
+        - name: iot_msk_instance_type
+          value: $(params.iot_msk_instance_type)
+        - name: iot_msk_cluster_username
+          value: $(params.iot_msk_cluster_username)
+        - name: iot_broker_volume_size
+          value: $(params.iot_broker_volume_size)
+        - name: iot_number_of_broker_nodes
+          value: $(params.iot_number_of_broker_nodes)
+
+        # iac-msk monitor params
+        - name: monitor_msk_kafka_version
+          value: $(params.monitor_msk_kafka_version)
+        - name: monitor_msk_instance_type
+          value: $(params.monitor_msk_instance_type)
+        - name: monitor_msk_cluster_username
+          value: $(params.monitor_msk_cluster_username)
+        - name: monitor_broker_volume_size
+          value: $(params.monitor_broker_volume_size)
+        - name: monitor_number_of_broker_nodes
+          value: $(params.monitor_number_of_broker_nodes)
+
+    # Task 4: Generate Common Files (Runs after EFS/S3/MSK tasks complete/skip)
     # -------------------------------------------------------------------------
     - name: gitops-iac-generate-common-files
       runAfter:
         - gitops-iac-provision-efs
         - gitops-iac-provision-s3
+        - gitops-iac-provision-msk
       taskRef:
         name: gitops-iac-generate-common-files
       workspaces:
@@ -296,7 +409,10 @@ spec:
           value: $(params.is_efs)
         - name: is_s3
           value: $(params.is_s3)
-        # EFS parameters (needed for variable computation)
+        - name: is_msk
+          value: $(params.is_msk)
+
+      # EFS parameters (needed for variable computation)
         - name: efs_manage_db2_performance_mode
           value: $(params.efs_manage_db2_performance_mode)
         - name: efs_manage_db2_mount_count
@@ -333,11 +449,36 @@ spec:
           value: $(params.efs_visualinspection_main_mount_count)
         - name: efs_visualinspection_main_throughput_mode
           value: $(params.efs_visualinspection_main_throughput_mode)
-        # S3 parameters (needed for variable computation)
+
+      # S3 parameters (needed for variable computation)
         - name: s3_manage
           value: $(params.s3_manage)
         - name: s3_mvi
           value: $(params.s3_mvi)
+
+      # iac-msk iot params
+        - name: iot_msk_kafka_version
+          value: $(params.iot_msk_kafka_version)
+        - name: iot_msk_instance_type
+          value: $(params.iot_msk_instance_type)
+        - name: iot_msk_cluster_username
+          value: $(params.iot_msk_cluster_username)
+        - name: iot_broker_volume_size
+          value: $(params.iot_broker_volume_size)
+        - name: iot_number_of_broker_nodes
+          value: $(params.iot_number_of_broker_nodes)
+
+      # iac-msk monitor params
+        - name: monitor_msk_kafka_version
+          value: $(params.monitor_msk_kafka_version)
+        - name: monitor_msk_instance_type
+          value: $(params.monitor_msk_instance_type)
+        - name: monitor_msk_cluster_username
+          value: $(params.monitor_msk_cluster_username)
+        - name: monitor_broker_volume_size
+          value: $(params.monitor_broker_volume_size)
+        - name: monitor_number_of_broker_nodes
+          value: $(params.monitor_number_of_broker_nodes)
 
     # Task 5: Manage PR (Always runs last)
     # -------------------------------------------------------------------------
@@ -368,3 +509,5 @@ spec:
           value: $(params.is_efs)
         - name: is_s3
           value: $(params.is_s3)
+        - name: is_msk
+          value: $(params.is_msk)
