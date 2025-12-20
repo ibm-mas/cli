@@ -17,6 +17,7 @@ General Controls:
   --summary-only             Perform a much faster must-gather that only gathers high level summary information
   --no-logs                  Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required
   --secret-data              Include secrets content in the must-gather
+  --pods-only                Limit must-gather to collection pods data (no other K8s resources)
 
 MAS Content Controls:
   --mas-instance-ids         Limit must-gather to a list of MAS instance IDs (comma-seperated list)
@@ -55,17 +56,20 @@ function endTimer() {
 }
 
 function genericMustGather() {
-  echo
-  $MG_SCRIPT_DIR/mg-collect-ibm-custom-resources -n $1 -d $OUTPUT_DIR $POD_LOGS_FLAG $NO_DETAIL_FLAG
-  echo
-  echo_h4 "Collect Standard Kubernetes Resources"
-  ADDITIONAL_RESOURCES=$(echo "$2" | tr "," " ")
-  for RESOURCE in $ADDITIONAL_RESOURCES configmaps services routes deployments jobs pvc operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings certificates statefulsets
-  do
-    $MG_SCRIPT_DIR/mg-collect-resources -n $1 -r $RESOURCE -d $OUTPUT_DIR/resources $NO_DETAIL_FLAG
-  done
+  if [[ "$PODS_ONLY" == "false" ]]; then
+    echo
+    $MG_SCRIPT_DIR/mg-collect-ibm-custom-resources -n $1 -d $OUTPUT_DIR $POD_LOGS_FLAG $NO_DETAIL_FLAG
+    echo
+    echo_h4 "Collect Standard Kubernetes Resources"
+    ADDITIONAL_RESOURCES=$(echo "$2" | tr "," " ")
+    for RESOURCE in $ADDITIONAL_RESOURCES configmaps services routes deployments jobs pvc operatorconditions clusterserviceversions installplans subscriptions serviceaccounts roles rolebindings certificates statefulsets
+    do
+      $MG_SCRIPT_DIR/mg-collect-resources -n $1 -r $RESOURCE -d $OUTPUT_DIR/resources $NO_DETAIL_FLAG
+    done
+    $MG_SCRIPT_DIR/mg-collect-secrets -n $1 -r $RESOURCE -d $OUTPUT_DIR/resources -s $SECRET_DATA
+  fi
   $MG_SCRIPT_DIR/mg-collect-pods -n $1 -d $OUTPUT_DIR/resources $POD_LOGS_FLAG $NO_DETAIL_FLAG
-  $MG_SCRIPT_DIR/mg-collect-secrets -n $1 -r $RESOURCE -d $OUTPUT_DIR/resources -s $SECRET_DATA
+  
 }
 
 function mustgather() {
@@ -79,6 +83,7 @@ function mustgather() {
   POD_LOGS=true
   POD_LOGS_FLAG="-p"
   SECRET_DATA=false
+  PODS_ONLY=false
   OCP_REPORT=true
   DEPENDENCY_REPORT=true
   SLS_REPORT=true
@@ -149,6 +154,10 @@ function mustgather() {
     # By default the contents of secrets are not included in the must-gather, in most cases you will not need to use this option.
     --secret-data)
       SECRET_DATA=true
+      ;;
+    # By default the contents of secrets are not included in the must-gather, in most cases you will not need to use this option.
+    --pods-only)
+      PODS_ONLY=true
       ;;
 
     # Disable parts of the must-gather process
@@ -429,7 +438,7 @@ function mustgather() {
         echo
         # MAS-specific must-gather
         $MG_SCRIPT_DIR/mg-summary-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE &> ${OUTPUT_DIR}/mas-${MAS_INSTANCE_ID}-${MAS_APP_ID}.txt
-        $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR
+        $MG_SCRIPT_DIR/mg-collect-mas-${MAS_APP_ID} $MAS_APP_NAMESPACE $OUTPUT_DIR $PODS_ONLY
 
         genericMustGather $MAS_APP_NAMESPACE
       fi
