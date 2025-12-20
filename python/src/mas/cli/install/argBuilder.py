@@ -144,12 +144,12 @@ class installArgBuilderMixin():
                 command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\""
                 addedSLSCmd = True
         if self.getParam("sls_channel") != "":
-                command += f"  --sls-channel \"{self.getParam('sls_channel')}\""
-                addedSLSCmd = True
+            command += f"  --sls-channel \"{self.getParam('sls_channel')}\""
+            addedSLSCmd = True
         if self.slsLicenseFileLocal:
             command += f"  --license-file \"{self.slsLicenseFileLocal}\""
             addedSLSCmd = True
-        if addedSLSCmd == True:
+        if addedSLSCmd is True:
             command += newline
 
         # IBM Data Reporting Operator (DRO)

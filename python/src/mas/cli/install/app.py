@@ -336,7 +336,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         self.setParam("sls_action", "install")
 
-
     @logMethodCall
     def configDRO(self) -> None:
         self.promptForString("Contact e-mail address", "dro_contact_email")
