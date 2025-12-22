@@ -303,6 +303,16 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
+      --is_msk)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export IS_MSK=$1
+          shift
+        else
+          export IS_MSK="false"
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
       --msk_source)
         export MSK_SOURCE=$1 && shift
         ;;
