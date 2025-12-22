@@ -24,6 +24,9 @@
   taskRef:
     name: mas-devops-suite-app-install
     kind: Task
+  workspaces:
+    - name: configs
+      workspace: shared-configs
   when:
     - input: "$(params.mas_app_channel_assist)"
       operator: notin
