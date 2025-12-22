@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # This script allows you to record the results of the pipeline in a MongoDb database.
 # To enable this capability you must set additional environment variables as follows:
 #

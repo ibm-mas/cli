@@ -21,7 +21,7 @@ spec:
     - name: update-pipeline-status
       image: quay.io/ibmmas/cli:latest
       command:
-        - /opt/app-root/src/update-pipeline-status.sh
+        - /opt/app-root/src/update-pipeline-status.py
       env:
         - name: DEVOPS_MONGO_URI
           valueFrom:
