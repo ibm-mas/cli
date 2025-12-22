@@ -25,6 +25,9 @@ spec:
     - name: is_s3
       type: string
       default: 'false'
+    - name: is_msk
+      type: string
+      default: 'false'
 
   stepTemplate:
     env:
@@ -46,6 +49,8 @@ spec:
         value: $(params.is_efs)
       - name: IS_S3
         value: $(params.is_s3)
+      - name: IS_MSK
+        value: $(params.is_msk)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -66,6 +71,7 @@ spec:
           # IS_EFS and IS_S3 are required, default to false if not set
           CMD="$CMD --is_efs ${IS_EFS:-false}"
           CMD="$CMD --is_s3 ${IS_S3:-false}"
+          CMD="$CMD --is_msk ${IS_MSK:-false}"
 
           echo "Executing: $CMD"
           eval $CMD
