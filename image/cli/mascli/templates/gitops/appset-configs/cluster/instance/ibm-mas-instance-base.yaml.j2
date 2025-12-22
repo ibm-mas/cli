@@ -36,13 +36,10 @@ additional_vpn: {{ ADDITIONAL_VPN }}
 {% endif %}
 
 {% if ADDITIONAL_INFRASTRUCTURE_INSTALL is defined and ADDITIONAL_INFRASTRUCTURE_INSTALL != '' %}
-additional_infrastructure: 
+additional_infrastructure:
   install: {{ ADDITIONAL_INFRASTRUCTURE_INSTALL }}
 {% if ADDITIONAL_INFRASTRUCTURE_INSTANCES is defined and ADDITIONAL_INFRASTRUCTURE_INSTANCES != '' %}
-  instances: 
-{% filter indent(width=4) -%}
-{{ ADDITIONAL_INFRASTRUCTURE_INSTANCES }}
-{%- endfilter %}
+  instances: {{ ADDITIONAL_INFRASTRUCTURE_INSTANCES | from_json | to_nice_yaml(indent=2) | indent(4) }}
 {% endif %}
 {% endif %}
 
