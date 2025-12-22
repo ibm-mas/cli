@@ -325,6 +325,11 @@ slsArgGroup.add_argument(
     default=False,
     help="Set the SLS namespace to mas-<instanceid>-sls"
 )
+slsArgGroup.add_argument(
+    "--sls-channel",
+    required=False,
+    help="Customize the SLS channel when in development mode",
+)
 
 # IBM Data Reporting Operator (DRO)
 # -----------------------------------------------------------------------------

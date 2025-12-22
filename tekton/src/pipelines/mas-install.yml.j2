@@ -190,7 +190,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
       runAfter:
         - ibm-catalogs
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -199,7 +199,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-dns.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -208,7 +208,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-certs.yml.j2') | indent(4) }}
       runAfter:
         - suite-dns
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -220,7 +220,7 @@ spec:
         - dro
         - gencfg-workspace
         - suite-certs
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -229,7 +229,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config.yml.j2') | indent(4) }}
       runAfter:
         - suite-install
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -238,7 +238,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2') | indent(4) }}
       runAfter:
         - suite-config
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -354,6 +354,7 @@ spec:
         - sls
         - dro
         - db2-aiservice
+        - minio
         - aiservice-odh
 
     # 15. Verify health of the cluster before we consider the install complete
