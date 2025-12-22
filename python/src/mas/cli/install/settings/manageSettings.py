@@ -154,11 +154,11 @@ class ManageSettingsMixin():
                 self.promptForString("Indexspace", "mas_app_settings_indexspace", default="MAXINDEX")
 
                 if self.yesOrNo("Customize database encryption settings"):
-                    self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mas_app_settings_crypto_key")
-                    self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mas_app_settings_cryptox_key")
-                    self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mas_app_settings_old_crypto_key")
-                    self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mas_app_settings_old_cryptox_key")
-                    self.yesOrNo("Override database encryption secrets with provided keys", "mas_app_settings_override_encryption_secrets_flag")
+                    self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mas_manage_encryptionsecret_crypto_key")
+                    self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mas_manage_encryptionsecret_cryptox_key")
+                    self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mas_manage_encryptionsecret_old_crypto_key")
+                    self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mas_manage_encryptionsecret_old_cryptox_key")
+                    self.promptForString("Encryption secret name", "mas_manage_ws_db_encryptionsecret")
 
     def manageSettingsServerBundleConfig(self) -> None:
         if not self.isManageFoundation:

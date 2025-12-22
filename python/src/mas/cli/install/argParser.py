@@ -556,35 +556,33 @@ manageArgGroup.add_argument(
 
 manageArgGroup.add_argument(
     "--manage-crypto-key",
-    dest="mas_app_settings_crypto_key",
+    dest="mas_manage_encryptionsecret_crypto_key",
     required=False,
     help="Customize Manage database encryption keys"
 )
 manageArgGroup.add_argument(
     "--manage-cryptox-key",
-    dest="mas_app_settings_cryptox_key",
+    dest="mas_manage_encryptionsecret_cryptox_key",
     required=False,
     help="Customize Manage database encryption keys"
 )
 manageArgGroup.add_argument(
     "--manage-old-crypto-key",
-    dest="mas_app_settings_old_crypto_key",
+    dest="mas_manage_encryptionsecret_old_crypto_key",
     required=False,
     help="Customize Manage database encryption keys"
 )
 manageArgGroup.add_argument(
     "--manage-old-cryptox-key",
-    dest="mas_app_settings_old_cryptox_key",
+    dest="mas_manage_encryptionsecret_old_cryptox_key",
     required=False,
     help="Customize Manage database encryption keys"
 )
 manageArgGroup.add_argument(
-    "--manage-override-encryption-secrets",
-    dest="mas_app_settings_override_encryption_secrets_flag",
+    "--manage-encryption-secret-name",
+    dest="mas_manage_ws_db_encryptionsecret",
     required=False,
-    help="Override any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys",
-    action="store_const",
-    const="true"
+    help="Name of the Manage database encryption secret"
 )
 
 manageArgGroup.add_argument(

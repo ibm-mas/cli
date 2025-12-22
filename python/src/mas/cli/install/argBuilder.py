@@ -38,13 +38,13 @@ class installArgBuilderMixin():
 
         if self.getParam('mas_app_settings_customization_archive_password') != "":
             command += "export CUSTOMIZATION_PASSWORD=x\n"
-        if self.getParam('mas_app_settings_crypto_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_crypto_key') != "":
             command += "export CRYPTO_KEY=x\n"
-        if self.getParam('mas_app_settings_cryptox_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_cryptox_key') != "":
             command += "export CRYPTOX_KEY=x\n"
-        if self.getParam('mas_app_settings_old_crypto_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_old_crypto_key') != "":
             command += "export OLD_CRYPTO_KEY=x\n"
-        if self.getParam('mas_app_settings_old_cryptox_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_old_cryptox_key') != "":
             command += "export OLD_CRYTPOX_KEY=x\n"
 
         command += f"mas install --mas-catalog-version {self.getParam('mas_catalog_version')}"
@@ -229,16 +229,16 @@ class installArgBuilderMixin():
             if self.getParam('mas_app_settings_db2_schema') != "":
                 command += f"  --manage-db-schema \"{self.getParam('mas_app_settings_db2_schema')}\"{newline}"
 
-            if self.getParam('mas_app_settings_crypto_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_crypto_key') != "":
                 command += f"  --manage-crypto-key $CRYPTO_KEY{newline}"
-            if self.getParam('mas_app_settings_cryptox_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_cryptox_key') != "":
                 command += f"  --manage-cryptox-key $CRYPTOX_KEY{newline}"
-            if self.getParam('mas_app_settings_old_crypto_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_old_crypto_key') != "":
                 command += f"  --manage-old-crypto-key $OLD_CRYPTO_KEY{newline}"
-            if self.getParam('mas_app_settings_old_cryptox_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_old_cryptox_key') != "":
                 command += f"  --manage-old-cryptox-key $OLD_CRYPTOX_KEY{newline}"
-            if self.getParam('mas_app_settings_override_encryption_secrets_flag') == "true":
-                command += f"  --manage-override-encryption-secrets \"{newline}"
+            if self.getParam('mas_manage_ws_db_encryptionsecret') != "":
+                command += f"  --manage-encryption-secret-name \"{self.getParam('mas_manage_ws_db_encryptionsecret')}\"{newline}"
 
             if self.getParam('mas_app_settings_base_lang') != "":
                 command += f"  --manage-base-language \"{self.getParam('mas_app_settings_base_lang')}\"{newline}"
