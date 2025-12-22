@@ -1,0 +1,140 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-provision-msk
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: msk_source
+      type: string
+
+   # iac-msk iot params
+    - name: iot_msk_kafka_version
+      type: string
+    - name: iot_msk_instance_type
+      type: string
+    - name: iot_msk_cluster_username
+      type: string
+    - name: iot_broker_volume_size
+      type: string
+    - name: iot_number_of_broker_nodes
+      type: string
+   # iac-msk monitor params
+    - name: monitor_msk_kafka_version
+      type: string
+    - name: monitor_msk_instance_type
+      type: string
+    - name: monitor_msk_cluster_username
+      type: string
+    - name: monitor_broker_volume_size
+      type: string
+    - name: monitor_number_of_broker_nodes
+      type: string
+
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MSK_SOURCE
+        value: $(params.msk_source)
+
+      # iac-msk iot params
+      - name: IOT_MSK_KAFKA_VERSION
+        value: $(params.iot_msk_kafka_version)
+      - name: IOT_MSK_INSTANCE_TYPE
+        value: $(params.iot_msk_instance_type)
+      - name: IOT_MSK_CLUSTER_USERNAME
+        value: $(params.iot_msk_cluster_username)
+      - name: IOT_BROKER_VOLUME_SIZE
+        value: $(params.iot_broker_volume_size)
+      - name: IOT_NUMBER_OF_BROKER_NODES
+        value: $(params.iot_number_of_broker_nodes)
+
+      # iac-msk monitor params
+      - name: MONITOR_MSK_KAFKA_VERSION
+        value: $(params.monitor_msk_kafka_version)
+      - name: MONITOR_MSK_INSTANCE_TYPE
+        value: $(params.monitor_msk_instance_type)
+      - name: MONITOR_MSK_CLUSTER_USERNAME
+        value: $(params.monitor_msk_cluster_username)
+      - name: MONITOR_BROKER_VOLUME_SIZE
+        value: $(params.monitor_broker_volume_size)
+      - name: MONITOR_NUMBER_OF_BROKER_NODES
+        value: $(params.monitor_number_of_broker_nodes)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: provision-msk
+      args:
+        - |-
+          git config --global user.name "MAS Automation"
+          git config --global user.email "you@example.com"
+          git config --global user.password $GITHUB_PAT
+
+          CMD="mas gitops-iac-provision-msk -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
+
+          [ -n "$MSK_SOURCE" ] && CMD="$CMD --msk_source $MSK_SOURCE"
+          [ -n "$IOT_MSK_KAFKA_VERSION" ] && CMD="$CMD --iot_msk_kafka_version $IOT_MSK_KAFKA_VERSION"
+          [ -n "$IOT_MSK_INSTANCE_TYPE" ] && CMD="$CMD --iot_msk_instance_type $IOT_MSK_INSTANCE_TYPE"
+          [ -n "$IOT_MSK_CLUSTER_USERNAME" ] && CMD="$CMD --iot_msk_cluster_username $IOT_MSK_CLUSTER_USERNAME"
+          [ -n "$IOT_BROKER_VOLUME_SIZE" ] && CMD="$CMD --iot_broker_volume_size $IOT_BROKER_VOLUME_SIZE"
+          [ -n "$IOT_NUMBER_OF_BROKER_NODES" ] && CMD="$CMD --iot_number_of_broker_nodes $IOT_NUMBER_OF_BROKER_NODES"
+          [ -n "$MONITOR_MSK_KAFKA_VERSION" ] && CMD="$CMD --monitor_msk_kafka_version $MONITOR_MSK_KAFKA_VERSION"
+          [ -n "$MONITOR_MSK_INSTANCE_TYPE" ] && CMD="$CMD --monitor_msk_instance_type $MONITOR_MSK_INSTANCE_TYPE"
+          [ -n "$MONITOR_MSK_CLUSTER_USERNAME" ] && CMD="$CMD --monitor_msk_cluster_username $MONITOR_MSK_CLUSTER_USERNAME"
+          [ -n "$MONITOR_BROKER_VOLUME_SIZE" ] && CMD="$CMD --monitor_broker_volume_size $MONITOR_BROKER_VOLUME_SIZE"
+          [ -n "$MONITOR_NUMBER_OF_BROKER_NODES" ] && CMD="$CMD --monitor_number_of_broker_nodes $MONITOR_NUMBER_OF_BROKER_NODES"
+
+          echo "Executing: $CMD"
+          eval $CMD
+          exit $?
+      command:
+        - /bin/sh
+        - -c
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+
+  workspaces:
+    - name: configs
+      mountPath: /workspace/gitops-iac

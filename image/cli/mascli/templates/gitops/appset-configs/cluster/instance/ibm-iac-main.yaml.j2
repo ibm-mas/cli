@@ -1,4 +1,4 @@
-{%- if IS_EFS | lower == 'true' -%}
+{%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') -%}
 data "aws_subnets" "external_subnets" {
   filter {
     name   = "vpc-id"
@@ -6,7 +6,7 @@ data "aws_subnets" "external_subnets" {
   }
   filter {
     name   = "cidr-block"
-    values = {{CLUSTER_CIDR_WORKLOAD_EXTERNAL}}
+    values = {{ CLUSTER_CIDR_WORKLOAD_EXTERNAL }}
   }
 }
 
@@ -17,7 +17,7 @@ data "aws_subnets" "internal_subnets" {
   }
   filter {
     name   = "cidr-block"
-    values = {{CLUSTER_CIDR_WORKLOAD_INTERNAL}}
+    values = {{ CLUSTER_CIDR_WORKLOAD_INTERNAL }}
   }
 }
 {%- endif %}
@@ -140,11 +140,16 @@ locals {
     }
     name = var.cluster_name
     {%- endif %}
-  {%- if IS_EFS | lower == 'true' %}
-    #----EFS related params starts----
+  {%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') -%}
+    #----EFS/MSK related params starts----
     "external_subnet_ids" : data.aws_subnets.external_subnets.ids
     "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
-    #----EFS related params ends----
+    #----EFS/MSK related params ends----
+  {%- endif %}
+  {%- if IS_MSK | lower == 'true' -%}
+    #----MSK related params starts----
+    "security_groups" : ["{{ SECURITY_GROUPS_VALUE }}"]
+    #----MSK related params ends----
   {%- endif %}
   }
 
@@ -198,5 +203,36 @@ locals {
 {%- endif %}
   }
   #----EFS config related params ends----
+{%- endif %}
+
+ {%- if IS_MSK | lower == 'true' %}
+  #----MSK config related params starts----
+  multiple-msk = {
+{%- if MSK_IOT == "true" %}
+    iot-msk = {
+      name        = join("-", [var.cluster_name, var.instance_name, "iot-msk"])
+      sre_prefix  = var.name_prefix
+      secret_name = join("-", [var.cluster_name, var.instance_name])
+      broker_volume_size = {{IOT_BROKER_VOLUME_SIZE}}
+      cluster_name = {{IOT_MSK_CLUSTER_USERNAME}}
+      broker_nodes = {{IOT_NUMBER_OF_BROKER_NODES}}
+      instance_type = {{IOT_MSK_INSTANCE_TYPE}}
+      kafka_version = {{IOT_MSK_KAFKA_VERSION}}
+    }s
+{%- endif %}
+{%- if MSK_MONITOR == "true" %}
+    monitor-msk = {
+      name        = join("-", [var.cluster_name, var.instance_name, "monitor-msk"])
+      sre_prefix  = var.name_prefix
+      secret_name = join("-", [var.cluster_name, var.instance_name])
+      broker_volume_size = {{MONITOR_BROKER_VOLUME_SIZE}}
+      cluster_name = {{MONITOR_MSK_CLUSTER_USERNAME}}
+      broker_nodes = {{MONITOR_NUMBER_OF_BROKER_NODES}}
+      instance_type = {{MONITOR_MSK_INSTANCE_TYPE}}
+      kafka_version = {{MONITOR_MSK_KAFKA_VERSION}}
+    }
+{%- endif %}
+  }
+  #----MSK config related params ends----
 {%- endif %}
 }

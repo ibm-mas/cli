@@ -1,4 +1,4 @@
-{%- if (IS_EFS | lower == 'true') or (IS_S3 | lower == 'true') %}
+{%- if (IS_EFS | lower == 'true') or (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true') %}
 #----Common params starts----
 cluster_name         = "{{ CLUSTER_ID}}"
 instance_name        = "{{ MAS_INSTANCE_ID }}"
