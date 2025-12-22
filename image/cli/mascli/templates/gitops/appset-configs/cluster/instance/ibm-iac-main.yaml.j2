@@ -213,11 +213,11 @@ locals {
       name        = join("-", [var.cluster_name, var.instance_name, "iot-msk"])
       sre_prefix  = var.name_prefix
       secret_name = join("-", [var.cluster_name, var.instance_name])
-      broker_volume_size = {{IOT_BROKER_VOLUME_SIZE}}
-      cluster_name = {{IOT_MSK_CLUSTER_USERNAME}}
-      broker_nodes = {{IOT_NUMBER_OF_BROKER_NODES}}
-      instance_type = {{IOT_MSK_INSTANCE_TYPE}}
-      kafka_version = {{IOT_MSK_KAFKA_VERSION}}
+      broker_volume_size = {{MSK_IOT_BROKER_VOLUME_SIZE}}
+      cluster_name = {{MSK_IOT_CLUSTER_USERNAME}}
+      broker_nodes = {{MSK_IOT_NUMBER_OF_BROKER_NODES}}
+      instance_type = {{MSK_IOT_INSTANCE_TYPE}}
+      kafka_version = {{MSK_IOT_KAFKA_VERSION}}
     }s
 {%- endif %}
 {%- if MSK_MONITOR == "true" %}
@@ -225,11 +225,11 @@ locals {
       name        = join("-", [var.cluster_name, var.instance_name, "monitor-msk"])
       sre_prefix  = var.name_prefix
       secret_name = join("-", [var.cluster_name, var.instance_name])
-      broker_volume_size = {{MONITOR_BROKER_VOLUME_SIZE}}
-      cluster_name = {{MONITOR_MSK_CLUSTER_USERNAME}}
-      broker_nodes = {{MONITOR_NUMBER_OF_BROKER_NODES}}
-      instance_type = {{MONITOR_MSK_INSTANCE_TYPE}}
-      kafka_version = {{MONITOR_MSK_KAFKA_VERSION}}
+      broker_volume_size = {{MSK_MONITOR_BROKER_VOLUME_SIZE}}
+      cluster_name = {{MSK_MONITOR_CLUSTER_USERNAME}}
+      broker_nodes = {{MSK_MONITOR_NUMBER_OF_BROKER_NODES}}
+      instance_type = {{MSK_MONITOR_INSTANCE_TYPE}}
+      kafka_version = {{MSK_MONITOR_KAFKA_VERSION}}
     }
 {%- endif %}
   }
