@@ -39,7 +39,7 @@ additional_vpn: {{ ADDITIONAL_VPN }}
 additional_infrastructure:
   install: {{ ADDITIONAL_INFRASTRUCTURE_INSTALL }}
 {% if ADDITIONAL_INFRASTRUCTURE_INSTANCES is defined and ADDITIONAL_INFRASTRUCTURE_INSTANCES != '' %}
-  instances: {{ ADDITIONAL_INFRASTRUCTURE_INSTANCES | from_json | to_nice_yaml(indent=2) | indent(4) }}
+  instances: {{ ADDITIONAL_INFRASTRUCTURE_INSTANCES | from_yaml | to_nice_yaml(indent=2) | indent(4) }}
 {% endif %}
 {% endif %}
 
