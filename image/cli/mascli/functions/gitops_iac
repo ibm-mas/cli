@@ -1064,6 +1064,11 @@ function gitops_iac_manage_pr() {
   if [[ "$IS_S3" == "true" ]]; then
     PROVISIONED_COMPONENTS+=("S3")
   fi
+
+    # Check if MSK was provisioned using IS_MSK parameter
+  if [[ "$IS_MSK" == "true" ]]; then
+      PROVISIONED_COMPONENTS+=("MSK")
+  fi
   
   # Build component list for title and body
   if [ ${#PROVISIONED_COMPONENTS[@]} -eq 0 ]; then
