@@ -38,13 +38,13 @@ class installArgBuilderMixin():
 
         if self.getParam('mas_app_settings_customization_archive_password') != "":
             command += "export CUSTOMIZATION_PASSWORD=x\n"
-        if self.getParam('mas_app_settings_crypto_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_crypto_key') != "":
             command += "export CRYPTO_KEY=x\n"
-        if self.getParam('mas_app_settings_cryptox_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_cryptox_key') != "":
             command += "export CRYPTOX_KEY=x\n"
-        if self.getParam('mas_app_settings_old_crypto_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_old_crypto_key') != "":
             command += "export OLD_CRYPTO_KEY=x\n"
-        if self.getParam('mas_app_settings_old_cryptox_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_old_cryptox_key') != "":
             command += "export OLD_CRYTPOX_KEY=x\n"
 
         command += f"mas install --mas-catalog-version {self.getParam('mas_catalog_version')}"
@@ -191,6 +191,8 @@ class installArgBuilderMixin():
             command += f"  --visualinspection-channel \"{self.getParam('mas_app_channel_visualinspection')}\"{newline}"
         if self.installFacilities:
             command += f"  --facilities-channel \"{self.getParam('mas_app_channel_facilities')}\"{newline}"
+        if self.installAIService:
+            command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
 
         # Arcgis
         # -----------------------------------------------------------------------------
@@ -227,16 +229,16 @@ class installArgBuilderMixin():
             if self.getParam('mas_app_settings_db2_schema') != "":
                 command += f"  --manage-db-schema \"{self.getParam('mas_app_settings_db2_schema')}\"{newline}"
 
-            if self.getParam('mas_app_settings_crypto_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_crypto_key') != "":
                 command += f"  --manage-crypto-key $CRYPTO_KEY{newline}"
-            if self.getParam('mas_app_settings_cryptox_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_cryptox_key') != "":
                 command += f"  --manage-cryptox-key $CRYPTOX_KEY{newline}"
-            if self.getParam('mas_app_settings_old_crypto_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_old_crypto_key') != "":
                 command += f"  --manage-old-crypto-key $OLD_CRYPTO_KEY{newline}"
-            if self.getParam('mas_app_settings_old_cryptox_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_old_cryptox_key') != "":
                 command += f"  --manage-old-cryptox-key $OLD_CRYPTOX_KEY{newline}"
-            if self.getParam('mas_app_settings_override_encryption_secrets_flag') == "true":
-                command += f"  --manage-override-encryption-secrets \"{newline}"
+            if self.getParam('mas_manage_ws_db_encryptionsecret') != "":
+                command += f"  --manage-encryption-secret-name \"{self.getParam('mas_manage_ws_db_encryptionsecret')}\"{newline}"
 
             if self.getParam('mas_app_settings_base_lang') != "":
                 command += f"  --manage-base-language \"{self.getParam('mas_app_settings_base_lang')}\"{newline}"
@@ -257,6 +259,11 @@ class installArgBuilderMixin():
 
             if self.getParam('mas_appws_upgrade_type') == "true":
                 command += f"  --manage-upgrade-type \"{self.getParam('mas_appws_upgrade_type')}\"{newline}"
+
+            if self.getParam('manage_bind_aiservice_instance_id') != "":
+                command += f"  --manage-aiservice-instance-id \"{self.getParam('manage_bind_aiservice_instance_id')}\"{newline}"
+            if self.getParam('manage_bind_aiservice_tenant_id') != "":
+                command += f"  --manage-aiservice-tenant-id \"{self.getParam('manage_bind_aiservice_tenant_id')}\"{newline}"
 
         # Facilities Advanced Settings
         # -----------------------------------------------------------------------------
@@ -296,6 +303,80 @@ class installArgBuilderMixin():
                 command += f"  --facilities-userfiles-storage-mode \"{self.getParam('mas_ws_facilities_storage_userfiles_mode')}\"{newline}"
             if self.getParam('mas_ws_facilities_storage_userfiles_size') != "":
                 command += f"  --facilities-userfiles-storage-size \"{self.getParam('mas_ws_facilities_storage_userfiles_size')}\"{newline}"
+
+        # AI Service Advanced Settings
+        # -----------------------------------------------------------------------------
+        if self.installAIService:
+            if self.getParam('aiservice_instance_id') != "":
+                command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
+            if self.getParam('aiservice_channel') != "":
+                command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
+            if self.getParam('aiservice_s3_accesskey') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
+            if self.getParam('aiservice_s3_secretkey') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-secretkey \"{self.getParam('aiservice_s3_secretkey')}\"{newline}"
+            if self.getParam('aiservice_s3_host') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-host \"{self.getParam('aiservice_s3_host')}\"{newline}"
+            if self.getParam('aiservice_s3_port') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-port \"{self.getParam('aiservice_s3_port')}\"{newline}"
+            if self.getParam('aiservice_s3_ssl') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
+            if self.getParam('aiservice_s3_region') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
+            if self.getParam('aiservice_s3_bucket_prefix') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
+            if self.getParam('aiservice_s3_tenants_bucket') != "":
+                command += f"  --s3-tenants-bucket \"{self.getParam('aiservice_s3_tenants_bucket')}\"{newline}"
+            if self.getParam('aiservice_s3_templates_bucket') != "":
+                command += f"  --s3-templates-bucket \"{self.getParam('aiservice_s3_templates_bucket')}\"{newline}"
+
+            if self.getParam('aiservice_odh_model_deployment_type') != "":
+                command += f"  --odh-model-deployment-type \"{self.getParam('aiservice_odh_model_deployment_type')}\"{newline}"
+
+            if self.getParam('aiservice_watsonxai_apikey') != "":
+                command += f"  --watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_url') != "":
+                command += f"  --watsonxai-url \"{self.getParam('aiservice_watsonxai_url')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_project_id') != "":
+                command += f"  --watsonxai-project-id \"{self.getParam('aiservice_watsonxai_project_id')}\"{newline}"
+            if self.getParam('aiservice_watsonx_action') != "":
+                command += f"  --watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_ca_crt') != "":
+                command += f"  --watsonxai-ca-crt \"{self.getParam('aiservice_watsonxai_ca_crt')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_deployment_id') != "":
+                command += f"  --watsonxai-deployment-id \"{self.getParam('aiservice_watsonxai_deployment_id')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_space_id') != "":
+                command += f"  --watsonxai-space-id \"{self.getParam('aiservice_watsonxai_space_id')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_instance_id') != "":
+                command += f"  --watsonxai-instance-id \"{self.getParam('aiservice_watsonxai_instance_id')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_username') != "":
+                command += f"  --watsonxai-username \"{self.getParam('aiservice_watsonxai_username')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_version') != "":
+                command += f"  --watsonxai-version \"{self.getParam('aiservice_watsonxai_version')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_on_prem') != "":
+                command += f"  --watsonxai-onprem \"{self.getParam('aiservice_watsonxai_on_prem')}\"{newline}"
+
+            if self.getParam('minio_root_user') != "":
+                command += f"  --install-minio {newline}"
+                command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
+            if self.getParam('minio_root_password') != "":
+                command += f"  --minio-root-password \"{self.getParam('minio_root_password')}\"{newline}"
+
+            if self.getParam('tenant_entitlement_type') != "":
+                command += f"  --tenant-entitlement-type \"{self.getParam('tenant_entitlement_type')}\"{newline}"
+            if self.getParam('tenant_entitlement_start_date') != "":
+                command += f"  --tenant-entitlement-start-date \"{self.getParam('tenant_entitlement_start_date')}\"{newline}"
+            if self.getParam('tenant_entitlement_end_date') != "":
+                command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
+
+            if self.getParam('rsl_url') != "":
+                command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
+            if self.getParam('rsl_org_id') != "":
+                command += f"  --rsl-org-id \"{self.getParam('rsl_org_id')}\"{newline}"
+            if self.getParam('rsl_token') != "":
+                command += f"  --rsl-token \"{self.getParam('rsl_token')}\"{newline}"
+            if self.getParam('rsl_ca_crt') != "":
+                command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
 
         # IBM Cloud Pak for Data
         # -----------------------------------------------------------------------------
@@ -453,6 +534,8 @@ class installArgBuilderMixin():
             command += f"  --approval-visualinspection \"{self.getParam('approval_visualinspection')}\"{newline}"
         if self.getParam('approval_facilities') != "":
             command += f"  --approval-facilities \"{self.getParam('approval_facilities')}\"{newline}"
+        if self.getParam('approval_aiservice') != "":
+            command += f"  --approval-aiservice \"{self.getParam('approval_aiservice')}\"{newline}"
 
         # More Options
         # -----------------------------------------------------------------------------
