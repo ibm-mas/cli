@@ -284,7 +284,10 @@ class InstallSummarizerMixin():
         self.printH2("IBM Suite License Service")
         self.printParamSummary("Namespace", "sls_namespace")
         if self.getParam("sls_action") == "install":
-            self.printSummary("Subscription Channel", "3.x")
+            if self.getParam("sls_channel") != "":
+                self.printSummary("Subscription Channel", self.getParam("sls_channel"))
+            else:
+                self.printSummary("Subscription Channel", "3.x")
             self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
             if self.slsLicenseFileLocal:
                 self.printSummary("License File", self.slsLicenseFileLocal)

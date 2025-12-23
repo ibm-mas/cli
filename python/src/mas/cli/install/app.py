@@ -246,7 +246,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("IBM Maximo Operator Catalog Selection")
         if self.devMode:
             self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
-            self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
+            self.promptForString("Select channel", "mas_channel", default="9.2.x-dev")
         else:
             catalogInfo = getCurrentCatalog(self.dynamicClient)
 
@@ -326,6 +326,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     return
 
         self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
+
+        if self.devMode:
+            default_sls_channel = "3.x-dev"
+            # Check if it was provided via args already
+            if self.args.sls_channel and self.args.sls_channel != "":
+                default_sls_channel = self.args.sls_channel
+            self.promptForString("SLS channel", "sls_channel", default_sls_channel)
+
         self.setParam("sls_action", "install")
 
     @logMethodCall
@@ -1094,6 +1102,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "dedicated_sls":
                 if value:
                     self.setParam("sls_namespace", f"mas-{self.args.mas_instance_id}-sls")
+            elif key == "sls_channel":
+                if self.devMode:
+                    if value is not None and value != "":
+                        self.setParam("sls_channel", value)
 
             # These settings are used by the CLI rather than passed to the PipelineRun
             elif key == "storage_accessmode":

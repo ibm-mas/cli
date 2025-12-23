@@ -1,0 +1,30 @@
+module "s3buckets_access_point" {
+  source = "{{ S3_SOURCE_S3ACCESSPOINT }}"
+  for_each = {
+    for k, v in local.cluster.instance.{{APP_NAME}}_s3buckets :
+    k => v if can(regex("log", v.name)) || can(regex("doclinks", v.name))
+  }
+
+  depends_on = [module.s3buckets_instance, module.account_policy]
+
+  name_prefix                    = each.value.name_prefix
+  s3_access_point_bucket_id      = each.value.id
+  s3_bucket_arn                  = each.value.s3_bucket_arn
+  s3_access_point_name           = can(regex("log", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"cust-log"]) : can(regex("doclinks", each.value.name)) ? join("-", [var.cluster_name,var.instance_name,"cust-doclinks"])  : null
+  s3_access_point_policy_actions = local.s3_actions[each.value.access_level]
+  configure_antivirus            = false
+
+  #  Dynamically select correct IAM user based on bucket name
+  s3_access_point_user = (
+    can(regex("log", each.value.name)) ? (
+      can(local.iam_user_arns_{{APP_NAME}}["logs_rw"]) ? local.iam_user_arns_{{APP_NAME}}["logs_rw"] :
+      local.iam_user_arns_{{APP_NAME}}["logs_ro"]
+    ) :
+    can(regex("doclinks", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["doclinks"] :
+    null
+  )
+
+  account_id                   = var.account_id
+  antivirus_lamda_function_arn = ""
+  vpc_id                       = var.vpc_id
+}

@@ -1,0 +1,18 @@
+module "efs" {
+  source         = "{{EFS_SOURCE}}"
+  vpc_id         = var.vpc_id
+  for_each       = local.multiple-efs
+  creation_token = each.value.name
+
+  performance_mode = each.value.performance_mode
+  efs_mount_count  = each.value.efs_mount_count
+
+  lifecycle_policy = {
+
+  }
+
+    throughput_mode              = each.value.throughput_mode
+    efs_mount_ingress_subnet_ids = local.cluster.internal_subnet_ids
+    efs_mount_egress_subnet_ids  = local.cluster.external_subnet_ids
+    efs_worker_subnet_id_list    = local.cluster.internal_subnet_ids
+}

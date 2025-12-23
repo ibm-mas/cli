@@ -253,4 +253,9 @@
         - gitops-aiservice-tenant
         - gitops-deprovision-aiservice-tenant
         - gitops-deprovision-aiservice
+        - gitops-iac-create-branch
+        - gitops-iac-generate-common-files
+        - gitops-iac-manage-pr
+        - gitops-iac-provision-efs
+        - gitops-iac-provision-s3
 

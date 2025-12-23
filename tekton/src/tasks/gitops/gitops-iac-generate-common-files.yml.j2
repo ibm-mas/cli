@@ -1,0 +1,213 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-generate-common-files
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: is_efs
+      type: string
+      default: 'false'
+    - name: is_s3
+      type: string
+      default: 'false'
+    # EFS parameters
+    - name: efs_manage_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_manage_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_manage_db2_throughput_mode
+      type: string
+      default: ''
+    - name: efs_manage_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_manage_main_mount_count
+      type: string
+      default: ''
+    - name: efs_manage_main_throughput_mode
+      type: string
+      default: ''
+    - name: efs_iot_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_iot_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_iot_db2_throughput_mode
+      type: string
+      default: ''
+    - name: efs_facilities_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_facilities_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_facilities_db2_throughput_mode
+      type: string
+      default: ''
+    - name: efs_facilities_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_facilities_main_mount_count
+      type: string
+      default: ''
+    - name: efs_facilities_main_throughput_mode
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_mount_count
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_throughput_mode
+      type: string
+      default: ''
+    # S3 parameters
+    - name: s3_manage
+      type: string
+      default: ''
+    - name: s3_mvi
+      type: string
+      default: ''
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: IS_EFS
+        value: $(params.is_efs)
+      - name: IS_S3
+        value: $(params.is_s3)
+      - name: EFS_MANAGE_DB2_PERFORMANCE_MODE
+        value: $(params.efs_manage_db2_performance_mode)
+      - name: EFS_MANAGE_DB2_MOUNT_COUNT
+        value: $(params.efs_manage_db2_mount_count)
+      - name: EFS_MANAGE_DB2_THROUGHPUT_MODE
+        value: $(params.efs_manage_db2_throughput_mode)
+      - name: EFS_MANAGE_MAIN_PERFORMANCE_MODE
+        value: $(params.efs_manage_main_performance_mode)
+      - name: EFS_MANAGE_MAIN_MOUNT_COUNT
+        value: $(params.efs_manage_main_mount_count)
+      - name: EFS_MANAGE_MAIN_THROUGHPUT_MODE
+        value: $(params.efs_manage_main_throughput_mode)
+      - name: EFS_IOT_DB2_PERFORMANCE_MODE
+        value: $(params.efs_iot_db2_performance_mode)
+      - name: EFS_IOT_DB2_MOUNT_COUNT
+        value: $(params.efs_iot_db2_mount_count)
+      - name: EFS_IOT_DB2_THROUGHPUT_MODE
+        value: $(params.efs_iot_db2_throughput_mode)
+      - name: EFS_FACILITIES_DB2_PERFORMANCE_MODE
+        value: $(params.efs_facilities_db2_performance_mode)
+      - name: EFS_FACILITIES_DB2_MOUNT_COUNT
+        value: $(params.efs_facilities_db2_mount_count)
+      - name: EFS_FACILITIES_DB2_THROUGHPUT_MODE
+        value: $(params.efs_facilities_db2_throughput_mode)
+      - name: EFS_FACILITIES_MAIN_PERFORMANCE_MODE
+        value: $(params.efs_facilities_main_performance_mode)
+      - name: EFS_FACILITIES_MAIN_MOUNT_COUNT
+        value: $(params.efs_facilities_main_mount_count)
+      - name: EFS_FACILITIES_MAIN_THROUGHPUT_MODE
+        value: $(params.efs_facilities_main_throughput_mode)
+      - name: EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE
+        value: $(params.efs_visualinspection_main_performance_mode)
+      - name: EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT
+        value: $(params.efs_visualinspection_main_mount_count)
+      - name: EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE
+        value: $(params.efs_visualinspection_main_throughput_mode)
+      - name: S3_MANAGE
+        value: $(params.s3_manage)
+      - name: S3_MVI
+        value: $(params.s3_mvi)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: generate-common-files
+      args:
+        - |-
+          git config --global user.name "MAS Automation"
+          git config --global user.email "you@example.com"
+          git config --global user.password $GITHUB_PAT
+
+          CMD="mas gitops-iac-generate-common-files -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
+
+          [ -n "$CLUSTER_URL" ] && CMD="$CMD --cluster-url $CLUSTER_URL"
+          # IS_EFS and IS_S3 are required, default to false if not set
+          CMD="$CMD --is_efs ${IS_EFS:-false}"
+          CMD="$CMD --is_s3 ${IS_S3:-false}"
+          [ -n "$EFS_MANAGE_DB2_PERFORMANCE_MODE" ] && CMD="$CMD --efs_manage_db2_performance_mode $EFS_MANAGE_DB2_PERFORMANCE_MODE"
+          [ -n "$EFS_MANAGE_DB2_MOUNT_COUNT" ] && CMD="$CMD --efs_manage_db2_mount_count $EFS_MANAGE_DB2_MOUNT_COUNT"
+          [ -n "$EFS_MANAGE_DB2_THROUGHPUT_MODE" ] && CMD="$CMD --efs_manage_db2_throughput_mode $EFS_MANAGE_DB2_THROUGHPUT_MODE"
+          [ -n "$EFS_MANAGE_MAIN_PERFORMANCE_MODE" ] && CMD="$CMD --efs_manage_main_performance_mode $EFS_MANAGE_MAIN_PERFORMANCE_MODE"
+          [ -n "$EFS_MANAGE_MAIN_MOUNT_COUNT" ] && CMD="$CMD --efs_manage_main_mount_count $EFS_MANAGE_MAIN_MOUNT_COUNT"
+          [ -n "$EFS_MANAGE_MAIN_THROUGHPUT_MODE" ] && CMD="$CMD --efs_manage_main_throughput_mode $EFS_MANAGE_MAIN_THROUGHPUT_MODE"
+          [ -n "$EFS_IOT_DB2_PERFORMANCE_MODE" ] && CMD="$CMD --efs_iot_db2_performance_mode $EFS_IOT_DB2_PERFORMANCE_MODE"
+          [ -n "$EFS_IOT_DB2_MOUNT_COUNT" ] && CMD="$CMD --efs_iot_db2_mount_count $EFS_IOT_DB2_MOUNT_COUNT"
+          [ -n "$EFS_IOT_DB2_THROUGHPUT_MODE" ] && CMD="$CMD --efs_iot_db2_throughput_mode $EFS_IOT_DB2_THROUGHPUT_MODE"
+          [ -n "$EFS_FACILITIES_DB2_PERFORMANCE_MODE" ] && CMD="$CMD --efs_facilities_db2_performance_mode $EFS_FACILITIES_DB2_PERFORMANCE_MODE"
+          [ -n "$EFS_FACILITIES_DB2_MOUNT_COUNT" ] && CMD="$CMD --efs_facilities_db2_mount_count $EFS_FACILITIES_DB2_MOUNT_COUNT"
+          [ -n "$EFS_FACILITIES_DB2_THROUGHPUT_MODE" ] && CMD="$CMD --efs_facilities_db2_throughput_mode $EFS_FACILITIES_DB2_THROUGHPUT_MODE"
+          [ -n "$EFS_FACILITIES_MAIN_PERFORMANCE_MODE" ] && CMD="$CMD --efs_facilities_main_performance_mode $EFS_FACILITIES_MAIN_PERFORMANCE_MODE"
+          [ -n "$EFS_FACILITIES_MAIN_MOUNT_COUNT" ] && CMD="$CMD --efs_facilities_main_mount_count $EFS_FACILITIES_MAIN_MOUNT_COUNT"
+          [ -n "$EFS_FACILITIES_MAIN_THROUGHPUT_MODE" ] && CMD="$CMD --efs_facilities_main_throughput_mode $EFS_FACILITIES_MAIN_THROUGHPUT_MODE"
+          [ -n "$EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE" ] && CMD="$CMD --efs_visualinspection_main_performance_mode $EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE"
+          [ -n "$EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT" ] && CMD="$CMD --efs_visualinspection_main_mount_count $EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT"
+          [ -n "$EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE" ] && CMD="$CMD --efs_visualinspection_main_throughput_mode $EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE"
+          [ -n "$S3_MANAGE" ] && CMD="$CMD --s3_manage $S3_MANAGE"
+          [ -n "$S3_MVI" ] && CMD="$CMD --s3_mvi $S3_MVI"
+
+          echo "Executing: $CMD"
+          eval $CMD
+          exit $?
+      command:
+        - /bin/sh
+        - -c
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+
+  workspaces:
+    - name: configs
+      mountPath: /workspace/gitops-iac

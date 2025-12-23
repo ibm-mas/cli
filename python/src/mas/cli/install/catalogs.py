@@ -17,8 +17,8 @@ supportedCatalogs = {
     "s390x": [
         "v9-251127-s390x",
         "v9-251030-s390x",
-        # No "v9-251010-s390x" catalog for the s390x
-        # No "v9-250925-s390x" catalog for the s390x
+        # No "v9-251010-s390x" release
+        # No "v9-250925-s390x" release
     ],
     "ppc64le": [
         "v9-251127-ppc64le",
