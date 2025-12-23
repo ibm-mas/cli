@@ -22,7 +22,6 @@ name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 
 {%- if IS_S3 | lower == 'true'  %}
 #----S3 related params starts----
-name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 create_s3_iam_group     = false
 create_s3_iam_policy    = false
 create_efs_policy       = false
