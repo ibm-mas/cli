@@ -39,8 +39,9 @@ additional_vpn: {{ ADDITIONAL_VPN }}
 additional_infrastructure:
   install: {{ ADDITIONAL_INFRASTRUCTURE_INSTALL }}
 {% if ADDITIONAL_INFRASTRUCTURE_INSTANCES is defined and ADDITIONAL_INFRASTRUCTURE_INSTANCES != '' %}
-{%- set instances_dict = ADDITIONAL_INFRASTRUCTURE_INSTANCES | toYaml %}
-  instances: {{ instances_dict }}
+{%- set instances_yaml = ADDITIONAL_INFRASTRUCTURE_INSTANCES | to_yaml | to_nice_yaml(indent=2) %}
+  instances:
+{{ instances_yaml }}
 {% endif %}
 {% endif %}
 
