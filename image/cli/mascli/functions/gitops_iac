@@ -604,7 +604,7 @@ function compute_msk_variables() {
   export SECURITY_GROUPS_VALUE=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.security_groups")
 
   # Compute MSK flags based on parameters
-  if [[ -n "$MSK_IOT_KAFKA_VERSION" && -n "$MSK_IOT_INSTANCE_TYPE" && -n "$MSK_IOT_CLUSTER_USERNAME" && -n "$MSK_IOT_BROKER_VOLUME_SIZE" && -n "$MSK_IOT_NUMBER_OF_BROKER_NODES"]]; then
+  if [[ -n "$MSK_IOT_KAFKA_VERSION" && -n "$MSK_IOT_INSTANCE_TYPE" && -n "$MSK_IOT_CLUSTER_USERNAME" && -n "$MSK_IOT_BROKER_VOLUME_SIZE" && -n "$MSK_IOT_NUMBER_OF_BROKER_NODES" ]]; then
     export MSK_IOT=true
     echo "  MSK_IOT: true"
   else
