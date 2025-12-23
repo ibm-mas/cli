@@ -218,7 +218,7 @@ locals {
       broker_nodes = {{MSK_IOT_NUMBER_OF_BROKER_NODES}}
       instance_type = {{MSK_IOT_INSTANCE_TYPE}}
       kafka_version = {{MSK_IOT_KAFKA_VERSION}}
-    }s
+    }
 {%- endif %}
 {%- if MSK_MONITOR == "true" %}
     monitor-msk = {
