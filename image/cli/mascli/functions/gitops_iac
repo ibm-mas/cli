@@ -589,23 +589,44 @@ function compute_msk_variables() {
   local REGION_NAME=$3
   local CLUSTER_ID=$4
 
-  echo "Computing S3 variables..."
+  echo "Computing MSK variables..."
 
   # Extract values from cluster files
   CLUSTER_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
   TERRAFORMTF_FILE_PATH=$CLUSTER_PATH/terraform.tfvars
   MAIN_FILE_PATH=$CLUSTER_PATH/main.tf
 
-  # Compute S3 variables from Terraform files
+  # Compute MSK variables from Terraform files
   export NAME_PREFIX_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "name_prefix")
+  export CLUSTER_CIDR_WORKLOAD_EXTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.cidrs.workload_external")
+  export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.cidrs.workload_internal")
   export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_id")
   export SECURITY_GROUPS_VALUE=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.security_groups")
 
-  echo "  NAME_PREFIX_VALUE: ${NAME_PREFIX_VALUE}"
-  echo "  VPC_ID: ${VPC_ID_VALUE}"
-  echo "  SECURITY_GROUPS_VALUE: ${SECURITY_GROUPS_VALUE}"
+  # Compute MSK flags based on parameters
+  if [[ -n "$MSK_IOT_KAFKA_VERSION" && -n "$MSK_IOT_INSTANCE_TYPE" && -n "$MSK_IOT_CLUSTER_USERNAME" && -n "$MSK_IOT_BROKER_VOLUME_SIZE" && -n "$MSK_IOT_NUMBER_OF_BROKER_NODES"]]; then
+    export MSK_IOT=true
+    echo "  MSK_IOT: true"
+  else
+    export MSK_IOT=false
+    echo "  MSK_IOT: false"
+  fi
 
-  echo " S3 variables computed successfully"
+  if [[ -n "$MSK_MONITOR_KAFKA_VERSION" && -n "$MSK_MONITOR_INSTANCE_TYPE" && -n "$MSK_MONITOR_CLUSTER_USERNAME" && -n "$MSK_MONITOR_BROKER_VOLUME_SIZE" && -n "$MSK_MONITOR_NUMBER_OF_BROKER_NODES" ]]; then
+    export MSK_MONITOR=true
+    echo "  MSK_MONITOR: true"
+  else
+    export MSK_MONITOR=false
+    echo "  MSK_MONITOR: false"
+  fi
+
+  echo "  NAME_PREFIX_VALUE              : ${NAME_PREFIX_VALUE}"
+  echo "  CLUSTER_CIDR_WORKLOAD_EXTERNAL : ${CLUSTER_CIDR_WORKLOAD_EXTERNAL}"
+  echo "  CLUSTER_CIDR_WORKLOAD_INTERNAL : ${CLUSTER_CIDR_WORKLOAD_INTERNAL}"
+  echo "  VPC_ID                         : ${VPC_ID_VALUE}"
+  echo "  SECURITY_GROUPS_VALUE          : ${SECURITY_GROUPS_VALUE}"
+
+  echo " MSK variables computed successfully"
 }
 
 # ============================================================================
