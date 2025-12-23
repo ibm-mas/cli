@@ -340,6 +340,7 @@
 <li><code>--summary-only</code> Perform a much faster must-gather that only gathers high level summary information</li>
 <li><code>--no-logs</code> Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required</li>
 <li><code>--secret-data</code> Include secrets content in the must-gather</li>
+<li><code>--pods-only</code> Limit must-gather to collection pods data (no other K8s resources)</li>
 </ul>
 <h3 id="mas-content-controls">MAS Content Controls:<a class="headerlink" href="#mas-content-controls" title="Permanent link">¤</a></h3>
 <ul>
@@ -494,6 +495,9 @@ mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --m
 
 # Target Core + Manage in inst2
 mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst2" --mas-app-ids "core,manage"
+
+# Target Manage pods only in inst3
+mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst3" --mas-app-ids "manage" --pods_only
 </code></pre>
 <p><strong>Generate MAS quick summary report for specific MAS instance:</strong>  By default, must-gather includes a MAS quick summary report in the <code>mas-quick-summary</code> folder, providing compiled information to help identify common issues in the environment. When used with the flags <code>--summary-only</code>, <code>--no-ocp</code>, <code>--no-dependencies</code>, <code>--no-sls</code>, and <code>--mas-instance-ids</code> to target a specific namespace or MAS application, must-gather focuses the collection for faster execution while still including the MAS quick summary.</p>
 <pre><code class="language-bash">mas must-gather -d /mnt/home/must-gather --summary-only --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst1" --mas-app-ids "core"
@@ -507,7 +511,7 @@ mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --m
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-12-19 07:43:35.680977+00:00)
+      Built with mkdocs v1.6.1 (2025-12-23 10:57:48.931298+00:00)
     </div> -->
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
