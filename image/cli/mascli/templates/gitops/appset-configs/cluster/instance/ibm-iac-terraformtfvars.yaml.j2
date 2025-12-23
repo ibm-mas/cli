@@ -14,10 +14,13 @@ vpc_name             = "{{ VPC_NAME_VALUE }}"
 #----EFS related params ends----
 {%- endif %}
 
-
+{%- if (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true') %}
+#----S3/MSK related params starts----
+name_prefix             = "{{ NAME_PREFIX_VALUE }}"
+#----S3/MSK related params ends----
+{%- endif %}
 
 {%- if IS_S3 | lower == 'true'  %}
-
 #----S3 related params starts----
 name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 create_s3_iam_group     = false

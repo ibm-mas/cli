@@ -214,10 +214,10 @@ locals {
       sre_prefix  = var.name_prefix
       secret_name = join("-", [var.cluster_name, var.instance_name])
       broker_volume_size = {{MSK_IOT_BROKER_VOLUME_SIZE}}
-      cluster_name = {{MSK_IOT_CLUSTER_USERNAME}}
+      cluster_name = "{{MSK_IOT_CLUSTER_USERNAME}}"
       broker_nodes = {{MSK_IOT_NUMBER_OF_BROKER_NODES}}
-      instance_type = {{MSK_IOT_INSTANCE_TYPE}}
-      kafka_version = {{MSK_IOT_KAFKA_VERSION}}
+      instance_type = "{{MSK_IOT_INSTANCE_TYPE}}"
+      kafka_version = "{{MSK_IOT_KAFKA_VERSION}}"
     }
 {%- endif %}
 {%- if MSK_MONITOR == "true" %}
@@ -226,10 +226,10 @@ locals {
       sre_prefix  = var.name_prefix
       secret_name = join("-", [var.cluster_name, var.instance_name])
       broker_volume_size = {{MSK_MONITOR_BROKER_VOLUME_SIZE}}
-      cluster_name = {{MSK_MONITOR_CLUSTER_USERNAME}}
+      cluster_name = "{{MSK_MONITOR_CLUSTER_USERNAME}}"
       broker_nodes = {{MSK_MONITOR_NUMBER_OF_BROKER_NODES}}
-      instance_type = {{MSK_MONITOR_INSTANCE_TYPE}}
-      kafka_version = {{MSK_MONITOR_KAFKA_VERSION}}
+      instance_type = "{{MSK_MONITOR_INSTANCE_TYPE}}"
+      kafka_version = "{{MSK_MONITOR_KAFKA_VERSION}}"
     }
 {%- endif %}
   }
