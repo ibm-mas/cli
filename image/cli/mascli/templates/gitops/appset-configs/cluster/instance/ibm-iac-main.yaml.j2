@@ -210,7 +210,7 @@ locals {
   multiple-msk = {
 {%- if MSK_IOT == "true" %}
     iot-msk = {
-      name        = join("-", [var.cluster_name, var.instance_name, "iot-msk"])
+      name        = join("-", [var.cluster_name, var.instance_name, "iot"])
       sre_prefix  = var.name_prefix
       secret_name = join("-", [var.cluster_name, var.instance_name])
       broker_volume_size = {{MSK_IOT_BROKER_VOLUME_SIZE}}
@@ -222,7 +222,7 @@ locals {
 {%- endif %}
 {%- if MSK_MONITOR == "true" %}
     monitor-msk = {
-      name        = join("-", [var.cluster_name, var.instance_name, "monitor-msk"])
+      name        = join("-", [var.cluster_name, var.instance_name, "monitor"])
       sre_prefix  = var.name_prefix
       secret_name = join("-", [var.cluster_name, var.instance_name])
       broker_volume_size = {{MSK_MONITOR_BROKER_VOLUME_SIZE}}
