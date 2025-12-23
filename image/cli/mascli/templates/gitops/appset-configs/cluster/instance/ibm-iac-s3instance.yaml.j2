@@ -1,0 +1,21 @@
+module "s3buckets_instance" {
+  source = "{{ S3_SOURCE }}"
+
+  depends_on = [module.account_policy]
+
+  tags                    = var.common_tags
+  name_prefix             = var.name_prefix
+  s3buckets               = local.cluster.instance.{{APP_NAME}}_s3buckets
+  iam_user_arns           = local.iam_user_arns_{{APP_NAME}}
+  bucket_user_name_map    = local.bucket_user_name_map_{{APP_NAME}}
+  iam_users_by_bucket     = local.iam_users_by_bucket_{{APP_NAME}}
+  s3_iam_users_list       = local.s3_iam_users_list_{{APP_NAME}}
+  s3_actions              = local.s3_actions
+  s3_encryption           = true
+  s3_encryption_algorithm = var.s3_encryption_algorithm
+  force_bucket_destroy    = true
+  mas_cluster_id          = local.cluster.name
+  mas_instance_id         = local.cluster.instance.name
+  secret_recovery_days    = 0
+  s3_bucket_region        = local.location.region
+}
