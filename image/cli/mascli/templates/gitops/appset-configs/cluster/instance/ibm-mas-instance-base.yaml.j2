@@ -41,7 +41,7 @@ additional_infrastructure:
 {% if ADDITIONAL_INFRASTRUCTURE_INSTANCES is defined and ADDITIONAL_INFRASTRUCTURE_INSTANCES != '' %}
 {%- set instances_yaml = ADDITIONAL_INFRASTRUCTURE_INSTANCES | toYaml | to_nice_yaml(indent=2) %}
   instances:
-{{ instances_yaml }}
+{{ instances_yaml | indent(4, first=True) }}
 {% endif %}
 {% endif %}
 
