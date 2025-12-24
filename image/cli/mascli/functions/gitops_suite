@@ -280,7 +280,7 @@ function gitops_suite_noninteractive() {
         export IS_NON_SHARED_CLUSTER=$1 && shift
         ;;
       --additional-infrastructure-install)
-        export ADDITIONAL_INFRASTRUCTURE_INSTALL=true
+        export ADDITIONAL_INFRASTRUCTURE_INSTALL=$1 && shift
         ;;
       --additional-infrastructure-instances)
         export ADDITIONAL_INFRASTRUCTURE_INSTANCES=$1 && shift
