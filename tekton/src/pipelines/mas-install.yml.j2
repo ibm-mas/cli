@@ -44,7 +44,26 @@ spec:
     # 13. Install & Configure Facilities
     # 14. Install & Configure AI Service with Default Tenant
 
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-install-check', 'devops_suite_name': 'pre-install-check'}) | indent(4) }}
+      runAfter:
+        - pipeline-start
 
     # 1. Setup Cluster-wide Dependencies & Configure Cluster Monitoring
     # -------------------------------------------------------------------------
@@ -190,7 +209,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/gencfg-workspace.yml.j2') | indent(4) }}
       runAfter:
         - ibm-catalogs
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -199,7 +218,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-dns.yml.j2') | indent(4) }}
       runAfter:
         - cert-manager
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -208,7 +227,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-certs.yml.j2') | indent(4) }}
       runAfter:
         - suite-dns
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -220,7 +239,7 @@ spec:
         - dro
         - gencfg-workspace
         - suite-certs
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -229,7 +248,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-config.yml.j2') | indent(4) }}
       runAfter:
         - suite-install
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -238,7 +257,7 @@ spec:
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2') | indent(4) }}
       runAfter:
         - suite-config
-      when: 
+      when:
         - input: "$(params.mas_instance_id)"
           operator: notin
           values: [""]
@@ -272,6 +291,7 @@ spec:
         - suite-db2-setup-manage
         - suite-config-watson-studio
         - suite-config-cos
+        - aiservice
 
     # 6.3 Configure IBM Maximo Location Services for ESRI
     {{ lookup('template', pipeline_src_dir ~ '/taskdefs/dependencies/arcgis.yml.j2') | indent(4) }}
@@ -353,6 +373,7 @@ spec:
         - sls
         - dro
         - db2-aiservice
+        - minio
         - aiservice-odh
 
     # 15. Verify health of the cluster before we consider the install complete
@@ -386,3 +407,22 @@ spec:
           # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
           # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
           value: $(tasks.status)
+
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
