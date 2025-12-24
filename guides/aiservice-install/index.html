@@ -1,0 +1,917 @@
+<!DOCTYPE html><html><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>AI Service Installation - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body>
+    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/guides/aiservice-install.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+
+    </cds-header>
+
+    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
+      <cds-side-nav-items>
+        
+          
+  <cds-side-nav-menu title="Guides">
+    
+      
+  <cds-side-nav-menu-item href="../image-mirroring/">
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../facilities-external-db/">
+    MRE&amp;F External DB Setup
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Command Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../commands/update/">
+    update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/upgrade/">
+    upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/uninstall/">
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/must-gather/">
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configure-airgap/">
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/mirror-redhat-images/">
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/setup-registry/">
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/teardown-registry/">
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-fyre/">
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-roks/">
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-rosa/">
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configtool-oidc/">
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-251224-amd64/">
+    Dec 24 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-251127-amd64/">
+    Nov 27 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-251030-amd64/">
+    Oct 30 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-251010-amd64/">
+    Oct 10 2025
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+          
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+        
+      </cds-side-nav-items>
+    </cds-side-nav>
+
+    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-breadcrumb-link href="#ai-service-installation">AI Service Installation</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item>
+    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#usage">Usage</cds-select-item>
+    
+      <cds-select-item value="#preparation">Preparation</cds-select-item>
+    
+      <cds-select-item value="#interactive-install">Interactive Install</cds-select-item>
+    
+      <cds-select-item value="#non-interactive-install">Non-Interactive Install</cds-select-item>
+    
+      <cds-select-item value="#dependencies">Dependencies</cds-select-item>
+    
+      <cds-select-item value="#more-information">More Information</cds-select-item>
+    
+      <cds-select-item value="#integration-with-maximo-manage">Integration with Maximo Manage</cds-select-item>
+    
+  </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+    </div>
+
+    <div id="main-content" class="rst-content">
+      
+      <h1 id="ai-service-installation">AI Service Installation<a class="headerlink" href="#ai-service-installation" title="Permanent link">¤</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
+<p>For full usage information run <code>mas aiservice-install --help</code></p>
+<p>The <code>mas aiservice-install</code> command is specifically designed for standalone installation of AI Service version 9.1.x or above. This command provides a streamlined installation process focused solely on AI Service and its dependencies.</p>
+<div class="admonition note">
+<p class="admonition-title">AI Service Installation Options</p>
+<ul>
+<li><strong>Standalone Installation (9.1.x+)</strong>: Use <code>mas aiservice-install</code> for dedicated AI Service installation</li>
+<li><strong>Integrated Installation</strong>: AI Service can also be installed alongside MAS applications using <code>mas install</code> command</li>
+</ul>
+</div>
+<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¤</a></h2>
+<h3 id="ibm-entitlement-key">IBM Entitlement Key<a class="headerlink" href="#ibm-entitlement-key" title="Permanent link">¤</a></h3>
+<p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
+<h3 id="mas-license-file">MAS License File<a class="headerlink" href="#mas-license-file" title="Permanent link">¤</a></h3>
+<p>Access <a href="https://licensing.flexnetoperations.com/">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>. Select <code>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</code> and on the next page fill in the information as below:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Number of Keys</td>
+<td>How many AppPoints to assign to the license file</td>
+</tr>
+<tr>
+<td>Host ID Type</td>
+<td>Set to <strong>Ethernet Address</strong></td>
+</tr>
+<tr>
+<td>Host ID</td>
+<td>Enter any 12 digit hexadecimal string</td>
+</tr>
+<tr>
+<td>Hostname</td>
+<td>Set to the hostname of your OCP instance, but this can be any value really.</td>
+</tr>
+<tr>
+<td>Port</td>
+<td>Set to <strong>27000</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The other values can be left at their defaults. Finally, click <strong>Generate</strong> and download the license file to your home directory as <code>entitlement.lic</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The license file is only required if IBM Suite License Service (SLS) has not been previously installed in your cluster. If SLS is already configured, you can skip the license file configuration.</p>
+</div>
+<h3 id="openshift-cluster">OpenShift Cluster<a class="headerlink" href="#openshift-cluster" title="Permanent link">¤</a></h3>
+<p>You should already have a target OpenShift cluster ready to install AI Service into. If you do not already have one then refer to the <a href="https://docs.openshift.com/container-platform/4.15/installing/index.html">OpenShift Container Platform installation overview</a>.</p>
+<p>The CLI also supports OpenShift provisioning in many hyperscaler providers:</p>
+<ul>
+<li><a href="../../commands/provision-rosa/">AWS</a></li>
+<li><a href="../../commands/provision-roks/">IBM Cloud</a></li>
+<li><a href="../../commands/provision-fyre/">IBM DevIT FYRE (Internal)</a></li>
+</ul>
+<h3 id="operator-catalog-selection">Operator Catalog Selection<a class="headerlink" href="#operator-catalog-selection" title="Permanent link">¤</a></h3>
+<p>If you have not already determined the catalog version for your installation, refer to the information in the <a href="../../catalogs/">Operator Catalog</a> topic, or contact IBM Support for guidance.</p>
+<h2 id="interactive-install">Interactive Install<a class="headerlink" href="#interactive-install" title="Permanent link">¤</a></h2>
+<p>Run the <code>mas aiservice-install</code> command and follow the interactive prompts. Mount your home directory to access the license file when needed.</p>
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.4.0 mas aiservice-install
+</code></pre>
+<p>The interactive install will guide you through the following steps:</p>
+<div>
+  <cds-accordion>
+    <cds-accordion-item title="Connect to OpenShift and Choose a Catalog">
+      <p>If you are not already connected to an OpenShift cluster you will be prompted to provide the server URL &amp; token to make a new connection. If you are already connected to a cluster you will be given the option to change to another cluster.</p>
+      <p>You will be presented with a table of available catalogs with information about the different releases of MAS available in each.</p>
+      <p>Confirm that you accept the IBM Maximo Application Suite license terms.</p>
+    </cds-accordion-item>
+    <cds-accordion-item title="Select Storage Classes">
+      <p>AI Service requires both a `ReadWriteMany` and a `ReadWriteOnce` capable storage class to be available in the cluster. The installer has the ability to recognize certain storage class providers and will default to the most appropriate storage class in these cases:</p>
+      <ul>
+        <li>IBMCloud Storage (ibmc-block-gold &amp; ibmc-file-gold-gid)</li>
+        <li>OpenShift Container Storage (ocs-storagecluster-ceph-rbd &amp; ocs-storagecluster-cephfs)</li>
+        <li>External OpenShift Container Storage (ocs-external-storagecluster-ceph-rbd &amp; ocs-external-storagecluster-cephfs)</li>
+        <li>NFS Client (nfs-client)</li>
+        <li>Azure Managed Storage (managed-premium &amp; azurefiles-premium)</li>
+        <li>AWS Storage (gp3-cs &amp; efs)</li>
+      </ul>
+      <p>The names in brackets represent the `ReadWriteOnce` and `ReadWriteMany` class that will be used. Even when a recognized storage provider is detected you will be provided with the option to select your own storage classes if you wish.</p>
+    </cds-accordion-item>
+    <cds-accordion-item title="Provide a License File and Entitlement Key">
+      <p>Provide the location of your license file (e.g., `/mnt/home/entitlement.lic`), contact information, and IBM entitlement key. If you have set the <code>IBM_ENTITLEMENT_KEY</code> environment variable, this field will be pre-filled.</p>
+      <p><strong>Note:</strong> This step is only required if IBM Suite License Service (SLS) has not been previously installed in your cluster.</p>
+    </cds-accordion-item>
+    <cds-accordion-item title="Configure AI Service Instance">
+      <p>Provide the configuration details for your AI Service instance:</p>
+      <ul>
+        <li><strong>Instance ID:</strong> Unique identifier for your AI Service instance</li>
+        <li><strong>Channel:</strong> AI Service version channel (e.g., 9.1.x)</li>
+        <li><strong>S3 Storage Configuration:</strong> Configure object storage for AI Service data</li>
+        <li><strong>Database Configuration:</strong> Set up database connection for AI Service</li>
+        <li><strong>RSL Configuration:</strong> Configure Red Hat Service Locator integration</li>
+        <li><strong>Tenant Configuration:</strong> Set up AI Service tenant(s)</li>
+        <li><strong>Operational Mode:</strong> Choose between production or non-production mode</li>
+      </ul>
+    </cds-accordion-item>
+    <cds-accordion-item title="Configure Dependencies">
+      <p>Choose how to configure AI Service dependencies:</p>
+      <ul>
+        <li><strong>IBM Suite License Service (SLS):</strong> Install new instance or use existing SLS</li>
+        <li><strong>Database (Db2):</strong> Install in-cluster Db2 or provide connection to existing database</li>
+        <li><strong>IBM Data Reporter Operator (DRO):</strong> Install DRO or provide alternative configuration</li>
+        <li><strong>MinIO:</strong> Configure object storage for AI Service</li>
+      </ul>
+      <p>For each dependency, you can choose to install it automatically or provide connection details to an existing instance.</p>
+    </cds-accordion-item>
+    <cds-accordion-item title="Review Choices">
+      <p>Before the install starts, you will be presented with a summary of all your choices and a non-interactive command that will allow you to repeat the same installation without going through all the prompts again.</p>
+    </cds-accordion-item>
+  </cds-accordion>
+</div>
+
+<h2 id="non-interactive-install">Non-Interactive Install<a class="headerlink" href="#non-interactive-install" title="Permanent link">¤</a></h2>
+<p>The following command demonstrates a complete AI Service installation with all configuration options. This command will launch the MAS CLI container image, login to your OpenShift Cluster and start the AI Service installation without triggering any prompts.</p>
+<pre><code class="language-bash">IBM_ENTITLEMENT_KEY=your_entitlement_key_here
+
+docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.4.0 bash -c "
+  oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
+  mas aiservice-install \
+    --mas-catalog-version v9-251224-amd64 \
+    --ibm-entitlement-key \${IBM_ENTITLEMENT_KEY} \
+    --aiservice-instance-id aiservice1 \
+    --aiservice-channel 9.1.x \
+    \
+    --storage-class-rwo nfs-client \
+    --storage-class-rwx nfs-client \
+    --storage-pipeline nfs-client \
+    --storage-accessmode ReadWriteMany \
+    \
+    --license-file /mnt/home/entitlement.lic \
+    --uds-email admin@example.com \
+    --uds-firstname John \
+    --uds-lastname Doe \
+    \
+    --dro-namespace redhat-marketplace \
+    --mongodb-namespace mongoce \
+    \
+    --s3-tenants-bucket km-tenants \
+    --s3-templates-bucket km-templates \
+    \
+    --odh-model-deployment-type serverless \
+    \
+    --watsonxai-apikey your_watsonx_api_key \
+    --watsonxai-url https://us-south.ml.cloud.ibm.com \
+    --watsonxai-project-id your_project_id \
+    \
+    --install-minio
+    --minio-root-user minio \
+    --minio-root-password minio123 \
+    \
+    --tenant-entitlement-type standard \
+    --tenant-entitlement-start-date 2025-01-01 \
+    --tenant-entitlement-end-date 2026-01-01 \
+    \
+    --rsl-url http://your-rsl-host:3001/api/v3/vector/query \
+    --rsl-org-id your_org_id \
+    --rsl-token 'Bearer your_rsl_token' \
+    \
+    --accept-license --no-confirm
+"
+</code></pre>
+<h3 id="core-parameters">Core Parameters<a class="headerlink" href="#core-parameters" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--mas-catalog-version</code></td>
+<td>MAS operator catalog version</td>
+<td>Yes</td>
+<td><code>v9-250902-amd64</code></td>
+</tr>
+<tr>
+<td><code>--aiservice-instance-id</code></td>
+<td>Unique identifier for AI Service instance</td>
+<td>Yes</td>
+<td><code>aiservice1</code></td>
+</tr>
+<tr>
+<td><code>--aiservice-channel</code></td>
+<td>AI Service version channel</td>
+<td>Yes</td>
+<td><code>9.1.x</code></td>
+</tr>
+<tr>
+<td><code>--ibm-entitlement-key</code></td>
+<td>IBM Container Registry entitlement key</td>
+<td>Yes</td>
+<td><code>$IBM_ENTITLEMENT_KEY</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="storage-configuration">Storage Configuration<a class="headerlink" href="#storage-configuration" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--storage-class-rwo</code></td>
+<td>ReadWriteOnce storage class</td>
+<td>Yes</td>
+<td><code>nfs-client</code></td>
+</tr>
+<tr>
+<td><code>--storage-class-rwx</code></td>
+<td>ReadWriteMany storage class</td>
+<td>Yes</td>
+<td><code>nfs-client</code></td>
+</tr>
+<tr>
+<td><code>--storage-pipeline</code></td>
+<td>Storage class for pipeline workloads</td>
+<td>Yes</td>
+<td><code>nfs-client</code></td>
+</tr>
+<tr>
+<td><code>--storage-accessmode</code></td>
+<td>Storage access mode</td>
+<td>Yes</td>
+<td><code>ReadWriteMany</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="license-and-contact-information">License and Contact Information<a class="headerlink" href="#license-and-contact-information" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--license-file</code></td>
+<td>Path to MAS license file (required if SLS not installed)</td>
+<td>Conditional</td>
+<td><code>/mnt/home/entitlement.lic</code></td>
+</tr>
+<tr>
+<td><code>--uds-email</code></td>
+<td>Contact email address</td>
+<td>Yes</td>
+<td><code>admin@example.com</code></td>
+</tr>
+<tr>
+<td><code>--uds-firstname</code></td>
+<td>Contact first name</td>
+<td>Yes</td>
+<td><code>John</code></td>
+</tr>
+<tr>
+<td><code>--uds-lastname</code></td>
+<td>Contact last name</td>
+<td>Yes</td>
+<td><code>Doe</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="dependency-configuration">Dependency Configuration<a class="headerlink" href="#dependency-configuration" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--dro-namespace</code></td>
+<td>IBM Data Reporter Operator namespace</td>
+<td>Optional</td>
+<td><code>redhat-marketplace</code></td>
+</tr>
+<tr>
+<td><code>--mongodb-namespace</code></td>
+<td>MongoDB namespace (for SLS)</td>
+<td>Optional</td>
+<td><code>mongoce</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="s3-storage-configuration">S3 Storage Configuration<a class="headerlink" href="#s3-storage-configuration" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--s3-accesskey</code></td>
+<td>S3 access key</td>
+<td>Yes</td>
+<td><code>minio</code></td>
+</tr>
+<tr>
+<td><code>--s3-secretkey</code></td>
+<td>S3 secret key</td>
+<td>Yes</td>
+<td><code>minio123</code></td>
+</tr>
+<tr>
+<td><code>--s3-host</code></td>
+<td>S3 service host</td>
+<td>Yes</td>
+<td><code>minio-service.minio.svc.cluster.local</code></td>
+</tr>
+<tr>
+<td><code>--s3-port</code></td>
+<td>S3 service port</td>
+<td>Yes</td>
+<td><code>9000</code></td>
+</tr>
+<tr>
+<td><code>--s3-ssl</code></td>
+<td>Enable SSL for S3 connection</td>
+<td>Yes</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>--s3-region</code></td>
+<td>S3 region</td>
+<td>Yes</td>
+<td><code>none</code></td>
+</tr>
+<tr>
+<td><code>--s3-bucket-prefix</code></td>
+<td>Prefix for S3 buckets</td>
+<td>Yes</td>
+<td><code>s3-</code></td>
+</tr>
+<tr>
+<td><code>--s3-tenants-bucket</code></td>
+<td>S3 bucket for tenant data</td>
+<td>Yes</td>
+<td><code>km-tenants</code></td>
+</tr>
+<tr>
+<td><code>--s3-templates-bucket</code></td>
+<td>S3 bucket for templates</td>
+<td>Yes</td>
+<td><code>km-templates</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="opendatahub-configuration">OpenDataHub Configuration<a class="headerlink" href="#opendatahub-configuration" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--odh-model-deployment-type</code></td>
+<td>Model deployment type (serverless/raw)</td>
+<td>Yes</td>
+<td><code>serverless</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="watson-ai-configuration">Watson AI Configuration<a class="headerlink" href="#watson-ai-configuration" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--watsonxai-apikey</code></td>
+<td>Watson AI API key</td>
+<td>Optional</td>
+<td><code>your_api_key</code></td>
+</tr>
+<tr>
+<td><code>--watsonxai-url</code></td>
+<td>Watson AI service URL</td>
+<td>Optional</td>
+<td><code>https://us-south.ml.cloud.ibm.com</code></td>
+</tr>
+<tr>
+<td><code>--watsonxai-project-id</code></td>
+<td>Watson AI project ID</td>
+<td>Optional</td>
+<td><code>your_project_id</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="minio-configuration">MinIO Configuration<a class="headerlink" href="#minio-configuration" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--minio-root-user</code></td>
+<td>MinIO root username</td>
+<td>Yes</td>
+<td><code>minio</code></td>
+</tr>
+<tr>
+<td><code>--minio-root-password</code></td>
+<td>MinIO root password</td>
+<td>Yes</td>
+<td><code>minio123</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="tenant-configuration">Tenant Configuration<a class="headerlink" href="#tenant-configuration" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--tenant-entitlement-type</code></td>
+<td>Tenant entitlement type</td>
+<td>Yes</td>
+<td><code>standard</code></td>
+</tr>
+<tr>
+<td><code>--tenant-entitlement-start-date</code></td>
+<td>Entitlement start date (YYYY-MM-DD)</td>
+<td>Yes</td>
+<td><code>2025-01-01</code></td>
+</tr>
+<tr>
+<td><code>--tenant-entitlement-end-date</code></td>
+<td>Entitlement end date (YYYY-MM-DD)</td>
+<td>Yes</td>
+<td><code>2026-01-01</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="rsl-red-hat-service-locator-configuration">RSL (Red Hat Service Locator) Configuration<a class="headerlink" href="#rsl-red-hat-service-locator-configuration" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--rsl-url</code></td>
+<td>RSL service URL</td>
+<td>Optional</td>
+<td><code>http://host:3001/api/v3/vector/query</code></td>
+</tr>
+<tr>
+<td><code>--rsl-org-id</code></td>
+<td>RSL organization ID</td>
+<td>Optional</td>
+<td><code>your_org_id</code></td>
+</tr>
+<tr>
+<td><code>--rsl-token</code></td>
+<td>RSL authentication token</td>
+<td>Optional</td>
+<td><code>Bearer your_token</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="additional-options">Additional Options<a class="headerlink" href="#additional-options" title="Permanent link">¤</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--accept-license</code></td>
+<td>Accept license terms</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>--no-confirm</code></td>
+<td>Skip confirmation prompts</td>
+<td>Optional</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dependencies">Dependencies<a class="headerlink" href="#dependencies" title="Permanent link">¤</a></h2>
+<p>The AI Service installation automatically handles the following dependencies:</p>
+<h3 id="required-dependencies">Required Dependencies<a class="headerlink" href="#required-dependencies" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>IBM Suite License Service (SLS)</strong>: Manages licensing for AI Service. Automatically installed if not present, or can use existing SLS instance.</li>
+<li><strong>IBM Data Reporter Operator (DRO)</strong>: Handles data reporting and metrics</li>
+<li><strong>Red Hat Certificate Manager</strong>: Manages TLS certificates</li>
+<li><strong>MinIO</strong>: Provides S3-compatible object storage for AI Service data</li>
+<li><strong>Db2</strong>: Database for AI Service metadata and configuration</li>
+</ul>
+<h3 id="optional-dependencies">Optional Dependencies<a class="headerlink" href="#optional-dependencies" title="Permanent link">¤</a></h3>
+<ul>
+<li><strong>MongoDB Community Edition</strong>: Only required if installing SLS for the first time</li>
+</ul>
+<h2 id="more-information">More Information<a class="headerlink" href="#more-information" title="Permanent link">¤</a></h2>
+<p>The AI Service installation is designed to work on any OCP cluster, but has been specifically tested in these environments:</p>
+<ul>
+<li>IBMCloud ROKS</li>
+<li>Microsoft Azure</li>
+<li>AWS ROSA</li>
+<li>IBM DevIT FYRE (internal)</li>
+</ul>
+<p>The engine that performs all tasks is written in Ansible. The code is open source and available in <a href="https://github.com/ibm-mas/ansible-devops">ibm-mas/ansible-devops</a>, and the collection is also available to install directly from <a href="https://galaxy.ansible.com/ibm/mas_devops">Ansible Galaxy</a>.</p>
+<p>The installation is performed inside your RedHat OpenShift cluster utilizing <a href="https://cloud.redhat.com/learn/topics/ci-cd">OpenShift Pipelines</a>:</p>
+<blockquote>
+<p>OpenShift Pipelines is a Kubernetes-native CI/CD solution based on Tekton. It builds on Tekton to provide a CI/CD experience through tight integration with OpenShift and Red Hat developer tools. OpenShift Pipelines is designed to run each step of the CI/CD pipeline in its own container, allowing each step to scale independently to meet the demands of the pipeline.</p>
+</blockquote>
+<h2 id="integration-with-maximo-manage">Integration with Maximo Manage<a class="headerlink" href="#integration-with-maximo-manage" title="Permanent link">¤</a></h2>
+<p>After installing AI Service, you can bind it to Maximo Manage to enable AI capabilities:</p>
+<p><strong>During Manage Installation:</strong></p>
+<p>When installing Manage alongside AI Service using <code>mas install</code>:</p>
+<ul>
+<li><strong>Installing AI Service with Manage</strong> (using <code>--aiservice-channel</code>):</li>
+<li>The binding is configured automatically with default "user" tenant</li>
+<li>No additional parameters needed</li>
+<li>
+<p>Any <code>--manage-aiservice-instance-id</code> or <code>--manage-aiservice-tenant-id</code> parameters will be ignored</p>
+</li>
+<li>
+<p><strong>Using Existing AI Service</strong> (not using <code>--aiservice-channel</code>):</p>
+</li>
+<li><strong>Interactive Mode</strong>: You will be prompted to select the AI Service instance and tenant</li>
+<li><strong>Non-Interactive Mode</strong>: Use <code>--manage-aiservice-instance-id</code> and <code>--manage-aiservice-tenant-id</code> parameters</li>
+</ul>
+<p><strong>Post-Installation:</strong></p>
+<p>You can configure the AI Service binding through the Maximo Manage UI.</p>
+<p>For more information on integrating AI Service with Manage, see the <a href="../install/#application-configuration">Installation Guide</a>.</p>
+      
+    </div>
+    <!-- <div id="footer" class="rst-content">
+      Built with mkdocs v1.6.1 (2025-12-24 23:36:05.565596+00:00)
+    </div> -->
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>
