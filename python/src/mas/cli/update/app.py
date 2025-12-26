@@ -435,56 +435,79 @@ class UpdateApp(BaseApp):
             ""
         ])
 
-    def detectCP4D(self) -> bool:
-        # Important:
-        # This CLI can run independent of the ibm.mas_devops collection, so we cannot reference
-        # the case bundles in there anymore
-        # Longer term we will centralise this information inside the mas-devops python collection,
-        # where it can be made available to both the ansible collection and this python package.
-        cp4dVersions = {
-            "v9-240625-amd64": "4.8.0",
-            "v9-240730-amd64": "4.8.0",
-            "v9-240827-amd64": "4.8.0",
-            "v9-241003-amd64": "4.8.0",
-            "v9-241107-amd64": "4.8.0",
-            "v9-241205-amd64": "5.0.0",
-            "v9-250109-amd64": "5.0.0",
-            "v9-250206-amd64": "5.0.0",
-            "v9-250306-amd64": "5.0.0",
-            "v9-250403-amd64": "5.0.0",
-            "v9-250501-amd64": "5.0.0",
-            "v9-250624-amd64": "5.1.3",
-            "v9-250731-amd64": "5.1.3",
-            "v9-250828-amd64": "5.1.3",
-            "v9-250902-amd64": "5.1.3",
-            "v9-250925-amd64": "5.1.3",
-            "v9-251010-amd64": "5.1.3",
-            "v9-251030-amd64": "5.1.3",
-            "v9-251127-amd64": "5.1.3",
-        }
-
+    def detectCP4D(self) -> None:
         with Halo(text='Checking for IBM Cloud Pak for Data', spinner=self.spinner) as h:
             try:
                 cpdAPI = self.dynamicClient.resources.get(api_version="cpd.ibm.com/v1", kind="Ibmcpd")
                 cpds = cpdAPI.get().to_dict()["items"]
 
                 # For testing, comment out the lines above and set cpds to a simple list
-                # cpds = [{
-                #     "metadata": {"namespace": "ibm-cpd" },
-                #     "spec": {
-                #         "version": "4.6.6",
-                #         "storageClass": "default",
-                #         "zenCoreMetadbStorageClass": "default"
+                # cpds = [
+                #     {
+                #         "metadata": {"namespace": "ibm-cpd1" },
+                #         "spec": {
+                #             "version": "5.0.0",
+                #             "storageClass": "default",
+                #             "zenCoreMetadbStorageClass": "default"
+                #         }
+                #     # },
+                #     # {
+                #     #     "metadata": {"namespace": "ibm-cpd2" },
+                #     #     "spec": {
+                #     #         "version": "5.0.0",
+                #     #         "storageClass": "default",
+                #     #         "zenCoreMetadbStorageClass": "default"
+                #     #     }
                 #     }
-                # }]
+                # ]
 
-                if len(cpds) > 0:
+                if len(cpds) > 1:
+                    cpdNamespaces = []
+                    for cpd in cpds:
+                        cpdNamespaces.append(cpd["metadata"]["namespace"])
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Detected multiple instances of Cloud Pak for Data in the cluster, these will NOT be updated: {', '.join(cpdNamespaces)}")
+                    self.printDescription([
+                        "<u>Multiple Cloud Pak for Data Instances</u>",
+                        "The MAS install, update, and upgrade functions are designed to work together and support the Maximo reference deployment topology.",
+                        "Multiple instances of Cloud Pak for Data have been detected on the target cluster, so none will be modified:",
+                        "- If you used the Maximo Ansible collection to install CP4D, see: https://ibm-mas.github.io/ansible-devops/",
+                        "- If you used the Cloud Pak for Data CLI to install CP4D, see: https://github.com/IBM/cpd-cli"
+                    ])
+                    return
+                elif len(cpds) == 1:
+                    cpdUpgradePath = {
+                        "5.1.3": "5.2.0",
+                        "5.0.0": "5.1.3",
+                    }
                     cpdInstanceNamespace = cpds[0]["metadata"]["namespace"]
                     cpdInstanceVersion = cpds[0]["spec"]["version"]
+
                     if self.args.cpd_product_version:
                         cpdTargetVersion = self.getParam("cpd_product_version")
                     else:
-                        cpdTargetVersion = cp4dVersions[self.getParam("mas_catalog_version")]
+                        cpdTargetVersion = self.chosenCatalog["cpd_product_version_default"]
+
+                    if cpdInstanceNamespace != "ibm-cpd":
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Standalone Cloud Pak for Data {cpdInstanceVersion} in namespace {cpdInstanceNamespace} will NOT be updated")
+                        self.printDescription([
+                            "<u>Standalone Cloud Pak for Data</u>",
+                            "The MAS install, update, and upgrade functions are designed to work together and support the Maximo reference deployment topology.",
+                            "This instance of Cloud Pak for Data appears to have been created outside of this, so will not be modified:",
+                            "- If you used the Maximo Ansible collection to install CP4D, see: https://ibm-mas.github.io/ansible-devops/",
+                            "- If you used the Cloud Pak for Data CLI to install CP4D, see: https://github.com/IBM/cpd-cli"
+                        ])
+                        return
+
+                    if cpdInstanceVersion not in cpdUpgradePath:
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) is too old to update to this catalog")
+                        self.fatalError(
+                            "Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nContact IBM support for assistance"
+                        )
+                    elif cpdUpgradePath[cpdInstanceVersion] != cpdTargetVersion:
+                        h.stop_and_persist(symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) can not be updated to {cpdTargetVersion} directly")
+                        self.fatalError(
+                            f"Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nRefer to the catalog documentation and first update to any catalog that carries Cloud Pak for data v{cpdUpgradePath[cpdInstanceVersion]}:\n- https://ibm-mas.github.io/cli/catalogs"
+                        )
 
                     currentCpdVersionMajorMinor = f"{cpdInstanceVersion.split('.')[0]}.{cpdInstanceVersion.split('.')[1]}"
                     targetCpdVersionMajorMinor = f"{cpdTargetVersion.split('.')[0]}.{cpdTargetVersion.split('.')[1]}"
@@ -504,7 +527,7 @@ class UpdateApp(BaseApp):
                             ])
 
                         # Lookup the storage classes already used by CP4D
-                        # Note: this should be done by the Ansible role, but isn't
+                        # TODO: this should be done by the Ansible role, but isn't
                         if "storageClass" in cpds[0]["spec"]:
                             cpdFileStorage = cpds[0]["spec"]["storageClass"]
                         elif "fileStorageClass" in cpds[0]["spec"]:
