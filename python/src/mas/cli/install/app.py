@@ -519,7 +519,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Unless you see an error during the ocp-verify stage indicating that the secret can not be determined you do not need to set this and can leave the response empty"
             ])
             self.promptForString("Cluster ingress certificate secret name", "ocp_ingress_tls_secret_name", default="")
-
+            self.printH1("Override Cluster Issuer")
+            self.printDescription([
+                "The cluster issuer is defined by the DNS Provider. This option is to override the configuration of the DNS provider if you're using a custom cluster issuer",
+                "If you're not using a custom cluster issuer, you can leave the response empty."
+            ])
+            self.promptForString("Cluster Issuer Name", "mas_cluster_issuer", default="")
             self.printH1("Configure Domain & Certificate Management")
             configureDomainAndCertMgmt = self.yesOrNo('Configure domain & certificate management')
             if configureDomainAndCertMgmt:
@@ -546,7 +551,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     elif dnsProvider == 4:
                         # Use MAS default self-signed cluster issuer with a custom domain
                         self.setParam("dns_provider", "")
-                        self.setParam("mas_cluster_issuer", "")
 
                     if dnsProvider in [1, 2]:
                         self.printDescription([
@@ -559,7 +563,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     # Use MAS default self-signed cluster issuer with the default domain
                     self.setParam("dns_provider", "")
                     self.setParam("mas_domain", "")
-                    self.setParam("mas_cluster_issuer", "")
                 self.manualCerts = self.yesOrNo("Configure manual certificates")
                 self.setParam("mas_manual_cert_mgmt", self.manualCerts)
                 if self.getParam("mas_manual_cert_mgmt"):
@@ -576,19 +579,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("Cloudflare zone", "cloudflare_zone")
         self.promptForString("Cloudflare subdomain", "cloudflare_subdomain")
 
-        self.printDescription([
-            "Certificate Issuer:",
-            "  1. LetsEncrypt (Production)",
-            "  2. LetsEncrypt (Staging)",
-            "  3. Self-Signed"
-        ])
-        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
-        certIssuerOptions = [
-            f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
-            f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
-            ""
-        ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
+        if not self.getParam("mas_cluster_issuer"):
+            self.printDescription([
+                "Certificate Issuer:",
+                "  1. LetsEncrypt (Production)",
+                "  2. LetsEncrypt (Staging)",
+                "  3. Self-Signed"
+            ])
+            certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
+            certIssuerOptions = [
+                f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
+                f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
+                ""
+            ]
+            self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
 
     @logMethodCall
     def configDNSAndCertsCIS(self):
@@ -598,19 +602,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("CIS CRN", "cis_crn")
         self.promptForString("CIS subdomain", "cis_subdomain")
 
-        self.printDescription([
-            "Certificate Issuer:",
-            "  1. LetsEncrypt (Production)",
-            "  2. LetsEncrypt (Staging)",
-            "  3. Self-Signed"
-        ])
-        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
-        certIssuerOptions = [
-            f"{self.getParam('mas_instance_id')}-cis-le-prod",
-            f"{self.getParam('mas_instance_id')}-cis-le-stg",
-            ""
-        ]
-        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
+        if not self.getParam("mas_cluster_issuer"):
+            self.printDescription([
+                "Certificate Issuer:",
+                "  1. LetsEncrypt (Production)",
+                "  2. LetsEncrypt (Staging)",
+                "  3. Self-Signed"
+            ])
+            certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
+            certIssuerOptions = [
+                f"{self.getParam('mas_instance_id')}-cis-le-prod",
+                f"{self.getParam('mas_instance_id')}-cis-le-stg",
+                ""
+            ]
+            self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
 
     @logMethodCall
     def configDNSAndCertsRoute53(self):
@@ -635,7 +640,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("AWS Route 53 subdomain", "route53_subdomain")
         self.promptForString("AWS Route 53 e-mail", "route53_email")
 
-        self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
+        if not self.getParam("mas_cluster_issuer"):
+            self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
 
     @logMethodCall
     def configApps(self):
