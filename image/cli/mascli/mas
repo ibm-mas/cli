@@ -42,7 +42,9 @@ mkdir -p $CONFIG_DIR
 # Airgap support
 . $CLI_DIR/functions/setup_registry
 . $CLI_DIR/functions/teardown_registry
+. $CLI_DIR/functions/mirror_images_common
 . $CLI_DIR/functions/mirror_images
+. $CLI_DIR/functions/mirror_aiservice_images
 . $CLI_DIR/functions/mirror_redhat
 . $CLI_DIR/functions/configure_airgap
 # Manage OIDC for configtool
@@ -190,6 +192,18 @@ case $1 in
     mirror_to_registry "$@"
     ;;
 
+  aiservice-mirror|aiservice-mirror-images)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! mirror-aiservice-images                                                   !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
+    echo
+    reset_colors
+    mirror_aiservice_to_registry "$@"
+    ;;
+
   mirror-redhat|mirror-redhat-images)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! mirror-redhat-images                                                      !!" >> $LOGFILE
@@ -210,6 +224,20 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
+    export PRODUCT_FAMILY="mas"
+    configure_ocp_for_mirror "$@"
+    ;;
+
+  aiservice-configure-airgap)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! configure-aiservice-airgap                                                !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
+    echo "${TEXT_UNDERLINE}IBM Maximo AI Service Air Gap OCP Setup (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
+    echo
+    reset_colors
+    export PRODUCT_FAMILY="aiservice"
     configure_ocp_for_mirror "$@"
     ;;
 
@@ -740,7 +768,7 @@ case $1 in
     ;;
 
   *)
-    echo "unknown parameter"
+    echo "unknown parameter $1"
     exit 1
     ;;
 esac
