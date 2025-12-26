@@ -151,6 +151,7 @@ class BaseApp(PrintMixin, PromptMixin):
                 "aibroker": ["9.2.x-feature", "9.1.x"],
                 "manage": ["9.2.x-feature", "9.1.x"],
                 "optimizer": ["9.2.x-feature", "9.1.x"],
+                "visualinspection": ["9.2.x-feature", "9.1.x"],
             },
             "9.1.x": {
                 "facilities": ["9.1.x"],

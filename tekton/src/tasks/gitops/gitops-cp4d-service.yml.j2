@@ -54,6 +54,9 @@ spec:
     - name: elasticsearch_install_plan
       type: string
       default: "Automatic"
+    - name: opensearch_install_plan
+      type: string
+      default: "Automatic"
     - name: canvasbase_install_plan
       type: string
       default: "Automatic"
@@ -106,6 +109,8 @@ spec:
         value: $(params.rabbitmq_install_plan)
       - name: ELASTICSEARCH_INSTALL_PLAN
         value: $(params.elasticsearch_install_plan)
+      - name: OPENSEARCH_INSTALL_PLAN
+        value: $(params.opensearch_install_plan)
       - name: CANVASBASE_INSTALL_PLAN
         value: $(params.canvasbase_install_plan)
     envFrom:

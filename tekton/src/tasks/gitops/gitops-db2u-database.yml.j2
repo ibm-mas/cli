@@ -111,6 +111,9 @@ spec:
     - name: jdbc_route
       type: string
       default: ""
+    - name: jdbc_connection_url_additional_params
+      type: string
+      default: ""
     - name: db2_backup_notify_slack_url
       type: string
       default: ""
@@ -239,6 +242,8 @@ spec:
         value: $(params.mas_app_id)
       - name: JDBC_ROUTE
         value: $(params.jdbc_route)
+      - name: JDBC_CONNECTION_URL_ADDITIONAL_PARAMS
+        value: $(params.jdbc_connection_url_additional_params)
       - name: DB2_BACKUP_NOTIFY_SLACK_URL
         value: $(params.db2_backup_notify_slack_url)
       - name: AUTO_BACKUP
