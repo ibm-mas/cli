@@ -440,6 +440,11 @@ function provision_fyre() {
     export OCP_CONSOLE_URL="https://$OCP_CONSOLE_ROUTE"
     rm /tmp/fyre-$CLUSTER_NAME.json
   fi
-  mas-devops-notify-slack --action ocp-provision-fyre --rc $result
+  if [[ -n "$NOTIFY_SLACK_MSG" ]]; then
+    mas-devops-notify-slack --action ocp-provision-fyre --rc $result --msg "$NOTIFY_SLACK_MSG"
+  else
+    mas-devops-notify-slack --action ocp-provision-fyre --rc $result
+  fi
+
   exit $result
 }

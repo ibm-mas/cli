@@ -52,7 +52,6 @@
         - minio
         - aiservice
         - odh
-        - aiservice-tenant
         - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
@@ -169,6 +168,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - update-configmap
+        - update-pipeline-status
         - wait-for-configmap
         - wait-for-configmap-v2
         - wait-for-tekton
@@ -255,3 +255,9 @@
         - gitops-deprovision-aiservice
         - gitops-app-config
         - gitops-delete-app-config
+        - gitops-iac-create-branch
+        - gitops-iac-generate-common-files
+        - gitops-iac-manage-pr
+        - gitops-iac-provision-efs
+        - gitops-iac-provision-s3
+

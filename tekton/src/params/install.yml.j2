@@ -209,6 +209,10 @@
   type: string
   description: Set to 'install' to set up a Db2 instance for Real Estate and Facilities
   default: "none"
+- name: db2_action_aiservice
+  type: string
+  description: Set to 'install' to set up a Db2 instance for AI Service
+  default: "none"
 
 # Dependencies - CP4D
 # -----------------------------------------------------------------------------
@@ -615,25 +619,25 @@
   type: string
   description: Password to authenticate into Manage custom archive url (if required)
   default: ""
-- name: mas_app_settings_crypto_key
+- name: mas_manage_encryptionsecret_crypto_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_CRYPTO_KEY
   default: ""
-- name: mas_app_settings_cryptox_key
+- name: mas_manage_encryptionsecret_cryptox_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_CRYPTOX_KEY
   default: ""
-- name: mas_app_settings_old_crypto_key
+- name: mas_manage_encryptionsecret_old_crypto_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTO_KEY
   default: ""
-- name: mas_app_settings_old_cryptox_key
+- name: mas_manage_encryptionsecret_old_cryptox_key
   type: string
   description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTOX_KEY
   default: ""
-- name: mas_app_settings_override_encryption_secrets_flag
+- name: mas_manage_ws_db_encryptionsecret
   type: string
-  description: Defines if Manage database encryption secret should be overriden with new values provided
+  description: Name of the Manage database encryption secret
   default: ""
 - name: mas_app_settings_default_jms
   type: string
@@ -731,3 +735,7 @@
   description: ConfigMap with configurations not supported by Tekton
   type: string
   default: ""
+
+#  AI Service Configuration
+# -----------------------------------------------------------------------------
+{{ lookup('template', params_src_dir ~ '/install-aiservice.yml.j2') }}

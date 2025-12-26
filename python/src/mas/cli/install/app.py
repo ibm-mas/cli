@@ -13,6 +13,8 @@ import logging
 import logging.handlers
 from sys import exit
 from os import path, getenv
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import re
 import calendar
 
@@ -41,7 +43,8 @@ from mas.cli.validators import (
     TimeoutFormatValidator,
     StorageClassValidator,
     JsonValidator,
-    OptimizerInstallPlanValidator
+    OptimizerInstallPlanValidator,
+    BucketPrefixValidator
 )
 
 from mas.devops.ocp import (
@@ -193,6 +196,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Predict": "mas_predict_version",
                 "Inspection": "mas_visualinspection_version",
                 "Facilities": "mas_facilities_version",
+                "AI Service": "aiservice_version",
             }
         else:
             applications = {
@@ -214,7 +218,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             if key in self.chosenCatalog:
                 tempChosenCatalog = self.chosenCatalog[key].copy()
-                if '9.1.x-feature' not in tempChosenCatalog:
+                if '9.1.x-feature' not in tempChosenCatalog and '9.0.x' in tempChosenCatalog:
                     tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
 
                 self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
@@ -246,7 +250,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("IBM Maximo Operator Catalog Selection")
         if self.devMode:
             self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
-            self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
+            self.promptForString("Select channel", "mas_channel", default="9.2.x-dev")
         else:
             catalogInfo = getCurrentCatalog(self.dynamicClient)
 
@@ -326,6 +330,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     return
 
         self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
+
+        if self.devMode:
+            default_sls_channel = "3.x-dev"
+            # Check if it was provided via args already
+            if self.args.sls_channel and self.args.sls_channel != "":
+                default_sls_channel = self.args.sls_channel
+            self.promptForString("SLS channel", "sls_channel", default_sls_channel)
+
         self.setParam("sls_action", "install")
 
     @logMethodCall
@@ -382,7 +394,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printDescription([
                 f"Unknown catalog {self.getParam('mas_catalog_version')}, please manually select the version of Cloud Pak for Data to use"
             ])
-            self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="5.1.3")
+            self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="5.2.0")
             logger.debug(f"Using user-provided (prompt) CP4D product version: {self.getParam('cpd_product_version')}")
         else:
             logger.debug(f"Using user-provided (flags) CP4D product version: {self.getParam('cpd_product_version')}")
@@ -483,6 +495,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  2. Non-Production"
         ])
         self.operationalMode = self.promptForInt("Operational Mode", default=1, min=1, max=2)
+        if self.operationalMode == 1:
+            self.setParam("environment_type", "production")
+            self.setParam("aiservice_odh_model_deployment_type", "raw")
+        else:
+            self.setParam("environment_type", "non-production")
+            self.setParam("aiservice_odh_model_deployment_type", "serverless")
 
     @logMethodCall
     def configRoutingMode(self):
@@ -698,6 +716,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.configAppChannel("facilities")
         else:
             self.installFacilities = False
+        # TODO: May be have to change this condition if Manage 9.0 is not supporting AI Cofig Application
+        # AI Service is only installable on Manage 9.x as AI Config Application is not supported on Manage 8.x
+        if not self.getParam("mas_app_channel_manage").startswith("8."):
+            self.installAIService = self.yesOrNo("Install AI Service")
+            if self.installAIService:
+                self.configAIService()
 
     @logMethodCall
     def configAppChannel(self, appId):
@@ -868,6 +892,148 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("mas_ws_facilities_config_file", "/workspace/configs/facilities-configs.yaml")
 
     @logMethodCall
+    def configAIService(self):
+        self.printH1("Configure AI Service Instance")
+        self.printDescription([
+            "Instance ID restrictions:",
+            " - Must be 3-12 characters long",
+            " - Must only use lowercase letters, numbers, and hypen (-) symbol",
+            " - Must start with a lowercase letter",
+            " - Must end with a lowercase letter or a number"
+        ])
+
+        # Install Db2 for AI Service
+        self.setParam("db2_action_aiservice", "install")
+
+        self.promptForString("Instance ID", "aiservice_instance_id", validator=InstanceIDFormatValidator())
+        self.params["aiservice_channel"] = prompt(HTML('<Yellow>Custom channel for AI Service</Yellow> '))
+
+    @logMethodCall
+    def aiServiceSettings(self) -> None:
+        if self.installAIService:
+            self.printH1("AI Service Settings")
+
+            # Ask about MinIO installation FIRST (moved from aiServiceDependencies)
+            self.printH2("Storage Configuration")
+            self.printDescription(["AI Service requires object storage for pipelines, tenants, and templates. You can either install MinIO in-cluster or connect to external storage."])
+
+            if self.yesOrNo("Install Minio"):
+                # Only ask for MinIO credentials
+                self.promptForString("minio root username", "minio_root_user")
+                self.promptForString("minio root password", "minio_root_password", isPassword=True)
+
+                # Auto-set MinIO storage defaults (same as non-interactive mode)
+                self._setMinioStorageDefaults()
+            else:
+                # Ask for external storage configuration
+                self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
+                self.promptForString("Storage access key", "aiservice_s3_accesskey")
+                self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
+                self.promptForString("Storage host", "aiservice_s3_host")
+                self.promptForString("Storage port", "aiservice_s3_port")
+                self.promptForString("Storage ssl", "aiservice_s3_ssl")
+                self.promptForString("Storage region", "aiservice_s3_region")
+                self.printDescription([
+                    "",
+                    "Storage bucket prefix restrictions:",
+                    " - Must be 1-4 characters long"
+                ])
+                self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
+                self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
+                self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
+
+    @logMethodCall
+    def aiServiceTenantSettings(self) -> None:
+        if self.installAIService:
+            self.printH1("AI Service Tenant Settings")
+            self.printDescription([
+                "AI Service will reserve AppPoints for a fixed period of time based on the values you enter:"
+            ])
+
+            today = datetime.today()
+            oneyear = datetime.today() + relativedelta(years=1)
+            self.setParam("tenant_entitlement_type", "standard")
+            self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
+            self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
+
+    @logMethodCall
+    def _setMinioStorageDefaults(self) -> None:
+        """
+        Set MinIO storage defaults when MinIO is being installed in-cluster.
+        This mirrors the logic from non-interactive mode.
+        """
+        # self.setParam("aiservice_s3_provider", "minio")
+        self.setParam("aiservice_s3_accesskey", self.getParam("minio_root_user"))
+        self.setParam("aiservice_s3_secretkey", self.getParam("minio_root_password"))
+        self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
+        self.setParam("aiservice_s3_port", "9000")
+        self.setParam("aiservice_s3_ssl", "false")
+        self.setParam("aiservice_s3_region", "none")
+        self.setParam("aiservice_s3_bucket_prefix", "s3-")
+
+        # Set default bucket names
+        self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
+        self.setParam("aiservice_s3_templates_bucket", "km-templates")
+
+    @logMethodCall
+    def aiServiceIntegrations(self) -> None:
+        if self.installAIService:
+            self.printH1("WatsonX Integration")
+            self.printDescription([
+                "This CLI section configures the integration between the AI Service and IBM watsonx.ai. AI Service",
+                "uses watsonx for model deployment and inferencing.",
+                "",
+                "The WatsonX API key must be a **platform API key** associated with a user that has at least:",
+                "- **Editor permission** for the project",
+                "- **Viewer permission** for the space",
+                "You can generate this key by following IBM's documentation: https://www.ibm.com/docs/en/watsonx/w-and-w/2.2.0?topic=tutorials-generating-api-keys#api-keys__platform__title__1",
+                "",
+                "The endpoint URL is your WatsonX Machine Learning service URL. It can be found in the watsonx.ai",
+                "documentation: https://cloud.ibm.com/apidocs/watsonx-ai-cp/watsonx-ai-cp-2.2.0#endpoint-url",
+                "",
+                "The project ID refers to your specific watsonx.ai project where your ML models and assets are stored.",
+                "",
+                "Optional identifiers:",
+                " - DeploymentId: ID of the model deployment in a **dedicated watsonx runtime**",
+                "   (e.g., granite-3-2-8b-instruct deployed in your dedicated runtime).",
+                " - SpaceId: ID of the **watsonx deployment space** where deployments are managed.",
+                "Provide these only if you already have them; otherwise AI Service can proceed with defaults/workflows",
+                "that do not require pre-existing deployment/space identifiers.",
+                "",
+            ])
+            self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
+            watsonxUrl = self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
+            self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
+            if self.yesOrNo("Does the Watsonxai AI use a self-signed certificate"):
+                self.promptForString("Watsonxai CA certificate (PEM format)", "aiservice_watsonxai_ca_crt")
+            self.promptForString("Watsonxai Deployment ID (optional)", "aiservice_watsonxai_deployment_id")
+            self.promptForString("Watsonxai Space ID (optional)", "aiservice_watsonxai_space_id")
+            if ".ibm.com" not in watsonxUrl:
+                self.promptForString("Watsonxai Instance ID (optional)", "aiservice_watsonxai_instance_id")
+                self.promptForString("Watsonxai Username (optional)", "aiservice_watsonxai_username")
+                self.promptForString("Watsonxai Version (optional)", "aiservice_watsonxai_version")
+
+            self.printH1("RSL Integration")
+            self.printDescription([
+                "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
+                "",
+                "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
+                "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
+                "Token: Use your IBM entitlement key (same as MAS installation)",
+                "",
+                "Note: Future versions will auto-configure these from MAS Manage.",
+                ""
+            ])
+            self.promptForString("RSL url", "rsl_url")
+            self.promptForString("ORG Id of RSL", "rsl_org_id")
+            rslToken = self.promptForString("Token for RSL", isPassword=True)
+            if not rslToken.startswith("Bearer "):
+                rslToken = "Bearer " + rslToken
+            self.setParam("rsl_token", rslToken)
+            if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
+                self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
+
+    @logMethodCall
     def chooseInstallFlavour(self) -> None:
         self.printH1("Choose Install Mode")
         self.printDescription([
@@ -930,6 +1096,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.assistSettings()
         self.facilitiesSettings()
 
+        self.aiServiceSettings()
+        self.aiServiceTenantSettings()
+        self.aiServiceIntegrations()
+
         # Dependencies
         self.configMongoDb()
         self.configDb2()
@@ -961,6 +1131,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
+        self.installAIService = False
         self.slsLicenseFileLocal = None
 
         self.approvals = {
@@ -972,7 +1143,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "approval_optimizer": {"id": "app-cfg-optimizer"},  # After Optimizer workspace has been configured
             "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
             "approval_visualinspection": {"id": "app-cfg-visualinspection"},  # After Visual Inspection workspace has been configured
-            "approval_facilities": {"id": "app-cfg-facilities"},  # After Facilities workspace has been configured 
+            "approval_facilities": {"id": "app-cfg-facilities"},  # After Facilities workspace has been configured
+            "approval_aiservice": {"id": "aiservice"}  # After AI Service Tenant has been configured 
         }
 
         self.configGrafana()
@@ -1009,9 +1181,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "non_prod":
                 if not value:
                     self.operationalMode = 1
+                    self.setParam("environment_type", "production")
+                    self.setParam("aiservice_odh_model_deployment_type", "raw")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
+                    self.setParam("environment_type", "non-production")
+                    self.setParam("aiservice_odh_model_deployment_type", "serverless")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -1066,6 +1242,23 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_facilities", value)
                     self.installFacilities = True
+            elif key == "aiservice_channel":
+                if value is not None and value != "":
+                    self.setParam("aiservice_channel", value)
+                    # Install Db2 for AI Service
+                    self.setParam("db2_action_aiservice", "install")
+                    self.installAIService = True
+                    # Set manage - bind - AI Service params same as provided AI Service's params
+                    self.setParam("manage_bind_aiservice_instance_id", vars(self.args).get("aiservice_instance_id"))
+                    self.setParam("manage_bind_aiservice_tenant_id", "user")
+            elif key == "manage_bind_aiservice_instance_id":
+                # only set if AI Service not being installed
+                if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
+                    self.setParam("manage_bind_aiservice_instance_id", value)
+            elif key == "manage_bind_aiservice_tenant_id":
+                # only set if AI Service not being installed
+                if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
+                    self.setParam("manage_bind_aiservice_tenant_id", value)
 
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":
@@ -1094,6 +1287,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "dedicated_sls":
                 if value:
                     self.setParam("sls_namespace", f"mas-{self.args.mas_instance_id}-sls")
+            elif key == "sls_channel":
+                if self.devMode:
+                    if value is not None and value != "":
+                        self.setParam("sls_channel", value)
 
             # These settings are used by the CLI rather than passed to the PipelineRun
             elif key == "storage_accessmode":
@@ -1135,6 +1332,54 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             elif key == "enable_ipv6":
                 self.setParam("enable_ipv6", True)
+
+            elif key == "install_minio_aiservice":
+                if vars(self.args).get("aiservice_instance_id"):
+                    incompatibleWithMinioInstall = [
+                        "aiservice_s3_accesskey",
+                        "aiservice_s3_secretkey",
+                        "aiservice_s3_host",
+                        "aiservice_s3_port",
+                        "aiservice_s3_ssl",
+                        "aiservice_s3_bucket_prefix",
+                        "aiservice_s3_region"
+                    ]
+                    if value is None:
+                        for uKey in incompatibleWithMinioInstall:
+                            if vars(self.args)[uKey] is None:
+                                self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
+                    elif value is not None and value == "true":
+                        # If user is installing Minio in-cluster then we know how to connect to it already
+                        for uKey in incompatibleWithMinioInstall:
+                            if vars(self.args)[uKey] is not None:
+                                self.fatalError(f"Unsupported parameter for --install-minio: {uKey}")
+                        for rKey in ["minio_root_user", "minio_root_password"]:
+                            if vars(self.args)[rKey] is None:
+                                self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
+
+                        # Extra validation: minio_root_password must be at least 8 characters
+                        minio_pass = vars(self.args)["minio_root_password"]
+                        if len(minio_pass) < 8:
+                            self.fatalError("minio_root_password must be at least 8 characters long")
+
+                        # self.setParam("aiservice_s3_provider", "minio")
+
+                        self.setParam("aiservice_s3_accesskey", self.args.minio_root_user)
+                        self.setParam("aiservice_s3_secretkey", self.args.minio_root_password)
+
+                        # TODO: Duplication -- we already have the URL, why do we need all the individual parts,
+                        # especially when we don't need them for the tenant?
+                        self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
+                        self.setParam("aiservice_s3_port", "9000")
+                        self.setParam("aiservice_s3_ssl", "false")
+                        self.setParam("aiservice_s3_region", "none")
+                        self.setParam("aiservice_s3_bucket_prefix", "s3-")
+                    else:
+                        self.fatalError(f"Unsupported value for --install-minio: {value}")
+
+            elif key == "aiservice_s3_bucket_prefix":
+                if len(value) == 0 or len(value) > 4:
+                    self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
 
             # Fail if there's any arguments we don't know how to handle
             else:
@@ -1286,7 +1531,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
-                if installOpenShiftPipelines(self.dynamicClient):
+                if installOpenShiftPipelines(self.dynamicClient, self.getParam("storage_class_rwx")):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")

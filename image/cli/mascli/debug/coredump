@@ -123,6 +123,8 @@ NODE_NAMES=""
 if [ "$GENERATE" = "true" ]; then
   for SERVER_POD in ${SERVER_POD_NAMES}
   do
+    POD_OUTPUT_DIR=$OUTPUT_DIR/$SERVER_POD
+    mkdir -p $POD_OUTPUT_DIR
     JAVACORE_FILE=""
 
     ## get the name of the node where the coredump will be generated
@@ -143,8 +145,10 @@ if [ "$GENERATE" = "true" ]; then
     ## create a debug pod
     oc debug node/$NODE_NAME --to-namespace="$DEBUG_NAMESPACE" -- sleep 3600 &
 
-    ## wait for the pod to be ready
     OLD_NUM_POD=0
+    NEW_NUM_POD=0
+    ITERATION=0
+        
     while [[ $OLD_NUM_POD -eq $NEW_NUM_POD ]] && [[ $ITERATION -lt 20 ]]
     do
       sleep 2
@@ -167,11 +171,11 @@ if [ "$GENERATE" = "true" ]; then
       if [ "$CONTAINER" != "monitoragent" ] && [ "$CONTAINER" != "coreidp-init" ]
       then
         echo "generate the core dump for container $CONTAINER in pod $SERVER_POD "
-        echo "oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- $COMMAND" > $OUTPUT_DIR/cmd.txt
-        oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- $COMMAND >> $OUTPUT_DIR/cmd.txt
-        cat $OUTPUT_DIR/cmd.txt
-        JAVACORE_FILE=$(cat $OUTPUT_DIR/cmd.txt | grep -o "/.*.txt")
-        oc rsync $SERVER_POD:$JAVACORE_FILE $OUTPUT_DIR/. -n $NAMESPACE -c $CONTAINER
+        echo "oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- $COMMAND" > $POD_OUTPUT_DIR/cmd.txt
+        oc exec $SERVER_POD -n $NAMESPACE -c $CONTAINER -- $COMMAND >> $POD_OUTPUT_DIR/cmd.txt
+        cat $POD_OUTPUT_DIR/cmd.txt
+        JAVACORE_FILE=$(cat $POD_OUTPUT_DIR/cmd.txt | grep -o "/.*.txt")
+        oc rsync $SERVER_POD:$JAVACORE_FILE $POD_OUTPUT_DIR/. -n $NAMESPACE -c $CONTAINER
 
       fi
     done
@@ -186,13 +190,14 @@ if [ "$GENERATE" = "true" ]; then
     ## collect the coredump file
     echo "collecting coredump file $COREDUMP_FILE from pod $DEBUG_POD"
     oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- ls /host/var/lib/systemd/coredump/
-    oc rsync -n $DEBUG_NAMESPACE $DEBUG_POD:/host/var/lib/systemd/coredump/${COREDUMP_FILE} $OUTPUT_DIR/.
+    oc rsync -n $DEBUG_NAMESPACE $DEBUG_POD:/host/var/lib/systemd/coredump/${COREDUMP_FILE} $POD_OUTPUT_DIR/.
 
     ## remove the coredump file
     echo "removing coredump $COREDUMP_FILE using pod $DEBUG_POD"
     oc exec $DEBUG_POD -n $DEBUG_NAMESPACE -- rm /host/var/lib/systemd/coredump/${COREDUMP_FILE}
 
     oc delete project $DEBUG_NAMESPACE
+
   done
 
 elif [ "$COLLECT" = "true" ] || [ "$REMOVE" = "true" ]; then
