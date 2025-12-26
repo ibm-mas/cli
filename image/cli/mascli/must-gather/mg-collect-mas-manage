@@ -5,36 +5,39 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 NAMESPACE=$1
 OUTPUT_DIR=$2
+PODS_ONLY=$3
 
-# Collect build Resources
-# -----------------------------------------------------------------------------
-echo_h4 "Collect Build Resources"
-for RESOURCE in build buildconfig imagestream imagestreamtag
-do
-  $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
-done
+if [[ "$PODS_ONLY" == "false" ]]; then
+  # Collect build Resources
+  # -----------------------------------------------------------------------------
+  echo_h4 "Collect Build Resources"
+  for RESOURCE in build buildconfig imagestream imagestreamtag
+  do
+    $DIR/mg-collect-resources -n $NAMESPACE -r $RESOURCE -d $OUTPUT_DIR/resources
+  done
+
+  # Collect Reconcile Logs
+  # -----------------------------------------------------------------------------
+  echo_h4 "Collect Reconcile Logs"
+  # Operators
+  $DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-manage $OUTPUT_DIR
+  $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType imagestitching-entitymgr-operator $OUTPUT_DIR
+
+  #WS
+  $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr-ws-operator $OUTPUT_DIR
+  $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType healthext-entitymgr-ws-operator $OUTPUT_DIR
+
+  #DB
+  $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType maxinstudb $OUTPUT_DIR
+
+  #Truststore
+  $DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR
+
+  #Server Bundle
+  $DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType serverBundle $OUTPUT_DIR
+fi
 
 # Collect Manage Logs
 # -----------------------------------------------------------------------------
 echo_h4 "Collect Manage Files"
 $DIR/mg-collect-manage-logs $NAMESPACE $OUTPUT_DIR
-
-# Collect Reconcile Logs
-# -----------------------------------------------------------------------------
-echo_h4 "Collect Reconcile Logs"
-# Operators
-$DIR/mg-collect-reconcile-logs $NAMESPACE control-plane ibm-mas-manage $OUTPUT_DIR
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType imagestitching-entitymgr-operator $OUTPUT_DIR
-
-#WS
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType entitymgr-ws-operator $OUTPUT_DIR
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType healthext-entitymgr-ws-operator $OUTPUT_DIR
-
-#DB
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType maxinstudb $OUTPUT_DIR
-
-#Truststore
-$DIR/mg-collect-reconcile-logs $NAMESPACE operator ibm-truststore-mgr $OUTPUT_DIR
-
-#Server Bundle
-$DIR/mg-collect-reconcile-logs $NAMESPACE mas.ibm.com/appType serverBundle $OUTPUT_DIR

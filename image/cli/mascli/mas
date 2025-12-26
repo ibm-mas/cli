@@ -42,7 +42,9 @@ mkdir -p $CONFIG_DIR
 # Airgap support
 . $CLI_DIR/functions/setup_registry
 . $CLI_DIR/functions/teardown_registry
+. $CLI_DIR/functions/mirror_images_common
 . $CLI_DIR/functions/mirror_images
+. $CLI_DIR/functions/mirror_aiservice_images
 . $CLI_DIR/functions/mirror_redhat
 . $CLI_DIR/functions/configure_airgap
 # Manage OIDC for configtool
@@ -101,6 +103,7 @@ mkdir -p $CONFIG_DIR
 . $CLI_DIR/functions/gitops_deprovision_aiservice_tenant
 . $CLI_DIR/functions/gitops_deprovision_aiservice
 . $CLI_DIR/functions/gitops_mas_provisioner
+. $CLI_DIR/functions/gitops_iac
 
 # TODO: The path from the CLI the installation of the Ansible collection should be configurable
 MAS_DEVOPS_COLLECTION_PATH=${MAS_DEVOPS_COLLECTION_PATH:-ansible-devops}
@@ -189,6 +192,18 @@ case $1 in
     mirror_to_registry "$@"
     ;;
 
+  aiservice-mirror|aiservice-mirror-images)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! mirror-aiservice-images                                                   !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Air Gap Image Mirror (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
+    echo
+    reset_colors
+    mirror_aiservice_to_registry "$@"
+    ;;
+
   mirror-redhat|mirror-redhat-images)
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! mirror-redhat-images                                                      !!" >> $LOGFILE
@@ -209,6 +224,20 @@ case $1 in
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
     echo
     reset_colors
+    export PRODUCT_FAMILY="mas"
+    configure_ocp_for_mirror "$@"
+    ;;
+
+  aiservice-configure-airgap)
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+    echo "!! configure-aiservice-airgap                                                !!" >> $LOGFILE
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
+
+    echo "${TEXT_UNDERLINE}IBM Maximo AI Service Air Gap OCP Setup (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET}"
+    echo
+    reset_colors
+    export PRODUCT_FAMILY="aiservice"
     configure_ocp_for_mirror "$@"
     ;;
 
@@ -632,6 +661,55 @@ case $1 in
     reset_colors
     gitops_aiservice_tenant "$@"
     ;;
+
+  gitops-iac)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac "$@"
+    ;;
+
+  gitops-iac-create-branch)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Create Branch (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_create_branch_cmd "$@"
+    ;;
+
+  gitops-iac-provision-efs)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Provision EFS (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_provision_efs_cmd "$@"
+    ;;
+
+  gitops-iac-provision-s3)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Provision S3 (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_provision_s3_cmd "$@"
+    ;;
+
+  gitops-iac-generate-common-files)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Generate Common Files (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_generate_common_files_cmd "$@"
+    ;;
+
+  gitops-iac-manage-pr)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Manage PR (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_manage_pr_cmd "$@"
+    ;;
+
     
   gitops-deprovision-aiservice-tenant)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite AIService Tenant deprovision Manager (v${VERSION})${TEXT_RESET}"
@@ -682,7 +760,7 @@ case $1 in
     ;;
 
   *)
-    echo "unknown parameter"
+    echo "unknown parameter $1"
     exit 1
     ;;
 esac

@@ -21,7 +21,7 @@ spec:
 
     - name: mas_instance_id
       type: string
-      
+
     - name: mas_channel
       type: string
       default: ""
@@ -94,7 +94,7 @@ spec:
     - name: launchfvt_facilities
       type: string
       default: "false"
-      description: "Set this to 'true' to enable launch of the Facilities FVT pipeline after app-cfg-facilities completes"  
+      description: "Set this to 'true' to enable launch of the Facilities FVT pipeline after app-cfg-facilities completes"
     - name: launchfvt_visualinspection
       type: string
       default: "false"
@@ -154,7 +154,26 @@ spec:
           value: $(params.image_pull_policy)
         - name: mas_channel
           value: $(params.mas_channel)
-          
+
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+      runAfter:
+        - config
+
     # 1. MAS Core FVT
     # -------------------------------------------------------------------------
     - name: waitfor-suite-verify
@@ -186,7 +205,7 @@ spec:
           operator: in
           values: ["true", "True"]
       runAfter:
-        - config
+        - pipeline-start
 
     - name: launchfvt-sls
       timeout: "0"
@@ -225,7 +244,7 @@ spec:
           values: ["false", "False"]
       runAfter:
         - waitfor-suite-verify
-        
+
     # Special case for post-9.2 installations - launchfvt-core runs after manage-setup and before launchfvt-manage
     - name: launchfvt-core-post92
       timeout: "0"
@@ -509,7 +528,7 @@ spec:
           values: ["false", "False"]
       runAfter:
         - manage-setup
-        
+
     # Special case for post-9.2 installations - launchfvt-manage runs after launchfvt-core-post92
     - name: launchfvt-manage-post92
       timeout: "0"
@@ -940,6 +959,7 @@ spec:
           values: ["true", "True"]
       runAfter:
         - approval-suite-verify
+        - waitfor-manage
 
     - name: launchfvt-facilities
       timeout: "0"
@@ -1240,6 +1260,25 @@ spec:
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
           value: "$(context.pipelineRun.name)-fvt-finally"
+
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
 
   workspaces:
     # The generated configuration files

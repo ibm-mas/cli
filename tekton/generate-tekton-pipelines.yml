@@ -99,6 +99,7 @@
         - gitops-aiservice-tenant-pipeline
         - gitops-deprovision-aiservice-pipeline
         - gitops-deprovision-aiservice-tenant-pipeline
+        - gitops-iac-pipeline
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------
