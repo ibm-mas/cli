@@ -358,7 +358,7 @@ class UpdateApp(BaseApp):
                     # the case bundles in there anymore
                     # Longer term we will centralise this information inside the mas-devops python collection,
                     # where it can be made available to both the ansible collection and this python package.
-                    defaultMongoVersion = "8.0.13"
+                    defaultMongoVersion = "8.0.17"
                     mongoVersions = {
                         "v9-240625-amd64": "6.0.12",
                         "v9-240730-amd64": "6.0.12",
@@ -379,7 +379,7 @@ class UpdateApp(BaseApp):
                         "v9-251010-amd64": "7.0.23",
                         "v9-251030-amd64": "7.0.23",
                         "v9-251127-amd64": "8.0.13",
-                        "v9-251224-amd64": "8.0.13",
+                        "v9-251224-amd64": "8.0.17",
                     }
                     catalogVersion = self.getParam('mas_catalog_version')
                     if catalogVersion in mongoVersions:
