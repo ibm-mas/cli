@@ -42,6 +42,8 @@ additional_infrastructure:
 {%- set instances_yaml = ADDITIONAL_INFRASTRUCTURE_INSTANCES | toYaml | to_nice_yaml(indent=2) %}
   instances:
 {{ instances_yaml | indent(4, first=True) }}
+{% else %}
+  instances: []
 {% endif %}
 {% endif %}
 
