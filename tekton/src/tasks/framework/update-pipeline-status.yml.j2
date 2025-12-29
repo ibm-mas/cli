@@ -1,0 +1,51 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-update-pipeline-status
+spec:
+  params:
+    - name: pipeline_status
+      type: string
+      description: "Started = started, Succeeded = all tasks succeeded. Completed = all tasks succeeded, including one or more skipped.  Any other value is treated as a failure"
+    - name: pipeline_name
+      type: string
+      description: "Provide the name of the pipeline"
+    - name: pipelinerun_name
+      type: string
+      description: "Provide the name of the pipelinerun"
+    - name: pipelinerun_namespace
+      type: string
+      description: "Provide the namespace of the pipelinerun"
+  steps:
+    - name: update-pipeline-status
+      image: quay.io/ibmmas/cli:latest
+      command:
+        - /opt/app-root/src/update-pipeline-status.py
+      env:
+        - name: DEVOPS_MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_MONGO_URI
+              optional: true
+        - name: DEVOPS_BUILD_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: DEVOPS_BUILD_NUMBER
+              optional: true
+        - name: DEVOPS_ENVIRONMENT
+          valueFrom:
+            secretKeyRef:
+              name: mas-devops
+              key: MAS_INSTANCE_ID
+              optional: true
+        - name: PIPELINE_STATUS
+          value: $(params.pipeline_status)
+        - name: PIPELINE_NAME
+          value: $(params.pipeline_name)
+        - name: PIPELINERUN_NAME
+          value: $(params.pipelinerun_name)
+        - name: PIPELINERUN_NAMESPACE
+          value: $(params.pipelinerun_namespace)
