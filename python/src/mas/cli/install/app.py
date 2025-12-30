@@ -616,20 +616,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("Cloudflare zone", "cloudflare_zone")
         self.promptForString("Cloudflare subdomain", "cloudflare_subdomain")
 
-        if not self.getParam("mas_cluster_issuer"):
-            self.printDescription([
-                "Certificate Issuer:",
-                "  1. LetsEncrypt (Production)",
-                "  2. LetsEncrypt (Staging)",
-                "  3. Self-Signed"
-            ])
-            certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
-            certIssuerOptions = [
-                f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
-                f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
-                ""
-            ]
-            self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
+        self.printDescription([
+            "Certificate Issuer:",
+            "  1. LetsEncrypt (Production)",
+            "  2. LetsEncrypt (Staging)",
+            "  3. Self-Signed"
+        ])
+        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
+        certIssuerOptions = [
+            f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
+            f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
+            ""
+        ]
+        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
 
     @logMethodCall
     def configDNSAndCertsCIS(self):
@@ -639,20 +638,19 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("CIS CRN", "cis_crn")
         self.promptForString("CIS subdomain", "cis_subdomain")
 
-        if not self.getParam("mas_cluster_issuer"):
-            self.printDescription([
-                "Certificate Issuer:",
-                "  1. LetsEncrypt (Production)",
-                "  2. LetsEncrypt (Staging)",
-                "  3. Self-Signed"
-            ])
-            certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
-            certIssuerOptions = [
-                f"{self.getParam('mas_instance_id')}-cis-le-prod",
-                f"{self.getParam('mas_instance_id')}-cis-le-stg",
-                ""
-            ]
-            self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
+        self.printDescription([
+            "Certificate Issuer:",
+            "  1. LetsEncrypt (Production)",
+            "  2. LetsEncrypt (Staging)",
+            "  3. Self-Signed"
+        ])
+        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
+        certIssuerOptions = [
+            f"{self.getParam('mas_instance_id')}-cis-le-prod",
+            f"{self.getParam('mas_instance_id')}-cis-le-stg",
+            ""
+        ]
+        self.setParam("mas_cluster_issuer", certIssuerOptions[certIssuer - 1])
 
     @logMethodCall
     def configDNSAndCertsRoute53(self):
@@ -677,8 +675,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.promptForString("AWS Route 53 subdomain", "route53_subdomain")
         self.promptForString("AWS Route 53 e-mail", "route53_email")
 
-        if not self.getParam("mas_cluster_issuer"):
-            self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
+        self.setParam("mas_cluster_issuer", f"{self.getParam('mas_instance_id')}-route53-le-prod")
 
     @logMethodCall
     def configApps(self):
