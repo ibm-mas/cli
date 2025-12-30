@@ -35,10 +35,10 @@ allow_list: {{ ALLOW_LIST }}
 additional_vpn: {{ ADDITIONAL_VPN }}
 {% endif %}
 
-{% if ADDITIONAL_INFRASTRUCTURE_INSTALL is defined and ADDITIONAL_INFRASTRUCTURE_INSTALL == 'true' %}
+{% if ADDITIONAL_INFRASTRUCTURE_INSTALL is defined %}
 additional_infrastructure:
-  install: true
-{% if ADDITIONAL_INFRASTRUCTURE_INSTANCES is defined and ADDITIONAL_INFRASTRUCTURE_INSTANCES != '' %}
+  install: {{ ADDITIONAL_INFRASTRUCTURE_INSTALL }}
+{% if ADDITIONAL_INFRASTRUCTURE_INSTALL == 'true' and ADDITIONAL_INFRASTRUCTURE_INSTANCES is defined and ADDITIONAL_INFRASTRUCTURE_INSTANCES != '' %}
 {%- set instances_yaml = ADDITIONAL_INFRASTRUCTURE_INSTANCES | toYaml | to_nice_yaml(indent=2) %}
   instances:
 {{ instances_yaml | indent(4, first=True) }}
