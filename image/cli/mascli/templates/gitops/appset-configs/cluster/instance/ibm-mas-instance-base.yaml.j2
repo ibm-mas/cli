@@ -35,6 +35,10 @@ allow_list: {{ ALLOW_LIST }}
 additional_vpn: {{ ADDITIONAL_VPN }}
 {% endif %}
 
+{% if APPLICATION_CONFIGURATION is defined and APPLICATION_CONFIGURATION != '' %}
+application_configuration: {{ APPLICATION_CONFIGURATION }}
+{% endif %}
+
 {% if EXTENSIONS is defined and EXTENSIONS != '' %}
 extensions: {{ EXTENSIONS }}
 {% endif %}
