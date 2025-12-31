@@ -299,7 +299,14 @@ spec:
         - suite-verify
 
 
-    # 7. Install & Configure IoT
+    # 7. Install & Configure Monitor
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/monitor-app.yml.j2') | indent(4) }}
+      runAfter:
+        - app-install-manage
+
+
+    # 8. Install & Configure IoT
     # -------------------------------------------------------------------------
     # Note: In the case of manage using the shared Db2 instance only start the
     # IoT install *after* any Manage database preparation has completed
@@ -307,13 +314,7 @@ spec:
       runAfter:
         - suite-db2-setup-system
         - suite-config-kafka
-
-    # 8. Install & Configure Monitor
-    # -------------------------------------------------------------------------
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/apps/monitor-app.yml.j2') | indent(4) }}
-      runAfter:
-        - app-install-manage
-        - app-install-iot
+        - app-install-monitor
 
 
     # 9. Install & Configure Predict
