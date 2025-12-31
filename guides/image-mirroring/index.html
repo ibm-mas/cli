@@ -245,6 +245,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-251231-amd64/">
+    Dec 31 2025
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-251224-amd64/">
     Dec 24 2025
   </cds-side-nav-menu-item>
@@ -259,12 +265,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-251030-amd64/">
     Oct 30 2025
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-251010-amd64/">
-    Oct 10 2025
   </cds-side-nav-menu-item>
 
     
@@ -571,7 +571,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.4.0 $REGISTRY_HOST:$RE
   -m direct -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-251224-amd64 -C 9.1.x \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
 
@@ -584,7 +584,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.4.0 $REGISTRY_HOST:$RE
   -m to-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-251224-amd64 -C 9.1.x \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 </code></pre>
 
@@ -597,7 +597,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.4.0 $REGISTRY_HOST:$RE
   -m from-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-251224-amd64 -C 9.1.x \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2
 </code></pre>
 
 
@@ -610,7 +610,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.4.0 $REGISTRY_HOST:$RE
   -m from-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-251224-amd64 -C 9.1.x \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2
 </code></pre>
 
 
@@ -755,11 +755,6 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.4.0 $REGISTRY_HOST:$RE
 <td>21G</td>
 </tr>
 <tr>
-<td>IBM AppConnect</td>
-<td><code>--mirror-appconnect</code></td>
-<td>13G</td>
-</tr>
-<tr>
 <td>IBM Db2</td>
 <td><code>--mirror-db2</code></td>
 <td>73G</td>
@@ -778,7 +773,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.4.0 $REGISTRY_HOST:$RE
       
     </div>
     <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2025-12-24 23:36:05.573280+00:00)
+      Built with mkdocs v1.6.1 (2025-12-31 09:37:33.145172+00:00)
     </div> -->
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
