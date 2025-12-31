@@ -397,6 +397,61 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
                     self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
+    @logMethodCall
+    def arcgisSettings(self) -> None:
+        """
+        Configure ArcGIS as a shared dependency for Manage and Facilities.
+        This method detects if either Manage (with Spatial) or Facilities is selected
+        and prompts for ArcGIS installation accordingly.
+        """
+        needsArcGIS = False
+        apps_requiring_arcgis = []
+        
+        # Check if Manage with Spatial component is selected
+        if self.installManage and "spatial=" in self.getParam("mas_appws_components"):
+            needsArcGIS = True
+            apps_requiring_arcgis.append("Maximo Manage (Spatial)")
+        
+        # Check if Facilities is selected (MAS 9.1+)
+        if self.installFacilities:
+            needsArcGIS = True
+            apps_requiring_arcgis.append("Maximo Real Estate and Facilities")
+        
+        # Only prompt if ArcGIS is needed and we're on MAS 9.x
+        # Check the appropriate channel based on what's being installed
+        if needsArcGIS:
+            channel = self.getParam("mas_app_channel_manage") or self.getParam("mas_app_channel_facilities")
+            if channel and channel.startswith("9."):
+                # Build description based on what's being installed
+                description = [
+                    "",
+                    "Geospatial capabilities require a map server provider",
+                    "You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now"
+                ]
+                
+                # Add specific details based on installed applications
+                if len(apps_requiring_arcgis) == 1:
+                    description.append(f"This includes ArcGIS Enterprise as part of {apps_requiring_arcgis[0]} (Additional AppPoints required).")
+                else:
+                    description.append(f"This includes ArcGIS Enterprise for {' and '.join(apps_requiring_arcgis)} (Additional AppPoints required).")
+                
+                self.printDescription(description)
+                
+                if self.yesOrNo("Include IBM Maximo Location Services for Esri"):
+                    self.setParam("install_arcgis", "true")
+                    self.setParam("mas_arcgis_channel", channel)
+                    
+                    self.printDescription([
+                        "",
+                        "IBM Maximo Location Services for Esri License Terms",
+                        "For information about your IBM Maximo Location Services for Esri License visit: ",
+                        " - <Orange><u>https://ibm.biz/MAXArcGIS90-License</u></Orange>",
+                        "To continue with the installation, you must accept these additional license terms"
+                    ])
+                    
+                    if not self.yesOrNo("Do you accept the license terms"):
+                        exit(1)
+
 
     @logMethodCall
     def configSpecialCharacters(self):
@@ -1126,6 +1181,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.aiServiceIntegrations()
 
         # Dependencies
+        self.arcgisSettings() # Will only prompt if Manage (with Spatial) or Facilities is selected
         self.configMongoDb()
         self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
@@ -1284,6 +1340,14 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 # only set if AI Service not being installed
                 if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
                     self.setParam("manage_bind_aiservice_tenant_id", value)
+
+            # ArcGIS settings
+            elif key == "install_arcgis":
+                if value is not None and value != "":
+                    self.setParam("install_arcgis", value)
+            elif key == "mas_arcgis_channel":
+                if value is not None and value != "":
+                    self.setParam("mas_arcgis_channel", value)
 
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":
