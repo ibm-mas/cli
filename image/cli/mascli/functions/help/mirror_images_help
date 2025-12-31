@@ -66,8 +66,6 @@ Content Selection (Other Dependencies):
       --mirror-sls                                Mirror images for IBM Suite License Service
       --mirror-tsm                                Mirror images for IBM Truststore Manager
       --mirror-mongo                              Mirror images for MongoDb Community Edition
-      --mirror-mongo-v5                           Mirror images for MongoDb Community Edition version 5
-      --mirror-mongo-v6                           Mirror images for MongoDb Community Edition version 6
       --mirror-mongo-v7                           Mirror images for MongoDb Community Edition version 7
       --mirror-db2                                Mirror images for IBM Db2
       --mirror-odf                                Mirror images for ODF

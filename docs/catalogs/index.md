@@ -184,6 +184,17 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
       </thead>
       <tbody>
         <tr>
+          <td>v9-251231</td>
+          <td><a href="v9-251231-amd64/">amd64</a></td>
+          <td><a href="v9-251231-s390x/">s390x</a></td>
+          <td><a href="v9-251231-ppc64le/">ppc64le</a></td>
+          <td>4.16 - 4.19</td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
+          <td>OCP 4.19 EOS N/A</td>
+        </tr>
+        <tr>
           <td>v9-251224</td>
           <td><a href="v9-251224-amd64/">amd64</a></td>
           <td><a href="v9-251224-s390x/">s390x</a></td>
