@@ -1156,7 +1156,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.aiServiceIntegrations()
 
         # Dependencies
-        self.arcgisSettings() # Will only prompt if Manage (with Spatial) or Facilities is selected
+        self.arcgisSettings()  # Will only prompt if Manage (with Spatial) or Facilities is selected
         self.configMongoDb()
         self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
