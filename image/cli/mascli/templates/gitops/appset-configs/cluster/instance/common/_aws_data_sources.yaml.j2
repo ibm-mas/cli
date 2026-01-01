@@ -1,0 +1,23 @@
+{%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') -%}
+data "aws_subnets" "external_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+  filter {
+    name   = "cidr-block"
+    values = {{ CLUSTER_CIDR_WORKLOAD_EXTERNAL }}
+  }
+}
+
+data "aws_subnets" "internal_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+  filter {
+    name   = "cidr-block"
+    values = {{ CLUSTER_CIDR_WORKLOAD_INTERNAL }}
+  }
+}
+{%- endif %}

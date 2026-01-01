@@ -1,0 +1,5 @@
+{%- if (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true') %}
+#----S3/MSK related params starts----
+name_prefix             = "{{ NAME_PREFIX_VALUE }}"
+#----S3/MSK related params ends----
+{%- endif %}

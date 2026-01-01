@@ -1,0 +1,11 @@
+  {%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') %}
+    #----EFS/MSK related params starts----
+    "external_subnet_ids" : data.aws_subnets.external_subnets.ids
+    "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
+    #----EFS/MSK related params ends----
+  {%- endif %}
+  {%- if IS_MSK | lower == 'true' %}
+    #----MSK related params starts----
+    "security_groups" : ["{{ SECURITY_GROUPS_VALUE }}"]
+    #----MSK related params ends----
+  {%- endif %}

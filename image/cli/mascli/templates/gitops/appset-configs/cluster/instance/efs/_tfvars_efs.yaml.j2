@@ -1,0 +1,6 @@
+{%- if IS_EFS | lower == 'true' %}
+
+#----EFS related params starts----
+vpc_name             = "{{ VPC_NAME_VALUE }}"
+#----EFS related params ends----
+{%- endif %}

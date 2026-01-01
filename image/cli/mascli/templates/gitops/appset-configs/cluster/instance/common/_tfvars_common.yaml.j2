@@ -1,0 +1,7 @@
+{%- if (IS_EFS | lower == 'true') or (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true') %}
+#----Common params starts----
+cluster_name         = "{{ CLUSTER_ID}}"
+instance_name        = "{{ MAS_INSTANCE_ID }}"
+vpc_id               = "{{ VPC_ID_VALUE}}"
+#----Common params ends----
+{%- endif %}

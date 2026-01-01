@@ -1165,7 +1165,8 @@ function gitops_iac_manage_pr() {
       echo "PR approved ${APPROVED_PR}"
       if [[ "$APPROVED_PR" == "true" ]]; then
         sleep 60
-        ATLANTIS_APPLY_COMMENT=$(comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis apply")
+#        ATLANTIS_APPLY_COMMENT=$(comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis apply")
+        ATLANTIS_APPLY_COMMENT='false' # Added for testing
         if [[ "$ATLANTIS_APPLY_COMMENT" == "true" ]]; then
           
           PR_APPLY_COMMENT=$(read_and_validate_pr_comments "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "apply")

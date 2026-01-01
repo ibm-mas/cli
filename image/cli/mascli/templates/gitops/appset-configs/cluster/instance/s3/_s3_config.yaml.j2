@@ -1,0 +1,65 @@
+{%- if IS_S3 | lower == 'true' %}
+{%- if S3_MANAGE | lower == 'true'  %}
+  #----Manage related params for S3 starts----
+  iam_user_arns_manage = {
+    custfiles = "${var.iam_user_arn_prefix_manage}-custfiles-${var.access_level_rw}"
+    doclinks  = "${var.iam_user_arn_prefix_manage}-doclinks-${var.access_level_rw}"
+    logs_rw   = "${var.iam_user_arn_prefix_manage}-log-${var.access_level_rw}"
+    logs_ro   = "${var.iam_user_arn_prefix_manage}-log-${var.access_level_ro}"
+  }
+
+  s3_iam_users_list_manage = {
+    doclinks = {
+      bucket_name   = "${var.s3bucket_name_prefix_manage}-doclinks"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-doclinks-${var.access_level_ro}"
+      access_level  = var.access_level_rw
+    },
+    custfiles = {
+      bucket_name   = "${var.s3bucket_name_prefix_manage}-custfiles"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-custfiles-${var.access_level_rw}"
+      access_level  = var.access_level_rw
+    },
+    logs_rw = {
+      bucket_name   = "${var.s3bucket_name_prefix_manage}-logs"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_rw}"
+      access_level  = var.access_level_rw
+    },
+    logs_ro = {
+      bucket_name   = "${var.s3bucket_name_prefix_manage}-logs"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_ro}"
+      access_level  = var.access_level_ro
+    }
+  }
+
+  iam_users_by_bucket_manage = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_manage : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_manage :
+      local.iam_user_arns_manage[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+
+  bucket_user_names_manage = {
+    custfiles = "${var.iam_user_name_prefix_manage}-custfiles-${var.access_level_rw}"
+    doclinks  = "${var.iam_user_name_prefix_manage}-doclinks-${var.access_level_rw}"
+    logs_rw   = "${var.iam_user_name_prefix_manage}-log-${var.access_level_rw}"
+    logs_ro   = "${var.iam_user_name_prefix_manage}-log-${var.access_level_ro}"
+  }
+
+  bucket_user_name_map_manage = {
+    for key, value in local.s3_iam_users_list_manage :
+    key => lookup(local.bucket_user_names_manage, key, null)
+  }
+  #----Manage related params for S3 ends----
+{%- endif %}
+
+  #----Common S3 params starts----
+  s3_actions = {
+    ro = ["s3:GetObject", "s3:ListBucket"]
+    rw = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
+  }
+
+  location = var.location
+  #----Common S3 params ends----
+{%- endif %}
