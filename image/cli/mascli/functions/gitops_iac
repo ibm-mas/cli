@@ -1018,6 +1018,7 @@ function gitops_iac_generate_common_files() {
   create_common_files ${GITOPS_CLUSTER_DIR}
   
   # Generate common terraform files using variables exported by EFS/S3 tasks
+  # Note: These templates use includes from subdirectories, so we need to update jinjanate_commmon to support --searchpath
   echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-main.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
   

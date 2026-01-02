@@ -348,7 +348,7 @@ function ocp_version_check() {
   fi
 }
 
-# Calls jinjanate with common arguments. Call jinjanate directly if this does not suit your use case. 
+# Calls jinjanate with common arguments. Call jinjanate directly if this does not suit your use case.
 function jinjanate_commmon() {
   local template_path=$1
   local output_path=$2
@@ -359,7 +359,9 @@ function jinjanate_commmon() {
   if [ -n "$output_path" ]; then
     local output_opts="-o ${output_path}"
   fi
-  jinjanate --quiet --undefined $filter_params $template_path $output_opts
+  # Get the directory of the template to use as searchpath for includes
+  local template_dir=$(dirname "$template_path")
+  jinjanate --quiet --undefined --searchpath "$template_dir" $filter_params $template_path $output_opts
 }
 
 #Get value from FILE at given DOTPATH
