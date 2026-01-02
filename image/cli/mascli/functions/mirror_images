@@ -181,7 +181,6 @@ function mirror_to_registry_noninteractive() {
       --mirror-mongo)
         MIRROR_MONGOCE=true
         ;;
-        ;;
       --mirror-mongo-v7)
         MIRROR_MONGOCE_V7=true
         ;;
