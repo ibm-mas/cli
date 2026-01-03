@@ -52,7 +52,7 @@ The plugin automatically detects and uses python-devops from `../python-devops/`
 
 ## Usage
 
-The plugin provides three directives for catalog documentation:
+The plugin provides four directives for catalog documentation:
 
 ### 1. Details Section
 ```markdown
@@ -71,6 +71,12 @@ Renders the `oc apply` command for manual installation.
 :::mas-catalog-source
 ```
 Renders the complete CatalogSource YAML definition.
+
+### 4. OCP Compatibility Matrix
+```markdown
+:::mas-catalog-ocp-compatibility-matrix
+```
+Renders the OpenShift Container Platform compatibility matrix table with GA dates, Standard Support, and Extended Support information. This directive is only applicable to catalogs from v9-250109 onwards, as older catalogs don't have OCP compatibility metadata in python-devops.
 
 ### Example
 
@@ -95,9 +101,13 @@ Known Issues
 
 :::mas-catalog-source
 
-
 Red Hat OpenShift Container Platform Support
 -------------------------------------------------------------------------------
+For more information about the OCP lifecycle refer to the [Red Hat OpenShift Container Platform Life Cycle Policy](https://access.redhat.com/support/policy/updates/openshift/).
+
+IBM Maximo Application Suite customers receive a standard Red Hat OpenShift Container Platform subscription as part of their purchase. This includes 18 months of maintenance support for each OpenShift minor release.  A further 6 months support is available to purchase as an Extended Update Support (EUS) Add-on to x86-64 versions of Red Hat OpenShift Kubernetes Engine, Red Hat OpenShift Container Platform, and Red Hat OpenShift Platform Plus Standard subscriptions.
+
+:::mas-catalog-ocp-compatibility-matrix
 ...
 ```
 

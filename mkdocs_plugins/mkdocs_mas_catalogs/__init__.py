@@ -9,7 +9,7 @@ __version__ = "0.1.0"
 
 # Try to import from installed package first
 try:
-    from mas.devops.data import getCatalog
+    from mas.devops.data import getCatalog, getOCPLifecycleData
 except ImportError:
     # Development fallback: add python-devops to path
     PYTHON_DEVOPS_PATH = (
@@ -17,7 +17,7 @@ except ImportError:
     )
     if PYTHON_DEVOPS_PATH.exists():
         sys.path.insert(0, str(PYTHON_DEVOPS_PATH))
-        from mas.devops.data import getCatalog
+        from mas.devops.data import getCatalog, getOCPLifecycleData
     else:
         raise ImportError(
             "Could not import mas.devops.data. "
@@ -33,6 +33,7 @@ class MASCatalogsPlugin(BasePlugin):
     - :::mas-catalog-details - Renders the Details table
     - :::mas-catalog-install - Renders the Manual Installation command
     - :::mas-catalog-source - Renders the CatalogSource YAML
+    - :::mas-catalog-ocp-compatibility-matrix - Renders the OCP compatibility matrix
 
     The catalog tag is automatically detected from the page filename.
     For example, in v9-251127-amd64.md, the tag is v9-251127-amd64
@@ -60,6 +61,11 @@ class MASCatalogsPlugin(BasePlugin):
         markdown = re.sub(
             r":::mas-catalog-source",
             lambda m: self._render_source(catalog_tag),
+            markdown,
+        )
+        markdown = re.sub(
+            r":::mas-catalog-ocp-compatibility-matrix",
+            lambda m: self._render_ocp_matrix(catalog_tag),
             markdown,
         )
 
@@ -136,6 +142,65 @@ spec:
   priority: 90
 ```
 """
+
+    def _render_ocp_matrix(self, catalog_tag):
+        """Render the OCP compatibility matrix table."""
+        catalog, error = self._get_catalog_data(catalog_tag)
+        if error:
+            return error
+
+        # Get OCP compatibility list from catalog
+        ocp_versions = catalog.get("ocp_compatibility", [])
+
+        if not ocp_versions:
+            return """!!! warning
+    No OCP compatibility data available for this catalog.
+"""
+
+        # Get OCP lifecycle data using the API
+        ocp_lifecycle_data = getOCPLifecycleData()
+        if not ocp_lifecycle_data:
+            return """!!! error
+    OCP lifecycle data not found. Please ensure ocp.yaml exists in python-devops.
+"""
+
+        # Build the table header
+        table_html = """<table class="compatabilityMatrix">
+  <tr>
+    <th>OCP</th><td rowspan="{}" class="spacer"></td>
+    <th>General Availability</th>
+    <th>Standard Support</th>
+    <th>Extended Support</th>
+  </tr>
+""".format(
+            len(ocp_versions) + 1
+        )
+
+        # Add rows for each OCP version
+        ocp_data = ocp_lifecycle_data.get("ocp_versions", {})
+        for version in ocp_versions:
+            version_str = str(version)
+            version_info = ocp_data.get(version_str, {})
+
+            ga_date = version_info.get("ga_date", "N/A")
+            standard_support = version_info.get("standard_support", "N/A")
+            extended_support = version_info.get("extended_support", "N/A")
+
+            # Format extended support - use "N/A" if it's literally "N/A"
+            if extended_support == "N/A":
+                extended_support = " N/A "
+
+            table_html += f"""  <tr>
+    <td class="firstColumn">{version_str}</td>
+    <td>{ga_date}</td>
+    <td>{standard_support}</td>
+    <td>{extended_support}</td>
+  </tr>
+"""
+
+        table_html += "</table>"
+
+        return table_html
 
 
 # Made with Bob
