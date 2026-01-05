@@ -51,7 +51,6 @@ spec:
 
         mkdir -p /tmp/init-efs-csi
         mas gitops-efs-csi-driver-operator -a $ACCOUNT -c $CLUSTER_NAME \
-        --secrets-path $SECRET_PATH \
         --dir /tmp/init-efs-csi \
         --github-push \
         --github-host $GITHUB_HOST \
