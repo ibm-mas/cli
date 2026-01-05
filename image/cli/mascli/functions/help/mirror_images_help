@@ -1,0 +1,107 @@
+function mirror_to_registry_help_header() {
+  [[ -n "$1" ]] && echo_warning "$1"
+  reset_colors
+  cat << EOM
+Usage:
+  mas mirror-images [options]
+Where ${COLOR_YELLOW}specified${TEXT_RESET} each option may also be defined by setting the appropriate environment variable.
+When no options are specified on the command line, interactive-mode will be enabled by default.
+
+Mirror Mode (Required):
+  -m, --mode ${COLOR_YELLOW}MIRROR_MODE${TEXT_RESET}                         Operation mode (direct, to-filesystem, from-filesystem)
+  -d, --dir ${COLOR_YELLOW}MIRROR_WORKING_DIR${TEXT_RESET}                   Working directory for the mirror process
+
+Registry Details (Required):
+  -H, --host ${COLOR_YELLOW}REGISTRY_PUBLIC_HOST${TEXT_RESET}                 Hostname of the target registry
+  -P, --port ${COLOR_YELLOW}REGISTRY_PUBLIC_PORT${TEXT_RESET}                 Port number for the target registry
+  -u, --username ${COLOR_YELLOW}REGISTRY_USERNAME${TEXT_RESET}                Username to authenticate to the target registry
+  -p, --password ${COLOR_YELLOW}REGISTRY_PASSWORD${TEXT_RESET}                Password to authenticate to the target registry
+
+Registry Prefix (Optional):
+  -x, --prefix ${COLOR_YELLOW}REGISTRY_PREFIX${TEXT_RESET}                    Prefix for the mirror image
+
+AWS Elastic Container Registry (Optional):
+  -r, --aws-ecr-region ${COLOR_YELLOW}REGISTRY_ECR_AWS_REGION${TEXT_RESET}    The AWS region if the target registry is Elastic Container Registry
+  -e, --target-is-ecr                                                         Indicate that the target registry is Elastic Container Registry
+
+Source Registry Entitlements (Required based on what content you choose to mirror):
+      --ibm-entitlement ${COLOR_YELLOW}IBM_ENTITLEMENT_KEY${TEXT_RESET}       IBM Entitlement Key
+      --artifactory-username ${COLOR_YELLOW}ARTIFACTORY_USERNAME${TEXT_RESET} Artifactory Username
+      --artifactory-token ${COLOR_YELLOW}ARTIFACTORY_TOKEN${TEXT_RESET}       Artifactory Token
+
+Maximo Operator Catalog Selection (Optional):
+  -c, --catalog ${COLOR_YELLOW}MAS_CATALOG_VERSION${TEXT_RESET}               Maximo Operator Catalog Version to mirror (e.g. v9-240625-amd64)
+  -C, --channel ${COLOR_YELLOW}MAS_CHANNEL${TEXT_RESET}                       Maximo Application Suite Channel to mirror (e.g. 9.1.x)
+EOM
+}
+
+
+function mirror_to_registry_help() {
+  mirror_to_registry_help_header
+  cat << EOM
+
+Content Selection (Core Platform):
+      --mirror-catalog                            Mirror the IBM Maximo Operator Catalog
+      --mirror-core                               Mirror images for IBM Maximo Application Suite Core
+
+Content Selection (Applications):
+      --mirror-assist                             Mirror images for IBM Maximo Assist
+      --mirror-iot                                Mirror images for IBM Maximo IoT
+      --mirror-manage                             Mirror images for IBM Maximo Manage
+      --mirror-icd                                Mirror image  for IBM Maximo IT (Separately entitled IBM Maximo Manage extension)
+      --mirror-monitor                            Mirror images for IBM Maximo Monitor
+      --mirror-optimizer                          Mirror images for IBM Maximo Optimizer
+      --mirror-predict                            Mirror images for IBM Maximo Predict
+      --mirror-visualinspection                   Mirror images for IBM Maximo Visual Inspection
+
+Content Selection (Cloud Pak for Data):
+      --mirror-cp4d                               Mirror images for IBM Cloud Pak for Data Platform
+      --mirror-wsl                                Mirror images for IBM Watson Studio Local
+      --mirror-wml                                Mirror images for IBM Watson Machine Learning
+      --mirror-spark                              Mirror images for IBM Analytics Engine (Spark)
+      --mirror-cognos                             Mirror images for IBM Cognos Analytics
+
+Content Selection (Other Dependencies):
+      --mirror-cfs                                Mirror images for IBM Cloud Pak Foundation Services
+      --mirror-sls                                Mirror images for IBM Suite License Service
+      --mirror-tsm                                Mirror images for IBM Truststore Manager
+      --mirror-mongo                              Mirror images for MongoDb Community Edition
+      --mirror-mongo-v7                           Mirror images for MongoDb Community Edition version 7
+      --mirror-db2                                Mirror images for IBM Db2
+      --mirror-odf                                Mirror images for ODF
+
+Content Selection (All images included):
+      --mirror-everything                         Mirror all MAS related images (including dependencies)
+
+Other Commands:
+      --no-confirm                                Mirror images without prompting for confirmation
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}
+
+
+function mirror_aiservice_to_registry_help() {
+  mirror_to_registry_help_header
+  cat << EOM
+
+Content Selection (AI Service):
+      --mirror-catalog                            Mirror the IBM Maximo Operator Catalog
+      --mirror-aiservice                          Mirror images for IBM Maximo Application Suite AI Service
+
+Content Selection (Dependencies):
+      --mirror-minio                              Mirror images for minio
+      --mirror-db2                                Mirror images for IBM Db2
+      --mirror-mariadb                            Mirror images for mariadb
+      --mirror-opendatahub                        Mirror images for opendatahub
+      --mirror-odf                                Mirror images for ODF
+
+Content Selection (All images included):
+      --mirror-everything                         Mirror all ai-service related images (including dependencies)
+
+Other Commands:
+      --no-confirm                                Mirror images without prompting for confirmation
+  -h, --help                                      Show this help message
+EOM
+  [[ -n "$1" ]] && exit 1 || exit 0
+}

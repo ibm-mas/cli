@@ -18,6 +18,16 @@ spec:
     - name: mas_app_id
       type: string
       description: Maximo Applicaiton Suite Application Id
+    
+    - name: manage_bind_aiservice_instance_id
+      type: string
+      description: AI Service Instance ID to bind with Manage
+      default: ""
+    
+    - name: manage_bind_aiservice_tenant_id
+      type: string
+      description: AI Service Tenant ID to bind with Manage
+      default: ""
 
     # Custom Label Support
     - name: custom_labels
@@ -184,25 +194,25 @@ spec:
       type: string
       description: Password to authenticate into Manage custom archive url (if required)
       default: ""
-    - name: mas_app_settings_crypto_key
+    - name: mas_manage_encryptionsecret_crypto_key
       type: string
       description: Manage database encryption key for MXE_SECURITY_CRYPTO_KEY
       default: ""
-    - name: mas_app_settings_cryptox_key
+    - name: mas_manage_encryptionsecret_cryptox_key
       type: string
       description: Manage database encryption key for MXE_SECURITY_CRYPTOX_KEY
       default: ""
-    - name: mas_app_settings_old_crypto_key
+    - name: mas_manage_encryptionsecret_old_crypto_key
       type: string
       description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTO_KEY
       default: ""
-    - name: mas_app_settings_old_cryptox_key
+    - name: mas_manage_encryptionsecret_old_cryptox_key
       type: string
       description: Manage database encryption key for MXE_SECURITY_OLD_CRYPTOX_KEY
       default: ""
-    - name: mas_app_settings_override_encryption_secrets_flag
+    - name: mas_manage_ws_db_encryptionsecret
       type: string
-      description: Defines if Manage database encryption secret should be overriden with new values provided
+      description: Name of the Manage database encryption secret
       default: ""
     - name: mas_app_settings_default_jms
       type: string
@@ -392,6 +402,12 @@ spec:
         - name: MAS_CONFIG_DIR
           value: /workspace/configs
 
+        # AI Service Details for Manage binding
+        - name: AISERVICE_INSTANCE_ID
+          value: $(params.manage_bind_aiservice_instance_id)
+        - name: AISERVICE_TENANT_ID
+          value: $(params.manage_bind_aiservice_tenant_id)
+
         # CPD Version
         - name: CPD_PRODUCT_VERSION
           value: $(params.cpd_product_version)
@@ -449,16 +465,16 @@ spec:
           value: $(params.mas_app_settings_customization_archive_username)
         - name: MAS_APP_SETTINGS_CUSTOMIZATION_ARCHIVE_PASSWORD
           value: $(params.mas_app_settings_customization_archive_password)
-        - name: MAS_APP_SETTINGS_CRYPTO_KEY
-          value: $(params.mas_app_settings_crypto_key)
-        - name: MAS_APP_SETTINGS_CRYPTOX_KEY
-          value: $(params.mas_app_settings_cryptox_key)
-        - name: MAS_APP_SETTINGS_OLD_CRYPTO_KEY
-          value: $(params.mas_app_settings_old_crypto_key)
-        - name: MAS_APP_SETTINGS_OLD_CRYPTOX_KEY
-          value: $(params.mas_app_settings_old_cryptox_key)
-        - name: MAS_APP_SETTINGS_OVERRIDE_ENCRYPTION_SECRETS_FLAG
-          value: $(params.mas_app_settings_override_encryption_secrets_flag)
+        - name: MAS_MANAGE_ENCRYPTIONSECRET_CRYPTO_KEY
+          value: $(params.mas_manage_encryptionsecret_crypto_key)
+        - name: MAS_MANAGE_ENCRYPTIONSECRET_CRYPTOX_KEY
+          value: $(params.mas_manage_encryptionsecret_cryptox_key)
+        - name: MAS_MANAGE_ENCRYPTIONSECRET_OLD_CRYPTO_KEY
+          value: $(params.mas_manage_encryptionsecret_old_crypto_key)
+        - name: MAS_MANAGE_ENCRYPTIONSECRET_OLD_CRYPTOX_KEY
+          value: $(params.mas_manage_encryptionsecret_old_cryptox_key)
+        - name: MAS_MANAGE_WS_DB_ENCRYPTIONSECRET
+          value: $(params.mas_manage_ws_db_encryptionsecret)
         - name: MAS_APP_SETTINGS_DEFAULT_JMS
           value: $(params.mas_app_settings_default_jms)
         - name: MAS_POD_TEMPLATES_DIR

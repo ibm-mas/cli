@@ -35,8 +35,7 @@ fi
 TARGET_URL="${ARTIFACTORY_GENERIC_RELEASE_URL}/${GITHUB_REPOSITORY}/${VERSION}/${FILE_NAME}-${VERSION}.${FILE_EXT}"
 artifactory_upload $FILE_PATH $TARGET_URL
 
-
-# Also update "latest" alias when we publish a release
+# Also update "latest" alias for the release or branch
 if [ "${GITHUB_REF_TYPE}" == "tag" ]; then
   LATEST_URL="${ARTIFACTORY_GENERIC_RELEASE_URL}/${GITHUB_REPOSITORY}/latest/${FILE_NAME}-latest.${FILE_EXT}"
   artifactory_upload $FILE_PATH $LATEST_URL

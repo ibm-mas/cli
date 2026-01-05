@@ -109,14 +109,23 @@ jobs:
           if [[ -e $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz ]]; then
             echo "Found local Python package ($GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz) on this branch."
             python -m pip install $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz
-          elif [[ "$GITHUB_REF_NAME" != "master" ]] && [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
-              # Otherwise, if this is a non-master branch build, try to install from a matching branch of python-devops
-              RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/ibm-mas/python-devops/branches/${GITHUB_REF_NAME}")
+          elif [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
+              # python-devops main branch is named "stable" rather than "master"
+              PYTHON_BRANCH_NAME=$GITHUB_REF_NAME
+              if [[ "$GITHUB_REF_NAME" == "master" ]]; then
+                  PYTHON_BRANCH_NAME=stable
+              fi
+
+              RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/ibm-mas/python-devops/branches/${PYTHON_BRANCH_NAME}")
 
               if [[ "${RESPONSE}" == "200" ]]; then
-                  echo "Installing development build of python-devops from GitHub branch ${GITHUB_REF_NAME}"
-                  python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${GITHUB_REF_NAME}"
+                  echo "Installing development build of python-devops from GitHub branch ${PYTHON_BRANCH_NAME}"
+              else
+                  echo "Branch ${PYTHON_BRANCH_NAME} not found, defaulting to stable"
+                  PYTHON_BRANCH_NAME=stable
               fi
+
+              python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${PYTHON_BRANCH_NAME}"
           fi
 
       - name: Lint

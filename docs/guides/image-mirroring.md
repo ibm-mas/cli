@@ -265,7 +265,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_
   -m direct -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 ```
 
@@ -277,7 +277,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_
   -m to-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect \
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 \
   --ibm-entitlement $IBM_ENTITLEMENT_KEY
 ```
 
@@ -289,7 +289,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:@@CLI_LATEST_
   -m from-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2
 ```
 
   </div>
@@ -301,7 +301,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ib
   -m from-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c @@MAS_LATEST_CATALOG@@ -C @@MAS_LATEST_CHANNEL@@ \
-  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2 --mirror-appconnect
+  --mirror-mongo --mirror-tsm --mirror-sls --mirror-cfs --mirror-db2
 ```
 
   </div>
@@ -342,7 +342,6 @@ As of MAS 8.10 (June 2023) the total capacity requirement to mirror content from
 | IBM Truststore Manager            | `--mirror-tsm`              | 1G       |
 | IBM Suite License Service         | `--mirror-sls`              | 1G       |
 | IBM Cloud Pak Foundation Services | `--mirror-cfs`              | 21G      |
-| IBM AppConnect                    | `--mirror-appconnect`       | 13G      |
 | IBM Db2                           | `--mirror-db2`              | 73G      |
 | **Total**                         |                             | **117G** |
 

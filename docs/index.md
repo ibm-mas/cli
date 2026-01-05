@@ -47,6 +47,7 @@ Not all functions supported in the container image are available in the standalo
 | CLI Function                                               | Image    | Binary   |
 | ---------------------------------------------------------- | :------: | :------: |
 | [install](guides/install.md)                               | &#10003; | &#10003; |
+| [aiservice-install](guides/aiservice-install.md)           | &#10003; | &#10003; |
 | [update](commands/update.md)                               | &#10003; | &#10003; |
 | [upgrade](commands/upgrade.md)                             | &#10003; | &#10003; |
 | [uninstall](commands/uninstall.md)                         | &#10003; | &#10003; |
