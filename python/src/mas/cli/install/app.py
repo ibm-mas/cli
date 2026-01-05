@@ -381,11 +381,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         and prompts for ArcGIS installation accordingly.
         """
         needsArcGIS = False
+        hasSpatial = False
         apps_requiring_arcgis = []
 
         # Check if Manage with Spatial component is selected
         if self.installManage and "spatial=" in self.getParam("mas_appws_components"):
             needsArcGIS = True
+            hasSpatial = True
             apps_requiring_arcgis.append("Maximo Manage (Spatial)")
 
         # Check if Facilities is selected (MAS 9.1+)
@@ -397,7 +399,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Check the appropriate channel based on what's being installed
         if needsArcGIS:
             channel = self.getParam("mas_app_channel_manage") or self.getParam("mas_app_channel_facilities")
-            if channel and channel.startswith("9."):
+            if channel and isVersionEqualOrAfter('9.0.0', channel):
                 # Build description based on what's being installed
                 description = [
                     "",
@@ -427,6 +429,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
                     if not self.yesOrNo("Do you accept the license terms"):
                         exit(1)
+                elif hasSpatial:
+                    # Spatial requires ArcGIS - block installation if user declined
+                    self.fatalError("Maximo Manage Spatial component requires IBM Maximo Location Services for Esri. Installation cannot proceed without it.")
 
     @logMethodCall
     def configSpecialCharacters(self):
@@ -1485,6 +1490,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         #  An error should be raised if "health" is not specified when installing Predict.
         if ((self.getParam("mas_app_channel_predict") is not None and self.getParam("mas_app_channel_predict") != "") and 'health' not in self.getParam("mas_appws_components")):
             self.fatalError("--manage-components must include 'health' component when installing Predict")
+
+        # Validate ArcGIS installation requirements in non-interactive mode
+        if self.getParam("install_arcgis") == "true":
+            hasSpatial = self.installManage and "spatial=" in self.getParam("mas_appws_components")
+            hasFacilities = self.installFacilities
+
+            # ArcGIS requires either Spatial or Facilities to be installed
+            if not hasSpatial and not hasFacilities:
+                self.fatalError("--install-arcgis requires either Manage with Spatial component (--manage-components must include 'spatial=') or Facilities (--facilities-channel) to be installed")
+
+        # Validate Spatial requires ArcGIS in non-interactive mode
+        if self.installManage and "spatial=" in self.getParam("mas_appws_components"):
+            if self.getParam("install_arcgis") != "true":
+                self.fatalError("Maximo Manage Spatial component requires IBM Maximo Location Services for Esri. Please set --install-arcgis=true")
 
     @logMethodCall
     def install(self, argv):
