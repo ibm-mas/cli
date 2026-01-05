@@ -7,11 +7,11 @@ vpc_id               = "{{ VPC_ID_VALUE}}"
 {%- endif %}
 
 
-{%- if IS_EFS | lower == 'true' %}
+{%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') %}
 
-#----EFS related params starts----
+#----EFS/MSK related params starts----
 vpc_name             = "{{ VPC_NAME_VALUE }}"
-#----EFS related params ends----
+#----EFS/MSK related params ends----
 {%- endif %}
 
 {%- if (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true') %}

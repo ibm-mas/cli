@@ -208,30 +208,15 @@ locals {
  {%- if IS_MSK | lower == 'true' %}
   #----MSK config related params starts----
   multiple-msk = {
-{%- if MSK_IOT == "true" %}
-    iot-msk = {
-      name        = join("-", [var.cluster_name, var.instance_name, "iot"])
+    msk = {
+      name        = join("-", [var.cluster_name, var.instance_name, ""])
       sre_prefix  = var.name_prefix
-      secret_name = join("-", [var.cluster_name, var.instance_name, "iot"])
-      broker_volume_size = {{MSK_IOT_BROKER_VOLUME_SIZE}}
-      cluster_name = "{{MSK_IOT_CLUSTER_USERNAME}}"
-      broker_nodes = {{MSK_IOT_NUMBER_OF_BROKER_NODES}}
-      instance_type = "{{MSK_IOT_INSTANCE_TYPE}}"
-      kafka_version = "{{MSK_IOT_KAFKA_VERSION}}"
-    }
-{%- endif %}
-{%- if MSK_MONITOR == "true" %}
-    monitor-msk = {
-      name        = join("-", [var.cluster_name, var.instance_name, "monitor"])
-      sre_prefix  = var.name_prefix
-      secret_name = join("-", [var.cluster_name, var.instance_name, "monitor"])
-      broker_volume_size = {{MSK_MONITOR_BROKER_VOLUME_SIZE}}
-      cluster_name = "{{MSK_MONITOR_CLUSTER_USERNAME}}"
-      broker_nodes = {{MSK_MONITOR_NUMBER_OF_BROKER_NODES}}
-      instance_type = "{{MSK_MONITOR_INSTANCE_TYPE}}"
-      kafka_version = "{{MSK_MONITOR_KAFKA_VERSION}}"
-    }
-{%- endif %}
+      secret_name = join("/", ["massaas", var.vpc_name, {{MSK_CLUSTER_PREFIX}}, var.cluster_name, var.instance_name])
+      broker_volume_size = {{MSK_BROKER_VOLUME_SIZE}}
+      cluster_name = "{{MSK_CLUSTER_USERNAME}}"
+      broker_nodes = {{MSK_NUMBER_OF_BROKER_NODES}}
+      instance_type = "{{MSK_INSTANCE_TYPE}}"
+      kafka_version = "{{MSK_KAFKA_VERSION}}"
   }
   #----MSK config related params ends----
 {%- endif %}

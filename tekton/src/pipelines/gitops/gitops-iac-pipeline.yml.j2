@@ -126,47 +126,31 @@ spec:
       type: string
       default: ''
 
-    # iac-msk iot params
-    - name: msk_iot_kafka_version
+    # iac-mskdc  params
+    - name: msk_kafka_version
       type: string
       default: ''
 
-    - name: msk_iot_instance_type
+    - name: msk_instance_type
       type: string
       default: ''
 
-    - name: msk_iot_cluster_username
+    - name: msk_cluster_username
       type: string
       default: ''
 
-    - name: msk_iot_broker_volume_size
+    - name: msk_broker_volume_size
       type: string
       default: ''
 
-    - name: msk_iot_number_of_broker_nodes
+    - name: msk_number_of_broker_nodes
       type: string
       default: ''
 
-    # iac-msk monitor params
-    - name: msk_monitor_kafka_version
+    - name: msk_cluster_prefix
       type: string
       default: ''
 
-    - name: msk_monitor_instance_type
-      type: string
-      default: ''
-
-    - name: msk_monitor_cluster_username
-      type: string
-      default: ''
-
-    - name: msk_monitor_broker_volume_size
-      type: string
-      default: ''
-
-    - name: msk_monitor_number_of_broker_nodes
-      type: string
-      default: ''
 
   workspaces:
     - name: configs
@@ -351,28 +335,18 @@ spec:
           value: $(params.msk_source)
 
         # iac-msk iot params
-        - name: msk_iot_kafka_version
-          value: $(params.msk_iot_kafka_version)
-        - name: msk_iot_instance_type
-          value: $(params.msk_iot_instance_type)
-        - name: msk_iot_cluster_username
-          value: $(params.msk_iot_cluster_username)
-        - name: msk_iot_broker_volume_size
-          value: $(params.msk_iot_broker_volume_size)
-        - name: msk_iot_number_of_broker_nodes
-          value: $(params.msk_iot_number_of_broker_nodes)
-
-        # iac-msk monitor params
-        - name: msk_monitor_kafka_version
-          value: $(params.msk_monitor_kafka_version)
-        - name: msk_monitor_instance_type
-          value: $(params.msk_monitor_instance_type)
-        - name: msk_monitor_cluster_username
-          value: $(params.msk_monitor_cluster_username)
-        - name: msk_monitor_broker_volume_size
-          value: $(params.msk_monitor_broker_volume_size)
-        - name: msk_monitor_number_of_broker_nodes
-          value: $(params.msk_monitor_number_of_broker_nodes)
+        - name: msk_kafka_version
+          value: $(params.msk_kafka_version)
+        - name: msk_instance_type
+          value: $(params.msk_instance_type)
+        - name: msk_cluster_username
+          value: $(params.msk_cluster_username)
+        - name: msk_broker_volume_size
+          value: $(params.msk_broker_volume_size)
+        - name: msk_number_of_broker_nodes
+          value: $(params.msk_number_of_broker_nodes)
+        - name: msk_cluster_prefix
+          value: $(params.msk_cluster_prefix)
 
     # Task 4: Generate Common Files (Runs after EFS/S3/MSK tasks complete/skip)
     # -------------------------------------------------------------------------
@@ -457,28 +431,18 @@ spec:
           value: $(params.s3_mvi)
 
       # iac-msk iot params
-        - name: msk_iot_kafka_version
-          value: $(params.msk_iot_kafka_version)
-        - name: msk_iot_instance_type
-          value: $(params.msk_iot_instance_type)
-        - name: msk_iot_cluster_username
-          value: $(params.msk_iot_cluster_username)
-        - name: msk_iot_broker_volume_size
-          value: $(params.msk_iot_broker_volume_size)
-        - name: msk_iot_number_of_broker_nodes
-          value: $(params.msk_iot_number_of_broker_nodes)
-
-      # iac-msk monitor params
-        - name: msk_monitor_kafka_version
-          value: $(params.msk_monitor_kafka_version)
-        - name: msk_monitor_instance_type
-          value: $(params.msk_monitor_instance_type)
-        - name: msk_monitor_cluster_username
-          value: $(params.msk_monitor_cluster_username)
-        - name: msk_monitor_broker_volume_size
-          value: $(params.msk_monitor_broker_volume_size)
-        - name: msk_monitor_number_of_broker_nodes
-          value: $(params.msk_monitor_number_of_broker_nodes)
+        - name: msk_kafka_version
+          value: $(params.msk_kafka_version)
+        - name: msk_instance_type
+          value: $(params.msk_instance_type)
+        - name: msk_cluster_username
+          value: $(params.msk_cluster_username)
+        - name: msk_broker_volume_size
+          value: $(params.msk_broker_volume_size)
+        - name: msk_number_of_broker_nodes
+          value: $(params.msk_number_of_broker_nodes)
+        - name: msk_cluster_prefix
+          value: $(params.msk_cluster_prefix)
 
     # Task 5: Manage PR (Always runs last)
     # -------------------------------------------------------------------------

@@ -317,102 +317,62 @@ function gitops_iac_noninteractive() {
         export MSK_SOURCE=$1 && shift
         ;;
 
-      --msk_iot_kafka_version)
+      --msk_kafka_version)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MSK_IOT_KAFKA_VERSION=$1
+          export MSK_KAFKA_VERSION=$1
           shift
         else
-          export msk_iot_KAFKA_VERSION=""
+          export MSK_KAFKA_VERSION=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --msk_iot_instance_type)
+      --msk_instance_type)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MSK_IOT_INSTANCE_TYPE=$1
+          export MSK_INSTANCE_TYPE=$1
           shift
         else
-          export MSK_IOT_INSTANCE_TYPE=""
+          export MSK_INSTANCE_TYPE=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --msk_iot_cluster_username)
+      --msk_cluster_username)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MSK_IOT_CLUSTER_USERNAME=$1
+          export MSK_CLUSTER_USERNAME=$1
           shift
         else
-          export MSK_IOT_CLUSTER_USERNAME=""
+          export MSK_CLUSTER_USERNAME=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --msk_iot_broker_volume_size)
+      --msk_broker_volume_size)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MSK_IOT_BROKER_VOLUME_SIZE=$1
+          export MSK_BROKER_VOLUME_SIZE=$1
           shift
         else
-          export MSK_IOT_BROKER_VOLUME_SIZE=""
+          export MSK_BROKER_VOLUME_SIZE=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --msk_iot_number_of_broker_nodes)
+      --msk_number_of_broker_nodes)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MSK_IOT_NUMBER_OF_BROKER_NODES=$1
+          export MSK_NUMBER_OF_BROKER_NODES=$1
           shift
         else
-          export MSK_IOT_NUMBER_OF_BROKER_NODES=""
+          export MSK_NUMBER_OF_BROKER_NODES=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --msk_monitor_kafka_version)
+      --msk_cluster_prefix)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MSK_MONITOR_KAFKA_VERSION=$1
+          export MSK_CLUSTER_PREFIX=$1
           shift
         else
-          export MSK_MONITOR_KAFKA_VERSION=""
-          [[ $# -gt 0 ]] && shift
-        fi
-        ;;
-
-      --msk_monitor_instance_type)
-        if [[ -n "$1" && "$1" != --* ]]; then
-          export MSK_MONITOR_INSTANCE_TYPE=$1
-          shift
-        else
-          export MSK_MONITOR_INSTANCE_TYPE=""
-          [[ $# -gt 0 ]] && shift
-        fi
-        ;;
-
-      --msk_monitor_cluster_username)
-        if [[ -n "$1" && "$1" != --* ]]; then
-          export MSK_MONITOR_CLUSTER_USERNAME=$1
-          shift
-        else
-          export MSK_MONITOR_CLUSTER_USERNAME=""
-          [[ $# -gt 0 ]] && shift
-        fi
-        ;;
-
-      --msk_monitor_broker_volume_size)
-        if [[ -n "$1" && "$1" != --* ]]; then
-          export MSK_MONITOR_BROKER_VOLUME_SIZE=$1
-          shift
-        else
-          export MSK_MONITOR_BROKER_VOLUME_SIZE=""
-          [[ $# -gt 0 ]] && shift
-        fi
-        ;;
-
-      --msk_monitor_number_of_broker_nodes)
-        if [[ -n "$1" && "$1" != --* ]]; then
-          export MSK_MONITOR_NUMBER_OF_BROKER_NODES=$1
-          shift
-        else
-          export MSK_MONITOR_NUMBER_OF_BROKER_NODES=""
+          export MSK_CLUSTER_PREFIX=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
@@ -602,23 +562,7 @@ function compute_msk_variables() {
   export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.cidrs.workload_internal")
   export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_id")
   export SECURITY_GROUPS_VALUE=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.security_groups")
-
-  # Compute MSK flags based on parameters
-  if [[ -n "$MSK_IOT_KAFKA_VERSION" && -n "$MSK_IOT_INSTANCE_TYPE" && -n "$MSK_IOT_CLUSTER_USERNAME" && -n "$MSK_IOT_BROKER_VOLUME_SIZE" && -n "$MSK_IOT_NUMBER_OF_BROKER_NODES" ]]; then
-    export MSK_IOT=true
-    echo "  MSK_IOT: true"
-  else
-    export MSK_IOT=false
-    echo "  MSK_IOT: false"
-  fi
-
-  if [[ -n "$MSK_MONITOR_KAFKA_VERSION" && -n "$MSK_MONITOR_INSTANCE_TYPE" && -n "$MSK_MONITOR_CLUSTER_USERNAME" && -n "$MSK_MONITOR_BROKER_VOLUME_SIZE" && -n "$MSK_MONITOR_NUMBER_OF_BROKER_NODES" ]]; then
-    export MSK_MONITOR=true
-    echo "  MSK_MONITOR: true"
-  else
-    export MSK_MONITOR=false
-    echo "  MSK_MONITOR: false"
-  fi
+  export VPC_NAME_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_name")
 
   echo "  NAME_PREFIX_VALUE              : ${NAME_PREFIX_VALUE}"
   echo "  CLUSTER_CIDR_WORKLOAD_EXTERNAL : ${CLUSTER_CIDR_WORKLOAD_EXTERNAL}"
