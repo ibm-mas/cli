@@ -1,29 +1,6 @@
 #!/bin/bash
 
-function mirror_aiservice_to_registry_help() {
-  mirror_to_registry_help_header
-  cat << EOM
-
-Content Selection (Core Platform):
-      --mirror-catalog                            Mirror the IBM Maximo Operator Catalog
-      --mirror-aiservice                          Mirror images for IBM Maximo Application Suite AI Service
-
-Content Selection (Dependencies):
-      --mirror-minio                              Mirror images for minio 
-      --mirror-db2                                Mirror images for IBM Db2
-      --mirror-mariadb                            Mirror images for mariadb
-      --mirror-opendatahub                        Mirror images for opendatahub
-      --mirror-odf                                Mirror images for ODF
-
-Content Selection (All images included):
-      --mirror-everything                         Mirror all ai-service related images (including dependencies)
-
-Other Commands:
-      --no-confirm                                Mirror images without prompting for confirmation
-  -h, --help                                      Show this help message
-EOM
-  [[ -n "$1" ]] && exit 1 || exit 0
-}
+. $CLI_DIR/functions/help/mirror_images_help
 
 function mirror_aiservice_everything() {
     # Core
@@ -135,7 +112,7 @@ function mirror_aiservice_to_registry_noninteractive() {
       --mirror-opendatahub)
         MIRROR_OPENDATAHUB=true
         ;;
- 
+
       --no-confirm)
         NO_CONFIRM=true
         ;;
@@ -207,10 +184,10 @@ function mirror_aiservice_to_registry() {
 export MIRROR_MINIO
   export MIRROR_DB2U
   export MIRROR_MARIADB
-  
+
   export MIRROR_OPENDATAHUB
   export MIRROR_ODF
-  
+
   if [[ "$MIRROR_CATALOG" == true ||
     "$MIRROR_MINIO" == true ||
     "$MIRROR_DB2U" == true ||
