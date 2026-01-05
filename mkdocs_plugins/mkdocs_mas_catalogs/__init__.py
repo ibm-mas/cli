@@ -9,7 +9,7 @@ __version__ = "0.1.0"
 
 # Try to import from installed package first
 try:
-    from mas.devops.data import getCatalog, getOCPLifecycleData
+    from mas.devops.data import getCatalog, getOCPLifecycleData, getCatalogEditorial
 except ImportError:
     # Development fallback: add python-devops to path
     PYTHON_DEVOPS_PATH = (
@@ -17,7 +17,7 @@ except ImportError:
     )
     if PYTHON_DEVOPS_PATH.exists():
         sys.path.insert(0, str(PYTHON_DEVOPS_PATH))
-        from mas.devops.data import getCatalog, getOCPLifecycleData
+        from mas.devops.data import getCatalog, getOCPLifecycleData, getCatalogEditorial
     else:
         raise ImportError(
             "Could not import mas.devops.data. "
@@ -34,6 +34,8 @@ class MASCatalogsPlugin(BasePlugin):
     - :::mas-catalog-install - Renders the Manual Installation command
     - :::mas-catalog-source - Renders the CatalogSource YAML
     - :::mas-catalog-ocp-compatibility-matrix - Renders the OCP compatibility matrix
+    - :::mas-catalog-whats-new - Renders the What's New section
+    - :::mas-catalog-known-issues - Renders the Known Issues section
 
     The catalog tag is automatically detected from the page filename.
     For example, in v9-251127-amd64.md, the tag is v9-251127-amd64
@@ -66,6 +68,16 @@ class MASCatalogsPlugin(BasePlugin):
         markdown = re.sub(
             r":::mas-catalog-ocp-compatibility-matrix",
             lambda m: self._render_ocp_matrix(catalog_tag),
+            markdown,
+        )
+        markdown = re.sub(
+            r":::mas-catalog-whats-new",
+            lambda m: self._render_whats_new(catalog_tag),
+            markdown,
+        )
+        markdown = re.sub(
+            r":::mas-catalog-known-issues",
+            lambda m: self._render_known_issues(catalog_tag),
             markdown,
         )
 
@@ -201,6 +213,88 @@ spec:
         table_html += "</table>"
 
         return table_html
+
+    def _render_whats_new(self, catalog_tag):
+        """Render the What's New section."""
+        editorial = getCatalogEditorial(catalog_tag)
+
+        if not editorial:
+            return ""  # No editorial content, return empty string
+
+        whats_new = editorial.get("whats_new", [])
+
+        if not whats_new:
+            return ""  # No What's New content
+
+        # Handle both old string format and new structured format
+        if isinstance(whats_new, str):
+            # Old format: plain text
+            whats_new_text = whats_new.strip()
+        else:
+            # New format: list of items with title and details
+            lines = []
+            for item in whats_new:
+                title = item.get("title", "")
+                details = item.get("details", [])
+
+                lines.append(f"- {title}")
+                for detail in details:
+                    lines.append(f"    - {detail}")
+
+            whats_new_text = "\n".join(lines)
+
+        if not whats_new_text:
+            return ""
+
+        return f"""What's New
+-------------------------------------------------------------------------------
+{whats_new_text}
+"""
+
+    def _render_known_issues(self, catalog_tag):
+        """Render the Known Issues section."""
+        editorial = getCatalogEditorial(catalog_tag)
+
+        # If no editorial data exists, show "no known issues"
+        if not editorial:
+            return """Known Issues
+-------------------------------------------------------------------------------
+There are no known issues for this catalog release.
+"""
+
+        known_issues = editorial.get("known_issues", [])
+
+        # If known_issues field exists but is empty, show "no known issues"
+        if not known_issues:
+            return """Known Issues
+-------------------------------------------------------------------------------
+There are no known issues for this catalog release.
+"""
+
+        # Handle both old string format and new structured format
+        if isinstance(known_issues, str):
+            # Old format: plain text
+            known_issues_text = known_issues.strip()
+        else:
+            # New format: list of items with title
+            lines = []
+            for item in known_issues:
+                title = item.get("title", "")
+                if title:
+                    lines.append(f"- {title}")
+
+            known_issues_text = "\n".join(lines)
+
+        if not known_issues_text:
+            return """Known Issues
+-------------------------------------------------------------------------------
+There are no known issues for this catalog release.
+"""
+
+        return f"""Known Issues
+-------------------------------------------------------------------------------
+{known_issues_text}
+"""
 
 
 # Made with Bob

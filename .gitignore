@@ -56,4 +56,5 @@ python/src/mas/cli/templates/ibm-mas-tekton.yaml
 python/src/mas/cli/templates/ibm-mas-tekton-with-digest.yaml
 python/mas-*.spec
 python/README.rst
-/mkdocs_plugins/mkdocs_mas_catalogs/mkdocs_mas_catalogs.egg-info
+
+/mkdocs_plugins/mkdocs_mas_catalogs.egg-info
