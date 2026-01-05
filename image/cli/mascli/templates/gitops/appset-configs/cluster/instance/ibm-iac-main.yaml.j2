@@ -212,7 +212,7 @@ locals {
     iot-msk = {
       name        = join("-", [var.cluster_name, var.instance_name, "iot"])
       sre_prefix  = var.name_prefix
-      secret_name = join("-", [var.cluster_name, var.instance_name])
+      secret_name = join("-", [var.cluster_name, var.instance_name, "iot"])
       broker_volume_size = {{MSK_IOT_BROKER_VOLUME_SIZE}}
       cluster_name = "{{MSK_IOT_CLUSTER_USERNAME}}"
       broker_nodes = {{MSK_IOT_NUMBER_OF_BROKER_NODES}}
@@ -224,7 +224,7 @@ locals {
     monitor-msk = {
       name        = join("-", [var.cluster_name, var.instance_name, "monitor"])
       sre_prefix  = var.name_prefix
-      secret_name = join("-", [var.cluster_name, var.instance_name])
+      secret_name = join("-", [var.cluster_name, var.instance_name, "monitor"])
       broker_volume_size = {{MSK_MONITOR_BROKER_VOLUME_SIZE}}
       cluster_name = "{{MSK_MONITOR_CLUSTER_USERNAME}}"
       broker_nodes = {{MSK_MONITOR_NUMBER_OF_BROKER_NODES}}
