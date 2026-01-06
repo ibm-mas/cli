@@ -95,36 +95,23 @@ spec:
     - name: is_msk
       type: string
       default: 'false'
-   # iac-msk iot params
-    - name: msk_iot_kafka_version
+   # iac-msk  params
+    - name: msk_kafka_version
       type: string
       default: ''
-    - name: msk_iot_instance_type
+    - name: msk_instance_type
       type: string
       default: ''
-    - name: msk_iot_cluster_username
+    - name: msk_cluster_username
       type: string
       default: ''
-    - name: msk_iot_broker_volume_size
+    - name: msk_broker_volume_size
       type: string
       default: ''
-    - name: msk_iot_number_of_broker_nodes
+    - name: msk_number_of_broker_nodes
       type: string
       default: ''
-   # iac-msk monitor params
-    - name: msk_monitor_kafka_version
-      type: string
-      default: ''
-    - name: msk_monitor_instance_type
-      type: string
-      default: ''
-    - name: msk_monitor_cluster_username
-      type: string
-      default: ''
-    - name: msk_monitor_broker_volume_size
-      type: string
-      default: ''
-    - name: msk_monitor_number_of_broker_nodes
+    - name: msk_cluster_prefix
       type: string
       default: ''
 
@@ -194,28 +181,19 @@ spec:
         value: $(params.s3_manage)
       - name: S3_MVI
         value: $(params.s3_mvi)
-      # iac-msk iot params
-      - name: MSK_IOT_KAFKA_VERSION
-        value: $(params.msk_iot_kafka_version)
-      - name: MSK_IOT_INSTANCE_TYPE
-        value: $(params.msk_iot_instance_type)
-      - name: MSK_IOT_CLUSTER_USERNAME
-        value: $(params.msk_iot_cluster_username)
-      - name: MSK_IOT_BROKER_VOLUME_SIZE
-        value: $(params.msk_iot_broker_volume_size)
-      - name: MSK_IOT_NUMBER_OF_BROKER_NODES
-        value: $(params.msk_iot_number_of_broker_nodes)
-      # iac-msk monitor params
-      - name: MSK_MONITOR_KAFKA_VERSION
-        value: $(params.msk_monitor_kafka_version)
-      - name: MSK_MONITOR_INSTANCE_TYPE
-        value: $(params.msk_monitor_instance_type)
-      - name: MSK_MONITOR_CLUSTER_USERNAME
-        value: $(params.msk_monitor_cluster_username)
-      - name: MSK_MONITOR_BROKER_VOLUME_SIZE
-        value: $(params.msk_monitor_broker_volume_size)
-      - name: MSK_MONITOR_NUMBER_OF_BROKER_NODES
-        value: $(params.msk_monitor_number_of_broker_nodes)
+      # iac-msk params
+      - name: MSK_KAFKA_VERSION
+        value: $(params.msk_kafka_version)
+      - name: MSK_INSTANCE_TYPE
+        value: $(params.msk_instance_type)
+      - name: MSK_CLUSTER_USERNAME
+        value: $(params.msk_cluster_username)
+      - name: MSK_BROKER_VOLUME_SIZE
+        value: $(params.msk_broker_volume_size)
+      - name: MSK_NUMBER_OF_BROKER_NODES
+        value: $(params.msk_number_of_broker_nodes)
+      - name: MSK_CLUSTER_PREFIX
+        value: $(params.msk_cluster_prefix)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -258,16 +236,12 @@ spec:
           [ -n "$EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE" ] && CMD="$CMD --efs_visualinspection_main_throughput_mode $EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE"
           [ -n "$S3_MANAGE" ] && CMD="$CMD --s3_manage $S3_MANAGE"
           [ -n "$S3_MVI" ] && CMD="$CMD --s3_mvi $S3_MVI"
-          [ -n "$MSK_IOT_KAFKA_VERSION" ] && CMD="$CMD --msk_iot_kafka_version $MSK_IOT_KAFKA_VERSION"
-          [ -n "$MSK_IOT_INSTANCE_TYPE" ] && CMD="$CMD --msk_iot_instance_type $MSK_IOT_INSTANCE_TYPE"
-          [ -n "$MSK_IOT_CLUSTER_USERNAME" ] && CMD="$CMD --msk_iot_cluster_username $MSK_IOT_CLUSTER_USERNAME"
-          [ -n "$MSK_IOT_BROKER_VOLUME_SIZE" ] && CMD="$CMD --msk_iot_broker_volume_size $MSK_IOT_BROKER_VOLUME_SIZE"
-          [ -n "$MSK_IOT_NUMBER_OF_BROKER_NODES" ] && CMD="$CMD --msk_iot_number_of_broker_nodes $MSK_IOT_NUMBER_OF_BROKER_NODES"
-          [ -n "$MSK_MONITOR_KAFKA_VERSION" ] && CMD="$CMD --msk_monitor_kafka_version $MSK_MONITOR_KAFKA_VERSION"
-          [ -n "$MSK_MONITOR_INSTANCE_TYPE" ] && CMD="$CMD --msk_monitor_instance_type $MSK_MONITOR_INSTANCE_TYPE"
-          [ -n "$MSK_MONITOR_CLUSTER_USERNAME" ] && CMD="$CMD --msk_monitor_cluster_username $MSK_MONITOR_CLUSTER_USERNAME"
-          [ -n "$MSK_MONITOR_BROKER_VOLUME_SIZE" ] && CMD="$CMD --msk_monitor_broker_volume_size $MSK_MONITOR_BROKER_VOLUME_SIZE"
-          [ -n "$MSK_MONITOR_NUMBER_OF_BROKER_NODES" ] && CMD="$CMD --msk_monitor_number_of_broker_nodes $MSK_MONITOR_NUMBER_OF_BROKER_NODES"
+          [ -n "$MSK_KAFKA_VERSION" ] && CMD="$CMD --msk_kafka_version $MSK_KAFKA_VERSION"
+          [ -n "$MSK_INSTANCE_TYPE" ] && CMD="$CMD --msk_instance_type $MSK_INSTANCE_TYPE"
+          [ -n "$MSK_CLUSTER_USERNAME" ] && CMD="$CMD --msk_cluster_username $MSK_CLUSTER_USERNAME"
+          [ -n "$MSK_BROKER_VOLUME_SIZE" ] && CMD="$CMD --msk_broker_volume_size $MSK_BROKER_VOLUME_SIZE"
+          [ -n "$MSK_NUMBER_OF_BROKER_NODES" ] && CMD="$CMD --msk_number_of_broker_nodes $MSK_NUMBER_OF_BROKER_NODES"
+          [ -n "$MSK_CLUSTER_PREFIX" ] && CMD="$CMD --msk_cluster_prefix $MSK_CLUSTER_PREFIX"
 
           echo "Executing: $CMD"
           eval $CMD
