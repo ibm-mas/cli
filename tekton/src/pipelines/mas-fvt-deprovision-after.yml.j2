@@ -142,7 +142,7 @@ spec:
           operator: in
           values: ["uninstall"]
 
-    # 2. Delete the named cluster
+    # 3. Delete the named cluster
     # -------------------------------------------------------------------------
     - name: deprovision-cluster
       taskRef:
@@ -151,25 +151,4 @@ spec:
       runAfter:
         - cos-deprovision
         - kafka-deprovision
-
-  # Finally
-  # ---------------------------------------------------------------------------
-  finally:
-    - name: pipeline-finish
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-devops-update-pipeline-status
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipeline_status
-          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
-          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
-          value: $(tasks.status)
-        - name: pipeline_name
-          value: $(context.pipeline.name)
-        - name: pipelinerun_name
-          value: $(context.pipelineRun.name)
-        - name: pipelinerun_namespace
-          value: $(context.pipelineRun.namespace)
+    
