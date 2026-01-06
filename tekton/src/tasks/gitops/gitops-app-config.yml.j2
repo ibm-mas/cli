@@ -35,7 +35,8 @@ spec:
       type: string
     - name: maf_storageClassName
       type: string
-
+    - name: maf_size
+      type: string
   stepTemplate:
     name: gitops-app-config
     env:
@@ -69,6 +70,8 @@ spec:
         value: "$(params.mas_appcfg_pod_template_yaml)"
       - name: MAF_STORAGE_CLASSNAME
         value: "$(params.maf_storageClassName)"
+      - name: MAF_SIZE
+        value: "$(params.maf_size)"
     envFrom:
       - configMapRef:
           name: environment-properties

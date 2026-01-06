@@ -15,7 +15,7 @@ maf_enabled: {{ MAF_ENABLED }}
 
 persistentVolume:
   name: app-config
-  size: 2Gi
+  size: {{ MAF_SIZE }}
   storageClassName: {{ MAF_STORAGE_CLASSNAME }}
 
 {% if MAS_APPCFG_POD_TEMPLATE is defined and MAS_APPCFG_POD_TEMPLATE !='' %}

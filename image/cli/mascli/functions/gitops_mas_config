@@ -49,8 +49,9 @@ DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
   --mas-bascfg-pod-template-yaml ${COLOR_YELLOW}MAS_BASCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
 
 MAF Configuration (required if MAS_CONFIG_TYPE is "appcfg"):
-  --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                         Enable MAF for the application configuration (true|false)
-  --maf-storageClassName ${COLOR_YELLOW}MAF_STORAGE_CLASSNAME${TEXT_RESET}   Storage class name to use for MAF persistent storage
+  --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                       Enable MAF for the application configuration (true|false)
+  --maf-storageClassName ${COLOR_YELLOW}MAF_STORAGE_CLASSNAME${TEXT_RESET}    Storage class name to use for MAF persistent storage
+  --maf-size ${COLOR_YELLOW}MAF_SIZE${TEXT_RESET}                             Size of the MAF persistent storage (e.g. 2Gi)
   --mas-appcfg-pod-template-yaml ${COLOR_YELLOW}MAS_APPCFG_POD_TEMPLATE_YAML${TEXT_RESET}   
 
 IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
@@ -215,6 +216,9 @@ function gitops_mas_config_noninteractive() {
       --maf-storageClassName)
         export MAF_STORAGE_CLASSNAME=$1 && shift
         ;;
+      --maf-size)
+        export MAF_SIZE=$1 && shift
+        ;;
       # LDAP
       --idpcfg-display-name)
         export IDPCFG_DISPLAY_NAME=$1 && shift
@@ -364,7 +368,7 @@ function gitops_mas_config_noninteractive() {
     gitops_mas_config_help "Invalid CONFIG_ACTION \"${CONFIG_ACTION}\"; must be one of 'upsert' or 'remove'"
   fi
 
-  [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_CONFIG_TYPE is not set"
   if ! [[ "$MAS_CONFIG_TYPE" =~ ^(appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
     gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
   fi
@@ -404,7 +408,7 @@ function gitops_mas_config_noninteractive() {
 
     if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
       [[ -z "$MAF_ENABLED" ]] && gitops_mas_config_help "MAF_ENABLED is not set"
-      # [[ -z "$MAS_APPCFG_POD_TEMPLATE_YAML" ]] && gitops_mas_config_help "MAS_APPCFG_POD_TEMPLATE_YAML is not set"
+      [[ -z "$MAF_SIZE" ]] && gitops_mas_config_help "MAF_SIZE is not set"
       [[ -z "$MAF_STORAGE_CLASSNAME" ]] && gitops_mas_config_help "MAF_STORAGE_CLASSNAME is not set"
     fi
     # if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
@@ -614,6 +618,7 @@ function gitops_mas_config() {
       echo "${TEXT_DIM}"
       echo_reset_dim "MAF Enabled  ................... ${COLOR_MAGENTA}${MAF_ENABLED}"
       echo_reset_dim "MAF Storage Class Name  ........ ${COLOR_MAGENTA}${MAF_STORAGE_CLASSNAME}"
+      echo_reset_dim "MAF Size  ...................... ${COLOR_MAGENTA}${MAF_SIZE}"
       echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_APPCFG_POD_TEMPLATE_YAML}"
       reset_colors
     fi

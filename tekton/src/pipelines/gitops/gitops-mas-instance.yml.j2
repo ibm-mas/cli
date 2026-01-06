@@ -243,6 +243,9 @@ spec:
     - name: maf_storageClassName
       type: string
       default: ""
+    - name: maf_size
+      type: string
+      default: "2Gi"
 
    # standalone sls
     - name: sls_service
@@ -788,6 +791,8 @@ spec:
           value: $(params.mas_appcfg_pod_template_yaml)
         - name: maf_storageClassName
           value: $(params.maf_storageClassName)
+        - name: maf_size
+          value: $(params.maf_size)
       taskRef:
         kind: Task
         name: gitops-app-config
