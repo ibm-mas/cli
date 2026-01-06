@@ -1105,8 +1105,7 @@ function gitops_iac_manage_pr() {
     
     if [[ "$PR_PLAN_COMMENT" == "Passed" ]]; then
       echo "Going to approve PR: "${PR_NUMBER}
-#      APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")# For Testing
-      APPROVED_PR = "false" # For Testing
+      APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")
       echo "PR approved ${APPROVED_PR}"
       if [[ "$APPROVED_PR" == "true" ]]; then
         sleep 60
