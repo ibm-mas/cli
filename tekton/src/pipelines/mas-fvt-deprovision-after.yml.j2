@@ -78,23 +78,6 @@ spec:
       default: ""
 
   tasks:
-    - name: pipeline-start
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-devops-update-pipeline-status
-      params:
-        - name: image_pull_policy
-          value: $(params.image_pull_policy)
-        - name: pipeline_status
-          value: Started
-        - name: pipeline_name
-          value: $(context.pipeline.name)
-        - name: pipelinerun_name
-          value: $(context.pipelineRun.name)
-        - name: pipelinerun_namespace
-          value: $(context.pipelineRun.namespace)
-
     # 0. Wait for the named pipeline to complete
     # -------------------------------------------------------------------------
     - name: wait-for-pipelinerun
@@ -112,8 +95,6 @@ spec:
           value: 60  # attempts before giving up (approximately 20 hours)
         - name: ignore_failure
           value: $(params.ignore_failure)
-      runAfter:
-        - pipeline-start
 
     # 1. Delete IBM Cloud services
     # -------------------------------------------------------------------------
@@ -142,7 +123,7 @@ spec:
           operator: in
           values: ["uninstall"]
 
-    # 3. Delete the named cluster
+    # 2. Delete the named cluster
     # -------------------------------------------------------------------------
     - name: deprovision-cluster
       taskRef:
@@ -151,4 +132,3 @@ spec:
       runAfter:
         - cos-deprovision
         - kafka-deprovision
-    
