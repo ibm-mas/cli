@@ -22,6 +22,10 @@ do
         DOCKERFILE="$2"
         ;;
 
+        --scap-data-stream)
+        SCAP_DATA_STREAM="$2"
+        ;;
+
         --target-platform)
         TARGET_PLATFORM="$2"
         ;;
@@ -58,6 +62,8 @@ echo "VERSION_LABEL .... $DOCKER_TAG"
 echo "RELEASE_LABEL .... $GITHUB_RUN_ID"
 echo "VCS_REF .......... $GITHUB_SHA"
 echo "VCS_URL .......... https://github.com/$GITHUB_REPOSITORY"
+echo "GITHUB_REF_TYPE .. $GITHUB_REF_TYPE"
+echo "GITHUB_REF_NAME .. $GITHUB_REF_NAME"
 
 install_buildx
 
@@ -77,4 +83,35 @@ docker buildx build --progress plain \
   --build-arg RELEASE_LABEL=$GITHUB_RUN_ID \
   --build-arg VCS_REF=$GITHUB_SHA \
   --build-arg VCS_URL=https://github.com/$GITHUB_REPOSITORY \
+  --secret id=ARTIFACTORY_TOKEN \
+  --secret id=ARTIFACTORY_GENERIC_RELEASE_URL \
+  --secret id=GITHUB_REF_NAME \
+  --secret id=GITHUB_REF_TYPE \
   -t $LOCAL_TAG $EXTRA_PARAMS -f $DOCKERFILE $BUILDPATH || exit 1
+
+# 5. Generate OSCAP(Security Content Automation Protocol) report
+# ---------------------------------------------------------------------------------------------------------------------
+echo_h2 "Generate OSCAP scan report and remediation script"
+if [[ "$TARGET_PLATFORM" == "amd64" ]]; then
+  if [[ "$OSCAP_ENABLED" != "true" ]]; then
+    echo "SCAP scan is disabled, set OSCAP_ENABLED=true for SCAP scanning and image hardening during image build ${NAMESPACE}/${IMAGE}:${DOCKER_TAG}"
+  else
+    install_oscap
+    mkdir -p $OSCAP_DIR
+    echo "SCAP Data Stream: ${SCAP_DATA_STREAM}.xml"
+    echo "Generating OSCAP scan report"
+    image_name="${REPOSITORY##*/}"
+    if [[ "$TARGET_PLATFORM" == "" ]]; then
+      sudo $DIR/oscap-docker.sh $REPOSITORY:latest xccdf eval --report $OSCAP_DIR/$image_name-report.html --results $OSCAP_DIR/$image_name-results.xml --profile stig $CONFIG_DIR/oscap/${SCAP_DATA_STREAM}.xml
+    else
+      sudo $DIR/oscap-docker.sh $REPOSITORY:$DOCKER_TAG-$TARGET_PLATFORM xccdf eval --report $OSCAP_DIR/$image_name-report.html --results $OSCAP_DIR/$image_name-results.xml --profile stig $CONFIG_DIR/oscap/${SCAP_DATA_STREAM}.xml
+    fi
+    sudo oscap xccdf generate fix --fix-type bash --output $OSCAP_DIR/$image_name-remediation.sh --result-id xccdf_org.open-scap_testresult_xccdf_org.ssgproject.content_profile_stig $OSCAP_DIR/$image_name-results.xml
+
+    # Upload the results to Artifactory
+    artifactory_upload $OSCAP_DIR/$image_name-report.html $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/$image_name/$DOCKER_TAG/$image_name-report.html
+    artifactory_upload $OSCAP_DIR/$image_name-results.xml $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/$image_name/$DOCKER_TAG/$image_name-results.xml
+  fi
+else
+  echo "OSCAP tooling can only process amd64 container images"
+fi

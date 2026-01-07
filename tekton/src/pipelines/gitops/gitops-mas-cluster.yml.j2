@@ -245,10 +245,24 @@ spec:
     - name: provisioner_async_poll_max
       type: string
       default: ''
-    - name: provisioner_csb_ca_certificate_file
+    - name: provisioner_csb_client_ca_cert_file
       type: string
       default: ''
-
+    - name: provisioner_recommend_cluster
+      type: string
+      default: 'false'
+    - name: provisioner_storage_class
+      type: string
+      default: 'ocs-storagecluster-cephfs'
+    - name: provisioner_instana_url_prefix
+      type: string
+      default: ''
+    - name: provisioner_git_root_ca_certificate_file
+      type: string
+      default: ''
+    - name: provisioner_mas_annotations_repo_url
+      type: string
+      default: ''
   tasks:
     - name: gitops-cluster
       params:
@@ -553,8 +567,18 @@ spec:
           value: $(params.provisioner_enable_ocm_alert)
         - name: enable_pd_alert
           value: $(params.provisioner_enable_pd_alert)
-        - name: csb_ca_certificate_file
-          value: $(params.provisioner_csb_ca_certificate_file)
+        - name: csb_client_ca_certificate_file
+          value: $(params.provisioner_csb_client_ca_cert_file)
+        - name: recommend_cluster
+          value: $(params.provisioner_recommend_cluster)
+        - name: provisioner_storage_class
+          value: $(params.provisioner_storage_class)
+        - name: instana_url_prefix
+          value: $(params.provisioner_instana_url_prefix)
+        - name: git_root_ca_certificate_file
+          value: $(params.provisioner_git_root_ca_certificate_file)
+        - name: mas_annotations_repo_url
+          value: $(params.provisioner_mas_annotations_repo_url)
       taskRef:
         kind: Task
         name: gitops-mas-provisioner

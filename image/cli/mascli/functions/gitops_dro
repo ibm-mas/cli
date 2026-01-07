@@ -306,4 +306,7 @@ function gitops_dro() {
   # Get generated DRO API Token and set it in AWS SM
   # ---------------------------------------------------------------------------
   # This is now handled by a postsync job in the ibm-dro chart
+
+  rm -rf $TEMP_DIR
+
 }

@@ -1,0 +1,378 @@
+#!/bin/bash
+set -e
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. $DIR/../functions/internal/utils
+
+INSTANCE_ID=$1
+OUTPUT_FILE=$2
+
+# -----------------------------------------------------------------------------
+# Collect MAS quick summary for a given instance ID
+# -----------------------------------------------------------------------------
+
+# First, extract the contents of the MAS Core CR, as they will be used many times in this script
+MAS_CR_JSON=$(oc get suite -n mas-$INSTANCE_ID-core -o json --ignore-not-found 2>/dev/null || echo "")
+MAS_VERSION=$(echo "$MAS_CR_JSON" | jq -r '.items[0].status.versions.reconciled')
+MAJOR=$(echo "$MAS_VERSION" | cut -d. -f1)
+MINOR=$(echo "$MAS_VERSION" | cut -d. -f2)
+IS_AFTER_MAS811=false
+IS_AFTER_MAS90=false
+IS_AFTER_MAS91=false
+# Check if MAS is 8.11 or later
+if [[ "$MAJOR" -gt 8 || ( "$MAJOR" -eq 8 && "$MINOR" -ge 11 ) ]]; then
+  IS_AFTER_MAS811=true
+fi
+# Check if MAS is 9.0 or later
+if [[ "$MAJOR" -gt 9 || ( "$MAJOR" -eq 9 && "$MINOR" -ge 0 ) ]]; then
+  IS_AFTER_MAS90=true
+fi
+# Check if MAS is 9.1 or later
+if [[ "$MAJOR" -gt 9 || ( "$MAJOR" -eq 9 && "$MINOR" -ge 1 ) ]]; then
+  IS_AFTER_MAS91=true
+fi
+
+echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+echo  🔧 MAS Environment Overview >> ${OUTPUT_FILE} 2> /dev/null
+echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+echo "# MAS Core Version" >> ${OUTPUT_FILE} 2> /dev/null
+echo "MAS version: $MAS_VERSION" >> ${OUTPUT_FILE} 2> /dev/null
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+if [[ "$IS_AFTER_MAS811" == "true" ]]; then
+  SEAMLESS_LOGIN=$(echo "$MAS_CR_JSON" | jq -r '.items[0].status.settings.sso.seamlessLogin')
+  echo "# Seamless login status" >> ${OUTPUT_FILE} 2> /dev/null
+  echo "Seamless login: $SEAMLESS_LOGIN" >> ${OUTPUT_FILE} 2> /dev/null
+  echo "" >> ${OUTPUT_FILE} 2> /dev/null
+fi
+
+if [[ "$IS_AFTER_MAS90" == "true" ]]; then
+  echo "# User self registration configuration" >> ${OUTPUT_FILE} 2> /dev/null
+  SELFREG_CONFIGMAP_JSON=$(oc get configmap $INSTANCE_ID-selfreg -n mas-$INSTANCE_ID-core -o json --ignore-not-found 2>/dev/null | jq -r '.data | to_entries[] | "\(.key):\n\(.value)"' 2>/dev/null || echo "")
+  if [[ "$SELFREG_CONFIGMAP_JSON" != "" ]]; then
+    echo "User self registration configuration:" >> ${OUTPUT_FILE} 2> /dev/null
+    echo "$SELFREG_CONFIGMAP_JSON" >> ${OUTPUT_FILE} 2> /dev/null
+  else
+    echo "User self registration configuration: (not configured)" >> ${OUTPUT_FILE} 2> /dev/null
+  fi
+  echo "" >> ${OUTPUT_FILE} 2> /dev/null
+fi
+
+echo  ================================ >> ${OUTPUT_FILE} 2> /dev/null
+echo  🔄 User Registry Synchronization >> ${OUTPUT_FILE} 2> /dev/null
+echo  ================================ >> ${OUTPUT_FILE} 2> /dev/null
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+echo "# Sync Report for SCIM Agent" >> ${OUTPUT_FILE} 2> /dev/null
+SCIMCFG_CR_JSON=$(oc get scimcfg -n mas-$INSTANCE_ID-core -o json --ignore-not-found 2>/dev/null || echo "")
+# Print the user registry synchronization reports
+if [[ "$SCIMCFG_CR_JSON" != "" ]]; then
+  echo "User registry synchronization reports:" >> ${OUTPUT_FILE} 2> /dev/null
+  echo "$SCIMCFG_CR_JSON" | jq '.items[] | {name: .metadata.name, report: .status.report}' >> ${OUTPUT_FILE} 2> /dev/null || echo "Report not found!" >> ${OUTPUT_FILE} 2> /dev/null
+else
+  echo "User registry synchronization: (not configured)" >> ${OUTPUT_FILE} 2> /dev/null
+fi
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+echo  ============================== >> ${OUTPUT_FILE} 2> /dev/null
+echo  📦 Pod Health and Status Check >> ${OUTPUT_FILE} 2> /dev/null
+echo  ============================== >> ${OUTPUT_FILE} 2> /dev/null
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+# Create a temporary file with the output of oc get pods command to avoid having to run that command many times
+TEMP_PODS_LIST_FILE_PATH=/tmp/coreservicespods.txt
+oc get pods -n mas-${INSTANCE_ID}-core -o json | jq -r '.items[] | . as $pod | $pod.status.containerStatuses[] | [$pod.metadata.name, (.state | keys[0]), (if .state.waiting? then .state.waiting.reason else "" end)] | @tsv' >> $TEMP_PODS_LIST_FILE_PATH 2> /dev/null || true
+echo "# Core services" >> ${OUTPUT_FILE} 2> /dev/null
+echo "Coreapi pods running states: " >> ${OUTPUT_FILE} 2> /dev/null
+cat $TEMP_PODS_LIST_FILE_PATH | grep "^.*-coreapi-" >> ${OUTPUT_FILE} 2> /dev/null || true
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+echo "Internalapi pod running state: " >> ${OUTPUT_FILE} 2> /dev/null
+cat $TEMP_PODS_LIST_FILE_PATH | grep "^.*-internalapi-" >> ${OUTPUT_FILE} 2> /dev/null || true
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+echo "Usersync-coordinator pod running state: " >> ${OUTPUT_FILE} 2> /dev/null
+cat $TEMP_PODS_LIST_FILE_PATH | grep "^.*-usersync-coordinator-" >> ${OUTPUT_FILE} 2> /dev/null || true
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+echo "Scimsync running state: " >> ${OUTPUT_FILE} 2> /dev/null
+cat $TEMP_PODS_LIST_FILE_PATH | grep "^.*-scimsync-" >> ${OUTPUT_FILE} 2> /dev/null || true
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+echo "Scimsync-agent pods running states: " >> ${OUTPUT_FILE} 2> /dev/null
+cat $TEMP_PODS_LIST_FILE_PATH | grep "^.*-scim-cronjob-" >> ${OUTPUT_FILE} 2> /dev/null || true
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+# Remove the temporary pods list file
+rm $TEMP_PODS_LIST_FILE_PATH
+
+echo  ============================= >> ${OUTPUT_FILE} 2> /dev/null
+echo  🧩 Manage Application Details >> ${OUTPUT_FILE} 2> /dev/null
+echo  ============================= >> ${OUTPUT_FILE} 2> /dev/null
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+declare -A CR_JSON_MAP
+# Now extract the contents of the CRs of all installed APPs (Manage CR will be used many times in this script)
+echo "# Activated applications" >> ${OUTPUT_FILE} 2> /dev/null
+echo "Apps activated:" >> ${OUTPUT_FILE} 2> /dev/null
+APP_IDS="assist,iot,monitor,manage,optimizer,predict,visualinspection,facilities"
+for APP_ID in $(echo $APP_IDS | tr "," " ")
+do
+  APP_WORKSPACE_CR_KIND=${APP_ID}workspace
+  # Handling visual inspection edge case where the workspace CR kind does not follow the standard naming convention
+  if [[ "$APP_ID" == "visualinspection" ]]; then
+    APP_WORKSPACE_CR_KIND=${APP_ID}appworkspace
+  fi
+  CR_CONTENT=$(oc get ${APP_WORKSPACE_CR_KIND} -n mas-${INSTANCE_ID}-${APP_ID} -o json --ignore-not-found 2> /dev/null || echo "")
+  # If CR is found, it means the app is deployed and activated
+  if [[ "$CR_CONTENT" != "" ]]; then
+    echo "- $APP_ID" >> ${OUTPUT_FILE} 2> /dev/null
+  fi
+  # Store app CR json for future reference in this script (specially Manage CR)
+  CR_JSON_MAP["${APP_ID}"]="$CR_CONTENT"
+done
+echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+# Steps below are only applicable if Manage is installed
+MANAGE_CR_JSON="${CR_JSON_MAP["manage"]}"
+if [[ "$MANAGE_CR_JSON" != "" ]]; then
+
+  echo "# Manage App Version" >> ${OUTPUT_FILE} 2> /dev/null
+  MANAGE_VERSION=$(echo "$MANAGE_CR_JSON" | jq -r '.items[0].status.versions.reconciled' || echo "")
+  echo "Manage version: $MANAGE_VERSION" >> ${OUTPUT_FILE} 2> /dev/null
+  echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+  echo "# Deployment type: " >> ${OUTPUT_FILE} 2> /dev/null
+  MANAGE_DEPLOYMENT_TYPE=$(echo "$MANAGE_CR_JSON" | jq -r '.items[0].spec.components.base' || echo "")
+  if [[ "$MANAGE_DEPLOYMENT_TYPE" != "null" ]]; then
+    echo "Manage deployment type: Full Manage" >> ${OUTPUT_FILE} 2> /dev/null
+    MANAGE_BUNDLE_NAME=$(echo "$MANAGE_CR_JSON" | jq -r '.items[0].spec.settings.deployment.serverBundles[] | select(.bundleType == "all") | .name' || echo "")
+    # If the "all" bundle name is not found, then we have split bundle, so we try to find the name of the bundle with bundleType "ui"
+    if [[ "$MANAGE_BUNDLE_NAME" == "" ]]; then
+      MANAGE_BUNDLE_NAME=$(echo "$MANAGE_CR_JSON" | jq -r '.items[0].spec.settings.deployment.serverBundles[] | select(.bundleType == "ui") | .name' || echo "")
+    fi
+  else
+    echo "Manage deployment type: Foundation only" >> ${OUTPUT_FILE} 2> /dev/null
+    # In Manage foundation the only bundle available is the one with bundleType "foundation" and name "foundation"
+    MANAGE_BUNDLE_NAME=foundation
+  fi
+  echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+  WORKSPACE_ID=$(echo "$MANAGE_CR_JSON" | jq -r '.items[0].metadata.labels["mas.ibm.com/workspaceId"]')
+  if [[ "$WORKSPACE_ID" != "null" ]]; then
+    # Create a temporary file with the output of oc get pods command to avoid having to run that command many times
+    TEMP_PODS_LIST_FILE_PATH=/tmp/managepods.txt
+    oc get pods -n mas-${INSTANCE_ID}-manage -o json | jq -r '.items[] | . as $pod | $pod.status.containerStatuses[] | [$pod.metadata.name, (.state | keys[0]), (if .state.waiting? then .state.waiting.reason else "" end)] | @tsv' >> $TEMP_PODS_LIST_FILE_PATH 2> /dev/null || true
+    echo "# Manage Pods" >> ${OUTPUT_FILE} 2> /dev/null
+    # Manage usersyncagent pod running state
+    echo "Manage usersyncagent pod running state:" >> ${OUTPUT_FILE} 2> /dev/null
+    cat $TEMP_PODS_LIST_FILE_PATH | grep "^.*-usersyncagent-" >> ${OUTPUT_FILE} 2> /dev/null || true
+    echo "" >> ${OUTPUT_FILE} 2> /dev/null
+    # Other manage pods running state
+    echo "Other Manage-related pods:" >> ${OUTPUT_FILE} 2> /dev/null
+    cat $TEMP_PODS_LIST_FILE_PATH | grep "^.*-$WORKSPACE_ID-" >> ${OUTPUT_FILE} 2> /dev/null || true
+    echo "" >> ${OUTPUT_FILE} 2> /dev/null
+    # Remove the temporary pods list file
+    rm $TEMP_PODS_LIST_FILE_PATH
+  else
+    # Should never end up here, but we need to consider this case
+    echo "Workspace ID could not be found in the ManageWorkspace CR. Some of the tests that depend on Workspace ID will be skipped." >> ${OUTPUT_FILE} 2> /dev/null
+    echo "" >> ${OUTPUT_FILE} 2> /dev/null
+  fi
+
+  echo "# PodTemplates Configuration" >> ${OUTPUT_FILE} 2> /dev/null
+  echo "Manage podTemplates configuration: " >> ${OUTPUT_FILE} 2> /dev/null
+  MANAGE_POD_TEMPLATES=$(echo "$MANAGE_CR_JSON" | jq -r '.items[0].spec.podTemplates' || echo "")
+  echo $MANAGE_POD_TEMPLATES >> ${OUTPUT_FILE} 2> /dev/null
+  echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+  echo  ========================================== >> ${OUTPUT_FILE} 2> /dev/null
+  echo  📡 MAS-Manage and Manage-MAS Communication >> ${OUTPUT_FILE} 2> /dev/null
+  echo  ========================================== >> ${OUTPUT_FILE} 2> /dev/null
+  echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+  # If Manage is installed and we are in 9.1 All Manage to MAS and MAS to Manage tests can be performed
+  # Call the /ping Manage endpoint from MAS pods and the /v1/authservice/systeminfo MAS endpoint from Manage pod
+  if [[ "$IS_AFTER_MAS91" == "true" ]]; then
+
+    if [[ "$WORKSPACE_ID" != "null" ]]; then
+
+      echo "# Manage endpoint access from MAS internalapi" >> ${OUTPUT_FILE} 2> /dev/null
+      # Get the name of the internalapi pod to be used for checking the connection between MAS and Manage
+      INTERNALAPI_POD_NAME=$(oc get pods -n mas-${INSTANCE_ID}-core --no-headers -o custom-columns=":metadata.name" | grep "^${INSTANCE_ID}-internalapi-" | head -n 1)
+      if [[ "$INTERNALAPI_POD_NAME" != "" ]]; then
+        MANAGE_PING_RESPONSE=$((oc exec -n mas-$INSTANCE_ID-core "$INTERNALAPI_POD_NAME" -- curl -vs -X GET "https://$INSTANCE_ID-$WORKSPACE_ID-foundation.mas-$INSTANCE_ID-manage.svc/maximo/api/ping" --cert /etc/ssl/certs/mascore-cert/tls.crt --key /etc/ssl/certs/mascore-cert/tls.key --cacert /etc/ssl/certs/mascore-cert/ca.crt) 2>/dev/null || echo "")
+        if [[ "$MANAGE_PING_RESPONSE" != "" ]]; then
+          if echo "$MANAGE_PING_RESPONSE" | jq empty 2>/dev/null; then
+            if [[ "$MANAGE_PING_RESPONSE" == *"manageorhealth"* ]]; then
+              echo "Manage endpoint access from MAS internalapi: successful" >> ${OUTPUT_FILE} 2> /dev/null
+            else
+              echo "Manage endpoint access from MAS internalapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
+              echo "Details: Invalid JSON response: $MANAGE_PING_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+            fi          
+          else
+            echo "Manage endpoint access from MAS internalapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "Details: Invalid JSON response: $MANAGE_PING_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+          fi
+        else
+          echo "Manage endpoint access from MAS internalapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Details: Could not get a response from Manage /ping endpoint." >> ${OUTPUT_FILE} 2> /dev/null
+        fi
+      else
+        echo "Manage endpoint access from MAS internalapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
+        echo "Details: Internalapi pod could not be found." >> ${OUTPUT_FILE} 2> /dev/null
+      fi
+      echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+      echo "# Manage endpoint access from MAS coreapi" >> ${OUTPUT_FILE} 2> /dev/null
+      # Get the name of the coreapi pod to be used for checking the connection between MAS and Manage
+      COREAPI_POD_NAME=$(oc get pods -n mas-${INSTANCE_ID}-core --no-headers -o custom-columns=":metadata.name" | grep "^${INSTANCE_ID}-coreapi-" | head -n 1)
+      if [[ "$COREAPI_POD_NAME" != "" ]]; then
+        MANAGE_PING_RESPONSE=$((oc exec -n mas-$INSTANCE_ID-core "$COREAPI_POD_NAME" -- curl -vs -X GET "https://$INSTANCE_ID-$WORKSPACE_ID-foundation.mas-$INSTANCE_ID-manage.svc/maximo/api/ping" --cert /etc/mas/certs/manage-cert-internal/tls.crt --key /etc/mas/certs/manage-cert-internal/tls.key --cacert /etc/mas/certs/manage-cert-internal/ca.crt) 2>/dev/null || echo "")
+        if [[ "$MANAGE_PING_RESPONSE" != "" ]]; then
+          if echo "$MANAGE_PING_RESPONSE" | jq empty 2>/dev/null; then
+            if [[ "$MANAGE_PING_RESPONSE" == *"manageorhealth"* ]]; then
+              echo "Manage endpoint access from MAS coreapi: successful" >> ${OUTPUT_FILE} 2> /dev/null
+            else
+              echo "Manage endpoint access from MAS coreapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
+              echo "Details: Invalid JSON response: $MANAGE_PING_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+            fi          
+          else
+            echo "Manage endpoint access from MAS coreapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "Details: Invalid JSON response: $MANAGE_PING_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+          fi
+        else
+          echo "Manage endpoint access from MAS coreapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Details: Could not get a response from Manage /ping endpoint." >> ${OUTPUT_FILE} 2> /dev/null
+        fi
+      else
+        echo "Manage endpoint access from MAS coreapi: failed" >> ${OUTPUT_FILE} 2> /dev/null
+        echo "Details: Coreapi pod could not be found." >> ${OUTPUT_FILE} 2> /dev/null
+      fi
+      echo "" >> ${OUTPUT_FILE} 2> /dev/null
+    fi
+
+    # If Manage is installed but and we are in 9.1, request the /v1/authservice/systeminfo internal API from Manage pod
+    # Get the name of the Manage pod to be used for checking the connection between Manage and MAS 
+    echo "# MAS internalapi endpoint access from Manage" >> ${OUTPUT_FILE} 2> /dev/null
+    MANAGE_BUNDLE_POD_NAME=$(oc get pods -n mas-$INSTANCE_ID-manage -o json | jq -r --arg appTypeName "$MANAGE_BUNDLE_NAME" '.items[] | select(.metadata.labels["mas.ibm.com/appTypeName"] == $appTypeName) | .metadata.name' | head -n 1 2>/dev/null || echo "")
+    if [[ "$MANAGE_BUNDLE_POD_NAME" != "" ]]; then
+      # Call the /systeminfo API in MAS from the Manage pod
+      SYSTEM_INFO_RESPONSE=$((oc exec -n mas-$INSTANCE_ID-manage "$MANAGE_BUNDLE_POD_NAME" -- curl -vs -X GET "https://internalapi.mas-$INSTANCE_ID-core.svc/v1/authservice/systeminfo" --cert /etc/pki/tls/certs/internal-manage-tls/tls.crt --key /etc/pki/tls/certs/internal-manage-tls/tls.key --cacert /etc/pki/tls/certs/internal-manage-tls/ca.crt) 2>/dev/null || echo "")
+      if [[ "$SYSTEM_INFO_RESPONSE" != "" ]]; then
+        if echo "$SYSTEM_INFO_RESPONSE" | jq empty 2>/dev/null; then
+          echo "MAS internalapi endpoint access from Manage: successful" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
+          echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+          echo  🔐 Identity Provider Status >> ${OUTPUT_FILE} 2> /dev/null
+          echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "# Identity Provider Status" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Identity Provider Status:" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "$SYSTEM_INFO_RESPONSE" | jq -r '.availableIdps[] | "\(.name): status \"\(.status)\", isEnabled \(.isEnabled), isDefault \(.isDefault)"' >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "# Environment setup" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Environment setup:" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "$SYSTEM_INFO_RESPONSE" | jq -r '.envSetup | "domain: \(.domain)\nisSaaS: \(.isSaaS)"' >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+          echo  ======================== >> ${OUTPUT_FILE} 2> /dev/null
+          echo  📜 Licensing Information >> ${OUTPUT_FILE} 2> /dev/null
+          echo  ======================== >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+          echo "# Licensing Products and Token Costs" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Licensing Products:" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "$SYSTEM_INFO_RESPONSE" | jq -r '.licensingProducts[] | "\(.productId): \(.tokenCost) \(.tokenId)"' >> ${OUTPUT_FILE} 2> /dev/null
+          echo "" >> ${OUTPUT_FILE} 2> /dev/null
+        else
+          echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Details: Invalid JSON response: $SYSTEM_INFO_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+        fi
+      else
+        echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+        echo "Details: Could not get a response from Manage /v1/authservice/systeminfo endpoint." >> ${OUTPUT_FILE} 2> /dev/null
+      fi
+    else
+      echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+      echo "Details: Manage pod could not be found for bundle $MANAGE_BUNDLE_NAME." >> ${OUTPUT_FILE} 2> /dev/null
+    fi
+    echo "" >> ${OUTPUT_FILE} 2> /dev/null
+  else
+    # If Manage is installed but we are in 8.11 or 9.0, only Manage to MAS communication test is performed
+    # Request the /v1/idps MAS endpoint instead of the /v1/authservice/systeminfo from Manage pod
+    echo "Skipping MAS to Manage communication test. Installed MAS version is below 9.1, so /maximo/api/ping API is not available in Manage." >> ${OUTPUT_FILE} 2> /dev/null
+    echo "" >> ${OUTPUT_FILE} 2> /dev/null
+    if [[ "$IS_AFTER_MAS811" == "true" ]]; then
+      echo "# MAS internalapi endpoint access from Manage" >> ${OUTPUT_FILE} 2> /dev/null
+      # Get the name of the Manage pod to be used for checking the connection between Manage and MAS 
+      MANAGE_BUNDLE_POD_NAME=$(oc get pods -n mas-$INSTANCE_ID-manage -o json | jq -r --arg appTypeName "$MANAGE_BUNDLE_NAME" '.items[] | select(.metadata.labels["mas.ibm.com/appTypeName"] == $appTypeName) | .metadata.name' | head -n 1 2>/dev/null || echo "")
+      if [[ "$MANAGE_BUNDLE_POD_NAME" != "" ]]; then
+        # Call the /idps API in MAS from the Manage pod
+        IDPS_API_RESPONSE=$((oc exec -n mas-$INSTANCE_ID-manage "$MANAGE_BUNDLE_POD_NAME" -- curl -vs -X GET "https://internalapi.mas-$INSTANCE_ID-core.svc/v1/idps" --cert /etc/pki/tls/certs/internal-manage-tls/tls.crt --key /etc/pki/tls/certs/internal-manage-tls/tls.key --cacert /etc/pki/tls/certs/internal-manage-tls/ca.crt) 2>/dev/null || echo "")
+        if [[ "$IDPS_API_RESPONSE" != "" ]]; then
+          if echo "$IDPS_API_RESPONSE" | jq empty 2>/dev/null; then
+            echo "MAS internalapi endpoint access from Manage: successful" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "" >> ${OUTPUT_FILE} 2> /dev/null
+            echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+            echo  🔐 Identity Provider Status >> ${OUTPUT_FILE} 2> /dev/null
+            echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+            echo "" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "# Installed IDPs" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "Installed IDPs:" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "$IDPS_API_RESPONSE" | jq -r '.[] | "\(.name): status \"\(.status)\", isEnabled \(.isEnabled), isDefault \(.isDefault)"' >> ${OUTPUT_FILE} 2> /dev/null
+          else
+            echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+            echo "Details: Invalid JSON response: $IDPS_API_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+          fi
+        else
+          echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Details: Could not get a response from MAS /v1/idps endpoint." >> ${OUTPUT_FILE} 2> /dev/null
+        fi
+      else
+        echo "MAS internalapi endpoint access from Manage: failed" >> ${OUTPUT_FILE} 2> /dev/null
+        echo "Details: Manage pod could not be found for bundle $MANAGE_BUNDLE_NAME." >> ${OUTPUT_FILE} 2> /dev/null
+      fi
+    else
+      echo "Skipping Manage to MAS communication tests. MAS 8.10 is installed, so /v1/idps API is not available in MAS." >> ${OUTPUT_FILE} 2> /dev/null
+    fi
+    echo "" >> ${OUTPUT_FILE} 2> /dev/null
+  fi
+
+else
+
+  echo "Manage is not installed!" >> ${OUTPUT_FILE} 2> /dev/null
+  echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+  # If Manage is not installed and we are in 8.11 or later, just retrieve IDP info from internalapi directly
+  if [[ "$IS_AFTER_MAS811" == "true" ]]; then
+    echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+    echo  🔐 Identity Provider Status >> ${OUTPUT_FILE} 2> /dev/null
+    echo  =========================== >> ${OUTPUT_FILE} 2> /dev/null
+    echo "" >> ${OUTPUT_FILE} 2> /dev/null
+
+    echo "# Installed IDPs" >> ${OUTPUT_FILE} 2> /dev/null
+    INTERNALAPI_POD_NAME=$(oc get pods -n mas-${INSTANCE_ID}-core --no-headers -o custom-columns=":metadata.name" | grep "^${INSTANCE_ID}-internalapi-" | head -n 1)
+    if [[ "$INTERNALAPI_POD_NAME" != "" ]]; then
+      IDPS_API_RESPONSE=$((oc exec -n mas-${INSTANCE_ID}-core "$INTERNALAPI_POD_NAME" -- curl -s -X GET --header 'Content-Type: application/json'  https://internalapi.mas-${INSTANCE_ID}-core.svc/v1/idps --cert /etc/pki/tls/certs/mascore-cert/tls.crt --key /etc/pki/tls/certs/mascore-cert/tls.key --cacert /etc/pki/tls/certs/mascore-cert/ca.crt) 2>/dev/null || echo "")
+      if [[ "$IDPS_API_RESPONSE" != "" ]]; then
+        echo "Installed IDPs:" >> ${OUTPUT_FILE} 2> /dev/null
+        if echo "$IDPS_API_RESPONSE" | jq empty 2>/dev/null; then
+          echo "$IDPS_API_RESPONSE" | jq -r '.[] | "\(.name): status \"\(.status)\", isEnabled \(.isEnabled), isDefault \(.isDefault)"' >> ${OUTPUT_FILE} 2> /dev/null
+        else
+          echo "Could not retrieve identity provider status." >> ${OUTPUT_FILE} 2> /dev/null
+          echo "Invalid JSON response: $IDPS_API_RESPONSE" >> ${OUTPUT_FILE} 2> /dev/null
+        fi
+      else
+        echo "Could not retrieve identity provider status." >> ${OUTPUT_FILE} 2> /dev/null
+        echo "Details: Could not get a response from MAS /v1/idps endpoint." >> ${OUTPUT_FILE} 2> /dev/null
+      fi
+    else
+      echo "Could not retrieve identity provider status." >> ${OUTPUT_FILE} 2> /dev/null
+      echo "Details: Internalapi pod could not be found." >> ${OUTPUT_FILE} 2> /dev/null
+    fi
+    echo "" >> ${OUTPUT_FILE} 2> /dev/null
+  else
+    echo "Skipping identity provider check. MAS 8.10 is installed, MAS /v1/idps API is not available." >> ${OUTPUT_FILE} 2> /dev/null
+    echo "" >> ${OUTPUT_FILE} 2> /dev/null
+  fi
+
+fi
+
+exit 0

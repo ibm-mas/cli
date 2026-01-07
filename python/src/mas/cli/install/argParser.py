@@ -77,6 +77,12 @@ masArgGroup.add_argument(
     required=False,
     help="Subscription channel for the Core Platform"
 )
+masArgGroup.add_argument(
+    "--aiservice-instance-id",
+    required=False,
+    help="AI Service Instance ID"
+)
+
 # MAS Special characters
 # -----------------------------------------------------------------------------
 masSpecialCharacters = installArgParser.add_argument_group("Mas Special Characters")
@@ -158,6 +164,13 @@ masAdvancedArgGroup.add_argument(
     help="Disable built-in trust of well-known CAs",
     action="store_const",
     const="false"
+)
+masAdvancedArgGroup.add_argument(
+    "--routing",
+    dest="mas_routing_mode",
+    required=False,
+    help="Configure MAS with path or subdomain routing",
+    choices=["path", "subdomain"]
 )
 masAdvancedArgGroup.add_argument(
     "--manual-certificates",
@@ -312,32 +325,40 @@ slsArgGroup.add_argument(
     default=False,
     help="Set the SLS namespace to mas-<instanceid>-sls"
 )
+slsArgGroup.add_argument(
+    "--sls-channel",
+    required=False,
+    help="Customize the SLS channel when in development mode",
+)
 
 # IBM Data Reporting Operator (DRO)
 # -----------------------------------------------------------------------------
 droArgGroup = installArgParser.add_argument_group("IBM Data Reporting Operator (DRO)")
 droArgGroup.add_argument(
+    "--contact-email",
     "--uds-email",
-    dest="uds_contact_email",
+    dest="dro_contact_email",
     required=False,
     help="Contact e-mail address"
 )
 droArgGroup.add_argument(
+    "--contact-firstname",
     "--uds-firstname",
-    dest="uds_contact_firstname",
+    dest="dro_contact_firstname",
     required=False,
     help="Contact first name"
 )
 droArgGroup.add_argument(
+    "--contact-lastname",
     "--uds-lastname",
-    dest="uds_contact_lastname",
+    dest="dro_contact_lastname",
     required=False,
     help="Contact last name"
 )
 droArgGroup.add_argument(
     "--dro-namespace",
     required=False,
-    help=""
+    help="Namespace for DRO"
 )
 
 # MongoDb Community Operator
@@ -406,6 +427,11 @@ masAppsArgGroup.add_argument(
     "--facilities-channel",
     required=False,
     help="Subscription channel for Maximo Real Estate and Facilities"
+)
+masAppsArgGroup.add_argument(
+    "--aiservice-channel",
+    required=False,
+    help="Subscription channel for Maximo AI Service"
 )
 
 # Arcgis
@@ -530,35 +556,33 @@ manageArgGroup.add_argument(
 
 manageArgGroup.add_argument(
     "--manage-crypto-key",
-    dest="mas_app_settings_crypto_key",
+    dest="mas_manage_encryptionsecret_crypto_key",
     required=False,
     help="Customize Manage database encryption keys"
 )
 manageArgGroup.add_argument(
     "--manage-cryptox-key",
-    dest="mas_app_settings_cryptox_key",
+    dest="mas_manage_encryptionsecret_cryptox_key",
     required=False,
     help="Customize Manage database encryption keys"
 )
 manageArgGroup.add_argument(
     "--manage-old-crypto-key",
-    dest="mas_app_settings_old_crypto_key",
+    dest="mas_manage_encryptionsecret_old_crypto_key",
     required=False,
     help="Customize Manage database encryption keys"
 )
 manageArgGroup.add_argument(
     "--manage-old-cryptox-key",
-    dest="mas_app_settings_old_cryptox_key",
+    dest="mas_manage_encryptionsecret_old_cryptox_key",
     required=False,
     help="Customize Manage database encryption keys"
 )
 manageArgGroup.add_argument(
-    "--manage-override-encryption-secrets",
-    dest="mas_app_settings_override_encryption_secrets_flag",
+    "--manage-encryption-secret-name",
+    dest="mas_manage_ws_db_encryptionsecret",
     required=False,
-    help="Override any existing Manage database encryption keys. A backup of the original secret holding existing encryption keys is taken prior overriding it with the new defined keys",
-    action="store_const",
-    const="true"
+    help="Name of the Manage database encryption secret"
 )
 
 manageArgGroup.add_argument(
@@ -604,6 +628,19 @@ manageArgGroup.add_argument(
     required=False,
     help="Defines how attachment properties will be configured in Manage. Possible values are: cr and db",
     choices=["cr", "db"]
+)
+
+manageArgGroup.add_argument(
+    "--manage-aiservice-instance-id",
+    dest="manage_bind_aiservice_instance_id",
+    required=False,
+    help="AI Service Instance ID to bind with Manage"
+)
+manageArgGroup.add_argument(
+    "--manage-aiservice-tenant-id",
+    dest="manage_bind_aiservice_tenant_id",
+    required=False,
+    help="AI Service Tenant ID to bind with Manage"
 )
 
 # Facilities Advanced Settings
@@ -693,6 +730,233 @@ facilitiesArgGroup.add_argument(
     help="Defines the user files storage size",
 )
 
+# ODH
+# -----------------------------------------------------------------------------
+odhArgGroup = installArgParser.add_argument_group("Opendatahub")
+
+odhArgGroup.add_argument(
+    "--odh-model-deployment-type",
+    dest="aiservice_odh_model_deployment_type",
+    required=False,
+    default="raw",
+    help="Model deployment type for ODH"
+)
+
+# S3 - General
+# -----------------------------------------------------------------------------
+s3ArgGroup = installArgParser.add_argument_group("S3 Storage")
+s3ArgGroup.add_argument(
+    "--install-minio",
+    dest="install_minio_aiservice",
+    required=False,
+    help="Install Minio and configure it as the S3 provider for AI Service",
+    action="store_const",
+    const="true"
+)
+
+# S3 - Minio
+# -----------------------------------------------------------------------------
+s3ArgGroup.add_argument(
+    "--minio-root-user",
+    dest="minio_root_user",
+    required=False,
+    help="Root user for minio"
+)
+s3ArgGroup.add_argument(
+    "--minio-root-password",
+    dest="minio_root_password",
+    required=False,
+    help="Password for minio root user"
+)
+
+# S3 - External Connection
+# -----------------------------------------------------------------------------
+s3ArgGroup.add_argument(
+    "--s3-host",
+    dest="aiservice_s3_host",
+    required=False,
+    help="Hostname or IP address of the S3 storage service"
+)
+s3ArgGroup.add_argument(
+    "--s3-port",
+    dest="aiservice_s3_port",
+    required=False,
+    help="Port number for the S3 storage service"
+)
+s3ArgGroup.add_argument(
+    "--s3-ssl",
+    dest="aiservice_s3_ssl",
+    required=False,
+    help="Enable or disable SSL for S3 connection (true/false)"
+)
+s3ArgGroup.add_argument(
+    "--s3-accesskey",
+    dest="aiservice_s3_accesskey",
+    required=False,
+    help="Access key for authenticating with the S3 storage service"
+)
+s3ArgGroup.add_argument(
+    "--s3-secretkey",
+    dest="aiservice_s3_secretkey",
+    required=False,
+    help="Secret key for authenticating with the S3 storage service"
+)
+s3ArgGroup.add_argument(
+    "--s3-region",
+    dest="aiservice_s3_region",
+    required=False,
+    help="Region for the S3 storage service"
+)
+s3ArgGroup.add_argument(
+    "--s3-bucket-prefix",
+    dest="aiservice_s3_bucket_prefix",
+    required=False,
+    help="Bucket prefix configured with S3 storage service"
+)
+
+# S3 - Bucket Naming
+# -----------------------------------------------------------------------------
+s3ArgGroup.add_argument(
+    "--s3-tenants-bucket",
+    dest="aiservice_s3_tenants_bucket",
+    required=False,
+    default="km-tenants",
+    help="Name of the S3 bucket for tenants storage"
+)
+s3ArgGroup.add_argument(
+    "--s3-templates-bucket",
+    dest="aiservice_s3_templates_bucket",
+    required=False,
+    default="km-templates",
+    help="Name of the S3 bucket for templates storage"
+)
+
+# Watsonx
+# -----------------------------------------------------------------------------
+watsonxArgGroup = installArgParser.add_argument_group("Watsonx")
+
+watsonxArgGroup.add_argument(
+    "--watsonxai-apikey",
+    dest="aiservice_watsonxai_apikey",
+    required=False,
+    help="API key for WatsonX"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-url",
+    dest="aiservice_watsonxai_url",
+    required=False,
+    help="URL endpoint for WatsonX"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-project-id",
+    dest="aiservice_watsonxai_project_id",
+    required=False,
+    help="Project ID for WatsonX"
+)
+watsonxArgGroup.add_argument(
+    "--watsonx-action",
+    dest="aiservice_watsonx_action",
+    required=False,
+    help="Action to perform with WatsonX (install/remove)"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-ca-crt",
+    dest="aiservice_watsonxai_ca_crt",
+    required=False,
+    help="CA certificate for WatsonX AI (PEM format, optional, only if using self-signed certs)"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-deployment-id",
+    dest="aiservice_watsonxai_deployment_id",
+    required=False,
+    help="WatsonX deployment ID"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-space-id",
+    dest="aiservice_watsonxai_space_id",
+    required=False,
+    help="WatsonX space ID"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-instance-id",
+    dest="aiservice_watsonxai_instance_id",
+    required=False,
+    help="WatsonX instance ID"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-username",
+    dest="aiservice_watsonxai_username",
+    required=False,
+    help="WatsonX username"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-version",
+    dest="aiservice_watsonxai_version",
+    required=False,
+    help="WatsonX version"
+)
+watsonxArgGroup.add_argument(
+    "--watsonxai-onprem",
+    dest="aiservice_watsonxai_on_prem",
+    required=False,
+    help="WatsonX deployed on prem"
+)
+
+# AI Service
+# -----------------------------------------------------------------------------
+aiServiceArgGroup = installArgParser.add_argument_group("Maximo AI Service")
+
+aiServiceArgGroup.add_argument(
+    "--tenant-entitlement-type",
+    dest="tenant_entitlement_type",
+    required=False,
+    default="standard",
+    help="Entitlement type for AI Service tenant"
+)
+aiServiceArgGroup.add_argument(
+    "--tenant-entitlement-start-date",
+    dest="tenant_entitlement_start_date",
+    required=False,
+    help="Start date for AI Service tenant"
+)
+aiServiceArgGroup.add_argument(
+    "--tenant-entitlement-end-date",
+    dest="tenant_entitlement_end_date",
+    required=False,
+    help="End date for AI Service tenant"
+)
+aiServiceArgGroup.add_argument(
+    "--rsl-url",
+    dest="rsl_url",
+    required=False,
+    help="rsl url"
+)
+aiServiceArgGroup.add_argument(
+    "--rsl-org-id",
+    dest="rsl_org_id",
+    required=False,
+    help="org id for rsl"
+)
+aiServiceArgGroup.add_argument(
+    "--rsl-token",
+    dest="rsl_token",
+    required=False,
+    help="token for rsl"
+)
+aiServiceArgGroup.add_argument(
+    "--rsl-ca-crt",
+    dest="rsl_ca_crt",
+    required=False,
+    help="CA certificate for RSL API (PEM format, optional, only if using self-signed certs)"
+)
+aiServiceArgGroup.add_argument(
+    "--environment-type",
+    dest="environment_type",
+    required=False,
+    default="non-production",
+    help="Environment type (default: non-production)"
+)
+
 # IBM Cloud Pak for Data
 # -----------------------------------------------------------------------------
 cpdAppsArgGroup = installArgParser.add_argument_group("IBM Cloud Pak for Data")
@@ -701,14 +965,6 @@ cpdAppsArgGroup.add_argument(
     dest="cpd_product_version",
     required=False,
     help="Product version of CP4D to use"
-)
-cpdAppsArgGroup.add_argument(
-    "--cp4d-install-spss",
-    dest="cpd_install_spss",
-    required=False,
-    help="Add SPSS Modeler as part of Cloud Pak for Data",
-    action="store_const",
-    const="install"
 )
 cpdAppsArgGroup.add_argument(
     "--cp4d-install-cognos",
@@ -1009,39 +1265,6 @@ cosArgGroup.add_argument(
     help="When using IBM COS, set COS bucket name to be used/created"
 )
 
-# Turbonomic Integration
-# -----------------------------------------------------------------------------
-turboArgGroup = installArgParser.add_argument_group("Turbonomic Integration")
-turboArgGroup.add_argument(
-    "--turbonomic-name",
-    dest="turbonomic_target_name",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-url",
-    dest="turbonomic_server_url",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-version",
-    dest="turbonomic_server_version",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-username",
-    dest="turbonomic_username",
-    required=False,
-    help=""
-)
-turboArgGroup.add_argument(
-    "--turbonomic-password",
-    dest="turbonomic_password",
-    required=False,
-    help=""
-)
 
 # Cloud Providers
 # -----------------------------------------------------------------------------
@@ -1134,7 +1357,11 @@ approvalsGroup.add_argument(
     default="",
     help="Require approval after the Maximo Real Estate and Facilities workspace has been configured"
 )
-
+approvalsGroup.add_argument(
+    "--approval-aiservice",
+    default="",
+    help="Require approval after the AI Service has been configured"
+)
 
 # More Options
 # -----------------------------------------------------------------------------

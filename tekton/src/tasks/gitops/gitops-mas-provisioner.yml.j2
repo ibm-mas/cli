@@ -30,6 +30,8 @@ spec:
       type: string
     - name: provisioner_domain
       type: string
+    - name: provisioner_storage_class
+      type: string
     - name: enable_mtls
       type: string
     - name: enable_pd_alert
@@ -48,7 +50,15 @@ spec:
       type: string
     - name: service_port
       type: string
-    - name: csb_ca_certificate_file
+    - name: csb_client_ca_certificate_file
+      type: string
+    - name: recommend_cluster
+      type: string
+    - name: instana_url_prefix
+      type: string
+    - name: mas_annotations_repo_url
+      type: string
+    - name: git_root_ca_certificate_file
       type: string
 
   stepTemplate:
@@ -98,8 +108,18 @@ spec:
         value: $(params.async_poll_interval)
       - name: ASYNC_POLL_MAX
         value: $(params.async_poll_max)
-      - name: CSB_CA_CERTIFICATE_FILE
-        value: $(params.csb_ca_certificate_file)
+      - name: CSB_CLIENT_CA_CERTIFICATE_FILE
+        value: $(params.csb_client_ca_certificate_file)
+      - name: RECOMMEND_CLUSTER
+        value: $(params.recommend_cluster)
+      - name: PROVISIONER_STORAGE_CLASS
+        value: $(params.provisioner_storage_class)
+      - name: INSTANA_URL_PREFIX
+        value: $(params.instana_url_prefix)
+      - name: GIT_ROOT_CA_CERTIFICATE_FILE
+        value: $(params.git_root_ca_certificate_file)
+      - name: MAS_ANNOTATIONS_REPO_URL
+        value: $(params.mas_annotations_repo_url)
     envFrom:
       - configMapRef:
           name: environment-properties

@@ -7,7 +7,7 @@ Usage information can be obtained using `mas uninstall --help`
 
 ```
 usage: mas uninstall [--mas-instance-id MAS_INSTANCE_ID] [--uninstall-all-deps] [--uninstall-cert-manager] [--uninstall-common-services] [--uninstall-grafana]
-                     [--uninstall-ibm-catalog] [--uninstall-mongodb] [--uninstall-sls] [--uninstall-uds] [--no-confirm] [-h]
+                     [--uninstall-ibm-catalog] [--uninstall-mongodb] [--uninstall-sls] [--uninstall-dro] [--no-confirm] [-h]
 
 IBM Maximo Application Suite Admin CLI v100.0.0
 Uninstall MAS by configuring and launching the MAS Uninstall Tekton Pipeline.
@@ -26,7 +26,7 @@ MAS Dependencies Selection:
   --uninstall-ibm-catalog            Uninstall the IBM Maximo Operator Catalog Source (ibm-operator-catalog) from the target cluster
   --uninstall-mongodb                Uninstall MongoDb from the target cluster
   --uninstall-sls                    Uninstall IBM Suite License Service from the target cluster
-  --uninstall-uds                    Uninstall IBM User Data Services from the target cluster
+  --uninstall-dro                    Uninstall IBM Data Reporter from the target cluster
 
 More:
   --no-confirm                       Launch the upgrade without prompting for confirmation

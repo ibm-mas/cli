@@ -100,8 +100,7 @@ spec:
       default: ""
     - name: mas_appws_components
       type: string
-      default: ""
-
+      default: ""      
     - name: launchfvt_core
       type: string
       default: "true"
@@ -357,8 +356,7 @@ spec:
       - |-
 
         set -o pipefail
-        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium' ERR EXIT
-
+        trap '[[ $? -eq 1 ]] && mas must-gather --directory /workspace/mustgather --mas-instance-ids ${MAS_INSTANCE_ID} --extra-namespaces selenium,mas-${MAS_INSTANCE_ID}-syncres,mas-${MAS_INSTANCE_ID}-postsyncjobs' ERR EXIT
 
 
         get_trailing_number() {
@@ -527,7 +525,7 @@ spec:
           fi
           if [[ "$LAUNCHFVT_MANAGE" == "true" ]]; then
             MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"
-            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 840
+            check_argo_app_healthy "${MAS_WORKSPACE_ID}.${MASAPP_APP}" 1260
           fi
           if [[ "$LAUNCHFVT_MOBILE" == "true" ]]; then
             MASAPP_APP="manage.${CLUSTER_NAME}.${MAS_INSTANCE_ID}"

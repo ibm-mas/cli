@@ -9,6 +9,7 @@
 # *****************************************************************************
 
 import logging
+import logging.handlers
 import urllib3
 
 from argparse import RawTextHelpFormatter
@@ -146,6 +147,12 @@ class BaseApp(PrintMixin, PromptMixin):
         self.architecture = None
 
         self.compatibilityMatrix = {
+            "9.2.x-feature": {
+                "aibroker": ["9.2.x-feature", "9.1.x"],
+                "manage": ["9.2.x-feature", "9.1.x"],
+                "optimizer": ["9.2.x-feature", "9.1.x"],
+                "visualinspection": ["9.2.x-feature", "9.1.x"],
+            },
             "9.1.x": {
                 "facilities": ["9.1.x"],
                 "assist": ["9.1.x", "9.0.x"],
@@ -207,10 +214,11 @@ class BaseApp(PrintMixin, PromptMixin):
             "9.1.x-feature": " - <u>https://ibm.biz/MAS90-License</u>\n - <u>https://ibm.biz/MaximoIT90-License</u>\n - <u>https://ibm.biz/MAXArcGIS90-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
             "9.1.x": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>",
             "aibroker-9.1.x": " - <u>https://ibm.biz/MAS91-License</u>",
+            "9.2.x-feature": " - <u>https://ibm.biz/MAS91-License</u>\n - <u>https://ibm.biz/MAXIT91-License</u>\n - <u>https://ibm.biz/MAXESRI91-License</u>\n\nBe aware, this channel subscription is supported for non-production use only.   \nIt allows early access to new features for evaluation in non-production environments.   \nThis subscription is offered alongside and in parallel with our normal maintained streams.   \nWhen using this subscription, IBM Support will only accept cases for the latest available bundle deployed in a non-production environment.   \nSeverity must be either 3 or 4 and cases cannot be escalated.   \nPlease refer to IBM documentation for more details.\n",
         }
 
         self.upgrade_path = {
-            "9.1.x": "9.1.x",
+            "9.1.x": "9.2.x-feature",
             "9.1.x-feature": "9.1.x",
             "9.0.x": "9.1.x",
             "8.11.x": "9.0.x",
@@ -236,6 +244,7 @@ class BaseApp(PrintMixin, PromptMixin):
     def createTektonFileWithDigest(self) -> None:
         if path.exists(self.tektonDefsWithDigestPath):
             logger.debug(f"We have already generated {self.tektonDefsWithDigestPath}")
+            self.tektonDefsPath = self.tektonDefsWithDigestPath
         elif isAirgapInstall(self.dynamicClient):
             # We need to modify the tekton definitions to
             imageWithoutDigest = f"quay.io/ibmmas/cli:{self.version}"

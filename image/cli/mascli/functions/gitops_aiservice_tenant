@@ -314,7 +314,6 @@ function gitops_aiservice_tenant() {
   set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
-  rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AISERVICE_INSTANCE_ID}/${TENANT_ID}
 
@@ -395,8 +394,9 @@ function gitops_aiservice_tenant() {
   export SECRET_KEY_DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}droai#drocfg_registration_key
 
   # sls
-  export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SECRETS_PREFIX}sls#slscfg_registration_key
-  export SECRET_KEY_SLSCFG_CA_B64ENC=${SECRETS_PREFIX}sls#slscfg_ca_b64enc
+  SLS_SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${AISERVICE_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${TENANT_ID}${SECRETS_KEY_SEPERATOR}"
+  export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SLS_SECRETS_PREFIX}sls#slscfg_registration_key
+  export SECRET_KEY_SLSCFG_CA_B64ENC=${SLS_SECRETS_PREFIX}sls#slscfg_ca_b64enc
 
   export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
   export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
@@ -416,7 +416,7 @@ function gitops_aiservice_tenant() {
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_registration_key,drocfg_ca_b64enc"
-  sm_verify_secret_exists ${SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
+  sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   
@@ -461,8 +461,7 @@ function gitops_aiservice_tenant() {
       remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
     fi
 
-    # rm -rf $TEMP_DIR
-    rm -rf $GITOPS_WORKING_DIR
+    rm -rf $TEMP_DIR
 
   exit 0
 }

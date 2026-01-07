@@ -28,3 +28,7 @@ devops:
   mongo_uri: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_DEVOPS_MONGO }}>"
   build_number: {{ DEVOPS_BUILD_NUMBER }}
 {% endif %}
+
+{%- if MAS_CLI_IMAGE_REPO is defined and MAS_CLI_IMAGE_REPO != '' %}
+cli_image_repo: {{ MAS_CLI_IMAGE_REPO }}
+{%- endif %}

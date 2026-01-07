@@ -24,7 +24,7 @@ Usage
 - `--fyre-cluster-size FYRE_CLUSTER_SIZE` When Fyre Quick Burn, defines the size category ("medium" or "large")
 
 ### Storage Provisioner Configuration
-- `--no-storage`  Disable setup of the nfs-client storage class
+- `--storage`  Configure the storage provider (nfs, odf, or longhorn)
 - `--nfs-image-registry-size FYRE_NFS_IMAGE_REGISTRY_SIZE` Defines the image registry storage size when configured to use NFS (default 100gb). The size allocated cannot be superior of storage available in the Fyre Infrastructure node.
 
 ### Other Commands

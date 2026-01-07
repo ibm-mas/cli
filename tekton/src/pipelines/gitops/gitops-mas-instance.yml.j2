@@ -210,6 +210,10 @@ spec:
       type: string
     - name: sls_license_icn
       type: string
+      default: ""
+    - name: sls_subscription_id
+      type: string
+      default: ""
 
     # oidc parameters
     # ------------------------------------------------------------------------- 
@@ -226,6 +230,10 @@ spec:
     - name: additional_vpn
       type: string
 
+   # standalone sls
+    - name: sls_service
+      type: string
+      default: ""
   tasks:
 
     # 0. Per-instance DB2U Operator
@@ -281,6 +289,10 @@ spec:
           value: $(params.mas_instance_id)
         - name: avp_aws_secret_region
           value: $(params.avp_aws_secret_region)
+        - name: sls_license_icn
+          value: $(params.sls_license_icn)
+        - name: sls_subscription_id
+          value: $(params.sls_subscription_id)
       workspaces:
         - name: shared-entitlement
           workspace: shared-entitlement
@@ -311,8 +323,10 @@ spec:
           value: $(params.sls_license_customer_name)
         - name: country
           value: $(params.sls_license_country)
-        - name: icn
+        - name: sls_license_icn
           value: $(params.sls_license_icn)
+        - name: sls_subscription_id
+          value: $(params.sls_subscription_id)
       taskRef:
         kind: Task
         name: gitops-license-generator
@@ -434,6 +448,8 @@ spec:
           value: $(params.additional_vpn)
         - name: extensions
           value: $(params.extensions)
+        - name: sls_service
+          value: $(params.sls_service)
       taskRef:
         kind: Task
         name: gitops-suite
@@ -488,6 +504,8 @@ spec:
           value: $(params.mas_bascfg_pod_template_yaml)
         - name: mas_slscfg_pod_template_yaml
           value: $(params.mas_slscfg_pod_template_yaml)
+        - name: sls_service
+          value: $(params.sls_service)
       workspaces:
         - name: configs
           workspace: configs

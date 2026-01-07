@@ -38,6 +38,7 @@ IBM CP4D Service:
       --cpd-ws-installplan ${COLOR_YELLOW}CPD_WS_INSTALL_PLAN${TEXT_RESET}                              CP4D WS installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
       --cpd-rabbitmq-installplan ${COLOR_YELLOW}RABBITMQ_INSTALL_PLAN${TEXT_RESET}                      CP4D Rabbitmq installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
       --cpd-elasticsearch-installplan ${COLOR_YELLOW}ELASTICSEARCH_INSTALL_PLAN${TEXT_RESET}            CP4D Elasticsearch installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
+      --cpd-opensearch-installplan ${COLOR_YELLOW}OPENSEARCH_INSTALL_PLAN${TEXT_RESET}                  CP4D Opensearch installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
       --cpd-canvasbase-installplan ${COLOR_YELLOW}CANVASBASE_INSTALL_PLAN${TEXT_RESET}                  CP4D Canvasbase installplan approval ('Automatic' or 'Manual'. Default is 'Automatic')
 
 
@@ -68,6 +69,7 @@ function gitops_cp4d_service_noninteractive() {
   export CPD_WS_INSTALL_PLAN=${CPD_WS_INSTALL_PLAN:-"Automatic"}
   export RABBITMQ_INSTALL_PLAN=${RABBITMQ_INSTALL_PLAN:-"Automatic"}
   export ELASTICSEARCH_INSTALL_PLAN=${ELASTICSEARCH_INSTALL_PLAN:-"Automatic"}
+  export OPENSEARCH_INSTALL_PLAN=${OPENSEARCH_INSTALL_PLAN:-"Automatic"}
   export CANVASBASE_INSTALL_PLAN=${CANVASBASE_INSTALL_PLAN:-"Automatic"}
 
 
@@ -150,6 +152,9 @@ function gitops_cp4d_service_noninteractive() {
         ;;
       --cpd-elasticsearch-installplan)
       export ELASTICSEARCH_INSTALL_PLAN=$1 && shift
+        ;;
+      --cpd-opensearch-installplan)
+      export OPENSEARCH_INSTALL_PLAN=$1 && shift
         ;;
       --cpd-canvasbase-installplan)
       export CANVASBASE_INSTALL_PLAN=$1 && shift
@@ -287,6 +292,7 @@ function gitops_cp4d_service() {
   echo_reset_dim "CPD_WS_INSTALL_PLAN  ........................ ${COLOR_MAGENTA}${CPD_WS_INSTALL_PLAN}"
   echo_reset_dim "RABBITMQ_INSTALL_PLAN  ...................... ${COLOR_MAGENTA}${RABBITMQ_INSTALL_PLAN}"
   echo_reset_dim "ELASTICSEARCH_INSTALL_PLAN  ................. ${COLOR_MAGENTA}${ELASTICSEARCH_INSTALL_PLAN}"
+  echo_reset_dim "OPENSEARCH_INSTALL_PLAN  .................... ${COLOR_MAGENTA}${OPENSEARCH_INSTALL_PLAN}"
   reset_colors
 
 
@@ -312,6 +318,7 @@ function gitops_cp4d_service() {
     export SECRET_KEY_WS_RUNTIMES_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}ws_runtimes_channel#ws_runtimes_channel
     export SECRET_KEY_OPENCONTENT_RABBITMQ_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}opencontent_rabbitmq_channel#opencontent_rabbitmq_channel
     export SECRET_KEY_OPENCONTENT_ELASTICSEARCH_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}opencontent_elasticsearch_channel#opencontent_elasticsearch_channel
+    export SECRET_KEY_OPENCONTENT_OPENSEARCH_CHANNEL=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}opencontent_opensearch_channel#opencontent_opensearch_channel
   fi
 
   if [[ "$CPD_SERVICE_NAME" == "wsl" ]]; then
@@ -358,10 +365,6 @@ function gitops_cp4d_service() {
   if [ "$GITHUB_PUSH" == "true" ]; then
     # only create the lock branch if we plan to actually push changes to git
     clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
-  else
-    # even though we don't want to push anything to git,
-    # because this script modifies the existing suite-configs.yaml file, we still need to checkout the repo
-    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
@@ -390,5 +393,6 @@ function gitops_cp4d_service() {
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
 
+  rm -rf $TEMP_DIR
 
 }

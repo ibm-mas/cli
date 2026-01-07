@@ -13,7 +13,11 @@ mas_slscfg_pod_templates:
 {% endif %}
 
 registration_key: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_REGISTRATION_KEY }}>
+{%- if STANDALONE_SLS_SERVICE %}
+url: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_URL }}>
+{%- else %}
 url: "https://sls.mas-{{ MAS_INSTANCE_ID }}-sls.svc"
+{%- endif %}
 ca:
   crt: |
     <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_CA_B64 }} | base64decode>

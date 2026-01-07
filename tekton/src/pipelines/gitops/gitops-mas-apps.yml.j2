@@ -58,6 +58,8 @@ spec:
 
     - name: jdbc_type_iot
       type: string
+    - name: jdbc_connection_url_additional_params_iot
+      type: string
     - name: jdbc_instance_name_iot
       type: string
     - name: jdbc_connection_url_iot
@@ -71,6 +73,8 @@ spec:
       default: ""
 
     - name: jdbc_type_manage
+      type: string
+    - name: jdbc_connection_url_additional_params_manage
       type: string
     - name: jdbc_instance_name_manage
       type: string
@@ -91,6 +95,8 @@ spec:
       default: "false"
 
     - name: jdbc_type_facilities
+      type: string
+    - name: jdbc_connection_url_additional_params_facilities
       type: string
     - name: jdbc_instance_name_facilities
       type: string
@@ -537,6 +543,9 @@ spec:
     - name: elasticsearch_install_plan
       type: string
       default: "Automatic"
+    - name: opensearch_install_plan
+      type: string
+      default: "Automatic"
     - name: canvasbase_install_plan
       type: string
       default: "Automatic"
@@ -942,6 +951,8 @@ spec:
           value: $(params.db2_tolerate_value_iot)
         - name: db2_tolerate_effect
           value: $(params.db2_tolerate_effect_iot)
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_iot)
         - name: jdbc_route
           value: $(params.jdbc_route_iot)
         - name: db2_timezone
@@ -1106,6 +1117,8 @@ spec:
           value: $(params.db2_tolerate_value_manage)
         - name: db2_tolerate_effect
           value: $(params.db2_tolerate_effect_manage)
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_manage)
         - name: jdbc_route
           value: $(params.jdbc_route_manage)
         - name: db2_timezone
@@ -1407,6 +1420,8 @@ spec:
           value: $(params.db2_tolerate_value_facilities)
         - name: db2_tolerate_effect
           value: $(params.db2_tolerate_effect_facilities)
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_facilities)
         - name: jdbc_route
           value: $(params.jdbc_route_facilities)
         - name: db2_timezone
@@ -1820,6 +1835,8 @@ spec:
           value: $(params.rabbitmq_install_plan)
         - name: elasticsearch_install_plan
           value: $(params.elasticsearch_install_plan)
+        - name: opensearch_install_plan
+          value: $(params.opensearch_install_plan)
         - name: canvasbase_install_plan
           value: $(params.canvasbase_install_plan)
         
@@ -1911,6 +1928,8 @@ spec:
           value: $(params.rabbitmq_install_plan)
         - name: elasticsearch_install_plan
           value: $(params.elasticsearch_install_plan)
+        - name: opensearch_install_plan
+          value: $(params.opensearch_install_plan)
         - name: canvasbase_install_plan
           value: $(params.canvasbase_install_plan)
 
@@ -1965,6 +1984,8 @@ spec:
           value: $(params.rabbitmq_install_plan)
         - name: elasticsearch_install_plan
           value: $(params.elasticsearch_install_plan)
+        - name: opensearch_install_plan
+          value: $(params.opensearch_install_plan)
         - name: canvasbase_install_plan
           value: $(params.canvasbase_install_plan)
 
@@ -2020,6 +2041,8 @@ spec:
           value: $(params.rabbitmq_install_plan)
         - name: elasticsearch_install_plan
           value: $(params.elasticsearch_install_plan)
+        - name: opensearch_install_plan
+          value: $(params.opensearch_install_plan)
         - name: canvasbase_install_plan
           value: $(params.canvasbase_install_plan)
 
@@ -2614,6 +2637,8 @@ spec:
           value: $(params.mas_workspace_id)
         - name: jdbc_type
           value: $(params.jdbc_type_iot)
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_iot)
         - name: jdbc_instance_name
           value: $(params.jdbc_instance_name_iot)
         - name: jdbc_connection_url

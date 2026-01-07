@@ -289,7 +289,6 @@ function gitops_aiservice() {
   set -o pipefail
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
-  rm -rf $GITOPS_WORKING_DIR
   mkdir -p ${GITOPS_WORKING_DIR}
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AISERVICE_INSTANCE_ID}
 
@@ -430,9 +429,7 @@ function gitops_aiservice() {
       remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
     fi
 
-    # rm -rf $TEMP_DIR
-    rm -rf $GITOPS_WORKING_DIR
-
+    rm -rf $TEMP_DIR
 
   exit 0 
 }

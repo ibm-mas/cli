@@ -91,7 +91,12 @@ db2_affinity_value: {{DB2_AFFINITY_VALUE}}
 db2_tolerate_key: {{DB2_TOLERATE_KEY}}
 db2_tolerate_value: {{DB2_TOLERATE_VALUE}}
 db2_tolerate_effect: {{DB2_TOLERATE_EFFECT}}
+{% if CLUSTER_DOMAIN is defined and CLUSTER_DOMAIN !='' %}
+cluster_domain: {{ CLUSTER_DOMAIN }}
+{% else %}
 cluster_domain: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLUSTER_DOMAIN }}>
+{% endif %}
+
 mas_application_id: {{MAS_APP_ID}}
 {%- if MAS_ANNOTATIONS is defined and MAS_ANNOTATIONS !='' %}
 mas_annotations:
@@ -100,6 +105,10 @@ mas_annotations:
     {%- endfilter %}
 {%- endif %}
 jdbc_route: {{JDBC_ROUTE}}
+
+{%- if JDBC_CONNECTION_URL_ADDITIONAL_PARAMS is defined and JDBC_CONNECTION_URL_ADDITIONAL_PARAMS !='' %}
+jdbc_connection_url_additional_params: {{ JDBC_CONNECTION_URL_ADDITIONAL_PARAMS }}
+{%- endif %}
 
 db2_timezone: {{DB2_TIMEZONE}}
 

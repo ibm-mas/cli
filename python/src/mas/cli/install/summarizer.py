@@ -76,6 +76,9 @@ class InstallSummarizerMixin():
                 pass
 
         print()
+        self.printParamSummary("Network Routing Mode", "mas_routing_mode")
+
+        print()
         self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
 
         if self.getParam("mas_manual_cert_mgmt") != "":
@@ -161,7 +164,7 @@ class InstallSummarizerMixin():
     def manageSummary(self) -> None:
         if self.installManage:
             self.printSummary(f"{'Manage foundation' if self.getParam('mas_appws_components') == '' else 'Manage'}", self.params["mas_app_channel_manage"])
-            if self.getParam("mas_appws_components") == "":
+            if self.getParam("mas_appws_components") != "":
                 print_formatted_text(HTML("  <SkyBlue>+ Components</SkyBlue>"))
                 self.printSummary("  + ACM", "Enabled" if "acm=" in self.getParam("mas_appws_components") else "Disabled")
                 self.printSummary("  + Aviation", "Enabled" if "aviation=" in self.getParam("mas_appws_components") else "Disabled")
@@ -196,6 +199,11 @@ class InstallSummarizerMixin():
                 self.printParamSummary("  + Schema", "mas_app_settings_db2_schema")
                 self.printParamSummary("  + Tablespace", "mas_app_settings_tablespace")
                 self.printParamSummary("  + Indexspace", "mas_app_settings_indexspace")
+
+            if self.getParam("manage_bind_aiservice_tenant_id") != "":
+                print_formatted_text(HTML("  <SkyBlue>+ AI Service Binding (for Manage)</SkyBlue>"))
+                self.printParamSummary("  + Bound AI Service Instance ID", "manage_bind_aiservice_instance_id")
+                self.printParamSummary("  + Bound AI Service Tenant ID", "manage_bind_aiservice_tenant_id")
         else:
             self.printSummary("Manage", "Do Not Install")
 
@@ -222,6 +230,39 @@ class InstallSummarizerMixin():
                 self.printParamSummary("  + Dedicated DB2 Database", "db2_action_facilities")
         else:
             self.printSummary("Facilities", "Do Not Install")
+
+    def aiServiceSummary(self) -> None:
+        if self.installAIService:
+            self.printH2("AI Service")
+            self.printParamSummary("Release", "aiservice_channel")
+            self.printParamSummary("Instance ID", "aiservice_instance_id")
+            self.printParamSummary("Environment Type", "environment_type")
+
+            self.printH2("AI Service Tenant Entitlement")
+            self.printParamSummary("Entitlement Type", "tenant_entitlement_type")
+            self.printParamSummary("Start Date", "tenant_entitlement_start_date")
+            self.printParamSummary("End Date", "tenant_entitlement_end_date")
+
+            self.printH2("S3 Configuration")
+            # self.printParamSummary("Storage provider", "aiservice_s3_provider")
+            if self.getParam("minio_root_user") is not None and self.getParam("minio_root_user") != "":
+                self.printParamSummary("Minio Root Username", "minio_root_user")
+            print()
+            self.printParamSummary("Host", "aiservice_s3_host")
+            self.printParamSummary("Port", "aiservice_s3_port")
+            self.printParamSummary("SSL Enabled", "aiservice_s3_ssl")
+            self.printParamSummary("Region", "aiservice_s3_region")
+            self.printParamSummary("Bucket Prefix", "aiservice_s3_bucket_prefix")
+            self.printParamSummary("Templates Bucket Name", "aiservice_s3_templates_bucket")
+            self.printParamSummary("Tenants Bucket Name", "aiservice_s3_tenants_bucket")
+
+            self.printH2("IBM WatsonX")
+            self.printParamSummary("URL", "aiservice_watsonxai_url")
+            self.printParamSummary("Project ID", "aiservice_watsonxai_project_id")
+
+            self.printH2("RSL")
+            self.printParamSummary("URL", "rsl_url")
+            self.printParamSummary("Organization ID", "rsl_org_id")
 
     def db2Summary(self) -> None:
         if self.getParam("db2_action_system") == "install" or self.getParam("db2_action_manage") == "install":
@@ -268,21 +309,23 @@ class InstallSummarizerMixin():
                 self.printSummary("Watson Machine Learning", "Install" if self.getParam("cpd_install_wml") == "true" else "Do Not Install")
                 self.printSummary("Analytics Engine", "Install" if self.getParam("cpd_install_ae") == "true" else "Do Not Install")
 
-            self.printSummary("SPSS Modeler", "Install" if self.getParam("cpd_install_spss") == "true" else "Do Not Install")
             self.printSummary("Cognos Analytics", "Install" if self.getParam("cpd_install_cognos") == "true" else "Do Not Install")
 
     def droSummary(self) -> None:
         self.printH2("IBM Data Reporter Operator (DRO) Configuration")
-        self.printParamSummary("Contact e-mail", "uds_contact_email")
-        self.printParamSummary("First name", "uds_contact_firstname")
-        self.printParamSummary("Last name", "uds_contact_lastname")
+        self.printParamSummary("Contact e-mail", "dro_contact_email")
+        self.printParamSummary("First name", "dro_contact_firstname")
+        self.printParamSummary("Last name", "dro_contact_lastname")
         self.printParamSummary("Install Namespace", "dro_namespace")
 
     def slsSummary(self) -> None:
         self.printH2("IBM Suite License Service")
         self.printParamSummary("Namespace", "sls_namespace")
         if self.getParam("sls_action") == "install":
-            self.printSummary("Subscription Channel", "3.x")
+            if self.getParam("sls_channel") != "":
+                self.printSummary("Subscription Channel", self.getParam("sls_channel"))
+            else:
+                self.printSummary("Subscription Channel", "3.x")
             self.printParamSummary("IBM Open Registry", "sls_icr_cpopen")
             if self.slsLicenseFileLocal:
                 self.printSummary("License File", self.slsLicenseFileLocal)
@@ -305,18 +348,6 @@ class InstallSummarizerMixin():
             self.printParamSummary("Remote Elasticsearch username", "eck_remote_es_username")
         else:
             self.printSummary("ECK Integration", "Disabled")
-
-    def turbonomicSummary(self) -> None:
-        self.printH2("Turbonomic")
-        if self.getParam("turbonomic_server_url") != "":
-            self.printSummary("Turbonomic Integration", "Enabled")
-            self.printParamSummary("Server URL", "turbonomic_server_url")
-            self.printParamSummary("Server version", "turbonomic_server_version")
-            self.printParamSummary("Target name", "turbonomic_target_name")
-            self.printParamSummary("Username", "turbonomic_username")
-            self.printSummary("Password", f"{self.getParam('turbonomic_password')[0:8]}&lt;snip&gt;")
-        else:
-            self.printSummary("Turbonomic Integration", "Disabled")
 
     def mongoSummary(self) -> None:
         self.printH2("MongoDb")
@@ -389,6 +420,7 @@ class InstallSummarizerMixin():
         self.assistSummary()
         self.inspectionSummary()
         self.facilitiesSummary()
+        self.aiServiceSummary()
 
         # Application Dependencies
         self.mongoSummary()
@@ -397,7 +429,6 @@ class InstallSummarizerMixin():
         self.kafkaSummary()
         self.cp4dSummary()
         self.grafanaSummary()
-        self.turbonomicSummary()
 
         # Install options
         self.installSummary()

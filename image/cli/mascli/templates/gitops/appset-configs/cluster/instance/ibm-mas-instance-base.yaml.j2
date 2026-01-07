@@ -44,3 +44,7 @@ extensions: {{ EXTENSIONS }}
 enhanced_dr: {{ ENHANCED_DR }}
 {% endif %}
 {% endif %}
+
+{%- if MAS_CLI_IMAGE_REPO is defined and MAS_CLI_IMAGE_REPO != '' %}
+cli_image_repo: {{ MAS_CLI_IMAGE_REPO }}
+{%- endif %}

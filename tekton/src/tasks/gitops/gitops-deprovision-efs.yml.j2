@@ -102,6 +102,24 @@ spec:
           --skip-delete-storage-class \
           || exit 1
 
+        mas gitops-deprovision-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+          --cloud-provider $CLOUD_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-manage-main" \
+          --skip-delete-storage-class \
+          || exit 1
+
+        mas gitops-deprovision-efs -c $CLUSTER_NAME -m $MAS_INSTANCE_ID \
+          --cloud-provider $CLOUD_PROVIDER \
+          --aws-region $SM_AWS_REGION \
+          --aws-secret-key $SM_AWS_SECRET_ACCESS_KEY \
+          --aws-access-key $SM_AWS_ACCESS_KEY_ID \
+          --efs-unique-id "efs-${CLUSTER_NAME}-${MAS_INSTANCE_ID}-facilities-main" \
+          --skip-delete-storage-class \
+          || exit 1
+
       command:
         - /bin/sh
         - -c

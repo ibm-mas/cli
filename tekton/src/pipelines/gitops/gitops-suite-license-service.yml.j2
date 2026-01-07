@@ -6,6 +6,8 @@ metadata:
 spec:
   workspaces:
     - name: shared-entitlement
+    - name: shared-gitops-configs
+    - name: configs
   description: MAS provision Suite License Service for customer subscription
   params:
     - name: cluster_name
@@ -85,6 +87,10 @@ spec:
       type: string
       default: ""
 
+    - name: authorized_entitlement_saas_encoded
+      type: string
+      default: ""
+
     - name: mas_slscfg_pod_template_yaml
       type: string
       default: ""
@@ -125,7 +131,9 @@ spec:
           value: $(params.sls_license_icn)
         - name: sls_subscription_id
           value: $(params.sls_subscription_id)
-        
+
+        - name: authorized_entitlement_saas_encoded
+          value: $(params.authorized_entitlement_saas_encoded)
       workspaces:
         - name: shared-entitlement
           workspace: shared-entitlement
@@ -133,8 +141,8 @@ spec:
         kind: Task
         name: gitops-license
       when:
-        - input: "$(params.sls_subscription_id)"
-          operator: in
+        - input: "$(params.authorized_entitlement_saas_encoded)"
+          operator: notin
           values: [""]
 
     - name: gitops-license-generator
@@ -162,12 +170,14 @@ spec:
           value: $(params.sls_license_icn)
         - name: sls_subscription_id
           value: $(params.sls_subscription_id)
+        - name: authorized_entitlement_saas_encoded
+          value: $(params.authorized_entitlement_saas_encoded)  
       taskRef:
         kind: Task
         name: gitops-license-generator
       when:
-        - input: "$(params.sls_subscription_id)"
-          operator: notin
+        - input: "$(params.authorized_entitlement_saas_encoded)"
+          operator: in
           values: [""]
 
     # 2. 
@@ -182,11 +192,9 @@ spec:
           value: $(params.account)
         - name: secrets_path
           value: $(params.secrets_path)
-        - name: mas_instance_id
-          value: $(params.mas_instance_id)
         - name: mongo_provider
           value: $(params.mongo_provider)
-        - name: user_action
+        - name: docdb_user_action
           value: $(params.docdb_user_action)
 
         - name: github_push
@@ -225,6 +233,8 @@ spec:
           value: $(params.sls_license_icn)
         - name: sls_subscription_id
           value: $(params.sls_subscription_id)
+        - name: mas_slscfg_pod_template_yaml
+          value: $(params.mas_slscfg_pod_template_yaml)
 
       taskRef:
         kind: Task
@@ -232,3 +242,7 @@ spec:
       workspaces:
         - name: shared-entitlement
           workspace: shared-entitlement
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs

@@ -16,6 +16,7 @@ from sys import argv
 from mas.cli import __version__ as VERSION
 from mas.cli.install.app import InstallApp
 from mas.cli.aiservice.install.app import AiServiceInstallApp
+from mas.cli.aiservice.upgrade.app import AiServiceUpgradeApp
 from mas.cli.update.app import UpdateApp
 from mas.cli.upgrade.app import UpgradeApp
 from mas.cli.uninstall.app import UninstallApp
@@ -58,6 +59,9 @@ if __name__ == '__main__':
         elif function == "aiservice-install":
             app = AiServiceInstallApp()
             app.install(argv[2:])
+        elif function == "aiservice-upgrade":
+            app = AiServiceUpgradeApp()
+            app.upgrade(argv[2:])
         elif function == "uninstall":
             app = UninstallApp()
             app.uninstall(argv[2:])

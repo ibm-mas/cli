@@ -15,6 +15,7 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                     Working directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                      Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
+  -s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}         for ibm internal use only.
   --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
   --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
   --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
@@ -37,6 +38,7 @@ Mongo Configuration (required if MAS_CONFIG_TYPE is "mongo"):
 
 SLS Configuration (if MAS_CONFIG_TYPE is "sls"):
   --mas-slscfg-pod-template-yaml ${COLOR_YELLOW}MAS_SLSCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
+  --internal-cert-authority ${COLOR_YELLOW}INTERNAL_CERT_AUTHORITY${TEXT_RESET}  Internal Certificate Authority to use for provisoning internal certificates
 
 DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
   --dro-contact-email ${COLOR_YELLOW}DRO_CONTACT_EMAIL${TEXT_RESET}             The email address to register with DRO
@@ -103,6 +105,20 @@ function gitops_mas_config_noninteractive() {
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
+  if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
+    CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
+    IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+    if [ ${#PARTS[@]} -lt 6 ]; then
+        echo "Error: Invalid SLS service parameter file Path $STANDALONE_SLS_SERVICE format." >&2
+        exit 1
+    fi
+    ICN="${PARTS[3]}"
+    SAAS_SUB_ID="${PARTS[4]}"
+  fi
+  
+  export ICN=${ICN:-""}
+  export SAAS_SUB_ID=${SAAS_SUB_ID:-""}
+
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
   fi
@@ -155,9 +171,16 @@ function gitops_mas_config_noninteractive() {
         ;;
 
       # SLS
+      # Standalone Server configuration
+      -s|--sls-service)
+        export STANDALONE_SLS_SERVICE=$1 && shift
+      ;;
       --mas-slscfg-pod-template-yaml)
         export MAS_SLSCFG_POD_TEMPLATE_YAML=$1 && shift
         ;;
+      --internal-cert-authority)
+        export INTERNAL_CERT_AUTHORITY=$1 && shift
+        ;;    
 
       # DRO
       --dro-contact-email)
@@ -328,7 +351,7 @@ function gitops_mas_config_noninteractive() {
     gitops_mas_config_help "Invalid CONFIG_ACTION \"${CONFIG_ACTION}\"; must be one of 'upsert' or 'remove'"
   fi
 
-  [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_CONFIG_TYPE is not set"
   if ! [[ "$MAS_CONFIG_TYPE" =~ ^(bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
     gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
   fi
@@ -574,6 +597,11 @@ function gitops_mas_config() {
       echo "${TEXT_DIM}"
       echo_reset_dim "SLS URL  ....................... ${COLOR_MAGENTA}https://sls.mas-${MAS_INSTANCE_ID}-sls.svc"
       echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_SLSCFG_POD_TEMPLATE_YAML}"
+      echo_reset_dim "sls service param file path .....${COLOR_MAGENTA}${STANDALONE_SLS_SERVICE}"
+
+      if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+        echo_reset_dim "Internal Certificate Authority ...... ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
+      fi
       reset_colors
     fi
 
@@ -646,10 +674,6 @@ function gitops_mas_config() {
   if [ "$GITHUB_PUSH" == "true" ]; then
     # only create the lock branch if we plan to actually push changes to git
     clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
-  else
-    # even though we don't want to push anything to git,
-    # because this script modifies the existing suite-configs.yaml file, we still need to checkout the repo
-    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
@@ -684,6 +708,15 @@ function gitops_mas_config() {
         #enforce validation set to false for instance level check
         sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo "username,password" false
         sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}mongo $MONGO_SECRET_FILE
+
+        #For AWS Docdb in govcloud set the corect authmechanism and configdb
+        export DOCDB_FEDERAL_INSTANCE_SECRET_FILE=$TEMP_DIR/docdb-federal-instance-secret.json
+        sm_get_secret_file ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}docdb $DOCDB_FEDERAL_INSTANCE_SECRET_FILE
+        DOCDB_FEDERAL_ACCESS_KEY=$(jq -r .access_key_id $DOCDB_FEDERAL_INSTANCE_SECRET_FILE)
+        if [[ -n ${DOCDB_FEDERAL_ACCESS_KEY} ]]; then
+          export DOCDB_AUTHMECHANISM="MONGODB-AWS"
+          export DOCDB_CONFIGDB='$$external'
+        fi
       fi
 
       jq -r .info $MONGO_SECRET_FILE > $ADDITIONAL_JINJA_PARAMS_FILE
@@ -716,15 +749,26 @@ function gitops_mas_config() {
     fi
 
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
-      export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
+      if [ -z "$STANDALONE_SLS_SERVICE" ]; then
+        export SECRET_NAME_SLS="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls"
+      else
+        export SECRET_NAME_SLS="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}sls"
+      fi  
+      export SECRET_KEY_SLS_URL=${SECRET_NAME_SLS}#sls_url
       export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
       export SECRET_KEY_SLS_CA_B64=${SECRET_NAME_SLS}#ca_b64
-      
+
       # Set pod template yaml
       # ---------------------------------------------------------------------------
       if [[ -n "$MAS_SLSCFG_POD_TEMPLATE_YAML" && -s "$MAS_SLSCFG_POD_TEMPLATE_YAML" ]]; then
         export MAS_SLSCFG_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_SLSCFG_POD_TEMPLATE_YAML})
         echo -e "\n - MAS_SLSCFG_POD_TEMPLATE CONTENT .................. ${MAS_SLSCFG_POD_TEMPLATE}"
+      fi
+
+      # Set internal certificate authority
+      # ---------------------------------------------------------------------------
+      if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
+        export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
       fi
     fi
 
@@ -946,8 +990,9 @@ function gitops_mas_config() {
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}"
-  else
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
+
+  rm -rf $TEMP_DIR
 
 }

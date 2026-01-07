@@ -50,14 +50,19 @@ spec:
       type: string
     - name: aiservice_watsonxai_url
       type: string
-    - name: aiservice_watsonx_full
+    - name: aiservice_watsonxai_instance_id
       type: string
-    - name: aiservice_watsonx_instance_id
+    - name: aiservice_watsonxai_version
       type: string
-    - name: aiservice_watsonx_version
+    - name: aiservice_watsonxai_username
       type: string
-    - name: aiservice_watsonx_username
+    - name: aiservice_watsonxai_ca_crt
       type: string
+    - name: aiservice_watsonxai_on_prem
+      type: string
+    - name: aiservice_watsonxai_verify
+      type: string
+
     - name: aiservice_operator_log_level
       type: string
 
@@ -136,14 +141,18 @@ spec:
           value: $(params.aiservice_sls_subscription_id)
         - name: aiservice_watsonxai_url
           value: $(params.aiservice_watsonxai_url)
-        - name: aiservice_watsonx_full
-          value: $(params.aiservice_watsonx_full)
-        - name: aiservice_watsonx_instance_id
-          value: $(params.aiservice_watsonx_instance_id)
-        - name: aiservice_watsonx_version
-          value: $(params.aiservice_watsonx_version)
-        - name: aiservice_watsonx_username
-          value: $(params.aiservice_watsonx_username)
+        - name: aiservice_watsonxai_instance_id
+          value: $(params.aiservice_watsonxai_instance_id)
+        - name: aiservice_watsonxai_version
+          value: $(params.aiservice_watsonxai_version)
+        - name: aiservice_watsonxai_username
+          value: $(params.aiservice_watsonxai_username)
+        - name: aiservice_watsonxai_on_prem
+          value: $(params.aiservice_watsonxai_on_prem)
+        - name: aiservice_watsonxai_verify
+          value: $(params.aiservice_watsonxai_verify)
+        - name: aiservice_watsonxai_ca_crt
+          value: $(params.aiservice_watsonxai_ca_crt)
         - name: aiservice_operator_log_level
           value: $(params.aiservice_operator_log_level)
         - name: aiservice_storage_region

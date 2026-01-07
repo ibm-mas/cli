@@ -16,8 +16,8 @@ config:
     - host: {{ mongo_host.host }}
       port: {{ mongo_host.port }}
     {%- endfor %}
-  configDb: admin
-  authMechanism: DEFAULT
+  authMechanism: {{ DOCDB_AUTHMECHANISM | default("DEFAULT") }}
+  configDb: {{ DOCDB_CONFIGDB | default("admin") }}
   {%- if config.retryWrites is sameas false %}
   retryWrites: false
   {%- endif %}

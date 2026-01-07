@@ -72,6 +72,14 @@ depsArgGroup.add_argument(
 )
 
 depsArgGroup.add_argument(
+    '--mongodb-v8-upgrade',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Required to confirm a major version update for MongoDb to version 8",
+)
+
+depsArgGroup.add_argument(
     '--kafka-namespace',
     required=False,
     help="Namespace where Kafka operator and instances will be updated",
@@ -82,26 +90,6 @@ depsArgGroup.add_argument(
     required=False,
     choices=["redhat", "strimzi"],
     help="The type of Kakfa operator installed in the target namespace for updte",
-)
-
-droArgGroup = updateArgParser.add_argument_group('UDS to DRO Migration')
-
-droArgGroup.add_argument(
-    '--dro-migration',
-    required=False,
-    help="Required to confirm the migration from IBM User Data Services (UDS) to IBM Data Reporter Operator (DRO)",
-)
-
-droArgGroup.add_argument(
-    '--dro-storage-class',
-    required=False,
-    help="Set Custom RWO Storage Class name for DRO as part of the update",
-)
-
-droArgGroup.add_argument(
-    '--dro-namespace',
-    required=False,
-    help="Set Custom Namespace for DRO(Default: redhat-marketplace)",
 )
 
 # Development Mode

@@ -12,6 +12,9 @@ function sm_login() {
     echo "Logging into AWS SecretsManager ..."
     aws configure set aws_access_key_id $SM_AWS_ACCESS_KEY_ID
     aws configure set aws_secret_access_key $SM_AWS_SECRET_ACCESS_KEY
+    if [[ -n "${SM_AWS_SESSION_TOKEN}" ]]; then
+      aws configure set aws_session_token "${SM_AWS_SESSION_TOKEN}"
+    fi
     aws configure set default.region $SM_AWS_REGION
     export AWS_REGION=$SM_AWS_REGION
     aws configure list
@@ -1000,4 +1003,824 @@ function generate_storage_class_def() {
   # Add storage class to dict STORAGE_CLASS_DEFINITIONS_SO_FAR using STORAGE_CLASS_NAME as the key
   # No-op if key already exists
   echo "${STORAGE_CLASS_DEFINITIONS_SO_FAR}" | yq e '(.'${STORAGE_CLASS_NAME}' // '"${STORAGE_CLASS_DEF}"') as $x | .'${STORAGE_CLASS_NAME}' = $x' -
+}
+
+# Reads comments from a GitHub Pull Request and validates Atlantis summary
+# Supports two comment types:
+#   1. "Plan"
+#   2. "Apply"
+#
+# Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.com")
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - PR_NUMBER
+#   $5 - COMMENT_TYPE ("plan" or "apply") - default set to plan
+#   $6 - TIMEOUT_SECONDS (optional, default: 600 seconds / 10 minutes)
+#   $7 - POLL_INTERVAL (optional, default: 30 seconds)
+#
+# Validation Rules:
+#   Plan Summary: failed = 0
+#   Apply Summary: failed = 0
+#
+# Returns:
+#   0 - Valid summary found (passes validation)
+#   1 - Invalid summary or timeout/error
+#
+# Example usage:
+#   # Validate plan
+#   read_and_validate_pr_comments "github.com" "ibm-mas" "gitops-config" "123"
+#
+#   # Validate apply
+#   read_and_validate_pr_comments "github.com" "ibm-mas" "gitops-config" "123" "apply"
+function read_and_validate_pr_comments() {
+  local GITHUB_HOST=$1
+  local GITHUB_ORG=$2
+  local GITHUB_REPO=$3
+  local PR_NUMBER=$4
+  local COMMENT_TYPE=${5:-"plan"}
+  local TIMEOUT_SECONDS=${6:-3600}
+  local POLL_INTERVAL=${7:-30}
+
+  echo "" >&2
+  echo "$(logts) read_and_validate_pr_comments" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "PR Number: #${PR_NUMBER}" >&2
+  echo "Comment Type: ${COMMENT_TYPE}" >&2
+  echo "Timeout: ${TIMEOUT_SECONDS} seconds" >&2
+  echo "Poll Interval: ${POLL_INTERVAL} seconds" >&2
+  echo "=================================================" >&2
+  if [[ -z "${GITHUB_PAT}" ]]; then
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
+    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
+    echo "Failed"
+    return 0
+  fi
+
+  # Set summary header based on comment type
+
+  # GitHub API URL for PR comments
+  local COMMENT_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/issues/${PR_NUMBER}/comments"
+
+  local END_TIME=$(( $(date +%s) + TIMEOUT_SECONDS ))
+  local CHECK_COUNT=0
+
+  echo "Monitoring PR #${PR_NUMBER} for Atlantis ${COMMENT_TYPE} summary..." >&2
+
+  while [ "$(date +%s)" -lt "$END_TIME" ]; do
+    ((CHECK_COUNT++))
+    echo "" >&2
+    echo "Check #${CHECK_COUNT}: Fetching PR comments..." >&2
+
+    # Fetch all comments
+    set +o pipefail
+    COMMENTS_JSON=$(curl -s \
+      -H "Authorization: token ${GITHUB_PAT}" \
+      -H "Accept: application/vnd.github.v3+json" \
+      "${COMMENT_API_URL}")
+    CURL_RC=$?
+    set -o pipefail
+
+    if [[ $CURL_RC -ne 0 ]]; then
+      echo " Error: Failed to fetch comments (curl returned ${CURL_RC})" >&2
+      echo "Failed"
+      return 0
+    fi
+
+    COMMENT_BODIES=$(echo "$COMMENTS_JSON" | jq -r '.[].body')
+    echo $COMMENT_BODIES >&2
+
+    # Look for the appropriate summary in comments
+    if [[ "${COMMENT_TYPE}" == "plan" ]]; then
+      # Check for Plan Error first
+      if echo "$COMMENT_BODIES" | grep -qE "Plan Error"; then
+        echo " FAILED: Found 'Plan Error' in PR comments" >&2
+        echo "=================================================" >&2
+        echo "Failed"
+        return 0
+      fi
+
+      # Check for individual plan details (Plan: X to add, Y to change, Z to destroy)
+      MATCH=$(echo "$COMMENT_BODIES" | grep -oE "Plan: [0-9]+ to add, [0-9]+ to change, [0-9]+ to destroy")
+
+      if [[ -n "$MATCH" ]]; then
+        echo " SUCCESS: Found individual plan details in comments" >&2
+        echo "  Matched Plan: $MATCH" >&2
+        echo "=================================================" >&2
+        echo "Passed"
+        return 0
+      fi
+
+      # Check for plan summary line
+      PLAN_SUMMARY=$(grep -E "[0-9]+ projects, [0-9]+ with changes, [0-9]+ with no changes, [0-9]+ failed" <<< "$COMMENT_BODIES" | head -n 1)
+
+      if [[ -n "$PLAN_SUMMARY" ]]; then
+        echo "PLAN_SUMMARY: "$PLAN_SUMMARY >&2
+        echo "Found Atlantis plan summary line: $PLAN_SUMMARY" >&2
+        # Trim whitespace and match the pattern
+        PLAN_SUMMARY=$(echo "$PLAN_SUMMARY" | xargs)
+        [[ "$PLAN_SUMMARY" =~ ([0-9]+)\ projects,\ ([0-9]+)\ with\ changes,\ ([0-9]+)\ with\ no\ changes,\ ([0-9]+)\ failed ]]
+        PROJECTS="${BASH_REMATCH[1]}"
+        WITH_CHANGES="${BASH_REMATCH[2]}"
+        NO_CHANGES="${BASH_REMATCH[3]}"
+        FAILED="${BASH_REMATCH[4]}"
+
+        echo "" >&2
+        echo "Parsed Plan Summary:" >&2
+        echo "  Total Projects: ${PROJECTS}" >&2
+        echo "  With Changes: ${WITH_CHANGES}" >&2
+        echo "  No Changes: ${NO_CHANGES}" >&2
+        echo "  Failed: ${FAILED}" >&2
+        echo "" >&2
+
+        # Validation: failed should be 0 and (with_changes + no_changes) should equal total_projects
+        local SUCCESSFUL=$(( WITH_CHANGES + NO_CHANGES ))
+
+        if [[ "${FAILED}" -eq 0 && "${SUCCESSFUL}" -eq "${PROJECTS}" ]]; then
+          echo "  SUCCESS: Atlantis plan validation passed!" >&2
+          echo "  - All ${PROJECTS} projects succeeded" >&2
+          echo "  - 0 failures detected" >&2
+          echo "=================================================" >&2
+          echo "Passed"
+          return 0
+        else
+          echo "  FAILED: Atlantis plan validation failed!" >&2
+          echo "  - Expected: ${PROJECTS} successful projects, 0 failures" >&2
+          echo "  - Actual: ${SUCCESSFUL} successful projects, ${FAILED} failures" >&2
+          echo "=================================================" >&2
+          echo "Failed"
+          return 0
+        fi
+      fi
+
+      # If none of the patterns found, wait and continue
+      echo "  Warning: No Atlantis plan indicators found in PR comments yet" >&2
+      sleep "$POLL_INTERVAL"
+      continue
+    else
+      # Apply Summary
+      # Check for Apply Error first
+      if echo "$COMMENT_BODIES" | grep -qE "Apply Error"; then
+        echo " FAILED: Found 'Apply Error' in PR comments" >&2
+        echo "=================================================" >&2
+        echo "Failed"
+        return 0
+      fi
+
+      # Check for individual apply completion details
+      APPLY_MATCH=$(echo "$COMMENT_BODIES" | grep -oE "Apply complete! Resources: [0-9]+ added, [0-9]+ changed, [0-9]+ destroyed")
+      if echo "$COMMENT_BODIES" | grep -qE "Apply complete! Resources: [0-9]+ added, [0-9]+ changed, [0-9]+ destroyed"; then
+        echo " SUCCESS: Found individual apply completion details in comments" >&2
+       echo "  Matched Apply: $APPLY_MATCH" >&2
+        echo "=================================================" >&2
+        echo "Passed"
+        return 0
+      fi
+
+      # Extract the apply summary line
+      # Format: "X projects, Y successful, Z failed, W errored"
+      APPLY_SUMMARY=$(echo "$COMMENT_BODIES" | grep -E "[0-9]+ projects, [0-9]+ successful, [0-9]+ failed, [0-9]+ errored")
+
+      if [[ -n "$APPLY_SUMMARY" ]]; then
+        echo "Found Atlantis Apply summary line: $APPLY_SUMMARY" >&2
+        # Trim whitespace and match the pattern
+        APPLY_SUMMARY=$(echo "$APPLY_SUMMARY" | xargs)
+        [[ "$APPLY_SUMMARY" =~ ([0-9]+)\ projects,\ ([0-9]+)\ successful,\ ([0-9]+)\ failed,\ ([0-9]+)\ errored ]]
+        PROJECTS="${BASH_REMATCH[1]}"
+        SUCCESSFUL="${BASH_REMATCH[2]}"
+        FAILED="${BASH_REMATCH[3]}"
+        ERRORED="${BASH_REMATCH[4]}"
+
+        echo "" >&2
+        echo "Parsed Apply Summary:" >&2
+        echo "  Total Projects: ${PROJECTS}" >&2
+        echo "  Successful: ${SUCCESSFUL}" >&2
+        echo "  Failed: ${FAILED}" >&2
+        echo "  Errored: ${ERRORED}" >&2
+        echo "" >&2
+
+        if [[ "${FAILED}" -eq 0 && "${ERRORED}" -eq 0 && "${SUCCESSFUL}" -eq "${PROJECTS}" ]]; then
+          echo " SUCCESS: Atlantis apply validation passed!" >&2
+          echo "  - All ${PROJECTS} projects succeeded" >&2
+          echo "  - 0 failures detected" >&2
+          echo "  - 0 errors detected" >&2
+          echo "=================================================" >&2
+          echo "Passed"
+          return 0
+        else
+          echo " FAILED: Atlantis apply validation failed!" >&2
+          echo "  - Expected: ${PROJECTS} successful projects, 0 failures, 0 errors" >&2
+          echo "  - Actual: ${SUCCESSFUL} successful, ${FAILED} failed, ${ERRORED} errored" >&2
+          echo "=================================================" >&2
+          echo "Failed"
+          return 0
+        fi
+      fi
+
+      # If none of the patterns found, wait and continue
+      echo "  Warning: No Atlantis apply indicators found in PR comments yet" >&2
+      sleep "$POLL_INTERVAL"
+      continue
+    fi
+
+    echo "  Atlantis ${COMMENT_TYPE} summary not found yet, waiting ${POLL_INTERVAL} seconds..." >&2
+    sleep "$POLL_INTERVAL"
+  done
+
+  echo "" >&2
+  echo " TIMEOUT: Atlantis ${COMMENT_TYPE} summary not found within ${TIMEOUT_SECONDS} seconds" >&2
+  echo "=================================================" >&2
+  echo "Failed"
+  return 0
+}
+
+#  Posts a comment to a GitHub Pull Request
+#
+#  Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.com")
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - PR_NUMBER
+#   $5 - COMMENT_BODY (the comment text to post)
+#
+#  Returns:
+#   0 - Comment posted successfully
+#   1 - Failed to post comment
+#
+#  Example usage:
+#   comment_on_pr "github.com" "ibm-mas" "gitops-config" "123" "atlantis plan"
+# 
+#  Posts a comment to a GitHub Pull Request
+#  Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.com")
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - PR_NUMBER
+#   $5 - COMMENT_BODY (the comment text to post)
+#
+#  Returns:
+#   0 - Comment posted successfully
+#   1 - Failed to post comment
+#
+#  Example usage:
+#   comment_on_pr "github.com" "ibm-mas" "gitops-config" "123" "atlantis plan"
+function comment_on_pr() {
+  local GITHUB_HOST=$1
+  local GITHUB_ORG=$2
+  local GITHUB_REPO=$3
+  local PR_NUMBER=$4
+  local COMMENT_BODY="$5"
+
+  echo "" >&2
+  echo "$(logts) comment_on_pr" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "PR Number: #${PR_NUMBER}" >&2
+  echo "Comment: ${COMMENT_BODY}" >&2
+  echo "=================================================" >&2
+
+  if [[ -z "${GITHUB_PAT}" ]]; then
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
+    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
+    return 0
+  fi
+
+  # GitHub API URL for PR comments
+  local COMMENT_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/issues/${PR_NUMBER}/comments"
+
+  # Create comment payload
+  local COMMENT_DATA=$(jq -n --arg body "${COMMENT_BODY}" '{body: $body}')
+
+  # Post comment
+  set +o pipefail
+  local COMMENT_RESPONSE=$(curl -s -X POST \
+    -H "Authorization: token ${GITHUB_PAT}" \
+    -H "Accept: application/vnd.github.v3+json" \
+    -H "Content-Type: application/json" \
+    -d "${COMMENT_DATA}" \
+    "${COMMENT_API_URL}")
+  local CURL_RC=$?
+  set -o pipefail
+
+  if [[ $CURL_RC -ne 0 ]]; then
+    echo " Error: Failed to post comment (curl returned ${CURL_RC})" >&2
+    return 0
+  fi
+
+  local COMMENT_ID=$(echo "${COMMENT_RESPONSE}" | jq -r '.id' 2>/dev/null)
+
+  if [[ -z "${COMMENT_ID}" || "${COMMENT_ID}" == "null" ]]; then
+    echo " Error: Failed to post comment" >&2
+    echo "Response: ${COMMENT_RESPONSE}" >&2
+    return 0
+  fi
+
+  echo " Comment posted successfully (ID: ${COMMENT_ID})" >&2
+  echo "true"
+  return 0
+}
+
+# Merges a GitHub Pull Request
+# Includes retry mechanism with 60-second wait between attempts
+#
+# Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.com")
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - PR_NUMBER
+#   $5 - MERGE_METHOD (optional, default: "merge", options: "merge", "squash", "rebase")
+#   $6 - COMMIT_TITLE (optional, custom merge commit title)
+#   $7 - COMMIT_MESSAGE (optional, custom merge commit message)
+#   $8 - MAX_RETRIES (optional, default: 3)
+#   $9 - RETRY_DELAY (optional, default: 60 seconds)
+#
+# Returns:
+#   0 - PR merged successfully
+#   1 - Failed to merge PR after all retries
+#
+# Example usage:
+#   # Simple merge
+#   merge_pr "github.com" "ibm-mas" "gitops-config" "123"
+#
+#   # Squash merge with custom message
+#   merge_pr "github.com" "ibm-mas" "gitops-config" "123" "squash" "Custom title" "Custom message"
+#
+#   # With custom retry settings
+#   merge_pr "github.com" "ibm-mas" "gitops-config" "123" "merge" "" "" 5 60
+function merge_pr() {
+  local GITHUB_HOST=$1
+  local GITHUB_ORG=$2
+  local GITHUB_REPO=$3
+  local PR_NUMBER=$4
+  local COMMIT_TITLE="$5"
+  local COMMIT_MESSAGE=${6:-""}
+  local MERGE_METHOD=${7:-"merge"}
+  local MAX_RETRIES=${8:-3}
+  local RETRY_DELAY=${9:-60}
+
+  echo "" >&2
+  echo "$(logts) merge_pr" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "PR Number: #${PR_NUMBER}" >&2
+  echo "Merge Method: ${MERGE_METHOD}" >&2
+  echo "Max Retries: ${MAX_RETRIES}" >&2
+  echo "Retry Delay: ${RETRY_DELAY} seconds" >&2
+  echo "=================================================" >&2
+
+  if [[ -z "${GITHUB_PAT}" ]]; then
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
+    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
+    return 0
+  fi
+
+  # Validate merge method
+  if [[ "${MERGE_METHOD}" != "merge" && "${MERGE_METHOD}" != "squash" && "${MERGE_METHOD}" != "rebase" ]]; then
+    echo " Error: Invalid MERGE_METHOD '${MERGE_METHOD}'. Must be 'merge', 'squash', or 'rebase'" >&2
+    return 0
+  fi
+
+  # GitHub API URL for merging the PR
+  local MERGE_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls/${PR_NUMBER}/merge"
+
+  # Build merge payload
+  local MERGE_DATA
+  if [[ -n "${COMMIT_TITLE}" && -n "${COMMIT_MESSAGE}" ]]; then
+    MERGE_DATA=$(jq -n \
+      --arg method "${MERGE_METHOD}" \
+      --arg title "${COMMIT_TITLE}" \
+      --arg message "${COMMIT_MESSAGE}" \
+      '{merge_method: $method, commit_title: $title, commit_message: $message}')
+  elif [[ -n "${COMMIT_TITLE}" ]]; then
+    MERGE_DATA=$(jq -n \
+      --arg method "${MERGE_METHOD}" \
+      --arg title "${COMMIT_TITLE}" \
+      '{merge_method: $method, commit_title: $title}')
+  else
+    MERGE_DATA=$(jq -n \
+      --arg method "${MERGE_METHOD}" \
+      '{merge_method: $method}')
+  fi
+
+  # Retry loop
+  for (( attempt=1; attempt<=${MAX_RETRIES}; attempt++ )); do
+    echo "" >&2
+    echo "$(logts) Attempt ${attempt} of ${MAX_RETRIES}: Merging PR #${PR_NUMBER}..." >&2
+    echo "-------------------------------------------------" >&2
+
+    # Attempt to merge the PR
+    set +o pipefail
+    local MERGE_RESPONSE=$(curl -s -X PUT \
+      -H "Authorization: token ${GITHUB_PAT}" \
+      -H "Accept: application/vnd.github.v3+json" \
+      -H "Content-Type: application/json" \
+      -d "${MERGE_DATA}" \
+      "${MERGE_API_URL}")
+    local CURL_RC=$?
+    set -o pipefail
+
+    if [[ $CURL_RC -ne 0 ]]; then
+      echo " Error: curl failed with return code ${CURL_RC}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo " Failed to merge PR after ${MAX_RETRIES} attempts" >&2
+        return 0
+      fi
+    fi
+
+    local MERGED=$(echo "${MERGE_RESPONSE}" | jq -r '.merged' 2>/dev/null)
+    local MESSAGE=$(echo "${MERGE_RESPONSE}" | jq -r '.message' 2>/dev/null)
+    local SHA=$(echo "${MERGE_RESPONSE}" | jq -r '.sha' 2>/dev/null)
+
+    if [[ "${MERGED}" == "true" ]]; then
+      echo "" >&2
+      echo " PR #${PR_NUMBER} merged successfully!" >&2
+      echo "Merge SHA: ${SHA}" >&2
+      echo "Message: ${MESSAGE}" >&2
+      echo "=================================================" >&2
+      echo "true"
+      return 0
+    else
+      echo " Error: Failed to merge PR" >&2
+      echo "Message: ${MESSAGE}" >&2
+      echo "Response: ${MERGE_RESPONSE}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo " Failed to merge PR after ${MAX_RETRIES} attempts" >&2
+        return 0
+      fi
+    fi
+  done
+
+  return 0
+}
+
+# Approves a GitHub Pull Request
+# Uses APPROVAL_TOKEN  variable for authentication
+# Includes retry mechanism with configurable wait between attempts
+#
+# Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.com")
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - PR_NUMBER
+#   $5 - APPROVAL_TOKEN
+#   $6 - MAX_RETRIES (optional, default: 3)
+#   $7 - RETRY_DELAY (optional, default: 60 seconds)
+#
+# Returns:
+#   0 - PR approved successfully
+#   1 - Failed to approve PR after all retries
+#
+# Example usage:
+#   approve_pr "github.com" "ibm-mas" "gitops-config" "123"
+#   approve_pr "github.com" "ibm-mas" "gitops-config" "123" 5 60
+function approve_pr() {
+  local GITHUB_HOST=$1
+  local GITHUB_ORG=$2
+  local GITHUB_REPO=$3
+  local PR_NUMBER=$4
+  local APPROVAL_TOKEN=$5
+  local MAX_RETRIES=${6:-3}
+  local RETRY_DELAY=${7:-60}
+
+  echo "" >&2
+  echo "$(logts) approve_pr" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "PR Number: #${PR_NUMBER}" >&2
+  echo "Max Retries: ${MAX_RETRIES}" >&2
+  echo "Retry Delay: ${RETRY_DELAY} seconds" >&2
+  echo "=================================================" >&2
+
+  if [[ -z "${APPROVAL_TOKEN}" ]]; then
+    echo " Error: APPROVAL_TOKEN environment variable is not set" >&2
+    echo "Please provide APPROVAL_TOKEN with a valid GitHub Personal Access Token" >&2
+    return 1
+  fi
+
+  # GitHub API URL for PR reviews
+  local REVIEW_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls/${PR_NUMBER}/reviews"
+  # Create approval payload
+  local APPROVAL_DATA=$(jq -n \
+    --arg event "APPROVE" \
+    --arg body "Approved via automation" \
+    '{event: $event, body: $body}')
+
+  # Retry loop
+  for (( attempt=1; attempt<=${MAX_RETRIES}; attempt++ )); do
+    echo "" >&2
+    echo "$(logts) Attempt ${attempt} of ${MAX_RETRIES}: Approving PR #${PR_NUMBER}..." >&2
+    echo "-------------------------------------------------" >&2
+
+    # Attempt to approve the PR
+    set +o pipefail
+    local APPROVAL_RESPONSE=$(curl -s -X POST \
+      -H "Authorization: token ${APPROVAL_TOKEN}" \
+      -H "Accept: application/vnd.github.v3+json" \
+      -H "Content-Type: application/json" \
+      -d "${APPROVAL_DATA}" \
+      "${REVIEW_API_URL}")
+    local CURL_RC=$?
+    set -o pipefail
+
+    if [[ $CURL_RC -ne 0 ]]; then
+      echo " Error: curl failed with return code ${CURL_RC}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo "⏳ Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo " Failed to approve PR after ${MAX_RETRIES} attempts" >&2
+        return 1
+      fi
+    fi
+
+    local REVIEW_STATE=$(echo "${APPROVAL_RESPONSE}" | jq -r '.state' 2>/dev/null)
+    local REVIEW_ID=$(echo "${APPROVAL_RESPONSE}" | jq -r '.id' 2>/dev/null)
+    local ERROR_MESSAGE=$(echo "${APPROVAL_RESPONSE}" | jq -r '.message' 2>/dev/null)
+
+    if [[ "${REVIEW_STATE}" == "APPROVED" ]]; then
+      echo "" >&2
+      echo " PR #${PR_NUMBER} approved successfully!" >&2
+      echo "Review ID: ${REVIEW_ID}" >&2
+      echo "=================================================" >&2
+      echo "true"
+      return 0
+    else
+      echo " Error: Failed to approve PR" >&2
+      if [[ -n "${ERROR_MESSAGE}" && "${ERROR_MESSAGE}" != "null" ]]; then
+        echo "Error Message: ${ERROR_MESSAGE}" >&2
+      fi
+      echo "Response: ${APPROVAL_RESPONSE}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo " Failed to approve PR after ${MAX_RETRIES} attempts" >&2
+        return 1
+      fi
+    fi
+  done
+
+  return 1
+}
+
+# Creates a Pull Request from an existing branch if none of the PR already exists
+# It assumes the branch already exists with commits and just creates a PR from it
+#
+# Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.com")
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - HEAD_BRANCH (existing branch with commits)
+#   $5 - BASE_BRANCH (target branch for PR, e.g., "main")
+#   $6 - PR_TITLE
+#   $7 - PR_BODY
+#
+# Returns:
+#   PR_NUMBER - The number of the created PR (echoed to stdout)
+#   Exits with 1 if PR creation fails or if open PRs already exist
+#
+# Example usage:
+#   PR_NUMBER=$(create_single_threaded_pr \
+#     "github.com" \
+#     "ibm-mas" \
+#     "gitops-config" \
+#     "gitops-iac-account1-cluster1-inst1-20250112-193000" \
+#     "main" \
+#     "GitOps IAC: EFS and S3 configuration" \
+#     "This PR contains infrastructure changes")
+#
+#   if [[ $? -eq 0 ]]; then
+#     echo "Created PR #${PR_NUMBER}"
+#   fi
+function create_single_threaded_pr() {
+  local GITHUB_HOST=$1
+  local GITHUB_ORG=$2
+  local GITHUB_REPO=$3
+  local HEAD_BRANCH=$4
+  local BASE_BRANCH=$5
+  local PR_TITLE="$6"
+  local PR_BODY="$7"
+
+  echo "" >&2
+  echo "$(logts) create_single_threaded_pr" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "Head Branch: ${HEAD_BRANCH}" >&2
+  echo "Base Branch: ${BASE_BRANCH}" >&2
+  echo "PR Title: ${PR_TITLE}" >&2
+  echo "=================================================" >&2
+
+  if [[ -z "${GITHUB_PAT}" ]]; then
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
+    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
+    exit 1
+  fi
+
+  # Step 1: Check for existing open PRs
+  echo "" >&2
+  echo "$(logts) Checking for existing open PRs..." >&2
+  echo "-------------------------------------------------" >&2
+
+  local API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls?state=open"
+
+  set +o pipefail
+  local OPEN_PRS=$(curl -s -H "Authorization: token ${GITHUB_PAT}" \
+    -H "Accept: application/vnd.github.v3+json" \
+    "${API_URL}")
+  local CURL_RC=$?
+  set -o pipefail
+
+  if [[ $CURL_RC -ne 0 ]]; then
+    echo " Error: Failed to check for existing PRs (curl returned ${CURL_RC})" >&2
+    exit 1
+  fi
+
+  local OPEN_PR_COUNT=$(echo "${OPEN_PRS}" | jq '. | length' 2>/dev/null)
+
+  if [[ -z "${OPEN_PR_COUNT}" || "${OPEN_PR_COUNT}" == "null" ]]; then
+    echo " Error: Failed to parse PR list from GitHub API" >&2
+    echo "Response: ${OPEN_PRS}" >&2
+    exit 1
+  fi
+
+  if [[ "$OPEN_PR_COUNT" -gt 0 ]]; then
+    echo "  Found ${OPEN_PR_COUNT} open PR(s) in ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+    echo "Existing PRs:" >&2
+    echo "${OPEN_PRS}" | jq -r '.[] | "  #\(.number): \(.title) (\(.head.ref) -> \(.base.ref))"' >&2
+    echo "" >&2
+    echo "Please merge or close existing PRs first." >&2
+    exit 1
+  fi
+
+  echo "✓ No open PRs found, proceeding with PR creation..." >&2
+
+  # Step 2: Create PR from existing branch
+  echo "" >&2
+  echo "$(logts) Creating Pull Request..." >&2
+  echo "-------------------------------------------------" >&2
+
+  local PR_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls"
+
+  local PR_DATA=$(jq -n \
+    --arg title "${PR_TITLE}" \
+    --arg body "${PR_BODY}" \
+    --arg head "${HEAD_BRANCH}" \
+    --arg base "${BASE_BRANCH}" \
+    '{title: $title, body: $body, head: $head, base: $base}')
+
+  set +o pipefail
+  local PR_RESPONSE=$(curl -s -X POST \
+    -H "Authorization: token ${GITHUB_PAT}" \
+    -H "Accept: application/vnd.github.v3+json" \
+    -H "Content-Type: application/json" \
+    -d "${PR_DATA}" \
+    "${PR_API_URL}")
+  CURL_RC=$?
+  set -o pipefail
+
+  if [[ $CURL_RC -ne 0 ]]; then
+    echo " Failed to create Pull Request (curl returned ${CURL_RC})" >&2
+    exit 1
+  fi
+
+  local PR_URL=$(echo "${PR_RESPONSE}" | jq -r '.html_url' 2>/dev/null)
+  local PR_NUMBER=$(echo "${PR_RESPONSE}" | jq -r '.number' 2>/dev/null)
+
+  if [[ -z "${PR_URL}" || "${PR_URL}" == "null" ]]; then
+    echo " Failed to create Pull Request" >&2
+    echo "Response: ${PR_RESPONSE}" >&2
+    exit 1
+  fi
+
+  echo "" >&2
+  echo " Pull Request #${PR_NUMBER} created successfully!" >&2
+  echo "URL: ${PR_URL}" >&2
+  echo "=================================================" >&2
+
+  # Return the PR number
+  echo "${PR_NUMBER}"
+}
+
+# Closes a GitHub Pull Request without merging
+# Includes retry mechanism with 60-second wait between attempts
+#
+# Parameters:
+#   $1 - GITHUB_HOST (e.g., "github.com")
+#   $2 - GITHUB_ORG
+#   $3 - GITHUB_REPO
+#   $4 - PR_NUMBER
+#   $5 - MAX_RETRIES (optional, default: 3)
+#   $6 - RETRY_DELAY (optional, default: 60 seconds)
+#
+# Returns:
+#   0 - PR closed successfully
+#   1 - Failed to close PR after all retries
+#
+# Example usage:
+#   close_pr "github.com" "ibm-mas" "gitops-config" "123"
+#   close_pr "github.com" "ibm-mas" "gitops-config" "123" 5 60
+function close_pr() {
+  local GITHUB_HOST=$1
+  local GITHUB_ORG=$2
+  local GITHUB_REPO=$3
+  local PR_NUMBER=$4
+  local MAX_RETRIES=${5:-3}
+  local RETRY_DELAY=${6:-60}
+
+  echo "" >&2
+  echo "$(logts) close_pr" >&2
+  echo "=================================================" >&2
+  echo "Repository: ${GITHUB_ORG}/${GITHUB_REPO}" >&2
+  echo "PR Number: #${PR_NUMBER}" >&2
+  echo "Max Retries: ${MAX_RETRIES}" >&2
+  echo "Retry Delay: ${RETRY_DELAY} seconds" >&2
+  echo "=================================================" >&2
+
+  if [[ -z "${GITHUB_PAT}" ]]; then
+    echo " Error: GITHUB_PAT environment variable is not set" >&2
+    echo "Please set GITHUB_PAT with a valid GitHub Personal Access Token" >&2
+    return 0
+  fi
+
+  # GitHub API URL for the specific PR
+  local PR_API_URL="https://api.${GITHUB_HOST}/repos/${GITHUB_ORG}/${GITHUB_REPO}/pulls/${PR_NUMBER}"
+
+  # Create payload to close the PR
+  local CLOSE_DATA=$(jq -n '{state: "closed"}')
+
+  # Retry loop
+  for (( attempt=1; attempt<=${MAX_RETRIES}; attempt++ )); do
+    echo "" >&2
+    echo "$(logts) Attempt ${attempt} of ${MAX_RETRIES}: Closing PR #${PR_NUMBER}..." >&2
+    echo "-------------------------------------------------" >&2
+
+    # Close the PR
+    set +o pipefail
+    local CLOSE_RESPONSE=$(curl -s -X PATCH \
+      -H "Authorization: token ${GITHUB_PAT}" \
+      -H "Accept: application/vnd.github.v3+json" \
+      -H "Content-Type: application/json" \
+      -d "${CLOSE_DATA}" \
+      "${PR_API_URL}")
+    local CURL_RC=$?
+    set -o pipefail
+
+    if [[ $CURL_RC -ne 0 ]]; then
+      echo " Error: curl failed with return code ${CURL_RC}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo " Failed to close PR after ${MAX_RETRIES} attempts" >&2
+        return 0
+      fi
+    fi
+
+    local PR_STATE=$(echo "${CLOSE_RESPONSE}" | jq -r '.state' 2>/dev/null)
+    local PR_URL=$(echo "${CLOSE_RESPONSE}" | jq -r '.html_url' 2>/dev/null)
+
+    if [[ -z "${PR_STATE}" || "${PR_STATE}" == "null" ]]; then
+      echo " Error: Failed to parse response" >&2
+      echo "Response: ${CLOSE_RESPONSE}" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo " Failed to close PR after ${MAX_RETRIES} attempts" >&2
+        return 0
+      fi
+    fi
+
+    if [[ "${PR_STATE}" == "closed" ]]; then
+      echo "" >&2
+      echo " PR #${PR_NUMBER} closed successfully!" >&2
+      echo "URL: ${PR_URL}" >&2
+      echo "=================================================" >&2
+      return 0
+    else
+      echo " Error: PR state is '${PR_STATE}', expected 'closed'" >&2
+      if [[ ${attempt} -lt ${MAX_RETRIES} ]]; then
+        echo " Waiting ${RETRY_DELAY} seconds before retry..." >&2
+        sleep ${RETRY_DELAY}
+        continue
+      else
+        echo " Failed to close PR after ${MAX_RETRIES} attempts" >&2
+        return 0
+      fi
+    fi
+  done
+  return 0
 }

@@ -1,0 +1,7 @@
+merge-key: "{{ ACCOUNT_ID }}/{{ CLUSTER_ID }}"
+
+image_mirroring:
+  ecr_host: {{ IMAGE_REPO_MIRROR_HOST }}
+  repo_path_prefix: {{ IMAGE_REPO_MIRROR_PREFIX }}
+  aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_ECR_ACCESS_KEY_ID }}>"
+  aws_secret_access_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_AWS_ECR_ACCESS_KEY_SECRET }}>"

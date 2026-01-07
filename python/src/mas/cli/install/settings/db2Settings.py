@@ -18,8 +18,15 @@ class Db2SettingsMixin():
     def configDb2(self, silentMode=False) -> None:
         if not silentMode:
             self.printH1("Configure Databases")
-        # The channel used for Db2 used has not changed since the January 2024 catalog update
-        self.params["db2_channel"] = "v110509.0"
+
+        # Set the default db2-Channel
+        default_db2_channel = "v110509.0"
+        # Get user-specified value
+        user_channel = self.getParam("db2_channel")
+
+        # Only allow custom db2_channel in devMode with a non-empty value
+        db2_channel = user_channel if (self.devMode and user_channel) else default_db2_channel
+        self.params["db2_channel"] = db2_channel
 
         # If neither Iot, Manage or Facilities is being installed, we have nothing to do
         if not self.installIoT and not self.installManage and not self.installFacilities:
@@ -27,31 +34,6 @@ class Db2SettingsMixin():
             self.setParam("db2_action_system", "none")
             self.setParam("db2_action_manage", "none")
             self.setParam("db2_action_facilities", "none")
-            return
-
-        # For now we are limiting users to bring your own database for Manage on s390x & ppc64le
-        # Eventually we will be able to remove this clause and allow the standard logic to work for s390x, ppc64le and amd64
-        if (self.architecture == "s390x" or self.architecture == "ppc64le") and self.installManage:
-            # silentMode does not apply for s390x/ppc64le because it requires interaction when selecting local config directory
-            self.printDescription([
-                "Installation of a Db2 instance using the IBM Db2 Universal Operator is not currently supported on s390x /ppc64le, please provide configuration details for the database you wish to use.",
-            ])
-            instanceId = self.getParam('mas_instance_id')
-            workspaceId = self.getParam("mas_workspace_id")
-
-            self.setParam("mas_appws_bindings_jdbc_manage", "workspace-application")
-            self.setParam("db2_action_manage", "byo")
-            self.selectLocalConfigDir()
-
-            # Check if a configuration already exists before creating a new one
-            jdbcCfgFile = path.join(self.localConfigDir, f"jdbc-{instanceId}-manage.yaml")
-            print_formatted_text(f"Searching for {self.manageAppName} database configuration file in {jdbcCfgFile} ...")
-            if path.exists(jdbcCfgFile):
-                if self.yesOrNo(f"{self.manageAppName} database configuration file 'jdbc-{instanceId}-manage.yaml' already exists.  Do you want to generate a new one"):
-                    self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
-            else:
-                print_formatted_text(f"Expected file ({jdbcCfgFile}) was not found, generating a valid {self.manageAppName} database configuration file now ...")
-                self.generateJDBCCfg(instanceId=instanceId, scope="workspace-application", workspaceId=workspaceId, appId="manage", destination=jdbcCfgFile)
             return
 
         # Proceed as normal
@@ -182,6 +164,8 @@ class Db2SettingsMixin():
                     f"Note that the same settings are applied to both the IoT and {self.manageAppName} Db2 instances",
                     "Use existing node labels and taints to control scheduling of the Db2 workload in your cluster",
                     "For more information refer to the Red Hat documentation:",
+                    " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-node-affinity</u></Orange>",
+                    " - <Orange><u>https://docs.redhat.com/en/documentation/openshift_container_platform/4.19/html/nodes/controlling-pod-placement-onto-nodes-scheduling#nodes-scheduler-taints-tolerations</u></Orange>",
                     " - <Orange><u>https://docs.openshift.com/container-platform/4.18/nodes/scheduling/nodes-scheduler-node-affinity.html</u></Orange>",
                     " - <Orange><u>https://docs.openshift.com/container-platform/4.18/nodes/scheduling/nodes-scheduler-taints-tolerations.html</u></Orange>",
                     " - <Orange><u>https://docs.openshift.com/container-platform/4.17/nodes/scheduling/nodes-scheduler-node-affinity.html</u></Orange>",
@@ -245,8 +229,8 @@ class Db2SettingsMixin():
             self.params["db2_cpu_requests"] = "300m"
 
         else:
-            self.setParam("db2_meta_storage_size", "20Gi")
-            self.setParam("db2_backup_storage_size", "100Gi")
-            self.setParam("db2_logs_storage_size", "100Gi")
-            self.setParam("db2_temp_storage_size", "100Gi")
-            self.setParam("db2_data_storage_size", "100Gi")
+            self.setParam("db2_meta_storage_size", "10Gi")
+            self.setParam("db2_backup_storage_size", "50Gi")
+            self.setParam("db2_logs_storage_size", "10Gi")
+            self.setParam("db2_temp_storage_size", "10Gi")
+            self.setParam("db2_data_storage_size", "50Gi")

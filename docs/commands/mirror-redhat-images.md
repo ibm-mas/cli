@@ -22,7 +22,7 @@ Usage
 - `--pullsecret REDHAT_PULLSECRET` [Red Hat OpenShift Pull Secret](https://console.redhat.com/openshift/install/pull-secret)
 
 ### Content Selection (Optional):
-- `--release OCP_RELEASE` OCP Release to mirror content for (e.g. 4.14, 4.15, 4.16,4.17,4.18)
+- `--release OCP_RELEASE` OCP Release to mirror content for (e.g. 4.16,4.17,4.18,4.19)
 
 ### Platform Version Range (Optional):
 - `--min-version OCP_MIN_VERSION` Minimum version of the OCP release to mirror

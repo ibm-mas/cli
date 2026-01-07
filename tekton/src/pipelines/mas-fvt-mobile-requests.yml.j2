@@ -1,0 +1,62 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-fvt-mobile-requests
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+
+  params:
+    # Tekton Pipeline image pull policy (for ibmmas/cli images)
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Pull policy for pipeline container images
+
+    # MAS Configuration
+    - name: mas_channel
+      type: string
+      default: ""
+    - name: mas_app_channel_manage
+      type: string
+      default: ""
+    - name: mas_instance_id
+      type: string
+      default: ""
+    - name: mas_workspace_id
+      type: string
+      default: ""
+
+    # FVT Configuration
+    - name: fvt_image_registry
+      type: string
+      default: ""
+    - name: fvt_artifactory_token
+      type: string
+      default: ""
+    - name: build_num
+      type: string
+      default: ""
+        
+    # FVT: Mobile Digests
+    - name: fvt_digest_mobile_pytest
+      type: string
+      default: ""
+    - name: fvt_digest_mobile_testng
+      type: string
+      default: ""
+    
+    # FVT: Request Pipelines
+    - name: launchfvt_mobile_requests
+      default: "False"
+      description: Used to trigger the request pipeline. This pipeline is to be used initially in dev envs
+      type: string
+
+
+  tasks:
+    # 2. Mobile FVT - Mobile Request tasks
+    # -------------------------------------------------------------------------
+    {{ lookup('template', 'taskdefs/fvt-mobile/requests/phase1-reqs.yml.j2') | indent(4) }}
+    {{ lookup('template', 'taskdefs/fvt-mobile/requests/phase2-testng.yml.j2') | indent(4) }}

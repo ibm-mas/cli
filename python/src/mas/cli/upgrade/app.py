@@ -23,7 +23,7 @@ from .argParser import upgradeArgParser
 from .settings import UpgradeSettingsMixin
 
 from mas.devops.ocp import createNamespace
-from mas.devops.mas import listMasInstances, getMasChannel, getWorkspaceId, verifyAppInstance
+from mas.devops.mas import listMasInstances, getMasChannel, getAppsSubscriptionChannel, getWorkspaceId, verifyAppInstance
 from mas.devops.tekton import installOpenShiftPipelines, updateTektonDefinitions, launchUpgradePipeline
 
 logger = logging.getLogger(__name__)
@@ -83,6 +83,17 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
                 if currentChannel not in self.upgrade_path:
                     self.fatalError(f"No upgrade available, {instanceId} is are already on the latest release {currentChannel}")
                 nextChannel = self.upgrade_path[currentChannel]
+
+                # For the Feature Channels we do not allow upgrade when an installed app is not onboarded yet
+                if nextChannel in self.compatibilityMatrix:
+                    if "feature" in nextChannel:
+                        unsupportedAppForFC = []
+                        installedAppsChannel = getAppsSubscriptionChannel(self.dynamicClient, instanceId)
+                        for installedApp in installedAppsChannel:
+                            if installedApp["appId"] not in self.compatibilityMatrix[nextChannel]:
+                                unsupportedAppForFC.append(installedApp["appId"])
+                        if len(unsupportedAppForFC) > 0:
+                            self.fatalError(f"No feature channel available for {unsupportedAppForFC} on the release {nextChannel}. Upgrade cancelled.")
         else:
             # We still allow the upgrade to proceed even though we can't detect the MAS instance.  The upgrade may be being
             # queued up to run after install for instance
@@ -143,8 +154,12 @@ class UpgradeApp(BaseApp, UpgradeSettingsMixin):
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
-                installOpenShiftPipelines(self.dynamicClient)
-                h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+                successfullyInstalledPipelines = installOpenShiftPipelines(self.dynamicClient)
+                if successfullyInstalledPipelines:
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+                else:
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
+                    self.fatalError("Installation failed")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)

@@ -28,6 +28,11 @@
     ldap_user_map: "{{ lookup('env', 'LDAP_USER_MAP') }}"
     ldap_cert_alias: "{{ lookup('env', 'LDAP_CERT_ALIAS') }}"
     ldap_crt: "{{ lookup('env', 'LDAP_CRT') }}"
+    keycloak_admin_username: "{{ lookup('env', 'KEYCLOAK_ADMIN_USERNAME') }}"
+    keycloak_admin_password: "{{ lookup('env', 'KEYCLOAK_ADMIN_PASSWORD') }}"
+    keycloak_base_url: "{{ lookup('env', 'KEYCLOAK_BASE_URL') }}"
+    keycloak_realm_name: "{{ lookup('env', 'KEYCLOAK_REALM_NAME') }}"
+
     # Pipeline Run Info
     devops_build_number: "{{ lookup('env', 'DEVOPS_BUILD_NUMBER') | default('0', True) }}"
     pipelinerun_name: "{{ lookup('env', 'PIPELINERUN_NAME') | default('mas-fvt-core', True) }}-{{ devops_build_number }}"
@@ -55,6 +60,11 @@
           - "ddp_apikey .................. {{ ddp_apikey }}"
           - "partium_username ............ ********"
           - "partium_password ............ ********"
+          - ""
+          - "keycloak_admin_username ..... ********"
+          - "keycloak_admin_password ..... ********"
+          - "keycloak_base_url ........... {{ keycloak_base_url }}"
+          - "keycloak_realm_name ......... {{ keycloak_realm_name }}"
 
     - name: "Start FVT-core pipeline"
       kubernetes.core.k8s:

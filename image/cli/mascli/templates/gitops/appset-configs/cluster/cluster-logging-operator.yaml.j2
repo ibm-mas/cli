@@ -5,18 +5,14 @@ cluster_logging_operator:
   aws_secret_access_key:  "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLOUDWATCH_AWS_SECRET_ACCESS_KEY }}>"
   aws_access_key_id: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_CLOUDWATCH_AWS_ACCESS_KEY_ID }}>"
   channel: "{{ CLUSTER_LOGGING_OPERATOR_CHANNEL }}"
-  {% if CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER %}
   use_syslog_forwarder: "{{ CLUSTER_LOGGING_OPERATOR_USE_SYSLOG_FORWARDER }}"
-  {% endif %}
   {% if CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN is defined and CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN != "" %}
   install_plan: "{{ CLUSTER_LOGGING_OPERATOR_INSTALL_PLAN }}"
   {% endif %}
-  {% if CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING %}
+  {% if CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING == true or CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING|string|lower == 'true' %}
   setup_log_forwarding: "{{ CLUSTER_LOGGING_OPERATOR_SETUP_LOG_FORWARDING }}"
   log_forwarder_client_url: "{{ CLUSTER_LOGGING_OPERATOR_LOG_FORWARDER_CLIENT_URL }}"
   syslog_forwarder_version: "{{ CLUSTER_LOGGING_OPERATOR_SYSLOG_FORWARDER_VERSION }}"
   log_forwarder_pullsecret: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SYSLOG_PULLSECRET }}>"
-  {% if CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE is defined and CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE_FILE != "" %}
-  log_forwarder_dlc_cert: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_LOG_FORWARDER_DLC_CA_BUNDLE }}>"
-  {% endif %}
+  log_forwarder_dlc_cert: {{ CLUSTER_LOGGING_OPERATOR_DLC_CA_BUNDLE }}
   {% endif %}

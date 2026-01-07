@@ -60,14 +60,17 @@ IBM DB2U:
       --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}                   Yaml file containing the db2ucluster database db config section.
       --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster addons audit config section.
       --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
+      --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
       --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
       --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                   Slack URL to notify DB2 backup failures
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                    Flag to know that this is ReplicaDB instance
       --is-replica-task ${COLOR_YELLOW}IS_REPLICA_TASK${TEXT_RESET}                                           To check if this is invoked by replica task
+      --skip-backup-notification ${COLOR_YELLOW}SKIP_BACKUP_NOTIFICATION${TEXT_RESET}                         Flag to track if slack and icd backup notifications are needed.
       --mas-annotations ${COLOR_YELLOW}MAS_ANNOTATIONS${TEXT_RESET}                                           MAS Annotations
       --auto-backup ${COLOR_YELLOW}AUTO_BACKUP${TEXT_RESET}                                                   Flag whether to install the Auto DB2 backup feature or not
       --manually-set-enhanced-hadr ${COLOR_YELLOW}MANUALLY_SET_ENHANCED_HADR${TEXT_RESET}                     Flag to indicate whether enhanced HADR was configured manually
       --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                     List of IPs or CIDR range that will be whitelisted
+      --cluster-domain ${COLOR_YELLOW}CLUSTER_DOMAIN${TEXT_RESET}                                             Cluster domain if any tls route needs to be created. Only needed if redhat cert-manager is not installed.
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -276,6 +279,9 @@ function gitops_db2u_database_noninteractive() {
       --db2-tolerate-effect)
         export DB2_TOLERATE_EFFECT=$1 && shift
         ;;
+      --jdbc-connection-url-additional-params)
+        export JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1 && shift
+        ;;
       --jdbc-route)
         export JDBC_ROUTE=$1 && shift
         ;;
@@ -295,13 +301,18 @@ function gitops_db2u_database_noninteractive() {
       --auto-backup)
         export AUTO_BACKUP=$1 && shift
         ;;
+      --skip-backup-notification)
+        export SKIP_BACKUP_NOTIFICATION=$1 && shift
+        ;;
       --manually-set-enhanced-hadr)
         export MANUALLY_SET_ENHANCED_HADR=$1 && shift
         ;;
       --allow-list)
         export ALLOW_LIST=$1 && shift
         ;;
-
+      --cluster-domain)
+      export CLUSTER_DOMAIN=$1 && shift
+        ;;
 
       # Automatic GitHub Push
       -P|--github-push)
@@ -387,7 +398,6 @@ function gitops_db2u_database() {
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  rm -rf $GITOPS_WORKING_DIR/$GITHUB_REPO
   GITOPS_INSTANCE_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${MAS_INSTANCE_ID}
   CONFIGS_FILE="${GITOPS_INSTANCE_DIR}/ibm-db2u-databases.yaml"
 
@@ -514,6 +524,10 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [[ -z $AUTO_BACKUP ]]; then
     export AUTO_BACKUP=false
   fi
+  # Option to track icd and slack notifications, and if they need to be set in secret manager. The default behavior for commercial SaaS is false.
+  if [[ -z $SKIP_BACKUP_NOTIFICATION ]]; then
+    export SKIP_BACKUP_NOTIFICATION=false
+  fi
   if [[ -z $MANUALLY_SET_ENHANCED_HADR ]]; then
     export MANUALLY_SET_ENHANCED_HADR=false
   fi
@@ -614,17 +628,22 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   echo_reset_dim "is-replica-task ............................... ${COLOR_MAGENTA}${IS_REPLICA_TASK}"
   echo_reset_dim "mas-annotations ............................... ${COLOR_MAGENTA}${MAS_ANNOTATIONS}"
   echo_reset_dim "auto-backup ................................... ${COLOR_MAGENTA}${AUTO_BACKUP}"
+  echo_reset_dim "skip-backup-notification ...................... ${COLOR_MAGENTA}${SKIP_BACKUP_NOTIFICATION}"
   echo_reset_dim "manually-set-enhanced-hadr .................... ${COLOR_MAGENTA}${MANUALLY_SET_ENHANCED_HADR}"
   echo_reset_dim "allow-list .................................... ${COLOR_MAGENTA}${ALLOW_LIST}"
+  echo_reset_dim "Cluster Domain ................................ ${COLOR_MAGENTA}${CLUSTER_DOMAIN}"
   reset_colors
 
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
 
-  export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
+  if [[ -z "${CLUSTER_DOMAIN}" ]]; then
+    echo "CLUSTER_DOMAIN not specified, fetching from secrets manager"
+    export SECRET_KEY_CLUSTER_DOMAIN=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}cluster_domain#cluster_domain
+  fi
 
-  if [[ $AUTO_BACKUP == 'true' && $IS_REPLICA_TASK == 'false' ]]; then
+  if [[ $AUTO_BACKUP == 'true' && $IS_REPLICA_TASK == 'false' && $SKIP_BACKUP_NOTIFICATION == 'false' ]]; then
     if [[ -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" ]]; then
       TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_db2u_database\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
       sm_update_secret ${SECRET_NAME_ICD_AUTH_KEY} "{\"icd_auth_key\": \"${ICD_AUTH_KEY}\"}" "${TAGS}"
@@ -670,10 +689,20 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
 
   # Optional DB backup configs
   # ---------------------------------------------------------------------------
-  if [[ $AUTO_BACKUP == 'true' && -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" && $IS_REPLICA_TASK == 'false' ]]; then
+  if [[ $AUTO_BACKUP == 'true' && -n "$DB2_BACKUP_NOTIFY_SLACK_URL" && -n "$ICD_AUTH_KEY" && $IS_REPLICA_TASK == 'false' && $SKIP_BACKUP_NOTIFICATION == 'false' ]]; then
     echo
     echo_h2 "Optional DB backup configurations are provided"
     sm_verify_secret_exists $SECRET_NAME_ICD_AUTH_KEY "icd_auth_key"
+    sm_verify_secret_exists $SECRET_NAME_DB2_BACKUP "bucketName,accessKey,access_secret_key,endpointURL"
+    echo_h2 "Auto DB backup feature is enabled"
+    export BACKUP=true
+  fi
+
+  # DB backup configs when backup notifications are skipped
+  # ---------------------------------------------------------------------------
+  if [[ $AUTO_BACKUP == 'true' && $SKIP_BACKUP_NOTIFICATION == 'true' ]]; then
+    echo
+    echo_h2 "Backup notifications are skipped. Verifying backup secret exists."
     sm_verify_secret_exists $SECRET_NAME_DB2_BACKUP "bucketName,accessKey,access_secret_key,endpointURL"
     echo_h2 "Auto DB backup feature is enabled"
     export BACKUP=true
@@ -728,10 +757,6 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
   if [ "$GITHUB_PUSH" == "true" ]; then
     # only create the lock branch if we plan to actually push changes to git
     clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
-  else
-    # even though we don't want to push anything to git,
-    # because this script modifies the existing suite-configs.yaml file, we still need to checkout the repo
-    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
   fi
   mkdir -p ${GITOPS_INSTANCE_DIR}
 
@@ -777,9 +802,9 @@ DB2_WORKLOAD: '${DB2_WORKLOAD}'"
     echo
     echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
     save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}" DB2_CONFIG_CHANGED
-  else
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
 
+  rm -rf $TEMP_DIR
 
 }

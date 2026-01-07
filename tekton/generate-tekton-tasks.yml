@@ -25,12 +25,12 @@
         - arcgis
         - appconnect
         - cert-manager
-        - common-services
         - cos
         - cp4d-service
         - cp4d-service-update
         - cp4d
         - db2
+        - dro
         - eck
         - grafana
         - ibm-catalogs
@@ -41,19 +41,18 @@
         - sls-registry-update
         - sls
         - turbonomic
-        - uds
 
-    # 3. Generate Tasks (AI Broker)
+    # 3. Generate Tasks (AI Service)
     # -------------------------------------------------------------------------
-    - name: Generate Tasks (AI Broker)
+    - name: Generate Tasks (AI Service)
       ansible.builtin.template:
         src: "{{ task_src_dir }}/aiservice/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - minio
         - aiservice
         - odh
-        - aiservice-tenant
-        - aiservice-post-verify
+        - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
     # -------------------------------------------------------------------------
@@ -63,6 +62,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - aiservice-fvt
+        - aiservice-fvt-start-upgrade
         - mas-fvt-assist-desktop
         - mas-fvt-assist
         - mas-fvt-core
@@ -106,15 +106,15 @@
         - mas-launchfvt-manage
         - mas-launchfvt-manage-is
         - mas-launchfvt-mobile
-        - mas-launchfvt-mobile-upgrade-pre
-        - mas-launchfvt-mobile-upgrade-post
         - mas-launchfvt-monitor
         - mas-launchfvt-optimizer
         - mas-launchfvt-predict
         - mas-launchfvt-visualinspection
         - mas-launchfvt-upgrade-post
         - mas-launchfvt-upgrade-pre
+        - mas-launchfvt-facilities
         - mas-launchivt-manage
+
 
     # 5. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -135,12 +135,10 @@
       with_items:
         - gencfg-workspace
         - must-gather
-        - suite-app-config
         - suite-app-install
         - suite-app-uninstall
         - suite-app-upgrade
         - suite-app-rollback
-        - suite-app-verify
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
@@ -170,11 +168,21 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - update-configmap
+        - update-pipeline-status
         - wait-for-configmap
         - wait-for-configmap-v2
         - wait-for-tekton
 
-    # 9. Generate Tasks (GitOps)
+    # 9. Generate Tasks (Common)
+    # -------------------------------------------------------------------------
+    - name: Generate Tasks (Common)
+      ansible.builtin.template:
+        src: "{{ task_src_dir }}/common/{{ item }}.yml.j2"
+        dest: "{{ task_target_dir }}/{{ item }}.yaml"
+      with_items:
+        - mas-config-helper
+
+    # 10. Generate Tasks (GitOps)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (GitOps)
       ansible.builtin.template:
@@ -241,10 +249,14 @@
         - gitops-suite
         - gitops-odh
         - gitops-deprovision-odh
-        - gitops-kmodel
-        - gitops-deprovision-kmodel
-        - gitops-aibroker
-        - gitops-aibroker-tenant
-        - gitops-deprovision-aibroker-tenant
-        - gitops-deprovision-aibroker
+
+        - gitops-aiservice
+        - gitops-aiservice-tenant
+        - gitops-deprovision-aiservice-tenant
+        - gitops-deprovision-aiservice
+        - gitops-iac-create-branch
+        - gitops-iac-generate-common-files
+        - gitops-iac-manage-pr
+        - gitops-iac-provision-efs
+        - gitops-iac-provision-s3
 

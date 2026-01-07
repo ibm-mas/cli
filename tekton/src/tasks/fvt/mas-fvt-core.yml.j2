@@ -178,6 +178,30 @@ spec:
             name: mas-fvt-core
             key: LDAP_CRT
             optional: false
+      - name: KEYCLOAK_ADMIN_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: KEYCLOAK_ADMIN_USERNAME
+            optional: false
+      - name: KEYCLOAK_ADMIN_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: KEYCLOAK_ADMIN_PASSWORD
+            optional: false
+      - name: KEYCLOAK_BASE_URL
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: KEYCLOAK_BASE_URL
+            optional: false
+      - name: KEYCLOAK_REALM_NAME
+        valueFrom:
+          secretKeyRef:
+            name: mas-fvt-core
+            key: KEYCLOAK_REALM_NAME
+            optional: false
 
   steps:
     - image: '$(params.fvt_image_registry)/mas-devops/fvt-ibm-mas@$(params.fvt_image_digest)'
