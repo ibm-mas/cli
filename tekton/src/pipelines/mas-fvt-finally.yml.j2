@@ -98,9 +98,10 @@ spec:
         - input: $(params.finalize)
           operator: in
           values: ["true", "True"]
-    
-    # Record pipeline finish time
-    # -------------------------------------------------------------------------
+
+  # Finally
+  # ---------------------------------------------------------------------------
+  finally:
     - name: pipeline-finish
       timeout: "0"
       taskRef:
@@ -119,8 +120,6 @@ spec:
           value: $(context.pipelineRun.name)
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
-      runAfter:
-        - pipeline-finish
 
     # Delete the named cluster
     # -------------------------------------------------------------------------
@@ -133,8 +132,6 @@ spec:
         - input: $(params.deprovision)
           operator: in
           values: ["true", "True"]
-      runAfter:
-        - pipeline-finish
 
   workspaces:
     # Shared storage to hold mustgather output for tasks
