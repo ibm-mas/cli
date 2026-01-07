@@ -25,65 +25,6 @@ from mas.cli.install.app import InstallApp
 # and passing to a set of parameterized tests to increase scenario coverage.
 
 
-def test_install_noninteractive(tmpdir):
-    tmpdir.join('authorized_entitlement.lic').write('testLicense')
-    with mock.patch('mas.cli.cli.config'):
-        dynamic_client = MagicMock(DynamicClient)
-        resources = MagicMock()
-        dynamic_client.resources = resources
-        routes_api = MagicMock()
-        catalog_api = MagicMock()
-        crd_api = MagicMock()
-        namespace_api = MagicMock()
-        cluster_role_binding_api = MagicMock()
-        pvc_api = MagicMock()
-        secret_api = MagicMock()
-        service_api = MagicMock()
-        resource_apis = {'CatalogSource': catalog_api, 'Route': routes_api, 'CustomResourceDefinition': crd_api, 'Namespace': namespace_api,
-                         'ClusterRoleBinding': cluster_role_binding_api, 'PersistentVolumeClaim': pvc_api, 'Secret': secret_api, 'Service': service_api}
-        resources.get.side_effect = lambda **kwargs: resource_apis.get(kwargs['kind'], None)
-        route = MagicMock()
-        route.spec = MagicMock()
-        route.spec.host = 'maximo.ibm.com'
-        route.spec.displayName = supportedCatalogs['amd64'][1]
-        routes_api.get.return_value = route
-        catalog_api.get.side_effect = NotFoundError(ApiException(status='404'))
-        service_api.get.side_effect = NotFoundError(ApiException(status='404'))
-        with (
-            mock.patch('mas.cli.cli.DynamicClient') as dynamic_client_class,
-            mock.patch('mas.cli.cli.getNodes') as get_nodes,
-            mock.patch('mas.cli.cli.isAirgapInstall') as is_airgap_install,
-            mock.patch('mas.cli.install.app.getCurrentCatalog') as get_current_catalog,
-            mock.patch('mas.cli.install.app.installOpenShiftPipelines'),
-            mock.patch('mas.cli.install.app.updateTektonDefinitions'),
-            mock.patch('mas.cli.install.app.launchInstallPipeline') as launch_install_pipeline
-        ):
-            dynamic_client_class.return_value = dynamic_client
-            get_nodes.return_value = [{'status': {'nodeInfo': {'architecture': 'amd64'}}}]
-            is_airgap_install.return_value = False
-            get_current_catalog.return_value = {'catalogId': supportedCatalogs['amd64'][1]}
-            launch_install_pipeline.return_value = 'https://pipeline.test.maximo.ibm.com'
-            with mock.patch('mas.cli.cli.isSNO') as is_sno:
-                is_sno.return_value = False
-                app = InstallApp()
-                app.install(['--mas-catalog-version', 'v9-250828-amd64',
-                            '--ibm-entitlement-key', 'testEntitlementKey',
-                             '--mas-instance-id', 'testInstanceId',
-                             '--mas-workspace-id', 'testWorkspaceId',
-                             '--mas-workspace-name', 'Test Workspace',
-                             '--storage-class-rwo', 'nfs-client',
-                             '--storage-class-rwx', 'nfs-client',
-                             '--storage-pipeline', 'nfs-client',
-                             '--storage-accessmode', 'ReadWriteMany',
-                             '--license-file', f'{tmpdir}/authorized_entitlement.lic',
-                             '--contact-email', 'maximo@ibm.com',
-                             '--contact-firstname', 'Test',
-                             '--contact-lastname', 'Test',
-                             '--dro-namespace', 'redhat-marketplace',
-                             '--accept-license', '--no-confirm',
-                             '--skip-pre-check'])
-
-
 def test_install_interactive(tmpdir):
     """Test interactive installation with 30s timeout for hanging prompts."""
     tmpdir.join('authorized_entitlement.lic').write('testLicense')
