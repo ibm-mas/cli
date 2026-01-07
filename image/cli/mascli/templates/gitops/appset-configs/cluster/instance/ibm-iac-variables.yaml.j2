@@ -13,6 +13,14 @@ variable "vpc_id" {
     description = "ID of VPC"
 }
 {%- endif %}
+{%- if IS_MSK | lower == 'true'%}
+
+variable "cluster_prefix" {
+    type        = string
+    description = "Cluster Prefix"
+}
+{%- endif %}
+
 {%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true')%}
 
 variable "vpc_name" {
