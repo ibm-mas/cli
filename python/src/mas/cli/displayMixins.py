@@ -29,18 +29,18 @@ PROMPTCOLOR = "Yellow"
 
 class PrintMixin():
     def printTitle(self, message: str) -> None:
-        print_formatted_text(HTML(f"<b><u>{message.replace(' & ', ' & ')}</u></b>"))
+        print_formatted_text(HTML(f"<b><u>{message.replace(' & ', ' &amp; ')}</u></b>"))
 
     def printH1(self, message: str) -> None:
         self.h1count += 1  # type: ignore
         self.h2count = 0  # type: ignore
         print()
-        print_formatted_text(HTML(f"<u><{H1COLOR}>{self.h1count}) {message.replace(' & ', ' & ')}</{H1COLOR}></u>"))  # type: ignore
+        print_formatted_text(HTML(f"<u><{H1COLOR}>{self.h1count}) {message.replace(' & ', ' &amp; ')}</{H1COLOR}></u>"))  # type: ignore
 
     def printH2(self, message: str) -> None:
         self.h2count += 1  # type: ignore
         print()
-        print_formatted_text(HTML(f"<u><{H2COLOR}>{self.h1count}.{self.h2count}) {message.replace(' & ', ' & ')}</{H2COLOR}></u>"))  # type: ignore
+        print_formatted_text(HTML(f"<u><{H2COLOR}>{self.h1count}.{self.h2count}) {message.replace(' & ', ' &amp; ')}</{H2COLOR}></u>"))  # type: ignore
 
     def printDescription(self, content: List[str]) -> None:
         content[0] = f"<{DESCRIPTIONCOLOR}>{content[0]}"
@@ -51,15 +51,15 @@ class PrintMixin():
         if isinstance(message, list):
             message = "\n".join(message)
 
-        print_formatted_text(HTML(f"<MediumTurquoise>{message.replace(' & ', ' & ')}</MediumTurquoise>"))
+        print_formatted_text(HTML(f"<MediumTurquoise>{message.replace(' & ', ' &amp; ')}</MediumTurquoise>"))
 
     def printWarning(self, message: str) -> None:
-        print_formatted_text(HTML(f"<Red>Warning: {message.replace(' & ', ' & ')}</Red>"))
+        print_formatted_text(HTML(f"<Red>Warning: {message.replace(' & ', ' &amp; ')}</Red>"))
 
     def printSummary(self, title: str, value: str) -> None:
         titleLength = len(title)
         message = f"{title} {'.' * (40 - titleLength)} {value}"
-        print_formatted_text(HTML(f"  <{SUMMARYCOLOR}>{message.replace(' & ', ' & ')}</{SUMMARYCOLOR}>"))
+        print_formatted_text(HTML(f"  <{SUMMARYCOLOR}>{message.replace(' & ', ' &amp; ')}</{SUMMARYCOLOR}>"))
 
     def printParamSummary(self, message: str, param: str) -> None:
         if self.getParam(param) is None:  # type: ignore
@@ -71,11 +71,11 @@ class PrintMixin():
 
 
 def masPromptYesOrNo(message: str) -> HTML:
-    return HTML(f"<{PROMPTCOLOR}>{message.replace(' & ', ' & ')}? [y/n]</{PROMPTCOLOR}> ")
+    return HTML(f"<{PROMPTCOLOR}>{message.replace(' & ', ' &amp; ')}? [y/n]</{PROMPTCOLOR}> ")
 
 
 def masPromptValue(message: str) -> HTML:
-    return HTML(f"<{PROMPTCOLOR}>{message.replace(' & ', ' & ')}</{PROMPTCOLOR}> ")
+    return HTML(f"<{PROMPTCOLOR}>{message.replace(' & ', ' &amp; ')}</{PROMPTCOLOR}> ")
 
 
 class PromptMixin():
