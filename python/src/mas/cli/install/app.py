@@ -61,7 +61,7 @@ from mas.devops.mas import (
 )
 from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.sls import findSLSByNamespace
-from mas.devops.data import getCatalog
+from mas.devops.data import getCatalog, getCatalogEditorial
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
@@ -244,6 +244,31 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 f"Cloud Pak for Data:    {self.catalogCp4dVersion}",
                 f"MongoDb:               {self.catalogMongoDbVersion}",
             ]
+
+        # Add editorial content (What's New and Known Issues)
+        editorial = getCatalogEditorial(self.getParam('mas_catalog_version'))
+        if editorial:
+            # Add What's New section
+            if 'whats_new' in editorial and editorial['whats_new']:
+                summary.append("")
+                summary.append("<u>What's New</u>")
+                for item in editorial['whats_new']:
+                    # Replace **text** with <b>text</b> in title
+                    title = item.get('title', '')
+                    title = title.replace('**', '<b>', 1).replace('**', '</b>', 1)
+                    summary.append(title)
+                    # Add details if present
+                    if 'details' in item and item['details']:
+                        for detail in item['details']:
+                            summary.append(f" - {detail}")
+
+            # Add Known Issues section
+            if 'known_issues' in editorial and editorial['known_issues']:
+                summary.append("")
+                summary.append("<u>Known Issues</u>")
+                for issue in editorial['known_issues']:
+                    title = issue.get('title', '')
+                    summary.append(f"- {title}")
 
         return summary
 
