@@ -361,11 +361,11 @@ droArgGroup.add_argument(
     help="Namespace for DRO"
 )
 
-# MongoDb Community Operator
+# MongoDb MCK Operator
 # -----------------------------------------------------------------------------
-mongoArgGroup = installArgParser.add_argument_group("MongoDb Community Operator")
+mongoArgGroup = installArgParser.add_argument_group("MongoDb MCK Operator")
 mongoArgGroup.add_argument(
-    "--mongodb-namespace",
+    "--mongodb-mck-namespace",
     required=False,
     help=""
 )

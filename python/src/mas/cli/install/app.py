@@ -182,7 +182,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
-        self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
+        self.catalogMongoDbMckVersion = self.chosenCatalog["mongo_mck_extras_version_default"]
         if self.architecture != "s390x" and self.architecture != "ppc64le":
             self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
 
@@ -230,7 +230,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 f"Catalog Image:         icr.io/cpopen/ibm-maximo-operator-catalog:{self.getParam('mas_catalog_version')}",
                 f"Catalog Digest:        {self.catalogDigest}",
                 f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
-                f"MongoDb:               {self.catalogMongoDbVersion}",
+                f"MongoDb:               {self.catalogMongoDbMckVersion}",
             ]
         else:
             summary = [
@@ -240,7 +240,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 f"Catalog Digest:        {self.catalogDigest}",
                 f"MAS Releases:          {', '.join(sorted(self.catalogReleases, reverse=True))}",
                 f"Cloud Pak for Data:    {self.catalogCp4dVersion}",
-                f"MongoDb:               {self.catalogMongoDbVersion}",
+                f"MongoDb:               {self.catalogMongoDbMckVersion}",
             ]
 
         # Add editorial content (What's New and Known Issues)
@@ -549,8 +549,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def configSNO(self):
         if self.isSNO():
-            self.setParam("mongodb_replicas", "1")
-            self.setParam("mongodb_cpu_requests", "500m")
+            self.setParam("mongodb_mck_replicas", "1")
+            self.setParam("mongodb_mck_cpu_requests", "500m")
             self.setParam("mas_app_settings_aio_flag", "false")
 
     @logMethodCall
@@ -1299,7 +1299,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam(key, value.upper())
 
             # MongoDB
-            elif key == "mongodb_namespace":
+            elif key == "mongodb_mck_namespace":
                 if value is not None and value != "":
                     self.setParam(key, value)
                     self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{value}.yml")

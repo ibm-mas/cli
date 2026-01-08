@@ -13,8 +13,8 @@ labels:
   {% endfor %}
   {% endif %}
 data:
-  username: "{{ mongodb_admin_username }}"
-  password: "{{ mongodb_admin_password }}"
+  username: "{{ mongodb_mck_admin_username }}"
+  password: "{{ mongodb_mck_admin_password }}"
 ---
 # Mongo configuration for MAS
 apiVersion: config.mas.ibm.com/v1
@@ -40,16 +40,16 @@ spec:
     credentials:
       secretName: mongodb-{{mas_instance_id|lower}}-admin
     hosts:
-     {%- if mongodb_hosts is defined %}
-     {%- for host in mongodb_hosts.split(',') %}
+     {%- if mongodb_mck_hosts is defined %}
+     {%- for host in mongodb_mck_hosts.split(',') %}
      {%- set host_port = host.split(':') %}
      - host: {{ host_port[0] }}
        port: {{ host_port[1] }}
     {%- endfor %}
     {%- endif %}
-  {%- if mongodb_ca_pem_local_file is defined and mongodb_ca_pem_local_file | length > 0 %}
+  {%- if mongodb_mck_ca_pem_local_file is defined and mongodb_mck_ca_pem_local_file | length > 0 %}
   certificates:
     - alias: "part1"
       crt: |
-        {{ mongodb_ca_pem_local_file | indent(width=8, first=False) }}
+        {{ mongodb_mck_ca_pem_local_file | indent(width=8, first=False) }}
   {%- endif %}

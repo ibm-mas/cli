@@ -16,18 +16,18 @@ class MongoDbSettingsMixin():
     def configMongoDb(self) -> None:
         self.printH1("Configure MongoDb")
         self.printDescription([
-            "The installer can setup mongoce in your OpenShift cluster (available only for amd64) or you may choose to configure MAS to use an existing mongodb"
+            "The installer can setup mongomck in your OpenShift cluster (available only for amd64) or you may choose to configure MAS to use an existing mongodb"
         ])
 
         if (self.architecture != "s390x" and self.architecture != "ppc64le") and self.yesOrNo("Create MongoDb cluster using MongoDb Community Edition Operator"):
             if self.showAdvancedOptions:
-                self.promptForString("MongoDb namespace", "mongodb_namespace", default="mongoce")
+                self.promptForString("MongoDb MCK namespace", "mongodb_mck_namespace", default="mongomck")
             else:
                 # Even though "" works as the default, we use this value to contruct other values so we need to explicitly set it
-                self.setParam("mongodb_namespace", "mongoce")
+                self.setParam("mongodb_mck_namespace", "mongomck")
 
             self.setParam("mongodb_action", "install")
-            self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{self.getParam('mongodb_namespace')}.yml")
+            self.setParam("sls_mongodb_cfg_file", f"/workspace/configs/mongo-{self.getParam('mongodb_mck_namespace')}.yml")
         else:
             self.setParam("mongodb_action", "byo")
             self.setParam("sls_mongodb_cfg_file", "/workspace/additional-configs/mongodb-system.yaml")
