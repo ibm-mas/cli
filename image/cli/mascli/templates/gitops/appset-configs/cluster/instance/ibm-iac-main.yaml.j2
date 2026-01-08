@@ -209,9 +209,9 @@ locals {
   #MSK config related params starts
   multiple-msk = {
     msk = {
-      name        = join("-", [var.cluster_name, var.instance_name])
+      name        = join("-", ["massaas", var.vpc_name, var.cluster_prefix, var.cluster_name, var.instance_name])
       sre_prefix  = var.name_prefix
-      secret_name = join("/", ["massaas", var.vpc_name, var.cluster_prefix, var.cluster_name, var.instance_name])
+      secret_name = join("/", [var.environment, var.cluster_name, var.instance_name])
       broker_volume_size = {{MSK_BROKER_VOLUME_SIZE}}
       cluster_name = "{{MSK_CLUSTER_USERNAME}}"
       broker_nodes = {{MSK_NUMBER_OF_BROKER_NODES}}

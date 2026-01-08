@@ -19,6 +19,10 @@ variable "cluster_prefix" {
     type        = string
     description = "Cluster Prefix"
 }
+variable "environment" {
+    type        = string
+    description = "Deployment Environment"
+}
 {%- endif %}
 
 {%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true')%}
