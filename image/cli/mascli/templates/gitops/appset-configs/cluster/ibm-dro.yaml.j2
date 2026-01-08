@@ -8,6 +8,7 @@ ibm_dro:
     dro_install_plan: {{ DRO_INSTALL_PLAN }}
     imo_install_plan: {{ IMO_INSTALL_PLAN }}
 {% if DRO_PUBLIC_DOMAIN is defined and DRO_PUBLIC_DOMAIN %}
+    dro_public_domain: {{ DRO_PUBLIC_DOMAIN }}
     tls_certificate: "<path:{{ SECRETS_PATH }}:{{ SECRET_KET_DRO_TLS_CERT }} | base64decode >"
     tls_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KET_DRO_TLS_KEY }} | base64decode >"
 {% endif %}
