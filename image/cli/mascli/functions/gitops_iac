@@ -855,10 +855,6 @@ function gitops_iac_provision_msk(){
   echo
   echo_h2 "Generating IAC/MSK Configuration"
 
-  # S3_MANAGE and S3_MVI are already set from command-line parameters
-  echo "msk_monitor_CLUSTER_USERNAME: ${MSK_MONITOR_CLUSTER_USERNAME}"
-  echo "msk_monitor_CLUSTER_USERNAME: ${MSK_MONITOR_CLUSTER_USERNAME}"
-
   echo "Generating msk.tf file ${GITOPS_CLUSTER_DIR}/msk.tf "
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-msk.yaml.j2 ${GITOPS_CLUSTER_DIR}/msk.tf
 
