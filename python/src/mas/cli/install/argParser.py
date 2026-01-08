@@ -440,7 +440,7 @@ arcgisArgGroup = installArgParser.add_argument_group("Maximo Location Services f
 arcgisArgGroup.add_argument(
     "--install-arcgis",
     required=False,
-    help="Enables IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial",
+    help="Enables IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial or Facilities",
     action="store_const",
     const="true"
 )

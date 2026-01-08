@@ -196,7 +196,11 @@ class installArgBuilderMixin():
 
         # Arcgis
         # -----------------------------------------------------------------------------
-        # TODO: Add ArcGis after we have properly fixed how it's installed
+        if self.getParam('install_arcgis') == "true":
+            command += "  --install-arcgis"
+            if self.getParam('mas_arcgis_channel') != "":
+                command += f" --arcgis-channel \"{self.getParam('mas_arcgis_channel')}\""
+            command += newline
 
         # Manage Advanced Settings
         # -----------------------------------------------------------------------------
