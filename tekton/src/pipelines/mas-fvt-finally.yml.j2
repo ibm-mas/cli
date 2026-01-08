@@ -99,9 +99,13 @@ spec:
           operator: in
           values: ["true", "True"]
 
-  # Finally
+  # Finally section - runs after all tasks complete
   # ---------------------------------------------------------------------------
+  # Note: Tasks in finally run in parallel (runAfter not supported in finally)
+  # However, pipeline-finish is fast (status update) while deprovision-cluster is slow (cluster deletion)
+  # This ensures status is captured before cluster is actually deleted
   finally:
+    # Capture pipeline status - fast operation, completes quickly
     - name: pipeline-finish
       timeout: "0"
       taskRef:
@@ -121,8 +125,11 @@ spec:
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
 
-    # Delete the named cluster
+    # Delete the named cluster - ONLY if all tasks succeeded
     # -------------------------------------------------------------------------
+    # Slow operation (cluster deletion takes time), starts in parallel with pipeline-finish but completes much later
+    # Only runs when deprovision=true AND all tasks succeeded (preserves cluster on failure for debugging)
+    # tasks.status possible values: Succeeded, Failed, Completed, None
     - name: deprovision-cluster
       timeout: "0"
       taskRef:
@@ -132,6 +139,10 @@ spec:
         - input: $(params.deprovision)
           operator: in
           values: ["true", "True"]
+        # Only deprovision if ALL tasks succeeded - preserve cluster on Failed/Completed/None for debugging
+        - input: $(tasks.status)
+          operator: in
+          values: ["Succeeded"]
 
   workspaces:
     # Shared storage to hold mustgather output for tasks
