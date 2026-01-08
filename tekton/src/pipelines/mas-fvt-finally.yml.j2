@@ -99,28 +99,18 @@ spec:
           operator: in
           values: ["true", "True"]
 
-    # Delete the named cluster
-    # -------------------------------------------------------------------------
-    - name: deprovision-cluster
-      timeout: "0"
-      taskRef:
-        kind: Task
-        name: mas-fvt-deprovision-ocp
-      when:
-        - input: $(params.deprovision)
-          operator: in
-          values: ["true", "True"]
-      runAfter:
-        - finalize
-
-  # Finally
+  # Finally section - runs after all tasks complete
   # ---------------------------------------------------------------------------
+  # Combined task that:
+  # 1. Captures pipeline status (Step 1 - always runs)
+  # 2. Conditionally deprovisions cluster (Step 2 - only if status=Succeeded)
+  # This guarantees sequential execution and preserves cluster on failure for debugging
   finally:
-    - name: pipeline-finish
+    - name: pipeline-finish-and-deprovision
       timeout: "0"
       taskRef:
         kind: Task
-        name: mas-devops-update-pipeline-status
+        name: mas-fvt-pipeline-finish-and-deprovision
       params:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
@@ -134,6 +124,8 @@ spec:
           value: $(context.pipelineRun.name)
         - name: pipelinerun_namespace
           value: $(context.pipelineRun.namespace)
+        - name: deprovision
+          value: $(params.deprovision)
 
   workspaces:
     # Shared storage to hold mustgather output for tasks
