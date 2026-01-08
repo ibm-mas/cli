@@ -30,8 +30,8 @@ locals {
   iam_user_arns_manage = {
     custfiles = "${var.iam_user_arn_prefix_manage}-custfiles-${var.access_level_rw}"
     doclinks  = "${var.iam_user_arn_prefix_manage}-doclinks-${var.access_level_rw}"
-    logs_rw   = "${var.iam_user_arn_prefix_manage}-log-${var.access_level_rw}"
-    logs_ro   = "${var.iam_user_arn_prefix_manage}-log-${var.access_level_ro}"
+    logs_rw   = "${var.iam_user_arn_prefix_manage}-logs-${var.access_level_rw}"
+    logs_ro   = "${var.iam_user_arn_prefix_manage}-logs-${var.access_level_ro}"
   }
 
   s3_iam_users_list_manage = {
@@ -47,12 +47,12 @@ locals {
     },
     logs_rw = {
       bucket_name   = "${var.s3bucket_name_prefix_manage}-logs"
-      iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_rw}"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-logs-${var.access_level_rw}"
       access_level  = var.access_level_rw
     },
     logs_ro = {
       bucket_name   = "${var.s3bucket_name_prefix_manage}-logs"
-      iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_ro}"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-logs-${var.access_level_ro}"
       access_level  = var.access_level_ro
     }
   }
@@ -69,8 +69,8 @@ locals {
   bucket_user_names_manage = {
     custfiles = "${var.iam_user_name_prefix_manage}-custfiles-${var.access_level_rw}"
     doclinks  = "${var.iam_user_name_prefix_manage}-doclinks-${var.access_level_rw}"
-    logs_rw   = "${var.iam_user_name_prefix_manage}-log-${var.access_level_rw}"
-    logs_ro   = "${var.iam_user_name_prefix_manage}-log-${var.access_level_ro}"
+    logs_rw   = "${var.iam_user_name_prefix_manage}-logs-${var.access_level_rw}"
+    logs_ro   = "${var.iam_user_name_prefix_manage}-logs-${var.access_level_ro}"
   }
 
   bucket_user_name_map_manage = {
@@ -122,7 +122,7 @@ locals {
             days = 366 // how long to keep logs
           }
         },
-        logs = {
+        logs_ro = {
           name_prefix          = var.name_prefix
           create               = var.create_bucket
           name                 = "${var.s3bucket_name_prefix_manage}-logs"
