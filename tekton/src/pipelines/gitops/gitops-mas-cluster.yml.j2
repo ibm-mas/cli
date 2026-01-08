@@ -63,6 +63,9 @@ spec:
     - name: imo_install_plan
       type: string
       default: "Automatic"
+    - name: dro_public_domain
+      type: string
+      default: ""
 
     - name: nvidia_gpu_action
       type: string
@@ -426,6 +429,8 @@ spec:
           value: $(params.dro_install_plan)
         - name: imo_install_plan
           value: $(params.imo_install_plan)
+        - name: dro_public_domain
+          value: $(params.dro_public_domain)
       taskRef:
         kind: Task
         name: gitops-dro
