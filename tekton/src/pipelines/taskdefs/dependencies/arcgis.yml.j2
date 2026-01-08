@@ -15,6 +15,8 @@
       value: $(params.artifactory_token)
     - name: mas_app_channel
       value: "$(params.mas_app_channel_manage)"
+    - name: mas_app_channel_facilities
+      value: "$(params.mas_app_channel_facilities)"
     - name: ibm_entitlement_key
       value: $(params.ibm_entitlement_key)
     - name: custom_labels
@@ -32,4 +34,7 @@
       values: ["true", "True"]
     - input: "$(params.mas_arcgis_channel)"
       operator: notin
-      values: [""]  
+      values: [""]
+    - input: "$(params.mas_app_channel_manage)$(params.mas_app_channel_facilities)"
+      operator: notin
+      values: [""]
