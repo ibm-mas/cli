@@ -1,34 +1,34 @@
 {%- if (IS_EFS | lower == 'true') or (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true') %}
-#----Common params starts----
+#Common params starts
 cluster_name         = "{{ CLUSTER_ID}}"
 instance_name        = "{{ MAS_INSTANCE_ID }}"
 vpc_id               = "{{ VPC_ID_VALUE}}"
-#----Common params ends----
+#Common params ends
 {%- endif %}
 
 {%- if (IS_MSK | lower == 'true') %}
 
-#----MSK related params starts----
+#MSK related params starts
 cluster_prefix             = "{{MSK_CLUSTER_PREFIX}}"
-#----MSK related params ends----
+#MSK related params ends
 {%- endif %}
 
 
 {%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') %}
 
-#----EFS/MSK related params starts----
+#EFS/MSK related params starts
 vpc_name             = "{{ VPC_NAME_VALUE }}"
-#----EFS/MSK related params ends----
+#EFS/MSK related params ends
 {%- endif %}
 
 {%- if (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true') %}
-#----S3/MSK related params starts----
+#S3/MSK related params starts
 name_prefix             = "{{ NAME_PREFIX_VALUE }}"
-#----S3/MSK related params ends----
+#S3/MSK related params ends
 {%- endif %}
 
 {%- if IS_S3 | lower == 'true'  %}
-#----S3 related params starts----
+#S3 related params starts
 create_s3_iam_group     = false
 create_s3_iam_policy    = false
 create_efs_policy       = false
@@ -47,7 +47,7 @@ location = {
     availability_zones = ["{{REGION_NAME}}a", "{{REGION_NAME}}b", "{{REGION_NAME}}c"]
 }
 {%- if S3_MANAGE | lower == 'true'  %}
-#----S3 Manage related params starts----
+#S3 Manage related params starts
 s3bucket_name_prefix_manage    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"
 iam_user_name_prefix_manage = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
 iam_user_arn_prefix_manage  = "arn:aws:iam::{{ACCOUNT_ID}}:user/massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
@@ -65,8 +65,8 @@ s3_iam_users_list_manage = {
         iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-log-ro"
     }
 }
-#----S3 Manage related params ends----
+#S3 Manage related params ends
 {%- endif %}
 
-#----S3 related params ends----
+#S3 related params ends
 {%- endif %}
