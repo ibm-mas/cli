@@ -209,7 +209,6 @@ class Db2SettingsMixin():
                 self.setParam("db2_namespace", "db2u")
 
     def setDB2DefaultChannel(self) -> None:
-        
         # Set the default db2-Channel
         default_db2_channel = "v110509.0"
         # Get user-specified value
