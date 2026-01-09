@@ -20,13 +20,13 @@ class Db2SettingsMixin():
             self.printH1("Configure Databases")
 
         # Set the default db2-Channel
-        #default_db2_channel = "v110509.0"
-        default_db2_channel = getattr(self, 'catalogDb2Channel', 'v110509.0') # Get db2_channel from catalog metadata
+        # default_db2_channel = "v110509.0"
+        default_db2_channel = getattr(self, 'catalogDb2Channel', 'v110509.0')  # Get db2_channel from catalog metadata
         # Get user-specified value
         user_channel = self.getParam("db2_channel")
 
         # Only allow custom db2_channel in devMode with a non-empty value
-        #db2_channel = user_channel if (self.devMode and user_channel) else default_db2_channel
+        # db2_channel = user_channel if (self.devMode and user_channel) else default_db2_channel
         db2_channel = user_channel if (self.devMode and user_channel) else default_db2_channel
         self.params["db2_channel"] = db2_channel
 
