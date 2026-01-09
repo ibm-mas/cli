@@ -577,8 +577,8 @@ function mirror_to_registry() {
 
   if [[ "$MIRROR_CATALOG" == true ||
     "$MIRROR_COMMONSERVICES" == true ||
-    "$MIRROR_SLS" == true ||
-    "$MIRROR_TRUSTSTOREMGR" == true ||
+    #"$MIRROR_SLS" == true ||
+    #"$MIRROR_TRUSTSTOREMGR" == true ||
     "$MIRROR_MONGOCE" == true ||
     "$MIRROR_MONGOCE_V4" == true ||
     "$MIRROR_MONGOCE_V5" == true ||
@@ -687,6 +687,8 @@ function mirror_to_registry() {
   export ARTIFACTORY_TOKEN=""
 
   mirror_one_thing $MIRROR_MAS_CORE             "IBM Maximo Application Suite Core"     "$LOG_PREFIX-core.log"             mirror_core
+  mirror_one_thing $MIRROR_SLS                  "IBM Suite License Service"             "$LOG_PREFIX-sls.log"              mirror_sls
+  mirror_one_thing $MIRROR_TRUSTSTOREMGR        "IBM Truststore Manager"                "$LOG_PREFIX-tm.log"               mirror_tm
   mirror_one_thing $MIRROR_MAS_ASSIST           "IBM Maximo Assist"                     "$LOG_PREFIX-assist.log"           mirror_add_assist
   mirror_one_thing $MIRROR_MAS_IOT              "IBM Maximo IoT"                        "$LOG_PREFIX-iot.log"              mirror_add_iot
   mirror_one_thing $MIRROR_MAS_MANAGE           "IBM Maximo Manage"                     "$LOG_PREFIX-manage.log"           mirror_add_manage
