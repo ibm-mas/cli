@@ -23,15 +23,10 @@
       value: $(params.custom_labels)
     - name: mas_arcgis_channel
       value: $(params.mas_arcgis_channel)
-    - name: install_arcgis
-      value: $(params.install_arcgis)
   taskRef:
     name: mas-devops-arcgis
     kind: Task
   when:
-    - input: "$(params.install_arcgis)"
-      operator: in
-      values: ["true", "True"]
     - input: "$(params.mas_arcgis_channel)"
       operator: notin
       values: [""]
