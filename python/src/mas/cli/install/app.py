@@ -1511,13 +1511,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.fatalError("--manage-components must include 'health' component when installing Predict")
 
         # Validate ArcGIS installation requirements in non-interactive mode
-        if self.getParam("mas_arcgis_channel") != "":
+        if self.installArcgis:
             hasSpatial = self.installManage and "spatial=" in self.getParam("mas_appws_components")
             hasFacilities = self.installFacilities
 
             # ArcGIS requires either Spatial or Facilities to be installed
             if not hasSpatial and not hasFacilities:
                 self.fatalError("--arcgis-channel requires either Manage with Spatial component (--manage-components must include 'spatial=') or Facilities (--facilities-channel) to be installed")
+
+            # ArcGIS requires channel 9.0 or later
+            arcgis_channel = self.getParam("mas_arcgis_channel")
+            if arcgis_channel and not isVersionEqualOrAfter('9.0.0', arcgis_channel):
+                self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
 
     @logMethodCall
     def install(self, argv):
