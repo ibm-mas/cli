@@ -49,11 +49,11 @@ optionalParams = [
     "mas_app_settings_tablespace",
     "mas_app_settings_indexspace",
     "mas_app_settings_db2_schema",
-    "mas_app_settings_crypto_key",
-    "mas_app_settings_cryptox_key",
-    "mas_app_settings_old_crypto_key",
-    "mas_app_settings_old_cryptox_key",
-    "mas_app_settings_override_encryption_secrets_flag",
+    "mas_manage_encryptionsecret_crypto_key",
+    "mas_manage_encryptionsecret_cryptox_key",
+    "mas_manage_encryptionsecret_old_crypto_key",
+    "mas_manage_encryptionsecret_old_cryptox_key",
+    "mas_manage_ws_db_encryptionsecret",
     "mas_app_settings_server_timezone",
     "mas_appws_bindings_jdbc_manage",
     "mas_appws_components",
@@ -167,5 +167,45 @@ optionalParams = [
     "mas_ws_facilities_dwfagents",
     "mas_ws_facilities_db_maxconnpoolsize",
     # Special chars
-    "mas_special_characters"
+    "mas_special_characters",
+    # ODH
+    "aiservice_odh_model_deployment_type",
+    # AI Service
+    "aiservice_s3_accesskey",
+    "aiservice_s3_secretkey",
+    "aiservice_s3_host",
+    "aiservice_s3_port",
+    "aiservice_s3_ssl",
+    "aiservice_s3_region",
+    "aiservice_s3_bucket_prefix",
+    "aiservice_s3_tenants_bucket",
+    "aiservice_s3_templates_bucket",
+
+    "aiservice_watsonxai_apikey",
+    "aiservice_watsonxai_url",
+    "aiservice_watsonxai_project_id",
+    "aiservice_watsonx_action",
+    "aiservice_watsonxai_ca_crt",
+    "aiservice_watsonxai_deployment_id",
+    "aiservice_watsonxai_space_id",
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_username",
+    "aiservice_watsonxai_version",
+    "aiservice_watsonxai_on_prem",
+    "aiservice_instance_id",
+    "aiservice_watsonxai_instance_id",
+    "aiservice_watsonxai_verify",
+
+    "minio_root_user",
+    "minio_root_password",
+
+    "tenant_entitlement_type",
+    "tenant_entitlement_start_date",
+    "tenant_entitlement_end_date",
+
+    "rsl_url",
+    "rsl_org_id",
+    "rsl_token",
+    "rsl_ca_crt",
+    "environment_type"
 ]
