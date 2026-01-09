@@ -183,6 +183,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
+        self.catalogDb2Channel = self.chosenCatalog.get("db2_channel_default", "v110509.0") #Returns fallback "v110509.0" for old catalogs without the field
         if self.architecture != "s390x" and self.architecture != "ppc64le":
             self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
 
