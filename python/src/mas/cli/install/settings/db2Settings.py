@@ -19,14 +19,16 @@ class Db2SettingsMixin():
         if not silentMode:
             self.printH1("Configure Databases")
 
-        # Set the default db2-Channel
-        default_db2_channel = "v110509.0"
-        # Get user-specified value
-        user_channel = self.getParam("db2_channel")
+        self.setDB2DefaultChannel()
 
-        # Only allow custom db2_channel in devMode with a non-empty value
-        db2_channel = user_channel if (self.devMode and user_channel) else default_db2_channel
-        self.params["db2_channel"] = db2_channel
+        # # Set the default db2-Channel
+        # default_db2_channel = "v110509.0"
+        # # Get user-specified value
+        # user_channel = self.getParam("db2_channel")
+
+        # # Only allow custom db2_channel in devMode with a non-empty value
+        # db2_channel = user_channel if (self.devMode and user_channel) else default_db2_channel
+        # self.params["db2_channel"] = db2_channel
 
         # If neither Iot, Manage or Facilities is being installed, we have nothing to do
         if not self.installIoT and not self.installManage and not self.installFacilities:
@@ -205,6 +207,17 @@ class Db2SettingsMixin():
                     self.promptForString(" + Backup Volume", "db2_backup_storage_size", default=self.getParam("db2_backup_storage_size"))
             else:
                 self.setParam("db2_namespace", "db2u")
+
+    def setDB2DefaultChannel(self) -> None:
+        
+        # Set the default db2-Channel
+        default_db2_channel = "v110509.0"
+        # Get user-specified value
+        user_channel = self.getParam("db2_channel")
+
+        # Only allow custom db2_channel in devMode with a non-empty value
+        db2_channel = user_channel if (self.devMode and user_channel) else default_db2_channel
+        self.params["db2_channel"] = db2_channel
 
     def setDB2DefaultSettings(self) -> None:
 
