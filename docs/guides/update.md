@@ -1,6 +1,13 @@
 Update
 ===============================================================================
 
+:::mas-cli-usage
+module: mas.cli.update.argParser
+parser: updateArgParser
+ignore_description: true
+ignore_epilog: true
+:::
+
 Update Overview
 -------------------------------------------------------------------------------
 This guide is specifically for environments using **static catalogs**.  If you are using the **dynamic catalog** then updates are automatically applied as soon as they are released.

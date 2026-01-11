@@ -1,6 +1,13 @@
 Upgrade
 ===============================================================================
 
+:::mas-cli-usage
+module: mas.cli.upgrade.argParser
+parser: upgradeArgParser
+ignore_description: true
+ignore_epilog: true
+:::
+
 Upgrade Overview
 -------------------------------------------------------------------------------
 Upgrade is the act of switching a MAS installation to a new subscription channel; it is distinct from an update, which is when new versions are delivered on existing subscription channels.  New features are always delivered via new subscription channels, update within a channel will only deliver updates to existing functionality (including security updates) and bug fixes.
