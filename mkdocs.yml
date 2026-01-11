@@ -63,7 +63,7 @@ extra_css:
 
 markdown_extensions:
   - toc:
-      permalink: "¤"
+      permalink: true
   - admonition
     # https://squidfunk.github.io/mkdocs-material/extensions/admonition/
     # Note
@@ -82,6 +82,7 @@ markdown_extensions:
 plugins:
   - search: {}
   - mas_catalogs
+  - mas_cli
   - redirects:
       redirect_maps:
         "guides/architecture/core.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-core-services"
