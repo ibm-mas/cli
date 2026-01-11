@@ -155,13 +155,13 @@ droArgGroup.add_argument(
     help="Namespace for the Data Reporting Operator"
 )
 
-# MongoDb Community Operator
+# MongoDb MCK Operator
 # -----------------------------------------------------------------------------
-mongoArgGroup = aiServiceinstallArgParser.add_argument_group("MongoDb Community Operator")
+mongoArgGroup = aiServiceinstallArgParser.add_argument_group("MongoDb MCK Operator")
 mongoArgGroup.add_argument(
     "--mongodb-namespace",
     required=False,
-    help="Namespace for the MongoDB Community Operator"
+    help="Namespace for the MongoDB MCK Operator"
 )
 
 # MAS Applications

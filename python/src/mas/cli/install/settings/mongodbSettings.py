@@ -16,7 +16,7 @@ class MongoDbSettingsMixin():
     def configMongoDb(self) -> None:
         self.printH1("Configure MongoDb")
         self.printDescription([
-            "The installer can setup mongoce in your OpenShift cluster (available only for amd64) or you may choose to configure MAS to use an existing mongodb"
+            "The installer can setup mongomck in your OpenShift cluster (available only for amd64) or you may choose to configure MAS to use an existing mongodb"
         ])
 
         if (self.architecture != "s390x" and self.architecture != "ppc64le") and self.yesOrNo("Create MongoDb cluster using MongoDb Community Edition Operator"):

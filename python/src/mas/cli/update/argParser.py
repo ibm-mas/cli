@@ -44,7 +44,7 @@ depsArgGroup.add_argument(
 depsArgGroup.add_argument(
     '--mongodb-namespace',
     required=False,
-    help="Namespace where MongoCE operator and instances will be updated",
+    help="Namespace where MongoMCK operator and instances will be updated",
 )
 
 depsArgGroup.add_argument(
