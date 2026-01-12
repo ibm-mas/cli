@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,7 +23,8 @@
     <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
 
     <!-- HighlightJS code formatting support -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -49,8 +50,9 @@
             .gslide-image img { background: black; }
         </style></head>
 
-  <body>
-    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
       <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
       <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
@@ -59,6 +61,31 @@
       </cds-header-nav>
 
       <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
         <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
       </div>
       <script>
@@ -79,13 +106,18 @@
           <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/commands/debug.md">Edit on GitHub</cds-header-nav-item>
         </cds-header-nav>
       
-
     </cds-header>
 
-    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
-      <cds-side-nav-items>
-        
-          
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
   <cds-side-nav-menu title="Guides">
     
       
@@ -132,8 +164,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Examples">
     
       
@@ -156,21 +188,9 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Command Reference">
-    
-      
-  <cds-side-nav-menu-item href="../update/">
-    update
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../upgrade/">
-    upgrade
-  </cds-side-nav-menu-item>
-
     
       
   <cds-side-nav-menu-item href="../uninstall/">
@@ -234,8 +254,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Operator Catalogs">
     
       
@@ -270,8 +290,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Reference">
     
       
@@ -294,21 +314,27 @@
     
   </cds-side-nav-menu>
 
-        
-      </cds-side-nav-items>
-    </cds-side-nav>
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
 
-    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
-
-  <cds-breadcrumb-item aria-current="page">
+  <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#debug">Debug</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 
-  <cds-breadcrumb-item>
-    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
       <cds-select-item value="#usage">Usage</cds-select-item>
@@ -317,56 +343,57 @@
     
       <cds-select-item value="#examples">Examples</cds-select-item>
     
-  </cds-select>
+    </cds-select>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
-    </div>
+          </div>
 
-    <div id="main-content" class="rst-content">
-      
-      <h1 id="debug">Debug<a class="headerlink" href="#debug" title="Permanent link">¤</a></h1>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="debug">Debug<a class="headerlink" href="#debug" title="Permanent link">¶</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
 <p><code>mas debug [command] [options]</code></p>
-<h3 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">¤</a></h3>
+<h3 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>coredump</code> generate and collect a javacore and a system dump from a mas or manage pod running liberty server</li>
 <li><code>threaddump</code> generate and collect one or more threaddump / javacore from a mas or manage pod running liberty server</li>
 <li><code>haproxy-logging</code> enable or disable ocp haproxy logging and collects corresponding logs.</li>
 </ul>
-<h3 id="destination">Destination<a class="headerlink" href="#destination" title="Permanent link">¤</a></h3>
+<h3 id="destination">Destination<a class="headerlink" href="#destination" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>-d|--dir</code> Directory where the collected files will be saved, defaults to <code>/tmp</code></li>
 </ul>
-<h3 id="pod-selection-define-liberty-pods-where-the-files-are-generated">Pod selection (define Liberty pod(s) where the files are generated)<a class="headerlink" href="#pod-selection-define-liberty-pods-where-the-files-are-generated" title="Permanent link">¤</a></h3>
+<h3 id="pod-selection-define-liberty-pods-where-the-files-are-generated">Pod selection (define Liberty pod(s) where the files are generated)<a class="headerlink" href="#pod-selection-define-liberty-pods-where-the-files-are-generated" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>--namespace</code> Specify namespace where the liberty server is running</li>
 <li><code>-s|--pod-selector</code> Pod-selector can be serverBundle, <bundle name>, coreidp</bundle></li>
 <li><code>-p|--pod-name</code> Gives the pod where the java dump needs to be created, this overwrites -s if specified.</li>
 </ul>
-<h3 id="coredump-specific-actions-one-of-those-three-actions-needs-to-be-specified-when-using-the-coredump-command">Coredump specific actions (One of those three actions needs to be specified when using the coredump command)<a class="headerlink" href="#coredump-specific-actions-one-of-those-three-actions-needs-to-be-specified-when-using-the-coredump-command" title="Permanent link">¤</a></h3>
+<h3 id="coredump-specific-actions-one-of-those-three-actions-needs-to-be-specified-when-using-the-coredump-command">Coredump specific actions (One of those three actions needs to be specified when using the coredump command)<a class="headerlink" href="#coredump-specific-actions-one-of-those-three-actions-needs-to-be-specified-when-using-the-coredump-command" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>-g|--generate</code> Generate a coredump for the liberty server according to the pod selector then copies it to the local machine where the script is running</li>
 <li><code>-c|--collect</code> Copy all the coredump files from the node to where the liberty server specified is running to the local machine where the script is running</li>
 <li><code>-r|--rm</code> Remove all the coredump files from the node where the liberty server specified is running
                            This command will remove the content of /var/lib/systemd/coredump/ on the node  </li>
 </ul>
-<h3 id="threaddump-specific-parameters">Threaddump specific parameters<a class="headerlink" href="#threaddump-specific-parameters" title="Permanent link">¤</a></h3>
+<h3 id="threaddump-specific-parameters">Threaddump specific parameters<a class="headerlink" href="#threaddump-specific-parameters" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>-t</code> Time between collection of javacore (default is 10 seconds)</li>
 <li><code>-n</code> How many javacores will be collected (default is 1)</li>
 <li><code>-r|--rm</code> Remove all the javacores files present in the targeted pod</li>
 </ul>
-<h3 id="haproxy-logging-specific-parameters">haproxy-logging specific parameters<a class="headerlink" href="#haproxy-logging-specific-parameters" title="Permanent link">¤</a></h3>
+<h3 id="haproxy-logging-specific-parameters">haproxy-logging specific parameters<a class="headerlink" href="#haproxy-logging-specific-parameters" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>--enable</code> Enables haproxy logging on the cluster</li>
 <li><code>--disable</code> Removes haproxy logging configuration from the ingresscontroller resource</li>
 <li><code>-c, --collect</code> Collects the logs from the logs container in the router pods</li>
 </ul>
-<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link">¤</a></h3>
+<h3 id="other-options">Other Options<a class="headerlink" href="#other-options" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>-h|--help</code>    Show this help message</li>
 </ul>
-<h2 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link">¤</a></h2>
+<h2 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link">¶</a></h2>
 <p>As with other CLI functions, the debug commands will run against the currently connected cluster, use <code>oc login</code> to connect to a cluster before running <code>mas debug &lt;commmand&gt; &lt;options&gt;</code>.</p>
 <pre><code class="language-bash"># Start the container in docker
 docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli
@@ -380,7 +407,7 @@ podman run -ti --rm -v /~:/mnt/home:z --pull always quay.io/ibmmas/cli
 oc login --token=xxx --server=https://xxx:xxx
 mas debug threaddump  --namespace mas-test-manage -p test-testws-foundation-54956ff9d7-bzmgb -d /mnt/home -t 10 -n 5
 </code></pre>
-<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¤</a></h2>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¶</a></h2>
 <p><strong>Coredump for pod:</strong> Generate a coredump for a particular pod in the manage namespace:</p>
 <pre><code class="language-bash">mas debug coredump  --namespace mas-test-manage -p test-testws-foundation-54956ff9d7-bzmgb -g -d /mnt/home
 </code></pre>
@@ -408,11 +435,89 @@ mas debug threaddump  --namespace mas-test-manage -p test-testws-foundation-5495
 <p><strong>collect haproxy logging:</strong> </p>
 <pre><code class="language-bash">mas debug haproxy-logging --collect -d /mnt/home
 </code></pre>
-      
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#usage" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#commands" class="md-toc__link" data-md-level="2">
+                          Commands
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#destination" class="md-toc__link" data-md-level="2">
+                          Destination
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#pod-selection-define-liberty-pods-where-the-files-are-generated" class="md-toc__link" data-md-level="2">
+                          Pod selection (define Liberty pod(s) where the files are generated)
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#coredump-specific-actions-one-of-those-three-actions-needs-to-be-specified-when-using-the-coredump-command" class="md-toc__link" data-md-level="2">
+                          Coredump specific actions (One of those three actions needs to be specified when using the coredump command)
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#threaddump-specific-parameters" class="md-toc__link" data-md-level="2">
+                          Threaddump specific parameters
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#haproxy-logging-specific-parameters" class="md-toc__link" data-md-level="2">
+                          haproxy-logging specific parameters
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#other-options" class="md-toc__link" data-md-level="2">
+                          Other Options
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#usage_1" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#examples" class="md-toc__link" data-md-level="1">
+                  Examples
+                </a>
+              </li>
+        </ul>
+      </div>
     </div>
-    <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2026-01-06 15:02:19.717265+00:00)
-    </div> -->
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body></html>

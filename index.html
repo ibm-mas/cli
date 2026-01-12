@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,7 +23,8 @@
     <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
 
     <!-- HighlightJS code formatting support -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -49,8 +50,9 @@
             .gslide-image img { background: black; }
         </style></head>
 
-  <body>
-    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
       <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
       <cds-header-name href="." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
@@ -59,6 +61,31 @@
       </cds-header-nav>
 
       <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
         <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
       </div>
       <script>
@@ -79,13 +106,18 @@
           <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/index.md">Edit on GitHub</cds-header-nav-item>
         </cds-header-nav>
       
-
     </cds-header>
 
-    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
-      <cds-side-nav-items>
-        
-          
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
   <cds-side-nav-menu title="Guides">
     
       
@@ -132,8 +164,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Examples">
     
       
@@ -156,21 +188,9 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Command Reference">
-    
-      
-  <cds-side-nav-menu-item href="commands/update/">
-    update
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="commands/upgrade/">
-    upgrade
-  </cds-side-nav-menu-item>
-
     
       
   <cds-side-nav-menu-item href="commands/uninstall/">
@@ -234,8 +254,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Operator Catalogs">
     
       
@@ -270,8 +290,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Reference">
     
       
@@ -294,21 +314,27 @@
     
   </cds-side-nav-menu>
 
-        
-      </cds-side-nav-items>
-    </cds-side-nav>
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
 
-    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href=".">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
-
-  <cds-breadcrumb-item aria-current="page">
+  <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#ibm-maximo-application-suite-cli-utility">IBM Maximo Application Suite CLI Utility</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 
-  <cds-breadcrumb-item>
-    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
       <cds-select-item value="#container-image">Container Image</cds-select-item>
@@ -317,17 +343,18 @@
     
       <cds-select-item value="#function-support">Function support</cds-select-item>
     
-  </cds-select>
+    </cds-select>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
-    </div>
+          </div>
 
-    <div id="main-content" class="rst-content">
-      
-      <h1 id="ibm-maximo-application-suite-cli-utility">IBM Maximo Application Suite CLI Utility<a class="headerlink" href="#ibm-maximo-application-suite-cli-utility" title="Permanent link">¤</a></h1>
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="ibm-maximo-application-suite-cli-utility">IBM Maximo Application Suite CLI Utility<a class="headerlink" href="#ibm-maximo-application-suite-cli-utility" title="Permanent link">¶</a></h1>
 <p>The CLI comes in two flavours; <strong>container image</strong> and <strong>standalone binary</strong>.</p>
 <p>The standalone CLI is available for three platforms, and available from the downloads page on each <a href="https://github.com/ibm-mas/cli/releases/tag/18.5.1">GitHub release</a>.</p>
-<h2 id="container-image">Container Image<a class="headerlink" href="#container-image" title="Permanent link">¤</a></h2>
+<h2 id="container-image">Container Image<a class="headerlink" href="#container-image" title="Permanent link">¶</a></h2>
 <p>The best way to use the MAS CLI is to use the container image we publish to quay.io:</p>
 <pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli mas install --help
 </code></pre>
@@ -338,7 +365,7 @@
 <p>The container image provides an out of the box environment for managing MAS on OpenShift, with numerous dependencies pre-installed (see <a href="https://github.com/ibm-mas/cli-base">cli-base</a> for details).  The Maximo Application Suite Ansible Collection is included in these dependencies, so even if you prefer to drive Ansible directly the CLI image can be a useful tool:</p>
 <pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli ansible-playbook ibm.mas_devops.mas_install_core
 </code></pre>
-<h2 id="standalone-binary">Standalone Binary<a class="headerlink" href="#standalone-binary" title="Permanent link">¤</a></h2>
+<h2 id="standalone-binary">Standalone Binary<a class="headerlink" href="#standalone-binary" title="Permanent link">¶</a></h2>
 <p>Introduced in Summer 2024, the standalone binary is a new way to use the MAS CLI, you can download version 18.5.1 of the CLI for following platforms using the links below:</p>
 <ul>
 <li><a href="https://github.com/ibm-mas/cli/releases/download/18.5.1/mas-cli-windows-amd64">Windows (amd64)</a></li>
@@ -350,7 +377,7 @@
 cp mas-cli-linux-amd64 /usr/local/bin/mas-cli
 mas-cli install --help
 </code></pre>
-<h2 id="function-support">Function support<a class="headerlink" href="#function-support" title="Permanent link">¤</a></h2>
+<h2 id="function-support">Function support<a class="headerlink" href="#function-support" title="Permanent link">¶</a></h2>
 <p>Not all functions supported in the container image are available in the standalone CLI binary:</p>
 <table>
 <thead>
@@ -372,12 +399,12 @@ mas-cli install --help
 <td style="text-align: center;">✓</td>
 </tr>
 <tr>
-<td><a href="commands/update/">update</a></td>
+<td><a href="guides/update/">update</a></td>
 <td style="text-align: center;">✓</td>
 <td style="text-align: center;">✓</td>
 </tr>
 <tr>
-<td><a href="commands/upgrade/">upgrade</a></td>
+<td><a href="guides/upgrade/">upgrade</a></td>
 <td style="text-align: center;">✓</td>
 <td style="text-align: center;">✓</td>
 </tr>
@@ -443,11 +470,52 @@ mas-cli install --help
 </tr>
 </tbody>
 </table>
-      
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#container-image" class="md-toc__link" data-md-level="1">
+                  Container Image
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#standalone-binary" class="md-toc__link" data-md-level="1">
+                  Standalone Binary
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#function-support" class="md-toc__link" data-md-level="1">
+                  Function support
+                </a>
+              </li>
+        </ul>
+      </div>
     </div>
-    <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2026-01-06 15:02:11.050400+00:00)
-    </div> -->
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body></html>

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,7 +23,8 @@
     <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
 
     <!-- HighlightJS code formatting support -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -49,8 +50,9 @@
             .gslide-image img { background: black; }
         </style></head>
 
-  <body>
-    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
       <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
       <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
@@ -59,6 +61,31 @@
       </cds-header-nav>
 
       <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
         <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
       </div>
       <script>
@@ -79,13 +106,18 @@
           <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/catalogs/v8-220717-amd64.md">Edit on GitHub</cds-header-nav-item>
         </cds-header-nav>
       
-
     </cds-header>
 
-    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
-      <cds-side-nav-items>
-        
-          
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
   <cds-side-nav-menu title="Guides">
     
       
@@ -132,8 +164,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Examples">
     
       
@@ -156,21 +188,9 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Command Reference">
-    
-      
-  <cds-side-nav-menu-item href="../../commands/update/">
-    update
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../commands/upgrade/">
-    upgrade
-  </cds-side-nav-menu-item>
-
     
       
   <cds-side-nav-menu-item href="../../commands/uninstall/">
@@ -234,8 +254,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Operator Catalogs">
     
       
@@ -270,8 +290,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Reference">
     
       
@@ -294,11 +314,18 @@
     
   </cds-side-nav-menu>
 
-        
-      </cds-side-nav-items>
-    </cds-side-nav>
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
 
-    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
@@ -308,40 +335,33 @@
   <cds-breadcrumb-item>
       <cds-breadcrumb-link href="../">IBM Maximo Operator Catalog</cds-breadcrumb-link>
   </cds-breadcrumb-item>
-
-  <cds-breadcrumb-item aria-current="page">
+  <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#ibm-maximo-operator-catalog-v8-jul-28-2022">IBM Maximo Operator Catalog v8 (Jul 28 2022)</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 
-  <cds-breadcrumb-item>
-    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
     
-    
-      <cds-select-item value="#details">Details</cds-select-item>
-    
-      <cds-select-item value="#manual-installation">Manual Installation</cds-select-item>
-    
-      <cds-select-item value="#source">Source</cds-select-item>
     
       <cds-select-item value="#openshift-container-platform-support">OpenShift Container Platform Support</cds-select-item>
     
-      <cds-select-item value="#manifest">Manifest</cds-select-item>
+      <cds-select-item value="#package-manifest">Package Manifest</cds-select-item>
     
-  </cds-select>
+    </cds-select>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
-    </div>
+          </div>
 
-    <div id="main-content" class="rst-content">
-      
-      <h1 id="ibm-maximo-operator-catalog-v8-jul-28-2022">IBM Maximo Operator Catalog v8 (Jul 28 2022)<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-jul-28-2022" title="Permanent link">¤</a></h1>
-<h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">¤</a></h2>
-<table>
-  <tbody><tr><td>Image</td><td>icr.io/cpopen/ibm-maximo-operator-catalog</td></tr>
-  <tr><td>Tag</td><td>v8-220717-amd64</td></tr>
-  <tr><td>Digest</td><td>sha256:02db98338386f874dead37fb9a0b956fe59b851db09440e5523b634f7341e4bf</td></tr>
-</tbody></table>
-
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="ibm-maximo-operator-catalog-v8-jul-28-2022">IBM Maximo Operator Catalog v8 (Jul 28 2022)<a class="headerlink" href="#ibm-maximo-operator-catalog-v8-jul-28-2022" title="Permanent link">¶</a></h1>
+<div class="admonition error">
+<p class="admonition-title">Error</p>
+<p>Catalog v8-220717-amd64 not found in python-devops.</p>
+<p>Make sure the catalog metadata exists at:
+<code>python-devops/src/mas/devops/data/catalogs/v8-220717-amd64.yaml</code></p>
+</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This catalog is only certified for use on OpenShift Container Platform versions 4.8, 4.9, &amp; 4.10, which have all reached end of support as of <strong>September 10th, 2023</strong>.  For more information about the OCP lifecycle refer to the <a href="https://access.redhat.com/support/policy/updates/openshift/">Red Hat OpenShift Container Platform Life Cycle Policy</a></p>
@@ -350,23 +370,19 @@
 <p class="admonition-title">Warning</p>
 <p>This release of the catalog is no longer supported due to the shutdown of IBM User Data Services, the first operator catalog release that supports it's replacement (IBM Data Reporter Operator) is the <a href="../v8-240227-amd64/">February 2024 update</a></p>
 </div>
-<h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link">¤</a></h2>
-<p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v8-220717-amd64.yaml</code></p>
-<h2 id="source">Source<a class="headerlink" href="#source" title="Permanent link">¤</a></h2>
-<pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
-kind: CatalogSource
-metadata:
-  name: ibm-operator-catalog
-  namespace: openshift-marketplace
-spec:
-  displayName: IBM Maximo Operators (v8-220717-amd64)
-  publisher: IBM
-  description: Static Catalog Source for IBM Maximo Application Suite
-  sourceType: grpc
-  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:02db98338386f874dead37fb9a0b956fe59b851db09440e5523b634f7341e4bf
-  priority: 90
-</code></pre>
-<h2 id="openshift-container-platform-support">OpenShift Container Platform Support<a class="headerlink" href="#openshift-container-platform-support" title="Permanent link">¤</a></h2>
+<div class="admonition error">
+<p class="admonition-title">Error</p>
+<p>Catalog v8-220717-amd64 not found in python-devops.</p>
+<p>Make sure the catalog metadata exists at:
+<code>python-devops/src/mas/devops/data/catalogs/v8-220717-amd64.yaml</code></p>
+</div>
+<div class="admonition error">
+<p class="admonition-title">Error</p>
+<p>Catalog v8-220717-amd64 not found in python-devops.</p>
+<p>Make sure the catalog metadata exists at:
+<code>python-devops/src/mas/devops/data/catalogs/v8-220717-amd64.yaml</code></p>
+</div>
+<h2 id="openshift-container-platform-support">OpenShift Container Platform Support<a class="headerlink" href="#openshift-container-platform-support" title="Permanent link">¶</a></h2>
 <p>IBM Maximo Application Suite will run anywhere that you can run a supported OpenShift release on AMD64 architecture, including:</p>
 <ul>
 <li><a href="https://aws.amazon.com/rosa/">AWS</a></li>
@@ -416,8 +432,8 @@ spec:
 <li>DB2, which is installed with ibm-db2u-operator, is supported on OpenShift Container Platform versions 4.6, 4.7, 4.8, and 4.9 only.</li>
 </ul>
 </div>
-<h2 id="manifest">Manifest<a class="headerlink" href="#manifest" title="Permanent link">¤</a></h2>
-<h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link">¤</a></h3>
+<h2 id="package-manifest">Package Manifest<a class="headerlink" href="#package-manifest" title="Permanent link">¶</a></h2>
+<h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link">¶</a></h3>
 <table>
 <thead>
 <tr>
@@ -628,7 +644,7 @@ spec:
 </tr>
 </tbody>
 </table>
-<h3 id="ibm-utilities">IBM Utilities<a class="headerlink" href="#ibm-utilities" title="Permanent link">¤</a></h3>
+<h3 id="ibm-utilities">IBM Utilities<a class="headerlink" href="#ibm-utilities" title="Permanent link">¶</a></h3>
 <table>
 <thead>
 <tr>
@@ -671,7 +687,7 @@ spec:
 </tr>
 </tbody>
 </table>
-<h3 id="ibm-cloud-pak-foundational-services">IBM Cloud Pak Foundational Services<a class="headerlink" href="#ibm-cloud-pak-foundational-services" title="Permanent link">¤</a></h3>
+<h3 id="ibm-cloud-pak-foundational-services">IBM Cloud Pak Foundational Services<a class="headerlink" href="#ibm-cloud-pak-foundational-services" title="Permanent link">¶</a></h3>
 <table>
 <thead>
 <tr>
@@ -792,7 +808,7 @@ spec:
 </tr>
 </tbody>
 </table>
-<h3 id="ibm-cloud-pak-for-data">IBM Cloud Pak for Data<a class="headerlink" href="#ibm-cloud-pak-for-data" title="Permanent link">¤</a></h3>
+<h3 id="ibm-cloud-pak-for-data">IBM Cloud Pak for Data<a class="headerlink" href="#ibm-cloud-pak-for-data" title="Permanent link">¶</a></h3>
 <table>
 <thead>
 <tr>
@@ -991,7 +1007,7 @@ spec:
 </tr>
 </tbody>
 </table>
-<h3 id="ibm-appconnect">IBM AppConnect<a class="headerlink" href="#ibm-appconnect" title="Permanent link">¤</a></h3>
+<h3 id="ibm-appconnect">IBM AppConnect<a class="headerlink" href="#ibm-appconnect" title="Permanent link">¶</a></h3>
 <table>
 <thead>
 <tr>
@@ -1154,11 +1170,74 @@ spec:
 </tr>
 </tbody>
 </table>
-      
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#openshift-container-platform-support" class="md-toc__link" data-md-level="1">
+                  OpenShift Container Platform Support
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#package-manifest" class="md-toc__link" data-md-level="1">
+                  Package Manifest
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#ibm-maximo-application-suite" class="md-toc__link" data-md-level="2">
+                          IBM Maximo Application Suite
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-utilities" class="md-toc__link" data-md-level="2">
+                          IBM Utilities
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-cloud-pak-foundational-services" class="md-toc__link" data-md-level="2">
+                          IBM Cloud Pak Foundational Services
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-cloud-pak-for-data" class="md-toc__link" data-md-level="2">
+                          IBM Cloud Pak for Data
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-appconnect" class="md-toc__link" data-md-level="2">
+                          IBM AppConnect
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
     </div>
-    <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2026-01-06 15:02:11.060317+00:00)
-    </div> -->
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body></html>

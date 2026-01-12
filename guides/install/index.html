@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,7 +23,8 @@
     <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
 
     <!-- HighlightJS code formatting support -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -49,8 +50,9 @@
             .gslide-image img { background: black; }
         </style></head>
 
-  <body>
-    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
       <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
       <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
@@ -59,6 +61,31 @@
       </cds-header-nav>
 
       <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
         <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
       </div>
       <script>
@@ -79,13 +106,18 @@
           <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/guides/install.md">Edit on GitHub</cds-header-nav-item>
         </cds-header-nav>
       
-
     </cds-header>
 
-    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
-      <cds-side-nav-items>
-        
-          
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
   <cds-side-nav-menu title="Guides" active expanded>
     
       
@@ -132,8 +164,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Examples">
     
       
@@ -156,21 +188,9 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Command Reference">
-    
-      
-  <cds-side-nav-menu-item href="../../commands/update/">
-    update
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../commands/upgrade/">
-    upgrade
-  </cds-side-nav-menu-item>
-
     
       
   <cds-side-nav-menu-item href="../../commands/uninstall/">
@@ -234,8 +254,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Operator Catalogs">
     
       
@@ -270,8 +290,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Reference">
     
       
@@ -294,22 +314,28 @@
     
   </cds-side-nav-menu>
 
-        
-      </cds-side-nav-items>
-    </cds-side-nav>
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
 
-    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
       <cds-breadcrumb-item>Guides</cds-breadcrumb-item>
-
-  <cds-breadcrumb-item aria-current="page">
+  <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#installation">Installation</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 
-  <cds-breadcrumb-item>
-    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
       <cds-select-item value="#usage">Usage</cds-select-item>
@@ -324,20 +350,1873 @@
     
       <cds-select-item value="#more-information">More Information</cds-select-item>
     
-  </cds-select>
+    </cds-select>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
-    </div>
+          </div>
 
-    <div id="main-content" class="rst-content">
-      
-      <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¤</a></h1>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
-<p>For full usage information run <code>mas install --help</code></p>
-<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¤</a></h2>
-<h3 id="ibm-entitlement-key">IBM Entitlement Key<a class="headerlink" href="#ibm-entitlement-key" title="Permanent link">¤</a></h3>
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¶</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
+<pre><code class="language-bash">mas install [OPTIONS]
+</code></pre>
+<h3 id="mas-catalog-selection-entitlement">MAS Catalog Selection &amp; Entitlement<a class="headerlink" href="#mas-catalog-selection-entitlement" title="Permanent link">¶</a></h3>
+<p>Configure which IBM Maximo Operator Catalog to install and provide your IBM entitlement key for access to container images.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>-c</code>, <code>--mas-catalog-version</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>IBM Maximo Operator Catalog to install</td>
+    </tr>
+    <tr>
+      <td><code>--mas-catalog-digest</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>IBM Maximo Operator Catalog Digest, only required when installing development catalog sources</td>
+    </tr>
+    <tr>
+      <td><code>--ibm-entitlement-key</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>IBM entitlement key</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="basic-configuration">Basic Configuration<a class="headerlink" href="#basic-configuration" title="Permanent link">¶</a></h3>
+<p>Core configuration options for your MAS instance including instance ID, workspace settings, subscription channels, and user settings.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>-i</code>, <code>--mas-instance-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>MAS Instance ID</td>
+    </tr>
+    <tr>
+      <td><code>-w</code>, <code>--mas-workspace-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>MAS Workspace ID</td>
+    </tr>
+    <tr>
+      <td><code>-W</code>, <code>--mas-workspace-name</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>MAS Workspace Name</td>
+    </tr>
+    <tr>
+      <td><code>--mas-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for the Core Platform</td>
+    </tr>
+    <tr>
+      <td><code>--aiservice-instance-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>AI Service Instance ID</td>
+    </tr>
+    <tr>
+      <td><code>--allow-special-chars</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Allow special characters for user username/ID</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="advanced-configuration">Advanced Configuration<a class="headerlink" href="#advanced-configuration" title="Permanent link">¶</a></h3>
+<p>Advanced configuration options for MAS including DNS providers, certificates, domain settings, and IPv6 support.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--superuser-username</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><code>--superuser-password</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><code>--additional-configs</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Path to a directory containing additional configuration files to be applied</td>
+    </tr>
+    <tr>
+      <td><code>--pod-templates</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Path to directory containing custom podTemplates configuration files to be applied</td>
+    </tr>
+    <tr>
+      <td><code>--non-prod</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Install MAS in non-production mode</td>
+    </tr>
+    <tr>
+      <td><code>--disable-ca-trust</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Disable built-in trust of well-known CAs</td>
+    </tr>
+    <tr>
+      <td><code>--routing</code></td>
+      <td><code>{path, subdomain}</code></td>
+      <td>-</td>
+      <td>Configure MAS with path or subdomain routing</td>
+    </tr>
+    <tr>
+      <td><code>--manual-certificates</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Path to directory containing the certificates to be applied</td>
+    </tr>
+    <tr>
+      <td><code>--domain</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Configure MAS with a custom domain</td>
+    </tr>
+    <tr>
+      <td><code>--disable-walkme</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Disable MAS guided tour</td>
+    </tr>
+    <tr>
+      <td><code>--dns-provider</code></td>
+      <td><code>{cloudflare, cis, route53}</code></td>
+      <td>-</td>
+      <td>Enable automatic DNS management (see DNS Configuration options)</td>
+    </tr>
+    <tr>
+      <td><code>--ocp-ingress</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Overwrites Ingress Domain</td>
+    </tr>
+    <tr>
+      <td><code>--mas-cluster-issuer</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Provide the name of the ClusterIssuer to configure MAS to issue certificates</td>
+    </tr>
+    <tr>
+      <td><code>--enable-ipv6</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Configure MAS to run in IP version 6. Before setting this option, be sure your cluster is configured in IP version 6</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="dns-integration-cis">DNS Integration - CIS<a class="headerlink" href="#dns-integration-cis" title="Permanent link">¶</a></h3>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--cis-email</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Required when DNS provider is CIS and you want to use a Let's Encrypt ClusterIssuer</td>
+    </tr>
+    <tr>
+      <td><code>--cis-apikey</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Required when DNS provider is CIS</td>
+    </tr>
+    <tr>
+      <td><code>--cis-crn</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Required when DNS provider is CIS</td>
+    </tr>
+    <tr>
+      <td><code>--cis-subdomain</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Optionally setup MAS instance as a subdomain under a multi-tenant CIS DNS record</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="dns-integration-cloudflare">DNS Integration - CloudFlare<a class="headerlink" href="#dns-integration-cloudflare" title="Permanent link">¶</a></h3>
+<p>Configuration options for Cloudflare DNS provider, including API credentials, zone, and subdomain settings.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--cloudflare-email</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Required when DNS provider is Cloudflare</td>
+    </tr>
+    <tr>
+      <td><code>--cloudflare-apitoken</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Required when DNS provider is Cloudflare</td>
+    </tr>
+    <tr>
+      <td><code>--cloudflare-zone</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Required when DNS provider is Cloudflare</td>
+    </tr>
+    <tr>
+      <td><code>--cloudflare-subdomain</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Required when DNS provider is Cloudflare</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="storage">Storage<a class="headerlink" href="#storage" title="Permanent link">¶</a></h3>
+<p>Configure storage classes for ReadWriteOnce (RWO) and ReadWriteMany (RWX) volumes, and pipeline storage settings.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--storage-class-rwo</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>ReadWriteOnce (RWO) storage class (e.g. ibmc-block-gold)</td>
+    </tr>
+    <tr>
+      <td><code>--storage-class-rwx</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>ReadWriteMany (RWX) storage class (e.g. ibmc-file-gold-gid)</td>
+    </tr>
+    <tr>
+      <td><code>--storage-pipeline</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Install pipeline storage class (e.g. ibmc-file-gold-gid)</td>
+    </tr>
+    <tr>
+      <td><code>--storage-accessmode</code></td>
+      <td><code>{ReadWriteMany, ReadWriteOnce}</code></td>
+      <td>-</td>
+      <td>Install pipeline storage class access mode</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="ibm-suite-license-service">IBM Suite License Service<a class="headerlink" href="#ibm-suite-license-service" title="Permanent link">¶</a></h3>
+<p>Configure IBM Suite License Service (SLS) including license file location, namespace, and subscription channel.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--license-file</code></td>
+      <td><code><lambda></lambda></code></td>
+      <td>-</td>
+      <td>Path to MAS license file</td>
+    </tr>
+    <tr>
+      <td><code>--sls-namespace</code></td>
+      <td><code>string</code></td>
+      <td><code>ibm-sls</code></td>
+      <td>Customize the SLS install namespace</td>
+    </tr>
+    <tr>
+      <td><code>--dedicated-sls</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Set the SLS namespace to mas-&lt;instanceid&gt;-sls</td>
+    </tr>
+    <tr>
+      <td><code>--sls-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Customize the SLS channel when in development mode</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="ibm-data-reporting-operator">IBM Data Reporting Operator<a class="headerlink" href="#ibm-data-reporting-operator" title="Permanent link">¶</a></h3>
+<p>Configure IBM Data Reporting Operator (DRO) with contact information and namespace settings for usage data collection.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--contact-email</code>, <code>--uds-email</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Contact e-mail address</td>
+    </tr>
+    <tr>
+      <td><code>--contact-firstname</code>, <code>--uds-firstname</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Contact first name</td>
+    </tr>
+    <tr>
+      <td><code>--contact-lastname</code>, <code>--uds-lastname</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Contact last name</td>
+    </tr>
+    <tr>
+      <td><code>--dro-namespace</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Namespace for DRO</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="mongodb-community-operator">MongoDB Community Operator<a class="headerlink" href="#mongodb-community-operator" title="Permanent link">¶</a></h3>
+<p>Configure the namespace for MongoDB Community Operator deployment.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--mongodb-namespace</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Namespace for MongoDB Community Operator</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="ocp-configuration">OCP Configuration<a class="headerlink" href="#ocp-configuration" title="Permanent link">¶</a></h3>
+<p>OpenShift Container Platform specific configuration including ingress certificate settings.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--ocp-ingress-tls-secret-name</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Name of the secret holding the cluster's ingress certificates</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="mas-applications">MAS Applications<a class="headerlink" href="#mas-applications" title="Permanent link">¶</a></h3>
+<p>Configure subscription channels for MAS applications including Assist, IoT, Monitor, Optimizer, Predict, and Visual Inspection.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--assist-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for Maximo Assist</td>
+    </tr>
+    <tr>
+      <td><code>--iot-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for Maximo IoT</td>
+    </tr>
+    <tr>
+      <td><code>--monitor-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for Maximo Monitor</td>
+    </tr>
+    <tr>
+      <td><code>--manage-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for Maximo Manage</td>
+    </tr>
+    <tr>
+      <td><code>--predict-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for Maximo Predict</td>
+    </tr>
+    <tr>
+      <td><code>--visualinspection-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for Maximo Visual Inspection</td>
+    </tr>
+    <tr>
+      <td><code>--optimizer-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for Maximo optimizer</td>
+    </tr>
+    <tr>
+      <td><code>--optimizer-plan</code></td>
+      <td><code>{full, limited}</code></td>
+      <td>-</td>
+      <td>Install plan for Maximo Optimizer</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for Maximo Real Estate and Facilities</td>
+    </tr>
+    <tr>
+      <td><code>--aiservice-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for Maximo AI Service</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="advanced-settings-manage">Advanced Settings - Manage<a class="headerlink" href="#advanced-settings-manage" title="Permanent link">¶</a></h3>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--manage-server-bundle-size</code></td>
+      <td><code>{dev, snojms, small, jms}</code></td>
+      <td>-</td>
+      <td>Set Manage server bundle size configuration</td>
+    </tr>
+    <tr>
+      <td><code>--manage-jms</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Set JMS configuration</td>
+    </tr>
+    <tr>
+      <td><code>--manage-persistent-volumes</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><code>--manage-jdbc</code></td>
+      <td><code>{system, workspace-application}</code></td>
+      <td>-</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><code>--manage-demodata</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><code>--manage-components</code></td>
+      <td><code>string</code></td>
+      <td><code>""</code></td>
+      <td>Set Manage Components to be installed (e.g 'base=latest,health=latest,civil=latest')</td>
+    </tr>
+    <tr>
+      <td><code>--manage-health-wsl</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Set boolean value indicating if Watson Studio must be bound to Manage. It is expected a system level WatsonStudioCfg applied in the cluster.</td>
+    </tr>
+    <tr>
+      <td><code>--manage-customization-archive-name</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Manage Archive name</td>
+    </tr>
+    <tr>
+      <td><code>--manage-customization-archive-url</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Manage Archive url</td>
+    </tr>
+    <tr>
+      <td><code>--manage-customization-archive-username</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Manage Archive username (HTTP basic auth)</td>
+    </tr>
+    <tr>
+      <td><code>--manage-customization-archive-password</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Manage Archive password (HTTP basic auth)</td>
+    </tr>
+    <tr>
+      <td><code>--manage-db-tablespace</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Database tablespace name that Manage will use to be installed. Default is 'MAXDATA'</td>
+    </tr>
+    <tr>
+      <td><code>--manage-db-indexspace</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Database indexspace name that Manage will use to be installed. Default is 'MAXINDEX'</td>
+    </tr>
+    <tr>
+      <td><code>--manage-db-schema</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Database schema name that Manage will use to be installed. Default is 'maximo'</td>
+    </tr>
+    <tr>
+      <td><code>--manage-crypto-key</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Customize Manage database encryption keys</td>
+    </tr>
+    <tr>
+      <td><code>--manage-cryptox-key</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Customize Manage database encryption keys</td>
+    </tr>
+    <tr>
+      <td><code>--manage-old-crypto-key</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Customize Manage database encryption keys</td>
+    </tr>
+    <tr>
+      <td><code>--manage-old-cryptox-key</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Customize Manage database encryption keys</td>
+    </tr>
+    <tr>
+      <td><code>--manage-encryption-secret-name</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Name of the Manage database encryption secret</td>
+    </tr>
+    <tr>
+      <td><code>--manage-base-language</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Manage base language to be installed. Default is `EN` (English)</td>
+    </tr>
+    <tr>
+      <td><code>--manage-secondary-languages</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Comma-separated list of Manage secondary languages to be installed (e.g. 'JA,DE,AR')</td>
+    </tr>
+    <tr>
+      <td><code>--manage-server-timezone</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Manage server timezone. Default is `GMT`</td>
+    </tr>
+    <tr>
+      <td><code>--manage-upgrade-type</code></td>
+      <td><code>{regularUpgrade, onlineUpgrade}</code></td>
+      <td><code>regularUpgrade</code></td>
+      <td>Set Manage upgrade type (default: regularUpgrade)</td>
+    </tr>
+    <tr>
+      <td><code>--manage-attachments-provider</code></td>
+      <td><code>{filestorage, ibm, aws}</code></td>
+      <td>-</td>
+      <td>Storage provider type for Maximo Manage attachments</td>
+    </tr>
+    <tr>
+      <td><code>--manage-attachments-mode</code></td>
+      <td><code>{cr, db}</code></td>
+      <td>-</td>
+      <td>How attachment properties will be configured in Manage</td>
+    </tr>
+    <tr>
+      <td><code>--manage-aiservice-instance-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>AI Service Instance ID to bind with Manage</td>
+    </tr>
+    <tr>
+      <td><code>--manage-aiservice-tenant-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>AI Service Tenant ID to bind with Manage</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="advanced-settings-facilities">Advanced Settings - Facilities<a class="headerlink" href="#advanced-settings-facilities" title="Permanent link">¶</a></h3>
+<p>Advanced configuration for Maximo Real Estate and Facilities including deployment size, image pull policy, routes timeout, Liberty extensions, vault secrets, workflow agents, connection pool size, and storage settings.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--facilities-size</code></td>
+      <td><code>{small, medium, large}</code></td>
+      <td>-</td>
+      <td>Size of Facilities deployment</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-pull-policy</code></td>
+      <td><code>{IfNotPresent, Always}</code></td>
+      <td>-</td>
+      <td>Image pull policy for Facilities</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-routes-timeout</code></td>
+      <td><code>string</code></td>
+      <td><code>600s</code></td>
+      <td>Timeout for Facilities routes (default: 600s)</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-xml-extension</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Secret name containing Liberty server extensions</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-vault-secret</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Secret name containing AES encryption password</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-dwfagent</code></td>
+      <td><code>str</code></td>
+      <td>-</td>
+      <td>List of dedicated workflow agents</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-maxconnpoolsize</code></td>
+      <td><code>int</code></td>
+      <td><code>200</code></td>
+      <td>Maximum database connection pool size (default: 200)</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-log-storage-class</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Storage class for Facilities logs</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-log-storage-mode</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Storage mode for Facilities logs</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-log-storage-size</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Storage size for Facilities logs</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-userfiles-storage-class</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Storage class for Facilities user files</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-userfiles-storage-mode</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Storage mode for Facilities user files</td>
+    </tr>
+    <tr>
+      <td><code>--facilities-userfiles-storage-size</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Storage size for Facilities user files</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="open-data-hub">Open Data Hub<a class="headerlink" href="#open-data-hub" title="Permanent link">¶</a></h3>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--odh-model-deployment-type</code></td>
+      <td><code>string</code></td>
+      <td><code>raw</code></td>
+      <td>Model deployment type for ODH</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="s3-storage">S3 Storage<a class="headerlink" href="#s3-storage" title="Permanent link">¶</a></h3>
+<p>Configure S3-compatible object storage for AI Service including Minio installation or external S3 connection details (host, port, SSL, credentials, bucket, and region).</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--install-minio</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Install Minio and configure it as the S3 provider for AI Service</td>
+    </tr>
+    <tr>
+      <td><code>--minio-root-user</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Root user for minio</td>
+    </tr>
+    <tr>
+      <td><code>--minio-root-password</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Password for minio root user</td>
+    </tr>
+    <tr>
+      <td><code>--s3-host</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Hostname or IP address of the S3 storage service</td>
+    </tr>
+    <tr>
+      <td><code>--s3-port</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Port number for the S3 storage service</td>
+    </tr>
+    <tr>
+      <td><code>--s3-ssl</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Enable or disable SSL for S3 connection (true/false)</td>
+    </tr>
+    <tr>
+      <td><code>--s3-accesskey</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Access key for authenticating with the S3 storage service</td>
+    </tr>
+    <tr>
+      <td><code>--s3-secretkey</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Secret key for authenticating with the S3 storage service</td>
+    </tr>
+    <tr>
+      <td><code>--s3-region</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Region for the S3 storage service</td>
+    </tr>
+    <tr>
+      <td><code>--s3-bucket-prefix</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Bucket prefix configured with S3 storage service</td>
+    </tr>
+    <tr>
+      <td><code>--s3-tenants-bucket</code></td>
+      <td><code>string</code></td>
+      <td><code>km-tenants</code></td>
+      <td>Name of the S3 bucket for tenants storage</td>
+    </tr>
+    <tr>
+      <td><code>--s3-templates-bucket</code></td>
+      <td><code>string</code></td>
+      <td><code>km-templates</code></td>
+      <td>Name of the S3 bucket for templates storage</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="watsonx">Watsonx<a class="headerlink" href="#watsonx" title="Permanent link">¶</a></h3>
+<p>Configure IBM Watsonx integration for AI Service including API key, instance ID, project ID, and service URL.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--watsonxai-apikey</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>API key for WatsonX</td>
+    </tr>
+    <tr>
+      <td><code>--watsonxai-url</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>URL endpoint for WatsonX</td>
+    </tr>
+    <tr>
+      <td><code>--watsonxai-project-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Project ID for WatsonX</td>
+    </tr>
+    <tr>
+      <td><code>--watsonx-action</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Action to perform with WatsonX (install/remove)</td>
+    </tr>
+    <tr>
+      <td><code>--watsonxai-ca-crt</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>CA certificate for WatsonX AI (PEM format, optional, only if using self-signed certs)</td>
+    </tr>
+    <tr>
+      <td><code>--watsonxai-deployment-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>WatsonX deployment ID</td>
+    </tr>
+    <tr>
+      <td><code>--watsonxai-space-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>WatsonX space ID</td>
+    </tr>
+    <tr>
+      <td><code>--watsonxai-instance-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>WatsonX instance ID</td>
+    </tr>
+    <tr>
+      <td><code>--watsonxai-username</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>WatsonX username</td>
+    </tr>
+    <tr>
+      <td><code>--watsonxai-version</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>WatsonX version</td>
+    </tr>
+    <tr>
+      <td><code>--watsonxai-onprem</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>WatsonX deployed on prem</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="maximo-ai-service">Maximo AI Service<a class="headerlink" href="#maximo-ai-service" title="Permanent link">¶</a></h3>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--tenant-entitlement-type</code></td>
+      <td><code>string</code></td>
+      <td><code>standard</code></td>
+      <td>Entitlement type for AI Service tenant</td>
+    </tr>
+    <tr>
+      <td><code>--tenant-entitlement-start-date</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Start date for AI Service tenant</td>
+    </tr>
+    <tr>
+      <td><code>--tenant-entitlement-end-date</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>End date for AI Service tenant</td>
+    </tr>
+    <tr>
+      <td><code>--rsl-url</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>rsl url</td>
+    </tr>
+    <tr>
+      <td><code>--rsl-org-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>org id for rsl</td>
+    </tr>
+    <tr>
+      <td><code>--rsl-token</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>token for rsl</td>
+    </tr>
+    <tr>
+      <td><code>--rsl-ca-crt</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>CA certificate for RSL API (PEM format, optional, only if using self-signed certs)</td>
+    </tr>
+    <tr>
+      <td><code>--environment-type</code></td>
+      <td><code>string</code></td>
+      <td><code>non-production</code></td>
+      <td>Environment type (default: non-production)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="ibm-cloud-pak-for-data">IBM Cloud Pak for Data<a class="headerlink" href="#ibm-cloud-pak-for-data" title="Permanent link">¶</a></h3>
+<p>Configure IBM Cloud Pak for Data applications including Watson Studio, Watson Machine Learning, Watson Discovery, Analytics Engine (Spark), Cognos Analytics, SPSS Modeler, and Canvas Base.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--cp4d-version</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Product version of CP4D to use</td>
+    </tr>
+    <tr>
+      <td><code>--cp4d-install-cognos</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Add Cognos as part of Cloud Pak for Data</td>
+    </tr>
+    <tr>
+      <td><code>--cp4d-install-ws</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Add Watson Studio as part of Cloud Pak for Data</td>
+    </tr>
+    <tr>
+      <td><code>--cp4d-install-wml</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Add Watson Machine Learning as part of Cloud Pak for Data</td>
+    </tr>
+    <tr>
+      <td><code>--cp4d-install-ae</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Add Spark Analytics Engine as part of Cloud Pak for Data</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="ibm-db2-universal-operator">IBM Db2 Universal Operator<a class="headerlink" href="#ibm-db2-universal-operator" title="Permanent link">¶</a></h3>
+<p>Configure IBM Db2 instances including namespace, channel, installation options for system/manage/facilities databases, database type, timezone, affinity, tolerations, resource limits, and storage capacity.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--db2-namespace</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Change namespace where Db2u instances will be created</td>
+    </tr>
+    <tr>
+      <td><code>--db2-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for Db2u</td>
+    </tr>
+    <tr>
+      <td><code>--db2-system</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Install a shared Db2u instance for MAS (required by IoT &amp; Monitor, supported by Manage)</td>
+    </tr>
+    <tr>
+      <td><code>--db2-manage</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Install a dedicated Db2u instance for Maximo Manage (supported by Manage)</td>
+    </tr>
+    <tr>
+      <td><code>--db2-facilities</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Install a dedicated Db2u instance for Maximo Real Estate and Facilities (supported by Facilities)</td>
+    </tr>
+    <tr>
+      <td><code>--db2-type</code></td>
+      <td><code>{db2wh, db2oltp}</code></td>
+      <td>-</td>
+      <td>Type of Manage dedicated Db2u instance (default: db2wh)</td>
+    </tr>
+    <tr>
+      <td><code>--db2-timezone</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Timezone for Db2 instance</td>
+    </tr>
+    <tr>
+      <td><code>--db2-affinity-key</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set a node label to declare affinity to</td>
+    </tr>
+    <tr>
+      <td><code>--db2-affinity-value</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set the value of the node label to affine with</td>
+    </tr>
+    <tr>
+      <td><code>--db2-tolerate-key</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set a node taint to tolerate</td>
+    </tr>
+    <tr>
+      <td><code>--db2-tolerate-value</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set the value of the taint to tolerate</td>
+    </tr>
+    <tr>
+      <td><code>--db2-tolerate-effect</code></td>
+      <td><code>{NoSchedule, PreferNoSchedule, NoExecute}</code></td>
+      <td>-</td>
+      <td>Taint effect to tolerate</td>
+    </tr>
+    <tr>
+      <td><code>--db2-cpu-requests</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Customize Db2 CPU request</td>
+    </tr>
+    <tr>
+      <td><code>--db2-cpu-limits</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Customize Db2 CPU limit</td>
+    </tr>
+    <tr>
+      <td><code>--db2-memory-requests</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Customize Db2 memory request</td>
+    </tr>
+    <tr>
+      <td><code>--db2-memory-limits</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Customize Db2 memory limit</td>
+    </tr>
+    <tr>
+      <td><code>--db2-backup-storage</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Db2 backup storage capacity</td>
+    </tr>
+    <tr>
+      <td><code>--db2-data-storage</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Db2 data storage capacity</td>
+    </tr>
+    <tr>
+      <td><code>--db2-logs-storage</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Db2 logs storage capacity</td>
+    </tr>
+    <tr>
+      <td><code>--db2-meta-storage</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Db2 metadata storage capacity</td>
+    </tr>
+    <tr>
+      <td><code>--db2-temp-storage</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Db2 temporary storage capacity</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="eck-integration">ECK Integration<a class="headerlink" href="#eck-integration" title="Permanent link">¶</a></h3>
+<p>Configure Elastic Cloud on Kubernetes (ECK) integration for logging and monitoring capabilities.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--eck</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><code>--eck-enable-logstash</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><code>--eck-remote-es-hosts</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><code>--eck-remote-es-username</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><code>--eck-remote-es-password</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="kafka-common">Kafka - Common<a class="headerlink" href="#kafka-common" title="Permanent link">¶</a></h3>
+<p>Common Kafka configuration options including provider selection (Strimzi, Red Hat AMQ Streams, IBM Event Streams, or AWS MSK) and authentication credentials.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--kafka-provider</code></td>
+      <td><code>{strimzi, redhat, ibm, aws}</code></td>
+      <td>-</td>
+      <td>Kafka provider: redhat (Red Hat AMQ Streams), strimzi, ibm (IBM Event Streams), or aws (AWS MSK)</td>
+    </tr>
+    <tr>
+      <td><code>--kafka-username</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Kafka instance username (applicable for redhat, strimzi, or aws providers)</td>
+    </tr>
+    <tr>
+      <td><code>--kafka-password</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Kafka instance password (applicable for redhat, strimzi, or aws providers)</td>
+    </tr>
+    <tr>
+      <td><code>--kafka-namespace</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set Kafka namespace. Only applicable if installing `redhat` (Red Hat AMQ Streams) or `strimzi`</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="kafka-strimzi-and-amq-streams">Kafka - Strimzi and AMQ Streams<a class="headerlink" href="#kafka-strimzi-and-amq-streams" title="Permanent link">¶</a></h3>
+<p>Configuration options specific to Strimzi and Red Hat AMQ Streams Kafka deployments including namespace and cluster version.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--kafka-version</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set version of the Kafka cluster that the Strimzi or AMQ Streams operator will create</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="kafka-aws-msk">Kafka - AWS MSK<a class="headerlink" href="#kafka-aws-msk" title="Permanent link">¶</a></h3>
+<p>Configuration options for Amazon Managed Streaming for Apache Kafka (MSK) including instance type, node count, volume size, CIDR subnets for availability zones, and egress settings.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--msk-instance-type</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set the MSK instance type</td>
+    </tr>
+    <tr>
+      <td><code>--msk-instance-nodes</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set total number of MSK instance nodes</td>
+    </tr>
+    <tr>
+      <td><code>--msk-instance-volume-size</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set storage/volume size for the MSK instance</td>
+    </tr>
+    <tr>
+      <td><code>--msk-cidr-az1</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set the CIDR subnet for availability zone 1 for the MSK instance</td>
+    </tr>
+    <tr>
+      <td><code>--msk-cidr-az2</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set the CIDR subnet for availability zone 2 for the MSK instance</td>
+    </tr>
+    <tr>
+      <td><code>--msk-cidr-az3</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set the CIDR subnet for availability zone 3 for the MSK instance</td>
+    </tr>
+    <tr>
+      <td><code>--msk-cidr-egress</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set the CIDR for egress connectivity</td>
+    </tr>
+    <tr>
+      <td><code>--msk-cidr-ingress</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set the CIDR for ingress connectivity</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="kafka-event-streams">Kafka - Event Streams<a class="headerlink" href="#kafka-event-streams" title="Permanent link">¶</a></h3>
+<p>Configuration options for IBM Event Streams including resource group, instance name, and location.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--eventstreams-resource-group</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set IBM Cloud resource group to target the Event Streams instance provisioning</td>
+    </tr>
+    <tr>
+      <td><code>--eventstreams-instance-name</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set IBM Event Streams instance name</td>
+    </tr>
+    <tr>
+      <td><code>--eventstreams-instance-location</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set IBM Event Streams instance location</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="cloud-object-storage">Cloud Object Storage<a class="headerlink" href="#cloud-object-storage" title="Permanent link">¶</a></h3>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--cos</code></td>
+      <td><code>{ibm, ocs}</code></td>
+      <td>-</td>
+      <td>Set cloud object storage provider.  Supported options are `ibm` and `ocs`</td>
+    </tr>
+    <tr>
+      <td><code>--cos-resourcegroup</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>When using IBM COS, set the resource group where the instance will run</td>
+    </tr>
+    <tr>
+      <td><code>--cos-apikey</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>When using IBM COS, set COS priviledged apikey for IBM Cloud</td>
+    </tr>
+    <tr>
+      <td><code>--cos-instance-name</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>When using IBM COS, set COS instance name to be used/created</td>
+    </tr>
+    <tr>
+      <td><code>--cos-bucket-name</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>When using IBM COS, set COS bucket name to be used/created</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="maximo-location-services-for-esri-arcgis">Maximo Location Services for Esri (arcgis)<a class="headerlink" href="#maximo-location-services-for-esri-arcgis" title="Permanent link">¶</a></h3>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--install-arcgis</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Enables IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial</td>
+    </tr>
+    <tr>
+      <td><code>--arcgis-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="cloud-providers">Cloud Providers<a class="headerlink" href="#cloud-providers" title="Permanent link">¶</a></h3>
+<p>Configure cloud provider settings including AWS region, availability zones, and IBM Cloud API key.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--ibmcloud-apikey</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set IBM Cloud API Key</td>
+    </tr>
+    <tr>
+      <td><code>--aws-region</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set target AWS region for the MSK instance</td>
+    </tr>
+    <tr>
+      <td><code>--aws-access-key-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set AWS access key ID for the target AWS account</td>
+    </tr>
+    <tr>
+      <td><code>--secret-access-key</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set AWS secret access key for the target AWS account</td>
+    </tr>
+    <tr>
+      <td><code>--aws-vpc-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Set target Virtual Private Cloud ID for the MSK instance</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="integrated-approval-workflow">Integrated Approval Workflow<a class="headerlink" href="#integrated-approval-workflow" title="Permanent link">¶</a></h3>
+<p>Configure approval checkpoints during installation for Core Platform and each MAS application workspace (Assist, IoT, Manage, Monitor, Optimizer, Predict, Visual Inspection, Facilities, and AI Service). Format: MAX_RETRIES:RETRY_DELAY:IGNORE_FAILURE</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--approval-core</code></td>
+      <td><code>string</code></td>
+      <td><code>""</code></td>
+      <td>Require approval after the Core Platform has been configured</td>
+    </tr>
+    <tr>
+      <td><code>--approval-assist</code></td>
+      <td><code>string</code></td>
+      <td><code>""</code></td>
+      <td>Require approval after the Maximo Assist workspace has been configured</td>
+    </tr>
+    <tr>
+      <td><code>--approval-iot</code></td>
+      <td><code>string</code></td>
+      <td><code>""</code></td>
+      <td>Require approval after the Maximo IoT workspace has been configured</td>
+    </tr>
+    <tr>
+      <td><code>--approval-manage</code></td>
+      <td><code>string</code></td>
+      <td><code>""</code></td>
+      <td>Require approval after the Maximo Manage workspace has been configured</td>
+    </tr>
+    <tr>
+      <td><code>--approval-monitor</code></td>
+      <td><code>string</code></td>
+      <td><code>""</code></td>
+      <td>Require approval after the Maximo Monitor workspace has been configured</td>
+    </tr>
+    <tr>
+      <td><code>--approval-optimizer</code></td>
+      <td><code>string</code></td>
+      <td><code>""</code></td>
+      <td>Require approval after the Maximo Optimizer workspace has been configured</td>
+    </tr>
+    <tr>
+      <td><code>--approval-predict</code></td>
+      <td><code>string</code></td>
+      <td><code>""</code></td>
+      <td>Require approval after the Maximo Predict workspace has been configured</td>
+    </tr>
+    <tr>
+      <td><code>--approval-visualinspection</code></td>
+      <td><code>string</code></td>
+      <td><code>""</code></td>
+      <td>Require approval after the Maximo Visual Inspection workspace has been configured</td>
+    </tr>
+    <tr>
+      <td><code>--approval-facilities</code></td>
+      <td><code>string</code></td>
+      <td><code>""</code></td>
+      <td>Require approval after the Maximo Real Estate and Facilities workspace has been configured</td>
+    </tr>
+    <tr>
+      <td><code>--approval-aiservice</code></td>
+      <td><code>string</code></td>
+      <td><code>""</code></td>
+      <td>Require approval after the AI Service has been configured</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="more">More<a class="headerlink" href="#more" title="Permanent link">¶</a></h3>
+<p>Additional options including advanced/simplified mode toggles, license acceptance, development mode, Artifactory credentials, PVC wait control, pre-check skip, Grafana installation, confirmation prompts, image pull policy, and custom service account.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--artifactory-username</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Username for access to development builds on Artifactory</td>
+    </tr>
+    <tr>
+      <td><code>--artifactory-token</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>API Token for access to development builds on Artifactory</td>
+    </tr>
+    <tr>
+      <td><code>--advanced</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Show advanced install options (in interactive mode)</td>
+    </tr>
+    <tr>
+      <td><code>--simplified</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Don't show advanced install options (in interactive mode)</td>
+    </tr>
+    <tr>
+      <td><code>--accept-license</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Accept all license terms without prompting</td>
+    </tr>
+    <tr>
+      <td><code>--dev-mode</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Configure installation for development mode</td>
+    </tr>
+    <tr>
+      <td><code>--no-wait-for-pvc</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Disable the wait for pipeline PVC to bind before starting the pipeline</td>
+    </tr>
+    <tr>
+      <td><code>--skip-pre-check</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Disable the 'pre-install-check' at the start of the install pipeline</td>
+    </tr>
+    <tr>
+      <td><code>--skip-grafana-install</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Skip Grafana installation</td>
+    </tr>
+    <tr>
+      <td><code>--no-confirm</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Launch the installation without prompting for confirmation</td>
+    </tr>
+    <tr>
+      <td><code>--image-pull-policy</code></td>
+      <td><code>{IfNotPresent, Always}</code></td>
+      <td>-</td>
+      <td>Image pull policy for Tekton Pipeline</td>
+    </tr>
+    <tr>
+      <td><code>--service-account</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Custom service account for install pipeline (disables default 'pipeline' service account creation)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¶</a></h2>
+<h3 id="ibm-entitlement-key">IBM Entitlement Key<a class="headerlink" href="#ibm-entitlement-key" title="Permanent link">¶</a></h3>
 <p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
-<h3 id="mas-license-file">MAS License File<a class="headerlink" href="#mas-license-file" title="Permanent link">¤</a></h3>
+<h3 id="mas-license-file">MAS License File<a class="headerlink" href="#mas-license-file" title="Permanent link">¶</a></h3>
 <p>Access <a href="https://licensing.flexnetoperations.com/">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>.  Select <code>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</code> and on the next page fill in the information as below:</p>
 <table>
 <thead>
@@ -374,7 +2253,7 @@
 <p class="admonition-title">Note</p>
 <p>For more information about how to access the IBM License Key Center review the <a href="https://www.ibm.com/support/pages/system/files/inline-files/GettingStartedEnglish_2020.pdf">getting started documentation</a> available from the IBM support website.</p>
 </div>
-<h3 id="openshift-cluster">OpenShift Cluster<a class="headerlink" href="#openshift-cluster" title="Permanent link">¤</a></h3>
+<h3 id="openshift-cluster">OpenShift Cluster<a class="headerlink" href="#openshift-cluster" title="Permanent link">¶</a></h3>
 <p>You should already have a target OpenShift cluster ready to install Maximo Application suite into.  If you do not already have one then refer to the <a href="https://docs.openshift.com/container-platform/4.15/installing/index.html">OpenShift Container Platform installation overview</a>.</p>
 <p>The CLI also supports OpenShift provisioning in many hyperscaler providers:</p>
 <ul>
@@ -382,10 +2261,10 @@
 <li><a href="../../commands/provision-roks/">IBM Cloud</a></li>
 <li><a href="../../commands/provision-fyre/">IBM DevIT FYRE (Internal)</a></li>
 </ul>
-<h3 id="operator-catalog-selection">Operator Catalog Selection<a class="headerlink" href="#operator-catalog-selection" title="Permanent link">¤</a></h3>
+<h3 id="operator-catalog-selection">Operator Catalog Selection<a class="headerlink" href="#operator-catalog-selection" title="Permanent link">¶</a></h3>
 <p>If you have not already determined the catalog version for your installation, refer to the information in the <a href="../../catalogs/">Operator Catalog</a> topic, or contact IBM Support for guidance.</p>
-<h2 id="disconnected-install-preparation">Disconnected Install Preparation<a class="headerlink" href="#disconnected-install-preparation" title="Permanent link">¤</a></h2>
-<h3 id="prepare-the-private-registry">Prepare the Private Registry<a class="headerlink" href="#prepare-the-private-registry" title="Permanent link">¤</a></h3>
+<h2 id="disconnected-install-preparation">Disconnected Install Preparation<a class="headerlink" href="#disconnected-install-preparation" title="Permanent link">¶</a></h2>
+<h3 id="prepare-the-private-registry">Prepare the Private Registry<a class="headerlink" href="#prepare-the-private-registry" title="Permanent link">¶</a></h3>
 <p>You must have a production grade Docker v2 compatible registry such as <a href="https://www.redhat.com/en/technologies/cloud-computing/quay">Quay Enterprise</a>, <a href="https://jfrog.com/integration/docker-registry/">JFrog Artifactory</a>, or <a href="https://docs.docker.com/registry/">Docker Registry</a>.  If you do not already have a private registry available to use as your mirror then you can use the <code>setup-mirror</code> function to deploy a private registry using the <a href="https://hub.docker.com/_/registry">Docker registry container image</a> inside a target OpenShift cluster.</p>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas setup-registry
 </code></pre>
@@ -428,7 +2307,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="mirror-container-images">Mirror Container Images<a class="headerlink" href="#mirror-container-images" title="Permanent link">¤</a></h3>
+<h3 id="mirror-container-images">Mirror Container Images<a class="headerlink" href="#mirror-container-images" title="Permanent link">¶</a></h3>
 <p>Mirroring the images is a simple but time consuming process, this step must be performed from a system with internet connectivity and network access your private registry, but does not need access to your target OpenShift cluster.  Three modes are available for the mirror process:</p>
 <ul>
 <li><strong>direct</strong> mirrors images directly from the source registry to your private registry</li>
@@ -436,7 +2315,7 @@
 <li><strong>from-filesystem</strong> mirrors images from a local directory to your private registry</li>
 </ul>
 <p>For full details on this process review the <a href="../image-mirroring/">image mirroring</a> guide.</p>
-<h3 id="configure-openshift-to-use-your-private-registry">Configure OpenShift to use your Private Registry<a class="headerlink" href="#configure-openshift-to-use-your-private-registry" title="Permanent link">¤</a></h3>
+<h3 id="configure-openshift-to-use-your-private-registry">Configure OpenShift to use your Private Registry<a class="headerlink" href="#configure-openshift-to-use-your-private-registry" title="Permanent link">¶</a></h3>
 <p>Your cluster must be configured to use the private registry as a mirror for the MAS container images.  An <code>ImageContentSourcePolicy</code> named <code>mas-and-dependencies</code> will be created in the cluster, this is also the resource that the MAS install will use to detect whether the installation is a disconnected install and tailor the options presented when you run the <code>mas install</code> command.</p>
 <pre><code class="language-bash">docker run -ti --pull always quay.io/ibmmas/cli mas configure-airgap
 </code></pre>
@@ -450,7 +2329,7 @@
   --ca-file /mnt/local-mirror/registry-ca.crt \
   --no-confirm
 </code></pre>
-<h2 id="interactive-install">Interactive Install<a class="headerlink" href="#interactive-install" title="Permanent link">¤</a></h2>
+<h2 id="interactive-install">Interactive Install<a class="headerlink" href="#interactive-install" title="Permanent link">¶</a></h2>
 <p>Regardless of whether you are running a connected or disconnected installation, simply run the <code>mas install</code> command and follow the prompts, the basic structure of the interactive flow is described below.  We will need the <code>entitlement.lic</code> file to perform the installation so we will mount your home directory into the running container.  When prompted you will be able to set license file to <code>/mnt/home/entitlement.lic</code></p>
 <div class="admonition note">
 <p class="admonition-title">NEW: AI Service Installation Options</p>
@@ -554,7 +2433,7 @@
   </cds-accordion>
 </div>
 
-<h2 id="non-interactive-install">Non-Interactive Install<a class="headerlink" href="#non-interactive-install" title="Permanent link">¤</a></h2>
+<h2 id="non-interactive-install">Non-Interactive Install<a class="headerlink" href="#non-interactive-install" title="Permanent link">¶</a></h2>
 <p>The following command will launch the MAS CLI container image, login to your OpenShift Cluster and start the install of MAS without triggering any prompts.  This is how we install MAS in development hundreds of times every single week.</p>
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=xxx
 SUPERUSER_PASSWORD=xxx
@@ -585,7 +2464,7 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
     \
     --accept-license --no-confirm
 </code></pre>
-<h2 id="more-information">More Information<a class="headerlink" href="#more-information" title="Permanent link">¤</a></h2>
+<h2 id="more-information">More Information<a class="headerlink" href="#more-information" title="Permanent link">¶</a></h2>
 <p>The install is designed to work on any OCP cluster, but has been specifically tested in these environments:</p>
 <ul>
 <li>IBMCloud ROKS</li>
@@ -626,11 +2505,275 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
 <blockquote>
 <p>OpenShift Pipelines is a Kubernetes-native CI/CD solution based on Tekton. It builds on Tekton to provide a CI/CD experience through tight integration with OpenShift and Red Hat developer tools. OpenShift Pipelines is designed to run each step of the CI/CD pipeline in its own container, allowing each step to scale independently to meet the demands of the pipeline.</p>
 </blockquote>
-      
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../image-validation/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+      <div class="md-footer-nav__direction">
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+        </svg>
+        <span>Previous</span>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Image Validation</span>
+      </div>
+    </a>
+    <a href="../update/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Update</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#usage" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#mas-catalog-selection-entitlement" class="md-toc__link" data-md-level="2">
+                          MAS Catalog Selection &amp; Entitlement
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#basic-configuration" class="md-toc__link" data-md-level="2">
+                          Basic Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#advanced-configuration" class="md-toc__link" data-md-level="2">
+                          Advanced Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#dns-integration-cis" class="md-toc__link" data-md-level="2">
+                          DNS Integration - CIS
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#dns-integration-cloudflare" class="md-toc__link" data-md-level="2">
+                          DNS Integration - CloudFlare
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#storage" class="md-toc__link" data-md-level="2">
+                          Storage
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-suite-license-service" class="md-toc__link" data-md-level="2">
+                          IBM Suite License Service
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-data-reporting-operator" class="md-toc__link" data-md-level="2">
+                          IBM Data Reporting Operator
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#mongodb-community-operator" class="md-toc__link" data-md-level="2">
+                          MongoDB Community Operator
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ocp-configuration" class="md-toc__link" data-md-level="2">
+                          OCP Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#mas-applications" class="md-toc__link" data-md-level="2">
+                          MAS Applications
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#advanced-settings-manage" class="md-toc__link" data-md-level="2">
+                          Advanced Settings - Manage
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#advanced-settings-facilities" class="md-toc__link" data-md-level="2">
+                          Advanced Settings - Facilities
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#open-data-hub" class="md-toc__link" data-md-level="2">
+                          Open Data Hub
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#s3-storage" class="md-toc__link" data-md-level="2">
+                          S3 Storage
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#watsonx" class="md-toc__link" data-md-level="2">
+                          Watsonx
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#maximo-ai-service" class="md-toc__link" data-md-level="2">
+                          Maximo AI Service
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-cloud-pak-for-data" class="md-toc__link" data-md-level="2">
+                          IBM Cloud Pak for Data
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-db2-universal-operator" class="md-toc__link" data-md-level="2">
+                          IBM Db2 Universal Operator
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#eck-integration" class="md-toc__link" data-md-level="2">
+                          ECK Integration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#kafka-common" class="md-toc__link" data-md-level="2">
+                          Kafka - Common
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#kafka-strimzi-and-amq-streams" class="md-toc__link" data-md-level="2">
+                          Kafka - Strimzi and AMQ Streams
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#kafka-aws-msk" class="md-toc__link" data-md-level="2">
+                          Kafka - AWS MSK
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#kafka-event-streams" class="md-toc__link" data-md-level="2">
+                          Kafka - Event Streams
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#cloud-object-storage" class="md-toc__link" data-md-level="2">
+                          Cloud Object Storage
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#maximo-location-services-for-esri-arcgis" class="md-toc__link" data-md-level="2">
+                          Maximo Location Services for Esri (arcgis)
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#cloud-providers" class="md-toc__link" data-md-level="2">
+                          Cloud Providers
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#integrated-approval-workflow" class="md-toc__link" data-md-level="2">
+                          Integrated Approval Workflow
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#more" class="md-toc__link" data-md-level="2">
+                          More
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#preparation" class="md-toc__link" data-md-level="1">
+                  Preparation
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#ibm-entitlement-key" class="md-toc__link" data-md-level="2">
+                          IBM Entitlement Key
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#mas-license-file" class="md-toc__link" data-md-level="2">
+                          MAS License File
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#openshift-cluster" class="md-toc__link" data-md-level="2">
+                          OpenShift Cluster
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#operator-catalog-selection" class="md-toc__link" data-md-level="2">
+                          Operator Catalog Selection
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#disconnected-install-preparation" class="md-toc__link" data-md-level="1">
+                  Disconnected Install Preparation
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#prepare-the-private-registry" class="md-toc__link" data-md-level="2">
+                          Prepare the Private Registry
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#mirror-container-images" class="md-toc__link" data-md-level="2">
+                          Mirror Container Images
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#configure-openshift-to-use-your-private-registry" class="md-toc__link" data-md-level="2">
+                          Configure OpenShift to use your Private Registry
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#interactive-install" class="md-toc__link" data-md-level="1">
+                  Interactive Install
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#non-interactive-install" class="md-toc__link" data-md-level="1">
+                  Non-Interactive Install
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#more-information" class="md-toc__link" data-md-level="1">
+                  More Information
+                </a>
+              </li>
+        </ul>
+      </div>
     </div>
-    <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2026-01-06 15:02:19.762174+00:00)
-    </div> -->
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body></html>

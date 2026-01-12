@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,7 +23,8 @@
     <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
 
     <!-- HighlightJS code formatting support -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -49,8 +50,9 @@
             .gslide-image img { background: black; }
         </style></head>
 
-  <body>
-    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
       <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
       <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
@@ -59,6 +61,31 @@
       </cds-header-nav>
 
       <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
         <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
       </div>
       <script>
@@ -79,13 +106,18 @@
           <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/guides/image-mirroring.md">Edit on GitHub</cds-header-nav-item>
         </cds-header-nav>
       
-
     </cds-header>
 
-    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
-      <cds-side-nav-items>
-        
-          
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
   <cds-side-nav-menu title="Guides" active expanded>
     
       
@@ -132,8 +164,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Examples">
     
       
@@ -156,21 +188,9 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Command Reference">
-    
-      
-  <cds-side-nav-menu-item href="../../commands/update/">
-    update
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../commands/upgrade/">
-    upgrade
-  </cds-side-nav-menu-item>
-
     
       
   <cds-side-nav-menu-item href="../../commands/uninstall/">
@@ -234,8 +254,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Operator Catalogs">
     
       
@@ -270,8 +290,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Reference">
     
       
@@ -294,22 +314,28 @@
     
   </cds-side-nav-menu>
 
-        
-      </cds-side-nav-items>
-    </cds-side-nav>
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
 
-    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
       <cds-breadcrumb-item>Guides</cds-breadcrumb-item>
-
-  <cds-breadcrumb-item aria-current="page">
+  <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#image-mirroring">Image Mirroring</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 
-  <cds-breadcrumb-item>
-    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
       <cds-select-item value="#usage">Usage</cds-select-item>
@@ -320,26 +346,27 @@
     
       <cds-select-item value="#storage-requirements">Storage Requirements</cds-select-item>
     
-  </cds-select>
+    </cds-select>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
-    </div>
+          </div>
 
-    <div id="main-content" class="rst-content">
-      
-      <h1 id="image-mirroring">Image Mirroring<a class="headerlink" href="#image-mirroring" title="Permanent link">¤</a></h1>
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="image-mirroring">Image Mirroring<a class="headerlink" href="#image-mirroring" title="Permanent link">¶</a></h1>
 <p>We recommend the use of two-phase mirroring in most cases, it is slower than direct mirroring and requires more storage capacity, but can allow you to more easily recover from network glitches and creates a clean seperation of the tasks of getting the content from the source registry and putting it into the target registry which can make debugging failures easier.</p>
 <p>This guide assumes that you are looking to mirror content for the latest release (<strong>9.1.x</strong>) from the most recent catalog update (<strong>v9-251231-amd64</strong>), and that you are installing all MAS applications &amp; dependencies.  If you are not installing certain applications or dependencies take care to remove the appropriate <code>--mirror-x</code> flags to avoid mirroring unnecessary images.</p>
 <p>By default image repositories will be prefixed using the datestamp of the Maximo Operator Catalog that you are mirroring from, this allows for simpler registry management, you can prune all images under <code>mas-241105/*</code> in your mirror registry once you know that you have updated all clusters to a newer version of the catalog.</p>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
 <p>For full usage information run <code>mas mirror-images --help</code></p>
-<h2 id="interactive-image-mirroring">Interactive Image Mirroring<a class="headerlink" href="#interactive-image-mirroring" title="Permanent link">¤</a></h2>
+<h2 id="interactive-image-mirroring">Interactive Image Mirroring<a class="headerlink" href="#interactive-image-mirroring" title="Permanent link">¶</a></h2>
 <p>You can start image mirroring by running the <code>mas mirror-images</code> command with no parameters, you will be prompted to select the mirror mode and working directory, configure the target registry, and select which content you wish to mirror.</p>
 <p>The easiest way to do this is using the MAS CLI container image as below:</p>
 <pre><code class="language-bash">LOCAL_DIR=/home/david/mirrorfiles
 docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.5.1 mas mirror-images
 </code></pre>
-<h2 id="non-interactive-image-mirroring">Non-Interactive Image Mirroring<a class="headerlink" href="#non-interactive-image-mirroring" title="Permanent link">¤</a></h2>
+<h2 id="non-interactive-image-mirroring">Non-Interactive Image Mirroring<a class="headerlink" href="#non-interactive-image-mirroring" title="Permanent link">¶</a></h2>
 <p>This guide will take you through we mirror images in our own development environment, breaking up the task into 4 distinct stages to further break down the work and make it easier to address any problems by providing clear milestones:</p>
 <ul>
 <li><a href="#preparation">Preparation</a></li>
@@ -348,7 +375,7 @@ docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.5.1 mas mi
 <li><a href="#stage-3-cp4d">IBM Cloud Pak for Data</a></li>
 <li><a href="#stage-4-other-dependencies">Other Dependencies</a></li>
 </ul>
-<h3 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¤</a></h3>
+<h3 id="preparation">Preparation<a class="headerlink" href="#preparation" title="Permanent link">¶</a></h3>
 <p>Set the following environment variables that will be used in each stage:</p>
 <pre><code class="language-bash">export IBM_ENTITLEMENT_KEY=xxx
 export LOCAL_DIR=xxx
@@ -372,7 +399,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.5.1 $REGISTRY_HOST:$RE
 <pre><code class="language-bash">    export MIRROR_SINGLE_ARCH=amd64
 </code></pre>
 <p>export the variable in the mascli container before we begin to mirror images. This step helps save storage space else all the images with three architectures get downloaded. </p>
-<h3 id="stage-1-core">Stage 1 - Core<a class="headerlink" href="#stage-1-core" title="Permanent link">¤</a></h3>
+<h3 id="stage-1-core">Stage 1 - Core<a class="headerlink" href="#stage-1-core" title="Permanent link">¶</a></h3>
 <p>Let's start simple and just get the MAS Core and IBM Maximo Operator Catalog mirrored to the registry, this shouldn't take long and provides an early measure of the download and upload performance to help estimate the time to complete the larger stages.</p>
 <p><cds-tabs trigger-content="Select an item" value="direct">
   <cds-tab id="tab-direct-core" target="panel-direct-core" value="direct">Direct</cds-tab>
@@ -434,7 +461,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.5.1 $REGISTRY_HOST:$RE
   </div>
 </div>
 
-<h3 id="stage-2-apps">Stage 2 - Apps<a class="headerlink" href="#stage-2-apps" title="Permanent link">¤</a></h3>
+<h3 id="stage-2-apps">Stage 2 - Apps<a class="headerlink" href="#stage-2-apps" title="Permanent link">¶</a></h3>
 <p><cds-tabs trigger-content="Select an item" value="direct">
   <cds-tab id="tab-direct-apps" target="panel-direct-apps" value="direct">Direct</cds-tab>
   <cds-tab id="tab-to-apps" target="panel-to-apps" value="to">To Filesystem</cds-tab>
@@ -495,7 +522,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.5.1 $REGISTRY_HOST:$RE
   </div>
 </div>
 
-<h3 id="stage-3-cp4d">Stage 3 - CP4D<a class="headerlink" href="#stage-3-cp4d" title="Permanent link">¤</a></h3>
+<h3 id="stage-3-cp4d">Stage 3 - CP4D<a class="headerlink" href="#stage-3-cp4d" title="Permanent link">¶</a></h3>
 <p><cds-tabs trigger-content="Select an item" value="direct">
   <cds-tab id="tab-direct-cp4d" target="panel-direct-cp4d" value="direct">Direct</cds-tab>
   <cds-tab id="tab-to-cp4d" target="panel-to-cp4d" value="to">To Filesystem</cds-tab>
@@ -556,7 +583,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.5.1 $REGISTRY_HOST:$RE
   </div>
 </div>
 
-<h3 id="stage-4-other-dependencies">Stage 4 - Other Dependencies<a class="headerlink" href="#stage-4-other-dependencies" title="Permanent link">¤</a></h3>
+<h3 id="stage-4-other-dependencies">Stage 4 - Other Dependencies<a class="headerlink" href="#stage-4-other-dependencies" title="Permanent link">¶</a></h3>
 <p><cds-tabs trigger-content="Select an item" value="direct">
   <cds-tab id="tab-direct-other" target="panel-direct-other" value="direct">Direct</cds-tab>
   <cds-tab id="tab-to-other" target="panel-to-other" value="to">To Filesystem</cds-tab>
@@ -621,7 +648,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.5.1 $REGISTRY_HOST:$RE
 <p class="admonition-title">Note</p>
 <p><a href="https://ibm-mas.github.io/cli/commands/mirror-redhat-images">Mirror Redhat images</a> to install required ( DRO, Cert Manager and Grafana) redhat dependencies for Mas installation to progress. Missing this step will result in installation failures.</p>
 </div>
-<h2 id="storage-requirements">Storage Requirements<a class="headerlink" href="#storage-requirements" title="Permanent link">¤</a></h2>
+<h2 id="storage-requirements">Storage Requirements<a class="headerlink" href="#storage-requirements" title="Permanent link">¶</a></h2>
 <p>As of MAS 8.10 (June 2023) the total capacity requirement to mirror content from the IBM Maximo Operator Catalog is approximately <strong>484G</strong>, the following table can be used to determine the approximate storage requirement for your mirrored content based on what content you need to mirror:</p>
 <table>
 <thead>
@@ -770,11 +797,95 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.5.1 $REGISTRY_HOST:$RE
 <p class="admonition-title">Note</p>
 <p>The total capacity used on the filesystem in the target mirror registry itself may be lower than this due to the use of shared image layers, particularly across applications in IBM Maximo Application Suite itself.</p>
 </div>
-      
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../image-validation/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Image Validation</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#usage" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#interactive-image-mirroring" class="md-toc__link" data-md-level="1">
+                  Interactive Image Mirroring
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#non-interactive-image-mirroring" class="md-toc__link" data-md-level="1">
+                  Non-Interactive Image Mirroring
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#preparation" class="md-toc__link" data-md-level="2">
+                          Preparation
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#stage-1-core" class="md-toc__link" data-md-level="2">
+                          Stage 1 - Core
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#stage-2-apps" class="md-toc__link" data-md-level="2">
+                          Stage 2 - Apps
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#stage-3-cp4d" class="md-toc__link" data-md-level="2">
+                          Stage 3 - CP4D
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#stage-4-other-dependencies" class="md-toc__link" data-md-level="2">
+                          Stage 4 - Other Dependencies
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#storage-requirements" class="md-toc__link" data-md-level="1">
+                  Storage Requirements
+                </a>
+              </li>
+        </ul>
+      </div>
     </div>
-    <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2026-01-06 15:02:19.755436+00:00)
-    </div> -->
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body></html>

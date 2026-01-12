@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,7 +23,8 @@
     <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
 
     <!-- HighlightJS code formatting support -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -49,8 +50,9 @@
             .gslide-image img { background: black; }
         </style></head>
 
-  <body>
-    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
       <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
       <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
@@ -59,6 +61,31 @@
       </cds-header-nav>
 
       <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
         <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
       </div>
       <script>
@@ -79,13 +106,18 @@
           <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/commands/must-gather.md">Edit on GitHub</cds-header-nav-item>
         </cds-header-nav>
       
-
     </cds-header>
 
-    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
-      <cds-side-nav-items>
-        
-          
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
   <cds-side-nav-menu title="Guides">
     
       
@@ -132,8 +164,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Examples">
     
       
@@ -156,21 +188,9 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Command Reference" active expanded>
-    
-      
-  <cds-side-nav-menu-item href="../update/">
-    update
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../upgrade/">
-    upgrade
-  </cds-side-nav-menu-item>
-
     
       
   <cds-side-nav-menu-item href="../uninstall/">
@@ -234,8 +254,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Operator Catalogs">
     
       
@@ -270,8 +290,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Reference">
     
       
@@ -294,22 +314,28 @@
     
   </cds-side-nav-menu>
 
-        
-      </cds-side-nav-items>
-    </cds-side-nav>
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
 
-    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
       <cds-breadcrumb-item>Command Reference</cds-breadcrumb-item>
-
-  <cds-breadcrumb-item aria-current="page">
+  <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#must-gather">Must gather</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 
-  <cds-breadcrumb-item>
-    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
       <cds-select-item value="#usage">Usage</cds-select-item>
@@ -320,55 +346,56 @@
     
       <cds-select-item value="#examples">Examples</cds-select-item>
     
-  </cds-select>
+    </cds-select>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
-    </div>
+          </div>
 
-    <div id="main-content" class="rst-content">
-      
-      <h1 id="must-gather">Must gather<a class="headerlink" href="#must-gather" title="Permanent link">¤</a></h1>
-<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¤</a></h2>
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="must-gather">Must gather<a class="headerlink" href="#must-gather" title="Permanent link">¶</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
 <p><code>mas must-gather [options]</code></p>
-<h3 id="destination">Destination<a class="headerlink" href="#destination" title="Permanent link">¤</a></h3>
+<h3 id="destination">Destination<a class="headerlink" href="#destination" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>-d|--directory MG_DIR</code> Directory where the must-gather will be saved, defaults to <code>/tmp/must-gather</code> (or <code>/must-gather</code> if the directory exists)</li>
 <li><code>-k|--keep-files</code> Do not delete individual files after creating the must-gather compressed tar archive</li>
 </ul>
-<h3 id="general-controls">General Controls<a class="headerlink" href="#general-controls" title="Permanent link">¤</a></h3>
+<h3 id="general-controls">General Controls<a class="headerlink" href="#general-controls" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>--summary-only</code> Perform a much faster must-gather that only gathers high level summary information</li>
 <li><code>--no-logs</code> Skip collection of pod logs, greatly speeds up must-gather collection time when pod logs are not required</li>
 <li><code>--secret-data</code> Include secrets content in the must-gather</li>
 <li><code>--pods-only</code> Limit must-gather to collection pods data (no other K8s resources)</li>
 </ul>
-<h3 id="mas-content-controls">MAS Content Controls:<a class="headerlink" href="#mas-content-controls" title="Permanent link">¤</a></h3>
+<h3 id="mas-content-controls">MAS Content Controls:<a class="headerlink" href="#mas-content-controls" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>--mas-instance-ids</code> Limit must-gather to a list of MAS instance IDs (comma-seperated list)</li>
 <li><code>--mas-app-ids</code> Limit must-gather to a subset of MAS namespaces (comma-seperated list)</li>
 </ul>
-<h3 id="ai-service-content-controls">AI Service Content Controls:<a class="headerlink" href="#ai-service-content-controls" title="Permanent link">¤</a></h3>
+<h3 id="ai-service-content-controls">AI Service Content Controls:<a class="headerlink" href="#ai-service-content-controls" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>--aiservice-instance-ids</code> Limit must-gather to a list of AI Service instance IDs (comma-seperated list)</li>
 <li><code>--aiservice-tenant-ids</code> Limit must-gather to a list of AI Service tenant IDs (comma-seperated list)</li>
 </ul>
-<h3 id="disable-collectors">Disable Collectors:<a class="headerlink" href="#disable-collectors" title="Permanent link">¤</a></h3>
+<h3 id="disable-collectors">Disable Collectors:<a class="headerlink" href="#disable-collectors" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>--no-ocp</code> Disable must-gather for the OCP cluster itself</li>
 <li><code>--no-dependencies</code> Disable must-gather for in-cluster dependencies (Db2, Cloud Pak for Data, Cloud Pak Foundational Services, Mongo)</li>
 <li><code>--no-sls</code> Disable must-gather for IBM Suite License Service</li>
 <li><code>--no-mas-quick-summary</code> Disable MAS quick summary reports (per MAS instance reports with information on MAS version, environment info, available IDPs, pod status, MAS-Manage connection, licensing info, etc)</li>
 </ul>
-<h3 id="additional-collectors">Additional Collectors:<a class="headerlink" href="#additional-collectors" title="Permanent link">¤</a></h3>
+<h3 id="additional-collectors">Additional Collectors:<a class="headerlink" href="#additional-collectors" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>--extra-namespaces</code> Enable must-gather in custom namespaces (comma-seperated list)</li>
 </ul>
-<h3 id="artifactory-upload">Artifactory Upload:<a class="headerlink" href="#artifactory-upload" title="Permanent link">¤</a></h3>
+<h3 id="artifactory-upload">Artifactory Upload:<a class="headerlink" href="#artifactory-upload" title="Permanent link">¶</a></h3>
 <ul>
 <li><code>--artifactory-token ARTIFACTORY_TOKEN</code> Provide a token for Artifactory to automatically upload the file to <code>ARTIFACTORY_UPLOAD_DIRECTORY</code></li>
 <li><code>--artifactory-upload-directory ARTIFACTORY_UPLOAD_DIRECTORY</code> Working URL to the root directory in Artifactory where the must-gather file should be uploaded</li>
 </ul>
-<h2 id="content">Content<a class="headerlink" href="#content" title="Permanent link">¤</a></h2>
+<h2 id="content">Content<a class="headerlink" href="#content" title="Permanent link">¶</a></h2>
 <pre><code>/must-gather/
 ├── 20230423-204411
 │   ├── mas-quick-summary
@@ -462,7 +489,7 @@
 │   ├── mas-inst2-appId.txt
 └── must-gather-20230423-204411.tgz
 </code></pre>
-<h2 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link">¤</a></h2>
+<h2 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link">¶</a></h2>
 <p>As with other CLI functions, the must-gather will run against the currently connected cluster, use <code>oc login</code> to connect to a cluster before running <code>mas must-gather</code>.</p>
 <pre><code class="language-bash"># Start the container in docker
 docker run -ti --rm -v /~:/mnt/home --pull always quay.io/ibmmas/cli
@@ -476,7 +503,7 @@ podman run -ti --rm -v /~:/mnt/home:z --pull always quay.io/ibmmas/cli
 oc login --token=xxx --server=https://xxx:xxx
 mas must-gather -d /mnt/home/must-gather
 </code></pre>
-<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¤</a></h2>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">¶</a></h2>
 <p><strong>Cluster-scoped must-gather:</strong> Collect data for all MAS instances, critical cluster resources, and most MAS dependencies (Db2, Cloud Pak Foundational Services, Cloud Pak for Data, etc).</p>
 <pre><code class="language-bash">mas must-gather -d /mnt/home/must-gather
 </code></pre>
@@ -502,17 +529,134 @@ mas must-gather -d /mnt/home/must-gather --no-ocp --no-dependencies --no-sls --m
 <p><strong>Generate MAS quick summary report for specific MAS instance:</strong>  By default, must-gather includes a MAS quick summary report in the <code>mas-quick-summary</code> folder, providing compiled information to help identify common issues in the environment. When used with the flags <code>--summary-only</code>, <code>--no-ocp</code>, <code>--no-dependencies</code>, <code>--no-sls</code>, and <code>--mas-instance-ids</code> to target a specific namespace or MAS application, must-gather focuses the collection for faster execution while still including the MAS quick summary.</p>
 <pre><code class="language-bash">mas must-gather -d /mnt/home/must-gather --summary-only --no-ocp --no-dependencies --no-sls --mas-instance-ids "inst1" --mas-app-ids "core"
 </code></pre>
-<h3 id="execute-the-must-gather-in-non-interactive-mode">Execute the Must-Gather in non-interactive mode<a class="headerlink" href="#execute-the-must-gather-in-non-interactive-mode" title="Permanent link">¤</a></h3>
+<h3 id="execute-the-must-gather-in-non-interactive-mode">Execute the Must-Gather in non-interactive mode<a class="headerlink" href="#execute-the-must-gather-in-non-interactive-mode" title="Permanent link">¶</a></h3>
 <pre><code class="language-bash">docker run --rm -v /~:/mnt/home:z quay.io/ibmmas/cli /bin/bash -c "oc login --token=sha256~XFnSk...fc8U --server=https://api.&lt;openshift domain&gt;:6443/ --insecure-skip-tls-verify; mas must-gather -d /mnt/home/must-gather"
 </code></pre>
-<h3 id="execute-the-must-gather-in-non-interactive-mode-using-podman">Execute the Must-Gather in non-interactive mode using podman<a class="headerlink" href="#execute-the-must-gather-in-non-interactive-mode-using-podman" title="Permanent link">¤</a></h3>
+<h3 id="execute-the-must-gather-in-non-interactive-mode-using-podman">Execute the Must-Gather in non-interactive mode using podman<a class="headerlink" href="#execute-the-must-gather-in-non-interactive-mode-using-podman" title="Permanent link">¶</a></h3>
 <pre><code class="language-bash">podman run --rm -v /data:/mnt/home:z quay.io/ibmmas/cli /bin/bash -c "oc login --token=sha256~XFnSk...fc8U --server=https://api.&lt;openshift domain&gt;:6443/ --insecure-skip-tls-verify; mas must-gather -d /mnt/home/must-gather"
 </code></pre>
-      
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../uninstall/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+      <div class="md-footer-nav__direction">
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+        </svg>
+        <span>Previous</span>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">uninstall</span>
+      </div>
+    </a>
+    <a href="../configure-airgap/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">configure-airgap</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#usage" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#destination" class="md-toc__link" data-md-level="2">
+                          Destination
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#general-controls" class="md-toc__link" data-md-level="2">
+                          General Controls
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#mas-content-controls" class="md-toc__link" data-md-level="2">
+                          MAS Content Controls:
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ai-service-content-controls" class="md-toc__link" data-md-level="2">
+                          AI Service Content Controls:
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#disable-collectors" class="md-toc__link" data-md-level="2">
+                          Disable Collectors:
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#additional-collectors" class="md-toc__link" data-md-level="2">
+                          Additional Collectors:
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#artifactory-upload" class="md-toc__link" data-md-level="2">
+                          Artifactory Upload:
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#content" class="md-toc__link" data-md-level="1">
+                  Content
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#usage_1" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#examples" class="md-toc__link" data-md-level="1">
+                  Examples
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#execute-the-must-gather-in-non-interactive-mode" class="md-toc__link" data-md-level="2">
+                          Execute the Must-Gather in non-interactive mode
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#execute-the-must-gather-in-non-interactive-mode-using-podman" class="md-toc__link" data-md-level="2">
+                          Execute the Must-Gather in non-interactive mode using podman
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
     </div>
-    <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2026-01-06 15:02:19.722285+00:00)
-    </div> -->
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body></html>

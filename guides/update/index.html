@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,7 +23,8 @@
     <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
 
     <!-- HighlightJS code formatting support -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -49,8 +50,9 @@
             .gslide-image img { background: black; }
         </style></head>
 
-  <body>
-    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
       <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
       <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
@@ -59,6 +61,31 @@
       </cds-header-nav>
 
       <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
         <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
       </div>
       <script>
@@ -79,13 +106,18 @@
           <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/guides/update.md">Edit on GitHub</cds-header-nav-item>
         </cds-header-nav>
       
-
     </cds-header>
 
-    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
-      <cds-side-nav-items>
-        
-          
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
   <cds-side-nav-menu title="Guides" active expanded>
     
       
@@ -132,8 +164,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Examples">
     
       
@@ -156,21 +188,9 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Command Reference">
-    
-      
-  <cds-side-nav-menu-item href="../../commands/update/">
-    update
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../commands/upgrade/">
-    upgrade
-  </cds-side-nav-menu-item>
-
     
       
   <cds-side-nav-menu-item href="../../commands/uninstall/">
@@ -234,8 +254,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Operator Catalogs">
     
       
@@ -270,8 +290,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Reference">
     
       
@@ -294,58 +314,245 @@
     
   </cds-side-nav-menu>
 
-        
-      </cds-side-nav-items>
-    </cds-side-nav>
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
 
-    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
       <cds-breadcrumb-item>Guides</cds-breadcrumb-item>
-
-  <cds-breadcrumb-item aria-current="page">
+  <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#update">Update</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 
-  <cds-breadcrumb-item>
-    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
-      <cds-select-item value="#update-overview">Update Overview</cds-select-item>
+      <cds-select-item value="#usage">Usage</cds-select-item>
     
-      <cds-select-item value="#1-disconnected-update-preparation">1 Disconnected Update Preparation</cds-select-item>
+      <cds-select-item value="#overview">Overview</cds-select-item>
     
-      <cds-select-item value="#2-update-maximo-application-suite">2 Update Maximo Application Suite</cds-select-item>
+      <cds-select-item value="#disconnected-update-preparation">Disconnected Update Preparation</cds-select-item>
     
-  </cds-select>
+      <cds-select-item value="#update-maximo-application-suite">Update Maximo Application Suite</cds-select-item>
+    
+    </cds-select>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
-    </div>
+          </div>
 
-    <div id="main-content" class="rst-content">
-      
-      <h1 id="update">Update<a class="headerlink" href="#update" title="Permanent link">¤</a></h1>
-<h2 id="update-overview">Update Overview<a class="headerlink" href="#update-overview" title="Permanent link">¤</a></h2>
-<p>This guide is specifically for environments using <strong>static catalogs</strong>.  If you are using the <strong>dynamic catalog</strong> then updates are automatically applied as soon as they are released.</p>
-<ol>
-<li><a href="#1-disconnected-install-preparation">Disconnected Update Preparation</a></li>
-<li><a href="#2-update-maximo-application-suite">Update MAS</a></li>
-</ol>
-<p>The catalog update is applied at a cluster level.  When we update we don't update a specific operator running on the cluster, but rather the cluster as a whole.  Everything in the cluster should be running at the latest version available in the catalog that is currently installed.</p>
-<p>When applying a catalog update it will apply all the latest fixes for everything in the cluster (all MAS instances and all dependencies), ensuring the that you're on a tested combination of patch levels across the board.  There's no option to mix patch levels (e.g. keep one MAS instance on 8.9.4 and another on 8.9.5).</p>
-<p>Undoing an update is a lot of work as it's reversing a lot of changes throughout the cluster.  Generally it shouldn't be needed as updates are just bringing security and bug fixes.  Think of it like applying a windows update; there's no easy "undo" and if something slipped through we would fast track a new update so that rather than needing to revert from 8.9.5 to 8.9.4 there would be an 8.9.6 provided in double quick time that either reverted whatever caused the regression in 8.9.5 or addressed whatever the issue was.</p>
-<h2 id="1-disconnected-update-preparation">1 Disconnected Update Preparation<a class="headerlink" href="#1-disconnected-update-preparation" title="Permanent link">¤</a></h2>
-<p>Before you start the update, you must mirror the images for the new catalog that you wish to update to. Mirroring the images is a simple but time consuming process.  Three modes are available for the mirror process:</p>
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="update">Update<a class="headerlink" href="#update" title="Permanent link">¶</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
+<pre><code class="language-bash">mas update [OPTIONS]
+</code></pre>
+<h3 id="catalog-selection">Catalog Selection<a class="headerlink" href="#catalog-selection" title="Permanent link">¶</a></h3>
+<p>Select the IBM Maximo Operator Catalog version to update to.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>-c</code>, <code>--catalog</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Maximo Operator Catalog Version (e.g. v9-240625-amd64)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="update-dependencies">Update Dependencies<a class="headerlink" href="#update-dependencies" title="Permanent link">¶</a></h3>
+<p>Configure which MAS dependencies (Db2, MongoDB, Kafka) should be updated and specify their namespaces.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--db2-namespace</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Namespace where Db2u operator and instances will be updated</td>
+    </tr>
+    <tr>
+      <td><code>--mongodb-namespace</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Namespace where MongoCE operator and instances will be updated</td>
+    </tr>
+    <tr>
+      <td><code>--mongodb-v5-upgrade</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Required to confirm a major version update for MongoDb to version 5</td>
+    </tr>
+    <tr>
+      <td><code>--mongodb-v6-upgrade</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Required to confirm a major version update for MongoDb to version 6</td>
+    </tr>
+    <tr>
+      <td><code>--mongodb-v7-upgrade</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Required to confirm a major version update for MongoDb to version 7</td>
+    </tr>
+    <tr>
+      <td><code>--mongodb-v8-upgrade</code></td>
+      <td>flag</td>
+      <td>-</td>
+      <td>Required to confirm a major version update for MongoDb to version 8</td>
+    </tr>
+    <tr>
+      <td><code>--kafka-namespace</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Namespace where Kafka operator and instances will be updated</td>
+    </tr>
+    <tr>
+      <td><code>--kafka-provider</code></td>
+      <td><code>{redhat, strimzi}</code></td>
+      <td>-</td>
+      <td>The type of Kakfa operator installed in the target namespace for updte</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="more">More<a class="headerlink" href="#more" title="Permanent link">¶</a></h3>
+<p>Additional options including development mode, Artifactory credentials, CP4D version, confirmation prompts, and pre-check control.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--artifactory-username</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Username for access to development builds on Artifactory</td>
+    </tr>
+    <tr>
+      <td><code>--artifactory-token</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>API Token for access to development builds on Artifactory</td>
+    </tr>
+    <tr>
+      <td><code>--dev-mode</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Configure installation for development mode</td>
+    </tr>
+    <tr>
+      <td><code>--cp4d-version</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Product version of CP4D to use</td>
+    </tr>
+    <tr>
+      <td><code>--no-confirm</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Launch the upgrade without prompting for confirmation</td>
+    </tr>
+    <tr>
+      <td><code>--skip-pre-check</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Skips the 'pre-update-check' and 'post-update-verify' tasks in the update pipeline</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
+<p>The <code>mas update</code> function is the primary tool for applying security updates and bug fixes to Maximo Application Suite running on OpenShift. During an update the <a href="../../catalogs/">IBM Maximo Operator Catalog</a> will be updated to the chosen version, which triggers an automatic update to all IBM operators installed from this catalog.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>mas update</code> will not update any other operator catalogs installed on the OpenShift cluster, including the Red Hat Operator Catalogs.</p>
+</div>
+<h3 id="update-vs-upgrade">Update vs. Upgrade<a class="headerlink" href="#update-vs-upgrade" title="Permanent link">¶</a></h3>
+<p>This guide is specifically for environments using <strong>static catalogs</strong>. If you are using the <strong>dynamic catalog</strong> then updates are automatically applied as soon as they are released.</p>
+<p>The catalog update is applied at a cluster level. When we update, we don't update a specific operator running on the cluster, but rather the cluster as a whole. Everything in the cluster should be running at the latest version available in the catalog that is currently installed.</p>
+<p>When applying a catalog update it will apply all the latest fixes for everything in the cluster (all MAS instances and all dependencies), ensuring that you're on a tested combination of patch levels across the board. There's no option to mix patch levels (e.g. keep one MAS instance on 8.9.4 and another on 8.9.5).</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You must select a newer catalog than what is already in use. Updating to an older static catalog is not supported.</p>
+</div>
+<h3 id="dependency-management">Dependency Management<a class="headerlink" href="#dependency-management" title="Permanent link">¶</a></h3>
+<p>In addition to its primary role to update the IBM Maximo Operator Catalog (and verify the successful rollout of updated operators), the update command will also perform updates to a number of MAS dependencies controlled outside of the IBM Operator Catalog.</p>
+<p>The update function will automatically search for and detect all of these dependencies and present a summary report that will describe the action it will take for the user to review before they launch the update (unless <code>--no-confirm</code> is set, in which case the update will start without prompt).</p>
+<h4 id="mongodb-kafka">MongoDb &amp; Kafka<a class="headerlink" href="#mongodb-kafka" title="Permanent link">¶</a></h4>
+<p>Each version of the IBM Maximo Operator Catalog is certified against a specific version of MongoDb and Apache Kafka. Although other versions of both are supported, the goal of <code>mas update</code> is to ensure customers are running MongoDb &amp; Kafka with the same latest bug fixes and security patches that we test the catalog with internally.</p>
+<p>To this end, <code>mas update</code> will perform updates to both the installed MongoCE Operator and the MongoDbCommunity operand to align the version of the operator and the MongoDb cluster with the same version we have tested with. When a major version update is required, users will be prompted to approve the major version update and recommended to take a database backup. All other updates will be automatically applied.</p>
+<p>For Kafka things work pretty much the same, although the version of the operator is out of our control because it is determined by the version of the Red Hat Operator Catalogs that are installed on the cluster. MAS update will however perform necessary updates to the Kafka operand to update the version of the Kafka instance at appropriate times.</p>
+<h4 id="ibm-cloud-pak-for-data">IBM Cloud Pak for Data<a class="headerlink" href="#ibm-cloud-pak-for-data" title="Permanent link">¶</a></h4>
+<p>Each version of the IBM Maximo Operator Catalog is certified compatible with a specific version of IBM Cloud Pak for Data (CP4D). It is not recommended to diverge from this compatible version because CP4D versioning is very brittle and even a small patch update to one of its services can create incompatibilities elsewhere.</p>
+<h3 id="automatic-migrations">Automatic Migrations<a class="headerlink" href="#automatic-migrations" title="Permanent link">¶</a></h3>
+<p>Sometimes MAS dependencies go out of support and there is a need to migrate to an alternative. The MAS update function is designed to handle these migrations automatically, giving customers the benefit of a fully automated, well-tested migration path that they can rely on because it's the same migration path used by IBM internally and all other MAS customers.</p>
+<h4 id="ibm-certificate-manager">IBM Certificate Manager<a class="headerlink" href="#ibm-certificate-manager" title="Permanent link">¶</a></h4>
+<p>IBM Certificate-Manager is deprecated, its replacement is Red Hat Certificate-Manager. MAS customers updating from catalogs prior to <strong>January 2024</strong> will see IBM Certificate-Manager uninstalled, Red Hat Certificate-Manager installed, and all MAS instances automatically reconfigured to use the latter.</p>
+<h4 id="grafana-operator-v4">Grafana Operator v4<a class="headerlink" href="#grafana-operator-v4" title="Permanent link">¶</a></h4>
+<p>In December 2024 it was announced that support for the Grafana v4 Operator would cease later that month. MAS customers updating from a catalog older than <strong>February 2024</strong> will see their Grafana installation automatically migrated to the Grafana v5 Operator.</p>
+<h3 id="rollback-considerations">Rollback Considerations<a class="headerlink" href="#rollback-considerations" title="Permanent link">¶</a></h3>
+<p>Undoing an update is a lot of work as it's reversing a lot of changes throughout the cluster. Generally it shouldn't be needed as updates are just bringing security and bug fixes. Think of it like applying a Windows update; there's no easy "undo" and if something slipped through we would fast track a new update so that rather than needing to revert from 8.9.5 to 8.9.4 there would be an 8.9.6 provided in double quick time that either reverted whatever caused the regression in 8.9.5 or addressed whatever the issue was.</p>
+<h2 id="disconnected-update-preparation">Disconnected Update Preparation<a class="headerlink" href="#disconnected-update-preparation" title="Permanent link">¶</a></h2>
+<p>Before you start the update, you must mirror the images for the new catalog that you wish to update to. Mirroring the images is a simple but time consuming process. Three modes are available for the mirror process:</p>
 <ul>
-<li><strong>direct</strong> mirrors images directly from the source registry to your private registry</li>
-<li><strong>to-filesystem</strong> mirrors images from the source to a local directory</li>
-<li><strong>from-filesystem</strong> mirrors images from a local directory to your private registry</li>
+<li><strong>direct</strong> - mirrors images directly from the source registry to your private registry</li>
+<li><strong>to-filesystem</strong> - mirrors images from the source to a local directory</li>
+<li><strong>from-filesystem</strong> - mirrors images from a local directory to your private registry</li>
 </ul>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas mirror-images
 </code></pre>
-<p>You will be prompted to set the target registry for the image mirroring, to select the version of IBM Maximo Operator Catalog to mirror, and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.</p>
-<p>This command can also be ran non-interactive, for full details refer to the <a href="../image-mirroring/">image mirroring</a> guide.</p>
+<p>You will be prompted to set the target registry for the image mirroring, to select the version of IBM Maximo Operator Catalog to mirror, and the subset of content that you wish to mirror. You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well as reducing the storage requirements of the registry.</p>
+<p>This command can also be run non-interactively. For full details refer to the <a href="../image-mirroring/">image mirroring</a> guide.</p>
 <pre><code class="language-bash">mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-251231-amd64 -C 9.1.x \
@@ -356,24 +563,140 @@
 </code></pre>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Make sure to select the release of MAS you currently have installed in the cluster, if you have multiple instances of MAS in the cluster running different releases then you must run the mirror command multiple time to ensure that you have mirrored the content for all releases of MAS that are in use in the cluster.</p>
+<p>Make sure to select the release of MAS you currently have installed in the cluster. If you have multiple instances of MAS in the cluster running different releases then you must run the mirror command multiple times to ensure that you have mirrored the content for all releases of MAS that are in use in the cluster.</p>
 </div>
-<h2 id="2-update-maximo-application-suite">2 Update Maximo Application Suite<a class="headerlink" href="#2-update-maximo-application-suite" title="Permanent link">¤</a></h2>
-<p>Run <code>mas update</code> and choose the catalog to update to.  This will update the operator catalog installed in your cluster, and the Operator Lifecycle Manager (OLM) will automatically update all installed operators to the newest version available on the current subscription channel.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>You must select a newer catalog than what is already in use.  Updating to an older static catalog is not supported.</p>
-</div>
+<h2 id="update-maximo-application-suite">Update Maximo Application Suite<a class="headerlink" href="#update-maximo-application-suite" title="Permanent link">¶</a></h2>
+<p>Run <code>mas update</code> and choose the catalog to update to. This will update the operator catalog installed in your cluster, and the Operator Lifecycle Manager (OLM) will automatically update all installed operators to the newest version available on the current subscription channel.</p>
+<h3 id="interactive-update">Interactive Update<a class="headerlink" href="#interactive-update" title="Permanent link">¶</a></h3>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas update
 </code></pre>
-<p>The command can also be ran non-interactive.</p>
-<pre><code class="language-bash">mas update -c v9-251231-amd64 --no-confirm
+<h3 id="non-interactive-update">Non-Interactive Update<a class="headerlink" href="#non-interactive-update" title="Permanent link">¶</a></h3>
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas update -c v9-251231-amd64 --no-confirm
 </code></pre>
-      
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../install/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+      <div class="md-footer-nav__direction">
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+        </svg>
+        <span>Previous</span>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Install</span>
+      </div>
+    </a>
+    <a href="../upgrade/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Upgrade</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#usage" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#catalog-selection" class="md-toc__link" data-md-level="2">
+                          Catalog Selection
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#update-dependencies" class="md-toc__link" data-md-level="2">
+                          Update Dependencies
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#more" class="md-toc__link" data-md-level="2">
+                          More
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#overview" class="md-toc__link" data-md-level="1">
+                  Overview
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#update-vs-upgrade" class="md-toc__link" data-md-level="2">
+                          Update vs. Upgrade
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#dependency-management" class="md-toc__link" data-md-level="2">
+                          Dependency Management
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#automatic-migrations" class="md-toc__link" data-md-level="2">
+                          Automatic Migrations
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#rollback-considerations" class="md-toc__link" data-md-level="2">
+                          Rollback Considerations
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#disconnected-update-preparation" class="md-toc__link" data-md-level="1">
+                  Disconnected Update Preparation
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#update-maximo-application-suite" class="md-toc__link" data-md-level="1">
+                  Update Maximo Application Suite
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#interactive-update" class="md-toc__link" data-md-level="2">
+                          Interactive Update
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#non-interactive-update" class="md-toc__link" data-md-level="2">
+                          Non-Interactive Update
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
     </div>
-    <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2026-01-06 15:02:19.768507+00:00)
-    </div> -->
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body></html>

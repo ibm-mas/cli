@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,7 +23,8 @@
     <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
 
     <!-- HighlightJS code formatting support -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -49,8 +50,9 @@
             .gslide-image img { background: black; }
         </style></head>
 
-  <body>
-    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
       <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
       <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
@@ -59,6 +61,31 @@
       </cds-header-nav>
 
       <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
         <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
       </div>
       <script>
@@ -79,13 +106,18 @@
           <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/guides/upgrade.md">Edit on GitHub</cds-header-nav-item>
         </cds-header-nav>
       
-
     </cds-header>
 
-    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
-      <cds-side-nav-items>
-        
-          
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
   <cds-side-nav-menu title="Guides" active expanded>
     
       
@@ -132,8 +164,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Examples">
     
       
@@ -156,21 +188,9 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Command Reference">
-    
-      
-  <cds-side-nav-menu-item href="../../commands/update/">
-    update
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../commands/upgrade/">
-    upgrade
-  </cds-side-nav-menu-item>
-
     
       
   <cds-side-nav-menu-item href="../../commands/uninstall/">
@@ -234,8 +254,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Operator Catalogs">
     
       
@@ -270,8 +290,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Reference">
     
       
@@ -294,66 +314,147 @@
     
   </cds-side-nav-menu>
 
-        
-      </cds-side-nav-items>
-    </cds-side-nav>
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
 
-    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
       <cds-breadcrumb-item>Guides</cds-breadcrumb-item>
-
-  <cds-breadcrumb-item aria-current="page">
+  <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#upgrade">Upgrade</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 
-  <cds-breadcrumb-item>
-    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
-      <cds-select-item value="#upgrade-overview">Upgrade Overview</cds-select-item>
+      <cds-select-item value="#usage">Usage</cds-select-item>
     
-      <cds-select-item value="#1-disconnected-upgrade-preparation">1 Disconnected Upgrade Preparation</cds-select-item>
+      <cds-select-item value="#overview">Overview</cds-select-item>
     
-      <cds-select-item value="#2-upgrade-maximo-application-suite">2 Upgrade Maximo Application Suite</cds-select-item>
+      <cds-select-item value="#disconnected-upgrade-preparation">Disconnected Upgrade Preparation</cds-select-item>
     
-  </cds-select>
+      <cds-select-item value="#upgrade-maximo-application-suite">Upgrade Maximo Application Suite</cds-select-item>
+    
+    </cds-select>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
-    </div>
+          </div>
 
-    <div id="main-content" class="rst-content">
-      
-      <h1 id="upgrade">Upgrade<a class="headerlink" href="#upgrade" title="Permanent link">¤</a></h1>
-<h2 id="upgrade-overview">Upgrade Overview<a class="headerlink" href="#upgrade-overview" title="Permanent link">¤</a></h2>
-<p>Upgrade is the act of switching a MAS installation to a new subscription channel; it is distinct from an update, which is when new versions are delivered on existing subscription channels.  New features are always delivered via new subscription channels, update within a channel will only deliver updates to existing functionality (including security updates) and bug fixes.</p>
-<ol>
-<li><a href="#1-upgrade">Upgrade</a></li>
-<li><a href="#1-disconnected-install-preparation">Disconnected Upgrade Preparation</a></li>
-<li><a href="#2-update-maximo-application-suite">Update MAS</a></li>
-</ol>
-<p>When you choose to upgrade to pick up a feature release, the upgrade is targeted at a specific MAS instance in the cluster.  Upgrades must work within an n-1 range, ie. we support MAS 8.10 and 8.9 on a cluster, or 8.9 and 8.8, but not 8.8 and 8.10.</p>
-<p>The process to undo an upgrade varies depending on what version and which applications were being upgraded, e.g. if there are database changes that need to be reversed it's more involved than if it's just a case of stateless runtime to be reverted to an older version.</p>
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="upgrade">Upgrade<a class="headerlink" href="#upgrade" title="Permanent link">¶</a></h1>
+<h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">¶</a></h2>
+<pre><code class="language-bash">mas upgrade [OPTIONS]
+</code></pre>
+<h3 id="mas-instance-selection">MAS Instance Selection<a class="headerlink" href="#mas-instance-selection" title="Permanent link">¶</a></h3>
+<p>Select the MAS instance to upgrade to the next available release.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--mas-instance-id</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>The MAS instance ID to be upgraded</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="more">More<a class="headerlink" href="#more" title="Permanent link">¶</a></h3>
+<p>Additional options including pre-check control, confirmation prompts, license acceptance, and development mode.</p>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--skip-pre-check</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Disable the 'pre-upgrade-check' and 'post-upgrade-verify' tasks in the upgrade pipeline</td>
+    </tr>
+    <tr>
+      <td><code>--no-confirm</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Launch the upgrade without prompting for confirmation</td>
+    </tr>
+    <tr>
+      <td><code>--accept-license</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Accept all license terms without prompting</td>
+    </tr>
+    <tr>
+      <td><code>--dev-mode</code></td>
+      <td>flag</td>
+      <td><code>false</code></td>
+      <td>Configure upgrade for development mode</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">¶</a></h2>
+<p>Upgrade is the act of switching a MAS installation to a new subscription channel; it is distinct from an update, which is when new versions are delivered on existing subscription channels. New features are always delivered via new subscription channels, while updates within a channel will only deliver updates to existing functionality (including security updates) and bug fixes.</p>
+<h3 id="upgrade-vs-update">Upgrade vs. Update<a class="headerlink" href="#upgrade-vs-update" title="Permanent link">¶</a></h3>
+<p>When you choose to upgrade to pick up a feature release, the upgrade is targeted at a specific MAS instance in the cluster. Upgrades must work within an n-1 range, i.e., we support MAS 8.10 and 8.9 on a cluster, or 8.9 and 8.8, but not 8.8 and 8.10.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>You can only upgrade to a version of MAS already supported by the <code>ibm-maximo-operator-catalog</code> CatalogSource currently installed in the cluster.</p>
 <ul>
-<li>If you are using the static catalog and have not already updated to a catalog that includes the version of MAS you wish to upgrade to then you must first follow the <a href="../update/">update process</a>.</li>
-<li>If you are using the dynamic catalog then no action is required here, the catalog source will automatically update to include new MAS releases.</li>
+<li>If you are using the static catalog and have not already updated to a catalog that includes the version of MAS you wish to upgrade to, then you must first follow the <a href="../update/">update process</a>.</li>
+<li>If you are using the dynamic catalog then no action is required here; the catalog source will automatically update to include new MAS releases.</li>
 </ul>
 </div>
-<h2 id="1-disconnected-upgrade-preparation">1 Disconnected Upgrade Preparation<a class="headerlink" href="#1-disconnected-upgrade-preparation" title="Permanent link">¤</a></h2>
-<p>Before you start the upgrade, you must mirror the images for the new catalog that you wish to update to. Mirroring the images is a simple but time consuming process.  Three modes are available for the mirror process:</p>
+<h3 id="rollback-considerations">Rollback Considerations<a class="headerlink" href="#rollback-considerations" title="Permanent link">¶</a></h3>
+<p>The process to undo an upgrade varies depending on what version and which applications were being upgraded. For example, if there are database changes that need to be reversed it's more involved than if it's just a case of stateless runtime to be reverted to an older version.</p>
+<h2 id="disconnected-upgrade-preparation">Disconnected Upgrade Preparation<a class="headerlink" href="#disconnected-upgrade-preparation" title="Permanent link">¶</a></h2>
+<p>Before you start the upgrade, you must mirror the images for the new catalog that you wish to upgrade to. Mirroring the images is a simple but time consuming process. Three modes are available for the mirror process:</p>
 <ul>
-<li><strong>direct</strong> mirrors images directly from the source registry to your private registry</li>
-<li><strong>to-filesystem</strong> mirrors images from the source to a local directory</li>
-<li><strong>from-filesystem</strong> mirrors images from a local directory to your private registry</li>
+<li><strong>direct</strong> - mirrors images directly from the source registry to your private registry</li>
+<li><strong>to-filesystem</strong> - mirrors images from the source to a local directory</li>
+<li><strong>from-filesystem</strong> - mirrors images from a local directory to your private registry</li>
 </ul>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas mirror-images
 </code></pre>
-<p>You will be prompted to set the target registry for the image mirroring and to <a href="../../catalogs/">select the version of IBM Maximo Operator Catalog to mirror</a> and the subset of content that you wish to mirror.  You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well reducing the storage requirements of the registry.</p>
-<p>This command can also be ran non-interactive, for full details refer to the <a href="../image-mirroring/">image mirroring</a> guide.</p>
+<p>You will be prompted to set the target registry for the image mirroring and to <a href="../../catalogs/">select the version of IBM Maximo Operator Catalog to mirror</a> and the subset of content that you wish to mirror. You can choose to mirror everything from the catalog, or control exactly what is mirrored to your private registry to reduce the time and bandwidth used to mirror the images, as well as reducing the storage requirements of the registry.</p>
+<p>This command can also be run non-interactively. For full details refer to the <a href="../image-mirroring/">image mirroring</a> guide.</p>
 <pre><code class="language-bash">mas mirror-images -m direct -d /mnt/local-mirror \
   -H myprivateregistry.com -P 5000 -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-251231-amd64 -C 9.1.x \
@@ -364,20 +465,125 @@
 </code></pre>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Make sure to select the release of MAS you want to upgrade to, not the release of MAS you are currently on.  For example if you are upgrading from MAS 8.9 to MAS 8.10 you should set <code>-C 8.10.x</code>.</p>
+<p>Make sure to select the release of MAS you want to upgrade to, not the release of MAS you are currently on. For example, if you are upgrading from MAS 8.9 to MAS 8.10 you should set <code>-C 8.10.x</code>.</p>
 </div>
-<h2 id="2-upgrade-maximo-application-suite">2 Upgrade Maximo Application Suite<a class="headerlink" href="#2-upgrade-maximo-application-suite" title="Permanent link">¤</a></h2>
-<p>Run <code>mas upgrade</code> and choose the MAS instance to upgrade.  The upgrade will automatically detect the installed release, and perform an upgrade to the next available release.</p>
+<h2 id="upgrade-maximo-application-suite">Upgrade Maximo Application Suite<a class="headerlink" href="#upgrade-maximo-application-suite" title="Permanent link">¶</a></h2>
+<p>Run <code>mas upgrade</code> and choose the MAS instance to upgrade. The upgrade will automatically detect the installed release and perform an upgrade to the next available release.</p>
+<h3 id="interactive-upgrade">Interactive Upgrade<a class="headerlink" href="#interactive-upgrade" title="Permanent link">¶</a></h3>
 <pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade
 </code></pre>
-<p>The command can also be ran non-interactive.</p>
-<pre><code class="language-bash">mas upgrade -i inst1 --no-confirm
+<h3 id="non-interactive-upgrade">Non-Interactive Upgrade<a class="headerlink" href="#non-interactive-upgrade" title="Permanent link">¶</a></h3>
+<pre><code class="language-bash">docker run -ti --rm --pull always quay.io/ibmmas/cli mas upgrade --mas-instance-id inst1 --no-confirm
 </code></pre>
-      
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../update/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+      <div class="md-footer-nav__direction">
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+        </svg>
+        <span>Previous</span>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Update</span>
+      </div>
+    </a>
+    <a href="../uninstall/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Uninstall</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#usage" class="md-toc__link" data-md-level="1">
+                  Usage
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#mas-instance-selection" class="md-toc__link" data-md-level="2">
+                          MAS Instance Selection
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#more" class="md-toc__link" data-md-level="2">
+                          More
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#overview" class="md-toc__link" data-md-level="1">
+                  Overview
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#upgrade-vs-update" class="md-toc__link" data-md-level="2">
+                          Upgrade vs. Update
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#rollback-considerations" class="md-toc__link" data-md-level="2">
+                          Rollback Considerations
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#disconnected-upgrade-preparation" class="md-toc__link" data-md-level="1">
+                  Disconnected Upgrade Preparation
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#upgrade-maximo-application-suite" class="md-toc__link" data-md-level="1">
+                  Upgrade Maximo Application Suite
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#interactive-upgrade" class="md-toc__link" data-md-level="2">
+                          Interactive Upgrade
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#non-interactive-upgrade" class="md-toc__link" data-md-level="2">
+                          Non-Interactive Upgrade
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
     </div>
-    <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2026-01-06 15:02:19.770468+00:00)
-    </div> -->
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body></html>

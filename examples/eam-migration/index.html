@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,7 +23,8 @@
     <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
 
     <!-- HighlightJS code formatting support -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
     <script>hljs.highlightAll();</script>
@@ -49,8 +50,9 @@
             .gslide-image img { background: black; }
         </style></head>
 
-  <body>
-    <cds-header aria-label="Maximo Application Suite CLI" class="cds-theme-zone-g100">
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
       <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
       <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
       <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
@@ -59,6 +61,31 @@
       </cds-header-nav>
 
       <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
         <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
       </div>
       <script>
@@ -79,13 +106,18 @@
           <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/examples/eam-migration.md">Edit on GitHub</cds-header-nav-item>
         </cds-header-nav>
       
-
     </cds-header>
 
-    <cds-side-nav aria-label="Side navigation" class="cds-theme-zone-g90">
-      <cds-side-nav-items>
-        
-          
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
   <cds-side-nav-menu title="Guides">
     
       
@@ -132,8 +164,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Examples" active expanded>
     
       
@@ -156,21 +188,9 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Command Reference">
-    
-      
-  <cds-side-nav-menu-item href="../../commands/update/">
-    update
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../commands/upgrade/">
-    upgrade
-  </cds-side-nav-menu-item>
-
     
       
   <cds-side-nav-menu-item href="../../commands/uninstall/">
@@ -234,8 +254,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Operator Catalogs">
     
       
@@ -270,8 +290,8 @@
     
   </cds-side-nav-menu>
 
-        
-          
+                
+                  
   <cds-side-nav-menu title="Reference">
     
       
@@ -294,22 +314,28 @@
     
   </cds-side-nav-menu>
 
-        
-      </cds-side-nav-items>
-    </cds-side-nav>
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
 
-    <div id="breadcrumbs" class="rst-content"><cds-breadcrumb no-trailing-slash>
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
       <cds-breadcrumb-item>Examples</cds-breadcrumb-item>
-
-  <cds-breadcrumb-item aria-current="page">
+  <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#migration-from-eam-7-to-mas-9">Migration from EAM 7 to MAS 9</cds-breadcrumb-link>
   </cds-breadcrumb-item>
 
-  <cds-breadcrumb-item>
-    <cds-select id="breadcrumbs-toc" class="cds-theme-zone-g10" inline placeholder="..." oninput="changeAnchor(this.value)">
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
     
     
       <cds-select-item value="#prerequisites">Prerequisites</cds-select-item>
@@ -322,14 +348,15 @@
     
       <cds-select-item value="#step-4-install-mas">Step 4 - Install MAS</cds-select-item>
     
-  </cds-select>
+    </cds-select>
   </cds-breadcrumb-item>
 </cds-breadcrumb>
-    </div>
+          </div>
 
-    <div id="main-content" class="rst-content">
-      
-      <h1 id="migration-from-eam-7-to-mas-9">Migration from EAM 7 to MAS 9<a class="headerlink" href="#migration-from-eam-7-to-mas-9" title="Permanent link">¤</a></h1>
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="migration-from-eam-7-to-mas-9">Migration from EAM 7 to MAS 9<a class="headerlink" href="#migration-from-eam-7-to-mas-9" title="Permanent link">¶</a></h1>
 <p>This example demonstrates how to migrate from EAM 7 to Maximo Manage v9 running on <a href="https://www.ibm.com/products/openshift">Red Hat OpenShift on IBM Cloud</a> (ROKS).</p>
 <ul>
 <li>For this demo we are using an existing database instance that is configured without TLS enabled (so we do not need to worry about providing the certificates in the configuration)</li>
@@ -346,8 +373,8 @@ Prepare an EAM 7 System
 
 -->
 
-<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¤</a></h2>
-<h3 id="1-an-ibmcloud-api-key">1. An IBMCloud API Key<a class="headerlink" href="#1-an-ibmcloud-api-key" title="Permanent link">¤</a></h3>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">¶</a></h2>
+<h3 id="1-an-ibmcloud-api-key">1. An IBMCloud API Key<a class="headerlink" href="#1-an-ibmcloud-api-key" title="Permanent link">¶</a></h3>
 <p>For the purpose of this demo we are going to provision an OpenShift Cluster in IBMCloud using the <a href="https://www.ibm.com/products/openshift">Red Hat OpenShift on IBMCloud</a> service (aka "ROKS"), however the demo can easily be repeated targeting any OpenShift cluster:</p>
 <ul>
 <li>Login in your IBM Cloud account</li>
@@ -355,7 +382,7 @@ Prepare an EAM 7 System
 <li>Go to <strong>API keys</strong> menu, click <strong>Create an IBM Cloud API key</strong></li>
 <li>Enter a name and description for your API Key and click <strong>Create</strong></li>
 </ul>
-<h3 id="2-a-mas-license-file">2. A MAS License File<a class="headerlink" href="#2-a-mas-license-file" title="Permanent link">¤</a></h3>
+<h3 id="2-a-mas-license-file">2. A MAS License File<a class="headerlink" href="#2-a-mas-license-file" title="Permanent link">¶</a></h3>
 <p>Access <a href="https://licensing.flexnetoperations.com/">IBM License Key Center</a>, on the <strong>Get Keys</strong> menu select <strong>IBM AppPoint Suites</strong>. Select <strong>IBM MAXIMO APPLICATION SUITE AppPOINT LIC</strong> and on the next page fill in the information as below:</p>
 <table>
 <thead>
@@ -388,11 +415,11 @@ Prepare an EAM 7 System
 </tbody>
 </table>
 <p>Create a new folder <code>mas9demo</code> in your home directory and save this file there as <code>~/mas9demo/entitlement.lic</code></p>
-<h3 id="3-an-ibm-entitlement-key">3. An IBM Entitlement Key<a class="headerlink" href="#3-an-ibm-entitlement-key" title="Permanent link">¤</a></h3>
+<h3 id="3-an-ibm-entitlement-key">3. An IBM Entitlement Key<a class="headerlink" href="#3-an-ibm-entitlement-key" title="Permanent link">¶</a></h3>
 <p>Access <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a> using your IBMId to obtain your entitlement key.</p>
-<h3 id="4-a-database-backup-optional">4. A Database Backup (Optional)<a class="headerlink" href="#4-a-database-backup-optional" title="Permanent link">¤</a></h3>
+<h3 id="4-a-database-backup-optional">4. A Database Backup (Optional)<a class="headerlink" href="#4-a-database-backup-optional" title="Permanent link">¶</a></h3>
 <p>If you want to migrate without shutting down your EAM 7 instance you should take a backup of the database and use it to populate a new database instance, this is necessary because Maximo Manage and EAM can not both be using the same database at the same time.</p>
-<h2 id="step-1-provision-openshift">Step 1 - Provision OpenShift<a class="headerlink" href="#step-1-provision-openshift" title="Permanent link">¤</a></h2>
+<h2 id="step-1-provision-openshift">Step 1 - Provision OpenShift<a class="headerlink" href="#step-1-provision-openshift" title="Permanent link">¶</a></h2>
 <p>We are going to provision the cluster using <strong>Red Hat OpenShift on IBM Cloud</strong> via the MAS CLI container image.  Ensure that you set the <code>IBMCLOUD_APIKEY</code> environment variable to the key you obtained from the <a href="https://myibm.ibm.com/products-services/containerlibrary">IBM Container Software Library</a>.</p>
 <pre><code class="language-bash">export IBMCLOUD_APIKEY=x
 
@@ -406,7 +433,7 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 <p class="admonition-title">Note</p>
 <p>At time of writing the cost of this three node OpenShift cluster on IBMCloud is $1.61 per hour (which works out as just under $1'200 per month).  Billing is hourly and to complete this example we will only need the cluster for a few hours; the entire demo can be complete on IBMCloud for as little as $10.</p>
 </div>
-<h2 id="step-2-configure-database-connection">Step 2 - Configure Database Connection<a class="headerlink" href="#step-2-configure-database-connection" title="Permanent link">¤</a></h2>
+<h2 id="step-2-configure-database-connection">Step 2 - Configure Database Connection<a class="headerlink" href="#step-2-configure-database-connection" title="Permanent link">¶</a></h2>
 <p>If you are connecting Maximo Manage to the same database used by EAM we must first shut down the EAM application servers, because when the migration starts it will upgrade the database to a version that EAM can not support.  Log into the WebSphere administrative console and stop the servers.</p>
 <p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/shutdown_eam.png" data-title="Shutdown EAM in the WebSphere Application Server administrative console" data-desc-position="bottom"><img alt="Shutdown EAM in the WebSphere Application Server administrative console" src="../images/shutdown_eam.png"></a></p>
 <p>IBM Maximo Application Suite (MAS) configuration is held in Kubernetes resources on the OpenShift cluster, when we install MAS we will tell the installer to apply this configuration as part of the installation.</p>
@@ -448,7 +475,7 @@ spec:
 <p>Save this file into the same directory where we saved the MAS entitlement file, as <code>~/mas9demo/mas9demo-jdbc.yaml</code></p>
 <p>Validate that the JDBC URL and username/password are correct by running the command <code>SELECT VARNAME, VARVALUE FROM MAXIMO.MAXVARS WHERE VARNAME='MAXUPG';</code>, which will confirm the database is currently running at version 7.  We would normally use <a href="https://dbeaver.io/">DBeaver</a> for this purpose.</p>
 <p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/dbeaver.png" data-title="Using DBeaver to view the MAXUPG value in the Maximo database" data-desc-position="bottom"><img alt="Using DBeaver to view the MAXUPG value in the Maximo database" src="../images/dbeaver.png"></a></p>
-<h2 id="step-3-configure-smtp">Step 3 - Configure SMTP<a class="headerlink" href="#step-3-configure-smtp" title="Permanent link">¤</a></h2>
+<h2 id="step-3-configure-smtp">Step 3 - Configure SMTP<a class="headerlink" href="#step-3-configure-smtp" title="Permanent link">¶</a></h2>
 <p>When existing users are migrated into MAS a new password will be generated for each, to recieve this password we must configure SMTP for MAS.  If you don't have your own SMTP server, and do have a <a href="https://mail.google.com/mail/">Gmail</a> account then can configure MAS as below:</p>
 <pre><code class="language-yaml">---
 apiVersion: v1
@@ -488,7 +515,7 @@ spec:
 <p class="admonition-title">Note</p>
 <p>If you skip this step, MAS will be unable to send e-mail so there is no way to automatically notify users of their new account and it's password; in this scenario an administrator must manually set a new password for each user migrated from EAM to MAS.</p>
 </div>
-<h2 id="step-4-install-mas">Step 4 - Install MAS<a class="headerlink" href="#step-4-install-mas" title="Permanent link">¤</a></h2>
+<h2 id="step-4-install-mas">Step 4 - Install MAS<a class="headerlink" href="#step-4-install-mas" title="Permanent link">¶</a></h2>
 <p>Ensure the following environment variables are all set:</p>
 <ul>
 <li><code>IBMCLOUD_APIKEY</code> (see <a href="#prerequisites">prerequisites</a>)</li>
@@ -540,7 +567,7 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 <p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/install-pipeline.png" data-title="Tekon Pipeline for Maximo Application Suite installation" data-desc-position="bottom"><img alt="Tekon Pipeline for Maximo Application Suite installation" src="../images/install-pipeline.png"></a></p>
 <p>Once the installation has completed you will be able to log into Maximo Application Suite &amp; Maximo Manage using any user from the original EAM.  For convenience the installer adds a link to the Maximo Application Suite Administrator Dashboard to the OpenShift Console's <strong>Application Menu</strong>, and we can log into MAS using the superuser username and password supplied during install:</p>
 <p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="../images/dashboard-link.png" data-title="Application Menu extension in the OpenShift Console for Maximo Application Suite" data-desc-position="bottom"><img alt="Application Menu extension in the OpenShift Console for Maximo Application Suite" src="../images/dashboard-link.png"></a></p>
-<h3 id="alternate-install">Alternate Install<a class="headerlink" href="#alternate-install" title="Permanent link">¤</a></h3>
+<h3 id="alternate-install">Alternate Install<a class="headerlink" href="#alternate-install" title="Permanent link">¶</a></h3>
 <p>To perform the same installation <strong>without data migration</strong>, ignore step 2 (don't create <code>~/mas9demo/mas9demo-jdbc.yaml</code>) and instead run the install with one additional parameter <code>--db2-manage</code>:</p>
 <pre><code class="language-bash">export IBMCLOUD_APIKEY=x
 export SUPERUSER_PASSWORD=x
@@ -576,11 +603,113 @@ docker run -e IBMCLOUD_APIKEY -ti --rm -v ~:/mnt/home --pull always quay.io/ibmm
 "
 </code></pre>
 <p>The addition of the <code>--db2-manage</code> parameter is all that we require to instruct the installer to provision a new Db2 instance in the cluster and automatically configure Maximo Manage to use it.</p>
-      
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+    <a href="../../guides/facilities-external-db/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+      <div class="md-footer-nav__direction">
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+        </svg>
+        <span>Previous</span>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">MRE&amp;F External DB Setup</span>
+      </div>
+    </a>
+    <a href="../mirror-db2/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Mirror Db2 Images</span>
+      </div>
+    </a>
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#prerequisites" class="md-toc__link" data-md-level="1">
+                  Prerequisites
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#1-an-ibmcloud-api-key" class="md-toc__link" data-md-level="2">
+                          1. An IBMCloud API Key
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#2-a-mas-license-file" class="md-toc__link" data-md-level="2">
+                          2. A MAS License File
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#3-an-ibm-entitlement-key" class="md-toc__link" data-md-level="2">
+                          3. An IBM Entitlement Key
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#4-a-database-backup-optional" class="md-toc__link" data-md-level="2">
+                          4. A Database Backup (Optional)
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#step-1-provision-openshift" class="md-toc__link" data-md-level="1">
+                  Step 1 - Provision OpenShift
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#step-2-configure-database-connection" class="md-toc__link" data-md-level="1">
+                  Step 2 - Configure Database Connection
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#step-3-configure-smtp" class="md-toc__link" data-md-level="1">
+                  Step 3 - Configure SMTP
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#step-4-install-mas" class="md-toc__link" data-md-level="1">
+                  Step 4 - Install MAS
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#alternate-install" class="md-toc__link" data-md-level="2">
+                          Alternate Install
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
     </div>
-    <!-- <div id="footer" class="rst-content">
-      Built with mkdocs v1.6.1 (2026-01-06 15:02:19.740571+00:00)
-    </div> -->
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
   
 <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
 </script></body></html>
