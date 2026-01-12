@@ -746,6 +746,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             self.installMonitor = False
 
+        # Initialize ArcGIS flag (will be set to True later in arcgisSettings() if needed)
+        self.installArcgis = False
+
         if self.installMonitor:
             self.configAppChannel("monitor")
 
