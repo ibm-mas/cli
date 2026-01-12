@@ -250,11 +250,12 @@
         - gitops-suite
         - gitops-odh
         - gitops-deprovision-odh
-
         - gitops-aiservice
         - gitops-aiservice-tenant
         - gitops-deprovision-aiservice-tenant
         - gitops-deprovision-aiservice
+        - gitops-app-config
+        - gitops-delete-app-config
         - gitops-iac-create-branch
         - gitops-iac-generate-common-files
         - gitops-iac-manage-pr
