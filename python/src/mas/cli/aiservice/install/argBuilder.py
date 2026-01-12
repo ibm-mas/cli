@@ -171,5 +171,8 @@ class aiServiceInstallArgBuilderMixin():
         if self.getParam('rsl_ca_crt') != "":
             command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
 
+        if self.getParam('db2_channel') != "":
+            command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
+
         command += "  --accept-license --no-confirm"
         return command
