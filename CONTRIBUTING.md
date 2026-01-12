@@ -3,13 +3,13 @@ Contributing to MAS CLI
 
 Contents
 -------------------------------------------------------------------------------
-1. [Detect Secret](#detect-secrets)
+1. [Detect Secrets](#detect-secrets)
 2. [Pre-Commit Hooks](#pre-commit-hooks)
 3. [Building the Tekton definitions](#building-the-tekton-definitions)
-4. [Building the container image locally](#building-the-container-image-locally)
-5. [Using the docker image](#using-the-docker-image)
-6. [Generate a Github SSH key](#generate-a-github-ssh-key)
-7. [Building your local development environment](#building-your-local-development-environment)
+4. [Building the Documentation](#building-the-documentation)
+5. [Building the container image locally](#building-the-container-image-locally)
+6. [Using the docker image](#using-the-docker-image)
+7. [Working Across Repositories](#working-across-repositories)
 8. [Pull Requests](#pull-requests)
 9. [Pulling MAS Ansible Devops into MAS Command Line Interface](#pulling-mas-ansible-devops-into-mas-command-line-interface)
 
@@ -66,6 +66,24 @@ tekton/test-install.sh
 ```
 
 
+Building the Documentation
+-------------------------------------------------------------------------------
+```bash
+python3 -m venv .venv-docs
+source .venv-docs/bin/activate
+
+# We need to install the python-devops and cli packages because we generate documentation from their code using mkdocs directives
+python -m pip install -e ../python-devops
+python -m pip install -e ../python
+
+# Install mkdocs and the various plugins that we use, including our custom plugins
+python -m pip install -q mkdocs mkdocs-carbon mkdocs-glightbox mkdocs-redirects
+python -m pip install -e mkdocs_plugins
+
+mkdocs serve --livereload
+```
+
+
 Building the container image locally
 -------------------------------------------------------------------------------
 Build & install ansible collections and the mas.devops & mas.cli Python packages, save each into image/cli/install, build the docker container, then run the container.
@@ -89,44 +107,11 @@ mas install
 ```
 
 
-Generate a Github SSH key
+Working Across Repositories
 -------------------------------------------------------------------------------
-Follow this instructions to [generate a new SSH key and add it to your Github account to link with this repository](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+The **cli** build uses the output of the **ansible-devops** and **python-devops** builds, when you are making changes across all three repositories you should use the same branch name in all three, tihs will ensure that the **cli** build picks up the correct versions of the other two builds.
 
-This will allow you authenticate to this repository and raise pull requests with your own changes and request review and merge approval for the code owners.
-
-
-Building your local development environment
--------------------------------------------------------------------------------
-Here's how you could get started developing within a new working branch:
-
-1. Clone MAS CLI repository locally.
-2. Create your own branch.
-3. Set the new branch as active working branch.
-
-```
-git clone git@github.com:ibm-mas/cli.git
-git checkout -b name-your-branch
-git checkout name-your-branch
-```
-
-Testing with a modified python-devops code.
--------------------------------------------------------------------------------
-Make sure that the python-devops repository is cloned locally in the same directory
-as the CLI repository.
-From the top level CLI directory, run
-```
-make python-devops
-```
-This will build and copy the locally modified python-devops package into the CLI image
-structure so that the modified python-devops will be included when the CLI is built.
-
-Build the CLI, either locally or in GitHub.
-
-NOTE: if building on MacOS you will need to first install pandoc or the `make python-devops` command may fail:
-```
-brew install pandoc
-```
+For example, if you are working on a new feature here in a branch called `rbacfix`, and you need to deliver changes in both **ansible-devops** and **python-devops** as well, ensure that you name those branches `rbacfix` too, and they the builds in those branches have completed before you build the **cli** branch. This will ensure that the **cli** build picks up the correct versions of the other two builds.
 
 
 Pull Requests

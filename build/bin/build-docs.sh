@@ -1,10 +1,35 @@
 #!/bin/bash
+
+if [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
+  # python-devops main branch is named "stable" rather than "master"
+  PYTHON_BRANCH_NAME=$GITHUB_REF_NAME
+  if [[ "$GITHUB_REF_NAME" == "master" ]]; then
+    PYTHON_BRANCH_NAME=stable
+  fi
+
+  RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/ibm-mas/python-devops/branches/${PYTHON_BRANCH_NAME}")
+
+  if [[ "${RESPONSE}" == "200" ]]; then
+    echo "Installing development build of python-devops from GitHub branch ${PYTHON_BRANCH_NAME}"
+  else
+    echo "Branch ${PYTHON_BRANCH_NAME} not found, defaulting to stable"
+    PYTHON_BRANCH_NAME=stable
+  fi
+
+  python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${PYTHON_BRANCH_NAME}"
+else
+  echo "Installing latest release of mas-devops from PyPi"
+  python3 -m pip install mas-devops
+fi
+python3 -m pip install -e python
+
+
 #Fetch CLI repo version
 CLI_LATEST_VERSION=$(curl -s https://api.github.com/repos/ibm-mas/cli/releases/latest | jq -r '.name')
 
 # Fetch all amd64 catalog files
 LATEST_CATALOG=$(curl -s "https://api.github.com/repos/ibm-mas/cli/contents/catalogs?ref=master" \
-  | jq -r '[.[] | select(.name | endswith("amd64.yaml")) | .name | sub("\\.yaml$"; "")] | sort | .[-1]') 
+  | jq -r '[.[] | select(.name | endswith("amd64.yaml")) | .name | sub("\\.yaml$"; "")] | sort | .[-1]')
 PREVIOUS_CATALOG=$(curl -s "https://api.github.com/repos/ibm-mas/cli/contents/catalogs?ref=master" \
   | jq -r '[.[] | select(.name | endswith("amd64.yaml")) | .name | sub("\\.yaml$"; "")] | sort | .[-2]')
 
@@ -30,4 +55,5 @@ find docs -type f -name '*.md' -exec sed -i \
   {} +
 
 python -m pip install -q mkdocs mkdocs-carbon mkdocs-glightbox mkdocs-redirects
+python -m pip install -e mkdocs_plugins
 mkdocs build --clean --strict
