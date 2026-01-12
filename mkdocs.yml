@@ -21,8 +21,6 @@ nav:
       - "Mirror Db2 Images": examples/mirror-db2.md
       - "Minimal RBAC": examples/minimal-rbac.md
   - "Command Reference":
-      - "update": commands/update.md
-      - "upgrade": commands/upgrade.md
       - "uninstall": commands/uninstall.md
       - "must-gather": commands/must-gather.md
       - "configure-airgap": commands/configure-airgap.md
@@ -63,7 +61,7 @@ extra_css:
 
 markdown_extensions:
   - toc:
-      permalink: "¤"
+      permalink: true
   - admonition
     # https://squidfunk.github.io/mkdocs-material/extensions/admonition/
     # Note
@@ -82,6 +80,7 @@ markdown_extensions:
 plugins:
   - search: {}
   - mas_catalogs
+  - mas_cli
   - redirects:
       redirect_maps:
         "guides/architecture/core.md": "https://www.ibm.com/docs/en/mas-cd/continuous-delivery?topic=reference-maximo-application-suite-core-services"
@@ -89,6 +88,8 @@ plugins:
         "guides/choosing-the-right-catalog.md": "catalogs/index.md"
         "commands/mirror-images.md": "guides/image-mirroring.md"
         "commands/install.md": "guides/install.md"
+        "commands/update.md": "guides/update.md"
+        "commands/upgrade.md": "guides/upgrade.md"
   - glightbox:
       shadow: true
       caption_position: bottom
