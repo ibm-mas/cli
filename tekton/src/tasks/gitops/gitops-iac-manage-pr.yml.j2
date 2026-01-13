@@ -68,11 +68,6 @@ spec:
 
           CMD="mas gitops-iac-manage-pr -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH"
 
-          # IS_EFS and IS_S3 are required, default to false if not set
-          CMD="$CMD --is_efs ${IS_EFS:-false}"
-          CMD="$CMD --is_s3 ${IS_S3:-false}"
-          CMD="$CMD --is_msk ${IS_MSK:-false}"
-
           echo "Executing: $CMD"
           eval $CMD
           exit $?
