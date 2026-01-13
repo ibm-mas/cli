@@ -1213,13 +1213,7 @@ function gitops_iac_provision_msk_cmd() {
 # Wrapper for gitops-iac-generate-common-files command
 function gitops_iac_generate_common_files_cmd() {
   shift  # Remove command name
-  if [[ $# -gt 0 ]]; then
-    gitops_iac_noninteractive "$@"
-  else
-    echo "Not supported yet"
-    exit 1
-  fi
-  
+  gitops_iac_noninteractive "$@"
   # Call the actual function
   gitops_iac_generate_common_files
 }
