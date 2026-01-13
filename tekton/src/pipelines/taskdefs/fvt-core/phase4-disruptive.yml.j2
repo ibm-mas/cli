@@ -63,7 +63,8 @@
     - name: fvt_test_suite
       value: pathbasedrouting
     {{ lookup('template', 'taskdefs/fvt-core/common/params.yml.j2') | indent(4) }}
-  runAfter: authservice
+  runAfter: 
+    - authservice
 
 # 6. coreidp-ldap
 # -------------------------------------------------------------------------
