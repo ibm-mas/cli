@@ -71,7 +71,7 @@ function gitops_iac_noninteractive() {
         ;;
 
       # EFS Configuration
-      --is_efs)
+      --is-efs)
         if [[ -n "$1" && "$1" != --* ]]; then
           export IS_EFS=$1
           shift
@@ -84,7 +84,7 @@ function gitops_iac_noninteractive() {
       --efs-source)
         export EFS_SOURCE=$1 && shift
         ;;
-      --efs_manage_db2_performance_mode)
+      --efs-manage-db2-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_DB2_PERFORMANCE_MODE=$1
           shift
@@ -94,7 +94,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_manage_db2_mount_count)
+      --efs-manage-db2-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_DB2_MOUNT_COUNT=$1
           shift
@@ -104,7 +104,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_manage_db2_throughput_mode)
+      --efs-manage-db2-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_DB2_THROUGHPUT_MODE=$1
           shift
@@ -114,7 +114,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_manage_main_performance_mode)
+      --efs-manage-main-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_MAIN_PERFORMANCE_MODE=$1
           shift
@@ -124,7 +124,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_manage_main_mount_count)
+      --efs-manage-main-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_MAIN_MOUNT_COUNT=$1
           shift
@@ -134,7 +134,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_manage_main_throughput_mode)
+      --efs-manage-main-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_MAIN_THROUGHPUT_MODE=$1
           shift
@@ -144,7 +144,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_iot_db2_performance_mode)
+      --efs-iot-db2-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_IOT_DB2_PERFORMANCE_MODE=$1
           shift
@@ -154,7 +154,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_iot_db2_mount_count)
+      --efs-iot-db2-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_IOT_DB2_MOUNT_COUNT=$1
           shift
@@ -164,7 +164,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_iot_db2_throughput_mode)
+      --efs-iot-db2-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_IOT_DB2_THROUGHPUT_MODE=$1
           shift
@@ -174,7 +174,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_db2_performance_mode)
+      --efs-facilities-db2-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_DB2_PERFORMANCE_MODE=$1
           shift
@@ -184,7 +184,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_db2_mount_count)
+      --efs-facilities-db2-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_DB2_MOUNT_COUNT=$1
           shift
@@ -194,7 +194,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_db2_throughput_mode)
+      --efs-facilities-db2-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_DB2_THROUGHPUT_MODE=$1
           shift
@@ -204,7 +204,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_main_performance_mode)
+      --efs-facilities-main-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_MAIN_PERFORMANCE_MODE=$1
           shift
@@ -214,7 +214,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_main_mount_count)
+      --efs-facilities-main-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_MAIN_MOUNT_COUNT=$1
           shift
@@ -224,7 +224,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_main_throughput_mode)
+      --efs-facilities-main-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_MAIN_THROUGHPUT_MODE=$1
           shift
@@ -234,7 +234,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_visualinspection_main_performance_mode)
+      --efs-visualinspection-main-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE=$1
           shift
@@ -244,7 +244,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_visualinspection_main_mount_count)
+      --efs-visualinspection-main-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT=$1
           shift
@@ -254,7 +254,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_visualinspection_main_throughput_mode)
+      --efs-visualinspection-main-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE=$1
           shift
@@ -265,7 +265,7 @@ function gitops_iac_noninteractive() {
         ;;
 
       # S3 Configuration
-      --is_s3)
+      --is-s3)
         if [[ -n "$1" && "$1" != --* ]]; then
           export IS_S3=$1
           shift
@@ -274,17 +274,17 @@ function gitops_iac_noninteractive() {
           [[ $# -gt 0 ]] && shift
         fi
         ;;
-      --s3_source)
+      --s3-source)
         export S3_SOURCE=$1 && shift
         ;;
-      --s3_source_iampolicy)
+      --s3-source-iampolicy)
         export S3_SOURCE_IAMPOLICY=$1 && shift
         ;;
 
-      --s3_source_s3accesspoint)
+      --s3-source-s3accesspoint)
         export S3_SOURCE_S3ACCESSPOINT=$1 && shift
         ;;
-      --s3_manage)
+      --s3-manage)
         if [[ -n "$1" && "$1" != --* ]]; then
           export S3_MANAGE=$1
           shift
@@ -293,7 +293,7 @@ function gitops_iac_noninteractive() {
           [[ $# -gt 0 ]] && shift
         fi
         ;;
-      --s3_mvi)
+      --s3-mvi)
         if [[ -n "$1" && "$1" != --* ]]; then
           export S3_MVI=$1
           shift
@@ -303,7 +303,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --is_msk)
+      --is-msk)
         if [[ -n "$1" && "$1" != --* ]]; then
           export IS_MSK=$1
           shift
@@ -313,11 +313,11 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --msk_source)
+      --msk-source)
         export MSK_SOURCE=$1 && shift
         ;;
 
-      --msk_kafka_version)
+      --msk-kafka-version)
         if [[ -n "$1" && "$1" != --* ]]; then
           export MSK_KAFKA_VERSION=$1
           shift
@@ -327,7 +327,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --msk_instance_type)
+      --msk-instance-type)
         if [[ -n "$1" && "$1" != --* ]]; then
           export MSK_INSTANCE_TYPE=$1
           shift
@@ -337,7 +337,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --msk_cluster_username)
+      --msk-cluster-username)
         if [[ -n "$1" && "$1" != --* ]]; then
           export MSK_CLUSTER_USERNAME=$1
           shift
@@ -347,7 +347,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --msk_broker_volume_size)
+      --msk-broker-volume-size)
         if [[ -n "$1" && "$1" != --* ]]; then
           export MSK_BROKER_VOLUME_SIZE=$1
           shift
@@ -357,7 +357,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --msk_number_of_broker_nodes)
+      --msk-number-of-broker-nodes)
         if [[ -n "$1" && "$1" != --* ]]; then
           export MSK_NUMBER_OF_BROKER_NODES=$1
           shift
@@ -367,7 +367,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --msk_cluster_prefix)
+      --msk-cluster-prefix)
         if [[ -n "$1" && "$1" != --* ]]; then
           export MSK_CLUSTER_PREFIX=$1
           shift

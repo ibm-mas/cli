@@ -95,13 +95,13 @@ spec:
 
           CMD="mas gitops-iac-provision-msk -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
 
-          [ -n "$MSK_SOURCE" ] && CMD="$CMD --msk_source $MSK_SOURCE"
-          [ -n "$MSK_KAFKA_VERSION" ] && CMD="$CMD --msk_kafka_version $MSK_KAFKA_VERSION"
-          [ -n "$MSK_INSTANCE_TYPE" ] && CMD="$CMD --msk_instance_type $MSK_INSTANCE_TYPE"
-          [ -n "$MSK_CLUSTER_USERNAME" ] && CMD="$CMD --msk_cluster_username $MSK_CLUSTER_USERNAME"
-          [ -n "$MSK_BROKER_VOLUME_SIZE" ] && CMD="$CMD --msk_broker_volume_size $MSK_BROKER_VOLUME_SIZE"
-          [ -n "$MSK_NUMBER_OF_BROKER_NODES" ] && CMD="$CMD --msk_number_of_broker_nodes $MSK_NUMBER_OF_BROKER_NODES"
-          [ -n "$MSK_CLUSTER_PREFIX" ] && CMD="$CMD --msk_cluster_prefix $MSK_CLUSTER_PREFIX"
+          [ -n "$MSK_SOURCE" ] && CMD="$CMD --msk-source $MSK_SOURCE"
+          [ -n "$MSK_KAFKA_VERSION" ] && CMD="$CMD --msk-kafka-version $MSK_KAFKA_VERSION"
+          [ -n "$MSK_INSTANCE_TYPE" ] && CMD="$CMD --msk-instance-type $MSK_INSTANCE_TYPE"
+          [ -n "$MSK_CLUSTER_USERNAME" ] && CMD="$CMD --msk-cluster-username $MSK_CLUSTER_USERNAME"
+          [ -n "$MSK_BROKER_VOLUME_SIZE" ] && CMD="$CMD --msk-broker-volume-size $MSK_BROKER_VOLUME_SIZE"
+          [ -n "$MSK_NUMBER_OF_BROKER_NODES" ] && CMD="$CMD --msk-number-of-broker-nodes $MSK_NUMBER_OF_BROKER_NODES"
+          [ -n "$MSK_CLUSTER_PREFIX" ] && CMD="$CMD --msk-cluster-prefix $MSK_CLUSTER_PREFIX"
 
           echo "Executing: $CMD"
           eval $CMD
