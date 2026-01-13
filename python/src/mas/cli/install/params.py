@@ -163,6 +163,8 @@ optionalParams = [
     "mas_ws_facilities_storage_userfiles_size",
     "mas_ws_facilities_dwfagents",
     "mas_ws_facilities_db_maxconnpoolsize",
+    # ArcGIS
+    "mas_arcgis_channel",
     # Special chars
     "mas_special_characters",
     # ODH
