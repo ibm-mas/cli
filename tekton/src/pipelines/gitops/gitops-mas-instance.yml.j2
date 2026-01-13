@@ -798,8 +798,8 @@ spec:
         name: gitops-app-config
       when:
         - input: "$(params.maf_enabled)"
-          operator: in
-          values: ["true"]
+          operator: notin
+          values: [""]
       workspaces:
         - name: configs
           workspace: configs
