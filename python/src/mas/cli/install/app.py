@@ -1346,7 +1346,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("manage_bind_aiservice_tenant_id", value)
 
             # ArcGIS settings
-            elif key == "mas_arcgis_channel":
+            elif key == "arcgis_channel":
                 if value is not None and value != "":
                     self.setParam("mas_arcgis_channel", value)
                     self.installArcgis = True

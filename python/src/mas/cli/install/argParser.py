@@ -439,7 +439,6 @@ masAppsArgGroup.add_argument(
 arcgisArgGroup = installArgParser.add_argument_group("Maximo Location Services for Esri (arcgis)")
 arcgisArgGroup.add_argument(
     "--arcgis-channel",
-    dest="mas_arcgis_channel",
     required=False,
     help="Subscription channel for IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial or Facilities"
 )
