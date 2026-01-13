@@ -209,10 +209,12 @@ spec:
           git config --global user.email "you@example.com"
           git config --global user.password $GITHUB_PAT
 
-          # All parameters are already set as environment variables in stepTemplate.env
-          # The CLI function will read them directly from the environment
-          echo "Executing: mas gitops-iac-generate-common-files"
-          mas gitops-iac-generate-common-files
+          # Essential parameters passed as command-line arguments
+          # Other parameters are read from environment variables set in stepTemplate.env
+          CMD="mas gitops-iac-generate-common-files -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
+          
+          echo "Executing: $CMD"
+          eval $CMD
           exit $?
       command:
         - /bin/sh
