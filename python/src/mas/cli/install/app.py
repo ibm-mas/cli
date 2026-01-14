@@ -1439,7 +1439,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
-            self.configDb2()
+            self.configDb2(silentMode=True)
 
         # Version before 9.1 cannot have empty components
         if (self.getParam("mas_channel").startswith("8.") or self.getParam("mas_channel").startswith("9.0")) and (self.getParam("mas_app_channel_manage") is not None and self.getParam("mas_app_channel_manage") != "") and self.getParam("mas_appws_components") == "":
