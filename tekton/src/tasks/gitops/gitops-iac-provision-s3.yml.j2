@@ -87,12 +87,6 @@ spec:
 
           CMD="mas gitops-iac-provision-s3 -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
 
-          [ -n "$S3_SOURCE" ] && CMD="$CMD --s3-source $S3_SOURCE"
-          [ -n "$S3_SOURCE_IAMPOLICY" ] && CMD="$CMD --s3-source-iampolicy $S3_SOURCE_IAMPOLICY"
-          [ -n "$S3_SOURCE_S3ACCESSPOINT" ] && CMD="$CMD --s3-source-s3accesspoint $S3_SOURCE_S3ACCESSPOINT"
-          [ -n "$S3_MANAGE" ] && CMD="$CMD --s3-manage $S3_MANAGE"
-          [ -n "$S3_MVI" ] && CMD="$CMD --s3-mvi $S3_MVI"
-
           echo "Executing: $CMD"
           eval $CMD
           exit $?
