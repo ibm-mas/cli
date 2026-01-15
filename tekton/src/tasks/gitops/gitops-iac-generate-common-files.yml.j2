@@ -209,8 +209,6 @@ spec:
           git config --global user.email "you@example.com"
           git config --global user.password $GITHUB_PAT
 
-          # Essential parameters passed as command-line arguments
-          # Other parameters are read from environment variables
           CMD="mas gitops-iac-generate-common-files -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
 
           CMD="$CMD --is-efs ${IS_EFS:-false}"
