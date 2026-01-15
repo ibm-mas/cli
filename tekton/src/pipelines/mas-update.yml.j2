@@ -288,33 +288,6 @@ spec:
         - name: kafka_provider
           value: $(params.kafka_provider)
 
-    # 5 Update Cloud Pak for Data
-    # -------------------------------------------------------------------------
-    # 5.1 Cloud Pak for Data Platform
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-platform-update.yml.j2') | indent(4) }}
-      runAfter:
-        - post-update-verify
-
-    # 5.2 Watson Studio
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-wsl-update.yml.j2') | indent(4) }}
-      runAfter:
-        - update-cp4d
-
-    # 5.3 Watson Machine Learning
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-wml-update.yml.j2') | indent(4) }}
-      runAfter:
-        - update-cp4d
-
-    # 5.4 Analytics Service (Spark)
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-spark-update.yml.j2') | indent(4) }}
-      runAfter:
-        - update-cp4d
-
-    # 5.5 Cognos Analytics
-    {{ lookup('template', 'taskdefs/cp4d/cp4d-cognos-update.yml.j2') | indent(4) }}
-      runAfter:
-        - update-cp4d
-
 
     # 6. Verify health of the cluster after dependencies updates
     # -------------------------------------------------------------------------
@@ -328,10 +301,6 @@ spec:
         - update-mongodb
         - update-kafka
         - update-grafana
-        - update-watson-studio
-        - update-watson-machine-learning
-        - update-analytics-engine
-        - update-cognos
 
   finally:
     # Update synchronization configmap
