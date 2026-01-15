@@ -2401,17 +2401,7 @@ spec:
           values: ["deactivate", ""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
-      when:
-        - input: "$(params.manage_workspace_action)"
-          operator: in
-          values: ["deactivate", ""]
-        - input: "$(params.mas_edition)"
-          operator: in
-          values: ["essentials-inspection"]
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: ["9.0.x"]
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]  
     # 6.2 Manage App
     - name: gitops-deprovision-mas-app-install-manage
       runAfter:
@@ -2438,14 +2428,7 @@ spec:
           values: [""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
-       when:
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: ["9.0.x"]
-        - input: "$(params.mas_edition)"
-          operator: in
-          values: ["essentials-inspection"]     
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]   
     # 6.3 Manage Database
     - name: gitops-deprovision-db2u-database-manage
       runAfter:
@@ -2472,14 +2455,7 @@ spec:
           values: [""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
-       when:
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: ["9.0.x"]
-        - input: "$(params.mas_edition)"
-          operator: in
-          values: ["essentials-inspection"]
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]    
     # 6.4 Manage JDBC Config
     - name: gitops-delete-jdbc-config-manage
       runAfter:
@@ -2519,14 +2495,7 @@ spec:
           values: [""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
-      when:
-        - input: "$(params.mas_app_channel_manage)"
-          operator: notin
-          values: ["9.0.x"]
-        - input: "$(params.mas_edition)"
-          operator: in
-          values: ["essentials-inspection"]
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
     # 6.5 Manage Replica Config
     - name: gitops-deprovision-db2u-replica-database-manage
       runAfter:
@@ -2555,7 +2524,7 @@ spec:
           values: [""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium"]
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
   
     # 7. IoT Deprovision
     # -------------------------------------------------------------------------
