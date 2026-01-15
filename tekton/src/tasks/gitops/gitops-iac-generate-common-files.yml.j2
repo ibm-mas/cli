@@ -210,10 +210,9 @@ spec:
           git config --global user.password $GITHUB_PAT
 
           # Essential parameters passed as command-line arguments
-          # Other parameters are read from environment variables set in stepTemplate.env
+          # Other parameters are read from environment variables
           CMD="mas gitops-iac-generate-common-files -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
-          
-          # IS_EFS, IS_S3, and IS_MSK are required by the function, default to false if not set
+
           CMD="$CMD --is-efs ${IS_EFS:-false}"
           CMD="$CMD --is-s3 ${IS_S3:-false}"
           CMD="$CMD --is-msk ${IS_MSK:-false}"
