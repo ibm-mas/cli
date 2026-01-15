@@ -71,7 +71,7 @@ function gitops_iac_noninteractive() {
         ;;
 
       # EFS Configuration
-      --is_efs)
+      --is-efs)
         if [[ -n "$1" && "$1" != --* ]]; then
           export IS_EFS=$1
           shift
@@ -84,7 +84,7 @@ function gitops_iac_noninteractive() {
       --efs-source)
         export EFS_SOURCE=$1 && shift
         ;;
-      --efs_manage_db2_performance_mode)
+      --efs-manage-db2-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_DB2_PERFORMANCE_MODE=$1
           shift
@@ -94,7 +94,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_manage_db2_mount_count)
+      --efs-manage-db2-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_DB2_MOUNT_COUNT=$1
           shift
@@ -104,7 +104,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_manage_db2_throughput_mode)
+      --efs-manage-db2-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_DB2_THROUGHPUT_MODE=$1
           shift
@@ -114,7 +114,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_manage_main_performance_mode)
+      --efs-manage-main-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_MAIN_PERFORMANCE_MODE=$1
           shift
@@ -124,7 +124,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_manage_main_mount_count)
+      --efs-manage-main-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_MAIN_MOUNT_COUNT=$1
           shift
@@ -134,7 +134,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_manage_main_throughput_mode)
+      --efs-manage-main-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_MANAGE_MAIN_THROUGHPUT_MODE=$1
           shift
@@ -144,7 +144,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_iot_db2_performance_mode)
+      --efs-iot-db2-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_IOT_DB2_PERFORMANCE_MODE=$1
           shift
@@ -154,7 +154,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_iot_db2_mount_count)
+      --efs-iot-db2-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_IOT_DB2_MOUNT_COUNT=$1
           shift
@@ -164,7 +164,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_iot_db2_throughput_mode)
+      --efs-iot-db2-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_IOT_DB2_THROUGHPUT_MODE=$1
           shift
@@ -174,7 +174,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_db2_performance_mode)
+      --efs-facilities-db2-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_DB2_PERFORMANCE_MODE=$1
           shift
@@ -184,7 +184,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_db2_mount_count)
+      --efs-facilities-db2-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_DB2_MOUNT_COUNT=$1
           shift
@@ -194,7 +194,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_db2_throughput_mode)
+      --efs-facilities-db2-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_DB2_THROUGHPUT_MODE=$1
           shift
@@ -204,7 +204,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_main_performance_mode)
+      --efs-facilities-main-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_MAIN_PERFORMANCE_MODE=$1
           shift
@@ -214,7 +214,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_main_mount_count)
+      --efs-facilities-main-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_MAIN_MOUNT_COUNT=$1
           shift
@@ -224,7 +224,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_facilities_main_throughput_mode)
+      --efs-facilities-main-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_FACILITIES_MAIN_THROUGHPUT_MODE=$1
           shift
@@ -234,7 +234,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_visualinspection_main_performance_mode)
+      --efs-visualinspection-main-performance-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE=$1
           shift
@@ -244,7 +244,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_visualinspection_main_mount_count)
+      --efs-visualinspection-main-mount-count)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT=$1
           shift
@@ -254,7 +254,7 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --efs_visualinspection_main_throughput_mode)
+      --efs-visualinspection-main-throughput-mode)
         if [[ -n "$1" && "$1" != --* ]]; then
           export EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE=$1
           shift
@@ -265,7 +265,7 @@ function gitops_iac_noninteractive() {
         ;;
 
       # S3 Configuration
-      --is_s3)
+      --is-s3)
         if [[ -n "$1" && "$1" != --* ]]; then
           export IS_S3=$1
           shift
@@ -274,17 +274,17 @@ function gitops_iac_noninteractive() {
           [[ $# -gt 0 ]] && shift
         fi
         ;;
-      --s3_source)
+      --s3-source)
         export S3_SOURCE=$1 && shift
         ;;
-      --s3_source_iampolicy)
+      --s3-source-iampolicy)
         export S3_SOURCE_IAMPOLICY=$1 && shift
         ;;
 
-      --s3_source_s3accesspoint)
+      --s3-source-s3accesspoint)
         export S3_SOURCE_S3ACCESSPOINT=$1 && shift
         ;;
-      --s3_manage)
+      --s3-manage)
         if [[ -n "$1" && "$1" != --* ]]; then
           export S3_MANAGE=$1
           shift
@@ -293,12 +293,86 @@ function gitops_iac_noninteractive() {
           [[ $# -gt 0 ]] && shift
         fi
         ;;
-      --s3_mvi)
+      --s3-mvi)
         if [[ -n "$1" && "$1" != --* ]]; then
           export S3_MVI=$1
           shift
         else
           export S3_MVI=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --is-msk)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export IS_MSK=$1
+          shift
+        else
+          export IS_MSK="false"
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --msk-source)
+        export MSK_SOURCE=$1 && shift
+        ;;
+
+      --msk-kafka-version)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MSK_KAFKA_VERSION=$1
+          shift
+        else
+          export MSK_KAFKA_VERSION=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --msk-instance-type)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MSK_INSTANCE_TYPE=$1
+          shift
+        else
+          export MSK_INSTANCE_TYPE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --msk-cluster-username)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MSK_CLUSTER_USERNAME=$1
+          shift
+        else
+          export MSK_CLUSTER_USERNAME=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --msk-broker-volume-size)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MSK_BROKER_VOLUME_SIZE=$1
+          shift
+        else
+          export MSK_BROKER_VOLUME_SIZE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --msk-number-of-broker-nodes)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MSK_NUMBER_OF_BROKER_NODES=$1
+          shift
+        else
+          export MSK_NUMBER_OF_BROKER_NODES=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --msk-cluster-prefix)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MSK_CLUSTER_PREFIX=$1
+          shift
+        else
+          export MSK_CLUSTER_PREFIX=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
@@ -465,6 +539,38 @@ function compute_s3_variables() {
   echo "  VPC_ID: ${VPC_ID_VALUE}"s
 
   echo " S3 variables computed successfully"
+}
+
+# Compute msk-related variables from cluster configuration files
+# This function extracts values from existing Terraform files
+function compute_msk_variables() {
+  local TASK_WORKING_DIR=$1
+  local GITHUB_REPO=$2
+  local REGION_NAME=$3
+  local CLUSTER_ID=$4
+
+  echo "Computing MSK variables..."
+
+  # Extract values from cluster files
+  CLUSTER_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
+  TERRAFORMTF_FILE_PATH=$CLUSTER_PATH/terraform.tfvars
+  MAIN_FILE_PATH=$CLUSTER_PATH/main.tf
+
+  # Compute MSK variables from Terraform files
+  export NAME_PREFIX_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "name_prefix")
+  export CLUSTER_CIDR_WORKLOAD_EXTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.cidrs.workload_external")
+  export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.cidrs.workload_internal")
+  export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_id")
+  export SECURITY_GROUPS_VALUE=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.security_groups")
+  export VPC_NAME_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_name")
+
+  echo "  NAME_PREFIX_VALUE              : ${NAME_PREFIX_VALUE}"
+  echo "  CLUSTER_CIDR_WORKLOAD_EXTERNAL : ${CLUSTER_CIDR_WORKLOAD_EXTERNAL}"
+  echo "  CLUSTER_CIDR_WORKLOAD_INTERNAL : ${CLUSTER_CIDR_WORKLOAD_INTERNAL}"
+  echo "  VPC_ID                         : ${VPC_ID_VALUE}"
+  echo "  SECURITY_GROUPS_VALUE          : ${SECURITY_GROUPS_VALUE}"
+
+  echo " MSK variables computed successfully"
 }
 
 # ============================================================================
@@ -700,6 +806,78 @@ function gitops_iac_provision_s3() {
   exit 0
 }
 
+function gitops_iac_provision_msk(){
+  echo
+  echo_h2 "Creating MSK Resources terraform files"
+
+  # Validate required parameters
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_iac_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$GITHUB_REPO" ]] && gitops_iac_help "GITHUB_REPO is not set"
+  [[ -z "$REGION_NAME" ]] && gitops_iac_help "REGION_NAME is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_iac_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_iac_help "CLUSTER_ID is not set"
+  [[ -z "$GITHUB_PUSH" ]] && export GITHUB_PUSH=true
+
+  # Read the working branch name created by previous task
+  if [ -f "${GITOPS_WORKING_DIR}/new_branch_name.txt" ]; then
+    WORKING_BRANCH=$(cat ${GITOPS_WORKING_DIR}/new_branch_name.txt)
+    echo "Using working branch: ${WORKING_BRANCH}"
+  else
+    echo "ERROR: Branch name file not found. Run gitops_iac_create_branch first."
+    exit 1
+  fi
+
+  # Clone the working branch to get latest changes from other tasks
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH=false
+  fi
+
+  # Use a unique subdirectory for this task to avoid conflicts with parallel tasks
+  TASK_WORKING_DIR="${GITOPS_WORKING_DIR}/msk-task"
+  mkdir -p ${TASK_WORKING_DIR}
+
+  # Remove any existing clone first with force
+  if [ -d "${TASK_WORKING_DIR}/${GITHUB_REPO}" ]; then
+    echo
+    echo_h2 "Removing existing repository clone"
+    chmod -R +w ${TASK_WORKING_DIR}/${GITHUB_REPO} 2>/dev/null || true
+    rm -rf ${TASK_WORKING_DIR}/${GITHUB_REPO}
+    sleep 1
+  fi
+
+  echo
+  echo_h2 "Cloning working branch ${WORKING_BRANCH} to get latest changes"
+  clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $TASK_WORKING_DIR $GIT_SSH
+
+  GITOPS_CLUSTER_DIR=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
+  mkdir -p ${GITOPS_CLUSTER_DIR}
+
+  echo
+  echo_h2 "Generating IAC/MSK Configuration"
+
+  echo "Generating msk.tf file ${GITOPS_CLUSTER_DIR}/msk.tf "
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-msk.yaml.j2 ${GITOPS_CLUSTER_DIR}/msk.tf
+
+  # Commit changes to working branch
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Committing msk changes to branch ${WORKING_BRANCH}"
+    GIT_COMMIT_MSG="Add msk configuration"
+    save_to_target_git_repo "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH" "${TASK_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
+  echo
+  echo_h2 " MSK Resources terraform files are Committed"
+
+  # Clean up cloned repository
+  echo
+  echo_h2 "Cleaning up local repository clone"
+  chmod -R +w ${TASK_WORKING_DIR}/${GITHUB_REPO} 2>/dev/null || true
+  rm -rf ${TASK_WORKING_DIR}/${GITHUB_REPO}
+
+  exit 0
+}
+
 # ============================================================================
 # Function 4: Generate Common IAC Files
 # ============================================================================
@@ -768,6 +946,12 @@ function gitops_iac_generate_common_files() {
     echo
     echo_h2 "Computing S3 Variables"
     compute_s3_variables "${TASK_WORKING_DIR}" "${GITHUB_REPO}" "${REGION_NAME}" "${CLUSTER_ID}"
+  fi
+
+  if [[ "$IS_MSK" == "true" ]]; then
+    echo
+    echo_h2 "Computing MSK Variables"
+    compute_msk_variables "${TASK_WORKING_DIR}" "${GITHUB_REPO}" "${REGION_NAME}" "${CLUSTER_ID}"
   fi
   
   echo "Checking and creating common files"
@@ -850,6 +1034,11 @@ function gitops_iac_manage_pr() {
   # Check if S3 was provisioned using IS_S3 parameter
   if [[ "$IS_S3" == "true" ]]; then
     PROVISIONED_COMPONENTS+=("S3")
+  fi
+
+    # Check if MSK was provisioned using IS_MSK parameter
+  if [[ "$IS_MSK" == "true" ]]; then
+      PROVISIONED_COMPONENTS+=("MSK")
   fi
   
   # Build component list for title and body
@@ -1017,7 +1206,7 @@ function gitops_iac_generate_common_files_cmd() {
     echo "Not supported yet"
     exit 1
   fi
-  
+
   # Call the actual function
   gitops_iac_generate_common_files
 }
