@@ -216,7 +216,8 @@ class Db2SettingsMixin():
 
     def setDB2DefaultChannel(self) -> None:
         # Set the default db2-Channel
-        default_db2_channel = "v120101.0"
+        #default_db2_channel = "v120101.0"
+        default_db2_channel = getattr(self, 'catalogDb2Channel', 'v110509.0')
 
         if not self.devMode:
             db2_channel = default_db2_channel
@@ -225,16 +226,6 @@ class Db2SettingsMixin():
             user_channel = self.getParam("db2_channel")
             db2_channel = user_channel if user_channel else default_db2_channel
 
-        self.params["db2_channel"] = db2_channel
-
-    def setDB2DefaultChannel(self) -> None:
-        # Set the default db2-Channel
-        default_db2_channel = "v110509.0"
-        # Get user-specified value
-        user_channel = self.getParam("db2_channel")
-
-        # Only allow custom db2_channel in devMode with a non-empty value
-        db2_channel = user_channel if (self.devMode and user_channel) else default_db2_channel
         self.params["db2_channel"] = db2_channel
 
     def setDB2DefaultSettings(self) -> None:
