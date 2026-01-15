@@ -1428,6 +1428,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+        self.processCatalogChoice() # This will set the default db2_channel
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
