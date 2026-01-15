@@ -217,7 +217,7 @@ class Db2SettingsMixin():
     def setDB2DefaultChannel(self) -> None:
         # Set the default db2-Channel
         # default_db2_channel = "v120101.0"
-        #default_db2_channel = getattr(self, 'catalogDb2Channel', 'v110509.0')
+        # default_db2_channel = getattr(self, 'catalogDb2Channel', 'v110509.0')
         if hasattr(self, 'catalogDb2Channel'):
             # Best case: catalogDb2Channel was set by processCatalogChoice()
             default_db2_channel = self.catalogDb2Channel

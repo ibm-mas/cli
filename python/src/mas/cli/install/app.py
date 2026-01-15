@@ -1175,7 +1175,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         self.configGrafana()
         self.configSNO()
-        #self.setDB2DefaultChannel()
+        # self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
 
         for key, value in vars(self.args).items():
@@ -1429,7 +1429,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
         if self.chosenCatalog is not None:
-            self.processCatalogChoice()  # Only process catalog if it was successfully loaded, this will set catalogDb2Channel
+            self.processCatalogChoice()  # Only process catalog if it was successfully loaded,this will set catalogDb2Channel
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
@@ -1442,8 +1442,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
-            #self.setDB2DefaultChannel()
-        
+            # self.setDB2DefaultChannel()
+
         self.setDB2DefaultChannel()
 
         # Version before 9.1 cannot have empty components
