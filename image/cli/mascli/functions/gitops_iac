@@ -1197,7 +1197,7 @@ function gitops_iac_provision_s3_cmd() {
   gitops_iac_provision_s3
 }
 
-# Wrapper for gitops-iac-provision-s3 command
+# Wrapper for gitops-iac-provision-msk command
 function gitops_iac_provision_msk_cmd() {
   shift  # Remove command name
   if [[ $# -gt 0 ]]; then
