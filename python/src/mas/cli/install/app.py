@@ -1175,7 +1175,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         self.configGrafana()
         self.configSNO()
-        # self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
 
         for key, value in vars(self.args).items():
@@ -1442,7 +1441,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
-            # self.setDB2DefaultChannel()
 
         self.setDB2DefaultChannel()
 
