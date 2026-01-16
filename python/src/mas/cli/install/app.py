@@ -439,8 +439,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.printDescription(description)
 
                 if self.yesOrNo("Include IBM Maximo Location Services for Esri"):
-                    self.setParam("install_arcgis", "true")
                     self.setParam("mas_arcgis_channel", channel)
+                    self.installArcgis = True
 
                     self.printDescription([
                         "",
@@ -745,6 +745,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.installMonitor = self.yesOrNo("Install Monitor")
         else:
             self.installMonitor = False
+
+        # Initialize ArcGIS flag (will be set to True later in arcgisSettings() if needed)
+        self.installArcgis = False
 
         if self.installMonitor:
             self.configAppChannel("monitor")
@@ -1207,6 +1210,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installManage = False
         self.installPredict = False
         self.installInspection = False
+        self.installArcgis = False
         self.installOptimizer = False
         self.installFacilities = False
         self.deployCP4D = False
@@ -1343,12 +1347,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("manage_bind_aiservice_tenant_id", value)
 
             # ArcGIS settings
-            elif key == "install_arcgis":
-                if value is not None and value != "":
-                    self.setParam("install_arcgis", value)
             elif key == "mas_arcgis_channel":
                 if value is not None and value != "":
                     self.setParam("mas_arcgis_channel", value)
+                    self.installArcgis = True
 
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":
@@ -1513,13 +1515,18 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.fatalError("--manage-components must include 'health' component when installing Predict")
 
         # Validate ArcGIS installation requirements in non-interactive mode
-        if self.getParam("install_arcgis") == "true":
+        if self.installArcgis:
             hasSpatial = self.installManage and "spatial=" in self.getParam("mas_appws_components")
             hasFacilities = self.installFacilities
 
             # ArcGIS requires either Spatial or Facilities to be installed
             if not hasSpatial and not hasFacilities:
-                self.fatalError("--install-arcgis requires either Manage with Spatial component (--manage-components must include 'spatial=') or Facilities (--facilities-channel) to be installed")
+                self.fatalError("--arcgis-channel requires either Manage with Spatial component (--manage-components must include 'spatial=') or Facilities (--facilities-channel) to be installed")
+
+            # ArcGIS requires channel 9.0 or later
+            arcgis_channel = self.getParam("mas_arcgis_channel")
+            if arcgis_channel and not isVersionEqualOrAfter('9.0.0', arcgis_channel):
+                self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
 
     @logMethodCall
     def install(self, argv):
