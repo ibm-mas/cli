@@ -1197,6 +1197,20 @@ function gitops_iac_provision_s3_cmd() {
   gitops_iac_provision_s3
 }
 
+# Wrapper for gitops-iac-provision-s3 command
+function gitops_iac_provision_msk_cmd() {
+  shift  # Remove command name
+  if [[ $# -gt 0 ]]; then
+    gitops_iac_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+  fi
+
+  # Call the actual function
+  gitops_iac_provision_msk
+}
+
 # Wrapper for gitops-iac-generate-common-files command
 function gitops_iac_generate_common_files_cmd() {
   shift  # Remove command name
