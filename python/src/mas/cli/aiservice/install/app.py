@@ -158,7 +158,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
 
         # Dependencies
         self.configMongoDb()
-        self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
 
     @logMethodCall
@@ -177,7 +176,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             "approval_aiservice": {"id": "aiservice"},
         }
 
-        self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
 
         for key, value in vars(self.args).items():
