@@ -156,15 +156,15 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td style="font-style: italic">OCP 4.19 EOS N/A</td>
         </tr>
         <tr>
-          <td style="font-style: italic">v9-260129</td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td style="font-style: italic">4.16 - 4.19 (TBC)</td>
-          <td style="font-style: italic">TBD</td>
-          <td style="font-style: italic">7.0 - 8.0 (TBC)</td>
-          <td style="font-style: italic">N/A</td>
-          <td style="font-style: italic">OCP 4.19 EOS N/A</td>
+          <td>v9-260129</td>
+          <td><a href="v9-260129-amd64/">amd64</a></td>
+          <td><a href="v9-260129-s390x/">s390x</a></td>
+          <td><a href="v9-260129-ppc64le/">ppc64le</a></td>
+          <td>4.16 - 4.19</td>
+          <td>5.2.0</td>
+          <td>7.0 - 8.0</td>
+          <td>latest</td>
+          <td>OCP 4.19 EOS N/A</td>
         </tr>
         </tbody>
     </table>
