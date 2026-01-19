@@ -1,4 +1,4 @@
-{%- if IS_EFS | lower == 'true' -%}
+{%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') -%}
 data "aws_subnets" "external_subnets" {
   filter {
     name   = "vpc-id"
@@ -6,7 +6,7 @@ data "aws_subnets" "external_subnets" {
   }
   filter {
     name   = "cidr-block"
-    values = {{CLUSTER_CIDR_WORKLOAD_EXTERNAL}}
+    values = {{ CLUSTER_CIDR_WORKLOAD_EXTERNAL }}
   }
 }
 
@@ -17,7 +17,7 @@ data "aws_subnets" "internal_subnets" {
   }
   filter {
     name   = "cidr-block"
-    values = {{CLUSTER_CIDR_WORKLOAD_INTERNAL}}
+    values = {{ CLUSTER_CIDR_WORKLOAD_INTERNAL }}
   }
 }
 {%- endif %}
@@ -26,12 +26,12 @@ data "aws_subnets" "internal_subnets" {
 locals {
 {%- if IS_S3 | lower == 'true' %}
 {%- if S3_MANAGE | lower == 'true'  %}
-  #----Manage related params for S3 starts----
+  #Manage related params for S3 starts
   iam_user_arns_manage = {
     custfiles = "${var.iam_user_arn_prefix_manage}-custfiles-${var.access_level_rw}"
     doclinks  = "${var.iam_user_arn_prefix_manage}-doclinks-${var.access_level_rw}"
-    logs_rw   = "${var.iam_user_arn_prefix_manage}-log-${var.access_level_rw}"
-    logs_ro   = "${var.iam_user_arn_prefix_manage}-log-${var.access_level_ro}"
+    logs_rw   = "${var.iam_user_arn_prefix_manage}-logs-${var.access_level_rw}"
+    logs_ro   = "${var.iam_user_arn_prefix_manage}-logs-${var.access_level_ro}"
   }
 
   s3_iam_users_list_manage = {
@@ -47,12 +47,12 @@ locals {
     },
     logs_rw = {
       bucket_name   = "${var.s3bucket_name_prefix_manage}-logs"
-      iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_rw}"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-logs-${var.access_level_rw}"
       access_level  = var.access_level_rw
     },
     logs_ro = {
       bucket_name   = "${var.s3bucket_name_prefix_manage}-logs"
-      iam_user_name = "${var.iam_user_name_prefix_manage}-log-${var.access_level_ro}"
+      iam_user_name = "${var.iam_user_name_prefix_manage}-logs-${var.access_level_ro}"
       access_level  = var.access_level_ro
     }
   }
@@ -69,32 +69,32 @@ locals {
   bucket_user_names_manage = {
     custfiles = "${var.iam_user_name_prefix_manage}-custfiles-${var.access_level_rw}"
     doclinks  = "${var.iam_user_name_prefix_manage}-doclinks-${var.access_level_rw}"
-    logs_rw   = "${var.iam_user_name_prefix_manage}-log-${var.access_level_rw}"
-    logs_ro   = "${var.iam_user_name_prefix_manage}-log-${var.access_level_ro}"
+    logs_rw   = "${var.iam_user_name_prefix_manage}-logs-${var.access_level_rw}"
+    logs_ro   = "${var.iam_user_name_prefix_manage}-logs-${var.access_level_ro}"
   }
 
   bucket_user_name_map_manage = {
     for key, value in local.s3_iam_users_list_manage :
     key => lookup(local.bucket_user_names_manage, key, null)
   }
-  #----Manage related params for S3 ends----
+  #Manage related params for S3 ends
 {%- endif %}
 
-  #----Common S3 params starts----
+  #Common S3 params starts
   s3_actions = {
     ro = ["s3:GetObject", "s3:ListBucket"]
     rw = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
   }
 
   location = var.location
-  #----Common S3 params ends----
+  #Common S3 params ends
 {%- endif %}
   cluster = {
   {%- if IS_S3 | lower == 'true' %}
     instance = {
       name = var.instance_name
       {%- if S3_MANAGE | lower == 'true'  %}
-    #----Manage specific S3 buckets starts----
+    #Manage specific S3 buckets starts
       manage_s3buckets = {
         doclinks = {
           name_prefix          = var.name_prefix
@@ -122,7 +122,7 @@ locals {
             days = 366 // how long to keep logs
           }
         },
-        logs = {
+        logs_ro = {
           name_prefix          = var.name_prefix
           create               = var.create_bucket
           name                 = "${var.s3bucket_name_prefix_manage}-logs"
@@ -135,22 +135,27 @@ locals {
           expiration           = null
         }
       }
-    #----Manage specific S3 buckets ends----
+    #Manage specific S3 buckets ends
     {%- endif %}
     }
     name = var.cluster_name
     {%- endif %}
-  {%- if IS_EFS | lower == 'true' %}
-    #----EFS related params starts----
+  {%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') %}
+    #EFS/MSK related params starts
     "external_subnet_ids" : data.aws_subnets.external_subnets.ids
     "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
-    #----EFS related params ends----
+    #EFS/MSK related params ends
+  {%- endif %}
+  {%- if IS_MSK | lower == 'true' %}
+    #MSK related params starts
+    "security_groups" : ["{{ SECURITY_GROUPS_VALUE }}"]
+    #MSK related params ends
   {%- endif %}
   }
 
 
  {%- if IS_EFS | lower == 'true' %}
-  #----EFS config related params starts----
+  #EFS config related params starts
   multiple-efs = {
 {%- if EFS_MANAGE == "true" %}
     manage-db2 = {
@@ -197,6 +202,23 @@ locals {
     }
 {%- endif %}
   }
-  #----EFS config related params ends----
+  #EFS config related params ends
+{%- endif %}
+
+ {%- if IS_MSK | lower == 'true' %}
+  #MSK config related params starts
+  multiple-msk = {
+    msk = {
+      name        = join("-", [var.vpc_name, var.cluster_prefix, var.cluster_name, var.instance_name])
+      sre_prefix  = "massaas"
+      secret_name = join("/", [var.name_prefix, var.cluster_name, var.instance_name])
+      broker_volume_size = {{MSK_BROKER_VOLUME_SIZE}}
+      cluster_name = "{{MSK_CLUSTER_USERNAME}}"
+      broker_nodes = {{MSK_NUMBER_OF_BROKER_NODES}}
+      instance_type = "{{MSK_INSTANCE_TYPE}}"
+      kafka_version = "{{MSK_KAFKA_VERSION}}"
+    }
+  }
+  #MSK config related params ends
 {%- endif %}
 }
