@@ -139,10 +139,10 @@ spec:
     - name: additional_vpn
       type: string
       default: ""
-    - name: additional_infrastructure_install
+    - name: additional_resources_install
       type: string
       default: "false"
-    - name: additional_infrastructure_instances
+    - name: additional_resources_instances
       type: string
       default: ""
     - name: extensions
@@ -261,10 +261,10 @@ spec:
         value: $(params.enhanced_dr)
       - name: ADDITIONAL_VPN
         value: $(params.additional_vpn)
-      - name: ADDITIONAL_INFRASTRUCTURE_INSTALL
-        value: $(params.additional_infrastructure_install)
-      - name: ADDITIONAL_INFRASTRUCTURE_INSTANCES
-        value: $(params.additional_infrastructure_instances)
+      - name: ADDITIONAL_RESOURCES_INSTALL
+        value: $(params.additional_resources_install)
+      - name: ADDITIONAL_RESOURCES_INSTANCES
+        value: $(params.additional_resources_instances)
       - name: IS_NON_SHARED_CLUSTER
         value: $(params.is_non_shared_cluster)
       - name: EXTENSIONS

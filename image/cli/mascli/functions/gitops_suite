@@ -43,8 +43,8 @@ IBM Maximo Application Suite:
       --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                                 List of IPs or CIDR range to whitelist
       --additional-vpn ${COLOR_YELLOW}ADDITIONAL_VPN{TEXT_RESET}                                                          Manage additional client VPN
       --application-configuration ${COLOR_YELLOW}APPLICATION_CONFIGURATION${TEXT_RESET}                                   Application Configuration enable/disable (true/false)
-      --additional-infrastructure-install ${COLOR_YELLOW}ADDITIONAL_INFRASTRUCTURE_INSTALL${TEXT_RESET}                                   Enable additional infrastructure addon
-      --additional-infrastructure-instances ${COLOR_YELLOW}ADDITIONAL_INFRASTRUCTURE_INSTANCES${TEXT_RESET}               YAML string defining instances array
+      --additional-resources-install ${COLOR_YELLOW}ADDITIONAL_RESOURCES_INSTALL${TEXT_RESET}                                   Enable additional resources addon
+      --additional-resources-instances ${COLOR_YELLOW}ADDITIONAL_RESOURCES_INSTANCES${TEXT_RESET}               YAML string defining instances array
       --extensions ${COLOR_YELLOW}EXTENSIONS${TEXT_RESET}                                                                 To enable JAVA or 3rd party code extensions
       --enhanced-dr ${COLOR_YELLOW}ENHANCED_DR${TEXT_RESET}                                                               To enable Enhanced Disaster Recovery
       --is-non-shared-cluster ${COLOR_YELLOW}IS_NON_SHARED_CLUSTER${TEXT_RESET}                                           To enable Non shared cluster
@@ -146,7 +146,7 @@ function gitops_suite_noninteractive() {
   export EXTENSIONS=${EXTENSIONS:-"false"}
   export ADDITIONAL_VPN=${ADDITIONAL_VPN:-"false"}
   export ENHANCED_DR=${ENHANCED_DR:-"false"}
-  export ADDITIONAL_INFRASTRUCTURE_INSTALL=${ADDITIONAL_INFRASTRUCTURE_INSTALL:-"false"}
+  export ADDITIONAL_RESOURCES_INSTALL=${ADDITIONAL_RESOURCES_INSTALL:-"false"}
 
 
   if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
@@ -284,11 +284,11 @@ function gitops_suite_noninteractive() {
       --is-non-shared-cluster)
         export IS_NON_SHARED_CLUSTER=$1 && shift
         ;;
-      --additional-infrastructure-install)
-        export ADDITIONAL_INFRASTRUCTURE_INSTALL=$1 && shift
+      --additional-resources-install)
+        export ADDITIONAL_RESOURCES_INSTALL=$1 && shift
         ;;
-      --additional-infrastructure-instances)
-        export ADDITIONAL_INFRASTRUCTURE_INSTANCES=$1 && shift
+      --additional-resources-instances)
+        export ADDITIONAL_RESOURCES_INSTANCES=$1 && shift
         ;;
       # Target Cluster (Optional)
       --cluster-url)
@@ -574,9 +574,9 @@ function gitops_suite() {
   echo_reset_dim "Allow List ................................. ${COLOR_MAGENTA}${ALLOW_LIST}"
   echo_reset_dim "Additional VPN ............................. ${COLOR_MAGENTA}${ADDITIONAL_VPN}"
   echo_reset_dim "Application Configuration .................. ${COLOR_MAGENTA}${APPLICATION_CONFIGURATION}"
-  echo_reset_dim "Install Additional Infrastructure .................. ${COLOR_MAGENTA}${ADDITIONAL_INFRASTRUCTURE_INSTALL}"
-  if [[ -n "${ADDITIONAL_INFRASTRUCTURE_INSTANCES}" ]]; then
-    echo_reset_dim "Additional Infrastructure Instances ........ ${COLOR_MAGENTA}${ADDITIONAL_INFRASTRUCTURE_INSTANCES}"
+  echo_reset_dim "Install Additional Resources .................. ${COLOR_MAGENTA}${ADDITIONAL_RESOURCES_INSTALL}"
+  if [[ -n "${ADDITIONAL_RESOURCES_INSTANCES}" ]]; then
+    echo_reset_dim "Additional Resources Instances ........ ${COLOR_MAGENTA}${ADDITIONAL_RESOURCES_INSTANCES}"
   fi
   echo_reset_dim "Enhanced Disaster Recovery ................. ${COLOR_MAGENTA}${ENHANCED_DR}"
   echo_reset_dim "Non shared cluster ......................... ${COLOR_MAGENTA}${IS_NON_SHARED_CLUSTER}"

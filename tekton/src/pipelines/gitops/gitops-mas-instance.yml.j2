@@ -246,10 +246,10 @@ spec:
     - name: maf_size
       type: string
       default: "2Gi"
-    - name: additional_infrastructure_install
+    - name: additional_resources_install
       type: string
       default: "false"
-    - name: additional_infrastructure_instances
+    - name: additional_resources_instances
       type: string
       default: ""
 
@@ -471,10 +471,10 @@ spec:
           value: $(params.additional_vpn)
         - name: application_configuration
           value: $(params.application_configuration)
-        - name: additional_infrastructure_install
-          value: $(params.additional_infrastructure_install)
-        - name: additional_infrastructure_instances
-          value: $(params.additional_infrastructure_instances)
+        - name: additional_resources_install
+          value: $(params.additional_resources_install)
+        - name: additional_resources_instances
+          value: $(params.additional_resources_instances)
         - name: extensions
           value: $(params.extensions)
         - name: sls_service
