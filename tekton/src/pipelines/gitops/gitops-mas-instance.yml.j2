@@ -232,6 +232,12 @@ spec:
     - name: application_configuration
       type: string
       default: "true"
+    - name: additional_resources_install
+      type: string
+      default: "false"
+    - name: additional_resources_instances
+      type: string
+      default: ""
 
     # maf parameters
     # ------------------------------------------------------------------------- 
@@ -246,12 +252,6 @@ spec:
     - name: maf_size
       type: string
       default: "2Gi"
-    - name: additional_resources_install
-      type: string
-      default: ""
-    - name: additional_resources_instances
-      type: string
-      default: ""
 
    # standalone sls
     - name: sls_service
