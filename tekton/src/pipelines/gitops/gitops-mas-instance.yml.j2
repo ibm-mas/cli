@@ -229,6 +229,23 @@ spec:
       type: string
     - name: additional_vpn
       type: string
+    - name: application_configuration
+      type: string
+      default: "true"
+
+    # maf parameters
+    # ------------------------------------------------------------------------- 
+    - name: mas_appcfg_pod_template_yaml
+      type: string
+      default: ""
+    - name: maf_enabled
+      type: string
+    - name: maf_storageClassName
+      type: string
+      default: ""
+    - name: maf_size
+      type: string
+      default: "2Gi"
     - name: additional_infrastructure_install
       type: string
       default: "false"
@@ -452,6 +469,8 @@ spec:
           value: $(params.enhanced_dr)
         - name: additional_vpn
           value: $(params.additional_vpn)
+        - name: application_configuration
+          value: $(params.application_configuration)
         - name: additional_infrastructure_install
           value: $(params.additional_infrastructure_install)
         - name: additional_infrastructure_instances
@@ -745,6 +764,58 @@ spec:
         - name: shared-additional-configs
           workspace: shared-additional-configs
 
+
+    # 6. MAS Suite App Config
+    # -------------------------------------------------------------------------
+    - name: gitops-maf-config
+      runAfter:
+        - gitops-suite-config
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: secrets_path
+          value: $(params.secrets_path)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: git_commit_msg
+          value: $(params.git_commit_msg)
+        - name: github_pat
+          value: $(params.github_pat)
+        - name: avp_aws_secret_region
+          value: $(params.avp_aws_secret_region)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: maf_enabled
+          value: $(params.maf_enabled)
+        - name: mas_appcfg_pod_template_yaml
+          value: $(params.mas_appcfg_pod_template_yaml)
+        - name: maf_storageClassName
+          value: $(params.maf_storageClassName)
+        - name: maf_size
+          value: $(params.maf_size)
+      taskRef:
+        kind: Task
+        name: gitops-app-config
+      when:
+        - input: "$(params.maf_enabled)"
+          operator: in
+          values: ["true"]
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+
     # -------------------------------------------------------------------------
     # Deprovision task section
     # -------------------------------------------------------------------------
@@ -835,3 +906,26 @@ spec:
         - name: configs
           workspace: configs
 
+
+    # 3. Deprovision app config
+    # -------------------------------------------------------------------------
+    - name: gitops-deprovision-app-config
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: maf_enabled
+          value: $(params.maf_enabled)
+      taskRef:
+        kind: Task
+        name: gitops-delete-app-config
+      when:
+        - input: "$(params.maf_enabled)"
+          operator: in
+          values: ["false"]
+      workspaces:
+        - name: configs
+          workspace: configs

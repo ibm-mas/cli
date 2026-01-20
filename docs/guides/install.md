@@ -1,8 +1,12 @@
 Installation
 ===============================================================================
-Usage
--------------------------------------------------------------------------------
-For full usage information run `mas install --help`
+
+:::mas-cli-usage
+module: mas.cli.install.argParser
+parser: installArgParser
+ignore_description: true
+ignore_epilog: true
+:::
 
 
 Preparation
@@ -99,6 +103,12 @@ Interactive Install
 -------------------------------------------------------------------------------
 Regardless of whether you are running a connected or disconnected installation, simply run the `mas install` command and follow the prompts, the basic structure of the interactive flow is described below.  We will need the `entitlement.lic` file to perform the installation so we will mount your home directory into the running container.  When prompted you will be able to set license file to `/mnt/home/entitlement.lic`
 
+!!! note "NEW: AI Service Installation Options"
+    **NEW UPDATE:** AI Service can now be installed in two ways:
+
+    - **Integrated Installation**: AI Service is now available as an option during the MAS installation process using the `mas install` command. You can select AI Service along with other MAS applications during the interactive application selection step or you can run Non-interactive command as well.
+    - **Standalone Installation**: For standalone AI Service installation, use the dedicated `mas aiservice-install` command to install AI Service independently of the main MAS installation.
+
 ```bash
 docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@CLI_LATEST_VERSION@@ mas install
 ```
@@ -155,10 +165,29 @@ The interactive install will guide you through a series of questioned designed t
         <li>Monitor is only available for install if IoT is selected</li>
         <li>Assist and Predict are only available for install if Monitor is selected</li>
         <li>From MAS 9.1 onwards, Assist will be rebranded as Collaborate in the MAS UI. It will still appear as Assist in the MAS CLI and within the OpenShift Cluster, but from the MAS UI it will appear as Collaborate.</li>
+        <li><strong>NEW UPDATE:</strong> AI Service is now available as an installation option during the application selection step.</li>
       </ul>
     </cds-accordion-item>
     <cds-accordion-item title="Application Configuration">
       <p>Some Maximo applications support additional configuration, you will be taken through the configuration options for each application that you chose to install.</p>
+      <h4>NEW UPDATE: Maximo Manage - AI Service Binding</h4>
+      <p><strong>NEW UPDATE:</strong> When installing Maximo Manage, you can optionally bind it to an AI Service Tenant. This integration enables AI capabilities within Manage through the AI Config Application.</p>
+      <ul>
+        <li><strong>Installing AI Service with Manage:</strong> If you select AI Service during the application selection step (using <code>--aiservice-channel</code>), the binding is configured automatically:
+          <ul>
+            <li>A default tenant ID "user" is automatically created and bound to Manage</li>
+            <li>The AI Service instance being installed is automatically used for the binding</li>
+            <li>No additional configuration is required - the binding parameters are set automatically</li>
+            <li><strong>Important:</strong> When AI Service is being installed, any <code>--manage-aiservice-instance-id</code> or <code>--manage-aiservice-tenant-id</code> parameters provided will be ignored, as the binding is automatically configured</li>
+          </ul>
+        </li>
+        <li><strong>Using Existing AI Service:</strong> If AI Service is already installed in your cluster (not using <code>--aiservice-channel</code>), you can bind Manage to an existing AI Service tenant:
+          <ul>
+            <li><strong>Interactive Mode:</strong> You will be prompted to select from available AI Service instances and tenants</li>
+            <li><strong>Non-Interactive Mode:</strong> Use <code>--manage-aiservice-instance-id</code> and <code>--manage-aiservice-tenant-id</code> parameters to specify the binding</li>
+          </ul>
+        </li>
+      </ul>
     </cds-accordion-item>
     <cds-accordion-item title="Configure Databases">
       <p>The install supports the automatic provision of in-cluster MongoDb and Db2 databases for use with Maximo Application Suite, you may also choose to bring your own (BYO) by providing the necessary configuration files (which the installer will also help you create).</p>
