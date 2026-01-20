@@ -388,8 +388,11 @@ function gitops_aiservice_tenant() {
 
   # -- SLS
   echo_reset_dim "SLS subscription ID .......................... ${COLOR_MAGENTA}${AISERVICE_SLS_SUBSCRIPTION_ID}"
-  echo_reset_dim "sls service param file path .................. ${COLOR_MAGENTA}${STANDALONE_SLS_SERVICE}"
-
+  echo_reset_dim "SLS service param file path .................. ${COLOR_MAGENTA}${STANDALONE_SLS_SERVICE}"
+  if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
+    echo_reset_dim "ICN ........................................ ${COLOR_MAGENTA}${ICN}"
+    echo_reset_dim "SAAS_SUB_ID ........................................ ${COLOR_MAGENTA}${SAAS_SUB_ID}"
+  fi
   # -- Watsonx
   echo_reset_dim "Watsonx.ai URL ............................... ${COLOR_MAGENTA}${AISERVICE_WATSONXAI_URL}"
   echo_reset_dim "Watsonx.ai full URL .......................... ${COLOR_MAGENTA}${AISERVICE_WATSONX_FULL}"
@@ -445,8 +448,7 @@ function gitops_aiservice_tenant() {
     sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
   else
     sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64"
-  fi 
-  sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
+  fi
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   
