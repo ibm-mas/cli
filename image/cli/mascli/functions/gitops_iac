@@ -377,6 +377,200 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
+      --is-rds)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export IS_RDS=$1
+          shift
+        else
+          export IS_RDS="false"
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --rds-source)
+        export RDS_SOURCE=$1 && shift
+        ;;
+
+      --manage-db2-instance-class)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MANAGE_DB2_INSTANCE_CLASS=$1
+          shift
+        else
+          export MANAGE_DB2_INSTANCE_CLASS=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --manage-db2-storage-type)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MANAGE_DB2_STORAGE_TYPE=$1
+          shift
+        else
+          export MANAGE_DB2_STORAGE_TYPE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --manage-allocated-storage)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MANAGE_ALLOCATED_STORAGE=$1
+          shift
+        else
+          export MANAGE_ALLOCATED_STORAGE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --manage-jdbc-connection-url-additional-params)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MANAGE_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1
+          shift
+        else
+          export MANAGE_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --manage-replica-db)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MANAGE_REPLICA_DB=$1
+          shift
+        else
+          export MANAGE_REPLICA_DB=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --manage-db2-combine-properties)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export MANAGE_DB2_COMBINE_PROPERTIES=$1
+          shift
+        else
+          export MANAGE_DB2_COMBINE_PROPERTIES=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --iot-db2-instance-class)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export IOT_DB2_INSTANCE_CLASS=$1
+          shift
+        else
+          export IOT_DB2_INSTANCE_CLASS=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --iot-db2-storage-type)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export IOT_DB2_STORAGE_TYPE=$1
+          shift
+        else
+          export IOT_DB2_STORAGE_TYPE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --iot-allocated-storage)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export IOT_ALLOCATED_STORAGE=$1
+          shift
+        else
+          export IOT_ALLOCATED_STORAGE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --iot-jdbc-connection-url-additional-params)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export IOT_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1
+          shift
+        else
+          export IOT_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --iot-replica-db)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export IOT_REPLICA_DB=$1
+          shift
+        else
+          export IOT_REPLICA_DB=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --iot-db2-combine-properties)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export IOT_DB2_COMBINE_PROPERTIES=$1
+          shift
+        else
+          export IOT_DB2_COMBINE_PROPERTIES=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --facilities-db2-instance-class)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export FACILITIES_DB2_INSTANCE_CLASS=$1
+          shift
+        else
+          export FACILITIES_DB2_INSTANCE_CLASS=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --facilities-db2-storage-type)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export FACILITIES_DB2_STORAGE_TYPE=$1
+          shift
+        else
+          export FACILITIES_DB2_STORAGE_TYPE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --facilities-allocated-storage)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export FACILITIES_ALLOCATED_STORAGE=$1
+          shift
+        else
+          export FACILITIES_ALLOCATED_STORAGE=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --facilities-jdbc-connection-url-additional-params)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export FACILITIES_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1
+          shift
+        else
+          export FACILITIES_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --facilities-replica-db)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export FACILITIES_REPLICA_DB=$1
+          shift
+        else
+          export FACILITIES_REPLICA_DB=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --facilities-db2-combine-properties)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export FACILITIES_DB2_COMBINE_PROPERTIES=$1
+          shift
+        else
+          export FACILITIES_DB2_COMBINE_PROPERTIES=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
       # Target Cluster (Optional)
       --cluster-url)
         export CLUSTER_URL=$1 && shift
@@ -878,6 +1072,81 @@ function gitops_iac_provision_msk(){
   exit 0
 }
 
+function gitops_iac_provision_rdsdb2(){
+  echo
+  echo_h2 "Creating RDS-DB2 Resources terraform files"
+
+  # Validate required parameters
+  [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_iac_help "GITOPS_WORKING_DIR is not set"
+  [[ -z "$GITHUB_REPO" ]] && gitops_iac_help "GITHUB_REPO is not set"
+  [[ -z "$REGION_NAME" ]] && gitops_iac_help "REGION_NAME is not set"
+  [[ -z "$MAS_INSTANCE_ID" ]] && gitops_iac_help "MAS_INSTANCE_ID is not set"
+  [[ -z "$CLUSTER_ID" ]] && gitops_iac_help "CLUSTER_ID is not set"
+  [[ -z "$GITHUB_PUSH" ]] && export GITHUB_PUSH=true
+
+  # Read the working branch name created by previous task
+  if [ -f "${GITOPS_WORKING_DIR}/new_branch_name.txt" ]; then
+    WORKING_BRANCH=$(cat ${GITOPS_WORKING_DIR}/new_branch_name.txt)
+    echo "Using working branch: ${WORKING_BRANCH}"
+  else
+    echo "ERROR: Branch name file not found. Run gitops_iac_create_branch first."
+    exit 1
+  fi
+
+  # Clone the working branch to get latest changes from other tasks
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH=false
+  fi
+
+  # Use a unique subdirectory for this task to avoid conflicts with parallel tasks
+  TASK_WORKING_DIR="${GITOPS_WORKING_DIR}/rdsdb2-task"
+  mkdir -p ${TASK_WORKING_DIR}
+
+  # Remove any existing clone first with force
+  if [ -d "${TASK_WORKING_DIR}/${GITHUB_REPO}" ]; then
+    echo
+    echo_h2 "Removing existing repository clone"
+    chmod -R +w ${TASK_WORKING_DIR}/${GITHUB_REPO} 2>/dev/null || true
+    rm -rf ${TASK_WORKING_DIR}/${GITHUB_REPO}
+    sleep 1
+  fi
+
+  echo
+  echo_h2 "Cloning working branch ${WORKING_BRANCH} to get latest changes"
+  clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $WORKING_BRANCH $TASK_WORKING_DIR $GIT_SSH
+
+  GITOPS_CLUSTER_DIR=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/instances/${MAS_INSTANCE_ID}
+  mkdir -p ${GITOPS_CLUSTER_DIR}
+
+  echo
+  echo_h2 "Generating IAC/RDS-DB2 Configuration"
+
+  echo "Generating rdsdb2.tf file ${GITOPS_CLUSTER_DIR}/msk.tf "
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-rdsdb2.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2rds.tf
+
+  echo "Generating db2_parameters.yaml file ${GITOPS_CLUSTER_DIR}/db2_parameters.yaml "
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-db2parameters.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2_parameters.yaml
+
+  # Commit changes to working branch
+  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo
+    echo_h2 "Committing rdsdb2.tf changes to branch ${WORKING_BRANCH}"
+    GIT_COMMIT_MSG="Add rdsdb2 configuration"
+    save_to_target_git_repo "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$WORKING_BRANCH" "${TASK_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
+  fi
+
+  echo
+  echo_h2 " MSK Resources terraform files are Committed"
+
+  # Clean up cloned repository
+  echo
+  echo_h2 "Cleaning up local repository clone"
+  chmod -R +w ${TASK_WORKING_DIR}/${GITHUB_REPO} 2>/dev/null || true
+  rm -rf ${TASK_WORKING_DIR}/${GITHUB_REPO}
+
+  exit 0
+}
+
 # ============================================================================
 # Function 4: Generate Common IAC Files
 # ============================================================================
@@ -1209,6 +1478,20 @@ function gitops_iac_provision_msk_cmd() {
 
   # Call the actual function
   gitops_iac_provision_msk
+}
+
+# Wrapper for gitops-iac-provision-msk command
+function gitops_iac_provision_rdsdb2_cmd() {
+  shift  # Remove command name
+  if [[ $# -gt 0 ]]; then
+    gitops_iac_noninteractive "$@"
+  else
+    echo "Not supported yet"
+    exit 1
+  fi
+
+  # Call the actual function
+  gitops_iac_provision_rdsdb2
 }
 
 # Wrapper for gitops-iac-generate-common-files command

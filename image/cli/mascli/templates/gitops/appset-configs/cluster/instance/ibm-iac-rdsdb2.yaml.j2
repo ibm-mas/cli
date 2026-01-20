@@ -1,0 +1,52 @@
+data "aws_secretsmanager_secret" "mas-saas-license-db2" {
+  name = "/aws-dev/mas-cluster-1/rds_db2/license"
+}
+
+data "aws_secretsmanager_secret_version" "mas-saas-license-db2" {
+  secret_id = data.aws_secretsmanager_secret.mas-saas-license-db2.id
+}
+
+locals {
+  mas-saas-license-db2-json = jsondecode(data.aws_secretsmanager_secret_version.mas-saas-license-db2.secret_string)
+  ibm_customer_id           = local.mas-saas-license-db2-json["ibm_customer_id"]
+  ibm_site_id               = local.mas-saas-license-db2-json["ibm_site_id"]
+}
+
+module "db2rds-1" {
+  source = "{{RDS_SOURCE}}"
+
+  sre_prefix                          = join("-", [var.cluster_name, var.instance_name])
+  secret_prefix                       = join("/", [var.cluster_name, var.instance_name])
+  engine                              = "db2-se"
+  vpc_id                              = var.vpc_id
+  ibm_customer_id                     = local.ibm_customer_id
+  ibm_site_id                         = local.ibm_site_id
+  username                            = "db2admin"
+  subnet_grp_id_list                  = local.cluster.external_subnet_ids
+  db2_egress_subnet_ids               = local.cluster.external_subnet_ids
+  db2_ingress_subnet_ids              = local.cluster.internal_subnet_ids
+  db2_additional_ingress_cidrs        = local.cluster.cidrs.workload_internal
+  db2_additional_egress_cidrs         = local.cluster.cidrs.workload_external
+  db2_instance_class                  = "{{MANAGE_DB2_INSTANCE_CLASS}}"
+  db2_storage_type                    = "{{MANAGE_DB2_STORAGE_TYPE}}"
+  allocated_storage                   = {{MANAGE_ALLOCATED_STORAGE}}
+  db2_enabled_cloudwatch_logs_exports = ["diag.log", "notify.log"]
+  db2_additional_security_groups      = local.cluster.security_groups
+  region_name                         = "{{REGION_NAME}}"
+  db_name                             = local.multiple-db2rds.db2rds-2.name
+  db2_identifier                      = "db2rds-2" # 🔧 This makes each DB2 instance unique
+  engine_version                      = var.engine_version
+  multi_az                            = false
+  publicly_accessible                 = false
+  parameter_group_family              = "db2-se-11.5"
+  option_group_name                   = join("-", [var.cluster_name, var.instance_name, "db2-se-11-5"])
+  db2_preferred_maintenance_window    = "sun:05:00-sun:06:00"
+  backup_retention_period             = 2
+  monitoring_interval                 = 30
+  db2_preferred_backup_window         = "01:00-02:00"
+  db2_port                            = "50001"
+  db2_parameters_file_path            = "./db2_parameters.yaml"
+  major_engine_version                = "11.5"
+  s3_bucket_name_for_audit_log        = "test-ajw0111-db2-backup"
+  db2_parameters_apply_type           = var.db2_parameters_apply_type
+}
