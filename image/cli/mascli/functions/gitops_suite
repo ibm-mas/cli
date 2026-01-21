@@ -146,7 +146,6 @@ function gitops_suite_noninteractive() {
   export EXTENSIONS=${EXTENSIONS:-"false"}
   export ADDITIONAL_VPN=${ADDITIONAL_VPN:-"false"}
   export ENHANCED_DR=${ENHANCED_DR:-"false"}
-  export ADDITIONAL_RESOURCES_INSTALL=${ADDITIONAL_RESOURCES_INSTALL:-"false"}
 
   if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
       CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
