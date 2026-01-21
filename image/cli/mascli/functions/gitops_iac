@@ -391,182 +391,182 @@ function gitops_iac_noninteractive() {
         export RDS_SOURCE=$1 && shift
         ;;
 
-      --manage-db2-instance-class)
+      --rds-manage-db2-instance-class)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MANAGE_DB2_INSTANCE_CLASS=$1
+          export RDS_MANAGE_DB2_INSTANCE_CLASS=$1
           shift
         else
-          export MANAGE_DB2_INSTANCE_CLASS=""
+          export RDS_MANAGE_DB2_INSTANCE_CLASS=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --manage-db2-storage-type)
+      --rds-manage-db2-storage-type)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MANAGE_DB2_STORAGE_TYPE=$1
+          export RDS_MANAGE_DB2_STORAGE_TYPE=$1
           shift
         else
-          export MANAGE_DB2_STORAGE_TYPE=""
+          export RDS_MANAGE_DB2_STORAGE_TYPE=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --manage-allocated-storage)
+      --rds-manage-allocated-storage)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MANAGE_ALLOCATED_STORAGE=$1
+          export RDS_MANAGE_ALLOCATED_STORAGE=$1
           shift
         else
-          export MANAGE_ALLOCATED_STORAGE=""
+          export RDS_MANAGE_ALLOCATED_STORAGE=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --manage-jdbc-connection-url-additional-params)
+      --rds-manage-jdbc-connection-url-additional-params)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MANAGE_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1
+          export RDS_MANAGE_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1
           shift
         else
-          export MANAGE_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=""
+          export RDS_MANAGE_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --manage-replica-db)
+      --rds-manage-replica-db)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MANAGE_REPLICA_DB=$1
+          export RDS_MANAGE_REPLICA_DB=$1
           shift
         else
-          export MANAGE_REPLICA_DB=""
+          export RDS_MANAGE_REPLICA_DB=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --manage-db2-combine-properties)
+      --rds-manage-db2-combine-properties)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export MANAGE_DB2_COMBINE_PROPERTIES=$1
+          export RDS_MANAGE_DB2_COMBINE_PROPERTIES=$1
           shift
         else
-          export MANAGE_DB2_COMBINE_PROPERTIES=""
+          export RDS_MANAGE_DB2_COMBINE_PROPERTIES=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --iot-db2-instance-class)
+      --rds-iot-db2-instance-class)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export IOT_DB2_INSTANCE_CLASS=$1
+          export RDS_IOT_DB2_INSTANCE_CLASS=$1
           shift
         else
-          export IOT_DB2_INSTANCE_CLASS=""
+          export RDS_IOT_DB2_INSTANCE_CLASS=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --iot-db2-storage-type)
+      --rds-iot-db2-storage-type)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export IOT_DB2_STORAGE_TYPE=$1
+          export RDS_IOT_DB2_STORAGE_TYPE=$1
           shift
         else
-          export IOT_DB2_STORAGE_TYPE=""
+          export RDS_IOT_DB2_STORAGE_TYPE=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --iot-allocated-storage)
+      --rds-iot-allocated-storage)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export IOT_ALLOCATED_STORAGE=$1
+          export RDS_IOT_ALLOCATED_STORAGE=$1
           shift
         else
-          export IOT_ALLOCATED_STORAGE=""
+          export RDS_IOT_ALLOCATED_STORAGE=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --iot-jdbc-connection-url-additional-params)
+      --rds-iot-jdbc-connection-url-additional-params)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export IOT_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1
+          export RDS_IOT_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1
           shift
         else
-          export IOT_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=""
+          export RDS_IOT_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --iot-replica-db)
+      --rds-iot-replica-db)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export IOT_REPLICA_DB=$1
+          export RDS_IOT_REPLICA_DB=$1
           shift
         else
-          export IOT_REPLICA_DB=""
+          export RDS_IOT_REPLICA_DB=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --iot-db2-combine-properties)
+      --rds-iot-db2-combine-properties)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export IOT_DB2_COMBINE_PROPERTIES=$1
+          export RDS_IOT_DB2_COMBINE_PROPERTIES=$1
           shift
         else
-          export IOT_DB2_COMBINE_PROPERTIES=""
+          export RDS_IOT_DB2_COMBINE_PROPERTIES=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --facilities-db2-instance-class)
+      --rds-facilities-db2-instance-class)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export FACILITIES_DB2_INSTANCE_CLASS=$1
+          export RDS_FACILITIES_DB2_INSTANCE_CLASS=$1
           shift
         else
-          export FACILITIES_DB2_INSTANCE_CLASS=""
+          export RDS_FACILITIES_DB2_INSTANCE_CLASS=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --facilities-db2-storage-type)
+      --rds-facilities-db2-storage-type)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export FACILITIES_DB2_STORAGE_TYPE=$1
+          export RDS_FACILITIES_DB2_STORAGE_TYPE=$1
           shift
         else
-          export FACILITIES_DB2_STORAGE_TYPE=""
+          export RDS_FACILITIES_DB2_STORAGE_TYPE=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --facilities-allocated-storage)
+      --rds-facilities-allocated-storage)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export FACILITIES_ALLOCATED_STORAGE=$1
+          export RDS_FACILITIES_ALLOCATED_STORAGE=$1
           shift
         else
-          export FACILITIES_ALLOCATED_STORAGE=""
+          export RDS_FACILITIES_ALLOCATED_STORAGE=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --facilities-jdbc-connection-url-additional-params)
+      --rds-facilities-jdbc-connection-url-additional-params)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export FACILITIES_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1
+          export RDS_FACILITIES_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1
           shift
         else
-          export FACILITIES_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=""
+          export RDS_FACILITIES_JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --facilities-replica-db)
+      --rds-facilities-replica-db)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export FACILITIES_REPLICA_DB=$1
+          export RDS_FACILITIES_REPLICA_DB=$1
           shift
         else
-          export FACILITIES_REPLICA_DB=""
+          export RDS_FACILITIES_REPLICA_DB=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
 
-      --facilities-db2-combine-properties)
+      --rds-facilities-db2-combine-properties)
         if [[ -n "$1" && "$1" != --* ]]; then
-          export FACILITIES_DB2_COMBINE_PROPERTIES=$1
+          export RDS_FACILITIES_DB2_COMBINE_PROPERTIES=$1
           shift
         else
-          export FACILITIES_DB2_COMBINE_PROPERTIES=""
+          export RDS_FACILITIES_DB2_COMBINE_PROPERTIES=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
@@ -1136,7 +1136,7 @@ function gitops_iac_provision_rdsdb2(){
   fi
 
   echo
-  echo_h2 " MSK Resources terraform files are Committed"
+  echo_h2 " RDS-DB2 Resources terraform files are Committed"
 
   # Clean up cloned repository
   echo

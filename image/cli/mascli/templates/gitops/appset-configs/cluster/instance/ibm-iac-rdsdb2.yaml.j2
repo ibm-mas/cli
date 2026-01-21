@@ -27,9 +27,9 @@ module "db2rds-1" {
   db2_ingress_subnet_ids              = local.cluster.internal_subnet_ids
   db2_additional_ingress_cidrs        = local.cluster.cidrs.workload_internal
   db2_additional_egress_cidrs         = local.cluster.cidrs.workload_external
-  db2_instance_class                  = "{{MANAGE_DB2_INSTANCE_CLASS}}"
-  db2_storage_type                    = "{{MANAGE_DB2_STORAGE_TYPE}}"
-  allocated_storage                   = {{MANAGE_ALLOCATED_STORAGE}}
+  db2_instance_class                  = "{{RDS_MANAGE_DB2_INSTANCE_CLASS}}"
+  db2_storage_type                    = "{{RDS_MANAGE_DB2_STORAGE_TYPE}}"
+  allocated_storage                   = {{RDS_MANAGE_ALLOCATED_STORAGE}}
   db2_enabled_cloudwatch_logs_exports = ["diag.log", "notify.log"]
   db2_additional_security_groups      = local.cluster.security_groups
   region_name                         = "{{REGION_NAME}}"

@@ -702,6 +702,14 @@ case $1 in
     gitops_iac_provision_msk_cmd "$@"
     ;;
 
+  gitops-iac-provision-rdsdb2)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Provision S3 (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_provision_rdsdb2_cmd "$@"
+    ;;
+
   gitops-iac-generate-common-files)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Generate Common Files (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
