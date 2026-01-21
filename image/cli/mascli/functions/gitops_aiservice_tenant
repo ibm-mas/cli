@@ -405,6 +405,14 @@ function gitops_aiservice_tenant() {
   export SECRET_KEY_WATSONXAI_APIKEY=${SECRETS_PREFIX}watsonx#watsonxai_apikey
   export AISERVICE_WATSONXAI_PROJECT_ID=${SECRETS_PREFIX}watsonx#watsonxai_project_id
   
+  # Check if watsonx secret contains watsonxai_ca_crt key and export if it has a value
+  WATSONX_SECRET_NAME="${SECRETS_PREFIX}watsonx"
+  WATSONXAI_CA_CRT_VALUE=$(sm_get_secret_value "$WATSONX_SECRET_NAME" "watsonxai_ca_crt")
+  if [[ -n "$WATSONXAI_CA_CRT_VALUE" && "$WATSONXAI_CA_CRT_VALUE" != "null" ]]; then
+    export SECRET_KEY_WATSONXAI_CA_CRT=${SECRETS_PREFIX}watsonx#watsonxai_ca_crt
+    echo "Watsonx CA certificate key found and exported"
+  fi
+  
   # STORAGE
   export SECRET_KEY_STORAGE_HOST=${SECRETS_PREFIX}storage#sm_storage_host
   export SECRET_KEY_STORAGE_PORT=${SECRETS_PREFIX}storage#sm_storage_port
