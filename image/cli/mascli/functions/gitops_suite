@@ -146,7 +146,17 @@ function gitops_suite_noninteractive() {
   export EXTENSIONS=${EXTENSIONS:-"false"}
   export ADDITIONAL_VPN=${ADDITIONAL_VPN:-"false"}
   export ENHANCED_DR=${ENHANCED_DR:-"false"}
-
+  
+  # Only set ADDITIONAL_RESOURCES_INSTALL if additional_resources section exists in mas-instance-params.yaml
+  if [[ -f "${GITOPS_INSTANCE_DIR}/mas-instance-params.yaml" ]]; then
+    if yq eval '.additional_resources' "${GITOPS_INSTANCE_DIR}/mas-instance-params.yaml" &>/dev/null && \
+       [[ "$(yq eval '.additional_resources' "${GITOPS_INSTANCE_DIR}/mas-instance-params.yaml")" != "null" ]]; then
+      # Only export if additional_resources section exists
+      export ADDITIONAL_RESOURCES_INSTALL=${ADDITIONAL_RESOURCES_INSTALL:-"false"}
+    fi
+    # If section doesn't exist, don't export the variable at all
+  fi
+  # If file doesn't exist yet, don't export the variable (will be set when file is created)
 
   if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
       CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
