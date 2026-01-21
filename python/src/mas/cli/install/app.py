@@ -400,6 +400,61 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
 
     @logMethodCall
+    def arcgisSettings(self) -> None:
+        """
+        Configure ArcGIS as a shared dependency for Manage and Facilities.
+        This method detects if either Manage (with Spatial) or Facilities is selected
+        and prompts for ArcGIS installation accordingly.
+        """
+        needsArcGIS = False
+        apps_requiring_arcgis = []
+
+        # Check if Manage with Spatial component is selected
+        if self.installManage and "spatial=" in self.getParam("mas_appws_components"):
+            needsArcGIS = True
+            apps_requiring_arcgis.append("Maximo Manage (Spatial)")
+
+        # Check if Facilities is selected (MAS 9.1+)
+        if self.installFacilities:
+            needsArcGIS = True
+            apps_requiring_arcgis.append("Maximo Real Estate and Facilities")
+
+        # Only prompt if ArcGIS is needed and we're on MAS 9.x
+        # Check the appropriate channel based on what's being installed
+        if needsArcGIS:
+            channel = self.getParam("mas_app_channel_manage") or self.getParam("mas_app_channel_facilities")
+            if channel and isVersionEqualOrAfter('9.0.0', channel):
+                # Build description based on what's being installed
+                description = [
+                    "",
+                    "Geospatial capabilities require a map server provider",
+                    "You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now"
+                ]
+
+                # Add specific details based on installed applications
+                if len(apps_requiring_arcgis) == 1:
+                    description.append(f"This includes ArcGIS Enterprise as part of {apps_requiring_arcgis[0]} (Additional AppPoints required).")
+                else:
+                    description.append(f"This includes ArcGIS Enterprise for {' and '.join(apps_requiring_arcgis)} (Additional AppPoints required).")
+
+                self.printDescription(description)
+
+                if self.yesOrNo("Include IBM Maximo Location Services for Esri"):
+                    self.setParam("mas_arcgis_channel", channel)
+                    self.installArcgis = True
+
+                    self.printDescription([
+                        "",
+                        "IBM Maximo Location Services for Esri License Terms",
+                        "For information about your IBM Maximo Location Services for Esri License visit: ",
+                        " - <Orange><u>https://ibm.biz/MAXArcGIS90-License</u></Orange>",
+                        "To continue with the installation, you must accept these additional license terms"
+                    ])
+
+                    if not self.yesOrNo("Do you accept the license terms"):
+                        exit(1)
+
+    @logMethodCall
     def configSpecialCharacters(self):
         if self.showAdvancedOptions:
             self.printH1("Configure special characters for userID and username")
@@ -691,6 +746,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.installMonitor = self.yesOrNo("Install Monitor")
         else:
             self.installMonitor = False
+
+        # Initialize ArcGIS flag (will be set to True later in arcgisSettings() if needed)
+        self.installArcgis = False
 
         if self.installMonitor:
             self.configAppChannel("monitor")
@@ -1127,6 +1185,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.aiServiceIntegrations()
 
         # Dependencies
+        self.arcgisSettings()  # Will only prompt if Manage (with Spatial) or Facilities is selected
         self.configMongoDb()
         self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
@@ -1152,6 +1211,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installManage = False
         self.installPredict = False
         self.installInspection = False
+        self.installArcgis = False
         self.installOptimizer = False
         self.installFacilities = False
         self.deployCP4D = False
@@ -1285,6 +1345,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 # only set if AI Service not being installed
                 if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
                     self.setParam("manage_bind_aiservice_tenant_id", value)
+
+            # ArcGIS settings
+            elif key == "mas_arcgis_channel":
+                if value is not None and value != "":
+                    self.setParam("mas_arcgis_channel", value)
+                    self.installArcgis = True
 
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":
@@ -1451,6 +1517,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         #  An error should be raised if "health" is not specified when installing Predict.
         if ((self.getParam("mas_app_channel_predict") is not None and self.getParam("mas_app_channel_predict") != "") and 'health' not in self.getParam("mas_appws_components")):
             self.fatalError("--manage-components must include 'health' component when installing Predict")
+
+        # Validate ArcGIS installation requirements in non-interactive mode
+        if self.installArcgis:
+            hasSpatial = self.installManage and "spatial=" in self.getParam("mas_appws_components")
+            hasFacilities = self.installFacilities
+
+            # ArcGIS requires either Spatial or Facilities to be installed
+            if not hasSpatial and not hasFacilities:
+                self.fatalError("--arcgis-channel requires either Manage with Spatial component (--manage-components must include 'spatial=') or Facilities (--facilities-channel) to be installed")
+
+            # ArcGIS requires channel 9.0 or later
+            arcgis_channel = self.getParam("mas_arcgis_channel")
+            if arcgis_channel and not isVersionEqualOrAfter('9.0.0', arcgis_channel):
+                self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
 
     @logMethodCall
     def install(self, argv):

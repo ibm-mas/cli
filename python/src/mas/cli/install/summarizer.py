@@ -130,7 +130,7 @@ class InstallSummarizerMixin():
             self.printSummary("Monitor", "Do Not Install")
 
     def arcgisSummary(self) -> None:
-        if self.getParam("install_arcgis") != "":
+        if self.installArcgis:
             self.printSummary("Loc Srv Esri (arcgis)", self.params["mas_arcgis_channel"])
         else:
             self.printSummary("Loc Srv Esri (arcgis)", "Do Not Install")
