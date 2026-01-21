@@ -39,16 +39,11 @@ additional_vpn: {{ ADDITIONAL_VPN }}
 application_configuration: {{ APPLICATION_CONFIGURATION }}
 {% endif %}
 
-{% if ADDITIONAL_RESOURCES_INSTALL is defined %}
-additional_resources:
-  install: {{ ADDITIONAL_RESOURCES_INSTALL }}
-{% if ADDITIONAL_RESOURCES_INSTALL == 'true' and ADDITIONAL_RESOURCES_INSTANCES is defined and ADDITIONAL_RESOURCES_INSTANCES != '' %}
+{% if ADDITIONAL_RESOURCES_INSTANCES is defined and ADDITIONAL_RESOURCES_INSTANCES != '' %}
 {%- set instances_yaml = ADDITIONAL_RESOURCES_INSTANCES | toYaml | to_nice_yaml(indent=2) %}
+additional_resources:
   instances:
 {{ instances_yaml | indent(4, first=True) }}
-{% else %}
-  instances: []
-{% endif %}
 {% endif %}
 
 {% if EXTENSIONS is defined and EXTENSIONS != '' %}
