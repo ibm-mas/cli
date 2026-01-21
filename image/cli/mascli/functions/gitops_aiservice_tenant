@@ -304,7 +304,9 @@ function gitops_aiservice_tenant_noninteractive() {
   [[ -z "$DROCFG_URL" ]] && gitops_aiservice_tenant_help "DROCFG_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
   
   # -- SLS
-  [[ -z "$SLSCFG_URL" ]] && gitops_aiservice_tenant_help "SLSCFG_URL is not set. Please specify the SLS configuration URL using --slscfg-url."
+  if [ -z "$STANDALONE_SLS_SERVICE" ]; then
+    [[ -z "$SLSCFG_URL" ]] && gitops_aiservice_tenant_help "SLSCFG_URL is not set. Please specify the SLS configuration URL using --slscfg-url."
+  fi
 
   # -- Watsonx
   [[ -z "$AISERVICE_WATSONXAI_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --aiservice-watsonxai-url."
