@@ -17,7 +17,11 @@ ibm_aiservice_tenant:
 
   # sls
   slscfg_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_CA_B64ENC }}>"
+  {%- if STANDALONE_SLS_SERVICE %}
+  slscfg_url: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_URL }}>
+  {%- else %}
   slscfg_url: "{{ SLSCFG_URL }}"
+  {%- endif %}
   slscfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_REGISTRATION_KEY }}>"
   aiservice_sls_subscription_id: "{{ AISERVICE_SLS_SUBSCRIPTION_ID }}"
   

@@ -426,6 +426,7 @@ function gitops_aiservice_tenant() {
     export SLS_SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}"
     export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SLS_SECRETS_PREFIX}sls#registration_key
     export SECRET_KEY_SLSCFG_CA_B64ENC=${SLS_SECRETS_PREFIX}sls#ca_b64
+    export SECRET_KEY_SLS_URL=${SLS_SECRETS_PREFIX}sls#sls_url
   fi  
 
   export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
@@ -449,7 +450,7 @@ function gitops_aiservice_tenant() {
   if [ -z "$STANDALONE_SLS_SERVICE" ]; then
     sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
   else
-    sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64"
+    sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64,sls_url"
   fi
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
