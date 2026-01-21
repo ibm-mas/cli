@@ -183,6 +183,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
+        self.catalogDb2Channel = self.chosenCatalog.get("db2_channel_default", "v110509.0")  # Returns fallback "v110509.0" for old catalogs without this field
         if self.architecture != "s390x" and self.architecture != "ppc64le":
             self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
 
@@ -1234,7 +1235,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         self.configGrafana()
         self.configSNO()
-        self.setDB2DefaultChannel()
         self.setDB2DefaultSettings()
 
         for key, value in vars(self.args).items():
@@ -1493,6 +1493,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+        if self.chosenCatalog is not None:
+            self.processCatalogChoice()  # Only process catalog if it was successfully loaded,this will set catalogDb2Channel
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
@@ -1505,6 +1507,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if not self.devMode:
             self.validateCatalogSource()
             self.licensePrompt()
+
+        self.setDB2DefaultChannel()
 
         # Version before 9.1 cannot have empty components
         if (self.getParam("mas_channel").startswith("8.") or self.getParam("mas_channel").startswith("9.0")) and (self.getParam("mas_app_channel_manage") is not None and self.getParam("mas_app_channel_manage") != "") and self.getParam("mas_appws_components") == "":
