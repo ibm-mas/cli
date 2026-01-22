@@ -69,10 +69,7 @@ spec:
     # 2. Manage FVT - Manage Mobile
     # -------------------------------------------------------------------------
     
-    {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase1-setup.yml.j2') | indent(4) }}
-      runAfter:
-        - pipeline-start
-        
+    {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase1-setup.yml.j2') | indent(4) }}  
     {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase2-apps.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase3-apps.yml.j2') | indent(4) }}
     {{ lookup('template', 'taskdefs/fvt-mobile/pytest/phase4-apps.yml.j2') | indent(4) }}

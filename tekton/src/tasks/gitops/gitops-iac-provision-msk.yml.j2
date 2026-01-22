@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-iac-provision-s3
+  name: gitops-iac-provision-msk
 spec:
   params:
     - name: cluster_name
@@ -24,21 +24,22 @@ spec:
       type: string
     - name: mas_instance_id
       type: string
-    - name: s3_source
+    - name: msk_source
       type: string
-      default: ""
-    - name: s3_source_iampolicy
+
+   # iac-msk iot params
+    - name: msk_kafka_version
       type: string
-      default: ""
-    - name: s3_source_s3accesspoint
+    - name: msk_instance_type
       type: string
-      default: ""
-    - name: s3_manage
+    - name: msk_cluster_username
       type: string
-      default: ""
-    - name: s3_mvi
+    - name: msk_broker_volume_size
       type: string
-      default: ""
+    - name: msk_number_of_broker_nodes
+      type: string
+    - name: msk_cluster_prefix
+      type: string
 
   stepTemplate:
     env:
@@ -60,16 +61,23 @@ spec:
         value: $(params.github_repo)
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
-      - name: S3_SOURCE
-        value: $(params.s3_source)
-      - name: S3_SOURCE_IAMPOLICY
-        value: $(params.s3_source_iampolicy)
-      - name: S3_SOURCE_S3ACCESSPOINT
-        value: $(params.s3_source_s3accesspoint)
-      - name: S3_MANAGE
-        value: $(params.s3_manage)
-      - name: S3_MVI
-        value: $(params.s3_mvi)
+      - name: MSK_SOURCE
+        value: $(params.msk_source)
+
+      # iac-msk params
+      - name: MSK_KAFKA_VERSION
+        value: $(params.msk_kafka_version)
+      - name: MSK_INSTANCE_TYPE
+        value: $(params.msk_instance_type)
+      - name: MSK_CLUSTER_USERNAME
+        value: $(params.msk_cluster_username)
+      - name: MSK_BROKER_VOLUME_SIZE
+        value: $(params.msk_broker_volume_size)
+      - name: MSK_NUMBER_OF_BROKER_NODES
+        value: $(params.msk_number_of_broker_nodes)
+      - name: MSK_CLUSTER_PREFIX
+        value: $(params.msk_cluster_prefix)
+
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -78,14 +86,14 @@ spec:
           name: secure-properties
 
   steps:
-    - name: provision-s3
+    - name: provision-msk
       args:
         - |-
           git config --global user.name "MAS Automation"
           git config --global user.email "you@example.com"
           git config --global user.password $GITHUB_PAT
 
-          CMD="mas gitops-iac-provision-s3 -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
+          CMD="mas gitops-iac-provision-msk -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
 
           echo "Executing: $CMD"
           eval $CMD
