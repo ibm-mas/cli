@@ -417,12 +417,12 @@ if __name__ == "__main__":
         except K8sNotFoundError:
             db2u_exists = False
             print("DB2 namespace 'db2u' does not exist, skipping DB2 cluster version collection")
-        
+
         if db2u_exists:
             # Try to get DB2 cluster - try multiple possible names
             crs = dynClient.resources.get(api_version="db2u.databases.ibm.com/v1", kind="Db2uCluster")
             db2_cluster_names = [f"mas-{instanceId}-system", f"{instanceId}-system", "db2u-cluster"]
-            
+
             db2_found = False
             for cluster_name in db2_cluster_names:
                 try:
@@ -441,7 +441,7 @@ if __name__ == "__main__":
                 except Exception as e:
                     print(f"Error checking DB2 cluster '{cluster_name}': {e}")
                     continue
-            
+
             if not db2_found:
                 print(f"DB2 cluster not found in namespace 'db2u'. Tried names: {db2_cluster_names}")
     except Exception as e:
@@ -458,16 +458,16 @@ if __name__ == "__main__":
         except K8sNotFoundError:
             db2u_exists = False
             print("DB2 namespace 'db2u' does not exist, skipping DB2 operator version collection")
-        
+
         if db2u_exists:
             csvl = dynClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="ClusterServiceVersion")
-            
+
             # Try multiple label selectors
             label_selectors = [
                 'operators.coreos.com/db2u-operator.db2u',
                 'operators.coreos.com/db2u.db2u'
             ]
-            
+
             csv_found = False
             for selector in label_selectors:
                 try:
@@ -483,7 +483,7 @@ if __name__ == "__main__":
                 except Exception as e:
                     print(f"Error checking DB2 operator with selector '{selector}': {e}")
                     continue
-            
+
             if not csv_found:
                 print(f"DB2 operator CSV not found in namespace 'db2u'. Tried selectors: {label_selectors}")
     except Exception as e:
