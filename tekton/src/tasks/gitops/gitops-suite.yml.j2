@@ -139,6 +139,9 @@ spec:
     - name: additional_vpn
       type: string
       default: ""
+    - name: additional_resources_install
+      type: string
+      default: "false"
     - name: additional_resources_instances
       type: string
       default: ""
@@ -258,6 +261,8 @@ spec:
         value: $(params.enhanced_dr)
       - name: ADDITIONAL_VPN
         value: $(params.additional_vpn)
+      - name: ADDITIONAL_RESOURCES_INSTALL
+        value: $(params.additional_resources_install)
       - name: ADDITIONAL_RESOURCES_INSTANCES
         value: $(params.additional_resources_instances)
       - name: IS_NON_SHARED_CLUSTER
