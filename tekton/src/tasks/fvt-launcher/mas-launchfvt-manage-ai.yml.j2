@@ -13,6 +13,10 @@ spec:
     - name: pipelinerun_name
       type: string
 
+    - name: aiservice_instance_id
+      type: string
+      default: ""
+
   steps:
     - name: start-pipelinerun
       image: quay.io/ibmmas/cli:latest
@@ -27,6 +31,8 @@ spec:
           value: $(params.pipelinerun_name)
         - name: PIPELINERUN_NAMESPACE
           value: $(context.taskRun.namespace)
+        - name: AISERVICE_INSTANCE_ID
+          value: $(params.aiservice_instance_id)
 
         # Lookups from mas-devops
         # -----------------------------------------------------------------------

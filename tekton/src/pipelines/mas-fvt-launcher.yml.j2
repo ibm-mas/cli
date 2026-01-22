@@ -142,6 +142,9 @@ spec:
     - name: mas_app_channel_manage
       type: string
       default: ""
+    - name: aiservice_instance_id
+      type: string
+      default: ""
 
   tasks:
     # 0. Configuration
@@ -581,6 +584,8 @@ spec:
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
           value: "$(params.mas_instance_id)-fvt-manage-ai"
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
       taskRef:
         kind: Task
         name: mas-launchfvt-manage-ai
@@ -588,6 +593,10 @@ spec:
         - input: $(params.launchfvt_manage_ai)
           operator: in
           values: ["true", "True"]
+        # Only run if aiservice_instance_id is provided
+        - input: $(params.aiservice_instance_id)
+          operator: notin
+          values: ["", "null"]
       runAfter:
         - manage-setup
 
