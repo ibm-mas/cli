@@ -1,6 +1,5 @@
 # -------------------------------------------------------------
 # AI Tests Phase
-# - fvt-manage-base-api-setup (pytest)
 # - fvt-manage-base-api-system-ai (pytest)
 # -------------------------------------------------------------
 
@@ -15,3 +14,5 @@
     - input: "base"
       operator: in
       values: ["$(tasks.fvt-component.results.component_names[*])"]
+  runAfter:
+    - fvt-component
