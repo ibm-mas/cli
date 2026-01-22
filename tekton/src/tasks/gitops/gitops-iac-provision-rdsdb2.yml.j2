@@ -84,10 +84,6 @@ spec:
       type: string
       default: ""
 
-
-
-
-
   stepTemplate:
     env:
       - name: CLUSTER_NAME
@@ -148,13 +144,12 @@ spec:
         value: $(params.rds_facilities_replica_db)
       - name: RDS_FACILITIES_DB2_COMBINE_PROPERTIES
         value: $(params.rds_facilities_db2_combine_properties)
-
     envFrom:
       - configMapRef:
           name: environment-properties
           optional: true
       - secretRef:
-          name: secure-propertiess
+          name: secure-properties
 
   steps:
     - name: provision-rdsdb2
