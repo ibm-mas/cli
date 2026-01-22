@@ -1309,6 +1309,11 @@ function gitops_iac_manage_pr() {
   if [[ "$IS_MSK" == "true" ]]; then
       PROVISIONED_COMPONENTS+=("MSK")
   fi
+
+      # Check if RDS-DB2 was provisioned using IS_RDS parameter
+    if [[ "$IS_RDS" == "true" ]]; then
+        PROVISIONED_COMPONENTS+=("RDS-DB2")
+    fi
   
   # Build component list for title and body
   if [ ${#PROVISIONED_COMPONENTS[@]} -eq 0 ]; then
