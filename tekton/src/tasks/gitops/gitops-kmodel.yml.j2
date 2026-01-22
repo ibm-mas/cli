@@ -29,27 +29,27 @@ spec:
 
     - name: aiservice_instance_id
       type: string
-    - name: aibroker_internal_tls
+    - name: aiservice_internal_tls
       type: string
-    - name: aibroker_namespace
+    - name: aiservice_namespace
       type: string
     - name: pull_secret_name
       type: string
-    - name: mas_aibroker_storage_provider
+    - name: aiservice_storage_provider
       type: string
-    - name: mas_aibroker_storage_ssl
+    - name: aiservice_storage_ssl
       type: string
-    - name: mas_aibroker_storage_host
+    - name: aiservice_storage_host
       type: string
-    - name: mas_aibroker_storage_port
+    - name: aiservice_storage_port
       type: string
-    - name: mas_aibroker_storage_region
+    - name: aiservice_storage_region
       type: string
-    - name: mas_aibroker_storage_templates_bucket
+    - name: aiservice_storage_templates_bucket
       type: string
-    - name: mas_aibroker_storage_tenants_bucket
+    - name: aiservice_storage_tenants_bucket
       type: string
-    - name: mas_aibroker_storage_pipelines_bucket
+    - name: aiservice_storage_pipelines_bucket
       type: string
     - name: ssh_secret_name
       type: string
@@ -57,7 +57,7 @@ spec:
       type: string
     - name: tenantNamespace
       type: string
-    - name: mas_aibroker_provision_tenant
+    - name: aiservice_provision_tenant
       type: string
     - name: primary_storage_class
       type: string
@@ -67,9 +67,9 @@ spec:
       type: string
     - name: image_controller
       type: string
-    - name: mas_aibroker_connector_tag
+    - name: aiservice_connector_tag
       type: string
-    - name: mas_aibroker_saas
+    - name: aiservice_saas
       type: string
     - name: model_id_unique_length
       type: string
@@ -106,36 +106,36 @@ spec:
         value: $(params.github_repo)
       - name: AISERVICE_INSTANCE_ID
         value: $(params.aiservice_instance_id)
-      - name: AIBROKER_INTERNAL_TLS
-        value: $(params.aibroker_internal_tls)
-      - name: AIBROKER_NAMESPACE
-        value: $(params.aibroker_namespace)
+      - name: AISERVICE_INTERNAL_TLS
+        value: $(params.aiservice_internal_tls)
+      - name: AISERVICE_NAMESPACE
+        value: $(params.aiservice_namespace)
       - name: PULL_SECRET_NAME
         value: $(params.pull_secret_name)
-      - name: MAS_AIBROKER_STORAGE_PROVIDER
-        value: $(params.mas_aibroker_storage_provider)
-      - name: MAS_AIBROKER_STORAGE_SSL
-        value: $(params.mas_aibroker_storage_ssl)
-      - name: MAS_AIBROKER_STORAGE_HOST
-        value: $(params.mas_aibroker_storage_host)
-      - name: MAS_AIBROKER_STORAGE_PORT
-        value: $(params.mas_aibroker_storage_port)
-      - name: MAS_AIBROKER_STORAGE_REGION
-        value: $(params.mas_aibroker_storage_region)
-      - name: MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET
-        value: $(params.mas_aibroker_storage_templates_bucket)
-      - name: MAS_AIBROKER_STORAGE_TENANTS_BUCKET
-        value: $(params.mas_aibroker_storage_tenants_bucket)
-      - name: MAS_AIBROKER_STORAGE_PIPELINES_BUCKET
-        value: $(params.mas_aibroker_storage_pipelines_bucket)
+      - name: AISERVICE_STORAGE_PROVIDER
+        value: $(params.aiservice_storage_provider)
+      - name: AISERVICE_STORAGE_SSL
+        value: $(params.aiservice_storage_ssl)
+      - name: AISERVICE_STORAGE_HOST
+        value: $(params.aiservice_storage_host)
+      - name: AISERVICE_STORAGE_PORT
+        value: $(params.aiservice_storage_port)
+      - name: AISERVICE_STORAGE_REGION
+        value: $(params.aiservice_storage_region)
+      - name: AISERVICE_STORAGE_TEMPLATES_BUCKET
+        value: $(params.aiservice_storage_templates_bucket)
+      - name: AISERVICE_STORAGE_TENANTS_BUCKET
+        value: $(params.aiservice_storage_tenants_bucket)
+      - name: AISERVICE_STORAGE_PIPELINES_BUCKET
+        value: $(params.aiservice_storage_pipelines_bucket)
       - name: SSH_SECRET_NAME
         value: $(params.ssh_secret_name)
       - name: DOCKER_SERVER
         value: $(params.docker_server)
       - name: TENANT_NAMESPACE
         value: $(params.tenantNamespace)
-      - name: MAS_AIBROKER_PROVISION_TENANT
-        value: $(params.mas_aibroker_provision_tenant)
+      - name: AISERVICE_PROVISION_TENANT
+        value: $(params.aiservice_provision_tenant)
       - name: PRIMARY_STORAGE_CLASS
         value: $(params.primary_storage_class)
       - name: IMAGE_STORE
@@ -144,10 +144,10 @@ spec:
         value: $(params.image_watcher)
       - name: IMAGE_CONTROLLER
         value: $(params.image_controller)
-      - name: MAS_AIBROKER_CONNECTOR_TAG
-        value: $(params.mas_aibroker_connector_tag)
-      - name: MAS_AIBROKER_SAAS
-        value: $(params.mas_aibroker_saas)
+      - name: AISERVICE_CONNECTOR_TAG
+        value: $(params.aiservice_connector_tag)
+      - name: AISERVICE_SAAS
+        value: $(params.aiservice_saas)
       - name: MODEL_ID_UNIQUE_LENGTH
         value: $(params.model_id_unique_length)
       - name: MODEL_ID_PREFIX

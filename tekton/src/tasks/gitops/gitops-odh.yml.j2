@@ -38,7 +38,7 @@ spec:
       type: string
     - name: odh_operator_version
       type: string
-    - name: mas_aibroker_storage_ssl
+    - name: aiservice_storage_ssl
       type: string
       default: "true"
   stepTemplate:
@@ -78,8 +78,8 @@ spec:
         value: $(params.opendatahub_namespace)
       - name: ODH_OPERATOR_VERSION
         value: $(params.odh_operator_version)
-      - name: MAS_AIBROKER_STORAGE_SSL
-        value: $(params.mas_aibroker_storage_ssl)
+      - name: AISERVICE_STORAGE_SSL
+        value: $(params.aiservice_storage_ssl)
     envFrom:
       - configMapRef:
           name: environment-properties

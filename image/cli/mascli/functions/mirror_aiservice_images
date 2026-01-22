@@ -7,7 +7,7 @@ function mirror_aiservice_everything() {
     MIRROR_CATALOG=true
 
     # Apps
-    MIRROR_MAS_AISERVICE=true
+    MIRROR_AISERVICE=true
 
     # Dependencies (Other)
     MIRROR_DB2U=true
@@ -19,7 +19,7 @@ function mirror_aiservice_everything() {
 
 function mirror_aiservice_to_registry_noninteractive() {
   # Main content
-  MIRROR_MAS_AISERVICE=false
+  MIRROR_AISERVICE=false
 
   # Dependencies
   MIRROR_CATALOG=false
@@ -93,7 +93,7 @@ function mirror_aiservice_to_registry_noninteractive() {
 
       # Content Selection (Applications):
       --mirror-aiservice)
-        MIRROR_MAS_AISERVICE=true
+        MIRROR_AISERVICE=true
         ;;
 
       # Content Selection (Other Dependencies)
@@ -156,7 +156,7 @@ function mirror_aiservice_to_registry_interactive() {
     mirror_aiservice_everything
   else
     prompt_for_confirm_default_yes "IBM Maximo Operator Catalog" MIRROR_CATALOG
-    prompt_for_confirm "IBM Maximo Application Suite - AI Service" MIRROR_MAS_AISERVICE
+    prompt_for_confirm "IBM Maximo Application Suite - AI Service" MIRROR_AISERVICE
 
     prompt_for_confirm_default_yes "IBM Db2" MIRROR_DB2U
     prompt_for_confirm "Minio" MIRROR_MINIO
@@ -205,7 +205,7 @@ export MIRROR_MINIO
   reset_colors
   echo_h4 "Content Selection (Core Platform)" "    "
   show_mirror_status "IBM Maximo Operator Catalog ........." $MIRROR_CATALOG
-  show_mirror_status "IBM Maximo AI Service ..............." $MIRROR_MAS_AISERVICE
+  show_mirror_status "IBM Maximo AI Service ..............." $MIRROR_AISERVICE
 
   echo
   reset_colors
@@ -218,6 +218,6 @@ export MIRROR_MINIO
 
   confirm_mirror
 
-  mirror_one_thing $MIRROR_MAS_AISERVICE        "IBM Maximo AI Service"                 "$LOG_PREFIX-aiservice.log"        mirror_add_aiservice
+  mirror_one_thing $MIRROR_AISERVICE        "IBM Maximo AI Service"                 "$LOG_PREFIX-aiservice.log"        mirror_add_aiservice
   mirror_one_thing $MIRROR_DEPS                 "Selected Dependencies"                 "$LOG_PREFIX-dependencies.log"     mirror_dependencies
 }
