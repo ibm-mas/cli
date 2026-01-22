@@ -1486,12 +1486,6 @@ otherArgGroup.add_argument(
     help="Configure installation for development mode"
 )
 otherArgGroup.add_argument(
-    "--no-wait-for-pvc",
-    required=False,
-    action="store_true",
-    help="Disable the wait for pipeline PVC to bind before starting the pipeline"
-)
-otherArgGroup.add_argument(
     "--skip-pre-check",
     required=False,
     action="store_true",
