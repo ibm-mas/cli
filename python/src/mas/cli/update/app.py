@@ -479,7 +479,7 @@ class UpdateApp(BaseApp):
                     return
                 elif len(cpds) == 1:
                     cpdUpgradePath = {
-                        "5.2.0": "5.2.0",  # Already at latest version
+                        "5.2.0": "5.2.0",
                         "5.1.3": "5.2.0",
                         "5.0.0": "5.1.3",
                     }
@@ -502,10 +502,7 @@ class UpdateApp(BaseApp):
                         ])
                         return
 
-                    # Check if current version is already at or beyond the target version
                     if cpdInstanceVersion >= cpdTargetVersion:
-                        h.stop_and_persist(symbol=self.successIcon, text=f"IBM Cloud Pak for Data ({cpdInstanceNamespace}) is already at version {cpdInstanceVersion} (target: {cpdTargetVersion})")
-                    elif cpdInstanceVersion not in cpdUpgradePath:
                         h.stop_and_persist(symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) is too old to update to this catalog")
                         self.fatalError(
                             "Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nContact IBM support for assistance"
