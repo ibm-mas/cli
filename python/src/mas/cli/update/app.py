@@ -502,7 +502,7 @@ class UpdateApp(BaseApp):
                         ])
                         return
 
-                    if cpdInstanceVersion not in cpdUpgradePath
+                    if cpdInstanceVersion not in cpdUpgradePath:
                         h.stop_and_persist(symbol=self.successIcon, text=f"Installed Cloud Pak for Data version ({cpdInstanceVersion}) is too old to update to this catalog")
                         self.fatalError(
                             "Skipping intermediate Cloud Pak for Data updates is not tested and thus not supported\n\nContact IBM support for assistance"
