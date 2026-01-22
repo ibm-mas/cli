@@ -52,6 +52,7 @@ spec:
         value: ibm-aiservice
       - name: PRODUCT_CHANNEL
         value: $(params.product_channel)
+        default: ""
       - name: NAMESPACE
         value: "aiservice-$(params.aiservice_instance_id)"
       - name: INSTANCE_ID
