@@ -525,13 +525,46 @@ if __name__ == "__main__":
     # Lookup SLS version
     # -------------------------------------------------------------------------
     try:
-        crs = dynClient.resources.get(api_version="sls.ibm.com/v1", kind="LicenseService")
-        cr = crs.get(name="sls", namespace=f"sls-{instanceId}")
-        if cr.status and cr.status.versions:
-            slsVersion = cr.status.versions.reconciled
-            setObject["target.slsVersion"] = slsVersion
-        else:
-            print("Unable to determine SLS version: status.versions unavailable")
+        from openshift.dynamic.exceptions import NotFoundError as K8sNotFoundError
+        
+        sls_namespace = f"sls-{instanceId}"
+        
+        # Check if SLS namespace exists
+        try:
+            namespaces = dynClient.resources.get(api_version="v1", kind="Namespace")
+            ns = namespaces.get(name=sls_namespace)
+            sls_ns_exists = True
+        except K8sNotFoundError:
+            sls_ns_exists = False
+            print(f"SLS namespace '{sls_namespace}' does not exist, skipping SLS version collection")
+        
+        if sls_ns_exists:
+            crs = dynClient.resources.get(api_version="sls.ibm.com/v1", kind="LicenseService")
+            
+            # Try multiple possible SLS resource names
+            sls_names = ["sls", f"sls-{instanceId}", "licenseservice"]
+            
+            sls_found = False
+            for sls_name in sls_names:
+                try:
+                    cr = crs.get(name=sls_name, namespace=sls_namespace)
+                    if cr.status and cr.status.versions:
+                        slsVersion = cr.status.versions.reconciled
+                        setObject["target.slsVersion"] = slsVersion
+                        print(f"Found SLS '{sls_name}' with version: {slsVersion}")
+                        sls_found = True
+                        break
+                    else:
+                        print(f"SLS '{sls_name}' found but status.versions unavailable")
+                except K8sNotFoundError:
+                    # Try next name
+                    continue
+                except Exception as e:
+                    print(f"Error checking SLS '{sls_name}': {e}")
+                    continue
+            
+            if not sls_found:
+                print(f"SLS LicenseService not found in namespace '{sls_namespace}'. Tried names: {sls_names}")
     except Exception as e:
         print(f"Unable to determine SLS version: {e}")
 
@@ -739,3 +772,4 @@ if __name__ == "__main__":
             message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
             message.append(SlackUtil.buildSection("Sorry.  The build is so bad it can't even be summarized within the size limit of a Slack message!"))
             postMessage(FVT_SLACK_CHANNEL, message, threadId)
+
