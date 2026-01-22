@@ -66,6 +66,9 @@ spec:
     - name: dro_public_domain
       type: string
       default: ""
+    - name: dro_cis_crn
+      type: string
+      default: ""
 
     - name: nvidia_gpu_action
       type: string
@@ -431,6 +434,8 @@ spec:
           value: $(params.imo_install_plan)
         - name: dro_public_domain
           value: $(params.dro_public_domain)
+        - name: dro_cis_crn
+          value: $(params.dro_cis_crn)
       taskRef:
         kind: Task
         name: gitops-dro

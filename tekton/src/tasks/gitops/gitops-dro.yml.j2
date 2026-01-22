@@ -44,6 +44,9 @@ spec:
     - name: dro_public_domain
       type: string
       default: ""
+    - name: dro_cis_crn
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-dro
     env:
@@ -79,6 +82,8 @@ spec:
         value: $(params.imo_install_plan)
       - name: DRO_PUBLIC_DOMAIN
         value: $(params.dro_public_domain)
+      - name: DRO_CIS_CRN
+        value: $(params.dro_cis_crn)
     envFrom:
       - configMapRef:
           name: environment-properties
