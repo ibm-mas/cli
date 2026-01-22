@@ -15,7 +15,7 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}         Directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}          Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}          Cluster ID
-  -i, --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                    AI Broker instance ID  
+  -i, --aibroker-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                    AI Broker instance ID  
 
 
 Secrets Manager:
@@ -77,7 +77,7 @@ function gitops_deprovision_odh_noninteractive() {
         export SECRETS_PATH=$1 && shift
         ;;
       --aibroker-instance-id)
-        export AIBROKER_INSTANCE_ID=$1 && shift
+        export AISERVICE_INSTANCE_ID=$1 && shift
         ;;
       # Automatic GitHub Push
       -P|--github-push)
@@ -128,7 +128,7 @@ function gitops_deprovision_odh_noninteractive() {
     [[ -z "$GIT_BRANCH" ]] && gitops_deprovision_odh_help "GIT_BRANCH is not set"
   fi
 
-  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_deprovision_odh_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_odh_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --AISERVICE_INSTANCE_ID."
 }
 
 function gitops_deprovision_odh() {
@@ -147,7 +147,7 @@ function gitops_deprovision_odh() {
   trap 'echo "[ERROR] Error occurred at $BASH_SOURCE, line $LINENO, exited with $?"; exit 1' ERR
 
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AISERVICE_INSTANCE_ID}
 
 
 
@@ -188,7 +188,7 @@ function gitops_deprovision_odh() {
   reset_colors
 
   # echo all the variables of gitops envs
-  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
+  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   
 
   #secrets path in aws 

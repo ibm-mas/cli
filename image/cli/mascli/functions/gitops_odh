@@ -15,11 +15,15 @@ GitOps Configuration:
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}            Account name that the cluster belongs to
   -r, --region-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}             Region ID
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}            Cluster ID
-  -m, --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}  AI Broker Instance ID
+  -m, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}  AI Service Instance ID
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                    Secrets Manager path
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}  Secrets Manager key seperator string
+
+ibm aiservice(required):
+      --aiservice-namespace ${TEXT_RESET}AISERVICE_NAMESPACE${TEXT_RESET}
+      --aiservice-instance-id ${TEXT_RESET}AISERVICE_INSTANCE_ID${TEXT_RESET}
 
 ODH Configuration:
       --odh-channel
@@ -29,11 +33,11 @@ ODH Configuration:
       --pull-secret-name
       --opendatahub-name
       --opendatahub-operator-group
-      --opendatahub-installplan
+      --odh-install-plan
       --opendatahub-channel
       --opendatahub-source
       --opendatahub-source-namespace
-
+      --aiservice-odh-model-deployment-type
 Pipeline Configuration:
       --odh-pipeline-name
       --odh-pipeline-namespace
@@ -118,13 +122,7 @@ function gitops_odh_noninteractive() {
   export ODH_OPERATOR_VERSION="${ODH_OPERATOR_VERSION:-"opendatahub-operator.v2.19.0"}"
   export ODH_NAMESPACE="${ODH_NAMESPACE:-"opendatahub"}"
 
-  export AIBROKER_NAMESPACE="${AIBROKER_NAMESPACE:-"mas-${AIBROKER_INSTANCE_ID}-aibroker"}"
-
-  export ODH_PIPELINE_NAME="${ODH_PIPELINE_NAME:-"openshift-pipelines-operator"}"
-  export ODH_PIPELINE_NAMESPACE="${ODH_PIPELINE_NAMESPACE:-"openshift-operators"}"
-  export ODH_PIPELINE_OPERATOR_NAME="${ODH_PIPELINE_OPERATOR_NAME:-"openshift-pipelines-operator-rh"}"
-  export ODH_PIPELINE_SOURCE="${ODH_PIPELINE_SOURCE:-"redhat-operators"}"
-  export ODH_PIPELINE_SOURCE_NAMESPACE="${ODH_PIPELINE_SOURCE_NAMESPACE:-"openshift-marketplace"}"
+  export AISERVICE_NAMESPACE="${AISERVICE_NAMESPACE:-"${AISERVICE_INSTANCE_ID}-aiservice"}"
 
   export SERVERLESS_NAMESPACE="${SERVERLESS_NAMESPACE:-"openshift-serverless"}"
   export SERVERLESS_OPERATOR_NAME="${SERVERLESS_OPERATOR_NAME:-"serverless-operator"}"
@@ -134,17 +132,15 @@ function gitops_odh_noninteractive() {
   export OPENDATAHUB_OPERATORGROUP_NAME="${OPENDATAHUB_OPERATORGROUP_NAME:-"opendatahub-operator-group"}"
   export OPENDATAHUB_NAME="${OPENDATAHUB_NAME:-"opendatahub-operator"}"
   export OPENDATAHUB_NAMESPACE="${OPENDATAHUB_NAMESPACE:-"opendatahub"}"
-  export OPENDATAHUB_INSTALLPLAN_APPROVAL="${OPENDATAHUB_INSTALLPLAN_APPROVAL:-"Manual"}"
+  export ODH_INSTALL_PLAN="${ODH_INSTALL_PLAN:-"Automatic"}"
   export OPENDATAHUB_CHANNEL="${OPENDATAHUB_CHANNEL:-"fast"}"
   export OPENDATAHUB_SOURCE="${OPENDATAHUB_SOURCE:-"community-operators"}"
   export OPENDATAHUB_SOURCE_NAMESPACE="${OPENDATAHUB_SOURCE_NAMESPACE:-"openshift-marketplace"}"
-
-  export MAS_AIBROKER_STORAGE_PROVIDER="${MAS_AIBROKER_STORAGE_PROVIDER:-"aws"}"
-  export MAS_AIBROKER_STORAGE_SSL="${MAS_AIBROKER_STORAGE_SSL:-"true"}"
-  export MAS_AIBROKER_STORAGE_REGION="${MAS_AIBROKER_STORAGE_REGION:-"us-east-2"}"
+  export AISERVICE_STORAGE_PROVIDER="${AISERVICE_STORAGE_PROVIDER:-"aws"}"
+  export AISERVICE_STORAGE_SSL="${AISERVICE_STORAGE_SSL:-"true"}"
+  export AISERVICE_STORAGE_REGION="${AISERVICE_STORAGE_REGION:-""}"
   export PRIMARY_STORAGE_CLASS="${PRIMARY_STORAGE_CLASS:-"nfs-client"}"
-
-
+  export AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE="${AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE:-"serverless"}"
 
 
   while [[ $# -gt 0 ]]; do
@@ -153,7 +149,7 @@ function gitops_odh_noninteractive() {
       -d|--dir) export GITOPS_WORKING_DIR="$1"; shift ;;
       -a|--account-id) export ACCOUNT_ID="$1"; shift ;;
       -c|--cluster-id) export CLUSTER_ID="$1"; shift ;;
-      -m|--aibroker-instance-id) export AIBROKER_INSTANCE_ID="$1"; shift ;;
+      -m|--aiservice-instance-id) export AISERVICE_INSTANCE_ID="$1"; shift ;;
 
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
@@ -220,8 +216,8 @@ function gitops_odh_noninteractive() {
       --opendatahub-operator-group)
         export OPENDATAHUB_OPERATORGROUP_NAME=$1 && shift
         ;;
-      --opendatahub-installplan)
-        export OPENDATAHUB_INSTALLPLAN_APPROVAL=$1 && shift
+      --odh-install-plan)
+        export ODH_INSTALL_PLAN=$1 && shift
         ;;
       --opendatahub-channel)
         export OPENDATAHUB_CHANNEL=$1 && shift
@@ -234,21 +230,6 @@ function gitops_odh_noninteractive() {
         ;;
       --opendatahub-source-namespace)
         export OPENDATAHUB_SOURCE_NAMESPACE=$1 && shift
-        ;;
-      --odh-pipeline-name)
-        export ODH_PIPELINE_NAME=$1 && shift
-        ;;
-      --odh-pipeline-namespace)
-        export ODH_PIPELINE_NAMESPACE=$1 && shift
-        ;;
-      --odh-pipeline-operator-name)
-        export ODH_PIPELINE_OPERATOR_NAME=$1 && shift
-        ;;
-      --odh-pipeline-source)
-        export ODH_PIPELINE_SOURCE=$1 && shift
-        ;;
-      --odh-pipeline-source-namespace)
-        export ODH_PIPELINE_SOURCE_NAMESPACE=$1 && shift
         ;;
       --odh-pipeline-channel)
         export ODH_PIPELINE_CHANNEL=$1 && shift
@@ -293,54 +274,22 @@ function gitops_odh_noninteractive() {
         export AUTHORINO_CATALOG_SOURCE=$1 && shift
         ;;
 
-      --aibroker-namespace)
-        export AIBROKER_NAMESPACE=$1 && shift
+      --aiservice-namespace)
+        export AISERVICE_NAMESPACE=$1 && shift
         ;;
 
       --storage-provider)
-        export MAS_AIBROKER_STORAGE_PROVIDER=$1 && shift
-        ;;
-      --storage-accesskey)
-        export MAS_AIBROKER_STORAGE_ACCESSKEY=$1 && shift
-        ;;
-      --storage-secretkey)
-        export MAS_AIBROKER_STORAGE_SECRETKEY=$1 && shift
-        ;;
-      --storage-host)
-        export MAS_AIBROKER_STORAGE_HOST=$1 && shift
-        ;;
-      --storage-port)
-        export MAS_AIBROKER_STORAGE_PORT=$1 && shift
+        export AISERVICE_STORAGE_PROVIDER=$1 && shift
         ;;
       --storage-ssl)
-        export MAS_AIBROKER_STORAGE_SSL=$1 && shift
+        export AISERVICE_STORAGE_SSL=$1 && shift
         ;;
       --storage-region)
-        export MAS_AIBROKER_STORAGE_REGION=$1 && shift
+        export AISERVICE_STORAGE_REGION=$1 && shift
         ;;
-      --storage-pipelines-bucket)
-        export MAS_AIBROKER_STORAGE_PIPELINES_BUCKET=$1 && shift
+      --aiservice-odh-model-deployment-type)
+        export AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE=$1 && shift
         ;;
-
-      --db-host)
-        export MAS_AIBROKER_DB_HOST=$1 && shift
-        ;;
-      --db-port)
-        export MAS_AIBROKER_DB_PORT=$1 && shift
-        ;;
-      --db-user)
-        export MAS_AIBROKER_DB_USER=$1 && shift
-        ;;
-      --db-database)
-        export MAS_AIBROKER_DB_DATABASE=$1 && shift
-        ;;
-      --db-secret-name)
-        export MAS_AIBROKER_DB_SECRET_NAME=$1 && shift
-        ;;
-      --db-secret-value)
-        export MAS_AIBROKER_DB_SECRET_VALUE=$1 && shift
-        ;;
-
       --primary-storage-class)
         export PRIMARY_STORAGE_CLASS=$1 && shift
         ;;
@@ -366,7 +315,9 @@ function gitops_odh_noninteractive() {
   [[ -z "$GITOPS_WORKING_DIR" ]] && gitops_odh_help "Missing GITOPS_WORKING_DIR"
   [[ -z "$ACCOUNT_ID" ]] && gitops_odh_help "Missing ACCOUNT_ID"
   [[ -z "$CLUSTER_ID" ]] && gitops_odh_help "Missing CLUSTER_ID"
-  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_odh_help "Missing AIBROKER_INSTANCE_ID"
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_odh_help "Missing AISERVICE_INSTANCE_ID"
+  [[ -z "$OPENDATAHUB_SOURCE" ]] && gitops_odh_help "Missing OPENDATAHUB_SOURCE"
+  [[ -z "$AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE" ]] && gitops_odh_help "Missing AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE"
 
   if [[ "$GITHUB_PUSH" == "true" ]]; then
     [[ -z "$GITHUB_HOST" ]] && gitops_odh_help "GITHUB_HOST is not set"
@@ -378,7 +329,6 @@ function gitops_odh_noninteractive() {
 }
 
 function gitops_odh() {
-  # Remove the subcommand (e.g., "create-gitops")
   shift
   if [[ $# -gt 0 ]]; then
     gitops_odh_noninteractive "$@"
@@ -394,7 +344,7 @@ function gitops_odh() {
   # Prepare directories
   rm -rf "$GITOPS_WORKING_DIR"
   mkdir -p "${GITOPS_WORKING_DIR}"
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AISERVICE_INSTANCE_ID}
   
 
   echo
@@ -403,8 +353,9 @@ function gitops_odh() {
   echo_h2 "Target"
   echo_reset_dim "Account ID ............................ ${COLOR_MAGENTA}${ACCOUNT_ID}"
   echo_reset_dim "Cluster ID ............................ ${COLOR_MAGENTA}${CLUSTER_ID}"
-  echo_reset_dim "AI Broker Instance ID ................ ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
-
+  echo_reset_dim "AI Service Instance ID ................ ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
+  echo_reset_dim "OpenDataHub Source ................... ${COLOR_MAGENTA}${OPENDATAHUB_SOURCE}"
+  echo_reset_dim "AiService Model Deployment Type ...... ${COLOR_MAGENTA}${AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE}"
   echo_reset_dim "Secrets Path .......................... ${COLOR_MAGENTA}${SECRETS_PATH}"
   reset_colors
 
@@ -416,89 +367,20 @@ function gitops_odh() {
   # Set up secret key and fetch secret
   export SECRET_ACCOUNT_PATH="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
   export ODH_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage"
-
-
   export SECRET_KEY_IMAGE_PULL_SECRET_B64="${SECRET_ACCOUNT_PATH}ibm_entitlement#image_pull_secret_b64"
 
-  # Storage
-  export SECRET_KEY_SM_STORAGE_ACCESSKEY="${SECRET_ACCOUNT_PATH}storage#sm_storage_accesskey"
-  export SECRET_KEY_SM_STORAGE_SECRETKEY="${SECRET_ACCOUNT_PATH}storage#sm_storage_secretkey"
-  export SECRET_KEY_SM_STORAGE_HOST="${SECRET_ACCOUNT_PATH}storage#sm_storage_host"
-  export SECRET_KEY_SM_STORAGE_PORT="${SECRET_ACCOUNT_PATH}storage#sm_storage_port"
-  export SECRET_KEY_SM_STORAGE_BUCKET_DEFAULT="${SECRET_ACCOUNT_PATH}storage#sm_storage_bucket_pipelines"
-
-  # MariaDB
-  export SECRET_KEY_SM_MARIADB_HOST="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_host"
-  export SECRET_KEY_SM_MARIADB_PORT="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_port"
-  export SECRET_KEY_SM_MARIADB_USER="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_user"
-  export SECRET_KEY_SM_MARIADB_DATABASE="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_database"
-  export SECRET_KEY_SM_MARIADB_SECRET_NAME="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_secret_name"
-  export SECRET_KEY_SM_MARIADB_SECRET_VALUE="${SECRET_ACCOUNT_PATH}mariadb#sm_mariadb_secret_value"
-
-
-
-  export ODH_SECRET_FILE="$GITOPS_WORKING_DIR/odh-secret.json"
   if [ -z $GIT_SSH ]; then
     export GIT_SSH=false
   fi
 
-  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}storage "sm_storage_bucket_templates,sm_storage_bucket_tenants,sm_storage_bucket_pipelines"
-  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb "sm_mariadb_host,sm_mariadb_database"
-  sm_get_secret_file "$ODH_SECRET" "$ODH_SECRET_FILE"
-  #################################################################
-   export MARIA_SECRET="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}mariadb"
-   export MARIA_SECRET_FILE="$GITOPS_WORKING_DIR/mariadb-secret.json"
-   sm_get_secret_file "$MARIA_SECRET" "$MARIA_SECRET_FILE"
-  ######################################################################
-   #######################Checking condition Storage_provider#######################################
-   #mas_aibroker_storage_provider
-  ######################################################################
-  # Reuse existing secret values if present
-  TEMP_STORAGE_ACCESS_KEY=$(jq -r .sm_storage_accesskey "$ODH_SECRET_FILE")
-  if [[ -n ${TEMP_STORAGE_ACCESS_KEY} ]]; then
-    export STORAGE_ACCESS_KEY="${TEMP_STORAGE_ACCESS_KEY}"
-    echo "gitops_odh : STORAGE_ACCESS_KEY=${STORAGE_ACCESS_KEY:0:3}<snip> is available in the secret, using existing value."
-  fi
-
-  TEMP_STORAGE_SECRET_KEY=$(jq -r .sm_storage_secretkey "$ODH_SECRET_FILE")
-  if [[ -n ${TEMP_STORAGE_SECRET_KEY} ]]; then
-    export STORAGE_SECRET_KEY="${TEMP_STORAGE_SECRET_KEY}"
-    echo "gitops_odh : STORAGE_SECRET_KEY=${STORAGE_SECRET_KEY:0:3}<snip> is available in the secret, using existing value."
-  fi
-
-  TEMP_MARIADB_USER=$(jq -r .sm_mariadb_user "$ODH_SECRET_FILE")
-  if [[ -n ${TEMP_MARIADB_USER} ]]; then
-    export MARIADB_USER="${TEMP_MARIADB_USER}"
-    echo "gitops_odh : MARIADB_USER=${MARIADB_USER} is available in the secret, using existing value."
-  fi
-
-  TEMP_MARIADB_SECRET_VALUE=$(jq -r .sm_mariadb_secret_value "$ODH_SECRET_FILE")
-  if [[ -n ${TEMP_MARIADB_SECRET_VALUE} ]]; then
-    export MARIADB_SECRET_VALUE="${TEMP_MARIADB_SECRET_VALUE}"
-    echo "gitops_odh : MARIADB_SECRET_VALUE=${MARIADB_SECRET_VALUE:0:4}<snip> is available in the secret, using existing value."
-  fi
-
-
-  # Extract and export secrets
-  export STORAGE_ACCESS_KEY=$(jq -r .sm_storage_accesskey "$ODH_SECRET_FILE")
-  export STORAGE_SECRET_KEY=$(jq -r .sm_storage_secretkey "$ODH_SECRET_FILE")
-  export STORAGE_HOST=$(jq -r .sm_storage_secretkey "$ODH_SECRET_FILE")
-  export STORAGE_PORT=$(jq -r .sm_storage_port "$ODH_SECRET_FILE")
-  export STORAGE_BUCKET=$(jq -r .sm_storage_bucket_pipelines "$ODH_SECRET_FILE")
-
-  export MARIADB_HOST=$(jq -r .sm_mariadb_host "$MARIA_SECRET_FILE")
-  export MARIADB_PORT=$(jq -r .sm_mariadb_port "$MARIA_SECRET_FILE")
-  export MARIADB_USER=$(jq -r .sm_mariadb_user "$MARIA_SECRET_FILE")
-  export MARIADB_DATABASE=$(jq -r .sm_mariadb_database "$MARIA_SECRET_FILE")
-  export MARIADB_SECRET_NAME=$(jq -r .sm_mariadb_secret_name "$$MARIA_SECRET_FILE")
-  export MARIADB_SECRET_VALUE=$(jq -r .sm_mariadb_secret_value "$MARIA_SECRET_FILE")
+  sm_verify_secret_exists ${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement "image_pull_secret_b64"
 
   echo_h2 "ODH Secret Summary"
+  echo_reset_dim "AI Service Namespace ................... ${COLOR_MAGENTA}${AISERVICE_NAMESPACE}"
   echo_reset_dim "STORAGE_HOST ............................. ${COLOR_MAGENTA}${STORAGE_HOST}"
   echo_reset_dim "STORAGE_BUCKET ........................... ${COLOR_MAGENTA}${STORAGE_BUCKET}"
-  echo_reset_dim "MARIADB_HOST ........................... ${COLOR_MAGENTA}${MARIADB_HOST}"
-  echo_reset_dim "MARIADB_DATABASE ....................... ${COLOR_MAGENTA}${MARIADB_DATABASE}"
-  echo_reset_dim "MAS_AIBROKER_STORAGE_SSL ................. ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_SSL}"
+
+  echo_reset_dim "AISERVICE_STORAGE_SSL ................. ${COLOR_MAGENTA}${AISERVICE_STORAGE_SSL}"
   reset_colors
 
 
@@ -518,8 +400,6 @@ function gitops_odh() {
   echo "Output: ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml"
 
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-mas-odh-install.yaml.j2 ${GITOPS_CLUSTER_DIR}/ibm-mas-odh-install.yaml
-
-
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_odh\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
 
   # GitHub push
@@ -527,10 +407,8 @@ function gitops_odh() {
     echo_h2 "Pushing changes to GitHub"
     echo "Github push" "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$GIT_BRANCH" "Working: " "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" " Commit :" "$GIT_COMMIT_MSG"
     save_to_target_git_repo "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$GIT_BRANCH" "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "$GIT_COMMIT_MSG"
-    remove_git_repo_clone "${GITOPS_WORKING_DIR}/${GITHUB_REPO}"
+    remove_git_repo_clone "$GITOPS_WORKING_DIR/$GITHUB_REPO"
   fi
 
-  rm -rf "$ODH_SECRET_FILE"
-  rm -rf "$MARIA_SECRET_FILE"
   echo_h2 "ODH GitOps completed."
 }

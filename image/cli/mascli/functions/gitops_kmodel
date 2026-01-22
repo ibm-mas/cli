@@ -21,7 +21,7 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
 
 ibm_kmodel(required):
-      --aibroker_instance_id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                                           The AI Broker instance ID
+      --aiservice_instance_id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                                           The AI Broker instance ID
       --primary-storage-class ${COLOR_YELLOW}PRIMARY_STORAGE_CLASS${TEXT_RESET}                                         Kubernetes storage class to be used for provisioning persistent volumes
       --mas-aibroker-storage-templates-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_TEMPLATES_BUCKET${TEXT_RESET}         Storage templates bucket for Kmodels role
       --mas-aibroker-storage-pipelines-bucket ${COLOR_YELLOW}MAS_AIBROKER_STORAGE_PIPELINES_BUCKET${TEXT_RESET}         Storage piplines bucket for Kmodels role
@@ -72,12 +72,12 @@ function gitops_kmodel_noninteractive() {
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
 
   #adding default values 
-  export AIBROKER_INTERNAL_TLS=${AIBROKER_INTERNAL_TLS:-"${AIBROKER_INSTANCE_ID}-internal-aibroker-tls"}
-  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${AIBROKER_INSTANCE_ID}-aibroker"}
+  export AIBROKER_INTERNAL_TLS=${AIBROKER_INTERNAL_TLS:-"${AISERVICE_INSTANCE_ID}-internal-aibroker-tls"}
+  export AIBROKER_NAMESPACE=${AIBROKER_NAMESPACE:-"mas-${AISERVICE_INSTANCE_ID}-aibroker"}
   export MAS_AIBROKER_STORAGE_PROVIDER=${MAS_AIBROKER_STORAGE_PROVIDER:-"aws"}
   export MAS_AIBROKER_STORAGE_SSL=${MAS_AIBROKER_STORAGE_SSL:-"true"}
   export MAS_AIBROKER_STORAGE_REGION=${MAS_AIBROKER_STORAGE_REGION:-""}
-  export SSH_SECRET_NAME=${SSH_SECRET_NAME:-"${AIBROKER_INSTANCE_ID}-kmodel-aibroker-tls"}
+  export SSH_SECRET_NAME=${SSH_SECRET_NAME:-"${AISERVICE_INSTANCE_ID}-kmodel-aibroker-tls"}
   export MAS_AIBROKER_TENANT_NAME=${MAS_AIBROKER_TENANT_NAME:-"user"}
   export TENANT_NAMESPACE=${TENANT_NAMESPACE:-"aibroker-${MAS_AIBROKER_TENANT_NAME}"}
   export MAS_AIBROKER_PROVISION_TENANT=${MAS_AIBROKER_PROVISION_TENANT:-"provision-tenant"}
@@ -126,7 +126,7 @@ function gitops_kmodel_noninteractive() {
 
       # kmodel - all input params default + sm
       --aibroker-instance-id)
-        export AIBROKER_INSTANCE_ID=$1 && shift
+        export AISERVICE_INSTANCE_ID=$1 && shift
         ;;
 
       --aibroker-internal-tls)
@@ -289,7 +289,7 @@ function gitops_kmodel_noninteractive() {
   fi
 
   # add validation for those variable which have the value needed for further execution
-  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_kmodel_help "AIBROKER_INSTANCE_ID is not set. Please provide the AI Broker instance ID using --aibroker-instance-id."
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_kmodel_help "AISERVICE_INSTANCE_ID is not set. Please provide the AI Broker instance ID using --aibroker-instance-id."
   [[ -z "$PRIMARY_STORAGE_CLASS" ]] && gitops_kmodel_help "PRIMARY_STORAGE_CLASS is not set. Please provide the primary storage class using --primary-storage-class."
   [[ -z "$IMAGE_STORE" ]] && gitops_kmodel_help "IMAGE_STORE is not set. Please provide the image store using --image-store."
   [[ -z "$IMAGE_WATCHER" ]] && gitops_kmodel_help "IMAGE_WATCHER is not set. Please provide the image watcher using --image-watcher."
@@ -314,7 +314,7 @@ function gitops_kmodel() {
 
   # Prepare directories
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AISERVICE_INSTANCE_ID}
   
   echo
   reset_colors
@@ -356,7 +356,7 @@ function gitops_kmodel() {
 
   echo "${TEXT_DIM}"
   echo_h2 "kmodel" "    "
-  echo_reset_dim "AI Broker Instance Id ............................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
+  echo_reset_dim "AI Broker Instance Id ............................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   echo_reset_dim "AI Broker Internal TLS ............................ ${COLOR_MAGENTA}${AIBROKER_INTERNAL_TLS}"
   echo_reset_dim "AI Broker Namespace ............................... ${COLOR_MAGENTA}${AIBROKER_NAMESPACE}"
   echo_reset_dim "MAS AI Broker Storage Provider .................... ${COLOR_MAGENTA}${MAS_AIBROKER_STORAGE_PROVIDER}"

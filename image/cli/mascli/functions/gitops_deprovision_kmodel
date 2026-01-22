@@ -21,7 +21,7 @@ Secrets Manager:
       --secrets-key-seperator ${COLOR_YELLOW}SECRETS_KEY_SEPERATOR${TEXT_RESET}                            Secrets Manager key seperator string
 
 ibm_kmodel(required):
-  -i, --aibroker-instance-id ${COLOR_YELLOW}AIBROKER_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
+  -i, --aiservice-instance-id ${COLOR_YELLOW}AISERVICE_INSTANCE_ID${TEXT_RESET}                              AI Broker instance ID  
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -79,7 +79,7 @@ function gitops_deprovision_kmodel_noninteractive() {
 
       # kmodel - all input params default + sm
       --aibroker-instance-id)
-        export AIBROKER_INSTANCE_ID=$1 && shift
+        export AISERVICE_INSTANCE_ID=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -132,7 +132,7 @@ function gitops_deprovision_kmodel_noninteractive() {
   fi
 
   # add validation for those variable which have the value needed for further execution
-  [[ -z "$AIBROKER_INSTANCE_ID" ]] && gitops_deprovision_kmodel_help "AIBROKER_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --aibroker_instance_id."
+  [[ -z "$AISERVICE_INSTANCE_ID" ]] && gitops_deprovision_kmodel_help "AISERVICE_INSTANCE_ID is not set. Please specify the AI Broker instance ID using --AISERVICE_INSTANCE_ID."
 }
 
 function gitops_deprovision_kmodel() {
@@ -152,7 +152,7 @@ function gitops_deprovision_kmodel() {
 
   # Prepare directories
   mkdir -p ${GITOPS_WORKING_DIR}
-  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AIBROKER_INSTANCE_ID}
+  GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}/${AISERVICE_INSTANCE_ID}
   
   echo
   reset_colors
@@ -192,7 +192,7 @@ function gitops_deprovision_kmodel() {
 
   # echo all the variables of gitops envs
   
-  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AIBROKER_INSTANCE_ID}"
+  echo_reset_dim "AI Broker Instance ID ................. ${COLOR_MAGENTA}${AISERVICE_INSTANCE_ID}"
   
 
   echo "${TEXT_DIM}"
