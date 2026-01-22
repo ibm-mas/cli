@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from kubernetes import client, config
 from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
+from openshift.dynamic.exceptions import NotFoundError as K8sNotFoundError
 from mas.devops.slack import SlackUtil
 from subprocess import PIPE, Popen, TimeoutExpired
 from mobilever import MobVer
@@ -408,8 +409,6 @@ if __name__ == "__main__":
     # Get DB2 CLuster Version
     # -------------------------------------------------------------------------
     try:
-        from openshift.dynamic.exceptions import NotFoundError as K8sNotFoundError
-        
         # Check if db2u namespace exists
         try:
             namespaces = dynClient.resources.get(api_version="v1", kind="Namespace")
@@ -451,8 +450,6 @@ if __name__ == "__main__":
     # Lookup DB2 operator version
     # -------------------------------------------------------------------------
     try:
-        from openshift.dynamic.exceptions import NotFoundError as K8sNotFoundError
-        
         # Check if db2u namespace exists
         try:
             namespaces = dynClient.resources.get(api_version="v1", kind="Namespace")
@@ -525,8 +522,6 @@ if __name__ == "__main__":
     # Lookup SLS version
     # -------------------------------------------------------------------------
     try:
-        from openshift.dynamic.exceptions import NotFoundError as K8sNotFoundError
-
         sls_namespace = f"sls-{instanceId}"
 
         # Check if SLS namespace exists
