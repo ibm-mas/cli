@@ -308,7 +308,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help", "advanced", "simplified"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified"]:
                 pass
 
             elif key == "manual_certificates":
@@ -351,7 +351,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         instanceId = args.aiservice_instance_id
         # Properties for arguments that control the behavior of the CLI
         self.noConfirm = args.no_confirm
-        self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
 
@@ -447,12 +446,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.printH1("Launch Install")
             pipelinesNamespace = f"aiservice-{self.getParam('aiservice_instance_id')}-pipelines"
 
-            if not self.noConfirm:
-                self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
-                wait = self.yesOrNo("Wait for PVCs to bind")
-            else:
-                wait = False
-
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
                 if installOpenShiftPipelines(self.dynamicClient):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
@@ -467,7 +460,6 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                     instanceId=self.getParam("aiservice_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
-                    waitForBind=wait,
                     configureRBAC=(self.getParam("service_account_name") == "")
                 )
                 prepareInstallSecrets(
