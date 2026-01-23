@@ -922,6 +922,32 @@
   </tbody>
 </table>
 
+<h3 id="maximo-location-services-for-esri-arcgis">Maximo Location Services for Esri (arcgis)<a class="headerlink" href="#maximo-location-services-for-esri-arcgis" title="Permanent link">¶</a></h3>
+<table style="width: 100%; table-layout: fixed;">
+  <colgroup>
+    <col style="width: 25%;">
+    <col style="width: 15%;">
+    <col style="width: 15%;">
+    <col style="width: 45%;">
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Option</th>
+      <th>Type</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>--arcgis-channel</code></td>
+      <td><code>string</code></td>
+      <td>-</td>
+      <td>Subscription channel for IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial or Facilities</td>
+    </tr>
+  </tbody>
+</table>
+
 <h3 id="advanced-settings-manage">Advanced Settings - Manage<a class="headerlink" href="#advanced-settings-manage" title="Permanent link">¶</a></h3>
 <table style="width: 100%; table-layout: fixed;">
   <colgroup>
@@ -1956,38 +1982,6 @@
   </tbody>
 </table>
 
-<h3 id="maximo-location-services-for-esri-arcgis">Maximo Location Services for Esri (arcgis)<a class="headerlink" href="#maximo-location-services-for-esri-arcgis" title="Permanent link">¶</a></h3>
-<table style="width: 100%; table-layout: fixed;">
-  <colgroup>
-    <col style="width: 25%;">
-    <col style="width: 15%;">
-    <col style="width: 15%;">
-    <col style="width: 45%;">
-  </colgroup>
-  <thead>
-    <tr>
-      <th>Option</th>
-      <th>Type</th>
-      <th>Default</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><code>--install-arcgis</code></td>
-      <td>flag</td>
-      <td>-</td>
-      <td>Enables IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial</td>
-    </tr>
-    <tr>
-      <td><code>--arcgis-channel</code></td>
-      <td><code>string</code></td>
-      <td>-</td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
-
 <h3 id="cloud-providers">Cloud Providers<a class="headerlink" href="#cloud-providers" title="Permanent link">¶</a></h3>
 <p>Configure cloud provider settings including AWS region, availability zones, and IBM Cloud API key.</p>
 <table style="width: 100%; table-layout: fixed;">
@@ -2175,12 +2169,6 @@
       <td>Configure installation for development mode</td>
     </tr>
     <tr>
-      <td><code>--no-wait-for-pvc</code></td>
-      <td>flag</td>
-      <td><code>false</code></td>
-      <td>Disable the wait for pipeline PVC to bind before starting the pipeline</td>
-    </tr>
-    <tr>
       <td><code>--skip-pre-check</code></td>
       <td>flag</td>
       <td><code>false</code></td>
@@ -2339,7 +2327,7 @@
 <li><strong>Standalone Installation</strong>: For standalone AI Service installation, use the dedicated <code>mas aiservice-install</code> command to install AI Service independently of the main MAS installation.</li>
 </ul>
 </div>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.8.0 mas install
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.9.0 mas install
 </code></pre>
 <p>The interactive install will guide you through a series of questioned designed to help you arrive at the best configuration for your scenario, it can be broken down as below:</p>
 <div>
@@ -2438,7 +2426,7 @@
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=xxx
 SUPERUSER_PASSWORD=xxx
 
-docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.8.0  bash -c "
+docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.9.0  bash -c "
   oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
   mas install \
     --mas-catalog-version v9-251231-amd64 \
@@ -2607,6 +2595,11 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
                         </a>
                       </li>
                       <li class="md-toc__item">
+                        <a href="#maximo-location-services-for-esri-arcgis" class="md-toc__link" data-md-level="2">
+                          Maximo Location Services for Esri (arcgis)
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
                         <a href="#advanced-settings-manage" class="md-toc__link" data-md-level="2">
                           Advanced Settings - Manage
                         </a>
@@ -2674,11 +2667,6 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
                       <li class="md-toc__item">
                         <a href="#cloud-object-storage" class="md-toc__link" data-md-level="2">
                           Cloud Object Storage
-                        </a>
-                      </li>
-                      <li class="md-toc__item">
-                        <a href="#maximo-location-services-for-esri-arcgis" class="md-toc__link" data-md-level="2">
-                          Maximo Location Services for Esri (arcgis)
                         </a>
                       </li>
                       <li class="md-toc__item">
