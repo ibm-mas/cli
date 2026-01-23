@@ -432,10 +432,15 @@ function gitops_mas_config_noninteractive() {
       export JDBC_TYPE=${JDBC_TYPE:-incluster-db2}
       export JDBC_ROUTE=${JDBC_ROUTE:-default}
 
-      if [[ -z $JDBC_INSTANCE_NAME ]]; then
-        export JDBC_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+      # Set JDBC instance name based on JDBC_TYPE
+      if [[ -z "$JDBC_INSTANCE_NAME" ]]; then
+        if [[ "$JDBC_TYPE" == "rds-db2" ]]; then
+          export JDBC_INSTANCE_NAME=rds-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+        else
+          export JDBC_INSTANCE_NAME=db2wh-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+        fi
       fi
-      if [ "${JDBC_TYPE}" == "incluster-db2" ]; then
+      if [ "${JDBC_TYPE}" == "incluster-db2" && "${JDBC_TYPE}" == "rds-db2" ]; then
         [[ -n "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is set when JDBC_TYPE is incluster-db2"
       else
         [[ -z "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is not set"
@@ -661,7 +666,7 @@ function gitops_mas_config() {
       echo_reset_dim "JDBC_TYPE ...................................... ${COLOR_MAGENTA}${JDBC_TYPE}"
       echo_reset_dim "JDBC_INSTANCE_NAME ............................. ${COLOR_MAGENTA}${JDBC_INSTANCE_NAME}"
       echo_reset_dim "JDBC_ROUTE ..................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
-      if [ "${JDBC_TYPE}" != "incluster-db2" ]; then
+      if [[ "${JDBC_TYPE}" != "incluster-db2" && "${JDBC_TYPE}" == "rds-db2" ]]; then
         echo "${TEXT_DIM}"
         echo_reset_dim "JDBC_CONNECTION_URL ............................ ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
         echo_reset_dim "Path to JDBC Cert File  ........................ ${COLOR_MAGENTA}${JDBC_CERTIFICATE_FILE}"
@@ -897,6 +902,9 @@ function gitops_mas_config() {
         export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
         export SECRET_KEY_DB2_DBNAME=${JDBC_CONFIG_SECRET_ID}#db2_dbname
         export SECRET_KEY_DB2_NAMESPACE=${JDBC_CONFIG_SECRET_ID}#db2_namespace
+      elif [ "${JDBC_TYPE}" == "rds-db2" ]; then
+        export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
+        export JDBC_CERTIFICATE_CONTENT_B64=$(cat $JDBC_CERTIFICATE_FILE | base64 -w0)
       else
         # This secret we are creating here
         export JDBC_CONFIG_SECRET_ID=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${JDBC_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
@@ -907,9 +915,14 @@ function gitops_mas_config() {
         echo_reset_dim "JDBC_CONNECTION_URL ....................... ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
       fi
 
-      export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
-      export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
-      export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_CONFIG_SECRET_ID}#jdbc_instance_name
+      if [ "${JDBC_TYPE}" == "rds-db2" ]; then
+        export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#db2_connection_url
+        export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_INSTANCE_NAME}
+      else
+        export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
+        export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_b64
+        export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_CONFIG_SECRET_ID}#jdbc_instance_name
+     fi
     fi
   
     # Source: gitops_suite_smtp_config
