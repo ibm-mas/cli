@@ -243,18 +243,18 @@ function gitops_deprovision_suite() {
   # Delete SLS Entitlement License details for this MAS Instance
   # ---------------------------------------------------------------------------
   echo " Deleting $SECRET_NAME_LICENSE_FILE"
-  sm_delete_secret $SECRET_NAME_LICENSE_FILE
+  #sm_delete_secret $SECRET_NAME_LICENSE_FILE
 
 
   # Delete SLS config secret established by postsync hook on ibm-sls chart
   # ---------------------------------------------------------------------------
   echo " Deleting $SECRET_NAME_SLS"
-  sm_delete_secret $SECRET_NAME_SLS
+  #sm_delete_secret $SECRET_NAME_SLS
 
   # Delete Public Certificate for this MAS Instance
   # ---------------------------------------------------------------------------
   echo " Deleting $PUBLIC_CERT_SECRET_NAME"
-  sm_delete_secret $PUBLIC_CERT_SECRET_NAME 
+  #sm_delete_secret $PUBLIC_CERT_SECRET_NAME 
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
