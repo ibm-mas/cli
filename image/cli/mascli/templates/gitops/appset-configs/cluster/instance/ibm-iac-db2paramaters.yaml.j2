@@ -1,6 +1,13 @@
 {% set var_name = "RDS_" ~ RDS_APP | upper ~ "_DB2_COMBINE_PROPERTIES" %}
-{% set properties = vars[var_name] | from_json %}
-
-{% for key, value in properties.items() %}
-{{ key }}: {{ value | tojson }}
+{% set json_string = vars[var_name] %}
+{% if json_string %}
+{# Remove curly braces and split by comma #}
+{% set clean_string = json_string | replace('{', '') | replace('}', '') | replace('"', '') | replace("'", '') %}
+{% set pairs = clean_string.split(',') %}
+{% for pair in pairs %}
+{% set kv = pair.split(':') %}
+{% if kv | length == 2 %}
+{{ kv[0] | trim }}: {{ kv[1] | trim }}
+{% endif %}
 {% endfor %}
+{% endif %}
