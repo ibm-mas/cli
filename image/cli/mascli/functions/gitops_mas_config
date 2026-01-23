@@ -1036,3 +1036,6 @@ function gitops_mas_config() {
   rm -rf $TEMP_DIR
 
 }
+
+
+
