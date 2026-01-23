@@ -1,13 +1,27 @@
-{% set var_name = "RDS_" ~ RDS_APP | upper ~ "_DB2_COMBINE_PROPERTIES" %}
-{% set json_string = vars[var_name] %}
-{% if json_string %}
-{# Remove curly braces and split by comma #}
-{% set clean_string = json_string | replace('{', '') | replace('}', '') | replace('"', '') | replace("'", '') %}
+{% if RDS_APP | upper == "MANAGE" %}
+  {% set json_string = RDS_MANAGE_DB2_COMBINE_PROPERTIES | default('') %}
+{% elif RDS_APP | upper == "IOT" %}
+  {% set json_string = RDS_IOT_DB2_COMBINE_PROPERTIES | default('') %}
+{% elif RDS_APP | upper == "FACILITIES" %}
+  {% set json_string = RDS_FACILITIES_DB2_COMBINE_PROPERTIES | default('') %}
+{% else %}
+  {% set json_string = '' %}
+{% endif %}
+{% if json_string and json_string | trim %}
+{# Parse JSON string: remove outer quotes if present, then parse the JSON object #}
+{% set json_str_clean = json_string | trim %}
+{% if json_str_clean.startswith("'") and json_str_clean.endswith("'") %}
+  {% set json_str_clean = json_str_clean[1:-1] %}
+{% endif %}
+{# Remove curly braces and split by comma, handling both single and double quotes #}
+{% set clean_string = json_str_clean | replace('{', '') | replace('}', '') %}
 {% set pairs = clean_string.split(',') %}
 {% for pair in pairs %}
-{% set kv = pair.split(':') %}
-{% if kv | length == 2 %}
-{{ kv[0] | trim }}: {{ kv[1] | trim }}
-{% endif %}
+  {% set kv = pair.split(':', 1) %}
+  {% if kv | length == 2 %}
+    {% set key = kv[0] | trim | replace('"', '') | replace("'", '') %}
+    {% set value = kv[1] | trim | replace('"', '') | replace("'", '') %}
+{{ key }}: {{ value }}
+  {% endif %}
 {% endfor %}
 {% endif %}
