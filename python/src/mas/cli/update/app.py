@@ -478,6 +478,7 @@ class UpdateApp(BaseApp):
                     return
                 elif len(cpds) == 1:
                     cpdUpgradePath = {
+                        "5.2.0": "5.2.0",
                         "5.1.3": "5.2.0",
                         "5.0.0": "5.1.3",
                     }
