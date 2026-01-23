@@ -401,9 +401,18 @@ function gitops_aiservice_tenant() {
   export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
   export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
   export SECRET_KEY_RSL_CA_CRT=${SECRETS_PREFIX}rsl#rsl_ca_crt
+  
   #watsonx
-  export SECRET_KEY_WATSONXAI_APIKEY=${SECRETS_PREFIX}watsonx#watsonxai_apikey
-  export AISERVICE_WATSONXAI_PROJECT_ID=${SECRETS_PREFIX}watsonx#watsonxai_project_id
+  WATSONX_SECRET="${SECRETS_PREFIX}watsonx"
+  export SECRET_KEY_WATSONXAI_APIKEY=${WATSONX_SECRET}#watsonxai_apikey
+  export AISERVICE_WATSONXAI_PROJECT_ID=${WATSONX_SECRET}#watsonxai_project_id
+  
+  # Check if watsonx secret contains watsonxai_ca_crt key and export if it has a value
+  WATSONXAI_CA_CRT_VALUE=$(sm_get_secret_value "$WATSONX_SECRET" "watsonxai_ca_crt")
+  if [[ -n "$WATSONXAI_CA_CRT_VALUE" && "$WATSONXAI_CA_CRT_VALUE" != "null" ]]; then
+    export SECRET_KEY_WATSONXAI_CA_CRT=${WATSONX_SECRET}#watsonxai_ca_crt
+    echo "Watsonx CA certificate key found and exported"
+  fi
   
   # STORAGE
   export SECRET_KEY_STORAGE_HOST=${SECRETS_PREFIX}storage#sm_storage_host
