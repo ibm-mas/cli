@@ -27,6 +27,9 @@ spec:
     - name: rds_source
       type: string
       default: ""
+    - name: rds_s3_source
+      type: string
+      default: ""
     - name: rds_manage_db2_instance_class
       type: string
       default: ""
@@ -106,6 +109,8 @@ spec:
         value: $(params.mas_instance_id)
       - name: RDS_SOURCE
         value: $(params.rds_source)
+      - name: RDS_S3_SOURCE
+        value: $(params.rds_s3_source)
       - name: RDS_MANAGE_DB2_INSTANCE_CLASS
         value: $(params.rds_manage_db2_instance_class)
       - name: RDS_MANAGE_DB2_STORAGE_TYPE

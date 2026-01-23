@@ -160,6 +160,10 @@ spec:
       type: string
       default: ''
 
+    - name: rds_s3_source
+      type: string
+      default: ''
+
     # iac-rdsdb2 manage params
     - name: rds_manage_db2_instance_class
       type: string
@@ -469,6 +473,8 @@ spec:
 
         - name: rds_source
           value: $(params.rds_source)
+        - name: rds_s3_source
+          value: $(params.rds_s3_source)
 
         # iac-rdsdb2 manage params
         - name: rds_manage_db2_instance_class
