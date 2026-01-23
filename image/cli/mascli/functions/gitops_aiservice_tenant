@@ -41,9 +41,10 @@ DRO :
 --drocfg-url ${COLOR_YELLOW}DROCFG_URL${TEXT_RESET}                                                         URL of the DRO configuration service
 
 SLS :
---slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                          URL of the SLS configuration service
+--slscfg-url ${COLOR_YELLOW}SLSCFG_URL${TEXT_RESET}                                                     URL of the SLS configuration service
 --aiservice-sls-subscription-id  ${COLOR_YELLOW}AISERVICE_SLS_SUBSCRIPTION_ID${TEXT_RESET}              Subscription ID associated with SLS
-
+-s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}                                    for ibm internal use only.
+  
 Watsonx :
 --aiservice-watsonxai-url ${COLOR_YELLOW}AISERVICE_WATSONXAI_URL${TEXT_RESET}                          Endpoint URL for Watsonx.ai
 --aiservice-watsonx-full ${COLOR_YELLOW}AISERVICE_WATSONX_FULL${TEXT_RESET}                            Full URL for Watsonx.ai including API key
@@ -76,6 +77,19 @@ function gitops_aiservice_tenant_noninteractive() {
   GITOPS_WORKING_DIR=$PWD/working-dir
   SECRETS_KEY_SEPERATOR="/"
   GIT_COMMIT_MSG="gitops-aiservice-tenant commit"
+
+  if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
+    CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
+    IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+    if [ ${#PARTS[@]} -lt 6 ]; then
+        echo "Error: Invalid SLS service parameter file Path $STANDALONE_SLS_SERVICE format." >&2
+        exit 1
+    fi
+    ICN="${PARTS[3]}"
+    SAAS_SUB_ID="${PARTS[4]}"
+  fi
+  export ICN=${ICN:-""}
+  export SAAS_SUB_ID=${SAAS_SUB_ID:-""}
 
   # adding default values 
   # all generic values should to put here 
@@ -169,6 +183,10 @@ function gitops_aiservice_tenant_noninteractive() {
       # -- SLS
       --slscfg-url)
         export SLSCFG_URL=$1 && shift
+        ;;
+      # Standalone Server configuration
+      -s|--sls-service)
+        export STANDALONE_SLS_SERVICE=$1 && shift
         ;;
 
       --aiservice-sls-subscription-id )
@@ -286,7 +304,9 @@ function gitops_aiservice_tenant_noninteractive() {
   [[ -z "$DROCFG_URL" ]] && gitops_aiservice_tenant_help "DROCFG_URL is not set. Please specify the DRO configuration URL using --drocfg-url."
   
   # -- SLS
-  [[ -z "$SLSCFG_URL" ]] && gitops_aiservice_tenant_help "SLSCFG_URL is not set. Please specify the SLS configuration URL using --slscfg-url."
+  if [ -z "$STANDALONE_SLS_SERVICE" ]; then
+    [[ -z "$SLSCFG_URL" ]] && gitops_aiservice_tenant_help "SLSCFG_URL is not set. Please specify the SLS configuration URL using --slscfg-url."
+  fi
 
   # -- Watsonx
   [[ -z "$AISERVICE_WATSONXAI_URL" ]] && gitops_aiservice_tenant_help "AISERVICE_WATSONXAI_URL is not set. Please specify the Watsonx.ai URL using --aiservice-watsonxai-url."
@@ -370,7 +390,11 @@ function gitops_aiservice_tenant() {
 
   # -- SLS
   echo_reset_dim "SLS subscription ID .......................... ${COLOR_MAGENTA}${AISERVICE_SLS_SUBSCRIPTION_ID}"
-
+  echo_reset_dim "SLS service param file path .................. ${COLOR_MAGENTA}${STANDALONE_SLS_SERVICE}"
+  if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
+    echo_reset_dim "ICN ........................................ ${COLOR_MAGENTA}${ICN}"
+    echo_reset_dim "SAAS_SUB_ID ........................................ ${COLOR_MAGENTA}${SAAS_SUB_ID}"
+  fi
   # -- Watsonx
   echo_reset_dim "Watsonx.ai URL ............................... ${COLOR_MAGENTA}${AISERVICE_WATSONXAI_URL}"
   echo_reset_dim "Watsonx.ai full URL .......................... ${COLOR_MAGENTA}${AISERVICE_WATSONX_FULL}"
@@ -394,9 +418,16 @@ function gitops_aiservice_tenant() {
   export SECRET_KEY_DROCFG_REGISTRATION_KEY=${SECRETS_PREFIX}droai#drocfg_registration_key
 
   # sls
-  SLS_SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${AISERVICE_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${TENANT_ID}${SECRETS_KEY_SEPERATOR}"
-  export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SLS_SECRETS_PREFIX}sls#slscfg_registration_key
-  export SECRET_KEY_SLSCFG_CA_B64ENC=${SLS_SECRETS_PREFIX}sls#slscfg_ca_b64enc
+  if [ -z "$STANDALONE_SLS_SERVICE" ]; then
+    export SLS_SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${AISERVICE_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${TENANT_ID}${SECRETS_KEY_SEPERATOR}"
+    export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SLS_SECRETS_PREFIX}sls#slscfg_registration_key
+    export SECRET_KEY_SLSCFG_CA_B64ENC=${SLS_SECRETS_PREFIX}sls#slscfg_ca_b64enc
+  else
+    export SLS_SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}"
+    export SECRET_KEY_SLSCFG_REGISTRATION_KEY=${SLS_SECRETS_PREFIX}sls#registration_key
+    export SECRET_KEY_SLSCFG_CA_B64ENC=${SLS_SECRETS_PREFIX}sls#ca_b64
+    export SECRET_KEY_SLS_URL=${SLS_SECRETS_PREFIX}sls#sls_url
+  fi  
 
   export SECRET_KEY_RSL_ORG_ID=${SECRETS_PREFIX}rsl#rsl_org_id
   export SECRET_KEY_RSL_TOKEN=${SECRETS_PREFIX}rsl#rsl_token
@@ -425,7 +456,11 @@ function gitops_aiservice_tenant() {
 
   sm_verify_secret_exists ${SECRETS_PREFIX}ibm_entitlement "image_pull_secret_b64,entitlement_key"
   sm_verify_secret_exists ${SECRETS_PREFIX}droai "drocfg_registration_key,drocfg_ca_b64enc"
-  sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
+  if [ -z "$STANDALONE_SLS_SERVICE" ]; then
+    sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "slscfg_registration_key,slscfg_ca_b64enc"
+  else
+    sm_verify_secret_exists ${SLS_SECRETS_PREFIX}sls "registration_key,ca_b64,sls_url"
+  fi
   sm_verify_secret_exists ${SECRETS_PREFIX}rsl "rsl_org_id,rsl_token"
   sm_verify_secret_exists ${SECRETS_PREFIX}watsonx "watsonxai_apikey,watsonxai_project_id"
   
