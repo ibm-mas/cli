@@ -139,7 +139,7 @@ jobs:
         id: test
         run: |
           cd $GITHUB_WORKSPACE/python
-          pytest
+          pytest --trace
 
       - name: Build
         id: build
