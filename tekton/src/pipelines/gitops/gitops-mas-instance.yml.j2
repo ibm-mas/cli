@@ -232,9 +232,6 @@ spec:
     - name: application_configuration
       type: string
       default: "true"
-    - name: additional_resources_install
-      type: string
-      default: "false"
     - name: additional_resources_instances
       type: string
       default: ""
@@ -471,8 +468,6 @@ spec:
           value: $(params.additional_vpn)
         - name: application_configuration
           value: $(params.application_configuration)
-        - name: additional_resources_install
-          value: $(params.additional_resources_install)
         - name: additional_resources_instances
           value: $(params.additional_resources_instances)
         - name: extensions

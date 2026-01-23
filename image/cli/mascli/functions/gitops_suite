@@ -43,8 +43,7 @@ IBM Maximo Application Suite:
       --allow-list ${COLOR_YELLOW}ALLOW_LIST${TEXT_RESET}                                                                 List of IPs or CIDR range to whitelist
       --additional-vpn ${COLOR_YELLOW}ADDITIONAL_VPN{TEXT_RESET}                                                          Manage additional client VPN
       --application-configuration ${COLOR_YELLOW}APPLICATION_CONFIGURATION${TEXT_RESET}                                   Application Configuration enable/disable (true/false)
-      --additional-resources-install ${COLOR_YELLOW}ADDITIONAL_RESOURCES_INSTALL${TEXT_RESET}                             Enable/disable additional resources addon
-      --additional-resources-instances ${COLOR_YELLOW}ADDITIONAL_RESOURCES_INSTANCES${TEXT_RESET}               YAML string defining instances array
+      --additional-resources-instances ${COLOR_YELLOW}ADDITIONAL_RESOURCES_INSTANCES${TEXT_RESET}                         Enable additional resources addon with instances array (YAML string format)
       --extensions ${COLOR_YELLOW}EXTENSIONS${TEXT_RESET}                                                                 To enable JAVA or 3rd party code extensions
       --enhanced-dr ${COLOR_YELLOW}ENHANCED_DR${TEXT_RESET}                                                               To enable Enhanced Disaster Recovery
       --is-non-shared-cluster ${COLOR_YELLOW}IS_NON_SHARED_CLUSTER${TEXT_RESET}                                           To enable Non shared cluster
@@ -146,7 +145,6 @@ function gitops_suite_noninteractive() {
   export EXTENSIONS=${EXTENSIONS:-"false"}
   export ADDITIONAL_VPN=${ADDITIONAL_VPN:-"false"}
   export ENHANCED_DR=${ENHANCED_DR:-"false"}
-  export ADDITIONAL_RESOURCES_INSTALL=${ADDITIONAL_RESOURCES_INSTALL:-"false"}
 
   if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
       CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
@@ -282,9 +280,6 @@ function gitops_suite_noninteractive() {
         ;;
       --is-non-shared-cluster)
         export IS_NON_SHARED_CLUSTER=$1 && shift
-        ;;
-      --additional-resources-install)
-        export ADDITIONAL_RESOURCES_INSTALL=$1 && shift
         ;;
       --additional-resources-instances)
         export ADDITIONAL_RESOURCES_INSTANCES=$1 && shift
