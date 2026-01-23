@@ -146,6 +146,7 @@ function gitops_suite_noninteractive() {
   export ADDITIONAL_VPN=${ADDITIONAL_VPN:-"false"}
   export ENHANCED_DR=${ENHANCED_DR:-"false"}
 
+
   if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
       CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
       IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
