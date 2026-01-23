@@ -92,6 +92,28 @@ spec:
     - name: s3_mvi
       type: string
       default: ''
+    - name: is_msk
+      type: string
+      default: 'false'
+   # iac-msk  params
+    - name: msk_kafka_version
+      type: string
+      default: ''
+    - name: msk_instance_type
+      type: string
+      default: ''
+    - name: msk_cluster_username
+      type: string
+      default: ''
+    - name: msk_broker_volume_size
+      type: string
+      default: ''
+    - name: msk_number_of_broker_nodes
+      type: string
+      default: ''
+    - name: msk_cluster_prefix
+      type: string
+      default: ''
 
   stepTemplate:
     env:
@@ -117,6 +139,8 @@ spec:
         value: $(params.is_efs)
       - name: IS_S3
         value: $(params.is_s3)
+      - name: IS_MSK
+        value: $(params.is_msk)
       - name: EFS_MANAGE_DB2_PERFORMANCE_MODE
         value: $(params.efs_manage_db2_performance_mode)
       - name: EFS_MANAGE_DB2_MOUNT_COUNT
@@ -157,6 +181,19 @@ spec:
         value: $(params.s3_manage)
       - name: S3_MVI
         value: $(params.s3_mvi)
+      # iac-msk params
+      - name: MSK_KAFKA_VERSION
+        value: $(params.msk_kafka_version)
+      - name: MSK_INSTANCE_TYPE
+        value: $(params.msk_instance_type)
+      - name: MSK_CLUSTER_USERNAME
+        value: $(params.msk_cluster_username)
+      - name: MSK_BROKER_VOLUME_SIZE
+        value: $(params.msk_broker_volume_size)
+      - name: MSK_NUMBER_OF_BROKER_NODES
+        value: $(params.msk_number_of_broker_nodes)
+      - name: MSK_CLUSTER_PREFIX
+        value: $(params.msk_cluster_prefix)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -174,31 +211,10 @@ spec:
 
           CMD="mas gitops-iac-generate-common-files -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
 
-          [ -n "$CLUSTER_URL" ] && CMD="$CMD --cluster-url $CLUSTER_URL"
-          # IS_EFS and IS_S3 are required, default to false if not set
-          CMD="$CMD --is_efs ${IS_EFS:-false}"
-          CMD="$CMD --is_s3 ${IS_S3:-false}"
-          [ -n "$EFS_MANAGE_DB2_PERFORMANCE_MODE" ] && CMD="$CMD --efs_manage_db2_performance_mode $EFS_MANAGE_DB2_PERFORMANCE_MODE"
-          [ -n "$EFS_MANAGE_DB2_MOUNT_COUNT" ] && CMD="$CMD --efs_manage_db2_mount_count $EFS_MANAGE_DB2_MOUNT_COUNT"
-          [ -n "$EFS_MANAGE_DB2_THROUGHPUT_MODE" ] && CMD="$CMD --efs_manage_db2_throughput_mode $EFS_MANAGE_DB2_THROUGHPUT_MODE"
-          [ -n "$EFS_MANAGE_MAIN_PERFORMANCE_MODE" ] && CMD="$CMD --efs_manage_main_performance_mode $EFS_MANAGE_MAIN_PERFORMANCE_MODE"
-          [ -n "$EFS_MANAGE_MAIN_MOUNT_COUNT" ] && CMD="$CMD --efs_manage_main_mount_count $EFS_MANAGE_MAIN_MOUNT_COUNT"
-          [ -n "$EFS_MANAGE_MAIN_THROUGHPUT_MODE" ] && CMD="$CMD --efs_manage_main_throughput_mode $EFS_MANAGE_MAIN_THROUGHPUT_MODE"
-          [ -n "$EFS_IOT_DB2_PERFORMANCE_MODE" ] && CMD="$CMD --efs_iot_db2_performance_mode $EFS_IOT_DB2_PERFORMANCE_MODE"
-          [ -n "$EFS_IOT_DB2_MOUNT_COUNT" ] && CMD="$CMD --efs_iot_db2_mount_count $EFS_IOT_DB2_MOUNT_COUNT"
-          [ -n "$EFS_IOT_DB2_THROUGHPUT_MODE" ] && CMD="$CMD --efs_iot_db2_throughput_mode $EFS_IOT_DB2_THROUGHPUT_MODE"
-          [ -n "$EFS_FACILITIES_DB2_PERFORMANCE_MODE" ] && CMD="$CMD --efs_facilities_db2_performance_mode $EFS_FACILITIES_DB2_PERFORMANCE_MODE"
-          [ -n "$EFS_FACILITIES_DB2_MOUNT_COUNT" ] && CMD="$CMD --efs_facilities_db2_mount_count $EFS_FACILITIES_DB2_MOUNT_COUNT"
-          [ -n "$EFS_FACILITIES_DB2_THROUGHPUT_MODE" ] && CMD="$CMD --efs_facilities_db2_throughput_mode $EFS_FACILITIES_DB2_THROUGHPUT_MODE"
-          [ -n "$EFS_FACILITIES_MAIN_PERFORMANCE_MODE" ] && CMD="$CMD --efs_facilities_main_performance_mode $EFS_FACILITIES_MAIN_PERFORMANCE_MODE"
-          [ -n "$EFS_FACILITIES_MAIN_MOUNT_COUNT" ] && CMD="$CMD --efs_facilities_main_mount_count $EFS_FACILITIES_MAIN_MOUNT_COUNT"
-          [ -n "$EFS_FACILITIES_MAIN_THROUGHPUT_MODE" ] && CMD="$CMD --efs_facilities_main_throughput_mode $EFS_FACILITIES_MAIN_THROUGHPUT_MODE"
-          [ -n "$EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE" ] && CMD="$CMD --efs_visualinspection_main_performance_mode $EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE"
-          [ -n "$EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT" ] && CMD="$CMD --efs_visualinspection_main_mount_count $EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT"
-          [ -n "$EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE" ] && CMD="$CMD --efs_visualinspection_main_throughput_mode $EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE"
-          [ -n "$S3_MANAGE" ] && CMD="$CMD --s3_manage $S3_MANAGE"
-          [ -n "$S3_MVI" ] && CMD="$CMD --s3_mvi $S3_MVI"
-
+          CMD="$CMD --is-efs ${IS_EFS:-false}"
+          CMD="$CMD --is-s3 ${IS_S3:-false}"
+          CMD="$CMD --is-msk ${IS_MSK:-false}"
+          
           echo "Executing: $CMD"
           eval $CMD
           exit $?

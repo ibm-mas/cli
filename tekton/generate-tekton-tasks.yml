@@ -72,6 +72,7 @@
         - mas-fvt-deprovision-cos
         - mas-fvt-deprovision-kafka
         - mas-fvt-finalize
+        - mas-fvt-pipeline-finish-and-deprovision
         - mas-fvt-iot
         - mas-fvt-manage
         - mas-fvt-mobile-testng
@@ -249,14 +250,16 @@
         - gitops-suite
         - gitops-odh
         - gitops-deprovision-odh
-
         - gitops-aiservice
         - gitops-aiservice-tenant
         - gitops-deprovision-aiservice-tenant
         - gitops-deprovision-aiservice
+        - gitops-app-config
+        - gitops-delete-app-config
         - gitops-iac-create-branch
         - gitops-iac-generate-common-files
         - gitops-iac-manage-pr
         - gitops-iac-provision-efs
         - gitops-iac-provision-s3
+        - gitops-iac-provision-msk
 

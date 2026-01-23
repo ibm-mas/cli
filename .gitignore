@@ -58,3 +58,6 @@ python/mas-*.spec
 python/README.rst
 
 /mkdocs_plugins/mkdocs_mas_catalogs.egg-info
+/.venv-docs
+/.venv-docs
+/mkdocs_plugins/mkdocs_mas_plugins.egg-info
