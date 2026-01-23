@@ -352,6 +352,8 @@ if __name__ == "__main__":
                     print(f"Unable to determine {productId} build information: {e}")
             else:
                 print(f"Unable to determine {productId} version: status.versions.reconciled unavailable")
+            if cr.status and cr.status.settings and cr.status.settings.routingMode:
+                setObject[f"products.{productId}.routingMode"] = cr.status.settings.routingMode
         except Exception as e:
             print(f"Unable to determine {productId} version: {e}")
 

@@ -261,4 +261,5 @@
         - gitops-iac-manage-pr
         - gitops-iac-provision-efs
         - gitops-iac-provision-s3
+        - gitops-iac-provision-msk
 
