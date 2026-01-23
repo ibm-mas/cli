@@ -5,7 +5,6 @@ from pymongo import MongoClient
 from kubernetes import client, config
 from kubernetes.client import Configuration
 from openshift.dynamic import DynamicClient
-from openshift.dynamic.exceptions import NotFoundError as K8sNotFoundError
 from mas.devops.slack import SlackUtil
 from subprocess import PIPE, Popen, TimeoutExpired
 from mobilever import MobVer
@@ -409,83 +408,29 @@ if __name__ == "__main__":
     # Get DB2 CLuster Version
     # -------------------------------------------------------------------------
     try:
-        # Check if db2u namespace exists
-        try:
-            namespaces = dynClient.resources.get(api_version="v1", kind="Namespace")
-            ns = namespaces.get(name="db2u")
-            db2u_exists = True
-        except K8sNotFoundError:
-            db2u_exists = False
-            print("DB2 namespace 'db2u' does not exist, skipping DB2 cluster version collection")
+        crs = dynClient.resources.get(api_version="db2u.databases.ibm.com/v1", kind="Db2uCluster")
+        cr = crs.get(name=f"mas-{instanceId}-system", namespace="db2u")
+        if cr.status and cr.status.version:
+            db2ClusterVersion = cr.status.version
 
-        if db2u_exists:
-            # Try to get DB2 cluster - try multiple possible names
-            crs = dynClient.resources.get(api_version="db2u.databases.ibm.com/v1", kind="Db2uCluster")
-            db2_cluster_names = [f"mas-{instanceId}-system", f"{instanceId}-system", "db2u-cluster"]
-
-            db2_found = False
-            for cluster_name in db2_cluster_names:
-                try:
-                    cr = crs.get(name=cluster_name, namespace="db2u")
-                    if cr.status and cr.status.version:
-                        db2ClusterVersion = cr.status.version
-                        setObject["target.db2ClusterVersion"] = db2ClusterVersion
-                        print(f"Found DB2 cluster '{cluster_name}' with version: {db2ClusterVersion}")
-                        db2_found = True
-                        break
-                    else:
-                        print(f"DB2 cluster '{cluster_name}' found but status.version unavailable")
-                except K8sNotFoundError:
-                    # Try next name
-                    continue
-                except Exception as e:
-                    print(f"Error checking DB2 cluster '{cluster_name}': {e}")
-                    continue
-
-            if not db2_found:
-                print(f"DB2 cluster not found in namespace 'db2u'. Tried names: {db2_cluster_names}")
+            setObject["target.db2ClusterVersion"] = db2ClusterVersion
+        else:
+            print("Unable to determine DB2 cluster version: status.version unavailable")
     except Exception as e:
         print(f"Unable to determine DB2 cluster version: {e}")
 
     # Lookup DB2 operator version
     # -------------------------------------------------------------------------
     try:
-        # Check if db2u namespace exists
-        try:
-            namespaces = dynClient.resources.get(api_version="v1", kind="Namespace")
-            ns = namespaces.get(name="db2u")
-            db2u_exists = True
-        except K8sNotFoundError:
-            db2u_exists = False
-            print("DB2 namespace 'db2u' does not exist, skipping DB2 operator version collection")
 
-        if db2u_exists:
-            csvl = dynClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="ClusterServiceVersion")
+        csvl = dynClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="ClusterServiceVersion")
+        csv = csvl.get(namespace="db2u", label_selector='operators.coreos.com/db2u-operator.db2u')
 
-            # Try multiple label selectors
-            label_selectors = [
-                'operators.coreos.com/db2u-operator.db2u',
-                'operators.coreos.com/db2u.db2u'
-            ]
-
-            csv_found = False
-            for selector in label_selectors:
-                try:
-                    csv = csvl.get(namespace="db2u", label_selector=selector)
-                    if csv and csv.items and len(csv.items) > 0:
-                        db2OperatorVersion = (csv.items[0].metadata.name).replace('db2u-operator.', '').replace('db2u.', '')
-                        setObject["target.db2OperatorVersion"] = db2OperatorVersion
-                        print(f"Found DB2 operator version: {db2OperatorVersion}")
-                        csv_found = True
-                        break
-                except K8sNotFoundError:
-                    continue
-                except Exception as e:
-                    print(f"Error checking DB2 operator with selector '{selector}': {e}")
-                    continue
-
-            if not csv_found:
-                print(f"DB2 operator CSV not found in namespace 'db2u'. Tried selectors: {label_selectors}")
+        if csv is None or csv.items is None or len(csv.items) == 0:
+            print("Unable to determine DB2 operator version: component unavailable")
+        else:
+            db2OperatorVersion = (csv.items[0].metadata.name).lstrip('db2u-operator.')
+            setObject["target.db2OperatorVersion"] = db2OperatorVersion
     except Exception as e:
         print(f"Unable to determine DB2 operator version: {e}")
 
@@ -522,44 +467,13 @@ if __name__ == "__main__":
     # Lookup SLS version
     # -------------------------------------------------------------------------
     try:
-        sls_namespace = f"sls-{instanceId}"
-
-        # Check if SLS namespace exists
-        try:
-            namespaces = dynClient.resources.get(api_version="v1", kind="Namespace")
-            ns = namespaces.get(name=sls_namespace)
-            sls_ns_exists = True
-        except K8sNotFoundError:
-            sls_ns_exists = False
-            print(f"SLS namespace '{sls_namespace}' does not exist, skipping SLS version collection")
-
-        if sls_ns_exists:
-            crs = dynClient.resources.get(api_version="sls.ibm.com/v1", kind="LicenseService")
-
-            # Try multiple possible SLS resource names
-            sls_names = ["sls", f"sls-{instanceId}", "licenseservice"]
-
-            sls_found = False
-            for sls_name in sls_names:
-                try:
-                    cr = crs.get(name=sls_name, namespace=sls_namespace)
-                    if cr.status and cr.status.versions:
-                        slsVersion = cr.status.versions.reconciled
-                        setObject["target.slsVersion"] = slsVersion
-                        print(f"Found SLS '{sls_name}' with version: {slsVersion}")
-                        sls_found = True
-                        break
-                    else:
-                        print(f"SLS '{sls_name}' found but status.versions unavailable")
-                except K8sNotFoundError:
-                    # Try next name
-                    continue
-                except Exception as e:
-                    print(f"Error checking SLS '{sls_name}': {e}")
-                    continue
-
-            if not sls_found:
-                print(f"SLS LicenseService not found in namespace '{sls_namespace}'. Tried names: {sls_names}")
+        crs = dynClient.resources.get(api_version="sls.ibm.com/v1", kind="LicenseService")
+        cr = crs.get(name="sls", namespace=f"sls-{instanceId}")
+        if cr.status and cr.status.versions:
+            slsVersion = cr.status.versions.reconciled
+            setObject["target.slsVersion"] = slsVersion
+        else:
+            print("Unable to determine SLS version: status.versions unavailable")
     except Exception as e:
         print(f"Unable to determine SLS version: {e}")
 
