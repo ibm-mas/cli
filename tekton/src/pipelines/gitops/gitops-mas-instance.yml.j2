@@ -915,7 +915,7 @@ spec:
       when:
         - input: "$(params.maf_enabled)"
           operator: in
-          values: [""]
+          values: ["", "false"]
       workspaces:
         - name: configs
           workspace: configs
