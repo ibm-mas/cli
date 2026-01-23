@@ -208,7 +208,7 @@ class installArgBuilderMixin():
             if self.getParam('mas_app_settings_server_bundles_size') != "":
                 command += f"  --manage-server-bundle-size \"{self.getParam('mas_app_settings_server_bundles_size')}\"{newline}"
             if self.getParam('mas_app_settings_default_jms') != "":
-                command += f"  --manage-jms \"{self.getParam('mas_app_settings_default_jms')}\"{newline}"
+                command += f"  --manage-jms {newline}"
             if self.getParam('mas_app_settings_persistent_volumes_flag') == "true":
                 command += f"  --manage-persistent-volumes{newline}"
             if self.getParam('mas_app_settings_demodata') == "true":
