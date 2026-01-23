@@ -196,7 +196,8 @@ class installArgBuilderMixin():
 
         # Arcgis
         # -----------------------------------------------------------------------------
-        # TODO: Add ArcGis after we have properly fixed how it's installed
+        if self.installArcgis:
+            command += f"  --arcgis-channel \"{self.getParam('mas_arcgis_channel')}\"{newline}"
 
         # Manage Advanced Settings
         # -----------------------------------------------------------------------------
@@ -207,7 +208,7 @@ class installArgBuilderMixin():
             if self.getParam('mas_app_settings_server_bundles_size') != "":
                 command += f"  --manage-server-bundle-size \"{self.getParam('mas_app_settings_server_bundles_size')}\"{newline}"
             if self.getParam('mas_app_settings_default_jms') != "":
-                command += f"  --manage-jms \"{self.getParam('mas_app_settings_default_jms')}\"{newline}"
+                command += f"  --manage-jms {newline}"
             if self.getParam('mas_app_settings_persistent_volumes_flag') == "true":
                 command += f"  --manage-persistent-volumes{newline}"
             if self.getParam('mas_app_settings_demodata') == "true":
@@ -541,8 +542,6 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.devMode:
             command += f"  --dev-mode{newline}"
-        if not self.waitForPVC:
-            command += f"  --no-wait-for-pvc{newline}"
         if self.getParam('skip_pre_check') is True:
             command += f"  --skip-pre-check{newline}"
         if self.getParam('skip_grafana_install') is True:

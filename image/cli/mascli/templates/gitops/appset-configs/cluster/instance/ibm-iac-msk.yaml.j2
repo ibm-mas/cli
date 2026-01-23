@@ -1,0 +1,36 @@
+module "msk" {
+  source   = "{{MSK_SOURCE}}"
+  for_each = local.multiple-msk
+
+  vpc_id                    = var.vpc_id
+  secret_recovery_days      = 0
+  msk_kafka_version         = each.value.kafka_version
+  msk_cluster_name          = each.value.name
+  msk_instance_type         = each.value.instance_type
+  az_distribution           = "DEFAULT"
+  msk_cluster_username      = each.value.cluster_name
+  broker_volume_size        = each.value.broker_volume_size
+  number_of_broker_nodes    = each.value.broker_nodes
+  msk_egress_subnet_ids     = local.cluster.external_subnet_ids
+  msk_ingress_subnet_ids    = local.cluster.internal_subnet_ids
+  msk_worker_subnet_id_list = local.cluster.internal_subnet_ids
+
+  # id of additional security group to associate with cluster
+  msk_additional_security_groups = local.cluster.security_groups
+
+  cloudwatch_logs_enabled   = false
+  cloudwatch_logs_log_group = null
+
+  firehose_logs_enabled    = false
+  firehose_delivery_stream = ""
+
+  s3_logs_enabled = false
+  s3_logs_bucket  = ""
+  s3_logs_prefix  = ""
+
+  properties = {}
+
+  # prefix added to secret used by MAS Deployment
+  sre_prefix  = each.value.sre_prefix
+  secret_name = each.value.secret_name
+}
