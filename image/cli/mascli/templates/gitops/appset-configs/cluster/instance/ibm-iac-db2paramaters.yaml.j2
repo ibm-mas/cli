@@ -1,4 +1,6 @@
-{% set properties = RDS_MANAGE_DB2_COMBINE_PROPERTIES | from_json %}
+{% set var_name = "RDS_" ~ RDS_APP | upper ~ "_DB2_COMBINE_PROPERTIES" %}
+{% set properties = vars[var_name] | from_json %}
+
 {% for key, value in properties.items() %}
 {{ key }}: {{ value | tojson }}
 {% endfor %}

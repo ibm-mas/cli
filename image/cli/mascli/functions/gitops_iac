@@ -730,7 +730,7 @@ function compute_s3_variables() {
   echo "  ACCOUNT_ID: ${ACCOUNT_ID}"
   echo "  S3_MANAGE: ${S3_MANAGE}"
   echo "  S3_MVI: ${S3_MVI}"
-  echo "  VPC_ID: ${VPC_ID_VALUE}"s
+  echo "  VPC_ID: ${VPC_ID_VALUE}"
 
   echo " S3 variables computed successfully"
 }
@@ -765,6 +765,68 @@ function compute_msk_variables() {
   echo "  SECURITY_GROUPS_VALUE          : ${SECURITY_GROUPS_VALUE}"
 
   echo " MSK variables computed successfully"
+}
+
+# Compute rds-related variables from cluster configuration files
+# This function extracts values from existing Terraform files
+function compute_rds_variables() {
+  local TASK_WORKING_DIR=$1
+  local GITHUB_REPO=$2
+  local REGION_NAME=$3
+  local CLUSTER_ID=$4
+
+  echo "Computing MSK variables..."
+
+  # Extract values from cluster files
+  CLUSTER_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
+  TERRAFORMTF_FILE_PATH=$CLUSTER_PATH/terraform.tfvars
+  MAIN_FILE_PATH=$CLUSTER_PATH/main.tf
+
+  # Compute MSK variables from Terraform files
+  export NAME_PREFIX_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "name_prefix")
+  export COST_CENTER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["cost-center"]')
+  export CONTACT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["contact"]')
+  export ENVIRONMENT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["environment"]')
+  export OWNER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["owner"]')
+  export CLUSTER_CIDR_WORKLOAD_EXTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.cidrs.workload_external")
+  export CLUSTER_CIDR_WORKLOAD_INTERNAL=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.cidrs.workload_internal")
+  export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_id")
+  export SECURITY_GROUPS_VALUE=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.security_groups")
+  export VPC_NAME_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_name")
+
+if check_params "MANAGE" "$RDS_MANAGE_DB2_INSTANCE_CLASS" "$RDS_MANAGE_DB2_STORAGE_TYPE" "$RDS_MANAGE_ALLOCATED_STORAGE"; then
+  export RDS_MANAGE="true"
+else
+  export RDS_MANAGE="false"
+fi
+
+if check_params "IOT" "$RDS_IOT_DB2_INSTANCE_CLASS" "$RDS_IOT_DB2_STORAGE_TYPE" "$RDS_IOT_ALLOCATED_STORAGE"; then
+  export RDS_IOT=true
+else
+  export RDS_IOT=false
+fi
+
+if check_params "FACILITIES" "$RDS_FACILITIES_DB2_INSTANCE_CLASS" "$RDS_FACILITIES_DB2_STORAGE_TYPE" "$RDS_FACILITIES_ALLOCATED_STORAGE"; then
+  export RDS_FACILITIES=true
+else
+  export RDS_FACILITIES=false
+fi
+
+  echo "  NAME_PREFIX_VALUE              : ${NAME_PREFIX_VALUE}"
+  echo "  COST_CENTER_VALUE              : ${COST_CENTER_VALUE}"
+  echo "  CONTACT_VALUE                  : ${CONTACT_VALUE}"
+  echo "  ENVIRONMENT_VALUE              : ${ENVIRONMENT_VALUE}"
+  echo "  OWNER_VALUE                    : ${OWNER_VALUE}"
+  echo "  CLUSTER_CIDR_WORKLOAD_EXTERNAL : ${CLUSTER_CIDR_WORKLOAD_EXTERNAL}"
+  echo "  CLUSTER_CIDR_WORKLOAD_INTERNAL : ${CLUSTER_CIDR_WORKLOAD_INTERNAL}"
+  echo "  VPC_ID                         : ${VPC_ID_VALUE}"
+  echo "  SECURITY_GROUPS_VALUE          : ${SECURITY_GROUPS_VALUE}"
+  echo "  VPC_NAME_VALUE                 : ${VPC_NAME_VALUE}"
+  echo "  RDS_MANAGE                     : ${RDS_MANAGE}"  
+  echo "  RDS_IOT                        : ${RDS_IOT}"  
+  echo "  RDS_FACILITIES                 : ${RDS_FACILITIES}"  
+
+  echo " RDS variables computed successfully"
 }
 
 # ============================================================================
@@ -1121,11 +1183,27 @@ function gitops_iac_provision_rdsdb2(){
   echo
   echo_h2 "Generating IAC/RDS-DB2 Configuration"
 
-  echo "Generating rdsdb2.tf file ${GITOPS_CLUSTER_DIR}/msk.tf "
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-rdsdb2.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2rds.tf
+  APP_PARAMS = (
+  "manage $RDS_MANAGE_DB2_INSTANCE_CLASS $RDS_MANAGE_DB2_STORAGE_TYPE $RDS_MANAGE_ALLOCATED_STORAGE"
+  "iot $RDS_IOT_DB2_INSTANCE_CLASS $RDS_IOT_DB2_STORAGE_TYPE $RDS_IOT_ALLOCATED_STORAGE"
+  "facilities $RDS_FACILITIES_DB2_INSTANCE_CLASS $RDS_FACILITIES_DB2_STORAGE_TYPE $RDS_FACILITIES_ALLOCATED_STORAGE"
+  )
 
-  echo "Generating db2_parameters.yaml file ${GITOPS_CLUSTER_DIR}/db2_parameters.yaml "
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-db2paramaters.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2_parameters.yaml
+  for row in "${APP_PARAMS[@]}"; do
+    read -r app instance storage allocated <<< "$row"
+
+    if check_params "$app" "$instance" "$storage" "$allocated"; then
+      export RDS_APP="$app"
+      echo "Generating rds-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/rds-db2-$app.tf"
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-rdsdb2.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2rds-manage.tf
+
+      echo "Generating db2_parameters-$app.yaml file ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml "
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-db2paramaters.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml
+
+      echo "Generating s3-instance-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf "
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-db2-$app.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf      
+    fi
+  done
 
   # Commit changes to working branch
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -1222,11 +1300,17 @@ function gitops_iac_generate_common_files() {
     echo_h2 "Computing MSK Variables"
     compute_msk_variables "${TASK_WORKING_DIR}" "${GITHUB_REPO}" "${REGION_NAME}" "${CLUSTER_ID}"
   fi
+
+  if [[ "$IS_RDS" == "true" ]]; then
+    echo
+    echo_h2 "Computing RDS Variables"
+    compute_rds_variables "${TASK_WORKING_DIR}" "${GITHUB_REPO}" "${REGION_NAME}" "${CLUSTER_ID}"
+  fi
   
   echo "Checking and creating common files"
   create_common_files ${GITOPS_CLUSTER_DIR}
   
-  # Generate common terraform files using variables exported by EFS/S3 tasks
+  # Generate common terraform files using variables exported by EFS/S3/MSK/RDS tasks
   echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
   jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-main.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
   
@@ -1527,4 +1611,25 @@ function gitops_iac_manage_pr_cmd() {
   gitops_iac_manage_pr
 }
 
-
+# Function to check if parameters are set and return APP name with status
+# Usage: check_params "MANAGE" "$RDS_MANAGE_DB2_INSTANCE_CLASS" "$RDS_MANAGE_DB2_STORAGE_TYPE" "$RDS_MANAGE_ALLOCATED_STORAGE"
+# Returns: APP_NAME if all params are not empty, empty string if any param is empty
+# Example: check_rds_params "MANAGE" "db.t3.medium" "gp3" "100" returns "MANAGE"
+#          check_rds_params "MANAGE" "" "gp3" "100" returns ""
+function check_params() {
+  local app_name="$1"
+  shift
+  local params=("$@")
+  
+  # Check if all parameters are not empty
+  for param_value in "${params[@]}"; do
+    if [[ -z "$param_value" ]]; then
+      echo ""
+      return 1
+    fi
+  done
+  
+  # All parameters are set, return app name
+  echo "$app_name"
+  return 0
+}

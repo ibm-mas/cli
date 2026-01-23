@@ -1,0 +1,19 @@
+module "s3buckets_instance" {
+  source = "{{RDS_S3_SOURCE}}"
+
+  tags                    = var.common_tags
+  name_prefix             = var.name_prefix
+  s3buckets               = local.cluster.instance.rds_s3bucket_{{RDS_S3_APP_NAME}}
+  iam_user_arns           = {}
+  bucket_user_name_map    = {}
+  iam_users_by_bucket     = {}
+  s3_iam_users_list       = {}
+  s3_actions              = {}
+  s3_encryption           = true
+  s3_encryption_algorithm = var.s3_encryption_algorithm
+  force_bucket_destroy    = true
+  mas_cluster_id          = local.cluster.name
+  mas_instance_id         = local.cluster.instance.name
+  secret_recovery_days    = 0
+  s3_bucket_region        = local.location.region
+}

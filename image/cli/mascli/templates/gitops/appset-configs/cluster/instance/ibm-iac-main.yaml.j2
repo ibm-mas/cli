@@ -1,4 +1,4 @@
-{%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') -%}
+{%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') or (IS_RDS | lower == 'true') -%}
 data "aws_subnets" "external_subnets" {
   filter {
     name   = "vpc-id"
@@ -86,14 +86,16 @@ locals {
     rw = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
   }
 
-  location = var.location
   #Common S3 params ends
 {%- endif %}
+{%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true') %}
+  location = var.location
+{%- endif %}
   cluster = {
-  {%- if IS_S3 | lower == 'true' %}
+  {%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true') %}
     instance = {
       name = var.instance_name
-      {%- if S3_MANAGE | lower == 'true'  %}
+   {%- if S3_MANAGE | lower == 'true'  %}
     #Manage specific S3 buckets starts
       manage_s3buckets = {
         doclinks = {
@@ -137,19 +139,91 @@ locals {
       }
     #Manage specific S3 buckets ends
     {%- endif %}
+    {%- if (IS_RDS | lower == 'true') %}
+    {%- if (RDS_MANAGE | lower == 'true') %}
+    #RDS Manage specific S3 bucket start
+    rds_s3bucket_manage = {
+        auditlog-manage = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket
+          name                 = "${var.s3bucket_name_prefix_db2}-auditlog-manage"
+          id                   = "${var.s3bucket_name_prefix_db2}-auditlog-manage"
+          access_level         = "rw"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_db2}-auditlog-manage"
+          secret_suffix        = "manage"
+          cos_secret_format    = false
+          manage_secret_format = false
+          expiration = {
+            days = 366 // how long to keep logs
+          }
+        }
     }
-    name = var.cluster_name
+    #RDS Manage specific S3 bucket end
     {%- endif %}
-  {%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') %}
-    #EFS/MSK related params starts
+    {%- if (RDS_FACILITIES | lower == 'true') %}
+    #RDS FACILITIES specific S3 bucket start
+    rds_s3bucket_facilities = {
+        auditlog-facilities = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket
+          name                 = "${var.s3bucket_name_prefix_db2}-auditlog-facilities"
+          id                   = "${var.s3bucket_name_prefix_db2}-auditlog-facilities"
+          access_level         = "rw"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_db2}-auditlog-facilities"
+          secret_suffix        = "facilities"
+          cos_secret_format    = false
+          manage_secret_format = false
+          expiration = {
+            days = 366 // how long to keep logs
+          }
+        }
+    }
+    #RDS FACILITIES specific S3 bucket end
+    {%- endif %}
+    {%- if (RDS_IOT | lower == 'true') %}
+    #RDS IOT specific S3 bucket start
+    rds_s3bucket_iot = {
+        auditlog-iot = {
+          name_prefix          = var.name_prefix
+          create               = var.create_bucket
+          name                 = "${var.s3bucket_name_prefix_db2}-auditlog-iot"
+          id                   = "${var.s3bucket_name_prefix_db2}-auditlog-iot"
+          access_level         = "rw"
+          s3_bucket_arn        = "arn:aws:s3:::${var.s3bucket_name_prefix_db2}-auditlog-iot"
+          secret_suffix        = "iot"
+          cos_secret_format    = false
+          manage_secret_format = false
+          expiration = {
+            days = 366 // how long to keep logs
+          }
+        }
+    }
+    #RDS IOT specific S3 bucket end
+   {%- endif %}
+    }
+   {%- endif %}
+   {%- endif %}
+  {%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true') %}
+    name = var.cluster_name
+  {%- endif %}
+  {%- if (IS_RDS | lower == 'true') %}
+  #RDS related params starts
+    cidrs = {
+      workload_external = {{ CLUSTER_CIDR_WORKLOAD_EXTERNAL }}
+      workload_internal = {{ CLUSTER_CIDR_WORKLOAD_INTERNAL }}
+    }
+    #RDS related params ends
+  {%- endif %}
+  {%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') or (IS_RDS | lower == 'true') %}
+    #EFS/MSK/RDS related params starts
     "external_subnet_ids" : data.aws_subnets.external_subnets.ids
     "internal_subnet_ids" : data.aws_subnets.internal_subnets.ids
-    #EFS/MSK related params ends
+    #EFS/MSK/RDS related params ends
   {%- endif %}
-  {%- if IS_MSK | lower == 'true' %}
-    #MSK related params starts
+  {%- if (IS_MSK | lower == 'true') or (IS_RDS | lower == 'true') %}
+    #MSK/RDS related params starts
     "security_groups" : ["{{ SECURITY_GROUPS_VALUE }}"]
-    #MSK related params ends
+    #MSK/RDS related params ends
   {%- endif %}
   }
 

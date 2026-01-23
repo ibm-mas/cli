@@ -1,4 +1,4 @@
-{%- if (IS_S3 | lower == 'true') or (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') %}
+{%- if (IS_S3 | lower == 'true') or (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') or (IS_RDS | lower == 'true') %}
 variable "instance_name" {
     type        = string
     description = "Name of Instance"
@@ -21,7 +21,7 @@ variable "cluster_prefix" {
 }
 {%- endif %}
 
-{%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true')%}
+{%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true')  or (IS_RDS | lower == 'true')%}
 
 variable "vpc_name" {
     type        = string
@@ -29,7 +29,7 @@ variable "vpc_name" {
 }
 {%- endif %}
 
-{%- if (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true')%}
+{%- if (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true') or (IS_RDS | lower == 'true')%}
 variable "name_prefix" {
     type        = string
     description = "name_prefix"
@@ -77,28 +77,6 @@ variable "access_level_ro" {
     default     = "ro"
 }
 
-variable "common_tags" {
-    type        = map(string)
-    description = "Common resource tags"
-}
-
-variable "create_bucket" {
-    type        = bool
-    description = "Enable creation of bucket"
-}
-
-variable "location" {
-    type = object({
-      region             = string
-      availability_zones = list(string)
-    })
-    description = "location details"
-    default = {
-      region             = "us-east-1"
-      availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
-    }
-}
-
 variable "s3_encryption_algorithm" {
     type        = string
     description = "s3 encryption algorithm"
@@ -118,4 +96,41 @@ variable "iam_user_arn_prefix_manage" {
     description = "iam user arn"
 }
 {%- endif %}
+{%- endif %}
+{%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true')%}
+variable "create_bucket" {
+    type        = bool
+    description = "Enable creation of bucket"
+}
+variable "common_tags" {
+    type        = map(string)
+    description = "Common resource tags"
+}
+variable "location" {
+    type = object({
+      region             = string
+      availability_zones = list(string)
+    })
+    description = "location details"
+    default = {
+      region             = "us-east-1"
+      availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+    }
+}
+{%- endif %}
+
+{%- if (IS_RDS | lower == 'true')%}
+variable "s3bucket_name_prefix_db2" {
+    type        = string
+    description = "s3 bucket name prefix for RDS DB2"
+}
+variable "engine_version" {
+  type        = string
+  description = "Db2 engine version"
+}
+
+variable "db2_parameters_apply_type" {
+  type        = string
+  description = "db2 parameters apply type"
+}
 {%- endif %}
