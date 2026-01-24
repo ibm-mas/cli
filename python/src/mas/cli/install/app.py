@@ -587,15 +587,69 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def configRoutingMode(self):
         if self.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.2.x-feature':
             self.printH1("Configure Routing Mode")
-            self.printDescription([
-                "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
-                "",
-                "  1. Path (single domain)",
-                "  2. Subdomain (multi domain)"
-            ])
-            routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
-            routingModeOptions = ["path", "subdomain"]
-            self.setParam("mas_routing_mode", routingModeOptions[routingModeInt - 1])
+            
+            pathModeAvailable = self._checkIngressControllerForPathRouting()
+            
+            if pathModeAvailable:
+                self.printDescription([
+                    "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
+                    "",
+                    "  1. Path (single domain)",
+                    "  2. Subdomain (multi domain)"
+                ])
+                routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
+                routingModeOptions = ["path", "subdomain"]
+                self.setParam("mas_routing_mode", routingModeOptions[routingModeInt - 1])
+            else:
+                self.printDescription([
+                    "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
+                    "",
+                    "  <Red>1. Path (single domain) - NOT AVAILABLE</Red>",
+                    "  2. Subdomain (multi domain)",
+                    "",
+                    "<Yellow>Path-based routing is not available because the OpenShift IngressController is not properly configured.</Yellow>",
+                    "",
+                    "To enable path-based routing, you need to configure the IngressController with the following setting:",
+                    "",
+                    "  <Cyan>spec:",
+                    "    routeAdmission:",
+                    "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
+                    "",
+                    "You can apply this configuration by running:",
+                    "",
+                    "  <Cyan>oc patch ingresscontroller default -n openshift-ingress-operator \\",
+                    "    --type=merge \\",
+                    "    --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'</Cyan>",
+                    "",
+                    "After applying this configuration, you can re-run the installation to use path-based routing."
+                ])
+                routingModeInt = self.promptForInt("Routing Mode", default=2, min=2, max=2)
+                self.setParam("mas_routing_mode", "subdomain")
+
+    def _checkIngressControllerForPathRouting(self):
+        try:
+            ingressControllerAPI = self.dynamicClient.resources.get(
+                api_version="operator.openshift.io/v1",
+                kind="IngressController"
+            )
+            ingressController = ingressControllerAPI.get(
+                name="default",
+                namespace="openshift-ingress-operator"
+            )
+            
+            spec = ingressController.get('spec', {})
+            routeAdmission = spec.get('routeAdmission', {})
+            namespaceOwnership = routeAdmission.get('namespaceOwnership', '')
+            
+            if namespaceOwnership == 'InterNamespaceAllowed':
+                return True
+            return False
+        except NotFoundError:
+            logger.warning("IngressController 'default' not found in openshift-ingress-operator namespace")
+            return False
+        except Exception as e:
+            logger.warning(f"Failed to check IngressController configuration: {e}")
+            return False
 
     @logMethodCall
     def configAnnotations(self):
