@@ -51,5 +51,4 @@ module "db2rds-1" {
   rds_admin_db_name                   = "rdsadmin"
   db2_parameters_apply_type           = var.db2_parameters_apply_type
   enable_db2_read_replica             = false
-  replica_mode                        = enable_db2_read_replica ? "mounted" : ""
 }
