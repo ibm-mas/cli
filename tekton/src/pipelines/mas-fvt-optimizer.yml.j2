@@ -658,8 +658,8 @@ spec:
         #   - Any major version >= 10 (e.g., 10.x, 11.x)
         # It intentionally excludes versions like 9.0.x or anything < 9.1.
         - input: "$(params.mas_app_channel_optimizer)"
-            operator: matches
-            values: ["^9\\.(1|[2-9][0-9]*)(\\..*)?$|^[1-9][0-9]+\\..*$"]
+          operator: matches
+          values: ["^9\\.(1|[2-9][0-9]*)(\\..*)?$|^[1-9][0-9]+\\..*$"]
       workspaces:
         - name: configs
           workspace: shared-configs
