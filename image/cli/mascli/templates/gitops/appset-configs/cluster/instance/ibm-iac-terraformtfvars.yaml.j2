@@ -32,7 +32,6 @@ name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 create_s3_iam_group     = false
 create_s3_iam_policy    = false
 create_efs_policy       = false
-s3_encryption_algorithm = "AES256"
 account_id = "{{ACCOUNT_ID}}"
 {%- if S3_MANAGE | lower == 'true'  %}
 #S3 Manage related params starts
@@ -62,6 +61,7 @@ s3_iam_users_list_manage = {
 {%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true') %}
 #S3/RDS related params starts
 create_bucket        = true
+s3_encryption_algorithm = "AES256"
 common_tags = {
     "source"      = "terraform",
     "environment" = "{{ENVIRONMENT_VALUE}}",
