@@ -47,7 +47,7 @@ module "db2rds-1" {
   db2_port                            = "50001"
   db2_parameters_file_path            = "./db2_parameters-{{RDS_APP}}.yaml"
   major_engine_version                = "11.5"
-  s3_bucket_name_for_audit_log        = join("-", [var.cluster_name, var.instance_name, "{{RDS_APP}}", "audit-log"])
+  s3_bucket_name_for_audit_log        = join("-", [var.cluster_name, var.instance_name, "rds", "auditlog", "{{RDS_APP}}"])
   rds_admin_db_name                   = "rdsadmin"
   db2_parameters_apply_type           = var.db2_parameters_apply_type
   enable_db2_read_replica             = false
