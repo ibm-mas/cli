@@ -411,15 +411,35 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     try:
         crs = dynClient.resources.get(api_version="db2u.databases.ibm.com/v1", kind="Db2uCluster")
-        cr = crs.get(name=f"mas-{instanceId}-system", namespace="db2u")
-        if cr.status and cr.status.version:
-            db2ClusterVersion = cr.status.version
+        # Try to find DB2 cluster - first try the expected name/namespace
+        db2Found = False
+        try:
+            cr = crs.get(name=f"mas-{instanceId}-system", namespace="db2u")
+            if cr.status and cr.status.version:
+                db2ClusterVersion = cr.status.version
+                setObject["target.db2ClusterVersion"] = db2ClusterVersion
+                db2Found = True
+        except Exception:
+            # If not found in expected location, search all namespaces
+            try:
+                crList = crs.get()
+                if crList and crList.items and len(crList.items) > 0:
+                    # Use the first DB2 cluster found
+                    for item in crList.items:
+                        if item.status and item.status.version:
+                            db2ClusterVersion = item.status.version
+                            setObject["target.db2ClusterVersion"] = db2ClusterVersion
+                            db2Found = True
+                            db2Name = item.metadata.name
+                            db2Ns = item.metadata.namespace
+                            print(f"DB2 cluster found: {db2Name} in namespace {db2Ns}")
+                            break
+            except Exception:
+                pass
 
-            setObject["target.db2ClusterVersion"] = db2ClusterVersion
-        else:
-            print("Unable to determine DB2 cluster version: status.version unavailable")
+        if not db2Found:
+            print("Unable to determine DB2 cluster version: DB2 cluster not found (may not be installed)")
     except Exception as e:
-        # Handle 404 errors gracefully - DB2 may not be installed
         error_msg = str(e)
         if "404" in error_msg or "not found" in error_msg.lower():
             print("Unable to determine DB2 cluster version: DB2 cluster not found (may not be installed)")
@@ -475,14 +495,41 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     try:
         crs = dynClient.resources.get(api_version="sls.ibm.com/v1", kind="LicenseService")
-        cr = crs.get(name="sls", namespace=f"sls-{instanceId}")
-        if cr.status and cr.status.versions:
-            slsVersion = cr.status.versions.reconciled
-            setObject["target.slsVersion"] = slsVersion
-        else:
-            print("Unable to determine SLS version: status.versions unavailable")
+        # Try to find SLS - check multiple possible locations
+        slsFound = False
+        possibleNamespaces = [f"sls-{instanceId}", "ibm-sls", f"mas-{instanceId}-sls"]
+
+        for ns in possibleNamespaces:
+            try:
+                cr = crs.get(name="sls", namespace=ns)
+                if cr.status and cr.status.versions:
+                    slsVersion = cr.status.versions.reconciled
+                    setObject["target.slsVersion"] = slsVersion
+                    slsFound = True
+                    break
+            except Exception:
+                continue
+
+        if not slsFound:
+            # If not found in expected locations, search all namespaces
+            try:
+                crList = crs.get()
+                if crList and crList.items and len(crList.items) > 0:
+                    for item in crList.items:
+                        if item.status and item.status.versions:
+                            slsVersion = item.status.versions.reconciled
+                            setObject["target.slsVersion"] = slsVersion
+                            slsFound = True
+                            slsName = item.metadata.name
+                            slsNs = item.metadata.namespace
+                            print(f"SLS found: {slsName} in namespace {slsNs}")
+                            break
+            except Exception:
+                pass
+
+        if not slsFound:
+            print("Unable to determine SLS version: SLS not found (may not be installed)")
     except Exception as e:
-        # Handle 404 errors gracefully - SLS may not be installed
         error_msg = str(e)
         if "404" in error_msg or "not found" in error_msg.lower():
             print("Unable to determine SLS version: SLS not found (may not be installed)")
