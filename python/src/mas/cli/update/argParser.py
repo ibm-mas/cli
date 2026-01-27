@@ -26,7 +26,10 @@ updateArgParser = argparse.ArgumentParser(
     add_help=False
 )
 
-masArgGroup = updateArgParser.add_argument_group('Catalog Selection')
+masArgGroup = updateArgParser.add_argument_group(
+    'Catalog Selection',
+    'Select the IBM Maximo Operator Catalog version to update to.'
+)
 masArgGroup.add_argument(
     '-c', '--catalog',
     dest='mas_catalog_version',
@@ -34,7 +37,10 @@ masArgGroup.add_argument(
     help="Maximo Operator Catalog Version (e.g. v9-240625-amd64)"
 )
 
-depsArgGroup = updateArgParser.add_argument_group('Update Dependencies')
+depsArgGroup = updateArgParser.add_argument_group(
+    'Update Dependencies',
+    'Configure which MAS dependencies (Db2, MongoDB, Kafka) should be updated and specify their namespaces.'
+)
 depsArgGroup.add_argument(
     '--db2-namespace',
     required=False,
@@ -92,23 +98,22 @@ depsArgGroup.add_argument(
     help="The type of Kakfa operator installed in the target namespace for updte",
 )
 
-# Development Mode
+# More Options
 # -----------------------------------------------------------------------------
-devArgGroup = updateArgParser.add_argument_group("Development Mode")
-devArgGroup.add_argument(
+otherArgGroup = updateArgParser.add_argument_group(
+    'More',
+    'Additional options including development mode, Artifactory credentials, CP4D version, confirmation prompts, and pre-check control.'
+)
+otherArgGroup.add_argument(
     "--artifactory-username",
     required=False,
     help="Username for access to development builds on Artifactory"
 )
-devArgGroup.add_argument(
+otherArgGroup.add_argument(
     "--artifactory-token",
     required=False,
     help="API Token for access to development builds on Artifactory"
 )
-
-# More Options
-# -----------------------------------------------------------------------------
-otherArgGroup = updateArgParser.add_argument_group('More')
 otherArgGroup.add_argument(
     "--dev-mode",
     required=False,

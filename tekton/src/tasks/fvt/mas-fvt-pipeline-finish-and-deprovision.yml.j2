@@ -5,10 +5,10 @@ metadata:
   name: mas-fvt-pipeline-finish-and-deprovision
 spec:
   params:
+    # Common CLI parameters (required by cli-env.yml.j2)
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+    
     # Pipeline status parameters
-    - name: image_pull_policy
-      type: string
-      default: IfNotPresent
     - name: pipeline_status
       type: string
       description: "tasks.status value: Succeeded, Failed, Completed, or None"

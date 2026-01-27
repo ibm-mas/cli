@@ -10,7 +10,7 @@ The MAS CLI maintains a rolling window of approximately four months worth of sup
 
 
 ### Catalog Directory
-Note: The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, the support dates stated below refer to the EUS1 end dates.  For more details on the OCP support lifecycle see: [https://access.redhat.com/support/policy/updates/openshift](https://access.redhat.com/support/policy/updates/openshift) 
+Note: The Red Hat Extended Update Support Add-on Term 1 offering is included with the OCP subscription that comes with a MAS license. In the case of EUS denoted OCP releases, the support dates stated below refer to the EUS1 end dates.  For more details on the OCP support lifecycle see: [https://access.redhat.com/support/policy/updates/openshift](https://access.redhat.com/support/policy/updates/openshift)
 
 <cds-tabs trigger-content="Select an item" value="2025">
   <cds-tab id="tab-2026" target="panel-2026" value="2026">2026 Catalogs</cds-tab>
@@ -634,7 +634,7 @@ The packages available in the Maximo Operator Catalog are fixed. Multiple instal
 
 We **strongly discourage the use of manual update approval strategy for operator subscriptions** and all IBM-provided automation is designed to work with the automatic update approval strategy only.  In our experience the use of manual subscription approvals leads to overly complicated updates requiring significant administrative effort when taking into account the range of operators running in a cluster across numerous namespaces. We promote a model of **controling when updates are introduced to a cluster at the catalog level**.
 
-Updating the operators is only one aspect of keeping a system up to date, when using the MAS CLI [update](../commands/update.md) function many other additional actions will be performed autoamtically, if you are not using the MAS CLI to drive updates then you should implement your own processes for the non-operator update actions that are part of the MAS update pipeline.
+Updating the operators is only one aspect of keeping a system up to date, when using the MAS CLI [update](../guides/update.md) function many other additional actions will be performed autoamtically, if you are not using the MAS CLI to drive updates then you should implement your own processes for the non-operator update actions that are part of the MAS update pipeline.
 
 #### Repeatable Install
 > I want repeatable installs across multiple OpenShift clusters, for instance in a development, staging, production setup

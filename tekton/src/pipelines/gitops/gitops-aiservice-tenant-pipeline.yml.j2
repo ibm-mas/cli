@@ -85,6 +85,11 @@ spec:
     - name: tenant_entitlement_end_date
       type: string
 
+    # standalone sls
+    - name: sls_service
+      type: string
+      default: ""
+
   workspaces:
     - name: configs
   tasks:
@@ -173,4 +178,5 @@ spec:
           value: $(params.tenant_entitlement_start_date)
         - name: tenant_entitlement_end_date
           value: $(params.tenant_entitlement_end_date)
-        
+        - name: sls_service
+          value: $(params.sls_service)

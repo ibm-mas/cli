@@ -48,8 +48,8 @@ Not all functions supported in the container image are available in the standalo
 | ---------------------------------------------------------- | :------: | :------: |
 | [install](guides/install.md)                               | &#10003; | &#10003; |
 | [aiservice-install](guides/aiservice-install.md)           | &#10003; | &#10003; |
-| [update](commands/update.md)                               | &#10003; | &#10003; |
-| [upgrade](commands/upgrade.md)                             | &#10003; | &#10003; |
+| [update](guides/update.md)                               | &#10003; | &#10003; |
+| [upgrade](guides/upgrade.md)                             | &#10003; | &#10003; |
 | [uninstall](commands/uninstall.md)                         | &#10003; | &#10003; |
 | [must-gather](commands/must-gather.md)                     | &#10003; | &#10005; |
 | [configure-airgap](commands/configure-airgap.md)           | &#10003; | &#10005; |

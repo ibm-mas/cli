@@ -1,4 +1,4 @@
-{%- if (IS_S3 | lower == 'true') or (IS_EFS | lower == 'true')%}
+{%- if (IS_S3 | lower == 'true') or (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') %}
 variable "instance_name" {
     type        = string
     description = "Name of Instance"
@@ -13,7 +13,15 @@ variable "vpc_id" {
     description = "ID of VPC"
 }
 {%- endif %}
-{%- if IS_EFS | lower == 'true'%}
+{%- if IS_MSK | lower == 'true'%}
+
+variable "cluster_prefix" {
+    type        = string
+    description = "Cluster Prefix"
+}
+{%- endif %}
+
+{%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true')%}
 
 variable "vpc_name" {
     type        = string
@@ -21,12 +29,15 @@ variable "vpc_name" {
 }
 {%- endif %}
 
-{%- if IS_S3 | lower == 'true'%}
+{%- if (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true')%}
 variable "name_prefix" {
     type        = string
     description = "name_prefix"
 }
+{%- endif %}
 
+
+{%- if IS_S3 | lower == 'true'%}
 variable "account_id" {
     type        = string
     description = "account id"

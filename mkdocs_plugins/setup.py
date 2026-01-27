@@ -1,15 +1,16 @@
-"""Setup for mkdocs-mas-catalogs plugin."""
+"""Setup for mkdocs-mas-plugins."""
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
-    name="mkdocs-mas-catalogs",
-    version="0.1.0",
-    description="MkDocs plugin to dynamically render MAS catalog documentation",
-    packages=["mkdocs_mas_catalogs"],
+    name="mkdocs-mas-plugins",
+    version="0.2.0",
+    description="MkDocs plugins for MAS documentation (catalogs and CLI)",
+    packages=find_packages(),
     entry_points={
         "mkdocs.plugins": [
             "mas_catalogs = mkdocs_mas_catalogs:MASCatalogsPlugin",
+            "mas_cli = mkdocs_mas_cli:MASCLIPlugin",
         ]
     },
     install_requires=[

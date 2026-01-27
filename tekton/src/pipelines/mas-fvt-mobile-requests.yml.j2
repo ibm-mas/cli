@@ -76,8 +76,6 @@ spec:
     # 2. Mobile FVT - Mobile Request tasks
     # -------------------------------------------------------------------------
     {{ lookup('template', 'taskdefs/fvt-mobile/requests/phase1-reqs.yml.j2') | indent(4) }}
-      runAfter:
-        - pipeline-start
     {{ lookup('template', 'taskdefs/fvt-mobile/requests/phase2-testng.yml.j2') | indent(4) }}
 
   # Finally

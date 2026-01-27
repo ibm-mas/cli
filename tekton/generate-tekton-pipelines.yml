@@ -40,6 +40,7 @@
         - mas-fvt-iot
         - mas-fvt-finally
         - mas-fvt-manage
+        - mas-fvt-manage-ai
         - mas-fvt-manage-is
         - mas-fvt-manage-regr
         - mas-fvt-mobile-pytest

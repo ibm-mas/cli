@@ -81,6 +81,9 @@ spec:
       type: string
     - name: tenant_entitlement_end_date
       type: string
+    - name: sls_service
+      type: string
+      default: ""
   stepTemplate:
     name: gitops-aiservice-tenant
     env:
@@ -158,6 +161,8 @@ spec:
         value: $(params.tenant_entitlement_start_date)
       - name: TENANT_ENTITLEMENT_END_DATE
         value: $(params.tenant_entitlement_end_date)
+      - name: STANDALONE_SLS_SERVICE
+        value: $(params.sls_service)
     envFrom:
       - configMapRef:
           name: environment-properties
