@@ -917,6 +917,7 @@ function gitops_mas_config() {
 
       if [ "${JDBC_TYPE}" == "rds-db2" ]; then
         export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#db2_connection_url
+        export SECRET_KEY_JDBC_CERTIFICATE_CONTENT=${JDBC_CONFIG_SECRET_ID}#ca_certificate
         export SECRET_KEY_JDBC_INSTANCE_NAME=${JDBC_INSTANCE_NAME}
       else
         export SECRET_KEY_JDBC_CONNECTION_URL=${JDBC_CONFIG_SECRET_ID}#jdbc_connection_url
