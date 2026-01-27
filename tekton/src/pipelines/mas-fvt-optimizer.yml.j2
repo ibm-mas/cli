@@ -650,16 +650,6 @@ spec:
         - input: "$(params.mas_app_channel_optimizer)"
           operator: notin
           values: [""]           
-        # Ensures the optimizer channel starts with a version >= 9.1.
-        # Tekton 'when' expressions do not support numeric comparisons,
-        # so we use a regex to approximate semantic version ordering.
-        # This regex matches:
-        #   - 9.1, 9.1.x, 9.2.x, ..., 9.N.x
-        #   - Any major version >= 10 (e.g., 10.x, 11.x)
-        # It intentionally excludes versions like 9.0.x or anything < 9.1.
-        - input: "$(params.mas_app_channel_optimizer)"
-          operator: matches
-          values: ["^9\\.(1|[2-9][0-9]*)(\\..*)?$|^[1-9][0-9]+\\..*$"]
       workspaces:
         - name: configs
           workspace: shared-configs
