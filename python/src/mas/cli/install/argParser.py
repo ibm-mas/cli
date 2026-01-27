@@ -455,6 +455,16 @@ masAppsArgGroup.add_argument(
     help="Subscription channel for Maximo AI Service"
 )
 
+# Arcgis
+# -----------------------------------------------------------------------------
+arcgisArgGroup = installArgParser.add_argument_group("Maximo Location Services for Esri (arcgis)")
+arcgisArgGroup.add_argument(
+    "--arcgis-channel",
+    dest="mas_arcgis_channel",
+    required=False,
+    help="Subscription channel for IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial or Facilities"
+)
+
 # Manage Advanced Settings
 # -----------------------------------------------------------------------------
 manageArgGroup = installArgParser.add_argument_group("Advanced Settings - Manage")
@@ -1343,22 +1353,6 @@ cosArgGroup.add_argument(
     help="When using IBM COS, set COS bucket name to be used/created"
 )
 
-# Arcgis
-# -----------------------------------------------------------------------------
-arcgisArgGroup = installArgParser.add_argument_group("Maximo Location Services for Esri (arcgis)")
-arcgisArgGroup.add_argument(
-    "--install-arcgis",
-    required=False,
-    help="Enables IBM Maximo Location Services for Esri. Only applicable if installing Manage with Spatial",
-    action="store_const",
-    const="true"
-)
-arcgisArgGroup.add_argument(
-    "--arcgis-channel",
-    dest="mas_arcgis_channel",
-    required=False,
-    help=""
-)
 
 # Cloud Providers
 # -----------------------------------------------------------------------------
@@ -1490,12 +1484,6 @@ otherArgGroup.add_argument(
     action="store_true",
     default=False,
     help="Configure installation for development mode"
-)
-otherArgGroup.add_argument(
-    "--no-wait-for-pvc",
-    required=False,
-    action="store_true",
-    help="Disable the wait for pipeline PVC to bind before starting the pipeline"
 )
 otherArgGroup.add_argument(
     "--skip-pre-check",
