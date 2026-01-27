@@ -1678,11 +1678,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             if not self._checkIngressControllerForPathRouting():
                 self.fatalError(
                     "\n".join([
-                        "========================================================================",
-                        "ERROR: IngressController Not Configured for Path-Based Routing",
-                        "========================================================================",
+                        "IngressController Not Configured for Path-Based Routing",
                         "",
-                        "You have selected path-based routing mode (mas_routing_mode=path), but",
+                        "========================================================================",
+                        "You have selected path-based routing mode (--routing path or mas_routing_mode=path), but",
                         "the OpenShift IngressController is not properly configured.",
                         "",
                         "Required Configuration:",
@@ -1699,8 +1698,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         "After applying this configuration, re-run the installation.",
                         "",
                         "Alternatively, you can use subdomain routing mode by setting:",
-                        "  mas_routing_mode=subdomain (or --routing subdomain)",
-                        "========================================================================"
+                        "mas_routing_mode=subdomain (or --routing subdomain)"
                     ])
                 )
 
