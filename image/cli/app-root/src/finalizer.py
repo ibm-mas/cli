@@ -419,7 +419,12 @@ if __name__ == "__main__":
         else:
             print("Unable to determine DB2 cluster version: status.version unavailable")
     except Exception as e:
-        print(f"Unable to determine DB2 cluster version: {e}")
+        # Handle 404 errors gracefully - DB2 may not be installed
+        error_msg = str(e)
+        if "404" in error_msg or "not found" in error_msg.lower():
+            print(f"Unable to determine DB2 cluster version: DB2 cluster not found (may not be installed)")
+        else:
+            print(f"Unable to determine DB2 cluster version: {e}")
 
     # Lookup DB2 operator version
     # -------------------------------------------------------------------------
@@ -477,7 +482,12 @@ if __name__ == "__main__":
         else:
             print("Unable to determine SLS version: status.versions unavailable")
     except Exception as e:
-        print(f"Unable to determine SLS version: {e}")
+        # Handle 404 errors gracefully - SLS may not be installed
+        error_msg = str(e)
+        if "404" in error_msg or "not found" in error_msg.lower():
+            print(f"Unable to determine SLS version: SLS not found (may not be installed)")
+        else:
+            print(f"Unable to determine SLS version: {e}")
 
     # Lookup CP4D version
     # -------------------------------------------------------------------------
@@ -589,11 +599,24 @@ if __name__ == "__main__":
         message.append(SlackUtil.buildContext(context))
 
     message.append(SlackUtil.buildSection(f"Download Must Gather from <https://na.artifactory.swg-devops.com/ui/repos/tree/General/wiotp-generic-logs/mas-fvt/{instanceId}/{build}|Artifactory> (may not be available yet), see thread for more information ..."))
-    response = postMessage(FVT_SLACK_CHANNEL, message)
-    if response["ok"]:
-        threadId = response["ts"]
-    else:
-        print(f"Unable to post FVT summary to Slack: {response['error']}")
+    
+    try:
+        response = postMessage(FVT_SLACK_CHANNEL, message)
+        if response["ok"]:
+            threadId = response["ts"]
+        else:
+            error_msg = response.get('error', 'unknown error')
+            if error_msg == 'not_in_channel':
+                print(f"Unable to post FVT summary to Slack: Bot is not in channel '{FVT_SLACK_CHANNEL}'. Please invite the bot to the channel.")
+            else:
+                print(f"Unable to post FVT summary to Slack: {error_msg}")
+            sys.exit(0)
+    except Exception as e:
+        error_msg = str(e)
+        if 'not_in_channel' in error_msg:
+            print(f"Unable to post FVT summary to Slack: Bot is not in channel '{FVT_SLACK_CHANNEL}'. Please invite the bot to the channel.")
+        else:
+            print(f"Unable to post FVT summary to Slack: {e}")
         sys.exit(0)
 
     # Generate threaded messages with failure details
