@@ -294,8 +294,8 @@ if __name__ == "__main__":
         "ibm-aiservice": {
             "deployment": "ibm-aiservice-operator",
             "namespace": f"aiservice-{instanceId}",
-            "apiVersion": "apps.mas.ibm.com/v1",
-            "kind": "AiBrokerApp",
+            "apiVersion": "aiservice.ibm.com/v1",
+            "kind": "AIServiceApp",
         }
     }
 
@@ -312,7 +312,7 @@ if __name__ == "__main__":
         "ibm-mas-predict": "S04Q53TT5S5",
         "ibm-mas-visualinspection": "S04PUSAL2A0",
         "ibm-mas-mobile": "S0507GG7V6K",
-        "ibm-aiservice": "S04Q53TT5S5"
+        "ibm-aiservice": "S09DH8BFGA1"
     }
 
     for productId in knownProductIds:
@@ -599,7 +599,7 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     message = []
     message.append(SlackUtil.buildHeader(f"FVT Report: {instanceId} #{build}"))
-    message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+    message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
     for product in sorted(result["products"]):
 
@@ -646,24 +646,11 @@ if __name__ == "__main__":
         message.append(SlackUtil.buildContext(context))
 
     message.append(SlackUtil.buildSection(f"Download Must Gather from <https://na.artifactory.swg-devops.com/ui/repos/tree/General/wiotp-generic-logs/mas-fvt/{instanceId}/{build}|Artifactory> (may not be available yet), see thread for more information ..."))
-
-    try:
-        response = postMessage(FVT_SLACK_CHANNEL, message)
-        if response["ok"]:
-            threadId = response["ts"]
-        else:
-            error_msg = response.get('error', 'unknown error')
-            if error_msg == 'not_in_channel':
-                print(f"Unable to post FVT summary to Slack: Bot is not in channel '{FVT_SLACK_CHANNEL}'. Please invite the bot to the channel.")
-            else:
-                print(f"Unable to post FVT summary to Slack: {error_msg}")
-            sys.exit(0)
-    except Exception as e:
-        error_msg = str(e)
-        if 'not_in_channel' in error_msg:
-            print(f"Unable to post FVT summary to Slack: Bot is not in channel '{FVT_SLACK_CHANNEL}'. Please invite the bot to the channel.")
-        else:
-            print(f"Unable to post FVT summary to Slack: {e}")
+    response = postMessage(FVT_SLACK_CHANNEL, message)
+    if response["ok"]:
+        threadId = response["ts"]
+    else:
+        print(f"Unable to post FVT summary to Slack: {response['error']}")
         sys.exit(0)
 
     # Generate threaded messages with failure details
@@ -672,9 +659,9 @@ if __name__ == "__main__":
         message = []
         message.append(SlackUtil.buildHeader(f"{product}"))
         if (product in productFocal):
-            message.append(SlackUtil.buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            message.append(SlackUtil.buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"))
         else:
-            message.append(SlackUtil.buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            message.append(SlackUtil.buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
         if "results" in result["products"][product]:
             for suite in result["products"][product]["results"]:
@@ -732,7 +719,7 @@ if __name__ == "__main__":
                         openIssues.append(f"{statusIcon} <https://jsw.ibm.com/browse/{key}|{key}> {summary} ({assignee})")
 
                     context = [
-                        f"{icon} *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}/testsuite/{product}/{suite}|{product}/{suite}>*",
+                        f"{icon} *<https://dashboard.ibmmas.com/tests/{instanceId}/testsuite/{product}/{suite}|{product}/{suite}>*",
                         f"*{tests}* tests",
                         f"*{skipped}* skipped",
                         f"*{errors}* errors",
@@ -750,6 +737,6 @@ if __name__ == "__main__":
         if len(message) > 50:
             message = []
             message.append(SlackUtil.buildHeader(f"{product}"))
-            message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"))
             message.append(SlackUtil.buildSection("Sorry.  The build is so bad it can't even be summarized within the size limit of a Slack message!"))
             postMessage(FVT_SLACK_CHANNEL, message, threadId)
