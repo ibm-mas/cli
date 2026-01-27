@@ -33,7 +33,7 @@ module "db2rds-1" {
   db2_enabled_cloudwatch_logs_exports = ["diag.log", "notify.log"]
   db2_additional_security_groups      = local.cluster.security_groups
   region_name                         = "{{REGION_NAME}}"
-  db_name                             = join("-", ["rds", var.instance_name, "{{RDS_APP}}"])
+  db_name                             = join("-", ["rds", "{{RDS_APP}}"])
   db2_identifier                      = "rds"
   engine_version                      = var.engine_version
   multi_az                            = false
