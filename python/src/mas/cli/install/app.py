@@ -1672,6 +1672,38 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         self.displayInstallSummary()
 
+        # Validate IngressController configuration for path-based routing
+        # This validation runs in both interactive and non-interactive modes
+        if self.getParam("mas_routing_mode") == "path":
+            if not self._checkIngressControllerForPathRouting():
+                self.fatalError(
+                    "\n".join([
+                        "========================================================================",
+                        "ERROR: IngressController Not Configured for Path-Based Routing",
+                        "========================================================================",
+                        "",
+                        "You have selected path-based routing mode (mas_routing_mode=path), but",
+                        "the OpenShift IngressController is not properly configured.",
+                        "",
+                        "Required Configuration:",
+                        "  spec:",
+                        "    routeAdmission:",
+                        "      namespaceOwnership: InterNamespaceAllowed",
+                        "",
+                        "To fix this issue, run the following command:",
+                        "",
+                        "  oc patch ingresscontroller default -n openshift-ingress-operator \\",
+                        "    --type=merge \\",
+                        "    --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'",
+                        "",
+                        "After applying this configuration, re-run the installation.",
+                        "",
+                        "Alternatively, you can use subdomain routing mode by setting:",
+                        "  mas_routing_mode=subdomain (or --routing subdomain)",
+                        "========================================================================"
+                    ])
+                )
+
         if not self.noConfirm:
             print()
             self.printDescription([
