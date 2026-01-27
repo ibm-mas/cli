@@ -422,7 +422,7 @@ if __name__ == "__main__":
         # Handle 404 errors gracefully - DB2 may not be installed
         error_msg = str(e)
         if "404" in error_msg or "not found" in error_msg.lower():
-            print(f"Unable to determine DB2 cluster version: DB2 cluster not found (may not be installed)")
+            print("Unable to determine DB2 cluster version: DB2 cluster not found (may not be installed)")
         else:
             print(f"Unable to determine DB2 cluster version: {e}")
 
@@ -485,7 +485,7 @@ if __name__ == "__main__":
         # Handle 404 errors gracefully - SLS may not be installed
         error_msg = str(e)
         if "404" in error_msg or "not found" in error_msg.lower():
-            print(f"Unable to determine SLS version: SLS not found (may not be installed)")
+            print("Unable to determine SLS version: SLS not found (may not be installed)")
         else:
             print(f"Unable to determine SLS version: {e}")
 
