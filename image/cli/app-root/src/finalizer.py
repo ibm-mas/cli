@@ -599,7 +599,7 @@ if __name__ == "__main__":
         message.append(SlackUtil.buildContext(context))
 
     message.append(SlackUtil.buildSection(f"Download Must Gather from <https://na.artifactory.swg-devops.com/ui/repos/tree/General/wiotp-generic-logs/mas-fvt/{instanceId}/{build}|Artifactory> (may not be available yet), see thread for more information ..."))
-    
+
     try:
         response = postMessage(FVT_SLACK_CHANNEL, message)
         if response["ok"]:
