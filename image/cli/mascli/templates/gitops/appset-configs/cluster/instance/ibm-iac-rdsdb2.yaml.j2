@@ -15,6 +15,7 @@ locals {
 
 module "db2rds-1" {
   source = "{{RDS_SOURCE}}"
+  is_audit_log_bucket_created         = false
   sre_prefix                          = join("-", [var.cluster_name, var.instance_name, "{{RDS_APP}}"])
   secret_prefix                       = join("/", [var.name_prefix, var.cluster_name, var.instance_name, "jdbc",join("-", ["rds", var.instance_name, "{{RDS_APP}}"]) ])
   engine                              = "db2-ae"
