@@ -1,4 +1,4 @@
-module "s3buckets_instance" {
+module "s3buckets_instance_{{RDS_S3_APP_NAME}}" {
   source = "{{RDS_S3_SOURCE}}"
 
   tags                    = var.common_tags

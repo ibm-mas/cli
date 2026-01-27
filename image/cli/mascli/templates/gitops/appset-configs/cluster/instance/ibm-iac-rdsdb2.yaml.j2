@@ -1,27 +1,27 @@
-data "aws_secretsmanager_secret" "mas-saas-license-db2" {
+data "aws_secretsmanager_secret" "mas-saas-license-db2-{{RDS_APP}}" {
   name = "/aws-dev/rds_db2/license"
 }
 
-data "aws_secretsmanager_secret_version" "mas-saas-license-db2" {
-  secret_id = data.aws_secretsmanager_secret.mas-saas-license-db2.id
+data "aws_secretsmanager_secret_version" "mas-saas-license-db2-{{RDS_APP}}" {
+  secret_id = data.aws_secretsmanager_secret.mas-saas-license-db2-{{RDS_APP}}.id
 }
 
 locals {
-  mas-saas-license-db2-json = jsondecode(data.aws_secretsmanager_secret_version.mas-saas-license-db2.secret_string)
-  ibm_customer_id           = local.mas-saas-license-db2-json["ibm_customer_id"]
-  ibm_site_id               = local.mas-saas-license-db2-json["ibm_site_id"]
-  secret_suffix             = join("-", ["rds", var.instance_name, "{{RDS_APP}}"])
+  mas-saas-license-db2-json-{{RDS_APP}} = jsondecode(data.aws_secretsmanager_secret_version.mas-saas-license-db2-{{RDS_APP}}.secret_string)
+  ibm_customer_id_{{RDS_APP}}           = local.mas-saas-license-db2-json-{{RDS_APP}}["ibm_customer_id"]
+  ibm_site_id_{{RDS_APP}}               = local.mas-saas-license-db2-json-{{RDS_APP}}["ibm_site_id"]
+  secret_suffix_{{RDS_APP}}             = join("-", ["rds", var.instance_name, "{{RDS_APP}}"])
 }
 
-module "db2rds-1" {
+module "db2rds-{{RDS_APP}}" {
   source = "{{RDS_SOURCE}}"
-  s3_bucket_dependency                = [module.s3buckets_instance]
+  s3_bucket_dependency                = [module.s3buckets_instance_{{RDS_APP}}]
   sre_prefix                          = join("-", [var.cluster_name, var.instance_name, "{{RDS_APP}}"])
   secret_prefix                       = join("/", [var.name_prefix, var.cluster_name, var.instance_name, "jdbc",join("-", ["rds", var.instance_name, "{{RDS_APP}}"]) ])
   engine                              = "db2-ae"
   vpc_id                              = var.vpc_id
-  ibm_customer_id                     = local.ibm_customer_id
-  ibm_site_id                         = local.ibm_site_id
+  ibm_customer_id                     = local.ibm_customer_id_{{RDS_APP}}
+  ibm_site_id                         = local.ibm_site_id_{{RDS_APP}}
   username                            = "db2admin"
   subnet_grp_id_list                  = local.cluster.internal_subnet_ids
   db2_egress_subnet_ids               = local.cluster.external_subnet_ids
