@@ -1200,7 +1200,7 @@ function gitops_iac_provision_rdsdb2(){
       export RDS_APP="$app"
       export RDS_S3_APP_NAME="$app"
       echo "Generating rds-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/rds-db2-$app.tf"
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-rdsdb2.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2rds-manage.tf
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-rdsdb2.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2rds-$app.tf
 
       echo "Generating db2_parameters-$app.yaml file ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml "
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-db2paramaters.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml
