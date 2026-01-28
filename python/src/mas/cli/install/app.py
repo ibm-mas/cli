@@ -17,7 +17,6 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import re
 import calendar
-import subprocess
 from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
@@ -661,7 +660,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         except Exception as e:
             logger.warning(f"Failed to check IngressController configuration: {e}")
             return False
-
 
     @logMethodCall
     def configAnnotations(self):
