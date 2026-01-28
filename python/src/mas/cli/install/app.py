@@ -596,7 +596,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "  1. Path (single domain)",
                 "  2. Subdomain (multi domain)"
             ])
-            
+
             if not pathModeAvailable:
                 self.printDescription([
                     "",
@@ -606,11 +606,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "    routeAdmission:",
                     "      namespaceOwnership: InterNamespaceAllowed</Cyan>"
                 ])
-            
+
             routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
             routingModeOptions = ["path", "subdomain"]
             selectedMode = routingModeOptions[routingModeInt - 1]
-            
+
             # If path mode is selected but not available, offer to configure it
             if selectedMode == "path" and not pathModeAvailable:
                 self.printDescription([
@@ -623,7 +623,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "    --type=merge \\",
                     "    --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'</Cyan>"
                 ])
-                
+
                 if self.yesOrNo("Configure IngressController for path-based routing"):
                     if self._configureIngressControllerForPathRouting():
                         self.printDescription(["<Green>IngressController configured successfully!</Green>"])
