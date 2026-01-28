@@ -1,0 +1,164 @@
+# MAS Instance Configuration
+# -----------------------------------------------------------------------------
+- name: mas_instance_id
+  type: string
+  description: MAS Instance ID to backup/restore
+  default: ""
+
+# Development Build Support
+# -----------------------------------------------------------------------------
+- name: artifactory_username
+  default: ""
+  type: string
+  description: Required to use development MAS builds
+- name: artifactory_token
+  default: ""
+  type: string
+  description: Required to use development MAS builds
+
+# Backup/Restore Configuration
+# -----------------------------------------------------------------------------
+- name: mas_backup_dir
+  type: string
+  description: Directory to store backup files (e.g., /tmp/mas_backups)
+  default: ""
+
+- name: backup_version
+  type: string
+  description: Version/timestamp for the backup (auto-generated if not provided)
+  default: ""
+
+# Upload Configuration
+# -----------------------------------------------------------------------------
+- name: upload_backup
+  type: string
+  description: Whether to upload the backup archive (true/false)
+  default: "false"
+
+# S3 Upload Configuration
+# -----------------------------------------------------------------------------
+- name: aws_access_key_id
+  type: string
+  description: AWS Access Key ID for S3 upload
+  default: ""
+
+- name: aws_secret_access_key
+  type: string
+  description: AWS Secret Access Key for S3 upload
+  default: ""
+
+- name: s3_bucket_name
+  type: string
+  description: S3 bucket name for backup upload
+  default: ""
+
+- name: s3_region
+  type: string
+  description: AWS region for S3 bucket
+  default: ""
+
+# Artifactory Upload Configuration
+# -----------------------------------------------------------------------------
+- name: artifactory_url
+  type: string
+  description: Artifactory URL for backup upload
+  default: ""
+
+- name: artifactory_repository
+  type: string
+  description: Artifactory repository for backup upload
+  default: ""
+
+# Component Flags
+# -----------------------------------------------------------------------------
+- name: include_grafana
+  type: string
+  description: Set to false to skip Grafana backup/restore
+  default: "true"
+
+- name: include_sls
+  type: string
+  description: Set to false to skip SLS backup/restore (if SLS is external)
+  default: "true"
+
+- name: include_dro
+  type: string
+  description: Set to false to skip DRO backup/restore (if DRO is external)
+  default: "true"
+
+# MongoDB Configuration
+# -----------------------------------------------------------------------------
+- name: mongodb_namespace
+  type: string
+  description: MongoDB namespace
+  default: "mongoce"
+
+- name: mongodb_instance_name
+  type: string
+  description: MongoDB instance name
+  default: "mas-mongo-ce"
+
+- name: mongodb_provider
+  type: string
+  description: MongoDB provider (only community is supported for backup)
+  default: "community"
+
+# SLS Configuration
+# -----------------------------------------------------------------------------
+- name: sls_namespace
+  type: string
+  description: SLS namespace
+  default: "ibm-sls"
+
+# Certificate Manager Configuration
+# -----------------------------------------------------------------------------
+- name: cert_manager_provider
+  type: string
+  default: "redhat"
+  description: Certificate manager provider
+
+# Grafana Configuration
+# -----------------------------------------------------------------------------
+- name: grafana_instance_storage_class
+  type: string
+  default: ""
+  description: Storage class for Grafana instance (used during restore)
+
+# DRO Configuration (for restore)
+# -----------------------------------------------------------------------------
+- name: dro_contact_email
+  type: string
+  default: ""
+  description: Required for DRO installation during restore
+
+- name: dro_contact_firstname
+  type: string
+  default: ""
+  description: Required for DRO installation during restore
+
+- name: dro_contact_lastname
+  type: string
+  default: ""
+  description: Required for DRO installation during restore
+
+# Restore-specific Configuration
+# -----------------------------------------------------------------------------
+- name: mas_domain_on_restore
+  type: string
+  default: ""
+  description: Domain to use when restoring to a different cluster
+
+- name: sls_url_on_restore
+  type: string
+  default: ""
+  description: SLS URL when restoring with external SLS
+
+- name: dro_url_on_restore
+  type: string
+  default: ""
+  description: DRO URL when restoring with external DRO
+
+- name: mas_config_dir
+  type: string
+  default: ""
+  description: Directory for MAS configuration files during restore

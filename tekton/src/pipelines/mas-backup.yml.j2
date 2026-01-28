@@ -1,0 +1,273 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-backup
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+    # The backup storage
+    - name: shared-backups
+
+  params:
+    # 1. Common Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
+
+    # 2. Backup/Restore Configuration
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/backup.yml.j2') | indent(4) }}
+
+  tasks:
+    # Content
+    # -------
+    # 1. Pipeline Start
+    # 2. Pre-backup Verification
+    # 3. Backup IBM Catalogs
+    # 4. Backup Certificate Manager
+    # 5. Backup MongoDB
+    # 6. Backup SLS
+    # 7. Backup MAS Suite
+
+    # 1. Pipeline Start
+    # -------------------------------------------------------------------------
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
+    # 2. Pre-backup Verification
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-backup-check', 'devops_suite_name': 'pre-backup-check'}) | indent(4) }}
+      runAfter:
+        - pipeline-start
+
+    # 3. Backup IBM Catalogs
+    # -------------------------------------------------------------------------
+    - name: ibm-catalogs
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: devops_suite_name
+          value: backup-ibm-catalogs
+
+        - name: catalog_backup_version
+          value: $(params.backup_version)
+
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_token
+          value: $(params.artifactory_token)
+
+      taskRef:
+        kind: Task
+        name: mas-devops-ibm-catalogs
+      runAfter:
+        - pre-backup-check
+
+    # 4. Backup Certificate Manager
+    # -------------------------------------------------------------------------
+    - name: cert-manager
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: devops_suite_name
+          value: backup-cert-manager
+
+        - name: certmanager_backup_version
+          value: $(params.backup_version)
+
+        - name: cert_manager_provider
+          value: $(params.cert_manager_provider)
+
+      taskRef:
+        kind: Task
+        name: mas-devops-cert-manager
+      runAfter:
+        - ibm-catalogs
+
+    # 5. Backup MongoDB
+    # -------------------------------------------------------------------------
+    - name: mongodb
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: devops_suite_name
+          value: backup-mongodb
+
+        - name: mongodb_backup_version
+          value: $(params.backup_version)
+
+        - name: mongodb_namespace
+          value: $(params.mongodb_namespace)
+        - name: mongodb_instance_name
+          value: $(params.mongodb_instance_name)
+        - name: mongodb_provider
+          value: $(params.mongodb_provider)
+
+      taskRef:
+        kind: Task
+        name: mas-devops-mongodb
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - cert-manager
+
+    # 6. Backup SLS
+    # -------------------------------------------------------------------------
+    - name: sls
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: devops_suite_name
+          value: backup-sls
+
+        - name: sls_backup_version
+          value: $(params.backup_version)
+
+        - name: sls_namespace
+          value: $(params.sls_namespace)
+
+      when:
+        - input: "$(params.include_sls)"
+          operator: in
+          values: ["true", "True"]
+
+      taskRef:
+        kind: Task
+        name: mas-devops-sls
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - mongodb
+
+    # 7. Backup MAS Suite
+    # -------------------------------------------------------------------------
+    - name: suite-backup
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: devops_suite_name
+          value: backup-suite
+
+        - name: suite_backup_version
+          value: $(params.backup_version)
+
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-backup
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+      runAfter:
+        - sls
+
+    # 8. Upload Backup Archive (Optional)
+    # -------------------------------------------------------------------------
+    - name: upload-backup-archive
+      timeout: "0"
+      when:
+        - input: "$(params.upload_backup)"
+          operator: in
+          values: ["true"]
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        - name: backup_version
+          value: $(params.backup_version)
+
+        # S3 parameters
+        - name: aws_access_key_id
+          value: $(params.aws_access_key_id)
+        - name: aws_secret_access_key
+          value: $(params.aws_secret_access_key)
+        - name: s3_bucket_name
+          value: $(params.s3_bucket_name)
+        - name: s3_region
+          value: $(params.s3_region)
+
+        # Artifactory parameters
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_token
+          value: $(params.artifactory_token)
+        - name: artifactory_url
+          value: $(params.artifactory_url)
+        - name: artifactory_repository
+          value: $(params.artifactory_repository)
+
+      taskRef:
+        kind: Task
+        name: mas-devops-upload-backup-archive
+      workspaces:
+        - name: shared-backup
+          workspace: shared-backup
+      runAfter:
+        - suite-backup
+
+  finally:
+    # Update synchronization configmap
+    # -------------------------------------------------------------------------
+    - name: sync-backup
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-backup
+        - name: configmap_value
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)

@@ -18,6 +18,12 @@ spec:
       description: Optional. Used to uninstall Cert Manager
       default: ""
 
+    # Backup/Restore specific parameters
+    - name: backup_version
+      type: string
+      description: Optional. Version/timestamp for the backup
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -28,6 +34,12 @@ spec:
       # Optional parameter to uninstall Cert Manager
       - name: CERT_MANAGER_ACTION
         value: $(params.cert_manager_action)
+
+      # Backup/Restore specific
+      - name: MAS_BACKUP_DIR
+        value: /workspace/backups
+      - name: CERTMANAGER_BACKUP_VERSION
+        value: $(params.backup_version)
   steps:
     - name: cert-manager
       command:

@@ -141,6 +141,7 @@
         - suite-app-uninstall
         - suite-app-upgrade
         - suite-app-rollback
+        - suite-backup
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
@@ -154,7 +155,7 @@
 
     # 7. Generate Tasks (OCP)
     # -------------------------------------------------------------------------
-    - name: Generate Tasks (Suite)
+    - name: Generate Tasks (OCP)
       ansible.builtin.template:
         src: "{{ task_src_dir }}/ocp/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"

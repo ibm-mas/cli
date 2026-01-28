@@ -28,6 +28,7 @@
         dest: "{{ pipeline_target_dir }}/{{ item }}.yaml"
       with_items:
         # MAS Pipelines
+        - mas-backup
         - mas-install
         - mas-update
         - mas-upgrade

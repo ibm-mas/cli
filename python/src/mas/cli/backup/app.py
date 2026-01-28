@@ -1,0 +1,299 @@
+#!/usr/bin/env python
+# *****************************************************************************
+# Copyright (c) 2024 IBM Corporation and other Contributors.
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# *****************************************************************************
+
+import logging
+import logging.handlers
+from datetime import datetime
+from halo import Halo
+from prompt_toolkit import print_formatted_text, HTML
+
+from openshift.dynamic.exceptions import ResourceNotFoundError
+
+from ..cli import BaseApp
+from .argParser import backupArgParser
+from mas.devops.ocp import createNamespace, getConsoleURL
+from mas.devops.mas import listMasInstances
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchBackupPipeline
+
+
+logger = logging.getLogger(__name__)
+
+
+class BackupApp(BaseApp):
+
+    def backup(self, argv):
+        """
+        Backup MAS instance
+        """
+        self.args = backupArgParser.parse_args(args=argv)
+        self.noConfirm = self.args.no_confirm
+        self.devMode = self.args.dev_mode
+
+        if self.args.mas_instance_id:
+            # Non-interactive mode
+            logger.debug("MAS Instance ID is set, so we assume already connected to the desired OCP")
+            requiredParams = ["mas_instance_id"]
+            optionalParams = [
+                "backup_version",
+                "backup_storage_size",
+                "include_sls",
+                "mongodb_namespace",
+                "mongodb_instance_name",
+                "mongodb_provider",
+                "sls_namespace",
+                "cert_manager_provider",
+                "skip_pre_check",
+                "dev_mode",
+                # Dev Mode
+                "artifactory_username",
+                "artifactory_token",
+                # Upload Configuration
+                "upload_backup",
+                "aws_access_key_id",
+                "aws_secret_access_key",
+                "s3_bucket_name",
+                "s3_region",
+                "artifactory_url",
+                "artifactory_repository"
+            ]
+            for key, value in vars(self.args).items():
+                # These fields we just pass straight through to the parameters and fail if they are not set
+                if key in requiredParams:
+                    if value is None:
+                        self.fatalError(f"{key} must be set")
+                    self.setParam(key, value)
+
+                # These fields we just pass straight through to the parameters
+                elif key in optionalParams:
+                    if value is not None:
+                        self.setParam(key, value)
+
+                # Arguments that we don't need to do anything with
+                elif key in ["no_confirm", "help", "upload_destination"]:
+                    pass
+
+                # Fail if there's any arguments we don't know how to handle
+                else:
+                    print(f"Unknown option: {key} {value}")
+                    self.fatalError(f"Unknown option: {key} {value}")
+        else:
+            # Interactive mode
+            self.printH1("Set Target OpenShift Cluster")
+            # Connect to the target cluster
+            self.connect()
+
+        if self.dynamicClient is None:
+            self.fatalError("The Kubernetes dynamic Client is not available.  See log file for details")
+
+        # Perform a check whether the cluster is set up for airgap install
+        self.isAirgap()
+
+        # Review MAS instances
+        isMasInstalled = self.reviewMASInstance()
+        if not isMasInstalled:
+            self.fatalError("No MAS instances were detected on the cluster => nothing to backup! See log file for details")
+
+        # If instance ID not provided, prompt for it
+        if self.args.mas_instance_id is None:
+            self.promptForInstanceId()
+
+        # Prompt for backup storage size if not provided
+        if self.args.backup_storage_size is None:
+            self.promptForBackupStorageSize()
+
+        # Set default values for optional parameters if not provided
+        self.setDefaultParams()
+
+        # Prompt for upload configuration if not in non-interactive mode
+        if self.args.mas_instance_id is None:
+            self.promptForUploadConfiguration()
+
+        print()
+
+        self.printH1("Review Settings")
+        self.printDescription([
+            "Connected to:",
+            f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
+        ])
+
+        self.printH2("MAS Instance")
+        self.printSummary("Instance ID", self.getParam("mas_instance_id"))
+
+        self.printH2("Backup Configuration")
+        self.printSummary("Backup Directory", "/workspace/backups (hardcoded)")
+        self.printSummary("Config Directory", "/workspace/configs (hardcoded)")
+        self.printSummary("Backup Storage Size", self.getParam("backup_storage_size") if self.getParam("backup_storage_size") else "20Gi")
+        if self.getParam("backup_version"):
+            self.printSummary("Backup Version", self.getParam("backup_version"))
+        else:
+            self.printSummary("Backup Version", "Auto-generated timestamp")
+
+        self.printH2("Components")
+        self.printSummary("Include SLS", self.getParam("include_sls") if self.getParam("include_sls") else "true")
+        self.printSummary("MongoDB Namespace", self.getParam("mongodb_namespace") if self.getParam("mongodb_namespace") else "mongoce")
+        self.printSummary("SLS Namespace", self.getParam("sls_namespace") if self.getParam("sls_namespace") else "ibm-sls")
+
+        continueWithBackup = True
+        if not self.noConfirm:
+            print()
+            self.printDescription([
+                "Please carefully review your choices above, correcting mistakes now is much easier than after the backup has begun"
+            ])
+            continueWithBackup = self.yesOrNo("Proceed with these settings")
+
+        # Prepare the namespace and launch the backup pipeline
+        if self.noConfirm or continueWithBackup:
+            self.createTektonFileWithDigest()
+
+            self.printH1("Launch Backup")
+            instanceId = self.getParam("mas_instance_id")
+            pipelinesNamespace = f"mas-{instanceId}-pipelines"
+
+            with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
+                if installOpenShiftPipelines(self.dynamicClient):
+                    h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
+                else:
+                    h.stop_and_persist(symbol=self.failureIcon, text="OpenShift Pipelines Operator installation failed")
+                    self.fatalError("Installation failed")
+
+            with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
+                createNamespace(self.dynamicClient, pipelinesNamespace)
+                backupStorageSize = self.getParam("backup_storage_size") if self.getParam("backup_storage_size") else "20Gi"
+                preparePipelinesNamespace(dynClient=self.dynamicClient, instanceId=instanceId, createBackupPVC=True, backupStorageSize=backupStorageSize)
+                h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
+
+            with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
+                updateTektonDefinitions(pipelinesNamespace, self.tektonDefsPath)
+                h.stop_and_persist(symbol=self.successIcon, text=f"Latest Tekton definitions are installed (v{self.version})")
+
+            with Halo(text="Submitting PipelineRun for MAS backup", spinner=self.spinner) as h:
+                pipelineURL = launchBackupPipeline(dynClient=self.dynamicClient, params=self.params)
+                if pipelineURL is not None:
+                    h.stop_and_persist(symbol=self.successIcon, text="PipelineRun for MAS backup submitted")
+                    print_formatted_text(HTML(f"\nView progress:\n  <Cyan><u>{pipelineURL}</u></Cyan>\n"))
+                else:
+                    h.stop_and_persist(symbol=self.failureIcon, text="Failed to submit PipelineRun for MAS backup, see log file for details")
+                    print()
+
+    def reviewMASInstance(self) -> bool:
+        self.printH1("Review MAS Instances")
+        try:
+            instances = listMasInstances(self.dynamicClient)
+            self.printDescription(["The following MAS instances are installed on the target cluster:"])
+            for instance in instances:
+                self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+            return True
+        except ResourceNotFoundError:
+            self.printDescription(["No MAS instances were detected on the cluster (Suite.core.mas.ibm.com/v1 API is not available)"])
+            return False
+
+    def promptForInstanceId(self) -> None:
+        self.printH1("Select MAS Instance")
+        try:
+            instances = listMasInstances(self.dynamicClient)
+            if len(instances) == 0:
+                self.fatalError("No MAS instances found on the cluster")
+            elif len(instances) == 1:
+                instanceId = instances[0]['metadata']['name']
+                self.setParam("mas_instance_id", instanceId)
+                self.printDescription([f"Using MAS instance: <u>{instanceId}</u>"])
+            else:
+                instanceOptions = [instance['metadata']['name'] for instance in instances]
+                self.promptForListSelect("Select MAS instance to backup", instanceOptions, "mas_instance_id", default=1)
+        except ResourceNotFoundError:
+            self.fatalError("Unable to list MAS instances")
+
+    def promptForBackupStorageSize(self) -> None:
+        self.printH1("Backup Storage Configuration")
+        storageSize = self.promptForString("Enter backup PVC storage size", default="20Gi")
+        self.setParam("backup_storage_size", storageSize)
+
+    def setDefaultParams(self) -> None:
+        """Set default values for optional parameters if not already set"""
+        if not self.getParam("mongodb_namespace"):
+            self.setParam("mongodb_namespace", "mongoce")
+        if not self.getParam("mongodb_instance_name"):
+            self.setParam("mongodb_instance_name", "mas-mongo-ce")
+        if not self.getParam("mongodb_provider"):
+            self.setParam("mongodb_provider", "community")
+        if not self.getParam("sls_namespace"):
+            self.setParam("sls_namespace", "ibm-sls")
+        if not self.getParam("cert_manager_provider"):
+            self.setParam("cert_manager_provider", "redhat")
+        if not self.getParam("include_sls"):
+            self.setParam("include_sls", "true")
+        if not self.getParam("backup_storage_size"):
+            self.setParam("backup_storage_size", "20Gi")
+        if not self.getParam("backup_version"):
+            # Auto-generate timestamp
+            timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+            self.setParam("backup_version", timestamp)
+
+    def promptForUploadConfiguration(self) -> None:
+        """Prompt user for backup upload configuration"""
+        self.printH1("Backup Upload Configuration")
+
+        # Ask if user wants to upload the backup
+        uploadBackup = self.yesOrNo("Do you want to upload the backup archive after completion?")
+
+        if uploadBackup:
+            self.setParam("upload_backup", "true")
+
+            # Determine upload destination based on dev_mode
+            if self.devMode:
+                self.printDescription([
+                    "Development mode is enabled. Choose upload destination:"
+                ])
+                uploadDestination = self.promptForListSelect(
+                    "Select upload destination",
+                    ["S3", "Artifactory"],
+                    "upload_destination",
+                    default=1
+                )
+            else:
+                # Non-dev mode defaults to S3
+                uploadDestination = "S3"
+                self.printDescription(["Upload destination: S3"])
+
+            if uploadDestination == "S3":
+                # Prompt for S3 credentials
+                self.printH2("S3 Configuration")
+                awsAccessKeyId = self.promptForString("AWS Access Key ID")
+                self.setParam("aws_access_key_id", awsAccessKeyId)
+
+                awsSecretAccessKey = self.promptForString("AWS Secret Access Key", isPassword=True)
+                self.setParam("aws_secret_access_key", awsSecretAccessKey)
+
+                s3BucketName = self.promptForString("S3 Bucket Name")
+                self.setParam("s3_bucket_name", s3BucketName)
+
+                s3Region = self.promptForString("AWS Region", default="us-east-1")
+                self.setParam("s3_region", s3Region)
+            else:
+                # Prompt for Artifactory credentials
+                self.printH2("Artifactory Configuration")
+
+                # Check if artifactory credentials are already set from dev mode
+                if not self.getParam("artifactory_username"):
+                    artifactoryUsername = self.promptForString("Artifactory Username")
+                    self.setParam("artifactory_username", artifactoryUsername)
+
+                if not self.getParam("artifactory_token"):
+                    artifactoryToken = self.promptForString("Artifactory Token", isPassword=True)
+                    self.setParam("artifactory_token", artifactoryToken)
+
+                artifactoryUrl = self.promptForString("Artifactory URL")
+                self.setParam("artifactory_url", artifactoryUrl)
+
+                artifactoryRepository = self.promptForString("Artifactory Repository")
+                self.setParam("artifactory_repository", artifactoryRepository)
+        else:
+            self.setParam("upload_backup", "false")

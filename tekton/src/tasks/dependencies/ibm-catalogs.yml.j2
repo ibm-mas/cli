@@ -30,6 +30,12 @@ spec:
       description: Optional. Used to uninstall IBM Catalogs
       default: ""
 
+    # Backup/Restore specific parameters
+    - name: backup_version
+      type: string
+      description: Optional. Version/timestamp for the backup
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -48,6 +54,12 @@ spec:
       # Optional parameter to uninstall IBM Catalogs
       - name: IBM_CATALOGS_ACTION
         value: $(params.ibm_catalogs_action)
+
+      # Backup/Restore specific
+      - name: MAS_BACKUP_DIR
+        value: /workspace/backups
+      - name: IBMCATALOGS_BACKUP_VERSION
+        value: $(params.backup_version)
 
   steps:
     - name: ibm-catalogs

@@ -61,6 +61,16 @@ spec:
       description: Optional. Used to uninstall SLS
       default: ""
 
+    # Backup/Restore specific parameters
+    - name: backup_version
+      type: string
+      description: Optional. Version/timestamp for the backup
+      default: ""
+    - name: include_sls
+      type: string
+      description: Optional. Set to false to skip SLS backup
+      default: "true"
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -102,6 +112,12 @@ spec:
       # Optional parameter to uninstall SLS
       - name: SLS_ACTION
         value: $(params.sls_action)
+
+      # Backup/Restore specific
+      - name: MAS_BACKUP_DIR
+        value: /workspace/backups
+      - name: SLS_BACKUP_VERSION
+        value: $(params.backup_version)
 
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates
