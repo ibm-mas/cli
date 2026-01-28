@@ -759,6 +759,14 @@ case $1 in
     gitops_deprovision_cp4d_service "$@"
   ;;
 
+  gitops-rds-db2-database)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_rds_db2_database "$@"
+  ;;
+
   gitops-suite-license-service)
     echo "${TEXT_UNDERLINE}IBM Maximo Application Suite GitOps Manager (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
