@@ -78,6 +78,9 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-ibm-catalogs
+      workspaces:
+        - name: backups
+          workspace: shared-backups
       runAfter:
         - pre-backup-check
 
@@ -102,6 +105,9 @@ spec:
       taskRef:
         kind: Task
         name: mas-devops-cert-manager
+      workspaces:
+        - name: backups
+          workspace: shared-backups
       runAfter:
         - ibm-catalogs
 
@@ -133,6 +139,8 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
+        - name: backups
+          workspace: shared-backups
       runAfter:
         - cert-manager
 
@@ -144,6 +152,9 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
 
         - name: devops_suite_name
           value: backup-sls
@@ -165,6 +176,8 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
+        - name: backups
+          workspace: shared-backups
       runAfter:
         - mongodb
 
@@ -176,6 +189,9 @@ spec:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
 
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
 
         - name: devops_suite_name
           value: backup-suite
@@ -189,6 +205,8 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
+        - name: backups
+          workspace: shared-backups
       runAfter:
         - sls
 
@@ -230,8 +248,8 @@ spec:
         kind: Task
         name: mas-devops-upload-backup-archive
       workspaces:
-        - name: shared-backup
-          workspace: shared-backup
+        - name: backups
+          workspace: shared-backups
       runAfter:
         - suite-backup
 

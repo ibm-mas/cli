@@ -69,3 +69,7 @@ spec:
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs
+
+  workspaces:
+    - name: backups
+      optional: true

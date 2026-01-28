@@ -1,20 +1,14 @@
-# MAS Instance Configuration
+# OCP Verification Parameters
 # -----------------------------------------------------------------------------
-- name: mas_instance_id
+- name: skip_pre_check
   type: string
-  description: MAS Instance ID to backup/restore
-  default: ""
+  description: Skip pre-backup verification checks
+  default: "False"
 
-# Development Build Support
-# -----------------------------------------------------------------------------
-- name: artifactory_username
-  default: ""
+- name: ocp_ingress_tls_secret_name
   type: string
-  description: Required to use development MAS builds
-- name: artifactory_token
+  description: Name of the TLS secret for OCP ingress
   default: ""
-  type: string
-  description: Required to use development MAS builds
 
 # Backup/Restore Configuration
 # -----------------------------------------------------------------------------
