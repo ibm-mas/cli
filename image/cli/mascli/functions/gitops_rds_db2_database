@@ -196,6 +196,10 @@ function gitops_rds_db2_database() {
   if [[ -z $REPLICA_DB ]]; then
     export REPLICA_DB="false"
   fi
+  if [[ -z $DB2_INSTANCE_NAME ]]; then
+    export DB2_INSTANCE_NAME=rds-${MAS_INSTANCE_ID}-${MAS_APP_ID}
+  fi
+  export DB2_NAMESPACE="rds-${MAS_INSTANCE_ID}"
 
   echo
   reset_colors
@@ -241,9 +245,7 @@ function gitops_rds_db2_database() {
   echo_h2 "DB2 Cluster Configuration" "    "
   echo_reset_dim "DB2 Namespace ................................. ${COLOR_MAGENTA}${DB2_NAMESPACE}"
   echo_reset_dim "db2-instance-name ............................. ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
-  echo_reset_dim "db2-dbname  ................................... ${COLOR_MAGENTA}${DB2_DBNAME}"
   echo_reset_dim "mas-app-id  ................................... ${COLOR_MAGENTA}${MAS_APP_ID}"
-  echo_reset_dim "JDBC_ROUTE .................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
   echo_reset_dim "replica-db .................................... ${COLOR_MAGENTA}${REPLICA_DB}"
   reset_colors
 
