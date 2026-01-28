@@ -61,6 +61,7 @@ optionalParams = [
     "aiservice_odh_model_deployment_type",
     # RHOAI
     "aiservice_rhoai_model_deployment_type",
+    "rhoai",
     # AI Service
     "aiservice_s3_accesskey",
     "aiservice_s3_secretkey",

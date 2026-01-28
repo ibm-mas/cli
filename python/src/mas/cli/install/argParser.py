@@ -776,6 +776,13 @@ rhoaiArgGroup.add_argument(
     default="raw",
     help="Model deployment type for RedHat Openshift AI"
 )
+
+rhoaiArgGroup.add_argument(
+    "--rhoai",
+    dest="rhoai",
+    required=False,
+    help="temporary flag to install Redhat Openshift AI instead of Opendatahub"
+)
 # S3 Storage
 # -----------------------------------------------------------------------------
 s3ArgGroup = installArgParser.add_argument_group(
