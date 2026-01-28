@@ -765,6 +765,17 @@ odhArgGroup.add_argument(
     help="Model deployment type for ODH"
 )
 
+# Red Hat Openshift AI
+# -----------------------------------------------------------------------------
+rhoaiArgGroup = aiServiceinstallArgParser.add_argument_group("RedHat Openshift AI")
+
+rhoaiArgGroup.add_argument(
+    "--rhoai-model-deployment-type",
+    dest="aiservice_rhoai_model_deployment_type",
+    required=False,
+    default="raw",
+    help="Model deployment type for RedHat Openshift AI"
+)
 # S3 Storage
 # -----------------------------------------------------------------------------
 s3ArgGroup = installArgParser.add_argument_group(
