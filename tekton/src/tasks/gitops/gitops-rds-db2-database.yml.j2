@@ -78,8 +78,8 @@ spec:
         git config --global user.password $GITHUB_PAT
 
         mkdir -p /tmp/init-rds-db2-database-$MAS_APP_ID
-        mas gitops-db2u-database -a $ACCOUNT -c $CLUSTER_NAME \
-        --dir /tmp/init-db2u-database-$MAS_APP_ID \
+        mas gitops-rds-db2-database -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/init-rds-db2-database-$MAS_APP_ID \
         --secrets-path $SECRET_PATH \
         --github-push \
         --github-host $GITHUB_HOST \
