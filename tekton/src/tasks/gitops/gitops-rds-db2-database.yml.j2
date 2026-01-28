@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-db2u-database
+  name: gitops-rds-db2-database
 spec:
   params:
     - name: cluster_name
@@ -36,7 +36,7 @@ spec:
       type: string
       default: "false"
   stepTemplate:
-    name: gitops-db2u-database
+    name: gitops-rds-db2-database
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
