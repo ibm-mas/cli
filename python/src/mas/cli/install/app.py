@@ -17,7 +17,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import re
 import calendar
-
+import subprocess
 from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
@@ -585,46 +585,62 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configRoutingMode(self):
-        if self.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.2.x-feature':
+        if self.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_channel") == '9.2.x-feature':
             self.printH1("Configure Routing Mode")
 
             pathModeAvailable = self._checkIngressControllerForPathRouting()
 
-            if pathModeAvailable:
+            self.printDescription([
+                "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
+                "",
+                "  1. Path (single domain)",
+                "  2. Subdomain (multi domain)"
+            ])
+            
+            if not pathModeAvailable:
                 self.printDescription([
-                    "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
                     "",
-                    "  1. Path (single domain)",
-                    "  2. Subdomain (multi domain)"
-                ])
-                routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
-                routingModeOptions = ["path", "subdomain"]
-                self.setParam("mas_routing_mode", routingModeOptions[routingModeInt - 1])
-            else:
-                self.printDescription([
-                    "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
-                    "",
-                    "  <Red>1. Path (single domain) - NOT AVAILABLE</Red>",
-                    "  2. Subdomain (multi domain)",
-                    "",
-                    "<Yellow>Path-based routing is not available because the OpenShift IngressController is not properly configured.</Yellow>",
-                    "",
-                    "To enable path-based routing, you need to configure the IngressController with the following setting:",
+                    "<Yellow>Note: Path-based routing requires the OpenShift IngressController to be configured with:</Yellow>",
                     "",
                     "  <Cyan>spec:",
                     "    routeAdmission:",
-                    "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
+                    "      namespaceOwnership: InterNamespaceAllowed</Cyan>"
+                ])
+            
+            routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
+            routingModeOptions = ["path", "subdomain"]
+            selectedMode = routingModeOptions[routingModeInt - 1]
+            
+            # If path mode is selected but not available, offer to configure it
+            if selectedMode == "path" and not pathModeAvailable:
+                self.printDescription([
                     "",
-                    "You can apply this configuration by running:",
+                    "<Yellow>The OpenShift IngressController is not currently configured for path-based routing.</Yellow>",
+                    "",
+                    "Would you like to configure it now? This will run:",
                     "",
                     "  <Cyan>oc patch ingresscontroller default -n openshift-ingress-operator \\",
                     "    --type=merge \\",
-                    "    --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'</Cyan>",
-                    "",
-                    "After applying this configuration, you can re-run the installation to use path-based routing."
+                    "    --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'</Cyan>"
                 ])
-                routingModeInt = self.promptForInt("Routing Mode", default=2, min=2, max=2)
-                self.setParam("mas_routing_mode", "subdomain")
+                
+                if self.yesOrNo("Configure IngressController for path-based routing"):
+                    if self._configureIngressControllerForPathRouting():
+                        self.printDescription(["<Green>IngressController configured successfully!</Green>"])
+                        self.setParam("mas_routing_mode", "path")
+                    else:
+                        self.printDescription([
+                            "<Red>Failed to configure IngressController. Falling back to subdomain mode.</Red>"
+                        ])
+                        self.setParam("mas_routing_mode", "subdomain")
+                else:
+                    self.printDescription([
+                        "<Yellow>Path-based routing requires IngressController configuration.</Yellow>",
+                        "Falling back to subdomain mode."
+                    ])
+                    self.setParam("mas_routing_mode", "subdomain")
+            else:
+                self.setParam("mas_routing_mode", selectedMode)
 
     def _checkIngressControllerForPathRouting(self):
         try:
@@ -649,6 +665,28 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             return False
         except Exception as e:
             logger.warning(f"Failed to check IngressController configuration: {e}")
+            return False
+
+    def _configureIngressControllerForPathRouting(self):
+        try:
+            result = subprocess.run(
+                [
+                    "oc", "patch", "ingresscontroller", "default",
+                    "-n", "openshift-ingress-operator",
+                    "--type=merge",
+                    '--patch={"spec":{"routeAdmission":{"namespaceOwnership":"InterNamespaceAllowed"}}}'
+                ],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            logger.info(f"IngressController configured successfully: {result.stdout}")
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Failed to configure IngressController: {e.stderr}")
+            return False
+        except Exception as e:
+            logger.warning(f"Unexpected error configuring IngressController: {e}")
             return False
 
     @logMethodCall
@@ -1318,6 +1356,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.setParam("kafka_user_password", value)
                     self.setParam("aws_kafka_user_password", value)
 
+            elif key == "mas_configure_ingress":
+                # This is a boolean flag used for control flow, not a parameter
+                # It's handled in the validation section before install
+                pass
+
             elif key == "non_prod":
                 if not value:
                     self.operationalMode = 1
@@ -1676,31 +1719,57 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # This validation runs in both interactive and non-interactive modes
         if self.getParam("mas_routing_mode") == "path":
             if not self._checkIngressControllerForPathRouting():
-                self.fatalError(
-                    "\n".join([
-                        "IngressController Not Configured for Path-Based Routing",
-                        "",
-                        "========================================================================",
-                        "You have selected path-based routing mode (--routing path or mas_routing_mode=path), but",
-                        "the OpenShift IngressController is not properly configured.",
-                        "",
-                        "Required Configuration:",
-                        "  spec:",
-                        "    routeAdmission:",
-                        "      namespaceOwnership: InterNamespaceAllowed",
-                        "",
-                        "To fix this issue, run the following command:",
-                        "",
-                        "  oc patch ingresscontroller default -n openshift-ingress-operator \\",
-                        "    --type=merge \\",
-                        "    --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'",
-                        "",
-                        "After applying this configuration, re-run the installation.",
-                        "",
-                        "Alternatively, you can use subdomain routing mode by setting:",
-                        "mas_routing_mode=subdomain (or --routing subdomain)"
-                    ])
-                )
+                if hasattr(self.args, 'mas_configure_ingress') and self.args.mas_configure_ingress:
+                    logger.info("Attempting to configure IngressController for path-based routing...")
+                    if self._configureIngressControllerForPathRouting():
+                        logger.info("IngressController configured successfully for path-based routing")
+                    else:
+                        self.fatalError(
+                            "\n".join([
+                                "Failed to Configure IngressController",
+                                "",
+                                "========================================================================",
+                                "Automatic configuration of the IngressController failed.",
+                                "Please configure it manually by running:",
+                                "",
+                                "  oc patch ingresscontroller default -n openshift-ingress-operator \\",
+                                "    --type=merge \\",
+                                "    --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'",
+                                "",
+                                "Alternatively, you can use subdomain routing mode by setting:",
+                                "mas_routing_mode=subdomain (or --routing subdomain)"
+                            ])
+                        )
+                else:
+                    self.fatalError(
+                        "\n".join([
+                            "IngressController Not Configured for Path-Based Routing",
+                            "",
+                            "========================================================================",
+                            "You have selected path-based routing mode (--routing path or mas_routing_mode=path), but",
+                            "the OpenShift IngressController is not properly configured.",
+                            "",
+                            "Required Configuration:",
+                            "  spec:",
+                            "    routeAdmission:",
+                            "      namespaceOwnership: InterNamespaceAllowed",
+                            "",
+                            "To fix this issue, you have two options:",
+                            "",
+                            "1. Add the --configure-ingress flag to automatically configure it:",
+                            "   mas install --routing path --configure-ingress ...",
+                            "",
+                            "2. Manually configure it by running:",
+                            "   oc patch ingresscontroller default -n openshift-ingress-operator \\",
+                            "     --type=merge \\",
+                            "     --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'",
+                            "",
+                            "After applying this configuration, re-run the installation.",
+                            "",
+                            "Alternatively, you can use subdomain routing mode by setting:",
+                            "mas_routing_mode=subdomain (or --routing subdomain)"
+                        ])
+                    )
 
         if not self.noConfirm:
             print()
