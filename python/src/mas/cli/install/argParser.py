@@ -767,7 +767,7 @@ odhArgGroup.add_argument(
 
 # Red Hat Openshift AI
 # -----------------------------------------------------------------------------
-rhoaiArgGroup = aiServiceinstallArgParser.add_argument_group("RedHat Openshift AI")
+rhoaiArgGroup = installArgParser.add_argument_group("RedHat Openshift AI")
 
 rhoaiArgGroup.add_argument(
     "--rhoai-model-deployment-type",
