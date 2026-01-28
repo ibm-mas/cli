@@ -611,28 +611,23 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             routingModeOptions = ["path", "subdomain"]
             selectedMode = routingModeOptions[routingModeInt - 1]
 
-            # If path mode is selected but not available, offer to configure it
+            # If path mode is selected but not available, ask user if they want to configure it
             if selectedMode == "path" and not pathModeAvailable:
                 self.printDescription([
                     "",
                     "<Yellow>The OpenShift IngressController is not currently configured for path-based routing.</Yellow>",
                     "",
-                    "Would you like to configure it now? This will run:",
+                    "Would you like to configure it during installation? The pipeline will apply:",
                     "",
-                    "  <Cyan>oc patch ingresscontroller default -n openshift-ingress-operator \\",
-                    "    --type=merge \\",
-                    "    --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'</Cyan>"
+                    "  <Cyan>spec:",
+                    "    routeAdmission:",
+                    "      namespaceOwnership: InterNamespaceAllowed</Cyan>"
                 ])
 
                 if self.yesOrNo("Configure IngressController for path-based routing"):
-                    if self._configureIngressControllerForPathRouting():
-                        self.printDescription(["<Green>IngressController configured successfully!</Green>"])
-                        self.setParam("mas_routing_mode", "path")
-                    else:
-                        self.printDescription([
-                            "<Red>Failed to configure IngressController. Falling back to subdomain mode.</Red>"
-                        ])
-                        self.setParam("mas_routing_mode", "subdomain")
+                    self.setParam("mas_routing_mode", "path")
+                    self.setParam("mas_configure_ingress", "true")
+                    self.printDescription(["<Green>IngressController will be configured during installation pipeline.</Green>"])
                 else:
                     self.printDescription([
                         "<Yellow>Path-based routing requires IngressController configuration.</Yellow>",
@@ -667,27 +662,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             logger.warning(f"Failed to check IngressController configuration: {e}")
             return False
 
-    def _configureIngressControllerForPathRouting(self):
-        try:
-            result = subprocess.run(
-                [
-                    "oc", "patch", "ingresscontroller", "default",
-                    "-n", "openshift-ingress-operator",
-                    "--type=merge",
-                    '--patch={"spec":{"routeAdmission":{"namespaceOwnership":"InterNamespaceAllowed"}}}'
-                ],
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            logger.info(f"IngressController configured successfully: {result.stdout}")
-            return True
-        except subprocess.CalledProcessError as e:
-            logger.warning(f"Failed to configure IngressController: {e.stderr}")
-            return False
-        except Exception as e:
-            logger.warning(f"Unexpected error configuring IngressController: {e}")
-            return False
 
     @logMethodCall
     def configAnnotations(self):
@@ -1720,26 +1694,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.getParam("mas_routing_mode") == "path":
             if not self._checkIngressControllerForPathRouting():
                 if hasattr(self.args, 'mas_configure_ingress') and self.args.mas_configure_ingress:
-                    logger.info("Attempting to configure IngressController for path-based routing...")
-                    if self._configureIngressControllerForPathRouting():
-                        logger.info("IngressController configured successfully for path-based routing")
-                    else:
-                        self.fatalError(
-                            "\n".join([
-                                "Failed to Configure IngressController",
-                                "",
-                                "========================================================================",
-                                "Automatic configuration of the IngressController failed.",
-                                "Please configure it manually by running:",
-                                "",
-                                "  oc patch ingresscontroller default -n openshift-ingress-operator \\",
-                                "    --type=merge \\",
-                                "    --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'",
-                                "",
-                                "Alternatively, you can use subdomain routing mode by setting:",
-                                "mas_routing_mode=subdomain (or --routing subdomain)"
-                            ])
-                        )
+                    logger.info("IngressController will be configured for path-based routing during installation pipeline")
+                    self.setParam("mas_configure_ingress", "true")
                 else:
                     self.fatalError(
                         "\n".join([
@@ -1756,20 +1712,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             "",
                             "To fix this issue, you have two options:",
                             "",
-                            "1. Add the --configure-ingress flag to automatically configure it:",
+                            "1. Add the --configure-ingress flag to configure it during installation:",
                             "   mas install --routing path --configure-ingress ...",
                             "",
-                            "2. Manually configure it by running:",
+                            "2. Manually configure it before installation by running:",
                             "   oc patch ingresscontroller default -n openshift-ingress-operator \\",
                             "     --type=merge \\",
                             "     --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'",
-                            "",
-                            "After applying this configuration, re-run the installation.",
                             "",
                             "Alternatively, you can use subdomain routing mode by setting:",
                             "mas_routing_mode=subdomain (or --routing subdomain)"
                         ])
                     )
+            else:
+                logger.info("IngressController is already configured for path-based routing")
 
         if not self.noConfirm:
             print()
