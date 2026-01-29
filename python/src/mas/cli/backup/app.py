@@ -19,8 +19,8 @@ from openshift.dynamic.exceptions import ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import backupArgParser
-from mas.devops.ocp import createNamespace, getConsoleURL, getDefaultStorageClasses
-from mas.devops.mas import listMasInstances
+from mas.devops.ocp import createNamespace, getConsoleURL
+from mas.devops.mas import listMasInstances, getDefaultStorageClasses
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchBackupPipeline
 
 
