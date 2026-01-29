@@ -69,6 +69,8 @@ spec:
 
         - name: catalog_backup_version
           value: $(params.backup_version)
+        - name: ibm_catalogs_action
+          value: backup
 
         - name: artifactory_username
           value: $(params.artifactory_username)
@@ -98,6 +100,8 @@ spec:
 
         - name: certmanager_backup_version
           value: $(params.backup_version)
+        - name: cert_manager_action
+          value: backup
 
         - name: cert_manager_provider
           value: $(params.cert_manager_provider)
@@ -125,6 +129,8 @@ spec:
 
         - name: mongodb_backup_version
           value: $(params.backup_version)
+        - name: mongodb_action
+          value: backup
 
         - name: mongodb_namespace
           value: $(params.mongodb_namespace)
@@ -161,6 +167,8 @@ spec:
 
         - name: sls_backup_version
           value: $(params.backup_version)
+        - name: sls_action
+          value: backup
 
         - name: sls_namespace
           value: $(params.sls_namespace)
