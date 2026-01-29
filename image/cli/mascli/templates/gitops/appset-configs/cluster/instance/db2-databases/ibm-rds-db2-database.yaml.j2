@@ -1,0 +1,11 @@
+merge-key: {{ ACCOUNT_ID }}/{{ CLUSTER_ID }}/{{ MAS_INSTANCE_ID }}
+ibm_dbs_rds_databases:
+  - host: <path:{{ SECRETS_PATH }}:{{ HOST }}>
+    port: <path:{{ SECRETS_PATH }}:{{ PORT }}>
+    dbname : <path:{{ SECRETS_PATH }}:{{ DBNAME }}>
+    rds_admin_db_name: <path:{{ SECRETS_PATH }}:{{ RDS_ADMIN_DB_NAME }}>
+    user: <path:{{ SECRETS_PATH }}:{{ USER_NAME }}>
+    password: <path:{{ SECRETS_PATH }}:{{ PASSWORD }}> # pragma: allowlist secret
+    jdbc_connection_url: <path:{{ SECRETS_PATH }}:{{ JDBC_CONNECTION_URL }}>
+    jdbc_connection_url_additional_params: {{ JDBC_CONNECTION_URL_ADDITIONAL_PARAMS }}
+    replica_db: {{ REPLICA_DB }}
