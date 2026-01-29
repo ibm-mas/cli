@@ -9,6 +9,8 @@ spec:
       type: string
     - name: sls_license_subscription_id
       type: string
+    - name: cluster_name
+      type: string
     - name: account
       type: string
     - name: secrets_path
@@ -34,6 +36,8 @@ spec:
         value: $(params.sls_license_icn)
       - name: SAAS_SUB_ID
         value: $(params.sls_license_subscription_id)
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
       - name: GIT_BRANCH
         value: $(params.git_branch)
       - name: GITHUB_ORG
@@ -62,7 +66,7 @@ spec:
         git config --global user.password $GITHUB_PAT
 
         mkdir -p /tmp/deprovision-customer-subscription
-        mas gitops-deprovision-suite-license-service -a $ACCOUNT -i ${ICN} -s ${SAAS_SUB_ID} \
+        mas gitops-deprovision-suite-license-service -a $ACCOUNT -i ${ICN} -s ${SAAS_SUB_ID} -c ${CLUSTER_NAME} \
         --dir /tmp/deprovision-suite-license-service \
         --github-push \
         --github-host $GITHUB_HOST \

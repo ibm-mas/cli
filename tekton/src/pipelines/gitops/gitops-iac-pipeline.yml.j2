@@ -1,0 +1,477 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: gitops-iac-pipeline
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: cluster_url
+      type: string
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+
+    # iac-efs-common
+    - name: is_efs
+      type: string
+      default: 'false'
+    - name: efs_source
+      type: string
+      default: ''
+
+    # iac-efs manage_db2 params
+    - name: efs_manage_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_manage_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_manage_db2_throughput_mode
+      type: string
+      default: ''
+
+    # iac-efs manage_main params
+    - name: efs_manage_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_manage_main_mount_count
+      type: string
+      default: ''
+    - name: efs_manage_main_throughput_mode
+      type: string
+      default: ''
+
+    # iac-efs iot_db2 params
+    - name: efs_iot_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_iot_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_iot_db2_throughput_mode
+      type: string
+      default: ''
+
+    # iac-efs facilities-db2 params
+    - name: efs_facilities_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_facilities_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_facilities_db2_throughput_mode
+      type: string
+      default: ''
+
+    # iac-efs facilities-main params
+    - name: efs_facilities_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_facilities_main_mount_count
+      type: string
+      default: ''
+    - name: efs_facilities_main_throughput_mode
+      type: string
+      default: ''
+
+    # iac-efs visualinspection-main params
+    - name: efs_visualinspection_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_mount_count
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_throughput_mode
+      type: string
+      default: ''
+
+    # iac-s3 params
+    - name: is_s3
+      type: string
+      default: 'false'
+    - name: s3_source
+      type: string
+      default: ''
+    - name: s3_source_iampolicy
+      type: string
+      default: ''
+    - name: s3_source_s3accesspoint
+      type: string
+      default: ''
+    - name: s3_manage
+      type: string
+      default: ''
+    - name: s3_mvi
+      type: string
+      default: ''
+
+   # iac-msk common params
+    - name: is_msk
+      type: string
+      default: 'false'
+
+    - name: msk_source
+      type: string
+      default: ''
+
+    # iac-mskdc  params
+    - name: msk_kafka_version
+      type: string
+      default: ''
+
+    - name: msk_instance_type
+      type: string
+      default: ''
+
+    - name: msk_cluster_username
+      type: string
+      default: ''
+
+    - name: msk_broker_volume_size
+      type: string
+      default: ''
+
+    - name: msk_number_of_broker_nodes
+      type: string
+      default: ''
+
+    - name: msk_cluster_prefix
+      type: string
+      default: ''
+
+
+  workspaces:
+    - name: configs
+
+  tasks:
+
+    # Task 1: Create Branch (Always runs first)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-config
+      taskRef:
+        name: gitops-iac-config
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+
+    # Task 2: Provision EFS (Conditional - runs if is_efs=true)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-provision-efs
+      when:
+        - input: "$(params.is_efs)"
+          operator: in
+          values: ["true"]
+      runAfter:
+        - gitops-iac-config
+      taskRef:
+        name: gitops-iac-provision-efs
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: region_name
+          value: $(params.region_name)
+        - name: efs_source
+          value: $(params.efs_source)
+        - name: efs_manage_db2_performance_mode
+          value: $(params.efs_manage_db2_performance_mode)
+        - name: efs_manage_db2_mount_count
+          value: $(params.efs_manage_db2_mount_count)
+        - name: efs_manage_db2_throughput_mode
+          value: $(params.efs_manage_db2_throughput_mode)
+        - name: efs_manage_main_performance_mode
+          value: $(params.efs_manage_main_performance_mode)
+        - name: efs_manage_main_mount_count
+          value: $(params.efs_manage_main_mount_count)
+        - name: efs_manage_main_throughput_mode
+          value: $(params.efs_manage_main_throughput_mode)
+        - name: efs_iot_db2_performance_mode
+          value: $(params.efs_iot_db2_performance_mode)
+        - name: efs_iot_db2_mount_count
+          value: $(params.efs_iot_db2_mount_count)
+        - name: efs_iot_db2_throughput_mode
+          value: $(params.efs_iot_db2_throughput_mode)
+        - name: efs_facilities_db2_performance_mode
+          value: $(params.efs_facilities_db2_performance_mode)
+        - name: efs_facilities_db2_mount_count
+          value: $(params.efs_facilities_db2_mount_count)
+        - name: efs_facilities_db2_throughput_mode
+          value: $(params.efs_facilities_db2_throughput_mode)
+        - name: efs_facilities_main_performance_mode
+          value: $(params.efs_facilities_main_performance_mode)
+        - name: efs_facilities_main_mount_count
+          value: $(params.efs_facilities_main_mount_count)
+        - name: efs_facilities_main_throughput_mode
+          value: $(params.efs_facilities_main_throughput_mode)
+        - name: efs_visualinspection_main_performance_mode
+          value: $(params.efs_visualinspection_main_performance_mode)
+        - name: efs_visualinspection_main_mount_count
+          value: $(params.efs_visualinspection_main_mount_count)
+        - name: efs_visualinspection_main_throughput_mode
+          value: $(params.efs_visualinspection_main_throughput_mode)
+
+    # Task 3: Provision S3 (Conditional - runs if is_s3=true)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-provision-s3
+      when:
+        - input: "$(params.is_s3)"
+          operator: in
+          values: ["true"]
+      runAfter:
+        - gitops-iac-config
+      taskRef:
+        name: gitops-iac-provision-s3
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: region_name
+          value: $(params.region_name)
+        - name: s3_source
+          value: $(params.s3_source)
+        - name: s3_source_iampolicy
+          value: $(params.s3_source_iampolicy)
+        - name: s3_source_s3accesspoint
+          value: $(params.s3_source_s3accesspoint)
+        - name: s3_manage
+          value: $(params.s3_manage)
+        - name: s3_mvi
+          value: $(params.s3_mvi)
+
+    # Task 3: Provision MSK (Conditional - runs if is_msk=true)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-provision-msk
+      when:
+        - input: "$(params.is_msk)"
+          operator: in
+          values: ["true"]
+      runAfter:
+        - gitops-iac-config
+      taskRef:
+        name: gitops-iac-provision-msk
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: region_name
+          value: $(params.region_name)
+
+        - name: msk_source
+          value: $(params.msk_source)
+
+        # iac-msk iot params
+        - name: msk_kafka_version
+          value: $(params.msk_kafka_version)
+        - name: msk_instance_type
+          value: $(params.msk_instance_type)
+        - name: msk_cluster_username
+          value: $(params.msk_cluster_username)
+        - name: msk_broker_volume_size
+          value: $(params.msk_broker_volume_size)
+        - name: msk_number_of_broker_nodes
+          value: $(params.msk_number_of_broker_nodes)
+        - name: msk_cluster_prefix
+          value: $(params.msk_cluster_prefix)
+
+    # Task 4: Generate Common Files (Runs after EFS/S3/MSK tasks complete/skip)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-generate-common-files
+      runAfter:
+        - gitops-iac-provision-efs
+        - gitops-iac-provision-s3
+        - gitops-iac-provision-msk
+      taskRef:
+        name: gitops-iac-generate-common-files
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: cluster_url
+          value: $(params.cluster_url)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: region_name
+          value: $(params.region_name)
+        - name: is_efs
+          value: $(params.is_efs)
+        - name: is_s3
+          value: $(params.is_s3)
+        - name: is_msk
+          value: $(params.is_msk)
+
+      # EFS parameters (needed for variable computation)
+        - name: efs_manage_db2_performance_mode
+          value: $(params.efs_manage_db2_performance_mode)
+        - name: efs_manage_db2_mount_count
+          value: $(params.efs_manage_db2_mount_count)
+        - name: efs_manage_db2_throughput_mode
+          value: $(params.efs_manage_db2_throughput_mode)
+        - name: efs_manage_main_performance_mode
+          value: $(params.efs_manage_main_performance_mode)
+        - name: efs_manage_main_mount_count
+          value: $(params.efs_manage_main_mount_count)
+        - name: efs_manage_main_throughput_mode
+          value: $(params.efs_manage_main_throughput_mode)
+        - name: efs_iot_db2_performance_mode
+          value: $(params.efs_iot_db2_performance_mode)
+        - name: efs_iot_db2_mount_count
+          value: $(params.efs_iot_db2_mount_count)
+        - name: efs_iot_db2_throughput_mode
+          value: $(params.efs_iot_db2_throughput_mode)
+        - name: efs_facilities_db2_performance_mode
+          value: $(params.efs_facilities_db2_performance_mode)
+        - name: efs_facilities_db2_mount_count
+          value: $(params.efs_facilities_db2_mount_count)
+        - name: efs_facilities_db2_throughput_mode
+          value: $(params.efs_facilities_db2_throughput_mode)
+        - name: efs_facilities_main_performance_mode
+          value: $(params.efs_facilities_main_performance_mode)
+        - name: efs_facilities_main_mount_count
+          value: $(params.efs_facilities_main_mount_count)
+        - name: efs_facilities_main_throughput_mode
+          value: $(params.efs_facilities_main_throughput_mode)
+        - name: efs_visualinspection_main_performance_mode
+          value: $(params.efs_visualinspection_main_performance_mode)
+        - name: efs_visualinspection_main_mount_count
+          value: $(params.efs_visualinspection_main_mount_count)
+        - name: efs_visualinspection_main_throughput_mode
+          value: $(params.efs_visualinspection_main_throughput_mode)
+
+      # S3 parameters (needed for variable computation)
+        - name: s3_manage
+          value: $(params.s3_manage)
+        - name: s3_mvi
+          value: $(params.s3_mvi)
+
+      # iac-msk iot params
+        - name: msk_kafka_version
+          value: $(params.msk_kafka_version)
+        - name: msk_instance_type
+          value: $(params.msk_instance_type)
+        - name: msk_cluster_username
+          value: $(params.msk_cluster_username)
+        - name: msk_broker_volume_size
+          value: $(params.msk_broker_volume_size)
+        - name: msk_number_of_broker_nodes
+          value: $(params.msk_number_of_broker_nodes)
+        - name: msk_cluster_prefix
+          value: $(params.msk_cluster_prefix)
+
+    # Task 5: Manage PR (Always runs last)
+    # -------------------------------------------------------------------------
+    - name: gitops-iac-manage-pr
+      runAfter:
+        - gitops-iac-generate-common-files
+      taskRef:
+        name: gitops-iac-manage-pr
+      workspaces:
+        - name: configs
+          workspace: configs
+      params:
+        - name: cluster_name
+          value: $(params.cluster_name)
+        - name: account
+          value: $(params.account)
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: git_branch
+          value: $(params.git_branch)
+        - name: github_org
+          value: $(params.github_org)
+        - name: github_repo
+          value: $(params.github_repo)
+        - name: github_host
+          value: $(params.github_host)
+        - name: is_efs
+          value: $(params.is_efs)
+        - name: is_s3
+          value: $(params.is_s3)
+        - name: is_msk
+          value: $(params.is_msk)

@@ -38,7 +38,14 @@ Worker Node Configuration (Optional, only takes effect when quota-type is set to
 
 Storage Provisioner Configuration:
       --storage ${COLOR_YELLOW}OCP_STORAGE_PROVIDER${TEXT_RESET}                         Choose optional storage provider (nfs, odf, or longhorn)
-      --nfs-image-registry-size ${COLOR_YELLOW}FYRE_NFS_IMAGE_REGISTRY_SIZE${TEXT_RESET}  Defines the image registry storage size when configured to use NFS (default 100gb). The size allocated cannot be superior of storage available in the Fyre Infrastructure node.
+      --nfs-image-registry-size ${COLOR_YELLOW}FYRE_NFS_IMAGE_REGISTRY_SIZE${TEXT_RESET} Defines the image registry storage size when configured to use NFS (default 100gb). The size allocated cannot be superior of storage available in the Fyre Infrastructure node.
+
+Turbonomic Integration:
+      --turbonomic-name ${COLOR_YELLOW}TURBONOMIC_TARGET_NAME${TEXT_RESET}               Target name in Turbonomic
+      --turbonomic-url ${COLOR_YELLOW}TURBONOMIC_SERVER_URL${TEXT_RESET}                 Turbonomic server URL
+      --turbonomic-version ${COLOR_YELLOW}TURBONOMIC_SERVER_VERSION${TEXT_RESET}         Turbonomic server version
+      --turbonomic-username ${COLOR_YELLOW}TURBONOMIC_USERNAME${TEXT_RESET}              Turbonomic username
+      --turbonomic-password ${COLOR_YELLOW}TURBONOMIC_PASSWORD${TEXT_RESET}              Turbonomic password
 
 Other Commands:
       --no-confirm        Provision the cluster without prompting for confirmation
@@ -94,10 +101,10 @@ function provision_fyre_noninteractive() {
 
       # Cluster Definition - optional
       --enable-fips)
-        OCP_FIPS_ENABLED=true && shift
+        OCP_FIPS_ENABLED=true
         ;;
       --enable-ipv6)
-        ENABLE_IPV6=true && shift
+        ENABLE_IPV6=true
         ;;
 
       # Worker configuration
@@ -125,6 +132,23 @@ function provision_fyre_noninteractive() {
         ;;
       --nfs-image-registry-size)
         IMAGE_REGISTRY_STORAGE_SIZE=$1 && shift
+        ;;
+
+      # Turbonomic
+      --turbonomic-name)
+        TURBONOMIC_TARGET_NAME=$1 && shift
+        ;;
+      --turbonomic-url)
+        TURBONOMIC_SERVER_URL=$1 && shift
+        ;;
+      --turbonomic-version)
+        TURBONOMIC_SERVER_VERSION=$1 && shift
+        ;;
+      --turbonomic-username)
+        TURBONOMIC_USERNAME=$1 && shift
+        ;;
+      --turbonomic-password)
+        TURBONOMIC_PASSWORD=$1 && shift
         ;;
 
       # Other options
@@ -169,11 +193,11 @@ function provision_fyre_interactive() {
     prompt_for_confirm_default_yes "Re-use saved authentication details for user '$FYRE_USERNAME'?" REUSE_FYRE_AUTH
     if [[ "$REUSE_FYRE_AUTH" == "false" ]]; then
       prompt_for_input "Fyre Username" FYRE_USERNAME
-      prompt_for_input "Fyre API Key" FYRE_APIKEY
+      prompt_for_secret "Fyre API Key" FYRE_APIKEY
     fi
   else
     prompt_for_input "Fyre Username" FYRE_USERNAME
-    prompt_for_input "Fyre API Key" FYRE_APIKEY
+    prompt_for_secret "Fyre API Key" FYRE_APIKEY
   fi
 
   if [[ ! -z "$1" ]]; then
@@ -187,8 +211,6 @@ function provision_fyre_interactive() {
   echo "  2. 4.18"
   echo "  3. 4.17"
   echo "  4. 4.16"
-  echo "  5. 4.15"
-  echo "  6. 4.14"
   prompt_for_input "Select Version" OCP_VERSION_SELECTION "1"
 
   case $OCP_VERSION_SELECTION in
@@ -203,12 +225,6 @@ function provision_fyre_interactive() {
       ;;
     4|4.16)
       export OCP_VERSION=4.16
-      ;;
-    5|4.15)
-      export OCP_VERSION=4.15
-      ;;
-    6|4.14)
-      export OCP_VERSION=4.14
       ;;
     *)
       # Print out a warning as there could be a typo
@@ -247,9 +263,9 @@ function provision_fyre_interactive() {
   prompt_for_confirm "Use Product Group Quota?" USE_PRODUCT_GROUP_QUOTA
   if [[ "$USE_PRODUCT_GROUP_QUOTA" == "true" ]]; then
     FYRE_QUOTA_TYPE="product_group"
-    prompt_for_number "Number of Worker Nodes" FYRE_WORKER_COUNT "2"
+    prompt_for_number "Number of Worker Nodes" FYRE_WORKER_COUNT "3"
     prompt_for_number "Worker Node CPU (max 16)" FYRE_WORKER_CPU "8"
-    prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY "32"
+    prompt_for_number "Worker Node Memory (max 64)" FYRE_WORKER_MEMORY "16"
     prompt_for_input "Worker Additional Disk Sizes (GB, comma-seperated list)" FYRE_WORKER_ADDITIONAL_DISKS
     prompt_for_confirm "Enable FIPS? " OCP_FIPS_ENABLED
     prompt_for_confirm "Enable IPV6? " ENABLE_IPV6
@@ -277,7 +293,7 @@ function provision_fyre_interactive() {
   fi
 
   echo
-  echo "Storage Provider:"
+  echo_h2 "Storage Provider:"
   echo "  1. None"
   echo "  2. Longhorn"
   echo "  3. NFS"
@@ -293,6 +309,18 @@ function provision_fyre_interactive() {
   elif [[ "$OCP_STORAGE_PROVIDER_SELECTION" == "4" ]]; then
     OCP_STORAGE_PROVIDER="odf"
   fi
+
+  echo
+  echo_h2 "Turbonomic Integration:"
+  echo "Leave name empty if you do not want to enable Turbonomic integration in this cluster"
+  prompt_for_input "Turbonomic Name" TURBONOMIC_TARGET_NAME
+  if [[ "$TURBONOMIC_TARGET_NAME" != "" ]]; then
+    prompt_for_input "Server URL" TURBONOMIC_SERVER_URL
+    prompt_for_input "Server Version" TURBONOMIC_SERVER_VERSION
+    prompt_for_input "Username" TURBONOMIC_USERNAME
+    prompt_for_secret "Password" TURBONOMIC_PASSWORD
+  fi
+
 }
 
 function provision_fyre() {
@@ -324,6 +352,7 @@ function provision_fyre() {
   export OCP_VERSION
   export CLUSTER_PLATFORM
   export FYRE_CLUSTER_DESCRIPTION
+  export FYRE_CLUSTER_SIZE
   export FYRE_SITE
 
   export FYRE_WORKER_COUNT
@@ -333,23 +362,29 @@ function provision_fyre() {
   export OCP_FIPS_ENABLED
   export ENABLE_IPV6
 
-  export FYRE_CLUSTER_SIZE
-
   export OCP_STORAGE_PROVIDER
+
+  export TURBONOMIC_TARGET_NAME
+  export TURBONOMIC_SERVER_URL
+  export TURBONOMIC_SERVER_VERSION
+  export TURBONOMIC_USERNAME
+  export TURBONOMIC_PASSWORD
 
   echo
   reset_colors
   echo_h2 "Review Settings"
+
   echo "${TEXT_DIM}"
   echo_h2 "FYRE Authentication" "    "
   echo_reset_dim "Username .................. ${COLOR_MAGENTA}${FYRE_USERNAME}"
-  echo_reset_dim "API Key ................... ${COLOR_MAGENTA}${FYRE_APIKEY:0:8}<snip>"
+
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "FYRE Accounting" "    "
   echo_reset_dim "Product Group ID .......... ${COLOR_MAGENTA}${FYRE_PRODUCT_ID}"
   echo_reset_dim "Quota Type ................ ${COLOR_MAGENTA}${FYRE_QUOTA_TYPE}"
   echo_reset_dim "Site ...................... ${COLOR_MAGENTA}${FYRE_SITE}"
+
   reset_colors
   echo "${TEXT_DIM}"
   echo_h2 "Cluster Configuration" "    "
@@ -374,6 +409,15 @@ function provision_fyre() {
   echo_h2 "Storage" "    "
   echo_reset_dim "Storage Provider ............ ${COLOR_MAGENTA}${OCP_STORAGE_PROVIDER}"
 
+  if [[ "${TURBONOMIC_TARGET_NAME}" != "" ]]; then
+    reset_colors
+    echo "${TEXT_DIM}"
+    echo_h2 "Turbonomic Integration" "    "
+    echo_reset_dim "Target Name ................. ${COLOR_MAGENTA}${TURBONOMIC_TARGET_NAME}"
+    echo_reset_dim "Server URL .................. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_URL}"
+    echo_reset_dim "Server Version .............. ${COLOR_MAGENTA}${TURBONOMIC_SERVER_VERSION}"
+  fi
+
   echo
   reset_colors
   if [[ "$NO_CONFIRM" != "true" ]]; then
@@ -396,6 +440,11 @@ function provision_fyre() {
     export OCP_CONSOLE_URL="https://$OCP_CONSOLE_ROUTE"
     rm /tmp/fyre-$CLUSTER_NAME.json
   fi
-  mas-devops-notify-slack --action ocp-provision-fyre --rc $result
+  if [[ -n "$NOTIFY_SLACK_MSG" ]]; then
+    mas-devops-notify-slack --action ocp-provision-fyre --rc $result --msg "$NOTIFY_SLACK_MSG"
+  else
+    mas-devops-notify-slack --action ocp-provision-fyre --rc $result
+  fi
+
   exit $result
 }

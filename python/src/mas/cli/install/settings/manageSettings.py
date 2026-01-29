@@ -10,36 +10,16 @@
 
 from prompt_toolkit.completion import WordCompleter
 from mas.cli.validators import LanguageValidator
+from mas.devops.aiservice import listAiServiceTenantInstances, listAiServiceInstances
+from openshift.dynamic.exceptions import ResourceNotFoundError
+from ...validators import AiserviceTeanantIDValidator
+from prompt_toolkit import print_formatted_text, HTML
+
 import logging
 logger = logging.getLogger(__name__)
 
 
 class ManageSettingsMixin():
-
-    def arcgisSettings(self) -> None:
-        # If Spatial is selected, then prompt to choose to add IBM Maximo Location Services for Esri, and prompt license
-        if "spatial=" in self.getParam("mas_appws_components") and self.getParam("mas_app_channel_manage").startswith("9."):
-            self.printDescription([
-                "",
-                "Maximo Spatial requires a map server provider in order to enable geospatial capabilities",
-                "You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now",
-                f"This includes ArcGIS Enterprise as part of the {self.manageAppName} and Maximo Spatial bundle (Additional AppPoints required)."
-            ])
-
-            if self.yesOrNo("Include IBM Maximo Location Services for Esri"):
-                self.setParam("install_arcgis", "true")
-                self.setParam("mas_arcgis_channel", self.getParam("mas_app_channel_manage"))
-
-                self.printDescription([
-                    "",
-                    "IBM Maximo Location Services for Esri License Terms",
-                    "For information about your IBM Maximo Location Services for Esri License visit: ",
-                    " - <Orange><u>https://ibm.biz/MAXArcGIS90-License</u></Orange>",
-                    "To continue with the installation, you must accept these additional license terms"
-                ])
-
-                if not self.yesOrNo("Do you accept the license terms"):
-                    exit(1)
 
     def manageSettings(self) -> None:
         if self.installManage:
@@ -47,12 +27,12 @@ class ManageSettingsMixin():
             self.printDescription([f"Customize your {self.manageAppName} installation, refer to the product documentation for more information"])
 
             self.manageSettingsComponents()
-            self.arcgisSettings()
 
             self.manageSettingsServerBundleConfig()
             self.manageSettingsJMS()
             self.manageSettingsDatabase()
             self.manageSettingsCustomizationArchive()
+            self.manageSettingsAiService()
             self.manageSettingsOther()
             self.manageStorageAndAccessMode()
 
@@ -148,11 +128,11 @@ class ManageSettingsMixin():
                 self.promptForString("Indexspace", "mas_app_settings_indexspace", default="MAXINDEX")
 
                 if self.yesOrNo("Customize database encryption settings"):
-                    self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mas_app_settings_crypto_key")
-                    self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mas_app_settings_cryptox_key")
-                    self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mas_app_settings_old_crypto_key")
-                    self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mas_app_settings_old_cryptox_key")
-                    self.yesOrNo("Override database encryption secrets with provided keys", "mas_app_settings_override_encryption_secrets_flag")
+                    self.promptForString("MXE_SECURITY_CRYPTO_KEY", "mas_manage_encryptionsecret_crypto_key")
+                    self.promptForString("MXE_SECURITY_CRYPTOX_KEY", "mas_manage_encryptionsecret_cryptox_key")
+                    self.promptForString("MXE_SECURITY_OLD_CRYPTO_KEY", "mas_manage_encryptionsecret_old_crypto_key")
+                    self.promptForString("MXE_SECURITY_OLD_CRYPTOX_KEY", "mas_manage_encryptionsecret_old_cryptox_key")
+                    self.promptForString("Encryption secret name", "mas_manage_ws_db_encryptionsecret")
 
     def manageSettingsServerBundleConfig(self) -> None:
         if not self.isManageFoundation:
@@ -279,3 +259,50 @@ class ManageSettingsMixin():
                 self.manageSettingsTimezone()
                 self.manageSettingsLanguages()
                 self.manageSettingsCP4D()
+
+    def manageSettingsAiService(self) -> None:
+        try:
+            aiserviceTenantInstances = listAiServiceTenantInstances(self.dynamicClient)
+            aiserviceInstances = listAiServiceInstances(self.dynamicClient)
+        except ResourceNotFoundError:
+            aiserviceTenantInstances = []
+            aiserviceInstances = []
+
+        if self.installAIService:
+            # if aiservice is being installed along with manage, add default tenant instance
+            aiserviceTenantInstances.append("user")
+            # Set aiservice instance id from the provided aiservice_instance_id parameter
+            if self.getParam("aiservice_instance_id"):
+                self.setParam("manage_bind_aiservice_instance_id", self.getParam("aiservice_instance_id"))
+        elif len(aiserviceTenantInstances) == 0 or len(aiserviceInstances) == 0:
+            return
+        else:
+            # Set aiservice instance id from the first instance fetched from cluster
+            self.setParam("manage_bind_aiservice_instance_id", aiserviceInstances[0]['metadata']['name'])
+
+        self.printH2(f"Maximo {self.manageAppName} Settings - AI Service Tenant Configuration")
+
+        self.printDescription([
+            "Select an AI Service Tenant ID to bind with Manage:",
+            " - The selected AI Service Tenant will be used in Manage AI Config Application"
+        ])
+
+        if self.installAIService:
+            self.printDescription([
+                " - As AI Service is being installed along with Manage, a default Tenant ID 'user' is available in the list below"
+            ])
+            # Show only default 'user' tenant when AI Service is being installed
+            aiserviceTenantOptions = ["user"]
+            print_formatted_text(HTML("- <u>user</u> (default)"))
+        else:
+            # Show all available tenants from cluster
+            aiserviceTenantOptions = []
+            for aiserviceTenant in aiserviceTenantInstances:
+                print_formatted_text(HTML(f"- <u>{aiserviceTenant['metadata']['name'].split('-')[-1]}</u>"))
+                aiserviceTenantOptions.append(aiserviceTenant['metadata']['name'].split('-')[-1])
+
+        aiserviceTenantCompleter = WordCompleter(aiserviceTenantOptions)
+        print()
+
+        aiserviceTenantInstanceId = self.promptForString('Enter AI Service Tenant ID to bind with Manage: ', completer=aiserviceTenantCompleter, validator=AiserviceTeanantIDValidator(self.getParam("manage_bind_aiservice_instance_id"), self.installAIService))
+        self.setParam("manage_bind_aiservice_tenant_id", aiserviceTenantInstanceId)

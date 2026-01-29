@@ -38,13 +38,13 @@ class installArgBuilderMixin():
 
         if self.getParam('mas_app_settings_customization_archive_password') != "":
             command += "export CUSTOMIZATION_PASSWORD=x\n"
-        if self.getParam('mas_app_settings_crypto_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_crypto_key') != "":
             command += "export CRYPTO_KEY=x\n"
-        if self.getParam('mas_app_settings_cryptox_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_cryptox_key') != "":
             command += "export CRYPTOX_KEY=x\n"
-        if self.getParam('mas_app_settings_old_crypto_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_old_crypto_key') != "":
             command += "export OLD_CRYPTO_KEY=x\n"
-        if self.getParam('mas_app_settings_old_cryptox_key') != "":
+        if self.getParam('mas_manage_encryptionsecret_old_cryptox_key') != "":
             command += "export OLD_CRYTPOX_KEY=x\n"
 
         command += f"mas install --mas-catalog-version {self.getParam('mas_catalog_version')}"
@@ -62,7 +62,7 @@ class installArgBuilderMixin():
         command += f" --mas-workspace-name \"{self.getParam('mas_workspace_name')}\"{newline}"
 
         if self.getParam('mas_special_characters') == "true":
-            command += f" --allow-special-chars \"{self.getParam('mas_special_characters')}\"{newline}"
+            command += f" --allow-special-chars \"{newline}"
 
         # ECK Integration
         # -----------------------------------------------------------------------------
@@ -97,6 +97,9 @@ class installArgBuilderMixin():
 
         if self.getParam('mas_manual_cert_mgmt') is True:
             command += f"  --manual-certificates \"{self.manualCertsDir}\"{newline}"
+
+        if self.getParam('mas_routing_mode') != "":
+            command += f"  --routing \"{self.getParam('mas_routing_mode')}\"{newline}"
 
         if self.getParam('mas_domain') != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
@@ -134,21 +137,29 @@ class installArgBuilderMixin():
 
         # IBM Suite License Service
         # -----------------------------------------------------------------------------
-        if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls":
-            if self.getParam("mas_instance_id") and self.getParam("sls_namespace") == f"mas-{self.getParam('mas_instance_id')}-sls":
-                command += "  --dedicated-sls"
+        addedSLSCmd = False
+        if self.getParam("sls_namespace") != "ibm-sls":
+            if self.getParam("mas_instance_id") != "":
+                if self.getParam("sls_namespace") == f"mas-{self.getParam('mas_instance_id')}-sls":
+                    command += "  --dedicated-sls"
+                    addedSLSCmd = True
             else:
                 command += f"  --sls-namespace \"{self.getParam('sls_namespace')}\""
+                addedSLSCmd = True
+        if self.getParam("sls_channel") != "":
+            command += f"  --sls-channel \"{self.getParam('sls_channel')}\""
+            addedSLSCmd = True
         if self.slsLicenseFileLocal:
             command += f"  --license-file \"{self.slsLicenseFileLocal}\""
-        if self.getParam("sls_namespace") and self.getParam("sls_namespace") != "ibm-sls" or self.slsLicenseFileLocal:
+            addedSLSCmd = True
+        if addedSLSCmd is True:
             command += newline
 
         # IBM Data Reporting Operator (DRO)
         # -----------------------------------------------------------------------------
-        command += f"  --uds-email \"{self.getParam('uds_contact_email')}\""
-        command += f" --uds-firstname \"{self.getParam('uds_contact_firstname')}\""
-        command += f" --uds-lastname \"{self.getParam('uds_contact_lastname')}\"{newline}"
+        command += f"  --contact-email \"{self.getParam('dro_contact_email')}\""
+        command += f" --contact-firstname \"{self.getParam('dro_contact_firstname')}\""
+        command += f" --contact-lastname \"{self.getParam('dro_contact_lastname')}\"{newline}"
         if self.getParam('dro_namespace') != "":
             command += f"  --dro-namespace \"{self.getParam('dro_namespace')}\"{newline}"
 
@@ -183,10 +194,13 @@ class installArgBuilderMixin():
             command += f"  --visualinspection-channel \"{self.getParam('mas_app_channel_visualinspection')}\"{newline}"
         if self.installFacilities:
             command += f"  --facilities-channel \"{self.getParam('mas_app_channel_facilities')}\"{newline}"
+        if self.installAIService:
+            command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
 
         # Arcgis
         # -----------------------------------------------------------------------------
-        # TODO: Add ArcGis after we have properly fixed how it's installed
+        if self.installArcgis:
+            command += f"  --arcgis-channel \"{self.getParam('mas_arcgis_channel')}\"{newline}"
 
         # Manage Advanced Settings
         # -----------------------------------------------------------------------------
@@ -197,7 +211,7 @@ class installArgBuilderMixin():
             if self.getParam('mas_app_settings_server_bundles_size') != "":
                 command += f"  --manage-server-bundle-size \"{self.getParam('mas_app_settings_server_bundles_size')}\"{newline}"
             if self.getParam('mas_app_settings_default_jms') != "":
-                command += f"  --manage-jms \"{self.getParam('mas_app_settings_default_jms')}\"{newline}"
+                command += f"  --manage-jms {newline}"
             if self.getParam('mas_app_settings_persistent_volumes_flag') == "true":
                 command += f"  --manage-persistent-volumes{newline}"
             if self.getParam('mas_app_settings_demodata') == "true":
@@ -219,16 +233,16 @@ class installArgBuilderMixin():
             if self.getParam('mas_app_settings_db2_schema') != "":
                 command += f"  --manage-db-schema \"{self.getParam('mas_app_settings_db2_schema')}\"{newline}"
 
-            if self.getParam('mas_app_settings_crypto_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_crypto_key') != "":
                 command += f"  --manage-crypto-key $CRYPTO_KEY{newline}"
-            if self.getParam('mas_app_settings_cryptox_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_cryptox_key') != "":
                 command += f"  --manage-cryptox-key $CRYPTOX_KEY{newline}"
-            if self.getParam('mas_app_settings_old_crypto_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_old_crypto_key') != "":
                 command += f"  --manage-old-crypto-key $OLD_CRYPTO_KEY{newline}"
-            if self.getParam('mas_app_settings_old_cryptox_key') != "":
+            if self.getParam('mas_manage_encryptionsecret_old_cryptox_key') != "":
                 command += f"  --manage-old-cryptox-key $OLD_CRYPTOX_KEY{newline}"
-            if self.getParam('mas_app_settings_override_encryption_secrets_flag') == "true":
-                command += f"  --manage-override-encryption-secrets \"{newline}"
+            if self.getParam('mas_manage_ws_db_encryptionsecret') != "":
+                command += f"  --manage-encryption-secret-name \"{self.getParam('mas_manage_ws_db_encryptionsecret')}\"{newline}"
 
             if self.getParam('mas_app_settings_base_lang') != "":
                 command += f"  --manage-base-language \"{self.getParam('mas_app_settings_base_lang')}\"{newline}"
@@ -249,6 +263,11 @@ class installArgBuilderMixin():
 
             if self.getParam('mas_appws_upgrade_type') == "true":
                 command += f"  --manage-upgrade-type \"{self.getParam('mas_appws_upgrade_type')}\"{newline}"
+
+            if self.getParam('manage_bind_aiservice_instance_id') != "":
+                command += f"  --manage-aiservice-instance-id \"{self.getParam('manage_bind_aiservice_instance_id')}\"{newline}"
+            if self.getParam('manage_bind_aiservice_tenant_id') != "":
+                command += f"  --manage-aiservice-tenant-id \"{self.getParam('manage_bind_aiservice_tenant_id')}\"{newline}"
 
         # Facilities Advanced Settings
         # -----------------------------------------------------------------------------
@@ -289,12 +308,84 @@ class installArgBuilderMixin():
             if self.getParam('mas_ws_facilities_storage_userfiles_size') != "":
                 command += f"  --facilities-userfiles-storage-size \"{self.getParam('mas_ws_facilities_storage_userfiles_size')}\"{newline}"
 
+        # AI Service Advanced Settings
+        # -----------------------------------------------------------------------------
+        if self.installAIService:
+            if self.getParam('aiservice_instance_id') != "":
+                command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
+            if self.getParam('aiservice_channel') != "":
+                command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
+            if self.getParam('aiservice_s3_accesskey') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
+            if self.getParam('aiservice_s3_secretkey') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-secretkey \"{self.getParam('aiservice_s3_secretkey')}\"{newline}"
+            if self.getParam('aiservice_s3_host') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-host \"{self.getParam('aiservice_s3_host')}\"{newline}"
+            if self.getParam('aiservice_s3_port') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-port \"{self.getParam('aiservice_s3_port')}\"{newline}"
+            if self.getParam('aiservice_s3_ssl') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-ssl \"{self.getParam('aiservice_s3_ssl')}\"{newline}"
+            if self.getParam('aiservice_s3_region') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-region \"{self.getParam('aiservice_s3_region')}\"{newline}"
+            if self.getParam('aiservice_s3_bucket_prefix') != "" and self.getParam('minio_root_user') == "":
+                command += f"  --s3-bucket-prefix \"{self.getParam('aiservice_s3_bucket_prefix')}\"{newline}"
+            if self.getParam('aiservice_s3_tenants_bucket') != "":
+                command += f"  --s3-tenants-bucket \"{self.getParam('aiservice_s3_tenants_bucket')}\"{newline}"
+            if self.getParam('aiservice_s3_templates_bucket') != "":
+                command += f"  --s3-templates-bucket \"{self.getParam('aiservice_s3_templates_bucket')}\"{newline}"
+
+            if self.getParam('aiservice_odh_model_deployment_type') != "":
+                command += f"  --odh-model-deployment-type \"{self.getParam('aiservice_odh_model_deployment_type')}\"{newline}"
+
+            if self.getParam('aiservice_watsonxai_apikey') != "":
+                command += f"  --watsonxai-apikey \"{self.getParam('aiservice_watsonxai_apikey')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_url') != "":
+                command += f"  --watsonxai-url \"{self.getParam('aiservice_watsonxai_url')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_project_id') != "":
+                command += f"  --watsonxai-project-id \"{self.getParam('aiservice_watsonxai_project_id')}\"{newline}"
+            if self.getParam('aiservice_watsonx_action') != "":
+                command += f"  --watsonx-action \"{self.getParam('aiservice_watsonx_action')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_ca_crt') != "":
+                command += f"  --watsonxai-ca-crt \"{self.getParam('aiservice_watsonxai_ca_crt')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_deployment_id') != "":
+                command += f"  --watsonxai-deployment-id \"{self.getParam('aiservice_watsonxai_deployment_id')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_space_id') != "":
+                command += f"  --watsonxai-space-id \"{self.getParam('aiservice_watsonxai_space_id')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_instance_id') != "":
+                command += f"  --watsonxai-instance-id \"{self.getParam('aiservice_watsonxai_instance_id')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_username') != "":
+                command += f"  --watsonxai-username \"{self.getParam('aiservice_watsonxai_username')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_version') != "":
+                command += f"  --watsonxai-version \"{self.getParam('aiservice_watsonxai_version')}\"{newline}"
+            if self.getParam('aiservice_watsonxai_on_prem') != "":
+                command += f"  --watsonxai-onprem \"{self.getParam('aiservice_watsonxai_on_prem')}\"{newline}"
+
+            if self.getParam('minio_root_user') != "":
+                command += f"  --install-minio {newline}"
+                command += f"  --minio-root-user \"{self.getParam('minio_root_user')}\"{newline}"
+            if self.getParam('minio_root_password') != "":
+                command += f"  --minio-root-password \"{self.getParam('minio_root_password')}\"{newline}"
+
+            if self.getParam('tenant_entitlement_type') != "":
+                command += f"  --tenant-entitlement-type \"{self.getParam('tenant_entitlement_type')}\"{newline}"
+            if self.getParam('tenant_entitlement_start_date') != "":
+                command += f"  --tenant-entitlement-start-date \"{self.getParam('tenant_entitlement_start_date')}\"{newline}"
+            if self.getParam('tenant_entitlement_end_date') != "":
+                command += f"  --tenant-entitlement-end-date \"{self.getParam('tenant_entitlement_end_date')}\"{newline}"
+
+            if self.getParam('rsl_url') != "":
+                command += f"  --rsl-url \"{self.getParam('rsl_url')}\"{newline}"
+            if self.getParam('rsl_org_id') != "":
+                command += f"  --rsl-org-id \"{self.getParam('rsl_org_id')}\"{newline}"
+            if self.getParam('rsl_token') != "":
+                command += f"  --rsl-token \"{self.getParam('rsl_token')}\"{newline}"
+            if self.getParam('rsl_ca_crt') != "":
+                command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
+
         # IBM Cloud Pak for Data
         # -----------------------------------------------------------------------------
         if self.getParam('cpd_product_version') != "":
             command += f"  --cp4d-version \"{self.getParam('cpd_product_version')}\""
-            if self.getParam('cpd_install_spss') == "true":
-                command += " --cp4d-install-spss"
             if self.getParam('cpd_install_cognos') == "true":
                 command += " --cp4d-install-cognos"
             if self.getParam('cpd_install_ws') == "true":
@@ -328,7 +419,7 @@ class installArgBuilderMixin():
             if self.getParam('db2_affinity_key') != "":
                 command += f"  --db2-affinity-key \"{self.getParam('db2_affinity_key')}\"{newline}"
             if self.getParam('db2_affinity_value') != "":
-                command += f"  --db2-affinity_value \"{self.getParam('db2_affinity_value')}\"{newline}"
+                command += f"  --db2-affinity-value \"{self.getParam('db2_affinity_value')}\"{newline}"
 
             if self.getParam('db2_tolerate_key') != "":
                 command += f"  --db2-tolerate-key \"{self.getParam('db2_tolerate_key')}\"{newline}"
@@ -410,15 +501,6 @@ class installArgBuilderMixin():
                 command += f" --cos-bucket-name \"{self.getParam('cos_bucket_name')}\"{newline}"
             command += newline
 
-        # Turbonomic Integration
-        # -----------------------------------------------------------------------------
-        if self.getParam('turbonomic_target_name') != "":
-            command += f"  --turbonomic-name \"{self.getParam('turbonomic_target_name')}\""
-            command += f"  --turbonomic-url \"{self.getParam('turbonomic_server_url')}\""
-            command += f"  --turbonomic-version \"{self.getParam('turbonomic_server_version')}\""
-            command += f"  --turbonomic-username \"{self.getParam('turbonomic_username')}\""
-            command += f"  --turbonomic-password \"{self.getParam('turbonomic_password')}\"{newline}"
-
         # Cloud Providers
         # -----------------------------------------------------------------------------
         if self.getParam('ibmcloud_apikey') != "":
@@ -456,13 +538,13 @@ class installArgBuilderMixin():
             command += f"  --approval-visualinspection \"{self.getParam('approval_visualinspection')}\"{newline}"
         if self.getParam('approval_facilities') != "":
             command += f"  --approval-facilities \"{self.getParam('approval_facilities')}\"{newline}"
+        if self.getParam('approval_aiservice') != "":
+            command += f"  --approval-aiservice \"{self.getParam('approval_aiservice')}\"{newline}"
 
         # More Options
         # -----------------------------------------------------------------------------
         if self.devMode:
             command += f"  --dev-mode{newline}"
-        if not self.waitForPVC:
-            command += f"  --no-wait-for-pvc{newline}"
         if self.getParam('skip_pre_check') is True:
             command += f"  --skip-pre-check{newline}"
         if self.getParam('skip_grafana_install') is True:

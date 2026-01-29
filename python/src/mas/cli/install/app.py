@@ -13,6 +13,8 @@ import logging
 import logging.handlers
 from sys import exit
 from os import path, getenv
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import re
 import calendar
 
@@ -41,17 +43,23 @@ from mas.cli.validators import (
     TimeoutFormatValidator,
     StorageClassValidator,
     JsonValidator,
-    OptimizerInstallPlanValidator
+    OptimizerInstallPlanValidator,
+    BucketPrefixValidator
 )
 
-from mas.devops.ocp import createNamespace, getStorageClasses
+from mas.devops.ocp import (
+    createNamespace,
+    getStorageClasses,
+    getClusterVersion,
+    isClusterVersionInRange
+)
 from mas.devops.mas import (
     getCurrentCatalog,
-    getDefaultStorageClasses,
-    isVersionEqualOrAfter
+    getDefaultStorageClasses
 )
+from mas.devops.utils import isVersionEqualOrAfter
 from mas.devops.sls import findSLSByNamespace
-from mas.devops.data import getCatalog
+from mas.devops.data import getCatalog, getCatalogEditorial
 from mas.devops.tekton import (
     installOpenShiftPipelines,
     updateTektonDefinitions,
@@ -76,6 +84,13 @@ def logMethodCall(func):
 class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGeneratorMixin, installArgBuilderMixin):
     @logMethodCall
     def validateCatalogSource(self):
+        # Check supported OCP versions
+        ocpVersion = getClusterVersion(self.dynamicClient)
+        supportedReleases = self.chosenCatalog.get("ocp_compatibility", [])
+        if len(supportedReleases) > 0 and not isClusterVersionInRange(ocpVersion, supportedReleases):
+            self.fatalError(f"IBM Maximo Operator Catalog {self.getParam('mas_catalog_version')} is not compatible with OpenShift v{ocpVersion}.  Compatible OpenShift releases are {supportedReleases}")
+
+        # Compare with any existing installed catalog
         catalogsAPI = self.dynamicClient.resources.get(api_version="operators.coreos.com/v1alpha1", kind="CatalogSource")
         try:
             catalog = catalogsAPI.get(name="ibm-operator-catalog", namespace="openshift-marketplace")
@@ -168,6 +183,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
+        self.catalogDb2Channel = self.chosenCatalog.get("db2_channel_default", "v110509.0")  # Returns fallback "v110509.0" for old catalogs without this field
         if self.architecture != "s390x" and self.architecture != "ppc64le":
             self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
 
@@ -181,6 +197,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 "Predict": "mas_predict_version",
                 "Inspection": "mas_visualinspection_version",
                 "Facilities": "mas_facilities_version",
+                "AI Service": "aiservice_version",
             }
         else:
             applications = {
@@ -202,7 +219,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             # Add 9.1-feature channel based off 9.0 to those apps that have not onboarded yet
             if key in self.chosenCatalog:
                 tempChosenCatalog = self.chosenCatalog[key].copy()
-                if '9.1.x-feature' not in tempChosenCatalog:
+                if '9.1.x-feature' not in tempChosenCatalog and '9.0.x' in tempChosenCatalog:
                     tempChosenCatalog.update({"9.1.x-feature": tempChosenCatalog["9.0.x"]})
 
                 self.catalogTable.append({"": application} | {key.replace(".x", ""): value for key, value in sorted(tempChosenCatalog.items(), reverse=True)})
@@ -227,6 +244,31 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 f"MongoDb:               {self.catalogMongoDbVersion}",
             ]
 
+        # Add editorial content (What's New and Known Issues)
+        editorial = getCatalogEditorial(self.getParam('mas_catalog_version'))
+        if editorial:
+            # Add What's New section
+            if 'whats_new' in editorial and editorial['whats_new']:
+                summary.append("")
+                summary.append("<u>What's New</u>")
+                for item in editorial['whats_new']:
+                    # Replace **text** with <b>text</b> in title
+                    title = item.get('title', '')
+                    title = title.replace('**', '<b>', 1).replace('**', '</b>', 1)
+                    summary.append(title)
+                    # Add details if present
+                    if 'details' in item and item['details']:
+                        for detail in item['details']:
+                            summary.append(f" - {detail}")
+
+            # Add Known Issues section
+            if 'known_issues' in editorial and editorial['known_issues']:
+                summary.append("")
+                summary.append("<u>Known Issues</u>")
+                for issue in editorial['known_issues']:
+                    title = issue.get('title', '')
+                    summary.append(f"- {title}")
+
         return summary
 
     @logMethodCall
@@ -234,7 +276,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.printH1("IBM Maximo Operator Catalog Selection")
         if self.devMode:
             self.promptForString("Select catalog source", "mas_catalog_version", default="v9-master-amd64")
-            self.promptForString("Select channel", "mas_channel", default="9.1.x-dev")
+            self.promptForString("Select channel", "mas_channel", default="9.2.x-dev")
         else:
             catalogInfo = getCurrentCatalog(self.dynamicClient)
 
@@ -299,7 +341,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     "  2. Install MAS with Dedicated License (AppPoints)",
                 ]
             )
-            self.slsMode = self.promptForInt("SLS Mode", default=1)
+            self.slsMode = self.promptForInt("SLS Mode", default=1, min=1, max=2)
 
             if self.slsMode not in [1, 2]:
                 self.fatalError(f"Invalid selection: {self.slsMode}")
@@ -314,13 +356,21 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     return
 
         self.slsLicenseFileLocal = self.promptForFile("License file", mustExist=True, envVar="SLS_LICENSE_FILE_LOCAL")
+
+        if self.devMode:
+            default_sls_channel = "3.x-dev"
+            # Check if it was provided via args already
+            if self.args.sls_channel and self.args.sls_channel != "":
+                default_sls_channel = self.args.sls_channel
+            self.promptForString("SLS channel", "sls_channel", default_sls_channel)
+
         self.setParam("sls_action", "install")
 
     @logMethodCall
     def configDRO(self) -> None:
-        self.promptForString("Contact e-mail address", "uds_contact_email")
-        self.promptForString("Contact first name", "uds_contact_firstname")
-        self.promptForString("Contact last name", "uds_contact_lastname")
+        self.promptForString("Contact e-mail address", "dro_contact_email")
+        self.promptForString("Contact first name", "dro_contact_firstname")
+        self.promptForString("Contact last name", "dro_contact_lastname")
 
         if self.showAdvancedOptions:
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
@@ -348,6 +398,61 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     self.promptForString("Install namespace", "grafana_v5_namespace", default="grafana5")
                     self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
+
+    @logMethodCall
+    def arcgisSettings(self) -> None:
+        """
+        Configure ArcGIS as a shared dependency for Manage and Facilities.
+        This method detects if either Manage (with Spatial) or Facilities is selected
+        and prompts for ArcGIS installation accordingly.
+        """
+        needsArcGIS = False
+        apps_requiring_arcgis = []
+
+        # Check if Manage with Spatial component is selected
+        if self.installManage and "spatial=" in self.getParam("mas_appws_components"):
+            needsArcGIS = True
+            apps_requiring_arcgis.append("Maximo Manage (Spatial)")
+
+        # Check if Facilities is selected (MAS 9.1+)
+        if self.installFacilities:
+            needsArcGIS = True
+            apps_requiring_arcgis.append("Maximo Real Estate and Facilities")
+
+        # Only prompt if ArcGIS is needed and we're on MAS 9.x
+        # Check the appropriate channel based on what's being installed
+        if needsArcGIS:
+            channel = self.getParam("mas_app_channel_manage") or self.getParam("mas_app_channel_facilities")
+            if channel and isVersionEqualOrAfter('9.0.0', channel):
+                # Build description based on what's being installed
+                description = [
+                    "",
+                    "Geospatial capabilities require a map server provider",
+                    "You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now"
+                ]
+
+                # Add specific details based on installed applications
+                if len(apps_requiring_arcgis) == 1:
+                    description.append(f"This includes ArcGIS Enterprise as part of {apps_requiring_arcgis[0]} (Additional AppPoints required).")
+                else:
+                    description.append(f"This includes ArcGIS Enterprise for {' and '.join(apps_requiring_arcgis)} (Additional AppPoints required).")
+
+                self.printDescription(description)
+
+                if self.yesOrNo("Include IBM Maximo Location Services for Esri"):
+                    self.setParam("mas_arcgis_channel", channel)
+                    self.installArcgis = True
+
+                    self.printDescription([
+                        "",
+                        "IBM Maximo Location Services for Esri License Terms",
+                        "For information about your IBM Maximo Location Services for Esri License visit: ",
+                        " - <Orange><u>https://ibm.biz/MAXArcGIS90-License</u></Orange>",
+                        "To continue with the installation, you must accept these additional license terms"
+                    ])
+
+                    if not self.yesOrNo("Do you accept the license terms"):
+                        exit(1)
 
     @logMethodCall
     def configSpecialCharacters(self):
@@ -380,7 +485,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.printDescription([
                 f"Unknown catalog {self.getParam('mas_catalog_version')}, please manually select the version of Cloud Pak for Data to use"
             ])
-            self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="5.1.3")
+            self.promptForString("Cloud Pak for Data product version", "cpd_product_version", default="5.2.0")
             logger.debug(f"Using user-provided (prompt) CP4D product version: {self.getParam('cpd_product_version')}")
         else:
             logger.debug(f"Using user-provided (flags) CP4D product version: {self.getParam('cpd_product_version')}")
@@ -451,6 +556,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.setParam("sls_namespace", f"mas-{self.getParam('mas_instance_id')}-sls")
 
         self.configOperationMode()
+        self.configRoutingMode()
         self.configCATrust()
         self.configDNSAndCerts()
         self.configSSOProperties()
@@ -480,7 +586,27 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  1. Production",
             "  2. Non-Production"
         ])
-        self.operationalMode = self.promptForInt("Operational Mode", default=1)
+        self.operationalMode = self.promptForInt("Operational Mode", default=1, min=1, max=2)
+        if self.operationalMode == 1:
+            self.setParam("environment_type", "production")
+            self.setParam("aiservice_odh_model_deployment_type", "raw")
+        else:
+            self.setParam("environment_type", "non-production")
+            self.setParam("aiservice_odh_model_deployment_type", "serverless")
+
+    @logMethodCall
+    def configRoutingMode(self):
+        if self.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.2.x-feature':
+            self.printH1("Configure Routing Mode")
+            self.printDescription([
+                "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
+                "",
+                "  1. Path (single domain)",
+                "  2. Subdomain (multi domain)"
+            ])
+            routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
+            routingModeOptions = ["path", "subdomain"]
+            self.setParam("mas_routing_mode", routingModeOptions[routingModeInt - 1])
 
     @logMethodCall
     def configAnnotations(self):
@@ -519,7 +645,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         "  4. None (I will set up DNS myself)"
                     ])
 
-                    dnsProvider = self.promptForInt("DNS Provider")
+                    dnsProvider = self.promptForInt("DNS Provider", min=1, max=4)
 
                     if dnsProvider == 1:
                         self.configDNSAndCertsCloudflare()
@@ -566,7 +692,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  2. LetsEncrypt (Staging)",
             "  3. Self-Signed"
         ])
-        certIssuer = self.promptForInt("Certificate issuer")
+        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
         certIssuerOptions = [
             f"{self.getParam('mas_instance_id')}-cloudflare-le-prod",
             f"{self.getParam('mas_instance_id')}-cloudflare-le-stg",
@@ -588,7 +714,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "  2. LetsEncrypt (Staging)",
             "  3. Self-Signed"
         ])
-        certIssuer = self.promptForInt("Certificate issuer")
+        certIssuer = self.promptForInt("Certificate issuer", min=1, max=3)
         certIssuerOptions = [
             f"{self.getParam('mas_instance_id')}-cis-le-prod",
             f"{self.getParam('mas_instance_id')}-cis-le-stg",
@@ -631,6 +757,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.installMonitor = self.yesOrNo("Install Monitor")
         else:
             self.installMonitor = False
+
+        # Initialize ArcGIS flag (will be set to True later in arcgisSettings() if needed)
+        self.installArcgis = False
 
         if self.installMonitor:
             self.configAppChannel("monitor")
@@ -682,6 +811,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.configAppChannel("facilities")
         else:
             self.installFacilities = False
+        # TODO: May be have to change this condition if Manage 9.0 is not supporting AI Cofig Application
+        # AI Service is only installable on Manage 9.x as AI Config Application is not supported on Manage 8.x
+        if not self.getParam("mas_app_channel_manage").startswith("8."):
+            self.installAIService = self.yesOrNo("Install AI Service")
+            if self.installAIService:
+                self.configAIService()
 
     @logMethodCall
     def configAppChannel(self, appId):
@@ -756,22 +891,22 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def predictSettings(self) -> None:
         if self.showAdvancedOptions and self.installPredict:
             self.printH1("Configure Maximo Predict")
-            self.printDescription([
-                "Predict application supports integration with IBM SPSS which is an optional service installed on top of IBM Cloud Pak for Data",
-                "Unless requested these will not be installed"
-            ])
             self.configCP4D()
-            self.yesOrNo("Install IBM SPSS Statistics", "cpd_install_spss")
 
     @logMethodCall
     def assistSettings(self) -> None:
         if self.installAssist:
             self.printH1("Configure Maximo Assist")
             self.printDescription([
-                "Assist requires access to Cloud Object Storage (COS), this install supports automatic setup using either IBMCloud COS or in-cluster COS via OpenShift Container Storage/OpenShift Data Foundation (OCS/ODF)"
+                "Assist requires access to Cloud Object Storage (COS), this install supports automatic setup using either IBMCloud COS or in-cluster COS via OpenShift Data Foundation (ODF)"
             ])
             self.configCP4D()
-            self.promptForString("COS Provider [ibm/ocs]", "cos_type")
+            self.promptForString("COS Provider [ibm/odf]", "cos_type")
+
+            # We still use the old name for ODF (OCS)
+            if self.getParam("cos_type") == "odf":
+                self.setParam("cos_type") == "ocs"
+
             if self.getParam("cos_type") == "ibm":
                 self.promptForString("IBM Cloud API Key", "cos_apikey", isPassword=True)
                 self.promptForString("IBM Cloud Resource Group", "cos_resourcegroup")
@@ -852,6 +987,148 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.setParam("mas_ws_facilities_config_file", "/workspace/configs/facilities-configs.yaml")
 
     @logMethodCall
+    def configAIService(self):
+        self.printH1("Configure AI Service Instance")
+        self.printDescription([
+            "Instance ID restrictions:",
+            " - Must be 3-12 characters long",
+            " - Must only use lowercase letters, numbers, and hypen (-) symbol",
+            " - Must start with a lowercase letter",
+            " - Must end with a lowercase letter or a number"
+        ])
+
+        # Install Db2 for AI Service
+        self.setParam("db2_action_aiservice", "install")
+
+        self.promptForString("Instance ID", "aiservice_instance_id", validator=InstanceIDFormatValidator())
+        self.params["aiservice_channel"] = prompt(HTML('<Yellow>Custom channel for AI Service</Yellow> '))
+
+    @logMethodCall
+    def aiServiceSettings(self) -> None:
+        if self.installAIService:
+            self.printH1("AI Service Settings")
+
+            # Ask about MinIO installation FIRST (moved from aiServiceDependencies)
+            self.printH2("Storage Configuration")
+            self.printDescription(["AI Service requires object storage for pipelines, tenants, and templates. You can either install MinIO in-cluster or connect to external storage."])
+
+            if self.yesOrNo("Install Minio"):
+                # Only ask for MinIO credentials
+                self.promptForString("minio root username", "minio_root_user")
+                self.promptForString("minio root password", "minio_root_password", isPassword=True)
+
+                # Auto-set MinIO storage defaults (same as non-interactive mode)
+                self._setMinioStorageDefaults()
+            else:
+                # Ask for external storage configuration
+                self.printDescription(["Configure your external object storage (S3-compatible) connection details:"])
+                self.promptForString("Storage access key", "aiservice_s3_accesskey")
+                self.promptForString("Storage secret key", "aiservice_s3_secretkey", isPassword=True)
+                self.promptForString("Storage host", "aiservice_s3_host")
+                self.promptForString("Storage port", "aiservice_s3_port")
+                self.promptForString("Storage ssl", "aiservice_s3_ssl")
+                self.promptForString("Storage region", "aiservice_s3_region")
+                self.printDescription([
+                    "",
+                    "Storage bucket prefix restrictions:",
+                    " - Must be 1-4 characters long"
+                ])
+                self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
+                self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
+                self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
+
+    @logMethodCall
+    def aiServiceTenantSettings(self) -> None:
+        if self.installAIService:
+            self.printH1("AI Service Tenant Settings")
+            self.printDescription([
+                "AI Service will reserve AppPoints for a fixed period of time based on the values you enter:"
+            ])
+
+            today = datetime.today()
+            oneyear = datetime.today() + relativedelta(years=1)
+            self.setParam("tenant_entitlement_type", "standard")
+            self.setParam("tenant_entitlement_start_date", today.strftime('%Y-%m-%d'))
+            self.promptForString("Entitlement end date (YYYY-MM-DD)", "tenant_entitlement_end_date", default=oneyear.strftime('%Y-%m-%d'))
+
+    @logMethodCall
+    def _setMinioStorageDefaults(self) -> None:
+        """
+        Set MinIO storage defaults when MinIO is being installed in-cluster.
+        This mirrors the logic from non-interactive mode.
+        """
+        # self.setParam("aiservice_s3_provider", "minio")
+        self.setParam("aiservice_s3_accesskey", self.getParam("minio_root_user"))
+        self.setParam("aiservice_s3_secretkey", self.getParam("minio_root_password"))
+        self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
+        self.setParam("aiservice_s3_port", "9000")
+        self.setParam("aiservice_s3_ssl", "false")
+        self.setParam("aiservice_s3_region", "none")
+        self.setParam("aiservice_s3_bucket_prefix", "s3-")
+
+        # Set default bucket names
+        self.setParam("aiservice_s3_tenants_bucket", "km-tenants")
+        self.setParam("aiservice_s3_templates_bucket", "km-templates")
+
+    @logMethodCall
+    def aiServiceIntegrations(self) -> None:
+        if self.installAIService:
+            self.printH1("WatsonX Integration")
+            self.printDescription([
+                "This CLI section configures the integration between the AI Service and IBM watsonx.ai. AI Service",
+                "uses watsonx for model deployment and inferencing.",
+                "",
+                "The WatsonX API key must be a **platform API key** associated with a user that has at least:",
+                "- **Editor permission** for the project",
+                "- **Viewer permission** for the space",
+                "You can generate this key by following IBM's documentation: https://www.ibm.com/docs/en/watsonx/w-and-w/2.2.0?topic=tutorials-generating-api-keys#api-keys__platform__title__1",
+                "",
+                "The endpoint URL is your WatsonX Machine Learning service URL. It can be found in the watsonx.ai",
+                "documentation: https://cloud.ibm.com/apidocs/watsonx-ai-cp/watsonx-ai-cp-2.2.0#endpoint-url",
+                "",
+                "The project ID refers to your specific watsonx.ai project where your ML models and assets are stored.",
+                "",
+                "Optional identifiers:",
+                " - DeploymentId: ID of the model deployment in a **dedicated watsonx runtime**",
+                "   (e.g., granite-3-2-8b-instruct deployed in your dedicated runtime).",
+                " - SpaceId: ID of the **watsonx deployment space** where deployments are managed.",
+                "Provide these only if you already have them; otherwise AI Service can proceed with defaults/workflows",
+                "that do not require pre-existing deployment/space identifiers.",
+                "",
+            ])
+            self.promptForString("Watsonxai api key", "aiservice_watsonxai_apikey", isPassword=True)
+            watsonxUrl = self.promptForString("Watsonxai machine learning url", "aiservice_watsonxai_url")
+            self.promptForString("Watsonxai project id", "aiservice_watsonxai_project_id")
+            if self.yesOrNo("Does the Watsonxai AI use a self-signed certificate"):
+                self.promptForString("Watsonxai CA certificate (PEM format)", "aiservice_watsonxai_ca_crt")
+            self.promptForString("Watsonxai Deployment ID (optional)", "aiservice_watsonxai_deployment_id")
+            self.promptForString("Watsonxai Space ID (optional)", "aiservice_watsonxai_space_id")
+            if ".ibm.com" not in watsonxUrl:
+                self.promptForString("Watsonxai Instance ID (optional)", "aiservice_watsonxai_instance_id")
+                self.promptForString("Watsonxai Username (optional)", "aiservice_watsonxai_username")
+                self.promptForString("Watsonxai Version (optional)", "aiservice_watsonxai_version")
+
+            self.printH1("RSL Integration")
+            self.printDescription([
+                "RSL (Reliable Strategy Library) connects to strategic asset management via STRATEGIZEAPI.",
+                "",
+                "RSL URL: https://api.rsl-service.suite.maximo.com (standard for all customers)",
+                "Org ID: Get from MAS Manage > System Properties > 'mxe.rs.rslorgid'",
+                "Token: Use your IBM entitlement key (same as MAS installation)",
+                "",
+                "Note: Future versions will auto-configure these from MAS Manage.",
+                ""
+            ])
+            self.promptForString("RSL url", "rsl_url")
+            self.promptForString("ORG Id of RSL", "rsl_org_id")
+            rslToken = self.promptForString("Token for RSL", isPassword=True)
+            if not rslToken.startswith("Bearer "):
+                rslToken = "Bearer " + rslToken
+            self.setParam("rsl_token", rslToken)
+            if self.yesOrNo("Does the RSL API use a self-signed certificate?"):
+                self.promptForString("RSL CA certificate (PEM format)", "rsl_ca_crt")
+
+    @logMethodCall
     def chooseInstallFlavour(self) -> None:
         self.printH1("Choose Install Mode")
         self.printDescription([
@@ -862,12 +1139,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             " - Configure whether to trust well-known certificate authorities by default (defaults to enabled)",
             " - Configure whether the Guided Tour feature is enabled (defaults to enabled)",
             " - Configure whether special characters are allowed in usernames and userids (defaults to disabled)",
-            " - Configure a custom domain, DNS integrations, and manual certificates",
+            " - Configure a custom domain, DNS integrations, routing mode and manual certificates",
             " - Customize Maximo Manage database settings (schema, tablespace, indexspace)",
             " - Customize Maximo Manage server bundle configuration (defaults to \"all\" configuration)",
             " - Enable optional Maximo Manage integration Cognos Analytics and Watson Studio Local",
-            " - Enable optional Maximo Predict integration with SPSS",
-            " - Enable optional IBM Turbonomic integration",
             " - Enable optional Real Estate and Facilities configurations",
             " - Customize Db2 node affinity and tolerations, memory, cpu, and storage settings (when using the IBM Db2 Universal Operator)",
             " - Choose alternative Apache Kafka providers (default to Strimzi)",
@@ -916,13 +1191,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.assistSettings()
         self.facilitiesSettings()
 
+        self.aiServiceSettings()
+        self.aiServiceTenantSettings()
+        self.aiServiceIntegrations()
+
         # Dependencies
+        self.arcgisSettings()  # Will only prompt if Manage (with Spatial) or Facilities is selected
         self.configMongoDb()
         self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
 
         self.configGrafana()
-        self.configTurbonomic()
 
         # TODO: Support ECK integration via the interactive install mode
         # TODO: Support MAS superuser username/password via the interactive install mode
@@ -943,11 +1222,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installManage = False
         self.installPredict = False
         self.installInspection = False
+        self.installArcgis = False
         self.installOptimizer = False
         self.installFacilities = False
         self.deployCP4D = False
         self.db2SetAffinity = False
         self.db2SetTolerations = False
+        self.installAIService = False
         self.slsLicenseFileLocal = None
 
         self.approvals = {
@@ -959,7 +1240,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "approval_optimizer": {"id": "app-cfg-optimizer"},  # After Optimizer workspace has been configured
             "approval_predict": {"id": "app-cfg-predict"},  # After Predict workspace has been configured
             "approval_visualinspection": {"id": "app-cfg-visualinspection"},  # After Visual Inspection workspace has been configured
-            "approval_facilities": {"id": "app-cfg-facilities"},  # After Facilities workspace has been configured 
+            "approval_facilities": {"id": "app-cfg-facilities"},  # After Facilities workspace has been configured
+            "approval_aiservice": {"id": "aiservice"}  # After AI Service Tenant has been configured 
         }
 
         self.configGrafana()
@@ -996,9 +1278,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "non_prod":
                 if not value:
                     self.operationalMode = 1
+                    self.setParam("environment_type", "production")
+                    self.setParam("aiservice_odh_model_deployment_type", "raw")
                 else:
                     self.operationalMode = 2
                     self.setParam("mas_annotations", "mas.ibm.com/operationalMode=nonproduction")
+                    self.setParam("environment_type", "non-production")
+                    self.setParam("aiservice_odh_model_deployment_type", "serverless")
 
             elif key == "additional_configs":
                 self.localConfigDir = value
@@ -1053,6 +1339,29 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if value is not None and value != "":
                     self.setParam("mas_app_channel_facilities", value)
                     self.installFacilities = True
+            elif key == "aiservice_channel":
+                if value is not None and value != "":
+                    self.setParam("aiservice_channel", value)
+                    # Install Db2 for AI Service
+                    self.setParam("db2_action_aiservice", "install")
+                    self.installAIService = True
+                    # Set manage - bind - AI Service params same as provided AI Service's params
+                    self.setParam("manage_bind_aiservice_instance_id", vars(self.args).get("aiservice_instance_id"))
+                    self.setParam("manage_bind_aiservice_tenant_id", "user")
+            elif key == "manage_bind_aiservice_instance_id":
+                # only set if AI Service not being installed
+                if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
+                    self.setParam("manage_bind_aiservice_instance_id", value)
+            elif key == "manage_bind_aiservice_tenant_id":
+                # only set if AI Service not being installed
+                if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
+                    self.setParam("manage_bind_aiservice_tenant_id", value)
+
+            # ArcGIS settings
+            elif key == "mas_arcgis_channel":
+                if value is not None and value != "":
+                    self.setParam("mas_arcgis_channel", value)
+                    self.installArcgis = True
 
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":
@@ -1081,6 +1390,10 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             elif key == "dedicated_sls":
                 if value:
                     self.setParam("sls_namespace", f"mas-{self.args.mas_instance_id}-sls")
+            elif key == "sls_channel":
+                if self.devMode:
+                    if value is not None and value != "":
+                        self.setParam("sls_channel", value)
 
             # These settings are used by the CLI rather than passed to the PipelineRun
             elif key == "storage_accessmode":
@@ -1109,7 +1422,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help", "advanced", "simplified"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified"]:
                 pass
 
             elif key == "manual_certificates":
@@ -1122,6 +1435,54 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
             elif key == "enable_ipv6":
                 self.setParam("enable_ipv6", True)
+
+            elif key == "install_minio_aiservice":
+                if vars(self.args).get("aiservice_instance_id"):
+                    incompatibleWithMinioInstall = [
+                        "aiservice_s3_accesskey",
+                        "aiservice_s3_secretkey",
+                        "aiservice_s3_host",
+                        "aiservice_s3_port",
+                        "aiservice_s3_ssl",
+                        "aiservice_s3_bucket_prefix",
+                        "aiservice_s3_region"
+                    ]
+                    if value is None:
+                        for uKey in incompatibleWithMinioInstall:
+                            if vars(self.args)[uKey] is None:
+                                self.fatalError(f"Parameter is required when --install-minio is not set: {uKey}")
+                    elif value is not None and value == "true":
+                        # If user is installing Minio in-cluster then we know how to connect to it already
+                        for uKey in incompatibleWithMinioInstall:
+                            if vars(self.args)[uKey] is not None:
+                                self.fatalError(f"Unsupported parameter for --install-minio: {uKey}")
+                        for rKey in ["minio_root_user", "minio_root_password"]:
+                            if vars(self.args)[rKey] is None:
+                                self.fatalError(f"Missing required parameter for --install-minio: {rKey}")
+
+                        # Extra validation: minio_root_password must be at least 8 characters
+                        minio_pass = vars(self.args)["minio_root_password"]
+                        if len(minio_pass) < 8:
+                            self.fatalError("minio_root_password must be at least 8 characters long")
+
+                        # self.setParam("aiservice_s3_provider", "minio")
+
+                        self.setParam("aiservice_s3_accesskey", self.args.minio_root_user)
+                        self.setParam("aiservice_s3_secretkey", self.args.minio_root_password)
+
+                        # TODO: Duplication -- we already have the URL, why do we need all the individual parts,
+                        # especially when we don't need them for the tenant?
+                        self.setParam("aiservice_s3_host", "minio-service.minio.svc.cluster.local")
+                        self.setParam("aiservice_s3_port", "9000")
+                        self.setParam("aiservice_s3_ssl", "false")
+                        self.setParam("aiservice_s3_region", "none")
+                        self.setParam("aiservice_s3_bucket_prefix", "s3-")
+                    else:
+                        self.fatalError(f"Unsupported value for --install-minio: {value}")
+
+            elif key == "aiservice_s3_bucket_prefix":
+                if len(value) == 0 or len(value) > 4:
+                    self.fatalError(f"Unsupported value for --s3-bucket-prefix(Must be 1-4 characters long): {value}")
 
             # Fail if there's any arguments we don't know how to handle
             else:
@@ -1143,6 +1504,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+        if self.chosenCatalog is not None:
+            self.processCatalogChoice()  # Only process catalog if it was successfully loaded,this will set catalogDb2Channel
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
@@ -1156,6 +1519,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.validateCatalogSource()
             self.licensePrompt()
 
+        self.setDB2DefaultChannel()
+
         # Version before 9.1 cannot have empty components
         if (self.getParam("mas_channel").startswith("8.") or self.getParam("mas_channel").startswith("9.0")) and (self.getParam("mas_app_channel_manage") is not None and self.getParam("mas_app_channel_manage") != "") and self.getParam("mas_appws_components") == "":
             self.fatalError("--manage-components must be set for versions earlier than 9.1.0")
@@ -1163,6 +1528,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         #  An error should be raised if "health" is not specified when installing Predict.
         if ((self.getParam("mas_app_channel_predict") is not None and self.getParam("mas_app_channel_predict") != "") and 'health' not in self.getParam("mas_appws_components")):
             self.fatalError("--manage-components must include 'health' component when installing Predict")
+
+        # Validate ArcGIS installation requirements in non-interactive mode
+        if self.installArcgis:
+            hasSpatial = self.installManage and "spatial=" in self.getParam("mas_appws_components")
+            hasFacilities = self.installFacilities
+
+            # ArcGIS requires either Spatial or Facilities to be installed
+            if not hasSpatial and not hasFacilities:
+                self.fatalError("--arcgis-channel requires either Manage with Spatial component (--manage-components must include 'spatial=') or Facilities (--facilities-channel) to be installed")
+
+            # ArcGIS requires channel 9.0 or later
+            arcgis_channel = self.getParam("mas_arcgis_channel")
+            if arcgis_channel and not isVersionEqualOrAfter('9.0.0', arcgis_channel):
+                self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
 
     @logMethodCall
     def install(self, argv):
@@ -1177,7 +1556,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Properties for arguments that control the behavior of the CLI
         self.noConfirm = args.no_confirm
-        self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
         self.skipGrafanaInstall = args.skip_grafana_install
@@ -1219,8 +1597,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configCertManager()  # TODO: I think this is redundant, we should look to remove this and the appropriate params in the install pipeline
         self.deployCP4D = False
 
-        # UDS install has not been supported since the January 2024 catalog update
-        self.setParam("uds_action", "install-dro")
+        self.setParam("dro_action", "install")
 
         # User must either provide the configuration via numerous command line arguments, or the interactive prompts
         if instanceId is None:
@@ -1238,13 +1615,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.podTemplates()
         self.slsLicenseFile()
         self.manualCertificates()
-
-        if not self.noConfirm and not self.waitForPVC:
-            self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
-            self.waitForPVC = self.yesOrNo("Wait for PVCs to bind")
-
-        if not self.waitForPVC:
-            self.setParam("no_wait_for_pvc", True)
 
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
@@ -1274,7 +1644,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
-                if installOpenShiftPipelines(self.dynamicClient):
+                if installOpenShiftPipelines(self.dynamicClient, customStorageClassName=self.getParam("storage_class_rwx")):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
@@ -1287,7 +1657,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     instanceId=self.getParam("mas_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
-                    waitForBind=self.waitForPVC,
                     configureRBAC=(self.getParam("service_account_name") == "")
                 )
                 prepareInstallSecrets(

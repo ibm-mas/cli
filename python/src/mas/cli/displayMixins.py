@@ -13,7 +13,7 @@ from prompt_toolkit import prompt, print_formatted_text, HTML, PromptSession
 from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.validation import Validator
 
-from .validators import YesNoValidator, FileExistsValidator, DirectoryExistsValidator
+from .validators import YesNoValidator, IntValidator, FileExistsValidator, DirectoryExistsValidator
 
 import logging
 logger = logging.getLogger(__name__)
@@ -100,20 +100,20 @@ class PromptMixin():
             self.params[param] = response
         return response
 
-    def promptForInt(self, message: str, param: str = None, default: int = None) -> int:
+    def promptForInt(self, message: str, param: str = None, default: int = None, min=None, max=None) -> int:
         if param is not None and default is None:
             default = getenv(param.upper(), default=None)
 
         if default is None:
-            response = int(prompt(message=masPromptValue(message)))
+            response = int(prompt(message=masPromptValue(message), validator=IntValidator(min, max)))
         else:
-            response = int(prompt(message=masPromptValue(message), default=str(default)))
+            response = int(prompt(message=masPromptValue(message), validator=IntValidator(min, max), default=str(default)))
         if param is not None:
             self.params[param] = str(response)
         return response
 
     def promptForListSelect(self, message: str, options: list, param: str = None, default: int = None) -> str:
-        selection = self.promptForInt(message=message, default=default)
+        selection = self.promptForInt(message=message, default=default, min=1, max=len(options))
         # List indices are 0 origin, so we need to subtract 1 from the selection made to arrive at the correct value
         self.setParam(param, options[selection - 1])
 

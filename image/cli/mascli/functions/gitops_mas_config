@@ -15,8 +15,9 @@ GitOps Configuration:
   -d, --dir ${COLOR_YELLOW}GITOPS_WORKING_DIR${TEXT_RESET}                     Working directory for GitOps repository
   -a, --account-id ${COLOR_YELLOW}ACCOUNT_ID${TEXT_RESET}                      Account name that the cluster belongs to
   -c, --cluster-id ${COLOR_YELLOW}CLUSTER_ID${TEXT_RESET}                      Cluster ID
+  -s, --sls-service ${COLOR_YELLOW}STANDALONE_SLS_SERVICE${TEXT_RESET}         for ibm internal use only.
   --config-action ${COLOR_YELLOW}CONFIG_ACTION${TEXT_RESET}                    One of upsert|remove.
-  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
+  --mas-config-type ${COLOR_YELLOW}MAS_CONFIG_TYPE${TEXT_RESET}                One of appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp
   --mas-config-scope ${COLOR_YELLOW}MAS_CONFIG-SCOPE${TEXT_RESET}              One of system|ws|app|wsapp
   --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}  Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure config CRs are properly cleaned up by ArgoCD on deletion. !!! PostDelete hooks should never be used when ArgoCD version < 2.10 !!! 
 
@@ -47,6 +48,12 @@ DRO Configuration (required if MAS_CONFIG_TYPE is "bas"):
   --mas-segment-key ${COLOR_YELLOW}MAS_SEGMENT_KEY${TEXT_RESET}                 The segment key for authentication for Segment
   --mas-bascfg-pod-template-yaml ${COLOR_YELLOW}MAS_BASCFG_POD_TEMPLATE_YAML${TEXT_RESET}               The location of a file containing the POD template
 
+MAF Configuration (required if MAS_CONFIG_TYPE is "appcfg"):
+  --maf-enabled ${COLOR_YELLOW}MAF_ENABLED${TEXT_RESET}                       Enable MAF for the application configuration (true|false)
+  --maf-storageClassName ${COLOR_YELLOW}MAF_STORAGE_CLASSNAME${TEXT_RESET}    Storage class name to use for MAF persistent storage
+  --maf-size ${COLOR_YELLOW}MAF_SIZE${TEXT_RESET}                             Size of the MAF persistent storage (e.g. 2Gi)
+  --mas-appcfg-pod-template-yaml ${COLOR_YELLOW}MAS_APPCFG_POD_TEMPLATE_YAML${TEXT_RESET}   
+
 IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
   --idpcfg-display-name ${COLOR_YELLOW}IDPCFG_DISPLAY_NAME${TEXT_RESET}       Display name for IDPCfg resource
   --ldap-url ${COLOR_YELLOW}LDAP_URL${TEXT_RESET}                             Url of the LDAP server. In the form protocol://host:port
@@ -60,7 +67,6 @@ JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):
   --jdbc-type ${COLOR_YELLOW}JDBC_TYPE${TEXT_RESET}                           Set to 'incluster-db2' when wanting to use the gitops configured, via gitops-db2u-database, db2u cluster (defaults to incluster-db2)
   --jdbc-instance-name ${COLOR_YELLOW}JDBC_INSTANCE_NAME${TEXT_RESET}         The JDBC instance name to use. Required for all JDBC_TYPE's
   --jdbc-connection-url ${COLOR_YELLOW}JDBC_CONNECTION_URL${TEXT_RESET}       The JDBC connection URL. Required when JDBC_TYPE is not incluster-db2
-  --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
   --jdbc-certificate-file ${COLOR_YELLOW}JDBC_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for JDBC server. Required when JDBC_TYPE is not incluster-db2
   --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                         By default routes are not exposed to public. To expose route, set this to public.
 
@@ -104,6 +110,20 @@ function gitops_mas_config_noninteractive() {
   CHECK_SECRET=true
 
   export REGION_ID=${REGION_ID:-${SM_AWS_REGION}}
+
+  if [ ! -z "$STANDALONE_SLS_SERVICE" ]; then
+    CLEAN_PATH=$(echo "$STANDALONE_SLS_SERVICE" | sed 's#<ref:##; s#>##')
+    IFS='/' read -r -a PARTS <<< "$CLEAN_PATH"
+    if [ ${#PARTS[@]} -lt 6 ]; then
+        echo "Error: Invalid SLS service parameter file Path $STANDALONE_SLS_SERVICE format." >&2
+        exit 1
+    fi
+    ICN="${PARTS[3]}"
+    SAAS_SUB_ID="${PARTS[4]}"
+  fi
+  
+  export ICN=${ICN:-""}
+  export SAAS_SUB_ID=${SAAS_SUB_ID:-""}
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -157,6 +177,10 @@ function gitops_mas_config_noninteractive() {
         ;;
 
       # SLS
+      # Standalone Server configuration
+      -s|--sls-service)
+        export STANDALONE_SLS_SERVICE=$1 && shift
+      ;;
       --mas-slscfg-pod-template-yaml)
         export MAS_SLSCFG_POD_TEMPLATE_YAML=$1 && shift
         ;;
@@ -183,7 +207,18 @@ function gitops_mas_config_noninteractive() {
       --mas-bascfg-pod-template-yaml)
         export MAS_BASCFG_POD_TEMPLATE_YAML=$1 && shift
         ;;
-
+      --mas-appcfg-pod-template-yaml)
+        export MAS_APPCFG_POD_TEMPLATE_YAML=$1 && shift
+        ;;
+      --maf-enabled)
+        export MAF_ENABLED=$1 && shift
+        ;; 
+      --maf-storageClassName)
+        export MAF_STORAGE_CLASSNAME=$1 && shift
+        ;;
+      --maf-size)
+        export MAF_SIZE=$1 && shift
+        ;;
       # LDAP
       --idpcfg-display-name)
         export IDPCFG_DISPLAY_NAME=$1 && shift
@@ -216,9 +251,6 @@ function gitops_mas_config_noninteractive() {
         ;;
       --jdbc-connection-url)
         export JDBC_CONNECTION_URL=$1 && shift
-        ;;
-      --jdbc-connection-url-additional-params)
-        export JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1 && shift
         ;;
       --jdbc-certificate-file)
         export JDBC_CERTIFICATE_FILE=$1 && shift
@@ -336,9 +368,9 @@ function gitops_mas_config_noninteractive() {
     gitops_mas_config_help "Invalid CONFIG_ACTION \"${CONFIG_ACTION}\"; must be one of 'upsert' or 'remove'"
   fi
 
-  [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_INSTANCE_ID is not set"
-  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
-    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
+  [[ -z "$MAS_CONFIG_TYPE" ]] && gitops_mas_config_help "MAS_CONFIG_TYPE is not set"
+  if ! [[ "$MAS_CONFIG_TYPE" =~ ^(appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio)$ ]]; then
+    gitops_mas_config_help "Invalid MAS_CONFIG_TYPE \"${MAS_CONFIG_TYPE}\"; must be one of appcfg|bas|jdbc|kafka|ldap-default|mongo|objectstorage|sls|smtp|watsonstudio"
   fi
 
   [[ -z "$MAS_CONFIG_SCOPE" ]] && gitops_mas_config_help "MAS_CONFIG_SCOPE is not set"
@@ -374,6 +406,11 @@ function gitops_mas_config_noninteractive() {
       [[ -z "$DRO_CA_CERTIFICATE_FILE" ]] && gitops_mas_config_help "DRO_CA_CERTIFICATE_FILE is not set"
     fi
 
+    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+      [[ -z "$MAF_ENABLED" ]] && gitops_mas_config_help "MAF_ENABLED is not set"
+      [[ -z "$MAF_SIZE" ]] && gitops_mas_config_help "MAF_SIZE is not set"
+      [[ -z "$MAF_STORAGE_CLASSNAME" ]] && gitops_mas_config_help "MAF_STORAGE_CLASSNAME is not set"
+    fi
     # if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
       # No specific parameters required for sls at present; they are all fetched from SM
     # fi
@@ -577,11 +614,20 @@ function gitops_mas_config() {
       echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_BASCFG_POD_TEMPLATE_YAML}"
       reset_colors
     fi
-
+    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+      echo "${TEXT_DIM}"
+      echo_reset_dim "MAF Enabled  ................... ${COLOR_MAGENTA}${MAF_ENABLED}"
+      echo_reset_dim "MAF Storage Class Name  ........ ${COLOR_MAGENTA}${MAF_STORAGE_CLASSNAME}"
+      echo_reset_dim "MAF Size  ...................... ${COLOR_MAGENTA}${MAF_SIZE}"
+      echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_APPCFG_POD_TEMPLATE_YAML}"
+      reset_colors
+    fi
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
       echo "${TEXT_DIM}"
       echo_reset_dim "SLS URL  ....................... ${COLOR_MAGENTA}https://sls.mas-${MAS_INSTANCE_ID}-sls.svc"
       echo_reset_dim "Pod Template YAML File  ........ ${COLOR_MAGENTA}${MAS_SLSCFG_POD_TEMPLATE_YAML}"
+      echo_reset_dim "sls service param file path .....${COLOR_MAGENTA}${STANDALONE_SLS_SERVICE}"
+
       if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
         echo_reset_dim "Internal Certificate Authority ...... ${COLOR_MAGENTA}${INTERNAL_CERT_AUTHORITY}"
       fi
@@ -731,11 +777,27 @@ function gitops_mas_config() {
       fi
     fi
 
+    if [ "${MAS_CONFIG_TYPE}" == "appcfg" ]; then
+
+      # Set pod template yaml
+      # ---------------------------------------------------------------------------
+      if [[ -n "$MAS_APPCFG_POD_TEMPLATE_YAML" && -s "$MAS_APPCFG_POD_TEMPLATE_YAML" ]]; then
+        export MAS_APPCFG_POD_TEMPLATE=$(yq eval '.podTemplates' ${MAS_APPCFG_POD_TEMPLATE_YAML})
+        echo -e "\n - MAS_APPCFG_POD_TEMPLATE CONTENT .................. ${MAS_APPCFG_POD_TEMPLATE}"
+      fi
+
+    fi
+
     if [ "${MAS_CONFIG_TYPE}" == "sls" ]; then
-      export SECRET_NAME_SLS=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls
+      if [ -z "$STANDALONE_SLS_SERVICE" ]; then
+        export SECRET_NAME_SLS="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls"
+      else
+        export SECRET_NAME_SLS="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${ICN}${SECRETS_KEY_SEPERATOR}${SAAS_SUB_ID}${SECRETS_KEY_SEPERATOR}sls"
+      fi  
+      export SECRET_KEY_SLS_URL=${SECRET_NAME_SLS}#sls_url
       export SECRET_KEY_SLS_REGISTRATION_KEY=${SECRET_NAME_SLS}#registration_key
       export SECRET_KEY_SLS_CA_B64=${SECRET_NAME_SLS}#ca_b64
-      
+
       # Set pod template yaml
       # ---------------------------------------------------------------------------
       if [[ -n "$MAS_SLSCFG_POD_TEMPLATE_YAML" && -s "$MAS_SLSCFG_POD_TEMPLATE_YAML" ]]; then

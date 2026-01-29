@@ -60,6 +60,7 @@ IBM DB2U:
       --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}                   Yaml file containing the db2ucluster database db config section.
       --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the db2ucluster addons audit config section.
       --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
+      --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
       --db2-timezone ${COLOR_YELLOW}DB2_TIMEZONE${TEXT_RESET}                                                 DB2 DB Timezone (optional, DB2 default of "UTC" will be used if not specified)
       --db2-backup-notify-slack-url ${COLOR_YELLOW}DB2_BACKUP_NOTIFY_SLACK_URL${TEXT_RESET}                   Slack URL to notify DB2 backup failures
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                    Flag to know that this is ReplicaDB instance
@@ -277,6 +278,9 @@ function gitops_db2u_database_noninteractive() {
         ;;
       --db2-tolerate-effect)
         export DB2_TOLERATE_EFFECT=$1 && shift
+        ;;
+      --jdbc-connection-url-additional-params)
+        export JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=$1 && shift
         ;;
       --jdbc-route)
         export JDBC_ROUTE=$1 && shift

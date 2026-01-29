@@ -26,7 +26,10 @@ updateArgParser = argparse.ArgumentParser(
     add_help=False
 )
 
-masArgGroup = updateArgParser.add_argument_group('Catalog Selection')
+masArgGroup = updateArgParser.add_argument_group(
+    'Catalog Selection',
+    'Select the IBM Maximo Operator Catalog version to update to.'
+)
 masArgGroup.add_argument(
     '-c', '--catalog',
     dest='mas_catalog_version',
@@ -34,7 +37,10 @@ masArgGroup.add_argument(
     help="Maximo Operator Catalog Version (e.g. v9-240625-amd64)"
 )
 
-depsArgGroup = updateArgParser.add_argument_group('Update Dependencies')
+depsArgGroup = updateArgParser.add_argument_group(
+    'Update Dependencies',
+    'Configure which MAS dependencies (Db2, MongoDB, Kafka) should be updated and specify their namespaces.'
+)
 depsArgGroup.add_argument(
     '--db2-namespace',
     required=False,
@@ -72,6 +78,14 @@ depsArgGroup.add_argument(
 )
 
 depsArgGroup.add_argument(
+    '--mongodb-v8-upgrade',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Required to confirm a major version update for MongoDb to version 8",
+)
+
+depsArgGroup.add_argument(
     '--kafka-namespace',
     required=False,
     help="Namespace where Kafka operator and instances will be updated",
@@ -84,43 +98,22 @@ depsArgGroup.add_argument(
     help="The type of Kakfa operator installed in the target namespace for updte",
 )
 
-droArgGroup = updateArgParser.add_argument_group('UDS to DRO Migration')
-
-droArgGroup.add_argument(
-    '--dro-migration',
-    required=False,
-    help="Required to confirm the migration from IBM User Data Services (UDS) to IBM Data Reporter Operator (DRO)",
-)
-
-droArgGroup.add_argument(
-    '--dro-storage-class',
-    required=False,
-    help="Set Custom RWO Storage Class name for DRO as part of the update",
-)
-
-droArgGroup.add_argument(
-    '--dro-namespace',
-    required=False,
-    help="Set Custom Namespace for DRO(Default: redhat-marketplace)",
-)
-
-# Development Mode
+# More Options
 # -----------------------------------------------------------------------------
-devArgGroup = updateArgParser.add_argument_group("Development Mode")
-devArgGroup.add_argument(
+otherArgGroup = updateArgParser.add_argument_group(
+    'More',
+    'Additional options including development mode, Artifactory credentials, CP4D version, confirmation prompts, and pre-check control.'
+)
+otherArgGroup.add_argument(
     "--artifactory-username",
     required=False,
     help="Username for access to development builds on Artifactory"
 )
-devArgGroup.add_argument(
+otherArgGroup.add_argument(
     "--artifactory-token",
     required=False,
     help="API Token for access to development builds on Artifactory"
 )
-
-# More Options
-# -----------------------------------------------------------------------------
-otherArgGroup = updateArgParser.add_argument_group('More')
 otherArgGroup.add_argument(
     "--dev-mode",
     required=False,

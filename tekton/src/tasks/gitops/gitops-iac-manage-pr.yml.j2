@@ -1,0 +1,82 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-manage-pr
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: is_efs
+      type: string
+      default: 'false'
+    - name: is_s3
+      type: string
+      default: 'false'
+    - name: is_msk
+      type: string
+      default: 'false'
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: IS_EFS
+        value: $(params.is_efs)
+      - name: IS_S3
+        value: $(params.is_s3)
+      - name: IS_MSK
+        value: $(params.is_msk)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: manage-pr
+      args:
+        - |-
+          git config --global user.name "MAS Automation"
+          git config --global user.email "you@example.com"
+          git config --global user.password $GITHUB_PAT
+
+          CMD="mas gitops-iac-manage-pr -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH"
+
+          echo "Executing: $CMD"
+          eval $CMD
+          exit $?
+      command:
+        - /bin/sh
+        - -c
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+
+  workspaces:
+    - name: configs
+      mountPath: /workspace/gitops-iac

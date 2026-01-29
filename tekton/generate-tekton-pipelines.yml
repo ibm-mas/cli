@@ -40,6 +40,7 @@
         - mas-fvt-iot
         - mas-fvt-finally
         - mas-fvt-manage
+        - mas-fvt-manage-ai
         - mas-fvt-manage-is
         - mas-fvt-manage-regr
         - mas-fvt-mobile-pytest
@@ -52,8 +53,8 @@
         - mas-fvt-visualinspection
         - mas-fvt-launcher
         - mas-ivt-manage
+        - mas-fvt-facilities
         # AI Service Pipelines
-        - aiservice-install
         - aiservice-upgrade
         # AI Service FVT Pipelines
         - aiservice-fvt-launcher
@@ -99,6 +100,7 @@
         - gitops-aiservice-tenant-pipeline
         - gitops-deprovision-aiservice-pipeline
         - gitops-deprovision-aiservice-tenant-pipeline
+        - gitops-iac-pipeline
 
     # 4. Generate Gitops Pipelines with waits
     # -------------------------------------------------------------------------

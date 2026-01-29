@@ -17,7 +17,11 @@ ibm_aiservice_tenant:
 
   # sls
   slscfg_ca_b64enc: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_CA_B64ENC }}>"
+  {%- if STANDALONE_SLS_SERVICE %}
+  slscfg_url: <path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLS_URL }}>
+  {%- else %}
   slscfg_url: "{{ SLSCFG_URL }}"
+  {%- endif %}
   slscfg_registration_key: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_SLSCFG_REGISTRATION_KEY }}>"
   aiservice_sls_subscription_id: "{{ AISERVICE_SLS_SUBSCRIPTION_ID }}"
   
@@ -35,11 +39,14 @@ ibm_aiservice_tenant:
   aiservice_watsonxai_url: "{{ AISERVICE_WATSONXAI_URL }}"
   aiservice_watsonxai_project_id: "<path:{{ SECRETS_PATH }}:{{ AISERVICE_WATSONXAI_PROJECT_ID }}>"
   aiservice_watsonxai_apikey: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSONXAI_APIKEY }}>"
-  aiservice_watsonxai_full: "{{ AISERVICE_WATSONX_FULL }}"
+  aiservice_watsonxai_on_prem: "{{ AISERVICE_WATSONXAI_ON_PREM }}"
+{% if SECRET_KEY_WATSONXAI_CA_CRT is defined and SECRET_KEY_WATSONXAI_CA_CRT != '' %}
   aiservice_watsonxai_ca_crt: "<path:{{ SECRETS_PATH }}:{{ SECRET_KEY_WATSONXAI_CA_CRT }}>"
+{% endif %}
   aiservice_watsonxai_instance_id: "{{ AISERVICE_WATSONX_INSTANCE_ID }}"
   aiservice_watsonxai_username: "{{ AISERVICE_WATSONX_USERNAME }}"
   aiservice_watsonxai_version: "{{ AISERVICE_WATSONX_VERSION }}"
+  aiservice_watsonxai_verify: "{{ AISERVICE_WATSONXAI_VERIFY }}"
 
   tenant_entitlement_type: "{{ TENANT_ENTITLEMENT_TYPE }}"
   tenant_entitlement_start_date: "{{ TENANT_ENTITLEMENT_START_DATE }}"

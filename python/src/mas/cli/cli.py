@@ -148,8 +148,10 @@ class BaseApp(PrintMixin, PromptMixin):
 
         self.compatibilityMatrix = {
             "9.2.x-feature": {
+                "aibroker": ["9.2.x-feature", "9.1.x"],
                 "manage": ["9.2.x-feature", "9.1.x"],
                 "optimizer": ["9.2.x-feature", "9.1.x"],
+                "visualinspection": ["9.2.x-feature", "9.1.x"],
             },
             "9.1.x": {
                 "facilities": ["9.1.x"],
@@ -242,6 +244,7 @@ class BaseApp(PrintMixin, PromptMixin):
     def createTektonFileWithDigest(self) -> None:
         if path.exists(self.tektonDefsWithDigestPath):
             logger.debug(f"We have already generated {self.tektonDefsWithDigestPath}")
+            self.tektonDefsPath = self.tektonDefsWithDigestPath
         elif isAirgapInstall(self.dynamicClient):
             # We need to modify the tekton definitions to
             imageWithoutDigest = f"quay.io/ibmmas/cli:{self.version}"

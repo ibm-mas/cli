@@ -107,8 +107,25 @@ jobs:
           pip install .[dev]
 
           if [[ -e $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz ]]; then
-            echo "Found local Python package ($GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz) in this PR."
+            echo "Found local Python package ($GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz) on this branch."
             python -m pip install $GITHUB_WORKSPACE/image/cli/install/mas_devops.tar.gz
+          elif [[ "$GITHUB_REF_TYPE" == "branch" ]]; then
+              # python-devops main branch is named "stable" rather than "master"
+              PYTHON_BRANCH_NAME=$GITHUB_REF_NAME
+              if [[ "$GITHUB_REF_NAME" == "master" ]]; then
+                  PYTHON_BRANCH_NAME=stable
+              fi
+
+              RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/repos/ibm-mas/python-devops/branches/${PYTHON_BRANCH_NAME}")
+
+              if [[ "${RESPONSE}" == "200" ]]; then
+                  echo "Installing development build of python-devops from GitHub branch ${PYTHON_BRANCH_NAME}"
+              else
+                  echo "Branch ${PYTHON_BRANCH_NAME} not found, defaulting to stable"
+                  PYTHON_BRANCH_NAME=stable
+              fi
+
+              python3 -m pip install "git+https://github.com/ibm-mas/python-devops.git@${PYTHON_BRANCH_NAME}"
           fi
 
       - name: Lint
@@ -174,23 +191,7 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
-      # 2. Download Ansible collection from Artifactory
-      # -------------------------------------------------------------------------------------------
-      - name: Download Ansible collection from Artifactory
-        id: download-ansible
-        if: contains(fromJson('["push", "workflow_dispatch", "repository_dispatch"]'), github.event_name)
-        env:
-          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
-          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
-        run: |
-          if [[ -e $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz ]]; then
-            echo "Found a local Ansible collection to be used in $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz! Skip download from Artifactory..."
-          else
-            echo "Downloading from ***/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz"
-            wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
-          fi
-
-      # 3. Download Built Artifacts
+      # 2. Download Built Artifacts
       # -------------------------------------------------------------------------------------------
       - name: Download the tekton file built in the other job
         id: download-tekton
@@ -206,7 +207,7 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
-      # 4. CLI Container Images
+      # 3. CLI Container Images
       # -------------------------------------------------------------------------------------------
       - name: Build the container image
         id: docker-build
@@ -254,23 +255,7 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
-      # 2. Download Ansible collection from Artifactory
-      # -------------------------------------------------------------------------------------------
-      - name: Download Ansible collection from Artifactory
-        id: download-ansible
-        if: contains(fromJson('["push", "workflow_dispatch", "repository_dispatch"]'), github.event_name)
-        env:
-          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
-          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
-        run: |
-          if [[ -e $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz ]]; then
-            echo "Found a local Ansible collection to be used in $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz! Skip download from Artifactory..."
-          else
-            echo "Downloading from ***/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz"
-            wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
-          fi
-
-      # 3. Download Built Artifacts
+      # 2. Download Built Artifacts
       # -------------------------------------------------------------------------------------------
       - name: Download the tekton file built in the other job
         id: download-tekton
@@ -286,7 +271,7 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
-      # 4. CLI Container Images
+      # 3. CLI Container Images
       # -------------------------------------------------------------------------------------------
       - name: Build the container image
         id: docker-build
@@ -333,23 +318,7 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
-      # 2. Download Ansible collection from Artifactory
-      # -------------------------------------------------------------------------------------------
-      - name: Download Ansible collection from Artifactory
-        id: download-ansible
-        if: contains(fromJson('["push", "workflow_dispatch", "repository_dispatch"]'), github.event_name)
-        env:
-          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
-          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
-        run: |
-          if [[ -e $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz ]]; then
-            echo "Found a local Ansible collection to be used in $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz! Skip download from Artifactory..."
-          else
-            echo "Downloading from ***/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz"
-            wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
-          fi
-
-      # 3. Download Built Artifacts
+      # 2. Download Built Artifacts
       # -------------------------------------------------------------------------------------------
       - name: Download the tekton file built in the other job
         id: download-tekton
@@ -365,7 +334,7 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
-      # 4. CLI Container Images
+      # 3. CLI Container Images
       # -------------------------------------------------------------------------------------------
       - name: Build the container image
         id: docker-build
@@ -412,23 +381,7 @@ jobs:
           $GITHUB_WORKSPACE/build/bin/initbuild.sh
           source $GITHUB_WORKSPACE/build/bin/.functions.sh
 
-      # 2. Download Ansible collection from Artifactory
-      # -------------------------------------------------------------------------------------------
-      - name: Download Ansible collection from Artifactory
-        id: download-ansible
-        if: contains(fromJson('["push", "workflow_dispatch", "repository_dispatch"]'), github.event_name)
-        env:
-          ARTIFACTORY_GENERIC_RELEASE_URL: ${{ secrets.ARTIFACTORY_GENERIC_RELEASE_URL }}
-          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
-        run: |
-          if [[ -e $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz ]]; then
-            echo "Found a local Ansible collection to be used in $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz! Skip download from Artifactory..."
-          else
-            echo "Downloading from ***/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz"
-            wget --header="Authorization:Bearer $ARTIFACTORY_TOKEN" $ARTIFACTORY_GENERIC_RELEASE_URL/ibm-mas/ansible-devops/latest/ibm-mas_devops-latest.tar.gz -O $GITHUB_WORKSPACE/image/cli/install/ibm-mas_devops.tar.gz
-          fi
-
-      # 3. Download Built Artifacts
+      # 2. Download Built Artifacts
       # -------------------------------------------------------------------------------------------
       - name: Download the tekton file built in the other job
         id: download-tekton
@@ -444,7 +397,7 @@ jobs:
           name: mas_cli.tar.gz
           path: ${{ github.workspace }}/image/cli/install/
 
-      # 4. CLI Container Images
+      # 3. CLI Container Images
       # -------------------------------------------------------------------------------------------
       - name: Build the container image
         id: docker-build
@@ -474,7 +427,7 @@ jobs:
       - build-amd64-container
       - build-s390x-container
       - build-arm64-container
-      - build-ppc64le-container 
+      - build-ppc64le-container
     if: ${{ !contains(github.event.head_commit.message, '[doc]') }}
     steps:
       - name: Checkout
@@ -492,20 +445,23 @@ jobs:
       - name: Publish the manifest
         run: |
           echo "GITHUB_REF=$GITHUB_REF"
+          echo "GITHUB_REF_NAME=$GITHUB_REF_NAME"
           echo "GITHUB_EVENT_NAME=$GITHUB_EVENT_NAME"
 
           # Login to quay.io
-          docker login --username "${{ secrets.QUAYIO_USERNAME }}" --password "${{ secrets.QUAYIO_PASSWORD }}" quay.io
+          echo "${{ secrets.QUAYIO_PASSWORD }}" | docker login quay.io --username "${{ secrets.QUAYIO_USERNAME }}" --password-stdin
 
           # Publish the manifest
           $GITHUB_WORKSPACE/build/bin/docker-manifest.sh -r quay.io/ibmmas/cli --target-platforms amd64,s390x,arm64,ppc64le
 
-          # Re-issue the manifest under an alias where needed
+          # Re-issue the manifest under an alias
           # https://github.com/docker/buildx/issues/1744#issuecomment-1896645786
-          if [[ "$GITHUB_REF" == "refs/heads/master" ]]; then
-            docker buildx imagetools create -t quay.io/ibmmas/cli:master quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
-          elif [[ "$GITHUB_EVENT_NAME" == "release" ]]; then
+          if [[ "$GITHUB_EVENT_NAME" == "release" ]]; then
+            echo "Publishing quay.io/ibmmas/cli:latest alias"
             docker buildx imagetools create -t quay.io/ibmmas/cli:latest quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
+          else
+            echo "Publishing quay.io/ibmmas/cli:$GITHUB_REF_NAME alias"
+            docker buildx imagetools create -t quay.io/ibmmas/cli:$GITHUB_REF_NAME quay.io/ibmmas/cli:${{ env.DOCKER_TAG }}
           fi
 
 

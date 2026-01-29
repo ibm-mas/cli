@@ -25,12 +25,12 @@
         - arcgis
         - appconnect
         - cert-manager
-        - common-services
         - cos
         - cp4d-service
         - cp4d-service-update
         - cp4d
         - db2
+        - dro
         - eck
         - grafana
         - ibm-catalogs
@@ -41,7 +41,6 @@
         - sls-registry-update
         - sls
         - turbonomic
-        - uds
 
     # 3. Generate Tasks (AI Service)
     # -------------------------------------------------------------------------
@@ -53,8 +52,6 @@
         - minio
         - aiservice
         - odh
-        - aiservice-tenant
-        - aiservice-post-verify
         - aiservice-upgrade
 
     # 4. Generate Tasks (FVT)
@@ -65,6 +62,7 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - aiservice-fvt
+        - aiservice-fvt-start-upgrade
         - mas-fvt-assist-desktop
         - mas-fvt-assist
         - mas-fvt-core
@@ -74,6 +72,7 @@
         - mas-fvt-deprovision-cos
         - mas-fvt-deprovision-kafka
         - mas-fvt-finalize
+        - mas-fvt-pipeline-finish-and-deprovision
         - mas-fvt-iot
         - mas-fvt-manage
         - mas-fvt-mobile-testng
@@ -106,6 +105,7 @@
         - mas-launchfvt-finally
         - mas-launchfvt-iot
         - mas-launchfvt-manage
+        - mas-launchfvt-manage-ai
         - mas-launchfvt-manage-is
         - mas-launchfvt-mobile
         - mas-launchfvt-monitor
@@ -114,7 +114,9 @@
         - mas-launchfvt-visualinspection
         - mas-launchfvt-upgrade-post
         - mas-launchfvt-upgrade-pre
+        - mas-launchfvt-facilities
         - mas-launchivt-manage
+
 
     # 5. Generate Tasks (IVT)
     # -------------------------------------------------------------------------
@@ -135,12 +137,10 @@
       with_items:
         - gencfg-workspace
         - must-gather
-        - suite-app-config
         - suite-app-install
         - suite-app-uninstall
         - suite-app-upgrade
         - suite-app-rollback
-        - suite-app-verify
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
@@ -170,10 +170,11 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - update-configmap
+        - update-pipeline-status
         - wait-for-configmap
         - wait-for-configmap-v2
         - wait-for-tekton
-        
+
     # 9. Generate Tasks (Common)
     # -------------------------------------------------------------------------
     - name: Generate Tasks (Common)
@@ -250,9 +251,16 @@
         - gitops-suite
         - gitops-odh
         - gitops-deprovision-odh
-
         - gitops-aiservice
         - gitops-aiservice-tenant
         - gitops-deprovision-aiservice-tenant
         - gitops-deprovision-aiservice
+        - gitops-app-config
+        - gitops-delete-app-config
+        - gitops-iac-create-branch
+        - gitops-iac-generate-common-files
+        - gitops-iac-manage-pr
+        - gitops-iac-provision-efs
+        - gitops-iac-provision-s3
+        - gitops-iac-provision-msk
 

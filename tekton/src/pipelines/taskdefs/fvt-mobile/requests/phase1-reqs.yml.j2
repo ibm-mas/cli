@@ -1,14 +1,16 @@
 
 
 - name: mobile-pytest-insp-forms
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-requests.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-requests-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite
       value: mobile-api-insp-forms
+  runAfter:
+    - pipeline-start
 
 - name: mobile-pytest-insp-results
-  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-requests.yml.j2') | indent(2) }}
+  {{ lookup('template', 'taskdefs/fvt-mobile/common/taskref-requests-pytest.yml.j2') | indent(2) }}
   params:
     {{ lookup('template', 'taskdefs/fvt-mobile/common/params-pytest.yml.j2') | indent(4) }}
     - name: fvt_test_suite

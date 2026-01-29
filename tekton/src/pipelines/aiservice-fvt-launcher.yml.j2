@@ -57,6 +57,23 @@ spec:
       description: "Set this to 'true' to enable deprovision of the target cluster & associated resources following the completion of this pipeline"
 
   tasks:
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
     - name: waitfor-aiservice
       timeout: "0"
       taskRef:
@@ -85,6 +102,8 @@ spec:
         - input: $(params.sync_with_install)
           operator: in
           values: ["true", "True"]
+      runAfter:
+        - pipeline-start
 
     - name: launchfvt-aiservice
       timeout: "0"
@@ -201,6 +220,64 @@ spec:
       runAfter:
         - waitfor-update
 
+    # Upgrade Sync Point
+    # -------------------------------------------------------------------------
+    - name: start-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: aiservice-fvt-start-upgrade
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: aiservice_instance_id
+          value: $(params.aiservice_instance_id)
+      when:
+        - input: $(params.sync_with_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - post-update
+
+    - name: waitfor-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-wait-for-configmap-v2
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-upgrade
+        - name: configmap_target_value
+          value: Completed,Succeeded,Failed
+      when:
+        - input: $(params.sync_with_upgrade)
+          operator: in
+          values: ["true", "True"]
+      runAfter:
+        - start-upgrade
+
+    # Verify health of the cluster before we consider the upgrade complete
+    # Reusing mas-devops-ocp-verify Task which already has 
+    # -------------------------------------------------------------------------
+    - name: post-upgrade
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-ocp-verify
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+        # Pipeline Config
+        - name: devops_suite_name
+          value: "post-upgrade"
+      when:
+        - input: "$(params.sync_with_upgrade)"
+          operator: in
+          values: ["True", "true"]
+      runAfter:
+        - waitfor-upgrade
+
   # Finally
   # ---------------------------------------------------------------------------
   finally:
@@ -220,6 +297,25 @@ spec:
           value: $(params.image_pull_policy)
         - name: pipelinerun_name
           value: "$(context.pipelineRun.name)-fvt-finally"
+
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
 
   workspaces:
     # The generated configuration files

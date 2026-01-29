@@ -1,0 +1,229 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: gitops-iac-generate-common-files
+spec:
+  params:
+    - name: cluster_name
+      type: string
+    - name: account
+      type: string
+    - name: cluster_url
+      type: string
+      default: ""
+    - name: region_name
+      type: string
+    - name: git_branch
+      type: string
+    - name: github_org
+      type: string
+    - name: github_repo
+      type: string
+    - name: github_host
+      type: string
+    - name: mas_instance_id
+      type: string
+    - name: is_efs
+      type: string
+      default: 'false'
+    - name: is_s3
+      type: string
+      default: 'false'
+    # EFS parameters
+    - name: efs_manage_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_manage_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_manage_db2_throughput_mode
+      type: string
+      default: ''
+    - name: efs_manage_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_manage_main_mount_count
+      type: string
+      default: ''
+    - name: efs_manage_main_throughput_mode
+      type: string
+      default: ''
+    - name: efs_iot_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_iot_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_iot_db2_throughput_mode
+      type: string
+      default: ''
+    - name: efs_facilities_db2_performance_mode
+      type: string
+      default: ''
+    - name: efs_facilities_db2_mount_count
+      type: string
+      default: ''
+    - name: efs_facilities_db2_throughput_mode
+      type: string
+      default: ''
+    - name: efs_facilities_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_facilities_main_mount_count
+      type: string
+      default: ''
+    - name: efs_facilities_main_throughput_mode
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_performance_mode
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_mount_count
+      type: string
+      default: ''
+    - name: efs_visualinspection_main_throughput_mode
+      type: string
+      default: ''
+    # S3 parameters
+    - name: s3_manage
+      type: string
+      default: ''
+    - name: s3_mvi
+      type: string
+      default: ''
+    - name: is_msk
+      type: string
+      default: 'false'
+   # iac-msk  params
+    - name: msk_kafka_version
+      type: string
+      default: ''
+    - name: msk_instance_type
+      type: string
+      default: ''
+    - name: msk_cluster_username
+      type: string
+      default: ''
+    - name: msk_broker_volume_size
+      type: string
+      default: ''
+    - name: msk_number_of_broker_nodes
+      type: string
+      default: ''
+    - name: msk_cluster_prefix
+      type: string
+      default: ''
+
+  stepTemplate:
+    env:
+      - name: CLUSTER_NAME
+        value: $(params.cluster_name)
+      - name: ACCOUNT
+        value: $(params.account)
+      - name: CLUSTER_URL
+        value: $(params.cluster_url)
+      - name: REGION_NAME
+        value: $(params.region_name)
+      - name: GIT_BRANCH
+        value: $(params.git_branch)
+      - name: GITHUB_ORG
+        value: $(params.github_org)
+      - name: GITHUB_HOST
+        value: $(params.github_host)
+      - name: GITHUB_REPO
+        value: $(params.github_repo)
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: IS_EFS
+        value: $(params.is_efs)
+      - name: IS_S3
+        value: $(params.is_s3)
+      - name: IS_MSK
+        value: $(params.is_msk)
+      - name: EFS_MANAGE_DB2_PERFORMANCE_MODE
+        value: $(params.efs_manage_db2_performance_mode)
+      - name: EFS_MANAGE_DB2_MOUNT_COUNT
+        value: $(params.efs_manage_db2_mount_count)
+      - name: EFS_MANAGE_DB2_THROUGHPUT_MODE
+        value: $(params.efs_manage_db2_throughput_mode)
+      - name: EFS_MANAGE_MAIN_PERFORMANCE_MODE
+        value: $(params.efs_manage_main_performance_mode)
+      - name: EFS_MANAGE_MAIN_MOUNT_COUNT
+        value: $(params.efs_manage_main_mount_count)
+      - name: EFS_MANAGE_MAIN_THROUGHPUT_MODE
+        value: $(params.efs_manage_main_throughput_mode)
+      - name: EFS_IOT_DB2_PERFORMANCE_MODE
+        value: $(params.efs_iot_db2_performance_mode)
+      - name: EFS_IOT_DB2_MOUNT_COUNT
+        value: $(params.efs_iot_db2_mount_count)
+      - name: EFS_IOT_DB2_THROUGHPUT_MODE
+        value: $(params.efs_iot_db2_throughput_mode)
+      - name: EFS_FACILITIES_DB2_PERFORMANCE_MODE
+        value: $(params.efs_facilities_db2_performance_mode)
+      - name: EFS_FACILITIES_DB2_MOUNT_COUNT
+        value: $(params.efs_facilities_db2_mount_count)
+      - name: EFS_FACILITIES_DB2_THROUGHPUT_MODE
+        value: $(params.efs_facilities_db2_throughput_mode)
+      - name: EFS_FACILITIES_MAIN_PERFORMANCE_MODE
+        value: $(params.efs_facilities_main_performance_mode)
+      - name: EFS_FACILITIES_MAIN_MOUNT_COUNT
+        value: $(params.efs_facilities_main_mount_count)
+      - name: EFS_FACILITIES_MAIN_THROUGHPUT_MODE
+        value: $(params.efs_facilities_main_throughput_mode)
+      - name: EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE
+        value: $(params.efs_visualinspection_main_performance_mode)
+      - name: EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT
+        value: $(params.efs_visualinspection_main_mount_count)
+      - name: EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE
+        value: $(params.efs_visualinspection_main_throughput_mode)
+      - name: S3_MANAGE
+        value: $(params.s3_manage)
+      - name: S3_MVI
+        value: $(params.s3_mvi)
+      # iac-msk params
+      - name: MSK_KAFKA_VERSION
+        value: $(params.msk_kafka_version)
+      - name: MSK_INSTANCE_TYPE
+        value: $(params.msk_instance_type)
+      - name: MSK_CLUSTER_USERNAME
+        value: $(params.msk_cluster_username)
+      - name: MSK_BROKER_VOLUME_SIZE
+        value: $(params.msk_broker_volume_size)
+      - name: MSK_NUMBER_OF_BROKER_NODES
+        value: $(params.msk_number_of_broker_nodes)
+      - name: MSK_CLUSTER_PREFIX
+        value: $(params.msk_cluster_prefix)
+    envFrom:
+      - configMapRef:
+          name: environment-properties
+          optional: true
+      - secretRef:
+          name: secure-properties
+
+  steps:
+    - name: generate-common-files
+      args:
+        - |-
+          git config --global user.name "MAS Automation"
+          git config --global user.email "you@example.com"
+          git config --global user.password $GITHUB_PAT
+
+          CMD="mas gitops-iac-generate-common-files -a $ACCOUNT -c $CLUSTER_NAME -m $MAS_INSTANCE_ID --dir /workspace/gitops-iac --github-push --github-host $GITHUB_HOST --github-org $GITHUB_ORG --github-repo $GITHUB_REPO --git-branch $GIT_BRANCH --region-name $REGION_NAME"
+
+          CMD="$CMD --is-efs ${IS_EFS:-false}"
+          CMD="$CMD --is-s3 ${IS_S3:-false}"
+          CMD="$CMD --is-msk ${IS_MSK:-false}"
+          
+          echo "Executing: $CMD"
+          eval $CMD
+          exit $?
+      command:
+        - /bin/sh
+        - -c
+      imagePullPolicy: IfNotPresent
+      image: quay.io/ibmmas/cli:latest
+
+  workspaces:
+    - name: configs
+      mountPath: /workspace/gitops-iac

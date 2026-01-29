@@ -43,6 +43,10 @@ spec:
       type: string
       description: Optional boolean parameter that when set to True, indicates that manually created certificates will be used to certify MAS and application routes
       default: ""
+    - name: mas_routing_mode
+      type: string
+      description: Optional string parameter, either path or subdomain, defines the network routing mode used for the suite.
+      default: ""
     - name: mas_trust_default_cas
       type: string
       description: Optional boolean parameter that when set to False, disables the normal trust of well known public certificate authorities
@@ -155,6 +159,8 @@ spec:
         value: $(params.mas_domain)
       - name: MAS_CLUSTER_ISSUER
         value: $(params.mas_cluster_issuer)
+      - name: MAS_ROUTING_MODE
+        value: $(params.mas_routing_mode)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_TRUST_DEFAULT_CAS

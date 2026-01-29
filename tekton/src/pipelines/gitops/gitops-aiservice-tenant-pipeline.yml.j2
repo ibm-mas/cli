@@ -58,7 +58,9 @@ spec:
       type: string
     - name: aiservice_watsonxai_ca_crt
       type: string
-    - name: aiservice_watsonxai_full
+    - name: aiservice_watsonxai_on_prem
+      type: string
+    - name: aiservice_watsonxai_verify
       type: string
 
     - name: aiservice_operator_log_level
@@ -82,6 +84,11 @@ spec:
       type: string
     - name: tenant_entitlement_end_date
       type: string
+
+    # standalone sls
+    - name: sls_service
+      type: string
+      default: ""
 
   workspaces:
     - name: configs
@@ -145,8 +152,10 @@ spec:
           value: $(params.aiservice_watsonxai_version)
         - name: aiservice_watsonxai_username
           value: $(params.aiservice_watsonxai_username)
-        - name: aiservice_watsonxai_full
-          value: $(params.aiservice_watsonxai_full)
+        - name: aiservice_watsonxai_on_prem
+          value: $(params.aiservice_watsonxai_on_prem)
+        - name: aiservice_watsonxai_verify
+          value: $(params.aiservice_watsonxai_verify)
         - name: aiservice_watsonxai_ca_crt
           value: $(params.aiservice_watsonxai_ca_crt)
         - name: aiservice_operator_log_level
@@ -169,4 +178,5 @@ spec:
           value: $(params.tenant_entitlement_start_date)
         - name: tenant_entitlement_end_date
           value: $(params.tenant_entitlement_end_date)
-        
+        - name: sls_service
+          value: $(params.sls_service)
