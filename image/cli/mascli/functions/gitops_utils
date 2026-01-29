@@ -268,7 +268,6 @@ function clone_target_git_repo() {
   SSH_PATH=$6
   CURRENT_DIR=$PWD
   cd $LOCAL_DIR
-  echo "clone_target_git_repo ssh ................................ $SSH_PATH"
   if [ "$SSH_PATH" == "false" ]; then
     echo ""
     echo "$(logts) git clone https://git:****@$GITHUB_HOST/$GITHUB_ORG/$GITHUB_REPO.git -b $GIT_BRANCH"

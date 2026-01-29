@@ -201,6 +201,10 @@ function gitops_rds_db2_database() {
   fi
   export DB2_NAMESPACE="rds-${MAS_INSTANCE_ID}"
 
+  if [ -z $GIT_SSH ]; then
+    export GIT_SSH="false"
+  fi
+
   echo
   reset_colors
   echo_h2 "Review Settings "
@@ -222,7 +226,6 @@ function gitops_rds_db2_database() {
     echo_reset_dim "Organization .......................... ${COLOR_MAGENTA}${GITHUB_ORG}"
     echo_reset_dim "Repository ............................ ${COLOR_MAGENTA}${GITHUB_REPO}"
     echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_BRANCH}"
-    echo_reset_dim "Branch ................................ ${COLOR_MAGENTA}${GIT_SSH}"
     echo_reset_dim "Lock Branch ........................... ${COLOR_MAGENTA}${GIT_LOCK_BRANCH}"
   else
     echo_h2 "GitOps Target" "    "
