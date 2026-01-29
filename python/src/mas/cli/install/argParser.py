@@ -1481,7 +1481,6 @@ otherArgGroup.add_argument(
     required=False,
     help="Slack channel(s) for notifications (comma-separated for multiple channels)"
 )
-)
 
 otherArgGroup.add_argument(
     "--accept-license",
