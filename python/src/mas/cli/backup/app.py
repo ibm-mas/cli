@@ -19,7 +19,7 @@ from openshift.dynamic.exceptions import ResourceNotFoundError
 
 from ..cli import BaseApp
 from .argParser import backupArgParser
-from mas.devops.ocp import createNamespace, getConsoleURL
+from mas.devops.ocp import createNamespace, getConsoleURL, getDefaultStorageClasses
 from mas.devops.mas import listMasInstances
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchBackupPipeline
 
@@ -157,6 +157,15 @@ class BackupApp(BaseApp):
             instanceId = self.getParam("mas_instance_id")
             pipelinesNamespace = f"mas-{instanceId}-pipelines"
 
+            # Determine storage class and access mode for pipeline PVCs
+            defaultStorageClasses = getDefaultStorageClasses(self.dynamicClient)
+            if self.isSNO() or defaultStorageClasses.rwx == "none":
+                self.pipelineStorageClass = defaultStorageClasses.rwo
+                self.pipelineStorageAccessMode = "ReadWriteOnce"
+            else:
+                self.pipelineStorageClass = defaultStorageClasses.rwx
+                self.pipelineStorageAccessMode = "ReadWriteMany"
+
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
                 if installOpenShiftPipelines(self.dynamicClient):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
@@ -167,7 +176,14 @@ class BackupApp(BaseApp):
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)
                 backupStorageSize = self.getParam("backup_storage_size") if self.getParam("backup_storage_size") else "20Gi"
-                preparePipelinesNamespace(dynClient=self.dynamicClient, instanceId=instanceId, createBackupPVC=True, backupStorageSize=backupStorageSize)
+                preparePipelinesNamespace(
+                    dynClient=self.dynamicClient,
+                    instanceId=instanceId,
+                    storageClass=self.pipelineStorageClass,
+                    accessMode=self.pipelineStorageAccessMode,
+                    createBackupPVC=True,
+                    backupStorageSize=backupStorageSize
+                )
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
