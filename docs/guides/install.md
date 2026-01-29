@@ -157,6 +157,13 @@ The interactive install will guide you through a series of questioned designed t
         <li>Single Sign-On (SSO)</li>
         <li>Whether to allow special character in User IDs and Usernames</li>
         <li>Whether Guided Tours are enabled</li>
+        <li>Network Routing Mode (path or subdomain)</li>
+      </ul>
+      <h4>Routing Mode</h4>
+      <p>Starting from MAS 9.2.0, you can configure how Maximo Application Suite is accessed through URLs:</p>
+      <ul>
+        <li><strong>Path Mode (single domain):</strong> All applications are accessed through a single domain with different paths (e.g., <code>mas.example.com/manage</code>, <code>mas.example.com/admin</code>)</li>
+        <li><strong>Subdomain Mode (multi domain):</strong> Each application is accessed through its own subdomain (e.g., <code>manage.mas.example.com</code>, <code>admin.mas.example.com</code>)</li>
       </ul>
     </cds-accordion-item>
     <cds-accordion-item title="Application Selection">
@@ -238,8 +245,13 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
     --storage-pipeline ibmc-file-gold-gid \
     --storage-accessmode ReadWriteMany \
     \
+    --routing path \
+    \
     --accept-license --no-confirm
 ```
+
+!!! note "Routing Mode Parameter"
+    The `--routing` parameter accepts two values: `path` (single domain) or `subdomain` (multi domain). This parameter is optional and available from MAS 9.2.0 onwards. If not specified, the default routing mode will be used.
 
 More Information
 -------------------------------------------------------------------------------
