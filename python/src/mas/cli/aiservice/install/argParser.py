@@ -202,7 +202,7 @@ rhoaiArgGroup.add_argument(
     "--rhoai",
     dest="rhoai",
     required=False,
-    help="temporary flag to install Redhat Openshift AI instead of Opendatahub"
+    help="temporary flag to install Redhat Openshift AI instead of Opendatahub",
     action="store_const",
     const="true"
 )
