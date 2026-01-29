@@ -573,7 +573,6 @@ function gitops_suite() {
   echo_reset_dim "Allow List ................................. ${COLOR_MAGENTA}${ALLOW_LIST}"
   echo_reset_dim "Additional VPN ............................. ${COLOR_MAGENTA}${ADDITIONAL_VPN}"
   echo_reset_dim "Application Configuration .................. ${COLOR_MAGENTA}${APPLICATION_CONFIGURATION}"
-  echo_reset_dim "Install Additional Resources .................. ${COLOR_MAGENTA}${ADDITIONAL_RESOURCES_INSTALL}"
   if [[ -n "${ADDITIONAL_RESOURCES_INSTANCES}" ]]; then
     echo_reset_dim "Additional Resources Instances ........ ${COLOR_MAGENTA}${ADDITIONAL_RESOURCES_INSTANCES}"
   fi
