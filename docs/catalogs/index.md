@@ -202,7 +202,7 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td>4.16 - 4.19</td>
           <td>5.2.0</td>
           <td>7.0 - 8.0</td>
-          <td>latest</td>
+          <td>N/A</td>
           <td>OCP 4.19 EOS N/A</td>
         </tr>
         <tr>
@@ -224,7 +224,7 @@ Note: The Red Hat Extended Update Support Add-on Term 1 offering is included wit
           <td>4.14 - 4.19</td>
           <td>5.1.3</td>
           <td>6.0 - 7.0</td>
-          <td>latest</td>
+          <td>15.11.0</td>
           <td>OCP 4.19 EOS N/A</td>
         </tr>
         <tr>
