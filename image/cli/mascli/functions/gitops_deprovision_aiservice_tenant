@@ -222,7 +222,7 @@ function gitops_deprovision_aiservice_tenant() {
   export SECRET_S3_AUTH=${SECRETS_PREFIX}s3
 
 
-  deleting secrets from aws
+  # deleting secrets from aws
    echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
    sm_delete_secret $SECRET_IBM_ENTITLEMENT_AUTH
 
