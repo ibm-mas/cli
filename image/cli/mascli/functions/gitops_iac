@@ -669,35 +669,51 @@ function compute_efs_variables() {
   
   # Compute EFS flags based on parameters
   if [[ -n "$EFS_MANAGE_DB2_PERFORMANCE_MODE" && -n "$EFS_MANAGE_DB2_MOUNT_COUNT" && -n "$EFS_MANAGE_DB2_THROUGHPUT_MODE" ]]; then
-    export EFS_MANAGE=true
+    export EFS_MANAGE_DB2=true
     echo "  EFS_MANAGE: true"
   else
-    export EFS_MANAGE=false
+    export EFS_MANAGE_DB2=false
+    echo "  EFS_MANAGE: false"
+  fi
+
+  if [[ -n "$EFS_MANAGE_MAIN_PERFORMANCE_MODE" && -n "$EFS_MANAGE_MAIN_MOUNT_COUNT" && -n "$EFS_MANAGE_MAIN_THROUGHPUT_MODE" ]]; then
+    export EFS_MANAGE_MAIN=true
+    echo "  EFS_MANAGE: true"
+  else
+    export EFS_MANAGE_MAIN=false
     echo "  EFS_MANAGE: false"
   fi
   
   if [[ -n "$EFS_IOT_DB2_PERFORMANCE_MODE" && -n "$EFS_IOT_DB2_MOUNT_COUNT" && -n "$EFS_IOT_DB2_THROUGHPUT_MODE" ]]; then
-    export EFS_IOT=true
+    export EFS_IOT_DB2=true
     echo "  EFS_IOT: true"
   else
-    export EFS_IOT=false
+    export EFS_IOT_DB2=false
     echo "  EFS_IOT: false"
   fi
   
   if [[ -n "$EFS_FACILITIES_DB2_PERFORMANCE_MODE" && -n "$EFS_FACILITIES_DB2_MOUNT_COUNT" && -n "$EFS_FACILITIES_DB2_THROUGHPUT_MODE" ]]; then
-    export EFS_FACILITIES=true
+    export EFS_FACILITIES_DB2=true
     echo "  EFS_FACILITIES: true"
   else
-    export EFS_FACILITIES=false
+    export EFS_FACILITIES_DB2=false
     echo "  EFS_FACILITIES: false"
+  fi
+
+  if [[ -n "$EFS_FACILITIES_MAIN_PERFORMANCE_MODE" && -n "$EFS_FACILITIES_MAIN_MOUNT_COUNT" && -n "$EFS_FACILITIES_MAIN_THROUGHPUT_MODE" ]]; then
+    export EFS_FACILITIES_MAIN=true
+    echo "  EFS_FACILITIES_MAIN: true"
+  else
+    export EFS_FACILITIES_MAIN=false
+    echo "  EFS_FACILITIES_MAIN: false"
   fi
   
   if [[ -n "$EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE" && -n "$EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT" && -n "$EFS_VISUALINSPECTION_MAIN_THROUGHPUT_MODE" ]]; then
-    export EFS_VISUALINSPECTION=true
-    echo "  EFS_VISUALINSPECTION: true"
+    export EFS_VISUALINSPECTION_MAIN=true
+    echo "  EFS_VISUALINSPECTION_MAIN: true"
   else
-    export EFS_VISUALINSPECTION=false
-    echo "  EFS_VISUALINSPECTION: false"
+    export EFS_VISUALINSPECTION_MAIN=false
+    echo "  EFS_VISUALINSPECTION_MAIN: false"
   fi
 
   echo " EFS variables computed successfully"

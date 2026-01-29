@@ -231,13 +231,15 @@ locals {
  {%- if IS_EFS | lower == 'true' %}
   #EFS config related params starts
   multiple-efs = {
-{%- if EFS_MANAGE == "true" %}
+{%- if EFS_MANAGE_DB2 == "true" %}
     manage-db2 = {
       name = join("-", ["efs", var.cluster_name, var.instance_name, "manage-db2"])
       performance_mode = "{{EFS_MANAGE_DB2_PERFORMANCE_MODE}}"
       throughput_mode = "{{EFS_MANAGE_DB2_THROUGHPUT_MODE}}"
       efs_mount_count = {{EFS_MANAGE_DB2_MOUNT_COUNT}}
     }
+{%- endif %}
+{%- if EFS_MANAGE_MAIN == "true" %}
     manage-main = {
       name = join("-", ["efs", var.cluster_name, var.instance_name, "manage-main"])
       performance_mode = "{{EFS_MANAGE_MAIN_PERFORMANCE_MODE}}"
@@ -245,7 +247,7 @@ locals {
       efs_mount_count = {{EFS_MANAGE_MAIN_MOUNT_COUNT}}
     }
 {%- endif %}
-{%- if EFS_IOT == "true" %}
+{%- if EFS_IOT_DB2 == "true" %}
     iot-db2 = {
       name = join("-", ["efs", var.cluster_name, var.instance_name, "iot-db2"])
       performance_mode = "{{EFS_IOT_DB2_PERFORMANCE_MODE}}"
@@ -253,7 +255,7 @@ locals {
       efs_mount_count = {{EFS_IOT_DB2_MOUNT_COUNT}}
     }
 {%- endif %}
-{%- if EFS_VISUALINSPECTION == "true" %}
+{%- if EFS_VISUALINSPECTION_MAIN == "true" %}
     visualinspection-main = {
       name = join("-", ["efs", var.cluster_name, var.instance_name, "visualinspection-main"])
       performance_mode = "{{EFS_VISUALINSPECTION_MAIN_PERFORMANCE_MODE}}"
@@ -261,13 +263,15 @@ locals {
       efs_mount_count = {{EFS_VISUALINSPECTION_MAIN_MOUNT_COUNT}}
     }
 {%- endif %}
-{%- if EFS_FACILITIES == "true" %}
+{%- if EFS_FACILITIES_DB2 == "true" %}
     facilities-db2 = {
       name = join("-", ["efs", var.cluster_name, var.instance_name, "facilities-db2"])
       performance_mode = "{{EFS_FACILITIES_DB2_PERFORMANCE_MODE}}"
       throughput_mode = "{{EFS_FACILITIES_DB2_THROUGHPUT_MODE}}"
       efs_mount_count = {{EFS_FACILITIES_DB2_MOUNT_COUNT}}
     }
+{%- endif %}
+{%- if EFS_FACILITIES_MAIN == "true" %}
     facilities-main = {
       name = join("-", ["efs", var.cluster_name, var.instance_name, "facilities-main"])
       performance_mode = "{{EFS_FACILITIES_MAIN_PERFORMANCE_MODE}}"
