@@ -1,0 +1,683 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>IBM Maximo Optimizer v9.0.19 - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../../../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../../../search/main.js"></script>
+    
+  <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../../../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/catalogs/packages/ibm-mas-optimizer/9.0.19.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="Guides">
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/image-mirroring/">
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../guides/facilities-external-db/">
+    MRE&amp;F External DB Setup
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Command Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/uninstall/">
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/must-gather/">
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/configure-airgap/">
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/mirror-redhat-images/">
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/setup-registry/">
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/teardown-registry/">
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/provision-fyre/">
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/provision-roks/">
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/provision-rosa/">
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../commands/configtool-oidc/">
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../../../">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-260129-amd64/">
+    Jan 29 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-251231-amd64/">
+    Dec 31 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-251127-amd64/">
+    Nov 27 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../v9-251030-amd64/">
+    Oct 30 2025
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../../../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+      Operator Catalog
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+      <cds-breadcrumb-link href="../../../">IBM Maximo Operator Catalog</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#ibm-maximo-optimizer-v9019">IBM Maximo Optimizer v9.0.19</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#release-notes">Release Notes</cds-select-item>
+    
+      <cds-select-item value="#install-modes">Install Modes</cds-select-item>
+    
+      <cds-select-item value="#service-accounts">Service Accounts</cds-select-item>
+    
+      <cds-select-item value="#cluster-permissions">Cluster Permissions</cds-select-item>
+    
+      <cds-select-item value="#namespace-permissions">Namespace Permissions</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="ibm-maximo-optimizer-v9019">IBM Maximo Optimizer v9.0.19<a class="headerlink" href="#ibm-maximo-optimizer-v9019" title="Permanent link">¶</a></h1>
+<h2 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">¶</a></h2>
+<h3 id="bug-fixes-and-security-updates">Bug Fixes and Security Updates<a class="headerlink" href="#bug-fixes-and-security-updates" title="Permanent link">¶</a></h3>
+<ul>
+<li>9.0.x MSO-2385 - CVE-2025-66221 fix (werkzeug-3.1.3-py3-none-any.whl &gt; mas-utils) (#367)</li>
+<li>9.0.x MSO-2396 - CVE-2025-66418 / CVE-2025-66471 fix (#372)</li>
+</ul>
+<h2 id="install-modes">Install Modes<a class="headerlink" href="#install-modes" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Mode</th>
+<th style="text-align: left;">Supported</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">OwnNamespace</td>
+<td style="text-align: left;">True</td>
+</tr>
+<tr>
+<td style="text-align: left;">SingleNamespace</td>
+<td style="text-align: left;">True</td>
+</tr>
+<tr>
+<td style="text-align: left;">MultiNamespace</td>
+<td style="text-align: left;">False</td>
+</tr>
+<tr>
+<td style="text-align: left;">AllNamespaces</td>
+<td style="text-align: left;">False</td>
+</tr>
+</tbody>
+</table>
+<h2 id="service-accounts">Service Accounts<a class="headerlink" href="#service-accounts" title="Permanent link">¶</a></h2>
+<ul>
+<li>ibm-mas-optimizer-appstatus-mgr</li>
+<li>ibm-mas-optimizer-common</li>
+<li>ibm-mas-optimizer-ws-operator</li>
+</ul>
+<h2 id="cluster-permissions">Cluster Permissions<a class="headerlink" href="#cluster-permissions" title="Permanent link">¶</a></h2>
+<p>No cluster permissions</p>
+<h2 id="namespace-permissions">Namespace Permissions<a class="headerlink" href="#namespace-permissions" title="Permanent link">¶</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Group</th>
+<th style="text-align: left;">Resource</th>
+<th style="text-align: left;">Verbs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">configmaps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">secrets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/exec</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">pods/log</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">services</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">events</td>
+<td style="text-align: left;">create, patch</td>
+</tr>
+<tr>
+<td style="text-align: left;">""</td>
+<td style="text-align: left;">serviceaccounts</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">deployments</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">daemonsets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">replicasets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps</td>
+<td style="text-align: left;">statefulsets</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">networking.k8s.io</td>
+<td style="text-align: left;">networkpolicies</td>
+<td style="text-align: left;">create, delete, get, list, patch, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">route.openshift.io</td>
+<td style="text-align: left;">routes/custom-host</td>
+<td style="text-align: left;">create, delete, deletecollection, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">cert-manager.io</td>
+<td style="text-align: left;">certificates</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">truststore-mgr.ibm.com</td>
+<td style="text-align: left;">truststores</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">truststore-mgr.ibm.com</td>
+<td style="text-align: left;">truststores/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">truststore-mgr.ibm.com</td>
+<td style="text-align: left;">truststores/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">monitoring.coreos.com</td>
+<td style="text-align: left;">servicemonitors</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">integreatly.org</td>
+<td style="text-align: left;">grafanadashboards</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">integreatly.org</td>
+<td style="text-align: left;">grafanadashboards/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">grafana.integreatly.org</td>
+<td style="text-align: left;">grafanadashboards</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">grafana.integreatly.org</td>
+<td style="text-align: left;">grafanadashboards/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">monitoringcontroller.cloud.ibm.com</td>
+<td style="text-align: left;">monitoringdashboards</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">monitoringcontroller.cloud.ibm.com</td>
+<td style="text-align: left;">monitoringdashboards/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">binding.operators.coreos.com</td>
+<td style="text-align: left;">servicebindings</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">roles</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">rbac.authorization.k8s.io</td>
+<td style="text-align: left;">rolebindings</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerapps</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerapps/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerapps/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerworkspaces</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerworkspaces/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerworkspaces/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerstatuscheckers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerstatuscheckers/status</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">apps.mas.ibm.com</td>
+<td style="text-align: left;">optimizerstatuscheckers/finalizers</td>
+<td style="text-align: left;">create, delete, get, list, patch, update, watch</td>
+</tr>
+<tr>
+<td style="text-align: left;">opentelemetry.io</td>
+<td style="text-align: left;">opentelemetrycollectors</td>
+<td style="text-align: left;">*</td>
+</tr>
+<tr>
+<td style="text-align: left;">opentelemetry.io</td>
+<td style="text-align: left;">instrumentations</td>
+<td style="text-align: left;">*</td>
+</tr>
+</tbody>
+</table>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#release-notes" class="md-toc__link" data-md-level="1">
+                  Release Notes
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#bug-fixes-and-security-updates" class="md-toc__link" data-md-level="2">
+                          Bug Fixes and Security Updates
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#install-modes" class="md-toc__link" data-md-level="1">
+                  Install Modes
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#service-accounts" class="md-toc__link" data-md-level="1">
+                  Service Accounts
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#cluster-permissions" class="md-toc__link" data-md-level="1">
+                  Cluster Permissions
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#namespace-permissions" class="md-toc__link" data-md-level="1">
+                  Namespace Permissions
+                </a>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>

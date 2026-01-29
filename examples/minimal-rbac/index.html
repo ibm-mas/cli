@@ -265,6 +265,12 @@
 
     
       
+  <cds-side-nav-menu-item href="../../catalogs/v9-260129-amd64/">
+    Jan 29 2026
+  </cds-side-nav-menu-item>
+
+    
+      
   <cds-side-nav-menu-item href="../../catalogs/v9-251231-amd64/">
     Dec 31 2025
   </cds-side-nav-menu-item>
@@ -279,12 +285,6 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-251030-amd64/">
     Oct 30 2025
-  </cds-side-nav-menu-item>
-
-    
-      
-  <cds-side-nav-menu-item href="../../catalogs/v9-251010-amd64/">
-    Oct 10 2025
   </cds-side-nav-menu-item>
 
     
@@ -395,9 +395,9 @@ echo $INSTALL_TOKEN
 oc login --token $INSTALL_TOKEN --server $SERVER
 
 # Install MAS (using IBMCloud storage classes)
-docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:18.9.1 bash -c "
+docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:19.0.0 bash -c "
   oc login --token $INSTALL_TOKEN --server=$SERVER &amp;&amp;
-  mas install --mas-catalog-version v9-251231-amd64 --ibm-entitlement-key $IBM_ENTITLEMENT_KEY \
+  mas install --mas-catalog-version v9-260129-amd64 --ibm-entitlement-key $IBM_ENTITLEMENT_KEY \
     --mas-channel 9.1.x --mas-instance-id ${MAS_INSTANCE_ID} --mas-workspace-id masdev --mas-workspace-name "My Workspace" \
     --storage-class-rwo "ibmc-block-gold" --storage-class-rwx "ibmc-file-gold-gid" \
     --storage-pipeline "ibmc-file-gold-gid" --storage-accessmode "ReadWriteMany" \
