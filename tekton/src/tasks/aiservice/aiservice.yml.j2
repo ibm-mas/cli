@@ -152,6 +152,10 @@ spec:
     - name: rsl_token
       type: string
 
+    # RHOAI flag
+    - name: rhoai
+      value: $(params.rhoai)
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}

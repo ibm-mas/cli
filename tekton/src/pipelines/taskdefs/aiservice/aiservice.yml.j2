@@ -87,6 +87,10 @@
     - name: environment_type
       value: $(params.environment_type)
 
+    # RHOAI flag
+    - name: rhoai
+      value: $(params.rhoai)
+
   taskRef:
     name: mas-devops-aiservice
     kind: Task
