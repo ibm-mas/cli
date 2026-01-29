@@ -49,7 +49,7 @@ spec:
     # Model deployment type
     - name: aiservice_rhoai_model_deployment_type
       type: string
-      description: Model deployment type for ODH
+      description: Model deployment type for RHOAI
       default: "raw"
 
   stepTemplate:
@@ -79,7 +79,7 @@ spec:
         value: $(params.custom_labels)
 
       # Model deployment type
-      - name: AISERVICE_ODH_MODEL_DEPLOYMENT_TYPE
+      - name: AISERVICE_RHOAI_MODEL_DEPLOYMENT_TYPE
         value: $(params.aiservice_rhoai_model_deployment_type)
 
   steps:

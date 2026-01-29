@@ -30,3 +30,6 @@
     - input: "$(params.aiservice_channel)"
       operator: notin
       values: [""]
+    - input: "$(params.rhoai)"
+      operator: in
+      values: ["true"]

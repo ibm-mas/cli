@@ -203,6 +203,8 @@ rhoaiArgGroup.add_argument(
     dest="rhoai",
     required=False,
     help="temporary flag to install Redhat Openshift AI instead of Opendatahub"
+    action="store_const",
+    const="true"
 )
 
 # S3 - General
