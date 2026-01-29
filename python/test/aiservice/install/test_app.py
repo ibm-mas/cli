@@ -105,7 +105,6 @@ def test_install_noninteractive(tmpdir):
                              '--rsl-org-id', 'testOrgId',
                              '--rsl-token', 'testRslToken',
                              '--rsl-ca-crt', 'testRslCaCert',
-                             '--rhoai', 'false',
                              '--accept-license', '--no-confirm',
                              '--skip-pre-check'])
 
