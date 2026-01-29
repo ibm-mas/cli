@@ -152,6 +152,7 @@
         - suite-uninstall
         - suite-upgrade
         - suite-verify
+        - upload-backup-archive
 
     # 7. Generate Tasks (OCP)
     # -------------------------------------------------------------------------
