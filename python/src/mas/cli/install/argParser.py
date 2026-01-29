@@ -1470,7 +1470,7 @@ otherArgGroup.add_argument(
     action="store_true",
     default=False,
     help="Don't show advanced install options (in interactive mode)"
-
+)
 otherArgGroup.add_argument(
     "--slack-token",
     required=False,
