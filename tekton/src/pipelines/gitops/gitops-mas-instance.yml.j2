@@ -904,7 +904,7 @@ spec:
 
     # 3. Deprovision app config
     # -------------------------------------------------------------------------
-    - name: gitops-deprovision-app-config
+    - name: gitops-deprovision-maf-app-config
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
@@ -920,7 +920,7 @@ spec:
       when:
         - input: "$(params.maf_enabled)"
           operator: in
-          values: ["false"]
+          values: ["", "false"]
       workspaces:
         - name: configs
           workspace: configs
