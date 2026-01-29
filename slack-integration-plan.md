@@ -80,8 +80,8 @@ metadata:
   name: slack-thread-{pipelinerun-name}
   namespace: {pipeline-namespace}
 data:
-  threadId: "1234567890.123456"
-  channel: "C01234567"
+  threadId: ""
+  channel: ""
   pipelineName: "mas-install"
   startTime: "2026-01-27T19:00:00Z"
 ```
