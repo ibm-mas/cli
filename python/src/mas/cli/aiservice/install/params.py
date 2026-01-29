@@ -100,6 +100,4 @@ optionalParams = [
 
     # Certificate Issuer
     "aiservice_certificate_issuer",
-    "aiservice_certificate_duration",
-    "aiservice_certificate_renew_before",
 ]
