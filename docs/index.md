@@ -61,4 +61,4 @@ Not all functions supported in the container image are available in the standalo
 | [provision-roks](commands/provision-roks.md)               | &#10003; | &#10005; |
 | [provision-rosa](commands/provision-rosa.md)               | &#10003; | &#10005; |
 | [configtool-oidc](commands/configtool-oidc.md)             | &#10003; | &#10005; |
-| [facilities-external-db](guides/facilities-external-db.md) | &#10003; | &#10005; |
+<!-- | [facilities-external-db](guides/facilities-external-db.md) | &#10003; | &#10005; | -->
