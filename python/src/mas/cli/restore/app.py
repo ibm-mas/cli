@@ -10,24 +10,17 @@
 # *****************************************************************************
 
 import logging
-import logging.handlers
-from datetime import datetime
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
-from prompt_toolkit.completion import WordCompleter
-
-from openshift.dynamic.exceptions import ResourceNotFoundError
 
 from ..cli import BaseApp
 from ..validators import InstanceIDFormatValidator
 from .argParser import restoreArgParser
 from mas.devops.ocp import createNamespace, getConsoleURL
-from mas.devops.mas import listMasInstances, getDefaultStorageClasses
+from mas.devops.mas import getDefaultStorageClasses
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchRestorePipeline
 
-
 logger = logging.getLogger(__name__)
-
 
 class RestoreApp(BaseApp):
 
@@ -117,7 +110,7 @@ class RestoreApp(BaseApp):
             # Prompt for backup storage size if not provided
             if self.args.backup_storage_size is None:
                 self.promptForBackupStorageSize()
-            
+
             if self.args.include_dro and (self.args.dro_contact_email is None or self.args.dro_contact_firstname is None or self.args.dro_contact_lastname is None or self.args.ibm_entitlement_key is None):
                 self.promptForDROConfiguration()
 
@@ -238,7 +231,7 @@ class RestoreApp(BaseApp):
             self.setParam("include_dro", "true")
         if not self.getParam("backup_storage_size"):
             self.setParam("backup_storage_size", "20Gi")
-    
+
     def promptForDROConfiguration(self) -> None:
         """Prompt user for IBM Data Reporting Operator configuration"""
         self.printH1("IBM Data Reporting Operator configuration Configuration")
@@ -247,8 +240,6 @@ class RestoreApp(BaseApp):
         self.promptForString("Contact first name", "dro_contact_firstname")
         self.promptForString("Contact last name", "dro_contact_lastname")
         self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
-
-
 
     def promptForDownloadConfiguration(self) -> None:
         """Prompt user for backup download configuration"""
