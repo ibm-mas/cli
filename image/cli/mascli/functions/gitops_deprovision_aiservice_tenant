@@ -213,34 +213,10 @@ function gitops_deprovision_aiservice_tenant() {
   sm_login
 
   SECRETS_PREFIX="${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}"
+  export SECRET_SLS_AUTH="${SECRETS_PREFIX}${AISERVICE_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}${AISERVICE_TENANT_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}sls"
 
-  export SECRET_IBM_ENTITLEMENT_AUTH=${SECRETS_PREFIX}ibm_entitlement
-  export SECRET_DRO_AUTH=${SECRETS_PREFIX}droai
-  export SECRET_SLS_AUTH=${SECRETS_PREFIX}sls
-  export SECRET_WATSONX_AUTH=${SECRETS_PREFIX}watsonx
-  export SECRET_RSL_AUTH=${SECRETS_PREFIX}rsl
-  export SECRET_S3_AUTH=${SECRETS_PREFIX}s3
-
-
-  # deleting secrets from aws
-   echo -e "Deleting ibm_entitlement secrets $SECRET_IBM_ENTITLEMENT_AUTH"
-   sm_delete_secret $SECRET_IBM_ENTITLEMENT_AUTH
-
-   echo -e "Deleting dro secrets $SECRET_DRO_AUTH"
-   sm_delete_secret $SECRET_DRO_AUTH
-
-   echo -e "Deleting sls secrets $SECRET_SLS_AUTH"
-   sm_delete_secret $SECRET_SLS_AUTH
-
-   echo -e "Deleting watsonx secrets $SECRET_WATSONX_AUTH"
-   sm_delete_secret $SECRET_WATSONX_AUTH
-
-   echo -e "Deleting rsl secrets $SECRET_RSL_AUTH"
-   sm_delete_secret $SECRET_RSL_AUTH
-
-   echo -e "Deleting storage secrets $SECRET_S3_AUTH"
-   sm_delete_secret $SECRET_S3_AUTH
-
+  echo -e "Deleting sls secrets $SECRET_SLS_AUTH"
+  sm_delete_secret $SECRET_SLS_AUTH
 
   # finally push them into the git repo
 
