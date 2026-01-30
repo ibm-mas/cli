@@ -1687,6 +1687,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
 
+        if hasattr(args, 'mas_configure_ingress') and args.mas_configure_ingress:
+            self.setParam("mas_configure_ingress", "true")
+
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
             # Connect to the target cluster
@@ -1737,11 +1740,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "",
             self.buildCommand()
         ])
-
-        # Based on the parameters set the annotations correctly
-        self.configAnnotations()
-
-        self.displayInstallSummary()
 
         # Validate IngressController configuration for path-based routing
         if self.getParam("mas_routing_mode") == "path":
@@ -1821,6 +1819,11 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             else:
                 logger.info(f"IngressController '{ingressControllerName}' is already configured for path-based routing")
 
+        # Based on the parameters set the annotations correctly
+        self.configAnnotations()
+
+        self.displayInstallSummary()
+        
         if not self.noConfirm:
             print()
             self.printDescription([
