@@ -43,7 +43,7 @@ restoreArgGroup = restoreArgParser.add_argument_group(
 )
 restoreArgGroup.add_argument(
     '--restore-version',
-    required=True,
+    required=False,
     help="Version/timestamp used in backup. Example: YYYYMMDD-HHMMSS"
 )
 restoreArgGroup.add_argument(
