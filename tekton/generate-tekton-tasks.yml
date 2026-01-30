@@ -263,4 +263,5 @@
         - gitops-iac-provision-efs
         - gitops-iac-provision-s3
         - gitops-iac-provision-msk
+        - gitops-rds-db2-database
 
