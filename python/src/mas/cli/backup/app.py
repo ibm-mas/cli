@@ -14,10 +14,12 @@ import logging.handlers
 from datetime import datetime
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
+from prompt_toolkit.completion import WordCompleter
 
 from openshift.dynamic.exceptions import ResourceNotFoundError
 
 from ..cli import BaseApp
+from ..validators import InstanceIDValidator
 from .argParser import backupArgParser
 from mas.devops.ocp import createNamespace, getConsoleURL
 from mas.devops.mas import listMasInstances, getDefaultStorageClasses
@@ -226,8 +228,16 @@ class BackupApp(BaseApp):
                 self.setParam("mas_instance_id", instanceId)
                 self.printDescription([f"Using MAS instance: <u>{instanceId}</u>"])
             else:
-                instanceOptions = [instance['metadata']['name'] for instance in instances]
-                self.promptForListSelect("Select MAS instance to backup", instanceOptions, "mas_instance_id", default=1)
+                instanceOptions = []
+                for instance in instances:
+                    self.printDescription([f"- <u>{instance['metadata']['name']}</u> v{instance['status']['versions']['reconciled']}"])
+                    instanceOptions.append(instance['metadata']['name'])
+
+                instanceCompleter = WordCompleter(instanceOptions)
+                print()
+                instanceId = self.promptForString("MAS instance ID", completer=instanceCompleter, validator=InstanceIDValidator())
+                self.setParam("mas_instance_id", instanceId)
+
         except ResourceNotFoundError:
             self.fatalError("Unable to list MAS instances")
 
