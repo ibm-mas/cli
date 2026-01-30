@@ -251,7 +251,7 @@ class RestoreApp(BaseApp):
         self.printH1("Backup Download Configuration")
 
         # Ask if user wants to download the backup
-        downloadBackup = self.yesOrNo("Do you want to download the backup archive before restore.")
+        downloadBackup = self.yesOrNo("Do you want to download the backup archive before restore")
 
         if downloadBackup:
             self.setParam("download_backup", "true")

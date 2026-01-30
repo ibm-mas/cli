@@ -8,7 +8,7 @@ spec:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
 
     # Backup specific parameters
-    - name: backup_version
+    - name: restore_version
       type: string
       description: Version/timestamp for the backup
       default: ""
@@ -61,7 +61,7 @@ spec:
       - name: MAS_RESTORE_DIR
         value: /workspace/backups
       - name: BACKUP_VERSION
-        value: $(params.backup_version)
+        value: $(params.restore_version)
       - name: BACKUP_ARCHIVE_NAME
         value: $(params.backup_archive_name)
 
