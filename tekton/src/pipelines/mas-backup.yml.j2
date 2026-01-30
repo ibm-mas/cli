@@ -113,7 +113,7 @@ spec:
         - name: backups
           workspace: shared-backups
       runAfter:
-        - ibm-catalogs
+        - pre-backup-check
 
     # 5. Backup MongoDB
     # -------------------------------------------------------------------------
@@ -151,7 +151,7 @@ spec:
         - name: backups
           workspace: shared-backups
       runAfter:
-        - cert-manager
+        - pre-backup-check
 
     # 6. Backup SLS
     # -------------------------------------------------------------------------
@@ -190,7 +190,7 @@ spec:
         - name: backups
           workspace: shared-backups
       runAfter:
-        - mongodb
+        - pre-backup-check
 
     # 7. Backup MAS Suite
     # -------------------------------------------------------------------------
@@ -219,6 +219,9 @@ spec:
         - name: backups
           workspace: shared-backups
       runAfter:
+        - ibm-catalogs
+        - cert-manager
+        - mongodb
         - sls
 
     # 8. Upload Backup Archive (Optional)
