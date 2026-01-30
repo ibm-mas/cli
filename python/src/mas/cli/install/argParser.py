@@ -984,7 +984,7 @@ aiServiceTenantArgGroup.add_argument(
 aiServiceArgGroup = installArgParser.add_argument_group(
     "Maximo AI Service",
     "Maximo AI Service configuration such as certificate Issuer, environment type"
-    )
+)
 aiServiceArgGroup.add_argument(
     "--environment-type",
     dest="environment_type",

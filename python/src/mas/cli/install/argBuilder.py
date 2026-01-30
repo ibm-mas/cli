@@ -315,7 +315,7 @@ class installArgBuilderMixin():
 
             # Certificate Issuer for AI Service
             if self.getParam('aiservice_certificate_issuer') != "":
-                command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"    
+                command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
 
             if self.getParam('aiservice_s3_accesskey') != "" and self.getParam('minio_root_user') == "":
                 command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"

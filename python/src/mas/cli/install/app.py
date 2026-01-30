@@ -1025,7 +1025,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("Storage bucket prefix", "aiservice_s3_bucket_prefix", validator=BucketPrefixValidator())
                 self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
                 self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
-            
+
             # Configure Certificate Issuer
             self.configAIServiceCertIssuer()
 
