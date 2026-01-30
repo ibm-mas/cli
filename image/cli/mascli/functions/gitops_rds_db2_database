@@ -276,42 +276,59 @@ function gitops_rds_db2_database() {
   export JDBC_CONNECTION_URL_ADDITIONAL_PARAMS=${JDBC_CONNECTION_URL_ADDITIONAL_PARAMS}
 
 
-  # Generate ArgoApps
-  # ---------------------------------------------------------------------------
-  echo
-  echo_h2 "Generating RDS DB2 Database configuration"
-  echo
-
   # Clone github target repo
-  # ---------------------------------------------------------------------------
-  if [ "$GITHUB_PUSH" == "true" ]; then
+    # ---------------------------------------------------------------------------
+    if [ "$GITHUB_PUSH" == "true" ]; then
+      # only create the lock branch if we plan to actually push changes to git
+      clone_and_lock_target_git_repo  "${GITHUB_HOST}" "${GITHUB_ORG}" "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_SSH}" "${GIT_LOCK_BRANCH}"
+    fi
+    mkdir -p ${GITOPS_INSTANCE_DIR}
+  
+    # Generate ArgoApps
+    # ---------------------------------------------------------------------------
     echo
-    echo_h2 "Cloning GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    clone_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH $GITOPS_WORKING_DIR $GIT_SSH
-  fi
-  mkdir -p ${GITOPS_INSTANCE_DIR}
-
-
-  # Generate ArgoApps
-  # ---------------------------------------------------------------------------
-  echo
-  echo_h2 "Generating RDS DB2 Database configuration"
-  echo
-
-  export IBM_ENTITLEMENT_KEY=$SECRET_KEY_IBM_ENTITLEMENT
-
-  echo "Generating DB2U file ${GITOPS_INSTANCE_DIR}/ibm-rds-db2-database.yaml"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-rds-db2-database.yaml.j2 ${GITOPS_INSTANCE_DIR}/ibm-rds-db2-database.yaml
-
-  # Commit and push to github target repo
-  # ---------------------------------------------------------------------------
-  if [ "$GITHUB_PUSH" == "true" ]; then
+    echo_h2 "Generating DB2U Database Configuraton"
     echo
-    echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
-    save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
-    remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
-  fi
-
-  rm -rf $TEMP_DIR
+  
+    # If the file doesn't exist, create a blank one
+    if ! [ -f ${CONFIGS_FILE} ]; then
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-dbs-rds-database-common.yaml.j2 $CONFIGS_FILE
+    fi
+  
+    # Remove any existing config with this name
+    yq 'del(.ibm_db2u_databases[] | select(.db2_instance_name == "'${DB2_INSTANCE_NAME}'"))' $CONFIGS_FILE > $TEMP_DIR/configs.yaml
+  
+    # Create new file
+    echo -n "" > ${TEMP_DIR}/newconfig.yaml
+    # Render the appropriate template for the config into a new file. For standby database, it will be generated only if it is a replica task and replica is enabled.
+    if [[ (${IS_REPLICA_TASK} == 'false') || (${IS_REPLICA_TASK} == 'true' && ${REPLICA_DB} == 'true') ]]; then
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-dbs-rds-database.yaml.j2 | yq '{"ibm_dbs_rds_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+    fi
+  
+    # Merge the two files
+    yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
+  
+    # sort the configs by db2_instance_name.
+    # This way, we maintain the same ordering of configs in the file (even though we may have deleted and recreated a config if it's an update)
+    # This eliminates confusing commits to gitops-envs and allows us to determine if anything has actually changed
+    yq -i '.ibm_db2u_databases |= sort_by(.db2_instance_name)' $CONFIGS_FILE
+  
+    echo_h2 "Updated configuration file (${CONFIGS_FILE})"
+    if [ -f ${CONFIGS_FILE} ]; then
+      cat $CONFIGS_FILE
+    else
+      echo "<file was deleted>"
+    fi
+  
+    # Commit and push to github target repo
+    # ---------------------------------------------------------------------------
+    if [ "$GITHUB_PUSH" == "true" ]; then
+      echo
+      echo_h2 "Commit and push changes to GitHub repo $GITHUB_ORG $GITHUB_REPO"
+      save_and_unlock_target_git_repo "${GITHUB_REPO}" "${GIT_BRANCH}" "${GITOPS_WORKING_DIR}" "${GIT_COMMIT_MSG}" "${GIT_LOCK_BRANCH}" DB2_CONFIG_CHANGED
+      remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
+    fi
+  
+    rm -rf $TEMP_DIR
 
 }
