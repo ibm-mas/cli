@@ -7,7 +7,9 @@ rds_admin_db_name: <path:{{ SECRETS_PATH }}:{{ RDS_ADMIN_DB_NAME }}>
 user: <path:{{ SECRETS_PATH }}:{{ USER_NAME }}>
 password: <path:{{ SECRETS_PATH }}:{{ PASSWORD }}> # pragma: allowlist secret
 jdbc_connection_url: <path:{{ SECRETS_PATH }}:{{ JDBC_CONNECTION_URL }}>
+{%- if JDBC_CONNECTION_URL_ADDITIONAL_PARAMS is defined and JDBC_CONNECTION_URL_ADDITIONAL_PARAMS !='' %}
 jdbc_connection_url_additional_params: {{ JDBC_CONNECTION_URL_ADDITIONAL_PARAMS }}
+{%- endif %}
 jdbc_route: {{ JDBC_ROUTE }}
 replica_db: {{ REPLICA_DB }}
 db2_instance_registry:
