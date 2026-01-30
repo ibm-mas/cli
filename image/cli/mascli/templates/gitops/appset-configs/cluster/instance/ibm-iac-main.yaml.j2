@@ -200,8 +200,9 @@ locals {
     }
     #RDS IOT specific S3 bucket end
    {%- endif %}
-    }
    {%- endif %}
+    }
+
    {%- endif %}
   {%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true') %}
     name = var.cluster_name
