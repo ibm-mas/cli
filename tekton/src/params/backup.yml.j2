@@ -152,6 +152,21 @@
   default: ""
   description: Required for DRO installation during restore
 
+- name: dro_namespace
+  type: string
+  default: "redhat-marketplace"
+  description: Required for DRO installation during restore
+
+- name: dro_storage_class
+  type: string
+  default: ""
+  description: Required for DRO installation during restore
+
+- name: ibm_entitlement_key
+  type: string
+  default: ""
+  description: Required for DRO installation during restore
+
 # Restore-specific Configuration
 # -----------------------------------------------------------------------------
 - name: mas_domain_on_restore
@@ -164,10 +179,20 @@
   default: ""
   description: SLS URL when restoring with external SLS
 
+- name: sls_cfg_file
+  type: string
+  default: ""
+  description: SLS cfg file when restoring with external SLS
+
 - name: dro_url_on_restore
   type: string
   default: ""
   description: DRO URL when restoring with external DRO
+
+- name: dro_cfg_file
+  type: string
+  default: ""
+  description: DRO cfg file when restoring with external DRO
 
 - name: mas_config_dir
   type: string

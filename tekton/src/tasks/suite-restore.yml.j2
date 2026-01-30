@@ -16,11 +16,11 @@ spec:
       type: string
       description: Directory to store backup files
       default: ""
-    - name: restore_version
+    - name: suite_backup_version
       type: string
       description: Version/timestamp for the backup
       default: ""
-    - name: mas_domain
+    - name: mas_domain_on_restore
       type: string
       description: The domain to use for the MAS Suite instance
       default: "NO_OVERRIDE" # Default value is used to indicate that the domain should not be overridden
@@ -29,7 +29,7 @@ spec:
       type: string
       description: Whether to include SLS from backup
       default: "true"
-    - name: sls_url
+    - name: sls_url_on_restore
       type: string
       default: ""
       description: SLS URL when restoring with external SLS
@@ -42,10 +42,10 @@ spec:
       type: string
       description: Whether to include SLS from backup
       default: "true"
-    - name: bas_url
+    - name: dro_url_on_restore
       type: string
       default: ""
-      description: BAS URL when restoring with external BAS
+      description: BAS/DRO URL when restoring with external BAS
     - name: dro_cfg_file
       type: string
       default: ""
@@ -64,27 +64,27 @@ spec:
       - name: MAS_BACKUP_DIR
         value: /workspace/backups
       - name: SUITE_BACKUP_VERSION
-        value: $(params.restore_version)
+        value: $(params.suite_backup_version)
       - name: MAS_DOMAIN
-        value: $(params.mas_domain)
+        value: $(params.mas_domain_on_restore)
       - name: INCLUDE_SLS_FROM_BACKUP
         value: $(params.include_sls_from_backup)
       - name: SLS_URL
-        value: $(params.sls_url)
+        value: $(params.sls_url_on_restore)
       - name: SLS_CFG_FILE
         value: $(params.sls_cfg_file)
       - name: INCLUDE_DRO_FROM_BACKUP
         value: $(params.include_dro_from_backup)
       - name: BAS_URL
-        value: $(params.bas_url)
+        value: $(params.dro_url_on_restore)
       - name: DRO_CFG_FILE
         value: $(params.dro_cfg_file)
 
   steps:
-    - name: suite-backup
+    - name: suite-restore
       command:
         - /opt/app-root/src/run-role.sh
-        - suite_backup
+        - suite_restore
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs

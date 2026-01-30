@@ -213,7 +213,7 @@ otherArgGroup.add_argument(
     required=False,
     action="store_true",
     default=False,
-    help="Configure backup for development mode"
+    help="Configure restore in development mode"
 )
 otherArgGroup.add_argument(
     '--no-confirm',
