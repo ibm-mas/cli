@@ -142,6 +142,7 @@
         - suite-app-upgrade
         - suite-app-rollback
         - suite-backup
+        - suite-restore
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage
@@ -153,6 +154,7 @@
         - suite-upgrade
         - suite-verify
         - upload-backup-archive
+        - download-backup-archive
 
     # 7. Generate Tasks (OCP)
     # -------------------------------------------------------------------------
