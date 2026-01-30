@@ -253,7 +253,7 @@ class UpdateApp(BaseApp):
         ])
 
         catalogOptions = [
-             "v9-260205-amd64", "v9-260129-amd64", "v9-251231-amd64",
+              "v9-260205-amd64", "v9-260129-amd64", "v9-251231-amd64",
         ]
         self.promptForListSelect("Select catalog version", catalogOptions, "mas_catalog_version", default=1)
 
