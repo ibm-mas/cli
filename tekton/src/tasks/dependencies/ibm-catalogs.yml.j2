@@ -31,7 +31,7 @@ spec:
       default: ""
 
     # Backup/Restore specific parameters
-    - name: backup_version
+    - name: ibm_catalogs_backup_version
       type: string
       description: Optional. Version/timestamp for the backup
       default: ""
@@ -58,8 +58,8 @@ spec:
       # Backup/Restore specific
       - name: MAS_BACKUP_DIR
         value: /workspace/backups
-      - name: IBMCATALOGS_BACKUP_VERSION
-        value: $(params.backup_version)
+      - name: IBM_CATALOGS_BACKUP_VERSION
+        value: $(params.ibm_catalogs_backup_version)
 
   steps:
     - name: ibm-catalogs
