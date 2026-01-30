@@ -21,8 +21,13 @@ IBM Maximo Application Suite:
       --mas-app-id ${COLOR_YELLOW}MAS_APP_ID${TEXT_RESET}                 IBM Suite Maximo Application Suite App that will use this db2u instance      
 
 IBM RDS DB2:
+      --db2-instance-registry-yaml ${COLOR_YELLOW}DB2_INSTANCE_REGISTRY_YAML${TEXT_RESET}                     Yaml file containing the rds db2 cluster instance registry section.
+      --db2-instance-dbm-config-yaml ${COLOR_YELLOW}DB2_INSTANCE_DBM_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the rds db2 cluster instance dbm config section.
+      --db2-database-db-config-yaml ${COLOR_YELLOW}DB2_DATABASE_DB_CONFIG_YAML${TEXT_RESET}                   Yaml file containing the rds db2 cluster database db config section.
+      --db2-addons-audit-config-yaml ${COLOR_YELLOW}DB2_ADDONS_AUDIT_CONFIG_YAML${TEXT_RESET}                 Yaml file containing the rds db2 cluster addons audit config section.
+      --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
       --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
-      --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                    Flag to know that this is ReplicaDB instance
+      --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                       Flag to know that this is ReplicaDB instance
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -79,6 +84,20 @@ function gitops_rds_db2_database_noninteractive() {
         export CLUSTER_URL=$1 && shift
         ;;
 
+      # RDS Config yaml files
+      --db2-instance-registry-yaml)
+        export DB2_INSTANCE_REGISTRY_YAML=$1 && shift
+        ;;
+      --db2-instance-dbm-config-yaml)
+        export DB2_INSTANCE_DBM_CONFIG_YAML=$1 && shift
+        ;;
+      --db2-addons-audit-config-yaml)
+        export DB2_ADDONS_AUDIT_CONFIG_YAML=$1 && shift
+        ;;
+      --db2-database-db-config-yaml)
+        export DB2_DATABASE_DB_CONFIG_YAML=$1 && shift
+        ;;
+
       # MAS
       -m|--mas-instance-id)
         export MAS_INSTANCE_ID=$1 && shift
@@ -105,7 +124,9 @@ function gitops_rds_db2_database_noninteractive() {
       --replica-db)
         export REPLICA_DB=$1 && shift
         ;;
-
+      --jdbc-route)
+        export JDBC_ROUTE=$1 && shift
+        ;;
       # Automatic GitHub Push
       -P|--github-push)
         export GITHUB_PUSH=true
@@ -200,6 +221,7 @@ function gitops_rds_db2_database() {
     export DB2_INSTANCE_NAME=rds-${MAS_INSTANCE_ID}-${MAS_APP_ID}
   fi
   export DB2_NAMESPACE="rds-${MAS_INSTANCE_ID}"
+  export JDBC_ROUTE=${JDBC_ROUTE:-"default"}
 
   if [ -z $GIT_SSH ]; then
     export GIT_SSH="false"
@@ -251,10 +273,41 @@ function gitops_rds_db2_database() {
   echo_reset_dim "db2-instance-name ............................. ${COLOR_MAGENTA}${DB2_INSTANCE_NAME}"
   echo_reset_dim "mas-app-id  ................................... ${COLOR_MAGENTA}${MAS_APP_ID}"
   echo_reset_dim "replica-db .................................... ${COLOR_MAGENTA}${REPLICA_DB}"
+  echo_reset_dim "JDBC_ROUTE .................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
+  echo_reset_dim "db2-instance-registry-yaml .................... ${COLOR_MAGENTA}${DB2_INSTANCE_REGISTRY_YAML}"
+  echo_reset_dim "db2-instance-dbm-config-yaml .................. ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
+  echo_reset_dim "db2-database-db-config-yaml ................... ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
+  echo_reset_dim "db2-addons-audit-config-yaml .................. ${COLOR_MAGENTA}${DB2_ADDONS_AUDIT_CONFIG_YAML}"
   reset_colors
 
   AVP_TYPE=aws  # Support for IBM will be added later
   sm_login
+
+  TEMP_DIR=$GITOPS_WORKING_DIR/tmp-db2u-database
+  mkdir -p $TEMP_DIR
+
+  # Getting provided db2cluster configs
+  # ---------------------------------------------------------------------------
+  if [[ -n "$DB2_DATABASE_DB_CONFIG_YAML" ]]; then
+    echo
+    echo_h2 "Using db2 database db config provided for $MAS_APP_ID at $DB2_DATABASE_DB_CONFIG_YAML"
+    export DB2_DATABASE_DB_CONFIG=$(cat ${DB2_DATABASE_DB_CONFIG_YAML})
+  fi
+  if [[ -n "$DB2_INSTANCE_DBM_CONFIG_YAML" ]]; then
+    echo
+    echo_h2 "Using db2 instance dm config provided for $MAS_APP_ID at $DB2_INSTANCE_DBM_CONFIG_YAML"
+    export DB2_INSTANCE_DBM_CONFIG=$(cat ${DB2_INSTANCE_DBM_CONFIG_YAML})
+  fi
+  if [[ -n "$DB2_ADDONS_AUDIT_CONFIG_YAML" ]]; then
+    echo
+    echo_h2 "Using db2 addons audit config provided for $MAS_APP_ID at $DB2_ADDONS_AUDIT_CONFIG_YAML"
+    export DB2_ADDONS_AUDIT_CONFIG=$(cat ${DB2_ADDONS_AUDIT_CONFIG_YAML})
+  fi
+  if [[ -n "$DB2_INSTANCE_REGISTRY_YAML" ]]; then
+    echo
+    echo_h2 "Using db2 instance registry config provided for $MAS_APP_ID at $DB2_INSTANCE_REGISTRY_YAML"
+    export DB2_INSTANCE_REGISTRY=$(cat ${DB2_INSTANCE_REGISTRY_YAML})
+  fi
 
   #secret prefix creation
   CONFIG_SECRETS_PREFIX=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}${MAS_INSTANCE_ID}${SECRETS_KEY_SEPERATOR}jdbc${SECRETS_KEY_SEPERATOR}${DB2_INSTANCE_NAME}${SECRETS_KEY_SEPERATOR}config
