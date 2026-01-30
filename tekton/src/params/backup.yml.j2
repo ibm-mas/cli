@@ -41,6 +41,11 @@
   description: Whether to download the backup archive (true/false)
   default: "false"
 
+- name: backup_archive_name
+  type: string
+  description: Custom backup archive name including tar.gz to download from S3 or Artifactory
+  default: ""
+
 # S3 Upload Configuration
 # -----------------------------------------------------------------------------
 - name: aws_access_key_id
@@ -79,7 +84,7 @@
 # -----------------------------------------------------------------------------
 - name: include_grafana
   type: string
-  description: Set to false to skip Grafana backup/restore
+  description: Set to false to skip Grafana install
   default: "true"
 
 - name: include_sls
@@ -89,7 +94,7 @@
 
 - name: include_dro
   type: string
-  description: Set to false to skip DRO backup/restore (if DRO is external)
+  description: Set to false to skip DRO install (if DRO is external)
   default: "true"
 
 # MongoDB Configuration

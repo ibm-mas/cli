@@ -93,6 +93,12 @@ downloadArgGroup.add_argument(
     required=False,
     help="Artifactory repository for backup download"
 )
+downloadArgGroup.add_argument(
+    '--custom-backup-archive-name',
+    required=False,
+    dest="backup_archive_name",
+    help="Custom backup archive name to download from S3 or Artifactory"
+)
 
 componentsArgGroup = restoreArgParser.add_argument_group(
     'Components',

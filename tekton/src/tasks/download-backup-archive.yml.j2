@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-devops-upload-backup-archive
+  name: mas-devops-download-backup-archive
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
@@ -17,40 +17,40 @@ spec:
       description: name of the backup archive including `.tar.gz` extension.
       default: ""
 
-    # S3 Upload parameters
+    # S3 download parameters
     - name: aws_access_key_id
       type: string
-      description: AWS Access Key ID for S3 upload
+      description: AWS Access Key ID for S3 download
       default: ""
     - name: aws_secret_access_key
       type: string
-      description: AWS Secret Access Key for S3 upload
+      description: AWS Secret Access Key for S3 download
       default: ""
     - name: s3_bucket_name
       type: string
-      description: S3 bucket name for backup upload
+      description: S3 bucket name for backup download
       default: ""
     - name: s3_region
       type: string
       description: AWS region for S3 bucket
       default: ""
 
-    # Artifactory Upload parameters
+    # Artifactory download parameters
     - name: artifactory_username
       type: string
-      description: Artifactory username for backup upload
+      description: Artifactory username for backup download
       default: ""
     - name: artifactory_token
       type: string
-      description: Artifactory token for backup upload
+      description: Artifactory token for backup download
       default: ""
     - name: artifactory_url
       type: string
-      description: Artifactory URL for backup upload
+      description: Artifactory URL for backup download
       default: ""
     - name: artifactory_repository
       type: string
-      description: Artifactory repository for backup upload
+      description: Artifactory repository for backup download
       default: ""
 
   stepTemplate:

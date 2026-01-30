@@ -142,7 +142,7 @@
         - suite-app-upgrade
         - suite-app-rollback
         - suite-backup
-        #- suite-restore
+        - suite-restore
         - suite-certs
         - suite-config
         - suite-db2-setup-for-manage

@@ -1,0 +1,390 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: mas-restore
+spec:
+  workspaces:
+    # The generated configuration files
+    - name: shared-configs
+    # The backup storage
+    - name: shared-backups
+
+  params:
+    # 1. Common Parameters
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/common.yml.j2') | indent(4) }}
+
+    # 2. Backup/Restore Configuration
+    # -------------------------------------------------------------------------
+    {{ lookup('template', params_src_dir ~ '/backup.yml.j2') | indent(4) }}
+
+  tasks:
+    # Content
+    # -------
+    # 1. Pipeline Start
+    # 2. Pre-restore Verification
+    # 3. Download backup archive (if required)
+    # 4. Restore IBM Catalogs
+    # 5. Restore Certificate Manager
+    # 6. Install Grafana (if required)
+    # 7. Restore MongoDB
+    # 8. Restore SLS (if required)
+    # 9. Install DRO (if required)
+    # 10. Restore MAS Suite
+
+    # 1. Pipeline Start
+    # -------------------------------------------------------------------------
+    - name: pipeline-start
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          value: Started
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)
+
+    # 2. Pre-restore Verification
+    # -------------------------------------------------------------------------
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/cluster-setup/ocp-verify.yml.j2', template_vars={'name': 'pre-restore-check', 'devops_suite_name': 'pre-restore-check'}) | indent(4) }}
+      runAfter:
+        - pipeline-start
+
+    # 3. Download backup archive (if required)
+    # -------------------------------------------------------------------------
+    - name: download-backup-archive
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: devops_suite_name
+          value: download-backup-archive
+        - name: backup_version
+          value: $(params.restore_version)
+        - name: backup_archive_name
+          value: $(params.backup_archive_name)
+
+        # S3 parameters
+        - name: aws_access_key_id
+          value: $(params.aws_access_key_id)
+        - name: aws_secret_access_key
+          value: $(params.aws_secret_access_key)
+        - name: s3_bucket_name
+          value: $(params.s3_bucket_name)
+        - name: s3_region
+          value: $(params.s3_region)
+
+        # Artifactory parameters
+        - name: artifactory_username
+          value: $(params.artifactory_username)
+        - name: artifactory_token
+          value: $(params.artifactory_token)
+        - name: artifactory_url
+          value: $(params.artifactory_url)
+        - name: artifactory_repository
+          value: $(params.artifactory_repository)
+
+      when:
+        - input: "$(params.download_backup)"
+          operator: in
+          values: ["true", "True"]
+
+      taskRef:
+        kind: Task
+        name: mas-devops-download-backup-archive
+      workspaces:
+        - name: backups
+          workspace: shared-backups
+      runAfter:
+        - pre-restore-check
+
+    # 4. Restore IBM Catalogs
+    # -------------------------------------------------------------------------
+    - name: ibm-catalogs
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: devops_suite_name
+          value: restore-ibm-catalogs
+
+        - name: ibm_catalogs_backup_version
+          value: $(params.restore_version)
+        - name: ibm_catalogs_action
+          value: restore
+
+      taskRef:
+        kind: Task
+        name: mas-devops-ibm-catalogs
+      workspaces:
+        - name: backups
+          workspace: shared-backups
+      runAfter:
+        - download-backup-archive
+
+    # 5. Restore Certificate Manager
+    # -------------------------------------------------------------------------
+    - name: cert-manager
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: devops_suite_name
+          value: restore-cert-manager
+
+        - name: certmanager_backup_version
+          value: $(params.restore_version)
+        - name: cert_manager_action
+          value: restore
+
+      taskRef:
+        kind: Task
+        name: mas-devops-cert-manager
+      workspaces:
+        - name: backups
+          workspace: shared-backups
+      runAfter:
+        - ibm-catalogs
+
+
+    # 6. Install Grafana
+    # -------------------------------------------------------------------------
+    - name: grafana
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: devops_suite_name
+          value: restore-grafana
+
+        - name: grafana_action
+          value: install
+
+      when:
+        - input: "$(params.include_grafana)"
+          operator: in
+          values: ["true", "True"]
+
+      taskRef:
+        kind: Task
+        name: mas-devops-grafana
+      runAfter:
+        - cert-manager
+
+    # 7. Restore MongoDB
+    # -------------------------------------------------------------------------
+    - name: mongodb
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: devops_suite_name
+          value: restore-mongodb
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: mongodb_backup_version
+          value: $(params.restore_version)
+        - name: mongodb_action
+          value: restore
+
+      taskRef:
+        kind: Task
+        name: mas-devops-mongodb
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+        - name: backups
+          workspace: shared-backups
+      runAfter:
+        - cert-manager
+        - grafana
+
+    # 8. Restore SLS
+    # -------------------------------------------------------------------------
+    - name: sls
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: devops_suite_name
+          value: restore-sls
+
+        - name: sls_backup_version
+          value: $(params.restore_version)
+        - name: sls_action
+          value: restore
+
+      when:
+        - input: "$(params.include_sls)"
+          operator: in
+          values: ["true", "True"]
+
+      taskRef:
+        kind: Task
+        name: mas-devops-sls
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+        - name: backups
+          workspace: shared-backups
+      runAfter:
+        - mongodb
+
+    # 9. Install DRO
+    # -------------------------------------------------------------------------
+    - name: dro
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: devops_suite_name
+          value: restore-dro
+
+        - name: dro_action
+          value: install
+        - name: dro_contact_email
+          value: "$(params.dro_contact_email)"
+        - name: dro_contact_firstname
+          value: "$(params.dro_contact_firstname)"
+        - name: dro_contact_lastname
+          value: "$(params.dro_contact_lastname)"
+        - name: ibm_entitlement_key
+          value: $(params.ibm_entitlement_key)
+        - name: dro_namespace
+          value: $(params.dro_namespace)
+        - name: dro_storage_class
+          value: $(params.storage_class_rwo)
+
+      when:
+        - input: "$(params.include_dro)"
+          operator: in
+          values: ["true", "True"]
+
+      taskRef:
+        kind: Task
+        name: mas-devops-dro
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+        - name: backups
+          workspace: shared-backups
+      runAfter:
+        - mongodb
+        - sls
+
+    # 10. Restore MAS Suite
+    # -------------------------------------------------------------------------
+    - name: suite-restore
+      timeout: "0"
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: devops_suite_name
+          value: restore-suite
+
+        - name: suite_backup_version
+          value: $(params.restore_version)
+        - name: mas_domain
+          value: $(params.mas_domain)
+
+        - name: include_sls_from_backup
+          value: $(params.include_sls)
+        - name: sls_url
+          value: $(params.sls_url)
+        - name: sls_cfg_file
+          value: $(params.sls_cfg_file)
+
+        - name: include_dro_from_backup
+          value: $(params.include_dro)
+        - name: bas_url
+          value: $(params.bas_url)
+        - name: dro_cfg_file
+          value: $(params.dro_cfg_file)
+
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-restore
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+        - name: backups
+          workspace: shared-backups
+      runAfter:
+        - ibm-catalogs
+        - cert-manager
+        - mongodb
+        - sls
+        - dro
+
+
+  finally:
+    # Update synchronization configmap
+    # -------------------------------------------------------------------------
+    - name: sync-backup
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-configmap
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: configmap_name
+          value: sync-backup
+        - name: configmap_value
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+
+    - name: pipeline-finish
+      timeout: "0"
+      taskRef:
+        kind: Task
+        name: mas-devops-update-pipeline-status
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+        - name: pipeline_status
+          # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
+          # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
+          value: $(tasks.status)
+        - name: pipeline_name
+          value: $(context.pipeline.name)
+        - name: pipelinerun_name
+          value: $(context.pipelineRun.name)
+        - name: pipelinerun_namespace
+          value: $(context.pipelineRun.namespace)

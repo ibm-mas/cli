@@ -58,6 +58,7 @@ class RestoreApp(BaseApp):
                 "artifactory_token",
                 # Download Configuration
                 "download_backup",
+                "backup_archive_name",
                 "aws_access_key_id",
                 "aws_secret_access_key",
                 "s3_bucket_name",
@@ -232,6 +233,8 @@ class RestoreApp(BaseApp):
             self.setParam("include_dro", "true")
         if not self.getParam("backup_storage_size"):
             self.setParam("backup_storage_size", "20Gi")
+        if not self.getParam("backup_archive_name"):
+            self.setParam("backup_archive_name", "")
 
     def promptForDROConfiguration(self) -> None:
         """Prompt user for IBM Data Reporting Operator configuration"""
@@ -252,6 +255,10 @@ class RestoreApp(BaseApp):
         if downloadBackup:
             self.setParam("download_backup", "true")
 
+            # Confirm backup archive name.
+            confirmBackupArchiveName = self.yesOrNo(f"Confirm backup archive name - 'mas-backup-{self.getParam('restore_version')}.tar.gz'")
+            if not confirmBackupArchiveName:
+                self.promptForString("Enter Custom backup archive name including tar.gz extension", "backup_archive_name")
             # Determine download destination based on dev_mode
             if self.devMode:
                 self.printDescription([
