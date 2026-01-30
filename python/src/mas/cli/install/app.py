@@ -1823,7 +1823,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.configAnnotations()
 
         self.displayInstallSummary()
-        
+
         if not self.noConfirm:
             print()
             self.printDescription([
