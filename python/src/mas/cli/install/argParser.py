@@ -767,11 +767,11 @@ odhArgGroup.add_argument(
 
 # S3 Storage
 # -----------------------------------------------------------------------------
-s3ArgGroup = installArgParser.add_argument_group(
+aiServiceS3ArgGroup = installArgParser.add_argument_group(
     "S3 Storage",
     "Configure S3-compatible object storage for AI Service including Minio installation or external S3 connection details (host, port, SSL, credentials, bucket, and region)."
 )
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--install-minio",
     dest="install_minio_aiservice",
     required=False,
@@ -782,13 +782,13 @@ s3ArgGroup.add_argument(
 
 # S3 - Minio
 # -----------------------------------------------------------------------------
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--minio-root-user",
     dest="minio_root_user",
     required=False,
     help="Root user for minio"
 )
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--minio-root-password",
     dest="minio_root_password",
     required=False,
@@ -797,43 +797,43 @@ s3ArgGroup.add_argument(
 
 # S3 - External Connection
 # -----------------------------------------------------------------------------
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--s3-host",
     dest="aiservice_s3_host",
     required=False,
     help="Hostname or IP address of the S3 storage service"
 )
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--s3-port",
     dest="aiservice_s3_port",
     required=False,
     help="Port number for the S3 storage service"
 )
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--s3-ssl",
     dest="aiservice_s3_ssl",
     required=False,
     help="Enable or disable SSL for S3 connection (true/false)"
 )
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--s3-accesskey",
     dest="aiservice_s3_accesskey",
     required=False,
     help="Access key for authenticating with the S3 storage service"
 )
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--s3-secretkey",
     dest="aiservice_s3_secretkey",
     required=False,
     help="Secret key for authenticating with the S3 storage service"
 )
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--s3-region",
     dest="aiservice_s3_region",
     required=False,
     help="Region for the S3 storage service"
 )
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--s3-bucket-prefix",
     dest="aiservice_s3_bucket_prefix",
     required=False,
@@ -842,14 +842,14 @@ s3ArgGroup.add_argument(
 
 # S3 - Bucket Naming
 # -----------------------------------------------------------------------------
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--s3-tenants-bucket",
     dest="aiservice_s3_tenants_bucket",
     required=False,
     default="km-tenants",
     help="Name of the S3 bucket for tenants storage"
 )
-s3ArgGroup.add_argument(
+aiServiceS3ArgGroup.add_argument(
     "--s3-templates-bucket",
     dest="aiservice_s3_templates_bucket",
     required=False,
@@ -859,131 +859,144 @@ s3ArgGroup.add_argument(
 
 # Watsonx
 # -----------------------------------------------------------------------------
-watsonxArgGroup = installArgParser.add_argument_group(
+aiServiceWatsonxArgGroup = installArgParser.add_argument_group(
     "Watsonx",
     "Configure IBM Watsonx integration for AI Service including API key, instance ID, project ID, and service URL."
 )
 
-watsonxArgGroup.add_argument(
+aiServiceWatsonxArgGroup.add_argument(
     "--watsonxai-apikey",
     dest="aiservice_watsonxai_apikey",
     required=False,
     help="API key for WatsonX"
 )
-watsonxArgGroup.add_argument(
+aiServiceWatsonxArgGroup.add_argument(
     "--watsonxai-url",
     dest="aiservice_watsonxai_url",
     required=False,
     help="URL endpoint for WatsonX"
 )
-watsonxArgGroup.add_argument(
+aiServiceWatsonxArgGroup.add_argument(
     "--watsonxai-project-id",
     dest="aiservice_watsonxai_project_id",
     required=False,
     help="Project ID for WatsonX"
 )
-watsonxArgGroup.add_argument(
+aiServiceWatsonxArgGroup.add_argument(
     "--watsonx-action",
     dest="aiservice_watsonx_action",
     required=False,
     help="Action to perform with WatsonX (install/remove)"
 )
-watsonxArgGroup.add_argument(
+aiServiceWatsonxArgGroup.add_argument(
     "--watsonxai-ca-crt",
     dest="aiservice_watsonxai_ca_crt",
     required=False,
     help="CA certificate for WatsonX AI (PEM format, optional, only if using self-signed certs)"
 )
-watsonxArgGroup.add_argument(
+aiServiceWatsonxArgGroup.add_argument(
     "--watsonxai-deployment-id",
     dest="aiservice_watsonxai_deployment_id",
     required=False,
     help="WatsonX deployment ID"
 )
-watsonxArgGroup.add_argument(
+aiServiceWatsonxArgGroup.add_argument(
     "--watsonxai-space-id",
     dest="aiservice_watsonxai_space_id",
     required=False,
     help="WatsonX space ID"
 )
-watsonxArgGroup.add_argument(
+aiServiceWatsonxArgGroup.add_argument(
     "--watsonxai-instance-id",
     dest="aiservice_watsonxai_instance_id",
     required=False,
     help="WatsonX instance ID"
 )
-watsonxArgGroup.add_argument(
+aiServiceWatsonxArgGroup.add_argument(
     "--watsonxai-username",
     dest="aiservice_watsonxai_username",
     required=False,
     help="WatsonX username"
 )
-watsonxArgGroup.add_argument(
+aiServiceWatsonxArgGroup.add_argument(
     "--watsonxai-version",
     dest="aiservice_watsonxai_version",
     required=False,
     help="WatsonX version"
 )
-watsonxArgGroup.add_argument(
+aiServiceWatsonxArgGroup.add_argument(
     "--watsonxai-onprem",
     dest="aiservice_watsonxai_on_prem",
     required=False,
     help="WatsonX deployed on prem"
 )
 
-# AI Service
+# AI Service Tenant
 # -----------------------------------------------------------------------------
-aiServiceArgGroup = installArgParser.add_argument_group("Maximo AI Service")
+aiServiceTenantArgGroup = installArgParser.add_argument_group("Maximo AI Service Tenant")
 
-aiServiceArgGroup.add_argument(
+aiServiceTenantArgGroup.add_argument(
     "--tenant-entitlement-type",
     dest="tenant_entitlement_type",
     required=False,
     default="standard",
     help="Entitlement type for AI Service tenant"
 )
-aiServiceArgGroup.add_argument(
+aiServiceTenantArgGroup.add_argument(
     "--tenant-entitlement-start-date",
     dest="tenant_entitlement_start_date",
     required=False,
     help="Start date for AI Service tenant"
 )
-aiServiceArgGroup.add_argument(
+aiServiceTenantArgGroup.add_argument(
     "--tenant-entitlement-end-date",
     dest="tenant_entitlement_end_date",
     required=False,
     help="End date for AI Service tenant"
 )
-aiServiceArgGroup.add_argument(
+aiServiceTenantArgGroup.add_argument(
     "--rsl-url",
     dest="rsl_url",
     required=False,
     help="rsl url"
 )
-aiServiceArgGroup.add_argument(
+aiServiceTenantArgGroup.add_argument(
     "--rsl-org-id",
     dest="rsl_org_id",
     required=False,
     help="org id for rsl"
 )
-aiServiceArgGroup.add_argument(
+aiServiceTenantArgGroup.add_argument(
     "--rsl-token",
     dest="rsl_token",
     required=False,
     help="token for rsl"
 )
-aiServiceArgGroup.add_argument(
+aiServiceTenantArgGroup.add_argument(
     "--rsl-ca-crt",
     dest="rsl_ca_crt",
     required=False,
     help="CA certificate for RSL API (PEM format, optional, only if using self-signed certs)"
 )
+
+# AI Service Configuration
+# -----------------------------------------------------------------------------
+aiServiceArgGroup = installArgParser.add_argument_group(
+    "Maximo AI Service",
+    "Maximo AI Service configuration such as certificate Issuer, environment type"
+    )
 aiServiceArgGroup.add_argument(
     "--environment-type",
     dest="environment_type",
     required=False,
     default="non-production",
     help="Environment type (default: non-production)"
+)
+aiServiceArgGroup.add_argument(
+    "--aiservice-certificate-issuer",
+    dest="aiservice_certificate_issuer",
+    required=False,
+    help="Provide the name of the Issuer to configure AI Service to issue certificates",
 )
 
 # IBM Cloud Pak for Data
