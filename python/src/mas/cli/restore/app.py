@@ -22,6 +22,7 @@ from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelin
 
 logger = logging.getLogger(__name__)
 
+
 class RestoreApp(BaseApp):
 
     def restore(self, argv):
@@ -208,7 +209,7 @@ class RestoreApp(BaseApp):
     def promptForInstanceId(self) -> None:
         self.printH1("Enter the MAS instance ID to restore from the backup")
         self.printDescription([f" - Note: Use the same MAS instance ID as the backup you are restoring from."])
-        self.promptForString("Instance ID", "mas_instance_id", validator=InstanceIDFormatValidator())
+        self.promptForString(message="Instance ID", param="mas_instance_id", validator=InstanceIDFormatValidator())
 
     def promptForBackupStorageSize(self) -> None:
         self.printH1("Backup Storage Configuration")
