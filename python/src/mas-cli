@@ -21,6 +21,7 @@ from mas.cli.update.app import UpdateApp
 from mas.cli.upgrade.app import UpgradeApp
 from mas.cli.uninstall.app import UninstallApp
 from mas.cli.backup.app import BackupApp
+from mas.cli.restore.app import RestoreApp
 
 from prompt_toolkit import HTML, print_formatted_text
 from urllib3.exceptions import MaxRetryError
@@ -76,6 +77,9 @@ if __name__ == '__main__':
         elif function == "backup":
             app = BackupApp()
             app.backup(argv[2:])
+        elif function == "restore":
+            app = RestoreApp()
+            app.restore(argv[2:])
         elif function in ["-h", "--help"]:
             usage()
             exit(0)
