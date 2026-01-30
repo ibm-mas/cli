@@ -401,6 +401,12 @@ aiServiceArgGroup.add_argument(
     default="non-production",
     help="Environment type (default: non-production)"
 )
+aiServiceArgGroup.add_argument(
+    "--aiservice-certificate-issuer",
+    dest="aiservice_certificate_issuer",
+    required=False,
+    help="Provide the name of the Issuer to configure AI Service to issue certificates",
+)
 
 
 # IBM Db2 Universal Operator

@@ -152,6 +152,10 @@ spec:
     - name: rsl_token
       type: string
 
+    # Certificate Issuer
+    - name: aiservice_certificate_issuer
+      type: string
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -248,6 +252,10 @@ spec:
         value: $(params.rsl_org_id)
       - name: RSL_TOKEN
         value: $(params.rsl_token)
+
+      # Certificate Issuer
+      - name: AISERVICE_CERTIFICATE_ISSUER
+        value: $(params.aiservice_certificate_issuer)
 
   steps:
     - name: aiservice
