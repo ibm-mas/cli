@@ -44,6 +44,12 @@ spec:
     - name: replica_db
       type: string
       default: "false"
+    - name: jdbc_route
+      type: string
+      default: ""
+    - name: manually_set_enhanced_hadr
+      type: string
+      default: "false"
   stepTemplate:
     name: gitops-rds-db2-database
     env:
@@ -85,6 +91,8 @@ spec:
         value: $(params.jdbc_connection_url_additional_params)
       - name: REPLICA_DB
         value: $(params.replica_db)
+      - name: MANUALLY_SET_ENHANCED_HADR
+        value: $(params.manually_set_enhanced_hadr)
     envFrom:
       - configMapRef:
           name: environment-properties
