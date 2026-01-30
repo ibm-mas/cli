@@ -178,6 +178,12 @@ masAdvancedArgGroup.add_argument(
     help="Automatically configure IngressController to allow InterNamespaceAllowed for path-based routing"
 )
 masAdvancedArgGroup.add_argument(
+    "--ingress-controller-name",
+    dest="mas_ingress_controller_name",
+    required=False,
+    help="Name of the IngressController to use for path-based routing (default: 'default')"
+)
+masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
     help="Path to directory containing the certificates to be applied"
