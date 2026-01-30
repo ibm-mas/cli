@@ -165,6 +165,7 @@ The interactive install will guide you through a series of questioned designed t
         <li><strong>Path Mode (single domain):</strong> All applications are accessed through a single domain with different paths (e.g., <code>mas.example.com/manage</code>, <code>mas.example.com/admin</code>)</li>
         <li><strong>Subdomain Mode (multi domain):</strong> Each application is accessed through its own subdomain (e.g., <code>manage.mas.example.com</code>, <code>admin.mas.example.com</code>)</li>
       </ul>
+      <p><strong>Path-Based Routing Requirements:</strong> When using path mode, the OpenShift IngressController must be configured with <code>namespaceOwnership: InterNamespaceAllowed</code>. The CLI will validate the configuration and offer to configure it automatically if needed. <code>--ingress-controller-name</code> and <code>--configure-ingress</code> both applicable only for <code>--routing path</code>. If <code>--configure-ingress</code> not specified and the IngressController is not configured, the installation will fail with instructions.</p>
     </cds-accordion-item>
     <cds-accordion-item title="Application Selection">
       <p>Select the applications that you would like to install. Note that some applications cannot be installed unless an application they depend on is also installed:</p>
@@ -245,13 +246,8 @@ docker run -e IBM_ENTITLEMENT_KEY -e SUPERUSER_PASSWORD -ti --rm -v ~:/mnt/home 
     --storage-pipeline ibmc-file-gold-gid \
     --storage-accessmode ReadWriteMany \
     \
-    --routing path \
-    \
     --accept-license --no-confirm
 ```
-
-!!! note "Routing Mode Parameter"
-    The `--routing` parameter accepts two values: `path` (single domain) or `subdomain` (multi domain). This parameter is optional and available from MAS 9.2.0 onwards. If not specified, the default routing mode will be used.
 
 More Information
 -------------------------------------------------------------------------------
