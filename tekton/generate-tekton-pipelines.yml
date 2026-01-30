@@ -29,7 +29,7 @@
       with_items:
         # MAS Pipelines
         - mas-backup
-        - mas-restore
+        #- mas-restore
         - mas-install
         - mas-update
         - mas-upgrade
