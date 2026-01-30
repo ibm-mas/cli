@@ -301,7 +301,7 @@ function gitops_rds_db2_database() {
     # Create new file
     echo -n "" > ${TEMP_DIR}/newconfig.yaml
     # Render the appropriate template for the config into a new file. For standby database, it will be generated only if it is a replica task and replica is enabled.
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm_dbs_rds_databases.yaml.j2 | yq '{"ibm_dbs_rds_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/db2-databases/ibm-dbs-rds-databases.yaml.j2 | yq '{"ibm_dbs_rds_databases": [] + .}' > ${TEMP_DIR}/newconfig.yaml
 
     # Merge the two files
     yq eval-all '. as $item ireduce ({}; . *+ $item)' $TEMP_DIR/configs.yaml ${TEMP_DIR}/newconfig.yaml > $CONFIGS_FILE
