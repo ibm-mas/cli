@@ -208,7 +208,7 @@ class RestoreApp(BaseApp):
 
     def promptForInstanceId(self) -> None:
         self.printH1("Enter the MAS instance ID to restore from the backup")
-        self.printDescription([f" - Note: Use the same MAS instance ID as the backup you are restoring from."])
+        self.printDescription([" - Note: Use the same MAS instance ID as the backup you are restoring from."])
         self.promptForString(message="Instance ID", param="mas_instance_id", validator=InstanceIDFormatValidator())
 
     def promptForBackupStorageSize(self) -> None:
