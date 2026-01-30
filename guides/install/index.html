@@ -156,6 +156,12 @@
   </cds-side-nav-menu-item>
 
     
+      
+  <cds-side-nav-menu-item href="../facilities-external-db/">
+    MRE&amp;F External DB Setup
+  </cds-side-nav-menu-item>
+
+    
   </cds-side-nav-menu>
 
                 
@@ -259,12 +265,6 @@
 
     
       
-  <cds-side-nav-menu-item href="../../catalogs/v9-260129-amd64/">
-    Jan 29 2026
-  </cds-side-nav-menu-item>
-
-    
-      
   <cds-side-nav-menu-item href="../../catalogs/v9-251231-amd64/">
     Dec 31 2025
   </cds-side-nav-menu-item>
@@ -279,6 +279,12 @@
       
   <cds-side-nav-menu-item href="../../catalogs/v9-251030-amd64/">
     Oct 30 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../catalogs/v9-251010-amd64/">
+    Oct 10 2025
   </cds-side-nav-menu-item>
 
     
@@ -2366,7 +2372,15 @@
         <li>Single Sign-On (SSO)</li>
         <li>Whether to allow special character in User IDs and Usernames</li>
         <li>Whether Guided Tours are enabled</li>
+        <li>Network Routing Mode (path or subdomain)</li>
       </ul>
+      <h4>Routing Mode</h4>
+      <p>Starting from MAS 9.2.0, you can configure how Maximo Application Suite is accessed through URLs:</p>
+      <ul>
+        <li><strong>Path Mode (single domain):</strong> All applications are accessed through a single domain with different paths (e.g., <code>mas.example.com/manage</code>, <code>mas.example.com/admin</code>)</li>
+        <li><strong>Subdomain Mode (multi domain):</strong> Each application is accessed through its own subdomain (e.g., <code>manage.mas.example.com</code>, <code>admin.mas.example.com</code>)</li>
+      </ul>
+      <p><strong>Path-Based Routing Requirements:</strong> When using path mode, the OpenShift IngressController must be configured with <code>namespaceOwnership: InterNamespaceAllowed</code>. The CLI will validate the configuration and offer to configure it automatically if needed. <code>--ingress-controller-name</code> and <code>--configure-ingress</code> both applicable only for <code>--routing path</code>. If <code>--configure-ingress</code> not specified and the IngressController is not configured, the installation will fail with instructions.</p>
     </cds-accordion-item>
     <cds-accordion-item title="Application Selection">
       <p>Select the applications that you would like to install. Note that some applications cannot be installed unless an application they depend on is also installed:</p>
