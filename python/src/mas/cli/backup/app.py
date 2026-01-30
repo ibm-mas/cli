@@ -40,6 +40,9 @@ class BackupApp(BaseApp):
         self.devMode = self.args.dev_mode
         self.interactive_mode = True
 
+        if self.args.skip_pre_check:
+            self.setParam("skip_pre_check", "true")
+
         if self.args.mas_instance_id:
             # Non-interactive mode
             self.interactive_mode = False
