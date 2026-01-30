@@ -48,8 +48,8 @@ Not all functions supported in the container image are available in the standalo
 | ---------------------------------------------------------- | :------: | :------: |
 | [install](guides/install.md)                               | &#10003; | &#10003; |
 | [aiservice-install](guides/aiservice-install.md)           | &#10003; | &#10003; |
-| [update](guides/update.md)                               | &#10003; | &#10003; |
-| [upgrade](guides/upgrade.md)                             | &#10003; | &#10003; |
+| [update](guides/update.md)                                 | &#10003; | &#10003; |
+| [upgrade](guides/upgrade.md)                               | &#10003; | &#10003; |
 | [uninstall](commands/uninstall.md)                         | &#10003; | &#10003; |
 | [must-gather](commands/must-gather.md)                     | &#10003; | &#10005; |
 | [configure-airgap](commands/configure-airgap.md)           | &#10003; | &#10005; |
@@ -61,4 +61,3 @@ Not all functions supported in the container image are available in the standalo
 | [provision-roks](commands/provision-roks.md)               | &#10003; | &#10005; |
 | [provision-rosa](commands/provision-rosa.md)               | &#10003; | &#10005; |
 | [configtool-oidc](commands/configtool-oidc.md)             | &#10003; | &#10005; |
-<!-- | [facilities-external-db](guides/facilities-external-db.md) | &#10003; | &#10005; | -->
