@@ -77,6 +77,9 @@ class InstallSummarizerMixin():
 
         print()
         self.printParamSummary("Network Routing Mode", "mas_routing_mode")
+        if self.getParam("mas_routing_mode") == "path":
+            self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
+            self.printParamSummary("Configure IngressController", "mas_configure_ingress")
 
         print()
         self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
