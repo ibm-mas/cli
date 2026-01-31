@@ -355,7 +355,7 @@ spec:
   finally:
     # Update synchronization configmap
     # -------------------------------------------------------------------------
-    - name: sync-backup
+    - name: sync-restore
       timeout: "0"
       taskRef:
         kind: Task
@@ -364,7 +364,7 @@ spec:
         - name: image_pull_policy
           value: $(params.image_pull_policy)
         - name: configmap_name
-          value: sync-backup
+          value: sync-restore
         - name: configmap_value
           # An aggregate status of all the pipelineTasks under the tasks section (excluding the finally section).
           # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
