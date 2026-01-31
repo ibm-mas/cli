@@ -631,7 +631,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
     @logMethodCall
     def configRoutingMode(self):
-        if self.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_channel") == '9.2.x-feature':
+        # if self.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_channel") == '9.2.x-feature':
             self.printH1("Configure Routing Mode")
 
             self.printDescription([
@@ -1536,7 +1536,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified", "mas_configure_ingress"]:
                 pass
 
             elif key == "manual_certificates":
