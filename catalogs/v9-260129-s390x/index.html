@@ -1,0 +1,829 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>IBM Maximo Operator Catalog v9 (260129) - Maximo Application Suite CLI</title>
+
+    <!-- Pure CSS (https://pure-css.github.io/) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../css/theme.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script src="../../js/theme.js"></script>
+
+    <!-- Carbon theme zones (white, g10, g90, g100) -->
+    <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css">
+
+    <!-- The Carbon web-components/framework -->
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/ui-shell.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/accordion.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/breadcrumb.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/select.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/tabs.min.js"></script>
+    <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.15.0/search.min.js"></script>
+
+    <!-- HighlightJS code formatting support -->
+    <link rel="stylesheet" id="hljs-light" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <!-- Required by MkDocs search -->
+    <script>var base_url = "../..";</script>
+
+    <!-- User defined extras -->
+    
+    
+
+    
+    <link href="../../extra.css" rel="stylesheet">
+    
+
+    
+    <script src="../../search/main.js"></script>
+    
+  <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: black; }
+        </style></head>
+
+  <body class="md-grid" data-theme-default="g90">
+    <!-- Header -->
+    <cds-header aria-label="Maximo Application Suite CLI" class="md-header">
+      <cds-header-menu-button button-label-active="Close menu" button-label-inactive="Open menu"></cds-header-menu-button>
+      <cds-header-name href="../.." prefix="IBM">Maximo Application Suite CLI</cds-header-name>
+      <cds-header-nav menu-bar-label="IBM Maximo Application Suite CLI">
+          <cds-header-nav-item target="" href="https://ibm-mas.github.io/ansible-devops/">Ansible</cds-header-nav-item>
+          <cds-header-nav-item is-active target="" href="">CLI</cds-header-nav-item>
+      </cds-header-nav>
+
+      <div class="cds--header__global">
+<div class="md-theme-toggle" data-theme-default="g90">
+  <button class="md-theme-toggle__button" aria-label="Toggle theme" title="Toggle theme">
+    <svg class="md-theme-toggle__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"></path>
+    </svg>
+  </button>
+  <div class="md-theme-toggle__menu" hidden>
+    <button class="md-theme-toggle__option" data-theme="white">
+      <span class="md-theme-toggle__label">Light</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--white"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g10">
+      <span class="md-theme-toggle__label">Light Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g10"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g90">
+      <span class="md-theme-toggle__label">Dark Gray</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g90"></span>
+    </button>
+    <button class="md-theme-toggle__option" data-theme="g100">
+      <span class="md-theme-toggle__label">Dark</span>
+      <span class="md-theme-toggle__preview md-theme-toggle__preview--g100"></span>
+    </button>
+  </div>
+</div>
+        <cds-search id="header-search" label-text="Search" cds-search-input="search-event" expandable></cds-search>
+      </div>
+      <script>
+        var el = document.getElementById("header-search");
+        el.addEventListener("cds-search-input", function (ev) {
+          console.info(ev.detail.value)
+          document.getElementById("header-search-value").setAttribute("value", ev.detail.value);
+        });
+        el.addEventListener('keydown', function (ev) {
+          if (ev.key === 'Enter') {
+            location.href="../../search.html?q=" + document.querySelector("#header-search").shadowRoot.querySelector("#input").value;
+          }
+        });
+      </script>
+
+      
+        <cds-header-nav>
+          <cds-header-nav-item href="https://github.com/ibm-mas/cli/blob/master/docs/catalogs/v9-260129-s390x.md">Edit on GitHub</cds-header-nav-item>
+        </cds-header-nav>
+      
+    </cds-header>
+
+    <!-- Main container with three-column layout -->
+    <div class="md-container">
+      <!-- Left sidebar - Navigation -->
+      <aside class="md-sidebar md-sidebar--primary" data-md-component="sidebar">
+        <div class="md-sidebar__scrollwrap">
+          <div class="md-sidebar__inner">
+            <cds-side-nav aria-label="Side navigation">
+              <cds-side-nav-items>
+                
+                  
+  <cds-side-nav-menu title="Guides">
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-mirroring/">
+    Image Mirroring
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/image-validation/">
+    Image Validation
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/install/">
+    Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/update/">
+    Update
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/upgrade/">
+    Upgrade
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../guides/uninstall/">
+    Uninstall
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Examples">
+    
+      
+  <cds-side-nav-menu-item href="../../examples/eam-migration/">
+    EAM Migration
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/mirror-db2/">
+    Mirror Db2 Images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../examples/minimal-rbac/">
+    Minimal RBAC
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Command Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../commands/uninstall/">
+    uninstall
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/must-gather/">
+    must-gather
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configure-airgap/">
+    configure-airgap
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/mirror-redhat-images/">
+    mirror-redhat-images
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/setup-registry/">
+    setup-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/teardown-registry/">
+    teardown-registry
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-fyre/">
+    provision-fyre
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-roks/">
+    provision-roks
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/provision-rosa/">
+    provision-rosa
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../commands/configtool-oidc/">
+    configtool-oidc
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Operator Catalogs">
+    
+      
+  <cds-side-nav-menu-item href="../">
+    Overview
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../v9-260129-amd64/">
+    Jan 29 2026
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../v9-251231-amd64/">
+    Dec 31 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../v9-251127-amd64/">
+    Nov 27 2025
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../v9-251030-amd64/">
+    Oct 30 2025
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+                  
+  <cds-side-nav-menu title="Reference">
+    
+      
+  <cds-side-nav-menu-item href="../../reference/dependencies/">
+    Dependencies
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/topology/">
+    Topology
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="../../reference/cluster-extensions/">
+    Cluster Extensions
+  </cds-side-nav-menu-item>
+
+    
+  </cds-side-nav-menu>
+
+                
+              </cds-side-nav-items>
+            </cds-side-nav>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <div class="md-content" data-md-component="content">
+        <article class="md-content__inner">
+          <!-- Breadcrumbs -->
+          <div class="md-breadcrumbs"><cds-breadcrumb no-trailing-slash>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+  <cds-breadcrumb-item>
+    <cds-breadcrumb-link href="#ibm-maximo-operator-catalog-v9-260129">IBM Maximo Operator Catalog v9 (260129)</cds-breadcrumb-link>
+  </cds-breadcrumb-item>
+
+  <cds-breadcrumb-item aria-current="page">
+    <cds-select id="breadcrumbs-toc" inline placeholder="..." oninput="changeAnchor(this.value)">
+    
+    
+      <cds-select-item value="#details">Details</cds-select-item>
+    
+      <cds-select-item value="#whats-new">What's New</cds-select-item>
+    
+      <cds-select-item value="#known-issues">Known Issues</cds-select-item>
+    
+      <cds-select-item value="#manual-installation">Manual Installation</cds-select-item>
+    
+      <cds-select-item value="#source">Source</cds-select-item>
+    
+      <cds-select-item value="#red-hat-openshift-container-platform-support">Red Hat OpenShift Container Platform Support</cds-select-item>
+    
+      <cds-select-item value="#package-manifest">Package Manifest</cds-select-item>
+    
+    </cds-select>
+  </cds-breadcrumb-item>
+</cds-breadcrumb>
+          </div>
+
+          <!-- Page content -->
+          <div class="rst-content">
+            
+            <h1 id="ibm-maximo-operator-catalog-v9-260129">IBM Maximo Operator Catalog v9 (260129)<a class="headerlink" href="#ibm-maximo-operator-catalog-v9-260129" title="Permanent link">¶</a></h1>
+<h2 id="details">Details<a class="headerlink" href="#details" title="Permanent link">¶</a></h2>
+<table>
+  <tbody><tr><td>Image</td><td>icr.io/cpopen/ibm-maximo-operator-catalog</td></tr>
+  <tr><td>Tag</td><td>v9-260129-s390x</td></tr>
+  <tr><td>Digest</td><td>sha256:8ea3f0ab4086047fd00547ed39921703f4bf1e938e77bca368a9f799534755b8</td></tr>
+</tbody></table>
+
+<h2 id="whats-new">What's New<a class="headerlink" href="#whats-new" title="Permanent link">¶</a></h2>
+<ul>
+<li><strong>Security updates and bug fixes</strong><ul>
+<li>IBM Maximo Application Suite Core Platform v8.10, v8.11, v9.0 and v9.1</li>
+<li>IBM Maximo Manage v8.6, v8.7, v9.0 and v9.1</li>
+</ul>
+</li>
+</ul>
+<h2 id="known-issues">Known Issues<a class="headerlink" href="#known-issues" title="Permanent link">¶</a></h2>
+<ul>
+<li>A known issue exists in the January 29, 2026 release affecting HSE and Oil &amp; Gas (9.0.23 / 9.1.64). Customers with HSE installed should avoid upgrading to the January release. Installation of HSE or Oil &amp; Gas on Manage 9.0.x / 9.1.x should be deferred until the February 2026 patch.</li>
+</ul>
+<h2 id="manual-installation">Manual Installation<a class="headerlink" href="#manual-installation" title="Permanent link">¶</a></h2>
+<p><code>oc apply -f https://raw.githubusercontent.com/ibm-mas/cli/master/catalogs/v9-260129-s390x.yaml</code></p>
+<h2 id="source">Source<a class="headerlink" href="#source" title="Permanent link">¶</a></h2>
+<pre><code class="language-yaml">apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ibm-operator-catalog
+  namespace: openshift-marketplace
+spec:
+  displayName: IBM Maximo Operators (v9-260129-s390x)
+  publisher: IBM
+  description: Static Catalog Source for IBM Maximo Application Suite
+  sourceType: grpc
+  image: icr.io/cpopen/ibm-maximo-operator-catalog@sha256:8ea3f0ab4086047fd00547ed39921703f4bf1e938e77bca368a9f799534755b8
+  priority: 90
+</code></pre>
+<h2 id="red-hat-openshift-container-platform-support">Red Hat OpenShift Container Platform Support<a class="headerlink" href="#red-hat-openshift-container-platform-support" title="Permanent link">¶</a></h2>
+<p>For more information about the OCP lifecycle refer to the <a href="https://access.redhat.com/support/policy/updates/openshift/">Red Hat OpenShift Container Platform Life Cycle Policy</a>.</p>
+<p>IBM Maximo Application Suite customers receive a standard Red Hat OpenShift Container Platform subscription as part of their purchase. This includes 18 months of maintenance support for each OpenShift minor release.  A further 6 months support is available to purchase as an Extended Update Support (EUS) Add-on to x86-64 versions of Red Hat OpenShift Kubernetes Engine, Red Hat OpenShift Container Platform, and Red Hat OpenShift Platform Plus Standard subscriptions.</p>
+<table class="compatabilityMatrix">
+  <tbody><tr>
+    <th>OCP</th><td rowspan="5" class="spacer"></td>
+    <th>General Availability</th>
+    <th>Standard Support</th>
+    <th>Extended Support</th>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.16</td>
+    <td>June 27, 2024</td>
+    <td>December 27, 2025</td>
+    <td>June 27, 2027</td>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.17</td>
+    <td>October 1, 2024</td>
+    <td>May 25, 2025</td>
+    <td>April 1, 2026</td>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.18</td>
+    <td>February 25, 2025</td>
+    <td>GA of 4.19 + 3 Months</td>
+    <td>August 25, 2026</td>
+  </tr>
+  <tr>
+    <td class="firstColumn">4.19</td>
+    <td>June 17, 2025</td>
+    <td>December 17, 2026</td>
+    <td> N/A </td>
+  </tr>
+</tbody></table>
+
+<h3 id="red-hat-operators">Red Hat Operators<a class="headerlink" href="#red-hat-operators" title="Permanent link">¶</a></h3>
+<p>The following packages from the <code>registry.redhat.io/redhat/redhat-operator-index</code> catalog are used in the Maximo Application Suite install:</p>
+<ul>
+<li><strong>openshift-pipelines-operator-rh</strong> required by the MAS CLI</li>
+</ul>
+<h2 id="package-manifest">Package Manifest<a class="headerlink" href="#package-manifest" title="Permanent link">¶</a></h2>
+<h3 id="ibm-maximo-application-suite">IBM Maximo Application Suite<a class="headerlink" href="#ibm-maximo-application-suite" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Default Channel</th>
+<th>Channel</th>
+<th>Latest Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ibm-mas</td>
+<td>9.1.x</td>
+<td>9.2.x-feature</td>
+<td><a href="../packages/ibm-mas/9.2.0-pre.stable-9887/">9.2.0-pre.stable-9887</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>9.1.x</td>
+<td><a href="../packages/ibm-mas/9.1.8/">9.1.8</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>9.0.x</td>
+<td><a href="../packages/ibm-mas/9.0.19/">9.0.19</a></td>
+</tr>
+<tr>
+<td>ibm-mas-manage</td>
+<td>9.1.x</td>
+<td>9.2.x-feature</td>
+<td><a href="../packages/ibm-mas-manage/9.2.0-pre.stable-10282/">9.2.0-pre.stable-10282</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>9.1.x</td>
+<td><a href="../packages/ibm-mas-manage/9.1.8/">9.1.8</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>9.0.x</td>
+<td><a href="../packages/ibm-mas-manage/9.0.21/">9.0.21</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ibm-utilities">IBM Utilities<a class="headerlink" href="#ibm-utilities" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Default Channel</th>
+<th>Channel</th>
+<th>Latest Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ibm-sls</td>
+<td>3.x</td>
+<td>3.x</td>
+<td><a href="../packages/ibm-sls/3.12.5/">3.12.5</a></td>
+</tr>
+<tr>
+<td>ibm-truststore-mgr</td>
+<td>1.x</td>
+<td>1.x</td>
+<td><a href="../packages/ibm-truststore-mgr/1.7.2/">1.7.2</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ibm-cloud-pak-foundational-services">IBM Cloud Pak Foundational Services<a class="headerlink" href="#ibm-cloud-pak-foundational-services" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Default Channel</th>
+<th>Channel</th>
+<th>Latest Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ibm-cloud-pak-for-data">IBM Cloud Pak for Data<a class="headerlink" href="#ibm-cloud-pak-for-data" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Default Channel</th>
+<th>Channel</th>
+<th>Latest Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ibm-db2-universal-operator">IBM Db2 Universal Operator<a class="headerlink" href="#ibm-db2-universal-operator" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Default Channel</th>
+<th>Channel</th>
+<th>Latest Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>db2u-operator</td>
+<td>v110509.0</td>
+<td>v7.5</td>
+<td><a href="../packages/db2u-operator/7.5.0/">7.5.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v7.4</td>
+<td><a href="../packages/db2u-operator/7.3.2/">7.3.2</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v7.3</td>
+<td><a href="../packages/db2u-operator/7.3.0/">7.3.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v7.2</td>
+<td><a href="../packages/db2u-operator/7.2.0/">7.2.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v7.1</td>
+<td><a href="../packages/db2u-operator/7.1.0/">7.1.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.1</td>
+<td><a href="../packages/db2u-operator/6.1.0/">6.1.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v6.0</td>
+<td><a href="../packages/db2u-operator/6.0.0/">6.0.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.4</td>
+<td><a href="../packages/db2u-operator/5.4.0/">5.4.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.3</td>
+<td><a href="../packages/db2u-operator/5.3.0/">5.3.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.2</td>
+<td><a href="../packages/db2u-operator/5.2.0/">5.2.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.1</td>
+<td><a href="../packages/db2u-operator/5.1.0/">5.1.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v5.0</td>
+<td><a href="../packages/db2u-operator/5.0.0/">5.0.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v4.2</td>
+<td><a href="../packages/db2u-operator/4.2.0/">4.2.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v4.1</td>
+<td><a href="../packages/db2u-operator/4.1.0/">4.1.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v4.0</td>
+<td><a href="../packages/db2u-operator/4.0.0/">4.0.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.2</td>
+<td><a href="../packages/db2u-operator/3.2.0/">3.2.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.1</td>
+<td><a href="../packages/db2u-operator/3.1.0/">3.1.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v3.0</td>
+<td><a href="../packages/db2u-operator/3.0.0/">3.0.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.2</td>
+<td><a href="../packages/db2u-operator/2.2.0/">2.2.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.1</td>
+<td><a href="../packages/db2u-operator/2.1.0/">2.1.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v2.0</td>
+<td><a href="../packages/db2u-operator/2.0.0/">2.0.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v120102.0</td>
+<td><a href="../packages/db2u-operator/120102.0.1/">120102.0.1</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v120101.0</td>
+<td><a href="../packages/db2u-operator/120101.0.1/">120101.0.1</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v120100.0</td>
+<td><a href="../packages/db2u-operator/120100.0.0/">120100.0.0</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v110509.0</td>
+<td><a href="../packages/db2u-operator/110509.0.6/">110509.0.6</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v110508.0</td>
+<td><a href="../packages/db2u-operator/110508.0.3/">110508.0.3</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.1</td>
+<td><a href="../packages/db2u-operator/1.1.13/">1.1.13</a></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>v1.0</td>
+<td><a href="../packages/db2u-operator/1.0.11/">1.0.11</a></td>
+</tr>
+</tbody>
+</table>
+            
+          </div>
+
+          <!-- Navigation footer (prev/next) -->
+<nav class="md-footer-nav" aria-label="Footer navigation">
+  <div class="md-footer-nav__inner">
+  </div>
+</nav>
+        </article>
+      </div>
+
+      <!-- Right sidebar - Table of Contents -->
+      <aside class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+<nav class="md-sidebar md-sidebar--secondary" aria-label="Table of contents">
+  <div class="md-sidebar__scrollwrap">
+    <div class="md-sidebar__inner">
+      <div class="md-toc">
+        <div class="md-toc__title">On this page</div>
+        <ul class="md-toc__list">
+              <li class="md-toc__item">
+                <a href="#details" class="md-toc__link" data-md-level="1">
+                  Details
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#whats-new" class="md-toc__link" data-md-level="1">
+                  What's New
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#known-issues" class="md-toc__link" data-md-level="1">
+                  Known Issues
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#manual-installation" class="md-toc__link" data-md-level="1">
+                  Manual Installation
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#source" class="md-toc__link" data-md-level="1">
+                  Source
+                </a>
+              </li>
+              <li class="md-toc__item">
+                <a href="#red-hat-openshift-container-platform-support" class="md-toc__link" data-md-level="1">
+                  Red Hat OpenShift Container Platform Support
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#red-hat-operators" class="md-toc__link" data-md-level="2">
+                          Red Hat Operators
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+              <li class="md-toc__item">
+                <a href="#package-manifest" class="md-toc__link" data-md-level="1">
+                  Package Manifest
+                </a>
+                  <ul class="md-toc__list">
+                      <li class="md-toc__item">
+                        <a href="#ibm-maximo-application-suite" class="md-toc__link" data-md-level="2">
+                          IBM Maximo Application Suite
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-utilities" class="md-toc__link" data-md-level="2">
+                          IBM Utilities
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-cloud-pak-foundational-services" class="md-toc__link" data-md-level="2">
+                          IBM Cloud Pak Foundational Services
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-cloud-pak-for-data" class="md-toc__link" data-md-level="2">
+                          IBM Cloud Pak for Data
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#ibm-db2-universal-operator" class="md-toc__link" data-md-level="2">
+                          IBM Db2 Universal Operator
+                        </a>
+                      </li>
+                  </ul>
+              </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+      </aside>
+    </div>
+
+    <!-- Footer - Full width outside container -->
+    <footer class="md-footer">
+      Built with <a href="https://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/durera/mkdocs-carbon">Carbon theme</a>
+    </footer>
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": false, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+</script></body></html>
