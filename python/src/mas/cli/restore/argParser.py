@@ -37,6 +37,41 @@ masArgGroup.add_argument(
     help="MAS Instance ID to restore, must match the instance ID of the backup."
 )
 
+masArgGroup.add_argument(
+    '--mas-domain-restore',
+    dest='mas_domain_on_restore',
+    required=False,
+    help="MAS Domain to restore. If not specified, the domain will be taken from the backup."
+)
+
+masArgGroup.add_argument(
+    '--sls-url-restore',
+    dest='sls_url_on_restore',
+    required=False,
+    help="SLS URL to restore. If not specified, the url will be taken from the backup."
+)
+
+masArgGroup.add_argument(
+    '--dro-url-restore',
+    dest='dro_url_on_restore',
+    required=False,
+    help="DRO URL to restore. If not specified, the url will be taken from the backup."
+)
+
+masArgGroup.add_argument(
+    '--sls-cfg-file',
+    dest='sls_cfg_file',
+    required=False,
+    help="SLS config file path. must be provided if own SLS is used."
+)
+
+masArgGroup.add_argument(
+    '--dro-cfg-file',
+    dest='dro_cfg_file',
+    required=False,
+    help="DRO config file path. must be provided if own DRO is used."
+)
+
 restoreArgGroup = restoreArgParser.add_argument_group(
     'Restore Configuration',
     'Configure backup version to be restored and storage size.'

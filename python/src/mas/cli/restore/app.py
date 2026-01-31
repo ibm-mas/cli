@@ -43,6 +43,11 @@ class RestoreApp(BaseApp):
             logger.debug("MAS Instance ID is set, so we assume already connected to the desired OCP")
             requiredParams = ["mas_instance_id", "restore_version"]
             optionalParams = [
+                "mas_domain_on_restore",
+                "sls_url_on_restore",
+                "sls_cfg_file",
+                "dro_url_on_restore",
+                "dro_cfg_file,"
                 "backup_storage_size",
                 "include_sls",
                 "include_grafana",
@@ -108,6 +113,9 @@ class RestoreApp(BaseApp):
             if self.args.mas_instance_id is None:
                 self.promptForInstanceId()
 
+            if self.args.mas_domain_on_restore is None:
+                self.promptForMASDomain()
+
             # Prompt for backup version if not provided
             if self.args.restore_version is None:
                 self.promptForBackupVersion()
@@ -119,6 +127,7 @@ class RestoreApp(BaseApp):
             self.promptForDROConfiguration()
 
             self.promptForDownloadConfiguration()
+            self.promptForAdvancedConfiguration()
 
         # Set default values for optional parameters if not provided
         self.setDefaultParams()
@@ -133,6 +142,9 @@ class RestoreApp(BaseApp):
 
         self.printH2("MAS Instance")
         self.printSummary("Instance ID", self.getParam("mas_instance_id"))
+
+        if self.getParam("mas_domain_on_restore") is not None and self.getParam("mas_domain_on_restore") != "":
+            self.printSummary("Domain", self.getParam("mas_domain_on_restore"))
 
         self.printH2("Restore Configuration")
         self.printSummary("Backup Directory", "/workspace/backups (hardcoded)")
@@ -150,6 +162,18 @@ class RestoreApp(BaseApp):
         self.printSummary("Contact Email", self.getParam("dro_contact_email"))
         self.printSummary("Contact First Name", self.getParam("dro_contact_firstname"))
         self.printSummary("Contact Last Name", self.getParam("dro_contact_lastname"))
+
+        if self.devMode:
+            self.printH2("Advanced Configuration")
+            if self.getParam("sls_cfg_file") is not None and self.getParam("sls_cfg_file") != "":
+                self.printSummary("SLS Config File", self.getParam("sls_cfg_file"))
+            if self.getParam("sls_url_on_restore") is not None and self.getParam("sls_url_on_restore") != "":
+                self.printSummary("SLS URL", self.getParam("sls_url_on_restore"))
+
+            if self.getParam("dro_cfg_file") is not None and self.getParam("dro_cfg_file") != "":
+                self.printSummary("DRO Config File", self.getParam("dro_cfg_file"))
+            if self.getParam("dro_url_on_restore") is not None and self.getParam("dro_url_on_restore") != "":
+                self.printSummary("DRO URL", self.getParam("dro_url_on_restore"))
 
         continueWithRestore = True
         if not self.noConfirm:
@@ -214,6 +238,13 @@ class RestoreApp(BaseApp):
         self.printDescription([" - Note: Use the same MAS instance ID as the backup you are restoring from."])
         self.promptForString(message="Instance ID", param="mas_instance_id", validator=InstanceIDFormatValidator())
 
+    def promptForMASDomain(self) -> None:
+        self.printH1("Confirm the MAS Domain for the restore")
+        self.printDescription([" - Note: If you are restoring to a different cluster than the backup, you must update the MAS domain."])
+        changeDomain = self.yesOrNo("Would you like to change the MAS domain?")
+        if changeDomain:
+            self.promptForString(message="MAS Domain", param="mas_domain_for_restore")
+
     def promptForBackupStorageSize(self) -> None:
         self.printH1("Backup Storage Configuration")
         storageSize = self.promptForString("Enter PVC storage size, must be bigger than backup archive size. (e.g. 20Gi))", default="20Gi")
@@ -224,6 +255,39 @@ class RestoreApp(BaseApp):
         # Prompt user to enter custom backup version
         restore_version = self.promptForString("Set the backup version to use for this restore operation. (e.g. 20260117-191701)")
         self.setParam("restore_version", restore_version)
+
+    def promptForAdvancedConfiguration(self) -> None:
+        if self.devMode:
+            self.printH1("Advanced Configuration")
+            self.printDescription([" - Note: Only change these settings if you know what you are doing."])
+            if not self.getParam("include_sls"):
+                self.printH2("SLS Advanced Configuration")
+                self.printDescription([
+                    " - Provide the SLS config file path if you want to use your own SLS instance.",
+                    " - Or, Provide the SLS URL to change the SLS URL if you restoring to a different cluster."])
+                byoSLS = self.yesOrNo("Would you like to use your own SLS instance?")
+                if byoSLS:
+                    self.setParam("include_sls", "false")
+                    self.promptForString(message="Enter path to the SLS config file", param="sls_cfg_file")
+                else:
+                    self.setParam("include_sls", "true")
+                    changeSlsUrl = self.yesOrNo("Would you like to change SLS url?")
+                    if changeSlsUrl:
+                        self.promptForString(message="SLS url", param="sls_url_on_restore")
+            if not self.getParam("include_dro"):
+                self.printH2("DRO Advanced Configuration")
+                self.printDescription([
+                    " - Provide the DRO config file path if you want to use your own DRO instance.",
+                    " - Or, Provide the DRO URL to just change the DRO URL if you restoring to a different cluster."])
+                byoDRO = self.yesOrNo("Would you like to use your own DRO instance?")
+                if byoDRO:
+                    self.setParam("include_dro", "false")
+                    self.promptForString(message="Enter path to the DRO config file", param="dro_cfg_file")
+                else:
+                    self.setParam("include_dro", "true")
+                    changeDroUrl = self.yesOrNo("Would you like to change DRO url?")
+                    if changeDroUrl:
+                        self.promptForString(message="DRO url", param="dro_url_on_restore")
 
     def setDefaultParams(self) -> None:
         """Set default values for optional parameters if not already set"""
