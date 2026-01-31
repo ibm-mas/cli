@@ -101,6 +101,12 @@ class installArgBuilderMixin():
         if self.getParam('mas_routing_mode') != "":
             command += f"  --routing \"{self.getParam('mas_routing_mode')}\"{newline}"
 
+        if self.getParam('mas_ingress_controller_name') != "":
+            command += f"  --ingress-controller \"{self.getParam('mas_ingress_controller_name')}\"{newline}"
+
+        if self.getParam('mas_configure_ingress') is True:
+            command += f"  --configure-ingress{newline}"
+
         if self.getParam('mas_domain') != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 

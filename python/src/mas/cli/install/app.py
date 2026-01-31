@@ -632,59 +632,59 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     @logMethodCall
     def configRoutingMode(self):
         # if self.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_channel") == '9.2.x-feature':
-            self.printH1("Configure Routing Mode")
+        self.printH1("Configure Routing Mode")
 
-            self.printDescription([
-                "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
-                "",
-                "  1. Path (single domain)",
-                "  2. Subdomain (multi domain)"
-            ])
+        self.printDescription([
+            "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
+            "",
+            "  1. Path (single domain)",
+            "  2. Subdomain (multi domain)"
+        ])
 
-            routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
-            routingModeOptions = ["path", "subdomain"]
-            selectedMode = routingModeOptions[routingModeInt - 1]
+        routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
+        routingModeOptions = ["path", "subdomain"]
+        selectedMode = routingModeOptions[routingModeInt - 1]
 
-            if selectedMode == "path":
-                selectedController = self._promptForIngressController()
-                self.setParam("mas_ingress_controller_name", selectedController)
+        if selectedMode == "path":
+            selectedController = self._promptForIngressController()
+            self.setParam("mas_ingress_controller_name", selectedController)
 
-                # Check if selected IngressController is configured for path-based routing
-                # Note: In interactive mode, we only check configuration, not existence,
-                # since the user selects from a list of existing controllers
-                _, isConfigured = self._checkIngressControllerForPathRouting(selectedController)
+            # Check if selected IngressController is configured for path-based routing
+            # Note: In interactive mode, we only check configuration, not existence,
+            # since the user selects from a list of existing controllers
+            _, isConfigured = self._checkIngressControllerForPathRouting(selectedController)
 
-                if isConfigured:
+            if isConfigured:
+                self.setParam("mas_routing_mode", "path")
+                self.printDescription([f"<Green> IngressController '{selectedController}' is configured for path-based routing.</Green>"])
+            else:
+                self.printDescription([
+                    "",
+                    f"<Yellow>The IngressController '{selectedController}' requires configuration for path-based routing.</Yellow>",
+                    "",
+                    "The following setting needs to be applied:",
+                    "",
+                    "  <Cyan>spec:",
+                    "    routeAdmission:",
+                    "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
+                    "",
+                    "Would you like to configure it during installation?"
+                ])
+
+                if self.yesOrNo("Configure IngressController for path-based routing"):
                     self.setParam("mas_routing_mode", "path")
-                    self.printDescription([f"<Green> IngressController '{selectedController}' is configured for path-based routing.</Green>"])
+                    self.setParam("mas_configure_ingress", "true")
+                    self.printDescription([f"<Green>IngressController '{selectedController}' will be configured during installation.</Green>"])
                 else:
                     self.printDescription([
                         "",
-                        f"<Yellow>The IngressController '{selectedController}' requires configuration for path-based routing.</Yellow>",
-                        "",
-                        "The following setting needs to be applied:",
-                        "",
-                        "  <Cyan>spec:",
-                        "    routeAdmission:",
-                        "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
-                        "",
-                        "Would you like to configure it during installation?"
+                        "<Yellow>Path-based routing requires IngressController configuration.</Yellow>",
+                        "Falling back to subdomain mode."
                     ])
-
-                    if self.yesOrNo("Configure IngressController for path-based routing"):
-                        self.setParam("mas_routing_mode", "path")
-                        self.setParam("mas_configure_ingress", "true")
-                        self.printDescription([f"<Green>IngressController '{selectedController}' will be configured during installation.</Green>"])
-                    else:
-                        self.printDescription([
-                            "",
-                            "<Yellow>Path-based routing requires IngressController configuration.</Yellow>",
-                            "Falling back to subdomain mode."
-                        ])
-                        self.setParam("mas_routing_mode", "subdomain")
-                        self.setParam("mas_ingress_controller_name", "")
-            else:
-                self.setParam("mas_routing_mode", "subdomain")
+                    self.setParam("mas_routing_mode", "subdomain")
+                    self.setParam("mas_ingress_controller_name", "")
+        else:
+            self.setParam("mas_routing_mode", "subdomain")
 
     def _checkIngressControllerForPathRouting(self, controllerName='default'):
         """Check if a specific IngressController exists and is configured for path-based routing.
