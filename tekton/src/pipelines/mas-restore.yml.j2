@@ -32,7 +32,7 @@ spec:
     # 8. Restore SLS (if required)
     # 9. Install DRO (if required)
     # 10. Restore MAS Suite
-    # 11. Suite Verify
+    # 11. Post Restore Suite Verify
 
     # 1. Pipeline Start
     # -------------------------------------------------------------------------
@@ -350,8 +350,8 @@ spec:
         - sls
         - dro
 
-    # 11. Suite Verification
-    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2') | indent(4) }}
+    # 11. Post Restore Suite Verification
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2', template_vars={'name': 'post-restore-suite-verify', 'devops_suite_name': 'post-restore-suite-verify'}) | indent(4) }}
       runAfter:
         - suite-restore
       when:
