@@ -24,12 +24,25 @@ rules:
       - nodes
     verbs:
       - list
+
+  # During installation of OpenShift Pipelines, we need to check for existing namespaces
   - apiGroups:
       - ""
     resources:
       - namespaces
     verbs:
       - get
+
+  # Visibility of CustomResourceDefinitions allows the CLI to detect whether OpenShift Pipelines has been installed
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    verbs:
+      - get
+
+  # Visibility of ImageContentSourcePolicy and ImageDigestMirrorSet resources allows the CLI to auto-detect
+  # whether the cluster has been set up for using a private image registry
   - apiGroups:
       - operator.openshift.io
     resources:
@@ -43,22 +56,13 @@ rules:
       - imagedigestmirrorsets
     verbs:
       - list
-  - apiGroups:
-      - apiextensions.k8s.io
-    resources:
-      - customresourcedefinitions
-    verbs:
-      - get
-  - apiGroups:
-      - config.openshift.io
-    resources:
-      - imagedigestmirrorsets
-    verbs:
-      - list
+
+  # We need to set up the "pipeline" service account that will be used by the pipelines
+  # We could support running without "patch" permission when a service account has already been configured by the user
   - apiGroups:
       - rbac.authorization.k8s.io
     resources:
       - clusterrolebindings
     verbs:
       - get
-      - patch  # TODO: Support running without this permission
+      - patch
