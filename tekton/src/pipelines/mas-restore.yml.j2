@@ -32,6 +32,7 @@ spec:
     # 8. Restore SLS (if required)
     # 9. Install DRO (if required)
     # 10. Restore MAS Suite
+    # 11. Suite Verify
 
     # 1. Pipeline Start
     # -------------------------------------------------------------------------
@@ -130,6 +131,7 @@ spec:
         - name: backups
           workspace: shared-backups
       runAfter:
+        - pre-restore-check
         - download-backup-archive
 
     # 5. Restore Certificate Manager
@@ -297,8 +299,7 @@ spec:
         - name: backups
           workspace: shared-backups
       runAfter:
-        - mongodb
-        - sls
+        - ibm-catalogs
 
     # 10. Restore MAS Suite
     # -------------------------------------------------------------------------
@@ -349,6 +350,14 @@ spec:
         - sls
         - dro
 
+    # 11. Suite Verification
+    {{ lookup('template', pipeline_src_dir ~ '/taskdefs/core/suite-verify.yml.j2') | indent(4) }}
+      runAfter:
+        - suite-restore
+      when:
+        - input: "$(params.mas_instance_id)"
+          operator: notin
+          values: [""]
 
   finally:
     # Update synchronization configmap
