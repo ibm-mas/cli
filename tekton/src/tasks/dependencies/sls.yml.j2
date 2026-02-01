@@ -62,7 +62,7 @@ spec:
       default: ""
 
     # Backup/Restore specific parameters
-    - name: backup_version
+    - name: sls_backup_version
       type: string
       description: Optional. Version/timestamp for the backup
       default: ""
@@ -117,7 +117,7 @@ spec:
       - name: MAS_BACKUP_DIR
         value: /workspace/backups
       - name: SLS_BACKUP_VERSION
-        value: $(params.backup_version)
+        value: $(params.sls_backup_version)
 
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates

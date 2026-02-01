@@ -19,7 +19,7 @@ spec:
       default: ""
 
     # Backup/Restore specific parameters
-    - name: backup_version
+    - name: certmanager_backup_version
       type: string
       description: Optional. Version/timestamp for the backup
       default: ""
@@ -39,7 +39,7 @@ spec:
       - name: MAS_BACKUP_DIR
         value: /workspace/backups
       - name: CERTMANAGER_BACKUP_VERSION
-        value: $(params.backup_version)
+        value: $(params.certmanager_backup_version)
   steps:
     - name: cert-manager
       command:
