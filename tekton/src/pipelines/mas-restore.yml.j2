@@ -238,6 +238,8 @@ spec:
           value: $(params.restore_version)
         - name: sls_action
           value: restore
+        - name: sls_domain
+          value: $(params.sls_domain)
 
       when:
         - input: "$(params.include_sls)"
@@ -296,8 +298,6 @@ spec:
       workspaces:
         - name: configs
           workspace: shared-configs
-        - name: backups
-          workspace: shared-backups
       runAfter:
         - ibm-catalogs
 
@@ -321,15 +321,15 @@ spec:
         - name: mas_domain_on_restore
           value: $(params.mas_domain_on_restore)
 
-        - name: include_sls_from_backup
-          value: $(params.include_sls)
+        - name: include_slscfg_from_backup
+          value: $(params.include_slscfg_from_backup)
         - name: sls_url_on_restore
           value: $(params.sls_url_on_restore)
         - name: sls_cfg_file
           value: $(params.sls_cfg_file)
 
-        - name: include_dro_from_backup
-          value: $(params.include_dro)
+        - name: include_drocfg_from_backup
+          value: $(params.include_drocfg_from_backup)
         - name: dro_url_on_restore
           value: $(params.dro_url_on_restore)
         - name: dro_cfg_file

@@ -14,7 +14,7 @@ from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
 from ..cli import BaseApp
-from ..validators import InstanceIDFormatValidator
+from ..validators import InstanceIDFormatValidator, FileExistsValidator
 from .argParser import restoreArgParser
 from mas.devops.ocp import createNamespace, getConsoleURL
 from mas.devops.mas import getDefaultStorageClasses
@@ -44,6 +44,8 @@ class RestoreApp(BaseApp):
             requiredParams = ["mas_instance_id", "restore_version"]
             optionalParams = [
                 "mas_domain_on_restore",
+                "include_slscfg_from_backup",
+                "include_drocfg_from_backup",
                 "sls_url_on_restore",
                 "sls_cfg_file",
                 "dro_url_on_restore",
@@ -54,6 +56,8 @@ class RestoreApp(BaseApp):
                 "include_dro",
                 "skip_pre_check",
                 "dev_mode",
+                # SLS
+                "sls_domain",
                 # DRO Configuration
                 "dro_namespace",
                 "dro_contact_email",
@@ -113,21 +117,34 @@ class RestoreApp(BaseApp):
             if self.args.mas_instance_id is None:
                 self.promptForInstanceId()
 
-            if self.args.mas_domain_on_restore is None:
-                self.promptForMASDomain()
-
             # Prompt for backup version if not provided
             if self.args.restore_version is None:
                 self.promptForBackupVersion()
+
+            # Prompt for Grafana install
+            if self.args.include_grafana is None:
+                self.promptForIncludeGrafana()
+
+            if self.args.include_sls is None:
+                self.promptForIncludeSLS()
+
+            if self.args.include_dro is None:
+                self.promptForIncludeDRO()
+
+            if self.args.mas_domain_on_restore is None:
+                self.promptForMASConfiguration()
+
+            if self.args.include_slscfg_from_backup is None:
+                self.promptForSLSConfiguration()
+
+            if self.args.include_drocfg_from_backup is None:
+                self.promptForDROConfiguration()
 
             # Prompt for backup storage size if not provided
             if self.args.backup_storage_size is None:
                 self.promptForBackupStorageSize()
 
-            self.promptForDROConfiguration()
-
             self.promptForDownloadConfiguration()
-            self.promptForAdvancedConfiguration()
 
         # Set default values for optional parameters if not provided
         self.setDefaultParams()
@@ -238,16 +255,84 @@ class RestoreApp(BaseApp):
         self.printDescription([" - Note: Use the same MAS instance ID as the backup you are restoring from."])
         self.promptForString(message="Instance ID", param="mas_instance_id", validator=InstanceIDFormatValidator())
 
-    def promptForMASDomain(self) -> None:
-        self.printH1("Confirm the MAS Domain for the restore")
-        self.printDescription([" - Note: If you are restoring to a different cluster than the backup, you must update the MAS domain."])
-        changeDomain = self.yesOrNo("Would you like to change the MAS domain?")
+    def promptForMASConfiguration(self) -> None:
+        self.printH1("Maximo Application Suite Configuration")
+        changeDomain = self.yesOrNo("Would you like to change the MAS domain in the Suite CR?")
         if changeDomain:
             self.promptForString(message="MAS Domain", param="mas_domain_for_restore")
 
+    def promptForSLSConfiguration(self) -> None:
+        self.printH1("Suite-level SLS Configuration")
+        # promt user to include slscfg from backup. if yes, promt for sls_url, if not prompt for sls_cfg_file.
+        includeSLSCfg = self.yesOrNo("Would you like to restore Suite-level SLSCfg from backup?")
+        if includeSLSCfg:
+            self.setParam("include_slscfg_from_backup", "true")
+            changeSLSUrl = self.yesOrNo("Would you like to change the SLS URL in the Suite's SLSCfg CR?")
+            if changeSLSUrl:
+                self.promptForString(message="SLS URL", param="sls_url_on_restore")
+            else:
+                self.setParam("sls_url_on_restore", "")
+        else:
+            self.setParam("include_slscfg_from_backup", "false")
+            self.promptForString(message="SLS Configuration File, must be provided when not restoring from backup", param="sls_cfg_file", validator=FileExistsValidator())
+
+    def promptForDROConfiguration(self) -> None:
+        self.printH1("Suite-level DRO/BAS Configuration")
+        # promt user to include bascfg from backup. if yes, promt for bas_url, if not prompt for dro_cfg_file.
+        includeDROCfg = self.yesOrNo("Would you like to restore Suite-level BASCfg from backup?")
+        if includeDROCfg:
+            self.setParam("include_drocfg_from_backup", "true")
+            changeDROUrl = self.yesOrNo("Would you like to change the DRO URL in the Suite's BASCfg CR?")
+            if changeDROUrl:
+                self.promptForString(message="BAS URL", param="dro_url_on_restore")
+            else:
+                self.setParam("dro_url_on_restore", "")
+        else:
+            self.setParam("include_drocfg_from_backup", "false")
+            self.promptForString(message="DRO/BAS Configuration File, must be provided when not restoring from backup", param="sls_cfg_file", validator=FileExistsValidator())
+
+    def promptForIncludeSLS(self) -> None:
+        self.printH1("SLS Configuration")
+        self.printDescription([" - You can restore SLS instance or bring your own SLS."])
+        includeSLS: bool = self.yesOrNo("Would you like to restore SLS instance from backup?")
+        if includeSLS:
+            self.setParam("include_sls", "true")
+            # Prompt user to enter custom SLS Domain
+            customSLSDomain: bool = self.yesOrNo("Would you like to change SLS Domain to use in SLS instance?")
+            if customSLSDomain:
+                slsDomain = self.promptForString("Enter the SLS Domain to use in License Service CR")
+                self.setParam("sls_domain", slsDomain)
+            else:
+                self.setParam("sls_domain", "")
+        else:
+            self.setParam("include_sls", "false")
+
+    def promptForIncludeDRO(self) -> None:
+        self.printH1("IBM Data Reporting Operator Configuration")
+        self.printDescription([" - DRO is not part of backup/restore. You can install DRO instance or bring your own DRO."])
+        includeDRO: bool = self.yesOrNo("Would you like the pipeline to install DRO instance?")
+        if includeDRO:
+            self.setParam("include_dro", "true")
+            self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
+            self.promptForString("Contact e-mail address", "dro_contact_email")
+            self.promptForString("Contact first name", "dro_contact_firstname")
+            self.promptForString("Contact last name", "dro_contact_lastname")
+            self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
+        else:
+            self.setParam("include_dro", "false")
+
+    def promptForIncludeGrafana(self) -> None:
+        self.printH1("Grafana Configuration")
+        self.printDescription([" - Grafana is not part of backup/restore. You can install Grafana instance or skip it."])
+        includeGrafana: bool = self.yesOrNo("Would you like the pipeline to install Grafana instance?")
+        if includeGrafana:
+            self.setParam("include_grafana", "true")
+        else:
+            self.setParam("include_grafana", "false")
+
     def promptForBackupStorageSize(self) -> None:
         self.printH1("Backup Storage Configuration")
-        storageSize = self.promptForString("Enter PVC storage size, must be bigger than backup archive size. (e.g. 20Gi))", default="20Gi")
+        storageSize = self.promptForString("Enter PVC storage size, must be bigger than backup archive size.", default="20Gi")
         self.setParam("backup_storage_size", storageSize)
 
     def promptForBackupVersion(self) -> None:
@@ -255,39 +340,6 @@ class RestoreApp(BaseApp):
         # Prompt user to enter custom backup version
         restore_version = self.promptForString("Set the backup version to use for this restore operation. (e.g. 20260117-191701)")
         self.setParam("restore_version", restore_version)
-
-    def promptForAdvancedConfiguration(self) -> None:
-        if self.devMode:
-            self.printH1("Advanced Configuration")
-            self.printDescription([" - Note: Only change these settings if you know what you are doing."])
-            if not self.getParam("include_sls"):
-                self.printH2("SLS Advanced Configuration")
-                self.printDescription([
-                    " - Provide the SLS config file path if you want to use your own SLS instance.",
-                    " - Or, Provide the SLS URL to change the SLS URL if you restoring to a different cluster."])
-                byoSLS = self.yesOrNo("Would you like to use your own SLS instance?")
-                if byoSLS:
-                    self.setParam("include_sls", "false")
-                    self.promptForString(message="Enter path to the SLS config file", param="sls_cfg_file")
-                else:
-                    self.setParam("include_sls", "true")
-                    changeSlsUrl = self.yesOrNo("Would you like to change SLS url?")
-                    if changeSlsUrl:
-                        self.promptForString(message="SLS url", param="sls_url_on_restore")
-            if not self.getParam("include_dro"):
-                self.printH2("DRO Advanced Configuration")
-                self.printDescription([
-                    " - Provide the DRO config file path if you want to use your own DRO instance.",
-                    " - Or, Provide the DRO URL to just change the DRO URL if you restoring to a different cluster."])
-                byoDRO = self.yesOrNo("Would you like to use your own DRO instance?")
-                if byoDRO:
-                    self.setParam("include_dro", "false")
-                    self.promptForString(message="Enter path to the DRO config file", param="dro_cfg_file")
-                else:
-                    self.setParam("include_dro", "true")
-                    changeDroUrl = self.yesOrNo("Would you like to change DRO url?")
-                    if changeDroUrl:
-                        self.promptForString(message="DRO url", param="dro_url_on_restore")
 
     def setDefaultParams(self) -> None:
         """Set default values for optional parameters if not already set"""
@@ -299,19 +351,6 @@ class RestoreApp(BaseApp):
             self.setParam("include_dro", "true")
         if not self.getParam("backup_storage_size"):
             self.setParam("backup_storage_size", "20Gi")
-        if not self.getParam("backup_archive_name"):
-            self.setParam("backup_archive_name", "")
-
-    def promptForDROConfiguration(self) -> None:
-        """Prompt user for IBM Data Reporting Operator configuration"""
-        if self.args.include_dro:
-            if self.args.dro_contact_email is None or self.args.dro_contact_firstname is None or self.args.dro_contact_lastname is None or self.args.ibm_entitlement_key is None:
-                self.printH1("IBM Data Reporting Operator configuration Configuration")
-                self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
-                self.promptForString("Contact e-mail address", "dro_contact_email")
-                self.promptForString("Contact first name", "dro_contact_firstname")
-                self.promptForString("Contact last name", "dro_contact_lastname")
-                self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
 
     def promptForDownloadConfiguration(self) -> None:
         """Prompt user for backup download configuration"""

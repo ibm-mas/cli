@@ -25,7 +25,7 @@ spec:
       description: The domain to use for the MAS Suite instance
       default: "NO_OVERRIDE" # Default value is used to indicate that the domain should not be overridden
 
-    - name: include_sls_from_backup
+    - name: include_slscfg_from_backup
       type: string
       description: Whether to include SLS from backup
       default: "true"
@@ -38,7 +38,7 @@ spec:
       default: ""
       description: SLS cfg file when restoring with external BAS
 
-    - name: include_dro_from_backup
+    - name: include_drocfg_from_backup
       type: string
       description: Whether to include SLS from backup
       default: "true"
@@ -68,13 +68,13 @@ spec:
       - name: MAS_DOMAIN
         value: $(params.mas_domain_on_restore)
       - name: INCLUDE_SLS_FROM_BACKUP
-        value: $(params.include_sls_from_backup)
+        value: $(params.include_slscfg_from_backup)
       - name: SLS_URL
         value: $(params.sls_url_on_restore)
       - name: SLS_CFG_FILE
         value: $(params.sls_cfg_file)
       - name: INCLUDE_DRO_FROM_BACKUP
-        value: $(params.include_dro_from_backup)
+        value: $(params.include_drocfg_from_backup)
       - name: BAS_URL
         value: $(params.dro_url_on_restore)
       - name: DRO_CFG_FILE

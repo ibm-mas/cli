@@ -48,28 +48,42 @@ masArgGroup.add_argument(
     '--sls-url-restore',
     dest='sls_url_on_restore',
     required=False,
-    help="SLS URL to restore. If not specified, the url will be taken from the backup."
+    help="SLS URL to restore in Suite configuration. If not specified, the url will be taken from the backup."
 )
 
 masArgGroup.add_argument(
     '--dro-url-restore',
     dest='dro_url_on_restore',
     required=False,
-    help="DRO URL to restore. If not specified, the url will be taken from the backup."
+    help="DRO URL to restore in Suite configuration. If not specified, the url will be taken from the backup."
+)
+
+masArgGroup.add_argument(
+    '--include-slscfg-from-backup',
+    dest='include_slscfg_from_backup',
+    required=True,
+    help="Use SLS config from backup during Suite restore."
 )
 
 masArgGroup.add_argument(
     '--sls-cfg-file',
     dest='sls_cfg_file',
     required=False,
-    help="SLS config file path. must be provided if own SLS is used."
+    help="SLS config file path to restore, must be provided if own SLS is used."
 )
 
 masArgGroup.add_argument(
     '--dro-cfg-file',
     dest='dro_cfg_file',
     required=False,
-    help="DRO config file path. must be provided if own DRO is used."
+    help="DRO config file path to restore, must be provided if own DRO is used."
+)
+
+masArgGroup.add_argument(
+    '--include-drocfg-from-backup',
+    dest='include_drocfg_from_backup',
+    required=True,
+    help="Include DRO config from backup during Suite restore."
 )
 
 restoreArgGroup = restoreArgParser.add_argument_group(
@@ -189,6 +203,17 @@ componentsArgGroup.add_argument(
     action="store_const",
     const="false",
     help="Exclude SLS from restore (use if SLS is external)"
+)
+
+slsArgGroup = restoreArgParser.add_argument_group(
+    "IBM Suite License Service Operator",
+    "Configure IBM Suite License Service Operator (SLS) domain during restore."
+)
+slsArgGroup.add_argument(
+    "--sls-domain",
+    dest='sls_domain',
+    required=False,
+    help="SLS domain to use during SLS instance restore (optional)."
 )
 
 droArgGroup = restoreArgParser.add_argument_group(

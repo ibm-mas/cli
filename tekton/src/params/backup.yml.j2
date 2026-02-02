@@ -121,6 +121,11 @@
   description: SLS namespace
   default: "ibm-sls"
 
+- name: sls_domain
+  type: string
+  description: SLS URL to restore in Suite configuration.
+  default: ""
+
 # Certificate Manager Configuration
 # -----------------------------------------------------------------------------
 - name: cert_manager_provider
@@ -179,6 +184,11 @@
   default: ""
   description: SLS URL when restoring with external SLS
 
+- name: include_slscfg_from_backup
+  type: string
+  default: ""
+  description: Use SLSCfg from backup during restore
+
 - name: sls_cfg_file
   type: string
   default: ""
@@ -188,6 +198,11 @@
   type: string
   default: ""
   description: DRO URL when restoring with external DRO
+
+- name: include_drocfg_from_backup
+  type: string
+  default: ""
+  description: Use DROCfg from backup during restore
 
 - name: dro_cfg_file
   type: string
