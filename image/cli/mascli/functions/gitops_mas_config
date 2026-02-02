@@ -255,7 +255,7 @@ function gitops_mas_config_noninteractive() {
       --jdbc-certificate-file)
         export JDBC_CERTIFICATE_FILE=$1 && shift
         ;;
-       --jdbc-route)
+      --jdbc-route)
         export JDBC_ROUTE=$1 && shift
         ;;
 
