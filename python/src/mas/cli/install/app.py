@@ -596,7 +596,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         if condition.type == 'Available' and condition.status == 'True':
                             availableControllers.append({
                                 'name': ic.metadata.name,
-                                'domain': ic.spec.domain if hasattr(ic.spec, 'domain') else 'N/A'
+                                'domain': ic.status.domain if hasattr(ic.status, 'domain') else 'N/A'
                             })
                             break
 
