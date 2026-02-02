@@ -204,5 +204,8 @@ optionalParams = [
     "rsl_org_id",
     "rsl_token",
     "rsl_ca_crt",
-    "environment_type"
+    "environment_type",
+
+    # Certificate Issuer
+    "aiservice_certificate_issuer"
 ]
