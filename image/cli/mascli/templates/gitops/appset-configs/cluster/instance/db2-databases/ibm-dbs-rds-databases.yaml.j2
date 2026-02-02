@@ -10,7 +10,6 @@ jdbc_connection_url: <path:{{ SECRETS_PATH }}:{{ JDBC_CONNECTION_URL }}>
 {%- if JDBC_CONNECTION_URL_ADDITIONAL_PARAMS is defined and JDBC_CONNECTION_URL_ADDITIONAL_PARAMS !='' %}
 jdbc_connection_url_additional_params: {{ JDBC_CONNECTION_URL_ADDITIONAL_PARAMS }}
 {%- endif %}
-jdbc_route: {{ JDBC_ROUTE }}
 replica_db: {{ REPLICA_DB }}
 db2_instance_registry:
   {% filter indent(width=2) -%}
