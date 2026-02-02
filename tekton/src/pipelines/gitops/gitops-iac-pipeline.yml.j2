@@ -437,7 +437,7 @@ spec:
         - name: msk_cluster_prefix
           value: $(params.msk_cluster_prefix)
 
-    # Task 4: Provision RDS-DB2 (Conditional - runs if is_msk=true)
+    # Task 4: Provision RDS-DB2 (Conditional - runs if is_rds=true)
     # -------------------------------------------------------------------------
     - name: gitops-iac-provision-rdsdb2
       when:

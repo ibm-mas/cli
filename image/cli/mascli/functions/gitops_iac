@@ -795,14 +795,14 @@ function compute_rds_variables() {
   local REGION_NAME=$3
   local CLUSTER_ID=$4
 
-  echo "Computing MSK variables..."
+  echo "Computing RDS DB2 variables..."
 
   # Extract values from cluster files
   CLUSTER_PATH=${TASK_WORKING_DIR}/${GITHUB_REPO}/${REGION_NAME}/clusters/${CLUSTER_ID}
   TERRAFORMTF_FILE_PATH=$CLUSTER_PATH/terraform.tfvars
   MAIN_FILE_PATH=$CLUSTER_PATH/main.tf
 
-  # Compute MSK variables from Terraform files
+  # Compute rds-db2 variables from Terraform files
   export NAME_PREFIX_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "name_prefix")
   export COST_CENTER_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["cost-center"]')
   export CONTACT_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'common_tags["contact"]')

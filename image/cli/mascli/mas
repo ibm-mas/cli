@@ -703,7 +703,7 @@ case $1 in
     ;;
 
   gitops-iac-provision-rdsdb2)
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Provision S3 (v${VERSION})${TEXT_RESET}"
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Provision RDS DB2 (v${VERSION})${TEXT_RESET}"
     echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
     echo
     reset_colors
