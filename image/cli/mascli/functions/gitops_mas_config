@@ -66,7 +66,7 @@ IDP/LDAP Configuration (required if MAS_CONFIG_TYPE is "ldap-default"):
 JDBC Configuration (required if MAS_CONFIG_TYPE is "jdbc"):
   --jdbc-type ${COLOR_YELLOW}JDBC_TYPE${TEXT_RESET}                           Set to 'incluster-db2' when wanting to use the gitops configured, via gitops-db2u-database, db2u cluster (defaults to incluster-db2)
   --jdbc-instance-name ${COLOR_YELLOW}JDBC_INSTANCE_NAME${TEXT_RESET}         The JDBC instance name to use. Required for all JDBC_TYPE's
-  --jdbc-connection-url ${COLOR_YELLOW}JDBC_CONNECTION_URL${TEXT_RESET}       The JDBC connection URL. Required when JDBC_TYPE is not incluster-db2
+  --jdbc-connection-url ${COLOR_YELLOW}JDBC_CONNECTION_URL${TEXT_RESET}       The JDBC connection URL. Required when JDBC_TYPE is not incluster-db2 and rds-db2
   --jdbc-certificate-file ${COLOR_YELLOW}JDBC_CERTIFICATE_FILE${TEXT_RESET}   Path to file containing CA Certificate for JDBC server. Required when JDBC_TYPE is not incluster-db2
 
 SMTP Configuration (required if MAS_CONFIG_TYPE is "smtp"): 
@@ -436,7 +436,7 @@ function gitops_mas_config_noninteractive() {
         fi
       fi
       if [[ "${JDBC_TYPE}" == "incluster-db2" || "${JDBC_TYPE}" == "rds-db2" ]]; then
-        [[ -n "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is set when JDBC_TYPE is incluster-db2"
+        [[ -n "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is set when JDBC_TYPE is incluster-db2 or rds-db2"
       else
         [[ -z "$JDBC_INSTANCE_NAME" ]] && gitops_mas_config_help "JDBC_INSTANCE_NAME is not set"
         [[ -z "$JDBC_CONNECTION_URL" ]] && gitops_mas_config_help "JDBC_CONNECTION_URL is not set"
