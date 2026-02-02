@@ -87,6 +87,9 @@
     - name: environment_type
       value: $(params.environment_type)
 
+    - name: aiservice_certificate_issuer
+      value: $(params.aiservice_certificate_issuer)
+
   taskRef:
     name: mas-devops-aiservice
     kind: Task
