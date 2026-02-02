@@ -666,7 +666,7 @@ function gitops_mas_config() {
       echo_reset_dim "JDBC_TYPE ...................................... ${COLOR_MAGENTA}${JDBC_TYPE}"
       echo_reset_dim "JDBC_INSTANCE_NAME ............................. ${COLOR_MAGENTA}${JDBC_INSTANCE_NAME}"
       echo_reset_dim "JDBC_ROUTE ..................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
-      if [[ "${JDBC_TYPE}" != "incluster-db2" || "${JDBC_TYPE}" == "rds-db2" ]]; then
+      if [ "${JDBC_TYPE}" != "incluster-db2" ]; then
         echo "${TEXT_DIM}"
         echo_reset_dim "JDBC_CONNECTION_URL ............................ ${COLOR_MAGENTA}${JDBC_CONNECTION_URL}"
         echo_reset_dim "Path to JDBC Cert File  ........................ ${COLOR_MAGENTA}${JDBC_CERTIFICATE_FILE}"

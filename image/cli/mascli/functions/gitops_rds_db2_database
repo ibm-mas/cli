@@ -28,7 +28,6 @@ IBM RDS DB2:
       --jdbc-route ${COLOR_YELLOW}JDBC_ROUTE${TEXT_RESET}                                                     By default routes are not exposed to public. To expose route, set this to public.
       --jdbc-connection-url-additional-params ${COLOR_YELLOW}JDBC_CONNECTION_URL_ADDITIONAL_PARAMS${TEXT_RESET}  Additional parameters for JDBC connection URL
       --replica-db  ${COLOR_YELLOW}REPLICA_DB${TEXT_RESET}                                                       Flag to know that this is ReplicaDB instance
-      --manually-set-enhanced-hadr ${COLOR_YELLOW}MANUALLY_SET_ENHANCED_HADR${TEXT_RESET}                     Flag to indicate whether enhanced HADR was configured manually
 
 Secrets Manager:
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                     Secrets Manager path
@@ -127,9 +126,6 @@ function gitops_rds_db2_database_noninteractive() {
         ;;
       --jdbc-route)
         export JDBC_ROUTE=$1 && shift
-        ;;
-      --manually-set-enhanced-hadr)
-        export MANUALLY_SET_ENHANCED_HADR=$1 && shift
         ;;
       # Automatic GitHub Push
       -P|--github-push)
@@ -278,7 +274,6 @@ function gitops_rds_db2_database() {
   echo_reset_dim "mas-app-id  ................................... ${COLOR_MAGENTA}${MAS_APP_ID}"
   echo_reset_dim "replica-db .................................... ${COLOR_MAGENTA}${REPLICA_DB}"
   echo_reset_dim "JDBC_ROUTE .................................... ${COLOR_MAGENTA}${JDBC_ROUTE}"
-  echo_reset_dim "manually-set-enhanced-hadr .................... ${COLOR_MAGENTA}${MANUALLY_SET_ENHANCED_HADR}"
   echo_reset_dim "db2-instance-registry-yaml .................... ${COLOR_MAGENTA}${DB2_INSTANCE_REGISTRY_YAML}"
   echo_reset_dim "db2-instance-dbm-config-yaml .................. ${COLOR_MAGENTA}${DB2_INSTANCE_DBM_CONFIG_YAML}"
   echo_reset_dim "db2-database-db-config-yaml ................... ${COLOR_MAGENTA}${DB2_DATABASE_DB_CONFIG_YAML}"
