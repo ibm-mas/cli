@@ -372,7 +372,7 @@
 <p class="admonition-title">Important</p>
 <p>The RBAC definitions here are only sufficient to install MAS Core Platform &amp; it's dependencies, we are actively working on expanding this to cover the entire suite and all dependencies.</p>
 </div>
-<p>To directly use these definitions you will want to use <strong>kustomize</strong> and <strong>jinja</strong>, following the steps below.  Note the <code>--service-account</code> flag passed to the CLI to inform it not to set up the default pipeline RBAC:</p>
+<p>To directly use these definitions you will want to use <strong>kustomize</strong> and <strong><a href="https://github.com/kpfleming/jinjanator">jinja</a></strong>, following the steps below.  Note the <code>--service-account</code> flag passed to the CLI to inform it not to set up the default pipeline RBAC:</p>
 <pre><code class="language-bash">MAS_INSTANCE_ID=dev1
 export SERVER=https://myocp.net
 # Install the minimal RBAC for the MAS install (as OpenShift administrator)
@@ -389,15 +389,14 @@ echo $INSTALL_TOKEN
 oc login --token $INSTALL_TOKEN --server $SERVER
 
 # Install MAS (using IBMCloud storage classes)
-docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:18.10.0 bash -c "
+docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:18.11.0 bash -c "
   oc login --token $INSTALL_TOKEN --server=$SERVER &amp;&amp;
   mas install --mas-catalog-version v9-260129-amd64 --ibm-entitlement-key $IBM_ENTITLEMENT_KEY \
-    --mas-channel 9.1.x --mas-instance-id ${MAS_INSTANCE_ID} --mas-workspace-id masdev --mas-workspace-name "My Workspace" \
-    --storage-class-rwo "ibmc-block-gold" --storage-class-rwx "ibmc-file-gold-gid" \
-    --storage-pipeline "ibmc-file-gold-gid" --storage-accessmode "ReadWriteMany" \
-    --license-file "/mnt/home/entitlement.lic" \
-    --contact-email "parkerda@uk.ibm.com" --contact-firstname "David" --contact-lastname "Parker" \
-    --mongodb-namespace "mongoce" \
+    --mas-channel 9.1.x --mas-instance-id ${MAS_INSTANCE_ID} --mas-workspace-id masdev --mas-workspace-name Workspace \
+    --storage-class-rwo ibmc-block-gold --storage-class-rwx ibmc-file-gold-gid \
+    --storage-pipeline ibmc-file-gold-gid --storage-accessmode ReadWriteMany \
+    --license-file /mnt/home/entitlement.lic \
+    --contact-email email@uk.ibm.com --contact-firstname David --contact-lastname Parker \
     --accept-license --no-confirm --service-account mas-${MAS_INSTANCE_ID}-install-pipeline
   "
 </code></pre>
