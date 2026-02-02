@@ -19,6 +19,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'python-d
 
 def get_all_catalog_files():
     """Get all catalog YAML files from python-devops."""
+    # Try to import from installed package first (for CI/CD builds)
+    try:
+        import mas.devops
+        package_dir = os.path.dirname(mas.devops.__file__)
+        catalog_dir = os.path.join(package_dir, 'data', 'catalogs')
+        catalog_files = glob.glob(os.path.join(catalog_dir, 'v*.yaml'))
+        if catalog_files:
+            return catalog_files
+    except (ImportError, AttributeError):
+        pass
+
+    # Fall back to local development path
     catalog_dir = os.path.join(
         os.path.dirname(__file__),
         '..', '..', '..',
