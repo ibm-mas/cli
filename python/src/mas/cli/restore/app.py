@@ -122,14 +122,13 @@ class RestoreApp(BaseApp):
                 self.promptForBackupVersion()
 
             # Prompt for Grafana install
-            if self.args.include_grafana is None:
-                self.promptForIncludeGrafana()
+            self.promptForIncludeGrafana()
 
-            if self.args.include_sls is None:
-                self.promptForIncludeSLS()
+            # Prompt for SLS install
+            self.promptForIncludeSLS()
 
-            if self.args.include_dro is None:
-                self.promptForIncludeDRO()
+            # Prompt for DRO install
+            self.promptForIncludeDRO()
 
             if self.args.mas_domain_on_restore is None:
                 self.promptForMASConfiguration()
@@ -259,7 +258,7 @@ class RestoreApp(BaseApp):
         self.printH1("Maximo Application Suite Configuration")
         changeDomain = self.yesOrNo("Would you like to change the MAS domain in the Suite CR?")
         if changeDomain:
-            self.promptForString(message="MAS Domain", param="mas_domain_for_restore")
+            self.promptForString(message="MAS Domain", param="mas_domain_on_restore")
 
     def promptForSLSConfiguration(self) -> None:
         self.printH1("Suite-level SLS Configuration")
