@@ -1037,6 +1037,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
                 self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
+            # Configure Certificate Issuer
+            self.configAIServiceCertIssuer()
+
+    @logMethodCall
+    def configAIServiceCertIssuer(self):
+        if self.showAdvancedOptions:
+            self.printH1("Configure Certificate Issuer")
+            configureCertIssuer = self.yesOrNo('Configure certificate issuer')
+            if configureCertIssuer:
+                self.promptForString("Certificate issuer name", "aiservice_certificate_issuer")
+
     @logMethodCall
     def aiServiceTenantSettings(self) -> None:
         if self.installAIService:

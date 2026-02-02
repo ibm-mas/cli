@@ -97,4 +97,7 @@ optionalParams = [
     "rsl_token",
     "rsl_ca_crt",
     "environment_type",
+
+    # Certificate Issuer
+    "aiservice_certificate_issuer",
 ]
