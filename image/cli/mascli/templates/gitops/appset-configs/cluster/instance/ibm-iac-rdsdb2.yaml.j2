@@ -42,7 +42,7 @@ module "db2rds-{{RDS_APP}}" {
   parameter_group_family              = "db2-ae-11.5"
   option_group_name                   = join("-", [var.cluster_name, var.instance_name, "{{RDS_APP}}", "db2-ae-11-5"])
   db2_preferred_maintenance_window    = "sun:05:00-sun:06:00"
-  backup_retention_period             = 2
+  backup_retention_period             = 30
   monitoring_interval                 = 30
   db2_preferred_backup_window         = "01:00-02:00"
   db2_port                            = "50001"
