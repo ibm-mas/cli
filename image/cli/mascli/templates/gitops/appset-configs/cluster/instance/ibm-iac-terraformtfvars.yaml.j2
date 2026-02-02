@@ -29,10 +29,6 @@ name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 
 {%- if IS_S3 | lower == 'true'  %}
 #S3 related params starts
-create_s3_iam_group     = false
-create_s3_iam_policy    = false
-create_efs_policy       = false
-account_id = "{{ACCOUNT_ID}}"
 {%- if S3_MANAGE | lower == 'true'  %}
 #S3 Manage related params starts
 s3bucket_name_prefix_manage    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"
@@ -73,6 +69,10 @@ location = {
     region             = "{{REGION_NAME}}"
     availability_zones = ["{{REGION_NAME}}a", "{{REGION_NAME}}b", "{{REGION_NAME}}c"]
 }
+create_s3_iam_group     = false
+create_s3_iam_policy    = false
+create_efs_policy       = false
+account_id = "{{ACCOUNT_ID}}"
 #S3/RDS related params ends
 {%- endif %}
 {%- if (IS_RDS | lower == 'true') %}
@@ -80,5 +80,34 @@ location = {
 engine_version            = "11.5.9.0.sb00063198.r1"
 db2_parameters_apply_type = "pending-reboot"
 s3bucket_name_prefix_db2    = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds"
+iam_user_name_prefix_audit_log = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds"
+iam_user_arn_prefix_audit_log  = "arn:aws:iam::{{ACCOUNT_ID}}:user/{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds"
+{%- if (RDS_MANAGE | lower == 'true') %}
+#RDS S3 MANAGE AUDIT LOG related params starts
+s3_iam_users_list_audit_log_manage = {
+    audit_logs  = {
+        iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-manage"
+    }
+}
+#RDS S3 MANAGE AUDIT LOG related params ends
+{%- endif %}
+{%- if (RDS_IOT | lower == 'true') %}
+#RDS S3 IOT AUDIT LOG related params starts
+s3_iam_users_list_audit_log_iot = {
+    audit_logs  = {
+        iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-iot"
+    }
+}
+#RDS S3 IOT AUDIT LOG related params ends
+{%- endif %}
+{%- if (RDS_FACILITIES | lower == 'true') %}
+#RDS S3 FACILITIES AUDIT LOG related params starts
+s3_iam_users_list_audit_log_facilities = {
+    audit_logs  = {
+        iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-facilities"
+    }
+}
+#RDS S3 FACILITIES AUDIT LOG related params ends
+{%- endif %}
 #RDS related params ends
 {%- endif %}

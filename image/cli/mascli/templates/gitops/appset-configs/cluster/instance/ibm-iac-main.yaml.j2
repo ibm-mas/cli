@@ -24,7 +24,106 @@ data "aws_subnets" "internal_subnets" {
 
 
 locals {
-{%- if IS_S3 | lower == 'true' %}
+{%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true') %}
+{%- if (RDS_MANAGE | lower == 'true') %}
+  #RDS Manage specific IAM parameter starts here
+  iam_user_arns_audit_log_manage = {
+    audit_logs   = "${var.iam_user_arn_prefix_audit_log}-auditlog-manage"
+  }
+
+  s3_iam_users_list_audit_log_manage = {
+    audit_logs = {
+      bucket_name   = "${var.s3bucket_name_prefix_db2}-auditlog-manage"
+      iam_user_name = "${var.iam_user_name_prefix_audit_log}-auditlog-manage"
+      access_level  = var.access_level_audit_log_rw
+    }
+  }
+
+  iam_users_by_bucket_audit_log_manage = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_audit_log_manage : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_audit_log_manage :
+      local.iam_user_arns_audit_log_manage[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+
+  bucket_user_names_audit_log_manage = {
+    audit_logs   = "${var.iam_user_name_prefix_audit_log}-auditlog-manage"
+  }
+
+  bucket_user_name_map_audit_log_manage = {
+    for key, value in local.s3_iam_users_list_audit_log_manage :
+    key => lookup(local.bucket_user_names_audit_log_manage, key, null)
+  }
+  #RDS Manage specific IAM parameter ends here
+{%- endif %}
+{%- if (RDS_IOT | lower == 'true') %}
+  #RDS IOT specific IAM parameter starts here
+  iam_user_arns_audit_log_iot = {
+    audit_logs   = "${var.iam_user_arn_prefix_audit_log}-auditlog-iot"
+  }
+
+  s3_iam_users_list_audit_log_iot = {
+    audit_logs = {
+      bucket_name   = "${var.s3bucket_name_prefix_db2}-auditlog-iot"
+      iam_user_name = "${var.iam_user_name_prefix_audit_log}-auditlog-iot"
+      access_level  = var.access_level_audit_log_rw
+    }
+  }
+
+  iam_users_by_bucket_audit_log_iot = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_audit_log_iot : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_audit_log_iot :
+      local.iam_user_arns_audit_log_iot[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+
+  bucket_user_names_audit_log_iot = {
+    audit_logs   = "${var.iam_user_name_prefix_audit_log}-auditlog-iot"
+  }
+
+  bucket_user_name_map_audit_log_iot = {
+    for key, value in local.s3_iam_users_list_audit_log_iot :
+    key => lookup(local.bucket_user_names_audit_log_iot, key, null)
+  }
+  #RDS IOT specific IAM parameter ends here
+{%- endif %}
+{%- if (RDS_FACILITIES | lower == 'true') %}
+  #RDS FACILITIES specific IAM parameter starts here
+  iam_user_arns_audit_log_facilities = {
+    audit_logs   = "${var.iam_user_arn_prefix_audit_log}-auditlog-facilities"
+  }
+
+  s3_iam_users_list_audit_log_facilities = {
+    audit_logs = {
+      bucket_name   = "${var.s3bucket_name_prefix_db2}-auditlog-facilities"
+      iam_user_name = "${var.iam_user_name_prefix_audit_log}-auditlog-facilities"
+      access_level  = var.access_level_audit_log_rw
+    }
+  }
+
+  iam_users_by_bucket_audit_log_facilities = {
+    for bucket_name in distinct([for u in local.s3_iam_users_list_audit_log_facilities : u.bucket_name]) :
+    bucket_name => [
+      for u_key, u_info in local.s3_iam_users_list_audit_log_facilities :
+      local.iam_user_arns_audit_log_facilities[u_key]
+      if u_info.bucket_name == bucket_name
+    ]
+  }
+
+  bucket_user_names_audit_log_facilities = {
+    audit_logs   = "${var.iam_user_name_prefix_audit_log}-auditlog-facilities"
+  }
+
+  bucket_user_name_map_audit_log_facilities = {
+    for key, value in local.s3_iam_users_list_audit_log_facilities :
+    key => lookup(local.bucket_user_names_audit_log_facilities, key, null)
+  }
+  #RDS FACILITIES specific IAM parameter ends here
+{%- endif %}
 {%- if S3_MANAGE | lower == 'true'  %}
   #Manage related params for S3 starts
   iam_user_arns_manage = {
@@ -80,13 +179,19 @@ locals {
   #Manage related params for S3 ends
 {%- endif %}
 
-  #Common S3 params starts
+  #S3 Actions params starts
   s3_actions = {
     ro = ["s3:GetObject", "s3:ListBucket"]
     rw = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
   }
-
-  #Common S3 params ends
+  #S3 Actions params ends
+{%- endif %}
+{%- if (IS_RDS | lower == 'true') %}
+  #RDS AUDIT LOG S3 Actions params starts
+  s3_actions_audit_log = {
+      rw = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket", "s3:ListMultipartUploadParts", "s3:AbortMultipartUpload"]
+  }
+  #RDS AUDIT LOG S3 Actions params ends
 {%- endif %}
 {%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true') %}
   location = var.location

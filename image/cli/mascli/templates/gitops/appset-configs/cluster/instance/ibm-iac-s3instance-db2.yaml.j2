@@ -4,11 +4,11 @@ module "s3buckets_instance_{{RDS_S3_APP_NAME}}" {
   tags                    = var.common_tags
   name_prefix             = var.name_prefix
   s3buckets               = local.cluster.instance.rds_s3bucket_{{RDS_S3_APP_NAME}}
-  iam_user_arns           = {}
-  bucket_user_name_map    = {}
-  iam_users_by_bucket     = {}
-  s3_iam_users_list       = {}
-  s3_actions              = {}
+  iam_user_arns           = local.iam_user_arns_audit_log_{{RDS_S3_APP_NAME}}
+  bucket_user_name_map    = local.bucket_user_name_map_audit_log_{{RDS_S3_APP_NAME}}
+  iam_users_by_bucket     = local.iam_users_by_bucket_audit_log_{{RDS_S3_APP_NAME}}
+  s3_iam_users_list       = local.s3_iam_users_list_audit_log_{{RDS_S3_APP_NAME}}
+  s3_actions              = local.s3_actions_audit_log
   s3_encryption           = true
   s3_encryption_algorithm = var.s3_encryption_algorithm
   force_bucket_destroy    = true

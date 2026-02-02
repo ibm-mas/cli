@@ -1223,6 +1223,12 @@ function gitops_iac_provision_rdsdb2(){
 
       echo "Generating s3-instance-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf "
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-db2.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf
+
+      echo "Generating s3-iampolicy-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$app.tf "
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-db2.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$app.tf
+
+      echo "Generating s3-accesspoints-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$app.tf "
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-db2.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$app.tf
     fi
   done
 
