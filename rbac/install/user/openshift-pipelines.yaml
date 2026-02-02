@@ -26,3 +26,14 @@ rules:
       - deployments
     verbs:
       - get
+  # Enables the workaround to handle the bug in OpenShift Pipelines/Tekton when
+  # there is no default storage class defined in the cluster
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+    verbs:
+      - get
+      - patch
+    resourceNames:
+      - postgredb-tekton-results-postgres-0
