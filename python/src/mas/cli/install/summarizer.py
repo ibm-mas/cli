@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -103,7 +103,13 @@ class InstallSummarizerMixin():
         self.printParamSummary("IBM Open Registry", "mas_icr_cpopen")
 
         print()
-        self.printParamSummary("Enable adoption metrics reporting", "mas_report_adoption_metrics")
+        self.printParamSummary("Enable feature adoption metrics", "mas_feature_usage")
+
+        print()
+        self.printParamSummary("Enable deployment progression metrics", "mas_deployment_progression")
+
+        print()
+        self.printParamSummary("Enable usability metrics", "mas_usability_metrics")
 
         print()
         self.printParamSummary("Trust Default Cert Authorities", "mas_trust_default_cas")

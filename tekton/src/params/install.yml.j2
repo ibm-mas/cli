@@ -433,10 +433,18 @@
 - name: mas_icr_cpopen
   type: string
   default: ""
-- name: mas_report_adoption_metrics
+- name: mas_feature_usage
   type: string
+  description: Flag to control feature adoption metrics used to understand feature usage and improve the product
   default: "True"
-  description: Optional flag to enable or disable adoption metrics reporting. Defaults to true (reporting enabled).
+- name: mas_usability_metrics
+  type: string
+  description: Flag to control user interface interaction metrics to improve usability
+  default: "True"
+- name: mas_deployment_progression
+  type: string
+  description: Flag to control metrics used to understand progression of tasks and workflows within the product
+  default: "True"
 - name: mas_annotations
   type: string
   default: ""

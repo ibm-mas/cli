@@ -74,9 +74,17 @@ spec:
       type: string
       default: ""
 
-    - name: mas_report_adoption_metrics
+    - name: mas_feature_usage
       type: string
-      description: Optional flag to enable or disable adoption metrics reporting. Defaults to true (reporting enabled).
+      description: Flag to control feature adoption metrics used to understand feature usage and improve the product
+      default: "True"
+    - name: mas_usability_metrics
+      type: string
+      description: Flag to control user interface interaction metrics to improve usability
+      default: "True"
+    - name: mas_deployment_progression
+      type: string
+      description: Flag to control metrics used to understand progression of tasks and workflows within the product
       default: "True"
 
     - name: ibm_entitlement_key
@@ -186,8 +194,12 @@ spec:
       - name: MAS_ICR_CPOPEN
         value: $(params.mas_icr_cpopen)
 
-      - name: MAS_REPORT_ADOPTION_METRICS
-        value: $(params.mas_report_adoption_metrics)
+      - name: MAS_FEATURE_USAGE
+        value: $(params.mas_feature_usage)
+      - name: MAS_USABILITY_METRICS
+        value: $(params.mas_usability_metrics)
+      - name: MAS_DEPLOYMENT_PROGRESSION
+        value: $(params.mas_deployment_progression)
 
       - name: IBM_ENTITLEMENT_KEY
         value: $(params.ibm_entitlement_key)

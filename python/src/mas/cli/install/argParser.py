@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -190,10 +190,26 @@ masAdvancedArgGroup.add_argument(
     const="false"
 )
 masAdvancedArgGroup.add_argument(
-    "--disable-reporting",
-    dest="mas_report_adoption_metrics",
+    "--disable-feature-usage",
+    dest="mas_feature_usage",
     required=False,
-    help="Disable adoption metrics reporting",
+    help="Disable feature adoption metrics reporting",
+    action="store_const",
+    const="false"
+)
+masAdvancedArgGroup.add_argument(
+    "--disable-deployment-progression",
+    dest="mas_deployment_progression",
+    required=False,
+    help="Disable deployment progression metrics reporting",
+    action="store_const",
+    const="false"
+)
+masAdvancedArgGroup.add_argument(
+    "--disable-usability-metrics",
+    dest="mas_usability_metrics",
+    required=False,
+    help="Disable usability metrics reporting",
     action="store_const",
     const="false"
 )

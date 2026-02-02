@@ -149,7 +149,9 @@ optionalParams = [
     "artifactory_token",
     # Guided Tour
     "mas_enable_walkme",
-    "mas_report_adoption_metrics"
+    "mas_feature_usage",
+    "mas_usability_metrics",
+    "mas_deployment_progression",
     # Facilities
     "mas_ws_facilities_size",
     "mas_ws_facilities_routes_timeout",

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -468,10 +468,24 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.showAdvancedOptions:
             self.printH1("Adoption Metrics Reporting")
             self.printDescription([
-                "Adoption Metrics are used by IBM to measure feature adoption, user engagement, and the success of product initiatives. When this option is enabled (y), you permit IBM to capture and analyze adoption metrics to help improve the Maximo Application Suite experience. When disabled (n), you are opting out of sending adoption metrics to IBM"
+                "Adoption Metrics are used by IBM to measure feature adoption, user engagement, and the success of product initiatives.",
+                "You can control three types of metrics:",
+                " - Feature Adoption: Tracks feature usage to understand adoption and improve the product",
+                " - Deployment Progression: Tracks progression of tasks and workflows within the product",
+                " - Usability: Tracks user interface interactions to improve usability",
+                "",
+                "When enabled (y), you permit IBM to capture and analyze these metrics to help improve the Maximo Application Suite experience.",
+                "When disabled (n), you are opting out of sending that specific metric type to IBM."
             ])
-            if not self.yesOrNo("Do you want to enable adoption metrics reporting"):
-                self.setParam("mas_report_adoption_metrics", "false")
+
+            if not self.yesOrNo("Enable feature adoption metrics"):
+                self.setParam("mas_feature_usage", "false")
+
+            if not self.yesOrNo("Enable deployment progression metrics"):
+                self.setParam("mas_deployment_progression", "false")
+
+            if not self.yesOrNo("Enable usability metrics"):
+                self.setParam("mas_usability_metrics", "false")
 
     @logMethodCall
     def configCP4D(self):
