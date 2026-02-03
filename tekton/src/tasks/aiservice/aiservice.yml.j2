@@ -154,6 +154,8 @@ spec:
 
     # RHOAI flag
     - name: rhoai
+    # Certificate Issuer
+    - name: aiservice_certificate_issuer
       type: string
 
   stepTemplate:
@@ -252,6 +254,10 @@ spec:
         value: $(params.rsl_org_id)
       - name: RSL_TOKEN
         value: $(params.rsl_token)
+
+      # Certificate Issuer
+      - name: AISERVICE_CERTIFICATE_ISSUER
+        value: $(params.aiservice_certificate_issuer)
 
   steps:
     - name: aiservice

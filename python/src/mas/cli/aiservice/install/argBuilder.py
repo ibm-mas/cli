@@ -103,6 +103,11 @@ class aiServiceInstallArgBuilderMixin():
 
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
+
+        # Certificate Issuer
+        if self.getParam('aiservice_certificate_issuer') != "":
+            command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
+
         if self.getParam('aiservice_s3_accesskey') != "":
             command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
         if self.getParam('aiservice_s3_secretkey') != "":

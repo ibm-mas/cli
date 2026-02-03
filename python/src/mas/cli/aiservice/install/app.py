@@ -125,13 +125,28 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.configOperationMode()
 
     @logMethodCall
+    def chooseInstallFlavour(self) -> None:
+        self.printH1("Choose Install Mode")
+        self.printDescription([
+            "There are two flavours of the interactive install to choose from: <u>Simplified</u> and <u>Advanced</u>.  The simplified option will present fewer dialogs, but you lose the ability to configure the following aspects of the installation:",
+            " - Configure certificate issuer",
+        ])
+        self.showAdvancedOptions = self.yesOrNo("Show advanced installation options")
+
+    @logMethodCall
     def interactiveMode(self, simplified: bool, advanced: bool) -> None:
         # Interactive mode
         self.interactiveMode = True
 
+        if simplified:
+            self.showAdvancedOptions = False
+        elif advanced:
+            self.showAdvancedOptions = True
+        else:
+            self.chooseInstallFlavour()
+
         self.storageClassProvider = "custom"
         self.slsLicenseFileLocal = None
-        self.showAdvancedOptions = True
 
         # Catalog
         self.configCatalog()
@@ -150,7 +165,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
         self.configCertManager()
         self.configAibroker()
         if self.devMode:
-            self.configAppChannel("aibroker")
+            self.configAppChannel()
 
         self.aiServiceSettings()
         self.aiServiceTenantSettings()
@@ -509,6 +524,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
                 logger.debug(f"Approval workflow for {approval['id']} will be enabled during install ({approval['maxRetries']} / {approval['retryDelay']}s / {approval['ignoreFailure']})")
                 self.initializeApprovalConfigMap(namespace, approval['id'], True, approval['maxRetries'], approval['retryDelay'], approval['ignoreFailure'])
 
+    @logMethodCall
     def aiServiceSettings(self) -> None:
         self.printH1("AI Service Settings")
 
@@ -541,6 +557,18 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
             self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
+        # Configure Certificate Issuer
+        self.configCertIssuer()
+
+    @logMethodCall
+    def configCertIssuer(self):
+        if self.showAdvancedOptions:
+            self.printH1("Configure Certificate Issuer")
+            configureCertIssuer = self.yesOrNo('Configure certificate issuer')
+            if configureCertIssuer:
+                self.promptForString("Certificate issuer name", "aiservice_certificate_issuer")
+
+    @logMethodCall
     def aiServiceTenantSettings(self) -> None:
         self.printH1("AI Service Tenant Settings")
         self.printDescription([
@@ -833,7 +861,7 @@ class AiServiceInstallApp(BaseApp, aiServiceInstallArgBuilderMixin, aiServiceIns
             self.promptForString("IBM Data Reporter Operator (DRO) Namespace", "dro_namespace", default="redhat-marketplace")
 
     @logMethodCall
-    def configAppChannel(self, appId):
+    def configAppChannel(self):
         self.params["aiservice_channel"] = prompt(HTML('<Yellow>Custom channel for AI Service</Yellow> '))
 
     @logMethodCall
