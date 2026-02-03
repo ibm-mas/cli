@@ -219,6 +219,12 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
 | `--s3-tenants-bucket` | S3 bucket for tenant data | Yes | `km-tenants` |
 | `--s3-templates-bucket` | S3 bucket for templates | Yes | `km-templates` |
 
+### Certificate Configuration
+
+| Parameter | Description | Required | Example |
+|-----------|-------------|----------|---------|
+| `--aiservice-certificate-issuer` | Name of the certificate issuer for AI Service | No | `letsencrypt-prod` |
+
 ### OpenDataHub Configuration
 
 | Parameter | Description | Required | Example |
@@ -255,12 +261,6 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
 | `--rsl-url` | RSL service URL | Optional | `http://host:3001/api/v3/vector/query` |
 | `--rsl-org-id` | RSL organization ID | Optional | `your_org_id` |
 | `--rsl-token` | RSL authentication token | Optional | `Bearer your_token` |
-
-### Certificate Configuration
-
-| Parameter | Description | Required | Example |
-|-----------|-------------|----------|---------|
-| `--aiservice-certificate-issuer` | Name of the certificate issuer for AI Service | No | `letsencrypt-prod` |
 
 ### Additional Options
 
