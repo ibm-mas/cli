@@ -1,7 +1,7 @@
 module "s3buckets_access_point_{{RDS_S3_APP_NAME}}" {
   source = "{{ RDS_S3ACCESSPOINT_SOURCE }}"
   for_each = {
-    for k, v in local.cluster.instance.rds_s3bucket_manage :
+    for k, v in local.cluster.instance.rds_s3bucket_{{RDS_S3_APP_NAME}} :
     k => v if can(regex("auditlog-{{RDS_S3_APP_NAME}}", v.name))
   }
 
