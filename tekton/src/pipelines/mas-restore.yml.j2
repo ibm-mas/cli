@@ -9,6 +9,8 @@ spec:
     - name: shared-configs
     # The backup storage
     - name: shared-backups
+    # Pre-generated certificates that will be copied into certs folder of shared-configs workspace to be used by suite-certs task
+    - name: restore-configurations
 
   params:
     # 1. Common Parameters
@@ -343,6 +345,8 @@ spec:
           workspace: shared-configs
         - name: backups
           workspace: shared-backups
+        - name: restore
+          workspace: restore-configurations
       runAfter:
         - ibm-catalogs
         - cert-manager

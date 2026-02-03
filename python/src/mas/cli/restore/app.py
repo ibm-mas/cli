@@ -10,6 +10,9 @@
 # *****************************************************************************
 
 import logging
+from os import path
+from base64 import b64encode
+from glob import glob
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
 
@@ -18,7 +21,7 @@ from ..validators import InstanceIDFormatValidator, FileExistsValidator
 from .argParser import restoreArgParser
 from mas.devops.ocp import createNamespace, getConsoleURL
 from mas.devops.mas import getDefaultStorageClasses
-from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchRestorePipeline
+from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchRestorePipeline, prepareRestoreSecrets
 
 logger = logging.getLogger(__name__)
 
@@ -173,23 +176,12 @@ class RestoreApp(BaseApp):
         self.printSummary("Include SLS", self.getParam("include_sls") if self.getParam("include_sls") else "true")
         self.printSummary("Include DRO", self.getParam("include_dro") if self.getParam("include_dro") else "true")
 
-        self.printH2("DRO Configuration")
-        self.printSummary("DRO Namespace", self.getParam("dro_namespace"))
-        self.printSummary("Contact Email", self.getParam("dro_contact_email"))
-        self.printSummary("Contact First Name", self.getParam("dro_contact_firstname"))
-        self.printSummary("Contact Last Name", self.getParam("dro_contact_lastname"))
-
-        if self.devMode:
-            self.printH2("Advanced Configuration")
-            if self.getParam("sls_cfg_file") is not None and self.getParam("sls_cfg_file") != "":
-                self.printSummary("SLS Config File", self.getParam("sls_cfg_file"))
-            if self.getParam("sls_url_on_restore") is not None and self.getParam("sls_url_on_restore") != "":
-                self.printSummary("SLS URL", self.getParam("sls_url_on_restore"))
-
-            if self.getParam("dro_cfg_file") is not None and self.getParam("dro_cfg_file") != "":
-                self.printSummary("DRO Config File", self.getParam("dro_cfg_file"))
-            if self.getParam("dro_url_on_restore") is not None and self.getParam("dro_url_on_restore") != "":
-                self.printSummary("DRO URL", self.getParam("dro_url_on_restore"))
+        if self.getParam("include_dro") is not None and self.getParam("include_dro") == "true":
+            self.printH2("DRO Configuration")
+            self.printSummary("DRO Namespace", self.getParam("dro_namespace"))
+            self.printSummary("Contact Email", self.getParam("dro_contact_email"))
+            self.printSummary("Contact First Name", self.getParam("dro_contact_firstname"))
+            self.printSummary("Contact Last Name", self.getParam("dro_contact_lastname"))
 
         continueWithRestore = True
         if not self.noConfirm:
@@ -202,6 +194,9 @@ class RestoreApp(BaseApp):
         # Prepare the namespace and launch the restore pipeline
         if self.noConfirm or continueWithRestore:
             self.createTektonFileWithDigest()
+
+            # Create secrets for config files if provided
+            self.createConfigSecrets()
 
             self.printH1("Launch Restore")
             instanceId = self.getParam("mas_instance_id")
@@ -234,6 +229,10 @@ class RestoreApp(BaseApp):
                     createBackupPVC=True,
                     backupStorageSize=backupStorageSize
                 )
+
+                # Apply config file secrets to the namespace
+                prepareRestoreSecrets(dynClient=self.dynamicClient, namespace=pipelinesNamespace, restoreConfigs=self.configSecret)
+
                 h.stop_and_persist(symbol=self.successIcon, text=f"Namespace is ready ({pipelinesNamespace})")
 
             with Halo(text=f'Installing latest Tekton definitions (v{self.version})', spinner=self.spinner) as h:
@@ -415,3 +414,78 @@ class RestoreApp(BaseApp):
                 self.setParam("artifactory_repository", artifactoryRepository)
         else:
             self.setParam("download_backup", "false")
+
+    def addFilesToSecret(self, secretDict: dict, configPath: str, extension: str = '', keyPrefix: str = '') -> dict:
+        """
+        Add file (or files) to a secret
+        """
+        filesToProcess = []
+        if path.isdir(configPath):
+            logger.debug(f"Adding all config files in directory {configPath}")
+            if extension:
+                filesToProcess = glob(f"{configPath}/*.{extension}")
+            else:
+                filesToProcess = glob(f"{configPath}/*")
+        else:
+            logger.debug(f"Adding config file {configPath}")
+            filesToProcess = [configPath]
+
+        for fileToProcess in filesToProcess:
+            logger.debug(f" * Processing config file {fileToProcess}")
+            fileName = path.basename(fileToProcess)
+
+            # Load the file
+            with open(fileToProcess, 'r') as file:
+                data = file.read()
+
+            # Add/update an entry to the secret data
+            if "data" not in secretDict:
+                secretDict["data"] = {}
+            secretDict["data"][keyPrefix + fileName] = b64encode(data.encode('ascii')).decode("ascii")
+
+        return secretDict
+
+    def createConfigSecrets(self) -> None:
+        """
+        Create a single secret for SLS and DRO configuration files if provided
+        """
+        self.configSecret = None
+
+        slsCfgFile = self.getParam("sls_cfg_file")
+        droCfgFile = self.getParam("dro_cfg_file")
+
+        # Check if either config file is provided
+        if slsCfgFile or droCfgFile:
+            # Validate SLS config file exists if provided
+            if slsCfgFile and not path.exists(slsCfgFile):
+                self.fatalError(f"SLS configuration file not found: {slsCfgFile}")
+
+            # Validate DRO config file exists if provided
+            if droCfgFile and not path.exists(droCfgFile):
+                self.fatalError(f"DRO configuration file not found: {droCfgFile}")
+
+            # Create a single secret for both config files
+            configSecret = {
+                "apiVersion": "v1",
+                "kind": "Secret",
+                "type": "Opaque",
+                "metadata": {
+                    "name": "pipeline-restore-configs"
+                }
+            }
+
+            # Add SLS config file to secret if provided
+            if slsCfgFile:
+                configSecret = self.addFilesToSecret(configSecret, slsCfgFile, '')
+                # Update the param to point to the mounted file path
+                self.setParam("sls_cfg_file", f"/workspace/restore/{path.basename(slsCfgFile)}")
+                logger.debug(f"Added SLS config file to secret: {path.basename(slsCfgFile)}")
+
+            # Add DRO config file to secret if provided
+            if droCfgFile:
+                configSecret = self.addFilesToSecret(configSecret, droCfgFile, '')
+                # Update the param to point to the mounted file path
+                self.setParam("dro_cfg_file", f"/workspace/restore/{path.basename(droCfgFile)}")
+                logger.debug(f"Added DRO config file to secret: {path.basename(droCfgFile)}")
+
+            self.configSecret = configSecret
