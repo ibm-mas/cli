@@ -46,7 +46,7 @@ IBM Maximo Application Suite:
       --additional-resources-instances ${COLOR_YELLOW}ADDITIONAL_RESOURCES_INSTANCES${TEXT_RESET}                         Enable additional resources addon with instances array (YAML string format)
       --extensions ${COLOR_YELLOW}EXTENSIONS${TEXT_RESET}                                                                 To enable JAVA or 3rd party code extensions
       --enhanced-dr ${COLOR_YELLOW}ENHANCED_DR${TEXT_RESET}                                                               To enable Enhanced Disaster Recovery
-      --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}                                        Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure addon CRs are properly cleaned up by ArgoCD on deletion
+      --disable-postdelete-hooks ${COLOR_YELLOW}USE_POSTDELETE_HOOKS${TEXT_RESET}                                         Unless set (or USE_POSTDELETE_HOOKS exported and set to false), PostDelete hooks will be deployed to ensure addon CRs are properly cleaned up by ArgoCD on deletion
       --is-non-shared-cluster ${COLOR_YELLOW}IS_NON_SHARED_CLUSTER${TEXT_RESET}                                           To enable Non shared cluster
       --suite-spec-additional-properties-yaml ${COLOR_YELLOW}SUITE_SPEC_ADDITIONAL_PROPERTIES_YAML${TEXT_RESET}           Additional properties to be set in Suite CR spec
       --suite-spec-settings-additional-properties-yaml ${COLOR_YELLOW}SUITE_SPEC_SETTINGS_ADDITIONAL_PROPERTIES_YAML${TEXT_RESET}  Additional properties to be set in Suite CR spec.settings
