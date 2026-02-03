@@ -1,5 +1,5 @@
 module "account_policy" {
-  source               = "{{ S3_SOURCE_IAMPOLICY }}"
+  source               = "{{ RDS_IAM_SOURCE }}"
   name_prefix          = var.name_prefix
   create_s3_iam_group  = var.create_s3_iam_group
   create_s3_iam_policy = var.create_s3_iam_policy

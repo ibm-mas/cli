@@ -395,6 +395,14 @@ function gitops_iac_noninteractive() {
         export RDS_S3_SOURCE=$1 && shift
         ;;
 
+      --rds-iam-source)
+        export RDS_IAM_SOURCE=$1 && shift
+        ;;
+
+      --rds-s3accesspoint-source)
+        export RDS_S3ACCESSPOINT_SOURCE=$1 && shift
+        ;;
+
       --rds-manage-db2-instance-class)
         if [[ -n "$1" && "$1" != --* ]]; then
           export RDS_MANAGE_DB2_INSTANCE_CLASS=$1

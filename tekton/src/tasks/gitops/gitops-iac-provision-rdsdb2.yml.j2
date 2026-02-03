@@ -30,6 +30,12 @@ spec:
     - name: rds_s3_source
       type: string
       default: ""
+    - name: rds_iam_source
+      type: string
+      default: ""
+    - name: rds_s3accesspoint_source
+      type: string
+      default: ""
     - name: rds_manage_db2_instance_class
       type: string
       default: ""
@@ -111,6 +117,10 @@ spec:
         value: $(params.rds_source)
       - name: RDS_S3_SOURCE
         value: $(params.rds_s3_source)
+      - name: RDS_IAM_SOURCE
+        value: $(params.rds_iam_source)
+      - name: RDS_S3ACCESSPOINT_SOURCE
+        value: $(params.rds_s3accesspoint_source)
       - name: RDS_MANAGE_DB2_INSTANCE_CLASS
         value: $(params.rds_manage_db2_instance_class)
       - name: RDS_MANAGE_DB2_STORAGE_TYPE

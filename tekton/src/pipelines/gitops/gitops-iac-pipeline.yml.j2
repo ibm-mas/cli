@@ -164,6 +164,14 @@ spec:
       type: string
       default: ''
 
+    - name: rds_iam_source
+      type: string
+      default: ''
+
+    - name: rds_s3accesspoint_source
+      type: string
+      default: ''
+
     # iac-rdsdb2 manage params
     - name: rds_manage_db2_instance_class
       type: string
@@ -475,6 +483,10 @@ spec:
           value: $(params.rds_source)
         - name: rds_s3_source
           value: $(params.rds_s3_source)
+        - name: rds_iam_source
+          value: $(params.rds_iam_source)
+        - name: rds_s3accesspoint_source
+          value: $(params.rds_s3accesspoint_source)
 
         # iac-rdsdb2 manage params
         - name: rds_manage_db2_instance_class
