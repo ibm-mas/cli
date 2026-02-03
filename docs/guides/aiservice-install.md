@@ -82,7 +82,8 @@ The interactive install will guide you through the following steps:
       <ul>
         <li><strong>Instance ID:</strong> Unique identifier for your AI Service instance</li>
         <li><strong>Channel:</strong> AI Service version channel (e.g., 9.1.x)</li>
-        <li><strong>S3 Storage Configuration:</strong> Configure object storage for AI Service data</li>
+        <li><strong>S3 Storage Configuration:</strong> Configure object storage for AI Service data (MinIO or external S3)</li>
+        <li><strong>Certificate Issuer (Advanced Mode Only):</strong> Optionally configure a pre-configured certificate issuer for AI Service</li>
         <li><strong>Database Configuration:</strong> Set up database connection for AI Service</li>
         <li><strong>RSL Configuration:</strong> Configure Red Hat Service Locator integration</li>
         <li><strong>Tenant Configuration:</strong> Set up AI Service tenant(s)</li>
@@ -133,6 +134,7 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
     \
     --dro-namespace redhat-marketplace \
     --mongodb-namespace mongoce \
+    --aiservice-certificate-issuer letsencrypt-prod \
     \
     --s3-tenants-bucket km-tenants \
     --s3-templates-bucket km-templates \
@@ -140,7 +142,7 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
     --odh-model-deployment-type serverless \
     \
     --watsonxai-apikey your_watsonx_api_key \
-    --watsonxai-url https://us-south.ml.cloud.ibm.com \
+    --watsonxai-url your_watsonx_url \
     --watsonxai-project-id your_project_id \
     \
     --install-minio
@@ -158,6 +160,16 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
     --accept-license --no-confirm
 "
 ```
+
+### Installation Mode Options
+
+| Parameter | Description | Required | Example |
+|-----------|-------------|----------|---------|
+| `--simplified` | Use simplified installation mode (fewer prompts) | No | N/A |
+| `--advanced` | Use advanced installation mode (all configuration options) | No | N/A |
+
+!!! note
+    If neither `--simplified` nor `--advanced` is specified in interactive mode, you will be prompted to choose the installation mode.
 
 ### Core Parameters
 
@@ -244,6 +256,12 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:@@C
 | `--rsl-org-id` | RSL organization ID | Optional | `your_org_id` |
 | `--rsl-token` | RSL authentication token | Optional | `Bearer your_token` |
 
+### Certificate Configuration
+
+| Parameter | Description | Required | Example |
+|-----------|-------------|----------|---------|
+| `--aiservice-certificate-issuer` | Name of the certificate issuer for AI Service | No | `letsencrypt-prod` |
+
 ### Additional Options
 
 | Parameter | Description | Required |
@@ -272,7 +290,6 @@ More Information
 The AI Service installation is designed to work on any OCP cluster, but has been specifically tested in these environments:
 
 - IBMCloud ROKS
-- Microsoft Azure
 - AWS ROSA
 - IBM DevIT FYRE (internal)
 
