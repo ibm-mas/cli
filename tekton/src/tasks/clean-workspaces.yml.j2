@@ -24,24 +24,54 @@ spec:
         #!/bin/bash
         set -e
         
-        echo "Cleaning workspace directories..."
+        echo "=========================================="
+        echo "Workspace Cleanup - Starting"
+        echo "=========================================="
+        echo ""
         
         # Clean backup workspace
         if [ -d "/workspace/backups" ]; then
+          echo "Backup workspace contents BEFORE cleanup:"
+          echo "------------------------------------------"
+          ls -lah /workspace/backups/ || echo "Unable to list directory"
+          echo ""
+          
           echo "Cleaning /workspace/backups..."
           rm -rf /workspace/backups/*
+          
+          echo ""
+          echo "Backup workspace contents AFTER cleanup:"
+          echo "------------------------------------------"
+          ls -lah /workspace/backups/ || echo "Unable to list directory"
           echo "✓ Backup workspace cleaned"
         else
           echo "⚠ /workspace/backups does not exist"
         fi
         
+        echo ""
+        echo "=========================================="
+        echo ""
+        
         # Clean config workspace
         if [ -d "/workspace/configs" ]; then
+          echo "Config workspace contents BEFORE cleanup:"
+          echo "------------------------------------------"
+          ls -lah /workspace/configs/ || echo "Unable to list directory"
+          echo ""
+          
           echo "Cleaning /workspace/configs..."
           rm -rf /workspace/configs/*
+          
+          echo ""
+          echo "Config workspace contents AFTER cleanup:"
+          echo "------------------------------------------"
+          ls -lah /workspace/configs/ || echo "Unable to list directory"
           echo "✓ Config workspace cleaned"
         else
           echo "⚠ /workspace/configs does not exist"
         fi
         
+        echo ""
+        echo "=========================================="
         echo "Workspace cleanup completed successfully"
+        echo "=========================================="
