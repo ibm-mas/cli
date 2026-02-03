@@ -62,7 +62,19 @@ masArgGroup.add_argument(
     '--include-slscfg-from-backup',
     dest='include_slscfg_from_backup',
     required=False,
+    action="store_const",
+    const="true",
+    default="true",
     help="Use SLS config from backup during Suite restore."
+)
+
+masArgGroup.add_argument(
+    '--exclude-slscfg-from-backup',
+    dest='include_slscfg_from_backup',
+    required=False,
+    action="store_const",
+    const="false",
+    help="Exclude SLS config from backup during Suite restore."
 )
 
 masArgGroup.add_argument(
@@ -83,7 +95,19 @@ masArgGroup.add_argument(
     '--include-drocfg-from-backup',
     dest='include_drocfg_from_backup',
     required=False,
+    action="store_const",
+    const="true",
+    default="true",
     help="Include DRO config from backup during Suite restore."
+)
+
+masArgGroup.add_argument(
+    '--exclude-drocfg-from-backup',
+    dest='include_drocfg_from_backup',
+    required=False,
+    action="store_const",
+    const="false",
+    help="Exclude DRO config from backup during Suite restore."
 )
 
 restoreArgGroup = restoreArgParser.add_argument_group(

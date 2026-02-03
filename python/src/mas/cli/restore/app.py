@@ -52,7 +52,7 @@ class RestoreApp(BaseApp):
                 "sls_url_on_restore",
                 "sls_cfg_file",
                 "dro_url_on_restore",
-                "dro_cfg_file,"
+                "dro_cfg_file",
                 "backup_storage_size",
                 "include_sls",
                 "include_grafana",
@@ -349,6 +349,10 @@ class RestoreApp(BaseApp):
             self.setParam("include_dro", "true")
         if not self.getParam("backup_storage_size"):
             self.setParam("backup_storage_size", "20Gi")
+        if not self.getParam("include_slscfg_from_backup"):
+            self.setParam("include_slscfg_from_backup", "true")
+        if not self.getParam("include_drocfg_from_backup"):
+            self.setParam("include_drocfg_from_backup", "true")
 
     def promptForDownloadConfiguration(self) -> None:
         """Prompt user for backup download configuration"""
