@@ -51,6 +51,7 @@ class BackupApp(BaseApp):
             optionalParams = [
                 "backup_version",
                 "backup_storage_size",
+                "clean_backup",
                 "include_sls",
                 "mongodb_namespace",
                 "mongodb_instance_name",
@@ -123,6 +124,10 @@ class BackupApp(BaseApp):
             if self.args.backup_version is None:
                 self.promptForBackupVersion()
 
+            # Prompt for clean backup option if not provided
+            if self.args.clean_backup is None:
+                self.promptForCleanBackup()
+
             self.promptForUploadConfiguration()
 
         # Set default values for optional parameters if not provided
@@ -144,6 +149,7 @@ class BackupApp(BaseApp):
         self.printSummary("Config Directory", "/workspace/configs (hardcoded)")
         self.printSummary("Backup Storage Size", self.getParam("backup_storage_size"))
         self.printSummary("Backup Version", self.getParam("backup_version"))
+        self.printSummary("Clean Workspaces After Completion", self.getParam("clean_backup") if self.getParam("clean_backup") else "true")
 
         self.printH2("Components")
         self.printSummary("Include SLS", self.getParam("include_sls") if self.getParam("include_sls") else "true")
@@ -263,6 +269,19 @@ class BackupApp(BaseApp):
             backupVersion = self.promptForString("Set the backup version to use for this backup")
             self.setParam("backup_version", backupVersion)
 
+    def promptForCleanBackup(self) -> None:
+        self.printH1("Backup Cleanup Configuration")
+        self.printDescription([
+            "After the backup completes, the backup and config workspaces can be cleaned to free up space.",
+            "This is recommended unless you need to inspect the workspace contents for troubleshooting."
+        ])
+        cleanBackup = self.yesOrNo("Clean backup and config workspaces after completion")
+
+        if cleanBackup:
+            self.setParam("clean_backup", "true")
+        else:
+            self.setParam("clean_backup", "false")
+
     def setDefaultParams(self) -> None:
         """Set default values for optional parameters if not already set"""
         if not self.getParam("mongodb_namespace"):
@@ -283,6 +302,8 @@ class BackupApp(BaseApp):
             # Auto-generate timestamp
             timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
             self.setParam("backup_version", timestamp)
+        if not self.getParam("clean_backup"):
+            self.setParam("clean_backup", "true")
 
     def promptForUploadConfiguration(self) -> None:
         """Prompt user for backup upload configuration"""

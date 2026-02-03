@@ -1,0 +1,47 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-clean-workspaces
+spec:
+  params:
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Image pull policy for the container image
+
+  workspaces:
+    - name: configs
+      description: Configuration workspace to clean
+    - name: backups
+      description: Backup workspace to clean
+
+  steps:
+    - name: clean-workspaces
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "Cleaning workspace directories..."
+        
+        # Clean backup workspace
+        if [ -d "/workspace/backups" ]; then
+          echo "Cleaning /workspace/backups..."
+          rm -rf /workspace/backups/*
+          echo "✓ Backup workspace cleaned"
+        else
+          echo "⚠ /workspace/backups does not exist"
+        fi
+        
+        # Clean config workspace
+        if [ -d "/workspace/configs" ]; then
+          echo "Cleaning /workspace/configs..."
+          rm -rf /workspace/configs/*
+          echo "✓ Config workspace cleaned"
+        else
+          echo "⚠ /workspace/configs does not exist"
+        fi
+        
+        echo "Workspace cleanup completed successfully"

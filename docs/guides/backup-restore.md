@@ -228,7 +228,28 @@ mas backup \
 !!! tip
     Store AWS credentials securely using environment variables or secrets management systems rather than hardcoding them in scripts.
 
-### Scenario 7: Minimal Backup (Skip Pre-Check)
+### Scenario 7: Backup for Troubleshooting (No Cleanup)
+
+**Environment:**
+- Backup for troubleshooting purposes
+- Custom backup version desired
+- Need to inspect workspace contents after backup
+- Workspace cleanup disabled
+
+**Backup Command:**
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-version debug-$(date +%Y%m%d-%H%M%S) \
+  --backup-storage-size 50Gi \
+  --no-clean-backup \
+  --no-confirm
+```
+
+!!! note
+    Use `--no-clean-backup` when you need to inspect the backup workspace contents for troubleshooting. Remember to manually clean up the workspaces later to free up storage.
+
+### Scenario 8: Minimal Backup (Skip Pre-Check)
 
 **Environment:**
 - Emergency backup scenario
@@ -304,6 +325,7 @@ When you run `mas backup`, the following occurs:
 7. **Suite Backup** - Backs up MAS core configuration
 8. **Archive Creation** - Compresses backup into tar.gz archive
 9. **Upload** (optional) - Uploads archive to S3 or Artifactory
+10. **Workspace Cleanup** (optional, default: enabled) - Cleans backup and config workspaces to free up storage
 
 ### Monitoring Progress
 
@@ -329,6 +351,24 @@ Backups are stored in the pipeline namespace PVC at:
 - **Config Directory**: `/workspace/configs`
 
 The final backup archive is named: `mas-backup-{instance-id}-{backup-version}.tar.gz`
+
+### Workspace Cleanup
+
+By default, the backup pipeline automatically cleans the workspace directories after backup completion to free up storage space. This cleanup occurs in the pipeline's `finally` block, ensuring it runs regardless of backup success or failure.
+
+**To disable workspace cleanup:**
+
+- **Interactive mode**: Answer "No" when prompted about cleaning workspaces
+- **Non-interactive mode**: Use the `--no-clean-backup` flag
+
+**When to disable cleanup:**
+
+- Troubleshooting backup issues and need to inspect workspace contents
+- Running multiple backups in sequence and want to preserve intermediate files
+- Custom post-backup processing that requires access to workspace files
+
+!!! tip
+    Workspace cleanup is recommended for production backups to prevent PVC storage exhaustion. Only disable it when you have a specific need to inspect or process the workspace contents.
 
 
 Best Practices

@@ -6,10 +6,11 @@ Usage
 Usage information can be obtained using `mas backup --help`
 
 ```
-usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION] [--backup-storage-size BACKUP_STORAGE_SIZE] [--upload-backup]
-                  [--aws-access-key-id AWS_ACCESS_KEY_ID] [--aws-secret-access-key AWS_SECRET_ACCESS_KEY] [--s3-bucket-name S3_BUCKET_NAME]
-                  [--s3-region S3_REGION] [--artifactory-url ARTIFACTORY_URL] [--artifactory-repository ARTIFACTORY_REPOSITORY]
-                  [--include-sls] [--exclude-sls] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-instance-name MONGODB_INSTANCE_NAME]
+usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION] [--backup-storage-size BACKUP_STORAGE_SIZE]
+                  [--clean-backup] [--no-clean-backup] [--upload-backup] [--aws-access-key-id AWS_ACCESS_KEY_ID]
+                  [--aws-secret-access-key AWS_SECRET_ACCESS_KEY] [--s3-bucket-name S3_BUCKET_NAME] [--s3-region S3_REGION]
+                  [--artifactory-url ARTIFACTORY_URL] [--artifactory-repository ARTIFACTORY_REPOSITORY] [--include-sls]
+                  [--exclude-sls] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-instance-name MONGODB_INSTANCE_NAME]
                   [--mongodb-provider {community}] [--sls-namespace SLS_NAMESPACE] [--cert-manager-provider {redhat,ibm}]
                   [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm]
                   [--skip-pre-check] [-h]
@@ -29,6 +30,8 @@ Backup Configuration:
                         Version/timestamp for the backup (auto-generated if not provided)
   --backup-storage-size BACKUP_STORAGE_SIZE
                         Size of the backup PVC storage (default: 20Gi)
+  --clean-backup        Clean backup and config workspaces after completion (default: true)
+  --no-clean-backup     Do not clean backup and config workspaces after completion
 
 Upload Configuration:
   --upload-backup       Upload the backup archive after completion
@@ -154,6 +157,16 @@ Skip the pre-backup validation check (use with caution):
 mas backup --instance-id inst1 --skip-pre-check --no-confirm
 ```
 
+### Backup Without Workspace Cleanup
+Keep backup and config workspace contents after completion (useful for troubleshooting):
+
+```bash
+mas backup --instance-id inst1 --no-clean-backup --no-confirm
+```
+
+!!! note
+    By default, workspaces are cleaned after backup completion to free up storage. Use `--no-clean-backup` only when you need to inspect the workspace contents for troubleshooting purposes.
+
 ### Complete Non-Interactive Backup Example
 A comprehensive example with all major options configured:
 
@@ -194,6 +207,7 @@ If not specified, the following defaults are used:
 
 - **Backup Storage Size**: `20Gi`
 - **Backup Version**: Auto-generated timestamp in format `YYYYMMDD-HHMMSS`
+- **Clean Workspaces**: `true` (workspaces are cleaned after completion)
 - **MongoDB Namespace**: `mongoce`
 - **MongoDB Instance Name**: `mas-mongo-ce`
 - **MongoDB Provider**: `community`
@@ -222,7 +236,8 @@ When running without `--instance-id`, the command enters interactive mode and wi
 2. MAS instance selection (if multiple instances exist)
 3. Backup storage size
 4. Backup version (or auto-generate)
-5. Upload configuration (optional)
+5. Workspace cleanup preference
+6. Upload configuration (optional)
 
 #### Example Interactive Mode Output
 
