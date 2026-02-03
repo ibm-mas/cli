@@ -2,7 +2,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>AI Service Installation - Maximo Application Suite CLI</title>
+    <title>AI Service Standalone Install - Maximo Application Suite CLI</title>
 
     <!-- Pure CSS (https://pure-css.github.io/) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css" integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous">
@@ -118,7 +118,7 @@
               <cds-side-nav-items>
                 
                   
-  <cds-side-nav-menu title="Guides">
+  <cds-side-nav-menu title="Guides" active expanded>
     
       
   <cds-side-nav-menu-item href="../image-mirroring/">
@@ -135,6 +135,12 @@
       
   <cds-side-nav-menu-item href="../install/">
     Install
+  </cds-side-nav-menu-item>
+
+    
+      
+  <cds-side-nav-menu-item href="./" active expanded>
+    AI Service Standalone Install
   </cds-side-nav-menu-item>
 
     
@@ -323,6 +329,7 @@
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="../..">Home</cds-breadcrumb-link>
   </cds-breadcrumb-item>
+      <cds-breadcrumb-item>Guides</cds-breadcrumb-item>
   <cds-breadcrumb-item>
     <cds-breadcrumb-link href="#ai-service-installation">AI Service Installation</cds-breadcrumb-link>
   </cds-breadcrumb-item>
@@ -447,7 +454,8 @@
       <ul>
         <li><strong>Instance ID:</strong> Unique identifier for your AI Service instance</li>
         <li><strong>Channel:</strong> AI Service version channel (e.g., 9.1.x)</li>
-        <li><strong>S3 Storage Configuration:</strong> Configure object storage for AI Service data</li>
+        <li><strong>S3 Storage Configuration:</strong> Configure object storage for AI Service data (MinIO or external S3)</li>
+        <li><strong>Certificate Issuer (Advanced Mode Only):</strong> Optionally configure a pre-configured certificate issuer for AI Service</li>
         <li><strong>Database Configuration:</strong> Set up database connection for AI Service</li>
         <li><strong>RSL Configuration:</strong> Configure Red Hat Service Locator integration</li>
         <li><strong>Tenant Configuration:</strong> Set up AI Service tenant(s)</li>
@@ -494,6 +502,7 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.
     \
     --dro-namespace redhat-marketplace \
     --mongodb-namespace mongoce \
+    --aiservice-certificate-issuer letsencrypt-prod \
     \
     --s3-tenants-bucket km-tenants \
     --s3-templates-bucket km-templates \
@@ -501,7 +510,7 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.
     --odh-model-deployment-type serverless \
     \
     --watsonxai-apikey your_watsonx_api_key \
-    --watsonxai-url https://us-south.ml.cloud.ibm.com \
+    --watsonxai-url your_watsonx_url \
     --watsonxai-project-id your_project_id \
     \
     --install-minio
@@ -519,6 +528,35 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.
     --accept-license --no-confirm
 "
 </code></pre>
+<h3 id="installation-mode-options">Installation Mode Options<a class="headerlink" href="#installation-mode-options" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--simplified</code></td>
+<td>Use simplified installation mode (fewer prompts)</td>
+<td>No</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>--advanced</code></td>
+<td>Use advanced installation mode (all configuration options)</td>
+<td>No</td>
+<td>N/A</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If neither <code>--simplified</code> nor <code>--advanced</code> is specified in interactive mode, you will be prompted to choose the installation mode.</p>
+</div>
 <h3 id="core-parameters">Core Parameters<a class="headerlink" href="#core-parameters" title="Permanent link">¶</a></h3>
 <table>
 <thead>
@@ -722,6 +760,25 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.
 </tr>
 </tbody>
 </table>
+<h3 id="certificate-configuration">Certificate Configuration<a class="headerlink" href="#certificate-configuration" title="Permanent link">¶</a></h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--aiservice-certificate-issuer</code></td>
+<td>Name of the certificate issuer for AI Service</td>
+<td>No</td>
+<td><code>letsencrypt-prod</code></td>
+</tr>
+</tbody>
+</table>
 <h3 id="opendatahub-configuration">OpenDataHub Configuration<a class="headerlink" href="#opendatahub-configuration" title="Permanent link">¶</a></h3>
 <table>
 <thead>
@@ -899,7 +956,6 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.
 <p>The AI Service installation is designed to work on any OCP cluster, but has been specifically tested in these environments:</p>
 <ul>
 <li>IBMCloud ROKS</li>
-<li>Microsoft Azure</li>
 <li>AWS ROSA</li>
 <li>IBM DevIT FYRE (internal)</li>
 </ul>
@@ -934,6 +990,28 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.
           <!-- Navigation footer (prev/next) -->
 <nav class="md-footer-nav" aria-label="Footer navigation">
   <div class="md-footer-nav__inner">
+    <a href="../install/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+      <div class="md-footer-nav__direction">
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+        </svg>
+        <span>Previous</span>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Install</span>
+      </div>
+    </a>
+    <a href="../update/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+      <div class="md-footer-nav__direction">
+        <span>Next</span>
+        <svg class="md-footer-nav__icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"></path>
+        </svg>
+      </div>
+      <div class="md-footer-nav__title">
+        <span class="md-footer-nav__title-text">Update</span>
+      </div>
+    </a>
   </div>
 </nav>
         </article>
@@ -990,6 +1068,11 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.
                 </a>
                   <ul class="md-toc__list">
                       <li class="md-toc__item">
+                        <a href="#installation-mode-options" class="md-toc__link" data-md-level="2">
+                          Installation Mode Options
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
                         <a href="#core-parameters" class="md-toc__link" data-md-level="2">
                           Core Parameters
                         </a>
@@ -1012,6 +1095,11 @@ docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.
                       <li class="md-toc__item">
                         <a href="#s3-storage-configuration" class="md-toc__link" data-md-level="2">
                           S3 Storage Configuration
+                        </a>
+                      </li>
+                      <li class="md-toc__item">
+                        <a href="#certificate-configuration" class="md-toc__link" data-md-level="2">
+                          Certificate Configuration
                         </a>
                       </li>
                       <li class="md-toc__item">
