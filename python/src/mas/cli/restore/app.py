@@ -287,7 +287,7 @@ class RestoreApp(BaseApp):
                 self.setParam("dro_url_on_restore", "")
         else:
             self.setParam("include_drocfg_from_backup", "false")
-            self.promptForString(message="DRO/BAS Configuration File, must be provided when not restoring from backup", param="sls_cfg_file", validator=FileExistsValidator())
+            self.promptForString(message="DRO/BAS Configuration File, must be provided when not restoring from backup", param="dro_cfg_file", validator=FileExistsValidator())
 
     def promptForIncludeSLS(self) -> None:
         self.printH1("SLS Configuration")
