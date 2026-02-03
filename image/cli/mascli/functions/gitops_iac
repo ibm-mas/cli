@@ -821,6 +821,7 @@ function compute_rds_variables() {
   export VPC_ID_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_id")
   export SECURITY_GROUPS_VALUE=$(get_tf_value "${MAIN_FILE_PATH}" "locals.cluster.security_groups")
   export VPC_NAME_VALUE=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" "vpc_name")
+  export ACCOUNT_ID=$(get_tf_value "${TERRAFORMTF_FILE_PATH}" 'account_id')
 
 if check_params "MANAGE" "$RDS_MANAGE_DB2_INSTANCE_CLASS" "$RDS_MANAGE_DB2_STORAGE_TYPE" "$RDS_MANAGE_ALLOCATED_STORAGE"; then
   export RDS_MANAGE="true"
@@ -849,6 +850,7 @@ fi
   echo "  CLUSTER_CIDR_WORKLOAD_INTERNAL : ${CLUSTER_CIDR_WORKLOAD_INTERNAL}"
   echo "  VPC_ID                         : ${VPC_ID_VALUE}"
   echo "  SECURITY_GROUPS_VALUE          : ${SECURITY_GROUPS_VALUE}"
+  echo "  ACCOUNT_ID                     : ${ACCOUNT_ID}"
   echo "  VPC_NAME_VALUE                 : ${VPC_NAME_VALUE}"
   echo "  RDS_MANAGE                     : ${RDS_MANAGE}"  
   echo "  RDS_IOT                        : ${RDS_IOT}"  

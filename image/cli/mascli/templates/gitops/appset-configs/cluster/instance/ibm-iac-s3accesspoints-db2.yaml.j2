@@ -10,7 +10,7 @@ module "s3buckets_access_point_{{RDS_S3_APP_NAME}}" {
   name_prefix                    = each.value.name_prefix
   s3_access_point_bucket_id      = each.value.id
   s3_bucket_arn                  = each.value.s3_bucket_arn
-  s3_access_point_name           = join("-", [var.cluster_name,var.instance_name,"auditlog",{{RDS_S3_APP_NAME}}])
+  s3_access_point_name           = join("-", [var.cluster_name,var.instance_name,"auditlog","{{RDS_S3_APP_NAME}}"])
   s3_access_point_policy_actions = local.s3_actions_audit_log[each.value.access_level]
   configure_antivirus            = false
 

@@ -1,5 +1,5 @@
 data "aws_secretsmanager_secret" "mas-saas-license-db2-{{RDS_APP}}" {
-  name = "/{{NAME_PREFIX_VALUE}}/rds_db2/license"
+  name = join("", ["/", var.name_prefix, "/rds_db2/license"])
 }
 
 data "aws_secretsmanager_secret_version" "mas-saas-license-db2-{{RDS_APP}}" {
