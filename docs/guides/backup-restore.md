@@ -15,7 +15,7 @@ The MAS backup process uses Tekton pipelines to orchestrate the backup of multip
 ### Backup Components
 
 - **IBM Operator Catalogs** - Catalog source definitions
-- **Certificate Manager** - Certificate configurations (Red Hat or IBM)
+- **Certificate Manager** - Certificate configurations (RedHat only)
 - **MongoDB** - MAS configuration database (Community Edition only)
 - **Suite License Service (SLS)** - License server data (optional)
 - **MAS Suite Configuration** - Core MAS instance configuration and custom resources
