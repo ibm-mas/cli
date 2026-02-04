@@ -1,0 +1,96 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-suite-restore
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    - name: mas_instance_id
+      type: string
+      description: Instance ID
+
+    # Backup specific parameters
+    - name: mas_backup_dir
+      type: string
+      description: Directory to store backup files
+      default: ""
+    - name: suite_backup_version
+      type: string
+      description: Version/timestamp for the backup
+      default: ""
+    - name: mas_domain_on_restore
+      type: string
+      description: The domain to use for the MAS Suite instance
+      default: "NO_OVERRIDE" # Default value is used to indicate that the domain should not be overridden
+
+    - name: include_slscfg_from_backup
+      type: string
+      description: Whether to include SLS from backup
+      default: "true"
+    - name: sls_url_on_restore
+      type: string
+      default: ""
+      description: SLS URL when restoring with external SLS
+    - name: sls_cfg_file
+      type: string
+      default: ""
+      description: SLS cfg file when restoring with external BAS
+
+    - name: include_drocfg_from_backup
+      type: string
+      description: Whether to include SLS from backup
+      default: "true"
+    - name: dro_url_on_restore
+      type: string
+      default: ""
+      description: BAS/DRO URL when restoring with external BAS
+    - name: dro_cfg_file
+      type: string
+      default: ""
+      description: BAS cfg file when restoring with external BAS
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      - name: MAS_CONFIG_DIR
+        value: /workspace/configs
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+
+      # restore specific
+      - name: MAS_BACKUP_DIR
+        value: /workspace/backups
+      - name: SUITE_BACKUP_VERSION
+        value: $(params.suite_backup_version)
+      - name: MAS_DOMAIN
+        value: $(params.mas_domain_on_restore)
+      - name: INCLUDE_SLS_FROM_BACKUP
+        value: $(params.include_slscfg_from_backup)
+      - name: SLS_URL
+        value: $(params.sls_url_on_restore)
+      - name: SLS_CFG_FILE
+        value: $(params.sls_cfg_file)
+      - name: INCLUDE_DRO_FROM_BACKUP
+        value: $(params.include_drocfg_from_backup)
+      - name: BAS_URL
+        value: $(params.dro_url_on_restore)
+      - name: DRO_CFG_FILE
+        value: $(params.dro_cfg_file)
+
+  steps:
+    - name: suite-restore
+      command:
+        - /opt/app-root/src/run-role.sh
+        - suite_restore
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/configs
+
+  workspaces:
+    - name: configs
+      optional: true
+    - name: backups
+    - name: restore

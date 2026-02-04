@@ -35,6 +35,9 @@ spec:
     - name: sls_icr_cpopen
       type: string
       default: ""
+    - name: sls_domain
+      type: string
+      default: ""
 
     # New way of bootstrapping license file since SLS 3.7.0
     - name: sls_entitlement_file
@@ -62,7 +65,7 @@ spec:
       default: ""
 
     # Backup/Restore specific parameters
-    - name: backup_version
+    - name: sls_backup_version
       type: string
       description: Optional. Version/timestamp for the backup
       default: ""
@@ -117,7 +120,9 @@ spec:
       - name: MAS_BACKUP_DIR
         value: /workspace/backups
       - name: SLS_BACKUP_VERSION
-        value: $(params.backup_version)
+        value: $(params.sls_backup_version)
+      - name: SLS_DOMAIN
+        value: $(params.sls_domain)
 
       - name: MAS_POD_TEMPLATES_DIR
         value: /workspace/pod-templates

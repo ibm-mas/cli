@@ -22,6 +22,11 @@
   description: Version/timestamp for the backup (auto-generated if not provided)
   default: ""
 
+- name: restore_version
+  type: string
+  description: Version/timestamp for the backup to restore from
+  default: ""
+
 # Cleanup Configuration
 # -----------------------------------------------------------------------------
 - name: clean_backup
@@ -35,6 +40,18 @@
   type: string
   description: Whether to upload the backup archive (true/false)
   default: "false"
+
+# Download Configuration
+# -----------------------------------------------------------------------------
+- name: download_backup
+  type: string
+  description: Whether to download the backup archive (true/false)
+  default: "false"
+
+- name: backup_archive_name
+  type: string
+  description: Custom backup archive name including tar.gz to download from S3 or Artifactory
+  default: ""
 
 # S3 Upload Configuration
 # -----------------------------------------------------------------------------
@@ -74,7 +91,7 @@
 # -----------------------------------------------------------------------------
 - name: include_grafana
   type: string
-  description: Set to false to skip Grafana backup/restore
+  description: Set to false to skip Grafana install
   default: "true"
 
 - name: include_sls
@@ -84,7 +101,7 @@
 
 - name: include_dro
   type: string
-  description: Set to false to skip DRO backup/restore (if DRO is external)
+  description: Set to false to skip DRO install (if DRO is external)
   default: "true"
 
 # MongoDB Configuration
@@ -110,6 +127,11 @@
   type: string
   description: SLS namespace
   default: "ibm-sls"
+
+- name: sls_domain
+  type: string
+  description: SLS URL to restore in Suite configuration.
+  default: ""
 
 # Certificate Manager Configuration
 # -----------------------------------------------------------------------------
@@ -142,6 +164,21 @@
   default: ""
   description: Required for DRO installation during restore
 
+- name: dro_namespace
+  type: string
+  default: "redhat-marketplace"
+  description: Required for DRO installation during restore
+
+- name: dro_storage_class
+  type: string
+  default: ""
+  description: Required for DRO installation during restore
+
+- name: ibm_entitlement_key
+  type: string
+  default: ""
+  description: Required for DRO installation during restore
+
 # Restore-specific Configuration
 # -----------------------------------------------------------------------------
 - name: mas_domain_on_restore
@@ -154,10 +191,30 @@
   default: ""
   description: SLS URL when restoring with external SLS
 
+- name: include_slscfg_from_backup
+  type: string
+  default: ""
+  description: Use SLSCfg from backup during restore
+
+- name: sls_cfg_file
+  type: string
+  default: ""
+  description: SLS cfg file when restoring with external SLS
+
 - name: dro_url_on_restore
   type: string
   default: ""
   description: DRO URL when restoring with external DRO
+
+- name: include_drocfg_from_backup
+  type: string
+  default: ""
+  description: Use DROCfg from backup during restore
+
+- name: dro_cfg_file
+  type: string
+  default: ""
+  description: DRO cfg file when restoring with external DRO
 
 - name: mas_config_dir
   type: string

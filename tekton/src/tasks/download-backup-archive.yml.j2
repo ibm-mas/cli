@@ -1,0 +1,98 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-download-backup-archive
+spec:
+  params:
+    {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
+
+    # Backup specific parameters
+    - name: restore_version
+      type: string
+      description: Version/timestamp for the backup
+      default: ""
+    - name: backup_archive_name
+      type: string
+      description: name of the backup archive including `.tar.gz` extension.
+      default: ""
+
+    # S3 download parameters
+    - name: aws_access_key_id
+      type: string
+      description: AWS Access Key ID for S3 download
+      default: ""
+    - name: aws_secret_access_key
+      type: string
+      description: AWS Secret Access Key for S3 download
+      default: ""
+    - name: s3_bucket_name
+      type: string
+      description: S3 bucket name for backup download
+      default: ""
+    - name: s3_region
+      type: string
+      description: AWS region for S3 bucket
+      default: ""
+
+    # Artifactory download parameters
+    - name: artifactory_username
+      type: string
+      description: Artifactory username for backup download
+      default: ""
+    - name: artifactory_token
+      type: string
+      description: Artifactory token for backup download
+      default: ""
+    - name: artifactory_url
+      type: string
+      description: Artifactory URL for backup download
+      default: ""
+    - name: artifactory_repository
+      type: string
+      description: Artifactory repository for backup download
+      default: ""
+
+  stepTemplate:
+    env:
+      {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
+
+      # Backup specific
+      - name: MAS_RESTORE_DIR
+        value: /workspace/backups
+      - name: BACKUP_VERSION
+        value: $(params.restore_version)
+      - name: BACKUP_ARCHIVE_NAME
+        value: $(params.backup_archive_name)
+
+      # S3 credentials
+      - name: S3_ACCESS_KEY_ID
+        value: $(params.aws_access_key_id)
+      - name: S3_SECRET_ACCESS_KEY
+        value: $(params.aws_secret_access_key)
+      - name: S3_BUCKET_NAME
+        value: $(params.s3_bucket_name)
+      - name: S3_REGION
+        value: $(params.s3_region)
+
+      # Artifactory credentials
+      - name: ARTIFACTORY_USERNAME
+        value: $(params.artifactory_username)
+      - name: ARTIFACTORY_TOKEN
+        value: $(params.artifactory_token)
+      - name: ARTIFACTORY_URL
+        value: $(params.artifactory_url)
+      - name: ARTIFACTORY_REPOSITORY
+        value: $(params.artifactory_repository)
+
+  steps:
+    - name: download-backup-archive
+      command:
+        - /opt/app-root/src/run-role.sh
+        - download_backup_archive
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      workingDir: /workspace/backups
+
+  workspaces:
+    - name: backups
