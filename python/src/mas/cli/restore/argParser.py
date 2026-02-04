@@ -124,6 +124,23 @@ restoreArgGroup.add_argument(
     required=False,
     help="Size of the PVC storage, must be bigger than backup archive size. (default: 20Gi)"
 )
+restoreArgGroup.add_argument(
+    '--clean-backup',
+    dest='clean_backup',
+    required=False,
+    action="store_const",
+    const="true",
+    default="true",
+    help="Clean backup and config workspaces after completion (default: true)"
+)
+restoreArgGroup.add_argument(
+    '--no-clean-backup',
+    dest='clean_backup',
+    required=False,
+    action="store_const",
+    const="false",
+    help="Do not clean backup and config workspaces after completion"
+)
 
 downloadArgGroup = restoreArgParser.add_argument_group(
     'Download Configuration',

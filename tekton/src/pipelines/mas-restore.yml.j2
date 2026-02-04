@@ -9,7 +9,7 @@ spec:
     - name: shared-configs
     # The backup storage
     - name: shared-backups
-    # Pre-generated certificates that will be copied into certs folder of shared-configs workspace to be used by suite-certs task
+    # Configs to restore like slscfg and drocfg
     - name: restore-configurations
 
   params:
@@ -364,7 +364,27 @@ spec:
           values: [""]
 
   finally:
-    # Update synchronization configmap
+    # 1. Clean Backup Workspaces (Optional)
+    # -------------------------------------------------------------------------
+    - name: clean-backup-workspaces
+      timeout: "0"
+      when:
+        - input: "$(params.clean_backup)"
+          operator: in
+          values: ["true", "True"]
+      params:
+        - name: image_pull_policy
+          value: $(params.image_pull_policy)
+      taskRef:
+        kind: Task
+        name: mas-devops-clean-workspaces
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+        - name: backups
+          workspace: shared-backups
+
+    # 2. Update synchronization configmap
     # -------------------------------------------------------------------------
     - name: sync-restore
       timeout: "0"
@@ -381,6 +401,8 @@ spec:
           # This variable is only available in the finally tasks and can have any one of the values (Succeeded, Failed, Completed, or None)
           value: $(tasks.status)
 
+    # 3. Pipeline Finish
+    # -------------------------------------------------------------------------
     - name: pipeline-finish
       timeout: "0"
       taskRef:

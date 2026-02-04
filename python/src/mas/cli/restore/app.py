@@ -54,6 +54,7 @@ class RestoreApp(BaseApp):
                 "dro_url_on_restore",
                 "dro_cfg_file",
                 "backup_storage_size",
+                "clean_backup",
                 "include_sls",
                 "include_grafana",
                 "include_dro",
@@ -255,17 +256,17 @@ class RestoreApp(BaseApp):
 
     def promptForMASConfiguration(self) -> None:
         self.printH1("Maximo Application Suite Configuration")
-        changeDomain = self.yesOrNo("Would you like to change the MAS domain in the Suite CR?")
+        changeDomain = self.yesOrNo("Would you like to change the MAS domain in the Suite CR")
         if changeDomain:
             self.promptForString(message="MAS Domain", param="mas_domain_on_restore")
 
     def promptForSLSConfiguration(self) -> None:
         self.printH1("Suite-level SLS Configuration")
         # promt user to include slscfg from backup. if yes, promt for sls_url, if not prompt for sls_cfg_file.
-        includeSLSCfg = self.yesOrNo("Would you like to restore Suite-level SLSCfg from backup?")
+        includeSLSCfg = self.yesOrNo("Would you like to restore Suite-level SLSCfg from backup")
         if includeSLSCfg:
             self.setParam("include_slscfg_from_backup", "true")
-            changeSLSUrl = self.yesOrNo("Would you like to change the SLS URL in the Suite's SLSCfg CR?")
+            changeSLSUrl = self.yesOrNo("Would you like to change the SLS URL in the Suite's SLSCfg CR")
             if changeSLSUrl:
                 self.promptForString(message="SLS URL", param="sls_url_on_restore")
             else:
@@ -277,10 +278,10 @@ class RestoreApp(BaseApp):
     def promptForDROConfiguration(self) -> None:
         self.printH1("Suite-level DRO/BAS Configuration")
         # promt user to include bascfg from backup. if yes, promt for bas_url, if not prompt for dro_cfg_file.
-        includeDROCfg = self.yesOrNo("Would you like to restore Suite-level BASCfg from backup?")
+        includeDROCfg = self.yesOrNo("Would you like to restore Suite-level BASCfg from backup")
         if includeDROCfg:
             self.setParam("include_drocfg_from_backup", "true")
-            changeDROUrl = self.yesOrNo("Would you like to change the DRO URL in the Suite's BASCfg CR?")
+            changeDROUrl = self.yesOrNo("Would you like to change the DRO URL in the Suite's BASCfg CR")
             if changeDROUrl:
                 self.promptForString(message="BAS URL", param="dro_url_on_restore")
             else:
@@ -292,11 +293,11 @@ class RestoreApp(BaseApp):
     def promptForIncludeSLS(self) -> None:
         self.printH1("SLS Configuration")
         self.printDescription([" - You can restore SLS instance or bring your own SLS."])
-        includeSLS: bool = self.yesOrNo("Would you like to restore SLS instance from backup?")
+        includeSLS: bool = self.yesOrNo("Would you like to restore SLS instance from backup")
         if includeSLS:
             self.setParam("include_sls", "true")
             # Prompt user to enter custom SLS Domain
-            customSLSDomain: bool = self.yesOrNo("Would you like to change SLS Domain to use in SLS instance?")
+            customSLSDomain: bool = self.yesOrNo("Would you like to change SLS Domain to use in SLS instance")
             if customSLSDomain:
                 slsDomain = self.promptForString("Enter the SLS Domain to use in License Service CR")
                 self.setParam("sls_domain", slsDomain)
@@ -308,7 +309,7 @@ class RestoreApp(BaseApp):
     def promptForIncludeDRO(self) -> None:
         self.printH1("IBM Data Reporting Operator Configuration")
         self.printDescription([" - DRO is not part of backup/restore. You can install DRO instance or bring your own DRO."])
-        includeDRO: bool = self.yesOrNo("Would you like the pipeline to install DRO instance?")
+        includeDRO: bool = self.yesOrNo("Would you like the pipeline to install DRO instance")
         if includeDRO:
             self.setParam("include_dro", "true")
             self.promptForString("IBM entitlement key", "ibm_entitlement_key", isPassword=True)
@@ -322,7 +323,7 @@ class RestoreApp(BaseApp):
     def promptForIncludeGrafana(self) -> None:
         self.printH1("Grafana Configuration")
         self.printDescription([" - Grafana is not part of backup/restore. You can install Grafana instance or skip it."])
-        includeGrafana: bool = self.yesOrNo("Would you like the pipeline to install Grafana instance?")
+        includeGrafana: bool = self.yesOrNo("Would you like the pipeline to install Grafana instance")
         if includeGrafana:
             self.setParam("include_grafana", "true")
         else:
@@ -353,6 +354,8 @@ class RestoreApp(BaseApp):
             self.setParam("include_slscfg_from_backup", "true")
         if not self.getParam("include_drocfg_from_backup"):
             self.setParam("include_drocfg_from_backup", "true")
+        if not self.getParam("clean_backup"):
+            self.setParam("clean_backup", "true")
 
     def promptForDownloadConfiguration(self) -> None:
         """Prompt user for backup download configuration"""
@@ -416,6 +419,12 @@ class RestoreApp(BaseApp):
 
                 artifactoryRepository = self.promptForString("Artifactory Repository")
                 self.setParam("artifactory_repository", artifactoryRepository)
+
+            cleanBackup = self.yesOrNo("Clean the downloaded backup files after completion")
+            if cleanBackup:
+                self.setParam("clean_backup", "true")
+            else:
+                self.setParam("clean_backup", "false")
         else:
             self.setParam("download_backup", "false")
 
