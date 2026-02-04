@@ -12,6 +12,7 @@ nav:
       - "Image Mirroring": guides/image-mirroring.md
       - "Image Validation": guides/image-validation.md
       - "Install": guides/install.md
+      - "AI Service Standalone Install": guides/aiservice-install.md
       - "Update": guides/update.md
       - "Upgrade": guides/upgrade.md
       - "Uninstall": guides/uninstall.md

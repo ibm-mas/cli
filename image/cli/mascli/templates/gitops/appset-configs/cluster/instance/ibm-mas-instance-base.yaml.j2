@@ -39,6 +39,14 @@ additional_vpn: {{ ADDITIONAL_VPN }}
 application_configuration: {{ APPLICATION_CONFIGURATION }}
 {% endif %}
 
+use_postdelete_hooks: {{ USE_POSTDELETE_HOOKS }}
+{% if ADDITIONAL_RESOURCES_INSTANCES is defined and ADDITIONAL_RESOURCES_INSTANCES != '' %}
+additional_resources:
+{%- set instances_yaml = ADDITIONAL_RESOURCES_INSTANCES | toYaml | to_nice_yaml(indent=2) %}
+  instances:
+{{ instances_yaml | indent(4, first=True) }}
+{% endif %}
+
 {% if EXTENSIONS is defined and EXTENSIONS != '' %}
 extensions: {{ EXTENSIONS }}
 {% endif %}
