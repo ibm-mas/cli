@@ -17,6 +17,18 @@ kind: ClusterRole
 metadata:
   name: mas:{{ mas_instance_id }}:install-user
 rules:
+
+
+  # The CLI will inspect the "version" clusterversion to validate MAS/OCP version compatibility
+  - apiGroups:
+      - config.openshift.io
+    resources:
+      - clusterversions
+    verbs:
+      - get
+    resourceNames:
+      - version
+
   # The CLI will inspect the cluster nodes to automatically determine the target architecture
   - apiGroups:
       - ""
@@ -26,20 +38,27 @@ rules:
       - list
 
   # During installation of OpenShift Pipelines, we need to check for existing namespaces
+  # We also need access to the namespace where we will be running the install pipeline
   - apiGroups:
       - ""
     resources:
       - namespaces
     verbs:
       - get
+    resourceNames:
+      - openshift-pipelines
+      - mas-{{ mas_instance_id }}-pipelines
 
-  # Visibility of CustomResourceDefinitions allows the CLI to detect whether OpenShift Pipelines has been installed
+  # Visibility of "tasks.tekton.dev" CRD allows the CLI to detect whether OpenShift Pipelines has been installed
   - apiGroups:
       - apiextensions.k8s.io
     resources:
       - customresourcedefinitions
     verbs:
       - get
+    resourceNames:
+      - tasks.tekton.dev
+      - pipelines.tekton.dev
 
   # Visibility of ImageContentSourcePolicy and ImageDigestMirrorSet resources allows the CLI to auto-detect
   # whether the cluster has been set up for using a private image registry
@@ -58,7 +77,6 @@ rules:
       - list
 
   # We need to set up the "pipeline" service account that will be used by the pipelines
-  # We could support running without "patch" permission when a service account has already been configured by the user
   - apiGroups:
       - rbac.authorization.k8s.io
     resources:
@@ -66,3 +84,5 @@ rules:
     verbs:
       - get
       - patch
+    resourceNames:
+      - ibm-mas-pipeline-{{ mas_instance_id }}
