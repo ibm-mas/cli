@@ -6,8 +6,12 @@ This guide provides comprehensive information on backing up and restoring IBM Ma
 !!! tip
     This guide covers both **backup and restore operations** for IBM Maximo Application Suite instances.
 
+**Quick Navigation:**
+  - [Backup Overview](#backup-overview) - Information about backing up MAS instances
+  - [Restore Overview](#restore-overview) - Information about restoring MAS instances
 
-Overview
+
+Backup Overview
 -------------------------------------------------------------------------------
 
 The MAS backup process uses Tekton pipelines to orchestrate the backup of multiple components. The Tekton pipeline executes [Ansible DevOps Collection](https://ibm-mas.github.io/ansible-devops/) roles to perform the actual backup operations.
@@ -524,8 +528,8 @@ The restore process handles the following components:
 
 - **IBM Operator Catalogs** - Restores catalog source definitions
 - **Certificate Manager** - Restores certificate configurations (RedHat only)
-- **MongoDB** - Restores MAS configuration database (Community Edition only)
-- **Suite License Service (SLS)** - Restores license server data (optional)
+- **MongoDB** - Restores Mongodb instance with SLS & MAS databases (Community Edition only)
+- **Suite License Service (SLS)** - Restores SLS instance with license server data (optional)
 - **MAS Suite Configuration** - Restores core MAS instance configuration and custom resources
 - **Grafana** - Optionally installs Grafana for monitoring (not part of backup)
 - **Data Reporter Operator (DRO)** - Optionally installs DRO (not part of backup)
@@ -590,9 +594,9 @@ When you run `mas restore`, the following occurs:
 2. **Namespace Preparation** - Creates/updates `mas-{instance-id}-pipelines` namespace
 3. **OpenShift Pipelines** - Validates or installs OpenShift Pipelines Operator
 4. **PVC Creation** - Provisions persistent volume for backup storage
-5. **Download** (optional) - Downloads backup archive from S3 or Artifactory
-6. **Tekton Pipeline Launch** - Submits PipelineRun with configured parameters
-7. **Pre-Restore Check** - Validates cluster readiness
+5. **Tekton Pipeline Launch** - Submits PipelineRun with configured parameters
+6. **Pre-Restore Check** - Validates cluster readiness
+7. **Download** (optional) - Downloads backup archive from S3 or Artifactory
 8. **Component Restore** - Executes restore tasks in sequence:
    - IBM Catalogs restore
    - Certificate Manager restore
@@ -610,7 +614,7 @@ After launching the restore, a URL to the Tekton PipelineRun is displayed:
 
 ```
 View progress:
-  https://console-openshift-console.apps.cluster.example.com/k8s/ns/mas-inst1-pipelines/tekton.dev~v1beta1~PipelineRun/mas-restore-20260117-191701
+  https://console-openshift-console.apps.cluster.example.com/k8s/ns/mas-inst1-pipelines/tekton.dev~v1beta1~PipelineRun/mas-restore-20260117-191701-YYMMDD-HHMM
 ```
 
 Use this URL to:
@@ -625,7 +629,7 @@ Use this URL to:
 The restore process provides several options for handling configurations:
 
 #### MAS Domain Configuration
-- **From Backup** (default) - Uses the domain stored in the backup
+- **From Backup** (default) - Uses the domain stored in the Suite backup
 - **Override** - Specify `--mas-domain-restore` to change the domain during restore
 
 #### SLS Configuration

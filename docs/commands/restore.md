@@ -365,9 +365,9 @@ The restore command provides flexibility in how configurations are restored:
 ### Component Installation
 The restore process can optionally install components that are not part of the backup:
 
-- **Grafana**: Monitoring and visualization (not backed up, can be installed during restore)
-- **DRO**: Data Reporting Operator (not backed up, can be installed during restore)
-- **SLS**: Suite License Service (backed up, can be restored or skipped if using external SLS)
+- **Grafana**: Monitoring and visualization (not backed up, can be installed during restore). Use `--include-grafana` to install grafana during restore or `--exclude-grafana` to skip grafana installation.
+- **DRO**: Data Reporting Operator (not backed up, can be installed during restore). Use `--include-dro` to install DRO during restore or `--exclude-dro` to skip DRO installation.
+- **SLS**: Suite License Service (backed up, can be restored or skipped if using external SLS). Use `--include-sls` to restore SLS from backup or `--exclude-sls` to skip SLS installation.
 
 ### Interactive Mode
 When running without `--instance-id`, the command enters interactive mode and will prompt for:
