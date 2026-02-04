@@ -14,9 +14,11 @@ import re
 import selectors
 import subprocess
 import yaml
+import urllib.request
+import urllib.error
 from typing import List, Dict, Optional
 from dataclasses import dataclass
-from os import path, environ
+from os import path, environ, makedirs
 
 from alive_progress import alive_bar
 from prompt_toolkit import print_formatted_text, HTML
@@ -109,6 +111,72 @@ def countImagesInConfig(configPath: str) -> int:
     except Exception as e:
         logger.error(f"Unexpected error reading config {configPath}: {e}")
         return 0
+
+
+def getISC(configPath: str) -> str:
+    """
+    Get the Image Set Config file, downloading from GitHub if it doesn't exist locally.
+
+    The config file is expected to be in ~/.ibm-mas/{configPath}.
+    If the file doesn't exist, it will be downloaded from:
+    https://github.com/ibm-mas/image-set-configs/blob/master/{configPath}
+
+    Args:
+        configPath: Relative path to the config file (e.g., "catalogs/v9-260129-amd64.yaml")
+
+    Returns:
+        Full path to the local config file
+
+    Raises:
+        FileNotFoundError: If the file doesn't exist and cannot be downloaded
+    """
+    # Get home directory
+    homeDir = environ.get('HOME') or environ.get('USERPROFILE') or ''
+    if not homeDir:
+        raise FileNotFoundError("Could not determine home directory")
+
+    # Construct full local path with .ibm-mas prefix
+    localPath = path.join(homeDir, '.ibm-mas', 'image-set-configs', configPath)
+
+    # If file exists, return it
+    if path.exists(localPath):
+        logger.info(f"Using existing config file: {localPath}")
+        return localPath
+
+    # File doesn't exist, try to download it
+    logger.info(f"Config file not found locally: {localPath}")
+
+    # Construct GitHub raw content URL
+    # Convert blob URL to raw content URL
+    githubUrl = f"https://raw.githubusercontent.com/ibm-mas/image-set-configs/master/{configPath}"
+
+    logger.info(f"Attempting to download from: {githubUrl}")
+
+    try:
+        # Create directory if it doesn't exist
+        localDir = path.dirname(localPath)
+        makedirs(localDir, exist_ok=True)
+
+        # Download the file
+        with urllib.request.urlopen(githubUrl) as response:
+            content = response.read()
+
+        # Write to local file
+        with open(localPath, 'wb') as f:
+            f.write(content)
+
+        logger.info(f"Successfully downloaded config file to: {localPath}")
+        return localPath
+
+    except urllib.error.HTTPError as e:
+        logger.error(f"Failed to download config file from GitHub: HTTP {e.code} - {e.reason}")
+        raise FileNotFoundError(f"Config file not found locally and could not be downloaded from GitHub: {configPath}") from e
+    except urllib.error.URLError as e:
+        logger.error(f"Failed to download config file from GitHub: {e.reason}")
+        raise FileNotFoundError(f"Config file not found locally and could not be downloaded from GitHub: {configPath}") from e
+    except Exception as e:
+        logger.error(f"Unexpected error downloading config file: {e}")
+        raise FileNotFoundError(f"Config file not found locally and could not be downloaded from GitHub: {configPath}") from e
 
 
 def _processStreams(process: subprocess.Popen, resultData: Dict, progressBar=None) -> None:
@@ -359,8 +427,6 @@ def mirrorPackage(package: str, version: str, arch: str, mode: str,
 
     majorMinor = f"{versionParts[0]}.{versionParts[1]}"
 
-    configPath = f"image-set-configs/packages/{package}/{majorMinor}/{arch}/{package}-{version}-{arch}.yaml"
-
     if not flag:
         logger.info(f"Skipping {package} version {version} for {arch} architecture")
         # Add empty progress bar to align with other status messages
@@ -369,6 +435,15 @@ def mirrorPackage(package: str, version: str, arch: str, mode: str,
         return MirrorResult(images=0, mirrored=0)
 
     logger.info(f"Mirroring {package} version {version} for {arch} architecture")
+
+    # Get or download the config file
+    relativeConfigPath = f"packages/{package}/{majorMinor}/{arch}/{package}-{version}-{arch}.yaml"
+    try:
+        configPath = getISC(relativeConfigPath)
+    except FileNotFoundError as e:
+        logger.error(f"Failed to get config file: {e}")
+        print(f"❌ {package} v{version} ({arch}) - Config file not found")
+        return MirrorResult(images=0, mirrored=0)
 
     displayName = f"{package} v{version} ({arch})"
     workspacePath = f"{package}/{arch}/{version}"
@@ -393,9 +468,16 @@ def mirrorCatalog(version: str, mode: str, targetRegistry: str = "",
         MirrorResult object with images, mirrored, and success status.
         Returns images=0, mirrored=0, success=False if operation failed or results couldn't be parsed.
     """
-    configPath = f"image-set-configs/catalogs/{version}.yaml"
-
     logger.info(f"Mirroring catalog {version}")
+
+    # Get or download the config file
+    relativeConfigPath = f"catalogs/{version}.yaml"
+    try:
+        configPath = getISC(relativeConfigPath)
+    except FileNotFoundError as e:
+        logger.error(f"Failed to get config file: {e}")
+        print(f"❌ catalog {version} - Config file not found")
+        return MirrorResult(images=0, mirrored=0)
 
     displayName = f"catalog {version}"
     workspacePath = f"catalog/{version}"
@@ -436,8 +518,10 @@ class MirrorApp(BaseApp):
             self.fatalError(f"--target-registry is required when mode is '{mode}'")
             return
 
-        try:
-            catalog = getCatalog(catalogVersion)
+        catalog = getCatalog(catalogVersion)
+        if catalog is None:
+            self.fatalError(f"Catalog {catalogVersion} not found")
+        else:
             arch = catalogVersion.split("-")[-1]
 
             logger.info(f"Catalog: {catalogVersion}")
@@ -483,7 +567,3 @@ class MirrorApp(BaseApp):
                 )
 
             print_formatted_text(HTML("\n<B>✅ Mirror operation completed</B>"))
-
-        except Exception as e:
-            logger.error(f"Mirror operation failed: {e}", exc_info=True)
-            self.fatalError(f"Mirror operation failed: {e}")
