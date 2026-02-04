@@ -1495,6 +1495,7 @@ function gitops_iac_manage_pr() {
     echo "PR_PLAN_COMMENT: "$PR_PLAN_COMMENT
     
     if [[ "$PR_PLAN_COMMENT" == "Passed" ]]; then
+      comment_on_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "atlantis approve_policies"
       echo "Going to approve PR: "${PR_NUMBER}
       APPROVED_PR=$(approve_pr "$GITHUB_HOST" "$GITHUB_ORG" "$GITHUB_REPO" "$PR_NUMBER" "$IAC_DEV_GITHUB_PAT")
       echo "PR approved ${APPROVED_PR}"

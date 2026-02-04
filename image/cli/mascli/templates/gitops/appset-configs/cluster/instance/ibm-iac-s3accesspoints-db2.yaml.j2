@@ -1,3 +1,8 @@
+resource "time_sleep" "wait_for_iam_{{RDS_S3_APP_NAME}}" {
+  depends_on = [module.account_policy_{{RDS_S3_APP_NAME}}]
+  create_duration = "60s"
+}
+
 module "s3buckets_access_point_{{RDS_S3_APP_NAME}}" {
   source = "{{ RDS_S3ACCESSPOINT_SOURCE }}"
   for_each = {
@@ -5,7 +10,7 @@ module "s3buckets_access_point_{{RDS_S3_APP_NAME}}" {
     k => v if can(regex("auditlog-{{RDS_S3_APP_NAME}}", v.name))
   }
 
-  depends_on = [module.s3buckets_instance_{{RDS_S3_APP_NAME}}, module.account_policy_{{RDS_S3_APP_NAME}}]
+  depends_on = [module.s3buckets_instance_{{RDS_S3_APP_NAME}}, module.account_policy_{{RDS_S3_APP_NAME}}, time_sleep.wait_for_iam_{{RDS_S3_APP_NAME}}]
 
   name_prefix                    = each.value.name_prefix
   s3_access_point_bucket_id      = each.value.id
