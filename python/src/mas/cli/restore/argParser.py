@@ -311,7 +311,7 @@ otherArgGroup.add_argument(
     required=False,
     action='store_true',
     default=False,
-    help="Skips the 'pre-backup-check' task in the backup pipeline"
+    help="Skips the 'pre-restore-check' task in the restore pipeline"
 )
 otherArgGroup.add_argument(
     '-h', "--help",
