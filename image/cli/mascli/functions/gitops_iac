@@ -463,6 +463,16 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
+      --rds-db2-config-manage-yaml)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export RDS_DB2_CONFIG_MANAGE_YAML=$1
+          shift
+        else
+          export RDS_DB2_CONFIG_MANAGE_YAML=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
       --rds-iot-db2-instance-class)
         if [[ -n "$1" && "$1" != --* ]]; then
           export RDS_IOT_DB2_INSTANCE_CLASS=$1
@@ -523,6 +533,16 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
+      --rds-db2-config-iot-yaml)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export RDS_DB2_CONFIG_IOT_YAML=$1
+          shift
+        else
+          export RDS_DB2_CONFIG_IOT_YAML=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
       --rds-facilities-db2-instance-class)
         if [[ -n "$1" && "$1" != --* ]]; then
           export RDS_FACILITIES_DB2_INSTANCE_CLASS=$1
@@ -579,6 +599,16 @@ function gitops_iac_noninteractive() {
           shift
         else
           export RDS_FACILITIES_DB2_COMBINE_PROPERTIES=""
+          [[ $# -gt 0 ]] && shift
+        fi
+        ;;
+
+      --rds-db2-config-facilities-yaml)
+        if [[ -n "$1" && "$1" != --* ]]; then
+          export RDS_DB2_CONFIG_FACILITIES_YAML=$1
+          shift
+        else
+          export RDS_DB2_CONFIG_FACILITIES_YAML=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;

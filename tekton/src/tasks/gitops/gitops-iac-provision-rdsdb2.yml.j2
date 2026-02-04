@@ -54,6 +54,9 @@ spec:
     - name: rds_manage_db2_combine_properties
       type: string
       default: ""
+    - name: rds_db2_config_manage_yaml
+      type: string
+      default: ""
 
     - name: rds_iot_db2_instance_class
       type: string
@@ -73,6 +76,10 @@ spec:
     - name: rds_iot_db2_combine_properties
       type: string
       default: ""
+    - name: rds_db2_config_iot_yaml
+      type: string
+      default: ''
+
 
     - name: rds_facilities_db2_instance_class
       type: string
@@ -92,6 +99,9 @@ spec:
     - name: rds_facilities_db2_combine_properties
       type: string
       default: ""
+    - name: rds_db2_config_facilities_yaml
+      type: string
+      default: ''
 
   stepTemplate:
     env:
@@ -133,6 +143,8 @@ spec:
         value: $(params.rds_manage_replica_db)
       - name: RDS_MANAGE_DB2_COMBINE_PROPERTIES
         value: $(params.rds_manage_db2_combine_properties)
+      - name: RDS_DB2_CONFIG_MANAGE_YAML
+        value: $(params.rds_db2_config_manage_yaml)
 
       - name: RDS_IOT_DB2_INSTANCE_CLASS
         value: $(params.rds_iot_db2_instance_class)
@@ -146,6 +158,8 @@ spec:
         value: $(params.rds_iot_replica_db)
       - name: RDS_IOT_DB2_COMBINE_PROPERTIES
         value: $(params.rds_iot_db2_combine_properties)
+      - name: RDS_DB2_CONFIG_IOT_YAML
+        value: $(params.rds_db2_config_iot_yaml)
 
       - name: RDS_FACILITIES_DB2_INSTANCE_CLASS
         value: $(params.rds_facilities_db2_instance_class)
@@ -159,6 +173,8 @@ spec:
         value: $(params.rds_facilities_replica_db)
       - name: RDS_FACILITIES_DB2_COMBINE_PROPERTIES
         value: $(params.rds_facilities_db2_combine_properties)
+      - name: RDS_DB2_CONFIG_FACILITIES_YAML
+        value: $(params.rds_db2_config_facilities_yaml)
     envFrom:
       - configMapRef:
           name: environment-properties

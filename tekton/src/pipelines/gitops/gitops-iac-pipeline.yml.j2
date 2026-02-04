@@ -197,6 +197,10 @@ spec:
       type: string
       default: ''
 
+    - name: rds_db2_config_manage_yaml
+      type: string
+      default: ''
+
     # iac-rdsdb2 iot params
     - name: rds_iot_db2_instance_class
       type: string
@@ -222,6 +226,10 @@ spec:
       type: string
       default: ''
 
+    - name: rds_db2_config_iot_yaml
+      type: string
+      default: ''
+
     # iac-rdsdb2 facilities params
     - name: rds_facilities_db2_instance_class
       type: string
@@ -244,6 +252,10 @@ spec:
       default: ''
 
     - name: rds_facilities_db2_combine_properties
+      type: string
+      default: ''
+
+    - name: rds_db2_config_facilities_yaml
       type: string
       default: ''
 
@@ -459,6 +471,8 @@ spec:
       workspaces:
         - name: configs
           workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
       params:
         - name: cluster_name
           value: $(params.cluster_name)
@@ -501,6 +515,8 @@ spec:
           value: $(params.rds_manage_replica_db)
         - name: rds_manage_db2_combine_properties
           value: $(params.rds_manage_db2_combine_properties)
+        - name: rds_db2_config_manage_yaml
+          value: $(params.rds_db2_config_manage_yaml)
 
         # iac-rdsdb2 iot params
         - name: rds_iot_db2_instance_class
@@ -515,6 +531,8 @@ spec:
           value: $(params.rds_iot_replica_db)
         - name: rds_iot_db2_combine_properties
           value: $(params.rds_iot_db2_combine_properties)
+        - name: rds_db2_config_iot_yaml
+          value: $(params.rds_db2_config_iot_yaml)
 
         # iac-rdsdb2 facilities params
         - name: rds_facilities_db2_instance_class
@@ -529,6 +547,8 @@ spec:
           value: $(params.rds_facilities_replica_db)
         - name: rds_facilities_db2_combine_properties
           value: $(params.rds_facilities_db2_combine_properties)
+        - name: rds_db2_config_facilities_yaml
+          value: $(params.rds_db2_config_facilities_yaml)
 
 
 

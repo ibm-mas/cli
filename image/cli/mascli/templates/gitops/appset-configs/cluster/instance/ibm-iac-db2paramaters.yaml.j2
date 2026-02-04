@@ -1,3 +1,8 @@
+{{RDS_DB2_CONFIG_FACILITIES_YAML}}
+{{RDS_DB2_CONFIG_MANAGE_YAML}}
+{{RDS_DB2_CONFIG_IOT_YAML}}
+
+
 {%- if RDS_APP | upper == "MANAGE" -%}
 {%- set json_string = RDS_MANAGE_DB2_COMBINE_PROPERTIES | default('') -%}
 {%- elif RDS_APP | upper == "IOT" -%}
