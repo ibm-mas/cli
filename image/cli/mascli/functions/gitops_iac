@@ -975,7 +975,7 @@ function gitops_iac_provision_efs() {
 
   # Generate EFS-specific file only
   echo "Generating IAC EFS file ${GITOPS_CLUSTER_DIR}/efs.tf"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.yaml.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-efs.tf.j2 ${GITOPS_CLUSTER_DIR}/efs.tf
   
   # Commit changes to working branch
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -1063,13 +1063,13 @@ function gitops_iac_provision_s3() {
   if [[ "$S3_MANAGE"  == "true" ]]; then
     export APP_NAME="manage"
     echo "Generating s3-instance.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-manage.tf
     
     echo "Generating iampolicy.tf file ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf "
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy.yaml.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy.tf.j2 ${GITOPS_CLUSTER_DIR}/iampolicy-manage.tf
     
     echo "Generating s3-accesspoints.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf"
-    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf
+    jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-manage.tf
   fi
   
   # Commit changes to working branch
@@ -1142,7 +1142,7 @@ function gitops_iac_provision_msk(){
   echo_h2 "Generating IAC/MSK Configuration"
 
   echo "Generating msk.tf file ${GITOPS_CLUSTER_DIR}/msk.tf "
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-msk.yaml.j2 ${GITOPS_CLUSTER_DIR}/msk.tf
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-msk.tf.j2 ${GITOPS_CLUSTER_DIR}/msk.tf
 
   # Commit changes to working branch
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -1226,19 +1226,19 @@ function gitops_iac_provision_rdsdb2(){
       export RDS_APP="$app"
       export RDS_S3_APP_NAME="$app"
       echo "Generating rds-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/rds-db2-$app.tf"
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-rdsdb2.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2rds-$app.tf
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-rdsdb2.tf.j2 ${GITOPS_CLUSTER_DIR}/db2rds-$app.tf
 
       echo "Generating db2_parameters-$app.yaml file ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml "
       jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-db2paramaters.yaml.j2 ${GITOPS_CLUSTER_DIR}/db2_parameters-$app.yaml
 
       echo "Generating s3-instance-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-db2.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3instance-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-instance-db2-$app.tf
 
       echo "Generating s3-iampolicy-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-db2.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$app.tf
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-iampolicy-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-iampolicy-db2-$app.tf
 
       echo "Generating s3-accesspoints-db2-$app.tf file ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$app.tf "
-      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-db2.yaml.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$app.tf
+      jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-s3accesspoints-db2.tf.j2 ${GITOPS_CLUSTER_DIR}/s3-accesspoints-db2-$app.tf
     fi
   done
 
@@ -1349,13 +1349,13 @@ function gitops_iac_generate_common_files() {
   
   # Generate common terraform files using variables exported by EFS/S3/MSK/RDS tasks
   echo "Generating main.tf file ${GITOPS_CLUSTER_DIR}/main.tf "
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-main.yaml.j2 ${GITOPS_CLUSTER_DIR}/main.tf
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-main.tf.j2 ${GITOPS_CLUSTER_DIR}/main.tf
   
   echo "Generating terraform.tfvars file ${GITOPS_CLUSTER_DIR}/terraform.tfvars"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformtfvars.yaml.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-terraformtfvars.tf.j2 ${GITOPS_CLUSTER_DIR}/terraform.tfvars
   
   echo "Generating variables.tf file ${GITOPS_CLUSTER_DIR}/variables.tf"
-  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variables.yaml.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
+  jinjanate_commmon $CLI_DIR/templates/gitops/appset-configs/cluster/instance/ibm-iac-variables.tf.j2 ${GITOPS_CLUSTER_DIR}/variables.tf
   
   # Commit changes to working branch
   if [ "$GITHUB_PUSH" == "true" ]; then
