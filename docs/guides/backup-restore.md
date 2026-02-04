@@ -28,7 +28,7 @@ The `mas backup` command launches a Tekton pipeline that executes the following 
 
 - [`ibm.mas_devops.ibm_catalogs`](https://ibm-mas.github.io/ansible-devops/roles/ibm_catalogs/) - Backs up IBM Operator Catalog definitions
 - [`ibm.mas_devops.cert_manager`](https://ibm-mas.github.io/ansible-devops/roles/cert_manager/) - Backs up Certificate Manager configurations
-- [`ibm.mas_devops.mongodb`](https://ibm-mas.github.io/ansible-devops/roles/mongodb/) - Backs up MongoDB Community Edition databases
+- [`ibm.mas_devops.mongodb`](https://ibm-mas.github.io/ansible-devops/roles/mongodb/) - Backs up MongoDB Community Edition instance and database
 - [`ibm.mas_devops.sls`](https://ibm-mas.github.io/ansible-devops/roles/sls/) - Backs up Suite License Service data
 - [`ibm.mas_devops.suite_backup`](https://ibm-mas.github.io/ansible-devops/roles/suite_backup/) - Backs up MAS Core configuration
 
@@ -107,8 +107,7 @@ The backup process supports **MongoDB Community Edition only**. Ensure you speci
 
 Specify the certificate manager provider used in your environment:
 
-- **Red Hat Certificate Manager** (`--cert-manager-provider redhat`) - Default option
-- **IBM Certificate Manager** (`--cert-manager-provider ibm`) - For IBM Cloud Pak deployments
+- **Red Hat Certificate Manager** (`--cert-manager-provider redhat`) - Default option, and the only supported provider.
 
 The backup captures certificate configurations but not the actual certificates, which are regenerated during restore.
 
@@ -279,17 +278,11 @@ The backup storage size depends on several factors:
 
 | Component | Typical Size | Notes |
 |-----------|-------------|-------|
-| MAS Configuration | < 1 GB | Core MAS custom resources and configurations |
-| MongoDB Database | 5-50 GB | Varies based on workspace count and data volume |
-| SLS Data | < 1 GB | License server database and configuration |
-| IBM Catalogs | < 1 GB | Operator catalog definitions |
-| Certificate Manager | < 1 GB | Certificate configurations |
-
-**Recommended Minimum Sizes:**
-
-- **Small deployment** (1-2 workspaces): `20Gi` (default)
-- **Medium deployment** (3-5 workspaces): `50Gi`
-- **Large deployment** (6+ workspaces): `100Gi` or more
+| MAS Configuration | < 1 MB | Core MAS custom resources and configurations |
+| MongoDB Database | 0.05-20 GB | Varies based on MAS app count and data volume |
+| SLS Data | < 1 MB | License server database and configuration |
+| IBM Catalogs | < 1 MB | Operator catalog definitions |
+| Certificate Manager | < 1 MB | Certificate configurations |
 
 !!! tip
     Monitor your first backup to determine actual storage requirements, then adjust the `--backup-storage-size` parameter for future backups.
@@ -350,7 +343,7 @@ Backups are stored in the pipeline namespace PVC at:
 - **Backup Directory**: `/workspace/backups`
 - **Config Directory**: `/workspace/configs`
 
-The final backup archive is named: `mas-backup-{instance-id}-{backup-version}.tar.gz`
+The final backup archive is named: `mas-backup-{backup-version}.tar.gz`
 
 ### Workspace Cleanup
 

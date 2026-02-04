@@ -61,7 +61,7 @@ Dependencies Configuration:
                         MongoDB provider (only community is supported for backup)
   --sls-namespace SLS_NAMESPACE
                         SLS namespace (default: ibm-sls)
-  --cert-manager-provider {redhat,ibm}
+  --cert-manager-provider {redhat}
                         Certificate manager provider (default: redhat)
 
 More:
