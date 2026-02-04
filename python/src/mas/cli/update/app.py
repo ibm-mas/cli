@@ -98,7 +98,7 @@ class UpdateApp(BaseApp):
         isMasInstalled = self.reviewMASInstance()
         isAiServiceInstalled = self.reviewAiServiceInstance()
         if not isMasInstalled and not isAiServiceInstalled:
-            self.fatalError(["No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details"])
+            self.fatalError("No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details")
 
         if self.args.mas_catalog_version is None:
             # Interactive mode
@@ -150,7 +150,7 @@ class UpdateApp(BaseApp):
 
         self.printH2("Supported Dependency Updates")
         if self.getParam("db2_namespace") != "":
-            self.printSummary("IBM Db2", f"All Db2uCluster instances in {self.getParam('db2_namespace')}")
+            self.printSummary("IBM Db2", f"All Db2uCluster and Db2uInstance instances in {self.getParam('db2_namespace')}")
         else:
             self.printSummary("IBM Db2", "No action required")
 
@@ -587,22 +587,25 @@ class UpdateApp(BaseApp):
         if mode == "db2":
             haloStartingMessage = "Checking for Db2uCluster instances to update"
             apiVersion = "db2u.databases.ibm.com/v1"
-            kind = "Db2uCluster"
+            kinds = ["Db2uCluster", "Db2uInstance"]
             paramName = "db2_namespace"
         elif mode == "kafka":
             haloStartingMessage = "Checking for Kafka instances to update"
             apiVersion = "kafka.strimzi.io/v1beta2"
-            kind = "Kafka"
+            kinds = ["Kafka"]
             paramName = "kafka_namespace"
         else:
             self.fatalError("Unexpected error")
 
         with Halo(text=haloStartingMessage, spinner=self.spinner) as h:
             try:
-                k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
-                instances = k8sAPI.get().to_dict()["items"]
+                instances = []
+                for kind in kinds:
+                    k8sAPI = self.dynamicClient.resources.get(api_version=apiVersion, kind=kind)
+                    instances.extend(k8sAPI.get().to_dict()["items"])
+                    logger.debug(f"Found {len(instances)} {kind} instances on the cluster")
 
-                logger.debug(f"Found {len(instances)} {kind} instances on the cluster")
+                kindString = "/".join([kind + "s" for kind in kinds])
                 if len(instances) > 0:
                     # If the user provided the namespace using --db2-namespace then we don't have any work to do here
                     if self.getParam(paramName) == "":
@@ -612,30 +615,31 @@ class UpdateApp(BaseApp):
 
                         if len(namespaces) == 1:
                             # If db2u is only in one namespace, we will update that
-                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) in namespace '{list(namespaces)[0]}' will be updated")
-                            logger.debug(f"There is only one namespace containing {kind}s so we will target that one: {namespaces}")
+                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kindString} ({apiVersion}) in namespace '{list(namespaces)[0]}' will be updated")
+                            logger.debug(f"There is only one namespace containing {kindString} so we will target that one: {namespaces}")
                             self.setParam(paramName, list(namespaces)[0])
                         elif self.noConfirm:
                             # If db2u is in multiple namespaces and user has disabled prompts then we must error
-                            h.stop_and_persist(symbol=self.failureIcon, text=f"{len(instances)} {kind}s ({apiVersion}) were found in multiple namespaces")
-                            logger.warning(f"There are multiple namespaces containing {kind}s and user has enable --no-confirm without setting --{mode}-namespace: {namespaces.keys()}")
-                            self.fatalError(f"{kind}s are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument")
+                            h.stop_and_persist(symbol=self.failureIcon, text=f"{len(instances)} {kindString} ({apiVersion}) were found in multiple namespaces")
+                            logger.warning(f"There are multiple namespaces containing {kindString} and user has enable --no-confirm without setting --{mode}-namespace: {namespaces.keys()}")
+                            self.fatalError(f"{kindString} are installed in multiple namespaces.  You must instruct which one to update using the '--{mode}-namespace' argument")
                         else:
                             # Otherwise, provide user the list of namespaces we found and ask them to pick on
-                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kind}s ({apiVersion}) found in multiple namespaces")
-                            logger.debug(f"There are multiple namespaces containing {kind}s, user must choose: {namespaces}")
+                            h.stop_and_persist(symbol=self.successIcon, text=f"{len(instances)} {kindString} ({apiVersion}) found in multiple namespaces")
+                            logger.debug(f"There are multiple namespaces containing {kindString}, user must choose: {namespaces}")
                             self.printDescription([
-                                f"{kind}s were found in multiple namespaces, select the namespace to target from the list below:"
+                                f"{kindString}s were found in multiple namespaces, select the namespace to target from the list below:"
                             ])
                             for index, ns in enumerate(sorted(namespaces), start=1):
                                 self.printDescription([f"{index}. {ns}"])
                             self.promptForListSelect("Select namespace", sorted(namespaces), paramName)
                 else:
-                    logger.debug(f"Found no instances of {kind} to update")
-                    h.stop_and_persist(symbol=self.successIcon, text=f"Found no {kind} ({apiVersion}) instances to update")
+                    logger.debug(f"Found no instances of {kindString} to update")
+                    h.stop_and_persist(symbol=self.successIcon, text=f"Found no {kindString} ({apiVersion}) instances to update")
             except (ResourceNotFoundError, NotFoundError):
-                logger.debug(f"{kind}.{apiVersion} is not available in the cluster")
-                h.stop_and_persist(symbol=self.successIcon, text=f"{kind}.{apiVersion} is not available in the cluster")
+                kindString = ", ".join(kinds)
+                logger.debug(f"{'[' + kindString + ']'}.{apiVersion} is not available in the cluster")
+                h.stop_and_persist(symbol=self.successIcon, text=f"{kindString}.{apiVersion} is not available in the cluster")
 
             # With Kafka we also have to determine the provider (strimzi or redhat)
             if mode == "kafka" and self.getParam("kafka_namespace") != "" and self.getParam("kafka_provider") == "":
