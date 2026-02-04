@@ -166,8 +166,12 @@ class RestoreApp(BaseApp):
             self.printSummary("Suite Domain", self.getParam("mas_domain_on_restore"))
         if self.getParam("sls_url_on_restore") is not None and self.getParam("sls_url_on_restore") != "":
             self.printSummary("SLS URL", self.getParam("sls_url_on_restore"))
+        if self.getParam("sls_cfg_file") is not None and self.getParam("sls_cfg_file") != "":
+            self.printSummary("Custom SLS Config File", self.getParam("sls_cfg_file"))
         if self.getParam("dro_url_on_restore") is not None and self.getParam("dro_url_on_restore") != "":
             self.printSummary("DRO URL", self.getParam("dro_url_on_restore"))
+        if self.getParam("dro_cfg_file") is not None and self.getParam("dro_cfg_file") != "":
+            self.printSummary("Custom DRO Config File", self.getParam("dro_cfg_file"))
 
         self.printH2("Restore Configuration")
         self.printSummary("Backup Directory", "/workspace/backups (hardcoded)")
