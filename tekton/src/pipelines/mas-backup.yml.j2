@@ -231,7 +231,7 @@ spec:
       when:
         - input: "$(params.upload_backup)"
           operator: in
-          values: ["true"]
+          values: ["true", "True"]
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
 
