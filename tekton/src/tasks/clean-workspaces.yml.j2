@@ -1,0 +1,77 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: mas-devops-clean-workspaces
+spec:
+  params:
+    - name: image_pull_policy
+      type: string
+      default: IfNotPresent
+      description: Image pull policy for the container image
+
+  workspaces:
+    - name: configs
+      description: Configuration workspace to clean
+    - name: backups
+      description: Backup workspace to clean
+
+  steps:
+    - name: clean-workspaces
+      image: quay.io/ibmmas/cli:latest
+      imagePullPolicy: $(params.image_pull_policy)
+      script: |
+        #!/bin/bash
+        set -e
+        
+        echo "=========================================="
+        echo "Workspace Cleanup - Starting"
+        echo "=========================================="
+        echo ""
+        
+        # Clean backup workspace
+        if [ -d "/workspace/backups" ]; then
+          echo "Backup workspace contents BEFORE cleanup:"
+          echo "------------------------------------------"
+          ls -lah /workspace/backups/ || echo "Unable to list directory"
+          echo ""
+          
+          echo "Cleaning /workspace/backups..."
+          rm -rf /workspace/backups/*
+          
+          echo ""
+          echo "Backup workspace contents AFTER cleanup:"
+          echo "------------------------------------------"
+          ls -lah /workspace/backups/ || echo "Unable to list directory"
+          echo "✓ Backup workspace cleaned"
+        else
+          echo "⚠ /workspace/backups does not exist"
+        fi
+        
+        echo ""
+        echo "=========================================="
+        echo ""
+        
+        # Clean config workspace
+        if [ -d "/workspace/configs" ]; then
+          echo "Config workspace contents BEFORE cleanup:"
+          echo "------------------------------------------"
+          ls -lah /workspace/configs/ || echo "Unable to list directory"
+          echo ""
+          
+          echo "Cleaning /workspace/configs..."
+          rm -rf /workspace/configs/*
+          
+          echo ""
+          echo "Config workspace contents AFTER cleanup:"
+          echo "------------------------------------------"
+          ls -lah /workspace/configs/ || echo "Unable to list directory"
+          echo "✓ Config workspace cleaned"
+        else
+          echo "⚠ /workspace/configs does not exist"
+        fi
+        
+        echo ""
+        echo "=========================================="
+        echo "Workspace cleanup completed successfully"
+        echo "=========================================="
