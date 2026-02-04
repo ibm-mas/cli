@@ -27,6 +27,13 @@
   description: Version/timestamp for the backup to restore from
   default: ""
 
+# Cleanup Configuration
+# -----------------------------------------------------------------------------
+- name: clean_backup
+  type: string
+  description: Whether to clean backup and config workspaces after completion (true/false)
+  default: "true"
+
 # Upload Configuration
 # -----------------------------------------------------------------------------
 - name: upload_backup

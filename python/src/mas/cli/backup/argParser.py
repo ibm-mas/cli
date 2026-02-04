@@ -51,6 +51,23 @@ backupArgGroup.add_argument(
     required=False,
     help="Size of the backup PVC storage (default: 20Gi)"
 )
+backupArgGroup.add_argument(
+    '--clean-backup',
+    dest='clean_backup',
+    required=False,
+    action="store_const",
+    const="true",
+    default="true",
+    help="Clean backup and config workspaces after completion (default: true)"
+)
+backupArgGroup.add_argument(
+    '--no-clean-backup',
+    dest='clean_backup',
+    required=False,
+    action="store_const",
+    const="false",
+    help="Do not clean backup and config workspaces after completion"
+)
 
 uploadArgGroup = backupArgParser.add_argument_group(
     'Upload Configuration',

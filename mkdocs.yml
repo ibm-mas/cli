@@ -16,6 +16,7 @@ nav:
       - "Upgrade": guides/upgrade.md
       - "Uninstall": guides/uninstall.md
       - "MRE&F External DB Setup": guides/facilities-external-db.md
+      - "Backup and Restore": guides/backup-restore.md
   - "Examples":
       - "EAM Migration": examples/eam-migration.md
       - "Mirror Db2 Images": examples/mirror-db2.md
@@ -31,6 +32,7 @@ nav:
       - "provision-roks": commands/provision-roks.md
       - "provision-rosa": commands/provision-rosa.md
       - "configtool-oidc": commands/configtool-oidc.md
+      - "backup": commands/backup.md
   - "Operator Catalogs":
       - "Overview": catalogs/index.md
       - "Dec 31 2025": catalogs/v9-251231-amd64.md

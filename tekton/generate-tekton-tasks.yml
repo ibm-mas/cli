@@ -135,6 +135,7 @@
         src: "{{ task_src_dir }}/{{ item }}.yml.j2"
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
+        - clean-workspaces
         - gencfg-workspace
         - must-gather
         - suite-app-install
