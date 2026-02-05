@@ -9,11 +9,48 @@
 # *****************************************************************************
 
 import argparse
+import re
 from itertools import groupby
 
 from .config import PACKAGE_CONFIGS
 from .. import __version__ as packageVersion
 from ..cli import getHelpFormatter
+
+
+def validate_timeout(value):
+    """
+    Validate that the timeout string is in a valid format.
+
+    Valid formats: "1h20m10s", "1h", "20m", "10s", "1h20m", etc.
+
+    Args:
+        value: The timeout string to validate
+
+    Returns:
+        The validated timeout string
+
+    Raises:
+        argparse.ArgumentTypeError: If the format is invalid
+    """
+    # Pattern matches combinations of hours (h), minutes (m), and seconds (s)
+    # Must have at least one unit and units must be in order (h, m, s)
+    pattern = r'^(\d+h)?(\d+m)?(\d+s)?$'
+
+    if not re.match(pattern, value):
+        raise argparse.ArgumentTypeError(
+            f"Invalid timeout format: '{value}'. "
+            "Expected format: combinations of hours (h), minutes (m), and seconds (s), "
+            "e.g., '1h20m10s', '1h', '20m', '10s'"
+        )
+
+    # Ensure at least one unit is present
+    if not any(unit in value for unit in ['h', 'm', 's']):
+        raise argparse.ArgumentTypeError(
+            f"Invalid timeout format: '{value}'. "
+            "Must include at least one time unit (h, m, or s)"
+        )
+
+    return value
 
 
 mirrorArgParser = argparse.ArgumentParser(
@@ -52,10 +89,16 @@ mainGroup.add_argument(
     help="Target registry for m2m and d2m modes (e.g., registry.example.com/namespace)"
 )
 mainGroup.add_argument(
+    "--dir",
+    required=True,
+    type=str,
+    help="Root directory for mirror operations (workspace for m2m, disk storage for m2d/d2m)"
+)
+mainGroup.add_argument(
     "--authfile",
     required=False,
     type=str,
-    help="Path to authentication file (must exist). If not provided, will be generated from environment variables."
+    help="Path to authentication file (must exist). If not provided, will be generated from environment variables (REGISTRY_USERNAME, REGISTRY_PASSWORD, and IBM_ENTITLEMENT_KEY)."
 )
 
 # Add package-specific arguments dynamically, organized by group
@@ -68,6 +111,22 @@ for groupName, groupItems in groupby(PACKAGE_CONFIGS, key=lambda x: x[0]):
             help=f"Mirror images for the {packageName} package",
             action="store_true"
         )
+
+advancedGroup = mirrorArgParser.add_argument_group("Advanced Configuration")
+advancedGroup.add_argument(
+    "--dest-tls-verify",
+    required=False,
+    type=lambda x: x.lower() == 'true',
+    default=True,
+    help="Verify TLS certificates for destination registry (default: true)"
+)
+advancedGroup.add_argument(
+    "--image-timeout",
+    required=False,
+    type=validate_timeout,
+    default="20m",
+    help="Timeout for image operations (e.g., '1h20m10s', '1h', '20m', default: '20m')"
+)
 
 otherArgGroup = mirrorArgParser.add_argument_group(
     "More"

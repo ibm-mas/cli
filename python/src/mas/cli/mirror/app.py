@@ -310,7 +310,8 @@ def runCommand(cmd: List[str], progressBar=None) -> tuple[int, Dict]:
 
 def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: str,
                    targetRegistry: str = "", ocMirrorPath: str = "oc-mirror",
-                   authFilePath: Optional[str] = None) -> MirrorResult:
+                   authFilePath: Optional[str] = None, rootDir: str = "",
+                   destTlsVerify: bool = True, imageTimeout: str = "20m") -> MirrorResult:
     """
     Execute the mirror operation for a given configuration.
 
@@ -324,6 +325,9 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
         targetRegistry: Target registry for m2m and d2m modes
         ocMirrorPath: Path to oc-mirror binary (default: "oc-mirror")
         authFilePath: Path to authentication file (default: ~/.ibm-mas/auth.json)
+        rootDir: Root directory for mirror operations (workspace for m2m, disk storage for m2d/d2m)
+        destTlsVerify: Verify TLS certificates for destination registry (default: True)
+        imageTimeout: Timeout for image operations (default: "20m")
 
     Returns:
         MirrorResult object with images, mirrored, and success status.
@@ -345,24 +349,27 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
 
     logger.info(f"Found {totalImages} images to mirror")
 
+    # Build TLS verify flag
+    tlsVerifyFlag = f"--dest-tls-verify={'true' if destTlsVerify else 'false'}"
+
     if mode == "m2m":
         cmd = [
             ocMirrorPath, "--v2", "--config", configPath, "--authfile", authFilePath,
-            "--workspace", f"file://workspace/{workspacePath}",
-            "--dest-tls-verify=false", "--image-timeout", "20m",
+            "--workspace", f"file://{rootDir}/{workspacePath}",
+            tlsVerifyFlag, "--image-timeout", imageTimeout,
             f"docker://{targetRegistry}"
         ]
     elif mode == "m2d":
         cmd = [
             ocMirrorPath, "--v2", "--config", configPath, "--authfile", authFilePath,
-            "--image-timeout", "20m",
-            f"file://output-dir/{workspacePath}",
+            "--image-timeout", imageTimeout,
+            f"file://{rootDir}/{workspacePath}",
         ]
     elif mode == "d2m":
         cmd = [
             ocMirrorPath, "--v2", "--config", configPath, "--authfile", authFilePath,
-            "--from", f"file://output-dir/{workspacePath}",
-            "--dest-tls-verify=false", "--image-timeout", "20m",
+            "--from", f"file://{rootDir}/{workspacePath}",
+            tlsVerifyFlag, "--image-timeout", imageTimeout,
             f"docker://{targetRegistry}"
         ]
     else:
@@ -405,7 +412,9 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
 
 def mirrorPackage(package: str, version: str, arch: str, mode: str,
                   targetRegistry: str = "", flag: bool = True,
-                  ocMirrorPath: str = "oc-mirror", authFilePath: Optional[str] = None) -> MirrorResult:
+                  ocMirrorPath: str = "oc-mirror", authFilePath: Optional[str] = None,
+                  rootDir: str = "", destTlsVerify: bool = True,
+                  imageTimeout: str = "20m") -> MirrorResult:
     """
     Mirror a package and return the result.
 
@@ -418,6 +427,9 @@ def mirrorPackage(package: str, version: str, arch: str, mode: str,
         flag: Whether to actually perform the mirror operation
         ocMirrorPath: Path to oc-mirror binary (default: "oc-mirror")
         authFilePath: Path to authentication file (default: ~/.ibm-mas/auth.json)
+        rootDir: Root directory for mirror operations (workspace for m2m, disk storage for m2d/d2m)
+        destTlsVerify: Verify TLS certificates for destination registry (default: True)
+        imageTimeout: Timeout for image operations (default: "20m")
 
     Returns:
         MirrorResult object with images, mirrored, and success status.
@@ -455,11 +467,13 @@ def mirrorPackage(package: str, version: str, arch: str, mode: str,
     workspacePath = f"{package}/{arch}/{version}"
 
     return _executeMirror(configPath, displayName, workspacePath, mode, targetRegistry,
-                          ocMirrorPath, authFilePath)
+                          ocMirrorPath, authFilePath, rootDir, destTlsVerify, imageTimeout)
 
 
 def mirrorCatalog(version: str, mode: str, targetRegistry: str = "",
-                  ocMirrorPath: str = "oc-mirror", authFilePath: Optional[str] = None) -> MirrorResult:
+                  ocMirrorPath: str = "oc-mirror", authFilePath: Optional[str] = None,
+                  rootDir: str = "", destTlsVerify: bool = True,
+                  imageTimeout: str = "20m") -> MirrorResult:
     """
     Mirror a catalog and return the result.
 
@@ -469,6 +483,9 @@ def mirrorCatalog(version: str, mode: str, targetRegistry: str = "",
         targetRegistry: Target registry for m2m and d2m modes
         ocMirrorPath: Path to oc-mirror binary (default: "oc-mirror")
         authFilePath: Path to authentication file (default: ~/.ibm-mas/auth.json)
+        rootDir: Root directory for mirror operations (workspace for m2m, disk storage for m2d/d2m)
+        destTlsVerify: Verify TLS certificates for destination registry (default: True)
+        imageTimeout: Timeout for image operations (default: "20m")
 
     Returns:
         MirrorResult object with images, mirrored, and success status.
@@ -489,7 +506,7 @@ def mirrorCatalog(version: str, mode: str, targetRegistry: str = "",
     workspacePath = f"catalog/{version}"
 
     return _executeMirror(configPath, displayName, workspacePath, mode, targetRegistry,
-                          ocMirrorPath, authFilePath)
+                          ocMirrorPath, authFilePath, rootDir, destTlsVerify, imageTimeout)
 
 
 def validateEnvironmentVariables(mode: str, targetRegistry: str) -> None:
@@ -610,6 +627,9 @@ class MirrorApp(BaseApp):
         mode = args.mode
         targetRegistry = args.target_registry or ""
         authFile = args.authfile
+        rootDir = args.dir
+        destTlsVerify = args.dest_tls_verify
+        imageTimeout = args.image_timeout
 
         # Validate that oc-mirror is available on PATH
         if not shutil.which("oc-mirror"):
@@ -659,7 +679,10 @@ class MirrorApp(BaseApp):
                 version=catalogVersion,
                 mode=mode,
                 targetRegistry=targetRegistry,
-                authFilePath=authFilePath
+                authFilePath=authFilePath,
+                rootDir=rootDir,
+                destTlsVerify=destTlsVerify,
+                imageTimeout=imageTimeout
             )
 
             # Mirror each package with common parameters using shared configuration
@@ -688,7 +711,10 @@ class MirrorApp(BaseApp):
                     mode=mode,
                     targetRegistry=targetRegistry,
                     flag=flag,
-                    authFilePath=authFilePath
+                    authFilePath=authFilePath,
+                    rootDir=rootDir,
+                    destTlsVerify=destTlsVerify,
+                    imageTimeout=imageTimeout
                 )
 
             print_formatted_text(HTML("\n<B>✅ Mirror operation completed</B>"))
