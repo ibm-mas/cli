@@ -193,10 +193,6 @@ spec:
       type: string
       default: ''
 
-    - name: rds_manage_db2_combine_properties
-      type: string
-      default: ''
-
     - name: rds_db2_config_manage_yaml
       type: string
       default: ''
@@ -222,10 +218,6 @@ spec:
       type: string
       default: ''
 
-    - name: rds_iot_db2_combine_properties
-      type: string
-      default: ''
-
     - name: rds_db2_config_iot_yaml
       type: string
       default: ''
@@ -248,10 +240,6 @@ spec:
       default: ''
 
     - name: rds_facilities_replica_db
-      type: string
-      default: ''
-
-    - name: rds_facilities_db2_combine_properties
       type: string
       default: ''
 
@@ -514,8 +502,6 @@ spec:
           value: $(params.rds_manage_jdbc_connection_url_additional_params)
         - name: rds_manage_replica_db
           value: $(params.rds_manage_replica_db)
-        - name: rds_manage_db2_combine_properties
-          value: $(params.rds_manage_db2_combine_properties)
         - name: rds_db2_config_manage_yaml
           value: $(params.rds_db2_config_manage_yaml)
 
@@ -530,8 +516,6 @@ spec:
           value: $(params.rds_iot_jdbc_connection_url_additional_params)
         - name: rds_iot_replica_db
           value: $(params.rds_iot_replica_db)
-        - name: rds_iot_db2_combine_properties
-          value: $(params.rds_iot_db2_combine_properties)
         - name: rds_db2_config_iot_yaml
           value: $(params.rds_db2_config_iot_yaml)
 
@@ -546,8 +530,6 @@ spec:
           value: $(params.rds_facilities_jdbc_connection_url_additional_params)
         - name: rds_facilities_replica_db
           value: $(params.rds_facilities_replica_db)
-        - name: rds_facilities_db2_combine_properties
-          value: $(params.rds_facilities_db2_combine_properties)
         - name: rds_db2_config_facilities_yaml
           value: $(params.rds_db2_config_facilities_yaml)
 
@@ -663,8 +645,6 @@ spec:
           value: $(params.rds_manage_jdbc_connection_url_additional_params)
         - name: rds_manage_replica_db
           value: $(params.rds_manage_replica_db)
-        - name: rds_manage_db2_combine_properties
-          value: $(params.rds_manage_db2_combine_properties)
         - name: rds_iot_db2_instance_class
           value: $(params.rds_iot_db2_instance_class)
         - name: rds_iot_db2_storage_type
@@ -675,8 +655,6 @@ spec:
           value: $(params.rds_iot_jdbc_connection_url_additional_params)
         - name: rds_iot_replica_db
           value: $(params.rds_iot_replica_db)
-        - name: rds_iot_db2_combine_properties
-          value: $(params.rds_iot_db2_combine_properties)
         - name: rds_facilities_db2_instance_class
           value: $(params.rds_facilities_db2_instance_class)
         - name: rds_facilities_db2_storage_type
@@ -687,8 +665,6 @@ spec:
           value: $(params.rds_facilities_jdbc_connection_url_additional_params)
         - name: rds_facilities_replica_db
           value: $(params.rds_facilities_replica_db)
-        - name: rds_facilities_db2_combine_properties
-          value: $(params.rds_facilities_db2_combine_properties)
 
     # Task 6: Manage PR (Always runs last)
     # -------------------------------------------------------------------------

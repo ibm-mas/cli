@@ -453,16 +453,6 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --rds-manage-db2-combine-properties)
-        if [[ -n "$1" && "$1" != --* ]]; then
-          export RDS_MANAGE_DB2_COMBINE_PROPERTIES=$1
-          shift
-        else
-          export RDS_MANAGE_DB2_COMBINE_PROPERTIES=""
-          [[ $# -gt 0 ]] && shift
-        fi
-        ;;
-
       --rds-db2-config-manage-yaml)
         if [[ -n "$1" && "$1" != --* ]]; then
           export RDS_DB2_CONFIG_MANAGE_YAML=$1
@@ -523,16 +513,6 @@ function gitops_iac_noninteractive() {
         fi
         ;;
 
-      --rds-iot-db2-combine-properties)
-        if [[ -n "$1" && "$1" != --* ]]; then
-          export RDS_IOT_DB2_COMBINE_PROPERTIES=$1
-          shift
-        else
-          export RDS_IOT_DB2_COMBINE_PROPERTIES=""
-          [[ $# -gt 0 ]] && shift
-        fi
-        ;;
-
       --rds-db2-config-iot-yaml)
         if [[ -n "$1" && "$1" != --* ]]; then
           export RDS_DB2_CONFIG_IOT_YAML=$1
@@ -589,16 +569,6 @@ function gitops_iac_noninteractive() {
           shift
         else
           export RDS_FACILITIES_REPLICA_DB=""
-          [[ $# -gt 0 ]] && shift
-        fi
-        ;;
-
-      --rds-facilities-db2-combine-properties)
-        if [[ -n "$1" && "$1" != --* ]]; then
-          export RDS_FACILITIES_DB2_COMBINE_PROPERTIES=$1
-          shift
-        else
-          export RDS_FACILITIES_DB2_COMBINE_PROPERTIES=""
           [[ $# -gt 0 ]] && shift
         fi
         ;;
