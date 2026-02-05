@@ -243,11 +243,6 @@
   description: MAS workspace ID for application backup
   default: ""
 
-- name: mas_app_backup_version
-  type: string
-  description: Version/timestamp for the MAS app backup (defaults to backup_version if not provided)
-  default: ""
-
 # Db2 Backup Configuration
 # -----------------------------------------------------------------------------
 - name: db2_namespace
@@ -264,11 +259,6 @@
   type: string
   description: Action to perform for Db2 (backup)
   default: "backup"
-
-- name: db2_backup_version
-  type: string
-  description: Version/timestamp for the Db2 backup (defaults to backup_version if not provided)
-  default: ""
 
 - name: backup_type
   type: string

@@ -467,7 +467,3 @@ class BackupApp(BaseApp):
 
         # Always set to disk for pipeline as s3 upload is handled for the whole pipeline
         self.setParam("backup_vendor", "disk")
-
-        # Set backup version to match main backup version
-        if self.getParam("backup_version"):
-            self.setParam("db2_backup_version", self.getParam("backup_version"))

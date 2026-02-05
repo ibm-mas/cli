@@ -16,7 +16,7 @@ spec:
       type: string
       description: Directory to store backup files
       default: ""
-    - name: backup_version
+    - name: suite_backup_version
       type: string
       description: Version/timestamp for the backup
       default: ""
@@ -34,7 +34,7 @@ spec:
       - name: MAS_BACKUP_DIR
         value: /workspace/backups
       - name: SUITE_BACKUP_VERSION
-        value: $(params.backup_version)
+        value: $(params.suite_backup_version)
 
   steps:
     - name: suite-backup
