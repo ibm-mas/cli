@@ -10,7 +10,6 @@
 # *****************************************************************************
 
 import logging
-import logging.handlers
 from datetime import datetime
 from halo import Halo
 from prompt_toolkit import print_formatted_text, HTML
@@ -336,7 +335,7 @@ class BackupApp(BaseApp):
             # Determine upload destination based on dev_mode
             if self.devMode:
                 self.printDescription([
-                    "Development mode is enabled. Choose upload destination:"
+                    "Development mode is enabled. Choose upload destination:",
                     " 1. S3",
                     " 2. Artifactory",
                 ])
@@ -454,18 +453,20 @@ class BackupApp(BaseApp):
         # Backup type
         self.printDescription([
             "Db2 backup can be performed online (database remains available) or offline (database unavailable during backup).",
-            "Note: If your Db2 instance uses circular logging (default), you must use offline backup."
-            "Backup Types:"
+            "Note: If your Db2 instance uses circular logging (default), you must use offline backup.",
+            "Backup Types:",
             " 1. online",
             " 2. offline",
         ])
-        backupType = self.promptForListSelect(
+        self.promptForListSelect(
             message="Select backup type",
             options=["online", "offline"],
             param="backup_type",
             default=1
         )
-        self.setParam("backup_type", backupType)
+
+        # Always set to local for pipeline as s3 upload is handled for the whole pipeline
+        self.setParam("backup_vendor", "local")
 
         # Set backup version to match main backup version
         if self.getParam("backup_version"):
