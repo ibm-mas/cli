@@ -136,8 +136,10 @@
         dest: "{{ task_target_dir }}/{{ item }}.yaml"
       with_items:
         - clean-workspaces
+        - download-backup-archive
         - gencfg-workspace
         - must-gather
+        - suite-app-backup
         - suite-app-install
         - suite-app-uninstall
         - suite-app-upgrade
@@ -155,7 +157,6 @@
         - suite-upgrade
         - suite-verify
         - upload-backup-archive
-        - download-backup-archive
 
     # 7. Generate Tasks (OCP)
     # -------------------------------------------------------------------------

@@ -22,7 +22,7 @@ from ..cli import BaseApp
 from ..validators import InstanceIDValidator
 from .argParser import backupArgParser
 from mas.devops.ocp import createNamespace, getConsoleURL
-from mas.devops.mas import listMasInstances, getDefaultStorageClasses
+from mas.devops.mas import listMasInstances, getDefaultStorageClasses, getWorkspaceId
 from mas.devops.tekton import preparePipelinesNamespace, installOpenShiftPipelines, updateTektonDefinitions, launchBackupPipeline
 
 
@@ -70,7 +70,12 @@ class BackupApp(BaseApp):
                 "s3_bucket_name",
                 "s3_region",
                 "artifactory_url",
-                "artifactory_repository"
+                "artifactory_repository",
+                # Manage App Backup
+                "mas_app_id",
+                "mas_workspace_id",
+                "backup_manage_app",
+                "backup_manage_db"
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -128,6 +133,9 @@ class BackupApp(BaseApp):
             if self.args.clean_backup is None:
                 self.promptForCleanBackup()
 
+            # Prompt for Manage app backup
+            self.promptForManageAppBackup()
+
             self.promptForUploadConfiguration()
 
         # Set default values for optional parameters if not provided
@@ -155,6 +163,16 @@ class BackupApp(BaseApp):
         self.printSummary("Include SLS", self.getParam("include_sls") if self.getParam("include_sls") else "true")
         self.printSummary("MongoDB Namespace", self.getParam("mongodb_namespace") if self.getParam("mongodb_namespace") else "mongoce")
         self.printSummary("SLS Namespace", self.getParam("sls_namespace") if self.getParam("sls_namespace") else "ibm-sls")
+
+        if self.getParam("backup_manage_app") == "true":
+            self.printH2("Manage Application Backup")
+            self.printSummary("Backup Manage App", "Yes")
+            self.printSummary("Workspace ID", self.getParam("mas_workspace_id"))
+            self.printSummary("Backup Manage incluster Db2 Database", "Yes" if self.getParam("backup_manage_db") == "true" else "No")
+            if self.getParam("backup_manage_db") == "true":
+                self.printSummary("Db2 Namespace", self.getParam("db2_namespace"))
+                self.printSummary("Db2 Instance Name", self.getParam("db2_instance_name"))
+                self.printSummary("Db2 Backup Type", self.getParam("backup_type"))
 
         continueWithBackup = True
         if not self.noConfirm:
@@ -365,3 +383,82 @@ class BackupApp(BaseApp):
                 self.setParam("artifactory_repository", artifactoryRepository)
         else:
             self.setParam("upload_backup", "false")
+
+    def promptForManageAppBackup(self) -> None:
+        """Prompt user for Manage application backup configuration"""
+        self.printH1("Manage Application Backup")
+        self.printDescription([
+            "In addition to backing up the MAS Suite, you can also backup the Manage application.",
+            "This includes the Manage namespace resources and persistent volume data."
+        ])
+
+        backupManageApp = self.yesOrNo("Do you want to backup the Manage application")
+
+        if backupManageApp:
+            self.setParam("backup_manage_app", "true")
+            self.setParam("mas_app_id", "manage")
+
+            # Get workspace ID - try to auto-detect first
+            try:
+                instanceId = self.getParam("mas_instance_id")
+                workspaceId = getWorkspaceId(self.dynamicClient, instanceId)
+                if workspaceId:
+                    self.printDescription([f"Detected Manage workspace: <u>{workspaceId}</u>"])
+                    useDetected = self.yesOrNo("Use this workspace")
+                    if useDetected:
+                        self.setParam("mas_workspace_id", workspaceId)
+                    else:
+                        workspaceId = self.promptForString("Enter Manage workspace ID")
+                        self.setParam("mas_workspace_id", workspaceId)
+                else:
+                    workspaceId = self.promptForString("Enter Manage workspace ID")
+                    self.setParam("mas_workspace_id", workspaceId)
+            except Exception:
+                workspaceId = self.promptForString("Enter Manage workspace ID")
+                self.setParam("mas_workspace_id", workspaceId)
+
+            # Ask about DB2 backup
+            self.printH2("Manage Database Backup")
+            self.printDescription([
+                "The Manage application uses a Db2 database that should also be backed up.",
+                "This will backup the incluster Db2 database associated with the Manage workspace."
+            ])
+            backupDb2 = self.yesOrNo("Do you want to backup the Manage database (Db2)")
+
+            if backupDb2:
+                self.setParam("backup_manage_db", "true")
+                self.promptForDb2BackupConfiguration()
+            else:
+                self.setParam("backup_manage_db", "false")
+        else:
+            self.setParam("backup_manage_app", "false")
+            self.setParam("backup_manage_db", "false")
+
+    def promptForDb2BackupConfiguration(self) -> None:
+        """Prompt user for Db2 backup configuration - reusable for any app that uses Db2"""
+        self.printH2("Db2 Configuration")
+
+        # DB2 namespace
+        db2Namespace = self.promptForString("Enter Db2 namespace", default="db2u")
+        self.setParam("db2_namespace", db2Namespace)
+
+        # DB2 instance name
+        db2InstanceName = self.promptForString("Enter Db2 instance name")
+        self.setParam("db2_instance_name", db2InstanceName)
+
+        # Backup type
+        self.printDescription([
+            "Db2 backup can be performed online (database remains available) or offline (database unavailable during backup).",
+            "Note: If your Db2 instance uses circular logging (default), you must use offline backup."
+        ])
+        backupType = self.promptForListSelect(
+            "Select backup type",
+            ["online", "offline"],
+            "backup_type",
+            default=1
+        )
+        self.setParam("backup_type", backupType)
+
+        # Set backup version to match main backup version
+        if self.getParam("backup_version"):
+            self.setParam("db2_backup_version", self.getParam("backup_version"))
