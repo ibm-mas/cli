@@ -28,7 +28,6 @@ PACKAGE_CONFIGS = [
     # TODO: Support CP4D - Spark ("MAS", "manage", "mongodb-ce", "mas_manage_version", "MongoDb (CE)"),
     # TODO: Support CP4D - Cognos ("MAS", "manage", "mongodb-ce", "mas_manage_version", "MongoDb (CE)"),
 
-    # TODO: Support catalog ("MAS", "catalog", "ibm-mas-operator-catalog", "mas_catalog_version", "Operator Catalog"),
     ("Maximo Application Suite", "core", "ibm-mas", "mas_core_version", "Core"),
     ("Maximo Application Suite", "assist", "ibm-mas-assist", "mas_assist_version", "Assist"),
     ("Maximo Application Suite", "iot", "ibm-mas-iot", "mas_iot_version", "IoT"),
