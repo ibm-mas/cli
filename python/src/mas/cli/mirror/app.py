@@ -437,7 +437,7 @@ def mirrorPackage(package: str, version: str, arch: str, mode: str,
         logger.info(f"Skipping {package} version {version} for {arch} architecture")
         # Add empty progress bar to align with other status messages
         emptyBar = "|" + " " * 20 + "|"
-        print(f"{package} v{version} ({arch})".ljust(50) + f" ⏭️  {emptyBar} Mirroring disabled by user")
+        print(f"{package} v{version} ({arch})".ljust(50) + f" ⏭️ {emptyBar} Mirroring disabled by user")
         return MirrorResult(images=0, mirrored=0)
 
     logger.info(f"Mirroring {package} version {version} for {arch} architecture")
