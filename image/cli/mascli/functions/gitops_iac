@@ -1243,6 +1243,21 @@ function gitops_iac_provision_rdsdb2(){
   echo
   echo_h2 "Generating IAC/RDS-DB2 Configuration"
 
+  if [[ -n "$RDS_DB2_CONFIG_MANAGE_YAML" ]]; then
+    echo
+    export RDS_DB2_CONFIG_MANAGE=$(cat ${RDS_DB2_CONFIG_MANAGE_YAML})
+    echo RDS_DB2_CONFIG_MANAGE
+  fi
+  if [[ -n "$RDS_DB2_CONFIG_IOT_YAML" ]]; then
+    echo
+    export RDS_DB2_CONFIG_IOT=$(cat ${RDS_DB2_CONFIG_IOT_YAML})
+    echo RDS_DB2_CONFIG_IOT
+  fi
+  if [[ -n "$RDS_DB2_CONFIG_FACILITIES_YAML" ]]; then
+    echo
+    export RDS_DB2_CONFIG_FACILITIES=$(cat ${RDS_DB2_CONFIG_FACILITIES_YAML})
+    echo RDS_DB2_CONFIG_FACILITIES
+  fi
   APP_PARAMS=(
   "manage $RDS_MANAGE_DB2_INSTANCE_CLASS $RDS_MANAGE_DB2_STORAGE_TYPE $RDS_MANAGE_ALLOCATED_STORAGE"
   "iot $RDS_IOT_DB2_INSTANCE_CLASS $RDS_IOT_DB2_STORAGE_TYPE $RDS_IOT_ALLOCATED_STORAGE"
