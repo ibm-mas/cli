@@ -349,17 +349,20 @@ def _executeMirror(configPath: str, displayName: str, workspacePath: str, mode: 
         cmd = [
             ocMirrorPath, "--v2", "--config", configPath, "--authfile", authFilePath,
             "--workspace", f"file://workspace/{workspacePath}",
+            "--dest-tls-verify=false", "--image-timeout", "20m",
             f"docker://{targetRegistry}"
         ]
     elif mode == "m2d":
         cmd = [
             ocMirrorPath, "--v2", "--config", configPath, "--authfile", authFilePath,
+            "--image-timeout", "20m",
             f"file://output-dir/{workspacePath}",
         ]
     elif mode == "d2m":
         cmd = [
             ocMirrorPath, "--v2", "--config", configPath, "--authfile", authFilePath,
             "--from", f"file://output-dir/{workspacePath}",
+            "--dest-tls-verify=false", "--image-timeout", "20m",
             f"docker://{targetRegistry}"
         ]
     else:
@@ -569,9 +572,13 @@ def generateAuthFile(mode: str, targetRegistry: str) -> str:
             "auth": authBase64
         }
 
+    auths = {
+        "auths": authConfig
+    }
+
     # Write auth file
     with open(authFilePath, 'w') as f:
-        json.dump(authConfig, f, indent=2)
+        json.dump(auths, f, indent=2)
 
     logger.info(f"Generated auth file: {authFilePath}")
     return authFilePath
