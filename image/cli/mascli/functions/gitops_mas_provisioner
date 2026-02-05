@@ -23,7 +23,7 @@ MAS PROVISIONER OPERATOR:
       --status-repo-url ${COLOR_YELLOW}STATUS_REPO_URL${TEXT_RESET}                       Git repo where the order status of the operation will be recorded
       --provisioner-domain ${COLOR_YELLOW}PROVISIONER_DOMAIN${TEXT_RESET}                 The domain to setup route and service for the MAS Provisioner
     (Optional)
-      --provisioner-storage-class ${COLOR_YELLOW}PROVISIONER_STORAGE_CLASS${TEXT_RESET}           The storage class for the logs PVC. Default is ocs-storagecluster-cephfs
+      --provisioner-storage-class ${COLOR_YELLOW}PROVISIONER_STORAGE_CLASS${TEXT_RESET}           The storage class for the logs PVC.
       --provisioner-namespace ${COLOR_YELLOW}PROVISIONER_NAMESPACE${TEXT_RESET}                   Namespace for the mas provisioner
       --account-alias ${COLOR_YELLOW}ACCOUNT_ALIAS${TEXT_RESET}                                   Enables customization for the account id to use in the status repo. Default is fetched from the order payload received
       --provisioner-version ${COLOR_YELLOW}PROVISIONER_VERSION${TEXT_RESET}                       The version tag for MAS Provisioner. Default is latest
@@ -225,7 +225,6 @@ function gitops_mas_provisioner() {
   GITOPS_CLUSTER_DIR=${GITOPS_WORKING_DIR}/${GITHUB_REPO}/${ACCOUNT_ID}/${CLUSTER_ID}
 
   # set default values of envs if not provided
-  export PROVISIONER_STORAGE_CLASS=${PROVISIONER_STORAGE_CLASS:-"ocs-storagecluster-cephfs"}
   export ENABLE_MTLS=${ENABLE_MTLS:-false}
   export ENABLE_OCM_ALERT=${ENABLE_OCM_ALERT:-false}
   export ENABLE_PD_ALERT=${ENABLE_PD_ALERT:-false}
