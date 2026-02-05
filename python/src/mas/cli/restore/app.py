@@ -160,22 +160,35 @@ class RestoreApp(BaseApp):
             f" - <u>{getConsoleURL(self.dynamicClient)}</u>"
         ])
 
-        self.printH2("MAS Instance")
+        self.printH2("MAS Instance Configuration")
         self.printSummary("Instance ID", self.getParam("mas_instance_id"))
-
         if self.getParam("mas_domain_on_restore") is not None and self.getParam("mas_domain_on_restore") != "":
-            self.printSummary("Domain", self.getParam("mas_domain_on_restore"))
+            self.printSummary("Suite Domain", self.getParam("mas_domain_on_restore"))
+        if self.getParam("sls_url_on_restore") is not None and self.getParam("sls_url_on_restore") != "":
+            self.printSummary("SLS URL", self.getParam("sls_url_on_restore"))
+        if self.getParam("sls_cfg_file") is not None and self.getParam("sls_cfg_file") != "":
+            self.printSummary("Custom SLS Config File", self.getParam("sls_cfg_file"))
+        if self.getParam("dro_url_on_restore") is not None and self.getParam("dro_url_on_restore") != "":
+            self.printSummary("DRO URL", self.getParam("dro_url_on_restore"))
+        if self.getParam("dro_cfg_file") is not None and self.getParam("dro_cfg_file") != "":
+            self.printSummary("Custom DRO Config File", self.getParam("dro_cfg_file"))
 
         self.printH2("Restore Configuration")
         self.printSummary("Backup Directory", "/workspace/backups (hardcoded)")
         self.printSummary("Config Directory", "/workspace/configs (hardcoded)")
         self.printSummary("Backup Storage Size", self.getParam("backup_storage_size"))
         self.printSummary("Backup Version to restore", self.getParam("restore_version"))
+        if self.getParam("backup_archive_name") is not None and self.getParam("backup_archive_name") != "":
+            self.printSummary("Backup custom archive name", self.getParam("backup_archive_name"))
 
         self.printH2("Components")
         self.printSummary("Include Grafana", self.getParam("include_grafana") if self.getParam("include_grafana") else "true")
         self.printSummary("Include SLS", self.getParam("include_sls") if self.getParam("include_sls") else "true")
         self.printSummary("Include DRO", self.getParam("include_dro") if self.getParam("include_dro") else "true")
+
+        if self.getParam("sls_domain") is not None and self.getParam("sls_domain") != "":
+            self.printH2("SLS Configuration")
+            self.printSummary("SLS Domain", self.getParam("dro_namespace"))
 
         if self.getParam("include_dro") is not None and self.getParam("include_dro") == "true":
             self.printH2("DRO Configuration")
