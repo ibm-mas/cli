@@ -395,7 +395,7 @@ echo $INSTALL_TOKEN
 oc login --token $INSTALL_TOKEN --server $SERVER
 
 # Install MAS (using IBMCloud storage classes)
-docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:18.13.0 bash -c "
+docker run -ti --rm -v ~:/mnt/home --pull always quay.io/ibmmas/cli:18.14.0 bash -c "
   oc login --token $INSTALL_TOKEN --server=$SERVER &amp;&amp;
   mas install --mas-catalog-version v9-260129-amd64 --ibm-entitlement-key $IBM_ENTITLEMENT_KEY \
     --mas-channel 9.1.x --mas-instance-id ${MAS_INSTANCE_ID} --mas-workspace-id masdev --mas-workspace-name Workspace \
