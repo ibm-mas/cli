@@ -854,8 +854,50 @@ spec:
           operator: notin
           values: [""]
 
-    # 3. DB2 for IoT, Manage and Facilities
+    # 3. RDS-DB2 and DB2 for IoT, Manage and Facilities
     # -------------------------------------------------------------------------
+    # 3.1 RDS for IoT
+    - name: gitops-rds-db2-database-iot
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: iot
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_iot)
+        - name: db2_instance_registry_yaml
+          value: $(params.db2_instance_registry_yaml_iot)
+        - name: db2_instance_dbm_config_yaml
+          value: $(params.db2_instance_dbm_config_yaml_iot)
+        - name: db2_database_db_config_yaml
+          value: $(params.db2_database_db_config_yaml_iot)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_iot)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+          kind: Task
+          name: gitops-rds-db2-database
+      when:
+        - input: "$(params.db2_action_iot)"
+          operator: notin
+          values: [""]
+        - input: "$(params.jdbc_type_iot)"
+          operator: in
+          values: ["rds-db2"]
+        - input: "$(params.mas_app_channel_iot)"
+          operator: notin
+          values: [""]
 
     # 3.1 DB2 for IoT
     - name: gitops-db2u-database-iot
@@ -986,6 +1028,7 @@ spec:
     - name: gitops-jdbc-config-iot
       runAfter:
         - gitops-db2u-database-iot
+        - gitops-rds-db2-database-iot
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -1023,6 +1066,49 @@ spec:
           operator: notin
           values: [""]
 
+    # 3.2 RDS for manage
+    - name: gitops-rds-db2-database-manage
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: manage
+        - name: replica_db
+          value: $(params.replica_db_manage)
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_manage)
+        - name: db2_instance_registry_yaml
+          value: $(params.db2_instance_registry_yaml_manage)
+        - name: db2_instance_dbm_config_yaml
+          value: $(params.db2_instance_dbm_config_yaml_manage)
+        - name: db2_database_db_config_yaml
+          value: $(params.db2_database_db_config_yaml_manage)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_manage)
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+          kind: Task
+          name: gitops-rds-db2-database
+      when:
+        - input: "$(params.db2_action_manage)"
+          operator: notin
+          values: [""]
+        - input: "$(params.jdbc_type_manage)"
+          operator: in
+          values: ["rds-db2"]
+        - input: "$(params.mas_app_channel_manage)"
+          operator: notin
+          values: [""]
     # 3.2 DB2 for Manage
     - name: gitops-db2u-database-manage
       params:
@@ -1155,6 +1241,7 @@ spec:
     - name: gitops-jdbc-config-manage
       runAfter:
         - gitops-db2u-database-manage
+        - gitops-rds-db2-database-manage
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -1326,6 +1413,50 @@ spec:
           operator: notin
           values: [""]
 
+    # 3.3 RDS for facilities
+    - name: gitops-rds-db2-database-facilities
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/secrets-params.yml.j2') | indent(8) }}
+
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/git-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_app_id
+          value: facilities
+        - name: replica_db
+          value: $(params.replica_db_facilities)
+        - name: jdbc_connection_url_additional_params
+          value: $(params.jdbc_connection_url_additional_params_facilities)
+        - name: db2_instance_registry_yaml
+          value: $(params.db2_instance_registry_yaml_facilities)
+        - name: db2_instance_dbm_config_yaml
+          value: $(params.db2_instance_dbm_config_yaml_facilities)
+        - name: db2_database_db_config_yaml
+          value: $(params.db2_database_db_config_yaml_facilities)
+        - name: db2_addons_audit_config_yaml
+          value: $(params.db2_addons_audit_config_yaml_facilities)
+
+      workspaces:
+        - name: configs
+          workspace: configs
+        - name: shared-gitops-configs
+          workspace: shared-gitops-configs
+      taskRef:
+          kind: Task
+          name: gitops-rds-db2-database
+      when:
+        - input: "$(params.db2_action_facilities)"
+          operator: notin
+          values: [""]
+        - input: "$(params.jdbc_type_facilities)"
+          operator: in
+          values: ["rds-db2"]
+        - input: "$(params.mas_app_channel_facilities)"
+          operator: notin
+          values: [""]
     # 3.3 DB2 for Facilities
     - name: gitops-db2u-database-facilities
       params:
@@ -1456,6 +1587,7 @@ spec:
     - name: gitops-jdbc-config-facilities
       runAfter:
         - gitops-db2u-database-facilities
+        - gitops-rds-db2-database-facilities
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/gitops/common/gitops-params.yml.j2') | indent(8) }}
 
@@ -2401,8 +2533,7 @@ spec:
           values: ["deactivate", ""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium"]
-
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]  
     # 6.2 Manage App
     - name: gitops-deprovision-mas-app-install-manage
       runAfter:
@@ -2429,8 +2560,7 @@ spec:
           values: [""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium"]
-
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]   
     # 6.3 Manage Database
     - name: gitops-deprovision-db2u-database-manage
       runAfter:
@@ -2457,8 +2587,7 @@ spec:
           values: [""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium"]
-
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]    
     # 6.4 Manage JDBC Config
     - name: gitops-delete-jdbc-config-manage
       runAfter:
@@ -2498,8 +2627,7 @@ spec:
           values: [""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium"]
-
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
     # 6.5 Manage Replica Config
     - name: gitops-deprovision-db2u-replica-database-manage
       runAfter:
@@ -2528,7 +2656,7 @@ spec:
           values: [""]
         - input: "$(params.mas_edition)"
           operator: in
-          values: ["essentials-maintenance", "standard", "premium"]
+          values: ["essentials-maintenance", "standard", "premium", "essentials-inspection", "essentials-space-management", "essentials-lease-management", "essentials-capital-planning"]
   
     # 7. IoT Deprovision
     # -------------------------------------------------------------------------

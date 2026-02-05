@@ -30,8 +30,10 @@ AWS Secrets Manager Configuration (Required):
       --secrets-path ${COLOR_YELLOW}SECRETS_PATH${TEXT_RESET}                   Secrets Manager path
 
 IBM DRO & IMO Config (Optional):
-      --dro-install-plan ${COLOR_YELLOW}DRO_INSTALL_PLAN${TEXT_RESET} DRO subscription install plan approval('Automatic' or 'Manual'. Default is 'Automatic')
-      --imo-install-plan ${COLOR_YELLOW}IMO_INSTALL_PLAN${TEXT_RESET} IMO subscription install plan approval('Automatic' or 'Manual'. Default is 'Automatic')
+      --dro-install-plan ${COLOR_YELLOW}DRO_INSTALL_PLAN${TEXT_RESET}   DRO subscription install plan approval('Automatic' or 'Manual'. Default is 'Automatic')
+      --imo-install-plan ${COLOR_YELLOW}IMO_INSTALL_PLAN${TEXT_RESET}   IMO subscription install plan approval('Automatic' or 'Manual'. Default is 'Automatic')
+      --dro-public-domain ${COLOR_YELLOW}DRO_PUBLIC_DOMAIN${TEXT_RESET} Domain of DRO if it needs to be exposed publicly
+      --dro-cis-crn ${COLOR_YELLOW}DRO_CIS_CRN${TEXT_RESET}             CIS CRN
 
 Automatic GitHub Push (Optional):
   -P, --github-push ${COLOR_YELLOW}GITHUB_PUSH${TEXT_RESET}        Enable automatic push to GitHub
@@ -115,6 +117,12 @@ function gitops_dro_noninteractive() {
         ;;
       --imo-install-plan)
       export IMO_INSTALL_PLAN=$1 && shift
+        ;;
+      --dro-public-domain)
+      export DRO_PUBLIC_DOMAIN=$1 && shift
+        ;;
+      --dro-cis-crn)
+      export DRO_CIS_CRN=$1 && shift
         ;;
 
       # Automatic GitHub Push
@@ -227,6 +235,12 @@ function gitops_dro() {
   echo "${TEXT_DIM}"
   echo_h2 "DRO Operator" "    "
   echo_reset_dim "DRO_NAMESPACE  .......................... ${COLOR_MAGENTA}${DRO_NAMESPACE}"
+  if [[ -n "$DRO_PUBLIC_DOMAIN" ]]; then
+    echo_reset_dim "DRO_PUBLIC_DOMAIN ....................... ${COLOR_MAGENTA}${DRO_PUBLIC_DOMAIN}"
+  fi
+  if [[ -n "$DRO_CIS_CRN" ]]; then
+    echo_reset_dim "DRO_CIS_CRN .......................... ${COLOR_MAGENTA}${DRO_CIS_CRN}"
+  fi
   reset_colors
 
   echo "${TEXT_DIM}"
@@ -249,6 +263,8 @@ function gitops_dro() {
   # ---------------------------------------------------------------------------
   # Note that SECRET_KEY_IBM_ENTITLEMENT cluster-level secret is set up by gitops-cluster
   export SECRET_KEY_IBM_ENTITLEMENT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}ibm_entitlement#entitlement_key
+  export SECRET_KET_DRO_TLS_CERT=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_client_tls_tls_crt_b64
+  export SECRET_KET_DRO_TLS_KEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro#dro_client_tls_tls_key_b64
   
   if [ "$DRO_CMM_SETUP" == "true" ]; then
     export SECRET_KEY_DRO_CMM_AUTH_APIKEY=${ACCOUNT_ID}${SECRETS_KEY_SEPERATOR}${CLUSTER_ID}${SECRETS_KEY_SEPERATOR}dro_cmm_auth#api_key

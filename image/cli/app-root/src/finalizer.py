@@ -294,8 +294,8 @@ if __name__ == "__main__":
         "ibm-aiservice": {
             "deployment": "ibm-aiservice-operator",
             "namespace": f"aiservice-{instanceId}",
-            "apiVersion": "apps.mas.ibm.com/v1",
-            "kind": "AiBrokerApp",
+            "apiVersion": "aiservice.ibm.com/v1",
+            "kind": "AIServiceApp",
         }
     }
 
@@ -312,7 +312,7 @@ if __name__ == "__main__":
         "ibm-mas-predict": "S04Q53TT5S5",
         "ibm-mas-visualinspection": "S04PUSAL2A0",
         "ibm-mas-mobile": "S0507GG7V6K",
-        "ibm-aiservice": "S04Q53TT5S5"
+        "ibm-aiservice": "S09DH8BFGA1"
     }
 
     for productId in knownProductIds:
@@ -352,6 +352,8 @@ if __name__ == "__main__":
                     print(f"Unable to determine {productId} build information: {e}")
             else:
                 print(f"Unable to determine {productId} version: status.versions.reconciled unavailable")
+            if cr.status and cr.status.settings and cr.status.settings.routingMode:
+                setObject[f"products.{productId}.routingMode"] = cr.status.settings.routingMode
         except Exception as e:
             print(f"Unable to determine {productId} version: {e}")
 
@@ -409,15 +411,40 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     try:
         crs = dynClient.resources.get(api_version="db2u.databases.ibm.com/v1", kind="Db2uCluster")
-        cr = crs.get(name=f"mas-{instanceId}-system", namespace="db2u")
-        if cr.status and cr.status.version:
-            db2ClusterVersion = cr.status.version
+        # Try to find DB2 cluster - first try the expected name/namespace
+        db2Found = False
+        try:
+            cr = crs.get(name=f"mas-{instanceId}-system", namespace="db2u")
+            if cr.status and cr.status.version:
+                db2ClusterVersion = cr.status.version
+                setObject["target.db2ClusterVersion"] = db2ClusterVersion
+                db2Found = True
+        except Exception:
+            # If not found in expected location, search all namespaces
+            try:
+                crList = crs.get()
+                if crList and crList.items and len(crList.items) > 0:
+                    # Use the first DB2 cluster found
+                    for item in crList.items:
+                        if item.status and item.status.version:
+                            db2ClusterVersion = item.status.version
+                            setObject["target.db2ClusterVersion"] = db2ClusterVersion
+                            db2Found = True
+                            db2Name = item.metadata.name
+                            db2Ns = item.metadata.namespace
+                            print(f"DB2 cluster found: {db2Name} in namespace {db2Ns}")
+                            break
+            except Exception:
+                pass
 
-            setObject["target.db2ClusterVersion"] = db2ClusterVersion
-        else:
-            print("Unable to determine DB2 cluster version: status.version unavailable")
+        if not db2Found:
+            print("Unable to determine DB2 cluster version: DB2 cluster not found (may not be installed)")
     except Exception as e:
-        print(f"Unable to determine DB2 cluster version: {e}")
+        error_msg = str(e)
+        if "404" in error_msg or "not found" in error_msg.lower():
+            print("Unable to determine DB2 cluster version: DB2 cluster not found (may not be installed)")
+        else:
+            print(f"Unable to determine DB2 cluster version: {e}")
 
     # Lookup DB2 operator version
     # -------------------------------------------------------------------------
@@ -468,14 +495,46 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     try:
         crs = dynClient.resources.get(api_version="sls.ibm.com/v1", kind="LicenseService")
-        cr = crs.get(name="sls", namespace=f"sls-{instanceId}")
-        if cr.status and cr.status.versions:
-            slsVersion = cr.status.versions.reconciled
-            setObject["target.slsVersion"] = slsVersion
-        else:
-            print("Unable to determine SLS version: status.versions unavailable")
+        # Try to find SLS - check multiple possible locations
+        slsFound = False
+        possibleNamespaces = [f"sls-{instanceId}", "ibm-sls", f"mas-{instanceId}-sls"]
+
+        for ns in possibleNamespaces:
+            try:
+                cr = crs.get(name="sls", namespace=ns)
+                if cr.status and cr.status.versions:
+                    slsVersion = cr.status.versions.reconciled
+                    setObject["target.slsVersion"] = slsVersion
+                    slsFound = True
+                    break
+            except Exception:
+                continue
+
+        if not slsFound:
+            # If not found in expected locations, search all namespaces
+            try:
+                crList = crs.get()
+                if crList and crList.items and len(crList.items) > 0:
+                    for item in crList.items:
+                        if item.status and item.status.versions:
+                            slsVersion = item.status.versions.reconciled
+                            setObject["target.slsVersion"] = slsVersion
+                            slsFound = True
+                            slsName = item.metadata.name
+                            slsNs = item.metadata.namespace
+                            print(f"SLS found: {slsName} in namespace {slsNs}")
+                            break
+            except Exception:
+                pass
+
+        if not slsFound:
+            print("Unable to determine SLS version: SLS not found (may not be installed)")
     except Exception as e:
-        print(f"Unable to determine SLS version: {e}")
+        error_msg = str(e)
+        if "404" in error_msg or "not found" in error_msg.lower():
+            print("Unable to determine SLS version: SLS not found (may not be installed)")
+        else:
+            print(f"Unable to determine SLS version: {e}")
 
     # Lookup CP4D version
     # -------------------------------------------------------------------------
@@ -540,7 +599,7 @@ if __name__ == "__main__":
     # -------------------------------------------------------------------------
     message = []
     message.append(SlackUtil.buildHeader(f"FVT Report: {instanceId} #{build}"))
-    message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+    message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
     for product in sorted(result["products"]):
 
@@ -600,9 +659,9 @@ if __name__ == "__main__":
         message = []
         message.append(SlackUtil.buildHeader(f"{product}"))
         if (product in productFocal):
-            message.append(SlackUtil.buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            message.append(SlackUtil.buildSection(f"<!subteam^{productFocal[product]}> The following testsuites reported one or more failures or errors during *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"))
         else:
-            message.append(SlackUtil.buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            message.append(SlackUtil.buildSection(f"The following testsuites reported one or more failures or errors during *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"))
 
         if "results" in result["products"][product]:
             for suite in result["products"][product]["results"]:
@@ -660,7 +719,7 @@ if __name__ == "__main__":
                         openIssues.append(f"{statusIcon} <https://jsw.ibm.com/browse/{key}|{key}> {summary} ({assignee})")
 
                     context = [
-                        f"{icon} *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}/testsuite/{product}/{suite}|{product}/{suite}>*",
+                        f"{icon} *<https://dashboard.ibmmas.com/tests/{instanceId}/testsuite/{product}/{suite}|{product}/{suite}>*",
                         f"*{tests}* tests",
                         f"*{skipped}* skipped",
                         f"*{errors}* errors",
@@ -678,6 +737,6 @@ if __name__ == "__main__":
         if len(message) > 50:
             message = []
             message.append(SlackUtil.buildHeader(f"{product}"))
-            message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.masdev.wiotp.sl.hursley.ibm.com/tests/{instanceId}|{instanceId}#{build}>*"))
+            message.append(SlackUtil.buildSection(f"Test result summary for *<https://dashboard.ibmmas.com/tests/{instanceId}|{instanceId}#{build}>*"))
             message.append(SlackUtil.buildSection("Sorry.  The build is so bad it can't even be summarized within the size limit of a Slack message!"))
             postMessage(FVT_SLACK_CHANNEL, message, threadId)

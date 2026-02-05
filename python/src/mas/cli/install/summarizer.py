@@ -77,6 +77,9 @@ class InstallSummarizerMixin():
 
         print()
         self.printParamSummary("Network Routing Mode", "mas_routing_mode")
+        if self.getParam("mas_routing_mode") == "path":
+            self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
+            self.printParamSummary("Configure IngressController", "mas_configure_ingress")
 
         print()
         self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
@@ -130,7 +133,7 @@ class InstallSummarizerMixin():
             self.printSummary("Monitor", "Do Not Install")
 
     def arcgisSummary(self) -> None:
-        if self.getParam("install_arcgis") != "":
+        if self.installArcgis:
             self.printSummary("Loc Srv Esri (arcgis)", self.params["mas_arcgis_channel"])
         else:
             self.printSummary("Loc Srv Esri (arcgis)", "Do Not Install")
@@ -237,6 +240,9 @@ class InstallSummarizerMixin():
             self.printParamSummary("Release", "aiservice_channel")
             self.printParamSummary("Instance ID", "aiservice_instance_id")
             self.printParamSummary("Environment Type", "environment_type")
+
+            if "aiservice_certificate_issuer" in self.params:
+                self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
 
             self.printH2("AI Service Tenant Entitlement")
             self.printParamSummary("Entitlement Type", "tenant_entitlement_type")
@@ -391,8 +397,8 @@ class InstallSummarizerMixin():
         self.printSummary("Install Grafana", "Install" if self.getParam("grafana_action") == "install" else "Do Not Install")
 
     def installSummary(self) -> None:
-        self.printH2("Install Process")
-        self.printSummary("Wait for PVCs to bind", "No" if self.getParam("no_wait_for_pvc") else "Yes")
+        pass
+        # self.printH2("Install Process")
 
     def displayInstallSummary(self) -> None:
         self.printH1("Review Settings")

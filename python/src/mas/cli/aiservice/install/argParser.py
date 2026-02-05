@@ -401,6 +401,12 @@ aiServiceArgGroup.add_argument(
     default="non-production",
     help="Environment type (default: non-production)"
 )
+aiServiceArgGroup.add_argument(
+    "--aiservice-certificate-issuer",
+    dest="aiservice_certificate_issuer",
+    required=False,
+    help="Provide the name of the Issuer to configure AI Service to issue certificates",
+)
 
 
 # IBM Db2 Universal Operator
@@ -469,12 +475,6 @@ otherArgGroup.add_argument(
     action="store_true",
     default=False,
     help="Configure installation for development mode",
-)
-otherArgGroup.add_argument(
-    "--no-wait-for-pvc",
-    required=False,
-    action="store_true",
-    help="Disable the wait for pipeline PVC to bind before starting the pipeline"
 )
 otherArgGroup.add_argument(
     "--skip-pre-check",

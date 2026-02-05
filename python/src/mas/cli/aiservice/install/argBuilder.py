@@ -94,8 +94,6 @@ class aiServiceInstallArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.devMode:
             command += f"  --dev-mode{newline}"
-        if not self.waitForPVC:
-            command += f"  --no-wait-for-pvc{newline}"
         if self.getParam('skip_pre_check') is True:
             command += f"  --skip-pre-check{newline}"
         if self.getParam('image_pull_policy') != "":
@@ -105,6 +103,11 @@ class aiServiceInstallArgBuilderMixin():
 
         # AI Service Advanced Settings
         # -----------------------------------------------------------------------------
+
+        # Certificate Issuer
+        if self.getParam('aiservice_certificate_issuer') != "":
+            command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
+
         if self.getParam('aiservice_s3_accesskey') != "":
             command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
         if self.getParam('aiservice_s3_secretkey') != "":
@@ -170,6 +173,9 @@ class aiServiceInstallArgBuilderMixin():
             command += f"  --rsl-token \"{self.getParam('rsl_token')}\"{newline}"
         if self.getParam('rsl_ca_crt') != "":
             command += f"  --rsl-ca-crt \"{self.getParam('rsl_ca_crt')}\"{newline}"
+
+        if self.getParam('db2_channel') != "":
+            command += f"  --db2-channel \"{self.getParam('db2_channel')}\"{newline}"
 
         command += "  --accept-license --no-confirm"
         return command
