@@ -19,6 +19,8 @@ spec:
       type: string
     - name: role_arn
       type: string
+    - name: hypervisor
+      type: string
   stepTemplate:
     name: gitops-efs-csi-driver
     env:
@@ -36,6 +38,8 @@ spec:
         value: $(params.github_repo)
       - name: EFS_CSI_DRIVER_ROLE_ARN
         value: $(params.role_arn)
+      - name: HYPERVISOR
+        value: $(params.hypervisor)
     envFrom:
       - configMapRef:
           name: environment-properties

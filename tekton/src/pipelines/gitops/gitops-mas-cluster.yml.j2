@@ -266,6 +266,8 @@ spec:
     - name: provisioner_mas_annotations_repo_url
       type: string
       default: ''
+    - name: hypervisor
+      type: string
   tasks:
     - name: gitops-cluster
       params:
@@ -413,9 +415,15 @@ spec:
           value: $(params.git_commit_msg)
         - name: role_arn
           value: $(params.role_arn)
+        - name: hypervisor
+          value: $(params.hypervisor)
       taskRef:
         kind: Task
         name: gitops-efs-csi-driver
+      when:
+        - input: "$(params.hypervisor)"
+          operator: in
+          values: ["rosa"]
       workspaces:
         - name: configs
           workspace: configs
