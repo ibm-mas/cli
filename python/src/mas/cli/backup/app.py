@@ -337,6 +337,8 @@ class BackupApp(BaseApp):
             if self.devMode:
                 self.printDescription([
                     "Development mode is enabled. Choose upload destination:"
+                    " 1. S3",
+                    " 2. Artifactory",
                 ])
                 uploadDestination = self.promptForListSelect(
                     "Select upload destination",
@@ -443,18 +445,24 @@ class BackupApp(BaseApp):
         self.setParam("db2_namespace", db2Namespace)
 
         # DB2 instance name
-        db2InstanceName = self.promptForString("Enter Db2 instance name")
+        instanceId = self.getParam("mas_instance_id")
+        workspaceID = self.getParam("mas_workspace_id")
+        appId = self.getParam("mas_app_id")
+        db2InstanceName = self.promptForString("Enter Db2 instance name", default=f"mas-{instanceId}-{workspaceID}-{appId}")
         self.setParam("db2_instance_name", db2InstanceName)
 
         # Backup type
         self.printDescription([
             "Db2 backup can be performed online (database remains available) or offline (database unavailable during backup).",
             "Note: If your Db2 instance uses circular logging (default), you must use offline backup."
+            "Backup Types:"
+            " 1. online",
+            " 2. offline",
         ])
         backupType = self.promptForListSelect(
-            "Select backup type",
-            ["online", "offline"],
-            "backup_type",
+            message="Select backup type",
+            options=["online", "offline"],
+            param="backup_type",
             default=1
         )
         self.setParam("backup_type", backupType)
