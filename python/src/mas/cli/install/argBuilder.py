@@ -101,6 +101,12 @@ class installArgBuilderMixin():
         if self.getParam('mas_routing_mode') != "":
             command += f"  --routing \"{self.getParam('mas_routing_mode')}\"{newline}"
 
+        if self.getParam('mas_ingress_controller_name') != "":
+            command += f"  --ingress-controller \"{self.getParam('mas_ingress_controller_name')}\"{newline}"
+
+        if self.getParam('mas_configure_ingress') is True:
+            command += f"  --configure-ingress{newline}"
+
         if self.getParam('mas_domain') != "":
             command += f"  --domain \"{self.getParam('mas_domain')}\"{newline}"
 
@@ -208,7 +214,7 @@ class installArgBuilderMixin():
             if self.getParam('mas_app_settings_server_bundles_size') != "":
                 command += f"  --manage-server-bundle-size \"{self.getParam('mas_app_settings_server_bundles_size')}\"{newline}"
             if self.getParam('mas_app_settings_default_jms') != "":
-                command += f"  --manage-jms \"{self.getParam('mas_app_settings_default_jms')}\"{newline}"
+                command += f"  --manage-jms {newline}"
             if self.getParam('mas_app_settings_persistent_volumes_flag') == "true":
                 command += f"  --manage-persistent-volumes{newline}"
             if self.getParam('mas_app_settings_demodata') == "true":
@@ -312,6 +318,11 @@ class installArgBuilderMixin():
                 command += f"  --aiservice-instance-id  \"{self.getParam('aiservice_instance_id')}\"{newline}"
             if self.getParam('aiservice_channel') != "":
                 command += f"  --aiservice-channel \"{self.getParam('aiservice_channel')}\"{newline}"
+
+            # Certificate Issuer for AI Service
+            if self.getParam('aiservice_certificate_issuer') != "":
+                command += f"  --aiservice-certificate-issuer \"{self.getParam('aiservice_certificate_issuer')}\"{newline}"
+
             if self.getParam('aiservice_s3_accesskey') != "" and self.getParam('minio_root_user') == "":
                 command += f"  --s3-accesskey \"{self.getParam('aiservice_s3_accesskey')}\"{newline}"
             if self.getParam('aiservice_s3_secretkey') != "" and self.getParam('minio_root_user') == "":
@@ -542,8 +553,6 @@ class installArgBuilderMixin():
         # -----------------------------------------------------------------------------
         if self.devMode:
             command += f"  --dev-mode{newline}"
-        if not self.waitForPVC:
-            command += f"  --no-wait-for-pvc{newline}"
         if self.getParam('skip_pre_check') is True:
             command += f"  --skip-pre-check{newline}"
         if self.getParam('skip_grafana_install') is True:

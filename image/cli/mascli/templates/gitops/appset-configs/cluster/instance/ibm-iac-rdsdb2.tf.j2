@@ -1,0 +1,55 @@
+data "aws_secretsmanager_secret" "mas-saas-license-db2-{{RDS_APP}}" {
+  name = join("", ["/", var.name_prefix, "/rds_db2/license"])
+}
+
+data "aws_secretsmanager_secret_version" "mas-saas-license-db2-{{RDS_APP}}" {
+  secret_id = data.aws_secretsmanager_secret.mas-saas-license-db2-{{RDS_APP}}.id
+}
+
+locals {
+  mas-saas-license-db2-json-{{RDS_APP}} = jsondecode(data.aws_secretsmanager_secret_version.mas-saas-license-db2-{{RDS_APP}}.secret_string)
+  ibm_customer_id_{{RDS_APP}}           = local.mas-saas-license-db2-json-{{RDS_APP}}["ibm_customer_id"]
+  ibm_site_id_{{RDS_APP}}               = local.mas-saas-license-db2-json-{{RDS_APP}}["ibm_site_id"]
+  secret_suffix_{{RDS_APP}}             = join("-", ["rds", var.instance_name, "{{RDS_APP}}"])
+}
+
+module "db2rds-{{RDS_APP}}" {
+  source = "{{RDS_SOURCE}}"
+  s3_bucket_dependency                = [module.s3buckets_instance_{{RDS_APP}}]
+  sre_prefix                          = join("-", [var.cluster_name, var.instance_name, "{{RDS_APP}}"])
+  secret_prefix                       = join("/", [var.name_prefix, var.cluster_name, var.instance_name, "jdbc",join("-", ["rds", var.instance_name, "{{RDS_APP}}"]) ])
+  engine                              = "db2-ae"
+  vpc_id                              = var.vpc_id
+  ibm_customer_id                     = local.ibm_customer_id_{{RDS_APP}}
+  ibm_site_id                         = local.ibm_site_id_{{RDS_APP}}
+  username                            = "db2admin"
+  subnet_grp_id_list                  = local.cluster.internal_subnet_ids
+  db2_egress_subnet_ids               = local.cluster.external_subnet_ids
+  db2_ingress_subnet_ids              = local.cluster.internal_subnet_ids
+  db2_additional_ingress_cidrs        = local.cluster.cidrs.workload_internal
+  db2_additional_egress_cidrs         = local.cluster.cidrs.workload_external
+  db2_instance_class                  = "{{RDS_MANAGE_DB2_INSTANCE_CLASS}}"
+  db2_storage_type                    = "gp3"
+  allocated_storage                   = {{RDS_MANAGE_ALLOCATED_STORAGE}}
+  db2_enabled_cloudwatch_logs_exports = ["diag.log", "notify.log"]
+  db2_additional_security_groups      = local.cluster.security_groups
+  region_name                         = "{{REGION_NAME}}"
+  db_name                             = "BLUDB"
+  db2_identifier                      = "rds"
+  engine_version                      = var.engine_version
+  multi_az                            = false
+  publicly_accessible                 = false
+  parameter_group_family              = "db2-ae-11.5"
+  option_group_name                   = join("-", [var.cluster_name, var.instance_name, "{{RDS_APP}}", "db2-ae-11-5"])
+  db2_preferred_maintenance_window    = "sun:05:00-sun:06:00"
+  backup_retention_period             = 30
+  monitoring_interval                 = 30
+  db2_preferred_backup_window         = "01:00-02:00"
+  db2_port                            = "50001"
+  db2_parameters_file_path            = "./db2_parameters-{{RDS_APP}}.yaml"
+  major_engine_version                = "11.5"
+  s3_bucket_name_for_audit_log        = join("-", [var.cluster_name, var.instance_name, "rds", "auditlog", "{{RDS_APP}}"])
+  rds_admin_db_name                   = "rdsadmin"
+  db2_parameters_apply_type           = var.db2_parameters_apply_type
+  enable_db2_read_replica             = false
+}
