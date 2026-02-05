@@ -334,7 +334,7 @@ spec:
 
   stepTemplate:
     image: quay.io/ibmmas/cli:latest
-    imagePullPolicy: Always
+    imagePullPolicy: $(params.image_pull_policy)
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env-nosuitename.yml.j2') | indent(6) }}
 
