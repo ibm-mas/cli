@@ -51,6 +51,12 @@ mainGroup.add_argument(
     type=str,
     help="Target registry for m2m and d2m modes (e.g., registry.example.com/namespace)"
 )
+mainGroup.add_argument(
+    "--authfile",
+    required=False,
+    type=str,
+    help="Path to authentication file (must exist). If not provided, will be generated from environment variables."
+)
 
 # Add package-specific arguments dynamically, organized by group
 for groupName, groupItems in groupby(PACKAGE_CONFIGS, key=lambda x: x[0]):

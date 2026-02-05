@@ -9,9 +9,12 @@
 #
 # *****************************************************************************
 
+import base64
+import json
 import logging
 import re
 import selectors
+import shutil
 import subprocess
 import yaml
 import urllib.request
@@ -486,6 +489,94 @@ def mirrorCatalog(version: str, mode: str, targetRegistry: str = "",
                           ocMirrorPath, authFilePath)
 
 
+def validateEnvironmentVariables(mode: str, targetRegistry: str) -> None:
+    """
+    Validate that required environment variables are set based on the mirror mode.
+
+    Args:
+        mode: Mirror mode ("m2m", "m2d", or "d2m")
+        targetRegistry: Target registry for m2m and d2m modes
+
+    Raises:
+        ValueError: If required environment variables are not set
+    """
+    missingVars = []
+
+    # Check for target registry credentials (m2m or d2m)
+    if mode in ["m2m", "d2m"]:
+        if not environ.get('REGISTRY_USERNAME'):
+            missingVars.append('REGISTRY_USERNAME')
+        if not environ.get('REGISTRY_PASSWORD'):
+            missingVars.append('REGISTRY_PASSWORD')
+
+    # Check for IBM Entitlement Key (m2m or m2d)
+    if mode in ["m2m", "m2d"]:
+        if not environ.get('IBM_ENTITLEMENT_KEY'):
+            missingVars.append('IBM_ENTITLEMENT_KEY')
+
+    if missingVars:
+        raise ValueError(f"Missing required environment variables: {', '.join(missingVars)}")
+
+
+def generateAuthFile(mode: str, targetRegistry: str) -> str:
+    """
+    Generate an authentication file from environment variables.
+
+    Args:
+        mode: Mirror mode ("m2m", "m2d", or "d2m")
+        targetRegistry: Target registry for m2m and d2m modes
+
+    Returns:
+        Path to the generated auth file
+
+    Raises:
+        ValueError: If required environment variables are not set
+    """
+    # Validate environment variables first
+    validateEnvironmentVariables(mode, targetRegistry)
+
+    # Get home directory
+    homeDir = environ.get('HOME') or environ.get('USERPROFILE') or ''
+    if not homeDir:
+        raise ValueError("Could not determine home directory")
+
+    # Create auth file path
+    authFilePath = path.join(homeDir, '.ibm-mas', 'auth.json')
+    authDir = path.dirname(authFilePath)
+
+    # Create directory if it doesn't exist
+    makedirs(authDir, exist_ok=True)
+
+    # Build auth configuration
+    authConfig = {}
+
+    # Add target registry credentials (m2m or d2m)
+    if mode in ["m2m", "d2m"]:
+        registryUsername = environ.get('REGISTRY_USERNAME', '')
+        registryPassword = environ.get('REGISTRY_PASSWORD', '')
+        authString = f"{registryUsername}:{registryPassword}"
+        authBase64 = base64.b64encode(authString.encode()).decode()
+        authConfig[targetRegistry] = {
+            "auth": authBase64
+        }
+
+    # Add IBM Entitlement Key (m2m or m2d)
+    if mode in ["m2m", "m2d"]:
+        ibmEntitlementKey = environ.get('IBM_ENTITLEMENT_KEY', '')
+        authString = f"cp:{ibmEntitlementKey}"
+        authBase64 = base64.b64encode(authString.encode()).decode()
+        authConfig["cp.icr.io/cp"] = {
+            "auth": authBase64
+        }
+
+    # Write auth file
+    with open(authFilePath, 'w') as f:
+        json.dump(authConfig, f, indent=2)
+
+    logger.info(f"Generated auth file: {authFilePath}")
+    return authFilePath
+
+
 class MirrorApp(BaseApp):
 
     @logMethodCall
@@ -511,12 +602,37 @@ class MirrorApp(BaseApp):
         release = args.release
         mode = args.mode
         targetRegistry = args.target_registry or ""
+        authFile = args.authfile
+
+        # Validate that oc-mirror is available on PATH
+        if not shutil.which("oc-mirror"):
+            logger.error("oc-mirror executable not found on PATH")
+            self.fatalError("oc-mirror executable not found on PATH. Please install oc-mirror and ensure it is available in your PATH.")
+            return
 
         # Validate that --target-registry is provided for m2m and d2m modes
         if mode in ["m2m", "d2m"] and not targetRegistry:
             logger.error(f"--target-registry is required when mode is '{mode}'")
             self.fatalError(f"--target-registry is required when mode is '{mode}'")
             return
+
+        # Handle authfile parameter
+        if authFile:
+            # Validate that the file exists
+            if not path.exists(authFile):
+                logger.error(f"Auth file does not exist: {authFile}")
+                self.fatalError(f"Auth file does not exist: {authFile}")
+                return
+            logger.info(f"Using provided auth file: {authFile}")
+            authFilePath = authFile
+        else:
+            # Generate auth file from environment variables
+            try:
+                authFilePath = generateAuthFile(mode, targetRegistry)
+            except ValueError as e:
+                logger.error(f"Failed to generate auth file: {e}")
+                self.fatalError(f"Failed to generate auth file: {e}")
+                return
 
         catalog = getCatalog(catalogVersion)
         if catalog is None:
@@ -535,7 +651,8 @@ class MirrorApp(BaseApp):
             mirrorCatalog(
                 version=catalogVersion,
                 mode=mode,
-                targetRegistry=targetRegistry
+                targetRegistry=targetRegistry,
+                authFilePath=authFilePath
             )
 
             # Mirror each package with common parameters using shared configuration
@@ -563,7 +680,8 @@ class MirrorApp(BaseApp):
                     arch=arch,
                     mode=mode,
                     targetRegistry=targetRegistry,
-                    flag=flag
+                    flag=flag,
+                    authFilePath=authFilePath
                 )
 
             print_formatted_text(HTML("\n<B>✅ Mirror operation completed</B>"))
