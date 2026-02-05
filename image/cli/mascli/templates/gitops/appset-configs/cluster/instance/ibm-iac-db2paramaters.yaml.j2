@@ -1,54 +1,9 @@
-{{RDS_DB2_CONFIG_FACILITIES_YAML}}
-{{RDS_DB2_CONFIG_MANAGE_YAML}}
-{{RDS_DB2_CONFIG_IOT_YAML}}
-
-{{RDS_DB2_CONFIG_MANAGE}}
-{{RDS_DB2_CONFIG_IOT}}
-{{RDS_DB2_CONFIG_FACILITIES}}
-
-
 {%- if RDS_APP | upper == "MANAGE" -%}
-{%- set json_string = RDS_MANAGE_DB2_COMBINE_PROPERTIES | default('') -%}
-{%- elif RDS_APP | upper == "IOT" -%}
-{%- set json_string = RDS_IOT_DB2_COMBINE_PROPERTIES | default('') -%}
-{%- elif RDS_APP | upper == "FACILITIES" -%}
-{%- set json_string = RDS_FACILITIES_DB2_COMBINE_PROPERTIES | default('') -%}
-{%- else -%}
-{%- set json_string = '' -%}
+{{RDS_DB2_CONFIG_MANAGE}}
 {%- endif -%}
-{%- if json_string | trim -%}
-{%- set s = json_string | trim -%}
-{%- if s.startswith("'") and s.endswith("'") -%}
-{%- set s = s[1:-1] -%}
+{%- if RDS_APP | upper == "IOT" -%}
+{{RDS_DB2_CONFIG_IOT}}
 {%- endif -%}
-{%- if s.startswith("{") and s.endswith("}") -%}
-{%- set s = s[1:-1] -%}
-{%- endif -%}
-
-{%- set ns = namespace(lines=[]) -%}
-{%- for pair in s.split(';') -%}
-{%- set kv = pair.split(':', 1) -%}
-{%- if kv | length == 2 -%}
-{%- set key = kv[0] | replace('"', '') | trim -%}
-{%- set val = kv[1] | trim -%}
-
-{%- if val in ['true', 'false', 'True', 'False', 'TRUE', 'FALSE'] -%}
-{%- set line = key ~ ': ' ~ (val | lower) -%}
-{%- elif val.startswith('"') and val.endswith('"') -%}
-{%- set inner = val[1:-1] -%}
-{%- if inner.isdigit() -%}
-{%- set line = key ~ ': ' ~ inner -%}
-{%- else -%}
-{%- set line = key ~ ': "' ~ inner ~ '"' -%}
-{%- endif -%}
-{%- elif val.isdigit() -%}
-{%- set line = key ~ ': ' ~ val -%}
-{%- else -%}
-{%- set line = key ~ ': "' ~ val ~ '"' -%}
-{%- endif -%}
-
-{%- set _ = ns.lines.append(line) -%}
-{%- endif -%}
-{%- endfor -%}
-{{- ns.lines | join('\n') -}}
+{%- if RDS_APP | upper == "FACILITIES" -%}
+{{RDS_DB2_CONFIG_FACILITIES}}
 {%- endif -%}
