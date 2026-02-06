@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # *****************************************************************************
-# Copyright (c) 2024, 2025 IBM Corporation and other Contributors.
+# Copyright (c) 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -54,17 +54,22 @@ class PromptTracker:
         # No pattern matched - fail the test with debug info
         raise AssertionError(f"Unmatched prompt in test: {message}\nFull kwargs: {kwargs}")
 
-    def verify_all_prompts_matched(self):
+    def verify_all_prompts_matched(self, allow_unmatched: bool = False):
         """
         Verify that all expected prompts were matched exactly once.
 
+        Args:
+            allow_unmatched: If True, don't fail if some prompts were never matched
+                           (useful for error scenarios where execution stops early)
+
         Raises:
-            AssertionError: If any prompt was matched != 1 times.
+            AssertionError: If any prompt was matched != 1 times (or 0 times if allow_unmatched=False).
         """
         errors = []
         for pattern, count in self.match_counts.items():
             if count == 0:
-                errors.append(f"Prompt pattern never matched: {pattern}")
+                if not allow_unmatched:
+                    errors.append(f"Prompt pattern never matched: {pattern}")
             elif count > 1:
                 errors.append(f"Prompt pattern matched {count} times (expected 1): {pattern}")
 
