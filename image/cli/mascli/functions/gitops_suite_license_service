@@ -17,6 +17,9 @@ Basic Configuration:
   -i  --ibm-customer-number ${COLOR_YELLOW}ICN${TEXT_RESET}          IBM Customer Number
   -s  --subscription-id ${COLOR_YELLOW}SAAS_SUB_ID${TEXT_RESET}      Customer subscription id
       --domain ${COLOR_YELLOW}SLS_DOMAIN${TEXT_RESET}                Domain for SLS to create route
+      --dns-provider ${COLOR_YELLOW}DNS_PROVIDER${TEXT_RESET}        DNS PROVIDER FOR SLS
+      --cis-service-name ${COLOR_YELLOW}CIS_SERVICE_NAME${TEXT_RESET}  CIS SERVICE NAME 
+      --cis-crn ${COLOR_YELLOW}CIS_CRN${TEXT_RESET}                    CIS CRN
 
 AWS Secrets Manager Configuration (Required):
       --sm-aws-secret-region ${COLOR_YELLOW}SM_AWS_REGION${TEXT_RESET}          Region of the AWS Secrets Manager to use
@@ -95,6 +98,15 @@ function gitops_suite_license_service_noninteractive() {
         ;;
       --domain)
         export SLS_DOMAIN=$1 && shift
+        ;;
+      --dns-provider)
+        export DNS_PROVIDER=$1 && shift
+        ;;
+      --cis-service-name)
+        export CIS_SERVICE_NAME=$1 && shift
+        ;;
+      --cis-crn)
+        export CIS_CRN=$1 && shift
         ;;
       # AWS Secrets Manager Configuration
       --sm-aws-secret-region)
@@ -373,7 +385,7 @@ function gitops_suite_license_service() {
   ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
   ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-  sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}" "${TAGS}"
+  #sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}" "${TAGS}"
 
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
     export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
@@ -413,9 +425,8 @@ function gitops_suite_license_service() {
   echo_h2 "Generating Argo Project and Applications"
 
   echo "- IBM Suite License Service"
-  jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/sls/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml
-
-
+  
+  jinjanate --quiet --undefined --import-env='' $CLI_DIR/templates/gitops/appset-configs/cluster/sls/ibm-sls.yaml.j2 $MONGO_CONFIG_FILE -o ${GITOPS_INSTANCE_DIR}/ibm-sls.yaml 
   # Commit and push to github target repo
   # ---------------------------------------------------------------------------
   if [ "$GITHUB_PUSH" == "true" ]; then
@@ -425,6 +436,3 @@ function gitops_suite_license_service() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
-
-}
-
