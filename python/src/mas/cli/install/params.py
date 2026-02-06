@@ -38,6 +38,7 @@ optionalParams = [
     "mas_superuser_password",
     "mas_trust_default_cas",
     "mas_routing_mode",
+    "mas_ingress_controller_name",
     "mas_app_settings_server_bundles_size",
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",
@@ -147,9 +148,6 @@ optionalParams = [
     # Dev Mode
     "artifactory_username",
     "artifactory_token",
-    # TODO: The way arcgis has been implemented needs to be fixed
-    "install_arcgis",
-    "mas_arcgis_channel",
     # Guided Tour
     "mas_enable_walkme",
     # Facilities
@@ -170,6 +168,9 @@ optionalParams = [
     "mas_special_characters",
     # ODH
     "aiservice_odh_model_deployment_type",
+    # RHOAI
+    "aiservice_rhoai_model_deployment_type",
+    "rhoai",
     # AI Service
     "aiservice_s3_accesskey",
     "aiservice_s3_secretkey",
@@ -207,5 +208,8 @@ optionalParams = [
     "rsl_org_id",
     "rsl_token",
     "rsl_ca_crt",
-    "environment_type"
+    "environment_type",
+
+    # Certificate Issuer
+    "aiservice_certificate_issuer"
 ]

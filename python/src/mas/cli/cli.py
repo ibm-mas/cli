@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -333,7 +333,7 @@ class BaseApp(PrintMixin, PromptMixin):
             return ""
 
     @property
-    def dynamicClient(self) -> DynamicClient | None:
+    def dynamicClient(self) -> DynamicClient:
         if self._dynClient is not None:
             return self._dynClient
         else:

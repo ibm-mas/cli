@@ -17,7 +17,6 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import re
 import calendar
-
 from openshift.dynamic.exceptions import NotFoundError
 
 from prompt_toolkit import prompt, print_formatted_text, HTML
@@ -183,6 +182,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
     def processCatalogChoice(self) -> list:
         self.catalogDigest = self.chosenCatalog["catalog_digest"]
         self.catalogMongoDbVersion = self.chosenCatalog["mongo_extras_version_default"]
+        self.catalogDb2Channel = self.chosenCatalog.get("db2_channel_default", "v110509.0")  # Returns fallback "v110509.0" for old catalogs without this field
         if self.architecture != "s390x" and self.architecture != "ppc64le":
             self.catalogCp4dVersion = self.chosenCatalog["cpd_product_version_default"]
 
@@ -406,6 +406,61 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     self.promptForString("Grafana storage size", "grafana_instance_storage_size", default="10Gi")
 
     @logMethodCall
+    def arcgisSettings(self) -> None:
+        """
+        Configure ArcGIS as a shared dependency for Manage and Facilities.
+        This method detects if either Manage (with Spatial) or Facilities is selected
+        and prompts for ArcGIS installation accordingly.
+        """
+        needsArcGIS = False
+        apps_requiring_arcgis = []
+
+        # Check if Manage with Spatial component is selected
+        if self.installManage and "spatial=" in self.getParam("mas_appws_components"):
+            needsArcGIS = True
+            apps_requiring_arcgis.append("Maximo Manage (Spatial)")
+
+        # Check if Facilities is selected (MAS 9.1+)
+        if self.installFacilities:
+            needsArcGIS = True
+            apps_requiring_arcgis.append("Maximo Real Estate and Facilities")
+
+        # Only prompt if ArcGIS is needed and we're on MAS 9.x
+        # Check the appropriate channel based on what's being installed
+        if needsArcGIS:
+            channel = self.getParam("mas_app_channel_manage") or self.getParam("mas_app_channel_facilities")
+            if channel and isVersionEqualOrAfter('9.0.0', channel):
+                # Build description based on what's being installed
+                description = [
+                    "",
+                    "Geospatial capabilities require a map server provider",
+                    "You may choose your preferred map provider later or you can enable IBM Maximo Location Services for Esri now"
+                ]
+
+                # Add specific details based on installed applications
+                if len(apps_requiring_arcgis) == 1:
+                    description.append(f"This includes ArcGIS Enterprise as part of {apps_requiring_arcgis[0]} (Additional AppPoints required).")
+                else:
+                    description.append(f"This includes ArcGIS Enterprise for {' and '.join(apps_requiring_arcgis)} (Additional AppPoints required).")
+
+                self.printDescription(description)
+
+                if self.yesOrNo("Include IBM Maximo Location Services for Esri"):
+                    self.setParam("mas_arcgis_channel", channel)
+                    self.installArcgis = True
+
+                    self.printDescription([
+                        "",
+                        "IBM Maximo Location Services for Esri License Terms",
+                        "For information about your IBM Maximo Location Services for Esri License visit: ",
+                        " - <Orange><u>https://ibm.biz/MAXArcGIS90-License</u></Orange>",
+                        "To continue with the installation, you must accept these additional license terms"
+                    ])
+
+                    if not self.yesOrNo("Do you accept the license terms"):
+                        exit(1)
+
+    @logMethodCall
     def configSpecialCharacters(self):
         if self.showAdvancedOptions:
             self.printH1("Configure special characters for userID and username")
@@ -530,23 +585,153 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         if self.operationalMode == 1:
             self.setParam("environment_type", "production")
             self.setParam("aiservice_odh_model_deployment_type", "raw")
+            self.setParam("aiservice_rhoai_model_deployment_type", "raw")
+            self.setParam("rhoai", "false")
         else:
             self.setParam("environment_type", "non-production")
             self.setParam("aiservice_odh_model_deployment_type", "serverless")
+            self.setParam("aiservice_rhoai_model_deployment_type", "serverless")
+            self.setParam("rhoai", "false")
+
+    def _promptForIngressController(self):
+        try:
+            ingressControllerAPI = self.dynamicClient.resources.get(
+                api_version="operator.openshift.io/v1",
+                kind="IngressController"
+            )
+            ingressControllers = ingressControllerAPI.get(namespace="openshift-ingress-operator")
+            availableControllers = []
+            for ic in ingressControllers.items:
+                if hasattr(ic, 'status') and hasattr(ic.status, 'conditions'):
+                    for condition in ic.status.conditions:
+                        if condition.type == 'Available' and condition.status == 'True':
+                            availableControllers.append({
+                                'name': ic.metadata.name,
+                                'domain': ic.status.domain if hasattr(ic.status, 'domain') else 'N/A'
+                            })
+                            break
+
+            if len(availableControllers) == 1:
+                selectedController = availableControllers[0]['name']
+                logger.info(f"Only one IngressController available, using: {selectedController}")
+                return selectedController
+
+            if len(availableControllers) > 1:
+                self.printH1("Select IngressController")
+                self.printDescription([
+                    "Multiple IngressControllers detected in your cluster.",
+                    "Please select which one should be used for MAS routes:",
+                    ""
+                ])
+
+                for idx, ic in enumerate(availableControllers, 1):
+                    print(f"  {idx}. {ic['name']} (domain: {ic['domain']})")
+
+                print("")
+                selection = self.promptForInt("IngressController", min=1, max=len(availableControllers))
+                selectedController = availableControllers[selection - 1]['name']
+                logger.info(f"User selected IngressController: {selectedController}")
+                return selectedController
+
+            logger.warning("No available IngressControllers found, defaulting to 'default'")
+            return 'default'
+
+        except Exception as e:
+            logger.warning(f"Failed to list IngressControllers: {e}")
+            return 'default'
 
     @logMethodCall
     def configRoutingMode(self):
         if self.showAdvancedOptions and isVersionEqualOrAfter('9.2.0', self.getParam("mas_channel")) and self.getParam("mas_channel") != '9.2.x-feature':
             self.printH1("Configure Routing Mode")
+
             self.printDescription([
                 "Maximo Application Suite can be installed so it can be accessed with single domain URLs (path mode) or multi-domain URLs (subdomain mode):",
                 "",
                 "  1. Path (single domain)",
                 "  2. Subdomain (multi domain)"
             ])
+
             routingModeInt = self.promptForInt("Routing Mode", default=1, min=1, max=2)
             routingModeOptions = ["path", "subdomain"]
-            self.setParam("mas_routing_mode", routingModeOptions[routingModeInt - 1])
+            selectedMode = routingModeOptions[routingModeInt - 1]
+
+            if selectedMode == "path":
+                selectedController = self._promptForIngressController()
+                self.setParam("mas_ingress_controller_name", selectedController)
+
+                # Check if selected IngressController is configured for path-based routing
+                # Note: In interactive mode, we only check configuration, not existence,
+                # since the user selects from a list of existing controllers
+                _, isConfigured = self._checkIngressControllerForPathRouting(selectedController)
+
+                if isConfigured:
+                    self.setParam("mas_routing_mode", "path")
+                    self.printDescription([f"<Green> IngressController '{selectedController}' is configured for path-based routing.</Green>"])
+                else:
+                    self.printDescription([
+                        "",
+                        f"<Yellow>The IngressController '{selectedController}' requires configuration for path-based routing.</Yellow>",
+                        "",
+                        "The following setting needs to be applied:",
+                        "",
+                        "  <Cyan>spec:",
+                        "    routeAdmission:",
+                        "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
+                        "",
+                        "Would you like to configure it during installation?"
+                    ])
+
+                    if self.yesOrNo("Configure IngressController for path-based routing"):
+                        self.setParam("mas_routing_mode", "path")
+                        self.setParam("mas_configure_ingress", "true")
+                        self.printDescription([f"<Green>IngressController '{selectedController}' will be configured during installation.</Green>"])
+                    else:
+                        self.printDescription([
+                            "",
+                            "<Yellow>Path-based routing requires IngressController configuration.</Yellow>",
+                            "Falling back to subdomain mode."
+                        ])
+                        self.setParam("mas_routing_mode", "subdomain")
+                        self.setParam("mas_ingress_controller_name", "")
+            else:
+                self.setParam("mas_routing_mode", "subdomain")
+
+    def _checkIngressControllerForPathRouting(self, controllerName='default'):
+        """Check if a specific IngressController exists and is configured for path-based routing.
+
+        Returns:
+            tuple: (exists: bool, configured: bool)
+                - exists: True if the IngressController resource exists
+                - configured: True if it's properly configured for path-based routing
+        """
+        try:
+            ingressControllerAPI = self.dynamicClient.resources.get(
+                api_version="operator.openshift.io/v1",
+                kind="IngressController"
+            )
+
+            ingressController = ingressControllerAPI.get(
+                name=controllerName,
+                namespace="openshift-ingress-operator"
+            )
+
+            spec = ingressController.get('spec', {})
+            routeAdmission = spec.get('routeAdmission', {})
+            namespaceOwnership = routeAdmission.get('namespaceOwnership', '')
+
+            if namespaceOwnership == 'InterNamespaceAllowed':
+                logger.info(f"IngressController '{controllerName}' is configured for path-based routing")
+                return (True, True)
+
+            logger.info(f"IngressController '{controllerName}' is NOT configured for path-based routing")
+            return (True, False)
+        except NotFoundError:
+            logger.warning(f"IngressController '{controllerName}' not found in openshift-ingress-operator namespace")
+            return (False, False)
+        except Exception as e:
+            logger.warning(f"Failed to check IngressController '{controllerName}' configuration: {e}")
+            return (False, False)
 
     @logMethodCall
     def configAnnotations(self):
@@ -698,6 +883,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         else:
             self.installMonitor = False
 
+        # Initialize ArcGIS flag (will be set to True later in arcgisSettings() if needed)
+        self.installArcgis = False
+
         if self.installMonitor:
             self.configAppChannel("monitor")
 
@@ -748,12 +936,16 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.configAppChannel("facilities")
         else:
             self.installFacilities = False
+
         # TODO: May be have to change this condition if Manage 9.0 is not supporting AI Cofig Application
         # AI Service is only installable on Manage 9.x as AI Config Application is not supported on Manage 8.x
-        if not self.getParam("mas_app_channel_manage").startswith("8."):
+
+        if isVersionEqualOrAfter('9.0.0', self.getParam("mas_app_channel_manage")):
             self.installAIService = self.yesOrNo("Install AI Service")
             if self.installAIService:
                 self.configAIService()
+        else:
+            self.installAIService = False
 
     @logMethodCall
     def configAppChannel(self, appId):
@@ -974,6 +1166,17 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 self.promptForString("Storage tenants bucket", "aiservice_s3_tenants_bucket")
                 self.promptForString("Storage templates bucket", "aiservice_s3_templates_bucket")
 
+            # Configure Certificate Issuer
+            self.configAIServiceCertIssuer()
+
+    @logMethodCall
+    def configAIServiceCertIssuer(self):
+        if self.showAdvancedOptions:
+            self.printH1("Configure Certificate Issuer")
+            configureCertIssuer = self.yesOrNo('Configure certificate issuer')
+            if configureCertIssuer:
+                self.promptForString("Certificate issuer name", "aiservice_certificate_issuer")
+
     @logMethodCall
     def aiServiceTenantSettings(self) -> None:
         if self.installAIService:
@@ -1133,6 +1336,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.aiServiceIntegrations()
 
         # Dependencies
+        self.arcgisSettings()  # Will only prompt if Manage (with Spatial) or Facilities is selected
         self.configMongoDb()
         self.configDb2()
         self.configKafka()  # Will only do anything if IoT has been selected for install
@@ -1158,6 +1362,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.installManage = False
         self.installPredict = False
         self.installInspection = False
+        self.installArcgis = False
         self.installOptimizer = False
         self.installFacilities = False
         self.deployCP4D = False
@@ -1292,6 +1497,12 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 if not vars(self.args).get("aiservice_instance_id") and value is not None and value != "":
                     self.setParam("manage_bind_aiservice_tenant_id", value)
 
+            # ArcGIS settings
+            elif key == "mas_arcgis_channel":
+                if value is not None and value != "":
+                    self.setParam("mas_arcgis_channel", value)
+                    self.installArcgis = True
+
             # Manage advanced settings that need extra processing
             elif key == "mas_app_settings_server_bundle_size":
                 if value is not None:
@@ -1351,7 +1562,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                             self.fatalError(f"Unsupported format for {key} ({value}).  Expected int:int:boolean")
 
             # Arguments that we don't need to do anything with
-            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "no_wait_for_pvc", "help", "advanced", "simplified"]:
+            elif key in ["accept_license", "dev_mode", "skip_pre_check", "skip_grafana_install", "no_confirm", "help", "advanced", "simplified", "mas_configure_ingress"]:
                 pass
 
             elif key == "manual_certificates":
@@ -1433,6 +1644,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Load the catalog information
         self.chosenCatalog = getCatalog(self.getParam("mas_catalog_version"))
+        if self.chosenCatalog is not None:
+            self.processCatalogChoice()  # Only process catalog if it was successfully loaded,this will set catalogDb2Channel
 
         # License file is only optional for existing SLS instance
         if self.slsLicenseFileLocal is None:
@@ -1446,6 +1659,8 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             self.validateCatalogSource()
             self.licensePrompt()
 
+        self.setDB2DefaultChannel()
+
         # Version before 9.1 cannot have empty components
         if (self.getParam("mas_channel").startswith("8.") or self.getParam("mas_channel").startswith("9.0")) and (self.getParam("mas_app_channel_manage") is not None and self.getParam("mas_app_channel_manage") != "") and self.getParam("mas_appws_components") == "":
             self.fatalError("--manage-components must be set for versions earlier than 9.1.0")
@@ -1453,6 +1668,20 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         #  An error should be raised if "health" is not specified when installing Predict.
         if ((self.getParam("mas_app_channel_predict") is not None and self.getParam("mas_app_channel_predict") != "") and 'health' not in self.getParam("mas_appws_components")):
             self.fatalError("--manage-components must include 'health' component when installing Predict")
+
+        # Validate ArcGIS installation requirements in non-interactive mode
+        if self.installArcgis:
+            hasSpatial = self.installManage and "spatial=" in self.getParam("mas_appws_components")
+            hasFacilities = self.installFacilities
+
+            # ArcGIS requires either Spatial or Facilities to be installed
+            if not hasSpatial and not hasFacilities:
+                self.fatalError("--arcgis-channel requires either Manage with Spatial component (--manage-components must include 'spatial=') or Facilities (--facilities-channel) to be installed")
+
+            # ArcGIS requires channel 9.0 or later
+            arcgis_channel = self.getParam("mas_arcgis_channel")
+            if arcgis_channel and not isVersionEqualOrAfter('9.0.0', arcgis_channel):
+                self.fatalError(f"--arcgis-channel must be 9.0 or later (current: {arcgis_channel})")
 
     @logMethodCall
     def install(self, argv):
@@ -1467,7 +1696,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
 
         # Properties for arguments that control the behavior of the CLI
         self.noConfirm = args.no_confirm
-        self.waitForPVC = not args.no_wait_for_pvc
         self.licenseAccepted = args.accept_license
         self.devMode = args.dev_mode
         self.skipGrafanaInstall = args.skip_grafana_install
@@ -1484,6 +1712,9 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         # These flags work for setting params in both interactive and non-interactive modes
         if args.skip_pre_check:
             self.setParam("skip_pre_check", "true")
+
+        if hasattr(args, 'mas_configure_ingress') and args.mas_configure_ingress:
+            self.setParam("mas_configure_ingress", "true")
 
         if instanceId is None:
             self.printH1("Set Target OpenShift Cluster")
@@ -1528,13 +1759,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
         self.slsLicenseFile()
         self.manualCertificates()
 
-        if not self.noConfirm and not self.waitForPVC:
-            self.printDescription(["If you are using storage classes that utilize 'WaitForFirstConsumer' binding mode choose 'No' at the prompt below"])
-            self.waitForPVC = self.yesOrNo("Wait for PVCs to bind")
-
-        if not self.waitForPVC:
-            self.setParam("no_wait_for_pvc", True)
-
         # Show a summary of the installation configuration
         self.printH1("Non-Interactive Install Command")
         self.printDescription([
@@ -1542,6 +1766,83 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             "",
             self.buildCommand()
         ])
+
+        # Validate IngressController configuration for path-based routing (non-interactive mode only)
+        if not self.interactiveMode and self.getParam("mas_routing_mode") == "path":
+            ingressControllerName = None
+            if hasattr(self.args, 'mas_ingress_controller_name') and self.args.mas_ingress_controller_name:
+                ingressControllerName = self.args.mas_ingress_controller_name
+                logger.info(f"Using IngressController '{ingressControllerName}' from CLI flag")
+            elif self.getParam("mas_ingress_controller_name"):
+                ingressControllerName = self.getParam("mas_ingress_controller_name")
+                logger.info(f"Using IngressController '{ingressControllerName}' from existing parameter")
+            else:
+                ingressControllerName = "default"
+                logger.info("No IngressController specified, defaulting to 'default'")
+
+            self.setParam("mas_ingress_controller_name", ingressControllerName)
+
+            exists, isConfigured = self._checkIngressControllerForPathRouting(ingressControllerName)
+
+            if not exists:
+                self.fatalError(
+                    "\n".join([
+                        "IngressController Not Found",
+                        "",
+                        "========================================================================",
+                        f"You selected IngressController '{ingressControllerName}', but it does not exist",
+                        "in the openshift-ingress-operator namespace.",
+                        "",
+                        "To fix this issue:",
+                        "",
+                        "1. List available IngressControllers:",
+                        "   oc get ingresscontroller -n openshift-ingress-operator",
+                        "",
+                        "2. Use an existing controller name with --ingress-controller-name flag:",
+                        "   mas install --routing path --ingress-controller-name [existing-controller] ...",
+                        "",
+                        "3. Or use the default controller (usually named 'default'):",
+                        "   mas install --routing path --ingress-controller-name default ...",
+                        "",
+                        "Alternatively, you can use subdomain routing mode:",
+                        "   mas install --routing subdomain ..."
+                    ])
+                )
+            elif not isConfigured:
+                if hasattr(self.args, 'mas_configure_ingress') and self.args.mas_configure_ingress:
+                    logger.info(f"IngressController '{ingressControllerName}' will be configured for path-based routing during installation pipeline")
+                    self.setParam("mas_configure_ingress", "true")
+                else:
+                    self.fatalError(
+                        "\n".join([
+                            "IngressController Not Configured for Path-Based Routing",
+                            "",
+                            "========================================================================",
+                            f"IngressController '{ingressControllerName}' exists but is not properly configured",
+                            "for path-based routing.",
+                            "",
+                            "Required Configuration:",
+                            "  spec:",
+                            "    routeAdmission:",
+                            "      namespaceOwnership: InterNamespaceAllowed",
+                            "",
+                            "To fix this issue, you have two options:",
+                            "",
+                            "1. Add the --configure-ingress flag to configure it during installation:",
+                            f"   (Optionally, you can provide your custom IngressController name instead of {ingressControllerName} )",
+                            f"   mas install --routing path --ingress-controller-name {ingressControllerName} --configure-ingress ...",
+                            "",
+                            "2. Manually configure it before installation by running:",
+                            f"   oc patch ingresscontroller {ingressControllerName} -n openshift-ingress-operator \\",
+                            "     --type=merge \\",
+                            "     --patch='{\"spec\":{\"routeAdmission\":{\"namespaceOwnership\":\"InterNamespaceAllowed\"}}}'",
+                            "",
+                            "Alternatively, you can use subdomain routing mode:",
+                            "   mas install --routing subdomain ..."
+                        ])
+                    )
+            else:
+                logger.info(f"IngressController '{ingressControllerName}' is already configured for path-based routing")
 
         # Based on the parameters set the annotations correctly
         self.configAnnotations()
@@ -1563,7 +1864,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
             pipelinesNamespace = f"mas-{self.getParam('mas_instance_id')}-pipelines"
 
             with Halo(text='Validating OpenShift Pipelines installation', spinner=self.spinner) as h:
-                if installOpenShiftPipelines(self.dynamicClient, self.getParam("storage_class_rwx")):
+                if installOpenShiftPipelines(self.dynamicClient, customStorageClassName=self.getParam("storage_class_rwx")):
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator is installed and ready to use")
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
@@ -1576,7 +1877,6 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                     instanceId=self.getParam("mas_instance_id"),
                     storageClass=self.pipelineStorageClass,
                     accessMode=self.pipelineStorageAccessMode,
-                    waitForBind=self.waitForPVC,
                     configureRBAC=(self.getParam("service_account_name") == "")
                 )
                 prepareInstallSecrets(

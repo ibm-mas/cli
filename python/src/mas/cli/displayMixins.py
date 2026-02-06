@@ -45,9 +45,9 @@ class PrintMixin():
     def printDescription(self, content: List[str]) -> None:
         content[0] = f"<{DESCRIPTIONCOLOR}>{content[0]}"
         content[len(content) - 1] = f"{content[len(content) - 1]}</{DESCRIPTIONCOLOR}>"
-        print_formatted_text(HTML("\n".join(content)))
+        print_formatted_text(HTML("\n".join(content).replace(' & ', ' &amp; ')))
 
-    def printHighlight(self, message: str | List[str]) -> None:
+    def printHighlight(self, message: str | list[str]) -> None:
         if isinstance(message, list):
             message = "\n".join(message)
 

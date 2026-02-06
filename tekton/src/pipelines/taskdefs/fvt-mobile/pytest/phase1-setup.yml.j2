@@ -30,6 +30,8 @@
     - input: "$(params.fvt_digest_mobile_pytest)"
       operator: notin
       values: [""]
+  runAfter:
+    - pipeline-start
 
 
 - name: mobile-pytest-requests
