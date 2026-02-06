@@ -2,19 +2,17 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: gitops-dro
+  name: gitops-rds-db2-database
 spec:
   params:
     - name: cluster_name
       type: string
-    - name: account
-      type: string
     - name: cluster_url
       type: string
       default: ""
-    - name: secrets_path
+    - name: account
       type: string
-    - name: avp_aws_secret_region
+    - name: secrets_path
       type: string
     - name: git_branch
       type: string
@@ -24,42 +22,39 @@ spec:
       type: string
     - name: github_host
       type: string
-    - name: dro_namespace
+    - name: avp_aws_secret_region
       type: string
-    - name: dro_cmm_setup
+
+    - name: db2_instance_registry_yaml
       type: string
-      default: false
-    - name: dro_cmm_auth_url
+    - name: db2_instance_dbm_config_yaml
       type: string
-      default: ""
-    - name: dro_cmm_cmm_url
+    - name: db2_addons_audit_config_yaml
       type: string
-      default: ""
-    - name: dro_install_plan
+    - name: db2_database_db_config_yaml
       type: string
-      default: "Automatic"
-    - name: imo_install_plan
+
+    - name: mas_instance_id
       type: string
-      default: "Automatic"
-    - name: dro_public_domain
+    - name: mas_app_id
       type: string
-      default: ""
-    - name: dro_cis_crn
+    - name: jdbc_connection_url_additional_params
       type: string
       default: ""
+    - name: replica_db
+      type: string
+      default: "false"
   stepTemplate:
-    name: gitops-dro
+    name: gitops-rds-db2-database
     env:
       - name: CLUSTER_NAME
         value: $(params.cluster_name)
-      - name: ACCOUNT
-        value: $(params.account)
       - name: CLUSTER_URL
         value: $(params.cluster_url)
+      - name: ACCOUNT
+        value: $(params.account)
       - name: SECRET_PATH
         value: $(params.secrets_path)
-      - name: SM_AWS_REGION
-        value: $(params.avp_aws_secret_region)
       - name: GIT_BRANCH
         value: $(params.git_branch)
       - name: GITHUB_ORG
@@ -68,22 +63,26 @@ spec:
         value: $(params.github_host)
       - name: GITHUB_REPO
         value: $(params.github_repo)
-      - name: DRO_NAMESPACE
-        value: $(params.dro_namespace)
-      - name: DRO_CMM_SETUP
-        value: $(params.dro_cmm_setup)
-      - name: DRO_CMM_AUTH_URL
-        value: $(params.dro_cmm_auth_url)
-      - name: DRO_CMM_CMM_URL
-        value: $(params.dro_cmm_cmm_url)
-      - name: DRO_INSTALL_PLAN
-        value: $(params.dro_install_plan)
-      - name: IMO_INSTALL_PLAN
-        value: $(params.imo_install_plan)
-      - name: DRO_PUBLIC_DOMAIN
-        value: $(params.dro_public_domain)
-      - name: DRO_CIS_CRN
-        value: $(params.dro_cis_crn)
+      - name: SM_AWS_REGION
+        value: $(params.avp_aws_secret_region)
+
+      - name: DB2_INSTANCE_REGISTRY_YAML
+        value: $(params.db2_instance_registry_yaml)
+      - name: DB2_INSTANCE_DBM_CONFIG_YAML
+        value: $(params.db2_instance_dbm_config_yaml)
+      - name: DB2_ADDONS_AUDIT_CONFIG_YAML
+        value: $(params.db2_addons_audit_config_yaml)
+      - name: DB2_DATABASE_DB_CONFIG_YAML
+        value: $(params.db2_database_db_config_yaml)
+
+      - name: MAS_INSTANCE_ID
+        value: $(params.mas_instance_id)
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
+      - name: JDBC_CONNECTION_URL_ADDITIONAL_PARAMS
+        value: $(params.jdbc_connection_url_additional_params)
+      - name: REPLICA_DB
+        value: $(params.replica_db)
     envFrom:
       - configMapRef:
           name: environment-properties
@@ -97,10 +96,10 @@ spec:
         git config --global user.email "you@example.com"
         git config --global user.password $GITHUB_PAT
 
-        mkdir -p /tmp/init-dro
-        mas gitops-dro -a $ACCOUNT -c $CLUSTER_NAME \
+        mkdir -p /tmp/init-rds-db2-database-$MAS_APP_ID
+        mas gitops-rds-db2-database -a $ACCOUNT -c $CLUSTER_NAME \
+        --dir /tmp/init-rds-db2-database-$MAS_APP_ID \
         --secrets-path $SECRET_PATH \
-        --dir /tmp/init-dro \
         --github-push \
         --github-host $GITHUB_HOST \
         --github-org  $GITHUB_ORG \
@@ -111,8 +110,9 @@ spec:
       command:
         - /bin/sh
         - -c
-      name: gitops-dro
-      imagePullPolicy: IfNotPresent
+      name: gitops-rds-db2-database
+      imagePullPolicy: Always
       image: quay.io/ibmmas/cli:latest
   workspaces:
     - name: configs
+    - name: shared-gitops-configs

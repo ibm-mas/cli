@@ -38,6 +38,7 @@ optionalParams = [
     "mas_superuser_password",
     "mas_trust_default_cas",
     "mas_routing_mode",
+    "mas_ingress_controller_name",
     "mas_app_settings_server_bundles_size",
     "mas_app_settings_default_jms",
     "mas_app_settings_persistent_volumes_flag",
@@ -167,6 +168,9 @@ optionalParams = [
     "mas_special_characters",
     # ODH
     "aiservice_odh_model_deployment_type",
+    # RHOAI
+    "aiservice_rhoai_model_deployment_type",
+    "rhoai",
     # AI Service
     "aiservice_s3_accesskey",
     "aiservice_s3_secretkey",
