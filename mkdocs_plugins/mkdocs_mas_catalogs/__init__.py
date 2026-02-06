@@ -85,20 +85,34 @@ class MASCatalogsPlugin(BasePlugin):
 
     def _get_catalog_data(self, catalog_tag):
         """Get catalog data and handle errors."""
-        catalog = getCatalog(catalog_tag)
+        try:
+            catalog = getCatalog(catalog_tag)
 
-        if not catalog:
-            return (
-                None,
-                f"""!!! error
+            if not catalog:
+                return (
+                    None,
+                    f"""!!! error
     Catalog {catalog_tag} not found in python-devops.
 
     Make sure the catalog metadata exists at:
     `python-devops/src/mas/devops/data/catalogs/{catalog_tag}.yaml`
 """,
-            )
+                )
 
-        return catalog, None
+            return catalog, None
+        except Exception as e:
+            # Handle NoSuchCatalogError and other exceptions gracefully
+            return (
+                None,
+                f"""!!! warning
+    Catalog {catalog_tag} metadata not available in python-devops.
+
+    This is an older catalog version. The metadata file does not exist at:
+    `python-devops/src/mas/devops/data/catalogs/{catalog_tag}.yaml`
+
+    Error: {str(e)}
+""",
+            )
 
     def _render_details(self, catalog_tag):
         """Render the Details section."""
