@@ -455,12 +455,12 @@ class BackupApp(BaseApp):
             "Db2 backup can be performed online (database remains available) or offline (database unavailable during backup).",
             "Note: If your Db2 instance uses circular logging (default), you must use offline backup.",
             "Backup Types:",
-            " 1. online",
-            " 2. offline",
+            " 1. offline",
+            " 2. online",
         ])
         self.promptForListSelect(
             message="Select backup type",
-            options=["online", "offline"],
+            options=["offline", "online"],
             param="backup_type",
             default=1
         )
