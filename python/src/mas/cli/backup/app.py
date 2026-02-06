@@ -124,11 +124,15 @@ class BackupApp(BaseApp):
             if self.args.backup_version is None:
                 self.promptForBackupVersion()
 
-            # Prompt for clean backup option if not provided
-            if self.args.clean_backup is None:
-                self.promptForCleanBackup()
+            # Prompt for SLS configuration
+            self.promptForSLSConfiguration()
+
+            # Prompt for MongoDB configuration
+            self.promptForMongoDBConfiguration()
 
             self.promptForUploadConfiguration()
+            # Prompt for clean backup option if not provided
+            self.promptForCleanBackup()
 
         # Set default values for optional parameters if not provided
         self.setDefaultParams()
@@ -281,6 +285,41 @@ class BackupApp(BaseApp):
             self.setParam("clean_backup", "true")
         else:
             self.setParam("clean_backup", "false")
+
+    def promptForSLSConfiguration(self) -> None:
+        """Prompt user for SLS (Suite License Service) configuration"""
+        self.printH1("SLS Configuration")
+        self.printDescription([
+            "Suite License Service (SLS) can be included in the backup.",
+            "If included, you will need to specify the SLS namespace."
+        ])
+
+        includeSLS = self.yesOrNo("Include SLS in backup")
+
+        if includeSLS:
+            self.setParam("include_sls", "true")
+
+            # Prompt for SLS namespace
+            slsNamespace = self.promptForString("SLS Namespace", default="ibm-sls")
+            self.setParam("sls_namespace", slsNamespace)
+        else:
+            self.setParam("include_sls", "false")
+
+    def promptForMongoDBConfiguration(self) -> None:
+        """Prompt user for MongoDB configuration"""
+        self.printH1("MongoDB Configuration")
+        self.printDescription([
+            "Configure MongoDB settings for the backup.",
+            "These settings specify where MongoDB is deployed and how to access it."
+        ])
+
+        # Prompt for MongoDB namespace
+        mongoNamespace = self.promptForString("MongoDB Namespace", default="mongoce")
+        self.setParam("mongodb_namespace", mongoNamespace)
+
+        # Prompt for MongoDB instance name
+        mongoInstanceName = self.promptForString("MongoDB Instance Name", default="mas-mongo-ce")
+        self.setParam("mongodb_instance_name", mongoInstanceName)
 
     def setDefaultParams(self) -> None:
         """Set default values for optional parameters if not already set"""
