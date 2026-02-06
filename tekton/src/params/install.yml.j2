@@ -451,6 +451,14 @@
 - name: mas_routing_mode
   type: string
   default: ""
+- name: mas_ingress_controller_name
+  type: string
+  default: ""
+  description: Name of the IngressController to use for path-based routing
+- name: mas_configure_ingress
+  type: string
+  default: ""
+  description: Set to 'true' to automatically configure IngressController for path-based routing
 - name: mas_trust_default_cas
   type: string
   default: ""

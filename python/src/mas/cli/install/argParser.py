@@ -171,6 +171,19 @@ masAdvancedArgGroup.add_argument(
     choices=["path", "subdomain"]
 )
 masAdvancedArgGroup.add_argument(
+    "--configure-ingress",
+    dest="mas_configure_ingress",
+    required=False,
+    action="store_true",
+    help="Automatically configure IngressController to allow InterNamespaceAllowed for path-based routing"
+)
+masAdvancedArgGroup.add_argument(
+    "--ingress-controller-name",
+    dest="mas_ingress_controller_name",
+    required=False,
+    help="Name of the IngressController to use for path-based routing (default: 'default')"
+)
+masAdvancedArgGroup.add_argument(
     "--manual-certificates",
     required=False,
     help="Path to directory containing the certificates to be applied"
@@ -789,6 +802,26 @@ odhArgGroup.add_argument(
     help="Model deployment type for ODH"
 )
 
+# Red Hat Openshift AI
+# -----------------------------------------------------------------------------
+rhoaiArgGroup = installArgParser.add_argument_group("RedHat Openshift AI")
+
+rhoaiArgGroup.add_argument(
+    "--rhoai-model-deployment-type",
+    dest="aiservice_rhoai_model_deployment_type",
+    required=False,
+    default="raw",
+    help="Model deployment type for RedHat Openshift AI"
+)
+
+rhoaiArgGroup.add_argument(
+    "--rhoai",
+    dest="rhoai",
+    required=False,
+    help="temporary flag to install Redhat Openshift AI instead of Opendatahub",
+    action="store_const",
+    const="true"
+)
 # S3 Storage
 # -----------------------------------------------------------------------------
 aiServiceS3ArgGroup = installArgParser.add_argument_group(

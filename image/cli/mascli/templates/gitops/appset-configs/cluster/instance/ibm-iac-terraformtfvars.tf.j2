@@ -1,0 +1,113 @@
+{%- if (IS_EFS | lower == 'true') or (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true') or (IS_RDS | lower == 'true') %}
+#Common params starts
+cluster_name         = "{{ CLUSTER_ID}}"
+instance_name        = "{{ MAS_INSTANCE_ID }}"
+vpc_id               = "{{ VPC_ID_VALUE}}"
+#Common params ends
+{%- endif %}
+
+{%- if (IS_MSK | lower == 'true') %}
+
+#MSK related params starts
+cluster_prefix             = "{{MSK_CLUSTER_PREFIX}}"
+#MSK related params ends
+{%- endif %}
+
+
+{%- if (IS_EFS | lower == 'true') or (IS_MSK | lower == 'true') or (IS_RDS | lower == 'true') %}
+
+#EFS/MSK/RDS related params starts
+vpc_name             = "{{ VPC_NAME_VALUE }}"
+#EFS/MSK/RDS related params ends
+{%- endif %}
+
+{%- if (IS_S3 | lower == 'true') or (IS_MSK | lower == 'true') or (IS_RDS | lower == 'true') %}
+#S3/MSK related params starts
+name_prefix             = "{{ NAME_PREFIX_VALUE }}"
+#S3/MSK related params ends
+{%- endif %}
+
+{%- if IS_S3 | lower == 'true'  %}
+#S3 related params starts
+{%- if S3_MANAGE | lower == 'true'  %}
+#S3 Manage related params starts
+s3bucket_name_prefix_manage    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"
+iam_user_name_prefix_manage = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
+iam_user_arn_prefix_manage  = "arn:aws:iam::{{ACCOUNT_ID}}:user/massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
+s3_iam_users_list_manage = {
+    doclinks = {
+        iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-doclinks-rw"
+    },
+    custfiles = {
+        iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-custfiles-rw"
+    },
+    logs_rw = {
+        iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-logs-rw"
+    },
+    logs_ro = {
+        iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-logs-ro"
+    }
+}
+#S3 Manage related params ends
+{%- endif %}
+
+#S3 related params ends
+{%- endif %}
+
+{%- if (IS_S3 | lower == 'true') or (IS_RDS | lower == 'true') %}
+#S3/RDS related params starts
+create_bucket        = true
+s3_encryption_algorithm = "AES256"
+common_tags = {
+    "source"      = "terraform",
+    "environment" = "{{ENVIRONMENT_VALUE}}",
+    "owner"       = "{{OWNER_VALUE}}",
+    "contact"     = "{{CONTACT_VALUE}}",
+    "cost-center" = "{{COST_CENTER_VALUE}}"
+}
+location = {
+    region             = "{{REGION_NAME}}"
+    availability_zones = ["{{REGION_NAME}}a", "{{REGION_NAME}}b", "{{REGION_NAME}}c"]
+}
+create_s3_iam_group     = false
+create_s3_iam_policy    = false
+create_efs_policy       = false
+account_id = "{{ACCOUNT_ID}}"
+#S3/RDS related params ends
+{%- endif %}
+{%- if (IS_RDS | lower == 'true') %}
+#RDS related params starts
+engine_version            = "11.5.9.0.sb00063198.r1"
+db2_parameters_apply_type = "pending-reboot"
+s3bucket_name_prefix_db2    = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds"
+iam_user_name_prefix_audit_log = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds"
+iam_user_arn_prefix_audit_log  = "arn:aws:iam::{{ACCOUNT_ID}}:user/{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds"
+{%- if (RDS_MANAGE | lower == 'true') %}
+#RDS S3 MANAGE AUDIT LOG related params starts
+s3_iam_users_list_audit_log_manage = {
+    audit_logs  = {
+        iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-manage"
+    }
+}
+#RDS S3 MANAGE AUDIT LOG related params ends
+{%- endif %}
+{%- if (RDS_IOT | lower == 'true') %}
+#RDS S3 IOT AUDIT LOG related params starts
+s3_iam_users_list_audit_log_iot = {
+    audit_logs  = {
+        iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-iot"
+    }
+}
+#RDS S3 IOT AUDIT LOG related params ends
+{%- endif %}
+{%- if (RDS_FACILITIES | lower == 'true') %}
+#RDS S3 FACILITIES AUDIT LOG related params starts
+s3_iam_users_list_audit_log_facilities = {
+    audit_logs  = {
+        iam_user_name = "{{CLUSTER_ID}}-{{MAS_INSTANCE_ID}}-rds-auditlog-facilities"
+    }
+}
+#RDS S3 FACILITIES AUDIT LOG related params ends
+{%- endif %}
+#RDS related params ends
+{%- endif %}
