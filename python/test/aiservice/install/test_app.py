@@ -9,7 +9,9 @@
 #
 # *****************************************************************************
 
-import re
+from utils import create_prompt_handler
+import sys
+import os
 from unittest import mock
 from unittest.mock import MagicMock
 from kubernetes.client.rest import ApiException
@@ -17,6 +19,9 @@ from openshift.dynamic import DynamicClient
 from openshift.dynamic.exceptions import NotFoundError
 from mas.cli.install.catalogs import supportedCatalogs
 from mas.cli.aiservice.install.app import AiServiceInstallApp
+
+# Add test directory to path for utils import
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 
 # These tests do not cover all possible combinations of install parameters. They are a starting point.
 # Future improvements should look at generating all possible permutations of the install parameters
@@ -157,73 +162,48 @@ def test_install_interactive_advanced(tmpdir):
             launch_ai_service_install_pipeline.return_value = 'https://pipeline.test.maximo.ibm.com'
             is_sno.return_value = False
 
-            def set_mixin_prompt_input(**kwargs):
-                message = str(kwargs['message'])
-                if re.match('.*Proceed with this cluster?.*', message):
-                    return 'y'
-                if re.match('.*Show advanced installation options?.*', message):
-                    return 'y'
-                if re.match('.*Do you accept the license terms?.*', message):
-                    return 'y'
-                if re.match('.*ReadWriteOnce (RWO) storage class.*', message):
-                    return 'nfs-client'
-                if re.match('.*ReadWriteMany (RWX) storage class.*', message):
-                    return 'nfs-client'
-                if re.match('.*SLS Mode.*', message):
-                    return '1'
-                if re.match('.*License file.*', message):
-                    return f'{tmpdir}/authorized_entitlement.lic'
-                if re.match('.*Instance ID.*', message):
-                    return 'apmdevops'
-                if re.match('.*Operational Mode.*', message):
-                    return '1'
-                if re.match('.*Install Minio.*', message):
-                    return 'y'
-                if re.match('.*minio root username.*', message):
-                    return 'username'
-                if re.match('.*minio root password.*', message):
-                    return 'password'
-                if re.match('.*Configure certificate issuer?.*', message):
-                    return 'y'
-                if re.match('.*Certificate issuer name.*', message):
-                    return 'cert-issuer'
-                if re.match('.*RSL url.*', message):
-                    return 'https://rls.maximo.test.ibm.com'
-                if re.match('.*ORG Id of RSL.*', message):
-                    return 'rslOrgId'
-                if re.match('.*Token for RSL.*', message):
-                    return 'rslToken'
-                if re.match('.*Watsonxai machine learning url.*', message):
-                    return 'watsonxUrl'
-                if re.match('.*Does the RSL API use a self-signed certificate.*', message):
-                    return 'n'
-                if re.match('.*Does the Watsonxai AI use a self-signed certificate.*', message):
-                    return 'n'
-                if re.match('.*Create MongoDb cluster.*', message):
-                    return 'n'
-                if re.match('.*Select Local configuration directory.*', message):
-                    return str(tmpdir)
-                if re.match('.*MongoDb Username.*', message):
-                    return 'mongodbUser'
-                if re.match('.*MongoDb Password.*', message):
-                    return 'mongodbPassword'
-                if re.match('.*Path to certificate file.*', message):
-                    return f'{tmpdir}/cert.crt'
-                if re.match(".*System mongodb configuration file 'mongodb-system.yaml' already exists", message):
-                    return 'n'
-                if re.match(".*Proceed with these settings.*", message):
-                    return 'y'
-                if re.match(".*Wait for PVCs to bind.*", message):
-                    return 'n'
-            mixins_prompt.side_effect = set_mixin_prompt_input
+            # Define prompt handlers with expected patterns and responses
+            mixin_prompt_handlers = {
+                '.*Proceed with this cluster?.*': lambda msg: 'y',
+                '.*Show advanced installation options?.*': lambda msg: 'y',
+                '.*Do you accept the license terms?.*': lambda msg: 'y',
+                '.*ReadWriteOnce (RWO) storage class.*': lambda msg: 'nfs-client',
+                '.*ReadWriteMany (RWX) storage class.*': lambda msg: 'nfs-client',
+                '.*SLS Mode.*': lambda msg: '1',
+                '.*License file.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',
+                '.*Instance ID.*': lambda msg: 'apmdevops',
+                '.*Operational Mode.*': lambda msg: '1',
+                '.*Install Minio.*': lambda msg: 'y',
+                '.*minio root username.*': lambda msg: 'username',
+                '.*minio root password.*': lambda msg: 'password',
+                '.*Configure certificate issuer?.*': lambda msg: 'y',
+                '.*Certificate issuer name.*': lambda msg: 'cert-issuer',
+                '.*RSL url.*': lambda msg: 'https://rls.maximo.test.ibm.com',
+                '.*ORG Id of RSL.*': lambda msg: 'rslOrgId',
+                '.*Token for RSL.*': lambda msg: 'rslToken',
+                '.*Watsonxai machine learning url.*': lambda msg: 'watsonxUrl',
+                '.*Does the RSL API use a self-signed certificate.*': lambda msg: 'n',
+                '.*Does the Watsonxai AI use a self-signed certificate.*': lambda msg: 'n',
+                '.*Create MongoDb cluster.*': lambda msg: 'n',
+                '.*Select Local configuration directory.*': lambda msg: str(tmpdir),
+                '.*MongoDb Username.*': lambda msg: 'mongodbUser',
+                '.*MongoDb Password.*': lambda msg: 'mongodbPassword',
+                '.*Path to certificate file.*': lambda msg: f'{tmpdir}/cert.crt',
+                ".*System mongodb configuration file 'mongodb-system.yaml' already exists": lambda msg: 'n',
+                ".*Proceed with these settings.*": lambda msg: 'y',
+            }
 
-            def set_app_prompt_input(**kwargs):
-                message = str(kwargs['message'])
-                if re.match('.*ReadWriteOnce (RWO) storage class.*', message):
-                    return 'nfs-client'
-                if re.match('.*ReadWriteMany (RWX) storage class.*', message):
-                    return 'nfs-client'
-            app_prompt.side_effect = set_app_prompt_input
+            # Create prompt tracker for mixin prompts
+            mixin_prompt_tracker, mixin_prompt_handler = create_prompt_handler(mixin_prompt_handlers)
+            mixins_prompt.side_effect = mixin_prompt_handler
+
+            # Note: app_prompt patterns are duplicates of mixin patterns, so we track them separately
+            app_prompt_handlers = {
+                '.*ReadWriteOnce (RWO) storage class.*': lambda msg: 'nfs-client',
+                '.*ReadWriteMany (RWX) storage class.*': lambda msg: 'nfs-client',
+            }
+            app_prompt_tracker, app_prompt_handler = create_prompt_handler(app_prompt_handlers)
+            app_prompt.side_effect = app_prompt_handler
 
             storage_class = MagicMock()
             get_storage_classes.return_value = [storage_class]
@@ -231,6 +211,10 @@ def test_install_interactive_advanced(tmpdir):
             storage_class.metadata.name = 'nfs-client'
             app = AiServiceInstallApp()
             app.install(argv=[])
+
+            # Verify all prompts were matched exactly once
+            mixin_prompt_tracker.verify_all_prompts_matched()
+            app_prompt_tracker.verify_all_prompts_matched()
 
 
 def test_install_interactive_simplified(tmpdir):
@@ -281,69 +265,46 @@ def test_install_interactive_simplified(tmpdir):
             launch_ai_service_install_pipeline.return_value = 'https://pipeline.test.maximo.ibm.com'
             is_sno.return_value = False
 
-            def set_mixin_prompt_input(**kwargs):
-                message = str(kwargs['message'])
-                if re.match('.*Proceed with this cluster?.*', message):
-                    return 'y'
-                if re.match('.*Show advanced installation options?.*', message):
-                    return 'n'
-                if re.match('.*Do you accept the license terms?.*', message):
-                    return 'y'
-                if re.match('.*ReadWriteOnce (RWO) storage class.*', message):
-                    return 'nfs-client'
-                if re.match('.*ReadWriteMany (RWX) storage class.*', message):
-                    return 'nfs-client'
-                if re.match('.*SLS Mode.*', message):
-                    return '1'
-                if re.match('.*License file.*', message):
-                    return f'{tmpdir}/authorized_entitlement.lic'
-                if re.match('.*Instance ID.*', message):
-                    return 'apmdevops'
-                if re.match('.*Operational Mode.*', message):
-                    return '1'
-                if re.match('.*Install Minio.*', message):
-                    return 'y'
-                if re.match('.*minio root username.*', message):
-                    return 'username'
-                if re.match('.*minio root password.*', message):
-                    return 'password'
-                if re.match('.*RSL url.*', message):
-                    return 'https://rls.maximo.test.ibm.com'
-                if re.match('.*ORG Id of RSL.*', message):
-                    return 'rslOrgId'
-                if re.match('.*Token for RSL.*', message):
-                    return 'rslToken'
-                if re.match('.*Watsonxai machine learning url.*', message):
-                    return 'watsonxUrl'
-                if re.match('.*Does the RSL API use a self-signed certificate.*', message):
-                    return 'n'
-                if re.match('.*Does the Watsonxai AI use a self-signed certificate.*', message):
-                    return 'n'
-                if re.match('.*Create MongoDb cluster.*', message):
-                    return 'n'
-                if re.match('.*Select Local configuration directory.*', message):
-                    return str(tmpdir)
-                if re.match('.*MongoDb Username.*', message):
-                    return 'mongodbUser'
-                if re.match('.*MongoDb Password.*', message):
-                    return 'mongodbPassword'
-                if re.match('.*Path to certificate file.*', message):
-                    return f'{tmpdir}/cert.crt'
-                if re.match(".*System mongodb configuration file 'mongodb-system.yaml' already exists", message):
-                    return 'n'
-                if re.match(".*Proceed with these settings.*", message):
-                    return 'y'
-                if re.match(".*Wait for PVCs to bind.*", message):
-                    return 'n'
-            mixins_prompt.side_effect = set_mixin_prompt_input
+            # Define prompt handlers with expected patterns and responses
+            mixin_prompt_handlers = {
+                '.*Proceed with this cluster?.*': lambda msg: 'y',
+                '.*Show advanced installation options?.*': lambda msg: 'n',
+                '.*Do you accept the license terms?.*': lambda msg: 'y',
+                '.*ReadWriteOnce (RWO) storage class.*': lambda msg: 'nfs-client',
+                '.*ReadWriteMany (RWX) storage class.*': lambda msg: 'nfs-client',
+                '.*SLS Mode.*': lambda msg: '1',
+                '.*License file.*': lambda msg: f'{tmpdir}/authorized_entitlement.lic',
+                '.*Instance ID.*': lambda msg: 'apmdevops',
+                '.*Operational Mode.*': lambda msg: '1',
+                '.*Install Minio.*': lambda msg: 'y',
+                '.*minio root username.*': lambda msg: 'username',
+                '.*minio root password.*': lambda msg: 'password',
+                '.*RSL url.*': lambda msg: 'https://rls.maximo.test.ibm.com',
+                '.*ORG Id of RSL.*': lambda msg: 'rslOrgId',
+                '.*Token for RSL.*': lambda msg: 'rslToken',
+                '.*Watsonxai machine learning url.*': lambda msg: 'watsonxUrl',
+                '.*Does the RSL API use a self-signed certificate.*': lambda msg: 'n',
+                '.*Does the Watsonxai AI use a self-signed certificate.*': lambda msg: 'n',
+                '.*Create MongoDb cluster.*': lambda msg: 'n',
+                '.*Select Local configuration directory.*': lambda msg: str(tmpdir),
+                '.*MongoDb Username.*': lambda msg: 'mongodbUser',
+                '.*MongoDb Password.*': lambda msg: 'mongodbPassword',
+                '.*Path to certificate file.*': lambda msg: f'{tmpdir}/cert.crt',
+                ".*System mongodb configuration file 'mongodb-system.yaml' already exists": lambda msg: 'n',
+                ".*Proceed with these settings.*": lambda msg: 'y',
+            }
 
-            def set_app_prompt_input(**kwargs):
-                message = str(kwargs['message'])
-                if re.match('.*ReadWriteOnce (RWO) storage class.*', message):
-                    return 'nfs-client'
-                if re.match('.*ReadWriteMany (RWX) storage class.*', message):
-                    return 'nfs-client'
-            app_prompt.side_effect = set_app_prompt_input
+            # Create prompt tracker for mixin prompts
+            mixin_prompt_tracker, mixin_prompt_handler = create_prompt_handler(mixin_prompt_handlers)
+            mixins_prompt.side_effect = mixin_prompt_handler
+
+            # Note: app_prompt patterns are duplicates of mixin patterns, so we track them separately
+            app_prompt_handlers = {
+                '.*ReadWriteOnce (RWO) storage class.*': lambda msg: 'nfs-client',
+                '.*ReadWriteMany (RWX) storage class.*': lambda msg: 'nfs-client',
+            }
+            app_prompt_tracker, app_prompt_handler = create_prompt_handler(app_prompt_handlers)
+            app_prompt.side_effect = app_prompt_handler
 
             storage_class = MagicMock()
             get_storage_classes.return_value = [storage_class]
@@ -351,3 +312,7 @@ def test_install_interactive_simplified(tmpdir):
             storage_class.metadata.name = 'nfs-client'
             app = AiServiceInstallApp()
             app.install(argv=[])
+
+            # Verify all prompts were matched exactly once
+            mixin_prompt_tracker.verify_all_prompts_matched()
+            app_prompt_tracker.verify_all_prompts_matched()
