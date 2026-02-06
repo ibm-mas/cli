@@ -98,7 +98,7 @@ class UpdateApp(BaseApp):
         isMasInstalled = self.reviewMASInstance()
         isAiServiceInstalled = self.reviewAiServiceInstance()
         if not isMasInstalled and not isAiServiceInstalled:
-            self.fatalError(["No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details"])
+            self.fatalError("No MAS or AI Service instances were detected on the cluster => nothing to update! See log file for details")
 
         if self.args.mas_catalog_version is None:
             # Interactive mode
@@ -350,8 +350,10 @@ class UpdateApp(BaseApp):
                 mongoDbAPI = self.dynamicClient.resources.get(api_version="mongodbcommunity.mongodb.com/v1", kind="MongoDBCommunity")
 
                 if self.getParam("mongodb_namespace") != "":
+                    logger.debug(f"Looking for MongoDBCommunity instances in {self.getParam('mongodb_namespace')}")
                     mongoClusters = mongoDbAPI.get(namespace=self.getParam("mongodb_namespace")).to_dict()["items"]
                 else:
+                    logger.debug("Looking for MongoDBCommunity instances in all namespaces")
                     mongoClusters = mongoDbAPI.get().to_dict()["items"]
 
                 if len(mongoClusters) > 0:
