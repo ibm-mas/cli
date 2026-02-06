@@ -23,6 +23,8 @@ The MAS backup process uses Tekton pipelines to orchestrate the backup of multip
 - **MongoDB** - MAS configuration database (Community Edition only)
 - **Suite License Service (SLS)** - License server data (optional)
 - **MAS Suite Configuration** - Core MAS instance configuration and custom resources
+- **MAS Applications** - Application-specific resources and persistent volume data (optional)
+- **Db2 Database** - Db2 instance resources and database backups (optional)
 
 The backup creates a compressed archive that can be stored locally or uploaded to cloud storage (S3 or Artifactory).
 
@@ -36,6 +38,7 @@ The `mas backup` command launches a Tekton pipeline that executes the following 
 - [`ibm.mas_devops.sls`](https://ibm-mas.github.io/ansible-devops/roles/sls/) - Backs up Suite License Service data
 - [`ibm.mas_devops.suite_backup`](https://ibm-mas.github.io/ansible-devops/roles/suite_backup/) - Backs up MAS Core configuration
 - [`ibm.mas_devops.suite_app_backup`](https://ibm-mas.github.io/ansible-devops/roles/suite_app_backup/) - Backs up MAS application resources and persistent volume data
+- [`ibm.mas_devops.db2`](https://ibm-mas.github.io/ansible-devops/roles/db2/) - Backs up DB2 resources and persistent volume data
 
 For detailed information about the underlying Ansible automation, see the [Backup and Restore Playbook Documentation](https://ibm-mas.github.io/ansible-devops/playbooks/backup-restore/).
 
@@ -115,6 +118,59 @@ Specify the certificate manager provider used in your environment:
 - **Red Hat Certificate Manager** (`--cert-manager-provider redhat`) - Default option, and the only supported provider.
 
 The backup captures certificate configurations but not the actual certificates, which are regenerated during restore.
+
+### MAS Application Backup
+
+The backup process supports backing up MAS application resources and persistent volume data. Currently supported:
+
+- **Manage Application** - Backs up Manage namespace resources and persistent volume data
+
+When backing up a Manage application, the following resources are included:
+
+**Namespace Resources**:
+- `ManageApp` custom resource
+- `ManageWorkspace` custom resource
+- Encryption secrets (dynamically determined from ManageWorkspace CR)
+- Certificates with `mas.ibm.com/instanceId` label
+- Subscription and OperatorGroup
+- IBM entitlement secret
+- All referenced secrets (auto-discovered)
+
+**Persistent Volume Data** (if configured in ManageWorkspace CR):
+- All persistent volumes defined in `spec.settings.deployment.persistentVolumes`
+- Data backed up as compressed tar.gz archives
+- Each PVC's mount path archived separately
+- Common PVCs include JMS server data, custom fonts, and attachments
+
+!!! note
+    Application backup is optional and configured during the interactive backup process or via command-line parameters (`--backup-manage-app`, `--manage-workspace-id`).
+
+### Db2 Database Backup
+
+The backup process supports backing up Db2 databases used by MAS applications. When backing up a Db2 database, the following are included:
+
+**Db2 Instance Resources**:
+- `Db2uCluster` custom resource
+- Secrets (instance password, certificates, LDAP credentials)
+- ConfigMaps
+- Services and routes
+- Operator subscription
+
+**Database Data**:
+- Complete database backup (full backup)
+- Stored in the backup archive alongside other components
+- Supports both online and offline backup modes
+
+**Backup Types**:
+
+- **Online Backup** - Database remains accessible during backup; requires archive logging enabled
+- **Offline Backup** - Database unavailable during backup; works with circular logging (default configuration)
+
+!!! warning
+    If your Db2 instance uses circular logging (the default configuration), you **must** use offline backup type. Online backups require archive logging to be enabled via `LOGARCHMETH1` and `LOGARCHMETH2` configuration.
+
+!!! note
+    Db2 backup is optional and configured during the interactive backup process or via command-line parameters (`--backup-manage-db`, `--manage-db2-namespace`, `--manage-db2-instance-name`, `--manage-db2-backup-type`).
 
 
 Backup Modes
@@ -232,6 +288,51 @@ mas backup \
 !!! tip
     Store AWS credentials securely using environment variables or secrets management systems rather than hardcoding them in scripts.
 
+### Scenario 5: Backup with Manage Application and Db2 Database
+
+**Environment:**
+- Standard MAS deployment with Manage application
+- Manage workspace with persistent volumes configured
+- In-cluster Db2 database for Manage
+- Need to backup application resources, PV data, and database
+
+**Backup Command:**
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-storage-size 100Gi \
+  --backup-manage-app \
+  --manage-workspace-id masdev \
+  --backup-manage-db \
+  --manage-db2-namespace db2u \
+  --manage-db2-instance-name mas-inst1-masdev-manage \
+  --manage-db2-backup-type offline \
+  --no-confirm
+```
+
+!!! tip
+    When backing up Manage with Db2, ensure sufficient backup storage (100Gi+ recommended) to accommodate application PV data and database backups. Use offline backup type if your Db2 instance uses the default circular logging configuration.
+
+### Scenario 6: Backup with Manage Application Only (External Db2)
+
+**Environment:**
+- MAS deployment with Manage application
+- External Db2 database (managed separately)
+- Only need to backup application resources and PV data
+
+**Backup Command:**
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-storage-size 50Gi \
+  --backup-manage-app \
+  --manage-workspace-id masdev \
+  --no-confirm
+```
+
+!!! note
+    When using an external Db2 database, omit the `--backup-manage-db` flag. The database should be backed up separately using your organization's database backup procedures.
+
 ### Scenario 7: Backup for Troubleshooting (No Cleanup)
 
 **Environment:**
@@ -288,9 +389,13 @@ The backup storage size depends on several factors:
 | SLS Data | < 1 MB | License server database and configuration |
 | IBM Catalogs | < 1 MB | Operator catalog definitions |
 | Certificate Manager | < 1 MB | Certificate configurations |
+| Manage App Resources | < 10 MB | Manage namespace Kubernetes resources |
+| Manage PV Data | 1-100 GB | JMS server, fonts, attachments (if configured) |
+| Db2 Instance Resources | < 10 MB | Db2 Kubernetes resources and metadata |
+| Db2 Database Backup | Varies | 0.5-2x database size when compressed; depends on data volume |
 
 !!! tip
-    Monitor your first backup to determine actual storage requirements, then adjust the `--backup-storage-size` parameter for future backups.
+    Monitor your first backup to determine actual storage requirements, then adjust the `--backup-storage-size` parameter for future backups. When backing up Manage with Db2, plan for significantly larger storage requirements (100GB+ recommended).
 
 ### Storage Class Considerations
 
@@ -321,9 +426,15 @@ When you run `mas backup`, the following occurs:
    - MongoDB backup
    - SLS backup (if included)
 7. **Suite Backup** - Backs up MAS core configuration
-8. **Archive Creation** - Compresses backup into tar.gz archive
-9. **Upload** (optional) - Uploads archive to S3 or Artifactory
-10. **Workspace Cleanup** (optional, default: enabled) - Cleans backup and config workspaces to free up storage
+8. **Database Backup** (optional) - Backs up Db2 instance and database:
+   - Db2 instance resources backup
+   - Db2 database backup (online or offline)
+9. **Application Backup** (optional) - Backs up MAS application resources and persistent volumes:
+   - Manage namespace resources backup
+   - Manage persistent volume data backup
+10. **Archive Creation** - Compresses backup into tar.gz archive
+11. **Upload** (optional) - Uploads archive to S3 or Artifactory
+12. **Workspace Cleanup** (optional, default: enabled) - Cleans backup and config workspaces to free up storage
 
 ### Monitoring Progress
 
@@ -380,6 +491,9 @@ Best Practices
 4. **Off-site Storage** - Upload backups to S3 or Artifactory for disaster recovery
 5. **Test Restores** - Periodically test restore procedures in non-production environments
 6. **Document Configuration** - Keep records of custom configurations and dependencies
+7. **Application Backups** - Include Manage application and Db2 database in regular backup schedule
+8. **Coordinate Backups** - When backing up Manage, always include the Db2 database for consistency
+9. **Storage Planning** - Allocate sufficient backup storage when including applications and databases (100Gi+ recommended)
 
 ### Security Considerations
 
@@ -516,6 +630,30 @@ Troubleshooting
 - Check S3 bucket exists and is accessible
 - Verify network connectivity to AWS
 - Ensure IAM permissions allow PutObject operations
+
+**Issue: "Manage application backup failed"**
+
+- Verify Manage workspace ID is correct
+- Ensure ManageWorkspace CR exists in the cluster
+- Check that Manage pods are running and healthy
+- Verify persistent volumes are properly configured in ManageWorkspace CR
+- Ensure sufficient storage space in backup PVC
+
+**Issue: "Db2 backup failed"**
+
+- Verify Db2 namespace and instance name are correct
+- Ensure Db2 instance is running and accessible
+- Check backup type matches Db2 logging configuration (use offline for circular logging)
+- Verify sufficient storage space in Db2 backup PVC
+- Review Db2 pod logs for database-specific errors
+
+**Issue: "Manage persistent volume backup is slow"**
+
+- PV backup duration depends on data volume
+- Large JMS server or attachment PVCs can take significant time
+- Monitor backup progress in Tekton pipeline logs
+- Consider scheduling backups during maintenance windows
+- Ensure network bandwidth is sufficient for data transfer
 
 
 Restore Overview
