@@ -1,6 +1,7 @@
 import pytest
 
 from mas.cli.install.app import InstallApp
+from mas.cli.update.app import UpdateApp
 from mas.cli.upgrade.app import UpgradeApp
 from mas.cli.uninstall.app import UninstallApp
 
@@ -20,14 +21,14 @@ def testInstallHelp():
         assert e.value.code == 0
 
 
-def testUninstallHelp():
+def testUpdateHelp():
     """
     Should exit with RC = 0 after printing help message
     """
     with create_app_session(output=DummyOutput()):
         with pytest.raises(SystemExit) as e:
-            app = UninstallApp()
-            app.uninstall(argv=["--help"])
+            app = UpdateApp()
+            app.update(argv=["--help"])
         assert e.type == SystemExit
         assert e.value.code == 0
 
@@ -40,5 +41,17 @@ def testUpgradeHelp():
         with pytest.raises(SystemExit) as e:
             app = UpgradeApp()
             app.upgrade(argv=["--help"])
+        assert e.type == SystemExit
+        assert e.value.code == 0
+
+
+def testUninstallHelp():
+    """
+    Should exit with RC = 0 after printing help message
+    """
+    with create_app_session(output=DummyOutput()):
+        with pytest.raises(SystemExit) as e:
+            app = UninstallApp()
+            app.uninstall(argv=["--help"])
         assert e.type == SystemExit
         assert e.value.code == 0
