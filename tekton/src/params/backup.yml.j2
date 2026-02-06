@@ -220,3 +220,62 @@
   type: string
   default: ""
   description: Directory for MAS configuration files during restore
+
+# Manage Application Backup Configuration
+# -----------------------------------------------------------------------------
+- name: backup_manage_app
+  type: string
+  description: Whether to backup the Manage application (true/false)
+  default: "false"
+
+- name: backup_manage_db
+  type: string
+  description: Whether to backup the Manage database (Db2) (true/false)
+  default: "false"
+
+- name: manage_workspace_id
+  type: string
+  description: Manage workspace ID for application backup
+  default: ""
+
+# Manage Db2 Backup Configuration
+# -----------------------------------------------------------------------------
+- name: manage_db2_namespace
+  type: string
+  description: Manage Db2 namespace for backup
+  default: ""
+
+- name: manage_db2_instance_name
+  type: string
+  description: Manage Db2 instance name for backup
+  default: ""
+
+- name: manage_db2_backup_type
+  type: string
+  description: Type of Manage Db2 backup (online or offline)
+  default: "online"
+
+- name: manage_db2_backup_vendor
+  type: string
+  description: Storage backend for Manage Db2 backup files (disk or s3)
+  default: "disk"
+
+- name: backup_s3_endpoint
+  type: string
+  description: S3 endpoint URL for Db2 backups
+  default: ""
+
+- name: backup_s3_bucket
+  type: string
+  description: S3 bucket name for Db2 backups
+  default: ""
+
+- name: backup_s3_access_key
+  type: string
+  description: S3 access key for Db2 backups
+  default: ""
+
+- name: backup_s3_secret_key
+  type: string
+  description: S3 secret key for Db2 backups
+  default: ""

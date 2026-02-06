@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
-  name: mas-devops-suite-backup
+  name: mas-devops-suite-app-backup
 spec:
   params:
     {{ lookup('template', task_src_dir ~ '/common/cli-params.yml.j2') | indent(4) }}
@@ -11,36 +11,52 @@ spec:
       type: string
       description: Instance ID
 
+    - name: mas_workspace_id
+      type: string
+      description: Workspace ID
+      default: ""
+
+    - name: mas_app_id
+      type: string
+      description: Application ID (e.g., manage)
+      default: ""
+
     # Backup specific parameters
     - name: mas_backup_dir
       type: string
       description: Directory to store backup files
       default: ""
-    - name: suite_backup_version
+    
+    - name: mas_app_backup_version
       type: string
-      description: Version/timestamp for the backup
+      description: Version/timestamp for the MAS app backup
       default: ""
 
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
 
-      - name: MAS_CONFIG_DIR
-        value: /workspace/configs
       - name: MAS_INSTANCE_ID
         value: $(params.mas_instance_id)
+      
+      - name: MAS_WORKSPACE_ID
+        value: $(params.mas_workspace_id)
+      
+      - name: MAS_APP_ID
+        value: $(params.mas_app_id)
 
       # Backup specific
       - name: MAS_BACKUP_DIR
         value: /workspace/backups
-      - name: SUITE_BACKUP_VERSION
-        value: $(params.suite_backup_version)
+      
+      - name: MAS_APP_BACKUP_VERSION
+        value: $(params.mas_app_backup_version)
 
   steps:
-    - name: suite-backup
+    - name: suite-app-backup
       command:
         - /opt/app-root/src/run-role.sh
-        - suite_backup
+        - suite_app_backup
       image: quay.io/ibmmas/cli:latest
       imagePullPolicy: $(params.image_pull_policy)
       workingDir: /workspace/configs

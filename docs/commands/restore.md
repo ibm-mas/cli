@@ -122,14 +122,14 @@ mas restore
 Restore a specific MAS instance from a backup with default settings:
 
 ```bash
-mas restore --instance-id inst1 --restore-version 20260117-191701 --no-confirm
+mas restore --instance-id inst1 --restore-version 2020260117-191701 --no-confirm
 ```
 
 ### Restore with Custom Storage Size
 Specify a custom storage size for the restore PVC:
 
 ```bash
-mas restore --instance-id inst1 --restore-version 20260117-191701 --backup-storage-size 50Gi --no-confirm
+mas restore --instance-id inst1 --restore-version 2020260117-191701 --backup-storage-size 50Gi --no-confirm
 ```
 
 ### Restore with Changed MAS Domain
@@ -138,7 +138,7 @@ Restore a backup and change the MAS domain in the Suite CR:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --mas-domain-restore new.domain.com \
   --no-confirm
 ```
@@ -149,7 +149,7 @@ Download a backup from S3 and restore it:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --download-backup \
   --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
   --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
@@ -164,7 +164,7 @@ Download and restore a backup with a custom archive name:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --download-backup \
   --custom-backup-archive-name custom-backup-name.tar.gz \
   --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
@@ -180,7 +180,7 @@ Restore a backup without including Suite License Service (useful when using exte
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --exclude-sls \
   --no-confirm
 ```
@@ -191,7 +191,7 @@ Restore using a custom SLS configuration file instead of the one from backup:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --exclude-slscfg-from-backup \
   --sls-cfg-file /path/to/sls-config.yaml \
   --no-confirm
@@ -203,7 +203,7 @@ Restore SLS configuration from backup but change the SLS URL:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --include-slscfg-from-backup \
   --sls-url-restore https://new-sls-url.com \
   --no-confirm
@@ -215,7 +215,7 @@ Restore using a custom DRO/BAS configuration file instead of the one from backup
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --exclude-drocfg-from-backup \
   --dro-cfg-file /path/to/dro-config.yaml \
   --no-confirm
@@ -227,7 +227,7 @@ Restore and install a new DRO instance:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --include-dro \
   --ibm-entitlement-key YOUR_ENTITLEMENT_KEY \ #pragma: allowlist secret
   --contact-email admin@example.com \
@@ -243,7 +243,7 @@ Restore SLS instance with a custom domain:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --include-sls \
   --sls-domain custom-sls.domain.com \
   --no-confirm
@@ -255,7 +255,7 @@ Restore without installing Grafana:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --exclude-grafana \
   --no-confirm
 ```
@@ -264,14 +264,14 @@ mas restore \
 Skip the pre-restore validation check (use with caution):
 
 ```bash
-mas restore --instance-id inst1 --restore-version 20260117-191701 --skip-pre-check --no-confirm
+mas restore --instance-id inst1 --restore-version 2020260117-191701 --skip-pre-check --no-confirm
 ```
 
 ### Restore Without Workspace Cleanup
 Keep backup and config workspace contents after completion (useful for troubleshooting):
 
 ```bash
-mas restore --instance-id inst1 --restore-version 20260117-191701 --no-clean-backup --no-confirm
+mas restore --instance-id inst1 --restore-version 2020260117-191701 --no-clean-backup --no-confirm
 ```
 
 !!! note
@@ -283,7 +283,7 @@ A comprehensive example with all major options configured:
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --backup-storage-size 100Gi \
   --mas-domain-restore new.domain.com \
   --include-sls \

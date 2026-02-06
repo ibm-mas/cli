@@ -29,6 +29,8 @@ spec:
     # 5. Backup MongoDB
     # 6. Backup SLS
     # 7. Backup MAS Suite
+    # 8. Backup Manage Database (Db2) - Optional
+    # 9. Backup Manage Application - Optional
 
     # 1. Pipeline Start
     # -------------------------------------------------------------------------
@@ -62,8 +64,6 @@ spec:
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
 
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
-
         - name: devops_suite_name
           value: backup-ibm-catalogs
 
@@ -93,8 +93,6 @@ spec:
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
 
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
-
         - name: devops_suite_name
           value: backup-cert-manager
 
@@ -121,8 +119,6 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
-
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
 
         - name: devops_suite_name
           value: backup-mongodb
@@ -159,8 +155,6 @@ spec:
       timeout: "0"
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
-
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
 
         - name: mas_instance_id
           value: $(params.mas_instance_id)
@@ -199,8 +193,6 @@ spec:
       params:
         {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
 
-        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/backup-restore/backup-params.yml.j2') | indent(8) }}
-
         - name: mas_instance_id
           value: $(params.mas_instance_id)
 
@@ -224,7 +216,89 @@ spec:
         - mongodb
         - sls
 
-    # 8. Upload Backup Archive (Optional)
+    # 8. Backup Manage Database (Db2) - Optional
+    # -------------------------------------------------------------------------
+    - name: manage-db2-backup
+      timeout: "0"
+      when:
+        - input: "$(params.backup_manage_db)"
+          operator: in
+          values: ["true", "True"]
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+
+        - name: db2_namespace
+          value: $(params.manage_db2_namespace)
+        - name: db2_instance_name
+          value: $(params.manage_db2_instance_name)
+        - name: db2_action
+          value: backup
+
+        # Backup specific parameters
+        - name: db2_backup_version
+          value: $(params.backup_version)
+        - name: backup_type
+          value: $(params.manage_db2_backup_type)
+        - name: backup_vendor
+          value: $(params.manage_db2_backup_vendor)
+        - name: backup_s3_endpoint
+          value: $(params.backup_s3_endpoint)
+        - name: backup_s3_bucket
+          value: $(params.backup_s3_bucket)
+        - name: backup_s3_access_key
+          value: $(params.backup_s3_access_key)
+        - name: backup_s3_secret_key
+          value: $(params.backup_s3_secret_key)
+
+      taskRef:
+        kind: Task
+        name: mas-devops-db2
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+        - name: backups
+          workspace: shared-backups
+      runAfter:
+        - pre-backup-check
+
+    # 9. Backup Manage Application - Optional
+    # -------------------------------------------------------------------------
+    - name: manage-app-backup
+      timeout: "0"
+      when:
+        - input: "$(params.backup_manage_app)"
+          operator: in
+          values: ["true", "True"]
+      params:
+        {{ lookup('template', pipeline_src_dir ~ '/taskdefs/common/cli-params.yml.j2') | indent(8) }}
+
+        - name: mas_instance_id
+          value: $(params.mas_instance_id)
+        - name: mas_workspace_id
+          value: $(params.manage_workspace_id)
+        - name: mas_app_id
+          value: manage
+
+        - name: mas_backup_dir
+          value: /workspace/backups
+        - name: mas_app_backup_version
+          value: $(params.backup_version)
+
+      taskRef:
+        kind: Task
+        name: mas-devops-suite-app-backup
+      workspaces:
+        - name: configs
+          workspace: shared-configs
+        - name: backups
+          workspace: shared-backups
+      runAfter:
+        - suite-backup
+
+    # 10. Upload Backup Archive (Optional)
     # -------------------------------------------------------------------------
     - name: upload-backup-archive
       timeout: "0"
@@ -266,6 +340,8 @@ spec:
           workspace: shared-backups
       runAfter:
         - suite-backup
+        - manage-db2-backup
+        - manage-app-backup
 
   finally:
     # 1. Clean Backup Workspaces (Optional)
