@@ -350,7 +350,7 @@ class RestoreApp(BaseApp):
     def promptForBackupVersion(self) -> None:
         self.printH1("Backup Version Configuration")
         # Prompt user to enter custom backup version
-        restore_version = self.promptForString("Set the backup version to use for this restore operation. (e.g. 20260117-191701)")
+        restore_version = self.promptForString("Set the backup version to use for this restore operation. (e.g. 2020260117-191701)")
         self.setParam("restore_version", restore_version)
 
     def setDefaultParams(self) -> None:

@@ -578,7 +578,7 @@ Non-interactive mode is ideal for automation, scheduled restores, and CI/CD pipe
 ```bash
 docker run -ti --rm quay.io/ibmmas/cli mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --no-confirm
 ```
 
@@ -614,7 +614,7 @@ After launching the restore, a URL to the Tekton PipelineRun is displayed:
 
 ```
 View progress:
-  https://console-openshift-console.apps.cluster.example.com/k8s/ns/mas-inst1-pipelines/tekton.dev~v1beta1~PipelineRun/mas-restore-20260117-191701-YYMMDD-HHMM
+  https://console-openshift-console.apps.cluster.example.com/k8s/ns/mas-inst1-pipelines/tekton.dev~v1beta1~PipelineRun/mas-restore-2020260117-191701-YYMMDD-HHMM
 ```
 
 Use this URL to:
@@ -656,7 +656,7 @@ Restore Scenarios - Non-Interactive Mode
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --no-confirm
 ```
 
@@ -670,7 +670,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --download-backup \
   --aws-access-key-id AKIAIOSFODNN7EXAMPLE \ #pragma: allowlist secret
   --aws-secret-access-key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY \ #pragma: allowlist secret
@@ -689,7 +689,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --mas-domain-restore new-cluster.example.com \
   --no-confirm
 ```
@@ -704,7 +704,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --exclude-sls \
   --exclude-slscfg-from-backup \
   --sls-cfg-file /path/to/custom-sls-config.yaml \
@@ -721,7 +721,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --include-sls \
   --include-slscfg-from-backup \
   --sls-url-restore https://new-sls.example.com \
@@ -738,7 +738,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --include-dro \
   --ibm-entitlement-key YOUR_ENTITLEMENT_KEY \ #pragma: allowlist secret
   --contact-email admin@example.com \
@@ -758,7 +758,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --exclude-grafana \
   --no-confirm
 ```
@@ -775,7 +775,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --backup-storage-size 100Gi \
   --mas-domain-restore new-cluster.example.com \
   --include-sls \
@@ -808,7 +808,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --no-clean-backup \
   --no-confirm
 ```
@@ -826,7 +826,7 @@ mas restore \
 ```bash
 mas restore \
   --instance-id inst1 \
-  --restore-version 20260117-191701 \
+  --restore-version 2020260117-191701 \
   --skip-pre-check \
   --no-confirm
 ```
