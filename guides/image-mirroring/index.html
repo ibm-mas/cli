@@ -364,7 +364,7 @@
 <p>You can start image mirroring by running the <code>mas mirror-images</code> command with no parameters, you will be prompted to select the mirror mode and working directory, configure the target registry, and select which content you wish to mirror.</p>
 <p>The easiest way to do this is using the MAS CLI container image as below:</p>
 <pre><code class="language-bash">LOCAL_DIR=/home/david/mirrorfiles
-docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images
+docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images
 </code></pre>
 <h2 id="non-interactive-image-mirroring">Non-Interactive Image Mirroring<a class="headerlink" href="#non-interactive-image-mirroring" title="Permanent link">¶</a></h2>
 <p>This guide will take you through we mirror images in our own development environment, breaking up the task into 4 distinct stages to further break down the work and make it easier to address any problems by providing clear milestones:</p>
@@ -386,11 +386,11 @@ export REGISTRY_PASSWORD=xxx
 </code></pre>
 <p>If you do not have a single system with both access to the public source registries <strong>and</strong> your internal private registry then you will require a system with internet connectivity and another with access to your private network, along with a means to transfer data from one to the other (for example, a portable drive).</p>
 <p>In this scenario, we must also transfer the CLI image to your local registry:</p>
-<pre><code class="language-bash">oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:18.15.0 file://ibmmas/cli:18.15.0 --filter-by-os='.*'
+<pre><code class="language-bash">oc image mirror --dir $LOCAL_DIR/cli quay.io/ibmmas/cli:18.15.1 file://ibmmas/cli:18.15.1 --filter-by-os='.*'
 </code></pre>
 <p>Transfer the content of <code>$LOCAL_DIR/cli</code> to your system within the private network and transfer the image to your mirror registry.</p>
 <pre><code class="language-bash">docker login $REGISTRY_HOST:$REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD
-oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:18.15.0 --filter-by-os='.*'
+oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.1 $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:18.15.1 --filter-by-os='.*'
 </code></pre>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -411,7 +411,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-direct-core" role="tabpanel" aria-labelledby="tab-direct-core" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m direct -d /mnt/registry/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -424,7 +424,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-to-core" role="tabpanel" aria-labelledby="tab-to-core" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m to-filesystem -d /mnt/registry/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -437,7 +437,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-from-core" role="tabpanel" aria-labelledby="tab-from-core" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m from-filesystem -d /mnt/registry/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -450,7 +450,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
     <p>Transfer the contents of <code>$LOCAL_DIR/core</code> to your system in the private network and run the second phase using the CLI image that was mirrored to your private registry during preparation.</p>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:18.15.1 mas mirror-images \
   -m from-filesystem -d /mnt/registry/core \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -472,7 +472,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-direct-apps" role="tabpanel" aria-labelledby="tab-direct-apps" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m direct -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -485,7 +485,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-to-apps" role="tabpanel" aria-labelledby="tab-to-apps" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m to-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -498,7 +498,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-from-apps" role="tabpanel" aria-labelledby="tab-from-apps" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m from-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -511,7 +511,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
     <p>Transfer the contents of <code>$LOCAL_DIR/apps</code> to your system in the private network and run the second phase using the CLI image that was mirrored to your private registry during preparation.</p>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:18.15.1 mas mirror-images \
   -m from-filesystem -d /mnt/registry/apps \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -533,7 +533,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-direct-cp4d" role="tabpanel" aria-labelledby="tab-direct-cp4d" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m direct -d /mnt/registry/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -546,7 +546,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-to-cp4d" role="tabpanel" aria-labelledby="tab-to-cp4d" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m to-filesystem -d /mnt/registry/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -559,7 +559,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-from-cp4d" role="tabpanel" aria-labelledby="tab-from-cp4d" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m from-filesystem -d /mnt/registry/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -572,7 +572,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
     <p>Transfer the contents of <code>$LOCAL_DIR/cp4d</code> to your system in the private network and run the second phase using the CLI image that was mirrored to your private registry during preparation.</p>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:18.15.1 mas mirror-images \
   -m from-filesystem -d /mnt/registry/cp4d \
   -H $REGISTRY_HOST -P $REGISTRY_PORT- u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -594,7 +594,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-direct-other" role="tabpanel" aria-labelledby="tab-direct-other" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m direct -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -607,7 +607,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-to-other" role="tabpanel" aria-labelledby="tab-to-other" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m to-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -620,7 +620,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
   <div id="panel-from-other" role="tabpanel" aria-labelledby="tab-from-other" hidden>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry quay.io/ibmmas/cli:18.15.1 mas mirror-images \
   -m from-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \
@@ -633,7 +633,7 @@ oc image mirror --dir $LOCAL_DIR/cli file://ibmmas/cli:18.15.0 $REGISTRY_HOST:$R
     <p>Transfer the contents of <code>$LOCAL_DIR/other</code> to your system in the private network and run the second phase using the CLI image that was mirrored to your private registry during preparation.</p>
 
 
-<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:18.15.0 mas mirror-images \
+<pre><code class="language-bash">docker run -ti --rm -v $LOCAL_DIR:/mnt/registry $REGISTRY_HOST:$REGISTRY_PORT/ibmmas/cli:18.15.1 mas mirror-images \
   -m from-filesystem -d /mnt/registry/other \
   -H $REGISTRY_HOST -P $REGISTRY_PORT -u $REGISTRY_USERNAME -p $REGISTRY_PASSWORD \
   -c v9-260129-amd64 -C 9.1.x \

@@ -423,7 +423,7 @@
 <p>If you have not already determined the catalog version for your installation, refer to the information in the <a href="../../catalogs/">Operator Catalog</a> topic, or contact IBM Support for guidance.</p>
 <h2 id="interactive-install">Interactive Install<a class="headerlink" href="#interactive-install" title="Permanent link">¶</a></h2>
 <p>Run the <code>mas aiservice-install</code> command and follow the interactive prompts. Mount your home directory to access the license file when needed.</p>
-<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.15.0 mas aiservice-install
+<pre><code class="language-bash">docker run -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.15.1 mas aiservice-install
 </code></pre>
 <p>The interactive install will guide you through the following steps:</p>
 <div>
@@ -482,7 +482,7 @@
 <p>The following command demonstrates a complete AI Service installation with all configuration options. This command will launch the MAS CLI container image, login to your OpenShift Cluster and start the AI Service installation without triggering any prompts.</p>
 <pre><code class="language-bash">IBM_ENTITLEMENT_KEY=your_entitlement_key_here
 
-docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.15.0 bash -c "
+docker run -e IBM_ENTITLEMENT_KEY -ti --rm -v ~:/mnt/home quay.io/ibmmas/cli:18.15.1 bash -c "
   oc login --token=sha256~xxxx --server=https://xxx &amp;&amp;
   mas aiservice-install \
     --mas-catalog-version v9-260129-amd64 \
