@@ -427,3 +427,4 @@ function gitops_suite_license_service() {
   fi
 
 }
+
