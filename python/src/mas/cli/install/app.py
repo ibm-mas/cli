@@ -50,7 +50,8 @@ from mas.devops.ocp import (
     createNamespace,
     getStorageClasses,
     getClusterVersion,
-    isClusterVersionInRange
+    isClusterVersionInRange,
+    configureIngressForPathBasedRouting
 )
 from mas.devops.mas import (
     getCurrentCatalog,
@@ -668,13 +669,13 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                         "    routeAdmission:",
                         "      namespaceOwnership: InterNamespaceAllowed</Cyan>",
                         "",
-                        "Would you like to configure it during installation?"
+                        "Would you like to configure it now (before MAS installation)?"
                     ])
 
                     if self.yesOrNo("Configure IngressController for path-based routing"):
                         self.setParam("mas_routing_mode", "path")
                         self.setParam("mas_configure_ingress", "true")
-                        self.printDescription([f"<Green>IngressController '{selectedController}' will be configured during installation.</Green>"])
+                        self.printDescription([f"<Green>IngressController '{selectedController}' will be configured before MAS installation begins.</Green>"])
                     else:
                         self.printDescription([
                             "",
@@ -1799,7 +1800,7 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 )
             elif not isConfigured:
                 if hasattr(self.args, 'mas_configure_ingress') and self.args.mas_configure_ingress:
-                    logger.info(f"IngressController '{ingressControllerName}' will be configured for path-based routing during installation pipeline")
+                    logger.info(f"IngressController '{ingressControllerName}' will be configured for path-based routing before MAS installation")
                     self.setParam("mas_configure_ingress", "true")
                 else:
                     self.fatalError(
@@ -1858,6 +1859,15 @@ class InstallApp(BaseApp, InstallSettingsMixin, InstallSummarizerMixin, ConfigGe
                 else:
                     h.stop_and_persist(symbol=self.successIcon, text="OpenShift Pipelines Operator installation failed")
                     self.fatalError("Installation failed")
+
+            if self.getParam("mas_routing_mode") == "path" and self.getParam("mas_configure_ingress") == "true":
+                with Halo(text='Configuring cluster for path-based routing', spinner=self.spinner) as h:
+                    ingressControllerName = self.getParam("mas_ingress_controller_name") if self.getParam("mas_ingress_controller_name") else "default"
+                    if configureIngressForPathBasedRouting(self.dynamicClient, ingressControllerName):
+                        h.stop_and_persist(symbol=self.successIcon, text="Cluster configured for path-based routing")
+                    else:
+                        h.stop_and_persist(symbol=self.failureIcon, text="Failed to configure cluster for path-based routing")
+                        self.fatalError("Installation failed - unable to configure IngressController for path-based routing")
 
             with Halo(text=f'Preparing namespace ({pipelinesNamespace})', spinner=self.spinner) as h:
                 createNamespace(self.dynamicClient, pipelinesNamespace)

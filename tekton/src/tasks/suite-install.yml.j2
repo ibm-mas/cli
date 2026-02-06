@@ -51,10 +51,6 @@ spec:
       type: string
       description: Name of the IngressController to use for path-based routing
       default: ""
-    - name: mas_configure_ingress
-      type: string
-      description: Set to 'true' to automatically configure IngressController for path-based routing
-      default: "False"
     - name: mas_trust_default_cas
       type: string
       description: Optional boolean parameter that when set to False, disables the normal trust of well known public certificate authorities
@@ -166,8 +162,6 @@ spec:
         value: $(params.mas_routing_mode)
       - name: MAS_INGRESS_CONTROLLER_NAME
         value: $(params.mas_ingress_controller_name)
-      - name: MAS_CONFIGURE_INGRESS
-        value: $(params.mas_configure_ingress)
       - name: MAS_MANUAL_CERT_MGMT
         value: $(params.mas_manual_cert_mgmt)
       - name: MAS_TRUST_DEFAULT_CAS
