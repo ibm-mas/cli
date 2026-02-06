@@ -1,5 +1,5 @@
 # *****************************************************************************
-# Copyright (c) 2024 IBM Corporation and other Contributors.
+# Copyright (c) 2024, 2026 IBM Corporation and other Contributors.
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -292,7 +292,7 @@ class BaseApp(PrintMixin, PromptMixin):
             return []
 
     @logMethodCall
-    def fatalError(self, message: str, exception: Exception = None) -> None:
+    def fatalError(self, message: str, exception: Exception | None = None) -> None:
         if exception is not None:
             logger.error(message)
             logger.exception(exception, stack_info=True)
@@ -331,7 +331,7 @@ class BaseApp(PrintMixin, PromptMixin):
             return ""
 
     @property
-    def dynamicClient(self):
+    def dynamicClient(self) -> DynamicClient:
         if self._dynClient is not None:
             return self._dynClient
         else:
@@ -396,7 +396,7 @@ class BaseApp(PrintMixin, PromptMixin):
         self.lookupTargetArchitecture()
 
     @logMethodCall
-    def lookupTargetArchitecture(self, architecture: str = None) -> None:
+    def lookupTargetArchitecture(self, architecture: str | None = None) -> None:
         logger.debug("Looking up worker node architecture")
         if architecture is not None:
             self.architecture = architecture
