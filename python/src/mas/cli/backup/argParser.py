@@ -111,6 +111,52 @@ uploadArgGroup.add_argument(
     help="Artifactory repository for backup upload"
 )
 
+manageAppArgGroup = backupArgParser.add_argument_group(
+    'Manage Application Backup',
+    'Configure backup of the Manage application and its database.'
+)
+manageAppArgGroup.add_argument(
+    '--backup-manage-app',
+    dest='backup_manage_app',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Backup the Manage application"
+)
+manageAppArgGroup.add_argument(
+    '--manage-workspace-id',
+    dest='manage_workspace_id',
+    required=False,
+    help="Manage workspace ID"
+)
+manageAppArgGroup.add_argument(
+    '--backup-manage-db',
+    dest='backup_manage_db',
+    required=False,
+    action="store_const",
+    const="true",
+    help="Backup the Manage application database (Db2)"
+)
+manageAppArgGroup.add_argument(
+    '--manage-db2-namespace',
+    dest='manage_db2_namespace',
+    required=False,
+    help="Manage Db2 namespace (default: db2u)"
+)
+manageAppArgGroup.add_argument(
+    '--manage-db2-instance-name',
+    dest='manage_db2_instance_name',
+    required=False,
+    help="Manage Db2 instance name"
+)
+manageAppArgGroup.add_argument(
+    '--manage-db2-backup-type',
+    dest='manage_db2_backup_type',
+    required=False,
+    choices=["offline", "online"],
+    help="Manage Db2 backup type: offline (database unavailable) or online (database remains available)"
+)
+
 componentsArgGroup = backupArgParser.add_argument_group(
     'Components',
     'Configure which components to include in the backup.'

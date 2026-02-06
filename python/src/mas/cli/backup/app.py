@@ -71,10 +71,13 @@ class BackupApp(BaseApp):
                 "artifactory_url",
                 "artifactory_repository",
                 # Manage App Backup
-                "mas_app_id",
-                "mas_workspace_id",
+                "manage_workspace_id",
                 "backup_manage_app",
-                "backup_manage_db"
+                "backup_manage_db",
+                "manage_db2_namespace",
+                "manage_db2_instance_name",
+                "manage_db2_backup_type",
+                "manage_db2_backup_vendor"
             ]
             for key, value in vars(self.args).items():
                 # These fields we just pass straight through to the parameters and fail if they are not set
@@ -166,12 +169,12 @@ class BackupApp(BaseApp):
         if self.getParam("backup_manage_app") == "true":
             self.printH2("Manage Application Backup")
             self.printSummary("Backup Manage App", "Yes")
-            self.printSummary("Workspace ID", self.getParam("mas_workspace_id"))
+            self.printSummary("Workspace ID", self.getParam("manage_workspace_id"))
             self.printSummary("Backup Manage incluster Db2 Database", "Yes" if self.getParam("backup_manage_db") == "true" else "No")
             if self.getParam("backup_manage_db") == "true":
-                self.printSummary("Db2 Namespace", self.getParam("db2_namespace"))
-                self.printSummary("Db2 Instance Name", self.getParam("db2_instance_name"))
-                self.printSummary("Db2 Backup Type", self.getParam("backup_type"))
+                self.printSummary("Db2 Namespace", self.getParam("manage_db2_namespace"))
+                self.printSummary("Db2 Instance Name", self.getParam("manage_db2_instance_name"))
+                self.printSummary("Db2 Backup Type", self.getParam("manage_db2_backup_type"))
 
         continueWithBackup = True
         if not self.noConfirm:
@@ -397,7 +400,6 @@ class BackupApp(BaseApp):
 
         if backupManageApp:
             self.setParam("backup_manage_app", "true")
-            self.setParam("mas_app_id", "manage")
 
             # Get workspace ID - try to auto-detect first
             try:
@@ -407,16 +409,16 @@ class BackupApp(BaseApp):
                     self.printDescription([f"Detected Manage workspace: <u>{workspaceId}</u>"])
                     useDetected = self.yesOrNo("Use this workspace")
                     if useDetected:
-                        self.setParam("mas_workspace_id", workspaceId)
+                        self.setParam("manage_workspace_id", workspaceId)
                     else:
                         workspaceId = self.promptForString("Enter Manage workspace ID")
-                        self.setParam("mas_workspace_id", workspaceId)
+                        self.setParam("manage_workspace_id", workspaceId)
                 else:
                     workspaceId = self.promptForString("Enter Manage workspace ID")
-                    self.setParam("mas_workspace_id", workspaceId)
+                    self.setParam("manage_workspace_id", workspaceId)
             except Exception:
                 workspaceId = self.promptForString("Enter Manage workspace ID")
-                self.setParam("mas_workspace_id", workspaceId)
+                self.setParam("manage_workspace_id", workspaceId)
 
             # Ask about DB2 backup
             self.printH2("Manage Database Backup")
@@ -428,27 +430,30 @@ class BackupApp(BaseApp):
 
             if backupDb2:
                 self.setParam("backup_manage_db", "true")
-                self.promptForDb2BackupConfiguration()
+                self.promptForDb2BackupConfiguration("manage")
             else:
                 self.setParam("backup_manage_db", "false")
         else:
             self.setParam("backup_manage_app", "false")
             self.setParam("backup_manage_db", "false")
 
-    def promptForDb2BackupConfiguration(self) -> None:
-        """Prompt user for Db2 backup configuration - reusable for any app that uses Db2"""
+    def promptForDb2BackupConfiguration(self, appId: str) -> None:
+        """Prompt user for Db2 backup configuration - reusable for any app that uses Db2
+
+        Args:
+            appId: The application ID (e.g., 'manage', 'facilities') used to prefix parameter names
+        """
         self.printH2("Db2 Configuration")
 
         # DB2 namespace
         db2Namespace = self.promptForString("Enter Db2 namespace", default="db2u")
-        self.setParam("db2_namespace", db2Namespace)
+        self.setParam(f"{appId}_db2_namespace", db2Namespace)
 
         # DB2 instance name
         instanceId = self.getParam("mas_instance_id")
-        workspaceID = self.getParam("mas_workspace_id")
-        appId = self.getParam("mas_app_id")
+        workspaceID = self.getParam(f"{appId}_workspace_id")
         db2InstanceName = self.promptForString("Enter Db2 instance name", default=f"mas-{instanceId}-{workspaceID}-{appId}")
-        self.setParam("db2_instance_name", db2InstanceName)
+        self.setParam(f"{appId}_db2_instance_name", db2InstanceName)
 
         # Backup type
         self.printDescription([
@@ -461,9 +466,9 @@ class BackupApp(BaseApp):
         self.promptForListSelect(
             message="Select backup type",
             options=["offline", "online"],
-            param="backup_type",
+            param=f"{appId}_db2_backup_type",
             default=1
         )
 
         # Always set to disk for pipeline as s3 upload is handled for the whole pipeline
-        self.setParam("backup_vendor", "disk")
+        self.setParam(f"{appId}_db2_backup_vendor", "disk")

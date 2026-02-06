@@ -233,41 +233,31 @@
   description: Whether to backup the Manage database (Db2) (true/false)
   default: "false"
 
-- name: mas_app_id
+- name: manage_workspace_id
   type: string
-  description: MAS application ID (e.g., manage)
+  description: Manage workspace ID for application backup
   default: ""
 
-- name: mas_workspace_id
-  type: string
-  description: MAS workspace ID for application backup
-  default: ""
-
-# Db2 Backup Configuration
+# Manage Db2 Backup Configuration
 # -----------------------------------------------------------------------------
-- name: db2_namespace
+- name: manage_db2_namespace
   type: string
-  description: Db2 namespace for backup
+  description: Manage Db2 namespace for backup
   default: ""
 
-- name: db2_instance_name
+- name: manage_db2_instance_name
   type: string
-  description: Db2 instance name for backup
+  description: Manage Db2 instance name for backup
   default: ""
 
-- name: db2_action
+- name: manage_db2_backup_type
   type: string
-  description: Action to perform for Db2 (backup)
-  default: "backup"
-
-- name: backup_type
-  type: string
-  description: Type of Db2 backup (online or offline)
+  description: Type of Manage Db2 backup (online or offline)
   default: "online"
 
-- name: backup_vendor
+- name: manage_db2_backup_vendor
   type: string
-  description: Storage backend for Db2 backup files (disk or s3)
+  description: Storage backend for Manage Db2 backup files (disk or s3)
   default: "disk"
 
 - name: backup_s3_endpoint

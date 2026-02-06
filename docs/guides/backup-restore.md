@@ -35,6 +35,7 @@ The `mas backup` command launches a Tekton pipeline that executes the following 
 - [`ibm.mas_devops.mongodb`](https://ibm-mas.github.io/ansible-devops/roles/mongodb/) - Backs up MongoDB Community Edition instance and database
 - [`ibm.mas_devops.sls`](https://ibm-mas.github.io/ansible-devops/roles/sls/) - Backs up Suite License Service data
 - [`ibm.mas_devops.suite_backup`](https://ibm-mas.github.io/ansible-devops/roles/suite_backup/) - Backs up MAS Core configuration
+- [`ibm.mas_devops.suite_app_backup`](https://ibm-mas.github.io/ansible-devops/roles/suite_app_backup/) - Backs up MAS application resources and persistent volume data
 
 For detailed information about the underlying Ansible automation, see the [Backup and Restore Playbook Documentation](https://ibm-mas.github.io/ansible-devops/playbooks/backup-restore/).
 
@@ -955,6 +956,8 @@ Additional Resources
 - [SLS Role](https://ibm-mas.github.io/ansible-devops/roles/sls/) - Suite License Service backup/restore
 - [Suite Backup Role](https://ibm-mas.github.io/ansible-devops/roles/suite_backup/) - MAS Core backup
 - [Suite Restore Role](https://ibm-mas.github.io/ansible-devops/roles/suite_restore/) - MAS Core restore
+- [Suite App Backup Role](https://ibm-mas.github.io/ansible-devops/roles/suite_app_backup/) - MAS application backup (generic)
+- [Db2 Role](https://ibm-mas.github.io/ansible-devops/roles/db2/) - Db2 database backup/restore
 - [Grafana Role](https://ibm-mas.github.io/ansible-devops/roles/grafana/) - Grafana installation
 - [DRO Role](https://ibm-mas.github.io/ansible-devops/roles/dro/) - Data Reporter Operator installation
 

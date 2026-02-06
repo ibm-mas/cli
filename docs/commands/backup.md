@@ -9,8 +9,11 @@ Usage information can be obtained using `mas backup --help`
 usage: mas backup [-i MAS_INSTANCE_ID] [--backup-version BACKUP_VERSION] [--backup-storage-size BACKUP_STORAGE_SIZE]
                   [--clean-backup] [--no-clean-backup] [--upload-backup] [--aws-access-key-id AWS_ACCESS_KEY_ID]
                   [--aws-secret-access-key AWS_SECRET_ACCESS_KEY] [--s3-bucket-name S3_BUCKET_NAME] [--s3-region S3_REGION]
-                  [--artifactory-url ARTIFACTORY_URL] [--artifactory-repository ARTIFACTORY_REPOSITORY] [--include-sls]
-                  [--exclude-sls] [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-instance-name MONGODB_INSTANCE_NAME]
+                  [--artifactory-url ARTIFACTORY_URL] [--artifactory-repository ARTIFACTORY_REPOSITORY]
+                  [--backup-manage-app] [--manage-workspace-id MANAGE_WORKSPACE_ID] [--backup-manage-db]
+                  [--manage-db2-namespace MANAGE_DB2_NAMESPACE] [--manage-db2-instance-name MANAGE_DB2_INSTANCE_NAME]
+                  [--manage-db2-backup-type {offline,online}] [--include-sls] [--exclude-sls]
+                  [--mongodb-namespace MONGODB_NAMESPACE] [--mongodb-instance-name MONGODB_INSTANCE_NAME]
                   [--mongodb-provider {community}] [--sls-namespace SLS_NAMESPACE] [--cert-manager-provider {redhat,ibm}]
                   [--artifactory-username ARTIFACTORY_USERNAME] [--artifactory-token ARTIFACTORY_TOKEN] [--dev-mode] [--no-confirm]
                   [--skip-pre-check] [-h]
@@ -47,6 +50,18 @@ Upload Configuration:
                         Artifactory URL for backup upload (dev-mode only)
   --artifactory-repository ARTIFACTORY_REPOSITORY
                         Artifactory repository for backup upload (dev-mode only)
+
+Manage Application Backup:
+  --backup-manage-app   Backup the Manage application
+  --manage-workspace-id MANAGE_WORKSPACE_ID
+                        Manage workspace ID
+  --backup-manage-db    Backup the Manage application database (Db2)
+  --manage-db2-namespace MANAGE_DB2_NAMESPACE
+                        Manage Db2 namespace (default: db2u)
+  --manage-db2-instance-name MANAGE_DB2_INSTANCE_NAME
+                        Manage Db2 instance name
+  --manage-db2-backup-type {offline,online}
+                        Manage Db2 backup type: offline (database unavailable) or online (database remains available)
 
 Components:
   --include-sls         Include SLS in backup (default: true)
@@ -189,6 +204,32 @@ mas backup \
   --no-confirm
 ```
 
+### Backup with Manage Application
+Backup MAS instance including the Manage application and its database:
+
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-manage-app \
+  --manage-workspace-id masdev \
+  --backup-manage-db \
+  --manage-db2-namespace db2u \
+  --manage-db2-instance-name mas-inst1-masdev-manage \
+  --manage-db2-backup-type offline \
+  --no-confirm
+```
+
+### Backup with Manage Application Only (No Database)
+Backup the Manage application without backing up its database:
+
+```bash
+mas backup \
+  --instance-id inst1 \
+  --backup-manage-app \
+  --manage-workspace-id masdev \
+  --no-confirm
+```
+
 Notes
 -------------------------------------------------------------------------------
 
@@ -229,6 +270,17 @@ Two upload destinations are supported:
 - **S3**: Standard AWS S3 bucket upload (available in all modes)
 - **Artifactory**: Artifactory repository upload (requires `--dev-mode`)
 
+### Manage Application Backup
+The backup command can optionally include the Manage application and its Db2 database:
+
+- **Manage Application**: Backs up the Manage namespace resources and persistent volume data
+- **Manage Database**: Backs up the Db2 database associated with the Manage workspace
+  - **Offline backup**: Database is unavailable during backup (required for circular logging)
+  - **Online backup**: Database remains available during backup (requires archive logging)
+
+!!! note
+    If your Db2 instance uses circular logging (default), you must use offline backup type.
+
 ### Interactive Mode
 When running without `--instance-id`, the command enters interactive mode and will prompt for:
 
@@ -237,7 +289,8 @@ When running without `--instance-id`, the command enters interactive mode and wi
 3. Backup storage size
 4. Backup version (or auto-generate)
 5. Workspace cleanup preference
-6. Upload configuration (optional)
+6. Manage application backup configuration (optional)
+7. Upload configuration (optional)
 
 #### Example Interactive Mode Output
 
