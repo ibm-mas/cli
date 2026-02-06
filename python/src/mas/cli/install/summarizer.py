@@ -77,6 +77,9 @@ class InstallSummarizerMixin():
 
         print()
         self.printParamSummary("Network Routing Mode", "mas_routing_mode")
+        if self.getParam("mas_routing_mode") == "path":
+            self.printParamSummary("IngressController Name", "mas_ingress_controller_name")
+            self.printParamSummary("Configure IngressController", "mas_configure_ingress")
 
         print()
         self.printParamSummary("Configure Suite to run in IPV6", "enable_ipv6")
@@ -237,6 +240,9 @@ class InstallSummarizerMixin():
             self.printParamSummary("Release", "aiservice_channel")
             self.printParamSummary("Instance ID", "aiservice_instance_id")
             self.printParamSummary("Environment Type", "environment_type")
+
+            if "aiservice_certificate_issuer" in self.params:
+                self.printParamSummary("Certificate Issuer", "aiservice_certificate_issuer")
 
             self.printH2("AI Service Tenant Entitlement")
             self.printParamSummary("Entitlement Type", "tenant_entitlement_type")

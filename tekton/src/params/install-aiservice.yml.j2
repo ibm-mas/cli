@@ -64,6 +64,14 @@
   type: string
   description: Model deployment type for ODH. Must be one of; [raw, serverless]
   default: "raw"
+- name: aiservice_rhoai_model_deployment_type
+  type: string
+  description: Model deployment type for Redhat Openshift AI. Must be one of; [raw, serverless]
+  default: "raw"
+- name: rhoai
+  type: string
+  description: flag to install rhoai
+  default: ""
 
 - name: minio_root_user
   type: string
@@ -155,3 +163,9 @@
   description: token for RSL
   default: ""
 
+# MAS Application Configuration - IBM Maximo AI Service - Certificate Issuer
+# -----------------------------------------------------------------------------
+- name: aiservice_certificate_issuer
+  type: string
+  description: Name of the Issuer to configure AI Service to issue certificates
+  default: ""

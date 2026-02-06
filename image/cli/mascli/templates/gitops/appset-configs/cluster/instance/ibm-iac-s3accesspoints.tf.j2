@@ -1,3 +1,8 @@
+resource "time_sleep" "wait_for_iam" {
+  depends_on = [module.account_policy]
+  create_duration = "60s"
+}
+
 module "s3buckets_access_point" {
   source = "{{ S3_SOURCE_S3ACCESSPOINT }}"
   for_each = {
@@ -5,7 +10,7 @@ module "s3buckets_access_point" {
     k => v if can(regex("log", v.name)) || can(regex("doclinks", v.name))
   }
 
-  depends_on = [module.s3buckets_instance, module.account_policy]
+  depends_on = [module.s3buckets_instance, module.account_policy, time_sleep.wait_for_iam]
 
   name_prefix                    = each.value.name_prefix
   s3_access_point_bucket_id      = each.value.id

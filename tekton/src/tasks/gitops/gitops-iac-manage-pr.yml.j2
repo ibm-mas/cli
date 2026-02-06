@@ -28,6 +28,9 @@ spec:
     - name: is_msk
       type: string
       default: 'false'
+    - name: is_rds
+      type: string
+      default: 'false'
 
   stepTemplate:
     env:
@@ -51,6 +54,8 @@ spec:
         value: $(params.is_s3)
       - name: IS_MSK
         value: $(params.is_msk)
+      - name: IS_RDS
+        value: $(params.is_rds)
     envFrom:
       - configMapRef:
           name: environment-properties
