@@ -165,6 +165,40 @@ spec:
       description: Optional MAS custom labels, comma separated list of key=value pairs
       default: ""
 
+    # Backup/Restore specific parameters
+    - name: db2_backup_version
+      type: string
+      description: Optional. Version/timestamp for the backup
+      default: ""
+    - name: mas_backup_dir
+      type: string
+      description: Directory to store backup files
+      default: ""
+    - name: backup_type
+      type: string
+      description: Type of backup (online or offline)
+      default: ""
+    - name: backup_vendor
+      type: string
+      description: Storage backend for database backup files (disk or s3)
+      default: ""
+    - name: backup_s3_endpoint
+      type: string
+      description: S3 endpoint URL for backups
+      default: ""
+    - name: backup_s3_bucket
+      type: string
+      description: S3 bucket name for backups
+      default: ""
+    - name: backup_s3_access_key
+      type: string
+      description: S3 access key for backups
+      default: ""
+    - name: backup_s3_secret_key
+      type: string
+      description: S3 secret key for backups
+      default: ""
+
   stepTemplate:
     env:
       {{ lookup('template', task_src_dir ~ '/common/cli-env.yml.j2') | indent(6) }}
@@ -280,6 +314,24 @@ spec:
       # Custom labels support
       - name: CUSTOM_LABELS
         value: $(params.custom_labels)
+
+      # Backup/Restore specific
+      - name: MAS_BACKUP_DIR
+        value: /workspace/backups
+      - name: DB2_BACKUP_VERSION
+        value: $(params.db2_backup_version)
+      - name: DB2_BACKUP_TYPE
+        value: $(params.backup_type)
+      - name: BACKUP_VENDOR
+        value: $(params.backup_vendor)
+      - name: BACKUP_S3_ENDPOINT
+        value: $(params.backup_s3_endpoint)
+      - name: BACKUP_S3_BUCKET
+        value: $(params.backup_s3_bucket)
+      - name: BACKUP_S3_ACCESS_KEY
+        value: $(params.backup_s3_access_key)
+      - name: BACKUP_S3_SECRET_KEY
+        value: $(params.backup_s3_secret_key)
   steps:
     - name: db2
       command:
@@ -291,4 +343,6 @@ spec:
 
   workspaces:
     - name: configs
+      optional: true
+    - name: backups
       optional: true
