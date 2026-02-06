@@ -1,8 +1,8 @@
-- name: aiservice-odh
+- name: aiservice-rhoai
   params:
     {{ lookup('template', 'taskdefs/common/cli-params.yml.j2') | indent(4) }}
     - name: devops_suite_name
-      value: aiservice-odh
+      value: aiservice-rhoai
 
     - name: mas_instance_id
 {% if application is defined and application == "aiservice" %}
@@ -20,18 +20,18 @@
       value: $(params.ibm_entitlement_key)
     - name: custom_labels
       value: $(params.custom_labels)
-    - name: aiservice_odh_model_deployment_type
-      value: $(params.aiservice_odh_model_deployment_type)
+    - name: aiservice_rhoai_model_deployment_type
+      value: $(params.aiservice_rhoai_model_deployment_type)
     - name: rhoai
       value: $(params.rhoai)
 
   taskRef:
-    name: mas-devops-aiservice-odh
+    name: mas-devops-aiservice-rhoai
     kind: Task
   when:
     - input: "$(params.aiservice_channel)"
       operator: notin
       values: [""]
     - input: "$(params.rhoai)"
-      operator: notin
+      operator: in
       values: ["true"]

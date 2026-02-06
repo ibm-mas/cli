@@ -286,9 +286,6 @@ case $1 in
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
     echo "!! update                                                                    !!" >> $LOGFILE
     echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" >> $LOGFILE
-
-    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite Update Manager (v${VERSION})${TEXT_RESET}"
-    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/ansible-devops/${TEXT_RESET} and ${COLOR_CYAN}${TEXT_UNDERLINE}https://tekton.dev/${TEXT_RESET}"
     # Take the first parameter off (it will be "update")
     shift
     # Run the new Python-based install
@@ -711,6 +708,14 @@ case $1 in
     echo
     reset_colors
     gitops_iac_provision_msk_cmd "$@"
+    ;;
+
+  gitops-iac-provision-rdsdb2)
+    echo "${TEXT_UNDERLINE}IBM Maximo Application Suite IAC Manager - Provision RDS DB2 (v${VERSION})${TEXT_RESET}"
+    echo "Powered by ${COLOR_CYAN}${TEXT_UNDERLINE}https://github.com/ibm-mas/gitops/${TEXT_RESET}"
+    echo
+    reset_colors
+    gitops_iac_provision_rdsdb2_cmd "$@"
     ;;
 
   gitops-iac-generate-common-files)
