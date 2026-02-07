@@ -8,7 +8,7 @@ ansible-devops:
 	ansible-galaxy collection build --output-path image/cli/install ../ansible-devops/ibm/mas_devops --force
 	mv image/cli/install/ibm-mas_devops-100.0.0.tar.gz image/cli/install/ibm-mas_devops.tar.gz
 
-# Tip: You can install this built collection using:
+# Tip:  You can install this built collection using:
 # ansible-galaxy collection install image/cli/install/ibm-mas_devops.tar.gz --force --no-deps
 
 python-cli:
