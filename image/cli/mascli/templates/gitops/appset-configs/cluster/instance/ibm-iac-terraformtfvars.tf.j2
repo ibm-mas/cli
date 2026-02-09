@@ -29,6 +29,8 @@ name_prefix             = "{{ NAME_PREFIX_VALUE }}"
 
 {%- if IS_S3 | lower == 'true'  %}
 #S3 related params starts
+allowed_bucket_policy_keys = ["logs", "doclinks", "mvi"]
+allowed_bucket_lifecycle_configuration_keys = ["custfiles", "backup"]
 {%- if S3_MANAGE | lower == 'true'  %}
 #S3 Manage related params starts
 s3bucket_name_prefix_manage    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"
@@ -56,8 +58,8 @@ s3bucket_name_prefix_mvi    = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}"
 iam_user_name_prefix_mvi = "massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
 iam_user_arn_prefix_mvi  = "arn:aws:iam::{{ACCOUNT_ID}}:user/massaas-cos-{{MAS_INSTANCE_ID}}-{{CLUSTER_ID}}-sid"
 s3_iam_users_list_mvi = {
-    logs_rw = {
-        iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-logs-rw"
+    mvi = {
+        iam_user_name = "massaas-cos-{{ MAS_INSTANCE_ID }}-{{ CLUSTER_ID }}-sid-mvi-rw"
     }
 }
 #S3 MVI related params ends

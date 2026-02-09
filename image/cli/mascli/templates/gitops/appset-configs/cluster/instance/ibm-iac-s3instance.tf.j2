@@ -23,4 +23,6 @@ module "s3buckets_instance_{{APP_NAME}}" {
   mas_instance_id         = local.cluster.instance.name
   secret_recovery_days    = 0
   s3_bucket_region        = local.location.region
+  allowed_bucket_policy_keys                  = var.allowed_bucket_policy_keys
+  allowed_bucket_lifecycle_configuration_keys = var.allowed_bucket_lifecycle_configuration_keys
 }

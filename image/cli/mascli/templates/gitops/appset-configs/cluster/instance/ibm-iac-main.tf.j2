@@ -181,10 +181,10 @@ locals {
 {%- if S3_MVI | lower == 'true'  %}
   #mvi related params for S3 starts
   iam_user_arns_mvi = {
-    logs_rw   = "${var.iam_user_arn_prefix_mvi}-mvi-${var.access_level_rw}"
+    mvi   = "${var.iam_user_arn_prefix_mvi}-mvi-${var.access_level_rw}"
   }
   s3_iam_users_list_mvi = {
-    logs_rw = {
+    mvi = {
       bucket_name   = "${var.s3bucket_name_prefix_mvi}-mvi"
       iam_user_name = "${var.iam_user_name_prefix_mvi}-mvi-${var.access_level_rw}"
       access_level  = var.access_level_rw
@@ -199,7 +199,7 @@ locals {
     ]
   }
   bucket_user_names_mvi = {
-    logs_rw   = "${var.iam_user_name_prefix_mvi}-mvi-${var.access_level_rw}"
+    mvi   = "${var.iam_user_name_prefix_mvi}-mvi-${var.access_level_rw}"
   }
   bucket_user_name_map_mvi = {
     for key, value in local.s3_iam_users_list_mvi :
@@ -275,7 +275,7 @@ locals {
    {%- if S3_MVI | lower == 'true'  %}
     #MVI specific S3 buckets starts
       mvi_s3buckets = {
-        logs_rw = {
+        mvi = {
           name_prefix          = var.name_prefix
           create               = var.create_bucket
           name                 = "${var.s3bucket_name_prefix_mvi}-mvi"

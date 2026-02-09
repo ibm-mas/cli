@@ -26,7 +26,7 @@ module "s3buckets_access_point_{{APP_NAME}}" {
       local.iam_user_arns_{{APP_NAME}}["logs_ro"]
     ) :
     can(regex("doclinks", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["doclinks"] :
-    can(regex("mvi", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["logs_rw"] :
+    can(regex("mvi", each.value.name)) ? local.iam_user_arns_{{APP_NAME}}["mvi"] :
     null
   )
 

@@ -38,7 +38,15 @@ variable "name_prefix" {
 
 
 {%- if IS_S3 | lower == 'true'%}
+variable "allowed_bucket_policy_keys" {
+    description = "Allowed bucket keys for bucket policy creations."
+    type        = list(string)
+}
 
+variable "allowed_bucket_lifecycle_configuration_keys" {
+    description = "Allowed bucket keys for bucket lifecycle creation."
+    type        = list(string)
+}
 variable "access_level_rw" {
     type        = string
     description = "read and write"
