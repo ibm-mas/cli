@@ -385,7 +385,7 @@ function gitops_suite_license_service() {
   ESCAPED_INFO=${UNESCAPED_MONGO_INFO//\"/\\\"}
   ESCAPED_INFO=${ESCAPED_INFO//$'\n'/\\n}
   TAGS="[{\"Key\": \"source\", \"Value\": \"gitops_suite\"}, {\"Key\": \"account\", \"Value\": \"${ACCOUNT_ID}\"}, {\"Key\": \"cluster\", \"Value\": \"${CLUSTER_ID}\"}]"
-  #sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}" "${TAGS}"
+  sm_update_secret $SECRET_NAME_MONGO "{\"info\": \"$ESCAPED_INFO\", \"username\": \"$INSTANCE_MONGO_USERNAME\", \"password\": \"$INSTANCE_MONGO_PASSWORD\"}" "${TAGS}"
 
   if [[ -n "$INTERNAL_CERT_AUTHORITY" ]]; then
     export INTERNAL_CERTIFICATE_AUTHORITY=${INTERNAL_CERT_AUTHORITY}
@@ -436,3 +436,5 @@ function gitops_suite_license_service() {
     save_to_target_git_repo $GITHUB_HOST $GITHUB_ORG $GITHUB_REPO $GIT_BRANCH "${GITOPS_WORKING_DIR}/${GITHUB_REPO}" "${GIT_COMMIT_MSG}"
     remove_git_repo_clone $GITOPS_WORKING_DIR/$GITHUB_REPO
   fi
+
+}
