@@ -59,19 +59,19 @@ setup(
     long_description=long_description,
     install_requires=[
         'mas-devops >= 5.2.0',   # EPL
+        'alive-progress',        # MIT License
         'halo',                  # MIT License
         'prompt_toolkit',        # BSD License
         'openshift',             # Apache Software License
         'kubernetes == 33.1.0',  # Apache Software License, version lock to be removed once https://github.com/kubernetes-client/python/issues/2460 is resolved
         'tabulate',              # MIT License
-        'alive-progress'         # MIT License
     ],
     extras_require={
         'dev': [
             'build',       # MIT License
             'flake8',      # MIT License
             'pytest',      # MIT License
-            'pyinstaller'  # GPL, https://pyinstaller.org/en/stable/license.html & https://github.com/pyinstaller/pyinstaller/wiki/FAQ#license
+            'pyinstaller',  # GPL, https://pyinstaller.org/en/stable/license.html & https://github.com/pyinstaller/pyinstaller/wiki/FAQ#license
         ]
     },
     classifiers=[
@@ -83,6 +83,6 @@ setup(
         'Programming Language :: Python :: 3.12',
         'Topic :: Communications',
         'Topic :: Internet',
-        'Topic :: Software Development :: Libraries :: Python Modules'
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ]
 )
